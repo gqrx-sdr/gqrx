@@ -74,10 +74,26 @@ class main_window(QtGui.QMainWindow):
         self.gui.bandwidthCombo.setEnabled(False)
         
         # Populate the filter shape combo box and select "Normal"
-        self.gui.filterShapeCombo.addItem("Soft", None);
-        self.gui.filterShapeCombo.addItem("Normal", None);
-        self.gui.filterShapeCombo.addItem("Sharp", None);
-        self.gui.filterShapeCombo.setCurrentIndex(1);
+        self.gui.filterShapeCombo.addItem("Soft", None)
+        self.gui.filterShapeCombo.addItem("Normal", None)
+        self.gui.filterShapeCombo.addItem("Sharp", None)
+        self.gui.filterShapeCombo.setCurrentIndex(1)
+
+        # Mode selector combo
+        self.gui.modeCombo.addItem("AM", None)
+        self.gui.modeCombo.addItem("FM-N", None)
+        self.gui.modeCombo.addItem("FM-W", None)
+        self.gui.modeCombo.addItem("LSB", None)
+        self.gui.modeCombo.addItem("USB", None)
+        self.gui.modeCombo.addItem("CW-L", None)
+        self.gui.modeCombo.addItem("CW-U", None)
+        
+        # AGC selector combo
+        self.gui.agcCombo.addItem("Fast", None)
+        self.gui.agcCombo.addItem("Medium", None)
+        self.gui.agcCombo.addItem("Slow", None)
+        self.gui.agcCombo.addItem("Off", None)
+        self.gui.agcCombo.setCurrentIndex(1)
 
         # Connect up some signals
         self.connect(self.gui.freqUpBut1, QtCore.SIGNAL("clicked()"),
@@ -108,6 +124,19 @@ class main_window(QtGui.QMainWindow):
         self.connect(self.gui.filterShapeCombo, QtCore.SIGNAL("activated(int)"),
                      self.filterShapeChanged)
 
+        # Mode change combo
+        self.connect(self.gui.modeCombo, QtCore.SIGNAL("activated(int)"),
+                     self.modeChanged)
+                     
+        # AGC selector combo
+        self.connect(self.gui.agcCombo, QtCore.SIGNAL("activated(int)"),
+                     self.agcChanged)
+                     
+        # Squelch threshold
+        self.connect(self.gui.sqlSlider, QtCore.SIGNAL("valueChanged(int)"),
+                     self.squelchSet)
+
+        # misc
         self.connect(self.gui.actionSaveData, QtCore.SIGNAL("activated()"),
                      self.saveData)
         self.gui.actionSaveData.setShortcut(QtGui.QKeySequence.Save)
@@ -200,10 +229,26 @@ class main_window(QtGui.QMainWindow):
     def filterCenterSet(self, value):
         self.fc = value
         self.fg.set_filter_offset(value)
-        
+
     def filterShapeChanged(self, index):
+        "Filter shape changed."
         self.fs = index
         self.fg.set_filter_shape(index)
+
+    def modeChanged(self, mode):
+        "New mode selected."
+        self.mode = mode
+        self.fg.set_mode(mode)
+
+    def agcChanged(self, agc):
+        "New AGC selected."
+        self.agc = agc
+        self.fg.set_agc(agc)
+
+    def squelchSet(self, sql):
+        "New squelch threshold set."
+        self.sql = sql
+        self.fg.set_squelch(sql)
 
     def saveData(self):
         fileName = QtGui.QFileDialog.getSaveFileName(self, "Save data to file", ".");
@@ -459,8 +504,47 @@ class my_top_block(gr.top_block):
                                                    self._filter_high,
                                                    self._filter_trans,
                                                    firdes.WIN_HAMMING, 6.76))
-        
-       
+
+    def set_mode(self, mode):
+        """
+        Set new operating mode. The parameter has a numeric value corresponding
+        to the modes indicated below
+        """
+        if mode == 0:
+            print "New mode: AM"
+        elif mode == 1:
+            print "New mode: FM-N (not implemented)"
+        elif mode == 2:
+            print "New mode: FM-W (not implemented)"
+        elif mode == 3:
+            print "New mode: LSB (not implemented)"
+        elif mode == 4:
+            print "New mode: USB (not implemented)"
+        elif mode == 5:
+            print "New mode: CW-L (not implemented)"
+        elif mode == 6:
+            print "New mode: CW-U (not implemented)"
+        else:
+            print "Invalid mode: ", mode
+
+    def set_agc(self, agc):
+        """Set new AGC value"""
+        if agc == 0:
+            print "New AGC: Fast"
+        elif agc == 1:
+            print "New AGC: Medium (not implemented)"
+        elif agc == 2:
+            print "New AGC: Slow (not implemented)"
+        elif agc == 3:
+            print "New AGC: Off (not implemented)"
+        else:
+            print "Invalid AGC: ", agc
+
+    def set_squelch(self, sql):
+        """Set new squelch threshold"""
+        print "New squelch threshold: ", sql, " (not implemented)"
+
+
 if __name__ == "__main__":
     tb = my_top_block();
     tb.start()
