@@ -80,8 +80,14 @@ class main_window(QtGui.QMainWindow):
         self.gui.filterShapeCombo.setCurrentIndex(1);
 
         # Connect up some signals
-        self.connect(self.gui.pauseButton, QtCore.SIGNAL("clicked()"),
-                     self.pauseFg)
+        self.connect(self.gui.freqUpBut1, QtCore.SIGNAL("clicked()"),
+                     self.freqUpBut1Clicked)
+        self.connect(self.gui.freqUpBut2, QtCore.SIGNAL("clicked()"),
+                     self.freqUpBut2Clicked)
+        self.connect(self.gui.freqDownBut1, QtCore.SIGNAL("clicked()"),
+                     self.freqDownBut1Clicked)
+        self.connect(self.gui.freqDownBut2, QtCore.SIGNAL("clicked()"),
+                     self.freqDownBut2Clicked)
         self.connect(self.gui.frequencyEdit, QtCore.SIGNAL("editingFinished()"),
                      self.frequencyEditText)
         #self.connect(self.gui.bandwidthEdit, QtCore.SIGNAL("editingFinished()"),
@@ -89,6 +95,8 @@ class main_window(QtGui.QMainWindow):
         
         self.connect(self.gui.gainSpin, QtCore.SIGNAL("valueChanged(int)"),
                      self.gainChanged)
+        self.connect(self.gui.pauseButton, QtCore.SIGNAL("clicked()"),
+                     self.pauseFg)
                      
         # Filter controls
         self.connect(self.gui.tuningSlider, QtCore.SIGNAL("valueChanged(int)"),
@@ -104,15 +112,6 @@ class main_window(QtGui.QMainWindow):
                      self.saveData)
         self.gui.actionSaveData.setShortcut(QtGui.QKeySequence.Save)
 
-    def pauseFg(self):
-        if(self.gui.pauseButton.text() == "Pause"):
-            self.fg.stop()
-            self.fg.wait()
-            self.gui.pauseButton.setText("Unpause")
-        else:
-            self.fg.start()
-            self.gui.pauseButton.setText("Pause")
-      
 
     # Functions to set the values in the GUI
     def set_frequency(self, freq):
@@ -133,13 +132,50 @@ class main_window(QtGui.QMainWindow):
 
 
     # Functions called when signals are triggered in the GUI
+    def pauseFg(self):
+        if(self.gui.pauseButton.text() == "Pause"):
+            self.fg.stop()
+            self.fg.wait()
+            self.gui.pauseButton.setText("Unpause")
+        else:
+            self.fg.start()
+            self.gui.pauseButton.setText("Pause")
+      
+    
     def frequencyEditText(self):
+        "Function called when a new frqeuency is entered into the text field."
         try:
             freq = eng_notation.str_to_num(self.gui.frequencyEdit.text().toAscii()) 
             self.fg.set_frequency(freq)
             self.freq = freq
         except RuntimeError:
             pass
+
+    def freqUpBut1Clicked(self):
+        """
+        Function called when the > button is clicked.
+        It increases the USRP frequency by 1/10 of the bandwidth.
+        """
+        self.freq += int(self.bw/10)
+        self.fg.set_frequency(self.freq)
+            
+    def freqUpBut2Clicked(self):
+        "Function called when the >> button is clicked."
+        self.freq += self.bw
+        self.fg.set_frequency(self.freq)
+
+    def freqDownBut1Clicked(self):
+        """
+        Function called when the < button is clicked.
+        It increases the USRP frequency by 1/10 of the bandwidth.
+        """
+        self.freq -= int(self.bw/10)
+        self.fg.set_frequency(self.freq)
+
+    def freqDownBut2Clicked(self):
+        "Function called when the << button is clicked"
+        self.freq -= self.bw
+        self.fg.set_frequency(self.freq)
    
     def gainChanged(self, gain):
         self.gain = gain
@@ -266,7 +302,7 @@ class my_top_block(gr.top_block):
         self.snk = qtgui.sink_c(self._fftsize, firdes.WIN_BLACKMAN_hARRIS,
                                 self._freq, self._bandwidth,
                                 "USRP Display",
-                                True, True, False, True, False)
+                                True, True, False, False, False)
       
         # frequency xlating filter used for tuning and first decimation
         # to bring "IF rate" down to 250 ksps regardless of USRP decimation
@@ -342,15 +378,25 @@ class my_top_block(gr.top_block):
         self._gain = gain
         self.subdev.set_gain(self._gain)
 
-    def set_frequency(self, freq):
-        "Set USRP frequency"
-        self._freq = freq
-        self.u.tune(0, self.subdev, self._freq)
 
-        try:
-            self.snk.set_frequency_range(self._freq, self._bandwidth)
-        except:
-            pass
+    def set_frequency(self, freq):
+        """
+        Tune USRP to new frequency.
+        If tuning is successful, update the frequency entry widget and the spectrum display.
+        """
+        self._freq = freq
+        r = self.u.tune(0, self.subdev, self._freq)
+
+        if r:
+            print "New freq BB:", r.baseband_freq, " DDC:", r.dxc_freq
+            try:
+                self.main_win.set_frequency(self._freq)
+                self.snk.set_frequency_range(self._freq, self._bandwidth)
+            except:
+                pass
+        else:
+            print "Failed to set frequency to ", freq
+
 
     def set_bandwidth(self, bw):
         "Set USRP bandwidth"        
