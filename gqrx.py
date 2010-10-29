@@ -184,7 +184,7 @@ def pick_subdevice(u):
     """
     if u.db(0, 0).dbid() >= 0:       # dbid is < 0 if there's no d'board or a problem
         return (0, 0)
-    if u.db(0, 0).dbid() >= 0:
+    if u.db(1, 0).dbid() >= 0:
         return (1, 0)
     return (0, 0)
 
@@ -244,6 +244,7 @@ class my_top_block(gr.top_block):
 
         if options.rx_subdev_spec is None:
             options.rx_subdev_spec = pick_subdevice(self.u)
+    
         self._rx_subdev_spec = options.rx_subdev_spec
         self.u.set_mux(usrp.determine_rx_mux_value(self.u, self._rx_subdev_spec))
         self.subdev = usrp.selected_subdev(self.u, self._rx_subdev_spec)
@@ -315,6 +316,12 @@ class my_top_block(gr.top_block):
 
         self.main_win.set_frequency(self._freq)
         self.main_win.set_bandwidth(self._bandwidth)
+
+        # Window title string
+        if self._rx_subdev_spec[0] == 0:
+            self.main_win.setWindowTitle("GQRX: " + self.subdev.name() + " on side A")
+        else:
+            self.main_win.setWindowTitle("GQRX: " + self.subdev.name() + " on side B")
 
         self.main_win.show()
 
