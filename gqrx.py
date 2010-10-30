@@ -156,6 +156,24 @@ class main_window(QtGui.QMainWindow):
     def set_amplifier(self, amp):
         self.amp = amp
         self.gui.amplifierEdit.setText(QtCore.QString("%1").arg(self.amp))
+        
+    def set_filter_width_slider_value(self, width):
+        """
+        This function will update the state of the filter width slider.
+        This will trigger the valueChanged() signal, which in turn will
+        update the filter width of the receiver.
+        """
+        self.fw = width
+        self.gui.filterWidthSlider.setValue(width)
+
+    def set_filter_center_slider_value(self, offset):
+        """
+        This function will update the state of the filter center slider.
+        This will trigger the valueChanged() signal, which in turn will
+        update the filter width of the receiver.
+        """
+        self.fc = offset
+        self.gui.filterCenterSlider.setValue(offset)
 
     # TODO: missing implementations, but do we really need them?
 
@@ -223,10 +241,12 @@ class main_window(QtGui.QMainWindow):
         self.fg.set_xlate_offset(value)
 
     def filter_width_changed(self, value):
+        "Filter width changed."
         self.fw = value
         self.fg.set_filter_width(value)
 
     def filter_center_changed(self, value):
+        "Filter center changed."
         self.fc = value
         self.fg.set_filter_offset(value)
 
@@ -530,7 +550,7 @@ class my_top_block(gr.top_block):
           2. Disconnect demodulator form BPF and audio resampler
           3. Set new demodulator
           4. Reconnect demodulator to BPF and resampler
-          5. Set new filter ranges
+          5. Set new filter ranges (TBC)
           6. Set new filter width and center
           7. Restart the flow graph
         """
@@ -541,18 +561,16 @@ class my_top_block(gr.top_block):
             self.disconnect(self.bpf, self.demod, self.resampler)
             self.demod = self.demod_am
             self.connect(self.bpf, self.demod, self.resampler)
-            self.set_filter_offset(0)
-            self.set_filter_width(8000)
-            # TODO: slider ranges
+            self.main_win.set_filter_center_slider_value(0)
+            self.main_win.set_filter_width_slider_value(8000)
             print "New mode: AM"
 
         elif mode == 1:
             self.disconnect(self.bpf, self.demod, self.resampler)
             self.demod = self.demod_fmn
             self.connect(self.bpf, self.demod, self.resampler)
-            self.set_filter_offset(0)
-            self.set_filter_width(8000)
-            # TODO: slider ranges
+            self.main_win.set_filter_center_slider_value(0)
+            self.main_win.set_filter_width_slider_value(8000)
             print "New mode: FM-N"
 
         elif mode == 2:
