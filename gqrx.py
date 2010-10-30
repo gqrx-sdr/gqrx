@@ -22,7 +22,7 @@
 # Boston, MA 02110-1301, USA.
 # 
 
-from gnuradio import gr, audio, blks2
+from gnuradio import gr, gru, audio, blks2
 from gnuradio import usrp
 from gnuradio import eng_notation
 from gnuradio.gr import firdes
@@ -276,9 +276,11 @@ class my_top_block(gr.top_block):
         # Variables
         self._xlate_offset = 0        # tuning offset of the xlating filter
         self._filter_offset = 0
-        self._filter_low = -5000
-        self._filter_high = 5000
+        self._filter_low = -4000
+        self._filter_high = 4000
         self._filter_trans = 1000
+        self._if_rate = 50000
+        self._audio_rate = 44100
 
         parser = OptionParser(option_class=eng_option)
         parser.add_option("-w", "--which", type="int", default=0,
@@ -356,36 +358,50 @@ class my_top_block(gr.top_block):
                       0, 250000)
                                      
         # complex band pass filter 250 ksps
-        self.bpf = gr.fir_filter_ccc(5, firdes.complex_band_pass(1,
-            250000, self._filter_low, self._filter_high, self._filter_trans,
-            firdes.WIN_HAMMING, 6.76))
-                
+        self.bpf = gr.fir_filter_ccc(int(250000/self._if_rate),
+                        firdes.complex_band_pass(1, 250000,
+                                                 self._filter_low,
+                                                 self._filter_high,
+                                                 self._filter_trans,
+                                                 firdes.WIN_HAMMING, 6.76))
                                                       
-        # rational resampler 50k -> audio rate (44.1 or 48k)
-        self.resampler = blks2.rational_resampler_ccc(interpolation=441,
-                                                      decimation=500,
-                                                      taps=None,
-                                                      fractional_bw=None)
         # AM demodulator
-        self.demod_am = blks2.am_demod_cf(channel_rate=44100,
-                                       audio_decim=1,
-                                       audio_pass=5000,
-                                       audio_stop=5500)
+        self.demod_am = blks2.am_demod_cf(channel_rate=self._if_rate,
+                                          audio_decim=1,
+                                          audio_pass=5000,
+                                          audio_stop=5500)
 
-        # TODO: FM demodulator
+        # Narrow FM demodulator
+        self.demod_fmn = blks2.nbfm_rx(audio_rate=self._if_rate, quad_rate=self._if_rate)
+        
+        # TODO: Wide FM demodulator
         
         # TODO: SSB demodulator
 
         # Select AM as default demodulator
         self.demod = self.demod_am
-        
-        # audio sink
-        self.audio_sink = audio.sink(44100, "", True)
+
+        # rational resampler _if_rate -> _audio_rate (44.1 or 48k)
+        # implicit cast to integer necessary when if_rate > audio_rate (I think it's python 3 div thing)
+        interp = int(gru.lcm(self._if_rate, self._audio_rate) / self._if_rate)
+        decim  = int(gru.lcm(self._if_rate, self._audio_rate) / self._audio_rate)
+        print "  Interp =", interp
+        print "  Decim  =", decim
+
+        self.resampler = blks2.rational_resampler_fff(interpolation=interp,
+                                                      decimation=decim,
+                                                      taps=None,
+                                                      fractional_bw=None)
+
+        # audio gain and sink
+        self.audio_gain = gr.multiply_const_ff(1.0)
+        self.audio_sink = audio.sink(self._audio_rate, "", True)
         
 
         # Connect the flow graph
         self.connect(self.u, self.snk)
-        self.connect(self.u, self.xlf, self.bpf, self.resampler, self.demod, self.audio_sink)
+        self.connect(self.u, self.xlf, self.bpf, self.demod, self.resampler,
+                     self.audio_gain, self.audio_sink)
 
 
         # Get the reference pointer to the SpectrumDisplayForm QWidget
@@ -508,24 +524,58 @@ class my_top_block(gr.top_block):
     def set_mode(self, mode):
         """
         Set new operating mode. The parameter has a numeric value corresponding
-        to the modes indicated below
+        to the modes indicated below.
+        Mode change consists of the following steps:
+          1. Stop the flow graph
+          2. Disconnect demodulator form BPF and audio resampler
+          3. Set new demodulator
+          4. Reconnect demodulator to BPF and resampler
+          5. Set new filter ranges
+          6. Set new filter width and center
+          7. Restart the flow graph
         """
+        self.stop()
+        self.wait()
+
         if mode == 0:
+            self.disconnect(self.bpf, self.demod, self.resampler)
+            self.demod = self.demod_am
+            self.connect(self.bpf, self.demod, self.resampler)
+            self.set_filter_offset(0)
+            self.set_filter_width(8000)
+            # TODO: slider ranges
             print "New mode: AM"
+
         elif mode == 1:
-            print "New mode: FM-N (not implemented)"
+            self.disconnect(self.bpf, self.demod, self.resampler)
+            self.demod = self.demod_fmn
+            self.connect(self.bpf, self.demod, self.resampler)
+            self.set_filter_offset(0)
+            self.set_filter_width(8000)
+            # TODO: slider ranges
+            print "New mode: FM-N"
+
         elif mode == 2:
             print "New mode: FM-W (not implemented)"
+
         elif mode == 3:
             print "New mode: LSB (not implemented)"
+
         elif mode == 4:
             print "New mode: USB (not implemented)"
+
         elif mode == 5:
             print "New mode: CW-L (not implemented)"
+
         elif mode == 6:
             print "New mode: CW-U (not implemented)"
+
         else:
             print "Invalid mode: ", mode
+
+        # Restart the flow graph
+        self.start()
+
 
     def set_agc(self, agc):
         """Set new AGC value"""
