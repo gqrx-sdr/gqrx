@@ -300,6 +300,7 @@ class my_top_block(gr.top_block):
         self._filter_low = -4000
         self._filter_high = 4000
         self._filter_trans = 800
+        self._agc_decay = 5e-5
         self._if_rate = 50000
         self._audio_rate = 44100
 
@@ -385,7 +386,10 @@ class my_top_block(gr.top_block):
                                                  self._filter_high,
                                                  self._filter_trans,
                                                  firdes.WIN_HAMMING, 6.76))
-                                                      
+
+        # AGC
+        self.agc = gr.agc2_cc(0.1, self._agc_decay, 0.7, 1.0, 1.0)
+
         # AM demodulator
         self.demod_am = blks2.am_demod_cf(channel_rate=self._if_rate,
                                           audio_decim=1,
@@ -422,7 +426,8 @@ class my_top_block(gr.top_block):
 
         # Connect the flow graph
         self.connect(self.u, self.snk)
-        self.connect(self.u, self.xlf, self.bpf, self.demod, self.resampler,
+        self.connect(self.u, self.xlf, self.bpf,
+                     self.agc, self.demod, self.resampler,
                      self.audio_gain, self.audio_sink)
 
 
@@ -560,17 +565,17 @@ class my_top_block(gr.top_block):
         self.wait()
 
         if mode == 0:
-            self.disconnect(self.bpf, self.demod, self.resampler)
+            self.disconnect(self.agc, self.demod, self.resampler)
             self.demod = self.demod_am
-            self.connect(self.bpf, self.demod, self.resampler)
+            self.connect(self.agc, self.demod, self.resampler)
             self.main_win.set_filter_center_slider_value(0)
             self.main_win.set_filter_width_slider_value(8000)
             print "New mode: AM"
 
         elif mode == 1:
-            self.disconnect(self.bpf, self.demod, self.resampler)
+            self.disconnect(self.agc, self.demod, self.resampler)
             self.demod = self.demod_fmn
-            self.connect(self.bpf, self.demod, self.resampler)
+            self.connect(self.agc, self.demod, self.resampler)
             self.main_win.set_filter_center_slider_value(0)
             self.main_win.set_filter_width_slider_value(8000)
             print "New mode: FM-N"
@@ -579,33 +584,33 @@ class my_top_block(gr.top_block):
             print "New mode: FM-W (not implemented)"
 
         elif mode == 3:
-            self.disconnect(self.bpf, self.demod, self.resampler)
+            self.disconnect(self.agc, self.demod, self.resampler)
             self.demod = self.demod_ssb
-            self.connect(self.bpf, self.demod, self.resampler)
+            self.connect(self.agc, self.demod, self.resampler)
             self.main_win.set_filter_center_slider_value(-1500)
             self.main_win.set_filter_width_slider_value(2400)
             print "New mode: LSB"
 
         elif mode == 4:
-            self.disconnect(self.bpf, self.demod, self.resampler)
+            self.disconnect(self.agc, self.demod, self.resampler)
             self.demod = self.demod_ssb
-            self.connect(self.bpf, self.demod, self.resampler)
+            self.connect(self.agc, self.demod, self.resampler)
             self.main_win.set_filter_center_slider_value(1500)
             self.main_win.set_filter_width_slider_value(2400)
             print "New mode: USB"
 
         elif mode == 5:
-            self.disconnect(self.bpf, self.demod, self.resampler)
+            self.disconnect(self.agc, self.demod, self.resampler)
             self.demod = self.demod_ssb
-            self.connect(self.bpf, self.demod, self.resampler)
+            self.connect(self.agc, self.demod, self.resampler)
             self.main_win.set_filter_center_slider_value(-700)
             self.main_win.set_filter_width_slider_value(1400)
             print "New mode: CW-L"
 
         elif mode == 6:
-            self.disconnect(self.bpf, self.demod, self.resampler)
+            self.disconnect(self.agc, self.demod, self.resampler)
             self.demod = self.demod_ssb
-            self.connect(self.bpf, self.demod, self.resampler)
+            self.connect(self.agc, self.demod, self.resampler)
             self.main_win.set_filter_center_slider_value(700)
             self.main_win.set_filter_width_slider_value(1400)
             print "New mode: CW-U"
