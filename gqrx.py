@@ -87,6 +87,7 @@ class main_window(QtGui.QMainWindow):
         self.gui.modeCombo.addItem("USB", None)
         self.gui.modeCombo.addItem("CW-L", None)
         self.gui.modeCombo.addItem("CW-U", None)
+        self.gui.modeCombo.setCurrentIndex(1)
         
         # AGC selector combo
         self.gui.agcCombo.addItem("Fast", None)
@@ -298,7 +299,7 @@ class my_top_block(gr.top_block):
         self._filter_offset = 0
         self._filter_low = -4000
         self._filter_high = 4000
-        self._filter_trans = 1000
+        self._filter_trans = 800
         self._if_rate = 50000
         self._audio_rate = 44100
 
@@ -396,10 +397,11 @@ class my_top_block(gr.top_block):
         
         # TODO: Wide FM demodulator
         
-        # TODO: SSB demodulator
+        # SSB/CW demodulator
+        self.demod_ssb = gr.complex_to_real(1)
 
         # Select AM as default demodulator
-        self.demod = self.demod_am
+        self.demod = self.demod_fmn
 
         # rational resampler _if_rate -> _audio_rate (44.1 or 48k)
         # implicit cast to integer necessary when if_rate > audio_rate (I think it's python 3 div thing)
@@ -577,16 +579,36 @@ class my_top_block(gr.top_block):
             print "New mode: FM-W (not implemented)"
 
         elif mode == 3:
-            print "New mode: LSB (not implemented)"
+            self.disconnect(self.bpf, self.demod, self.resampler)
+            self.demod = self.demod_ssb
+            self.connect(self.bpf, self.demod, self.resampler)
+            self.main_win.set_filter_center_slider_value(-1500)
+            self.main_win.set_filter_width_slider_value(2400)
+            print "New mode: LSB"
 
         elif mode == 4:
-            print "New mode: USB (not implemented)"
+            self.disconnect(self.bpf, self.demod, self.resampler)
+            self.demod = self.demod_ssb
+            self.connect(self.bpf, self.demod, self.resampler)
+            self.main_win.set_filter_center_slider_value(1500)
+            self.main_win.set_filter_width_slider_value(2400)
+            print "New mode: USB"
 
         elif mode == 5:
-            print "New mode: CW-L (not implemented)"
+            self.disconnect(self.bpf, self.demod, self.resampler)
+            self.demod = self.demod_ssb
+            self.connect(self.bpf, self.demod, self.resampler)
+            self.main_win.set_filter_center_slider_value(-700)
+            self.main_win.set_filter_width_slider_value(1400)
+            print "New mode: CW-L"
 
         elif mode == 6:
-            print "New mode: CW-U (not implemented)"
+            self.disconnect(self.bpf, self.demod, self.resampler)
+            self.demod = self.demod_ssb
+            self.connect(self.bpf, self.demod, self.resampler)
+            self.main_win.set_filter_center_slider_value(700)
+            self.main_win.set_filter_width_slider_value(1400)
+            print "New mode: CW-U"
 
         else:
             print "Invalid mode: ", mode
