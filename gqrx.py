@@ -116,25 +116,25 @@ class main_window(QtGui.QMainWindow):
                      
         # Filter controls
         self.connect(self.gui.tuningSlider, QtCore.SIGNAL("valueChanged(int)"),
-                     self.tuningValueSet)
+                     self.tuning_changed)
         self.connect(self.gui.filterWidthSlider, QtCore.SIGNAL("valueChanged(int)"),
-                     self.filterWidthSet)
+                     self.filter_width_changed)
         self.connect(self.gui.filterCenterSlider, QtCore.SIGNAL("valueChanged(int)"),
-                     self.filterCenterSet)
+                     self.filter_center_changed)
         self.connect(self.gui.filterShapeCombo, QtCore.SIGNAL("activated(int)"),
-                     self.filterShapeChanged)
+                     self.filter_shape_changed)
 
         # Mode change combo
         self.connect(self.gui.modeCombo, QtCore.SIGNAL("activated(int)"),
-                     self.modeChanged)
+                     self.mode_changed)
                      
         # AGC selector combo
         self.connect(self.gui.agcCombo, QtCore.SIGNAL("activated(int)"),
-                     self.agcChanged)
+                     self.agc_changed)
                      
         # Squelch threshold
         self.connect(self.gui.sqlSlider, QtCore.SIGNAL("valueChanged(int)"),
-                     self.squelchSet)
+                     self.squelch_changed)
 
         # misc
         self.connect(self.gui.actionSaveData, QtCore.SIGNAL("activated()"),
@@ -218,34 +218,34 @@ class main_window(QtGui.QMainWindow):
         except ValueError:
             pass
         
-    def tuningValueSet(self, value):
+    def tuning_changed(self, value):
         "Tuning value changed"
         self.fg.set_xlate_offset(value)
 
-    def filterWidthSet(self, value):
+    def filter_width_changed(self, value):
         self.fw = value
         self.fg.set_filter_width(value)
 
-    def filterCenterSet(self, value):
+    def filter_center_changed(self, value):
         self.fc = value
         self.fg.set_filter_offset(value)
 
-    def filterShapeChanged(self, index):
+    def filter_shape_changed(self, index):
         "Filter shape changed."
         self.fs = index
         self.fg.set_filter_shape(index)
 
-    def modeChanged(self, mode):
+    def mode_changed(self, mode):
         "New mode selected."
         self.mode = mode
         self.fg.set_mode(mode)
 
-    def agcChanged(self, agc):
+    def agc_changed(self, agc):
         "New AGC selected."
         self.agc = agc
         self.fg.set_agc(agc)
 
-    def squelchSet(self, sql):
+    def squelch_changed(self, sql):
         "New squelch threshold set."
         self.sql = sql
         self.fg.set_squelch(sql)
