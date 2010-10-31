@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gqrx_qtgui.ui'
 #
-# Created: Sun Oct 31 15:28:42 2010
+# Created: Sun Oct 31 15:39:03 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -278,7 +278,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.volSlider.sizePolicy().hasHeightForWidth())
         self.volSlider.setSizePolicy(sizePolicy)
         self.volSlider.setMaximum(50)
-        self.volSlider.setPageStep(10)
+        self.volSlider.setPageStep(5)
         self.volSlider.setProperty("value", 10)
         self.volSlider.setOrientation(QtCore.Qt.Horizontal)
         self.volSlider.setObjectName("volSlider")
@@ -289,6 +289,8 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.recAudioButton.sizePolicy().hasHeightForWidth())
         self.recAudioButton.setSizePolicy(sizePolicy)
+        self.recAudioButton.setCheckable(True)
+        self.recAudioButton.setChecked(False)
         self.recAudioButton.setObjectName("recAudioButton")
         self.gridLayout_4.addWidget(self.recAudioButton, 1, 0, 1, 1)
         self.playAudioButton = QtGui.QPushButton(self.centralwidget)
@@ -297,6 +299,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.playAudioButton.sizePolicy().hasHeightForWidth())
         self.playAudioButton.setSizePolicy(sizePolicy)
+        self.playAudioButton.setCheckable(True)
         self.playAudioButton.setObjectName("playAudioButton")
         self.gridLayout_4.addWidget(self.playAudioButton, 1, 1, 1, 1)
         self.label_2 = QtGui.QLabel(self.centralwidget)
@@ -333,9 +336,11 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.pauseButton.sizePolicy().hasHeightForWidth())
         self.pauseButton.setSizePolicy(sizePolicy)
+        self.pauseButton.setCheckable(True)
         self.pauseButton.setObjectName("pauseButton")
         self.buttonHorizontalLayout.addWidget(self.pauseButton)
         self.pushButton = QtGui.QPushButton(self.centralwidget)
+        self.pushButton.setCheckable(True)
         self.pushButton.setObjectName("pushButton")
         self.buttonHorizontalLayout.addWidget(self.pushButton)
         spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -401,6 +406,7 @@ class Ui_MainWindow(object):
         self.playAudioButton.setText(QtGui.QApplication.translate("MainWindow", "Play", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("MainWindow", "-", None, QtGui.QApplication.UnicodeUTF8))
         self.closeButton.setText(QtGui.QApplication.translate("MainWindow", "Close", None, QtGui.QApplication.UnicodeUTF8))
+        self.pauseButton.setToolTip(QtGui.QApplication.translate("MainWindow", "Pause the receiver", None, QtGui.QApplication.UnicodeUTF8))
         self.pauseButton.setText(QtGui.QApplication.translate("MainWindow", "Pause", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton.setText(QtGui.QApplication.translate("MainWindow", "Rec S", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
