@@ -398,7 +398,7 @@ class my_top_block(gr.top_block):
                                                  firdes.WIN_HAMMING, 6.76))
 
         # AGC
-        self.agc = gr.agc2_cc(0.1, self._agc_decay, 0.7, 1.0, 1.0)
+        self.agc = gr.agc2_cc(0.5, self._agc_decay, 0.5, 1.0, 1.0)
 
         # AM demodulator
         self.demod_am = blks2.am_demod_cf(channel_rate=self._if_rate,
