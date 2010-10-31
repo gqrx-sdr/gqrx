@@ -46,6 +46,11 @@ except ImportError:
     sys.exit(1)
 
 
+# USRP bandwidth supported by the receiver
+# 250k must be there and the others must be an integer multiple of 250k
+bwtable = [250000, 500000, 1000000, 2000000, 4000000]
+bwstr = ["250 kHz", "500 kHz", "1 MHz", "2 MHz", "4 MHz"]
+
 
 # Qt interface
 class main_window(QtGui.QMainWindow):
@@ -65,14 +70,10 @@ class main_window(QtGui.QMainWindow):
         self.gui.gainSpin.setRange(g[0], g[1])
         self.gui.gainSpin.setValue(self.fg.options.gain)
         
-        # Populate the Bandwidth combo and select 250 kHz
-        self.gui.bandwidthCombo.addItem("250 kHz", None)
-        self.gui.bandwidthCombo.addItem("500 kHz", None)
-        self.gui.bandwidthCombo.addItem("1 MHz", None)
-        self.gui.bandwidthCombo.addItem("2 MHz", None)
-        self.gui.bandwidthCombo.addItem("4 MHz", None)
-        self.gui.bandwidthCombo.setEnabled(False)
-        
+        # Populate the bandwidth combo
+        for bwlabel in bwstr:
+            self.gui.bandwidthCombo.addItem(bwlabel, None)
+
         # Populate the filter shape combo box and select "Normal"
         self.gui.filterShapeCombo.addItem("Soft", None)
         self.gui.filterShapeCombo.addItem("Normal", None)
@@ -97,6 +98,7 @@ class main_window(QtGui.QMainWindow):
         self.gui.agcCombo.setCurrentIndex(1)
 
         # Connect up some signals
+        # Frequency controls
         self.connect(self.gui.freqUpBut1, QtCore.SIGNAL("clicked()"),
                      self.freqUpBut1Clicked)
         self.connect(self.gui.freqUpBut2, QtCore.SIGNAL("clicked()"),
@@ -107,6 +109,11 @@ class main_window(QtGui.QMainWindow):
                      self.freqDownBut2Clicked)
         self.connect(self.gui.frequencyEdit, QtCore.SIGNAL("editingFinished()"),
                      self.frequencyEditText)
+
+        # Bandwidth selector
+        self.connect(self.gui.bandwidthCombo, QtCore.SIGNAL("activated(int)"),
+                     self.bandwidth_changed)
+
         #self.connect(self.gui.bandwidthEdit, QtCore.SIGNAL("editingFinished()"),
         #             self.bandwidthEditText)
         
@@ -154,9 +161,22 @@ class main_window(QtGui.QMainWindow):
         self.gui.frequencyEdit.setText(QtCore.QString("%1").arg(sfreq))
         
     def set_bandwidth(self, bw):
+        "Update bandwidth selector combo"
         self.bw = bw
-        sbw = eng_notation.num_to_str(self.bw)
-        self.gui.bandwidthEdit.setText(QtCore.QString("%1").arg(sbw))
+        #sbw = eng_notation.num_to_str(self.bw)
+        #self.gui.bandwidthEdit.setText(QtCore.QString("%1").arg(sbw))
+        if bw == 250000:
+            self.gui.bandwidthCombo.setCurrentIndex(0)
+        elif bw == 500000:
+            self.gui.bandwidthCombo.setCurrentIndex(1)
+        elif bw == 1000000:
+            self.gui.bandwidthCombo.setCurrentIndex(2)
+        elif bw == 2000000:
+            self.gui.bandwidthCombo.setCurrentIndex(3)
+        elif bw == 4000000:
+            self.gui.bandwidthCombo.setCurrentIndex(4)
+        else:
+            print "Invalid bandwidth for bandwidthCombo: ", bw
 
     def set_amplifier(self, amp):
         self.amp = amp
@@ -179,6 +199,15 @@ class main_window(QtGui.QMainWindow):
         """
         self.fc = offset
         self.gui.filterCenterSlider.setValue(offset)
+        
+    def set_tuning_range(self, rng):
+        """
+        Set new tuning range.
+        This function will update the limits of the tuning slider and spin box
+        to +/- rng
+        """
+        self.gui.tuningSlider.setRange(-rng, rng)
+        self.gui.tuningSpin.setRange(-rng, rng)
 
     # TODO: missing implementations, but do we really need them?
 
@@ -240,6 +269,20 @@ class main_window(QtGui.QMainWindow):
             self.bw = bw
         except ValueError:
             pass
+
+    def bandwidth_changed(self, bw):
+        "New mode selected."
+        if bw < 5:
+            nbw = bwtable[bw]
+        else:
+            print "Invalid bandwidth: ", bw
+        
+        if nbw != self.bw:
+            self.bw = nbw
+            #print "New bandwidth: ", self.bw
+            self.fg.set_bandwidth(self.bw)
+        
+
         
     def tuning_changed(self, value):
         "Tuning value changed"
@@ -355,7 +398,13 @@ class my_top_block(gr.top_block):
 
         self.u = usrp.source_c(which=options.which)
         self._adc_rate = self.u.converter_rate()
-        self.set_bandwidth(options.bw)
+        if options.bw in bwtable:
+            self._bandwidth = options.bw
+        else:
+            self._bandwidth = bwtable[0]
+
+        self._decim = int(self._adc_rate / self._bandwidth)
+        self.u.set_decim_rate(self._decim)
 
         if options.rx_subdev_spec is None:
             options.rx_subdev_spec = pick_subdevice(self.u)
@@ -459,6 +508,7 @@ class my_top_block(gr.top_block):
 
         self.main_win.show()
 
+
     def save_to_file(self, name):
         # Pause the flow graph
         self.stop()
@@ -497,16 +547,44 @@ class my_top_block(gr.top_block):
 
 
     def set_bandwidth(self, bw):
-        "Set USRP bandwidth"        
+        "Set USRP bandwidth"
+        
+        if bw not in bwtable:
+            print "Invalid bandwidth: ", bw
+            return
+
+        self.lock()
+        
         self._bandwidth = bw
+        print "New bandwidth: ", self._bandwidth
+
+        # set new decimation for USRP    
         self._decim = int(self._adc_rate / self._bandwidth)
         self.u.set_decim_rate(self._decim)
+
+        # finally, update the tuning slider and spinbox
+        self.main_win.set_tuning_range(int(bw/2))
+
+        # offset could be out of range when switching to a lower bandwidth
+        # set_tuning_range() has already limited it, we just need to grab the new value
+        self._xlate_offset = self.main_win.gui.tuningSlider.value()
+
+        # reconfigure frequency xlating filter
+        self.disconnect(self.u, self.xlf, self.bpf)
+        # FIXME: I'm not exactly sure about this...
+        self.xlf = gr.freq_xlating_fir_filter_ccc(int(bw/250000),
+                      #firdes.low_pass(1, 250000, 125000, 25000, firdes.WIN_HAMMING, 6.76),
+                      firdes.low_pass(int(bw/250000), bw, int(0.4*bw), int(0.15*bw), firdes.WIN_HAMMING, 6.76),
+                      self._xlate_offset, bw)
+        self.connect(self.u, self.xlf, self.bpf)
 
         try:
             self.snk.set_frequency_range(self._freq, self._bandwidth)
         except:
             pass
-
+        
+        self.unlock()
+        
     def set_xlate_offset(self, offset):
         "Set xlating filter offset"
         self._xlate_offset = -offset
