@@ -4,7 +4,6 @@ toolkit.
 To run this application you need to have GNU Radio 3.3 with gr-qtgui component
 installed, as well as a USRP1. Of course, it can be modified to use USRP2.
 
-Currently only AM demodulator has been implemented. This is a very rough
-functional prototype that will evolve into a fully functional radio-scanner type
-application with recording, playback, etc. so stay tuned.
-
+This is a very rough functional prototype that may eventually evolve into a fully
+functional radio-scanner type application with recording, playback, etc. so stay
+tuned!
