@@ -478,7 +478,7 @@
            </sizepolicy>
           </property>
           <property name="maximum">
-           <number>30</number>
+           <number>50</number>
           </property>
           <property name="pageStep">
            <number>10</number>

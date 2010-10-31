@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gqrx_qtgui.ui'
 #
-# Created: Sun Oct 31 13:12:11 2010
+# Created: Sun Oct 31 15:28:42 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -277,7 +277,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.volSlider.sizePolicy().hasHeightForWidth())
         self.volSlider.setSizePolicy(sizePolicy)
-        self.volSlider.setMaximum(30)
+        self.volSlider.setMaximum(50)
         self.volSlider.setPageStep(10)
         self.volSlider.setProperty("value", 10)
         self.volSlider.setOrientation(QtCore.Qt.Horizontal)
