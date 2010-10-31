@@ -571,8 +571,7 @@ class my_top_block(gr.top_block):
           6. Set new filter width and center
           7. Restart the flow graph
         """
-        self.stop()
-        self.wait()
+        self.lock()
 
         if mode == 0:
             self.disconnect(self.agc, self.demod, self.resampler)
@@ -629,7 +628,7 @@ class my_top_block(gr.top_block):
             print "Invalid mode: ", mode
 
         # Restart the flow graph
-        self.start()
+        self.unlock()
 
 
     def set_agc(self, agc):
