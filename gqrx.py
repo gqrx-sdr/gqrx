@@ -136,6 +136,10 @@ class main_window(QtGui.QMainWindow):
         # Squelch threshold
         self.connect(self.gui.sqlSlider, QtCore.SIGNAL("valueChanged(int)"),
                      self.squelch_changed)
+                     
+        # AF gain
+        self.connect(self.gui.volSlider, QtCore.SIGNAL("valueChanged(int)"),
+                     self.af_gain_changed)
 
         # misc
         self.connect(self.gui.actionSaveData, QtCore.SIGNAL("activated()"),
@@ -270,6 +274,12 @@ class main_window(QtGui.QMainWindow):
         "New squelch threshold set."
         self.sql = sql
         self.fg.set_squelch(sql)
+
+    def af_gain_changed(self, vol):
+        "New AF gain value set."
+        self.afg = vol
+        self.fg.set_af_gain(vol/10.0) # slider is int 0-50, real value 0.0-5.0
+
 
     def saveData(self):
         fileName = QtGui.QFileDialog.getSaveFileName(self, "Save data to file", ".");
@@ -639,6 +649,10 @@ class my_top_block(gr.top_block):
         """Set new squelch threshold"""
         print "New squelch threshold: ", sql, " (not implemented)"
 
+    def set_af_gain(self, afg):
+        """Set new AF gain"""
+        print "New AF Gain: ", afg
+        self.audio_gain.set_k(afg)
 
 if __name__ == "__main__":
     tb = my_top_block();
