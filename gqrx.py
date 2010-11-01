@@ -576,7 +576,7 @@ class my_top_block(gr.top_block):
         del self.xlf
         self.xlf = gr.freq_xlating_fir_filter_ccc(int(bw/250000),
                       #firdes.low_pass(1, 250000, 125000, 25000, firdes.WIN_HAMMING, 6.76),
-                      firdes.low_pass(int(bw/250000), bw, int(0.4*bw), int(0.15*bw), firdes.WIN_HAMMING, 6.76),
+                      firdes.low_pass(1, bw, int(0.4*bw), int(0.15*bw), firdes.WIN_HAMMING, 6.76),
                       self._xlate_offset, bw)
                       
         self.connect(self.u, self.xlf, self.bpf)
