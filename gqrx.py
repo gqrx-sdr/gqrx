@@ -122,11 +122,11 @@ class main_window(QtGui.QMainWindow):
         # RF gain
         self.connect(self.gui.gainSpin, QtCore.SIGNAL("valueChanged(int)"),
                      self.gainChanged)
-                     
+
         # Pause
         self.connect(self.gui.pauseButton, QtCore.SIGNAL("clicked()"),
                      self.pauseFg)
-                     
+
         # Filter controls
         self.connect(self.gui.tuningSlider, QtCore.SIGNAL("valueChanged(int)"),
                      self.tuning_changed)
@@ -201,7 +201,31 @@ class main_window(QtGui.QMainWindow):
         """
         self.fc = offset
         self.gui.filterCenterSlider.setValue(offset)
+
+
+    def set_filter_width_range(self, lower=1000, upper=15000, step=100):
+        """
+        Set new lower and upper limit for the filter width widgets.
+        The function updates both the range of the slider and the spin box.
+        Standard ranges and step sizes:
+           FM-W: 50-200 kHz with 1 kHz step
+           AM and FM-N: 1-15 kHz with 100 Hz step
+           LSB and USB: 1-5 kHz with 50 Hz step
+           CW: 0.1-3 kHz with 10 Hz step
+        """
+        if lower > upper:
+            print "Invalid filter range: ",lower," > ",upper
+            return
         
+        # slider
+        self.gui.filterWidthSlider.setRange(lower, upper)
+        self.gui.filterWidthSlider.setSingleStep(step)
+        self.gui.filterWidthSlider.setPageStep(10*step)
+        # spin box
+        self.gui.filterWidthSpin.setRange(lower, upper)
+        self.gui.filterWidthSpin.setSingleStep(step)
+
+
     def set_tuning_range(self, rng):
         """
         Set new tuning range.
@@ -429,8 +453,8 @@ class my_top_block(gr.top_block):
                                 "USRP Display",
                                 True, True, False, False, False)
       
-        # frequency xlating filter used for tuning and first decimation
-        # to bring "IF rate" down to 250 ksps regardless of USRP decimation
+        # frequency xlating filter used for tuning and decimation
+        # to bring "demo rate" down to 50 ksps regardless of USRP decimation (250k for FM-W
         taps = firdes.complex_band_pass(1, self._bandwidth,
                                            self._filter_low,
                                            self._filter_high,
@@ -440,15 +464,6 @@ class my_top_block(gr.top_block):
                                                   taps,
                                                   0,    # center offset
                                                   self._bandwidth)
-
-
-        # complex band pass filter 250 ksps
-        #self.bpf = gr.fir_filter_ccc(int(250000/self._if_rate),
-        #                firdes.complex_band_pass(1, 250000,
-        #                                         self._filter_low,
-        #                                         self._filter_high,
-        #                                         self._filter_trans,
-        #                                         firdes.WIN_HAMMING, 6.76))
 
         # AGC
         self.agc = gr.agc2_cc(0.1, self._agc_decay, 0.5, 1.0, 0.6)
@@ -460,7 +475,9 @@ class my_top_block(gr.top_block):
                                           audio_stop=5500)
 
         # Narrow FM demodulator
-        self.demod_fmn = blks2.nbfm_rx(audio_rate=self._demod_rate, quad_rate=self._demod_rate)
+        self.demod_fmn = blks2.nbfm_rx(audio_rate=self._demod_rate,
+                                       quad_rate=self._demod_rate,
+                                       tau=75e-6, max_dev=5e3)
         
         # Wide FM demodulator
         self.demod_fmw = blks2.wfm_rcv(quad_rate=250000,
@@ -632,6 +649,8 @@ class my_top_block(gr.top_block):
         width = self._filter_high - self._filter_low
         self._filter_low = self._filter_offset - int(width/2)
         self._filter_high = self._filter_offset + int(width/2)
+        # we need to update the filter shape as we go
+        self.set_filter_shape(self.main_win.gui.filterShapeCombo.currentIndex())
         self.xlf.set_taps(firdes.complex_band_pass(1, self._bandwidth,
                                                    self._filter_low,
                                                    self._filter_high,
@@ -642,19 +661,23 @@ class my_top_block(gr.top_block):
         """
         Set the filter shape to soft, normal or sharp.
         The filter shape is determined by the transition width.
-        Soft: 20% of the filter width
-        Normal: 10% of the filter width
-        Sharp: 5% of the filter width
+        Soft: 40% of the filter width
+        Normal: 25% of the filter width
+        Sharp: 10% of the filter width
         """
         width = self._filter_high - self._filter_low
         if index == 0:
-            self._filter_trans = int(0.2*width)  # soft, 20% of filter width
+            self._filter_trans = int(0.4*width)  # soft, 20% of filter width
         elif index == 1:
-            self._filter_trans = int(0.1*width)  # normal, 10% of filter width
+            self._filter_trans = int(0.25*width)  # normal, 10% of filter width
         elif index == 2:
-            self._filter_trans = int(0.05*width) # sharp, 5% of filter width
+            self._filter_trans = int(0.1*width) # sharp, 5% of filter width
         else:
             raise RuntimeError("Unknown filter shape")
+            
+        # lower than this will probably not work
+        if self._filter_trans < 500:
+            self._filter_trans = 500
             
         self.xlf.set_taps(firdes.complex_band_pass(1, self._bandwidth,
                                                    self._filter_low,
@@ -697,12 +720,11 @@ class my_top_block(gr.top_block):
         else:
             raise RuntimeError("Invalid state self._current_mode = " + self._current_mode)
 
-        print "FIXME: Filter slider range"
-
         if mode == 0:
             self.demod = self.demod_am
             self._fm_active = False
             self.connect(self.xlf, self.agc, self.demod, self.audio_rr)
+            self.main_win.set_filter_width_range(1000, 15000, 100)
             self.main_win.set_filter_center_slider_value(0)
             self.main_win.set_filter_width_slider_value(8000)
             print "New mode: AM"
@@ -710,22 +732,24 @@ class my_top_block(gr.top_block):
         elif mode == 1:
             self.demod = self.demod_fmn
             self.connect(self.xlf, self.demod, self.audio_rr)
+            self.main_win.set_filter_width_range(1000, 15000, 100)
             self.main_win.set_filter_center_slider_value(0)
-            self.main_win.set_filter_width_slider_value(8000)
+            self.main_win.set_filter_width_slider_value(10000)
             print "New mode: FM-N"
 
         elif mode == 2:
             self.demod = self.demod_fmw
             self.connect(self.xlf, self.demod, self.audio_rr)
+            self.main_win.set_filter_width_range(50000, 200000, 1000)
             self.main_win.set_filter_center_slider_value(0)
             self.main_win.set_filter_width_slider_value(160000)
-            self.set_filter_width(200000)
             print "New mode: FM-W"
 
         elif mode == 3:
             #self.disconnect(self.agc, self.demod, self.resampler)
             self.demod = self.demod_ssb
             self.connect(self.xlf, self.agc, self.demod, self.audio_rr)
+            self.main_win.set_filter_width_range(1000, 5000, 50)
             self.main_win.set_filter_center_slider_value(-1500)
             self.main_win.set_filter_width_slider_value(2400)
             print "New mode: LSB"
@@ -734,6 +758,7 @@ class my_top_block(gr.top_block):
             #self.disconnect(self.agc, self.demod, self.resampler)
             self.demod = self.demod_ssb
             self.connect(self.xlf, self.agc, self.demod, self.audio_rr)
+            self.main_win.set_filter_width_range(1000, 5000, 50)
             self.main_win.set_filter_center_slider_value(1500)
             self.main_win.set_filter_width_slider_value(2400)
             print "New mode: USB"
@@ -742,6 +767,7 @@ class my_top_block(gr.top_block):
             #self.disconnect(self.agc, self.demod, self.resampler)
             self.demod = self.demod_ssb
             self.connect(self.xlf, self.agc, self.demod, self.audio_rr)
+            self.main_win.set_filter_width_range(100, 3000, 10)
             self.main_win.set_filter_center_slider_value(-700)
             self.main_win.set_filter_width_slider_value(1400)
             print "New mode: CW-L"
@@ -750,6 +776,7 @@ class my_top_block(gr.top_block):
             #self.disconnect(self.agc, self.demod, self.resampler)
             self.demod = self.demod_ssb
             self.connect(self.xlf, self.agc, self.demod, self.audio_rr)
+            self.main_win.set_filter_width_range(100, 3000, 10)
             self.main_win.set_filter_center_slider_value(700)
             self.main_win.set_filter_width_slider_value(1400)
             print "New mode: CW-U"
