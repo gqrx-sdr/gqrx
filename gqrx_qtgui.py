@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gqrx_qtgui.ui'
 #
-# Created: Sun Oct 31 15:39:03 2010
+# Created: Wed Nov  3 22:26:47 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -345,15 +345,6 @@ class Ui_MainWindow(object):
         self.buttonHorizontalLayout.addWidget(self.pushButton)
         spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.buttonHorizontalLayout.addItem(spacerItem1)
-        self.bandwidthEdit = QtGui.QLineEdit(self.centralwidget)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.bandwidthEdit.sizePolicy().hasHeightForWidth())
-        self.bandwidthEdit.setSizePolicy(sizePolicy)
-        self.bandwidthEdit.setMinimumSize(QtCore.QSize(120, 26))
-        self.bandwidthEdit.setObjectName("bandwidthEdit")
-        self.buttonHorizontalLayout.addWidget(self.bandwidthEdit)
         self.verticalLayout.addLayout(self.buttonHorizontalLayout)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
