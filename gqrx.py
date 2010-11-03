@@ -97,6 +97,11 @@ class main_window(QtGui.QMainWindow):
         self.gui.agcCombo.addItem("Off", None)
         self.gui.agcCombo.setCurrentIndex(1)
 
+        ### Disable not implemented functions
+        self.gui.recAudioButton.setEnabled(False)
+        self.gui.playAudioButton.setEnabled(False)
+        self.gui.recSpectrumButton.setEnabled(False)
+
         # Connect up some signals
         # Frequency controls
         self.connect(self.gui.freqUpBut1, QtCore.SIGNAL("clicked()"),
