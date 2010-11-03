@@ -296,7 +296,8 @@ class main_window(QtGui.QMainWindow):
     def filter_center_changed(self, value):
         "Filter center changed."
         self.fc = value
-        self.fg.set_filter_offset(value)
+        #self.fg.set_filter_offset(value)
+        self.fg.set_filter_offset(-value) # opposite when complex BPF is in the xlating_filter
 
     def filter_shape_changed(self, index):
         "Filter shape changed."
@@ -355,8 +356,8 @@ class my_top_block(gr.top_block):
         self._filter_high = 5000
         self._filter_trans = 2000
         self._agc_decay = 5e-5
-        self._if_rate = 250000     # sample rate at the input of demodulators
-        self._demod_rate = 50000   # sample rate at the output of demodulators
+        #self._if_rate = 250000     # sample rate at the input of demodulators
+        self._demod_rate = 50000   # sample rate at the input of demodulators (except WFM)
         self._audio_rate = 44100   # Sample rate of sound card
 
         parser = OptionParser(option_class=eng_option)
@@ -441,7 +442,7 @@ class my_top_block(gr.top_block):
                                            self._filter_high,
                                            self._filter_trans,
                                            firdes.WIN_HAMMING, 6.76)
-        self.xlf = gr.freq_xlating_fir_filter_ccc(1,   # decimation
+        self.xlf = gr.freq_xlating_fir_filter_ccc(5,   # decimation 250k -> 50k
                                                   taps,
                                                   0,    # center offset
                                                   self._bandwidth)
@@ -459,32 +460,23 @@ class my_top_block(gr.top_block):
         self.agc = gr.agc2_cc(0.1, self._agc_decay, 0.5, 1.0, 0.6)
 
         # AM demodulator
-        self.demod_am = blks2.am_demod_cf(channel_rate=self._if_rate,
-                                          audio_decim=5,
+        self.demod_am = blks2.am_demod_cf(channel_rate=250000,
+                                          audio_decim=1,
                                           audio_pass=5000,
                                           audio_stop=5500)
 
         # Narrow FM demodulator
-        self.demod_fmn = blks2.nbfm_rx(audio_rate=self._demod_rate, quad_rate=self._if_rate)
+        self.demod_fmn = blks2.nbfm_rx(audio_rate=self._demod_rate, quad_rate=self._demod_rate)
         
         # Wide FM demodulator
-        self.demod_fmw = blks2.wfm_rcv (self._if_rate, 5)
-        
-        # Select AM as default demodulator
-        self.demod = self.demod_fmn
-
-
-        # SSB resampler _if_rate -> _demod_rate (50k)
-        # implicit cast to integer necessary when if_rate > audio_rate (I think it's python 3 div thing)
-        interp = int(gru.lcm(self._if_rate, self._demod_rate) / self._if_rate)
-        decim  = int(gru.lcm(self._if_rate, self._demod_rate) / self._demod_rate)
-        self.ssb_rr = blks2.rational_resampler_ccc(interpolation=interp,
-                                                   decimation=decim,
-                                                   taps=None,
-                                                   fractional_bw=None)
-
+        self.demod_fmw = blks2.wfm_rcv(quad_rate=250000,
+                                       audio_decimation=5)
+           
         # SSB/CW demodulator
         self.demod_ssb = gr.complex_to_real(1)
+
+        # Select FM-N as default demodulator
+        self.demod = self.demod_fmn
 
         # audio resampler 50k -> audio_rate (44.1k or 48k)
         interp = int(gru.lcm(self._demod_rate, self._audio_rate) / self._demod_rate)
@@ -599,8 +591,17 @@ class my_top_block(gr.top_block):
                                         self._filter_high,
                                         self._filter_trans,
                                         firdes.WIN_HAMMING, 6.76)
-        self.xlf = gr.freq_xlating_fir_filter_ccc(int(self._bandwidth/250000), taps, self._xlate_offset, bw)
-        print "  New filter decimation: ", int(self._bandwidth/250000)
+
+        # for FMW we deen 250ksps, all other modes 50ksps
+        if self._current_mode == 2:
+            xlf_decim = int(self._bandwidth/250000)
+        else:
+            xlf_decim = int(self._bandwidth/50000)
+        
+        self.xlf = gr.freq_xlating_fir_filter_ccc(xlf_decim,
+                                                  taps,
+                                                  self._xlate_offset, bw)
+        print "  New filter decimation: ", xlf_decim
 
         # reconnect new filter
         if self._current_mode in [1,2]:
@@ -683,26 +684,28 @@ class my_top_block(gr.top_block):
         
         if mode == self._current_mode:
             return
+
+        if ((mode == 2) or (self._current_mode == 2)):
+            need_filter_reconf = True
+        else:
+            need_filter_reconf = False
         
         self.lock()
         
         # disconnect the blocks that need to be reconfigured
-        if self._current_mode == 0:
-            # in AM mode we have AGC but not the SSB downsampler
-            self.disconnect(self.xlf, self.agc, self.demod, self.audio_rr)
-        elif self._current_mode in [1,2]:
+        if self._current_mode in [1,2]:
             # in FM mode we have neither AGC nor SSB downsampler
             self.disconnect(self.xlf, self.demod, self.audio_rr)
-        elif self._current_mode in [3,4,5,6]:
-            # in SSB and CW mode we have both AGC and downsampler
-            self.disconnect(self.xlf, self.agc, self.ssb_rr, self.demod, self.audio_rr)
+
+        elif self._current_mode in [0,3,4,5,6]:
+            # in AM, SSB and CW mode we have AGC
+            self.disconnect(self.xlf, self.agc, self.demod, self.audio_rr)
         else:
             raise RuntimeError("Invalid state self._current_mode = " + self._current_mode)
 
         print "FIXME: Filter slider range"
 
         if mode == 0:
-            #self.disconnect(self.agc, self.demod, self.resampler)
             self.demod = self.demod_am
             self._fm_active = False
             self.connect(self.xlf, self.agc, self.demod, self.audio_rr)
@@ -711,7 +714,6 @@ class my_top_block(gr.top_block):
             print "New mode: AM"
 
         elif mode == 1:
-            #self.disconnect(self.agc, self.demod, self.resampler)
             self.demod = self.demod_fmn
             self.connect(self.xlf, self.demod, self.audio_rr)
             self.main_win.set_filter_center_slider_value(0)
@@ -722,13 +724,14 @@ class my_top_block(gr.top_block):
             self.demod = self.demod_fmw
             self.connect(self.xlf, self.demod, self.audio_rr)
             self.main_win.set_filter_center_slider_value(0)
-            self.main_win.set_filter_width_slider_value(160000)          
+            self.main_win.set_filter_width_slider_value(160000)
+            self.set_filter_width(200000)
             print "New mode: FM-W"
 
         elif mode == 3:
             #self.disconnect(self.agc, self.demod, self.resampler)
             self.demod = self.demod_ssb
-            self.connect(self.xlf, self.agc, self.ssb_rr, self.demod, self.audio_rr)
+            self.connect(self.xlf, self.agc, self.demod, self.audio_rr)
             self.main_win.set_filter_center_slider_value(-1500)
             self.main_win.set_filter_width_slider_value(2400)
             print "New mode: LSB"
@@ -736,7 +739,7 @@ class my_top_block(gr.top_block):
         elif mode == 4:
             #self.disconnect(self.agc, self.demod, self.resampler)
             self.demod = self.demod_ssb
-            self.connect(self.xlf, self.agc, self.ssb_rr, self.demod, self.audio_rr)
+            self.connect(self.xlf, self.agc, self.demod, self.audio_rr)
             self.main_win.set_filter_center_slider_value(1500)
             self.main_win.set_filter_width_slider_value(2400)
             print "New mode: USB"
@@ -744,7 +747,7 @@ class my_top_block(gr.top_block):
         elif mode == 5:
             #self.disconnect(self.agc, self.demod, self.resampler)
             self.demod = self.demod_ssb
-            self.connect(self.xlf, self.agc, self.ssb_rr, self.demod, self.audio_rr)
+            self.connect(self.xlf, self.agc, self.demod, self.audio_rr)
             self.main_win.set_filter_center_slider_value(-700)
             self.main_win.set_filter_width_slider_value(1400)
             print "New mode: CW-L"
@@ -752,7 +755,7 @@ class my_top_block(gr.top_block):
         elif mode == 6:
             #self.disconnect(self.agc, self.demod, self.resampler)
             self.demod = self.demod_ssb
-            self.connect(self.xlf, self.agc, self.ssb_rr, self.demod, self.audio_rr)
+            self.connect(self.xlf, self.agc, self.demod, self.audio_rr)
             self.main_win.set_filter_center_slider_value(700)
             self.main_win.set_filter_width_slider_value(1400)
             print "New mode: CW-U"
@@ -763,9 +766,15 @@ class my_top_block(gr.top_block):
         # store the new mode
         self._current_mode = mode
 
+        # if a tansition to/from FM-W has taken place we need to
+        # reconfigure the filter decimation. We can do that by
+        # simpl calling set_bandwidth(current_bandwidth)        
+        if need_filter_reconf:
+            self.set_bandwidth(self._bandwidth)
+
         # Restart the flow graph
         self.unlock()
-
+    
 
     def set_agc(self, agc):
         """Set new AGC value"""
