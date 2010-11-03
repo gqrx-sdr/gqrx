@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gqrx_qtgui.ui'
 #
-# Created: Wed Nov  3 22:26:47 2010
+# Created: Wed Nov  3 22:36:41 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -339,10 +339,10 @@ class Ui_MainWindow(object):
         self.pauseButton.setCheckable(True)
         self.pauseButton.setObjectName("pauseButton")
         self.buttonHorizontalLayout.addWidget(self.pauseButton)
-        self.pushButton = QtGui.QPushButton(self.centralwidget)
-        self.pushButton.setCheckable(True)
-        self.pushButton.setObjectName("pushButton")
-        self.buttonHorizontalLayout.addWidget(self.pushButton)
+        self.recSpectrumButton = QtGui.QPushButton(self.centralwidget)
+        self.recSpectrumButton.setCheckable(True)
+        self.recSpectrumButton.setObjectName("recSpectrumButton")
+        self.buttonHorizontalLayout.addWidget(self.recSpectrumButton)
         spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.buttonHorizontalLayout.addItem(spacerItem1)
         self.verticalLayout.addLayout(self.buttonHorizontalLayout)
@@ -399,7 +399,7 @@ class Ui_MainWindow(object):
         self.closeButton.setText(QtGui.QApplication.translate("MainWindow", "Close", None, QtGui.QApplication.UnicodeUTF8))
         self.pauseButton.setToolTip(QtGui.QApplication.translate("MainWindow", "Pause the receiver", None, QtGui.QApplication.UnicodeUTF8))
         self.pauseButton.setText(QtGui.QApplication.translate("MainWindow", "Pause", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton.setText(QtGui.QApplication.translate("MainWindow", "Rec S", None, QtGui.QApplication.UnicodeUTF8))
+        self.recSpectrumButton.setText(QtGui.QApplication.translate("MainWindow", "Rec S", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.actionExit.setText(QtGui.QApplication.translate("MainWindow", "E&xit", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSaveData.setText(QtGui.QApplication.translate("MainWindow", "&Save Data", None, QtGui.QApplication.UnicodeUTF8))
