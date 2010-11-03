@@ -114,11 +114,11 @@ class main_window(QtGui.QMainWindow):
         self.connect(self.gui.bandwidthCombo, QtCore.SIGNAL("activated(int)"),
                      self.bandwidth_changed)
 
-        #self.connect(self.gui.bandwidthEdit, QtCore.SIGNAL("editingFinished()"),
-        #             self.bandwidthEditText)
-        
+        # RF gain
         self.connect(self.gui.gainSpin, QtCore.SIGNAL("valueChanged(int)"),
                      self.gainChanged)
+                     
+        # Pause
         self.connect(self.gui.pauseButton, QtCore.SIGNAL("clicked()"),
                      self.pauseFg)
                      
@@ -178,10 +178,7 @@ class main_window(QtGui.QMainWindow):
         else:
             print "Invalid bandwidth for bandwidthCombo: ", bw
 
-    def set_amplifier(self, amp):
-        self.amp = amp
-        self.gui.amplifierEdit.setText(QtCore.QString("%1").arg(self.amp))
-        
+       
     def set_filter_width_slider_value(self, width):
         """
         This function will update the state of the filter width slider.
@@ -262,16 +259,8 @@ class main_window(QtGui.QMainWindow):
         self.gain = gain
         self.fg.set_gain(gain)     
                 
-    def bandwidthEditText(self):
-        try:
-            bw = eng_notation.str_to_num(self.gui.bandwidthEdit.text().toAscii())
-            self.fg.set_bandwidth(bw)
-            self.bw = bw
-        except ValueError:
-            pass
-
     def bandwidth_changed(self, bw):
-        "New mode selected."
+        "New bandwidth selected."
         if bw < 5:
             nbw = bwtable[bw]
         else:
