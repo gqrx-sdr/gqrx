@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gqrx_qtgui.ui'
 #
-# Created: Wed Nov  3 22:36:41 2010
+# Created: Wed Nov  3 22:55:13 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -159,10 +159,10 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.filterWidthSlider.sizePolicy().hasHeightForWidth())
         self.filterWidthSlider.setSizePolicy(sizePolicy)
-        self.filterWidthSlider.setMinimum(100)
+        self.filterWidthSlider.setMinimum(1000)
         self.filterWidthSlider.setMaximum(15000)
-        self.filterWidthSlider.setSingleStep(10)
-        self.filterWidthSlider.setPageStep(100)
+        self.filterWidthSlider.setSingleStep(100)
+        self.filterWidthSlider.setPageStep(1000)
         self.filterWidthSlider.setProperty("value", 10000)
         self.filterWidthSlider.setOrientation(QtCore.Qt.Horizontal)
         self.filterWidthSlider.setTickPosition(QtGui.QSlider.NoTicks)
@@ -170,9 +170,9 @@ class Ui_MainWindow(object):
         self.filterWidthSlider.setObjectName("filterWidthSlider")
         self.filterGridLayout.addWidget(self.filterWidthSlider, 0, 1, 1, 1)
         self.filterWidthSpin = QtGui.QSpinBox(self.centralwidget)
-        self.filterWidthSpin.setMinimum(100)
+        self.filterWidthSpin.setMinimum(1000)
         self.filterWidthSpin.setMaximum(15000)
-        self.filterWidthSpin.setSingleStep(10)
+        self.filterWidthSpin.setSingleStep(100)
         self.filterWidthSpin.setProperty("value", 10000)
         self.filterWidthSpin.setObjectName("filterWidthSpin")
         self.filterGridLayout.addWidget(self.filterWidthSpin, 0, 2, 1, 1)
