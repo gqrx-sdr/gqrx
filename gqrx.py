@@ -97,10 +97,13 @@ class main_window(QtGui.QMainWindow):
         self.gui.agcCombo.addItem("Off", None)
         self.gui.agcCombo.setCurrentIndex(1)
 
-        ### Disable not implemented functions
+        
+        ### Disable functions that have not been implemented yet
         self.gui.recAudioButton.setEnabled(False)
         self.gui.playAudioButton.setEnabled(False)
         self.gui.recSpectrumButton.setEnabled(False)
+        self.gui.agcCombo.setEnabled(False)  # There is an AGC block but with fixed values
+        self.gui.sqlSlider.setEnabled(False)
 
         # Connect up some signals
         # Frequency controls
