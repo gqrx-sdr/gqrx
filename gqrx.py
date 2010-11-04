@@ -452,10 +452,10 @@ class my_top_block(gr.top_block):
             options.freq = float(f[0]+f[1])/2
         self.set_frequency(options.freq)
 
-        # set soundcard sample rate
+        # set soundcard sample rate 
         self._audio_rate = options.ar
 
-        # FIXME: find a better name for snk
+        # Create FFT scope and waterfall sinks
         self.snk = qtgui.sink_c(self._fftsize, firdes.WIN_BLACKMAN_hARRIS,
                                 self._freq, self._bandwidth,
                                 "USRP Display",
