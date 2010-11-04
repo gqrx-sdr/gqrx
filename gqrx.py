@@ -395,6 +395,8 @@ class my_top_block(gr.top_block):
                           help="set frequency to FREQ", metavar="FREQ")
         parser.add_option("-g", "--gain", type="eng_float", default=None,
                           help="set gain in dB [default is midpoint]")
+        parser.add_option("-a", "--ar", type="int", default=44100,
+                          help="set sample rate for soundcard [default=%default]")
         parser.add_option("-8", "--width-8", action="store_true", default=False,
                           help="Enable 8-bit samples across USB")
         parser.add_option( "--no-hb", action="store_true", default=False,
@@ -449,6 +451,9 @@ class my_top_block(gr.top_block):
             f = self.subdev.freq_range()
             options.freq = float(f[0]+f[1])/2
         self.set_frequency(options.freq)
+
+        # set soundcard sample rate
+        self._audio_rate = options.ar
 
         # FIXME: find a better name for snk
         self.snk = qtgui.sink_c(self._fftsize, firdes.WIN_BLACKMAN_hARRIS,
