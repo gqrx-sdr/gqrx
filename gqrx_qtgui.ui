@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1048</width>
-    <height>853</height>
+    <width>1084</width>
+    <height>663</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,13 +22,13 @@
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
           <horstretch>0</horstretch>
-          <verstretch>1</verstretch>
+          <verstretch>0</verstretch>
          </sizepolicy>
         </property>
         <property name="minimumSize">
          <size>
           <width>800</width>
-          <height>550</height>
+          <height>400</height>
          </size>
         </property>
         <property name="frameShape">
@@ -641,8 +641,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1048</width>
-     <height>22</height>
+     <width>1084</width>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -654,7 +654,6 @@
    </widget>
    <addaction name="menuFile"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <action name="actionExit">
    <property name="text">
     <string>E&amp;xit</string>
