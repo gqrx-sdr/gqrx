@@ -28,6 +28,7 @@ from gnuradio import eng_notation
 from gnuradio.gr import firdes
 from gnuradio.eng_option import eng_option
 from optparse import OptionParser
+from datetime import datetime
 import sys
 
 try:
@@ -50,6 +51,9 @@ except ImportError:
 # 250k must be there and the others must be an integer multiple of 250k
 bwtable = [250000, 500000, 1000000, 2000000, 4000000]
 bwstr = ["250 kHz", "500 kHz", "1 MHz", "2 MHz", "4 MHz"]
+
+# file format used for recordings
+rec_format = "%Y.%m.%d-%H.%M.%S"
 
 
 # Qt interface
@@ -99,7 +103,7 @@ class main_window(QtGui.QMainWindow):
 
         
         ### Disable functions that have not been implemented yet
-        self.gui.recAudioButton.setEnabled(False)
+        #self.gui.recAudioButton.setEnabled(False)
         self.gui.playAudioButton.setEnabled(False)
         self.gui.recSpectrumButton.setEnabled(False)
         self.gui.agcCombo.setEnabled(False)  # There is an AGC block but with fixed values
@@ -152,9 +156,11 @@ class main_window(QtGui.QMainWindow):
         self.connect(self.gui.sqlSlider, QtCore.SIGNAL("valueChanged(int)"),
                      self.squelch_changed)
                      
-        # AF gain
+        # Audio gain, recording and playback
         self.connect(self.gui.volSlider, QtCore.SIGNAL("valueChanged(int)"),
                      self.af_gain_changed)
+        self.connect(self.gui.recAudioButton, QtCore.SIGNAL("toggled(bool)"),
+                     self.af_rec_toggled)
 
         # misc
         self.connect(self.gui.actionSaveData, QtCore.SIGNAL("activated()"),
@@ -344,6 +350,16 @@ class main_window(QtGui.QMainWindow):
         "New AF gain value set."
         self.afg = vol
         self.fg.set_af_gain(vol/10.0) # slider is int 0-50, real value 0.0-5.0
+        
+    def af_rec_toggled(self, checked):
+        """
+        The REC button has been toggled. If "checked = True" then the REC button
+        is in (checked) otherwise it is out (not checked)
+        """
+        if checked == True:
+            self.fg.start_audio_recording()
+        else:
+            self.fg.stop_audio_recording()
 
 
     def saveData(self):
@@ -378,8 +394,11 @@ class my_top_block(gr.top_block):
         self._filter_trans = 2000
         self._agc_decay = 5e-5
         #self._if_rate = 250000     # sample rate at the input of demodulators
-        self._demod_rate = 50000   # sample rate at the input of demodulators (except WFM)
-        self._audio_rate = 44100   # Sample rate of sound card
+        self._demod_rate = 50000    # sample rate at the input of demodulators (except WFM)
+        self._audio_rate = 44100    # Sample rate of sound card
+        self._cur_audio_rec = None  # Current audio recording
+        self._prev_audio_rec = None # Previous audio recording (needed for speedy playback)
+        
 
         parser = OptionParser(option_class=eng_option)
         parser.add_option("-w", "--which", type="int", default=0,
@@ -508,7 +527,14 @@ class my_top_block(gr.top_block):
         # audio gain and sink
         self.audio_gain = gr.multiply_const_ff(1.0)
         self.audio_sink = audio.sink(self._audio_rate, "", True)
-        
+
+        # Audio recorder block
+        # Create using dummy filename then close it right away
+        self.audio_recorder = gr.wavfile_sink(filename="/dev/null",
+                                              n_channels=1,
+                                              sample_rate=self._audio_rate,
+                                              bits_per_sample=16)
+        self.audio_recorder.close()
 
         # Connect the flow graph
         self.connect(self.u, self.snk)
@@ -826,6 +852,51 @@ class my_top_block(gr.top_block):
         """Set new AF gain"""
         print "New AF Gain: ", afg
         self.audio_gain.set_k(afg)
+        
+        
+    def start_audio_recording(self):
+        """    
+        This function connects the wave file sink to the output of AF gain and
+        starts recording the audio to a WAV file. If there already is an audio
+        recording ongoing, the function will do nothing.
+        """
+        if self._cur_audio_rec != None:
+            print "ERROR: Already recording audio: ", self._cur_audio_rec
+            return
+            
+        # Generate new file name based on date and time
+        self._cur_audio_rec = datetime.now().strftime(rec_format) + ".wav"
+        print "Start audio recording: ", self._cur_audio_rec
+        
+        # open wav file and connect audio recorder
+        self.lock()
+        self.audio_recorder.open(self._cur_audio_rec)  # FIXME: correct order?
+        self.connect(self.audio_gain, self.audio_recorder)
+        self.unlock()
+
+
+    def stop_audio_recording(self):
+        """
+        This function stops the ongoing audio recording (if any) and disconnects
+        the wave file sink from the AF gain.
+        """
+        if self._cur_audio_rec == None:
+            print "ERROR: There is no audio recording to stop"
+            return
+
+        # stop the flowgraph while we disconnect the audio recorder
+        self.lock()
+        self.disconnect(self.audio_gain, self.audio_recorder)  # FIXME: correct order?
+        self.audio_recorder.close()
+
+        self._prev_audio_rec = self._cur_audio_rec
+        self._cur_audio_rec = None
+        print "Audio recording stopped: ", self._prev_audio_rec
+
+        # Restart the flow graph
+        self.unlock()
+
+
 
 if __name__ == "__main__":
     tb = my_top_block();
