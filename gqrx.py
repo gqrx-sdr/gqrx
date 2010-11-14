@@ -392,7 +392,7 @@ class my_top_block(gr.top_block):
         self._filter_low = -5000
         self._filter_high = 5000
         self._filter_trans = 2000
-        self._agc_decay = 5e-5
+        self._agc_decay = 50e-6
         #self._if_rate = 250000     # sample rate at the input of demodulators
         self._demod_rate = 50000    # sample rate at the input of demodulators (except WFM)
         self._audio_rate = 44100    # Sample rate of sound card
@@ -493,7 +493,11 @@ class my_top_block(gr.top_block):
                                                   self._bandwidth)
 
         # AGC
-        self.agc = gr.agc2_cc(0.1, self._agc_decay, 0.5, 1.0, 0.6)
+        self.agc = gr.agc2_cc(attack_rate=0.1,
+                              decay_rate=self._agc_decay,
+                              reference=0.5,
+                              gain=1.0,
+                              max_gain=0.6)
 
         # AM demodulator
         self.demod_am = blks2.am_demod_cf(channel_rate=250000,
