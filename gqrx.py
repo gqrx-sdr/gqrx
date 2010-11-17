@@ -420,8 +420,6 @@ class my_top_block(gr.top_block):
                           help="Enable 8-bit samples across USB")
         parser.add_option( "--no-hb", action="store_true", default=False,
                           help="don't use halfband filter in usrp")
-        parser.add_option("-S", "--oscilloscope", action="store_true", default=False,
-                          help="Enable oscilloscope display")
         parser.add_option("", "--avg-alpha", type="eng_float", default=1e-1,
                           help="Set fftsink averaging factor, [default=%default]")
         parser.add_option("", "--ref-scale", type="eng_float", default=13490.0,
