@@ -42,8 +42,8 @@ except ImportError:
 try:
     from gqrx_qtgui import Ui_MainWindow
 except ImportError:
-    print "Error: could not find grx_qtgui.py:"
-    print "\t\"pyuic4 grx_qtgui.ui -o grx_qtgui.py\""
+    print "Error: could not find gwrx_qtgui.py:"
+    print "\t\"pyuic4 gqrx_qtgui.ui -o gqrx_qtgui.py\""
     sys.exit(1)
 
 
