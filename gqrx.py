@@ -421,7 +421,7 @@ class my_top_block(gr.top_block):
         parser.add_option("-R", "--rx-subdev-spec", type="subdev", default=None,
                           help="select USRP Rx side A or B (default=first one with a daughterboard)")
         parser.add_option("-A", "--antenna", default=None,
-                          help="select Rx Antenna (only on RFX-series boards)")
+                          help="select Rx Antenna (only on WBX and RFX boards)")
         parser.add_option("-W", "--bw", type="int", default=250e3,
                           help="set bandwidth of receiver [default=%default]")
         parser.add_option("-f", "--freq", type="eng_float", default=None,
@@ -482,6 +482,11 @@ class my_top_block(gr.top_block):
             f = self.subdev.freq_range()
             options.freq = float(f[0]+f[1])/2
         self.set_frequency(options.freq)
+
+        # Select antenna connector
+        if options.antenna is not None:
+            print "Selecting antenna %s" % (options.antenna,)
+            self.subdev.select_rx_antenna(options.antenna)
 
         # set soundcard sample rate 
         self._audio_rate = options.ar
