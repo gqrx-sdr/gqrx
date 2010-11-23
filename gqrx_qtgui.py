@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'gqrx_qtgui.ui'
 #
-# Created: Tue Nov  9 00:09:56 2010
-#      by: PyQt4 UI code generator 4.6
+# Created: Tue Nov 23 14:42:46 2010
+#      by: PyQt4 UI code generator 4.7.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1084, 663)
+        MainWindow.resize(1087, 664)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtGui.QVBoxLayout(self.centralwidget)
@@ -302,14 +302,15 @@ class Ui_MainWindow(object):
         self.playAudioButton.setCheckable(True)
         self.playAudioButton.setObjectName("playAudioButton")
         self.gridLayout_4.addWidget(self.playAudioButton, 1, 1, 1, 1)
-        self.label_2 = QtGui.QLabel(self.centralwidget)
+        self.audioRecLabel = QtGui.QLabel(self.centralwidget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
-        self.label_2.setSizePolicy(sizePolicy)
-        self.label_2.setObjectName("label_2")
-        self.gridLayout_4.addWidget(self.label_2, 2, 1, 1, 1)
+        sizePolicy.setHeightForWidth(self.audioRecLabel.sizePolicy().hasHeightForWidth())
+        self.audioRecLabel.setSizePolicy(sizePolicy)
+        self.audioRecLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.audioRecLabel.setObjectName("audioRecLabel")
+        self.gridLayout_4.addWidget(self.audioRecLabel, 2, 0, 1, 2)
         self.horizontalLayout.addLayout(self.gridLayout_4)
         spacerItem = QtGui.QSpacerItem(100, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
@@ -348,7 +349,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.addLayout(self.buttonHorizontalLayout)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1084, 25))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1087, 25))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtGui.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -392,7 +393,8 @@ class Ui_MainWindow(object):
         self.recAudioButton.setText(QtGui.QApplication.translate("MainWindow", "Rec", None, QtGui.QApplication.UnicodeUTF8))
         self.playAudioButton.setToolTip(QtGui.QApplication.translate("MainWindow", "Replay the last recorded audio", None, QtGui.QApplication.UnicodeUTF8))
         self.playAudioButton.setText(QtGui.QApplication.translate("MainWindow", "Play", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("MainWindow", "-", None, QtGui.QApplication.UnicodeUTF8))
+        self.audioRecLabel.setToolTip(QtGui.QApplication.translate("MainWindow", "Last recorded audio file", None, QtGui.QApplication.UnicodeUTF8))
+        self.audioRecLabel.setText(QtGui.QApplication.translate("MainWindow", "-", None, QtGui.QApplication.UnicodeUTF8))
         self.closeButton.setText(QtGui.QApplication.translate("MainWindow", "Close", None, QtGui.QApplication.UnicodeUTF8))
         self.pauseButton.setToolTip(QtGui.QApplication.translate("MainWindow", "Pause the receiver", None, QtGui.QApplication.UnicodeUTF8))
         self.pauseButton.setText(QtGui.QApplication.translate("MainWindow", "Pause", None, QtGui.QApplication.UnicodeUTF8))
