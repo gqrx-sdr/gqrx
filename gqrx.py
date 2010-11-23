@@ -430,8 +430,6 @@ class my_top_block(gr.top_block):
                           help="set gain in dB [default is midpoint]")
         parser.add_option("-a", "--ar", type="int", default=44100,
                           help="set sample rate for soundcard [default=%default]")
-        parser.add_option( "--no-hb", action="store_true", default=False,
-                          help="don't use halfband filter in usrp")
         parser.add_option("", "--fft-size", type="int", default=2048,
                           help="Set FFT frame size, [default=%default]");
 
@@ -448,6 +446,7 @@ class my_top_block(gr.top_block):
         self._fftsize = options.fft_size
 
         self.u = usrp.source_c(which=options.which)
+        
         self._adc_rate = self.u.converter_rate()
         if options.bw in bwtable:
             self._bandwidth = options.bw
