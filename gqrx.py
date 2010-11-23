@@ -6,12 +6,12 @@
 # Copyright 2009 Free Software Foundation, Inc.
 # Copyright 2010 Alexandru Csete
 # 
-# GNU Radio is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# GNU Radio and gqrx are free software; you can redistribute and/or modify
+# them under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 3, or (at your option)
 # any later version.
 # 
-# GNU Radio is distributed in the hope that it will be useful,
+# GNU Radio and gqrx are distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
@@ -103,8 +103,6 @@ class main_window(QtGui.QMainWindow):
 
         
         ### Disable functions that have not been implemented yet
-        #self.gui.recAudioButton.setEnabled(False)
-        self.gui.playAudioButton.setEnabled(False)
         self.gui.recSpectrumButton.setEnabled(False)
         self.gui.agcCombo.setEnabled(False)  # There is an AGC block but with fixed values
         self.gui.sqlSlider.setEnabled(False)
@@ -161,6 +159,8 @@ class main_window(QtGui.QMainWindow):
                      self.af_gain_changed)
         self.connect(self.gui.recAudioButton, QtCore.SIGNAL("toggled(bool)"),
                      self.af_rec_toggled)
+        self.connect(self.gui.playAudioButton, QtCore.SIGNAL("toggled(bool)"),
+                     self.af_play_toggled)
 
         # misc
         self.connect(self.gui.actionSaveData, QtCore.SIGNAL("activated()"),
@@ -361,6 +361,20 @@ class main_window(QtGui.QMainWindow):
         else:
             self.fg.stop_audio_recording()
 
+    def af_play_toggled(self, checked):
+        """
+        The Play button has been toggled. If "checked = True" then the Play button
+        is in (checked) otherwise it is out (not checked)
+        """
+        if checked == True:
+             if self.fg.start_audio_playback():
+                 # there was an error
+                 self.gui.playAudioButton.setChecked(False)
+                 
+        else:
+            self.fg.stop_audio_playback()
+
+
 
     def saveData(self):
         fileName = QtGui.QFileDialog.getSaveFileName(self, "Save data to file", ".");
@@ -537,6 +551,14 @@ class my_top_block(gr.top_block):
                                               sample_rate=self._audio_rate,
                                               bits_per_sample=16)
         self.audio_recorder.close()
+        
+        # NULL sink required during audio playback
+        self.audio_nullsink = gr.null_sink(gr.sizeof_float)
+        
+        # audio_player is created when playback is started; however, we need
+        # to declare it because (audio_player == None) is used to determine
+        # whether a playback is ongoing or not (see 
+        self.audio_player = None 
 
         # Connect the flow graph
         self.connect(self.u, self.snk)
@@ -870,6 +892,9 @@ class my_top_block(gr.top_block):
         self._cur_audio_rec = datetime.now().strftime(rec_format) + ".wav"
         print "Start audio recording: ", self._cur_audio_rec
         
+        # Update GUI label
+        self.main_win.gui.audioRecLabel.setText(self._cur_audio_rec)
+        
         # open wav file and connect audio recorder
         self.lock()
         self.audio_recorder.open(self._cur_audio_rec)  # FIXME: correct order?
@@ -895,9 +920,67 @@ class my_top_block(gr.top_block):
         self._cur_audio_rec = None
         print "Audio recording stopped: ", self._prev_audio_rec
 
-        # Restart the flow graph
+        # Restart the flowgraph
         self.unlock()
 
+
+    def start_audio_playback(self):
+        """
+        This function starts playback of the latest audio recording. During the playback,
+        the receiver flowgraph is routed to a null sink.
+        The function does nothing if an audio recording is currently ongoing or there are
+        no audio recordings to play.
+        The audio playback will be repeating until switched off.
+        """
+        if self._cur_audio_rec != None:
+            print "ERROR: Can not play while recording: ", self._cur_audio_rec
+            return 1
+            
+        if self._prev_audio_rec == None:
+            print "No audio recording to play"
+            return 1
+        
+        if self.audio_player != None:
+            print "ERROR: Already playing audio"
+            return 1
+        
+        # stop the flowgraph while we re-wire
+        self.lock()
+        self.disconnect(self.audio_rr, self.audio_gain)
+        self.connect(self.audio_rr, self.audio_nullsink)
+        
+        # gr.wavfile_source does not have public open() method like gr.wavfile_sink does
+        # so we have to create a new instance every time :-(
+        self.audio_player = gr.wavfile_source(filename=self._prev_audio_rec, repeat=True)
+        self.connect(self.audio_player, self.audio_gain)
+        print "Audio playback started: ", self._prev_audio_rec
+        
+        # restart the flowgraph
+        self.unlock()
+        return 0
+
+    def stop_audio_playback(self):
+        """
+        This function stops the audio playback and reconnects the receiver path.
+        """
+        if self.audio_player == None:
+            print "Audio playback not active."
+            return
+        
+        # stop flowgraph while we re-wire
+        self.lock()
+        self.disconnect(self.audio_rr, self.audio_nullsink)
+        self.disconnect(self.audio_player, self.audio_gain)
+        
+        # we must destroy the audio player object (new instance created at every play)
+        del self.audio_player
+        self.audio_player = None
+        
+        self.connect(self.audio_rr, self.audio_gain)
+        print "Audio playback stopped: ", self._prev_audio_rec
+        
+        # restart the flowgraph
+        self.unlock()
 
 
 if __name__ == "__main__":
