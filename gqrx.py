@@ -430,14 +430,8 @@ class my_top_block(gr.top_block):
                           help="set gain in dB [default is midpoint]")
         parser.add_option("-a", "--ar", type="int", default=44100,
                           help="set sample rate for soundcard [default=%default]")
-        parser.add_option("-8", "--width-8", action="store_true", default=False,
-                          help="Enable 8-bit samples across USB")
         parser.add_option( "--no-hb", action="store_true", default=False,
                           help="don't use halfband filter in usrp")
-#        parser.add_option("", "--avg-alpha", type="eng_float", default=1e-1,
-#                          help="Set fftsink averaging factor, [default=%default]")
-#        parser.add_option("", "--ref-scale", type="eng_float", default=13490.0,
-#                          help="Set dBFS=0dB input value, [default=%default]")
         parser.add_option("", "--fft-size", type="int", default=2048,
                           help="Set FFT frame size, [default=%default]");
 
@@ -468,6 +462,8 @@ class my_top_block(gr.top_block):
     
         self._rx_subdev_spec = options.rx_subdev_spec
         self.u.set_mux(usrp.determine_rx_mux_value(self.u, self._rx_subdev_spec))
+
+        # determine the daughterboard subdevice we're using
         self.subdev = usrp.selected_subdev(self.u, self._rx_subdev_spec)
 
         self._gain_range = self.subdev.gain_range()
