@@ -105,7 +105,7 @@ class main_window(QtGui.QMainWindow):
         ### Disable functions that have not been implemented yet
         self.gui.recSpectrumButton.setEnabled(False)
         self.gui.agcCombo.setEnabled(False)  # There is an AGC block but with fixed values
-        self.gui.sqlSlider.setEnabled(False)
+        #self.gui.sqlSlider.setEnabled(False)
 
         # Connect up some signals
         # Frequency controls
@@ -344,7 +344,7 @@ class main_window(QtGui.QMainWindow):
     def squelch_changed(self, sql):
         "New squelch threshold set."
         self.sql = sql
-        self.fg.set_squelch(sql)
+        self.fg.set_squelch(self.sql)
 
     def af_gain_changed(self, vol):
         "New AF gain value set."
@@ -504,6 +504,10 @@ class my_top_block(gr.top_block):
                                                   0,    # center offset
                                                   self._bandwidth)
 
+        # Squelch (TODO: what's a good range for level? Now 0..100)
+        # alpha determines the "hang time" but SNR also has influence on that
+        self.sql = gr.simple_squelch_cc(threshold_db=0.0, alpha=0.0003)
+
         # AGC
         self.agc = gr.agc2_cc(attack_rate=0.1,
                               decay_rate=self._agc_decay,
@@ -531,7 +535,7 @@ class my_top_block(gr.top_block):
 
         # Select FM-N as default demodulator
         self.demod = self.demod_fmn
-
+      
         # audio resampler 50k -> audio_rate (44.1k or 48k)
         interp = int(gru.lcm(self._demod_rate, self._audio_rate) / self._demod_rate)
         decim  = int(gru.lcm(self._demod_rate, self._audio_rate) / self._audio_rate)
@@ -562,8 +566,8 @@ class my_top_block(gr.top_block):
 
         # Connect the flow graph
         self.connect(self.u, self.snk)
-        self.connect(self.u, self.xlf, self.demod, self.audio_rr,
-                     self.audio_gain, self.audio_sink)
+        self.connect(self.u, self.xlf, self.sql, self.demod,
+                     self.audio_rr, self.audio_gain, self.audio_sink)
 
 
         # Get the reference pointer to the SpectrumDisplayForm QWidget
@@ -647,10 +651,7 @@ class my_top_block(gr.top_block):
         self._xlate_offset = self.main_win.gui.tuningSlider.value()
 
         # disconnect filter
-        if self._current_mode in [1,2]:
-            self.disconnect(self.u, self.xlf, self.demod)
-        else:
-            self.disconnect(self.u, self.xlf, self.agc)
+        self.disconnect(self.u, self.xlf, self.sql)
 
         # reconfigure frequency xlating filter
         # FIXME: I'm not exactly sure about this...
@@ -673,10 +674,7 @@ class my_top_block(gr.top_block):
         print "  New filter decimation: ", xlf_decim
 
         # reconnect new filter
-        if self._current_mode in [1,2]:
-            self.connect(self.u, self.xlf, self.demod)
-        else:
-            self.connect(self.u, self.xlf, self.agc)
+        self.connect(self.u, self.xlf, self.sql)
 
         try:
             self.snk.set_frequency_range(self._freq, self._bandwidth)
@@ -770,18 +768,18 @@ class my_top_block(gr.top_block):
         # disconnect the blocks that need to be reconfigured
         if self._current_mode in [1,2]:
             # in FM mode we have neither AGC nor SSB downsampler
-            self.disconnect(self.xlf, self.demod, self.audio_rr)
+            self.disconnect(self.sql, self.demod, self.audio_rr)
 
         elif self._current_mode in [0,3,4,5,6]:
             # in AM, SSB and CW mode we have AGC
-            self.disconnect(self.xlf, self.agc, self.demod, self.audio_rr)
+            self.disconnect(self.sql, self.agc, self.demod, self.audio_rr)
         else:
             raise RuntimeError("Invalid state self._current_mode = " + self._current_mode)
 
         if mode == 0:
             self.demod = self.demod_am
             self._fm_active = False
-            self.connect(self.xlf, self.agc, self.demod, self.audio_rr)
+            self.connect(self.sql, self.agc, self.demod, self.audio_rr)
             self.main_win.set_filter_width_range(1000, 15000, 100)
             self.main_win.set_filter_center_slider_value(0)
             self.main_win.set_filter_width_slider_value(8000)
@@ -789,7 +787,7 @@ class my_top_block(gr.top_block):
 
         elif mode == 1:
             self.demod = self.demod_fmn
-            self.connect(self.xlf, self.demod, self.audio_rr)
+            self.connect(self.sql, self.demod, self.audio_rr)
             self.main_win.set_filter_width_range(1000, 15000, 100)
             self.main_win.set_filter_center_slider_value(0)
             self.main_win.set_filter_width_slider_value(10000)
@@ -797,7 +795,7 @@ class my_top_block(gr.top_block):
 
         elif mode == 2:
             self.demod = self.demod_fmw
-            self.connect(self.xlf, self.demod, self.audio_rr)
+            self.connect(self.sql, self.demod, self.audio_rr)
             self.main_win.set_filter_width_range(50000, 200000, 1000)
             self.main_win.set_filter_center_slider_value(0)
             self.main_win.set_filter_width_slider_value(160000)
@@ -806,7 +804,7 @@ class my_top_block(gr.top_block):
         elif mode == 3:
             #self.disconnect(self.agc, self.demod, self.resampler)
             self.demod = self.demod_ssb
-            self.connect(self.xlf, self.agc, self.demod, self.audio_rr)
+            self.connect(self.sql, self.agc, self.demod, self.audio_rr)
             self.main_win.set_filter_width_range(1000, 5000, 50)
             self.main_win.set_filter_center_slider_value(-1500)
             self.main_win.set_filter_width_slider_value(2400)
@@ -815,7 +813,7 @@ class my_top_block(gr.top_block):
         elif mode == 4:
             #self.disconnect(self.agc, self.demod, self.resampler)
             self.demod = self.demod_ssb
-            self.connect(self.xlf, self.agc, self.demod, self.audio_rr)
+            self.connect(self.sql, self.agc, self.demod, self.audio_rr)
             self.main_win.set_filter_width_range(1000, 5000, 50)
             self.main_win.set_filter_center_slider_value(1500)
             self.main_win.set_filter_width_slider_value(2400)
@@ -824,7 +822,7 @@ class my_top_block(gr.top_block):
         elif mode == 5:
             #self.disconnect(self.agc, self.demod, self.resampler)
             self.demod = self.demod_ssb
-            self.connect(self.xlf, self.agc, self.demod, self.audio_rr)
+            self.connect(self.sql, self.agc, self.demod, self.audio_rr)
             self.main_win.set_filter_width_range(100, 3000, 10)
             self.main_win.set_filter_center_slider_value(-700)
             self.main_win.set_filter_width_slider_value(1400)
@@ -833,7 +831,7 @@ class my_top_block(gr.top_block):
         elif mode == 6:
             #self.disconnect(self.agc, self.demod, self.resampler)
             self.demod = self.demod_ssb
-            self.connect(self.xlf, self.agc, self.demod, self.audio_rr)
+            self.connect(self.sql, self.agc, self.demod, self.audio_rr)
             self.main_win.set_filter_width_range(100, 3000, 10)
             self.main_win.set_filter_center_slider_value(700)
             self.main_win.set_filter_width_slider_value(1400)
@@ -869,8 +867,9 @@ class my_top_block(gr.top_block):
             print "Invalid AGC: ", agc
 
     def set_squelch(self, sql):
-        """Set new squelch threshold"""
-        print "New squelch threshold: ", sql, " (not implemented)"
+        """Set new squelch threshold (dB)"""
+        self.sql.set_threshold(sql)
+        
 
     def set_af_gain(self, afg):
         """Set new AF gain"""
