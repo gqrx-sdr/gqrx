@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'gqrx_qtgui.ui'
 #
-# Created: Tue Nov 23 14:42:46 2010
-#      by: PyQt4 UI code generator 4.7.2
+# Created: Wed Nov 24 22:30:06 2010
+#      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -251,6 +251,8 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.sqlSlider.sizePolicy().hasHeightForWidth())
         self.sqlSlider.setSizePolicy(sizePolicy)
+        self.sqlSlider.setMaximum(100)
+        self.sqlSlider.setSingleStep(1)
         self.sqlSlider.setOrientation(QtCore.Qt.Horizontal)
         self.sqlSlider.setObjectName("sqlSlider")
         self.gridLayout_3.addWidget(self.sqlSlider, 2, 1, 1, 1)
