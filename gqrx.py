@@ -506,7 +506,7 @@ class my_top_block(gr.top_block):
 
         # Squelch (TODO: what's a good range for level? Now 0..100)
         # alpha determines the "hang time" but SNR also has influence on that
-        self.sql = gr.simple_squelch_cc(threshold_db=0.0, alpha=0.0003)
+        self.sql = gr.simple_squelch_cc(threshold_db=-50.0, alpha=0.0003)
 
         # AGC
         self.agc = gr.agc2_cc(attack_rate=0.1,
@@ -516,7 +516,7 @@ class my_top_block(gr.top_block):
                               max_gain=0.6)
 
         # AM demodulator
-        self.demod_am = blks2.am_demod_cf(channel_rate=250000,
+        self.demod_am = blks2.am_demod_cf(channel_rate=self._demod_rate,
                                           audio_decim=1,
                                           audio_pass=5000,
                                           audio_stop=5500)
