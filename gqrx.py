@@ -681,7 +681,7 @@ class my_top_block(gr.top_block):
         
         self.xlf = gr.freq_xlating_fir_filter_ccc(xlf_decim,
                                                   taps,
-                                                  self._xlate_offset, bw)
+                                                  self._xlate_offset, sr)
         print "  New filter decimation: ", xlf_decim
 
         # reconnect new filter
