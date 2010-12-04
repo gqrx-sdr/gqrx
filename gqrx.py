@@ -703,7 +703,7 @@ class my_top_block(gr.top_block):
         "Set new filter bandpass filter width"
         self._filter_low = self._filter_offset - int(width/2)
         self._filter_high = self._filter_offset + int(width/2)
-        self.xlf.set_taps(firdes.complex_band_pass(1, self._bandwidth,
+        self.xlf.set_taps(firdes.complex_band_pass(1, self._sample_rate,
                                                    self._filter_low,
                                                    self._filter_high,
                                                    self._filter_trans,
