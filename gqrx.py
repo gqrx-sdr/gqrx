@@ -23,7 +23,7 @@
 # 
 
 from gnuradio import gr, gru, audio, blks2
-from gnuradio import usrp
+from gnuradio import uhd
 from gnuradio import eng_notation
 from gnuradio.gr import firdes
 from gnuradio.eng_option import eng_option
@@ -47,10 +47,10 @@ except ImportError:
     sys.exit(1)
 
 
-# USRP bandwidth supported by the receiver
+# USRP sample rates supported by the receiver
 # 250k must be there and the others must be an integer multiple of 250k
-bwtable = [250000, 500000, 1000000, 2000000, 4000000]
-bwstr = ["250 kHz", "500 kHz", "1 MHz", "2 MHz", "4 MHz"]
+srtable = [250000, 500000, 1000000, 2000000, 4000000]
+srstr = ["250 kHz", "500 kHz", "1 MHz", "2 MHz", "4 MHz"]
 
 # file format used for recordings
 rec_format = "%Y.%m.%d-%H.%M.%S"
@@ -70,13 +70,12 @@ class main_window(QtGui.QMainWindow):
         self.gui.sinkLayout.addWidget(snk)
 
         # set up range for RF gain spin box
-        g = self.fg.subdev.gain_range()
-        self.gui.gainSpin.setRange(g[0], g[1])
+        self.gui.gainSpin.setRange(self.fg.gain_range["start"], self.fg.gain_range["stop"])
         self.gui.gainSpin.setValue(self.fg.options.gain)
         
         # Populate the bandwidth combo
-        for bwlabel in bwstr:
-            self.gui.bandwidthCombo.addItem(bwlabel, None)
+        for srlabel in srstr:
+            self.gui.bandwidthCombo.addItem(srlabel, None)
 
         # Populate the filter shape combo box and select "Normal"
         self.gui.filterShapeCombo.addItem("Soft", None)
@@ -100,12 +99,10 @@ class main_window(QtGui.QMainWindow):
         self.gui.agcCombo.addItem("Slow", None)
         self.gui.agcCombo.addItem("Off", None)
         self.gui.agcCombo.setCurrentIndex(1)
-
         
         ### Disable functions that have not been implemented yet
         self.gui.recSpectrumButton.setEnabled(False)
         self.gui.agcCombo.setEnabled(False)  # There is an AGC block but with fixed values
-        #self.gui.sqlSlider.setEnabled(False)
 
         # Connect up some signals
         # Frequency controls
@@ -174,6 +171,8 @@ class main_window(QtGui.QMainWindow):
         sfreq = eng_notation.num_to_str(self.freq)
         self.gui.frequencyEdit.setText(QtCore.QString("%1").arg(sfreq))
         
+        
+    # FIXME: not needed?
     def set_bandwidth(self, bw):
         "Update bandwidth selector combo"
         self.bw = bw
@@ -300,14 +299,14 @@ class main_window(QtGui.QMainWindow):
     def bandwidth_changed(self, bw):
         "New bandwidth selected."
         if bw < 5:
-            nbw = bwtable[bw]
+            nbw = srtable[bw]
         else:
             print "Invalid bandwidth: ", bw
         
         if nbw != self.bw:
             self.bw = nbw
             #print "New bandwidth: ", self.bw
-            self.fg.set_bandwidth(self.bw)
+            self.fg.set_sample_rate(self.bw)
         
 
         
@@ -395,6 +394,7 @@ def pick_subdevice(u):
         return (1, 0)
     return (0, 0)
 
+
 class my_top_block(gr.top_block):
     def __init__(self):
         gr.top_block.__init__(self)
@@ -407,7 +407,6 @@ class my_top_block(gr.top_block):
         self._filter_high = 5000
         self._filter_trans = 2000
         self._agc_decay = 50e-6
-        #self._if_rate = 250000     # sample rate at the input of demodulators
         self._demod_rate = 50000    # sample rate at the input of demodulators (except WFM)
         self._audio_rate = 44100    # Sample rate of sound card
         self._cur_audio_rec = None  # Current audio recording
@@ -416,14 +415,16 @@ class my_top_block(gr.top_block):
 
         parser = OptionParser(option_class=eng_option)
         parser.add_option("-w", "--which", type="int", default=0,
-                          help="select which USRP (0, 1, ...) default is %default",
-                          metavar="NUM")
-        parser.add_option("-R", "--rx-subdev-spec", type="subdev", default=None,
-                          help="select USRP Rx side A or B (default=first one with a daughterboard)")
-        parser.add_option("-A", "--antenna", default=None,
+                          help="select which UHD device (0, 1, ...) default is %default",
+                          metavar="NUM")  ## FIXME
+        parser.add_option("-R", "--rx-subdev-spec", type="string", default="A:",
+                          help="UHD subdevice specification [default=%default]")
+        parser.add_option("-A", "--antenna", type="string", default=None,
                           help="select Rx Antenna (only on WBX and RFX boards)")
-        parser.add_option("-W", "--bw", type="int", default=250e3,
-                          help="set bandwidth of receiver [default=%default]")
+        parser.add_option("-S", "--sample-rate", type="int", default=250e3,
+                          help="set receiver sample rate [default=%default]")
+        parser.add_option("-W", "--bw", type="int", default=None,
+                          help="set filter bandwidth (not supproted by all daughterboards)")
         parser.add_option("-f", "--freq", type="eng_float", default=None,
                           help="set frequency to FREQ", metavar="FREQ")
         parser.add_option("-g", "--gain", type="eng_float", default=None,
@@ -445,56 +446,68 @@ class my_top_block(gr.top_block):
 
         self._fftsize = options.fft_size
 
-        self.u = usrp.source_c(which=options.which)
+        self.u = uhd.single_usrp_source(device_addr="",   # FIXME: Add option
+                                        io_type=uhd.io_type_t.COMPLEX_FLOAT32, # FIXME: Add option
+                                        num_channels=1,
+                                       )
+
+        self.u.set_subdev_spec(options.rx_subdev_spec)
         
-        self._adc_rate = self.u.converter_rate()
-        if options.bw in bwtable:
-            self._bandwidth = options.bw
+        if options.sample_rate in srtable:
+            self._sample_rate = options.sample_rate
         else:
-            self._bandwidth = bwtable[0]
+            self._sample_rate = srtable[0]
 
-        self._decim = int(self._adc_rate / self._bandwidth)
-        self.u.set_decim_rate(self._decim)
+        self.u.set_samp_rate(self._sample_rate)
+        # TODO: print actual sample rate
 
-        if options.rx_subdev_spec is None:
-            options.rx_subdev_spec = pick_subdevice(self.u)
-    
-        self._rx_subdev_spec = options.rx_subdev_spec
-        self.u.set_mux(usrp.determine_rx_mux_value(self.u, self._rx_subdev_spec))
-
-        # determine the daughterboard subdevice we're using
-        self.subdev = usrp.selected_subdev(self.u, self._rx_subdev_spec)
-
-        self._gain_range = self.subdev.gain_range()
+        # RF gain
+        self.gain_range = { "start" : self.u.get_gain_range(0).start(),
+                            "stop"  : self.u.get_gain_range(0).stop(),
+                            "step"  : self.u.get_gain_range(0).step()
+                           }
+                           
         if options.gain is None:
             # if no gain was specified, use the mid-point in dB
-            g = self._gain_range
-            options.gain = float(g[0]+g[1])/2
-        self.set_gain(options.gain)
+            options.gain = float(self.gain_range["start"] + self.gain_range["stop"])/2
 
+        self.set_gain(options.gain)
+        # TODO: print actual gain
+        
+
+        # intitial center frequency
+        self._freq_range = { "start" : self.u.get_freq_range(0).start(),
+                             "stop"  : self.u.get_freq_range(0).stop(),
+                             "step"  : self.u.get_freq_range(0).step()
+                            }
+                            
         if options.freq is None:
-            # if no frequency was specified, use the mid-point of the subdev
-            f = self.subdev.freq_range()
-            options.freq = float(f[0]+f[1])/2
+            # if no frequency was specified, use the mid-point
+            options.freq = float(self._freq_range["start"] + self._freq_range["stop"])/2
+
         self.set_frequency(options.freq)
+        # TODO: print actual frequency
+
 
         # Select antenna connector
         if options.antenna is not None:
-            print "Selecting antenna %s" % (options.antenna,)
-            self.subdev.select_rx_antenna(options.antenna)
+            print "Selecting antenna %s" % options.antenna
+            self.u.set_antenna(options.antenna, 0)
+            # -> self.uhd_single_usrp_source_0.set_antenna("RX2", 0)
+
 
         # set soundcard sample rate 
         self._audio_rate = options.ar
 
         # Create FFT scope and waterfall sinks
         self.snk = qtgui.sink_c(self._fftsize, firdes.WIN_BLACKMAN_hARRIS,
-                                self._freq, self._bandwidth,
+                                self._freq, self._sample_rate,
                                 "USRP Display",
                                 True, False, False, False, False)
       
         # frequency xlating filter used for tuning and decimation
         # to bring "demo rate" down to 50 ksps regardless of USRP decimation (250k for FM-W
-        taps = firdes.complex_band_pass(1, self._bandwidth,
+        taps = firdes.complex_band_pass(1, self._sample_rate,
                                            self._filter_low,
                                            self._filter_high,
                                            self._filter_trans,
@@ -502,7 +515,7 @@ class my_top_block(gr.top_block):
         self.xlf = gr.freq_xlating_fir_filter_ccc(5,   # decimation 250k -> 50k
                                                   taps,
                                                   0,    # center offset
-                                                  self._bandwidth)
+                                                  self._sample_rate)
 
         # Squelch (TODO: what's a good range for level? Now 0..100)
         # alpha determines the "hang time" but SNR also has influence on that
@@ -578,13 +591,13 @@ class my_top_block(gr.top_block):
         self.main_win = main_window(self.pysink, self)
 
         self.main_win.set_frequency(self._freq)
-        self.main_win.set_bandwidth(self._bandwidth)
+        self.main_win.set_bandwidth(self._sample_rate)
 
-        # Window title string
-        if self._rx_subdev_spec[0] == 0:
-            self.main_win.setWindowTitle("GQRX: " + self.subdev.name() + " on side A")
-        else:
-            self.main_win.setWindowTitle("GQRX: " + self.subdev.name() + " on side B")
+        # FIXME: Window title string
+        #if self._rx_subdev_spec[0] == 0:
+        #    self.main_win.setWindowTitle("GQRX: " + self.subdev.name() + " on side A")
+        #else:
+        #    self.main_win.setWindowTitle("GQRX: " + self.subdev.name() + " on side B")
 
         self.main_win.show()
 
@@ -604,8 +617,7 @@ class my_top_block(gr.top_block):
     def set_gain(self, gain):
         "Set USRP gain"
         self._gain = gain
-        self.subdev.set_gain(self._gain)
-
+        self.u.set_gain(self._gain, 0)
 
     def set_frequency(self, freq):
         """
@@ -613,38 +625,37 @@ class my_top_block(gr.top_block):
         If tuning is successful, update the frequency entry widget and the spectrum display.
         """
         self._freq = freq
-        r = self.u.tune(0, self.subdev, self._freq)
-
+        r = self.u.set_center_freq(self._freq, 0)
+        
         if r:
-            print "New freq BB:", r.baseband_freq, " DDC:", r.dxc_freq
+            #print "New freq BB:", r.baseband_freq, " DDC:", r.dxc_freq
+            # FIXME
+            print "TIF:", r.target_inter_freq, " AIF:", r.actual_inter_freq, " TDF:", r.target_dsp_freq, "ADF:", r.actual_dsp_freq
             try:
                 self.main_win.set_frequency(self._freq)
-                self.snk.set_frequency_range(self._freq, self._bandwidth)
+                self.snk.set_frequency_range(self._freq, self._sample_rate)
             except:
                 pass
         else:
-            print "Failed to set frequency to ", freq
+            print "Failed to set frequency to ", self._freq
 
 
-    def set_bandwidth(self, bw):
-        "Set USRP bandwidth"
+    def set_sample_rate(self, sr):
+        "Set USRP sample rate"
         
-        if bw not in bwtable:
-            print "Invalid bandwidth: ", bw
+        if sr not in srtable:
+            print "Invalid sample rate: ", sr
             return
 
         self.lock()
         
-        self._bandwidth = bw
-        print "New bandwidth: ", self._bandwidth
+        self._sample_rate = sr
+        print "New sample rate: ", self._sample_rate
 
-        # set new decimation for USRP    
-        self._decim = int(self._adc_rate / self._bandwidth)
-        print "  New USRP decimation: ", self._decim
-        self.u.set_decim_rate(self._decim)
+        self.u.set_samp_rate(self._sample_rate)
 
         # finally, update the tuning slider and spinbox
-        self.main_win.set_tuning_range(int(self._bandwidth/2))
+        self.main_win.set_tuning_range(int(self._sample_rate/2))
 
         # offset could be out of range when switching to a lower bandwidth
         # set_tuning_range() has already limited it, we just need to grab the new value
@@ -656,7 +667,7 @@ class my_top_block(gr.top_block):
         # reconfigure frequency xlating filter
         # FIXME: I'm not exactly sure about this...
         del self.xlf
-        taps = firdes.complex_band_pass(1, self._bandwidth,
+        taps = firdes.complex_band_pass(1, self._sample_rate,
                                         self._filter_low,
                                         self._filter_high,
                                         self._filter_trans,
@@ -664,9 +675,9 @@ class my_top_block(gr.top_block):
 
         # for FMW we deen 250ksps, all other modes 50ksps
         if self._current_mode == 2:
-            xlf_decim = int(self._bandwidth/250000)
+            xlf_decim = int(self._sample_rate/250000)
         else:
-            xlf_decim = int(self._bandwidth/50000)
+            xlf_decim = int(self._sample_rate/50000)
         
         self.xlf = gr.freq_xlating_fir_filter_ccc(xlf_decim,
                                                   taps,
@@ -677,7 +688,7 @@ class my_top_block(gr.top_block):
         self.connect(self.u, self.xlf, self.sql)
 
         try:
-            self.snk.set_frequency_range(self._freq, self._bandwidth)
+            self.snk.set_frequency_range(self._freq, self._sample_rate)
         except:
             pass
         
@@ -707,7 +718,7 @@ class my_top_block(gr.top_block):
         self._filter_high = self._filter_offset + int(width/2)
         # we need to update the filter shape as we go
         self.set_filter_shape(self.main_win.gui.filterShapeCombo.currentIndex())
-        self.xlf.set_taps(firdes.complex_band_pass(1, self._bandwidth,
+        self.xlf.set_taps(firdes.complex_band_pass(1, self._sample_rate,
                                                    self._filter_low,
                                                    self._filter_high,
                                                    self._filter_trans,
@@ -735,7 +746,7 @@ class my_top_block(gr.top_block):
         if self._filter_trans < 500:
             self._filter_trans = 500
             
-        self.xlf.set_taps(firdes.complex_band_pass(1, self._bandwidth,
+        self.xlf.set_taps(firdes.complex_band_pass(1, self._sample_rate,
                                                    self._filter_low,
                                                    self._filter_high,
                                                    self._filter_trans,
@@ -847,7 +858,7 @@ class my_top_block(gr.top_block):
         # reconfigure the filter decimation. We can do that by
         # simpl calling set_bandwidth(current_bandwidth)        
         if need_filter_reconf:
-            self.set_bandwidth(self._bandwidth)
+            self.set_bandwidth(self._sample_rate)
 
         # Restart the flow graph
         self.unlock()
