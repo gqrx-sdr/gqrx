@@ -858,7 +858,7 @@ class my_top_block(gr.top_block):
         # reconfigure the filter decimation. We can do that by
         # simpl calling set_bandwidth(current_bandwidth)        
         if need_filter_reconf:
-            self.set_bandwidth(self._sample_rate)
+            self.set_sample_rate(self._sample_rate)
 
         # Restart the flow graph
         self.unlock()
