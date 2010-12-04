@@ -519,7 +519,7 @@ class my_top_block(gr.top_block):
 
         # Squelch (TODO: what's a good range for level? Now 0..100)
         # alpha determines the "hang time" but SNR also has influence on that
-        self.sql = gr.simple_squelch_cc(threshold_db=-50.0, alpha=0.0003)
+        self.sql = gr.simple_squelch_cc(threshold_db=-150.0, alpha=0.0003)
 
         # AGC
         self.agc = gr.agc2_cc(attack_rate=0.1,
