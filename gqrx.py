@@ -121,9 +121,12 @@ class main_window(QtGui.QMainWindow):
         self.connect(self.gui.bandwidthCombo, QtCore.SIGNAL("activated(int)"),
                      self.bandwidth_changed)
 
-        # RF gain
+        # RF and BB gain
         self.connect(self.gui.gainSpin, QtCore.SIGNAL("valueChanged(int)"),
                      self.gainChanged)
+        self.connect(self.gui.bbGainSpin, QtCore.SIGNAL("valueChanged(int)"),
+                     self.bbGainChanged)
+
 
         # Pause
         self.connect(self.gui.pauseButton, QtCore.SIGNAL("clicked()"),
@@ -294,7 +297,13 @@ class main_window(QtGui.QMainWindow):
    
     def gainChanged(self, gain):
         self.gain = gain
-        self.fg.set_gain(gain)     
+        self.fg.set_gain(gain)
+
+    def bbGainChanged(self, gain):
+        "Digital baseband gain changed (value in dB)"
+        # convert from gain in dB to absolute gain
+        self.bb_gain = 10.0 ** (gain/10.0)
+        self.fg.set_bb_gain(self.bb_gain)
                 
     def bandwidth_changed(self, bw):
         "New bandwidth selected."
@@ -503,7 +512,10 @@ class my_top_block(gr.top_block):
                                                   0,    # center offset
                                                   self._sample_rate)
 
-        # Squelch (TODO: what's a good range for level? Now 0..100)
+        # Digital baseband gain
+        self.bb_gain = gr.multiply_const_cc(1.0)
+
+        # Squelch (TODO: what's a good range for level?)
         # alpha determines the "hang time" but SNR also has influence on that
         self.sql = gr.simple_squelch_cc(threshold_db=-150.0, alpha=0.0003)
 
@@ -564,8 +576,9 @@ class my_top_block(gr.top_block):
         self.audio_player = None 
 
         # Connect the flow graph
-        self.connect(self.u, self.snk)
-        self.connect(self.u, self.xlf, self.sql, self.demod,
+        self.connect(self.u, self.bb_gain)
+        self.connect(self.bb_gain, self.snk)
+        self.connect(self.bb_gain, self.xlf, self.sql, self.demod,
                      self.audio_rr, self.audio_gain, self.audio_sink)
 
 
@@ -601,9 +614,14 @@ class my_top_block(gr.top_block):
         self.start()
 
     def set_gain(self, gain):
-        "Set USRP gain"
+        "Set USRP gain in dB"
         self._gain = gain
         self.u.set_gain(self._gain, 0)
+
+    def set_bb_gain(self, gain):
+        "Set digital baseband gain (absolute value)"
+        self._bb_gain = gain
+        self.bb_gain.set_k(gain)
 
     def set_frequency(self, freq):
         """
@@ -648,7 +666,7 @@ class my_top_block(gr.top_block):
         self._xlate_offset = self.main_win.gui.tuningSlider.value()
 
         # disconnect filter
-        self.disconnect(self.u, self.xlf, self.sql)
+        self.disconnect(self.bb_gain, self.xlf, self.sql)
 
         # reconfigure frequency xlating filter
         # FIXME: I'm not exactly sure about this...
@@ -671,7 +689,7 @@ class my_top_block(gr.top_block):
         print "  New filter decimation: ", xlf_decim
 
         # reconnect new filter
-        self.connect(self.u, self.xlf, self.sql)
+        self.connect(self.bb_gain, self.xlf, self.sql)
 
         try:
             self.snk.set_frequency_range(self._freq, self._sample_rate)
