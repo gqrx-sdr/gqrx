@@ -70,8 +70,8 @@ class main_window(QtGui.QMainWindow):
         self.gui.sinkLayout.addWidget(snk)
 
         # set up range for RF gain spin box
-        self.gui.gainSpin.setRange(self.fg.gain_range["start"], self.fg.gain_range["stop"])
-        self.gui.gainSpin.setValue(self.fg.options.gain)
+        self.gui.rfGainSpin.setRange(self.fg.gain_range["start"], self.fg.gain_range["stop"])
+        self.gui.rfGainSpin.setValue(self.fg.options.gain)
         
         # Populate the bandwidth combo
         for srlabel in srstr:
@@ -122,8 +122,8 @@ class main_window(QtGui.QMainWindow):
                      self.bandwidth_changed)
 
         # RF and BB gain
-        self.connect(self.gui.gainSpin, QtCore.SIGNAL("valueChanged(int)"),
-                     self.gainChanged)
+        self.connect(self.gui.rfGainSpin, QtCore.SIGNAL("valueChanged(int)"),
+                     self.rfGainChanged)
         self.connect(self.gui.bbGainSpin, QtCore.SIGNAL("valueChanged(int)"),
                      self.bbGainChanged)
 
@@ -295,9 +295,10 @@ class main_window(QtGui.QMainWindow):
         self.freq -= self.bw
         self.fg.set_frequency(self.freq)
    
-    def gainChanged(self, gain):
+    def rfGainChanged(self, gain):
+        "RF gain changed"
         self.gain = gain
-        self.fg.set_gain(gain)
+        self.fg.set_rf_gain(gain)
 
     def bbGainChanged(self, gain):
         "Digital baseband gain changed (value in dB)"
@@ -423,7 +424,7 @@ class my_top_block(gr.top_block):
         parser.add_option("-f", "--freq", type="eng_float", default=None,
                           help="set frequency to FREQ", metavar="FREQ")
         parser.add_option("-g", "--gain", type="eng_float", default=None,
-                          help="set gain in dB [default is midpoint]")
+                          help="set RF gain in dB [default is midpoint]")
         parser.add_option("-a", "--ar", type="int", default=44100,
                           help="set sample rate for soundcard [default=%default]")
         parser.add_option("", "--fft-size", type="int", default=2048,
@@ -466,7 +467,7 @@ class my_top_block(gr.top_block):
             # if no gain was specified, use the mid-point in dB
             options.gain = float(self.gain_range["start"] + self.gain_range["stop"])/2
 
-        self.set_gain(options.gain)
+        self.set_rf_gain(options.gain)
         # TODO: print actual gain
         
 
@@ -613,7 +614,7 @@ class my_top_block(gr.top_block):
         # Restart flow graph
         self.start()
 
-    def set_gain(self, gain):
+    def set_rf_gain(self, gain):
         "Set USRP gain in dB"
         self._gain = gain
         self.u.set_gain(self._gain, 0)

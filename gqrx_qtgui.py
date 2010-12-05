@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gqrx_qtgui.ui'
 #
-# Created: Sun Dec  5 23:13:55 2010
+# Created: Sun Dec  5 23:19:02 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -127,20 +127,20 @@ class Ui_MainWindow(object):
         self.bandwidthLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.bandwidthLabel.setObjectName("bandwidthLabel")
         self.gridLayout_2.addWidget(self.bandwidthLabel, 1, 3, 1, 1)
-        self.gainLabel = QtGui.QLabel(self.centralwidget)
-        self.gainLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.gainLabel.setObjectName("gainLabel")
-        self.gridLayout_2.addWidget(self.gainLabel, 1, 0, 1, 1)
-        self.gainSpin = QtGui.QSpinBox(self.centralwidget)
+        self.rfGainLabel = QtGui.QLabel(self.centralwidget)
+        self.rfGainLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.rfGainLabel.setObjectName("rfGainLabel")
+        self.gridLayout_2.addWidget(self.rfGainLabel, 1, 0, 1, 1)
+        self.rfGainSpin = QtGui.QSpinBox(self.centralwidget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.gainSpin.sizePolicy().hasHeightForWidth())
-        self.gainSpin.setSizePolicy(sizePolicy)
-        self.gainSpin.setMaximum(100)
-        self.gainSpin.setProperty("value", 50)
-        self.gainSpin.setObjectName("gainSpin")
-        self.gridLayout_2.addWidget(self.gainSpin, 1, 1, 1, 1)
+        sizePolicy.setHeightForWidth(self.rfGainSpin.sizePolicy().hasHeightForWidth())
+        self.rfGainSpin.setSizePolicy(sizePolicy)
+        self.rfGainSpin.setMaximum(100)
+        self.rfGainSpin.setProperty("value", 50)
+        self.rfGainSpin.setObjectName("rfGainSpin")
+        self.gridLayout_2.addWidget(self.rfGainSpin, 1, 1, 1, 1)
         self.bbGainLabel = QtGui.QLabel(self.centralwidget)
         self.bbGainLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.bbGainLabel.setObjectName("bbGainLabel")
@@ -401,8 +401,8 @@ class Ui_MainWindow(object):
         self.freqUpBut1.setText(QtGui.QApplication.translate("MainWindow", ">", None, QtGui.QApplication.UnicodeUTF8))
         self.freqUpBut2.setText(QtGui.QApplication.translate("MainWindow", ">>", None, QtGui.QApplication.UnicodeUTF8))
         self.bandwidthLabel.setText(QtGui.QApplication.translate("MainWindow", "Bandwidth", None, QtGui.QApplication.UnicodeUTF8))
-        self.gainLabel.setText(QtGui.QApplication.translate("MainWindow", "RF Gain", None, QtGui.QApplication.UnicodeUTF8))
-        self.gainSpin.setToolTip(QtGui.QApplication.translate("MainWindow", "RF and IF gain on the USRP and daughterboard", None, QtGui.QApplication.UnicodeUTF8))
+        self.rfGainLabel.setText(QtGui.QApplication.translate("MainWindow", "RF Gain", None, QtGui.QApplication.UnicodeUTF8))
+        self.rfGainSpin.setToolTip(QtGui.QApplication.translate("MainWindow", "RF and IF gain on the USRP and daughterboard", None, QtGui.QApplication.UnicodeUTF8))
         self.bbGainLabel.setText(QtGui.QApplication.translate("MainWindow", "BB Gain", None, QtGui.QApplication.UnicodeUTF8))
         self.bbGainSpin.setToolTip(QtGui.QApplication.translate("MainWindow", "Digital gain applied to the samples from the USRP", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("MainWindow", "dB", None, QtGui.QApplication.UnicodeUTF8))
