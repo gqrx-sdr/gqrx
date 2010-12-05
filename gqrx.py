@@ -380,20 +380,6 @@ class main_window(QtGui.QMainWindow):
         if(len(fileName)):
             self.fg.save_to_file(str(fileName))
         
-        
-def pick_subdevice(u):
-    """
-    The user didn't specify a subdevice on the command line.
-    If there's a daughterboard on A, select A.
-    If there's a daughterboard on B, select B.
-    Otherwise, select A.
-    """
-    if u.db(0, 0).dbid() >= 0:       # dbid is < 0 if there's no d'board or a problem
-        return (0, 0)
-    if u.db(1, 0).dbid() >= 0:
-        return (1, 0)
-    return (0, 0)
-
 
 class my_top_block(gr.top_block):
     def __init__(self):
