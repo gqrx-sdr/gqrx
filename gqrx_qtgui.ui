@@ -481,7 +481,7 @@
            </sizepolicy>
           </property>
           <property name="minimum">
-           <number>-150</number>
+           <number>-100</number>
           </property>
           <property name="maximum">
            <number>0</number>
@@ -490,7 +490,7 @@
            <number>1</number>
           </property>
           <property name="value">
-           <number>-150</number>
+           <number>-100</number>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>

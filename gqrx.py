@@ -518,7 +518,7 @@ class my_top_block(gr.top_block):
 
         # Squelch (TODO: what's a good range for level?)
         # alpha determines the "hang time" but SNR also has influence on that
-        self.sql = gr.simple_squelch_cc(threshold_db=-150.0, alpha=0.0003)
+        self.sql = gr.simple_squelch_cc(threshold_db=-100.0, alpha=0.0003)
 
         # AGC
         self.agc = gr.agc2_cc(attack_rate=0.1,
@@ -889,7 +889,6 @@ class my_top_block(gr.top_block):
 
     def set_af_gain(self, afg):
         """Set new AF gain"""
-        print "New AF Gain: ", afg
         self.audio_gain.set_k(afg)
         
         
