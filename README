@@ -2,7 +2,7 @@ Experimental AM, FM and SSB software receiver implemented using GNU Radio and Qt
 
 This branch contains the UHD version of the receiver.
 
-To run this application you need to have GNU Radio 3.3 with gr-qtgui component installed, as well as a USRP1. Of course, it can be modified to use USRP2 or UHD.
+To run this application you need to have GNU Radio 3.3 with gr-qtgui component installed, as well as a USRP or other device supported by UHD.
 
 Implemented functions:
  * Set USRP frequency, RF gain and bandwidth (250k, 500k, 1M, 2m or 4M)
@@ -15,7 +15,7 @@ Implemented functions:
 
 To start the receiver execute the gqrx.py Python script. Use -h to see a list of command line options.
 
-If you have problems with audio while changing receiver settings at runtime you can try to apply this patch: https://gist.github.com/664132
+If you have problems with audio while changing receiver settings at runtime you can try to apply this patch: https://gist.github.com/664132 (this fix has been included in GNU Radio since December 2010).
 
 I have also made some modifications to the gr-qtgui code in order to enable grid, have nicer colors and take up less vertical space to better fit on laptop screens. These changes are available in this patch: https://gist.github.com/668462. This is not mandatory though, just part of the experiment.
 
