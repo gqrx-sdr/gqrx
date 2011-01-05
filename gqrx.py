@@ -105,9 +105,9 @@ class main_window(QtGui.QMainWindow):
         ### Disable functions that have not been implemented yet
         self.gui.recSpectrumButton.setEnabled(False)
         self.gui.agcCombo.setEnabled(False)  # There is an AGC block but with fixed values
-        #self.gui.sqlSlider.setEnabled(False)
 
-        # Connect up some signals
+
+        # Connect signals
         # Frequency controls
         self.connect(self.gui.freqUpBut1, QtCore.SIGNAL("clicked()"),
                      self.freqUpBut1Clicked)
@@ -128,7 +128,7 @@ class main_window(QtGui.QMainWindow):
         self.connect(self.gui.gainSpin, QtCore.SIGNAL("valueChanged(int)"),
                      self.gainChanged)
 
-        # Pause
+        # Pause button
         self.connect(self.gui.pauseButton, QtCore.SIGNAL("clicked()"),
                      self.pauseFg)
 
@@ -302,7 +302,8 @@ class main_window(QtGui.QMainWindow):
         if bw < 5:
             nbw = bwtable[bw]
         else:
-            print "Invalid bandwidth: ", bw
+            print "Invalid bandwidth index: ", bw
+            nbw = self.bw
         
         if nbw != self.bw:
             self.bw = nbw
@@ -493,7 +494,7 @@ class my_top_block(gr.top_block):
                                 True, False, False, False, False)
       
         # frequency xlating filter used for tuning and decimation
-        # to bring "demo rate" down to 50 ksps regardless of USRP decimation (250k for FM-W
+        # to bring "demo rate" down to 50 ksps regardless of USRP decimation (250k for FM-W)
         taps = firdes.complex_band_pass(1, self._bandwidth,
                                            self._filter_low,
                                            self._filter_high,
@@ -561,7 +562,7 @@ class my_top_block(gr.top_block):
         
         # audio_player is created when playback is started; however, we need
         # to declare it because (audio_player == None) is used to determine
-        # whether a playback is ongoing or not (see 
+        # whether a playback is ongoing or not (see audio_packback and recordin functions)
         self.audio_player = None 
 
         # Connect the flow graph
@@ -747,12 +748,14 @@ class my_top_block(gr.top_block):
         to the modes indicated below.
         Mode change consists of the following steps:
           1. Stop the flow graph
-          2. Disconnect demodulator form BPF and audio resampler
+          2. Disconnect the squelch, demodulator, AGC, BPF and audio resampler
           3. Set new demodulator
-          4. Reconnect demodulator to BPF and resampler
-          5. Set new filter ranges (TBC)
-          6. Set new filter width and center
+          4. Reconnect the block
+          5. ensure that filter parameters are consistent with new mode
+          6. In case of transition to/from WFM, set new filter decimation
           7. Restart the flow graph
+        The exact blocks that are (dis)connected depend on the previous and the
+        new operating mode since AGC is not used in FM modes.
         """
         
         if mode == self._current_mode:
