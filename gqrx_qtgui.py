@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'gqrx_qtgui.ui'
 #
-# Created: Mon Dec  6 23:58:31 2010
-#      by: PyQt4 UI code generator 4.6
+# Created: Thu Jan  6 22:07:30 2011
+#      by: PyQt4 UI code generator 4.7.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -62,6 +62,12 @@ class Ui_MainWindow(object):
         self.tuningSpin.setMaximum(125000)
         self.tuningSpin.setObjectName("tuningSpin")
         self.tuneHorizontalLayout.addWidget(self.tuningSpin)
+        self.rxFreqLabel = QtGui.QLabel(self.centralwidget)
+        self.rxFreqLabel.setFrameShape(QtGui.QFrame.Box)
+        self.rxFreqLabel.setMargin(3)
+        self.rxFreqLabel.setIndent(5)
+        self.rxFreqLabel.setObjectName("rxFreqLabel")
+        self.tuneHorizontalLayout.addWidget(self.rxFreqLabel)
         self.verticalLayout.addLayout(self.tuneHorizontalLayout)
         self.line = QtGui.QFrame(self.centralwidget)
         self.line.setFrameShape(QtGui.QFrame.HLine)
@@ -396,6 +402,8 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "GQRX", None, QtGui.QApplication.UnicodeUTF8))
+        self.rxFreqLabel.setToolTip(QtGui.QApplication.translate("MainWindow", "Receiver frequency", None, QtGui.QApplication.UnicodeUTF8))
+        self.rxFreqLabel.setText(QtGui.QApplication.translate("MainWindow", "RX: 0.000.000.000", None, QtGui.QApplication.UnicodeUTF8))
         self.freqDownBut2.setText(QtGui.QApplication.translate("MainWindow", "<<", None, QtGui.QApplication.UnicodeUTF8))
         self.freqDownBut1.setText(QtGui.QApplication.translate("MainWindow", "<", None, QtGui.QApplication.UnicodeUTF8))
         self.freqUpBut1.setText(QtGui.QApplication.translate("MainWindow", ">", None, QtGui.QApplication.UnicodeUTF8))

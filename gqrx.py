@@ -69,6 +69,8 @@ class main_window(QtGui.QMainWindow):
         # Add the qtsnk widgets to the layout box
         self.gui.sinkLayout.addWidget(snk)
 
+        self.tuning_offset = 0
+
         # set up range for RF gain spin box
         self.gui.rfGainSpin.setRange(self.fg.gain_range["start"], self.fg.gain_range["stop"])
         self.gui.rfGainSpin.setValue(self.fg.options.gain)
@@ -173,7 +175,8 @@ class main_window(QtGui.QMainWindow):
         self.freq = freq
         sfreq = eng_notation.num_to_str(self.freq)
         self.gui.frequencyEdit.setText(QtCore.QString("%1").arg(sfreq))
-        
+        self.update_rx_freq_label()
+
         
     # FIXME: not needed?
     def set_bandwidth(self, bw):
@@ -246,6 +249,17 @@ class main_window(QtGui.QMainWindow):
         self.gui.tuningSlider.setRange(-rng, rng)
         self.gui.tuningSpin.setRange(-rng, rng)
 
+    def update_rx_freq_label(self):
+        """
+        Update RX frequency label. The RX frequency label shows the frequency
+        we are actually receiving. This is a sum of USRP frequency and the offset
+        of the frequency xlating filter.
+        """
+        # Calculate actual frequency in MHz
+        rxfreq = (self.freq + self.tuning_offset) / 1e6
+        #self.gui.rxFreqLabel.setText("RX: " + format(rxfreq, ".6f") + "MHz")
+        self.gui.rxFreqLabel.setText(QtCore.QString("RX: %1 MHz").arg(format(rxfreq, ".6f")))
+
     # TODO: missing implementations, but do we really need them?
 
 
@@ -276,7 +290,7 @@ class main_window(QtGui.QMainWindow):
         """
         self.freq += int(self.bw/10)
         self.fg.set_frequency(self.freq)
-            
+
     def freqUpBut2Clicked(self):
         "Function called when the >> button is clicked."
         self.freq += self.bw
@@ -323,7 +337,9 @@ class main_window(QtGui.QMainWindow):
         
     def tuning_changed(self, value):
         "Tuning value changed"
+        self.tuning_offset = value
         self.fg.set_xlate_offset(value)
+        self.update_rx_freq_label()
 
     def filter_width_changed(self, value):
         "Filter width changed."

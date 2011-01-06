@@ -92,6 +92,25 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QLabel" name="rxFreqLabel">
+        <property name="toolTip">
+         <string>Receiver frequency</string>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::Box</enum>
+        </property>
+        <property name="text">
+         <string>RX: 0.000.000.000</string>
+        </property>
+        <property name="margin">
+         <number>3</number>
+        </property>
+        <property name="indent">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>
