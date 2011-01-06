@@ -104,7 +104,7 @@ class main_window(QtGui.QMainWindow):
         self.gui.recSpectrumButton.setEnabled(False)
         self.gui.agcCombo.setEnabled(False)  # There is an AGC block but with fixed values
 
-        # Connect up some signals
+        # Connect signals
         # Frequency controls
         self.connect(self.gui.freqUpBut1, QtCore.SIGNAL("clicked()"),
                      self.freqUpBut1Clicked)
@@ -312,6 +312,7 @@ class main_window(QtGui.QMainWindow):
             nbw = srtable[bw]
         else:
             print "Invalid bandwidth: ", bw
+            nbw = self.bw
         
         if nbw != self.bw:
             self.bw = nbw
@@ -502,7 +503,7 @@ class my_top_block(gr.top_block):
                                 True, False, False, False, False)
       
         # frequency xlating filter used for tuning and decimation
-        # to bring "demo rate" down to 50 ksps regardless of USRP decimation (250k for FM-W
+        # to bring usrp rate down to 50 ksps regardless of USRP decimation (250k for FM-W)
         taps = firdes.complex_band_pass(1, self._sample_rate,
                                            self._filter_low,
                                            self._filter_high,
@@ -513,14 +514,14 @@ class my_top_block(gr.top_block):
                                                   0,    # center offset
                                                   self._sample_rate)
 
-        # Digital baseband gain
+        # Digital baseband gain used to increase signal level
         self.bb_gain = gr.multiply_const_cc(1.0)
 
-        # Squelch (TODO: what's a good range for level?)
+        # Squelch
         # alpha determines the "hang time" but SNR also has influence on that
         self.sql = gr.simple_squelch_cc(threshold_db=-100.0, alpha=0.0003)
 
-        # AGC
+        # AGC (FIXME: parameters are from non-uhd version)
         self.agc = gr.agc2_cc(attack_rate=0.1,
                               decay_rate=self._agc_decay,
                               reference=0.5,
@@ -573,7 +574,7 @@ class my_top_block(gr.top_block):
         
         # audio_player is created when playback is started; however, we need
         # to declare it because (audio_player == None) is used to determine
-        # whether a playback is ongoing or not (see 
+        # whether a playback is ongoing or not (see audio_payback and recording functions)
         self.audio_player = None 
 
         # Connect the flow graph
@@ -763,11 +764,11 @@ class my_top_block(gr.top_block):
         to the modes indicated below.
         Mode change consists of the following steps:
           1. Stop the flow graph
-          2. Disconnect demodulator form BPF and audio resampler
+          2. Disconnect the squelch, demodulator, AGC, BPF and audio resampler
           3. Set new demodulator
-          4. Reconnect demodulator to BPF and resampler
-          5. Set new filter ranges (TBC)
-          6. Set new filter width and center
+          4. Reconnect the block
+          5. ensure that filter parameters are consistent with new mode
+          6. In case of transition to/from WFM, set new filter decimation
           7. Restart the flow graph
         """
         
