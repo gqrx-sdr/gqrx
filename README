@@ -1,6 +1,6 @@
 Experimental AM, FM and SSB software receiver implemented using GNU Radio and Qt GUI toolkit.
 
-To run this application you need to have GNU Radio 3.3 with gr-qtgui component installed, as well as a USRP1. Of course, it can be modified to use USRP2 or you can try the UHD branch.
+To run this application you need to have GNU Radio 3.3 with gr-qtgui component installed, as well as a USRP1. Of course, it can be modified to use USRP2 or you can try the UHD branch. I do recommend using the UHD branch because that is where I do most of the development and it has features that are not available in the 'master'.
 
 Implemented functions:
  * Set USRP frequency, RF gain and bandwidth (250k, 500k, 1M, 2m or 4M)
