@@ -431,6 +431,8 @@ class my_top_block(gr.top_block):
                           help="set gain in dB [default is midpoint]")
         parser.add_option("-a", "--ar", type="int", default=44100,
                           help="set sample rate for soundcard [default=%default]")
+        parser.add_option("-O", "--audio-output", type="string", default="",
+                          help="audio device name, e.g. plughw:0,0")
         parser.add_option("", "--fft-size", type="int", default=2048,
                           help="Set FFT frame size, [default=%default]");
 
@@ -547,7 +549,7 @@ class my_top_block(gr.top_block):
 
         # audio gain and sink
         self.audio_gain = gr.multiply_const_ff(1.0)
-        self.audio_sink = audio.sink(self._audio_rate, "", True)
+        self.audio_sink = audio.sink(self._audio_rate, options.audio_output, True)
 
         # Audio recorder block
         # Create using dummy filename then close it right away
