@@ -20,3 +20,4 @@ I have also made some modifications to the gr-qtgui code in order to enable grid
 You can modify the GUI by opening the gqrx_qtgui.ui file in Qt Designer. If you make changes you have to recompile the UI code using:
 
 pyuic4 gqrx_qtgui.ui -o gqrx_qtgui.py
+
