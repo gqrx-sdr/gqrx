@@ -5,7 +5,7 @@ This branch contains the UHD version of the receiver.
 To run this application you need to have GNU Radio 3.3 with gr-qtgui component installed, as well as a USRP or other device supported by UHD.
 
 Implemented functions:
- * Set USRP frequency, RF gain and bandwidth (250k, 500k, 1M, 2m or 4M)
+ * Set USRP frequency, RF gain and bandwidth (250k, 500k, 1M, 2M or 4M)
  * Select USRP subdevice and antenna on the command line
  * Show USRP spectrum
  * Variable bandpass filter
