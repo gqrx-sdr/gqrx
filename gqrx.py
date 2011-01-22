@@ -674,9 +674,11 @@ class my_top_block(gr.top_block):
         self.lock()
         
         self._sample_rate = sr
-        print "New sample rate: ", self._sample_rate
+        print "New sample rate:"
 
         self.u.set_samp_rate(self._sample_rate)
+        
+        print "  Set: ", self._sample_rate, "   Actual: ", self.u.get_samp_rate()
 
         # finally, update the tuning slider and spinbox
         self.main_win.set_tuning_range(int(self._sample_rate/2))
