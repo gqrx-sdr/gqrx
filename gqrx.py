@@ -518,7 +518,7 @@ class my_top_block(gr.top_block):
         self.snk = qtgui.sink_c(self._fftsize, firdes.WIN_BLACKMAN_hARRIS,
                                 self._freq, self._sample_rate,
                                 "USRP Display",
-                                True, False, False, False, False)
+                                True, False, False, False)
       
         # frequency xlating filter used for tuning and decimation
         # to bring usrp rate down to 50 ksps regardless of USRP decimation (250k for FM-W)
