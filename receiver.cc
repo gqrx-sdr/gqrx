@@ -1,21 +1,22 @@
 #include <receiver.h>
 
 
-receiver::receiver()
+receiver::receiver(const std::string input_device, const std::string audio_device)
 {
-    tb = gr_make_top_block("gqrx");
-    src = gr_make_null_source(sizeof(gr_complex));
-    sink = gr_make_null_sink(sizeof(gr_complex));
-    throttle = gr_make_throttle(sizeof(gr_complex), 98000.0);
+    d_tb = gr_make_top_block("gqrx");
 
-    tb->connect(src, 0, throttle, 0);
-    tb->connect(throttle, 0, sink, 0);
+    d_fcd = fcd_make_source_c(input_device);
+
+    d_sink = gr_make_null_sink(sizeof(gr_complex));
+
+    d_tb->connect(d_fcd, 0, d_sink, 0);
+
 }
 
 receiver::~receiver()
 {
-  tb->stop();
-  tb->wait();
+  d_tb->stop();
+  d_tb->wait();
 
   /* FIXME: delete blocks? */
 }
@@ -24,10 +25,53 @@ receiver::~receiver()
 void receiver::start()
 {
     /* FIXME: Check that flow graph is not running */
-    tb->start();
+    d_tb->start();
 }
 
 void receiver::stop()
 {
-    tb->stop();
+    d_tb->stop();
 }
+
+
+rx_status_t receiver::set_rf_freq(float freq_hz)
+{
+    return RX_STATUS_OK;
+}
+
+
+rx_status_t receiver::set_rf_gain(float gain_db)
+{
+    return RX_STATUS_OK;
+}
+
+
+rx_status_t receiver::set_tuning_offset(float offset_hz)
+{
+    return RX_STATUS_OK;
+}
+
+
+rx_status_t receiver::set_filter_low(float freq_hz)
+{
+    return RX_STATUS_OK;
+}
+
+
+rx_status_t receiver::set_filter_high(float freq_hz)
+{
+    return RX_STATUS_OK;
+}
+
+
+rx_status_t receiver::set_demod(rx_demod_t demod)
+{
+    return RX_STATUS_OK;
+}
+
+
+rx_status_t receiver::set_af_gain(float gain_db)
+{
+    return RX_STATUS_OK;
+}
+
