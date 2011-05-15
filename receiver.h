@@ -1,10 +1,27 @@
+/* -*- c++ -*- */
+/*
+ * Copyright 2011 Alexandru Csete OZ9AEC.
+ *
+ * GNU Radio is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3, or (at your option)
+ * any later version.
+ *
+ * GNU Radio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GNU Radio; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street,
+ * Boston, MA 02110-1301, USA.
+ */
 #ifndef RECEIVER_H
 #define RECEIVER_H
 
 #include <gr_top_block.h>
-#include <gr_null_source.h>
-#include <gr_null_sink.h>
-#include <gr_throttle.h>
+#include <gr_audio_sink.h>
 #include <fcd/fcd_source_c.h>
 
 
@@ -93,13 +110,11 @@ public:
 
 
 private:
-    gr_top_block_sptr d_tb;  /*! \brief The GNU Radio top block. */
-    fcd_source_c_sptr d_fcd; /*! \brief Funcube Dongle source. */
+    gr_top_block_sptr d_tb;        /*! The GNU Radio top block. */
+    fcd_source_c_sptr d_fcd_src;   /*! Funcube Dongle source. */
 
-
-    gr_null_sink_sptr d_sink;
-
-
+    audio_sink::sptr d_audio_sink; /*! Audio sink. */
+    int d_audio_rate;              /*! Audio output rate. */
 
 protected:
 
