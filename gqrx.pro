@@ -25,5 +25,5 @@ FORMS    += mainwindow.ui
 # FIXME: check for version?
 linux-g++ {
     CONFIG += link_pkgconfig
-    PKGCONFIG += gnuradio-core gnuradio-audio gr-fcd
+    PKGCONFIG += gnuradio-core gnuradio-audio gnuradio-fcd
 }
