@@ -13,10 +13,12 @@ TEMPLATE = app
 SOURCES +=\
     receiver.cc \
     main.cc \
-    mainwindow.cc
+    mainwindow.cc \
+    rx_filter.cc
 
 HEADERS  += mainwindow.h \
-    receiver.h
+    receiver.h \
+    rx_filter.h
 
 FORMS    += mainwindow.ui
 

@@ -21,36 +21,36 @@
 
 
 receiver::receiver(const std::string input_device, const std::string audio_device)
-    : d_audio_rate(48000)
+    : d_bandwidth(96000.0), d_audio_rate(48000)
 {
-    d_tb = gr_make_top_block("gqrx");
+    tb = gr_make_top_block("gqrx");
 
-    d_fcd_src = fcd_make_source_c(input_device);
+    fcd_src = fcd_make_source_c(input_device);
 
-    d_audio_sink = audio_make_sink(d_audio_rate, audio_device, true);
+    audio_snk = audio_make_sink(d_audio_rate, audio_device, true);
 
-    d_tb->connect(d_fcd_src, 0, d_audio_sink, 0);
+    tb->connect(fcd_src, 0, audio_snk, 0);
 
 }
 
 receiver::~receiver()
 {
-  d_tb->stop();
-  d_tb->wait();
+    tb->stop();
+    tb->wait();
 
-  /* FIXME: delete blocks? */
+    /* FIXME: delete blocks? */
 }
 
 
 void receiver::start()
 {
     /* FIXME: Check that flow graph is not running */
-    d_tb->start();
+    tb->start();
 }
 
 void receiver::stop()
 {
-    d_tb->stop();
+    tb->stop();
 }
 
 
@@ -66,7 +66,7 @@ rx_status_t receiver::set_rf_gain(float gain_db)
 }
 
 
-rx_status_t receiver::set_tuning_offset(float offset_hz)
+rx_status_t receiver::set_filter_offset(float offset_hz)
 {
     return RX_STATUS_OK;
 }

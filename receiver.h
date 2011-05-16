@@ -78,19 +78,20 @@ public:
 
     /*! \brief Set RF frequency.
      *  \param freq_hz The desired frequency in Hz.
-     *  \return True if an error occurs, e.g. the frequency is out of range.
+     *  \return RX_STATUS_ERROR if an error occurs, e.g. the frequency is out of range.
      */
     rx_status_t set_rf_freq(float freq_hz);
 
     /*! \brief Set RF gain.
      *  \param gain_db The desired gain in dB.
-     *  \return TRUE if an error occurs, e.g. the gain is out of valid range.
+     *  \return RX_STATUS_ERROR if an error occurs, e.g. the gain is out of valid range.
      */
     rx_status_t set_rf_gain(float gain_db);
 
-    /*! \brief Set tuning offset.
-     *  \param offset_hz The desired tuning offset in Hz.
-     *  \return True if the tuning offset is out of range.
+
+    /*! \brief Set filter offset.
+     *  \param offset_hz The desired filter offset in Hz.
+     *  \return RX_STATUS_ERROR if the tuning offset is out of range.
      *
      * This method sets a new tuning offset fir the receiver. The tuning offset is used
      * to tune within the passband, i.e. select a specific channel within the received
@@ -99,7 +100,7 @@ public:
      * The valid range for the tuning is +/- 0.5 * the bandwidth although this is just a
      * logical limit.
      */
-    rx_status_t set_tuning_offset(float offset_hz);
+    rx_status_t set_filter_offset(float offset_hz);
 
     rx_status_t set_filter_low(float freq_hz);
     rx_status_t set_filter_high(float freq_hz);
@@ -110,11 +111,13 @@ public:
 
 
 private:
-    gr_top_block_sptr d_tb;        /*! The GNU Radio top block. */
-    fcd_source_c_sptr d_fcd_src;   /*! Funcube Dongle source. */
-
-    audio_sink::sptr d_audio_sink; /*! Audio sink. */
+    float d_bandwidth;             /*! Receiver bandwidth. */
     int d_audio_rate;              /*! Audio output rate. */
+
+    gr_top_block_sptr tb;        /*! The GNU Radio top block. */
+    fcd_source_c_sptr fcd_src;   /*! Funcube Dongle source. */
+
+    audio_sink::sptr audio_snk; /*! Audio sink. */
 
 protected:
 
