@@ -25,9 +25,9 @@
  * Create a new instance of rx_filter and return
  * a boost shared_ptr. This is effectively the public constructor.
  */
-rx_filter_sptr make_rx_filter(float sample_rate, float offset, float low, float high, float trans_width)
+rx_filter_sptr make_rx_filter(double sample_rate, double center, double low, double high, double trans_width)
 {
-    return gnuradio::get_initial_sptr(new rx_filter(sample_rate, offset, low, high, trans_width));
+    return gnuradio::get_initial_sptr(new rx_filter(sample_rate, center, low, high, trans_width));
 }
 
 
@@ -37,7 +37,7 @@ static const int MIN_OUT = 1; /* Minimum number of output streams. */
 static const int MAX_OUT = 1; /* Maximum number of output streams. */
 
 
-rx_filter::rx_filter(float sample_rate, float offset, float low, float high, float trans_width)
+rx_filter::rx_filter(double sample_rate, double center, double low, double high, double trans_width)
     : gr_hier_block2 ("rx_filter",
                       gr_make_io_signature (MIN_IN, MAX_IN, sizeof (gr_complex)),
                       gr_make_io_signature (MIN_OUT, MAX_OUT, sizeof (gr_complex)))
@@ -53,43 +53,43 @@ rx_filter::~rx_filter ()
 }
 
 
-void rx_filter::set_offset(float offset)
+void rx_filter::set_offset(double center)
 {
 
 }
 
 
-void rx_filter::set_low(float low)
+void rx_filter::set_low(double low)
 {
 
 }
 
 
-void rx_filter::set_high(float high)
+void rx_filter::set_high(double high)
 {
 
 }
 
 
-void rx_filter::set_trans_width(float trans_width)
+void rx_filter::set_trans_width(double trans_width)
 {
 
 }
 
 
-void rx_filter::set_param(float center, float low, float high, float trans_width)
+void rx_filter::set_param(double center, double low, double high, double trans_width)
 {
 
 }
 
 
-void rx_filter::set_param(float center, float low, float high)
+void rx_filter::set_param(double center, double low, double high)
 {
 
 }
 
 
-void rx_filter::set_param(float low, float high)
+void rx_filter::set_param(double low, double high)
 {
 
 }

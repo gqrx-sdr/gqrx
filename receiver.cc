@@ -66,19 +66,19 @@ rx_status_t receiver::set_rf_gain(float gain_db)
 }
 
 
-rx_status_t receiver::set_filter_offset(float offset_hz)
+rx_status_t receiver::set_filter_offset(double offset_hz)
 {
     return RX_STATUS_OK;
 }
 
 
-rx_status_t receiver::set_filter_low(float freq_hz)
+rx_status_t receiver::set_filter_low(double freq_hz)
 {
     return RX_STATUS_OK;
 }
 
 
-rx_status_t receiver::set_filter_high(float freq_hz)
+rx_status_t receiver::set_filter_high(double freq_hz)
 {
     return RX_STATUS_OK;
 }

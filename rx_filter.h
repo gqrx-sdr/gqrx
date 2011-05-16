@@ -40,7 +40,7 @@ typedef boost::shared_ptr<rx_filter> rx_filter_sptr;
  * of raw pointers, rx_filter's constructor is private.
  * make_rxfilter is the public interface for creating new instances.
  */
-rx_filter_sptr make_rx_filter(float sample_rate, float offset, float low, float high, float trans_width);
+rx_filter_sptr make_rx_filter(double sample_rate, double center, double low, double high, double trans_width);
 
 
 /*! \brief Frequency translating band-pass filter with complex taps.
@@ -59,23 +59,23 @@ class rx_filter : public gr_hier_block2
 {
 
 public:
-    rx_filter(float sample_rate=96000.0, float offset=0.0, float low=-5000.0, float high=5000.0, float trans_width=1000.0); // FIXME: should be private
+    rx_filter(double sample_rate=96000.0, double center=0.0, double low=-5000.0, double high=5000.0, double trans_width=1000.0); // FIXME: should be private
     ~rx_filter();
 
-    void set_offset(float offset);
-    void set_low(float low);
-    void set_high(float high);
-    void set_trans_width(float trans_width);
+    void set_offset(double center);
+    void set_low(double low);
+    void set_high(double high);
+    void set_trans_width(double trans_width);
 
-    void set_param(float center, float low, float high, float trans_width);
-    void set_param(float center, float low, float high);
-    void set_param(float low, float high);
+    void set_param(double center, double low, double high, double trans_width);
+    void set_param(double center, double low, double high);
+    void set_param(double low, double high);
 
 private:
-    float d_offset;
-    float d_low;
-    float d_high;
-    float d_trans_width;
+    double d_center;
+    double d_low;
+    double d_high;
+    double d_trans_width;
 
 };
 

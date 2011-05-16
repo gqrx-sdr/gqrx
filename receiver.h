@@ -100,10 +100,10 @@ public:
      * The valid range for the tuning is +/- 0.5 * the bandwidth although this is just a
      * logical limit.
      */
-    rx_status_t set_filter_offset(float offset_hz);
+    rx_status_t set_filter_offset(double offset_hz);
 
-    rx_status_t set_filter_low(float freq_hz);
-    rx_status_t set_filter_high(float freq_hz);
+    rx_status_t set_filter_low(double freq_hz);
+    rx_status_t set_filter_high(double freq_hz);
 
     rx_status_t set_demod(rx_demod_t demod);
 
