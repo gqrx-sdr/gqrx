@@ -28,31 +28,6 @@
 /*! \defgroup DSP Digital signal processing library based on GNU Radio */
 
 
-typedef enum {
-    RX_STATUS_OK    = 0,
-    RX_STATUS_ERROR = 1
-} rx_status_t;
-
-
-typedef enum {
-    RX_DEMOD_NONE = 0,
-    RX_DEMOD_SSB  = 1,
-    RX_DEMOD_AM   = 2,
-    RX_DEMOD_AMS  = 3,
-    RX_DEMOD_FMN  = 4,
-    RX_DEMOD_APT  = 5,
-    RX_DEMOD_FMW  = 6,
-    RX_DEMOD_B1K  = 7
-} rx_demod_t;
-
-
-typedef enum {
-    RX_FILTER_SHAPE_SOFT = 0,
-    RX_FILTER_SHAPE_NORMAL = 1,
-    RX_FILTER_SHAPE_SHARP = 2
-} rx_filter_shape_t;
-
-
 /*! \brief Top-level receiver class.
  *  \ingroup DSP
  *
@@ -65,6 +40,33 @@ class receiver
 {
 
 public:
+
+    /*! \brief Flag used to indicate success or failure of an operation, usually a set_something().     */
+    enum status {
+        STATUS_OK    = 0, /*! Operation was successful. */
+        STATUS_ERROR = 1  /*! There was an error. */
+    };
+
+    /*! \brief Available demodulators. */
+    enum demod {
+        DEMOD_NONE = 0,  /*! No demodulator (pass through). */
+        DEMOD_SSB  = 1,  /*! Single side band. */
+        DEMOD_AM   = 2,  /*! Amplitude modulation. */
+        DEMOD_AMS  = 3,  /*! Synchronous AM. */
+        DEMOD_FMN  = 4,  /*! Narrow band FM. */
+        DEMOD_FMW  = 5,  /*! Wide band (broadcast) FM. */
+        DEMOD_APT  = 6,  /*! FM for NOAA APT (17 kHz deviation). */
+        DEMOD_B1K  = 7   /*! Phil Karn's BPSK1000 modem. */
+    };
+
+    /*! \brief Filter shape (convenience wrappers for "transition width"). */
+    enum filter_shape {
+        FILTER_SHAPE_SOFT = 0,   /*! Soft: Transition band is TBD of width. */
+        FILTER_SHAPE_NORMAL = 1, /*! Normal: Transition band is TBD of width. */
+        FILTER_SHAPE_SHARP = 2   /*! Sharp: Transition band is TBD of width. */
+    };
+
+
     /*! \brief Public contructor.
      *  \param input_device Input device specifier, e.g. hw:1 for FCD source.
      *  \param audio_device Audio output device specifier,
@@ -87,13 +89,13 @@ public:
      *  \param freq_hz The desired frequency in Hz.
      *  \return RX_STATUS_ERROR if an error occurs, e.g. the frequency is out of range.
      */
-    rx_status_t set_rf_freq(float freq_hz);
+    status set_rf_freq(float freq_hz);
 
     /*! \brief Set RF gain.
      *  \param gain_db The desired gain in dB.
      *  \return RX_STATUS_ERROR if an error occurs, e.g. the gain is out of valid range.
      */
-    rx_status_t set_rf_gain(float gain_db);
+    status set_rf_gain(float gain_db);
 
 
     /*! \brief Set filter offset.
@@ -107,15 +109,15 @@ public:
      * The valid range for the tuning is +/- 0.5 * the bandwidth although this is just a
      * logical limit.
      */
-    rx_status_t set_filter_offset(double offset_hz);
+    status set_filter_offset(double offset_hz);
 
-    rx_status_t set_filter_low(double freq_hz);
-    rx_status_t set_filter_high(double freq_hz);
-    rx_status_t set_filter_shape(rx_filter_shape_t shape);
+    status set_filter_low(double freq_hz);
+    status set_filter_high(double freq_hz);
+    status set_filter_shape(filter_shape shape);
 
-    rx_status_t set_demod(rx_demod_t demod);
+    status set_demod(demod rx_demod);
 
-    rx_status_t set_af_gain(float gain_db);
+    status set_af_gain(float gain_db);
 
 
 private:

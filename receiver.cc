@@ -54,50 +54,50 @@ void receiver::stop()
 }
 
 
-rx_status_t receiver::set_rf_freq(float freq_hz)
+receiver::status receiver::set_rf_freq(float freq_hz)
 {
-    return RX_STATUS_OK;
+    return STATUS_OK;
 }
 
 
-rx_status_t receiver::set_rf_gain(float gain_db)
+receiver::status receiver::set_rf_gain(float gain_db)
 {
-    return RX_STATUS_OK;
+    return STATUS_OK;
 }
 
 
-rx_status_t receiver::set_filter_offset(double offset_hz)
+receiver::status receiver::set_filter_offset(double offset_hz)
 {
-    return RX_STATUS_OK;
+    return STATUS_OK;
 }
 
 
-rx_status_t receiver::set_filter_low(double freq_hz)
+receiver::status receiver::set_filter_low(double freq_hz)
 {
-    return RX_STATUS_OK;
+    return STATUS_OK;
 }
 
 
-rx_status_t receiver::set_filter_high(double freq_hz)
+receiver::status receiver::set_filter_high(double freq_hz)
 {
-    return RX_STATUS_OK;
+    return STATUS_OK;
 }
 
 
-rx_status_t set_filter_shape(rx_filter_shape_t shape)
+receiver::status receiver::set_filter_shape(filter_shape shape)
 {
 
 }
 
 
-rx_status_t receiver::set_demod(rx_demod_t demod)
+receiver::status receiver::set_demod(demod rx_demod)
 {
-    return RX_STATUS_OK;
+    return STATUS_OK;
 }
 
 
-rx_status_t receiver::set_af_gain(float gain_db)
+receiver::status receiver::set_af_gain(float gain_db)
 {
-    return RX_STATUS_OK;
+    return STATUS_OK;
 }
 
