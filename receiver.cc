@@ -84,6 +84,12 @@ rx_status_t receiver::set_filter_high(double freq_hz)
 }
 
 
+rx_status_t set_filter_shape(rx_filter_shape_t shape)
+{
+
+}
+
+
 rx_status_t receiver::set_demod(rx_demod_t demod)
 {
     return RX_STATUS_OK;

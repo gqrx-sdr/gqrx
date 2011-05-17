@@ -46,6 +46,13 @@ typedef enum {
 } rx_demod_t;
 
 
+typedef enum {
+    RX_FILTER_SHAPE_SOFT = 0,
+    RX_FILTER_SHAPE_NORMAL = 1,
+    RX_FILTER_SHAPE_SHARP = 2
+} rx_filter_shape_t;
+
+
 /*! \brief Top-level receiver class.
  *  \ingroup DSP
  *
@@ -104,6 +111,7 @@ public:
 
     rx_status_t set_filter_low(double freq_hz);
     rx_status_t set_filter_high(double freq_hz);
+    rx_status_t set_filter_shape(rx_filter_shape_t shape);
 
     rx_status_t set_demod(rx_demod_t demod);
 
