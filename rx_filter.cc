@@ -18,6 +18,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <gr_io_signature.h>
+#include <gr_firdes.h>
 #include <rx_filter.h>
 
 
@@ -40,10 +41,22 @@ static const int MAX_OUT = 1; /* Maximum number of output streams. */
 rx_filter::rx_filter(double sample_rate, double center, double low, double high, double trans_width)
     : gr_hier_block2 ("rx_filter",
                       gr_make_io_signature (MIN_IN, MAX_IN, sizeof (gr_complex)),
-                      gr_make_io_signature (MIN_OUT, MAX_OUT, sizeof (gr_complex)))
+                      gr_make_io_signature (MIN_OUT, MAX_OUT, sizeof (gr_complex))),
+      d_sample_rate(sample_rate),
+      d_center(center),
+      d_low(low),
+      d_high(high),
+      d_trans_width(trans_width)
 {
-    /* passthrough */
-    connect(self(), 0, self(), 0);
+    /* generate taps */
+    d_taps = gr_firdes::complex_band_pass(1.0, d_sample_rate, d_low, d_high, d_trans_width);
+
+    /* create band pass filter */
+    d_bpf = gr_make_freq_xlating_fir_filter_ccc(1, d_taps, d_center, d_sample_rate);
+
+    /* connect filter */
+    connect(self(), 0, d_bpf, 0);
+    connect(d_bpf, 0, self(), 0);
 }
 
 
@@ -55,7 +68,8 @@ rx_filter::~rx_filter ()
 
 void rx_filter::set_offset(double center)
 {
-
+    d_center = center;
+    d_bpf->set_center_freq(center);
 }
 
 

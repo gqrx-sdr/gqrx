@@ -21,6 +21,7 @@
 #define RX_FILTER_H
 
 #include <gr_hier_block2.h>
+#include <gr_freq_xlating_fir_filter_ccc.h>
 
 
 class rx_filter;
@@ -54,6 +55,10 @@ rx_filter_sptr make_rx_filter(double sample_rate, double center, double low, dou
  * The filter limits are relative to the filter offset and thanks to the complex taps
  * they can be both positive and negative.
  *
+ * The user of this class is expected to provide valid parameters and no checks are
+ * performed by the accessors (though the taps generator from gr_firdes does perform
+ * some sanity checks and throws std::out_of_range in case of bad parameter).
+ *
  */
 class rx_filter : public gr_hier_block2
 {
@@ -72,6 +77,10 @@ public:
     void set_param(double low, double high);
 
 private:
+    std::vector<gr_complex> d_taps;
+    gr_freq_xlating_fir_filter_ccc_sptr d_bpf;
+
+    double d_sample_rate;
     double d_center;
     double d_low;
     double d_high;
