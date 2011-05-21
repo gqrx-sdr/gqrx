@@ -14,11 +14,14 @@ SOURCES +=\
     receiver.cc \
     main.cc \
     mainwindow.cc \
-    rx_filter.cc
+    rx_filter.cc \
+    rx_demod_fm.cc
+
 
 HEADERS  += mainwindow.h \
     receiver.h \
-    rx_filter.h
+    rx_filter.h \
+    rx_demod_fm.h
 
 FORMS    += mainwindow.ui
 
