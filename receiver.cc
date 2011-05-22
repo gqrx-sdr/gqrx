@@ -26,17 +26,22 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     tb = gr_make_top_block("gqrx");
 
     fcd_src = fcd_make_source_c(input_device);
+    fcd_src->set_freq(144500000.0f);
+    filter = make_rx_filter(d_bandwidth, 0.0, -5000.0, 5000.0, 1000.0);
+    demod_fm = make_rx_demod_fm(48000.0, 48000.0, 5000.0, 50.0e-6);
 
     audio_snk = audio_make_sink(d_audio_rate, audio_device, true);
 
-    tb->connect(fcd_src, 0, audio_snk, 0);
+    tb->connect(fcd_src, 0, filter, 0);
+    tb->connect(filter, 0, demod_fm, 0);
+    tb->connect(demod_fm, 0, audio_snk, 0);
 
 }
 
 receiver::~receiver()
 {
     tb->stop();
-    tb->wait();
+
 
     /* FIXME: delete blocks? */
 }
@@ -51,11 +56,14 @@ void receiver::start()
 void receiver::stop()
 {
     tb->stop();
+    tb->wait(); // If the graph is needed to run again, wait() must be called after stop
+    // FIXME: aUaO
 }
 
 
 receiver::status receiver::set_rf_freq(float freq_hz)
 {
+    fcd_src->set_freq(freq_hz);
     return STATUS_OK;
 }
 

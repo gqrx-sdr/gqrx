@@ -17,6 +17,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <QDebug>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -25,9 +26,31 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    /* create receiver object */
+    rx = new receiver("hw:1");
+
+    rx->set_rf_freq(144500000.0f);
+    rx->set_filter_offset(25000.0);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete rx;
+}
+
+
+void MainWindow::on_rxStartStopButton_toggled(bool checked)
+{
+    if (checked) {
+        /* start receiver and update button label */
+        rx->start();
+        ui->rxStartStopButton->setText(tr("Stop"));
+    }
+    else {
+        /* stop receiver and update label */
+        rx->stop();
+        ui->rxStartStopButton->setText(tr("Start"));
+    }
 }

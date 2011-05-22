@@ -21,6 +21,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <receiver.h>
+
 
 namespace Ui {
     class MainWindow;
@@ -36,6 +38,11 @@ public:
 
 private:
     Ui::MainWindow *ui;
+
+    receiver *rx;
+
+private slots:
+    void on_rxStartStopButton_toggled(bool checked);  /*! RX start/stop button toggled. */
 };
 
 #endif // MAINWINDOW_H

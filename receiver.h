@@ -23,6 +23,8 @@
 #include <gr_top_block.h>
 #include <gr_audio_sink.h>
 #include <fcd/fcd_source_c.h>
+#include <rx_filter.h>
+#include <rx_demod_fm.h>
 
 
 /*! \defgroup DSP Digital signal processing library based on GNU Radio */
@@ -126,6 +128,8 @@ private:
 
     gr_top_block_sptr tb;        /*! The GNU Radio top block. */
     fcd_source_c_sptr fcd_src;   /*! Funcube Dongle source. */
+    rx_filter_sptr    filter;
+    rx_demod_fm_sptr  demod_fm;
 
     audio_sink::sptr audio_snk; /*! Audio sink. */
 
