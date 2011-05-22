@@ -36,7 +36,7 @@ typedef boost::shared_ptr<rx_demod_fm> rx_demod_fm_sptr;
  *  \param quad_rate The input sample rate.
  *  \param audio_rate The audio rate.
  *  \param max_dev Maximum deviation in Hz
- *  \param tau Preemphasis time constant in seconds (75us in US, 50us in EUR, negative value disables).
+ *  \param tau De-emphasis time constant in seconds (75us in US, 50us in EUR, negative value disables).
  *
  * This is effectively the public constructor. To avoid accidental use
  * of raw pointers, rx_demod_fm's constructor is private.
@@ -57,7 +57,7 @@ class rx_demod_fm : public gr_hier_block2
 {
 
 public:
-    rx_demod_fm(float quad_rate=96000.0, float audio_rate=48000.0, float max_dev=5000.0, double tau=50.0e-6); // FIXME: should be private
+    rx_demod_fm(float quad_rate=48000.0, float audio_rate=48000.0, float max_dev=5000.0, double tau=50.0e-6); // FIXME: should be private
     ~rx_demod_fm();
 
     void set_max_dev(float max_dev);

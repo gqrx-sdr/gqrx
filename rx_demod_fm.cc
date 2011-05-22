@@ -21,6 +21,8 @@
 #include <gr_firdes.h>
 #include <rx_demod_fm.h>
 
+#include <iostream>
+
 
 /* Create a new instance of rx_demod_fm and return a boost shared_ptr. */
 rx_demod_fm_sptr make_rx_demod_fm(float quad_rate, float audio_rate, float max_dev, double tau)
@@ -50,6 +52,8 @@ rx_demod_fm::rx_demod_fm(float quad_rate, float audio_rate, float max_dev, doubl
     /* demodulator gain */
     gain = d_quad_rate / (2.0 * M_PI * d_max_dev);
 
+    std::cout << "G: " << gain << std::endl;
+
     /* demodulator */
     d_quad = gr_make_quadrature_demod_cf(gain);
 
@@ -59,13 +63,13 @@ rx_demod_fm::rx_demod_fm(float quad_rate, float audio_rate, float max_dev, doubl
     }
 
     /* PFB resampler */
-    d_taps = gr_firdes::low_pass(32.0, 32.0*d_quad_rate, d_quad_rate/2.0, 0.1*d_quad_rate/2.0);
-    d_resampler = gr_make_pfb_arb_resampler_ccf (d_audio_rate/d_quad_rate, d_taps, 32);
+    //d_taps = gr_firdes::low_pass(32.0, 32.0*d_quad_rate, d_quad_rate/2.0, 0.1*d_quad_rate/2.0);
+    //d_resampler = gr_make_pfb_arb_resampler_fff (d_audio_rate/d_quad_rate, d_taps, 32);
 
     /* connect block */
     connect(self(), 0, d_quad, 0);
-    connect(d_quad, 0,d_resampler, 0);
-    connect(d_resampler, 0, self(), 0);
+    connect(d_quad, 0, self(), 0);
+
 }
 
 
