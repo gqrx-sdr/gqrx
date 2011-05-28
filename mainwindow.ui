@@ -30,7 +30,7 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="CFreqCtrl" name="frame">
+   <widget class="CFreqCtrl" name="freqCtrl">
     <property name="geometry">
      <rect>
       <x>20</x>

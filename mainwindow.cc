@@ -27,17 +27,36 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    /* frequency control widget */
+    ui->freqCtrl->Setup(10, (quint64) 50e6, (quint64) 2e9, 1, UNITS_MHZ);
+    ui->freqCtrl->SetFrequency(144500000);
+
     /* create receiver object */
     rx = new receiver("hw:1");
 
     rx->set_rf_freq(144500000.0f);
     rx->set_filter_offset(25000.0);
+
+    /* connect signals and slots */
+    connect(ui->freqCtrl, SIGNAL(NewFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
     delete rx;
+}
+
+
+/*! \brief Slot for receiving frequency change signals.
+ *  \param[in] freq The new frequency.
+ *
+ * This slot is connected to the CFreqCtrl::NewFrequency() signal and is used
+ * to set new RF frequency.
+ */
+void MainWindow::setNewFrequency(qint64 freq)
+{
+    rx->set_rf_freq((float) freq);
 }
 
 

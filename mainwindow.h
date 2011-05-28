@@ -36,6 +36,9 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+public slots:
+    void setNewFrequency(qint64 freq);
+
 private:
     Ui::MainWindow *ui;
 
