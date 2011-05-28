@@ -46,6 +46,7 @@ private:
 
 private slots:
     void on_rxStartStopButton_toggled(bool checked);  /*! RX start/stop button toggled. */
+    void on_tuningSlider_valueChanged(int value);
 };
 
 #endif // MAINWINDOW_H

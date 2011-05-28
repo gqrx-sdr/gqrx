@@ -35,7 +35,6 @@ MainWindow::MainWindow(QWidget *parent) :
     rx = new receiver("hw:1");
 
     rx->set_rf_freq(144500000.0f);
-    rx->set_filter_offset(25000.0);
 
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(NewFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
@@ -72,4 +71,11 @@ void MainWindow::on_rxStartStopButton_toggled(bool checked)
         rx->stop();
         ui->rxStartStopButton->setText(tr("Start"));
     }
+}
+
+/* temporary slot for receiving slider signals (tune within passband) */
+void MainWindow::on_tuningSlider_valueChanged(int value)
+{
+    qDebug() << "TUNE: " << value;
+    rx->set_filter_offset((double) value);
 }
