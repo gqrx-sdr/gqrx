@@ -63,8 +63,8 @@ CFreqCtrl::CFreqCtrl(QWidget *parent) :
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking ( TRUE );
     m_BkColor = Qt::black;
-    m_DigitColor = Qt::green;
-    m_HighlightColor = Qt::yellow;
+    m_DigitColor = QColor(0xFF, 0xE6, 0xC8, 0xFF);
+    m_HighlightColor = QColor(0x35, 0x35, 0x35, 0xFF);
     m_UnitsColor = Qt::gray;
     m_freq = 146123456;
     Setup( 10, 1, 4000000000U, 1, UNITS_MHZ);
