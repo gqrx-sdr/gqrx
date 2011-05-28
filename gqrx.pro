@@ -15,13 +15,15 @@ SOURCES +=\
     main.cc \
     mainwindow.cc \
     rx_filter.cc \
-    rx_demod_fm.cc
+    rx_demod_fm.cc \
+    qtgui/freqctrl.cpp
 
 
 HEADERS  += mainwindow.h \
     receiver.h \
     rx_filter.h \
-    rx_demod_fm.h
+    rx_demod_fm.h \
+    qtgui/freqctrl.h
 
 FORMS    += mainwindow.ui
 
