@@ -43,7 +43,7 @@ rx_filter::rx_filter(double sample_rate, double center, double low, double high,
                       gr_make_io_signature (MIN_IN, MAX_IN, sizeof (gr_complex)),
                       gr_make_io_signature (MIN_OUT, MAX_OUT, sizeof (gr_complex))),
       d_sample_rate(sample_rate),
-      d_center(20000.0),
+      d_center(center),
       d_low(low),
       d_high(high),
       d_trans_width(trans_width)
@@ -68,8 +68,12 @@ rx_filter::~rx_filter ()
 
 void rx_filter::set_offset(double center)
 {
-    d_center = center;
-    d_bpf->set_center_freq(center);
+    /* we have to change sign because the set_center_freq() actually
+       shifts the passband with the specified amount, which has
+       opposite sign of selecting a center frequency.
+    */
+    d_center = -center;
+    d_bpf->set_center_freq(d_center);
 }
 
 
