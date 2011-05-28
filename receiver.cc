@@ -76,6 +76,7 @@ receiver::status receiver::set_rf_gain(float gain_db)
 
 receiver::status receiver::set_filter_offset(double offset_hz)
 {
+    filter->set_offset(offset_hz);
     return STATUS_OK;
 }
 
