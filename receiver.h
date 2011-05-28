@@ -104,7 +104,7 @@ public:
      *  \param offset_hz The desired filter offset in Hz.
      *  \return RX_STATUS_ERROR if the tuning offset is out of range.
      *
-     * This method sets a new tuning offset fir the receiver. The tuning offset is used
+     * This method sets a new tuning offset for the receiver. The tuning offset is used
      * to tune within the passband, i.e. select a specific channel within the received
      * spectrum.
      *
