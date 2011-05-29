@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>451</width>
+    <width>650</width>
     <height>374</height>
    </rect>
   </property>
@@ -35,8 +35,8 @@
      <rect>
       <x>20</x>
       <y>10</y>
-      <width>421</width>
-      <height>51</height>
+      <width>371</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -105,7 +105,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>451</width>
+     <width>650</width>
      <height>25</height>
     </rect>
    </property>
