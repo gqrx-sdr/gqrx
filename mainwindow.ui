@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
-    <height>309</height>
+    <width>451</width>
+    <height>374</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,8 +35,8 @@
      <rect>
       <x>20</x>
       <y>10</y>
-      <width>461</width>
-      <height>61</height>
+      <width>421</width>
+      <height>51</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -51,7 +51,7 @@
      <rect>
       <x>20</x>
       <y>90</y>
-      <width>461</width>
+      <width>421</width>
       <height>19</height>
      </rect>
     </property>
@@ -74,13 +74,38 @@
      <number>0</number>
     </property>
    </widget>
+   <widget class="QSlider" name="audioGainSlider">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>120</y>
+      <width>19</width>
+      <height>101</height>
+     </rect>
+    </property>
+    <property name="statusTip">
+     <string>Audio Gain</string>
+    </property>
+    <property name="minimum">
+     <number>-800</number>
+    </property>
+    <property name="maximum">
+     <number>200</number>
+    </property>
+    <property name="value">
+     <number>-200</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>500</width>
+     <width>451</width>
      <height>25</height>
     </rect>
    </property>

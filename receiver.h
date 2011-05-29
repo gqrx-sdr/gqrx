@@ -22,6 +22,7 @@
 
 #include <gr_top_block.h>
 #include <gr_audio_sink.h>
+#include <gr_multiply_const_ff.h>
 #include <fcd/fcd_source_c.h>
 #include <rx_filter.h>
 #include <rx_demod_fm.h>
@@ -130,7 +131,7 @@ private:
     fcd_source_c_sptr fcd_src;   /*! Funcube Dongle source. */
     rx_filter_sptr    filter;
     rx_demod_fm_sptr  demod_fm;
-
+    gr_multiply_const_ff_sptr audio_gain; /*! Audio gain block. */
     audio_sink::sptr audio_snk; /*! Audio sink. */
 
 protected:

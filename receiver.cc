@@ -17,6 +17,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <iostream>
 #include <receiver.h>
 
 
@@ -29,12 +30,13 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     fcd_src->set_freq(144500000.0f);
     filter = make_rx_filter(d_bandwidth, 0.0, -5000.0, 5000.0, 1000.0);
     demod_fm = make_rx_demod_fm(48000.0, 48000.0, 5000.0, 50.0e-6);
-
+    audio_gain = gr_make_multiply_const_ff(0.1);
     audio_snk = audio_make_sink(d_audio_rate, audio_device, true);
 
     tb->connect(fcd_src, 0, filter, 0);
     tb->connect(filter, 0, demod_fm, 0);
-    tb->connect(demod_fm, 0, audio_snk, 0);
+    tb->connect(demod_fm, 0, audio_gain, 0);
+    tb->connect(audio_gain, 0, audio_snk, 0);
 
 }
 
@@ -107,6 +109,13 @@ receiver::status receiver::set_demod(demod rx_demod)
 
 receiver::status receiver::set_af_gain(float gain_db)
 {
+    float k;
+
+    /* convert dB to factor */
+    k = pow(10.0, gain_db / 20.0);
+    std::cout << "G:" << gain_db << "dB / K:" << k << std::endl;
+    audio_gain->set_k(k);
+
     return STATUS_OK;
 }
 

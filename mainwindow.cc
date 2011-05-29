@@ -79,3 +79,12 @@ void MainWindow::on_tuningSlider_valueChanged(int value)
     qDebug() << "TUNE: " << value;
     rx->set_filter_offset((double) value);
 }
+
+
+/*! \brief Audio gain changed.
+ *  \param value The new audio gain.
+ */
+void MainWindow::on_audioGainSlider_valueChanged(int value)
+{
+    rx->set_af_gain(((float)value) / 10.0);
+}
