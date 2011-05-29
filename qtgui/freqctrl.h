@@ -82,6 +82,9 @@ private:
     bool m_ExternalKeyActive;
     bool m_LRMouseFreqSel;
 
+    bool m_ResetLowerDigits;  /*! If TRUE digits below the active one will be reset to 0
+                                  when the active digit is incremented or decremented. */
+
     int m_FirstEditableDigit;
     int m_LastLeadZeroPos;
     int m_LeadZeroPos;

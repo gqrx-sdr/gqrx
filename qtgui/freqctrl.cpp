@@ -72,6 +72,7 @@ CFreqCtrl::CFreqCtrl(QWidget *parent) :
     m_LastLeadZeroPos = 0;
     m_LRMouseFreqSel = TRUE;
     m_ActiveEditDigit = -1;
+    m_ResetLowerDigits = FALSE;
     m_UnitsFont = QFont("Arial",12,QFont::Normal);
     m_DigitFont = QFont("Arial",12,QFont::Normal);
 }
@@ -707,7 +708,10 @@ void CFreqCtrl::IncFreq()
         if( m_DigitInfo[m_ActiveEditDigit].editmode)
         {
             m_freq += m_DigitInfo[m_ActiveEditDigit].incval;
-            m_freq = m_freq - m_freq%m_DigitInfo[m_ActiveEditDigit].weight;
+            if (m_ResetLowerDigits) {
+                /* Set digits below the active one to 0 */
+                m_freq = m_freq - m_freq%m_DigitInfo[m_ActiveEditDigit].weight;
+            }
             SetFrequency(m_freq);
             m_LastEditDigit = m_ActiveEditDigit;
         }
@@ -760,7 +764,11 @@ void CFreqCtrl::DecFreq()
         if( m_DigitInfo[m_ActiveEditDigit].editmode)
         {
             m_freq -= m_DigitInfo[m_ActiveEditDigit].incval;
-            m_freq = m_freq - m_freq%m_DigitInfo[m_ActiveEditDigit].weight;
+            if (m_ResetLowerDigits) {
+                /* digits below the active one are reset to 0 */
+                m_freq = m_freq - m_freq%m_DigitInfo[m_ActiveEditDigit].weight;
+            }
+
             SetFrequency(m_freq);
             m_LastEditDigit = m_ActiveEditDigit;
         }
