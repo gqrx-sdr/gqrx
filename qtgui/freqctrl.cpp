@@ -70,7 +70,7 @@ CFreqCtrl::CFreqCtrl(QWidget *parent) :
     Setup( 10, 1, 4000000000U, 1, UNITS_MHZ);
     m_Oldfreq = 0;
     m_LastLeadZeroPos = 0;
-    m_LRMouseFreqSel = TRUE;
+    m_LRMouseFreqSel = FALSE;
     m_ActiveEditDigit = -1;
     m_ResetLowerDigits = FALSE;
     m_UnitsFont = QFont("Arial",12,QFont::Normal);

@@ -80,7 +80,7 @@ private:
 
     bool m_UpdateAll;
     bool m_ExternalKeyActive;
-    bool m_LRMouseFreqSel;
+    bool m_LRMouseFreqSel;    /*! Use left/right mouse buttons. If FALSE click area determines up/down. */
 
     bool m_ResetLowerDigits;  /*! If TRUE digits below the active one will be reset to 0
                                   when the active digit is incremented or decremented. */
