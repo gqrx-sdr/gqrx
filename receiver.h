@@ -91,8 +91,15 @@ public:
     /*! \brief Set RF frequency.
      *  \param freq_hz The desired frequency in Hz.
      *  \return RX_STATUS_ERROR if an error occurs, e.g. the frequency is out of range.
+     *  \sa get_rf_freq()
      */
     status set_rf_freq(float freq_hz);
+
+    /*! \brief Get RF frequency.
+     *  \return The current RF frequency.
+     *  \sa set_rf_freq()
+     */
+    float  get_rf_freq();
 
     /*! \brief Set RF gain.
      *  \param gain_db The desired gain in dB.
@@ -111,8 +118,16 @@ public:
      *
      * The valid range for the tuning is +/- 0.5 * the bandwidth although this is just a
      * logical limit.
+     *
+     * \sa get_filter_offset()
      */
     status set_filter_offset(double offset_hz);
+
+    /*! \brief Get filterm offset.
+     *  \return The current filter offset.
+     *  \sa set_filter_offset()
+     */
+    double get_filter_offset();
 
     status set_filter_low(double freq_hz);
     status set_filter_high(double freq_hz);
@@ -124,8 +139,10 @@ public:
 
 
 private:
-    float d_bandwidth;             /*! Receiver bandwidth. */
-    int d_audio_rate;              /*! Audio output rate. */
+    float  d_bandwidth;        /*! Receiver bandwidth. */
+    int    d_audio_rate;       /*! Audio output rate. */
+    float  d_rf_freq;          /*! Current RF frequency. */
+    double d_filter_offset;    /*! Current filter offset (tune within passband). */
 
     gr_top_block_sptr tb;        /*! The GNU Radio top block. */
     fcd_source_c_sptr fcd_src;   /*! Funcube Dongle source. */

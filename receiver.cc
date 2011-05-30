@@ -22,13 +22,14 @@
 
 
 receiver::receiver(const std::string input_device, const std::string audio_device)
-    : d_bandwidth(96000.0), d_audio_rate(48000)
+    : d_bandwidth(96000.0), d_audio_rate(48000),
+      d_rf_freq(144800000.0), d_filter_offset(0.0)
 {
     tb = gr_make_top_block("gqrx");
 
     fcd_src = fcd_make_source_c(input_device);
-    fcd_src->set_freq(144500000.0f);
-    filter = make_rx_filter(d_bandwidth, 0.0, -5000.0, 5000.0, 1000.0);
+    fcd_src->set_freq(d_rf_freq);
+    filter = make_rx_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
     demod_fm = make_rx_demod_fm(48000.0, 48000.0, 5000.0, 50.0e-6);
     audio_gain = gr_make_multiply_const_ff(0.1);
     audio_snk = audio_make_sink(d_audio_rate, audio_device, true);
@@ -65,10 +66,17 @@ void receiver::stop()
 
 receiver::status receiver::set_rf_freq(float freq_hz)
 {
-    fcd_src->set_freq(freq_hz);
+    d_rf_freq = freq_hz;
+    /* FIXME: check frequency? */
+    fcd_src->set_freq(d_rf_freq);
+
     return STATUS_OK;
 }
 
+float receiver::get_rf_freq()
+{
+    return d_rf_freq;
+}
 
 receiver::status receiver::set_rf_gain(float gain_db)
 {
@@ -78,10 +86,15 @@ receiver::status receiver::set_rf_gain(float gain_db)
 
 receiver::status receiver::set_filter_offset(double offset_hz)
 {
-    filter->set_offset(offset_hz);
+    d_filter_offset = offset_hz;
+    filter->set_offset(d_filter_offset);
     return STATUS_OK;
 }
 
+double receiver::get_filter_offset()
+{
+    return d_filter_offset;
+}
 
 receiver::status receiver::set_filter_low(double freq_hz)
 {
