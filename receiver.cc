@@ -30,11 +30,13 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     fcd_src = fcd_make_source_c(input_device);
     fcd_src->set_freq(d_rf_freq);
     filter = make_rx_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
+    meter = make_rx_meter_c(false);
     demod_fm = make_rx_demod_fm(48000.0, 48000.0, 5000.0, 50.0e-6);
     audio_gain = gr_make_multiply_const_ff(0.1);
     audio_snk = audio_make_sink(d_audio_rate, audio_device, true);
 
     tb->connect(fcd_src, 0, filter, 0);
+    tb->connect(filter, 0, meter, 0);
     tb->connect(filter, 0, demod_fm, 0);
     tb->connect(demod_fm, 0, audio_gain, 0);
     tb->connect(audio_gain, 0, audio_snk, 0);
@@ -111,6 +113,14 @@ receiver::status receiver::set_filter_high(double freq_hz)
 receiver::status receiver::set_filter_shape(filter_shape shape)
 {
 
+}
+
+float receiver::get_signal_pwr(bool dbfs)
+{
+    if (dbfs)
+        return meter->get_level_db();
+    else
+        return meter->get_level();
 }
 
 

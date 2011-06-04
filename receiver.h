@@ -25,6 +25,7 @@
 #include <gr_multiply_const_ff.h>
 #include <fcd/fcd_source_c.h>
 #include <rx_filter.h>
+#include <rx_meter.h>
 #include <rx_demod_fm.h>
 
 
@@ -133,6 +134,15 @@ public:
     status set_filter_high(double freq_hz);
     status set_filter_shape(filter_shape shape);
 
+    /*! \brief Get current signal power.
+     *  \param dbfs Whether to use dbfs or absolute power.
+     *  \return The current signal power.
+     *
+     * This method returns the current signal power detected by the receiver. The detector
+     * is located after the band pass filter. The full scale is 1.0
+     */
+    float get_signal_pwr(bool dbfs);
+
     status set_demod(demod rx_demod);
 
     status set_af_gain(float gain_db);
@@ -147,6 +157,7 @@ private:
     gr_top_block_sptr tb;        /*! The GNU Radio top block. */
     fcd_source_c_sptr fcd_src;   /*! Funcube Dongle source. */
     rx_filter_sptr    filter;
+    rx_meter_c_sptr   meter;     /*! Signal strength. */
     rx_demod_fm_sptr  demod_fm;
     gr_multiply_const_ff_sptr audio_gain; /*! Audio gain block. */
     audio_sink::sptr audio_snk; /*! Audio sink. */
