@@ -144,10 +144,10 @@
    <widget class="QLabel" name="rxSigLabel">
     <property name="geometry">
      <rect>
-      <x>500</x>
+      <x>496</x>
       <y>20</y>
-      <width>67</width>
-      <height>17</height>
+      <width>81</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
