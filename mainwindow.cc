@@ -37,12 +37,21 @@ MainWindow::MainWindow(QWidget *parent) :
 
     rx->set_rf_freq(144500000.0f);
 
+    /* meter timer */
+    meter_timer = new QTimer(this);
+    connect(meter_timer, SIGNAL(timeout()), this, SLOT(meterTimeout()));
+
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(NewFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
 }
 
 MainWindow::~MainWindow()
 {
+    /* stop and delete timers */
+    meter_timer->stop();
+    delete meter_timer;
+
+    /* clean up the rest */
     delete ui;
     delete rx;
 }
@@ -68,13 +77,22 @@ void MainWindow::setNewFrequency(qint64 freq)
 void MainWindow::on_rxStartStopButton_toggled(bool checked)
 {
     if (checked) {
-        /* start receiver and update button label */
+        /* start receiver */
         rx->start();
+
+        /* start GUI timers */
+        meter_timer->start(100);
+
+        /* update button label */
         ui->rxStartStopButton->setText(tr("Stop"));
     }
     else {
-        /* stop receiver and update label */
+        /* stop GUI timers */
+        meter_timer->stop();
+
+        /* stop receiver */
         rx->stop();
+
         ui->rxStartStopButton->setText(tr("Start"));
     }
 }
@@ -99,4 +117,14 @@ void MainWindow::on_tuningSlider_valueChanged(int value)
 void MainWindow::on_audioGainSlider_valueChanged(int value)
 {
     rx->set_af_gain(((float)value) / 10.0);
+}
+
+
+/*! \brief Signal strength meter timeout */
+void MainWindow::meterTimeout()
+{
+    float level;
+
+    level = rx->get_signal_pwr(true);
+    ui->rxSigLabel->setText(QString("%1 dBFS").arg(level, 7, 'f', 2, ' '));
 }

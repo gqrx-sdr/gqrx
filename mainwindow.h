@@ -41,13 +41,14 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
-
+    QTimer   *meter_timer;
     receiver *rx;
 
 private slots:
     void on_rxStartStopButton_toggled(bool checked);  /*! RX start/stop button toggled. */
     void on_tuningSlider_valueChanged(int value);
     void on_audioGainSlider_valueChanged(int value);
+    void meterTimeout();
 };
 
 #endif // MAINWINDOW_H
