@@ -28,6 +28,9 @@ rx_meter_c_sptr make_rx_meter_c (bool use_avg)
 }
 
 
+#define  ATTACK_TIMECONST .01	//attack time in seconds
+#define  DECAY_TIMECONST .5		//decay time in seconds
+
 rx_meter_c::rx_meter_c(bool use_avg)
     : gr_sync_block ("rx_meter_c",
           gr_make_io_signature(1, 1, sizeof(gr_complex)),
@@ -55,7 +58,8 @@ int rx_meter_c::work (int noutput_items,
 
     /* find the maximum power in this set of samples */
     for (i = 0; i < noutput_items; i++) {
-        pwr = sqrt(in[i].real()*in[i].real() + in[i].imag()*in[i].imag());
+        /* calculate power as amplitude squared */
+        pwr = in[i].real()*in[i].real() + in[i].imag()*in[i].imag();
         if (pwr > max)
             max = pwr;
     }
