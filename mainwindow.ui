@@ -131,8 +131,8 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>20</y>
+      <x>20</x>
+      <y>160</y>
       <width>67</width>
       <height>17</height>
      </rect>
@@ -144,8 +144,8 @@
    <widget class="QLabel" name="rxSigLabel">
     <property name="geometry">
      <rect>
-      <x>496</x>
-      <y>20</y>
+      <x>120</x>
+      <y>160</y>
       <width>81</width>
       <height>20</height>
      </rect>
@@ -155,6 +155,22 @@
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="CMeter" name="sMeter">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>10</y>
+      <width>171</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
     </property>
    </widget>
   </widget>
@@ -184,6 +200,12 @@
    <class>CFreqCtrl</class>
    <extends>QFrame</extends>
    <header>qtgui/freqctrl.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CMeter</class>
+   <extends>QFrame</extends>
+   <header>qtgui/meter.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

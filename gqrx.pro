@@ -17,7 +17,8 @@ SOURCES +=\
     rx_filter.cc \
     rx_demod_fm.cc \
     qtgui/freqctrl.cpp \
-    rx_meter.cc
+    rx_meter.cc \
+    qtgui/meter.cpp
 
 
 HEADERS  += mainwindow.h \
@@ -25,7 +26,8 @@ HEADERS  += mainwindow.h \
     rx_filter.h \
     rx_demod_fm.h \
     qtgui/freqctrl.h \
-    rx_meter.h
+    rx_meter.h \
+    qtgui/meter.h
 
 FORMS    += mainwindow.ui
 
