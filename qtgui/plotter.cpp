@@ -80,7 +80,7 @@ CPlotter::CPlotter(QWidget *parent) :
 	m_FLowCmax = -100;
 	m_FHiCmin = 100;
 	m_FHiCmax = 10000;
-    m_symetric = false;
+    m_symetric = true;
 
 	m_ClickResolution = 100;
 	m_FilterClickResolution = 100;
