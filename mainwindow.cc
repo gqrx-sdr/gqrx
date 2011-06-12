@@ -33,6 +33,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->freqCtrl->SetFrequency(144500000);
     ui->rxFreqLabel->setText("144.500000 MHz");
 
+    d_filter_shape = receiver::FILTER_SHAPE_NORMAL;
+
     /* create receiver object */
     rx = new receiver("hw:1");
 
@@ -116,19 +118,16 @@ void MainWindow::on_plotter_NewDemodFreq(qint64 freq, qint64 delta)
 }
 
 
-/* CPlotter::NewLowCutFreq() is emitted */
-void MainWindow::on_plotter_NewLowCutFreq(int f)
+
+/* CPlotter::NewfilterFreq() is emitted */
+void MainWindow::on_plotter_NewFilterFreq(int low, int high)
 {
-    qDebug() << "New low cut freq: " << f;
-    rx->set_filter_low(f);
-}
+    receiver::status retcode;
 
 
-/* CPlotter::NewLowHighFreq() is emitted */
-void MainWindow::on_plotter_NewHighCutFreq(int f)
-{
-    qDebug() << "New high cut freq: " << f;
-    rx->set_filter_high(f);
+    /* parameter correctness will be checked in receiver class */
+    retcode = rx->set_filter((double) low, (double) high, d_filter_shape);
+
 }
 
 

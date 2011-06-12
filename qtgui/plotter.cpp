@@ -190,9 +190,10 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 if (m_symetric)
                 {
                     m_DemodHiCutFreq = -m_DemodLowCutFreq;
-                    emit NewHighCutFreq(m_DemodHiCutFreq);
+                    //emit NewHighCutFreq(m_DemodHiCutFreq);
                 }
-                emit NewLowCutFreq(m_DemodLowCutFreq);
+                //emit NewLowCutFreq(m_DemodLowCutFreq);
+                emit NewFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
                 DrawOverlay();
             }
             else
@@ -218,9 +219,10 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 if (m_symetric)
                 {
                     m_DemodLowCutFreq = -m_DemodHiCutFreq;
-                    emit NewLowCutFreq(m_DemodLowCutFreq);
+                    //emit NewLowCutFreq(m_DemodLowCutFreq);
                 }
-                emit NewHighCutFreq(m_DemodHiCutFreq);
+                //emit NewHighCutFreq(m_DemodHiCutFreq);
+                emit NewFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
             }
             else
             {	//save initial grab postion from m_DemodFreqX
@@ -355,9 +357,10 @@ void CPlotter::wheelEvent( QWheelEvent * event )
             if(m_symetric)
             {
                 m_DemodLowCutFreq = -m_DemodHiCutFreq;
-                emit NewLowCutFreq(m_DemodLowCutFreq);
+                //emit NewLowCutFreq(m_DemodLowCutFreq);
             }
-            emit NewHighCutFreq(m_DemodHiCutFreq);
+            //emit NewHighCutFreq(m_DemodHiCutFreq);
+            emit NewFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
         }
         else if(LEFT==m_CursorCaptured)
         {	//change demod low cut
@@ -367,9 +370,10 @@ void CPlotter::wheelEvent( QWheelEvent * event )
             if(m_symetric)
             {
                 m_DemodHiCutFreq = -m_DemodLowCutFreq;
-                emit NewHighCutFreq(m_DemodHiCutFreq);
+                //emit NewHighCutFreq(m_DemodHiCutFreq);
             }
-            emit NewLowCutFreq(m_DemodLowCutFreq);
+            //emit NewLowCutFreq(m_DemodLowCutFreq);
+            emit NewFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
 
         }
     }
