@@ -28,7 +28,7 @@ public:
     void SetFilterClickResolution(int clickres){m_FilterClickResolution=clickres;}
     void SetPercent2DScreen(int percent){m_Percent2DScreen=percent;	m_Size = QSize(0,0);resizeEvent(NULL);}
 
-    void SetCenterFreq(quint64 f){m_CenterFreq=f;}
+    void SetCenterFreq(quint64 f);
     void SetDemodCenterFreq(quint64 f){m_DemodCenterFreq=f;}
     void SetHiLowCutFrequencies(int LowCut, int HiCut){m_DemodLowCutFreq = LowCut; m_DemodHiCutFreq = HiCut;}
     void SetDemodRanges(int FLowCmin, int FLowCmax, int FHiCmin, int FHiCmax, bool symetric);
