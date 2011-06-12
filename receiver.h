@@ -130,6 +130,7 @@ public:
      */
     double get_filter_offset();
 
+    status set_filter(double low, double high, filter_shape shape);
     status set_filter_low(double freq_hz);
     status set_filter_high(double freq_hz);
     status set_filter_shape(filter_shape shape);

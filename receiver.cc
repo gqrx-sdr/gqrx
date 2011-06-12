@@ -18,6 +18,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <iostream>
+#include <cmath>
 #include <receiver.h>
 
 
@@ -97,6 +98,37 @@ double receiver::get_filter_offset()
 {
     return d_filter_offset;
 }
+
+
+receiver::status receiver::set_filter(double low, double high, filter_shape shape)
+{
+    double trans_width;
+
+    if ((low >= high) || (abs(high-low) < RX_FILTER_MIN_WIDTH))
+        return STATUS_ERROR;
+
+    switch (shape) {
+
+    case FILTER_SHAPE_SOFT:
+        trans_width = abs(high-low)*0.2;
+        break;
+
+    case FILTER_SHAPE_SHARP:
+        trans_width = abs(high-low)*0.01;
+        break;
+
+    case FILTER_SHAPE_NORMAL:
+    default:
+        trans_width = abs(high-low)*0.1;
+        break;
+
+    }
+
+    filter->set_param(low, high, trans_width);
+
+    return STATUS_OK;
+}
+
 
 receiver::status receiver::set_filter_low(double freq_hz)
 {

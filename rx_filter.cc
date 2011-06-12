@@ -17,6 +17,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <cmath>
 #include <gr_io_signature.h>
 #include <gr_firdes.h>
 #include <rx_filter.h>
@@ -95,20 +96,27 @@ void rx_filter::set_trans_width(double trans_width)
 }
 
 
-void rx_filter::set_param(double center, double low, double high, double trans_width)
-{
-
-}
-
-
-void rx_filter::set_param(double center, double low, double high)
-{
-
-}
-
-
 void rx_filter::set_param(double low, double high)
 {
 
 }
 
+
+void rx_filter::set_param(double low, double high, double trans_width)
+{
+    d_trans_width = trans_width;
+    d_low         = low;
+    d_high        = high;
+
+    /* generate new taps */
+    d_taps = gr_firdes::complex_band_pass(1.0, d_sample_rate, d_low, d_high, d_trans_width);
+
+    d_bpf->set_taps(d_taps);
+}
+
+
+void rx_filter::set_param(double center, double low, double high, double trans_width)
+{
+    set_offset(center);
+    set_param(low, high, trans_width);
+}

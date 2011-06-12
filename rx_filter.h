@@ -24,6 +24,9 @@
 #include <gr_freq_xlating_fir_filter_ccc.h>
 
 
+#define RX_FILTER_MIN_WIDTH 100  /*! Minimum width of filter */
+
+
 class rx_filter;
 
 
@@ -72,9 +75,9 @@ public:
     void set_high(double high);
     void set_trans_width(double trans_width);
 
-    void set_param(double center, double low, double high, double trans_width);
-    void set_param(double center, double low, double high);
     void set_param(double low, double high);
+    void set_param(double low, double high, double trans_width);
+    void set_param(double center, double low, double high, double trans_width);
 
 private:
     std::vector<gr_complex> d_taps;
