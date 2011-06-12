@@ -128,20 +128,6 @@ void MainWindow::on_plotter_NewHighCutFreq(int f)
 }
 
 
-/* temporary slot for receiving slider signals (tune within passband) */
-void MainWindow::on_tuningSlider_valueChanged(int value)
-{
-    double rx_freq_mhz;
-
-    //qDebug() << "TUNE: " << value;
-    rx->set_filter_offset((double) value);
-
-    rx_freq_mhz = (value + rx->get_rf_freq()) / 1.0e6;
-    ui->rxFreqLabel->setText(QString("%1 MHz").arg(rx_freq_mhz, 11, 'f', 6, ' '));
-
-}
-
-
 /*! \brief Audio gain changed.
  *  \param value The new audio gain.
  */
