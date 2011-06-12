@@ -21,6 +21,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -96,6 +97,28 @@ void MainWindow::on_rxStartStopButton_toggled(bool checked)
         ui->rxStartStopButton->setText(tr("Start"));
     }
 }
+
+
+/* CPlotter::NewDemodFreq() is emitted */
+void MainWindow::on_plotter_NewDemodFreq(qint64 f)
+{
+    qDebug() << "New demod freq: " << f;
+}
+
+
+/* CPlotter::NewLowCutFreq() is emitted */
+void MainWindow::on_plotter_NewLowCutFreq(int f)
+{
+    qDebug() << "New low cut freq: " << f;
+}
+
+
+/* CPlotter::NewLowHighFreq() is emitted */
+void MainWindow::on_plotter_NewHighCutFreq(int f)
+{
+    qDebug() << "New high cut freq: " << f;
+}
+
 
 /* temporary slot for receiving slider signals (tune within passband) */
 void MainWindow::on_tuningSlider_valueChanged(int value)
