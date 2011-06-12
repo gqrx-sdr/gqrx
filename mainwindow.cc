@@ -34,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->rxFreqLabel->setText("144.500000 MHz");
 
     /* create receiver object */
-    rx = new receiver("hw:2");
+    rx = new receiver("hw:1");
 
     rx->set_rf_freq(144500000.0f);
 
@@ -68,7 +68,11 @@ void MainWindow::setNewFrequency(qint64 freq)
 {
     double rx_freq_mhz;
 
+    /* set receiver frequency */
     rx->set_rf_freq((float) freq);
+
+    /* update pandapter */
+    ui->plotter->SetCenterFreq(freq);
 
     rx_freq_mhz = (freq + rx->get_filter_offset()) / 1.0e6;
     ui->rxFreqLabel->setText(QString("%1 MHz").arg(rx_freq_mhz, 11, 'f', 6, ' '));
