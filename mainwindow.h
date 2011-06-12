@@ -46,7 +46,7 @@ private:
 
 private slots:
     void on_rxStartStopButton_toggled(bool checked);   /*! RX start/stop button toggled. */
-    void on_plotter_NewDemodFreq(qint64 f);            /*! New demod freq (aka. filter offset). */
+    void on_plotter_NewDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
     void on_plotter_NewLowCutFreq(int f);              /*! New low cut freq for filter */
     void on_plotter_NewHighCutFreq(int f);             /*! New low high freq for filter */
     void on_tuningSlider_valueChanged(int value);      /* To be removed */

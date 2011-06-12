@@ -34,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->rxFreqLabel->setText("144.500000 MHz");
 
     /* create receiver object */
-    rx = new receiver("hw:1");
+    rx = new receiver("hw:2");
 
     rx->set_rf_freq(144500000.0f);
 
@@ -100,9 +100,15 @@ void MainWindow::on_rxStartStopButton_toggled(bool checked)
 
 
 /* CPlotter::NewDemodFreq() is emitted */
-void MainWindow::on_plotter_NewDemodFreq(qint64 f)
+void MainWindow::on_plotter_NewDemodFreq(qint64 freq, qint64 delta)
 {
-    qDebug() << "New demod freq: " << f;
+    double rx_freq_mhz;
+
+    //qDebug() << "New demod freq: " << freq << "  Delta: " << delta;
+    rx->set_filter_offset((double) delta);
+
+    rx_freq_mhz = ((double)freq) / 1.0e6;
+    ui->rxFreqLabel->setText(QString("%1 MHz").arg(rx_freq_mhz, 11, 'f', 6, ' '));
 }
 
 
@@ -110,6 +116,7 @@ void MainWindow::on_plotter_NewDemodFreq(qint64 f)
 void MainWindow::on_plotter_NewLowCutFreq(int f)
 {
     qDebug() << "New low cut freq: " << f;
+    rx->set_filter_low(f);
 }
 
 
@@ -117,6 +124,7 @@ void MainWindow::on_plotter_NewLowCutFreq(int f)
 void MainWindow::on_plotter_NewHighCutFreq(int f)
 {
     qDebug() << "New high cut freq: " << f;
+    rx->set_filter_high(f);
 }
 
 

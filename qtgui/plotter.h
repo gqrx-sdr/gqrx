@@ -40,7 +40,7 @@ public:
 
 signals:
 	void NewCenterFreq(qint64 f);
-	void NewDemodFreq(qint64 f);
+        void NewDemodFreq(qint64 freq, qint64 delta); /* delta is the offset from the center */
 	void NewLowCutFreq(int f);
 	void NewHighCutFreq(int f);
 

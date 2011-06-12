@@ -240,7 +240,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             if (m_GrabPosition != 0)
 			{
                 m_DemodCenterFreq = RoundFreq(FreqfromX(pt.x()-m_GrabPosition), m_ClickResolution );
-				emit NewDemodFreq(m_DemodCenterFreq);
+                                emit NewDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
                 DrawOverlay();
 			}
 			else
@@ -294,17 +294,17 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
             m_GrabPosition = pt.x()-m_DemodHiCutFreqX;
         }
         else
-		{	//if cursor not captured set demod frequency and start demod box capture
-			m_DemodCenterFreq = RoundFreq(FreqfromX(pt.x()),m_ClickResolution );
-			emit NewDemodFreq(m_DemodCenterFreq);
-			//save initial grab postion from m_DemodFreqX
+        {	//if cursor not captured set demod frequency and start demod box capture
+            m_DemodCenterFreq = RoundFreq(FreqfromX(pt.x()),m_ClickResolution );
+            emit NewDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
+            //save initial grab postion from m_DemodFreqX
             //setCursor(QCursor(Qt::CrossCursor));
-			m_CursorCaptured = CENTER;
+            m_CursorCaptured = CENTER;
             m_GrabPosition = 1;
             //m_GrabPosition = pt.x()-m_DemodFreqX;
             DrawOverlay();
-		}
-	}
+        }
+    }
 
 #if 0
     else if (event->buttons() == Qt::MiddleButton)
@@ -374,11 +374,11 @@ int numSteps = numDegrees / 15;
 		}
 	}
 	else
-	{	//inc/dec demod frequency if right button NOT pressed
-		m_DemodCenterFreq += (numSteps*m_ClickResolution);
+        {	//inc/dec demod frequency if right button NOT pressed
+        m_DemodCenterFreq += (numSteps*m_ClickResolution);
 		m_DemodCenterFreq = RoundFreq(m_DemodCenterFreq, m_ClickResolution );
-		emit NewDemodFreq(m_DemodCenterFreq);
-	}
+                emit NewDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////
