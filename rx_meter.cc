@@ -71,7 +71,7 @@ int rx_meter_c::work (int noutput_items,
         d_level = max;
     }
 
-    d_level_db = (float) 10. * log10(d_level / d_fs);
+    d_level_db = (float) 10. * log10(d_level / d_fs + 1.0e-20);
 
     return i;
 }
