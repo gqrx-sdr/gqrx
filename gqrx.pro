@@ -19,7 +19,8 @@ SOURCES +=\
     qtgui/freqctrl.cpp \
     rx_meter.cc \
     qtgui/meter.cpp \
-    qtgui/plotter.cpp
+    qtgui/plotter.cpp \
+    dsp/rx_fft.cc
 
 
 HEADERS  += mainwindow.h \
@@ -29,7 +30,8 @@ HEADERS  += mainwindow.h \
     qtgui/freqctrl.h \
     rx_meter.h \
     qtgui/meter.h \
-    qtgui/plotter.h
+    qtgui/plotter.h \
+    dsp/rx_fft.h
 
 FORMS    += mainwindow.ui
 
