@@ -21,7 +21,10 @@
 #define RX_FFT_H
 
 #include <gr_sync_block.h>
+#include <gri_fft.h>
 #include <gr_firdes.h>       /* contains enum win_type */
+#include <gr_complex.h>
+
 
 class rx_fft_c;
 
@@ -60,21 +63,28 @@ public:
              gr_vector_void_star &output_items);
 
 
-    /*! \brief Enable or disable averaging.
-     *  \param use_avg TRUE to enable averaging, FALSE to disable it.
-     */
-    void set_use_avg(bool use_avg) {d_use_avg = use_avg;}
+    gr_complex *get_fft_data();
 
-    /*! \brief Get averaging status
-     *  \returns TRUE if averaging is enabled, FALSE if it is disabled.
-     */
-    bool get_use_avg() {return d_use_avg;}
+    void set_window_type(int wintype);
+    int  get_window_type();
 
+    void set_fft_size(int fftsize);
+    int  get_fft_size();
 
 private:
     int  d_fftsize;   /*! Current FFT size. */
     int  d_wintype;   /*! Current window type. */
     bool d_use_avg;   /*! Whether to store the average or jsut the latest value. */
+
+    gri_fft_complex    *d_fft;    /*! FFT object. */
+    std::vector<float>  d_window; /*! FFT window taps. */
+
+    /* buffer to collect samples for FFT */
+    int         d_rbuf_idx;
+    gr_complex *d_rbuf;
+
+    void do_fft(const gr_complex *data_in, int size);
+
 };
 
 
