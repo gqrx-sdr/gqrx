@@ -30,12 +30,16 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
 
     fcd_src = fcd_make_source_c(input_device);
     fcd_src->set_freq(d_rf_freq);
+
+    fft = make_rx_fft_c(3840, 0, false);  // FIXME: good for FCD with 96000 ksps
+
     filter = make_rx_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
     meter = make_rx_meter_c(false);
     demod_fm = make_rx_demod_fm(48000.0, 48000.0, 5000.0, 50.0e-6);
     audio_gain = gr_make_multiply_const_ff(0.1);
     audio_snk = audio_make_sink(d_audio_rate, audio_device, true);
 
+    tb->connect(fcd_src, 0, fft, 0);
     tb->connect(fcd_src, 0, filter, 0);
     tb->connect(filter, 0, meter, 0);
     tb->connect(filter, 0, demod_fm, 0);

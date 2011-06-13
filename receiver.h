@@ -27,6 +27,7 @@
 #include <rx_filter.h>
 #include <rx_meter.h>
 #include <rx_demod_fm.h>
+#include <dsp/rx_fft.h>
 
 
 /*! \defgroup DSP Digital signal processing library based on GNU Radio */
@@ -157,9 +158,10 @@ private:
 
     gr_top_block_sptr tb;        /*! The GNU Radio top block. */
     fcd_source_c_sptr fcd_src;   /*! Funcube Dongle source. */
+    rx_fft_c_sptr     fft;       /*! Receiver FFT block. */
     rx_filter_sptr    filter;
     rx_meter_c_sptr   meter;     /*! Signal strength. */
-    rx_demod_fm_sptr  demod_fm;
+    rx_demod_fm_sptr  demod_fm;  /*! FM demodulator. */
     gr_multiply_const_ff_sptr audio_gain; /*! Audio gain block. */
     audio_sink::sptr audio_snk; /*! Audio sink. */
 
