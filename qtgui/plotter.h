@@ -9,7 +9,7 @@
 
 #define VERT_DIVS 6	//specify grid screen divisions
 #define HORZ_DIVS 8
-
+#define MAX_SCREENSIZE 4096
 
 class CPlotter : public QFrame
 {
@@ -27,6 +27,8 @@ public:
     void SetClickResolution(int clickres){m_ClickResolution=clickres;}
     void SetFilterClickResolution(int clickres){m_FilterClickResolution=clickres;}
     void SetPercent2DScreen(int percent){m_Percent2DScreen=percent;	m_Size = QSize(0,0);resizeEvent(NULL);}
+
+    void SetNewFttData(double *fftData, int size);
 
     void SetCenterFreq(quint64 f);
     void SetDemodCenterFreq(quint64 f){m_DemodCenterFreq=f;}
@@ -70,6 +72,15 @@ private:
     qint64 RoundFreq(qint64 freq, int resolution);
     bool IsPointCloseTo(int x, int xr, int delta){return ((x > (xr-delta) ) && ( x<(xr+delta)) );}
     void ClampDemodParameters();
+    void GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
+                                 double MaxdB, double MindB,
+                                 qint32 StartFreq, qint32 StopFreq,
+                                 qint32* OutBuf);
+
+    qint32 m_fftbuf[MAX_SCREENSIZE];
+    double *m_fftData;     /*! pointer to incoming FFT data */
+    int     m_fftDataSize;
+
     eCapturetype m_CursorCaptured;
     QPixmap m_2DPixmap;
     QPixmap m_OverlayPixmap;

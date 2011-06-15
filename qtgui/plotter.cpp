@@ -34,7 +34,6 @@
 //////////////////////////////////////////////////////////////////////
 // Local defines
 //////////////////////////////////////////////////////////////////////
-#define MAX_SCREENSIZE 4096
 #define CUR_CUT_DELTA 5		//cursor capture delta in pixels
 #define OVERLOAD_DISPLAY_LIMIT 10
 
@@ -86,9 +85,9 @@ CPlotter::CPlotter(QWidget *parent) :
     m_FilterClickResolution = 100;
     m_CursorCaptureDelta = CUR_CUT_DELTA;
 
-    m_Span = 98000;
-    m_MaxdB = 0;
-    m_MindB = -120;
+    m_Span = 96000;
+    m_MaxdB = 10;
+    m_MindB = -100;
     m_dBStepSize = 10;
     m_FreqUnits = 1000000;
     m_CursorCaptured = NONE;
@@ -427,7 +426,7 @@ void CPlotter::draw()
     int i;
     int w;
     int h;
-    qint32 fftbuf[MAX_SCREENSIZE];
+
     QPoint LineBuf[MAX_SCREENSIZE];
 
     if(!m_Running)
@@ -445,17 +444,12 @@ void CPlotter::draw()
     //get scaled FFT data
     /** FIXME **/
     bool fftoverload = false;
-    /*m_pSdrInterface->GetScreenIntegerFFTData( 255, w,
-       m_MaxdB,
-       m_MindB,
-       -m_Span/2,
-       m_Span/2,
-                            fftbuf );*/
+    GetScreenIntegerFFTData(255, w, m_MaxdB, m_MindB, -m_Span/2, m_Span/2, m_fftbuf);
 
     //draw new line of fft data at top of waterfall bitmap
     for(i=0; i<w; i++)
     {
-        painter1.setPen(m_ColorTbl[ 255-fftbuf[i] ]);
+        painter1.setPen(m_ColorTbl[ 255-m_fftbuf[i] ]);
         painter1.drawPoint(i,0);
     }
 
@@ -467,16 +461,13 @@ void CPlotter::draw()
 
     QPainter painter2(&m_2DPixmap);
     //get new scaled fft data
+
     /** FIXME **/
-    /*m_pSdrInterface->GetScreenIntegerFFTData( h, w,
-       m_MaxdB,
-       m_MindB,
-       -m_Span/2,
-       m_Span/2,
-       fftbuf );
-                            */
+    GetScreenIntegerFFTData(h, w, m_MaxdB, m_MindB, -m_Span/2, m_Span/2, m_fftbuf);
+
+
     //draw the 2D spectrum
-    if(m_ADOverLoad || fftoverload)
+    /*if(m_ADOverLoad || fftoverload)
     {
         painter2.setPen( Qt::red );
         if(m_ADOverloadOneShotCounter++ > OVERLOAD_DISPLAY_LIMIT)
@@ -486,11 +477,12 @@ void CPlotter::draw()
         }
     }
     else
-        painter2.setPen( Qt::green );
+        painter2.setPen( Qt::green );*/
+    painter2.setPen(QColor(0x97,0xD0,0x97,0xFF));
     for(i=0; i<w; i++)
     {
         LineBuf[i].setX(i);
-        LineBuf[i].setY(fftbuf[i]);
+        LineBuf[i].setY(m_fftbuf[i]);
     }
     painter2.drawPolyline(LineBuf,w);
 
@@ -499,6 +491,131 @@ void CPlotter::draw()
     //StopPerformance(1);
 
 }
+
+
+/*! \brief Set new FFT data. */
+void CPlotter::SetNewFttData(double *fftData, int size)
+{
+    int i;
+
+    /** FIXME **/
+    if (!m_Running)
+        m_Running = true;
+
+    m_fftData = fftData;
+    m_fftDataSize = size;
+
+    draw();
+}
+
+
+void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
+                                       double MaxdB, double MindB,
+                                       qint32 StartFreq, qint32 StopFreq,
+                                       qint32* OutBuf)
+{
+    qint32 i;
+    qint32 y;
+    qint32 x;
+    qint32 m;
+    qint32 ymax = 10000;
+    qint32 xprev = -1;
+    qint32 maxbin;
+    double dBmaxOffset = MaxdB/10.0;
+    double dBGainFactor = -1.1/(MaxdB-MindB);
+
+    qint32 m_PlotWidth = MaxWidth;
+
+    qint32 m_BinMin, m_BinMax;
+
+    qint32 m_FFTSize = m_fftDataSize;
+
+    double m_SampleFreq = 96000;
+    bool m_Invert = false;
+
+    double* m_pFFTAveBuf = m_fftData;
+
+    qint32* m_pTranslateTbl = new qint32[m_FFTSize];
+
+
+    maxbin = m_FFTSize - 1;
+    m_BinMin = (qint32)((double)StartFreq*(double)m_FFTSize/m_SampleFreq);
+    m_BinMin += (m_FFTSize/2);
+    m_BinMax = (qint32)((double)StopFreq*(double)m_FFTSize/m_SampleFreq);
+    m_BinMax += (m_FFTSize/2);
+
+    if(m_BinMin < 0)	//don't allow these go outside the translate table
+        m_BinMin = 0;
+    if(m_BinMin >= maxbin)
+        m_BinMin = maxbin;
+    if(m_BinMax < 0)
+        m_BinMax = 0;
+    if(m_BinMax >= maxbin)
+        m_BinMax = maxbin;
+    if( (m_BinMax-m_BinMin) > m_PlotWidth )
+    {
+        //if more FFT points than plot points
+        for( i=m_BinMin; i<=m_BinMax; i++)
+            m_pTranslateTbl[i] = ( (i-m_BinMin)*m_PlotWidth )/(m_BinMax - m_BinMin);
+    }
+    else
+    {
+        //if more plot points than FFT points
+        for( i=0; i<m_PlotWidth; i++)
+            m_pTranslateTbl[i] = m_BinMin + ( i*(m_BinMax - m_BinMin) )/m_PlotWidth;
+    }
+
+    m = (m_FFTSize);
+    if( (m_BinMax-m_BinMin) > m_PlotWidth )
+    {
+        //if more FFT points than plot points
+        for( i=m_BinMin; i<=m_BinMax; i++ )
+        {
+            if(m_Invert)
+                y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[(m-i)] - dBmaxOffset));
+            else
+                y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[i] - dBmaxOffset));
+            if(y<0)
+                y = 0;
+            if(y > MaxHeight)
+                y = MaxHeight;
+            x = m_pTranslateTbl[i];	//get fft bin to plot x coordinate transform
+            if( x==xprev )	// still mappped to same fft bin coordinate
+            {
+                if(y < ymax)		//store only the max value
+                {
+                    OutBuf[x] = y;
+                    ymax = y;
+                }
+            }
+            else
+            {
+                OutBuf[x] = y;
+                xprev = x;
+                ymax = y;
+            }
+        }
+    }
+    else
+    {
+        //if more plot points than FFT points
+        for( x=0; x<m_PlotWidth; x++ )
+        {
+            i = m_pTranslateTbl[x];	//get plot to fft bin coordinate transform
+            if(m_Invert)
+                y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[(m-i)] - dBmaxOffset));
+            else
+                y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[i] - dBmaxOffset));
+            if(y<0)
+                y = 0;
+            if(y > MaxHeight)
+                y = MaxHeight;
+            OutBuf[x] = y;
+        }
+    }
+
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // Called to draw an overlay bitmap containing grid and text that
