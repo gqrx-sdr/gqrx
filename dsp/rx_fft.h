@@ -26,6 +26,9 @@
 #include <gr_complex.h>
 
 
+#define MAX_FFT_SIZE 20480
+
+
 class rx_fft_c;
 
 typedef boost::shared_ptr<rx_fft_c> rx_fft_c_sptr;
