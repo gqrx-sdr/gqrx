@@ -42,9 +42,12 @@ public slots:
 private:
 
     enum receiver::filter_shape d_filter_shape;
+    std::complex<float>* d_fftData;
+    double *d_realFftData;
 
     Ui::MainWindow *ui;
     QTimer   *meter_timer;
+    QTimer   *fft_timer;
     receiver *rx;
 
 private slots:
@@ -53,6 +56,7 @@ private slots:
     void on_plotter_NewFilterFreq(int low, int high);    /*! New filter width */
     void on_audioGainSlider_valueChanged(int value);
     void meterTimeout();
+    void fftTimeout();
 };
 
 #endif // MAINWINDOW_H

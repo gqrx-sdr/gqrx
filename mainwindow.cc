@@ -20,6 +20,7 @@
 #include <QDebug>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "receiver.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -44,6 +45,13 @@ MainWindow::MainWindow(QWidget *parent) :
     meter_timer = new QTimer(this);
     connect(meter_timer, SIGNAL(timeout()), this, SLOT(meterTimeout()));
 
+    /* FFT timer & data */
+    fft_timer = new QTimer(this);
+    connect(fft_timer, SIGNAL(timeout()), this, SLOT(fftTimeout()));
+    d_fftData = new std::complex<float>[MAX_FFT_SIZE];
+    d_realFftData = new double[MAX_FFT_SIZE];
+
+
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(NewFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
 }
@@ -54,9 +62,14 @@ MainWindow::~MainWindow()
     meter_timer->stop();
     delete meter_timer;
 
+    fft_timer->stop();
+    delete fft_timer;
+
     /* clean up the rest */
     delete ui;
     delete rx;
+    delete [] d_fftData;
+    delete [] d_realFftData;
 }
 
 
@@ -89,6 +102,7 @@ void MainWindow::on_rxStartStopButton_toggled(bool checked)
 
         /* start GUI timers */
         meter_timer->start(100);
+        fft_timer->start(100);
 
         /* update button label */
         ui->rxStartStopButton->setText(tr("Stop"));
@@ -96,6 +110,7 @@ void MainWindow::on_rxStartStopButton_toggled(bool checked)
     else {
         /* stop GUI timers */
         meter_timer->stop();
+        fft_timer->stop();
 
         /* stop receiver */
         rx->stop();
@@ -148,4 +163,38 @@ void MainWindow::meterTimeout()
     level = rx->get_signal_pwr(true);
     ui->rxSigLabel->setText(QString("%1 dBFS").arg(level, 7, 'f', 2, ' '));
     ui->sMeter->setLevel(level);
+}
+
+/*! \brief FFT plot timeout. */
+void MainWindow::fftTimeout()
+{
+    int fftsize;
+    int i;
+
+    rx->get_fft_data(d_fftData, fftsize);
+
+    /*for (i = 0; i < fftsize; i++) {
+        d_realFftData[i] = 10.0*log10((d_fftData[i].imag() * d_fftData[i].imag() +
+                                       d_fftData[i].real() * d_fftData[i].real()) + 1.0e-20);
+    }*/
+
+    for (i = 0; i < fftsize; i++) {
+        if (i < fftsize/2) {
+            d_realFftData[i] = 10.0*log10((d_fftData[fftsize/2+i].imag() * d_fftData[fftsize/2+i].imag() +
+                                           d_fftData[fftsize/2+i].real() * d_fftData[fftsize/2+i].real()) + 1.0e-20);
+        }
+        else {
+            d_realFftData[i] = 10.0*log10((d_fftData[i-fftsize/2].imag() * d_fftData[i-fftsize/2].imag() +
+                                           d_fftData[i-fftsize/2].real() * d_fftData[i-fftsize/2].real()) + 1.0e-20);
+
+        }
+
+    }
+
+    ui->plotter->SetNewFttData(d_realFftData, fftsize);
+
+    //qDebug() << "FFT size: " << fftsize;
+    //qDebug() << "FFT[0]=" << d_realFftData[0] << "  FFT[MID]=" << d_realFftData[fftsize/2];
+
+
 }
