@@ -145,6 +145,8 @@ public:
      */
     float get_signal_pwr(bool dbfs);
 
+    void get_fft_data(std::complex<float>* fftPoints, int &fftsize);
+
     status set_demod(demod rx_demod);
 
     status set_af_gain(float gain_db);

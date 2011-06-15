@@ -159,6 +159,16 @@ float receiver::get_signal_pwr(bool dbfs)
         return meter->get_level();
 }
 
+/*! \brief Get latest FFT data. */
+void receiver::get_fft_data(std::complex<float>* fftPoints, int &fftsize)
+{
+    gr_complex *fftBuffer;
+
+    fftsize = fft->get_fft_size();
+    fftBuffer = fft->get_fft_data();
+
+    memcpy(fftPoints, fftBuffer, fftsize * sizeof(std::complex<float>));
+}
 
 receiver::status receiver::set_demod(demod rx_demod)
 {
