@@ -170,6 +170,7 @@ void MainWindow::fftTimeout()
 {
     int fftsize;
     int i;
+    double min=0.0,max=-120.0,avg=0.0;
 
     rx->get_fft_data(d_fftData, fftsize);
 
@@ -179,6 +180,7 @@ void MainWindow::fftTimeout()
     }*/
 
     for (i = 0; i < fftsize; i++) {
+
         if (i < fftsize/2) {
             d_realFftData[i] = 10.0*log10((d_fftData[fftsize/2+i].imag() * d_fftData[fftsize/2+i].imag() +
                                            d_fftData[fftsize/2+i].real() * d_fftData[fftsize/2+i].real()) + 1.0e-20);
@@ -189,12 +191,23 @@ void MainWindow::fftTimeout()
 
         }
 
+        /*if (d_realFftData[i] < min)
+            min = d_realFftData[i];
+
+        if (d_realFftData[i] > max)
+            max = d_realFftData[i];
+
+        avg = (avg+d_realFftData[i]) / 2.0;*/
+
+        //d_realFftData[i] = -110.0;
+
     }
 
     ui->plotter->SetNewFttData(d_realFftData, fftsize);
 
     //qDebug() << "FFT size: " << fftsize;
     //qDebug() << "FFT[0]=" << d_realFftData[0] << "  FFT[MID]=" << d_realFftData[fftsize/2];
+    //qDebug() << "MIN:" << min << "  AVG:" << avg << "  MAX:" << max;
 
 
 }
