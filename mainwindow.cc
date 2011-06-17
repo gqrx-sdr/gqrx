@@ -29,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    setWindowTitle(QString("gqrx %1").arg(VERSION));
+
     /* frequency control widget */
     ui->freqCtrl->Setup(10, (quint64) 50e6, (quint64) 2e9, 1, UNITS_MHZ);
     ui->freqCtrl->SetFrequency(144500000);
