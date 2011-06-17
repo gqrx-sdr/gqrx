@@ -7,8 +7,8 @@
 #include <QImage>
 //#include "interface/sdrinterface.h"
 
-#define VERT_DIVS 6	//specify grid screen divisions
-#define HORZ_DIVS 8
+#define VERT_DIVS 6   //specify grid screen divisions
+#define HORZ_DIVS 10
 #define MAX_SCREENSIZE 4096
 
 class CPlotter : public QFrame

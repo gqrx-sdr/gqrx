@@ -674,9 +674,10 @@ void CPlotter::DrawOverlay()
     QFont Font("Arial");
     Font.setPointSize(9);
     QFontMetrics metrics(Font);
+
     y = h/VERT_DIVS;
-    if(y<metrics.height())
-        Font.setPixelSize(y);
+    //if (y < metrics.height())
+    //    Font.setPixelSize(y);
     Font.setWeight(QFont::Normal);
     painter.setFont(Font);
 
@@ -725,23 +726,26 @@ void CPlotter::DrawOverlay()
     //draw horizontal grids
     pixperdiv = (float)h / (float)VERT_DIVS;
     painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0x30), 1,Qt::DotLine));
-    for (int i=1; i<VERT_DIVS; i++)
+    for (int i = 1; i < VERT_DIVS; i++)
     {
         y = (int)((float) i*pixperdiv);
-        painter.drawLine(0, y, w, y);
+        painter.drawLine(5*metrics.width("0",-1), y, w, y);
     }
 
     //draw amplitude values
     painter.setPen(QColor(0xD8,0xBA,0xA1,0xFF));
-    Font.setWeight(QFont::Light);
+    //Font.setWeight(QFont::Light);
     painter.setFont(Font);
     int dB = m_MaxdB;
-    for( int i=0; i<VERT_DIVS-1; i++)
+    for (int i = 1; i < VERT_DIVS; i++)
     {
-        y = (int)( (float)i*pixperdiv );
-        painter.drawStaticText(5, y-1, QString::number(dB)+" dB");
-        dB -= m_dBStepSize;
+        dB -= m_dBStepSize;  /* move to end if want to include maxdb */
+        y = (int)((float)i*pixperdiv);
+        //painter.drawStaticText(5, y-metrics.height()/2, QString::number(dB)/*+" dB"*/);
+        rect.setRect(0, y-metrics.height()/2, (int)pixperdiv, metrics.height());
+        painter.drawText(rect, Qt::AlignRight|Qt::AlignVCenter, QString::number(dB));
     }
+
     m_MindB = m_MaxdB - (VERT_DIVS)*m_dBStepSize;
 
     if(!m_Running)
