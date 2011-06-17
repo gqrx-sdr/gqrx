@@ -86,9 +86,9 @@ CPlotter::CPlotter(QWidget *parent) :
     m_CursorCaptureDelta = CUR_CUT_DELTA;
 
     m_Span = 96000;
-    m_MaxdB = 10;
-    m_MindB = -100;
-    m_dBStepSize = 10;
+    m_MaxdB = 0;
+    m_MindB = -120;
+    m_dBStepSize = 20;
     m_FreqUnits = 1000000;
     m_CursorCaptured = NONE;
     m_Running = false;
@@ -521,8 +521,8 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
     qint32 ymax = 10000;
     qint32 xprev = -1;
     qint32 maxbin;
-    double dBmaxOffset = MaxdB/10.0;
-    double dBGainFactor = -1.1/(MaxdB-MindB);
+    double dBmaxOffset = 45.0;//MaxdB/10.0;   FIXME
+    double dBGainFactor = 1.0/MindB;//-1.0/(MaxdB-MindB);  FIXME
 
     qint32 m_PlotWidth = MaxWidth;
 
@@ -565,8 +565,9 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
             m_pTranslateTbl[i] = m_BinMin + ( i*(m_BinMax - m_BinMin) )/m_PlotWidth;
     }
 
+
     m = (m_FFTSize);
-    if( (m_BinMax-m_BinMin) > m_PlotWidth )
+    if ((m_BinMax-m_BinMin) > m_PlotWidth)
     {
         //if more FFT points than plot points
         for( i=m_BinMin; i<=m_BinMax; i++ )
@@ -575,18 +576,23 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
                 y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[(m-i)] - dBmaxOffset));
             else
                 y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[i] - dBmaxOffset));
-            if(y<0)
+
+            if (y < 0)
                 y = 0;
-            if(y > MaxHeight)
+
+            if (y > MaxHeight)
                 y = MaxHeight;
+
             x = m_pTranslateTbl[i];	//get fft bin to plot x coordinate transform
-            if( x==xprev )	// still mappped to same fft bin coordinate
+
+            if (x == xprev)	// still mappped to same fft bin coordinate
             {
-                if(y < ymax)		//store only the max value
+                if (y < ymax)		//store only the max value
                 {
                     OutBuf[x] = y;
                     ymax = y;
                 }
+
             }
             else
             {
