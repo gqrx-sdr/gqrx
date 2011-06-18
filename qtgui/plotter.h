@@ -36,7 +36,6 @@ public:
     void SetDemodRanges(int FLowCmin, int FLowCmax, int FHiCmin, int FHiCmax, bool symetric);
     void SetSpanFreq(quint32 s){m_Span=(qint32)s;}
     void SetMaxdB(int max){m_MaxdB=max;}
-    void SetADOverload(bool ADOverLoad){m_ADOverLoad = ADOverLoad;m_ADOverloadOneShotCounter=0;}
     void SetdBStepSize(int stepsz){m_dBStepSize=stepsz;}
     void UpdateOverlay(){DrawOverlay();}
 
@@ -90,7 +89,6 @@ private:
     QString m_Str;
     QString m_HDivText[HORZ_DIVS+1];
     bool m_Running;
-    bool m_ADOverLoad;
     qint64 m_CenterFreq;
     qint64 m_DemodCenterFreq;
     int m_DemodHiCutFreq;
@@ -101,7 +99,6 @@ private:
     int m_CursorCaptureDelta;
     int m_GrabPosition;
     int m_Percent2DScreen;
-    int m_ADOverloadOneShotCounter;
 
     int m_FLowCmin;
     int m_FLowCmax;
@@ -119,7 +116,6 @@ private:
 
 
     quint32 m_LastSampleRate;
-    //CSdrInterface* m_pSdrInterface;
 
 };
 

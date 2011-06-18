@@ -29,13 +29,13 @@
 #include "plotter.h"
 #include <stdlib.h>
 #include <QDebug>
-//#include "interface/perform.h"
+
 
 //////////////////////////////////////////////////////////////////////
 // Local defines
 //////////////////////////////////////////////////////////////////////
 #define CUR_CUT_DELTA 5		//cursor capture delta in pixels
-#define OVERLOAD_DISPLAY_LIMIT 10
+
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -43,7 +43,7 @@
 CPlotter::CPlotter(QWidget *parent) :
     QFrame(parent)
 {
-    //m_pSdrInterface = NULL;
+
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setFocusPolicy(Qt::StrongFocus);
     setAttribute(Qt::WA_PaintOnScreen,false);
@@ -92,8 +92,6 @@ CPlotter::CPlotter(QWidget *parent) :
     m_FreqUnits = 1000000;
     m_CursorCaptured = NONE;
     m_Running = false;
-    m_ADOverloadOneShotCounter = 0;
-    m_ADOverLoad = false;
     m_2DPixmap = QPixmap(0,0);
     m_OverlayPixmap = QPixmap(0,0);
     m_WaterfallPixmap = QPixmap(0,0);
@@ -346,14 +344,15 @@ void CPlotter::wheelEvent( QWheelEvent * event )
     QPoint pt = event->pos();
     int numDegrees = event->delta() / 8;
     int numSteps = numDegrees / 15;
-    if(event->buttons()==Qt::RightButton)
+
+    if (event->buttons() == Qt::RightButton)
     {	//right button held while wheel is spun
-        if(RIGHT==m_CursorCaptured)
+        if (RIGHT == m_CursorCaptured)
         {	//change demod high cut
-            m_DemodHiCutFreq  += (numSteps*m_FilterClickResolution);
+            m_DemodHiCutFreq += (numSteps*m_FilterClickResolution);
             m_DemodHiCutFreq = RoundFreq(m_DemodHiCutFreq, m_FilterClickResolution);
             DrawOverlay();
-            if(m_symetric)
+            if (m_symetric)
             {
                 m_DemodLowCutFreq = -m_DemodHiCutFreq;
                 //emit NewLowCutFreq(m_DemodLowCutFreq);
@@ -361,12 +360,12 @@ void CPlotter::wheelEvent( QWheelEvent * event )
             //emit NewHighCutFreq(m_DemodHiCutFreq);
             emit NewFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
         }
-        else if(LEFT==m_CursorCaptured)
+        else if (LEFT == m_CursorCaptured)
         {	//change demod low cut
-            m_DemodLowCutFreq  += (numSteps*m_FilterClickResolution);
+            m_DemodLowCutFreq += (numSteps*m_FilterClickResolution);
             m_DemodLowCutFreq = RoundFreq(m_DemodLowCutFreq, m_FilterClickResolution);
             DrawOverlay();
-            if(m_symetric)
+            if (m_symetric)
             {
                 m_DemodHiCutFreq = -m_DemodLowCutFreq;
                 //emit NewHighCutFreq(m_DemodHiCutFreq);
@@ -389,9 +388,10 @@ void CPlotter::wheelEvent( QWheelEvent * event )
 //////////////////////////////////////////////////////////////////////
 void CPlotter::resizeEvent(QResizeEvent* )
 {
-    if(!size().isValid())
+    if (!size().isValid())
         return;
-    if( m_Size != size() )
+
+    if (m_Size != size())
     {	//if changed, resize pixmaps to new screensize
         m_Size = size();
         m_OverlayPixmap = QPixmap(m_Size.width(), m_Percent2DScreen*m_Size.height()/100);
@@ -410,6 +410,7 @@ void CPlotter::resizeEvent(QResizeEvent* )
 void CPlotter::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
+
     painter.drawPixmap(0,0,m_2DPixmap);
     painter.drawPixmap(0, m_Percent2DScreen*m_Size.height()/100,m_WaterfallPixmap);
     //tell interface that its ok to signal a new line of fft data
@@ -429,10 +430,9 @@ void CPlotter::draw()
 
     QPoint LineBuf[MAX_SCREENSIZE];
 
-    if(!m_Running)
+    if (!m_Running)
         return;
 
-    //StartPerformance();
     //get/draw the waterfall
     w = m_WaterfallPixmap.width();
     h = m_WaterfallPixmap.height();
@@ -442,8 +442,6 @@ void CPlotter::draw()
 
     QPainter painter1(&m_WaterfallPixmap);
     //get scaled FFT data
-    /** FIXME **/
-    bool fftoverload = false;
     GetScreenIntegerFFTData(255, w, m_MaxdB, m_MindB, -m_Span/2, m_Span/2, m_fftbuf);
 
     //draw new line of fft data at top of waterfall bitmap
@@ -460,24 +458,11 @@ void CPlotter::draw()
     m_2DPixmap = m_OverlayPixmap.copy(0,0,w,h);
 
     QPainter painter2(&m_2DPixmap);
-    //get new scaled fft data
 
-    /** FIXME **/
+    //get new scaled fft data
     GetScreenIntegerFFTData(h, w, m_MaxdB, m_MindB, -m_Span/2, m_Span/2, m_fftbuf);
 
-
     //draw the 2D spectrum
-    /*if(m_ADOverLoad || fftoverload)
-    {
-        painter2.setPen( Qt::red );
-        if(m_ADOverloadOneShotCounter++ > OVERLOAD_DISPLAY_LIMIT)
-        {
-            m_ADOverloadOneShotCounter = 0;
-            m_ADOverLoad = false;
-        }
-    }
-    else
-        painter2.setPen( Qt::green );*/
     painter2.setPen(QColor(0x97,0xD0,0x97,0xFF));
     for(i=0; i<w; i++)
     {
@@ -488,7 +473,6 @@ void CPlotter::draw()
 
     //trigger a new paintEvent
     update();
-    //StopPerformance(1);
 
 }
 
@@ -496,7 +480,6 @@ void CPlotter::draw()
 /*! \brief Set new FFT data. */
 void CPlotter::SetNewFttData(double *fftData, int size)
 {
-    int i;
 
     /** FIXME **/
     if (!m_Running)
@@ -544,35 +527,34 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
     m_BinMax = (qint32)((double)StopFreq*(double)m_FFTSize/m_SampleFreq);
     m_BinMax += (m_FFTSize/2);
 
-    if(m_BinMin < 0)	//don't allow these go outside the translate table
+    if (m_BinMin < 0)	//don't allow these go outside the translate table
         m_BinMin = 0;
-    if(m_BinMin >= maxbin)
+    if (m_BinMin >= maxbin)
         m_BinMin = maxbin;
-    if(m_BinMax < 0)
+    if (m_BinMax < 0)
         m_BinMax = 0;
-    if(m_BinMax >= maxbin)
+    if (m_BinMax >= maxbin)
         m_BinMax = maxbin;
-    if( (m_BinMax-m_BinMin) > m_PlotWidth )
+    if ((m_BinMax-m_BinMin) > m_PlotWidth)
     {
         //if more FFT points than plot points
-        for( i=m_BinMin; i<=m_BinMax; i++)
-            m_pTranslateTbl[i] = ( (i-m_BinMin)*m_PlotWidth )/(m_BinMax - m_BinMin);
+        for (i = m_BinMin; i <= m_BinMax; i++)
+            m_pTranslateTbl[i] = ((i-m_BinMin)*m_PlotWidth) / (m_BinMax - m_BinMin);
     }
     else
     {
         //if more plot points than FFT points
-        for( i=0; i<m_PlotWidth; i++)
-            m_pTranslateTbl[i] = m_BinMin + ( i*(m_BinMax - m_BinMin) )/m_PlotWidth;
+        for (i = 0; i < m_PlotWidth; i++)
+            m_pTranslateTbl[i] = m_BinMin + (i*(m_BinMax - m_BinMin)) / m_PlotWidth;
     }
-
 
     m = (m_FFTSize);
     if ((m_BinMax-m_BinMin) > m_PlotWidth)
     {
         //if more FFT points than plot points
-        for( i=m_BinMin; i<=m_BinMax; i++ )
+        for (i = m_BinMin; i <= m_BinMax; i++ )
         {
-            if(m_Invert)
+            if (m_Invert)
                 y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[(m-i)] - dBmaxOffset));
             else
                 y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[i] - dBmaxOffset));
@@ -605,16 +587,16 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
     else
     {
         //if more plot points than FFT points
-        for( x=0; x<m_PlotWidth; x++ )
+        for (x = 0; x < m_PlotWidth; x++ )
         {
             i = m_pTranslateTbl[x];	//get plot to fft bin coordinate transform
-            if(m_Invert)
+            if (m_Invert)
                 y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[(m-i)] - dBmaxOffset));
             else
                 y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[i] - dBmaxOffset));
-            if(y<0)
+            if (y < 0)
                 y = 0;
-            if(y > MaxHeight)
+            if (y > MaxHeight)
                 y = MaxHeight;
             OutBuf[x] = y;
         }
@@ -629,7 +611,7 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
 //////////////////////////////////////////////////////////////////////
 void CPlotter::DrawOverlay()
 {
-    if(m_OverlayPixmap.isNull())
+    if (m_OverlayPixmap.isNull())
         return;
 
     int w = m_OverlayPixmap.width();
@@ -684,10 +666,10 @@ void CPlotter::DrawOverlay()
     //draw vertical grids
     pixperdiv = (float)w / (float)HORZ_DIVS;
     y = h - h/VERT_DIVS/2;
-    for (int i=1; i<HORZ_DIVS; i++)
+    for (int i = 1; i < HORZ_DIVS; i++)
     {
-        x = (int)( (float)i*pixperdiv );
-        if (i==HORZ_DIVS/2)
+        x = (int)((float)i*pixperdiv);
+        if (i == HORZ_DIVS/2)
             // center line
             painter.setPen(QPen(QColor(0x78,0x82,0x96,0xFF), 1, Qt::SolidLine));
         else
@@ -701,7 +683,7 @@ void CPlotter::DrawOverlay()
     MakeFrequencyStrs();
     painter.setPen(QColor(0xD8,0xBA,0xA1,0xFF));
     y = h - (h/VERT_DIVS);
-    for (int i=1; i<HORZ_DIVS; i++)
+    for (int i = 1; i < HORZ_DIVS; i++)
     {
         //if ((i==0) || (i==HORZ_DIVS))
         //{	//left justify the leftmost text
@@ -717,7 +699,7 @@ void CPlotter::DrawOverlay()
         //}
         //else
         //{	//center justify the rest of the text
-        x = (int)( (float)i*pixperdiv - pixperdiv/2);
+        x = (int)((float)i*pixperdiv - pixperdiv/2);
         rect.setRect(x, y, (int)pixperdiv, h/VERT_DIVS);
         painter.drawText(rect, Qt::AlignHCenter|Qt::AlignBottom, m_HDivText[i]);
         //}
@@ -748,7 +730,7 @@ void CPlotter::DrawOverlay()
 
     m_MindB = m_MaxdB - (VERT_DIVS)*m_dBStepSize;
 
-    if(!m_Running)
+    if (!m_Running)
     {	//if not running so is no data updates to draw to screen
         //copy into 2Dbitmap the overlay bitmap.
         m_2DPixmap = m_OverlayPixmap.copy(0,0,w,h);
@@ -771,9 +753,9 @@ void CPlotter::MakeFrequencyStrs()
     int i,j;
     int numfractdigits = 3; // was: (int)log10((double)m_FreqUnits);
 
-    if(1 == m_FreqUnits)
+    if (1 == m_FreqUnits)
     {	//if units is Hz then just output integer freq
-        for(int i=0; i<=HORZ_DIVS; i++)
+        for (int i = 0; i <= HORZ_DIVS; i++)
         {
             freq = (float)StartFreq/(float)m_FreqUnits;
             m_HDivText[i].setNum((int)freq);
@@ -783,7 +765,7 @@ void CPlotter::MakeFrequencyStrs()
     }
     //here if is fractional frequency values
     //so create max sized text based on frequency units
-    for(int i=0; i<=HORZ_DIVS; i++)
+    for (int i = 0; i <= HORZ_DIVS; i++)
     {
         freq = (float)StartFreq/(float)m_FreqUnits;
         m_HDivText[i].setNum(freq,'f', numfractdigits);
@@ -792,21 +774,21 @@ void CPlotter::MakeFrequencyStrs()
     //now find the division text with the longest non-zero digit
     //to the right of the decimal point.
     int max = 0;
-    for(i=0; i<=HORZ_DIVS; i++)
+    for (i = 0; i <= HORZ_DIVS; i++)
     {
         int dp = m_HDivText[i].indexOf('.');
         int l = m_HDivText[i].length()-1;
-        for(j=l; j>dp; j--)
+        for (j = l; j > dp; j--)
         {
-            if(m_HDivText[i][j] != '0')
+            if (m_HDivText[i][j] != '0')
                 break;
         }
-        if( (j-dp) > max)
+        if ((j-dp) > max)
             max = j-dp;
     }
     //truncate all strings to maximum fractional length
     StartFreq = m_CenterFreq - m_Span/2;
-    for( i=0; i<=HORZ_DIVS; i++)
+    for (i = 0; i <= HORZ_DIVS; i++)
     {
         freq = (float)StartFreq/(float)m_FreqUnits;
         m_HDivText[i].setNum(freq,'f', max);
@@ -822,9 +804,9 @@ int CPlotter::XfromFreq(qint64 freq)
     float w = m_OverlayPixmap.width();
     float StartFreq = (float)m_CenterFreq - (float)m_Span/2.;
     int x = (int) w * ((float)freq - StartFreq)/(float)m_Span;
-    if(x<0 )
+    if (x < 0)
         return 0;
-    if(x>(int)w)
+    if (x > (int)w)
         return m_OverlayPixmap.width();
     return x;
 }
@@ -844,7 +826,7 @@ qint64 CPlotter::RoundFreq(qint64 freq, int resolution)
 {
     qint64 delta = resolution;
     qint64 delta_2 = delta/2;
-    if(freq>=0)
+    if (freq >= 0)
         return ( freq - (freq+delta_2)%delta + delta_2);
     else
         return ( freq - (freq+delta_2)%delta - delta_2);
