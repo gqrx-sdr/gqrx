@@ -8,7 +8,7 @@
 //#include "interface/sdrinterface.h"
 
 #define VERT_DIVS 6   //specify grid screen divisions
-#define HORZ_DIVS 10
+#define HORZ_DIVS 12
 #define MAX_SCREENSIZE 4096
 
 class CPlotter : public QFrame

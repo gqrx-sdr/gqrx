@@ -769,7 +769,7 @@ void CPlotter::MakeFrequencyStrs()
     qint64 StartFreq = m_CenterFreq - m_Span/2;
     float freq;
     int i,j;
-    int numfractdigits = (int)log10((double)m_FreqUnits);
+    int numfractdigits = 3; // was: (int)log10((double)m_FreqUnits);
 
     if(1 == m_FreqUnits)
     {	//if units is Hz then just output integer freq
