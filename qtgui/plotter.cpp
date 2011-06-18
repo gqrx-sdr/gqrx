@@ -521,7 +521,7 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
     qint32 ymax = 10000;
     qint32 xprev = -1;
     qint32 maxbin;
-    double dBmaxOffset = 45.0;//MaxdB/10.0;   FIXME
+    double dBmaxOffset = 0.0;//MaxdB/10.0;   FIXME
     double dBGainFactor = 1.0/MindB;//-1.0/(MaxdB-MindB);  FIXME
 
     qint32 m_PlotWidth = MaxWidth;
