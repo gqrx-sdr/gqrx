@@ -20,7 +20,7 @@
 #include <cmath>
 #include <gr_io_signature.h>
 #include <gr_firdes.h>
-#include <rx_filter.h>
+#include <dsp/rx_filter.h>
 
 
 /*

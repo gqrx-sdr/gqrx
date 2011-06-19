@@ -27,13 +27,13 @@ SOURCES +=\
     receiver.cc \
     main.cc \
     mainwindow.cc \
-    rx_filter.cc \
     rx_demod_fm.cc \
     qtgui/freqctrl.cpp \
     rx_meter.cc \
     qtgui/meter.cpp \
     qtgui/plotter.cpp \
-    dsp/rx_fft.cc
+    dsp/rx_fft.cc \
+    dsp/rx_filter.cc
 
 
 HEADERS  += mainwindow.h \
@@ -44,7 +44,8 @@ HEADERS  += mainwindow.h \
     rx_meter.h \
     qtgui/meter.h \
     qtgui/plotter.h \
-    dsp/rx_fft.h
+    dsp/rx_fft.h \
+    dsp/rx_filter.h
 
 FORMS    += mainwindow.ui
 

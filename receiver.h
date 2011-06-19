@@ -24,7 +24,7 @@
 #include <gr_audio_sink.h>
 #include <gr_multiply_const_ff.h>
 #include <fcd/fcd_source_c.h>
-#include <rx_filter.h>
+#include <dsp/rx_filter.h>
 #include <rx_meter.h>
 #include <rx_demod_fm.h>
 #include <dsp/rx_fft.h>
