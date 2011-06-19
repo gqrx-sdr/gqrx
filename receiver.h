@@ -26,7 +26,7 @@
 #include <fcd/fcd_source_c.h>
 #include <dsp/rx_filter.h>
 #include <rx_meter.h>
-#include <rx_demod_fm.h>
+#include <dsp/rx_demod_fm.h>
 #include <dsp/rx_fft.h>
 
 

@@ -19,7 +19,7 @@
  */
 #include <gr_io_signature.h>
 #include <gr_firdes.h>
-#include <rx_demod_fm.h>
+#include <dsp/rx_demod_fm.h>
 
 #include <iostream>
 
