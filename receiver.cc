@@ -203,7 +203,8 @@ receiver::status receiver::set_demod(demod rx_demod)
     /* disconnect current demodulator */
     switch (current_demod) {
 
-    case DEMOD_SSB:
+    case DEMOD_LSB:
+    case DEMOD_USB:
         tb->disconnect(filter, 0, demod_ssb, 0);
         tb->disconnect(demod_ssb, 0, audio_gain, 0);
         break;
@@ -219,8 +220,9 @@ receiver::status receiver::set_demod(demod rx_demod)
 
     switch (rx_demod) {
 
-    case DEMOD_SSB:
-        d_demod = DEMOD_SSB;
+    case DEMOD_LSB:
+    case DEMOD_USB:
+        d_demod = rx_demod;
         tb->connect(filter, 0, demod_ssb, 0);
         tb->connect(demod_ssb, 0, audio_gain, 0);
         break;
