@@ -19,7 +19,18 @@
  */
 #include <iostream>
 #include <cmath>
+
+#include <gr_top_block.h>
+#include <gr_audio_sink.h>
+#include <gr_multiply_const_ff.h>
+
 #include <receiver.h>
+#include <fcd/fcd_source_c.h>
+#include <dsp/rx_filter.h>
+#include <dsp/rx_meter.h>
+#include <dsp/rx_demod_fm.h>
+#include <dsp/rx_fft.h>
+
 
 
 receiver::receiver(const std::string input_device, const std::string audio_device)
