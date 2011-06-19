@@ -54,6 +54,7 @@ private slots:
     void on_rxStartStopButton_toggled(bool checked);   /*! RX start/stop button toggled. */
     void on_plotter_NewDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
     void on_plotter_NewFilterFreq(int low, int high);    /*! New filter width */
+    void on_modeSelector_activated(int index);
     void on_audioGainSlider_valueChanged(int value);
     void meterTimeout();
     void fftTimeout();

@@ -148,6 +148,19 @@ void MainWindow::on_plotter_NewFilterFreq(int low, int high)
 }
 
 
+/*! \brief New mode selected. */
+void MainWindow::on_modeSelector_activated(int index)
+{
+    receiver::demod mode = (receiver::demod)index;
+
+    qDebug() << "New mode: " << mode;
+
+    rx->set_demod(mode);
+
+    /* FIXME: Set new filter ranges */
+}
+
+
 /*! \brief Audio gain changed.
  *  \param value The new audio gain.
  */
