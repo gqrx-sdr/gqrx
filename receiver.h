@@ -25,7 +25,7 @@
 #include <gr_multiply_const_ff.h>
 #include <fcd/fcd_source_c.h>
 #include <dsp/rx_filter.h>
-#include <rx_meter.h>
+#include <dsp/rx_meter.h>
 #include <dsp/rx_demod_fm.h>
 #include <dsp/rx_fft.h>
 

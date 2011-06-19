@@ -19,7 +19,7 @@
  */
 #include <math.h>
 #include <gr_io_signature.h>
-#include <rx_meter.h>
+#include <dsp/rx_meter.h>
 
 
 rx_meter_c_sptr make_rx_meter_c (bool use_avg)
