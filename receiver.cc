@@ -22,6 +22,7 @@
 
 #include <gr_top_block.h>
 #include <gr_audio_sink.h>
+#include <gr_complex_to_xxx.h>
 #include <gr_multiply_const_ff.h>
 
 #include <receiver.h>
@@ -46,6 +47,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
 
     filter = make_rx_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
     meter = make_rx_meter_c(false);
+    demod_ssb = gr_make_complex_to_real(1);
     demod_fm = make_rx_demod_fm(48000.0, 48000.0, 5000.0, 50.0e-6);
     audio_gain = gr_make_multiply_const_ff(0.1);
     audio_snk = audio_make_sink(d_audio_rate, audio_device, true);
@@ -56,7 +58,6 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     tb->connect(filter, 0, demod_fm, 0);
     tb->connect(demod_fm, 0, audio_gain, 0);
     tb->connect(audio_gain, 0, audio_snk, 0);
-
 }
 
 receiver::~receiver()
@@ -183,7 +184,58 @@ void receiver::get_fft_data(std::complex<float>* fftPoints, int &fftsize)
 
 receiver::status receiver::set_demod(demod rx_demod)
 {
-    return STATUS_OK;
+    status ret = STATUS_OK;
+    demod current_demod = d_demod;
+
+    /* check if new demodulator selection is valid */
+    if ((rx_demod < DEMOD_NONE) || (rx_demod >= DEMOD_NUM))
+        return STATUS_ERROR;
+
+    if (rx_demod == current_demod) {
+        /* nothing to do */
+        return STATUS_OK;
+    }
+
+    /* lock graph while we reconfigure */
+    tb->lock();
+
+    /* disconnect current demodulator */
+    switch (current_demod) {
+
+    case DEMOD_SSB:
+        tb->disconnect(filter, 0, demod_ssb, 0);
+        tb->disconnect(demod_ssb, 0, audio_gain, 0);
+        break;
+
+    case DEMOD_FMN:
+        tb->disconnect(filter, 0, demod_fm, 0);
+        tb->disconnect(demod_fm, 0, audio_gain, 0);
+        break;
+
+
+    }
+
+
+    switch (rx_demod) {
+
+    case DEMOD_SSB:
+        d_demod = DEMOD_SSB;
+        tb->connect(filter, 0, demod_ssb, 0);
+        tb->connect(demod_ssb, 0, audio_gain, 0);
+        break;
+
+    case DEMOD_FMN:
+        d_demod = DEMOD_FMN;
+        tb->connect(filter, 0, demod_fm, 0);
+        tb->connect(demod_fm, 0, audio_gain, 0);
+        break;
+
+    }
+
+    /* continue processing */
+    tb->unlock();
+
+    return ret;
 }
 
 

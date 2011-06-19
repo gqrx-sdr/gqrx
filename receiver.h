@@ -22,6 +22,7 @@
 
 #include <gr_top_block.h>
 #include <gr_audio_sink.h>
+#include <gr_complex_to_xxx.h>
 #include <gr_multiply_const_ff.h>
 #include <fcd/fcd_source_c.h>
 #include <dsp/rx_filter.h>
@@ -61,7 +62,8 @@ public:
         DEMOD_FMN  = 4,  /*! Narrow band FM. */
         DEMOD_FMW  = 5,  /*! Wide band (broadcast) FM. */
         DEMOD_APT  = 6,  /*! FM for NOAA APT (17 kHz deviation). */
-        DEMOD_B1K  = 7   /*! Phil Karn's BPSK1000 modem. */
+        DEMOD_B1K  = 7,  /*! Phil Karn's BPSK1000 modem. */
+        DEMOD_NUM  = 8   /*! Included for convenience. */
     };
 
     /*! \brief Filter shape (convenience wrappers for "transition width"). */
@@ -158,11 +160,14 @@ private:
     float  d_rf_freq;          /*! Current RF frequency. */
     double d_filter_offset;    /*! Current filter offset (tune within passband). */
 
+    demod  d_demod;          /*! Current demodulator. */
+
     gr_top_block_sptr tb;        /*! The GNU Radio top block. */
     fcd_source_c_sptr fcd_src;   /*! Funcube Dongle source. */
     rx_fft_c_sptr     fft;       /*! Receiver FFT block. */
     rx_filter_sptr    filter;
     rx_meter_c_sptr   meter;     /*! Signal strength. */
+    gr_complex_to_real_sptr demod_ssb; /*! SSB demodulator. */
     rx_demod_fm_sptr  demod_fm;  /*! FM demodulator. */
     gr_multiply_const_ff_sptr audio_gain; /*! Audio gain block. */
     audio_sink::sptr audio_snk; /*! Audio sink. */
