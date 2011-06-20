@@ -34,7 +34,7 @@
 //////////////////////////////////////////////////////////////////////
 // Local defines
 //////////////////////////////////////////////////////////////////////
-#define CUR_CUT_DELTA 5		//cursor capture delta in pixels
+#define CUR_CUT_DELTA 3		//cursor capture delta in pixels
 
 
 //////////////////////////////////////////////////////////////////////
@@ -81,8 +81,8 @@ CPlotter::CPlotter(QWidget *parent) :
     m_FHiCmax = 10000;
     m_symetric = true;
 
-    m_ClickResolution = 100;
-    m_FilterClickResolution = 100;
+    m_ClickResolution = 10;
+    m_FilterClickResolution = 10;
     m_CursorCaptureDelta = CUR_CUT_DELTA;
 
     m_Span = 96000;
