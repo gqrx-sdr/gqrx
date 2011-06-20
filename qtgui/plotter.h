@@ -32,7 +32,7 @@ public:
 
     void SetCenterFreq(quint64 f);
     void SetDemodCenterFreq(quint64 f){m_DemodCenterFreq=f;}
-    void SetHiLowCutFrequencies(int LowCut, int HiCut){m_DemodLowCutFreq = LowCut; m_DemodHiCutFreq = HiCut;}
+    void SetHiLowCutFrequencies(int LowCut, int HiCut){m_DemodLowCutFreq = LowCut; m_DemodHiCutFreq = HiCut; DrawOverlay();}
     void SetDemodRanges(int FLowCmin, int FLowCmax, int FHiCmin, int FHiCmax, bool symetric);
     void SetSpanFreq(quint32 s){m_Span=(qint32)s;}
     void SetMaxdB(int max){m_MaxdB=max;}

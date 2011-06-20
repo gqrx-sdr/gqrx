@@ -859,6 +859,7 @@ void CPlotter::SetDemodRanges(int FLowCmin, int FLowCmax, int FHiCmin, int FHiCm
     m_FHiCmax=FHiCmax;
     m_symetric=symetric;
     ClampDemodParameters();
+    DrawOverlay();
 }
 
 
