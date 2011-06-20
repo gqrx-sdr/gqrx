@@ -62,6 +62,7 @@ rx_filter_sptr make_rx_filter(double sample_rate, double center, double low, dou
  * performed by the accessors (though the taps generator from gr_firdes does perform
  * some sanity checks and throws std::out_of_range in case of bad parameter).
  *
+ * \note In order to have proper LSB/USB, we must exchange low and high and reverse their sign?
  */
 class rx_filter : public gr_hier_block2
 {
