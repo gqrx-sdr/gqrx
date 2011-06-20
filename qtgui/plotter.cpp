@@ -351,7 +351,7 @@ void CPlotter::wheelEvent( QWheelEvent * event )
         {	//change demod high cut
             m_DemodHiCutFreq += (numSteps*m_FilterClickResolution);
             m_DemodHiCutFreq = RoundFreq(m_DemodHiCutFreq, m_FilterClickResolution);
-            DrawOverlay();
+
             if (m_symetric)
             {
                 m_DemodLowCutFreq = -m_DemodHiCutFreq;
@@ -364,7 +364,7 @@ void CPlotter::wheelEvent( QWheelEvent * event )
         {	//change demod low cut
             m_DemodLowCutFreq += (numSteps*m_FilterClickResolution);
             m_DemodLowCutFreq = RoundFreq(m_DemodLowCutFreq, m_FilterClickResolution);
-            DrawOverlay();
+
             if (m_symetric)
             {
                 m_DemodHiCutFreq = -m_DemodLowCutFreq;
@@ -381,6 +381,8 @@ void CPlotter::wheelEvent( QWheelEvent * event )
         m_DemodCenterFreq = RoundFreq(m_DemodCenterFreq, m_ClickResolution );
         emit NewDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
     }
+
+    DrawOverlay();
 }
 
 //////////////////////////////////////////////////////////////////////
