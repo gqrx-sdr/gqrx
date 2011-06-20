@@ -75,10 +75,10 @@ CPlotter::CPlotter(QWidget *parent) :
     m_DemodHiCutFreq = 5000;
     m_DemodLowCutFreq = -5000;
 
-    m_FLowCmin = -10000;
-    m_FLowCmax = -100;
-    m_FHiCmin = 100;
-    m_FHiCmax = 10000;
+    m_FLowCmin = -15000;
+    m_FLowCmax = -1000;
+    m_FHiCmin = 1000;
+    m_FHiCmax = 15000;
     m_symetric = true;
 
     m_ClickResolution = 10;
