@@ -157,7 +157,62 @@ void MainWindow::on_modeSelector_activated(int index)
 
     rx->set_demod(mode);
 
-    /* FIXME: Set new filter ranges */
+    /* Set new filter ranges */
+    switch(mode) {
+
+    case receiver::DEMOD_NONE:
+        /* leave filter as is for now */
+        break;
+
+    case receiver::DEMOD_LSB:
+        ui->plotter->SetDemodRanges(-5000, -500, -400, 0, false);
+        ui->plotter->SetHiLowCutFrequencies(-3000, -300);
+        rx->set_filter(-3000.0, -300.0, receiver::FILTER_SHAPE_NORMAL);
+        break;
+
+    case receiver::DEMOD_USB:
+        ui->plotter->SetDemodRanges(0, 400, 500, 5000, false);
+        ui->plotter->SetHiLowCutFrequencies(300, 3000);
+        rx->set_filter(300.0, 3000.0, receiver::FILTER_SHAPE_NORMAL);
+        break;
+
+    case receiver::DEMOD_AM:
+    case receiver::DEMOD_AMS:
+        ui->plotter->SetDemodRanges(-15000, -1000, 1000, 15000, true);
+        ui->plotter->SetHiLowCutFrequencies(-5000, 5000);
+        rx->set_filter(-5000.0, 5000.0, receiver::FILTER_SHAPE_NORMAL);
+        break;
+
+    case receiver::DEMOD_FMN:
+        ui->plotter->SetDemodRanges(-15000, -1000, 1000, 15000, true);
+        ui->plotter->SetHiLowCutFrequencies(-5000, 5000);
+        rx->set_filter(-5000.0, 5000.0, receiver::FILTER_SHAPE_NORMAL);
+        break;
+
+    case receiver::DEMOD_FMW:
+        ui->plotter->SetDemodRanges(-45000, -10000, 10000, 45000, true);
+        ui->plotter->SetHiLowCutFrequencies(-40000, 40000);
+        rx->set_filter(-40000.0, 40000.0, receiver::FILTER_SHAPE_NORMAL);
+        break;
+
+    case receiver::DEMOD_APT:
+        ui->plotter->SetDemodRanges(-25000, -5000, 5000, 25000, true);
+        ui->plotter->SetHiLowCutFrequencies(-10000, 10000);
+        rx->set_filter(-10000.0, 10000.0, receiver::FILTER_SHAPE_NORMAL);
+        break;
+
+    case receiver::DEMOD_B1K:
+        ui->plotter->SetDemodRanges(-5000, -500, 500, 5000, true);
+        ui->plotter->SetHiLowCutFrequencies(-2000, 2000);
+        rx->set_filter(-2000.0, 2000.0, receiver::FILTER_SHAPE_NORMAL);
+        break;
+
+    default:
+        /* do nothing */
+        break;
+
+
+    }
 }
 
 
