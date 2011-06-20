@@ -24,6 +24,7 @@
 #include <gr_audio_sink.h>
 #include <gr_complex_to_xxx.h>
 #include <gr_multiply_const_ff.h>
+#include <gr_agc2_cc.h>
 #include <fcd/fcd_source_c.h>
 #include <dsp/rx_filter.h>
 #include <dsp/rx_meter.h>
@@ -163,15 +164,16 @@ private:
 
     demod  d_demod;          /*! Current demodulator. */
 
-    gr_top_block_sptr tb;        /*! The GNU Radio top block. */
-    fcd_source_c_sptr fcd_src;   /*! Funcube Dongle source. */
-    rx_fft_c_sptr     fft;       /*! Receiver FFT block. */
-    rx_filter_sptr    filter;
-    rx_meter_c_sptr   meter;     /*! Signal strength. */
-    gr_complex_to_real_sptr demod_ssb; /*! SSB demodulator. */
-    rx_demod_fm_sptr  demod_fm;  /*! FM demodulator. */
+    gr_top_block_sptr         tb;        /*! The GNU Radio top block. */
+    fcd_source_c_sptr         fcd_src;   /*! Funcube Dongle source. */
+    rx_fft_c_sptr             fft;       /*! Receiver FFT block. */
+    rx_filter_sptr            filter;
+    rx_meter_c_sptr           meter;      /*! Signal strength. */
+    gr_complex_to_real_sptr   demod_ssb;  /*! SSB demodulator. */
+    gr_agc2_cc_sptr           agc;        /*! AGC. */
+    rx_demod_fm_sptr          demod_fm;   /*! FM demodulator. */
     gr_multiply_const_ff_sptr audio_gain; /*! Audio gain block. */
-    audio_sink::sptr audio_snk; /*! Audio sink. */
+    audio_sink::sptr          audio_snk;  /*! Audio sink. */
 
 protected:
 

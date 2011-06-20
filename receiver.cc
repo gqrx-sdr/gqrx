@@ -24,6 +24,7 @@
 #include <gr_audio_sink.h>
 #include <gr_complex_to_xxx.h>
 #include <gr_multiply_const_ff.h>
+#include <gr_agc2_cc.h>
 
 #include <receiver.h>
 #include <fcd/fcd_source_c.h>
@@ -47,6 +48,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     fft = make_rx_fft_c(3840, 0, false);  // FIXME: good for FCD with 96000 ksps
 
     filter = make_rx_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
+    agc = gr_make_agc2_cc (0.5, 1.0e-5, 0.7, 400.0, 400.0);
     meter = make_rx_meter_c(false);
     demod_ssb = gr_make_complex_to_real(1);
     demod_fm = make_rx_demod_fm(48000.0, 48000.0, 5000.0, 50.0e-6);
@@ -56,7 +58,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     tb->connect(fcd_src, 0, fft, 0);
     tb->connect(fcd_src, 0, filter, 0);
     tb->connect(filter, 0, meter, 0);
-    tb->connect(filter, 0, demod_fm, 0);
+    tb->connect(filter, 0, agc, 0);
+    tb->connect(agc, 0, demod_fm, 0);
     tb->connect(demod_fm, 0, audio_gain, 0);
     tb->connect(audio_gain, 0, audio_snk, 0);
 }
@@ -205,12 +208,12 @@ receiver::status receiver::set_demod(demod rx_demod)
 
     case DEMOD_LSB:
     case DEMOD_USB:
-        tb->disconnect(filter, 0, demod_ssb, 0);
+        tb->disconnect(agc, 0, demod_ssb, 0);
         tb->disconnect(demod_ssb, 0, audio_gain, 0);
         break;
 
     case DEMOD_FMN:
-        tb->disconnect(filter, 0, demod_fm, 0);
+        tb->disconnect(agc, 0, demod_fm, 0);
         tb->disconnect(demod_fm, 0, audio_gain, 0);
         break;
 
@@ -223,20 +226,20 @@ receiver::status receiver::set_demod(demod rx_demod)
     case DEMOD_LSB:
     case DEMOD_USB:
         d_demod = rx_demod;
-        tb->connect(filter, 0, demod_ssb, 0);
+        tb->connect(agc, 0, demod_ssb, 0);
         tb->connect(demod_ssb, 0, audio_gain, 0);
         break;
 
     case DEMOD_FMN:
         d_demod = DEMOD_FMN;
-        tb->connect(filter, 0, demod_fm, 0);
+        tb->connect(agc, 0, demod_fm, 0);
         tb->connect(demod_fm, 0, audio_gain, 0);
         break;
 
     default:
         /* use FMN */
         d_demod = DEMOD_FMN;
-        tb->connect(filter, 0, demod_fm, 0);
+        tb->connect(agc, 0, demod_fm, 0);
         tb->connect(demod_fm, 0, audio_gain, 0);
         break;
     }
