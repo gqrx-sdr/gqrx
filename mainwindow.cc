@@ -45,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
     d_filter_shape = receiver::FILTER_SHAPE_NORMAL;
 
     /* create receiver object */
-    rx = new receiver("hw:1");
+    rx = new receiver("hw:2");
 
     rx->set_rf_freq(144500000.0f);
 
@@ -61,12 +61,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* create dock widgets */
     uiDockDemod = new DockDemod();
+    uiDockAudio = new DockAudio();
 
     addDockWidget(Qt::RightDockWidgetArea, uiDockDemod);
+    addDockWidget(Qt::RightDockWidgetArea, uiDockAudio);
 
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(NewFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
     connect(uiDockDemod, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
+    connect(uiDockAudio, SIGNAL(audioGainChanged(int)), this, SLOT(setAudioGain(int)));
 }
 
 MainWindow::~MainWindow()
@@ -81,6 +84,7 @@ MainWindow::~MainWindow()
     /* clean up the rest */
     delete ui;
     delete uiDockDemod;
+    delete uiDockAudio;
     delete rx;
     delete [] d_fftData;
     delete [] d_realFftData;
@@ -229,9 +233,9 @@ void MainWindow::selectDemod(int index)
 
 
 /*! \brief Audio gain changed.
- *  \param value The new audio gain.
+ *  \param value The new audio gain in dB.
  */
-void MainWindow::on_audioGainSlider_valueChanged(int value)
+void MainWindow::setAudioGain(int value)
 {
     rx->set_af_gain(((float)value) / 10.0);
 }

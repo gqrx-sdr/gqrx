@@ -23,6 +23,7 @@
 #include <QMainWindow>
 
 #include "qtgui/dockdemod.h"
+#include "qtgui/dockaudio.h"
 
 #include <receiver.h>
 
@@ -51,6 +52,7 @@ private:
 
     Ui::MainWindow *ui;
     DockDemod      *uiDockDemod;
+    DockAudio      *uiDockAudio;
 
     QTimer   *meter_timer;
     QTimer   *fft_timer;
@@ -58,6 +60,7 @@ private:
 
 private slots:
     void selectDemod(int index);
+    void setAudioGain(int gain);
 
     void on_rxStartStopButton_toggled(bool checked);   /*! RX start/stop button toggled. */
     void on_plotter_NewDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
@@ -66,8 +69,6 @@ private slots:
     void meterTimeout();
     void fftTimeout();
 
-    /* obsolete */
-    void on_audioGainSlider_valueChanged(int value);
 };
 
 #endif // MAINWINDOW_H

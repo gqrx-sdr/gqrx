@@ -34,7 +34,8 @@ SOURCES +=\
     dsp/rx_filter.cc \
     dsp/rx_demod_fm.cc \
     dsp/rx_meter.cc \
-    qtgui/dockdemod.cpp
+    qtgui/dockdemod.cpp \
+    qtgui/dockaudio.cpp
 
 
 HEADERS  += mainwindow.h \
@@ -48,10 +49,12 @@ HEADERS  += mainwindow.h \
     dsp/rx_filter.h \
     dsp/rx_demod_fm.h \
     dsp/rx_meter.h \
-    qtgui/dockdemod.h
+    qtgui/dockdemod.h \
+    qtgui/dockaudio.h
 
 FORMS    += mainwindow.ui \
-    qtgui/dockdemod.ui
+    qtgui/dockdemod.ui \
+    qtgui/dockaudio.ui
 
 
 # dependencies via pkg-config
