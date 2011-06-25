@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DockDemod</class>
+ <widget class="QDockWidget" name="DockDemod">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>194</width>
+    <height>182</height>
+   </rect>
+  </property>
+  <property name="allowedAreas">
+   <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+  </property>
+  <property name="windowTitle">
+   <string>Demodulator</string>
+  </property>
+  <widget class="QWidget" name="dockWidgetContents">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QFormLayout" name="formLayout_2">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="typeLabel">
+        <property name="text">
+         <string>Type</string>
+        </property>
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <property name="indent">
+         <number>19</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="modeSelector">
+        <property name="toolTip">
+         <string>Demodulator type (mode)</string>
+        </property>
+        <property name="statusTip">
+         <string>Demodulator type (mode)</string>
+        </property>
+        <property name="currentIndex">
+         <number>2</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>SSB</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>AM</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>FM</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QStackedWidget" name="demodOptions">
+      <property name="currentIndex">
+       <number>2</number>
+      </property>
+      <widget class="QWidget" name="demodSsbOpt">
+       <layout class="QFormLayout" name="formLayout_3">
+        <property name="fieldGrowthPolicy">
+         <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+        </property>
+        <item row="0" column="0">
+         <widget class="QLabel" name="sidebandLabel">
+          <property name="text">
+           <string>Sideband</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="sidebandSelector">
+          <property name="currentIndex">
+           <number>1</number>
+          </property>
+          <item>
+           <property name="text">
+            <string>Lower</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Upper</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="demodAmOpt">
+       <widget class="QWidget" name="layoutWidget">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>16</y>
+          <width>123</width>
+          <height>58</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QCheckBox" name="dcr">
+           <property name="toolTip">
+            <string>Remove DC offset in audio</string>
+           </property>
+           <property name="statusTip">
+            <string>Remove DC offset in audio</string>
+           </property>
+           <property name="text">
+            <string>DCR</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="syncPll">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Sync PLL</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="demodFmOpt">
+       <widget class="QWidget" name="layoutWidget">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>20</y>
+          <width>161</width>
+          <height>68</height>
+         </rect>
+        </property>
+        <layout class="QFormLayout" name="formLayout">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="maxdevLabel">
+           <property name="text">
+            <string>Dev:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="maxdevSelector">
+           <property name="toolTip">
+            <string>Maximum FM deviation</string>
+           </property>
+           <property name="statusTip">
+            <string>Maximum FM deviation</string>
+           </property>
+           <property name="currentIndex">
+            <number>1</number>
+           </property>
+           <item>
+            <property name="text">
+             <string>Voice (2.5k)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Voice (5k)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>APT (17k)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>BC (75k)</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="emphLabel">
+           <property name="text">
+            <string>Emph:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="emphSelector">
+           <property name="toolTip">
+            <string>De-emphasis time constant</string>
+           </property>
+           <property name="statusTip">
+            <string>De-emphasis time constant</string>
+           </property>
+           <property name="currentIndex">
+            <number>2</number>
+           </property>
+           <item>
+            <property name="text">
+             <string>Off</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>25 μ</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>50 μ</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>75 μ</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>100 μ</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>modeSelector</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>demodOptions</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>142</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>130</x>
+     <y>160</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
