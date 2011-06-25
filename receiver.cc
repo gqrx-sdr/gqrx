@@ -38,7 +38,7 @@
 receiver::receiver(const std::string input_device, const std::string audio_device)
     : d_bandwidth(96000.0), d_audio_rate(48000),
       d_rf_freq(144800000.0), d_filter_offset(0.0),
-      d_demod(DEMOD_FMN)
+      d_demod(DEMOD_FM)
 {
     tb = gr_make_top_block("gqrx");
 
@@ -192,7 +192,7 @@ receiver::status receiver::set_demod(demod rx_demod)
     demod current_demod = d_demod;
 
     /* check if new demodulator selection is valid */
-    if ((rx_demod < DEMOD_NONE) || (rx_demod >= DEMOD_NUM))
+    if ((rx_demod < DEMOD_SSB) || (rx_demod >= DEMOD_NUM))
         return STATUS_ERROR;
 
     if (rx_demod == current_demod) {
@@ -206,13 +206,12 @@ receiver::status receiver::set_demod(demod rx_demod)
     /* disconnect current demodulator */
     switch (current_demod) {
 
-    case DEMOD_LSB:
-    case DEMOD_USB:
+    case DEMOD_SSB:
         tb->disconnect(agc, 0, demod_ssb, 0);
         tb->disconnect(demod_ssb, 0, audio_gain, 0);
         break;
 
-    case DEMOD_FMN:
+    case DEMOD_FM:
         tb->disconnect(agc, 0, demod_fm, 0);
         tb->disconnect(demod_fm, 0, audio_gain, 0);
         break;
@@ -223,22 +222,21 @@ receiver::status receiver::set_demod(demod rx_demod)
 
     switch (rx_demod) {
 
-    case DEMOD_LSB:
-    case DEMOD_USB:
+    case DEMOD_SSB:
         d_demod = rx_demod;
         tb->connect(agc, 0, demod_ssb, 0);
         tb->connect(demod_ssb, 0, audio_gain, 0);
         break;
 
-    case DEMOD_FMN:
-        d_demod = DEMOD_FMN;
+    case DEMOD_FM:
+        d_demod = DEMOD_FM;
         tb->connect(agc, 0, demod_fm, 0);
         tb->connect(demod_fm, 0, audio_gain, 0);
         break;
 
     default:
         /* use FMN */
-        d_demod = DEMOD_FMN;
+        d_demod = DEMOD_FM;
         tb->connect(agc, 0, demod_fm, 0);
         tb->connect(demod_fm, 0, audio_gain, 0);
         break;

@@ -56,16 +56,10 @@ public:
 
     /*! \brief Available demodulators. */
     enum demod {
-        DEMOD_NONE = 0,  /*! No demodulator (pass through). */
-        DEMOD_LSB  = 1,  /*! Lower side band. */
-        DEMOD_USB  = 2,  /*! Upper side band. */
-        DEMOD_AM   = 3,  /*! Amplitude modulation. */
-        DEMOD_AMS  = 4,  /*! Synchronous AM. */
-        DEMOD_FMN  = 5,  /*! Narrow band FM. */
-        DEMOD_FMW  = 6,  /*! Wide band (broadcast) FM. */
-        DEMOD_APT  = 7,  /*! FM for NOAA APT (17 kHz deviation). */
-        DEMOD_B1K  = 8,  /*! Phil Karn's BPSK1000 modem. */
-        DEMOD_NUM  = 9   /*! Included for convenience. */
+        DEMOD_SSB  = 0,  /*! Single Side Band. */
+        DEMOD_AM   = 1,  /*! Amplitude modulation. */
+        DEMOD_FM   = 2,  /*! Frequency modulation. */
+        DEMOD_NUM  = 3   /*! Included for convenience. */
     };
 
     /*! \brief Filter shape (convenience wrappers for "transition width"). */
