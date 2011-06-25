@@ -128,31 +128,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QSlider" name="audioGainSlider">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="statusTip">
-         <string>Audio Gain</string>
-        </property>
-        <property name="minimum">
-         <number>-800</number>
-        </property>
-        <property name="maximum">
-         <number>200</number>
-        </property>
-        <property name="value">
-         <number>-200</number>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
