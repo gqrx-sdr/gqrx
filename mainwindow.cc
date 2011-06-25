@@ -19,7 +19,12 @@
  */
 #include <QDebug>
 #include "mainwindow.h"
+
+/* Qt Designer files */
 #include "ui_mainwindow.h"
+
+
+/* DSP */
 #include "receiver.h"
 
 
@@ -28,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
 
     setWindowTitle(QString("gqrx %1").arg(VERSION));
 
@@ -53,9 +59,14 @@ MainWindow::MainWindow(QWidget *parent) :
     d_fftData = new std::complex<float>[MAX_FFT_SIZE];
     d_realFftData = new double[MAX_FFT_SIZE];
 
+    /* create dock widgets */
+    uiDockDemod = new DockDemod();
+
+    addDockWidget(Qt::RightDockWidgetArea, uiDockDemod);
 
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(NewFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
+    connect(uiDockDemod, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
 }
 
 MainWindow::~MainWindow()
@@ -69,6 +80,7 @@ MainWindow::~MainWindow()
 
     /* clean up the rest */
     delete ui;
+    delete uiDockDemod;
     delete rx;
     delete [] d_fftData;
     delete [] d_realFftData;
@@ -148,72 +160,72 @@ void MainWindow::on_plotter_NewFilterFreq(int low, int high)
 }
 
 
-/*! \brief New mode selected. */
-void MainWindow::on_modeSelector_activated(int index)
+/*! \brief Select new demodulator.
+ *  \param demod New demodulator index, see receiver::demod.
+ */
+void MainWindow::selectDemod(int index)
 {
     receiver::demod mode = (receiver::demod)index;
 
-    qDebug() << "New mode: " << mode;
-
     rx->set_demod(mode);
 
-    /* Set new filter ranges */
-    switch(mode) {
+    switch (mode) {
 
-    case receiver::DEMOD_NONE:
-        /* leave filter as is for now */
-        break;
-
-    case receiver::DEMOD_LSB:
-        ui->plotter->SetDemodRanges(-5000, -500, -400, 0, false);
-        ui->plotter->SetHiLowCutFrequencies(-3000, -300);
-        rx->set_filter(-3000.0, -300.0, receiver::FILTER_SHAPE_NORMAL);
-        break;
-
-    case receiver::DEMOD_USB:
-        ui->plotter->SetDemodRanges(0, 400, 500, 5000, false);
-        ui->plotter->SetHiLowCutFrequencies(300, 3000);
-        rx->set_filter(300.0, 3000.0, receiver::FILTER_SHAPE_NORMAL);
+    case receiver::DEMOD_SSB:
+        if (uiDockDemod->currentSideBand()) {
+            /* USB */
+            ui->plotter->SetDemodRanges(0, 400, 500, 5000, false);
+            ui->plotter->SetHiLowCutFrequencies(300, 3000);
+            rx->set_filter(300.0, 3000.0, receiver::FILTER_SHAPE_NORMAL);
+        }
+        else {
+            /* LSB */
+            ui->plotter->SetDemodRanges(-5000, -500, -400, 0, false);
+            ui->plotter->SetHiLowCutFrequencies(-3000, -300);
+            rx->set_filter(-3000.0, -300.0, receiver::FILTER_SHAPE_NORMAL);
+            break;
+        }
         break;
 
     case receiver::DEMOD_AM:
-    case receiver::DEMOD_AMS:
         ui->plotter->SetDemodRanges(-15000, -1000, 1000, 15000, true);
         ui->plotter->SetHiLowCutFrequencies(-5000, 5000);
         rx->set_filter(-5000.0, 5000.0, receiver::FILTER_SHAPE_NORMAL);
         break;
 
-    case receiver::DEMOD_FMN:
+    case receiver::DEMOD_FM:
+        /** FIXME: add full support for maxdev and de-emphasis */
         ui->plotter->SetDemodRanges(-15000, -1000, 1000, 15000, true);
         ui->plotter->SetHiLowCutFrequencies(-5000, 5000);
         rx->set_filter(-5000.0, 5000.0, receiver::FILTER_SHAPE_NORMAL);
         break;
 
-    case receiver::DEMOD_FMW:
-        ui->plotter->SetDemodRanges(-45000, -10000, 10000, 45000, true);
-        ui->plotter->SetHiLowCutFrequencies(-40000, 40000);
-        rx->set_filter(-40000.0, 40000.0, receiver::FILTER_SHAPE_NORMAL);
-        break;
-
-    case receiver::DEMOD_APT:
+/** APT:
         ui->plotter->SetDemodRanges(-25000, -5000, 5000, 25000, true);
         ui->plotter->SetHiLowCutFrequencies(-10000, 10000);
         rx->set_filter(-10000.0, 10000.0, receiver::FILTER_SHAPE_NORMAL);
-        break;
+*/
 
-    case receiver::DEMOD_B1K:
+/** FMW:
+        ui->plotter->SetDemodRanges(-45000, -10000, 10000, 45000, true);
+        ui->plotter->SetHiLowCutFrequencies(-40000, 40000);
+        rx->set_filter(-40000.0, 40000.0, receiver::FILTER_SHAPE_NORMAL);
+*/
+
+/*    case receiver::DEMOD_B1K:
         ui->plotter->SetDemodRanges(-5000, -500, 500, 5000, true);
         ui->plotter->SetHiLowCutFrequencies(-2000, 2000);
         rx->set_filter(-2000.0, 2000.0, receiver::FILTER_SHAPE_NORMAL);
         break;
-
+*/
     default:
-        /* do nothing */
+        qDebug() << "Invalid mode selection: " << mode;
         break;
 
-
     }
+
 }
+
 
 
 /*! \brief Audio gain changed.

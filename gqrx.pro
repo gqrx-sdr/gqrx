@@ -33,7 +33,8 @@ SOURCES +=\
     dsp/rx_fft.cc \
     dsp/rx_filter.cc \
     dsp/rx_demod_fm.cc \
-    dsp/rx_meter.cc
+    dsp/rx_meter.cc \
+    qtgui/dockdemod.cpp
 
 
 HEADERS  += mainwindow.h \
@@ -46,9 +47,11 @@ HEADERS  += mainwindow.h \
     dsp/rx_fft.h \
     dsp/rx_filter.h \
     dsp/rx_demod_fm.h \
-    dsp/rx_meter.h
+    dsp/rx_meter.h \
+    qtgui/dockdemod.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    qtgui/dockdemod.ui
 
 
 # dependencies via pkg-config

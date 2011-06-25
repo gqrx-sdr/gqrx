@@ -21,11 +21,15 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+
+#include "qtgui/dockdemod.h"
+
 #include <receiver.h>
 
 
 namespace Ui {
-    class MainWindow;
+    class MainWindow;  /*! The main window UI */
+    class DockDemod;   /*! Demodulator dock window. */
 }
 
 class MainWindow : public QMainWindow
@@ -46,18 +50,24 @@ private:
     double *d_realFftData;
 
     Ui::MainWindow *ui;
+    DockDemod      *uiDockDemod;
+
     QTimer   *meter_timer;
     QTimer   *fft_timer;
     receiver *rx;
 
 private slots:
+    void selectDemod(int index);
+
     void on_rxStartStopButton_toggled(bool checked);   /*! RX start/stop button toggled. */
     void on_plotter_NewDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
     void on_plotter_NewFilterFreq(int low, int high);    /*! New filter width */
-    void on_modeSelector_activated(int index);
-    void on_audioGainSlider_valueChanged(int value);
+
     void meterTimeout();
     void fftTimeout();
+
+    /* obsolete */
+    void on_audioGainSlider_valueChanged(int value);
 };
 
 #endif // MAINWINDOW_H
