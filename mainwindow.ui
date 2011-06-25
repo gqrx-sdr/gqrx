@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>827</width>
+    <width>901</width>
     <height>516</height>
    </rect>
   </property>
@@ -128,92 +128,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="modeLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="baseSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Mode:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-        <property name="margin">
-         <number>0</number>
-        </property>
-        <property name="indent">
-         <number>15</number>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="modeSelector">
-        <property name="toolTip">
-         <string/>
-        </property>
-        <property name="statusTip">
-         <string>Demodulator</string>
-        </property>
-        <property name="currentIndex">
-         <number>5</number>
-        </property>
-        <item>
-         <property name="text">
-          <string>None</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>LSB</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>USB</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>AM</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>AMS</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>FMN</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>FMW</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>APT</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>BPSK1000</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item>
        <widget class="QSlider" name="audioGainSlider">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -260,7 +174,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>827</width>
+     <width>901</width>
      <height>25</height>
     </rect>
    </property>
