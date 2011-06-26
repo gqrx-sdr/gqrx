@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DockInput</class>
+ <widget class="QDockWidget" name="DockInput">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>205</width>
+    <height>297</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Input settings</string>
+  </property>
+  <widget class="QWidget" name="dockWidgetContents">
+   <widget class="QStackedWidget" name="stackedWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>191</width>
+      <height>231</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="pageFcd">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>181</width>
+        <height>221</height>
+       </rect>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tabCtl">
+       <attribute name="title">
+        <string>Ctl</string>
+       </attribute>
+       <widget class="QWidget" name="layoutWidget">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>161</width>
+          <height>62</height>
+         </rect>
+        </property>
+        <layout class="QFormLayout" name="formLayout_3">
+         <item row="0" column="0">
+          <widget class="QLabel" name="fcdDeviceLabel">
+           <property name="text">
+            <string>Device</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="fcdDeviceSelector"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="fcdRfGainLabel">
+           <property name="text">
+            <string>RF gain</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="fcdRfGainSelector"/>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tabCal">
+       <attribute name="title">
+        <string>Cal</string>
+       </attribute>
+       <widget class="QWidget" name="layoutWidget">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>137</width>
+          <height>171</height>
+         </rect>
+        </property>
+        <layout class="QFormLayout" name="formLayout_2">
+         <item row="0" column="0">
+          <widget class="QLabel" name="fcdFreqLabel">
+           <property name="text">
+            <string>Freq</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="fcdFreqSpinBox">
+           <property name="suffix">
+            <string> ppm</string>
+           </property>
+           <property name="minimum">
+            <number>-500</number>
+           </property>
+           <property name="maximum">
+            <number>500</number>
+           </property>
+           <property name="value">
+            <number>-120</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="fcdDciLabel">
+           <property name="text">
+            <string>DC I</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QDoubleSpinBox" name="fcdDciSpinBox">
+           <property name="suffix">
+            <string/>
+           </property>
+           <property name="decimals">
+            <number>5</number>
+           </property>
+           <property name="minimum">
+            <double>-1.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.000050000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="fcdDcqLabel">
+           <property name="text">
+            <string>DC Q</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QDoubleSpinBox" name="fcdDcqSpinBox">
+           <property name="suffix">
+            <string/>
+           </property>
+           <property name="decimals">
+            <number>5</number>
+           </property>
+           <property name="minimum">
+            <double>-1.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.000050000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="fcdIqPhaseLabel">
+           <property name="text">
+            <string>Phase</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QDoubleSpinBox" name="fcdIqPhaseSpinBox">
+           <property name="suffix">
+            <string/>
+           </property>
+           <property name="decimals">
+            <number>5</number>
+           </property>
+           <property name="minimum">
+            <double>-1.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.000050000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="fcdIqGainLabel">
+           <property name="text">
+            <string>Gain</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QDoubleSpinBox" name="fcdIqGainSpinBox">
+           <property name="suffix">
+            <string/>
+           </property>
+           <property name="decimals">
+            <number>5</number>
+           </property>
+           <property name="minimum">
+            <double>-1.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.000050000000000</double>
+           </property>
+           <property name="value">
+            <double>1.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="pageUhd">
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>121</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Not implemented</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="pageAudio">
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>121</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Not implemented</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>191</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="sourceLabel">
+       <property name="text">
+        <string>Source</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="inputSelector">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <item>
+        <property name="text">
+         <string>Funcube Dongle</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>UHD device</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Sound card</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>inputSelector</sender>
+   <signal>activated(int)</signal>
+   <receiver>stackedWidget</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>131</x>
+     <y>49</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>105</x>
+     <y>180</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
