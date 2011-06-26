@@ -167,6 +167,23 @@ receiver::status receiver::set_filter_shape(filter_shape shape)
 
 }
 
+
+receiver::status receiver::set_dc_corr(double dci, double dcq)
+{
+    fcd_src->set_dc_corr(dci, dcq);
+
+    return STATUS_OK;
+}
+
+receiver::status receiver::set_iq_corr(double gain, double phase)
+{
+    fcd_src->set_iq_corr(gain, phase);
+
+    return STATUS_OK;
+}
+
+
+
 float receiver::get_signal_pwr(bool dbfs)
 {
     if (dbfs)

@@ -134,6 +134,10 @@ public:
     status set_filter_high(double freq_hz);
     status set_filter_shape(filter_shape shape);
 
+    status set_dc_corr(double dci, double dcq);
+    status set_iq_corr(double gain, double phase);
+
+
     /*! \brief Get current signal power.
      *  \param dbfs Whether to use dbfs or absolute power.
      *  \return The current signal power.
