@@ -40,8 +40,6 @@ SOURCES +=\
 
 HEADERS  += mainwindow.h \
     receiver.h \
-    rx_filter.h \
-    rx_demod_fm.h \
     qtgui/freqctrl.h \
     qtgui/meter.h \
     qtgui/plotter.h \
