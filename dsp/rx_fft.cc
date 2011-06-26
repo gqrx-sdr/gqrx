@@ -112,14 +112,17 @@ int rx_fft_c::work (int noutput_items,
 }
 
 
+
 /*! \brief Get FFT data.
- *  \returns The results of the latest FFT operation.
- *
- * \sa get_fft_size()
+ *  \param fftPoint Buffer to copy FFT data
+ *  \param fftSize Current FFt size (output).
  */
-gr_complex *rx_fft_c::get_fft_data()
+void rx_fft_c::get_fft_data(std::complex<float>* fftPoints, int &fftSize)
 {
-    return d_fft->get_outbuf();
+    boost::mutex::scoped_lock lock(d_mutex);
+
+    memcpy(fftPoints, d_fft->get_outbuf(), sizeof(gr_complex)*d_fftsize);
+    fftSize = d_fftsize;
 }
 
 /*! \brief Compute FFT on the avaialble input data. */
@@ -137,6 +140,7 @@ void rx_fft_c::do_fft(const gr_complex *data_in, int size)
     }
 
     /* compute FFT */
+    boost::mutex::scoped_lock lock(d_mutex);
     d_fft->execute();
 }
 

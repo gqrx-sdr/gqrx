@@ -24,6 +24,7 @@
 #include <gri_fft.h>
 #include <gr_firdes.h>       /* contains enum win_type */
 #include <gr_complex.h>
+#include <boost/thread/mutex.hpp>
 
 
 #define MAX_FFT_SIZE 20480
@@ -65,8 +66,7 @@ public:
              gr_vector_const_void_star &input_items,
              gr_vector_void_star &output_items);
 
-
-    gr_complex *get_fft_data();
+    void get_fft_data(std::complex<float>* fftPoints, int &fftSize);
 
     void set_window_type(int wintype);
     int  get_window_type();
@@ -78,6 +78,8 @@ private:
     int  d_fftsize;   /*! Current FFT size. */
     int  d_wintype;   /*! Current window type. */
     bool d_use_avg;   /*! Whether to store the average or jsut the latest value. */
+
+    boost::mutex d_mutex;  /*! Used to lock FFT output buffer. */
 
     gri_fft_complex    *d_fft;    /*! FFT object. */
     std::vector<float>  d_window; /*! FFT window taps. */
