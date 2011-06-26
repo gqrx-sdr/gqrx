@@ -66,6 +66,12 @@ MainWindow::MainWindow(QWidget *parent) :
     addDockWidget(Qt::RightDockWidgetArea, uiDockDemod);
     addDockWidget(Qt::RightDockWidgetArea, uiDockAudio);
 
+    /* Add dock widget actions to View menu. By doing it this way all signal/slot
+       connections will be established automagially.
+    */
+    ui->menu_View->addAction(uiDockDemod->toggleViewAction());
+    ui->menu_View->addAction(uiDockAudio->toggleViewAction());
+
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(NewFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
     connect(uiDockDemod, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
@@ -309,4 +315,38 @@ void MainWindow::fftTimeout()
     //qDebug() << "MIN:" << min << "  AVG:" << avg << "  MAX:" << max;
 
 
+}
+
+
+
+
+/*! \brief Action: About Qthid
+ *
+ * This slot is called when the user activates the
+ * Help|About menu item (or Gqrx|About on Mac)
+ */
+void MainWindow::on_actionAbout_triggered()
+{
+    QMessageBox::about(this, tr("About Gqrx"),
+                       tr("<p>This is Gqrx %1</p>"
+                          "<p>Gqrx is a software defined radio receiver for Funcube Dongle and "
+                          "Universal Software Radio Peripheral devices by Ettus Research via the UHD driver.</p>"
+                          "<p>Gqrx is powered by GNU Radio and the Qt toolkit (see About Qt) and is avaialble "
+                          "for Linux, Mac and Windows. You can download the latest version from the "
+                          "<a href='http://www.oz9aec.net/'>TBD website</a>.</p>"
+                          "<p>"
+                          "<a href='http://www.gnuradio.org/'>GNU Radio website</a><br/>"
+                          "<a href='http://www.ettus.com/'>Ettus Research (USRP)</a><br/>"
+                          "<a href='http://funcubedongle.com/'>Funcube Dongle website</a><br/>"
+                          "</p>").arg(VERSION));
+}
+
+/*! \brief Action: About Qt
+ *
+ * This slot is called when the user activates the
+ * Help|About Qt menu item (or Gqrx|About Qt on Mac)
+ */
+void MainWindow::on_actionAboutQt_triggered()
+{
+    QMessageBox::aboutQt(this, tr("About Qt"));
 }

@@ -66,6 +66,11 @@ private slots:
     void on_plotter_NewDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
     void on_plotter_NewFilterFreq(int low, int high);    /*! New filter width */
 
+    /* menu actions */
+    void on_actionAbout_triggered();
+    void on_actionAboutQt_triggered();
+
+    /* cyclic processing */
     void meterTimeout();
     void fftTimeout();
 
