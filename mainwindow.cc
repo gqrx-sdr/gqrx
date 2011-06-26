@@ -60,20 +60,25 @@ MainWindow::MainWindow(QWidget *parent) :
     d_realFftData = new double[MAX_FFT_SIZE];
 
     /* create dock widgets */
+    uiDockInput = new DockInput();
     uiDockDemod = new DockDemod();
     uiDockAudio = new DockAudio();
 
+    //addDockWidget(Qt::RightDockWidgetArea, uiDockInput);
     addDockWidget(Qt::RightDockWidgetArea, uiDockDemod);
     addDockWidget(Qt::RightDockWidgetArea, uiDockAudio);
 
     /* Add dock widget actions to View menu. By doing it this way all signal/slot
        connections will be established automagially.
     */
+    ui->menu_View->addAction(uiDockInput->toggleViewAction());
     ui->menu_View->addAction(uiDockDemod->toggleViewAction());
     ui->menu_View->addAction(uiDockAudio->toggleViewAction());
 
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(NewFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
+    connect(uiDockInput, SIGNAL(fcdDcCorrChanged(double,double)), this, SLOT(setDcCorr(double,double)));
+    connect(uiDockInput, SIGNAL(fcdIqCorrChanged(double,double)), this, SLOT(setIqCorr(double,double)));
     connect(uiDockDemod, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
     connect(uiDockAudio, SIGNAL(audioGainChanged(int)), this, SLOT(setAudioGain(int)));
 }
@@ -89,6 +94,7 @@ MainWindow::~MainWindow()
 
     /* clean up the rest */
     delete ui;
+    delete uiDockInput;
     delete uiDockDemod;
     delete uiDockAudio;
     delete rx;
@@ -167,6 +173,32 @@ void MainWindow::on_plotter_NewFilterFreq(int low, int high)
     /* parameter correctness will be checked in receiver class */
     retcode = rx->set_filter((double) low, (double) high, d_filter_shape);
 
+}
+
+
+/*! \brief Set new DC offset values.
+ *  \param dci I correction.
+ *  \param dcq Q correction.
+ *
+ * The valid range is between -1.0 and 1.0, though hthis is not checked.
+ */
+void MainWindow::setDcCorr(double dci, double dcq)
+{
+    qDebug() << "DCI:" << dci << "  DCQ:" << dcq;
+    rx->set_dc_corr(dci, dcq);
+}
+
+
+/*! \brief Set new IQ correction values.
+ *  \param gain IQ gain correction.
+ *  \param phase IQ phase correction.
+ *
+ * The valid range is between -1.0 and 1.0, though hthis is not checked.
+ */
+void MainWindow::setIqCorr(double gain, double phase)
+{
+    qDebug() << "Gain:" << gain << "  Phase:" << phase;
+    rx->set_iq_corr(gain, phase);
 }
 
 

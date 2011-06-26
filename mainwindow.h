@@ -22,6 +22,7 @@
 
 #include <QMainWindow>
 
+#include "qtgui/dockinput.h"
 #include "qtgui/dockdemod.h"
 #include "qtgui/dockaudio.h"
 
@@ -51,6 +52,7 @@ private:
     double *d_realFftData;
 
     Ui::MainWindow *ui;
+    DockInput      *uiDockInput;
     DockDemod      *uiDockDemod;
     DockAudio      *uiDockAudio;
 
@@ -59,6 +61,8 @@ private:
     receiver *rx;
 
 private slots:
+    void setDcCorr(double dci, double dcq);
+    void setIqCorr(double gain, double phase);
     void selectDemod(int index);
     void setAudioGain(int gain);
 
