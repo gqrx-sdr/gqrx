@@ -45,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
     d_filter_shape = receiver::FILTER_SHAPE_NORMAL;
 
     /* create receiver object */
-    rx = new receiver("hw:2");
+    rx = new receiver("hw:1");
 
     rx->set_rf_freq(144500000.0f);
 
