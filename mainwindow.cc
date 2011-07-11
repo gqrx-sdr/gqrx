@@ -60,27 +60,25 @@ MainWindow::MainWindow(QWidget *parent) :
     d_realFftData = new double[MAX_FFT_SIZE];
 
     /* create dock widgets */
+    uiDockRxOpt = new DockRxOpt();
     uiDockInput = new DockInput();
-    uiDockDemod = new DockDemod();
-    uiDockAudio = new DockAudio();
 
     //addDockWidget(Qt::RightDockWidgetArea, uiDockInput);
-    addDockWidget(Qt::RightDockWidgetArea, uiDockDemod);
-    addDockWidget(Qt::RightDockWidgetArea, uiDockAudio);
+    addDockWidget(Qt::RightDockWidgetArea, uiDockRxOpt);
+
 
     /* Add dock widget actions to View menu. By doing it this way all signal/slot
        connections will be established automagially.
     */
-    ui->menu_View->addAction(uiDockInput->toggleViewAction());
-    ui->menu_View->addAction(uiDockDemod->toggleViewAction());
-    ui->menu_View->addAction(uiDockAudio->toggleViewAction());
+    //ui->menu_View->addAction(uiDockInput->toggleViewAction());
+    ui->menu_View->addAction(uiDockRxOpt->toggleViewAction());
 
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(NewFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
-    connect(uiDockInput, SIGNAL(fcdDcCorrChanged(double,double)), this, SLOT(setDcCorr(double,double)));
-    connect(uiDockInput, SIGNAL(fcdIqCorrChanged(double,double)), this, SLOT(setIqCorr(double,double)));
-    connect(uiDockDemod, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
-    connect(uiDockAudio, SIGNAL(audioGainChanged(int)), this, SLOT(setAudioGain(int)));
+    //connect(uiDockInput, SIGNAL(fcdDcCorrChanged(double,double)), this, SLOT(setDcCorr(double,double)));
+    //connect(uiDockInput, SIGNAL(fcdIqCorrChanged(double,double)), this, SLOT(setIqCorr(double,double)));
+    connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
+    connect(uiDockRxOpt, SIGNAL(audioGainChanged(int)), this, SLOT(setAudioGain(int)));
 }
 
 MainWindow::~MainWindow()
@@ -95,8 +93,7 @@ MainWindow::~MainWindow()
     /* clean up the rest */
     delete ui;
     delete uiDockInput;
-    delete uiDockDemod;
-    delete uiDockAudio;
+    delete uiDockRxOpt;
     delete rx;
     delete [] d_fftData;
     delete [] d_realFftData;
@@ -214,7 +211,7 @@ void MainWindow::selectDemod(int index)
     switch (mode) {
 
     case receiver::DEMOD_SSB:
-        if (uiDockDemod->currentSideBand()) {
+        if (uiDockRxOpt->currentSideBand()) {
             /* USB */
             ui->plotter->SetDemodRanges(0, 400, 500, 5000, false);
             ui->plotter->SetHiLowCutFrequencies(300, 3000);

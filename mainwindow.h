@@ -22,9 +22,8 @@
 
 #include <QMainWindow>
 
+#include "qtgui/dockrxopt.h"
 #include "qtgui/dockinput.h"
-#include "qtgui/dockdemod.h"
-#include "qtgui/dockaudio.h"
 
 #include <receiver.h>
 
@@ -52,9 +51,8 @@ private:
     double *d_realFftData;
 
     Ui::MainWindow *ui;
+    DockRxOpt      *uiDockRxOpt;
     DockInput      *uiDockInput;
-    DockDemod      *uiDockDemod;
-    DockAudio      *uiDockAudio;
 
     QTimer   *meter_timer;
     QTimer   *fft_timer;
