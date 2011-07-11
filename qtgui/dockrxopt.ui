@@ -6,9 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>275</width>
-    <height>587</height>
+    <width>215</width>
+    <height>400</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>215</width>
+    <height>400</height>
+   </size>
   </property>
   <property name="allowedAreas">
    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
@@ -28,18 +40,18 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>257</width>
-         <height>389</height>
+         <width>197</width>
+         <height>202</height>
         </rect>
        </property>
        <attribute name="label">
         <string>Demodulator</string>
        </attribute>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
-          <x>20</x>
-          <y>16</y>
+          <x>0</x>
+          <y>0</y>
           <width>191</width>
           <height>231</height>
          </rect>
@@ -307,8 +319,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>257</width>
-         <height>389</height>
+         <width>100</width>
+         <height>30</height>
         </rect>
        </property>
        <attribute name="label">
@@ -320,8 +332,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>257</width>
-         <height>389</height>
+         <width>100</width>
+         <height>30</height>
         </rect>
        </property>
        <attribute name="label">
@@ -333,8 +345,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>257</width>
-         <height>389</height>
+         <width>100</width>
+         <height>30</height>
         </rect>
        </property>
        <attribute name="label">
@@ -346,8 +358,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>257</width>
-         <height>389</height>
+         <width>100</width>
+         <height>30</height>
         </rect>
        </property>
        <attribute name="label">
