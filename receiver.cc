@@ -267,7 +267,7 @@ receiver::status receiver::set_af_gain(float gain_db)
 
     /* convert dB to factor */
     k = pow(10.0, gain_db / 20.0);
-    std::cout << "G:" << gain_db << "dB / K:" << k << std::endl;
+    //std::cout << "G:" << gain_db << "dB / K:" << k << std::endl;
     audio_gain->set_k(k);
 
     return STATUS_OK;
