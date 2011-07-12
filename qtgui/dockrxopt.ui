@@ -44,6 +44,9 @@
          <height>202</height>
         </rect>
        </property>
+       <property name="toolTip">
+        <string/>
+       </property>
        <attribute name="label">
         <string>Demodulator</string>
        </attribute>
@@ -319,9 +322,12 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>100</width>
-         <height>30</height>
+         <width>197</width>
+         <height>202</height>
         </rect>
+       </property>
+       <property name="toolTip">
+        <string/>
        </property>
        <attribute name="label">
         <string>Noise Blanker</string>
@@ -332,9 +338,12 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>100</width>
-         <height>30</height>
+         <width>197</width>
+         <height>202</height>
         </rect>
+       </property>
+       <property name="toolTip">
+        <string/>
        </property>
        <attribute name="label">
         <string>Filter</string>
@@ -345,9 +354,12 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>100</width>
-         <height>30</height>
+         <width>197</width>
+         <height>202</height>
         </rect>
+       </property>
+       <property name="toolTip">
+        <string/>
        </property>
        <attribute name="label">
         <string>AGC</string>
@@ -358,9 +370,12 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>100</width>
-         <height>30</height>
+         <width>197</width>
+         <height>202</height>
         </rect>
+       </property>
+       <property name="toolTip">
+        <string/>
        </property>
        <attribute name="label">
         <string>Audio</string>
@@ -368,49 +383,112 @@
        <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
-          <x>1</x>
-          <y>11</y>
-          <width>251</width>
-          <height>21</height>
+          <x>0</x>
+          <y>0</y>
+          <width>191</width>
+          <height>201</height>
          </rect>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout">
+        <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
-          <widget class="QLabel" name="audioGainLabel">
-           <property name="text">
-            <string>Gain</string>
+          <layout class="QGridLayout" name="gridLayout">
+           <property name="horizontalSpacing">
+            <number>6</number>
            </property>
-          </widget>
+           <property name="verticalSpacing">
+            <number>0</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QLabel" name="audioGainLabel">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Gain:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="audioGainDbLabel">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string> -20 dB</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="margin">
+              <number>0</number>
+             </property>
+             <property name="indent">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QSlider" name="audioGainSlider">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>Audio gain</string>
+             </property>
+             <property name="statusTip">
+              <string>Audio gain</string>
+             </property>
+             <property name="minimum">
+              <number>-800</number>
+             </property>
+             <property name="maximum">
+              <number>200</number>
+             </property>
+             <property name="value">
+              <number>-200</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
-          <widget class="QSlider" name="audioGainSlider">
-           <property name="toolTip">
-            <string>Audio gain</string>
-           </property>
-           <property name="statusTip">
-            <string>Audio gain</string>
-           </property>
-           <property name="minimum">
-            <number>-800</number>
-           </property>
-           <property name="maximum">
-            <number>200</number>
-           </property>
-           <property name="value">
-            <number>-200</number>
-           </property>
+          <widget class="Line" name="line">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="audioGainDbLabel">
-           <property name="text">
-            <string>0 dB</string>
+          <widget class="QFrame" name="frame">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <property name="toolTip">
+            <string>Audio spectrum and filter</string>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
            </property>
           </widget>
          </item>

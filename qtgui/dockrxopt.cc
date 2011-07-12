@@ -122,5 +122,7 @@ void DockRxOpt::on_sidebandSelector_activated(int index)
  */
 void DockRxOpt::on_audioGainSlider_valueChanged(int value)
 {
+    /* update dB label */
+    ui->audioGainDbLabel->setText(QString("%1 dB").arg(value/10));
     emit audioGainChanged(value);
 }
