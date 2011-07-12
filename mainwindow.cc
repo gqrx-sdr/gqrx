@@ -78,6 +78,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //connect(uiDockInput, SIGNAL(fcdDcCorrChanged(double,double)), this, SLOT(setDcCorr(double,double)));
     //connect(uiDockInput, SIGNAL(fcdIqCorrChanged(double,double)), this, SLOT(setIqCorr(double,double)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
+    connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
+    connect(uiDockRxOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(setFmEmph(double)));
     connect(uiDockRxOpt, SIGNAL(audioGainChanged(int)), this, SLOT(setAudioGain(int)));
 }
 
@@ -263,6 +265,29 @@ void MainWindow::selectDemod(int index)
 
     }
 
+}
+
+
+/*! \brief New FM deviation selected.
+ *  \param max_dev The enw FM deviation.
+ */
+void MainWindow::setFmMaxdev(float max_dev)
+{
+    qDebug() << "FM MAX_DEV: " << max_dev;
+
+    /* receiver will check range */
+    rx->set_fm_maxdev(max_dev);
+}
+
+/*! \brief New FM de-emphasis time consant selected.
+ *  \param tau The new time constant
+ */
+void MainWindow::setFmEmph(double tau)
+{
+    qDebug() << "FM TAU: " << tau;
+
+    /* receiver will check range */
+    rx->set_fm_deemph(tau);
 }
 
 

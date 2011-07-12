@@ -151,6 +151,10 @@ public:
 
     status set_demod(demod rx_demod);
 
+    /* FM parameeters */
+    status set_fm_maxdev(float maxdev_hz);
+    status set_fm_deemph(double tau);
+
     status set_af_gain(float gain_db);
 
 

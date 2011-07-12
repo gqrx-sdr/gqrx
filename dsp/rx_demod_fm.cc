@@ -79,9 +79,25 @@ rx_demod_fm::~rx_demod_fm ()
 }
 
 
+/*! \brief Set maximum FM deviation.
+ *  \param max_dev The new mximum deviation in Hz
+ *
+ * The maximum deviation is related to the gain of the
+ * quadrature demodulator by:
+ *
+ *   gain = quad_rate / (2 * PI * max_dev)
+ */
 void rx_demod_fm::set_max_dev(float max_dev)
 {
-    // FIXME
+    float gain;
+
+    if ((max_dev < 500.0) || (max_dev > d_quad_rate/2.0)) {
+        return;
+    }
+
+    gain = d_quad_rate / (2.0 * M_PI * max_dev);
+    d_quad->set_gain(gain);
+
 }
 
 

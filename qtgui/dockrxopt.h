@@ -48,6 +48,9 @@ public:
     void setCurrentDemod(int demod);
     int  currentDemod();
 
+    //void setCurrentMaxdev(float max:dev);
+    //float currentMaxdev();
+
     void setCurrentSideBand(int sideband);
     int  currentSideBand();
 
@@ -58,6 +61,12 @@ signals:
     /*! \brief Signal emitted when new demodulator is selected. */
     void demodSelected(int demod);
 
+    /*! \brief Signal emitted when new FM deviation is selected. */
+    void fmMaxdevSelected(float max_dev);
+
+    /*! \brief Signal emitted when new FM de-emphasis constant is selected. */
+    void fmEmphSelected(double tau);
+
     /*! \brief Signal emitted when new SSB side band has been selected. */
     void sidebandSelected(int sideband);
 
@@ -66,6 +75,8 @@ signals:
 
 private slots:
     void on_modeSelector_activated(int index);
+    void on_maxdevSelector_activated(int index);
+    void on_emphSelector_activated(int index);
     void on_sidebandSelector_activated(int index);
     void on_audioGainSlider_valueChanged(int value);
 

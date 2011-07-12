@@ -261,6 +261,25 @@ receiver::status receiver::set_demod(demod rx_demod)
 }
 
 
+/*! \brief Set maximum deviation of the FM demodulator.
+ *  \param maxdev_hz The new maximum deviation in Hz.
+ */
+receiver::status receiver::set_fm_maxdev(float maxdev_hz)
+{
+    demod_fm->set_max_dev(maxdev_hz);
+
+    return STATUS_OK;
+}
+
+
+receiver::status receiver::set_fm_deemph(double tau)
+{
+    demod_fm->set_tau(tau);
+
+    return STATUS_OK;
+}
+
+
 receiver::status receiver::set_af_gain(float gain_db)
 {
     float k;

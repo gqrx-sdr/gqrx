@@ -102,6 +102,60 @@ void DockRxOpt::on_modeSelector_activated(int index)
 }
 
 
+/*! \brief New FM maximum deviation selected.
+ *  \param index The index of the selcted item (fixed max_dev options)
+ */
+void DockRxOpt::on_maxdevSelector_activated(int index)
+{
+    float max_dev;
+
+    switch (index) {
+    case 0:
+        max_dev = 2500.0;
+        break;
+
+    case 1:
+        max_dev = 5000.0;
+        break;
+
+    case 2:
+        max_dev = 17000.0;
+        break;
+
+    case 3:
+        max_dev = 75000.0;
+        break;
+
+    default:
+        qDebug() << "Invalid max_dev index: " << index;
+        max_dev = 5000.0;
+        break;
+
+    }
+
+    emit fmMaxdevSelected(max_dev);
+
+}
+
+
+/*! \brief Nex FM de-emphasis time constant selected.
+ *  \param index The index of the new selection (fixed tau options).
+ */
+void DockRxOpt::on_emphSelector_activated(int index)
+{
+    double tau;
+
+    if (index < 0) {
+        qDebug() << "Invalid tau selection index: " << index;
+        return;
+    }
+
+    tau = index * 25.0e-6;
+    emit fmEmphSelected(tau);
+}
+
+
+
 /*! \brief SSB side band selected.
  *  \param The side band band selection (0=LSB, 1=USB).
  *

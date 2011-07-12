@@ -62,6 +62,8 @@ private slots:
     void setDcCorr(double dci, double dcq);
     void setIqCorr(double gain, double phase);
     void selectDemod(int index);
+    void setFmMaxdev(float max_dev);
+    void setFmEmph(double tau);
     void setAudioGain(int gain);
 
     void on_rxStartStopButton_toggled(bool checked);   /*! RX start/stop button toggled. */
