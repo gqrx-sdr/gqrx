@@ -322,8 +322,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>197</width>
-         <height>202</height>
+         <width>98</width>
+         <height>28</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -338,8 +338,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>197</width>
-         <height>202</height>
+         <width>98</width>
+         <height>28</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -362,7 +362,7 @@
         <string/>
        </property>
        <attribute name="label">
-        <string>AGC</string>
+        <string>AGC / SQL</string>
        </attribute>
       </widget>
       <widget class="QWidget" name="pageAudio">
@@ -370,8 +370,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>197</width>
-         <height>202</height>
+         <width>98</width>
+         <height>28</height>
         </rect>
        </property>
        <property name="toolTip">
