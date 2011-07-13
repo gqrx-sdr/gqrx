@@ -24,6 +24,7 @@
 #include <gr_quadrature_demod_cf.h>
 #include <gr_iir_filter_ffd.h>
 #include <gr_pfb_arb_resampler_ccf.h>
+#include <vector>
 
 
 class rx_demod_fm;
@@ -75,6 +76,12 @@ private:
     float  d_audio_rate;    /*! Audio rate. */
     float  d_max_dev;       /*! Max deviation. */
     double d_tau;           /*! De-emphasis time constant. */
+
+    /* De-emph IIR filter taps */
+    std::vector<double> d_fftaps;  /*! Feed forward taps. */
+    std::vector<double> d_fbtaps;  /*! Feed back taps. */
+
+    void calculate_iir_taps(double tau);
 
 };
 

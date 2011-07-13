@@ -254,7 +254,7 @@
               <item row="1" column="0">
                <widget class="QLabel" name="emphLabel">
                 <property name="text">
-                 <string>Emph:</string>
+                 <string>Tau: </string>
                 </property>
                </widget>
               </item>
@@ -354,8 +354,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>197</width>
-         <height>202</height>
+         <width>98</width>
+         <height>28</height>
         </rect>
        </property>
        <property name="toolTip">
