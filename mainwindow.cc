@@ -80,6 +80,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
     connect(uiDockRxOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(setFmEmph(double)));
+    connect(uiDockRxOpt, SIGNAL(sidebandSelected(int)), this, SLOT(setSideBand(int)));
     connect(uiDockRxOpt, SIGNAL(audioGainChanged(int)), this, SLOT(setAudioGain(int)));
 }
 
@@ -290,6 +291,35 @@ void MainWindow::setFmEmph(double tau)
     rx->set_fm_deemph(tau);
 }
 
+
+/*! \brief Set new SSB sideband.
+ *  \param sideband The new sideband(= = LSB, 1 = USB)
+ */
+void MainWindow::setSideBand(int sideband)
+{
+    receiver::demod mode = (receiver::demod)uiDockRxOpt->currentDemod();
+
+    if (mode != receiver::DEMOD_SSB) {
+        // This should not be possible because sideband selector is only
+        // visible when demodulator type is SSB
+        qDebug() << "Sideband selected but current mode is not SSB";
+        return;
+    }
+
+    if (sideband) {
+        /* USB */
+        ui->plotter->SetDemodRanges(0, 400, 500, 5000, false);
+        ui->plotter->SetHiLowCutFrequencies(300, 3000);
+        rx->set_filter(300.0, 3000.0, receiver::FILTER_SHAPE_NORMAL);
+    }
+    else {
+        /* LSB */
+        ui->plotter->SetDemodRanges(-5000, -500, -400, 0, false);
+        ui->plotter->SetHiLowCutFrequencies(-3000, -300);
+        rx->set_filter(-3000.0, -300.0, receiver::FILTER_SHAPE_NORMAL);
+    }
+
+}
 
 
 /*! \brief Audio gain changed.

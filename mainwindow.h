@@ -64,6 +64,7 @@ private slots:
     void selectDemod(int index);
     void setFmMaxdev(float max_dev);
     void setFmEmph(double tau);
+    void setSideBand(int sideband);
     void setAudioGain(int gain);
 
     void on_rxStartStopButton_toggled(bool checked);   /*! RX start/stop button toggled. */
