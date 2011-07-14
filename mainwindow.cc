@@ -225,7 +225,6 @@ void MainWindow::selectDemod(int index)
             ui->plotter->SetDemodRanges(-5000, -500, -400, 0, false);
             ui->plotter->SetHiLowCutFrequencies(-3000, -300);
             rx->set_filter(-3000.0, -300.0, receiver::FILTER_SHAPE_NORMAL);
-            break;
         }
         break;
 
