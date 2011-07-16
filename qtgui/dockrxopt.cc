@@ -138,7 +138,7 @@ void DockRxOpt::on_maxdevSelector_activated(int index)
 }
 
 
-/*! \brief Nex FM de-emphasis time constant selected.
+/*! \brief New FM de-emphasis time constant selected.
  *  \param index The index of the new selection (fixed tau options).
  */
 void DockRxOpt::on_emphSelector_activated(int index)
@@ -154,6 +154,14 @@ void DockRxOpt::on_emphSelector_activated(int index)
     emit fmEmphSelected(tau);
 }
 
+
+/*! \brief AM DCR checkbox state toggled
+ *  \param checked Whether the checkbox is checked or not.
+ */
+void DockRxOpt::on_dcr_toggled(bool checked)
+{
+    emit amDcrToggled(checked);
+}
 
 
 /*! \brief SSB side band selected.

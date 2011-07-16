@@ -67,6 +67,9 @@ signals:
     /*! \brief Signal emitted when new FM de-emphasis constant is selected. */
     void fmEmphSelected(double tau);
 
+    /*! \brief Signal emitted when AM DCR status is toggled. */
+    void amDcrToggled(bool enabled);
+
     /*! \brief Signal emitted when new SSB side band has been selected. */
     void sidebandSelected(int sideband);
 
@@ -77,6 +80,7 @@ private slots:
     void on_modeSelector_activated(int index);
     void on_maxdevSelector_activated(int index);
     void on_emphSelector_activated(int index);
+    void on_dcr_toggled(bool checked);
     void on_sidebandSelector_activated(int index);
     void on_audioGainSlider_valueChanged(int value);
 

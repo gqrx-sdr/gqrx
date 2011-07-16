@@ -291,6 +291,14 @@ void MainWindow::setFmEmph(double tau)
 }
 
 
+/*! \brief AM DCR status changed (slot).
+ *  \param enabled Whether DCR is enabled or not.
+ */
+void MainWindow::setAmDcrStatus(bool enabled)
+{
+    rx->set_am_dcr(enabled);
+}
+
 /*! \brief Set new SSB sideband.
  *  \param sideband The new sideband(= = LSB, 1 = USB)
  */
