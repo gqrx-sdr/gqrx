@@ -29,6 +29,7 @@
 #include <dsp/rx_filter.h>
 #include <dsp/rx_meter.h>
 #include <dsp/rx_demod_fm.h>
+#include <dsp/rx_demod_am.h>
 #include <dsp/rx_fft.h>
 
 
@@ -151,10 +152,14 @@ public:
 
     status set_demod(demod rx_demod);
 
-    /* FM parameeters */
+    /* FM parameters */
     status set_fm_maxdev(float maxdev_hz);
     status set_fm_deemph(double tau);
 
+    /* AM parameters */
+    status set_am_dcr(bool enabled);
+
+    /* Audio parameters */
     status set_af_gain(float gain_db);
 
 
@@ -174,6 +179,7 @@ private:
     gr_complex_to_real_sptr   demod_ssb;  /*! SSB demodulator. */
     gr_agc2_cc_sptr           agc;        /*! AGC. */
     rx_demod_fm_sptr          demod_fm;   /*! FM demodulator. */
+    rx_demod_am_sptr          demod_am;   /*! AM demodulator. */
     gr_multiply_const_ff_sptr audio_gain; /*! Audio gain block. */
     audio_sink::sptr          audio_snk;  /*! Audio sink. */
 
