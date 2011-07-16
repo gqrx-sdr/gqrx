@@ -82,6 +82,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(setFmEmph(double)));
     connect(uiDockRxOpt, SIGNAL(sidebandSelected(int)), this, SLOT(setSideBand(int)));
     connect(uiDockRxOpt, SIGNAL(audioGainChanged(int)), this, SLOT(setAudioGain(int)));
+    connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
 }
 
 MainWindow::~MainWindow()
@@ -335,6 +336,15 @@ void MainWindow::setSideBand(int sideband)
 void MainWindow::setAudioGain(int value)
 {
     rx->set_af_gain(((float)value) / 10.0);
+}
+
+
+/*! \brief Squelch level changed.
+ *  \param level_db The new squelch level in dBFS.
+ */
+void MainWindow::setSqlLevel(double level_db)
+{
+    rx->set_sql_level(level_db);
 }
 
 

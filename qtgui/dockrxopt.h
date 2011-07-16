@@ -76,6 +76,10 @@ signals:
     /*! \brief Signal emitted when audio gain has changed. */
     void audioGainChanged(int gain);
 
+    /*! \brief Signal emitted when squelch level has changed. Level is in dBFS. */
+    void sqlLevelChanged(double level);
+
+
 private slots:
     void on_modeSelector_activated(int index);
     void on_maxdevSelector_activated(int index);
@@ -83,6 +87,7 @@ private slots:
     void on_dcr_toggled(bool checked);
     void on_sidebandSelector_activated(int index);
     void on_audioGainSlider_valueChanged(int value);
+    void on_sqlSlider_valueChanged(int value);
 
 private:
     Ui::DockRxOpt *ui;   /*! The Qt designer UI file. */

@@ -188,3 +188,15 @@ void DockRxOpt::on_audioGainSlider_valueChanged(int value)
     ui->audioGainDbLabel->setText(QString("%1 dB").arg(value/10));
     emit audioGainChanged(value);
 }
+
+
+/*! \brief Squelch level change.
+ *  \param value The new squelch level in tens of dB (because slider uses int).
+ */
+void DockRxOpt::on_sqlSlider_valueChanged(int value)
+{
+    double level = double(value) / 10.0;
+
+    ui->sqlValueLabel->setText(QString("%1 dB").arg(level));
+    emit sqlLevelChanged(level);
+}
