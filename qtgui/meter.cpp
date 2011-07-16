@@ -115,14 +115,9 @@ void CMeter::setLevel(float dbfs)
     if(dbfs > MAX_DB)
         dbfs = MAX_DB;
 
-    if(dbfs <= -73.0) {
-        qreal div = w/14.0;
-        m_Slevel = (int)( (dbfs/6.0 + 121.0/6.0)*div + .5);
-    }
-    else {
-        qreal div = w/14.0;
-        m_Slevel = (int)( ( 8 + dbfs/10.0 + 73.0/10.0 )*div + .5);
-    }
+    /* pixels / dB */
+    qreal pixperdb = w / fabs(MAX_DB - MIN_DB);
+    m_Slevel = (int)(-(MIN_DB-dbfs)*pixperdb);
 
     draw();
 }
@@ -176,7 +171,7 @@ void CMeter::draw()
     //create Font to use for scales
     QFont Font("Arial");
     QFontMetrics metrics(Font);
-    int y = (h)/3;
+    int y = (h)/4;
     Font.setPixelSize(y);
     Font.setWeight(QFont::Normal);
     painter.setFont(Font);
@@ -239,11 +234,11 @@ void CMeter::DrawOverlay()
     Font.setPixelSize(y);
     Font.setWeight(QFont::Normal);
     painter.setFont(Font);
-    int rwidth = (int)((hstop-marg)/7.0);
-    m_Str = "+60";
-    rect.setRect(marg/2, 0, rwidth, magstart);
+    int rwidth = (int)((hstop-marg)/5.0);
+    m_Str = "-100";
+    rect.setRect(marg/2-5, 0, rwidth, magstart);
 
-    for (x = -90; x < -1; x += 20)
+    for (x = MIN_DB; x <= MAX_DB; x += 20)
     {
         m_Str.setNum(x);
         painter.drawText(rect, Qt::AlignHCenter|Qt::AlignVCenter, m_Str);
