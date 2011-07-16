@@ -35,7 +35,8 @@ SOURCES +=\
     dsp/rx_demod_fm.cc \
     dsp/rx_meter.cc \
     qtgui/dockinput.cpp \
-    qtgui/dockrxopt.cc
+    qtgui/dockrxopt.cc \
+    dsp/rx_demod_am.cc
 
 
 HEADERS  += mainwindow.h \
@@ -48,7 +49,8 @@ HEADERS  += mainwindow.h \
     dsp/rx_demod_fm.h \
     dsp/rx_meter.h \
     qtgui/dockinput.h \
-    qtgui/dockrxopt.h
+    qtgui/dockrxopt.h \
+    dsp/rx_demod_am.h
 
 FORMS    += mainwindow.ui \
     qtgui/dockinput.ui \
