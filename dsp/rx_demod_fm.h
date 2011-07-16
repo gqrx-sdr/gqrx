@@ -50,9 +50,8 @@ rx_demod_fm_sptr make_rx_demod_fm(float quad_rate, float audio_rate, float max_d
  *  \ingroup DSP
  *
  * This class implements the FM demodulator using the gr_quadrature_demod block.
- * It also provides de-emphasis with variable time constant (use a negative value to disable).
+ * It also provides de-emphasis with variable time constant (use 0.0 to disable).
  *
- * \todo De-emphasis is not implemented.
  */
 class rx_demod_fm : public gr_hier_block2
 {
