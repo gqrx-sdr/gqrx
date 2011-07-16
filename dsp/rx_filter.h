@@ -44,7 +44,7 @@ typedef boost::shared_ptr<rx_filter> rx_filter_sptr;
  * of raw pointers, rx_filter's constructor is private.
  * make_rxfilter is the public interface for creating new instances.
  */
-rx_filter_sptr make_rx_filter(double sample_rate, double center, double low, double high, double trans_width);
+rx_filter_sptr make_rx_filter(double sample_rate, double center=0.0, double low=-5000.0, double high=5000.0, double trans_width=1000.0);
 
 
 /*! \brief Frequency translating band-pass filter with complex taps.

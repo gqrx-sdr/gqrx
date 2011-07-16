@@ -38,7 +38,7 @@ typedef boost::shared_ptr<rx_demod_am> rx_demod_am_sptr;
  *
  * This is effectively the public constructor.
  */
-rx_demod_am_sptr make_rx_demod_am(float quad_rate, float audio_rate, bool dcr);
+rx_demod_am_sptr make_rx_demod_am(float quad_rate, float audio_rate, bool dcr=true);
 
 
 /*! \brief AM demodulator.

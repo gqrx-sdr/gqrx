@@ -37,13 +37,13 @@ typedef boost::shared_ptr<rx_demod_fm> rx_demod_fm_sptr;
  *  \param quad_rate The input sample rate.
  *  \param audio_rate The audio rate.
  *  \param max_dev Maximum deviation in Hz
- *  \param tau De-emphasis time constant in seconds (75us in US, 50us in EUR, negative value disables).
+ *  \param tau De-emphasis time constant in seconds (75us in US, 50us in EUR, 0.0 disables).
  *
  * This is effectively the public constructor. To avoid accidental use
  * of raw pointers, rx_demod_fm's constructor is private.
  * make_rx_dmod_fm is the public interface for creating new instances.
  */
-rx_demod_fm_sptr make_rx_demod_fm(float quad_rate, float audio_rate, float max_dev, double tau);
+rx_demod_fm_sptr make_rx_demod_fm(float quad_rate, float audio_rate, float max_dev=5000.0, double tau=50.0e-6);
 
 
 /*! \brief FM demodulator.
