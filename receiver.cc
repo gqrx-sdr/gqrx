@@ -25,6 +25,7 @@
 #include <gr_complex_to_xxx.h>
 #include <gr_multiply_const_ff.h>
 #include <gr_agc2_cc.h>
+#include <gr_simple_squelch_cc.h>
 
 #include <receiver.h>
 #include <fcd/fcd_source_c.h>
@@ -50,6 +51,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
 
     filter = make_rx_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
     agc = gr_make_agc2_cc (0.1, 1.0e-5, 0.8, 100.0, 100.0);
+    sql = gr_make_simple_squelch_cc(-100.0, 0.001);
     meter = make_rx_meter_c(false);
     demod_ssb = gr_make_complex_to_real(1);
     demod_fm = make_rx_demod_fm(48000.0, 48000.0, 5000.0, 50.0e-6);
@@ -60,7 +62,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     tb->connect(fcd_src, 0, fft, 0);
     tb->connect(fcd_src, 0, filter, 0);
     tb->connect(filter, 0, meter, 0);
-    tb->connect(filter, 0, agc, 0);
+    tb->connect(filter, 0, sql, 0);
+    tb->connect(sql, 0, agc, 0);
     tb->connect(agc, 0, demod_fm, 0);
     tb->connect(demod_fm, 0, audio_gain, 0);
     tb->connect(audio_gain, 0, audio_snk, 0);
@@ -166,7 +169,7 @@ receiver::status receiver::set_filter_high(double freq_hz)
 
 receiver::status receiver::set_filter_shape(filter_shape shape)
 {
-
+    return STATUS_OK;
 }
 
 
@@ -199,6 +202,25 @@ void receiver::get_fft_data(std::complex<float>* fftPoints, int &fftsize)
 {
     fft->get_fft_data(fftPoints, fftsize);
 }
+
+
+
+/*! \brief Set squelch level.
+ *  \param level_db The new level in dBFS.
+ */
+receiver::status receiver::set_sql_level(double level_db)
+{
+    sql->set_threshold(level_db);
+}
+
+
+/*! \brief Set squelch alpha */
+receiver::status receiver::set_sql_alpha(double alpha)
+{
+    sql->set_alpha(alpha);
+}
+
+
 
 receiver::status receiver::set_demod(demod rx_demod)
 {

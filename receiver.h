@@ -24,6 +24,7 @@
 #include <gr_audio_sink.h>
 #include <gr_complex_to_xxx.h>
 #include <gr_multiply_const_ff.h>
+#include <gr_simple_squelch_cc.h>
 #include <gr_agc2_cc.h>
 #include <fcd/fcd_source_c.h>
 #include <dsp/rx_filter.h>
@@ -150,6 +151,10 @@ public:
 
     void get_fft_data(std::complex<float>* fftPoints, int &fftsize);
 
+    /* Squelch parameter */
+    status set_sql_level(double level_db);
+    status set_sql_alpha(double alpha);
+
     status set_demod(demod rx_demod);
 
     /* FM parameters */
@@ -176,8 +181,9 @@ private:
     rx_fft_c_sptr             fft;       /*! Receiver FFT block. */
     rx_filter_sptr            filter;
     rx_meter_c_sptr           meter;      /*! Signal strength. */
-    gr_complex_to_real_sptr   demod_ssb;  /*! SSB demodulator. */
     gr_agc2_cc_sptr           agc;        /*! AGC. */
+    gr_simple_squelch_cc_sptr sql;        /*! Squelch. */
+    gr_complex_to_real_sptr   demod_ssb;  /*! SSB demodulator. */
     rx_demod_fm_sptr          demod_fm;   /*! FM demodulator. */
     rx_demod_am_sptr          demod_am;   /*! AM demodulator. */
     gr_multiply_const_ff_sptr audio_gain; /*! Audio gain block. */
