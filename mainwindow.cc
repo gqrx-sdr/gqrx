@@ -72,6 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
     */
     //ui->menu_View->addAction(uiDockInput->toggleViewAction());
     ui->menu_View->addAction(uiDockRxOpt->toggleViewAction());
+    ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
 
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(NewFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
