@@ -66,7 +66,7 @@ private slots:
     void setFmEmph(double tau);
     void setAmDcrStatus(bool enabled);
     void setSideBand(int sideband);
-    void setAudioGain(int gain);
+    void setAudioGain(float gain);
     void setSqlLevel(double level_db);
 
     void on_rxStartStopButton_toggled(bool checked);   /*! RX start/stop button toggled. */

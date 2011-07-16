@@ -73,8 +73,8 @@ signals:
     /*! \brief Signal emitted when new SSB side band has been selected. */
     void sidebandSelected(int sideband);
 
-    /*! \brief Signal emitted when audio gain has changed. */
-    void audioGainChanged(int gain);
+    /*! \brief Signal emitted when audio gain has changed. Gain is in dB. */
+    void audioGainChanged(float gain);
 
     /*! \brief Signal emitted when squelch level has changed. Level is in dBFS. */
     void sqlLevelChanged(double level);

@@ -81,7 +81,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
     connect(uiDockRxOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(setFmEmph(double)));
     connect(uiDockRxOpt, SIGNAL(sidebandSelected(int)), this, SLOT(setSideBand(int)));
-    connect(uiDockRxOpt, SIGNAL(audioGainChanged(int)), this, SLOT(setAudioGain(int)));
+    connect(uiDockRxOpt, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
 }
 
@@ -333,9 +333,9 @@ void MainWindow::setSideBand(int sideband)
 /*! \brief Audio gain changed.
  *  \param value The new audio gain in dB.
  */
-void MainWindow::setAudioGain(int value)
+void MainWindow::setAudioGain(float value)
 {
-    rx->set_af_gain(((float)value) / 10.0);
+    rx->set_af_gain(value);
 }
 
 

@@ -167,7 +167,7 @@ void DockRxOpt::on_dcr_toggled(bool checked)
 /*! \brief SSB side band selected.
  *  \param The side band band selection (0=LSB, 1=USB).
  *
- * This slot is activated when th euser selects a new side band in SSB mode.
+ * This slot is activated when the user selects a new side band in SSB mode.
  * It is connected automatically by the UI constructor and it emits the sidebandSelected()
  * signal.
  */
@@ -180,13 +180,15 @@ void DockRxOpt::on_sidebandSelector_activated(int index)
 
 
 /*! \brief Audio gain changed.
- *  \param value The new audio gain value in tens of dB (0 dB = 10)
+ *  \param value The new audio gain value in tens of dB (because slider uses int)
  */
 void DockRxOpt::on_audioGainSlider_valueChanged(int value)
 {
+    float gain = float(value) / 10.0;
+
     /* update dB label */
-    ui->audioGainDbLabel->setText(QString("%1 dB").arg(value/10));
-    emit audioGainChanged(value);
+    ui->audioGainDbLabel->setText(QString("%1 dB").arg(gain));
+    emit audioGainChanged(gain);
 }
 
 
