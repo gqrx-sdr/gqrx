@@ -219,27 +219,27 @@ void MainWindow::selectDemod(int index)
     case receiver::DEMOD_SSB:
         if (uiDockRxOpt->currentSideBand()) {
             /* USB */
-            ui->plotter->SetDemodRanges(0, 400, 500, 5000, false);
-            ui->plotter->SetHiLowCutFrequencies(300, 3000);
-            rx->set_filter(300.0, 3000.0, receiver::FILTER_SHAPE_NORMAL);
+            ui->plotter->SetDemodRanges(0, 500, 600, 10000, false);
+            ui->plotter->SetHiLowCutFrequencies(200, 3000);
+            rx->set_filter(200.0, 3000.0, receiver::FILTER_SHAPE_NORMAL);
         }
         else {
             /* LSB */
-            ui->plotter->SetDemodRanges(-5000, -500, -400, 0, false);
-            ui->plotter->SetHiLowCutFrequencies(-3000, -300);
-            rx->set_filter(-3000.0, -300.0, receiver::FILTER_SHAPE_NORMAL);
+            ui->plotter->SetDemodRanges(-10000, -500, -400, 0, false);
+            ui->plotter->SetHiLowCutFrequencies(-3000, -200);
+            rx->set_filter(-3000.0, -200.0, receiver::FILTER_SHAPE_NORMAL);
         }
         break;
 
     case receiver::DEMOD_AM:
-        ui->plotter->SetDemodRanges(-15000, -1000, 1000, 15000, true);
+        ui->plotter->SetDemodRanges(-15000, -2000, 2000, 15000, true);
         ui->plotter->SetHiLowCutFrequencies(-5000, 5000);
         rx->set_filter(-5000.0, 5000.0, receiver::FILTER_SHAPE_NORMAL);
         break;
 
     case receiver::DEMOD_FM:
         /** FIXME: add full support for maxdev and de-emphasis */
-        ui->plotter->SetDemodRanges(-15000, -1000, 1000, 15000, true);
+        ui->plotter->SetDemodRanges(-15000, -2000, 2000, 15000, true);
         ui->plotter->SetHiLowCutFrequencies(-5000, 5000);
         rx->set_filter(-5000.0, 5000.0, receiver::FILTER_SHAPE_NORMAL);
         break;
@@ -318,15 +318,15 @@ void MainWindow::setSideBand(int sideband)
 
     if (sideband) {
         /* USB */
-        ui->plotter->SetDemodRanges(0, 400, 500, 5000, false);
-        ui->plotter->SetHiLowCutFrequencies(300, 3000);
-        rx->set_filter(300.0, 3000.0, receiver::FILTER_SHAPE_NORMAL);
+        ui->plotter->SetDemodRanges(0, 500, 600, 10000, false);
+        ui->plotter->SetHiLowCutFrequencies(200, 3000);
+        rx->set_filter(200.0, 3000.0, receiver::FILTER_SHAPE_NORMAL);
     }
     else {
         /* LSB */
-        ui->plotter->SetDemodRanges(-5000, -500, -400, 0, false);
-        ui->plotter->SetHiLowCutFrequencies(-3000, -300);
-        rx->set_filter(-3000.0, -300.0, receiver::FILTER_SHAPE_NORMAL);
+        ui->plotter->SetDemodRanges(-10000, -600, -500, 0, false);
+        ui->plotter->SetHiLowCutFrequencies(-3000, -200);
+        rx->set_filter(-3000.0, -200.0, receiver::FILTER_SHAPE_NORMAL);
     }
 
 }
