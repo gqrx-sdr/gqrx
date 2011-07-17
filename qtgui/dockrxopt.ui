@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>215</width>
-    <height>400</height>
+    <height>500</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -35,6 +35,11 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
+      <widget class="QWidget" name="page">
+       <attribute name="label">
+        <string>Input Source</string>
+       </attribute>
+      </widget>
       <widget class="QWidget" name="pageDemod">
        <property name="geometry">
         <rect>
@@ -317,37 +322,115 @@
         </layout>
        </widget>
       </widget>
-      <widget class="QWidget" name="pageNoiseBlanker">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>98</width>
-         <height>28</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string/>
-       </property>
-       <attribute name="label">
-        <string>Noise Blanker</string>
-       </attribute>
-      </widget>
       <widget class="QWidget" name="pageFilter">
        <property name="geometry">
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>98</width>
-         <height>28</height>
+         <width>197</width>
+         <height>302</height>
         </rect>
        </property>
        <property name="toolTip">
         <string/>
        </property>
        <attribute name="label">
-        <string>Filter</string>
+        <string>Filters</string>
        </attribute>
+       <widget class="Line" name="line_3">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>30</y>
+          <width>191</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>191</width>
+          <height>29</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Noise Blanker:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="nb1Button">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>40</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Noise blanker 1</string>
+           </property>
+           <property name="text">
+            <string>1</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="nb2Button">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>40</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Noise blanker 2</string>
+           </property>
+           <property name="text">
+            <string>2</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </widget>
       <widget class="QWidget" name="pageAgc">
        <property name="geometry">
@@ -355,14 +438,14 @@
          <x>0</x>
          <y>0</y>
          <width>197</width>
-         <height>202</height>
+         <height>302</height>
         </rect>
        </property>
        <property name="toolTip">
         <string/>
        </property>
        <attribute name="label">
-        <string>AGC / SQL</string>
+        <string>Level Controls</string>
        </attribute>
        <widget class="Line" name="line_2">
         <property name="geometry">
@@ -475,8 +558,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>98</width>
-         <height>28</height>
+         <width>100</width>
+         <height>30</height>
         </rect>
        </property>
        <property name="toolTip">
