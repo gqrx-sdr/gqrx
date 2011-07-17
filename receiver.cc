@@ -50,7 +50,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     fft = make_rx_fft_c(3840, 0, false);  // FIXME: good for FCD with 96000 ksps
 
     filter = make_rx_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
-    agc = gr_make_agc2_cc (0.1, 1.0e-5, 0.8, 100.0, 100.0);
+    bb_gain = gr_make_multiply_const_cc(1.0);
+    agc = gr_make_agc2_cc (0.5, 1.0e-4, 0.7, 1.0, 0.0);
     sql = gr_make_simple_squelch_cc(-100.0, 0.001);
     meter = make_rx_meter_c(false);
     demod_ssb = gr_make_complex_to_real(1);
@@ -63,7 +64,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     tb->connect(fcd_src, 0, filter, 0);
     tb->connect(filter, 0, meter, 0);
     tb->connect(filter, 0, sql, 0);
-    tb->connect(sql, 0, agc, 0);
+    tb->connect(sql, 0, bb_gain, 0);
+    tb->connect(bb_gain, 0, agc, 0);
     tb->connect(agc, 0, demod_fm, 0);
     tb->connect(demod_fm, 0, audio_gain, 0);
     tb->connect(audio_gain, 0, audio_snk, 0);
@@ -218,6 +220,27 @@ receiver::status receiver::set_sql_level(double level_db)
 receiver::status receiver::set_sql_alpha(double alpha)
 {
     sql->set_alpha(alpha);
+}
+
+
+/*! \brief Set baseband gain.
+ *  \param gain_db The new gain in dB.
+ *
+ * This is a manually controlled gain setting that is placed in between
+ * the squelch and the AGC. This gain is very useful for AM-type modulations
+ * where the amplitude of the incoming signal (often less than -60 dBFS)
+ * is converted directly to audio amplitude.
+ */
+receiver::status receiver::set_bb_gain(float gain_db)
+{
+    float k;
+
+    /* convert dB to factor */
+    k = pow(10.0, gain_db / 20.0);
+    //std::cout << "G:" << gain_db << "dB / K:" << k << std::endl;
+    bb_gain->set_k(k);
+
+    return STATUS_OK;
 }
 
 

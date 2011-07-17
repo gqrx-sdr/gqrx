@@ -178,6 +178,17 @@ void DockRxOpt::on_sidebandSelector_activated(int index)
 }
 
 
+/*! \brief Baseband gain changed.
+ *  \param value The new audio gain value in dB.
+ */
+void DockRxOpt::on_bbGainSlider_valueChanged(int value)
+{
+    float gain = float(value);
+
+    emit bbGainChanged(gain);
+}
+
+
 
 /*! \brief Audio gain changed.
  *  \param value The new audio gain value in tens of dB (because slider uses int)

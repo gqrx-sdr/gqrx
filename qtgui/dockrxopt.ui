@@ -437,6 +437,38 @@
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="layoutWidget">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>60</y>
+          <width>191</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>BBG</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="bbGainSlider">
+           <property name="toolTip">
+            <string>Baseband gain</string>
+           </property>
+           <property name="maximum">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </widget>
       <widget class="QWidget" name="pageAudio">
        <property name="geometry">

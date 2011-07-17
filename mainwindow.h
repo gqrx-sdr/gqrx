@@ -66,6 +66,7 @@ private slots:
     void setFmEmph(double tau);
     void setAmDcrStatus(bool enabled);
     void setSideBand(int sideband);
+    void setBasebandGain(float gain);
     void setAudioGain(float gain);
     void setSqlLevel(double level_db);
 
