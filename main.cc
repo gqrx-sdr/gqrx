@@ -23,6 +23,14 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+    QCoreApplication::setOrganizationName("OZ9AEC");
+    QCoreApplication::setOrganizationDomain("oz9aec.net");
+    QCoreApplication::setApplicationName("GQRX");
+    QCoreApplication::setApplicationVersion("2.0");
+
+
+
     MainWindow w;
     w.show();
 
