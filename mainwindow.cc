@@ -17,6 +17,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <QSettings>
 #include <QDebug>
 #include "mainwindow.h"
 
@@ -28,12 +29,12 @@
 #include "receiver.h"
 
 
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
 
     setWindowTitle(QString("gqrx %1").arg(VERSION));
 
@@ -45,7 +46,10 @@ MainWindow::MainWindow(QWidget *parent) :
     d_filter_shape = receiver::FILTER_SHAPE_NORMAL;
 
     /* create receiver object */
-    rx = new receiver("hw:1");
+    QSettings settings;
+    QString indev = settings.value("input").toString();
+    QString outdev = settings.value("output").toString();
+    rx = new receiver(indev.toStdString(), outdev.toStdString());
 
     rx->set_rf_freq(144500000.0f);
 

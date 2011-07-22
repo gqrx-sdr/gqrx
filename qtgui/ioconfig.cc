@@ -17,40 +17,49 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include <QtGui/QApplication>
+#include <QtGlobal>
 #include <QSettings>
 #include <QDebug>
 #include "qtgui/ioconfig.h"
-#include "mainwindow.h"
+#include "ui_ioconfig.h"
 
-int main(int argc, char *argv[])
+
+
+CIoConfig::CIoConfig(QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::CIoConfig)
 {
-    QApplication a(argc, argv);
-    QCoreApplication::setOrganizationName("OZ9AEC");
-    QCoreApplication::setOrganizationDomain("oz9aec.net");
-    QCoreApplication::setApplicationName("GQRX");
-    QCoreApplication::setApplicationVersion("2.0");
-
-    // we need at least an input device configured for FCD
     QSettings settings;
 
-    if (!settings.contains("input")) {
+    ui->setupUi(this);
 
-        CIoConfig *ioconf = new CIoConfig();
-        int confres = ioconf->exec();
+    connect(this, SIGNAL(accepted()), this, SLOT(saveConfig()));
 
-        delete ioconf;
 
-        if (confres == QDialog::Rejected) {
-            qDebug() << "I/O device configuration cancelled.";
-            return 0;
-        }
-    }
+#ifdef Q_OS_LINUX
+    QString indev = settings.value("input", "hw:1").toString();
+    QString outdev = settings.value("output", "pulse").toString();
+#elif Q_OS_MAC
+    QString indev = settings.value("input", "").toString();
+    QString outdev = settings.value("output", "").toString();
+#endif
 
-    // We should now have at least an input device configured
-    // and MainWindow will pick that up.
-    MainWindow w;
-    w.show();
+    ui->inDevEdit->setText(indev);
+    ui->outDevEdit->setText(outdev);
 
-    return a.exec();
+}
+
+CIoConfig::~CIoConfig()
+{
+    delete ui;
+}
+
+
+/*! \brief Save configuration. */
+void CIoConfig::saveConfig()
+{
+    QSettings settings;
+
+    settings.setValue("input", ui->inDevEdit->text());
+    settings.setValue("output", ui->outDevEdit->text());
 }

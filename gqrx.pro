@@ -36,7 +36,8 @@ SOURCES +=\
     dsp/rx_meter.cc \
     qtgui/dockinput.cpp \
     qtgui/dockrxopt.cc \
-    dsp/rx_demod_am.cc
+    dsp/rx_demod_am.cc \
+    qtgui/ioconfig.cc
 
 
 HEADERS  += mainwindow.h \
@@ -50,11 +51,14 @@ HEADERS  += mainwindow.h \
     dsp/rx_meter.h \
     qtgui/dockinput.h \
     qtgui/dockrxopt.h \
-    dsp/rx_demod_am.h
+    dsp/rx_demod_am.h \
+    qtgui/ioconfig.h
 
-FORMS    += mainwindow.ui \
+FORMS    += \
     qtgui/dockinput.ui \
-    qtgui/dockrxopt.ui
+    qtgui/dockrxopt.ui \
+    mainwindow.ui \
+    qtgui/ioconfig.ui
 
 
 # dependencies via pkg-config
