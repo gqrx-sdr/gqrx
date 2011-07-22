@@ -73,63 +73,21 @@ public:
     };
 
 
-    /*! \brief Public contructor.
-     *  \param input_device Input device specifier, e.g. hw:1 for FCD source.
-     *  \param audio_device Audio output device specifier,
-     *                      e.g. hw:0 when using ALSA or Portaudio.
-     *
-     * \todo Option to use UHD device instead of FCD.
-     */
     receiver(const std::string input_device="", const std::string audio_device="");
-
-    /*! \brief Public destructor. */
     ~receiver();
 
-    /*! \brief Start the receiver. */
     void start();
-
-    /*! \brief Stop the receiver. */
     void stop();
 
-    /*! \brief Set RF frequency.
-     *  \param freq_hz The desired frequency in Hz.
-     *  \return RX_STATUS_ERROR if an error occurs, e.g. the frequency is out of range.
-     *  \sa get_rf_freq()
-     */
     status set_rf_freq(float freq_hz);
 
-    /*! \brief Get RF frequency.
-     *  \return The current RF frequency.
-     *  \sa set_rf_freq()
-     */
     float  get_rf_freq();
 
-    /*! \brief Set RF gain.
-     *  \param gain_db The desired gain in dB.
-     *  \return RX_STATUS_ERROR if an error occurs, e.g. the gain is out of valid range.
-     */
     status set_rf_gain(float gain_db);
 
 
-    /*! \brief Set filter offset.
-     *  \param offset_hz The desired filter offset in Hz.
-     *  \return RX_STATUS_ERROR if the tuning offset is out of range.
-     *
-     * This method sets a new tuning offset for the receiver. The tuning offset is used
-     * to tune within the passband, i.e. select a specific channel within the received
-     * spectrum.
-     *
-     * The valid range for the tuning is +/- 0.5 * the bandwidth although this is just a
-     * logical limit.
-     *
-     * \sa get_filter_offset()
-     */
     status set_filter_offset(double offset_hz);
 
-    /*! \brief Get filterm offset.
-     *  \return The current filter offset.
-     *  \sa set_filter_offset()
-     */
     double get_filter_offset();
 
     status set_filter(double low, double high, filter_shape shape);
@@ -141,13 +99,6 @@ public:
     status set_iq_corr(double gain, double phase);
 
 
-    /*! \brief Get current signal power.
-     *  \param dbfs Whether to use dbfs or absolute power.
-     *  \return The current signal power.
-     *
-     * This method returns the current signal power detected by the receiver. The detector
-     * is located after the band pass filter. The full scale is 1.0
-     */
     float get_signal_pwr(bool dbfs);
 
     void get_fft_data(std::complex<float>* fftPoints, int &fftsize);

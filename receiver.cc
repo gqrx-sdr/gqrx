@@ -37,6 +37,13 @@
 
 
 
+/*! \brief Public contructor.
+ *  \param input_device Input device specifier, e.g. hw:1 for FCD source.
+ *  \param audio_device Audio output device specifier,
+ *                      e.g. hw:0 when using ALSA or Portaudio.
+ *
+ * \todo Option to use UHD device instead of FCD.
+ */
 receiver::receiver(const std::string input_device, const std::string audio_device)
     : d_bandwidth(96000.0), d_audio_rate(48000),
       d_rf_freq(144800000.0), d_filter_offset(0.0),
@@ -71,6 +78,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     tb->connect(audio_gain, 0, audio_snk, 0);
 }
 
+
+/*! \brief Public destructor. */
 receiver::~receiver()
 {
     tb->stop();
@@ -80,12 +89,15 @@ receiver::~receiver()
 }
 
 
+/*! \brief Start the receiver. */
 void receiver::start()
 {
     /* FIXME: Check that flow graph is not running */
     tb->start();
 }
 
+
+/*! \brief Stop the receiver. */
 void receiver::stop()
 {
     tb->stop();
@@ -94,6 +106,11 @@ void receiver::stop()
 }
 
 
+/*! \brief Set RF frequency.
+ *  \param freq_hz The desired frequency in Hz.
+ *  \return RX_STATUS_ERROR if an error occurs, e.g. the frequency is out of range.
+ *  \sa get_rf_freq()
+ */
 receiver::status receiver::set_rf_freq(float freq_hz)
 {
     d_rf_freq = freq_hz;
@@ -103,17 +120,38 @@ receiver::status receiver::set_rf_freq(float freq_hz)
     return STATUS_OK;
 }
 
+/*! \brief Get RF frequency.
+ *  \return The current RF frequency.
+ *  \sa set_rf_freq()
+ */
 float receiver::get_rf_freq()
 {
     return d_rf_freq;
 }
 
+/*! \brief Set RF gain.
+ *  \param gain_db The desired gain in dB.
+ *  \return RX_STATUS_ERROR if an error occurs, e.g. the gain is out of valid range.
+ */
 receiver::status receiver::set_rf_gain(float gain_db)
 {
     return STATUS_OK;
 }
 
 
+/*! \brief Set filter offset.
+ *  \param offset_hz The desired filter offset in Hz.
+ *  \return RX_STATUS_ERROR if the tuning offset is out of range.
+ *
+ * This method sets a new tuning offset for the receiver. The tuning offset is used
+ * to tune within the passband, i.e. select a specific channel within the received
+ * spectrum.
+ *
+ * The valid range for the tuning is +/- 0.5 * the bandwidth although this is just a
+ * logical limit.
+ *
+ * \sa get_filter_offset()
+ */
 receiver::status receiver::set_filter_offset(double offset_hz)
 {
     d_filter_offset = offset_hz;
@@ -121,6 +159,10 @@ receiver::status receiver::set_filter_offset(double offset_hz)
     return STATUS_OK;
 }
 
+/*! \brief Get filterm offset.
+ *  \return The current filter offset.
+ *  \sa set_filter_offset()
+ */
 double receiver::get_filter_offset()
 {
     return d_filter_offset;
@@ -190,7 +232,13 @@ receiver::status receiver::set_iq_corr(double gain, double phase)
 }
 
 
-
+/*! \brief Get current signal power.
+ *  \param dbfs Whether to use dbfs or absolute power.
+ *  \return The current signal power.
+ *
+ * This method returns the current signal power detected by the receiver. The detector
+ * is located after the band pass filter. The full scale is 1.0
+ */
 float receiver::get_signal_pwr(bool dbfs)
 {
     if (dbfs)
