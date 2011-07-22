@@ -35,18 +35,13 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="page">
-       <attribute name="label">
-        <string>Input Source</string>
-       </attribute>
-      </widget>
       <widget class="QWidget" name="pageDemod">
        <property name="geometry">
         <rect>
          <x>0</x>
          <y>0</y>
          <width>197</width>
-         <height>202</height>
+         <height>333</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -327,8 +322,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>197</width>
-         <height>302</height>
+         <width>98</width>
+         <height>28</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -350,7 +345,7 @@
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
           <x>0</x>
@@ -437,8 +432,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>197</width>
-         <height>302</height>
+         <width>98</width>
+         <height>28</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -558,8 +553,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>100</width>
-         <height>30</height>
+         <width>98</width>
+         <height>28</height>
         </rect>
        </property>
        <property name="toolTip">
