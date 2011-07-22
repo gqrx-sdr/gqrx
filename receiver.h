@@ -79,15 +79,16 @@ public:
     void start();
     void stop();
 
-    status set_rf_freq(float freq_hz);
+    void set_input_device(const std::string device);
+    void set_output_device(const std::string device);
 
+    status set_rf_freq(float freq_hz);
     float  get_rf_freq();
 
     status set_rf_gain(float gain_db);
 
 
     status set_filter_offset(double offset_hz);
-
     double get_filter_offset();
 
     status set_filter(double low, double high, filter_shape shape);

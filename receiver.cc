@@ -106,6 +106,45 @@ void receiver::stop()
 }
 
 
+/*! \brief Select new input device.
+ *
+ * \bug When using ALSA, program will crash if the new device
+ *      is the same as the previously used device:
+ *      audio_alsa_source[hw:1]: Device or resource busy
+ */
+void receiver::set_input_device(const std::string device)
+{
+    tb->lock();
+
+    tb->disconnect(fcd_src, 0, fft, 0);
+    tb->disconnect(fcd_src, 0, filter, 0);
+
+    fcd_src.reset();
+    fcd_src = fcd_make_source_c(device);
+    fcd_src->set_freq(d_rf_freq);
+
+    tb->connect(fcd_src, 0, fft, 0);
+    tb->connect(fcd_src, 0, filter, 0);
+
+    tb->unlock();
+}
+
+
+/*! \brief Select new audio output device. */
+void receiver::set_output_device(const std::string device)
+{
+    tb->lock();
+
+    tb->disconnect(audio_gain, 0, audio_snk, 0);
+    audio_snk.reset();
+    audio_snk = audio_make_sink(d_audio_rate, device, true);
+    tb->connect(audio_gain, 0, audio_snk, 0);
+
+    tb->unlock();
+}
+
+
+
 /*! \brief Set RF frequency.
  *  \param freq_hz The desired frequency in Hz.
  *  \return RX_STATUS_ERROR if an error occurs, e.g. the frequency is out of range.

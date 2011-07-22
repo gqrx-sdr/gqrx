@@ -157,6 +157,8 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="actionIODevices"/>
+    <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menu_View">
@@ -212,6 +214,14 @@
    </property>
    <property name="toolTip">
     <string>About the Qt toolkit</string>
+   </property>
+  </action>
+  <action name="actionIODevices">
+   <property name="text">
+    <string>I/O Devices</string>
+   </property>
+   <property name="toolTip">
+    <string>Configure I/O devices</string>
    </property>
   </action>
  </widget>
