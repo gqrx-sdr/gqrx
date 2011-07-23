@@ -23,6 +23,7 @@
 #include <QMainWindow>
 
 #include "qtgui/dockrxopt.h"
+#include "qtgui/dockfcdctl.h"
 #include "qtgui/dockinput.h"
 
 #include <receiver.h>
@@ -30,7 +31,6 @@
 
 namespace Ui {
     class MainWindow;  /*! The main window UI */
-    class DockDemod;   /*! Demodulator dock window. */
 }
 
 class MainWindow : public QMainWindow
@@ -52,6 +52,7 @@ private:
 
     Ui::MainWindow *ui;
     DockRxOpt      *uiDockRxOpt;
+    DockFcdCtl     *uiDockFcdCtl;
     DockInput      *uiDockInput;
 
     QTimer   *meter_timer;

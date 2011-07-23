@@ -66,10 +66,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* create dock widgets */
     uiDockRxOpt = new DockRxOpt();
+    uiDockFcdCtl = new DockFcdCtl(this);
     uiDockInput = new DockInput();
 
     //addDockWidget(Qt::RightDockWidgetArea, uiDockInput);
+    addDockWidget(Qt::RightDockWidgetArea, uiDockFcdCtl);
     addDockWidget(Qt::RightDockWidgetArea, uiDockRxOpt);
+    tabifyDockWidget(uiDockFcdCtl, uiDockRxOpt);
 
 
     /* Add dock widget actions to View menu. By doing it this way all signal/slot
@@ -77,6 +80,7 @@ MainWindow::MainWindow(QWidget *parent) :
     */
     //ui->menu_View->addAction(uiDockInput->toggleViewAction());
     ui->menu_View->addAction(uiDockRxOpt->toggleViewAction());
+    ui->menu_View->addAction(uiDockFcdCtl->toggleViewAction());
     ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
 
     /* connect signals and slots */
