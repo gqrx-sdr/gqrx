@@ -24,7 +24,6 @@
 
 #include "qtgui/dockrxopt.h"
 #include "qtgui/dockfcdctl.h"
-#include "qtgui/dockinput.h"
 
 #include <receiver.h>
 
@@ -53,7 +52,6 @@ private:
     Ui::MainWindow *ui;
     DockRxOpt      *uiDockRxOpt;
     DockFcdCtl     *uiDockFcdCtl;
-    DockInput      *uiDockInput;
 
     QTimer   *meter_timer;
     QTimer   *fft_timer;
