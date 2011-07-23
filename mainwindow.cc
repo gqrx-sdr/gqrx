@@ -67,7 +67,6 @@ MainWindow::MainWindow(QWidget *parent) :
     /* create dock widgets */
     uiDockRxOpt = new DockRxOpt();
     uiDockFcdCtl = new DockFcdCtl(this);
-    uiDockInput = new DockInput();
 
     //addDockWidget(Qt::RightDockWidgetArea, uiDockInput);
     addDockWidget(Qt::RightDockWidgetArea, uiDockFcdCtl);
@@ -107,7 +106,6 @@ MainWindow::~MainWindow()
 
     /* clean up the rest */
     delete ui;
-    delete uiDockInput;
     delete uiDockRxOpt;
     delete rx;
     delete [] d_fftData;
