@@ -82,6 +82,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->menu_View->addAction(uiDockRxOpt->toggleViewAction());
     ui->menu_View->addAction(uiDockAudio->toggleViewAction());
     ui->menu_View->addAction(uiDockFcdCtl->toggleViewAction());
+    ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
 
     /* connect signals and slots */
