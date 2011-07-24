@@ -52,18 +52,20 @@ signals:
     void audioGainChanged(float gain);
 
     /*! \brief Signal emitted when audio recording is started. */
-    void audioRecordingStarted(const QString filename);
+    void audioRecStarted(const QString filename);
 
     /*! \brief Signal emitted when audio recording is stopped. */
-    void audioRecordingStopped();
+    void audioRecStopped();
 
 
 private slots:
     void on_audioGainSlider_valueChanged(int value);
+    void on_audioRecButton_toggled(bool checked);
 
 
 private:
     Ui::DockAudio *ui;
+    QString        lastAudio;   /*! Last audio recording. */
 };
 
 #endif // DOCKAUDIO_H

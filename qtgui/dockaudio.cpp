@@ -17,6 +17,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <QDebug>
+#include <QDateTime>
 #include "dockaudio.h"
 #include "ui_dockaudio.h"
 
@@ -61,4 +63,26 @@ void DockAudio::on_audioGainSlider_valueChanged(int value)
     /* update dB label */
     ui->audioGainDbLabel->setText(QString("%1 dB").arg(gain));
     emit audioGainChanged(gain);
+}
+
+
+/*! \brief Record button toggled.
+ *  \param chcked Whether recording is ON or OFF.
+ */
+void DockAudio::on_audioRecButton_toggled(bool checked)
+{
+    if (checked) {
+        // FIXME: option to use local time
+        lastAudio = QDateTime::currentDateTimeUtc().toString("gqrx-yyyyMMdd-hhmmss.'wav'");
+
+        // emit signal and start timer
+        emit audioRecStarted(lastAudio);
+
+        ui->audioRecButton->setToolTip(tr("Stop audio recorder"));
+    }
+    else {
+        ui->audioRecButton->setToolTip(tr("Start audio recorder"));
+        emit audioRecStopped();
+    }
+
 }
