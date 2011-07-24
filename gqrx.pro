@@ -37,7 +37,8 @@ SOURCES +=\
     qtgui/dockrxopt.cc \
     dsp/rx_demod_am.cc \
     qtgui/ioconfig.cc \
-    qtgui/dockfcdctl.cpp
+    qtgui/dockfcdctl.cpp \
+    qtgui/dockaudio.cpp
 
 
 HEADERS  += mainwindow.h \
@@ -52,13 +53,15 @@ HEADERS  += mainwindow.h \
     qtgui/dockrxopt.h \
     dsp/rx_demod_am.h \
     qtgui/ioconfig.h \
-    qtgui/dockfcdctl.h
+    qtgui/dockfcdctl.h \
+    qtgui/dockaudio.h
 
 FORMS    += \
     qtgui/dockrxopt.ui \
     mainwindow.ui \
     qtgui/ioconfig.ui \
-    qtgui/dockfcdctl.ui
+    qtgui/dockfcdctl.ui \
+    qtgui/dockaudio.ui
 
 
 # dependencies via pkg-config
