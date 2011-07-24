@@ -68,8 +68,12 @@ private slots:
     void setAmDcrStatus(bool enabled);
     void setSideBand(int sideband);
     void setBasebandGain(float gain);
-    void setAudioGain(float gain);
     void setSqlLevel(double level_db);
+    void setAudioGain(float gain);
+
+    /* audio recording */
+    void startAudioRec(const QString filename);
+    void stopAudioRec();
 
     void on_rxStartStopButton_toggled(bool checked);   /*! RX start/stop button toggled. */
     void on_plotter_NewDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */

@@ -95,6 +95,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(bbGainChanged(float)), this, SLOT(setBasebandGain(float)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
+    connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), this, SLOT(startAudioRec(QString)));
+    connect(uiDockAudio, SIGNAL(audioRecStopped()), this, SLOT(stopAudioRec()));
 }
 
 MainWindow::~MainWindow()
@@ -473,6 +475,23 @@ void MainWindow::on_actionIODevices_triggered()
 
     delete ioconf;
 }
+
+
+/*! \brief Start audio recorder.
+ *  \param filename The file name into which audio should be recorded.
+ */
+void MainWindow::startAudioRec(const QString filename)
+{
+    rx->start_recording(filename.toStdString());
+}
+
+
+/*! \brief Stop audio recorder. */
+void MainWindow::stopAudioRec()
+{
+    rx->stop_recording();
+}
+
 
 
 
