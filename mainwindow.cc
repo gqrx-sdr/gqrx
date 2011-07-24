@@ -79,7 +79,6 @@ MainWindow::MainWindow(QWidget *parent) :
     /* Add dock widget actions to View menu. By doing it this way all signal/slot
        connections will be established automagially.
     */
-    //ui->menu_View->addAction(uiDockInput->toggleViewAction());
     ui->menu_View->addAction(uiDockRxOpt->toggleViewAction());
     ui->menu_View->addAction(uiDockAudio->toggleViewAction());
     ui->menu_View->addAction(uiDockFcdCtl->toggleViewAction());
@@ -87,8 +86,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(NewFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
-    //connect(uiDockInput, SIGNAL(fcdDcCorrChanged(double,double)), this, SLOT(setDcCorr(double,double)));
-    //connect(uiDockInput, SIGNAL(fcdIqCorrChanged(double,double)), this, SLOT(setIqCorr(double,double)));
+    connect(uiDockFcdCtl, SIGNAL(dcCorrChanged(double,double)), this, SLOT(setDcCorr(double,double)));
+    connect(uiDockFcdCtl, SIGNAL(IqCorrChanged(double,double)), this, SLOT(setIqCorr(double,double)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
     connect(uiDockRxOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(setFmEmph(double)));
