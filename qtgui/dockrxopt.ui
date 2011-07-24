@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>215</width>
-    <height>500</height>
+    <height>300</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>215</width>
-    <height>400</height>
+    <height>300</height>
    </size>
   </property>
   <property name="allowedAreas">
@@ -41,7 +41,7 @@
          <x>0</x>
          <y>0</y>
          <width>197</width>
-         <height>333</height>
+         <height>164</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -50,280 +50,261 @@
        <attribute name="label">
         <string>Demodulator</string>
        </attribute>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>191</width>
-          <height>231</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
-         <item>
-          <layout class="QFormLayout" name="formLayout_2">
-           <property name="fieldGrowthPolicy">
-            <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-           </property>
-           <item row="0" column="0">
-            <widget class="QLabel" name="typeLabel">
-             <property name="text">
-              <string>Type</string>
-             </property>
-             <property name="margin">
-              <number>0</number>
-             </property>
-             <property name="indent">
-              <number>19</number>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QComboBox" name="modeSelector">
-             <property name="toolTip">
-              <string>Demodulator type (mode)</string>
-             </property>
-             <property name="statusTip">
-              <string>Demodulator type (mode)</string>
-             </property>
-             <property name="currentIndex">
-              <number>2</number>
-             </property>
-             <item>
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <layout class="QFormLayout" name="formLayout_2">
+            <property name="fieldGrowthPolicy">
+             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+            </property>
+            <item row="0" column="0">
+             <widget class="QLabel" name="typeLabel">
               <property name="text">
-               <string>SSB</string>
+               <string>Type</string>
               </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>AM</string>
+              <property name="margin">
+               <number>0</number>
               </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>FM</string>
+              <property name="indent">
+               <number>19</number>
               </property>
-             </item>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QStackedWidget" name="demodOptions">
-           <property name="currentIndex">
-            <number>2</number>
-           </property>
-           <widget class="QWidget" name="demodSsbOpt">
-            <layout class="QFormLayout" name="formLayout_3">
-             <property name="fieldGrowthPolicy">
-              <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-             </property>
-             <item row="0" column="0">
-              <widget class="QLabel" name="sidebandLabel">
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="modeSelector">
+              <property name="toolTip">
+               <string>Demodulator type (mode)</string>
+              </property>
+              <property name="statusTip">
+               <string>Demodulator type (mode)</string>
+              </property>
+              <property name="currentIndex">
+               <number>2</number>
+              </property>
+              <item>
                <property name="text">
-                <string>Sideband</string>
+                <string>SSB</string>
                </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QComboBox" name="sidebandSelector">
-               <property name="currentIndex">
-                <number>1</number>
+              </item>
+              <item>
+               <property name="text">
+                <string>AM</string>
                </property>
-               <item>
-                <property name="text">
-                 <string>Lower</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Upper</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QWidget" name="demodAmOpt">
-            <widget class="QWidget" name="layoutWidget_2">
-             <property name="geometry">
-              <rect>
-               <x>10</x>
-               <y>16</y>
-               <width>123</width>
-               <height>58</height>
-              </rect>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_2">
-              <item>
-               <widget class="QCheckBox" name="dcr">
-                <property name="toolTip">
-                 <string>Remove DC offset in audio</string>
-                </property>
-                <property name="statusTip">
-                 <string>Remove DC offset in audio</string>
-                </property>
-                <property name="text">
-                 <string>DCR</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-               </widget>
               </item>
               <item>
-               <widget class="QCheckBox" name="syncPll">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="text">
-                 <string>Sync PLL</string>
-                </property>
-               </widget>
+               <property name="text">
+                <string>FM</string>
+               </property>
               </item>
-              <item>
-               <spacer name="verticalSpacer">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
-           </widget>
-           <widget class="QWidget" name="demodFmOpt">
-            <widget class="QWidget" name="layoutWidget_3">
-             <property name="geometry">
-              <rect>
-               <x>10</x>
-               <y>20</y>
-               <width>161</width>
-               <height>68</height>
-              </rect>
-             </property>
-             <layout class="QFormLayout" name="formLayout">
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QStackedWidget" name="demodOptions">
+            <property name="currentIndex">
+             <number>2</number>
+            </property>
+            <widget class="QWidget" name="demodSsbOpt">
+             <layout class="QFormLayout" name="formLayout_3">
               <property name="fieldGrowthPolicy">
                <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
               </property>
               <item row="0" column="0">
-               <widget class="QLabel" name="maxdevLabel">
+               <widget class="QLabel" name="sidebandLabel">
                 <property name="text">
-                 <string>Dev:</string>
+                 <string>Sideband</string>
                 </property>
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QComboBox" name="maxdevSelector">
-                <property name="toolTip">
-                 <string>Maximum FM deviation</string>
-                </property>
-                <property name="statusTip">
-                 <string>Maximum FM deviation</string>
-                </property>
+               <widget class="QComboBox" name="sidebandSelector">
                 <property name="currentIndex">
                  <number>1</number>
                 </property>
                 <item>
                  <property name="text">
-                  <string>Voice (2.5k)</string>
+                  <string>Lower</string>
                  </property>
                 </item>
                 <item>
                  <property name="text">
-                  <string>Voice (5k)</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>APT (17k)</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>BC (75k)</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="emphLabel">
-                <property name="text">
-                 <string>Tau: </string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QComboBox" name="emphSelector">
-                <property name="toolTip">
-                 <string>De-emphasis time constant</string>
-                </property>
-                <property name="statusTip">
-                 <string>De-emphasis time constant</string>
-                </property>
-                <property name="currentIndex">
-                 <number>2</number>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>Off</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>25 μ</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>50 μ</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>75 μ</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>100 μ</string>
+                  <string>Upper</string>
                  </property>
                 </item>
                </widget>
               </item>
              </layout>
             </widget>
+            <widget class="QWidget" name="demodAmOpt">
+             <widget class="QWidget" name="layoutWidget_2">
+              <property name="geometry">
+               <rect>
+                <x>10</x>
+                <y>16</y>
+                <width>123</width>
+                <height>58</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_2">
+               <item>
+                <widget class="QCheckBox" name="dcr">
+                 <property name="toolTip">
+                  <string>Remove DC offset in audio</string>
+                 </property>
+                 <property name="statusTip">
+                  <string>Remove DC offset in audio</string>
+                 </property>
+                 <property name="text">
+                  <string>DCR</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="syncPll">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Sync PLL</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+            <widget class="QWidget" name="demodFmOpt">
+             <widget class="QWidget" name="layoutWidget_3">
+              <property name="geometry">
+               <rect>
+                <x>10</x>
+                <y>20</y>
+                <width>161</width>
+                <height>68</height>
+               </rect>
+              </property>
+              <layout class="QFormLayout" name="formLayout">
+               <property name="fieldGrowthPolicy">
+                <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+               </property>
+               <item row="0" column="0">
+                <widget class="QLabel" name="maxdevLabel">
+                 <property name="text">
+                  <string>Dev:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QComboBox" name="maxdevSelector">
+                 <property name="toolTip">
+                  <string>Maximum FM deviation</string>
+                 </property>
+                 <property name="statusTip">
+                  <string>Maximum FM deviation</string>
+                 </property>
+                 <property name="currentIndex">
+                  <number>1</number>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>Voice (2.5k)</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Voice (5k)</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>APT (17k)</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>BC (75k)</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="emphLabel">
+                 <property name="text">
+                  <string>Tau: </string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QComboBox" name="emphSelector">
+                 <property name="toolTip">
+                  <string>De-emphasis time constant</string>
+                 </property>
+                 <property name="statusTip">
+                  <string>De-emphasis time constant</string>
+                 </property>
+                 <property name="currentIndex">
+                  <number>2</number>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>Off</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>25 μ</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>50 μ</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>75 μ</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>100 μ</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </widget>
            </widget>
-          </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="pageFilter">
        <property name="geometry">
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>98</width>
-         <height>28</height>
+         <width>182</width>
+         <height>264</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -432,8 +413,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>98</width>
-         <height>28</height>
+         <width>197</width>
+         <height>164</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -542,136 +523,6 @@
            </property>
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-      <widget class="QWidget" name="pageAudio">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>98</width>
-         <height>28</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string/>
-       </property>
-       <attribute name="label">
-        <string>Audio</string>
-       </attribute>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>191</width>
-          <height>201</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_4">
-         <item>
-          <layout class="QGridLayout" name="gridLayout">
-           <property name="horizontalSpacing">
-            <number>6</number>
-           </property>
-           <property name="verticalSpacing">
-            <number>0</number>
-           </property>
-           <item row="0" column="0">
-            <widget class="QLabel" name="audioGainLabel">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Gain:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLabel" name="audioGainDbLabel">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string> -20 dB</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="margin">
-              <number>0</number>
-             </property>
-             <property name="indent">
-              <number>1</number>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" colspan="2">
-            <widget class="QSlider" name="audioGainSlider">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>Audio gain</string>
-             </property>
-             <property name="statusTip">
-              <string>Audio gain</string>
-             </property>
-             <property name="minimum">
-              <number>-800</number>
-             </property>
-             <property name="maximum">
-              <number>200</number>
-             </property>
-             <property name="value">
-              <number>-200</number>
-             </property>
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="Line" name="line">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QFrame" name="frame">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="toolTip">
-            <string>Audio spectrum and filter</string>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
            </property>
           </widget>
          </item>

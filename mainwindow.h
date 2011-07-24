@@ -23,6 +23,7 @@
 #include <QMainWindow>
 
 #include "qtgui/dockrxopt.h"
+#include "qtgui/dockaudio.h"
 #include "qtgui/dockfcdctl.h"
 
 #include <receiver.h>
@@ -51,6 +52,7 @@ private:
 
     Ui::MainWindow *ui;
     DockRxOpt      *uiDockRxOpt;
+    DockAudio      *uiDockAudio;
     DockFcdCtl     *uiDockFcdCtl;
 
     QTimer   *meter_timer;

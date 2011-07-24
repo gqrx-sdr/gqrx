@@ -66,12 +66,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* create dock widgets */
     uiDockRxOpt = new DockRxOpt();
+    uiDockAudio = new DockAudio();
     uiDockFcdCtl = new DockFcdCtl(this);
 
     //addDockWidget(Qt::RightDockWidgetArea, uiDockInput);
     addDockWidget(Qt::RightDockWidgetArea, uiDockFcdCtl);
     addDockWidget(Qt::RightDockWidgetArea, uiDockRxOpt);
     tabifyDockWidget(uiDockFcdCtl, uiDockRxOpt);
+    addDockWidget(Qt::RightDockWidgetArea, uiDockAudio);
 
 
     /* Add dock widget actions to View menu. By doing it this way all signal/slot
@@ -79,6 +81,7 @@ MainWindow::MainWindow(QWidget *parent) :
     */
     //ui->menu_View->addAction(uiDockInput->toggleViewAction());
     ui->menu_View->addAction(uiDockRxOpt->toggleViewAction());
+    ui->menu_View->addAction(uiDockAudio->toggleViewAction());
     ui->menu_View->addAction(uiDockFcdCtl->toggleViewAction());
     ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
 
@@ -91,8 +94,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(setFmEmph(double)));
     connect(uiDockRxOpt, SIGNAL(sidebandSelected(int)), this, SLOT(setSideBand(int)));
     connect(uiDockRxOpt, SIGNAL(bbGainChanged(float)), this, SLOT(setBasebandGain(float)));
-    connect(uiDockRxOpt, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
+    connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
 }
 
 MainWindow::~MainWindow()

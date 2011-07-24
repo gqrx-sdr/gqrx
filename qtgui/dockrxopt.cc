@@ -70,22 +70,6 @@ int  DockRxOpt::currentSideBand()
 }
 
 
-/*! \brief Set new audio gain.
- *  \param gain the new audio gain in tens of dB (0 dB = 10)
- */
-void DockRxOpt::setAudioGain(int gain)
-{
-    ui->audioGainSlider->setValue(gain);
-}
-
-
-/*! \brief Get current audio gain.
- *  \returns The current audio gain in tens of dB (0 dB = 10).
- */
-int  DockRxOpt::audioGain()
-{
-    return ui->audioGainSlider->value();
-}
 
 
 /*! \brief Mode selector activated.
@@ -188,19 +172,6 @@ void DockRxOpt::on_bbGainSlider_valueChanged(int value)
     emit bbGainChanged(gain);
 }
 
-
-
-/*! \brief Audio gain changed.
- *  \param value The new audio gain value in tens of dB (because slider uses int)
- */
-void DockRxOpt::on_audioGainSlider_valueChanged(int value)
-{
-    float gain = float(value) / 10.0;
-
-    /* update dB label */
-    ui->audioGainDbLabel->setText(QString("%1 dB").arg(gain));
-    emit audioGainChanged(gain);
-}
 
 
 /*! \brief Squelch level change.

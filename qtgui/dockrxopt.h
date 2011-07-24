@@ -54,8 +54,6 @@ public:
     void setCurrentSideBand(int sideband);
     int  currentSideBand();
 
-    void setAudioGain(int gain);
-    int  audioGain();
 
 signals:
     /*! \brief Signal emitted when new demodulator is selected. */
@@ -76,9 +74,6 @@ signals:
     /*! \brief Signal emitted when baseband gain has changed. Gain is in dB. */
     void bbGainChanged(float gain);
 
-    /*! \brief Signal emitted when audio gain has changed. Gain is in dB. */
-    void audioGainChanged(float gain);
-
     /*! \brief Signal emitted when squelch level has changed. Level is in dBFS. */
     void sqlLevelChanged(double level);
 
@@ -90,7 +85,6 @@ private slots:
     void on_dcr_toggled(bool checked);
     void on_sidebandSelector_activated(int index);
     void on_bbGainSlider_valueChanged(int value);
-    void on_audioGainSlider_valueChanged(int value);
     void on_sqlSlider_valueChanged(int value);
 
 private:

@@ -31,3 +31,34 @@ DockAudio::~DockAudio()
 {
     delete ui;
 }
+
+
+/*! \brief Set new audio gain.
+ *  \param gain the new audio gain in tens of dB (0 dB = 10)
+ */
+void DockAudio::setAudioGain(int gain)
+{
+    ui->audioGainSlider->setValue(gain);
+}
+
+
+/*! \brief Get current audio gain.
+ *  \returns The current audio gain in tens of dB (0 dB = 10).
+ */
+int  DockAudio::audioGain()
+{
+    return ui->audioGainSlider->value();
+}
+
+
+/*! \brief Audio gain changed.
+ *  \param value The new audio gain value in tens of dB (because slider uses int)
+ */
+void DockAudio::on_audioGainSlider_valueChanged(int value)
+{
+    float gain = float(value) / 10.0;
+
+    /* update dB label */
+    ui->audioGainDbLabel->setText(QString("%1 dB").arg(gain));
+    emit audioGainChanged(gain);
+}
