@@ -47,7 +47,8 @@
 receiver::receiver(const std::string input_device, const std::string audio_device)
     : d_bandwidth(96000.0), d_audio_rate(48000),
       d_rf_freq(144800000.0), d_filter_offset(0.0),
-      d_demod(DEMOD_FM)
+      d_demod(DEMOD_FM),
+      d_recording_wav(false)
 {
     tb = gr_make_top_block("gqrx");
 
@@ -66,6 +67,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     demod_am = make_rx_demod_am(48000.0, 48000.0, true);
     audio_gain = gr_make_multiply_const_ff(0.1);
     audio_snk = audio_make_sink(d_audio_rate, audio_device, true);
+    wav_sink = gr_make_wavfile_sink("/tmp/gqrx.wav", 1, 48000, 16);
 
     tb->connect(fcd_src, 0, fft, 0);
     tb->connect(fcd_src, 0, filter, 0);
@@ -74,8 +76,12 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     tb->connect(sql, 0, bb_gain, 0);
     tb->connect(bb_gain, 0, agc, 0);
     tb->connect(agc, 0, demod_fm, 0);
+    tb->connect(demod_fm, 0, wav_sink, 0);
     tb->connect(demod_fm, 0, audio_gain, 0);
     tb->connect(audio_gain, 0, audio_snk, 0);
+
+    /* close wav file; this will disable writing */
+    wav_sink->close();
 }
 
 
@@ -355,16 +361,19 @@ receiver::status receiver::set_demod(demod rx_demod)
     case DEMOD_SSB:
         tb->disconnect(agc, 0, demod_ssb, 0);
         tb->disconnect(demod_ssb, 0, audio_gain, 0);
+        tb->disconnect(demod_ssb, 0, wav_sink, 0);
         break;
 
     case DEMOD_AM:
         tb->disconnect(agc, 0, demod_am, 0);
         tb->disconnect(demod_am, 0, audio_gain, 0);
+        tb->disconnect(demod_am, 0, wav_sink, 0);
         break;
 
     case DEMOD_FM:
         tb->disconnect(agc, 0, demod_fm, 0);
         tb->disconnect(demod_fm, 0, audio_gain, 0);
+        tb->disconnect(demod_fm, 0, wav_sink, 0);
         break;
 
 
@@ -377,18 +386,21 @@ receiver::status receiver::set_demod(demod rx_demod)
         d_demod = rx_demod;
         tb->connect(agc, 0, demod_ssb, 0);
         tb->connect(demod_ssb, 0, audio_gain, 0);
+        tb->connect(demod_ssb, 0, wav_sink, 0);
         break;
 
     case DEMOD_AM:
         d_demod = rx_demod;
         tb->connect(agc, 0, demod_am, 0);
         tb->connect(demod_am, 0, audio_gain, 0);
+        tb->connect(demod_am, 0, wav_sink, 0);
         break;
 
     case DEMOD_FM:
         d_demod = DEMOD_FM;
         tb->connect(agc, 0, demod_fm, 0);
         tb->connect(demod_fm, 0, audio_gain, 0);
+        tb->connect(demod_fm, 0, wav_sink, 0);
         break;
 
     default:
@@ -444,6 +456,52 @@ receiver::status receiver::set_af_gain(float gain_db)
     k = pow(10.0, gain_db / 20.0);
     //std::cout << "G:" << gain_db << "dB / K:" << k << std::endl;
     audio_gain->set_k(k);
+
+    return STATUS_OK;
+}
+
+
+/*! \brief Start WAV file recorder.
+ *  \param filename The filename where to record.
+ */
+receiver::status receiver::start_recording(const std::string filename)
+{
+    if (d_recording_wav) {
+        /* error - we are already recording */
+        return STATUS_ERROR;
+    }
+
+    /* wav_sink was created in the constructor */
+    if (wav_sink) {
+        //std::cout << "WAV sink exists" << std::endl;
+
+        // not strictly necessary to lock but I think it is safer
+        tb->lock();
+        wav_sink->open(filename.c_str());
+        tb->unlock();
+        d_recording_wav = true;
+    }
+    else {
+        std::cout << "WAV sink does not exist" << std::endl;
+    }
+
+    return STATUS_OK;
+}
+
+
+/*! \brief Stop WAV file recorder. */
+receiver::status receiver::stop_recording()
+{
+    if (!d_recording_wav) {
+        /* error: we are not recording */
+        return STATUS_ERROR;
+    }
+
+    // not strictly necessary to lock but I think it is safer
+    tb->lock();
+    wav_sink->close();
+    tb->unlock();
+    d_recording_wav = false;
 
     return STATUS_OK;
 }

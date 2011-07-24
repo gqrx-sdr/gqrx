@@ -27,6 +27,7 @@
 #include <gr_multiply_const_cc.h>
 #include <gr_simple_squelch_cc.h>
 #include <gr_agc2_cc.h>
+#include <gr_wavfile_sink.h>
 #include <fcd/fcd_source_c.h>
 #include <dsp/rx_filter.h>
 #include <dsp/rx_meter.h>
@@ -122,13 +123,15 @@ public:
 
     /* Audio parameters */
     status set_af_gain(float gain_db);
-
+    status start_recording(const std::string filename);
+    status stop_recording();
 
 private:
     float  d_bandwidth;        /*! Receiver bandwidth. */
     int    d_audio_rate;       /*! Audio output rate. */
     float  d_rf_freq;          /*! Current RF frequency. */
     double d_filter_offset;    /*! Current filter offset (tune within passband). */
+    bool   d_recording_wav;    /*! Whether we are recording WAV file. */
 
     demod  d_demod;          /*! Current demodulator. */
 
@@ -145,6 +148,8 @@ private:
     rx_demod_am_sptr          demod_am;   /*! AM demodulator. */
     gr_multiply_const_ff_sptr audio_gain; /*! Audio gain block. */
     audio_sink::sptr          audio_snk;  /*! Audio sink. */
+
+    gr_wavfile_sink_sptr      wav_sink;   /*! WAV file sink for recording. */
 
 protected:
 
