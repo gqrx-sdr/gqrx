@@ -138,6 +138,9 @@
       </property>
       <item>
        <widget class="QPushButton" name="audioRecConfButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>32</horstretch>
@@ -191,6 +194,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="audioPlayButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
