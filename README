@@ -1,8 +1,35 @@
-Experimental AM, FM and SSB software receiver implemented using GNU Radio and Qt GUI toolkit.
+Gqrx is an experimental AM, FM and SSB software defined receiver implemented using
+GNU Radio and the Qt GUI toolkit.
 
-This branch contains a C++ version that only depends on:
-  - gnuradio-core
-  - gnuradio-audio
-  - UHD and gr-uhd
-  - gr-fcd
+Currently it works on Linux and can use the Funcube Dongle as input source.
+
+Dependencies:
+  - gnuradio-core 3.4.0-101 or later
+  - gnuradio-audio 3.4.0-101 or later
+  - gr-fcd (https://github.com/csete/gr-fcd)
+  - Qt 4.7 (available in all recent Linux)
+
+The build system is based on qmake and to build gqrx simply load the gqrx.pro file
+into Qt Creator and click build (the hammer icon).
+
+If the GNU Radio libraries have been installed into a non-standard location, e.g.
+/opt/gnuradio, Qt Creator may not be able to pick up the headers and libraries.
+Assuming that your PKG_CONFIG_PATH is set up correctly, you can work around this
+by launching Qt Creator from the terminal.
+
+First time you start gqrx it will ask you to specify th einput and output device.
+For the input device you can check /proc/asound/cards to see what number the
+Funcube Dongle has. For example:
+
+ 0 [Intel          ]: HDA-Intel - HDA Intel
+                      HDA Intel at 0xf0120000 irq 49
+ 1 [HDMI           ]: HDA-Intel - HDA ATI HDMI
+                      HDA ATI HDMI at 0xf0210000 irq 50
+ 2 [default        ]: USB-Audio - FUNcube Dongle V1.0
+                      Hanlincrest Ltd.          FUNcube Dongle V1.0   at usb-0000:00:1d.0-1.7
+
+means that you can use hw:2 as input device.
+
+Technically, gqrx can use any soundcard as input device but the sample rate is fixed
+at 96 kHz (bug).
 
