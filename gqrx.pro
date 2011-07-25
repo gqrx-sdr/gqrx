@@ -70,3 +70,6 @@ linux-g++ {
     CONFIG += link_pkgconfig
     PKGCONFIG += gnuradio-core gnuradio-audio gnuradio-fcd
 }
+
+OTHER_FILES += \
+    README
