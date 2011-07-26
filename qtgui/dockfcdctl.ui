@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>196</width>
-    <height>309</height>
+    <height>313</height>
    </rect>
   </property>
   <property name="floating">
@@ -274,21 +274,25 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>28</width>
-          <height>28</height>
+          <width>32</width>
+          <height>32</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>28</width>
-          <height>28</height>
+          <width>32</width>
+          <height>32</height>
          </size>
         </property>
         <property name="toolTip">
          <string>Save current settings</string>
         </property>
         <property name="text">
-         <string>S</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../icons.qrc">
+          <normaloff>:/icons/icons/floppy.svg</normaloff>:/icons/icons/floppy.svg</iconset>
         </property>
        </widget>
       </item>
@@ -305,21 +309,25 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>28</width>
-          <height>28</height>
+          <width>32</width>
+          <height>32</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>28</width>
-          <height>28</height>
+          <width>32</width>
+          <height>32</height>
          </size>
         </property>
         <property name="toolTip">
          <string>Load previously saved settings</string>
         </property>
         <property name="text">
-         <string>L</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../icons.qrc">
+          <normaloff>:/icons/icons/folder.svg</normaloff>:/icons/icons/folder.svg</iconset>
         </property>
        </widget>
       </item>
@@ -336,21 +344,25 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>28</width>
-          <height>28</height>
+          <width>32</width>
+          <height>32</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>28</width>
-          <height>28</height>
+          <width>32</width>
+          <height>32</height>
          </size>
         </property>
         <property name="toolTip">
          <string>Reset settings to default values</string>
         </property>
         <property name="text">
-         <string>R</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../icons.qrc">
+          <normaloff>:/icons/icons/refresh.svg</normaloff>:/icons/icons/refresh.svg</iconset>
         </property>
        </widget>
       </item>
@@ -372,6 +384,8 @@
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

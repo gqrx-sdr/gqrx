@@ -163,7 +163,11 @@
          <string>Configure audio recording and playback</string>
         </property>
         <property name="text">
-         <string>C</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../icons.qrc">
+          <normaloff>:/icons/icons/settings.svg</normaloff>:/icons/icons/settings.svg</iconset>
         </property>
        </widget>
       </item>
@@ -185,7 +189,11 @@
          <string>Record audio</string>
         </property>
         <property name="text">
-         <string>R</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../icons.qrc">
+          <normaloff>:/icons/icons/record.svg</normaloff>:/icons/icons/record.svg</iconset>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -219,7 +227,11 @@
          <string>Playback previously recorded audio</string>
         </property>
         <property name="text">
-         <string>P</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../icons.qrc">
+          <normaloff>:/icons/icons/play.svg</normaloff>:/icons/icons/play.svg</iconset>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -247,6 +259,8 @@
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../icons.qrc"/>
+ </resources>
  <connections/>
 </ui>
