@@ -139,7 +139,13 @@ void MainWindow::setNewFrequency(qint64 freq)
 }
 
 
-void MainWindow::on_rxStartStopButton_toggled(bool checked)
+/*! \brief Start/Stop DSP processing.
+ *  \param checked Flag indicating whether DSP processing should be ON or OFF.
+ *
+ * This slot is executed when the actionDSP is toggled by the user. This can either be
+ * via the menu bar or the "power on" button in the main toolbar.
+ */
+void MainWindow::on_actionDSP_triggered(bool checked)
 {
     if (checked) {
         /* start receiver */
@@ -149,8 +155,9 @@ void MainWindow::on_rxStartStopButton_toggled(bool checked)
         meter_timer->start(100);
         fft_timer->start(100);
 
-        /* update button label */
-        ui->rxStartStopButton->setText(tr("Stop"));
+        /* update menu text and button tooltip */
+        ui->actionDSP->setToolTip(tr("Stop DSP processing"));
+        ui->actionDSP->setText(tr("Stop DSP"));
     }
     else {
         /* stop GUI timers */
@@ -160,7 +167,9 @@ void MainWindow::on_rxStartStopButton_toggled(bool checked)
         /* stop receiver */
         rx->stop();
 
-        ui->rxStartStopButton->setText(tr("Start"));
+        /* update menu text and button tooltip */
+        ui->actionDSP->setToolTip(tr("Start DSP processing"));
+        ui->actionDSP->setText(tr("Start DSP"));
     }
 }
 
