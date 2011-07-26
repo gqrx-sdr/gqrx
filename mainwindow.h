@@ -60,6 +60,7 @@ private:
     receiver *rx;
 
 private slots:
+    void setRfGain(float gain);
     void setDcCorr(double dci, double dcq);
     void setIqCorr(double gain, double phase);
     void selectDemod(int index);

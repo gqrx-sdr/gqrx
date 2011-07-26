@@ -180,6 +180,7 @@ float receiver::get_rf_freq()
  */
 receiver::status receiver::set_rf_gain(float gain_db)
 {
+    fcd_src->set_lna_gain(gain_db);
     return STATUS_OK;
 }
 

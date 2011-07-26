@@ -87,6 +87,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(NewFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
+    connect(uiDockFcdCtl, SIGNAL(lnaGainChanged(float)), SLOT(setRfGain(float)));
     connect(uiDockFcdCtl, SIGNAL(dcCorrChanged(double,double)), this, SLOT(setDcCorr(double,double)));
     connect(uiDockFcdCtl, SIGNAL(iqCorrChanged(double,double)), this, SLOT(setIqCorr(double,double)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
@@ -197,6 +198,17 @@ void MainWindow::on_plotter_NewFilterFreq(int low, int high)
     /* parameter correctness will be checked in receiver class */
     retcode = rx->set_filter((double) low, (double) high, d_filter_shape);
 
+}
+
+
+/*! \brief Set RF gain.
+ *  \param gain The new RF gain.
+ *
+ * Valid range depends on hardware.
+ */
+void MainWindow::setRfGain(float gain)
+{
+    rx->set_rf_gain(gain);
 }
 
 
