@@ -73,3 +73,6 @@ linux-g++ {
 
 OTHER_FILES += \
     README
+
+RESOURCES += \
+    icons.qrc
