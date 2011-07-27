@@ -53,7 +53,7 @@ rx_filter::rx_filter(double sample_rate, double center, double low, double high,
     d_taps = gr_firdes::complex_band_pass(1.0, d_sample_rate, -d_high, -d_low, d_trans_width);
 
     /* create band pass filter */
-    d_bpf = gr_make_freq_xlating_fir_filter_ccc(2, d_taps, d_center, d_sample_rate);
+    d_bpf = gr_make_freq_xlating_fir_filter_ccc(1, d_taps, d_center, d_sample_rate);
 
     /* connect filter */
     connect(self(), 0, d_bpf, 0);

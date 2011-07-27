@@ -63,8 +63,9 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     sql = gr_make_simple_squelch_cc(-100.0, 0.001);
     meter = make_rx_meter_c(false);
     demod_ssb = gr_make_complex_to_real(1);
-    demod_fm = make_rx_demod_fm(48000.0, 48000.0, 5000.0, 50.0e-6);
-    demod_am = make_rx_demod_am(48000.0, 48000.0, true);
+    demod_fm = make_rx_demod_fm(d_bandwidth, d_bandwidth, 5000.0, 50.0e-6);
+    demod_am = make_rx_demod_am(d_bandwidth, d_bandwidth, true);
+    audio_rr = make_resampler_ff(d_bandwidth, d_audio_rate);
     audio_gain = gr_make_multiply_const_ff(0.1);
     audio_snk = audio_make_sink(d_audio_rate, audio_device, true);
     wav_sink = gr_make_wavfile_sink("/tmp/gqrx.wav", 1, 48000, 16);
@@ -76,8 +77,9 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     tb->connect(sql, 0, bb_gain, 0);
     tb->connect(bb_gain, 0, agc, 0);
     tb->connect(agc, 0, demod_fm, 0);
-    tb->connect(demod_fm, 0, wav_sink, 0);
-    tb->connect(demod_fm, 0, audio_gain, 0);
+    tb->connect(demod_fm, 0, audio_rr, 0);
+    tb->connect(audio_rr, 0, wav_sink, 0);
+    tb->connect(audio_rr, 0, audio_gain, 0);
     tb->connect(audio_gain, 0, audio_snk, 0);
 
     /* close wav file; this will disable writing */
@@ -361,20 +363,17 @@ receiver::status receiver::set_demod(demod rx_demod)
 
     case DEMOD_SSB:
         tb->disconnect(agc, 0, demod_ssb, 0);
-        tb->disconnect(demod_ssb, 0, audio_gain, 0);
-        tb->disconnect(demod_ssb, 0, wav_sink, 0);
+        tb->disconnect(demod_ssb, 0, audio_rr, 0);
         break;
 
     case DEMOD_AM:
         tb->disconnect(agc, 0, demod_am, 0);
-        tb->disconnect(demod_am, 0, audio_gain, 0);
-        tb->disconnect(demod_am, 0, wav_sink, 0);
+        tb->disconnect(demod_am, 0, audio_rr, 0);
         break;
 
     case DEMOD_FM:
         tb->disconnect(agc, 0, demod_fm, 0);
-        tb->disconnect(demod_fm, 0, audio_gain, 0);
-        tb->disconnect(demod_fm, 0, wav_sink, 0);
+        tb->disconnect(demod_fm, 0, audio_rr, 0);
         break;
 
 
@@ -386,29 +385,26 @@ receiver::status receiver::set_demod(demod rx_demod)
     case DEMOD_SSB:
         d_demod = rx_demod;
         tb->connect(agc, 0, demod_ssb, 0);
-        tb->connect(demod_ssb, 0, audio_gain, 0);
-        tb->connect(demod_ssb, 0, wav_sink, 0);
+        tb->connect(demod_ssb, 0, audio_rr, 0);
         break;
 
     case DEMOD_AM:
         d_demod = rx_demod;
         tb->connect(agc, 0, demod_am, 0);
-        tb->connect(demod_am, 0, audio_gain, 0);
-        tb->connect(demod_am, 0, wav_sink, 0);
+        tb->connect(demod_am, 0, audio_rr, 0);
         break;
 
     case DEMOD_FM:
         d_demod = DEMOD_FM;
         tb->connect(agc, 0, demod_fm, 0);
-        tb->connect(demod_fm, 0, audio_gain, 0);
-        tb->connect(demod_fm, 0, wav_sink, 0);
+        tb->connect(demod_fm, 0, audio_rr, 0);
         break;
 
     default:
         /* use FMN */
         d_demod = DEMOD_FM;
         tb->connect(agc, 0, demod_fm, 0);
-        tb->connect(demod_fm, 0, audio_gain, 0);
+        tb->connect(demod_fm, 0, audio_rr, 0);
         break;
     }
 

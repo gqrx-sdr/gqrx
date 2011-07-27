@@ -34,6 +34,7 @@
 #include <dsp/rx_demod_fm.h>
 #include <dsp/rx_demod_am.h>
 #include <dsp/rx_fft.h>
+#include <dsp/resampler_ff.h>
 
 
 /*! \defgroup DSP Digital signal processing library based on GNU Radio */
@@ -146,6 +147,7 @@ private:
     gr_complex_to_real_sptr   demod_ssb;  /*! SSB demodulator. */
     rx_demod_fm_sptr          demod_fm;   /*! FM demodulator. */
     rx_demod_am_sptr          demod_am;   /*! AM demodulator. */
+    resampler_ff_sptr         audio_rr;   /*! Audio resampler. */
     gr_multiply_const_ff_sptr audio_gain; /*! Audio gain block. */
     audio_sink::sptr          audio_snk;  /*! Audio sink. */
 
