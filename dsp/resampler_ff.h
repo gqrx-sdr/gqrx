@@ -60,8 +60,8 @@ private:
     unsigned int d_interp;
     unsigned int d_decim;
 
-    unsigned int gcd(unsigned int a, unsigned int b);
-    unsigned int lcm(unsigned int a, unsigned int b);
+    unsigned long long gcd(unsigned long long a, unsigned long long b);
+    unsigned long long lcm(unsigned long long a, unsigned long long b);
 
 };
 

@@ -21,6 +21,7 @@
 #include <gr_io_signature.h>
 #include <gr_firdes.h>
 #include <dsp/resampler_ff.h>
+#include <iostream>
 
 
 /*
@@ -48,6 +49,10 @@ resampler_ff::resampler_ff(unsigned int input_rate, unsigned int output_rate)
     /* calculate interpolation and decimation */
     d_interp = lcm(input_rate, output_rate) / input_rate;
     d_decim = lcm(input_rate, output_rate) / output_rate;
+
+    std::cout << "resampler_ff:" << std::endl;
+    std::cout << "   inter: " << d_interp << std::endl;
+    std::cout << "   decim: " << d_decim << std::endl;
 
     /* generate taps */
     float fract_bw = 0.4;
@@ -78,9 +83,9 @@ resampler_ff::~resampler_ff ()
 
 
 /*! \brief Greatest common divisor. */
-unsigned int resampler_ff::gcd(unsigned int a, unsigned int b)
+unsigned long long resampler_ff::gcd(unsigned long long a, unsigned long long b)
 {
-    unsigned int c = a % b;
+    unsigned long long c = a % b;
 
     while (c!= 0)
     {
@@ -93,7 +98,7 @@ unsigned int resampler_ff::gcd(unsigned int a, unsigned int b)
 }
 
 /*! \brief Least common multiple. */
-unsigned int resampler_ff::lcm(unsigned int a, unsigned int b)
+unsigned long long resampler_ff::lcm(unsigned long long a, unsigned long long b)
 {
-    return (a*b) / gcd(a,b);
+    return ((a*b) / gcd(a,b));
 }
