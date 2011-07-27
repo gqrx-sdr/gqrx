@@ -527,10 +527,10 @@ void MainWindow::on_actionAbout_triggered()
     QMessageBox::about(this, tr("About Gqrx"),
                        tr("<p>This is Gqrx %1</p>"
                           "<p>Gqrx is a software defined radio receiver for Funcube Dongle and "
-                          "Universal Software Radio Peripheral devices by Ettus Research via the UHD driver.</p>"
-                          "<p>Gqrx is powered by GNU Radio and the Qt toolkit (see About Qt) and is avaialble "
+                          "Universal Software Radio Peripheral devices via the UHD driver.</p>"
+                          "<p>Gqrx is powered by GNU Radio and the Qt toolkit (see About Qt) and will be available "
                           "for Linux, Mac and Windows. You can download the latest version from the "
-                          "<a href='http://www.oz9aec.net/'>TBD website</a>.</p>"
+                          "<a href='http://www.oz9aec.net/'><i>some future website</i></a>.</p>"
                           "<p>"
                           "<a href='http://www.gnuradio.org/'>GNU Radio website</a><br/>"
                           "<a href='http://www.ettus.com/'>Ettus Research (USRP)</a><br/>"
