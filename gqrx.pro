@@ -38,7 +38,8 @@ SOURCES +=\
     dsp/rx_demod_am.cc \
     qtgui/ioconfig.cc \
     qtgui/dockfcdctl.cpp \
-    qtgui/dockaudio.cpp
+    qtgui/dockaudio.cpp \
+    dsp/resampler_ff.cc
 
 
 HEADERS  += mainwindow.h \
@@ -54,7 +55,8 @@ HEADERS  += mainwindow.h \
     dsp/rx_demod_am.h \
     qtgui/ioconfig.h \
     qtgui/dockfcdctl.h \
-    qtgui/dockaudio.h
+    qtgui/dockaudio.h \
+    dsp/resampler_ff.h
 
 FORMS    += \
     qtgui/dockrxopt.ui \
