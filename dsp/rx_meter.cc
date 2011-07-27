@@ -28,8 +28,6 @@ rx_meter_c_sptr make_rx_meter_c (bool use_avg)
 }
 
 
-#define  ATTACK_TIMECONST .01	//attack time in seconds
-#define  DECAY_TIMECONST .5		//decay time in seconds
 
 rx_meter_c::rx_meter_c(bool use_avg)
     : gr_sync_block ("rx_meter_c",
@@ -47,28 +45,32 @@ rx_meter_c::~rx_meter_c()
 {
 }
 
+
+#define ALPHA 0.4
+
 int rx_meter_c::work (int noutput_items,
                       gr_vector_const_void_star &input_items,
                       gr_vector_void_star &output_items)
 {
     const gr_complex *in = (const gr_complex *) input_items[0];
-    float max = 0.0;
+    float sum;
     float pwr = 0.0;
     int   i;
 
+    sum = in[0].real()*in[0].real() + in[0].imag()*in[0].imag();
+
     /* find the maximum power in this set of samples */
-    for (i = 0; i < noutput_items; i++) {
+    for (i = 1; i < noutput_items; i++) {
         /* calculate power as amplitude squared */
         pwr = in[i].real()*in[i].real() + in[i].imag()*in[i].imag();
-        if (pwr > max)
-            max = pwr;
+        sum = ALPHA*pwr + (1.0-ALPHA)*sum;
     }
 
     if (d_use_avg && (d_level > 0.0)) {
-        d_level = (d_level + max) / 2.0;
+        d_level = (d_level + sum) / 2.0;
     }
     else {
-        d_level = max;
+        d_level = sum;
     }
 
     d_level_db = (float) 10. * log10(d_level / d_fs + 1.0e-20);
