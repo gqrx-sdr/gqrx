@@ -247,3 +247,14 @@ void DockFcdCtl::on_iqPhaseSpinBox_valueChanged(double value)
 {
     emit iqCorrChanged(ui->iqGainSpinBox->value(), value);
 }
+
+
+/*! \brief Reset I/Q corrections. */
+void DockFcdCtl::on_resetButton_clicked()
+{
+    // signals are emitted if new val differs from old val
+    ui->dciSpinBox->setValue(0.0);
+    ui->dcqSpinBox->setValue(0.0);
+    ui->iqGainSpinBox->setValue(1.0);
+    ui->iqPhaseSpinBox->setValue(0.0);
+}

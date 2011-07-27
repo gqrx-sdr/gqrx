@@ -66,6 +66,7 @@ private slots:
     void on_dcqSpinBox_valueChanged(double value);
     void on_iqGainSpinBox_valueChanged(double value);
     void on_iqPhaseSpinBox_valueChanged(double value);
+    void on_resetButton_clicked();
 
 private:
     Ui::DockFcdCtl *ui;
