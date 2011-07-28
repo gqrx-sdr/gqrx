@@ -9,7 +9,7 @@ Dependencies:
   - gr-fcd (https://github.com/csete/gr-fcd)
   - Qt 4.7 (available in all recent Linux)
 
-You can download gqrx aither as a source package or binary package from TBD website.
+You can download gqrx either as a source package or binary package from TBD website.
 
 The binary packages avaialble for 32 and 64 bit Linux include the necessary GNU Radio
 and FCD packages, but you still need to install their dependencies:
