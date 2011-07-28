@@ -50,65 +50,43 @@ rx_fft_c::rx_fft_c(int fftsize, int wintype, bool use_avg)
     /* create FFT object */
     d_fft = new gri_fft_complex (d_fftsize, true);
 
-    /* create FFT buffer */
-    d_rbuf_idx = 0;
-    d_rbuf = new gr_complex[d_fftsize];
+    /* allocate circular buffer */
+    d_cbuf.set_capacity(d_fftsize);
 
-    /* create window */
+    /* create FFT window */
     set_window_type(wintype);
 }
 
 rx_fft_c::~rx_fft_c()
 {
-    delete [] d_rbuf;
     delete d_fft;
 }
 
 
-/*! \brief Execute receiver FFT.
+/*! \brief Receiver FFT work method.
  *  \param mooutput_items
  *  \param input_items
  *  \param output_items
  *
- * Collect samples into the FFT buffer d_rbuf and execute FFT when we have
- * enough samples (d_fftsize). It may take several calls to work() before we have enough
- * samples depending on the sample rate.
+ * This method does nothing except throwing the incoming samples into the
+ * circular buffer.
+ * FFT is only executed when the GUI asks for new FFT data via get_fft_data().
  */
-int rx_fft_c::work (int noutput_items,
-                    gr_vector_const_void_star &input_items,
-                    gr_vector_void_star &output_items)
+int rx_fft_c::work(int noutput_items,
+                   gr_vector_const_void_star &input_items,
+                   gr_vector_void_star &output_items)
 {
     int i,j = 0;
     const gr_complex *in = (const gr_complex*)input_items[0];
 
-
-    for (i = 0; i < noutput_items; i += d_fftsize) {
-
-        unsigned int datasize = noutput_items - i;
-        unsigned int resid = d_fftsize - d_rbuf_idx;
-
-        if (datasize >= resid)
-        /* we have enough samples to do an FFT */
-        {
-            /* Fill up residual buffer with d_fftsize number of items */
-            memcpy(d_rbuf+d_rbuf_idx, &in[j], sizeof(gr_complex)*resid);
-            d_rbuf_idx = 0;
-
-            j += resid;
-            do_fft(d_rbuf, d_fftsize);
-
-        }
-        else
-        /* copy what we received into the residual buffer for next execution */
-        {
-            memcpy(d_rbuf+d_rbuf_idx, &in[j], sizeof(gr_complex)*datasize);
-            d_rbuf_idx += datasize;
-            j += datasize;
-        }
+    /* just throw new samples into the buffer */
+    boost::mutex::scoped_lock lock(d_mutex);
+    for (i = 0; i < noutput_items; i++) {
+        d_cbuf.push_back(in[i]);
     }
 
-    consume_each(j);
-    return j;
+    return noutput_items;
+
 }
 
 
@@ -121,11 +99,29 @@ void rx_fft_c::get_fft_data(std::complex<float>* fftPoints, int &fftSize)
 {
     boost::mutex::scoped_lock lock(d_mutex);
 
+    if (d_cbuf.size() < d_fftsize) {
+        // not enough samples in the buffer
+        fftSize = 0;
+
+        return;
+    }
+
+    /* perform FFT */
+    do_fft(d_cbuf.linearize(), d_cbuf.size());  // FIXME: array_one() and two() may be faster
+    d_cbuf.clear();
+
+    /* get FFT data */
     memcpy(fftPoints, d_fft->get_outbuf(), sizeof(gr_complex)*d_fftsize);
     fftSize = d_fftsize;
 }
 
-/*! \brief Compute FFT on the avaialble input data. */
+/*! \brief Compute FFT on the available input data.
+ *  \param data_in The data to compute FFt on.
+ *  \param size The size of data_in.
+ *
+ * Note that this function does not lock the mutex since the caller, get_fft_data()
+ * has alrady locked it.
+ */
 void rx_fft_c::do_fft(const gr_complex *data_in, int size)
 {
     /* apply window, if any */
@@ -140,7 +136,6 @@ void rx_fft_c::do_fft(const gr_complex *data_in, int size)
     }
 
     /* compute FFT */
-    boost::mutex::scoped_lock lock(d_mutex);
     d_fft->execute();
 }
 
@@ -150,13 +145,13 @@ void rx_fft_c::do_fft(const gr_complex *data_in, int size)
 void rx_fft_c::set_fft_size(int fftsize)
 {
     if (fftsize != d_fftsize) {
+        boost::mutex::scoped_lock lock(d_mutex);
 
         d_fftsize = fftsize;
-        d_rbuf_idx = 0;
 
-        /* clear & resize residual buffer */
-        delete [] d_rbuf;
-        d_rbuf = new gr_complex[d_fftsize];
+        /* clear and resize circular buffer */
+        d_cbuf.clear();
+        d_cbuf.set_capacity(d_fftsize);
 
         /* reset window */
         d_wintype = -1;

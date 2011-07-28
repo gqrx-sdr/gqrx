@@ -25,6 +25,7 @@
 #include <gr_firdes.h>       /* contains enum win_type */
 #include <gr_complex.h>
 #include <boost/thread/mutex.hpp>
+#include <boost/circular_buffer.hpp>
 
 
 #define MAX_FFT_SIZE 20480
@@ -51,6 +52,11 @@ rx_fft_c_sptr make_rx_fft_c(int fftsize, int wintype, bool use_avg);
  *  \ingroup DSP
  *
  * This block is used to compute the FFT of the received spectrum.
+ *
+ * The samples are collected in a cicular buffer with size FFT_SIZE.
+ * When the GUI asks for a new set of FFT data vide get_fft_data() and FFT
+ * will be performed on the data stored in the circular buffer - assuming
+ * of course that the buffer is full.
  */
 class rx_fft_c : public gr_sync_block
 {
@@ -84,9 +90,7 @@ private:
     gri_fft_complex    *d_fft;    /*! FFT object. */
     std::vector<float>  d_window; /*! FFT window taps. */
 
-    /* buffer to collect samples for FFT */
-    int         d_rbuf_idx;
-    gr_complex *d_rbuf;
+    boost::circular_buffer<gr_complex> d_cbuf; /*! buffer to accumulate samples. */
 
     void do_fft(const gr_complex *data_in, int size);
 
