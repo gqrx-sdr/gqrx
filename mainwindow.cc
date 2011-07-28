@@ -415,6 +415,11 @@ void MainWindow::fftTimeout()
 
     rx->get_fft_data(d_fftData, fftsize);
 
+    if (fftsize == 0) {
+        /* nothing to do, wait until next activation. */
+        return;
+    }
+
     scaleFactor = std::complex<float>((float)fftsize);
 
 
