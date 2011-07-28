@@ -9,6 +9,23 @@ Dependencies:
   - gr-fcd (https://github.com/csete/gr-fcd)
   - Qt 4.7 (available in all recent Linux)
 
+You can download gqrx aither as a source package or binary package from TBD website.
+
+The binary packages avaialble for 32 and 64 bit Linux include the necessary GNU Radio
+and FCD packages, but you still need to install their dependencies:
+  - libfftw3
+  - libgsl 1.14
+  - Boost 1.42 or later (thread, datetime, system, filesystem)
+  - libusb-1.0
+  - libasound2
+
+Something might be missing from the above list. A complete list of dependencies is
+available at http://gnuradio.org/redmine/projects/gnuradio/wiki/BuildGuide
+see the section called "Operating System Specific Instructions".
+
+If you choose to build gqrx from source you will have to build and install GNU Radio
+and gr-fcd yourself.
+
 The build system is based on qmake and to build gqrx simply load the gqrx.pro file
 into Qt Creator and click build (the hammer icon).
 
@@ -17,7 +34,21 @@ If the GNU Radio libraries have been installed into a non-standard location, e.g
 Assuming that your PKG_CONFIG_PATH is set up correctly, you can work around this
 by launching Qt Creator from the terminal.
 
-First time you start gqrx it will ask you to specify th einput and output device.
+
+Whether you build gqrx from source or use the binary packages, you have to configure
+the FCD to be usable by non-root users. If you can already run qthid as regular user
+it is fine. If not, you need to create a udev rule. Create a udev file
+/etc/udev/rules.d/20-fcd.rules containing:
+
+ SUBSYSTEMS=="usb" ATTRS{idVendor}=="04d8" ATTRS{idProduct}=="fb56" MODE:="0666" SYMLINK+="FCD"
+
+(hint: open a terminal and type: sudo gedit /etc/udev/rules.d/20-fcd.rules)
+
+Reload the rules using "sudo udevadm control --reload-rules". You can the verify the setup
+using qthid http://www.oz9aec.net/index.php/funcube-dongle/qthid-fcd-controller
+
+
+First time you start gqrx it will ask you to specify the input and output device.
 For the input device you can check /proc/asound/cards to see what number the
 Funcube Dongle has. For example:
 
