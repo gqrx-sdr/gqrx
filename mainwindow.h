@@ -21,6 +21,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTimer>
 
 #include "qtgui/dockrxopt.h"
 #include "qtgui/dockaudio.h"
