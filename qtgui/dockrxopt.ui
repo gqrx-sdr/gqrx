@@ -52,9 +52,9 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout_3">
+         <layout class="QVBoxLayout" name="pageDemodVLayout1">
           <item>
-           <layout class="QFormLayout" name="formLayout_2">
+           <layout class="QFormLayout" name="pageDemodFormLayout1">
             <property name="fieldGrowthPolicy">
              <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
             </property>
@@ -147,7 +147,7 @@
                 <height>58</height>
                </rect>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout_2">
+              <layout class="QVBoxLayout" name="pageDemodVlayout2">
                <item>
                 <widget class="QCheckBox" name="dcr">
                  <property name="toolTip">
@@ -200,7 +200,7 @@
                 <height>68</height>
                </rect>
               </property>
-              <layout class="QFormLayout" name="formLayout">
+              <layout class="QFormLayout" name="pagedemodFormLayout2">
                <property name="fieldGrowthPolicy">
                 <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
                </property>
@@ -303,8 +303,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>182</width>
-         <height>264</height>
+         <width>197</width>
+         <height>164</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -313,7 +313,7 @@
        <attribute name="label">
         <string>Filters</string>
        </attribute>
-       <widget class="Line" name="line_3">
+       <widget class="Line" name="pageFilterHline1">
         <property name="geometry">
          <rect>
           <x>0</x>
@@ -331,11 +331,11 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>191</width>
+          <width>192</width>
           <height>29</height>
          </rect>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <layout class="QHBoxLayout" name="pageFilterHLayout1">
          <item>
           <widget class="QLabel" name="label_2">
            <property name="sizePolicy">
@@ -423,7 +423,7 @@
        <attribute name="label">
         <string>Level Controls</string>
        </attribute>
-       <widget class="Line" name="line_2">
+       <widget class="Line" name="pageAgcHline1">
         <property name="geometry">
          <rect>
           <x>0</x>
@@ -445,7 +445,7 @@
           <height>44</height>
          </rect>
         </property>
-        <layout class="QGridLayout" name="gridLayout_2">
+        <layout class="QGridLayout" name="pageAgcGridLayout">
          <item row="0" column="0">
           <widget class="QLabel" name="sqlLabel">
            <property name="text">
@@ -505,7 +505,7 @@
           <height>21</height>
          </rect>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout">
+        <layout class="QHBoxLayout" name="pageAgcHLayout">
          <item>
           <widget class="QLabel" name="label">
            <property name="text">
