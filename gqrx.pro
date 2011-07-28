@@ -23,6 +23,9 @@ CONFIG(debug, debug|release) {
 VERSTR = '\\"$${VER}\\"'          # place quotes around the version string
 DEFINES += VERSION=\"$${VERSTR}\" # create a VERSION macro containing the version string
 
+# QMAKE_RPATH & co won't work with origin
+QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/lib\''
+
 SOURCES +=\
     receiver.cc \
     main.cc \
