@@ -725,8 +725,7 @@ void CPlotter::DrawOverlay()
     {
         dB -= m_dBStepSize;  /* move to end if want to include maxdb */
         y = (int)((float)i*pixperdiv);
-        //painter.drawStaticText(5, y-metrics.height()/2, QString::number(dB)/*+" dB"*/);
-        rect.setRect(0, y-metrics.height()/2, (int)pixperdiv, metrics.height());
+        rect.setRect(0, y-metrics.height()/2, metrics.width("-120 "), metrics.height());
         painter.drawText(rect, Qt::AlignRight|Qt::AlignVCenter, QString::number(dB));
     }
 
