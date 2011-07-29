@@ -165,13 +165,12 @@ void DockRxOpt::on_sidebandSelector_activated(int index)
 /*! \brief Baseband gain changed.
  *  \param value The new audio gain value in dB.
  */
-void DockRxOpt::on_bbGainSlider_valueChanged(int value)
+void DockRxOpt::on_bbGainDial_valueChanged(int value)
 {
     float gain = float(value);
 
     emit bbGainChanged(gain);
 }
-
 
 
 /*! \brief Squelch level change.
@@ -181,6 +180,6 @@ void DockRxOpt::on_sqlSlider_valueChanged(int value)
 {
     double level = double(value) / 10.0;
 
-    ui->sqlValueLabel->setText(QString("%1 dB").arg(level));
+    //ui->sqlValueLabel->setText(QString("%1 dB").arg(level));
     emit sqlLevelChanged(level);
 }

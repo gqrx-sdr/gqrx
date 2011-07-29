@@ -84,7 +84,7 @@ private slots:
     void on_emphSelector_activated(int index);
     void on_dcr_toggled(bool checked);
     void on_sidebandSelector_activated(int index);
-    void on_bbGainSlider_valueChanged(int value);
+    void on_bbGainDial_valueChanged(int value);
     void on_sqlSlider_valueChanged(int value);
 
 private:
