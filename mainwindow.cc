@@ -284,43 +284,24 @@ void MainWindow::selectDemod(int index)
         }
         else {
             /* LSB */
-            ui->plotter->SetDemodRanges(-10000, -500, -400, 0, false);
+            ui->plotter->SetDemodRanges(-10000, -600, -500, 0, false);
             ui->plotter->SetHiLowCutFrequencies(-3000, -200);
             rx->set_filter(-3000.0, -200.0, receiver::FILTER_SHAPE_NORMAL);
         }
         break;
 
     case receiver::DEMOD_AM:
-        ui->plotter->SetDemodRanges(-15000, -2000, 2000, 15000, true);
+        ui->plotter->SetDemodRanges(-15000, -1000, 1000, 15000, true);
         ui->plotter->SetHiLowCutFrequencies(-5000, 5000);
         rx->set_filter(-5000.0, 5000.0, receiver::FILTER_SHAPE_NORMAL);
         break;
 
     case receiver::DEMOD_FM:
-        /** FIXME: add full support for maxdev and de-emphasis */
-        ui->plotter->SetDemodRanges(-15000, -2000, 2000, 15000, true);
+        ui->plotter->SetDemodRanges(-25000, -1000, 1000, 25000, true);
         ui->plotter->SetHiLowCutFrequencies(-5000, 5000);
         rx->set_filter(-5000.0, 5000.0, receiver::FILTER_SHAPE_NORMAL);
         break;
 
-/** APT:
-        ui->plotter->SetDemodRanges(-25000, -5000, 5000, 25000, true);
-        ui->plotter->SetHiLowCutFrequencies(-10000, 10000);
-        rx->set_filter(-10000.0, 10000.0, receiver::FILTER_SHAPE_NORMAL);
-*/
-
-/** FMW:
-        ui->plotter->SetDemodRanges(-45000, -10000, 10000, 45000, true);
-        ui->plotter->SetHiLowCutFrequencies(-40000, 40000);
-        rx->set_filter(-40000.0, 40000.0, receiver::FILTER_SHAPE_NORMAL);
-*/
-
-/*    case receiver::DEMOD_B1K:
-        ui->plotter->SetDemodRanges(-5000, -500, 500, 5000, true);
-        ui->plotter->SetHiLowCutFrequencies(-2000, 2000);
-        rx->set_filter(-2000.0, 2000.0, receiver::FILTER_SHAPE_NORMAL);
-        break;
-*/
     default:
         qDebug() << "Invalid mode selection: " << mode;
         break;
