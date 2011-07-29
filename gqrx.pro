@@ -42,7 +42,9 @@ SOURCES +=\
     qtgui/ioconfig.cc \
     qtgui/dockfcdctl.cpp \
     qtgui/dockaudio.cpp \
-    dsp/resampler_ff.cc
+    dsp/resampler_ff.cc \
+    qtgui/dockiqrecorder.cpp \
+    qtgui/dockfft.cpp
 
 
 HEADERS  += mainwindow.h \
@@ -59,14 +61,18 @@ HEADERS  += mainwindow.h \
     qtgui/ioconfig.h \
     qtgui/dockfcdctl.h \
     qtgui/dockaudio.h \
-    dsp/resampler_ff.h
+    dsp/resampler_ff.h \
+    qtgui/dockiqrecorder.h \
+    qtgui/dockfft.h
 
 FORMS    += \
     qtgui/dockrxopt.ui \
     mainwindow.ui \
     qtgui/ioconfig.ui \
     qtgui/dockfcdctl.ui \
-    qtgui/dockaudio.ui
+    qtgui/dockaudio.ui \
+    qtgui/dockiqrecorder.ui \
+    qtgui/dockfft.ui
 
 
 # dependencies via pkg-config
