@@ -26,6 +26,8 @@
 #include "qtgui/dockrxopt.h"
 #include "qtgui/dockaudio.h"
 #include "qtgui/dockfcdctl.h"
+#include "qtgui/dockiqrecorder.h"
+#include "qtgui/dockfft.h"
 
 #include <receiver.h>
 
@@ -55,6 +57,8 @@ private:
     DockRxOpt      *uiDockRxOpt;
     DockAudio      *uiDockAudio;
     DockFcdCtl     *uiDockFcdCtl;
+    DockIqRecorder *uiDockIqRec;
+    DockFft        *uiDockFft;
 
     QTimer   *meter_timer;
     QTimer   *fft_timer;
@@ -77,11 +81,17 @@ private slots:
     void startAudioRec(const QString filename);
     void stopAudioRec();
 
-    void on_actionDSP_triggered(bool checked);
+    /* FFT settings */
+    void setFftSize(int size);
+    void setFftYmin(int value);
+    void setFftYmax(int value);
+    void setFftSplit(int pct_wf);
+
     void on_plotter_NewDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
     void on_plotter_NewFilterFreq(int low, int high);    /*! New filter width */
 
     /* menu and toolbar actions */
+    void on_actionDSP_triggered(bool checked);
     void on_actionIODevices_triggered();
     void on_actionAbout_triggered();
     void on_actionAboutQt_triggered();

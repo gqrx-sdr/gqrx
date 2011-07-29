@@ -67,21 +67,39 @@ MainWindow::MainWindow(QWidget *parent) :
     /* create dock widgets */
     uiDockRxOpt = new DockRxOpt();
     uiDockAudio = new DockAudio();
-    uiDockFcdCtl = new DockFcdCtl(this);
+    uiDockFcdCtl = new DockFcdCtl();
+    uiDockIqRec = new DockIqRecorder();
+    uiDockFft = new DockFft();
 
-    //addDockWidget(Qt::RightDockWidgetArea, uiDockInput);
+    /* Add dock widgets to main window. This should be done even for
+       dock widgets that are going to be hidden, otherwise they will
+       end up floating in their own top-level window and can not be
+       docked to the mainwindow.
+    */
     addDockWidget(Qt::RightDockWidgetArea, uiDockFcdCtl);
     addDockWidget(Qt::RightDockWidgetArea, uiDockRxOpt);
     tabifyDockWidget(uiDockFcdCtl, uiDockRxOpt);
+
     addDockWidget(Qt::RightDockWidgetArea, uiDockAudio);
+    addDockWidget(Qt::RightDockWidgetArea, uiDockFft);
+    tabifyDockWidget(uiDockAudio, uiDockFft);
+
+    addDockWidget(Qt::BottomDockWidgetArea, uiDockIqRec);
+
+    /* hide docks that we don't want to show initially */
+    uiDockFcdCtl->hide();
+    uiDockFft->hide();
+    uiDockIqRec->hide();
 
 
     /* Add dock widget actions to View menu. By doing it this way all signal/slot
        connections will be established automagially.
     */
+    ui->menu_View->addAction(uiDockFcdCtl->toggleViewAction());
     ui->menu_View->addAction(uiDockRxOpt->toggleViewAction());
     ui->menu_View->addAction(uiDockAudio->toggleViewAction());
-    ui->menu_View->addAction(uiDockFcdCtl->toggleViewAction());
+    ui->menu_View->addAction(uiDockFft->toggleViewAction());
+    ui->menu_View->addAction(uiDockIqRec->toggleViewAction());
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
 
@@ -99,6 +117,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
     connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), this, SLOT(startAudioRec(QString)));
     connect(uiDockAudio, SIGNAL(audioRecStopped()), this, SLOT(stopAudioRec()));
+    connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setFftSize(int)));
+    connect(uiDockFft, SIGNAL(fftYminChanged(int)), this, SLOT(setFftYmin(int)));
+    connect(uiDockFft, SIGNAL(fftYmaxChanged(int)), this, SLOT(setFftYmax(int)));
+    connect(uiDockFft, SIGNAL(fftSplitChanged(int)), this, SLOT(setFftSplit(int)));
 }
 
 MainWindow::~MainWindow()
@@ -113,6 +135,10 @@ MainWindow::~MainWindow()
     /* clean up the rest */
     delete ui;
     delete uiDockRxOpt;
+    delete uiDockAudio;
+    delete uiDockFft;
+    delete uiDockIqRec;
+    delete uiDockFcdCtl;
     delete rx;
     delete [] d_fftData;
     delete [] d_realFftData;
@@ -520,6 +546,36 @@ void MainWindow::stopAudioRec()
 }
 
 
+/*! \brief FFT size has changed. */
+void MainWindow::setFftSize(int size)
+{
+    qDebug() << "Changing FFT size TBD...";
+}
+
+
+/*! \brief Lower limit of FFT plot Y-axis changed. */
+void MainWindow::setFftYmin(int value)
+{
+    qDebug() << "Changing FFT Y min TBD...";
+}
+
+
+/*! \brief Upper limit of FFT plot Y-axis changed. */
+void MainWindow::setFftYmax(int value)
+{
+    qDebug() << "Changing FFT Y max TBD...";
+}
+
+
+/*! \brief Vertical split between waterfall and pandapter changed.
+ *  \param pct_pand The percentage of the waterfall.
+ */
+void MainWindow::setFftSplit(int pct_wf)
+{
+    if ((pct_wf >= 20) && (pct_wf <= 80)) {
+        ui->plotter->SetPercent2DScreen(pct_wf);
+    }
+}
 
 
 /*! \brief Action: About Qthid
