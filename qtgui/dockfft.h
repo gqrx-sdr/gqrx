@@ -36,14 +36,18 @@ public:
     explicit DockFft(QWidget *parent = 0);
     ~DockFft();
 
+    int fftRate();
+
 signals:
     void fftSizeChanged(int size);  /*! \brief FFT size changed. */
+    void fftRateChanged(int fps);   /*! \brief FFT rate changed. */
     void fftYminChanged(int value); /*! \brief Lower limit of FFT plot Y-axis changed. */
     void fftYmaxChanged(int value); /*! \brief Upper limit of FFT plot Y-axis changed. */
     void fftSplitChanged(int pct);  /*! \brief Split between pandapter and waterfall changed. */
 
 private slots:
     void on_fftSizeComboBox_currentIndexChanged(const QString & text);
+    void on_fftRateComboBox_currentIndexChanged(const QString & text);
     void on_fftMinComboBox_currentIndexChanged(const QString & text);
     void on_fftMaxComboBox_currentIndexChanged(const QString & text);
     void on_fftSplitSlider_valueChanged(int value);

@@ -83,6 +83,7 @@ private slots:
 
     /* FFT settings */
     void setFftSize(int size);
+    void setFftRate(int fps);
     void setFftYmin(int value);
     void setFftYmax(int value);
     void setFftSplit(int pct_wf);

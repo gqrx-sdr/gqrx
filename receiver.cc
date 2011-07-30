@@ -55,7 +55,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     fcd_src = fcd_make_source_c(input_device);
     fcd_src->set_freq(d_rf_freq);
 
-    fft = make_rx_fft_c(3840, 0, false);  // FIXME: good for FCD with 96000 ksps
+    fft = make_rx_fft_c(2048, 0, false);  // FIXME: good for FCD with 96000 ksps
 
     filter = make_rx_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
     bb_gain = gr_make_multiply_const_cc(1.0);

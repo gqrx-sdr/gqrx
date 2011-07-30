@@ -104,7 +104,7 @@
         </item>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="QLabel" name="fftMaxLabel">
         <property name="text">
          <string>Y max:</string>
@@ -114,7 +114,7 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="2" column="1">
        <widget class="QComboBox" name="fftMaxComboBox">
         <property name="enabled">
          <bool>false</bool>
@@ -147,7 +147,7 @@
         </item>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item row="3" column="0">
        <widget class="QLabel" name="fftMinLabel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -163,7 +163,7 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="3" column="1">
        <widget class="QComboBox" name="fftMinComboBox">
         <property name="enabled">
          <bool>false</bool>
@@ -192,6 +192,60 @@
         <item>
          <property name="text">
           <string>-120</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="fftRateLabel">
+        <property name="text">
+         <string>Rate:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="fftRateComboBox">
+        <property name="currentIndex">
+         <number>4</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>30 fps</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>25 fps</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>20 fps</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>17 fps</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>15 fps</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>10 fps</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>5 fps</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>1 fps</string>
          </property>
         </item>
        </widget>

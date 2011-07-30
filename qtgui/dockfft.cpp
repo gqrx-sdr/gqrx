@@ -34,11 +34,45 @@ DockFft::~DockFft()
 }
 
 
+/*! \brief Get current FFT rate setting.
+ *  \return The current FFT rate in frames per second (always non-zero)
+ */
+int DockFft::fftRate()
+{
+    bool ok;
+    int fps = 10;
+    QString strval = ui->fftRateComboBox->currentText();
+
+    strval.remove(" fps");
+    fps = strval.toInt(&ok, 10);
+
+    if (!ok) {
+        qDebug() << "DockFft::fftRate : Could not convert" <<
+                    strval << "to number.";
+    }
+
+    if (fps == 0) {
+        qDebug() << "Ups... somehow we ended up with FFT rate = 0 (using 10)";
+        fps = 10;
+    }
+
+    return fps;
+}
+
 /*! \brief FFT size changed. */
 void DockFft::on_fftSizeComboBox_currentIndexChanged(const QString &text)
 {
     int value = text.toInt();
     emit fftSizeChanged(value);
+}
+
+/*! \brief FFT rate changed. */
+void DockFft::on_fftRateComboBox_currentIndexChanged(const QString & text)
+{
+    int fps = fftRate();
+    Q_UNUSED(text);
+
+    emit fftRateChanged(fps);
 }
 
 /*! \brief Lower limit of Y-axis changed. */

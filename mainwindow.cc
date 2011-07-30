@@ -118,6 +118,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), this, SLOT(startAudioRec(QString)));
     connect(uiDockAudio, SIGNAL(audioRecStopped()), this, SLOT(stopAudioRec()));
     connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setFftSize(int)));
+    connect(uiDockFft, SIGNAL(fftRateChanged(int)), this, SLOT(setFftRate(int)));
     connect(uiDockFft, SIGNAL(fftYminChanged(int)), this, SLOT(setFftYmin(int)));
     connect(uiDockFft, SIGNAL(fftYmaxChanged(int)), this, SLOT(setFftYmax(int)));
     connect(uiDockFft, SIGNAL(fftSplitChanged(int)), this, SLOT(setFftSplit(int)));
@@ -180,7 +181,7 @@ void MainWindow::on_actionDSP_triggered(bool checked)
 
         /* start GUI timers */
         meter_timer->start(100);
-        fft_timer->start(83);
+        fft_timer->start(1000/uiDockFft->fftRate());
 
         /* update menu text and button tooltip */
         ui->actionDSP->setToolTip(tr("Stop DSP processing"));
@@ -532,6 +533,19 @@ void MainWindow::setFftSize(int size)
 {
     qDebug() << "Changing FFT size TBD...";
 }
+
+/*! \brief FFT rate has changed. */
+void MainWindow::setFftRate(int fps)
+{
+    int interval = 1000 / fps;
+
+    if (interval < 10)
+        return;
+
+    if (fft_timer->isActive())
+        fft_timer->setInterval(interval);
+}
+
 
 
 /*! \brief Lower limit of FFT plot Y-axis changed. */
