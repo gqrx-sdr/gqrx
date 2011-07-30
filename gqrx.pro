@@ -83,7 +83,8 @@ linux-g++ {
 }
 
 OTHER_FILES += \
-    README
+    README \
+    COPYING
 
 RESOURCES += \
     icons.qrc

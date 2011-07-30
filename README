@@ -64,3 +64,12 @@ means that you can use hw:2 as input device.
 Technically, gqrx can use any soundcard as input device but the sample rate is fixed
 at 96 kHz (bug).
 
+
+Credits and License
+
+Gqrx is designed and written by Alexandru Csete OZ9AEC, and it is licensed under the GNU General
+Public License.
+
+Some of the source files were adopted from Cutesdr by Moe Weatley. These files come with a BSD license.
+
+The icons are from the GNOME and Tango icon themes.
