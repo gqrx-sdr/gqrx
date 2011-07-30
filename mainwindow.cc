@@ -180,7 +180,7 @@ void MainWindow::on_actionDSP_triggered(bool checked)
 
         /* start GUI timers */
         meter_timer->start(100);
-        fft_timer->start(100);
+        fft_timer->start(83);
 
         /* update menu text and button tooltip */
         ui->actionDSP->setToolTip(tr("Stop DSP processing"));
