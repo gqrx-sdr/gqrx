@@ -206,7 +206,7 @@
       <item row="1" column="1">
        <widget class="QComboBox" name="fftRateComboBox">
         <property name="currentIndex">
-         <number>4</number>
+         <number>5</number>
         </property>
         <item>
          <property name="text">
