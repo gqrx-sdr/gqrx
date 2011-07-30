@@ -84,12 +84,12 @@ MainWindow::MainWindow(QWidget *parent) :
     addDockWidget(Qt::RightDockWidgetArea, uiDockFft);
     tabifyDockWidget(uiDockAudio, uiDockFft);
 
-    addDockWidget(Qt::BottomDockWidgetArea, uiDockIqRec);
+    //addDockWidget(Qt::BottomDockWidgetArea, uiDockIqRec);
 
     /* hide docks that we don't want to show initially */
     uiDockFcdCtl->hide();
     uiDockFft->hide();
-    uiDockIqRec->hide();
+    //uiDockIqRec->hide();
 
 
     /* Add dock widget actions to View menu. By doing it this way all signal/slot
@@ -99,7 +99,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->menu_View->addAction(uiDockRxOpt->toggleViewAction());
     ui->menu_View->addAction(uiDockAudio->toggleViewAction());
     ui->menu_View->addAction(uiDockFft->toggleViewAction());
-    ui->menu_View->addAction(uiDockIqRec->toggleViewAction());
+    //ui->menu_View->addAction(uiDockIqRec->toggleViewAction());
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
 
