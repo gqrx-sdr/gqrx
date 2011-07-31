@@ -44,7 +44,8 @@ SOURCES +=\
     qtgui/dockaudio.cpp \
     dsp/resampler_ff.cc \
     qtgui/dockiqrecorder.cpp \
-    qtgui/dockfft.cpp
+    qtgui/dockfft.cpp \
+    dsp/sniffer_f.cc
 
 
 HEADERS  += mainwindow.h \
@@ -63,7 +64,8 @@ HEADERS  += mainwindow.h \
     qtgui/dockaudio.h \
     dsp/resampler_ff.h \
     qtgui/dockiqrecorder.h \
-    qtgui/dockfft.h
+    qtgui/dockfft.h \
+    dsp/sniffer_f.h
 
 FORMS    += \
     qtgui/dockrxopt.ui \
