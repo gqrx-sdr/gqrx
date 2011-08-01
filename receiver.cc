@@ -48,14 +48,15 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     : d_bandwidth(96000.0), d_audio_rate(48000),
       d_rf_freq(144800000.0), d_filter_offset(0.0),
       d_demod(DEMOD_FM),
-      d_recording_wav(false)
+      d_recording_wav(false),
+      d_sniffer_active(false)
 {
     tb = gr_make_top_block("gqrx");
 
     fcd_src = fcd_make_source_c(input_device);
     fcd_src->set_freq(d_rf_freq);
 
-    fft = make_rx_fft_c(2048, 0, false);  // FIXME: good for FCD with 96000 ksps
+    fft = make_rx_fft_c(2048, 0, false);
 
     filter = make_rx_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
     bb_gain = gr_make_multiply_const_cc(1.0);
@@ -69,6 +70,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     audio_gain = gr_make_multiply_const_ff(0.1);
     audio_snk = audio_make_sink(d_audio_rate, audio_device, true);
     wav_sink = gr_make_wavfile_sink("/tmp/gqrx.wav", 1, 48000, 16);
+    sniffer = make_sniffer_f();
 
     tb->connect(fcd_src, 0, fft, 0);
     tb->connect(fcd_src, 0, filter, 0);
@@ -91,7 +93,6 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
 receiver::~receiver()
 {
     tb->stop();
-
 
     /* FIXME: delete blocks? */
 }
@@ -503,3 +504,47 @@ receiver::status receiver::stop_recording()
     return STATUS_OK;
 }
 
+
+
+/*! \brief Start data sniffer.
+ *  \param buffsize The buffer that should be used in the sniffer.
+ *  \return STATUS_OK if the sniffer was started, STATUS_ERROR if the sniffer is already in use.
+ */
+receiver::status receiver::start_sniffer(int buffsize)
+{
+    if (d_sniffer_active) {
+        /* sniffer already in use */
+        return STATUS_ERROR;
+    }
+
+    sniffer->set_buffer_size(buffsize);
+    tb->lock();
+    tb->connect(audio_rr, 0, sniffer, 0);
+    tb->unlock();
+    d_sniffer_active = true;
+
+    return STATUS_OK;
+}
+
+/*! \brief Stop data sniffer.
+ *  \return STATUS_ERROR i the sniffer is not currently active.
+ */
+receiver::status receiver::stop_sniffer()
+{
+    if (!d_sniffer_active) {
+        return STATUS_ERROR;
+    }
+
+    tb->lock();
+    tb->disconnect(audio_rr, 0, sniffer, 0);
+    tb->unlock();
+    d_sniffer_active = false;
+
+    return STATUS_OK;
+}
+
+/*! \brief Get sniffer data. */
+void receiver::get_sniffer_data(float * outbuff, int &num)
+{
+    sniffer->get_samples(outbuff, num);
+}

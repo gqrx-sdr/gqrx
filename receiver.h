@@ -35,6 +35,7 @@
 #include <dsp/rx_demod_am.h>
 #include <dsp/rx_fft.h>
 #include <dsp/resampler_ff.h>
+#include <dsp/sniffer_f.h>
 
 
 /*! \defgroup DSP Digital signal processing library based on GNU Radio */
@@ -127,12 +128,18 @@ public:
     status start_recording(const std::string filename);
     status stop_recording();
 
+    /* sample sniffer */
+    status start_sniffer(int buffsize);
+    status stop_sniffer();
+    void   get_sniffer_data(float * outbuff, int &num);
+
 private:
     float  d_bandwidth;        /*! Receiver bandwidth. */
     int    d_audio_rate;       /*! Audio output rate. */
     float  d_rf_freq;          /*! Current RF frequency. */
     double d_filter_offset;    /*! Current filter offset (tune within passband). */
     bool   d_recording_wav;    /*! Whether we are recording WAV file. */
+    bool   d_sniffer_active;   /*! Only one data decoder allowed. */
 
     demod  d_demod;          /*! Current demodulator. */
 
@@ -152,6 +159,7 @@ private:
     audio_sink::sptr          audio_snk;  /*! Audio sink. */
 
     gr_wavfile_sink_sptr      wav_sink;   /*! WAV file sink for recording. */
+    sniffer_f_sptr            sniffer;    /*! Sample sniffer for data decoders. */
 
 protected:
 
