@@ -28,6 +28,7 @@
 #include "qtgui/dockfcdctl.h"
 #include "qtgui/dockiqrecorder.h"
 #include "qtgui/dockfft.h"
+#include "qtgui/afsk1200win.h"
 
 #include <receiver.h>
 
@@ -54,11 +55,16 @@ private:
     double *d_realFftData;
 
     Ui::MainWindow *ui;
+
+    /* dock widgets */
     DockRxOpt      *uiDockRxOpt;
     DockAudio      *uiDockAudio;
     DockFcdCtl     *uiDockFcdCtl;
     DockIqRecorder *uiDockIqRec;
     DockFft        *uiDockFft;
+
+    /* data decoders */
+    Afsk1200Win    *dec_afsk1200;
 
     QTimer   *meter_timer;
     QTimer   *fft_timer;
@@ -94,6 +100,7 @@ private slots:
     /* menu and toolbar actions */
     void on_actionDSP_triggered(bool checked);
     void on_actionIODevices_triggered();
+    void on_actionAFSK1200_triggered();
     void on_actionAbout_triggered();
     void on_actionAboutQt_triggered();
 

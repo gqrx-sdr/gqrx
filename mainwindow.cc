@@ -512,6 +512,12 @@ void MainWindow::on_actionIODevices_triggered()
 }
 
 
+void MainWindow::on_actionAFSK1200_triggered()
+{
+    qDebug() << "Start AFSK1200 decoder";
+}
+
+
 /*! \brief Start audio recorder.
  *  \param filename The file name into which audio should be recorded.
  */

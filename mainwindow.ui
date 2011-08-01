@@ -154,7 +154,14 @@
     <addaction name="actionAbout"/>
     <addaction name="actionAboutQt"/>
    </widget>
+   <widget class="QMenu" name="menu_Data">
+    <property name="title">
+     <string>&amp;Data</string>
+    </property>
+    <addaction name="actionAFSK1200"/>
+   </widget>
    <addaction name="menu_File"/>
+   <addaction name="menu_Data"/>
    <addaction name="menu_View"/>
    <addaction name="menu_Help"/>
   </widget>
@@ -222,6 +229,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionAFSK1200">
+   <property name="text">
+    <string>AFSK1200 Decoder</string>
+   </property>
+   <property name="toolTip">
+    <string>Start AFSK1200 decoder</string>
    </property>
   </action>
  </widget>
