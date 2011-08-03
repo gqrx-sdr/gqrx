@@ -13,5 +13,6 @@
         <file>icons/fullscreen.svg</file>
         <file>icons/refresh.svg</file>
         <file>icons/settings.svg</file>
+        <file>icons/clock.svg</file>
     </qresource>
 </RCC>

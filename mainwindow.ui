@@ -156,12 +156,19 @@
    </widget>
    <widget class="QMenu" name="menu_Data">
     <property name="title">
-     <string>&amp;Data</string>
+     <string>&amp;Edit</string>
     </property>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="actionSched"/>
     <addaction name="actionAFSK1200"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Data"/>
+   <addaction name="menuTools"/>
    <addaction name="menu_View"/>
    <addaction name="menu_Help"/>
   </widget>
@@ -237,6 +244,18 @@
    </property>
    <property name="toolTip">
     <string>Start AFSK1200 decoder</string>
+   </property>
+  </action>
+  <action name="actionSched">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/icons/clock.svg</normaloff>:/icons/icons/clock.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Scheduler</string>
+   </property>
+   <property name="toolTip">
+    <string>Schedule recordings and other actions</string>
    </property>
   </action>
  </widget>
