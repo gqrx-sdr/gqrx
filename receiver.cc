@@ -73,6 +73,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     audio_gain = gr_make_multiply_const_ff(0.1);
     audio_snk = audio_make_sink(d_audio_rate, audio_device, true);
     wav_sink = gr_make_wavfile_sink("/tmp/gqrx.wav", 1, 48000, 16);
+    /* wav source is created when playback is started (wav_src does not have set_filename) */
+    audio_null_sink = gr_make_null_sink(sizeof(float));
     sniffer = make_sniffer_f();
 
     tb->connect(fcd_src, 0, fft, 0);
@@ -115,7 +117,6 @@ void receiver::stop()
 {
     tb->stop();
     tb->wait(); // If the graph is needed to run again, wait() must be called after stop
-    // FIXME: aUaO
 }
 
 
@@ -504,6 +505,53 @@ receiver::status receiver::stop_audio_recording()
     wav_sink->close();
     tb->unlock();
     d_recording_wav = false;
+
+    return STATUS_OK;
+}
+
+
+/*! \brief Start audio playback. */
+receiver::status receiver::start_audio_playback(const std::string filename)
+{
+    try {
+        wav_src = gr_make_wavfile_source(filename.c_str(), false);
+    }
+    catch (std::runtime_error &e) {
+        std::cout << "Error loading " << filename << ": " << e.what() << std::endl;
+        return STATUS_ERROR;
+    }
+
+    /** FIXME: We can only handle 48k for now (should maybe use the audio_rr)? */
+    if (wav_src->sample_rate() != 48000) {
+        std::cout << "BUG: Can not handle sample rate " << wav_src->sample_rate() << std::cout;
+        wav_src.reset();
+
+        return STATUS_ERROR;
+    }
+
+    tb->lock();
+    /* route demodulator output to null sink */
+    tb->disconnect(audio_rr, 0, audio_gain, 0);
+    tb->connect(audio_rr, 0, audio_null_sink, 0);
+    tb->connect(wav_src, 0, audio_gain, 0);
+    tb->unlock();
+
+    return STATUS_OK;
+}
+
+
+/*! \brief Stop audio playback. */
+receiver::status receiver::stop_audio_playback()
+{
+    /* disconnect wav source and reconnect receiver */
+    tb->lock();
+    tb->disconnect(wav_src, 0, audio_gain, 0);
+    tb->disconnect(audio_rr, 0, audio_null_sink, 0);
+    tb->connect(audio_rr, 0, audio_gain, 0);
+    tb->unlock();
+
+    /* delete wav_src since we can not change file name */
+    wav_src.reset();
 
     return STATUS_OK;
 }

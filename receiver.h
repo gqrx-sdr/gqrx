@@ -29,6 +29,8 @@
 #include <gr_agc2_cc.h>
 #include <gr_file_sink.h>
 #include <gr_wavfile_sink.h>
+#include <gr_wavfile_source.h>
+#include <gr_null_sink.h>
 #include <fcd/fcd_source_c.h>
 #include <dsp/rx_filter.h>
 #include <dsp/rx_meter.h>
@@ -128,6 +130,8 @@ public:
     status set_af_gain(float gain_db);
     status start_audio_recording(const std::string filename);
     status stop_audio_recording();
+    status start_audio_playback(const std::string filename);
+    status stop_audio_playback();
 
     /* I/Q recording and playback */
     status start_iq_recording(const std::string filename);
@@ -166,6 +170,8 @@ private:
 
     gr_file_sink_sptr         iq_sink;    /*! I/Q file sink. */
     gr_wavfile_sink_sptr      wav_sink;   /*! WAV file sink for recording. */
+    gr_wavfile_source_sptr    wav_src;    /*! WAV file source for playback. */
+    gr_null_sink_sptr         audio_null_sink; /*! Audio null sink used during playback. */
     sniffer_f_sptr            sniffer;    /*! Sample sniffer for data decoders. */
 
 protected:
