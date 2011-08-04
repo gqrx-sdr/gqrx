@@ -27,6 +27,7 @@
 #include <gr_multiply_const_cc.h>
 #include <gr_simple_squelch_cc.h>
 #include <gr_agc2_cc.h>
+#include <gr_file_sink.h>
 #include <gr_wavfile_sink.h>
 #include <fcd/fcd_source_c.h>
 #include <dsp/rx_filter.h>
@@ -128,6 +129,10 @@ public:
     status start_audio_recording(const std::string filename);
     status stop_audio_recording();
 
+    /* I/Q recording and playback */
+    status start_iq_recording(const std::string filename);
+    status stop_iq_recording();
+
     /* sample sniffer */
     status start_sniffer(int buffsize);
     status stop_sniffer();
@@ -138,6 +143,7 @@ private:
     int    d_audio_rate;       /*! Audio output rate. */
     float  d_rf_freq;          /*! Current RF frequency. */
     double d_filter_offset;    /*! Current filter offset (tune within passband). */
+    bool   d_recording_iq;     /*! Whether we are recording I/Q data. */
     bool   d_recording_wav;    /*! Whether we are recording WAV file. */
     bool   d_sniffer_active;   /*! Only one data decoder allowed. */
 
@@ -158,6 +164,7 @@ private:
     gr_multiply_const_ff_sptr audio_gain; /*! Audio gain block. */
     audio_sink::sptr          audio_snk;  /*! Audio sink. */
 
+    gr_file_sink_sptr         iq_sink;    /*! I/Q file sink. */
     gr_wavfile_sink_sptr      wav_sink;   /*! WAV file sink for recording. */
     sniffer_f_sptr            sniffer;    /*! Sample sniffer for data decoders. */
 

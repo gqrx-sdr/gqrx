@@ -18,6 +18,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <QSettings>
+#include <QDateTime>
 #include <QDebug>
 #include "qtgui/ioconfig.h"
 #include "mainwindow.h"
@@ -84,12 +85,12 @@ MainWindow::MainWindow(QWidget *parent) :
     addDockWidget(Qt::RightDockWidgetArea, uiDockFft);
     tabifyDockWidget(uiDockAudio, uiDockFft);
 
-    //addDockWidget(Qt::BottomDockWidgetArea, uiDockIqRec);
+    addDockWidget(Qt::BottomDockWidgetArea, uiDockIqRec);
 
     /* hide docks that we don't want to show initially */
     uiDockFcdCtl->hide();
     uiDockFft->hide();
-    //uiDockIqRec->hide();
+    uiDockIqRec->hide();
 
 
     /* Add dock widget actions to View menu. By doing it this way all signal/slot
@@ -99,7 +100,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->menu_View->addAction(uiDockRxOpt->toggleViewAction());
     ui->menu_View->addAction(uiDockAudio->toggleViewAction());
     ui->menu_View->addAction(uiDockFft->toggleViewAction());
-    //ui->menu_View->addAction(uiDockIqRec->toggleViewAction());
+    ui->menu_View->addAction(uiDockIqRec->toggleViewAction());
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
 
@@ -201,6 +202,36 @@ void MainWindow::on_actionDSP_triggered(bool checked)
     }
 }
 
+
+/*! \brief Toggle I/Q recording. */
+void MainWindow::on_actionIqRec_triggered(bool checked)
+{
+    if (checked) {
+        /* generate file name using date adn time */
+        // FIXME: option to use local time
+        QString lastRec = QDateTime::currentDateTimeUtc().toString("gqrx-yyyyMMdd-hhmmss.'bin'");
+
+        /* start recorder */
+        if (rx->start_iq_recording(lastRec.toStdString())) {
+            /* reset action status */
+            ui->actionIqRec->toggle();
+            ui->statusBar->showMessage(tr("Error starting I/Q recoder"));
+        }
+        else {
+            ui->statusBar->showMessage(tr("I/Q recoding started"), 5000);
+        }
+    }
+    else {
+        /* stop current recording */
+        if (rx->stop_iq_recording()) {
+            ui->statusBar->showMessage(tr("Error stopping I/Q recoder"));
+        }
+        else {
+            ui->statusBar->showMessage(tr("I/Q recoding stopped"), 5000);
+        }
+    }
+
+}
 
 /* CPlotter::NewDemodFreq() is emitted */
 void MainWindow::on_plotter_NewDemodFreq(qint64 freq, qint64 delta)
@@ -518,19 +549,30 @@ void MainWindow::on_actionAFSK1200_triggered()
 }
 
 
+
 /*! \brief Start audio recorder.
  *  \param filename The file name into which audio should be recorded.
  */
 void MainWindow::startAudioRec(const QString filename)
 {
-    rx->start_recording(filename.toStdString());
+    if (rx->start_audio_recording(filename.toStdString())) {
+        ui->statusBar->showMessage(tr("Error starting audio recorder"));
+    }
+    else {
+        ui->statusBar->showMessage(tr("Audio recorder started"), 5000);
+    }
 }
 
 
 /*! \brief Stop audio recorder. */
 void MainWindow::stopAudioRec()
 {
-    rx->stop_recording();
+    if (rx->stop_audio_recording()) {
+        ui->statusBar->showMessage(tr("Error stopping audio recorder"));
+    }
+    else {
+        ui->statusBar->showMessage(tr("Audio recorder stopped"), 5000);
+    }
 }
 
 

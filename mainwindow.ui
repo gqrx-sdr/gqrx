@@ -138,6 +138,7 @@
      <string>&amp;File</string>
     </property>
     <addaction name="actionDSP"/>
+    <addaction name="actionIqRec"/>
     <addaction name="actionIODevices"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
@@ -183,6 +184,10 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionDSP"/>
+   <addaction name="separator"/>
+   <addaction name="actionIqRec"/>
+   <addaction name="actionSched"/>
+   <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionQuit">
@@ -247,6 +252,9 @@
    </property>
   </action>
   <action name="actionSched">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/icons/icons/clock.svg</normaloff>:/icons/icons/clock.svg</iconset>
@@ -256,6 +264,24 @@
    </property>
    <property name="toolTip">
     <string>Schedule recordings and other actions</string>
+   </property>
+  </action>
+  <action name="actionIqRec">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/icons/record.svg</normaloff>:/icons/icons/record.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Record I/Q</string>
+   </property>
+   <property name="toolTip">
+    <string>Record the raw I/Q samples to a binary file (will be large)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
  </widget>

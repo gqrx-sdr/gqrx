@@ -83,7 +83,7 @@ private slots:
     void setSqlLevel(double level_db);
     void setAudioGain(float gain);
 
-    /* audio recording */
+    /* audio recording and playback */
     void startAudioRec(const QString filename);
     void stopAudioRec();
 
@@ -99,6 +99,7 @@ private slots:
 
     /* menu and toolbar actions */
     void on_actionDSP_triggered(bool checked);
+    void on_actionIqRec_triggered(bool checked);
     void on_actionIODevices_triggered();
     void on_actionAFSK1200_triggered();
     void on_actionAbout_triggered();

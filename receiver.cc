@@ -48,6 +48,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     : d_bandwidth(96000.0), d_audio_rate(48000),
       d_rf_freq(144800000.0), d_filter_offset(0.0),
       d_demod(DEMOD_FM),
+      d_recording_iq(false),
       d_recording_wav(false),
       d_sniffer_active(false)
 {
@@ -57,6 +58,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     fcd_src->set_freq(d_rf_freq);
 
     fft = make_rx_fft_c(2048, 0, false);
+
+    iq_sink = gr_make_file_sink(sizeof(gr_complex), "/tmp/gqrx.bin");
 
     filter = make_rx_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
     bb_gain = gr_make_multiply_const_cc(1.0);
@@ -73,6 +76,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     sniffer = make_sniffer_f();
 
     tb->connect(fcd_src, 0, fft, 0);
+    tb->connect(fcd_src, 0, iq_sink, 0);
     tb->connect(fcd_src, 0, filter, 0);
     tb->connect(filter, 0, meter, 0);
     tb->connect(filter, 0, sql, 0);
@@ -480,7 +484,7 @@ receiver::status receiver::start_audio_recording(const std::string filename)
         d_recording_wav = true;
     }
     else {
-        std::cout << "WAV sink does not exist" << std::endl;
+        std::cout << "BUG: WAV sink does not exist" << std::endl;
     }
 
     return STATUS_OK;
@@ -500,6 +504,49 @@ receiver::status receiver::stop_audio_recording()
     wav_sink->close();
     tb->unlock();
     d_recording_wav = false;
+
+    return STATUS_OK;
+}
+
+
+/*! \brief Start I/Q data recorder.
+ *  \param filename The filename where to record.
+ */
+receiver::status receiver::start_iq_recording(const std::string filename)
+{
+    if (d_recording_iq) {
+        /* error - we are already recording */
+        return STATUS_ERROR;
+    }
+
+    /* iq_sink was created in the constructor */
+    if (iq_sink) {
+        /* not strictly necessary to lock but I think it is safer */
+        tb->lock();
+        iq_sink->open(filename.c_str());
+        tb->unlock();
+        d_recording_iq = true;
+    }
+    else {
+        std::cout << "BUG: I/Q file sink does not exist" << std::endl;
+    }
+
+    return STATUS_OK;
+}
+
+
+/*! \brief Stop I/Q data recorder. */
+receiver::status receiver::stop_iq_recording()
+{
+    if (!d_recording_iq) {
+        /* error: we are not recording */
+        return STATUS_ERROR;
+    }
+
+    tb->lock();
+    iq_sink->close();
+    tb->unlock();
+    d_recording_iq = false;
 
     return STATUS_OK;
 }
