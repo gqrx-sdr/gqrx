@@ -43,12 +43,12 @@ SOURCES +=\
     qtgui/dockfcdctl.cpp \
     qtgui/dockaudio.cpp \
     dsp/resampler_ff.cc \
-    qtgui/dockiqrecorder.cpp \
     qtgui/dockfft.cpp \
     dsp/sniffer_f.cc \
     dsp/afsk1200/costabf.c \
     dsp/afsk1200/cafsk12.cpp \
-    qtgui/afsk1200win.cc
+    qtgui/afsk1200win.cc \
+    qtgui/dockiqplayer.cpp
 
 
 HEADERS  += mainwindow.h \
@@ -66,13 +66,13 @@ HEADERS  += mainwindow.h \
     qtgui/dockfcdctl.h \
     qtgui/dockaudio.h \
     dsp/resampler_ff.h \
-    qtgui/dockiqrecorder.h \
     qtgui/dockfft.h \
     dsp/sniffer_f.h \
     dsp/afsk1200/filter-i386.h \
     dsp/afsk1200/filter.h \
     dsp/afsk1200/cafsk12.h \
-    qtgui/afsk1200win.h
+    qtgui/afsk1200win.h \
+    qtgui/dockiqplayer.h
 
 FORMS    += \
     qtgui/dockrxopt.ui \
@@ -80,9 +80,9 @@ FORMS    += \
     qtgui/ioconfig.ui \
     qtgui/dockfcdctl.ui \
     qtgui/dockaudio.ui \
-    qtgui/dockiqrecorder.ui \
     qtgui/dockfft.ui \
-    qtgui/afsk1200win.ui
+    qtgui/afsk1200win.ui \
+    qtgui/dockiqplayer.ui
 
 
 # dependencies via pkg-config
