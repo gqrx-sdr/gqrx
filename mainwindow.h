@@ -26,7 +26,7 @@
 #include "qtgui/dockrxopt.h"
 #include "qtgui/dockaudio.h"
 #include "qtgui/dockfcdctl.h"
-#include "qtgui/dockiqrecorder.h"
+#include "qtgui/dockiqplayer.h"
 #include "qtgui/dockfft.h"
 #include "qtgui/afsk1200win.h"
 
@@ -60,7 +60,7 @@ private:
     DockRxOpt      *uiDockRxOpt;
     DockAudio      *uiDockAudio;
     DockFcdCtl     *uiDockFcdCtl;
-    DockIqRecorder *uiDockIqRec;
+    DockIqPlayer   *uiDockIqPlay;
     DockFft        *uiDockFft;
 
     /* data decoders */

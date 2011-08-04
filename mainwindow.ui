@@ -255,6 +255,9 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/icons/icons/clock.svg</normaloff>:/icons/icons/clock.svg</iconset>
@@ -268,6 +271,9 @@
   </action>
   <action name="actionIqRec">
    <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
     <bool>true</bool>
    </property>
    <property name="icon">

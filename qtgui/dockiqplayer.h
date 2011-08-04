@@ -17,34 +17,34 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#ifndef DOCKIQRECORDER_H
-#define DOCKIQRECORDER_H
+#ifndef DOCKIQPLAYER_H
+#define DOCKIQPLAYER_H
 
 #include <QDockWidget>
 
 namespace Ui {
-    class DockIqRecorder;
+    class DockIqPlayer;
 }
 
 
-/*! \brief I/Q recorder and playback widget. */
-class DockIqRecorder : public QDockWidget
+/*! \brief I/Q playback widget. */
+class DockIqPlayer : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit DockIqRecorder(QWidget *parent = 0);
-    ~DockIqRecorder();
+    explicit DockIqPlayer(QWidget *parent = 0);
+    ~DockIqPlayer();
 
 private slots:
-    void on_iqRecButton_clicked(bool checked);
-    void on_iqPlayButton_clicked(bool checked);
+    void on_openButton_clicked();
+    void on_playButton_clicked(bool checked);
 
 private:  
-    Ui::DockIqRecorder *ui;
+    Ui::DockIqPlayer *ui;
 
     /** FIXME: use state? **/
 
 };
 
-#endif // DOCKIQRECORDER_H
+#endif // DOCKIQPLAYER_H

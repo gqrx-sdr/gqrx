@@ -18,44 +18,36 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <QDebug>
-#include "dockiqrecorder.h"
-#include "ui_dockiqrecorder.h"
+#include "dockiqplayer.h"
+#include "ui_dockiqplayer.h"
 
-DockIqRecorder::DockIqRecorder(QWidget *parent) :
+DockIqPlayer::DockIqPlayer(QWidget *parent) :
     QDockWidget(parent),
-    ui(new Ui::DockIqRecorder)
+    ui(new Ui::DockIqPlayer)
 {
     ui->setupUi(this);
 }
 
-DockIqRecorder::~DockIqRecorder()
+DockIqPlayer::~DockIqPlayer()
 {
     delete ui;
 }
 
 
-void DockIqRecorder::on_iqRecButton_clicked(bool checked)
+void DockIqPlayer::on_openButton_clicked()
 {
-
-    if (checked) {
-        qDebug() << "Start recording";
-        ui->iqPlayButton->setEnabled(false);
-    }
-    else {
-        qDebug() << "Stop recording";
-        ui->iqPlayButton->setEnabled(true);
-    }
+    qDebug() << "Open button clicked.";
 }
 
 
-void DockIqRecorder::on_iqPlayButton_clicked(bool checked)
+void DockIqPlayer::on_playButton_clicked(bool checked)
 {
     if (checked) {
         qDebug() << "Start playback";
-        ui->iqRecButton->setEnabled(false);
+        ui->openButton->setEnabled(false);
     }
     else {
         qDebug() << "Stop playback";
-        ui->iqRecButton->setEnabled(true);
+        ui->openButton->setEnabled(true);
     }
 }
