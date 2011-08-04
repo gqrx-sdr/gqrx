@@ -207,9 +207,10 @@ void MainWindow::on_actionDSP_triggered(bool checked)
 void MainWindow::on_actionIqRec_triggered(bool checked)
 {
     if (checked) {
-        /* generate file name using date adn time */
+        /* generate file name using date, time, rf freq and BW */
+        int freq = (int)rx->get_rf_freq()/1000;
         // FIXME: option to use local time
-        QString lastRec = QDateTime::currentDateTimeUtc().toString("gqrx-yyyyMMdd-hhmmss.'bin'");
+        QString lastRec = QDateTime::currentDateTimeUtc().toString("gqrx-yyyyMMdd-hhmmss-%1-96.'bin'").arg(freq);
 
         /* start recorder */
         if (rx->start_iq_recording(lastRec.toStdString())) {
@@ -218,7 +219,7 @@ void MainWindow::on_actionIqRec_triggered(bool checked)
             ui->statusBar->showMessage(tr("Error starting I/Q recoder"));
         }
         else {
-            ui->statusBar->showMessage(tr("I/Q recoding started"), 5000);
+            ui->statusBar->showMessage(tr("Recording I/Q data to: %1").arg(lastRec), 5000);
         }
     }
     else {
@@ -227,7 +228,7 @@ void MainWindow::on_actionIqRec_triggered(bool checked)
             ui->statusBar->showMessage(tr("Error stopping I/Q recoder"));
         }
         else {
-            ui->statusBar->showMessage(tr("I/Q recoding stopped"), 5000);
+            ui->statusBar->showMessage(tr("I/Q data recoding stopped"), 5000);
         }
     }
 
@@ -559,7 +560,7 @@ void MainWindow::startAudioRec(const QString filename)
         ui->statusBar->showMessage(tr("Error starting audio recorder"));
     }
     else {
-        ui->statusBar->showMessage(tr("Audio recorder started"), 5000);
+        ui->statusBar->showMessage(tr("Recording audio to %1").arg(filename));
     }
 }
 
