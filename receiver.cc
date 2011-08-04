@@ -80,9 +80,9 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     tb->connect(bb_gain, 0, agc, 0);
     tb->connect(agc, 0, demod_fm, 0);
     tb->connect(demod_fm, 0, audio_rr, 0);
-    tb->connect(audio_rr, 0, wav_sink, 0);
     tb->connect(audio_rr, 0, audio_gain, 0);
     tb->connect(audio_gain, 0, audio_snk, 0);
+    tb->connect(audio_gain, 0, wav_sink, 0);
 
     /* close wav file; this will disable writing */
     wav_sink->close();
@@ -462,7 +462,7 @@ receiver::status receiver::set_af_gain(float gain_db)
 /*! \brief Start WAV file recorder.
  *  \param filename The filename where to record.
  */
-receiver::status receiver::start_recording(const std::string filename)
+receiver::status receiver::start_audio_recording(const std::string filename)
 {
     if (d_recording_wav) {
         /* error - we are already recording */
@@ -488,7 +488,7 @@ receiver::status receiver::start_recording(const std::string filename)
 
 
 /*! \brief Stop WAV file recorder. */
-receiver::status receiver::stop_recording()
+receiver::status receiver::stop_audio_recording()
 {
     if (!d_recording_wav) {
         /* error: we are not recording */

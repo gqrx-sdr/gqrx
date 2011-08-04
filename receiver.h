@@ -125,8 +125,8 @@ public:
 
     /* Audio parameters */
     status set_af_gain(float gain_db);
-    status start_recording(const std::string filename);
-    status stop_recording();
+    status start_audio_recording(const std::string filename);
+    status stop_audio_recording();
 
     /* sample sniffer */
     status start_sniffer(int buffsize);
