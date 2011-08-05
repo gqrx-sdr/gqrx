@@ -118,7 +118,7 @@ void DockAudio::on_audioPlayButton_clicked(bool checked)
 
 
 /*! \brief Set status of audio record button. */
-void DockAudio::setAudioRecButtonStatus(bool checked)
+void DockAudio::setAudioRecButtonState(bool checked)
 {
     if (checked == ui->audioRecButton->isChecked()) {
         /* nothing to do */
@@ -135,7 +135,7 @@ void DockAudio::setAudioRecButtonStatus(bool checked)
 }
 
 /*! \brief Set status of audio record button. */
-void DockAudio::setAudioPlayButtonStatus(bool checked)
+void DockAudio::setAudioPlayButtonState(bool checked)
 {
     if (checked == ui->audioPlayButton->isChecked()) {
         /* nothing to do */

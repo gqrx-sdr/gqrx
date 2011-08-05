@@ -47,8 +47,8 @@ public:
     void setAudioGain(int gain);
     int  audioGain();
 
-    void setAudioRecButtonStatus(bool checked);
-    void setAudioPlayButtonStatus(bool checked);
+    void setAudioRecButtonState(bool checked);
+    void setAudioPlayButtonState(bool checked);
 
 
 signals:
