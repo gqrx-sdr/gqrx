@@ -118,6 +118,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
     connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), this, SLOT(startAudioRec(QString)));
     connect(uiDockAudio, SIGNAL(audioRecStopped()), this, SLOT(stopAudioRec()));
+    connect(uiDockAudio, SIGNAL(audioPlayStarted(QString)), this, SLOT(startAudioPlayback(QString)));
+    connect(uiDockAudio, SIGNAL(audioPlayStopped()), this, SLOT(stopAudioPlayback()));
     connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setFftSize(int)));
     connect(uiDockFft, SIGNAL(fftRateChanged(int)), this, SLOT(setFftRate(int)));
     connect(uiDockFft, SIGNAL(fftYminChanged(int)), this, SLOT(setFftYmin(int)));
@@ -558,6 +560,9 @@ void MainWindow::startAudioRec(const QString filename)
 {
     if (rx->start_audio_recording(filename.toStdString())) {
         ui->statusBar->showMessage(tr("Error starting audio recorder"));
+
+        /* reset state of record button */
+        uiDockAudio->setAudioRecButtonState(false);
     }
     else {
         ui->statusBar->showMessage(tr("Recording audio to %1").arg(filename));
@@ -569,12 +574,45 @@ void MainWindow::startAudioRec(const QString filename)
 void MainWindow::stopAudioRec()
 {
     if (rx->stop_audio_recording()) {
+        /* okay, this one would be weird if it really happened */
         ui->statusBar->showMessage(tr("Error stopping audio recorder"));
+
+        uiDockAudio->setAudioRecButtonState(true);
     }
     else {
         ui->statusBar->showMessage(tr("Audio recorder stopped"), 5000);
     }
 }
+
+
+/*! \brief Start playback of audio file. */
+void MainWindow::startAudioPlayback(const QString filename)
+{
+    if (rx->start_audio_playback(filename.toStdString())) {
+        ui->statusBar->showMessage(tr("Error trying to play %1").arg(filename));
+
+        /* reset state of record button */
+        uiDockAudio->setAudioPlayButtonState(false);
+    }
+    else {
+        ui->statusBar->showMessage(tr("Playing %1").arg(filename));
+    }
+}
+
+/*! \brief Stop playback of audio file. */
+void MainWindow::stopAudioPlayback()
+{
+    if (rx->stop_audio_playback()) {
+        /* okay, this one would be weird if it really happened */
+        ui->statusBar->showMessage(tr("Error stopping audio playback"));
+
+        uiDockAudio->setAudioPlayButtonState(true);
+    }
+    else {
+        ui->statusBar->showMessage(tr("Audio playback stopped"), 5000);
+    }
+}
+
 
 
 /*! \brief FFT size has changed. */

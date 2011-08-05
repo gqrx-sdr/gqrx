@@ -86,6 +86,8 @@ private slots:
     /* audio recording and playback */
     void startAudioRec(const QString filename);
     void stopAudioRec();
+    void startAudioPlayback(const QString filename);
+    void stopAudioPlayback();
 
     /* FFT settings */
     void setFftSize(int size);
