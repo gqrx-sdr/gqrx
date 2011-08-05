@@ -47,6 +47,10 @@ public:
     void setAudioGain(int gain);
     int  audioGain();
 
+    void setAudioRecButtonStatus(bool checked);
+    void setAudioPlayButtonStatus(bool checked);
+
+
 signals:
     /*! \brief Signal emitted when audio gain has changed. Gain is in dB. */
     void audioGainChanged(float gain);
@@ -57,10 +61,17 @@ signals:
     /*! \brief Signal emitted when audio recording is stopped. */
     void audioRecStopped();
 
+    /*! \brief Signal emitted when audio playback is started. */
+    void audioPlayStarted(const QString filename);
+
+    /*! \brief Signal emitted when audio playback is stopped. */
+    void audioPlayStopped();
+
 
 private slots:
     void on_audioGainSlider_valueChanged(int value);
-    void on_audioRecButton_toggled(bool checked);
+    void on_audioRecButton_clicked(bool checked);
+    void on_audioPlayButton_clicked(bool checked);
 
 
 private:

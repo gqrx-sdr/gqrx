@@ -66,10 +66,13 @@ void DockAudio::on_audioGainSlider_valueChanged(int value)
 }
 
 
-/*! \brief Record button toggled.
- *  \param chcked Whether recording is ON or OFF.
+/*! \brief Record button clicked.
+ *  \param checked Whether recording is ON or OFF.
+ *
+ * We use the clicked signal instead of the toggled which allows us to change the
+ * state programatically using toggle() without triggering the signal.
  */
-void DockAudio::on_audioRecButton_toggled(bool checked)
+void DockAudio::on_audioRecButton_clicked(bool checked)
 {
     if (checked) {
         // FIXME: option to use local time
@@ -79,10 +82,71 @@ void DockAudio::on_audioRecButton_toggled(bool checked)
         emit audioRecStarted(lastAudio);
 
         ui->audioRecButton->setToolTip(tr("Stop audio recorder"));
+        ui->audioPlayButton->setEnabled(false); /* prevent playback while recording */
     }
     else {
         ui->audioRecButton->setToolTip(tr("Start audio recorder"));
         emit audioRecStopped();
+
+        ui->audioPlayButton->setEnabled(true);
+    }
+}
+
+/*! \brief Playback button clicked.
+ *  \param checked Whether playback is ON or OFF.
+ *
+ * We use the clicked signal instead of the toggled which allows us to change the
+ * state programatically using toggle() without triggering the signal.
+ */
+void DockAudio::on_audioPlayButton_clicked(bool checked)
+{
+    if (checked) {
+
+        // emit signal and start timer
+        emit audioPlayStarted(lastAudio);
+
+        ui->audioPlayButton->setToolTip(tr("Stop audio playback"));
+        ui->audioRecButton->setEnabled(false); /* prevent recording while we play */
+    }
+    else {
+        ui->audioPlayButton->setToolTip(tr("Start playback of last recorded audio file"));
+        emit audioPlayStopped();
+
+        ui->audioRecButton->setEnabled(true);
+    }
+}
+
+
+/*! \brief Set status of audio record button. */
+void DockAudio::setAudioRecButtonStatus(bool checked)
+{
+    if (checked == ui->audioRecButton->isChecked()) {
+        /* nothing to do */
+        return;
     }
 
+    /* toggle the button and set the state of the other buttons accordingly */
+    ui->audioRecButton->toggle();
+    bool isChecked = ui->audioRecButton->isChecked();
+
+    ui->audioRecButton->setToolTip(isChecked ? tr("Stop audio recorder") : tr("Start audio recorder"));
+    ui->audioPlayButton->setEnabled(!isChecked);
+    //ui->audioRecConfButton->setEnabled(!isChecked);
+}
+
+/*! \brief Set status of audio record button. */
+void DockAudio::setAudioPlayButtonStatus(bool checked)
+{
+    if (checked == ui->audioPlayButton->isChecked()) {
+        /* nothing to do */
+        return;
+    }
+
+    /* toggle the button and set the state of the other buttons accordingly */
+    ui->audioPlayButton->toggle();
+    bool isChecked = ui->audioPlayButton->isChecked();
+
+    ui->audioPlayButton->setToolTip(isChecked ? tr("Stop audio playback") : tr("Start playback of last recorded audio file"));
+    ui->audioRecButton->setEnabled(!isChecked);
+    //ui->audioRecConfButton->setEnabled(!isChecked);
 }
