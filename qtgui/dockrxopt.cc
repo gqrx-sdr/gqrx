@@ -70,6 +70,62 @@ int  DockRxOpt::currentSideBand()
 }
 
 
+/*! \brief Select new value in max_dev selector.
+ *  \param maxdev The new value to select.
+ */
+void DockRxOpt::setCurrentMaxdev(float maxdev)
+{
+    if (maxdev < 4000.0) {
+        /* select 2500 */
+        ui->maxdevSelector->setCurrentIndex(0);
+    }
+    else if (maxdev < 10000.0) {
+        /* select 5k */
+        ui->maxdevSelector->setCurrentIndex(1);
+    }
+    else if (maxdev < 35000.0) {
+        /* select 17k */
+        ui->maxdevSelector->setCurrentIndex(2);
+    }
+    else {
+        /* select 75k */
+        ui->maxdevSelector->setCurrentIndex(3);
+    }
+}
+
+
+float DockRxOpt::currentMaxdev()
+{
+    float max_dev;
+    int index = ui->maxdevSelector->currentIndex();
+
+    switch (index) {
+    case 0:
+        max_dev = 2500.0;
+        break;
+
+    case 1:
+        max_dev = 5000.0;
+        break;
+
+    case 2:
+        max_dev = 17000.0;
+        break;
+
+    case 3:
+        max_dev = 75000.0;
+        break;
+
+    default:
+        qDebug() << "Invalid max_dev index: " << index;
+        max_dev = 5000.0;
+        break;
+
+    }
+
+    return max_dev;
+}
+
 
 
 /*! \brief Mode selector activated.

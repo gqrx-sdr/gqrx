@@ -48,8 +48,8 @@ public:
     void setCurrentDemod(int demod);
     int  currentDemod();
 
-    //void setCurrentMaxdev(float max:dev);
-    //float currentMaxdev();
+    void setCurrentMaxdev(float maxdev);
+    float currentMaxdev();
 
     void setCurrentSideBand(int sideband);
     int  currentSideBand();

@@ -304,6 +304,7 @@ void MainWindow::setIqCorr(double gain, double phase)
  */
 void MainWindow::selectDemod(int index)
 {
+    float maxdev;
     receiver::demod mode = (receiver::demod)index;
 
     rx->set_demod(mode);
@@ -332,9 +333,18 @@ void MainWindow::selectDemod(int index)
         break;
 
     case receiver::DEMOD_FM:
-        ui->plotter->SetDemodRanges(-25000, -1000, 1000, 25000, true);
-        ui->plotter->SetHiLowCutFrequencies(-5000, 5000);
-        rx->set_filter(-5000.0, 5000.0, receiver::FILTER_SHAPE_NORMAL);
+        /* filter params depend on max deviation */
+        maxdev = uiDockRxOpt->currentMaxdev();
+        if (maxdev < 20000.0) {
+            ui->plotter->SetDemodRanges(-25000, -1000, 1000, 25000, true);
+            ui->plotter->SetHiLowCutFrequencies(-5000, 5000);
+            rx->set_filter(-5000.0, 5000.0, receiver::FILTER_SHAPE_NORMAL);
+        }
+        else {
+            ui->plotter->SetDemodRanges(-45000, -10000, 10000, 45000, true);
+            ui->plotter->SetHiLowCutFrequencies(-35000, 35000);
+            rx->set_filter(-35000.0, 35000.0, receiver::FILTER_SHAPE_NORMAL);
+        }
         break;
 
     default:
@@ -355,6 +365,18 @@ void MainWindow::setFmMaxdev(float max_dev)
 
     /* receiver will check range */
     rx->set_fm_maxdev(max_dev);
+
+    /* update filter */
+    if (max_dev < 20000.0) {
+        ui->plotter->SetDemodRanges(-25000, -1000, 1000, 25000, true);
+        ui->plotter->SetHiLowCutFrequencies(-5000, 5000);
+        rx->set_filter(-5000.0, 5000.0, receiver::FILTER_SHAPE_NORMAL);
+    }
+    else {
+        ui->plotter->SetDemodRanges(-45000, -10000, 10000, 45000, true);
+        ui->plotter->SetHiLowCutFrequencies(-35000, 35000);
+        rx->set_filter(-35000.0, 35000.0, receiver::FILTER_SHAPE_NORMAL);
+    }
 }
 
 /*! \brief New FM de-emphasis time consant selected.
