@@ -20,6 +20,7 @@
 #include <math.h>
 #include <gr_io_signature.h>
 #include <dsp/rx_meter.h>
+#include <iostream>
 
 
 rx_meter_c_sptr make_rx_meter_c (bool use_avg)
@@ -56,6 +57,8 @@ int rx_meter_c::work (int noutput_items,
     float sum;
     float pwr = 0.0;
     int   i;
+
+    //std::cout << "NUM: " << noutput_items << std::endl;
 
     sum = in[0].real()*in[0].real() + in[0].imag()*in[0].imag();
 
