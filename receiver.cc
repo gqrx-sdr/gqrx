@@ -60,7 +60,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     fft = make_rx_fft_c(2048, 0, false);
 
     iq_sink = gr_make_file_sink(sizeof(gr_complex), "/tmp/gqrx.bin");
-    iq_throttle = gr_make_throttle(sizeof(gr_complex), d_bandwidth);
+    //iq_throttle = gr_make_throttle(sizeof(gr_complex), d_bandwidth);
 
     filter = make_rx_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
     bb_gain = gr_make_multiply_const_cc(1.0);
