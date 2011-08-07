@@ -60,6 +60,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     fft = make_rx_fft_c(2048, 0, false);
 
     iq_sink = gr_make_file_sink(sizeof(gr_complex), "/tmp/gqrx.bin");
+    iq_throttle = gr_make_throttle(sizeof(gr_complex), d_bandwidth);
 
     filter = make_rx_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
     bb_gain = gr_make_multiply_const_cc(1.0);
@@ -595,6 +596,74 @@ receiver::status receiver::stop_iq_recording()
     iq_sink->close();
     tb->unlock();
     d_recording_iq = false;
+
+    return STATUS_OK;
+}
+
+
+/*! \brief Start playback of recorded I/Q data file.
+ *  \param filename The file to play from. Must be raw file containing gr_complex samples.
+ *  \param samprate The sample rate (currently fixed at 96ksps)
+ */
+receiver::status receiver::start_iq_playback(const std::string filename, float samprate)
+{
+    if (samprate != d_bandwidth) {
+        return STATUS_ERROR;
+    }
+
+    try {
+        iq_src = gr_make_file_source(sizeof(gr_complex), filename.c_str(), false);
+    }
+    catch (std::runtime_error &e) {
+        std::cout << "Error loading " << filename << ": " << e.what() << std::endl;
+        return STATUS_ERROR;
+    }
+
+    tb->lock();
+
+    /* disconenct hardware source */
+    tb->disconnect(fcd_src, 0, fft, 0);
+    tb->disconnect(fcd_src, 0, iq_sink, 0);
+    tb->disconnect(fcd_src, 0, filter, 0);
+
+    /* connect I/Q source via throttle block */
+    //tb->connect(iq_src, 0, iq_throttle, 0);
+    tb->connect(iq_src, 0, fft, 0);
+    tb->connect(iq_src, 0, iq_sink, 0);
+    tb->connect(iq_src, 0, filter, 0);
+    tb->unlock();
+
+    return STATUS_OK;
+}
+
+
+/*! \brief Stop I/Q data file playback.
+ *  \return STATUS_OK
+ *
+ * This method will stop the I/Q data playback, disconnect the file source and throttle
+ * blocks, and reconnect the hardware source.
+ *
+ * FIXME: will probably crash if we try to stop playback that is not running.
+ */
+receiver::status receiver::stop_iq_playback()
+{
+    tb->lock();
+
+    /* disconnect I/Q source and throttle block */
+    //tb->disconnect(iq_src, 0, iq_throttle, 0);
+    tb->disconnect(iq_src, 0, fft, 0);
+    tb->disconnect(iq_src, 0, iq_sink, 0);
+    tb->disconnect(iq_src, 0, filter, 0);
+
+    /* reconenct hardware source */
+    tb->connect(fcd_src, 0, fft, 0);
+    tb->connect(fcd_src, 0, iq_sink, 0);
+    tb->connect(fcd_src, 0, filter, 0);
+
+    tb->unlock();
+
+    /* delete iq_src since we can not reuse for other files */
+    iq_src.reset();
 
     return STATUS_OK;
 }

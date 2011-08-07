@@ -89,6 +89,8 @@ private slots:
     void startAudioPlayback(const QString filename);
     void stopAudioPlayback();
 
+    void toggleIqPlayback(bool play, const QString filename);
+
     /* FFT settings */
     void setFftSize(int size);
     void setFftRate(int fps);

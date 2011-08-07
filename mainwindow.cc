@@ -115,6 +115,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(sidebandSelected(int)), this, SLOT(setSideBand(int)));
     connect(uiDockRxOpt, SIGNAL(bbGainChanged(float)), this, SLOT(setBasebandGain(float)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
+    connect(uiDockIqPlay, SIGNAL(playbackToggled(bool,QString)), this, SLOT(toggleIqPlayback(bool,QString)));
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
     connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), this, SLOT(startAudioRec(QString)));
     connect(uiDockAudio, SIGNAL(audioRecStopped()), this, SLOT(stopAudioRec()));
@@ -222,6 +223,9 @@ void MainWindow::on_actionIqRec_triggered(bool checked)
         }
         else {
             ui->statusBar->showMessage(tr("Recording I/Q data to: %1").arg(lastRec), 5000);
+
+            /* disable I/Q player */
+            uiDockIqPlay->setEnabled(false);
         }
     }
     else {
@@ -232,6 +236,9 @@ void MainWindow::on_actionIqRec_triggered(bool checked)
         else {
             ui->statusBar->showMessage(tr("I/Q data recoding stopped"), 5000);
         }
+
+        /* enable I/Q player */
+        uiDockIqPlay->setEnabled(true);
     }
 
 }
@@ -635,6 +642,39 @@ void MainWindow::stopAudioPlayback()
     }
 }
 
+
+/*! \brief Start/stop I/Q data playback.
+ *  \param play True if playback is started, false if it is stopped.
+ *  \param filename Full path of the I/Q data file.
+ */
+void MainWindow::toggleIqPlayback(bool play, const QString filename)
+{
+    if (play) {
+        /* starting playback */
+        if (rx->start_iq_playback(filename.toStdString(), 96000.0)) {
+            ui->statusBar->showMessage(tr("Error trying to play %1").arg(filename));
+        }
+        else {
+            ui->statusBar->showMessage(tr("Playing %1").arg(filename));
+
+            /* disable REC button */
+            ui->actionIqRec->setEnabled(false);
+        }
+    }
+    else {
+        /* stopping playback */
+        if (rx->stop_iq_playback()) {
+            /* okay, this one would be weird if it really happened */
+            ui->statusBar->showMessage(tr("Error stopping I/Q playback"));
+        }
+        else {
+            ui->statusBar->showMessage(tr("I/Q playback stopped"), 5000);
+        }
+
+        /* enable REC button */
+        ui->actionIqRec->setEnabled(true);
+    }
+}
 
 
 /*! \brief FFT size has changed. */

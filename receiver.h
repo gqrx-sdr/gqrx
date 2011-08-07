@@ -28,6 +28,8 @@
 #include <gr_simple_squelch_cc.h>
 #include <gr_agc2_cc.h>
 #include <gr_file_sink.h>
+#include <gr_file_source.h>
+#include <gr_throttle.h>
 #include <gr_wavfile_sink.h>
 #include <gr_wavfile_source.h>
 #include <gr_null_sink.h>
@@ -136,6 +138,8 @@ public:
     /* I/Q recording and playback */
     status start_iq_recording(const std::string filename);
     status stop_iq_recording();
+    status start_iq_playback(const std::string filename, float samprate);
+    status stop_iq_playback();
 
     /* sample sniffer */
     status start_sniffer(int buffsize);
@@ -169,6 +173,8 @@ private:
     audio_sink::sptr          audio_snk;  /*! Audio sink. */
 
     gr_file_sink_sptr         iq_sink;    /*! I/Q file sink. */
+    gr_file_source_sptr       iq_src;     /*! I/Q file source. */
+    gr_throttle::sptr         iq_throttle; /*! Throttle for I/Q playback (in case we don't use audio sink) */
     gr_wavfile_sink_sptr      wav_sink;   /*! WAV file sink for recording. */
     gr_wavfile_source_sptr    wav_src;    /*! WAV file source for playback. */
     gr_null_sink_sptr         audio_null_sink; /*! Audio null sink used during playback. */
