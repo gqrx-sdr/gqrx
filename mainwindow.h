@@ -109,6 +109,9 @@ private slots:
     void on_actionAbout_triggered();
     void on_actionAboutQt_triggered();
 
+    /* window close signals */
+    void afsk1200win_closed();
+
     /* cyclic processing */
     void meterTimeout();
     void fftTimeout();

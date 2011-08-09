@@ -35,7 +35,31 @@ Afsk1200Win::Afsk1200Win(QWidget *parent) :
 
 Afsk1200Win::~Afsk1200Win()
 {
+    qDebug() << "AFSK1200 decoder destroyed.";
+
     delete decoder;
     delete ui;
 }
 
+
+/*! \brief Catch window close events and emit signal so that main application can destroy us. */
+void Afsk1200Win::closeEvent(QCloseEvent *ev)
+{
+    Q_UNUSED(ev);
+
+    emit windowClosed();
+}
+
+
+/*! \brief User clicked on the Clear button. */
+void Afsk1200Win::on_actionClear_triggered()
+{
+    qDebug() << "actionClear";
+}
+
+
+/*! \brief User clicked on the Save button. */
+void Afsk1200Win::on_actionSave_triggered()
+{
+    qDebug() << "actionSave";
+}

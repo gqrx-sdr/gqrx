@@ -47,8 +47,8 @@ SOURCES +=\
     dsp/sniffer_f.cc \
     dsp/afsk1200/costabf.c \
     dsp/afsk1200/cafsk12.cpp \
-    qtgui/afsk1200win.cc \
-    qtgui/dockiqplayer.cpp
+    qtgui/dockiqplayer.cpp \
+    qtgui/afsk1200win.cc
 
 
 HEADERS  += mainwindow.h \
@@ -71,8 +71,8 @@ HEADERS  += mainwindow.h \
     dsp/afsk1200/filter-i386.h \
     dsp/afsk1200/filter.h \
     dsp/afsk1200/cafsk12.h \
-    qtgui/afsk1200win.h \
-    qtgui/dockiqplayer.h
+    qtgui/dockiqplayer.h \
+    qtgui/afsk1200win.h
 
 FORMS    += \
     qtgui/dockrxopt.ui \
@@ -81,8 +81,8 @@ FORMS    += \
     qtgui/dockfcdctl.ui \
     qtgui/dockaudio.ui \
     qtgui/dockfft.ui \
-    qtgui/afsk1200win.ui \
-    qtgui/dockiqplayer.ui
+    qtgui/dockiqplayer.ui \
+    qtgui/afsk1200win.ui
 
 
 # dependencies via pkg-config

@@ -540,46 +540,6 @@ void MainWindow::fftTimeout()
 }
 
 
-/*! \brief Action: I/O device configurator triggered.
- *
- * This slot is activated when the user selects "I/O Devices" in the
- * menu. It activates the I/O configurator and if the user closes the
- * configurator using the OK button, the new configuration is read and
- * sent to the receiver.
- */
-void MainWindow::on_actionIODevices_triggered()
-{
-    QSettings settings;
-    QString cindev = settings.value("input").toString();
-    QString coutdev = settings.value("output").toString();
-
-
-    CIoConfig *ioconf = new CIoConfig();
-    int confres = ioconf->exec();
-
-    if (confres == QDialog::Accepted) {
-        QString nindev = settings.value("input").toString();
-        QString noutdev = settings.value("output").toString();
-
-        // we need to ensure that we don't reconfigure RX
-        // with the same device as the already used one because
-        // that can crash the receiver when using ALSA :(
-        if (cindev != nindev)
-            rx->set_input_device(nindev.toStdString());
-
-        if (coutdev != noutdev)
-            rx->set_output_device(noutdev.toStdString());
-    }
-
-    delete ioconf;
-}
-
-
-void MainWindow::on_actionAFSK1200_triggered()
-{
-    qDebug() << "Start AFSK1200 decoder";
-}
-
 
 
 /*! \brief Start audio recorder.
@@ -719,6 +679,69 @@ void MainWindow::setFftSplit(int pct_wf)
     if ((pct_wf >= 20) && (pct_wf <= 80)) {
         ui->plotter->SetPercent2DScreen(pct_wf);
     }
+}
+
+
+/*! \brief Action: I/O device configurator triggered.
+ *
+ * This slot is activated when the user selects "I/O Devices" in the
+ * menu. It activates the I/O configurator and if the user closes the
+ * configurator using the OK button, the new configuration is read and
+ * sent to the receiver.
+ */
+void MainWindow::on_actionIODevices_triggered()
+{
+    QSettings settings;
+    QString cindev = settings.value("input").toString();
+    QString coutdev = settings.value("output").toString();
+
+
+    CIoConfig *ioconf = new CIoConfig();
+    int confres = ioconf->exec();
+
+    if (confres == QDialog::Accepted) {
+        QString nindev = settings.value("input").toString();
+        QString noutdev = settings.value("output").toString();
+
+        // we need to ensure that we don't reconfigure RX
+        // with the same device as the already used one because
+        // that can crash the receiver when using ALSA :(
+        if (cindev != nindev)
+            rx->set_input_device(nindev.toStdString());
+
+        if (coutdev != noutdev)
+            rx->set_output_device(noutdev.toStdString());
+    }
+
+    delete ioconf;
+}
+
+
+/*! \brief AFSK1200 decoder action triggered.
+ *
+ * This slot is called when the user activates the AFSK1200
+ * action. It will create an AFSK1200 decoder window and start
+ * and start pushing data from the receiver to it.
+ */
+void MainWindow::on_actionAFSK1200_triggered()
+{
+    qDebug() << "Start AFSK1200 decoder";
+
+    dec_afsk1200 = new Afsk1200Win();
+    connect(dec_afsk1200, SIGNAL(windowClosed()), this, SLOT(afsk1200win_closed()));
+    dec_afsk1200->show();
+}
+
+
+/*! \brief Destroy AFSK1200 decoder window got closed.
+ *
+ * This slot is connected to the windowClosed() signal of the AFSK1200 decoder
+ * object. We need this to properly destroy the object, stop timeout and clean
+ * up whatever need to be cleaned up.
+ */
+void MainWindow::afsk1200win_closed()
+{
+    delete dec_afsk1200;
 }
 
 

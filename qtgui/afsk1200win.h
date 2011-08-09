@@ -38,8 +38,15 @@ public:
     explicit Afsk1200Win(QWidget *parent = 0);
     ~Afsk1200Win();
 
-private slots:
+protected:
+    void closeEvent(QCloseEvent *ev);
 
+signals:
+    void windowClosed();  /*! Signal we emit when window is closed. */
+
+private slots:
+    void on_actionClear_triggered();
+    void on_actionSave_triggered();
 
 private:
     Ui::Afsk1200Win *ui;  /*! Qt Designer form. */
