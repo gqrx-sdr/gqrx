@@ -142,7 +142,7 @@ public:
     status stop_iq_playback();
 
     /* sample sniffer */
-    status start_sniffer(int buffsize);
+    status start_sniffer(unsigned int samplrate, int buffsize);
     status stop_sniffer();
     void   get_sniffer_data(float * outbuff, int &num);
 
@@ -179,6 +179,7 @@ private:
     gr_wavfile_source_sptr    wav_src;    /*! WAV file source for playback. */
     gr_null_sink_sptr         audio_null_sink; /*! Audio null sink used during playback. */
     sniffer_f_sptr            sniffer;    /*! Sample sniffer for data decoders. */
+    resampler_ff_sptr         sniffer_rr; /*! Sniffer resampler. */
 
 protected:
 

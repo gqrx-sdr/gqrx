@@ -77,6 +77,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     /* wav source is created when playback is started (wav_src does not have set_filename) */
     audio_null_sink = gr_make_null_sink(sizeof(float));
     sniffer = make_sniffer_f();
+    /* sniffer_rr is created at each activation. */
 
     tb->connect(fcd_src, 0, fft, 0);
     tb->connect(fcd_src, 0, iq_sink, 0);
@@ -674,7 +675,7 @@ receiver::status receiver::stop_iq_playback()
  *  \param buffsize The buffer that should be used in the sniffer.
  *  \return STATUS_OK if the sniffer was started, STATUS_ERROR if the sniffer is already in use.
  */
-receiver::status receiver::start_sniffer(int buffsize)
+receiver::status receiver::start_sniffer(unsigned int samprate, int buffsize)
 {
     if (d_sniffer_active) {
         /* sniffer already in use */
@@ -682,8 +683,10 @@ receiver::status receiver::start_sniffer(int buffsize)
     }
 
     sniffer->set_buffer_size(buffsize);
+    sniffer_rr = make_resampler_ff(d_audio_rate, samprate);
     tb->lock();
-    tb->connect(audio_rr, 0, sniffer, 0);
+    tb->connect(audio_rr, 0, sniffer_rr, 0);
+    tb->connect(sniffer_rr, 0, sniffer, 0);
     tb->unlock();
     d_sniffer_active = true;
 
@@ -700,9 +703,13 @@ receiver::status receiver::stop_sniffer()
     }
 
     tb->lock();
-    tb->disconnect(audio_rr, 0, sniffer, 0);
+    tb->disconnect(audio_rr, 0, sniffer_rr, 0);
+    tb->disconnect(sniffer_rr, 0, sniffer, 0);
     tb->unlock();
     d_sniffer_active = false;
+
+    /* delete resampler */
+    sniffer_rr.reset();
 
     return STATUS_OK;
 }
