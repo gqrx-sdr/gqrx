@@ -34,7 +34,8 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    dec_afsk1200(0)
 {
     ui->setupUi(this);
 
@@ -64,6 +65,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(fft_timer, SIGNAL(timeout()), this, SLOT(fftTimeout()));
     d_fftData = new std::complex<float>[MAX_FFT_SIZE];
     d_realFftData = new double[MAX_FFT_SIZE];
+
+    /* timer for data decoders */
+    dec_timer = new QTimer(this);
+    connect(dec_timer, SIGNAL(timeout()), this, SLOT(decoderTimeout()));
+
 
     /* create dock widgets */
     uiDockRxOpt = new DockRxOpt();
@@ -131,13 +137,15 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     /* stop and delete timers */
+    dec_timer->stop();
+    delete dec_timer;
+
     meter_timer->stop();
     delete meter_timer;
 
     fft_timer->stop();
     delete fft_timer;
 
-    /* clean up the rest */
     delete ui;
     delete uiDockRxOpt;
     delete uiDockAudio;
@@ -717,6 +725,8 @@ void MainWindow::on_actionIODevices_triggered()
 }
 
 
+#define DATA_BUFFER_SIZE 48000
+
 /*! \brief AFSK1200 decoder action triggered.
  *
  * This slot is called when the user activates the AFSK1200
@@ -725,11 +735,29 @@ void MainWindow::on_actionIODevices_triggered()
  */
 void MainWindow::on_actionAFSK1200_triggered()
 {
-    qDebug() << "Start AFSK1200 decoder";
 
-    dec_afsk1200 = new Afsk1200Win();
-    connect(dec_afsk1200, SIGNAL(windowClosed()), this, SLOT(afsk1200win_closed()));
-    dec_afsk1200->show();
+    if (dec_afsk1200 != 0) {
+        qDebug() << "AFSK1200 decoder already active.";
+        dec_afsk1200->raise();
+    }
+    else {
+        qDebug() << "Starting AFSK1200 decoder.";
+
+        /* start sample sniffer */
+        if (rx->start_sniffer(22050, DATA_BUFFER_SIZE) == receiver::STATUS_OK) {
+            dec_afsk1200 = new Afsk1200Win(this);
+            connect(dec_afsk1200, SIGNAL(windowClosed()), this, SLOT(afsk1200win_closed()));
+            dec_afsk1200->show();
+
+            dec_timer->start(100);
+        }
+        else {
+            int ret = QMessageBox::warning(this, tr("Gqrx error"),
+                                           tr("Error starting sample sniffer.\n"
+                                              "Close all data decoders and try again."),
+                                           QMessageBox::Ok, QMessageBox::Ok);
+        }
+    }
 }
 
 
@@ -741,8 +769,30 @@ void MainWindow::on_actionAFSK1200_triggered()
  */
 void MainWindow::afsk1200win_closed()
 {
+    /* stop cyclic processing */
+    dec_timer->stop();
+    rx->stop_sniffer();
+
+    /* delete decoder object */
     delete dec_afsk1200;
+    dec_afsk1200 = 0;
 }
+
+
+/*! \brief Cyclic processing for acquiring samples from receiver and
+ *         processing them with data decoders (see dec_* objects)
+ */
+void MainWindow::decoderTimeout()
+{
+    float buffer[DATA_BUFFER_SIZE];
+    int num;
+
+    //qDebug() << "Process decoder";
+
+    rx->get_sniffer_data(&buffer[0], num);
+    dec_afsk1200->process_samples(&buffer[0], num);
+}
+
 
 
 /*! \brief Action: About Qthid

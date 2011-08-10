@@ -66,8 +66,10 @@ private:
     /* data decoders */
     Afsk1200Win    *dec_afsk1200;
 
+    QTimer   *dec_timer;
     QTimer   *meter_timer;
     QTimer   *fft_timer;
+
     receiver *rx;
 
 private slots:
@@ -113,6 +115,7 @@ private slots:
     void afsk1200win_closed();
 
     /* cyclic processing */
+    void decoderTimeout();
     void meterTimeout();
     void fftTimeout();
 

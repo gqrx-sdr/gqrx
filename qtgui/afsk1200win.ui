@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
+    <width>800</width>
     <height>400</height>
    </rect>
   </property>
@@ -27,8 +27,22 @@
     </property>
     <item>
      <widget class="QPlainTextEdit" name="textView">
+      <property name="font">
+       <font>
+        <family>Monospace</family>
+       </font>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
+      <property name="lineWrapMode">
+       <enum>QPlainTextEdit::NoWrap</enum>
+      </property>
       <property name="readOnly">
        <bool>true</bool>
+      </property>
+      <property name="maximumBlockCount">
+       <number>10000</number>
       </property>
      </widget>
     </item>
@@ -39,7 +53,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>640</width>
+     <width>800</width>
      <height>25</height>
     </rect>
    </property>
@@ -94,6 +108,18 @@
    </property>
    <property name="toolTip">
     <string>Close AFSK1200 decoder window</string>
+   </property>
+  </action>
+  <action name="actionInfo">
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/icons/info.svg</normaloff>:/icons/icons/info.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Info</string>
+   </property>
+   <property name="toolTip">
+    <string>Show info about AFKS1200 decoder</string>
    </property>
   </action>
  </widget>

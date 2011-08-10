@@ -21,6 +21,7 @@
 #define AFSK1200WIN_H
 
 #include <QMainWindow>
+#include <QVarLengthArray>
 #include "dsp/afsk1200/cafsk12.h"
 
 
@@ -37,6 +38,7 @@ class Afsk1200Win : public QMainWindow
 public:
     explicit Afsk1200Win(QWidget *parent = 0);
     ~Afsk1200Win();
+    void process_samples(float *buffer, int length);
 
 protected:
     void closeEvent(QCloseEvent *ev);
@@ -47,11 +49,14 @@ signals:
 private slots:
     void on_actionClear_triggered();
     void on_actionSave_triggered();
+    void on_actionInfo_triggered();
 
 private:
     Ui::Afsk1200Win *ui;  /*! Qt Designer form. */
 
     CAfsk12 *decoder;     /*! The AFSK1200 decoder object. */
+
+    QVarLengthArray<float, 16384> tmpbuf;   /*! Needed to remember "overlap" smples. */
 };
 
 #endif // AFSK1200WIN_H
