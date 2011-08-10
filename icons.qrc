@@ -17,5 +17,7 @@
         <file>icons/terminal.svg</file>
         <file>icons/clear.svg</file>
         <file>icons/close.svg</file>
+        <file>icons/info.svg</file>
+        <file>icons/help.svg</file>
     </qresource>
 </RCC>
