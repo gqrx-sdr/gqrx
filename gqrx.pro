@@ -26,6 +26,9 @@ DEFINES += VERSION=\"$${VERSTR}\" # create a VERSION macro containing the versio
 # QMAKE_RPATH & co won't work with origin
 QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/lib\''
 
+# Use for valgrind
+#QMAKE_CFLAGS_DEBUG += '-g -O0'
+
 SOURCES +=\
     receiver.cc \
     main.cc \

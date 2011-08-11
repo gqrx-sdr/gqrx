@@ -604,6 +604,8 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
         }
     }
 
+    delete [] m_pTranslateTbl;
+
 }
 
 
