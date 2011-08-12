@@ -29,6 +29,7 @@
 #include "qtgui/dockiqplayer.h"
 #include "qtgui/dockfft.h"
 #include "qtgui/afsk1200win.h"
+#include "qtgui/bpsk1000win.h"
 
 #include <receiver.h>
 
@@ -65,6 +66,7 @@ private:
 
     /* data decoders */
     Afsk1200Win    *dec_afsk1200;
+    Bpsk1000Win    *dec_bpsk1000;
 
     QTimer   *dec_timer;
     QTimer   *meter_timer;
@@ -108,11 +110,13 @@ private slots:
     void on_actionIqRec_triggered(bool checked);
     void on_actionIODevices_triggered();
     void on_actionAFSK1200_triggered();
+    void on_actionBPSK1000_triggered();
     void on_actionAbout_triggered();
     void on_actionAboutQt_triggered();
 
     /* window close signals */
     void afsk1200win_closed();
+    void bpsk1000win_closed();
 
     /* cyclic processing */
     void decoderTimeout();

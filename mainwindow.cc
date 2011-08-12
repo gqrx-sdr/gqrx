@@ -35,6 +35,7 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
+    dec_bpsk1000(0),
     dec_afsk1200(0)
 {
     ui->setupUi(this);
@@ -779,6 +780,58 @@ void MainWindow::afsk1200win_closed()
 }
 
 
+/*! \brief BPSK1000 decoder action triggered.
+ *
+ * This slot is called when the user activates the BPSK1000
+ * action. It will create an BPSK1000 decoder window and start
+ * and start pushing data from the receiver to it.
+ */
+void MainWindow::on_actionBPSK1000_triggered()
+{
+
+    if (dec_bpsk1000 != 0) {
+        qDebug() << "BPSK1000 decoder already active.";
+        dec_bpsk1000->raise();
+    }
+    else {
+        qDebug() << "Starting BPSK1000 decoder.";
+
+        /* start sample sniffer */
+        if (rx->start_sniffer(48000, DATA_BUFFER_SIZE) == receiver::STATUS_OK) {
+            dec_bpsk1000 = new Bpsk1000Win(this);
+            connect(dec_bpsk1000, SIGNAL(windowClosed()), this, SLOT(bpsk1000win_closed()));
+            dec_bpsk1000->show();
+
+            dec_timer->start(100);
+        }
+        else {
+            int ret = QMessageBox::warning(this, tr("Gqrx error"),
+                                           tr("Error starting sample sniffer.\n"
+                                              "Close all data decoders and try again."),
+                                           QMessageBox::Ok, QMessageBox::Ok);
+        }
+    }
+}
+
+
+/*! \brief Destroy BPSK1000 decoder window got closed.
+ *
+ * This slot is connected to the windowClosed() signal of the BPSK1000 decoder
+ * object. We need this to properly destroy the object, stop timeout and clean
+ * up whatever need to be cleaned up.
+ */
+void MainWindow::bpsk1000win_closed()
+{
+    /* stop cyclic processing */
+    dec_timer->stop();
+    rx->stop_sniffer();
+
+    /* delete decoder object */
+    delete dec_bpsk1000;
+    dec_bpsk1000 = 0;
+}
+
+
 /*! \brief Cyclic processing for acquiring samples from receiver and
  *         processing them with data decoders (see dec_* objects)
  */
@@ -790,7 +843,13 @@ void MainWindow::decoderTimeout()
     //qDebug() << "Process decoder";
 
     rx->get_sniffer_data(&buffer[0], num);
-    dec_afsk1200->process_samples(&buffer[0], num);
+    if (dec_bpsk1000) {
+        dec_bpsk1000->process_samples(&buffer[0], num);
+    }
+    else if (dec_afsk1200) {
+        dec_afsk1200->process_samples(&buffer[0], num);
+    }
+    /* else stop timeout and sniffer? */
 }
 
 

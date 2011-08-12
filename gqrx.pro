@@ -51,7 +51,8 @@ SOURCES +=\
     dsp/afsk1200/costabf.c \
     dsp/afsk1200/cafsk12.cpp \
     qtgui/dockiqplayer.cpp \
-    qtgui/afsk1200win.cc
+    qtgui/afsk1200win.cc \
+    qtgui/bpsk1000win.cc
 
 
 HEADERS  += mainwindow.h \
@@ -75,7 +76,8 @@ HEADERS  += mainwindow.h \
     dsp/afsk1200/filter.h \
     dsp/afsk1200/cafsk12.h \
     qtgui/dockiqplayer.h \
-    qtgui/afsk1200win.h
+    qtgui/afsk1200win.h \
+    qtgui/bpsk1000win.h
 
 FORMS    += \
     qtgui/dockrxopt.ui \
@@ -85,7 +87,8 @@ FORMS    += \
     qtgui/dockaudio.ui \
     qtgui/dockfft.ui \
     qtgui/dockiqplayer.ui \
-    qtgui/afsk1200win.ui
+    qtgui/afsk1200win.ui \
+    qtgui/bpsk1000win.ui
 
 
 # dependencies via pkg-config

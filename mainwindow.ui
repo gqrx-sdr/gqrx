@@ -165,6 +165,7 @@
      <string>&amp;Tools</string>
     </property>
     <addaction name="actionSched"/>
+    <addaction name="actionBPSK1000"/>
     <addaction name="actionAFSK1200"/>
    </widget>
    <addaction name="menu_File"/>
@@ -288,6 +289,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionBPSK1000">
+   <property name="text">
+    <string>BPSK1000 Decoder</string>
+   </property>
+   <property name="toolTip">
+    <string>Start BPSK1000 decoder</string>
    </property>
   </action>
  </widget>
