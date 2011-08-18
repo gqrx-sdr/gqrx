@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>AFSK1200 Decoder</string>
+   <string>BPSK1000 Decoder</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../icons.qrc">

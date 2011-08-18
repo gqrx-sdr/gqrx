@@ -21,6 +21,7 @@
 #include <QFileDialog>
 #include <QFile>
 #include <QDir>
+#include <QByteArray>
 #include <QDebug>
 #include "bpsk1000win.h"
 #include "ui_bpsk1000win.h"
@@ -28,7 +29,9 @@
 
 Bpsk1000Win::Bpsk1000Win(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::Bpsk1000Win)
+    ui(new Ui::Bpsk1000Win),
+    demodBytes(0), demodFramesT(0), demodFramesB1(0), demodFramesB2(0),
+    demodFramesB3(0), demodFramesB4(0)
 {
     ui->setupUi(this);
 
@@ -45,16 +48,21 @@ Bpsk1000Win::Bpsk1000Win(QWidget *parent) :
     ui->toolBar->addWidget(spacer);
     ui->toolBar->addAction(ui->actionInfo);
 
-    /* AFSK1200 decoder */
-    //decoder = new CAfsk12(this);
-    //connect(decoder, SIGNAL(newMessage(QString)), ui->textView, SLOT(appendPlainText(QString)));
+    /* start demodulator */
+    demod = new QProcess(this);
+    connect(demod, SIGNAL(stateChanged(QProcess::ProcessState)),
+            this, SLOT(demodStateChanged(QProcess::ProcessState)));
+    connect(demod, SIGNAL(readyReadStandardOutput()), this, SLOT(readDemodData()));
+    demod->start("./demod", QIODevice::ReadWrite);
 }
 
 Bpsk1000Win::~Bpsk1000Win()
 {
     qDebug() << "BPSK1000 decoder destroyed.";
 
-    //delete decoder;
+    demod->close();
+    delete demod;
+
     delete ui;
 }
 
@@ -62,7 +70,25 @@ Bpsk1000Win::~Bpsk1000Win()
 /*! \brief Process new set of samples. */
 void Bpsk1000Win::process_samples(float *buffer, int length)
 {
+    qint16 *int_buffer;  // input samples converted to int
+    const char *ch_ptr;  // input samples cast to char
 
+    // only process input if demod is running
+    if (demod->state() != QProcess::Running)
+        return;
+
+    int_buffer = new qint16[length];
+    ch_ptr = reinterpret_cast<const char *>(int_buffer);
+
+    /* convert input samples to signed int */
+    for (int i=0; i < length; i++) {
+        int_buffer[i] = (qint16)(buffer[i]*32767.);
+    }
+
+    //in_pipe->write(ch_ptr, length*sizeof(qint16));
+    demod->write(ch_ptr, length*sizeof(qint16));
+
+    delete [] int_buffer;
 }
 
 
@@ -72,6 +98,37 @@ void Bpsk1000Win::closeEvent(QCloseEvent *ev)
     Q_UNUSED(ev);
 
     emit windowClosed();
+}
+
+
+/*! \brief Demodulator process state changed.
+ *  \param newState The new state of the demodulator proces.
+ */
+void Bpsk1000Win::demodStateChanged(QProcess::ProcessState newState)
+{
+    QString demodState[] = {"Not Running", "Starting", "Running"};
+
+    ui->statusBar->showMessage(demodState[newState]);
+    qDebug() << "Demodulator process state changed to:" << demodState[newState];
+}
+
+
+/*! \brief Read data from the demodulator.
+ *
+ * This slot is connected to the readyReadStandardOutput() signal of the
+ * demodulator process. It reads the available data from the standard output
+ * of the demodulator and executes the apropriate post processing and display
+ * functions.
+ */
+void Bpsk1000Win::readDemodData()
+{
+    QByteArray data;
+
+    demodBytes += demod->bytesAvailable();
+    qDebug() << "Bytes from demod: " << demod->bytesAvailable();
+    data = demod->readAllStandardOutput();
+
+    ui->textView->appendPlainText(QString(data.toHex()));
 }
 
 
