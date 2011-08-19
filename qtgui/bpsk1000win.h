@@ -23,6 +23,7 @@
 #include <QMainWindow>
 #include <QVarLengthArray>
 #include <QProcess>
+#include <QComboBox>
 
 
 namespace Ui {
@@ -70,6 +71,8 @@ private slots:
     void demodStateChanged(QProcess::ProcessState newState);
     void readDemodData();
 
+    void profileSelected(int index);
+
     // button actions
     void on_actionClear_triggered();
     void on_actionOpen_triggered();
@@ -78,9 +81,9 @@ private slots:
     void on_actionRealtime_triggered(bool checked);
 
 private:
-    Ui::Bpsk1000Win *ui;  /*! Qt Designer form. */
-
-    QProcess *demod;  /*! Demodulator process. */
+    Ui::Bpsk1000Win *ui;           /*! Qt Designer form. */
+    QComboBox       *profileCombo; /*! Telemetry profile selector. */
+    QProcess        *demod;        /*! Demodulator process. */
 
     bool    realtime; /*! Weather we are runnign in real time mode. */
 

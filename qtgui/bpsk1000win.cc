@@ -22,6 +22,7 @@
 #include <QFile>
 #include <QDir>
 #include <QByteArray>
+#include <QLabel>
 #include <QDebug>
 #include "bpsk1000win.h"
 #include "ui_bpsk1000win.h"
@@ -42,6 +43,15 @@ Bpsk1000Win::Bpsk1000Win(QWidget *parent) :
 #else
     ui->listView->setFont(QFont("Monospace", 11));
 #endif
+
+    /* telemetry profile selector */
+    QLabel *label = new QLabel(tr("  Profile: "), this);
+    ui->toolBar->addWidget(label);
+    profileCombo = new QComboBox(this);
+    profileCombo->setToolTip(tr("Select a telemetry profile"));
+    profileCombo->addItem(tr("ARISSat-1"));
+    connect(profileCombo, SIGNAL(activated(int)), this, SLOT(profileSelected(int)));
+    ui->toolBar->addWidget(profileCombo);
 
     /* Add right-aligned info button */
     QWidget *spacer = new QWidget();
@@ -230,6 +240,12 @@ void Bpsk1000Win::on_actionRealtime_triggered(bool checked)
     }
 }
 
+
+/*! \brief New telemetry profile selected. */
+void Bpsk1000Win::profileSelected(int index)
+{
+    qDebug() << "New profile selected:" << index;
+}
 
 /*! \brief User clicked Info button. */
 void Bpsk1000Win::on_actionInfo_triggered()

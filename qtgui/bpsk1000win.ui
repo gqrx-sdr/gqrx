@@ -64,6 +64,7 @@
    <addaction name="actionClear"/>
    <addaction name="separator"/>
    <addaction name="actionRealtime"/>
+   <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionClear">
