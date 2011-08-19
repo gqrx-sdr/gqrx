@@ -43,8 +43,13 @@ namespace Ui {
  * These samples 48ksps float format -1.0 ... +1.0 and need to be converted to 16 bit
  * signed integer, see http://wiki.oz9aec.net/index.php/Demod2
  *
- * The decoded data is shown in HEX format in the textview (one packet per line) and
- * optionally dumped to a text file.
+ * The decoded data is shown in HEX format in the list view (one packet per line) and
+ * optionally dumped to a text file. In the case of ARISSat telementry frames, the data
+ * is further decoded and shown at the lower part fo the window.
+ *
+ * The decoder can also run in offline analysis mode. In this mode incoming samples are
+ * ignored and the telemetry display will show the line currently selected in the list
+ * view widget.
  */
 class Bpsk1000Win : public QMainWindow
 {
@@ -67,13 +72,17 @@ private slots:
 
     // button actions
     void on_actionClear_triggered();
+    void on_actionOpen_triggered();
     void on_actionSave_triggered();
     void on_actionInfo_triggered();
+    void on_actionRealtime_triggered(bool checked);
 
 private:
     Ui::Bpsk1000Win *ui;  /*! Qt Designer form. */
 
     QProcess *demod;  /*! Demodulator process. */
+
+    bool    realtime; /*! Weather we are runnign in real time mode. */
 
     quint64 demodBytes;    /*! Bytes received from demod. */
     quint64 demodFramesT;  /*! TLM frames received from demod. */

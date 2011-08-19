@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>400</height>
+    <height>524</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,23 +26,12 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QPlainTextEdit" name="textView">
-      <property name="font">
-       <font>
-        <family>Monospace</family>
-       </font>
-      </property>
-      <property name="horizontalScrollBarPolicy">
-       <enum>Qt::ScrollBarAsNeeded</enum>
-      </property>
-      <property name="lineWrapMode">
-       <enum>QPlainTextEdit::NoWrap</enum>
-      </property>
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-      <property name="maximumBlockCount">
-       <number>10000</number>
+     <widget class="QListWidget" name="listView">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
      </widget>
     </item>
@@ -70,8 +59,11 @@
    </attribute>
    <addaction name="actionClose"/>
    <addaction name="separator"/>
-   <addaction name="actionClear"/>
+   <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
+   <addaction name="actionClear"/>
+   <addaction name="separator"/>
+   <addaction name="actionRealtime"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionClear">
@@ -120,6 +112,39 @@
    </property>
    <property name="toolTip">
     <string>Show info about AFKS1200 decoder</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/icons/document.svg</normaloff>:/icons/icons/document.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="toolTip">
+    <string>Load previously received telemetry data</string>
+   </property>
+  </action>
+  <action name="actionRealtime">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/icons/play.svg</normaloff>:/icons/icons/play.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Real time</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle between real time reception and offline analysis</string>
    </property>
   </action>
  </widget>

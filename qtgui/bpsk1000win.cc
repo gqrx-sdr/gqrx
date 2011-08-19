@@ -30,6 +30,7 @@
 Bpsk1000Win::Bpsk1000Win(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::Bpsk1000Win),
+    realtime(true),
     demodBytes(0), demodFramesT(0), demodFramesB1(0), demodFramesB2(0),
     demodFramesB3(0), demodFramesB4(0)
 {
@@ -37,9 +38,9 @@ Bpsk1000Win::Bpsk1000Win(QWidget *parent) :
 
     /* select font for text viewer */
 #ifdef Q_OS_MAC
-    ui->textView->setFont(QFont("Monaco", 12));
+    ui->listView->setFont(QFont("Monaco", 12));
 #else
-    ui->textView->setFont(QFont("Monospace", 11));
+    ui->listView->setFont(QFont("Monospace", 11));
 #endif
 
     /* Add right-aligned info button */
@@ -48,7 +49,7 @@ Bpsk1000Win::Bpsk1000Win(QWidget *parent) :
     ui->toolBar->addWidget(spacer);
     ui->toolBar->addAction(ui->actionInfo);
 
-    /* start demodulator */
+    /* start demodulator and connect callbacks */
     demod = new QProcess(this);
     connect(demod, SIGNAL(stateChanged(QProcess::ProcessState)),
             this, SLOT(demodStateChanged(QProcess::ProcessState)));
@@ -73,8 +74,8 @@ void Bpsk1000Win::process_samples(float *buffer, int length)
     qint16 *int_buffer;  // input samples converted to int
     const char *ch_ptr;  // input samples cast to char
 
-    // only process input if demod is running
-    if (demod->state() != QProcess::Running)
+    // only process input if demod is running and real time is enabled
+    if ((demod->state() != QProcess::Running) || !realtime)
         return;
 
     int_buffer = new qint16[length];
@@ -85,7 +86,6 @@ void Bpsk1000Win::process_samples(float *buffer, int length)
         int_buffer[i] = (qint16)(buffer[i]*32767.);
     }
 
-    //in_pipe->write(ch_ptr, length*sizeof(qint16));
     demod->write(ch_ptr, length*sizeof(qint16));
 
     delete [] int_buffer;
@@ -128,14 +128,56 @@ void Bpsk1000Win::readDemodData()
     qDebug() << "Bytes from demod: " << demod->bytesAvailable();
     data = demod->readAllStandardOutput();
 
-    ui->textView->appendPlainText(QString(data.toHex()));
+    ui->listView->addItem(QString(data.toHex()));
 }
 
 
 /*! \brief User clicked on the Clear button. */
 void Bpsk1000Win::on_actionClear_triggered()
 {
-    ui->textView->clear();
+    ui->listView->clear();
+}
+
+
+/*! \brief Load previously received data from file. */
+void Bpsk1000Win::on_actionOpen_triggered()
+{
+    qDebug() << "Open file";
+
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
+                                                    QDir::homePath(),
+                                                    tr("Text Files (*.txt)"));
+
+    if (fileName.isEmpty()) {
+        qDebug() << "Open cancelled by user";
+        return;
+    }
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "Error creating file: " << fileName;
+        return;
+    }
+
+    // clear the listView widget then load new data from file
+    ui->listView->clear();
+    while (!file.atEnd()) {
+        QByteArray line = file.readLine();
+
+        // remove trailing endline
+#ifdef Q_OS_WIN32
+        if (line.endsWith("\r\n"))
+            line.chop(2);
+#else
+        if (line.endsWith("\n"))
+            line.chop(1);
+#endif
+
+        // add frame to list view widget
+        if (!line.isEmpty())
+            ui->listView->addItem(QString(line));
+    }
+    file.close();
 }
 
 
@@ -143,8 +185,8 @@ void Bpsk1000Win::on_actionClear_triggered()
 void Bpsk1000Win::on_actionSave_triggered()
 {
     /* empty text view has blockCount = 1 */
-    if (ui->textView->blockCount() < 2) {
-        QMessageBox::warning(this, tr("Gqrx error"), tr("Nothing to save."),
+    if (ui->listView->count() == 0) {
+        QMessageBox::warning(this, tr("Gqrx error"), tr("There is no data to save."),
                              QMessageBox::Ok, QMessageBox::Ok);
         return;
     }
@@ -164,9 +206,28 @@ void Bpsk1000Win::on_actionSave_triggered()
         return;
     }
 
+    // dunp data from list view widget to the file
     QTextStream out(&file);
-    out << ui->textView->toPlainText();
+    for (int i = 0; i < ui->listView->count(); i++) {
+        out << ui->listView->item(i)->text() << '\n' << flush;
+    }
     file.close();
+}
+
+
+/*! \brief Toggle between real time reception and offline analysis. */
+void Bpsk1000Win::on_actionRealtime_triggered(bool checked)
+{
+    qDebug() << "Real time:" << checked;
+
+    if (checked) {
+        ui->actionOpen->setEnabled(false);
+        realtime = true;
+    }
+    else {
+        ui->actionOpen->setEnabled(true);
+        realtime = false;
+    }
 }
 
 
