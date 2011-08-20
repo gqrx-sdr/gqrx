@@ -24,6 +24,7 @@
 #include <QVarLengthArray>
 #include <QProcess>
 #include <QComboBox>
+#include "qtgui/arissattlm.h"
 
 
 namespace Ui {
@@ -72,6 +73,8 @@ private slots:
     void readDemodData();
 
     void profileSelected(int index);
+    void on_listView_currentRowChanged(int row);
+    //void listViewRowSelected(int row);
 
     // button actions
     void on_actionClear_triggered();
@@ -79,6 +82,9 @@ private slots:
     void on_actionSave_triggered();
     void on_actionInfo_triggered();
     void on_actionRealtime_triggered(bool checked);
+
+private:
+    void decodeTlm(QByteArray &data);
 
 private:
     Ui::Bpsk1000Win *ui;           /*! Qt Designer form. */
@@ -93,6 +99,9 @@ private:
     quint64 demodFramesB2; /*! E1B2 frames received from demod. */
     quint64 demodFramesB3; /*! E1B3 frames received from demod. */
     quint64 demodFramesB4; /*! E1B4 frames received from demod. */
+
+    // telemetry viewers
+    ArissatTlm  *tlmArissat;  /*! Arissat-1 telemetry viewer. */
 };
 
 #endif // BPSK1000WIN_H

@@ -28,6 +28,9 @@
 #include "ui_bpsk1000win.h"
 
 
+QString demodState[] = {"Not Running", "Starting", "Running"};
+
+
 Bpsk1000Win::Bpsk1000Win(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::Bpsk1000Win),
@@ -59,12 +62,18 @@ Bpsk1000Win::Bpsk1000Win(QWidget *parent) :
     ui->toolBar->addWidget(spacer);
     ui->toolBar->addAction(ui->actionInfo);
 
+    /* telemetry viewers */
+    tlmArissat = new ArissatTlm(ui->stackedWidget);
+    ui->stackedWidget->insertWidget(0, tlmArissat);
+    ui->stackedWidget->setCurrentIndex(0);
+
     /* start demodulator and connect callbacks */
     demod = new QProcess(this);
     connect(demod, SIGNAL(stateChanged(QProcess::ProcessState)),
             this, SLOT(demodStateChanged(QProcess::ProcessState)));
     connect(demod, SIGNAL(readyReadStandardOutput()), this, SLOT(readDemodData()));
     demod->start("./demod", QIODevice::ReadWrite);
+
 }
 
 Bpsk1000Win::~Bpsk1000Win()
@@ -116,8 +125,6 @@ void Bpsk1000Win::closeEvent(QCloseEvent *ev)
  */
 void Bpsk1000Win::demodStateChanged(QProcess::ProcessState newState)
 {
-    QString demodState[] = {"Not Running", "Starting", "Running"};
-
     ui->statusBar->showMessage(demodState[newState]);
     qDebug() << "Demodulator process state changed to:" << demodState[newState];
 }
@@ -139,6 +146,21 @@ void Bpsk1000Win::readDemodData()
     data = demod->readAllStandardOutput();
 
     ui->listView->addItem(QString(data.toHex()));
+    decodeTlm(data);
+}
+
+
+/*! \brief Decode telemetry data. */
+void Bpsk1000Win::decodeTlm(QByteArray &data)
+{
+    switch (profileCombo->currentIndex()) {
+    case 0:
+        tlmArissat->processData(data);
+        break;
+
+    default:
+        qDebug() << "No TLM decoder with index" << profileCombo->currentIndex();
+    }
 }
 
 
@@ -233,10 +255,12 @@ void Bpsk1000Win::on_actionRealtime_triggered(bool checked)
     if (checked) {
         ui->actionOpen->setEnabled(false);
         realtime = true;
+        ui->statusBar->showMessage(demodState[demod->state()]);
     }
     else {
         ui->actionOpen->setEnabled(true);
         realtime = false;
+        ui->statusBar->showMessage(tr("Offline mode"));
     }
 }
 
@@ -245,6 +269,14 @@ void Bpsk1000Win::on_actionRealtime_triggered(bool checked)
 void Bpsk1000Win::profileSelected(int index)
 {
     qDebug() << "New profile selected:" << index;
+}
+
+
+/*! \brief New row has been selected. */
+void Bpsk1000Win::on_listView_currentRowChanged(int row)
+{
+    QByteArray ba = QByteArray::fromHex(ui->listView->item(row)->text().toAscii());
+    decodeTlm(ba);
 }
 
 /*! \brief User clicked Info button. */

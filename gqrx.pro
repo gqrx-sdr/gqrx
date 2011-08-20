@@ -52,7 +52,8 @@ SOURCES +=\
     dsp/afsk1200/cafsk12.cpp \
     qtgui/dockiqplayer.cpp \
     qtgui/afsk1200win.cc \
-    qtgui/bpsk1000win.cc
+    qtgui/bpsk1000win.cc \
+    qtgui/arissattlm.cc
 
 
 HEADERS  += mainwindow.h \
@@ -79,7 +80,8 @@ HEADERS  += mainwindow.h \
     qtgui/afsk1200win.h \
     qtgui/bpsk1000win.h \
     tlm/arissat/ss_types_common.h \
-    tlm/arissat/ss_stdint.h
+    tlm/arissat/ss_stdint.h \
+    qtgui/arissattlm.h
 
 FORMS    += \
     qtgui/dockrxopt.ui \
@@ -90,7 +92,8 @@ FORMS    += \
     qtgui/dockfft.ui \
     qtgui/dockiqplayer.ui \
     qtgui/afsk1200win.ui \
-    qtgui/bpsk1000win.ui
+    qtgui/bpsk1000win.ui \
+    qtgui/arissattlm.ui
 
 
 # dependencies via pkg-config
