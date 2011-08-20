@@ -95,7 +95,9 @@ typedef signed int			s32;
 typedef signed long long    s64;
 #endif
 
-#if defined(_MSC_VER) || defined (_WIN32)
+#define _LIN
+
+#if defined(_LIN) || defined (_WIN32)
 /*
  * Type definitions for IA32 Architecture,
  * Using the Microsoft C compiler
@@ -106,7 +108,7 @@ typedef signed long long    s64;
 #define PACKED   __attribute__ ((packed))
 #endif
 
-typedef unsigned char  bool;
+//typedef unsigned char  bool;
 typedef unsigned char  u8;
 typedef unsigned short u16;
 typedef unsigned int   u32;

@@ -16,7 +16,7 @@
 #define False 0
 
 // Call out the basic defined types, defined to be the same across multiple compilers
-#include "common/ss_stdint.h"
+#include "tlm/arissat/ss_stdint.h"
 
 #define PERCENT_100 (100*2)
 #define PERCENT_75  (75*2)
