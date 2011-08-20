@@ -77,7 +77,9 @@ HEADERS  += mainwindow.h \
     dsp/afsk1200/cafsk12.h \
     qtgui/dockiqplayer.h \
     qtgui/afsk1200win.h \
-    qtgui/bpsk1000win.h
+    qtgui/bpsk1000win.h \
+    tlm/arissat/ss_types_common.h \
+    tlm/arissat/ss_stdint.h
 
 FORMS    += \
     qtgui/dockrxopt.ui \
