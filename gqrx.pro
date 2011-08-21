@@ -53,7 +53,9 @@ SOURCES +=\
     qtgui/dockiqplayer.cpp \
     qtgui/afsk1200win.cc \
     qtgui/bpsk1000win.cc \
-    qtgui/arissattlm.cc
+    qtgui/arissattlm.cc \
+    tlm/arissat/scale_therm.c \
+    tlm/arissat/scale_psu.c
 
 
 HEADERS  += mainwindow.h \
@@ -81,7 +83,9 @@ HEADERS  += mainwindow.h \
     qtgui/bpsk1000win.h \
     tlm/arissat/ss_types_common.h \
     tlm/arissat/ss_stdint.h \
-    qtgui/arissattlm.h
+    qtgui/arissattlm.h \
+    tlm/arissat/scale_therm.h \
+    tlm/arissat/scale_psu.h
 
 FORMS    += \
     qtgui/dockrxopt.ui \

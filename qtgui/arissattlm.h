@@ -43,6 +43,9 @@ public:
 
 private:
     void showMissionData(ss_telem_t &tlm);
+    void showIhuTemps(ss_telem_t &tlm);
+    void showBattery(ss_telem_t &tlm);
+    void showPower(ss_telem_t &tlm);
 
 private:
     Ui::ArissatTlm *ui;
