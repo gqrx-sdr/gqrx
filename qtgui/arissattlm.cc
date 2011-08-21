@@ -28,14 +28,18 @@
 extern "C" {
     #include "tlm/arissat/scale_therm.h"
     #include "tlm/arissat/scale_psu.h"
+    #include "tlm/arissat/scale_ppt.h"
 }
 
 
 ArissatTlm::ArissatTlm(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ArissatTlm)
+    ui(new Ui::ArissatTlm),
+    deg(QChar(0x00b0))
 {
     ui->setupUi(this);
+
+    createPptLabels();
 }
 
 ArissatTlm::~ArissatTlm()
@@ -43,6 +47,55 @@ ArissatTlm::~ArissatTlm()
     delete ui;
 }
 
+
+/*! \brief Create labels for PPT telemetry and add them to the grid layout. */
+void ArissatTlm::createPptLabels()
+{
+    // PPT telemetry labels
+    for (int i = 0; i < PPT_COUNT; i++) {
+        // Panel energy
+        pptEnergy[i] = new QLabel("0", this);
+        pptEnergy[i]->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        ui->pptGridLayout->addWidget(pptEnergy[i], 1, 1+i, 1, 1);
+        // Panel voltage
+        pptVolt[i] = new QLabel("0.000 V", this);
+        pptVolt[i]->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        ui->pptGridLayout->addWidget(pptVolt[i], 2, 1+i, 1, 1);
+        // Panel current
+        pptAmp[i] = new QLabel("0.000 A", this);
+        pptAmp[i]->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        ui->pptGridLayout->addWidget(pptAmp[i], 3, 1+i, 1, 1);
+        // Panel temperature
+        pptTempPanel[i] = new QLabel(QString("0 %1C").arg(deg), this);
+        pptTempPanel[i]->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        ui->pptGridLayout->addWidget(pptTempPanel[i], 4, 1+i, 1, 1);
+        // Inductor temperature
+        pptTempInd[i] = new QLabel(QString("0 %1C").arg(deg), this);
+        pptTempInd[i]->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        ui->pptGridLayout->addWidget(pptTempInd[i], 5, 1+i, 1, 1);
+        // Diode temperature
+        pptTempDiode[i] = new QLabel(QString("0 %1C").arg(deg), this);
+        pptTempDiode[i]->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        ui->pptGridLayout->addWidget(pptTempDiode[i], 6, 1+i, 1, 1);
+        // FET temperature
+        pptTempFet[i] = new QLabel(QString("0 %1C").arg(deg), this);
+        pptTempFet[i]->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        ui->pptGridLayout->addWidget(pptTempFet[i], 7, 1+i, 1, 1);
+        // Solar panel PWM current setpoint
+        pptPwm[i] = new QLabel("0.000 A", this);
+        pptPwm[i]->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        ui->pptGridLayout->addWidget(pptPwm[i], 8, 1+i, 1, 1);
+        // Telemetry age
+        pptAge[i] = new QLabel("0", this);
+        pptAge[i]->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        ui->pptGridLayout->addWidget(pptAge[i], 9, 1+i, 1, 1);
+        // Corrupt packet count
+        pptCorrupt[i] = new QLabel("0", this);
+        pptCorrupt[i]->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        ui->pptGridLayout->addWidget(pptCorrupt[i], 10, 1+i, 1, 1);
+    }
+
+}
 
 /*! \brief Process new data. */
 void ArissatTlm::processData(QByteArray &data)
@@ -69,15 +122,16 @@ void ArissatTlm::processData(QByteArray &data)
     // now copy the ss_telem_t structure
     memcpy(&tlm, ba.data()+27, 340);
 
-    showMissionData(tlm);
-    showIhuTemps(tlm);
-    showBattery(tlm);
-    showPower(tlm);
+    updateMissionData(tlm);
+    updateIhuTemps(tlm);
+    updateBattery(tlm);
+    updatePower(tlm);
+    updatePpt(tlm);
 }
 
 
 /*! \brief Display main mission data. */
-void ArissatTlm::showMissionData(ss_telem_t &tlm)
+void ArissatTlm::updateMissionData(ss_telem_t &tlm)
 {
     // MET
     quint32 days = tlm.mission_time / 86400;
@@ -112,10 +166,8 @@ void ArissatTlm::showMissionData(ss_telem_t &tlm)
 
 
 /*! \brief Display IHU temperatures. */
-void ArissatTlm::showIhuTemps(ss_telem_t &tlm)
+void ArissatTlm::updateIhuTemps(ss_telem_t &tlm)
 {
-    QChar deg = QChar(0x00b0);
-
     ui->tempRfMod->setText(QString("%1 %2C").arg((int)scale_thermistor_C(tlm.ihu_temps.rf)).arg(deg));
     ui->tempIhuEnc->setText(QString("%1 %2C").arg((int)scale_thermistor_C(tlm.ihu_temps.ihu_enclosure)).arg(deg));
     ui->tempCtl->setText(QString("%1 %2C").arg((int)scale_thermistor_C(tlm.ihu_temps.control_panel)).arg(deg));
@@ -129,7 +181,7 @@ void ArissatTlm::showIhuTemps(ss_telem_t &tlm)
 
 
 /*! \brief Show battery telemetry. */
-void ArissatTlm::showBattery(ss_telem_t &tlm)
+void ArissatTlm::updateBattery(ss_telem_t &tlm)
 {
     // Battery status
     if (scale_psu_i_batt(tlm.power.batt_status.i_raw, tlm.power.batt_status.ref2p5_raw) > 0)
@@ -154,7 +206,7 @@ void ArissatTlm::showBattery(ss_telem_t &tlm)
 }
 
 /*! \brief Show power telemetry. */
-void ArissatTlm::showPower(ss_telem_t &tlm)
+void ArissatTlm::updatePower(ss_telem_t &tlm)
 {
     double amp;
 
@@ -212,4 +264,45 @@ void ArissatTlm::showPower(ss_telem_t &tlm)
     amp = scale_psu_i_8v(tlm.power.ps8v.i_raw_lsb + ((tlm.power.ps8v.i_raw_msb & 0x0f) << 8),
                              tlm.power.batt_status.ref2p5_raw);
     ui->psu8vAmp->setText(QString("%1 A").arg(amp, 6, 'f', 3));
+}
+
+
+/*! \brief Update PPT telemetry. */
+void ArissatTlm::updatePpt(ss_telem_t &tlm)
+{
+    quint8 lsb, msb;
+
+    for (int i = 0; i < PPT_COUNT; i++) {
+        pptEnergy[i]->setText(QString::number(U48TOU64(tlm.ppt_status[i].sp_energy_osc_raw)));
+        pptVolt[i]->setText(QString("%1 V").arg(scale_ppt_sp_voltage(tlm.ppt_status[i].sp_voltage_raw), 7, 'f', 3));
+        pptAmp[i]->setText(QString("%1 A").arg(scale_ppt_sp_current(tlm.ppt_status[i].sp_current_adc_raw), 7, 'f', 3));
+        pptPwm[i]->setText(QString("%1 A").arg(scale_ppt_pwm_setpoint(tlm.ppt_status[i].osc_ccp_current_setpt), 7, 'f', 3));
+        pptAge[i]->setText(QString::number((int)tlm.ppt_status[i].aged));
+        pptCorrupt[i]->setText(QString::number((int)tlm.ppt_status[i].corrupt));
+
+        // Solar panel temperature
+        msb = (tlm.ppt_status[i].sp_temp_raw_msb_diode_temp_raw_msb & 0xF0) << 4;
+        lsb = tlm.ppt_status[i].sp_temp_raw_lsb;
+        pptTempPanel[i]->setText(QString("%1 %2C").
+                                 arg((int)scale_thermistor_C(msb+lsb)).
+                                 arg(deg));
+        // Inductor temperature
+        msb = (tlm.ppt_status[i].ind_temp_raw_msb_fet_temp_raw_msb  & 0xF0) << 4;
+        lsb = tlm.ppt_status[i].ind_temp_raw_lsb;
+        pptTempInd[i]->setText(QString("%1 %2C").
+                               arg((int)scale_thermistor_C(msb+lsb)).
+                               arg(deg));
+        // Diode temperature
+        msb = (tlm.ppt_status[i].sp_temp_raw_msb_diode_temp_raw_msb  & 0x0F) << 4;
+        lsb = tlm.ppt_status[i].diode_temp_raw_lsb;
+        pptTempDiode[i]->setText(QString("%1 %2C").
+                               arg((int)scale_thermistor_C(msb+lsb)).
+                               arg(deg));
+        // FET temperature
+        msb = (tlm.ppt_status[i].ind_temp_raw_msb_fet_temp_raw_msb  & 0x0F) << 4;
+        lsb = tlm.ppt_status[i].fet_temp_raw_lsb;
+        pptTempFet[i]->setText(QString("%1 %2C").
+                               arg((int)scale_thermistor_C(msb+lsb)).
+                               arg(deg));
+    }
 }

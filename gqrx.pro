@@ -55,7 +55,8 @@ SOURCES +=\
     qtgui/bpsk1000win.cc \
     qtgui/arissattlm.cc \
     tlm/arissat/scale_therm.c \
-    tlm/arissat/scale_psu.c
+    tlm/arissat/scale_psu.c \
+    tlm/arissat/scale_ppt.c
 
 
 HEADERS  += mainwindow.h \
@@ -85,7 +86,8 @@ HEADERS  += mainwindow.h \
     tlm/arissat/ss_stdint.h \
     qtgui/arissattlm.h \
     tlm/arissat/scale_therm.h \
-    tlm/arissat/scale_psu.h
+    tlm/arissat/scale_psu.h \
+    tlm/arissat/scale_ppt.h
 
 FORMS    += \
     qtgui/dockrxopt.ui \
