@@ -71,6 +71,7 @@ signals:
 private slots:
     void demodStateChanged(QProcess::ProcessState newState);
     void readDemodData();
+    void readDemodDebug();
 
     void profileSelected(int index);
     void on_listView_currentRowChanged(int row);

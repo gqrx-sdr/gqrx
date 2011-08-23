@@ -103,9 +103,6 @@ void ArissatTlm::processData(QByteArray &data)
     QByteArray ba(data);
     ss_telem_t tlm;
 
-    // remove first two bytes which appear to be some header
-    ba.remove(0, 2);
-
     // check first byte: 'T'
     if (!ba.startsWith('T')) {
         qDebug() << "Data does not start with 'T'" << ba[0];

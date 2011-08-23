@@ -21,6 +21,7 @@
 #include <QFileDialog>
 #include <QFile>
 #include <QDir>
+#include <QStringList>
 #include <QByteArray>
 #include <QLabel>
 #include <QDebug>
@@ -68,11 +69,17 @@ Bpsk1000Win::Bpsk1000Win(QWidget *parent) :
     ui->stackedWidget->setCurrentIndex(0);
 
     /* start demodulator and connect callbacks */
+    QStringList params;
+    params << "-c 2000"      // carrier search center
+           << "-r 1400"      // carrier search range
+           << "-v";          // verbose (debug output)
+
     demod = new QProcess(this);
     connect(demod, SIGNAL(stateChanged(QProcess::ProcessState)),
             this, SLOT(demodStateChanged(QProcess::ProcessState)));
     connect(demod, SIGNAL(readyReadStandardOutput()), this, SLOT(readDemodData()));
-    demod->start("./demod", QIODevice::ReadWrite);
+    connect(demod, SIGNAL(readyReadStandardError()), this, SLOT(readDemodDebug()));
+    demod->start("./demod", params, QIODevice::ReadWrite);
 
 }
 
@@ -145,10 +152,26 @@ void Bpsk1000Win::readDemodData()
     qDebug() << "Bytes from demod: " << demod->bytesAvailable();
     data = demod->readAllStandardOutput();
 
+    // remove first two bytes which contain packet length
+    data.remove(0, 2);
+
     ui->listView->addItem(QString(data.toHex()));
+    ui->listView->scrollToBottom();
     decodeTlm(data);
 }
 
+
+/*! \brief Read debug data from demodulator.
+ *
+ * The demodulator prints debug data stderr
+ */
+void Bpsk1000Win::readDemodDebug()
+{
+    QByteArray data;
+
+    data = demod->readAllStandardError();
+    qDebug() << "DEMOD2:" << data;
+}
 
 /*! \brief Decode telemetry data. */
 void Bpsk1000Win::decodeTlm(QByteArray &data)
