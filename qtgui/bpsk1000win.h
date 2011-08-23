@@ -91,15 +91,14 @@ private:
     Ui::Bpsk1000Win *ui;           /*! Qt Designer form. */
     QComboBox       *profileCombo; /*! Telemetry profile selector. */
     QProcess        *demod;        /*! Demodulator process. */
+    QLabel          *numFramesT;   /*! Label on statusbar showing number of telemetry frames. */
+    QLabel          *numFramesE;   /*! Label on statusbar showing number of experiment frames. */
 
     bool    realtime; /*! Weather we are runnign in real time mode. */
 
     quint64 demodBytes;    /*! Bytes received from demod. */
-    quint64 demodFramesT;  /*! TLM frames received from demod. */
-    quint64 demodFramesB1; /*! E1B1 frames received from demod. */
-    quint64 demodFramesB2; /*! E1B2 frames received from demod. */
-    quint64 demodFramesB3; /*! E1B3 frames received from demod. */
-    quint64 demodFramesB4; /*! E1B4 frames received from demod. */
+    quint64 demodFramesT;  /*! Telemetry frames received from demod. */
+    quint64 demodFramesE;  /*! Experiment frames received from demod. */
 
     // telemetry viewers
     ArissatTlm  *tlmArissat;  /*! Arissat-1 telemetry viewer. */

@@ -36,8 +36,7 @@ Bpsk1000Win::Bpsk1000Win(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::Bpsk1000Win),
     realtime(true),
-    demodBytes(0), demodFramesT(0), demodFramesB1(0), demodFramesB2(0),
-    demodFramesB3(0), demodFramesB4(0)
+    demodBytes(0), demodFramesT(0), demodFramesE(0)
 {
     ui->setupUi(this);
 
@@ -58,10 +57,27 @@ Bpsk1000Win::Bpsk1000Win(QWidget *parent) :
     ui->toolBar->addWidget(profileCombo);
 
     /* Add right-aligned info button */
-    QWidget *spacer = new QWidget();
-    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->toolBar->addWidget(spacer);
+    QWidget *spacer1 = new QWidget();
+    spacer1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->toolBar->addWidget(spacer1);
     ui->toolBar->addAction(ui->actionInfo);
+
+    /* Add right aligned labels showing statistics */
+    QWidget *spacer2 = new QWidget();
+    spacer2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->statusBar->addPermanentWidget(spacer2);
+    // Number of telemetry frames
+    numFramesT = new QLabel("T:0", this);
+    numFramesT->setToolTip(tr("Number of telemetry frames received"));
+    numFramesT->setFrameShape(QFrame::StyledPanel);
+    numFramesT->setFrameStyle(QFrame::Sunken);
+    ui->statusBar->addPermanentWidget(numFramesT);
+    // Number of experiment frames
+    numFramesE = new QLabel("E:0", this);
+    numFramesE->setToolTip(tr("Number of experiment frames received"));
+    numFramesE->setFrameShape(QFrame::StyledPanel);
+    numFramesE->setFrameStyle(QFrame::Sunken);
+    ui->statusBar->addPermanentWidget(numFramesE);
 
     /* telemetry viewers */
     tlmArissat = new ArissatTlm(ui->stackedWidget);
@@ -154,10 +170,23 @@ void Bpsk1000Win::readDemodData()
 
     // remove first two bytes which contain packet length
     data.remove(0, 2);
-
+    // add frame to list regardless of type
     ui->listView->addItem(QString(data.toHex()));
     ui->listView->scrollToBottom();
-    decodeTlm(data);
+
+    switch (data.at(0)) {
+    case 'E':
+        demodFramesE++;
+        numFramesE->setText(QString("E:%1").arg(demodFramesE));
+        break;
+    case 'T':
+        demodFramesT++;
+        numFramesT->setText(QString("T:%1").arg(demodFramesT));
+        decodeTlm(data);
+        break;
+    default:
+        break;
+    }
 }
 
 
@@ -191,6 +220,8 @@ void Bpsk1000Win::decodeTlm(QByteArray &data)
 void Bpsk1000Win::on_actionClear_triggered()
 {
     ui->listView->clear();
+
+    // TODO: Clear TLM fields?
 }
 
 
