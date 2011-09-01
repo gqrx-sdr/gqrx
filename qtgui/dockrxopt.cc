@@ -183,14 +183,15 @@ void DockRxOpt::on_maxdevSelector_activated(int index)
  */
 void DockRxOpt::on_emphSelector_activated(int index)
 {
+    double tau_tbl[] = { 0.0, 25.0, 50.0, 75.0, 100.0, 250.0, 530.0, 1000.0};
     double tau;
 
-    if (index < 0) {
+    if ((index < 0) || (index > 7)) {
         qDebug() << "Invalid tau selection index: " << index;
         return;
     }
 
-    tau = index * 25.0e-6;
+    tau = tau_tbl[index] * 1.0e-6;
     emit fmEmphSelected(tau);
 }
 
