@@ -109,6 +109,13 @@ linux-g++ {
     PKGCONFIG += gnuradio-core gnuradio-audio gnuradio-fcd
 }
 
+macx-g++ {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += gnuradio-core gnuradio-audio gnuradio-fcd
+    INCLUDEPATH += /opt/local/include
+    INCLUDEPATH += /opt/local/include/gnuradio
+}
+
 OTHER_FILES += \
     README \
     COPYING

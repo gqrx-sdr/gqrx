@@ -39,7 +39,7 @@ CIoConfig::CIoConfig(QWidget *parent) :
 #ifdef Q_OS_LINUX
     QString indev = settings.value("input", "hw:1").toString();
     QString outdev = settings.value("output", "pulse").toString();
-#elif Q_OS_MAC
+#elif defined(__APPLE__) && defined(__MACH__) // Works for X11 Qt on Mac OS X too
     QString indev = settings.value("input", "").toString();
     QString outdev = settings.value("output", "").toString();
 #endif
