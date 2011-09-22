@@ -57,7 +57,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     fcd_src = fcd_make_source_c(input_device);
     fcd_src->set_freq(d_rf_freq);
 
-    fft = make_rx_fft_c(2048, 0, false);
+    fft = make_rx_fft_c(4096, 0, false);
 
     iq_sink = gr_make_file_sink(sizeof(gr_complex), "/tmp/gqrx.bin");
     //iq_throttle = gr_make_throttle(sizeof(gr_complex), d_bandwidth);

@@ -63,7 +63,7 @@ class rx_fft_c : public gr_sync_block
     friend rx_fft_c_sptr make_rx_fft_c(int fftsize, int wintype, bool use_avg);
 
 protected:
-    rx_fft_c(int fftsize=2048, int wintype=gr_firdes::WIN_HAMMING, bool use_avg=false);
+    rx_fft_c(int fftsize=4096, int wintype=gr_firdes::WIN_HAMMING, bool use_avg=false);
 
 public:
     ~rx_fft_c();
