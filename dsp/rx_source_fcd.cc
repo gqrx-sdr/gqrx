@@ -54,7 +54,15 @@ rx_source_fcd::~rx_source_fcd()
 
 void rx_source_fcd::select_device(const std::string device_name)
 {
-    // FIXME
+    // The only way to do this for now is to recreate FCD source
+    lock();
+    disconnect(d_fcd_src, 0, self(), 0);
+    d_fcd_src.reset();
+    d_fcd_src = fcd_make_source_c(device_name);
+    d_fcd_src->set_freq((float) d_freq);
+    d_fcd_src->set_lna_gain((float) d_gain);
+    connect(d_fcd_src, 0, self(), 0);
+    unlock();
 }
 
 void rx_source_fcd::set_freq(double freq)

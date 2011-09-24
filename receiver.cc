@@ -132,22 +132,7 @@ void receiver::stop()
  */
 void receiver::set_input_device(const std::string device)
 {
-    tb->lock();
-
-    tb->disconnect(src, 0, fft, 0);
-    tb->disconnect(src, 0, filter, 0);
-    tb->disconnect(src, 0, iq_sink, 0);
-
-    // FIXME: ought to use src->select_device() when implemented
-    src.reset();
-    src = make_rx_source_fcd(device);
-    src->set_freq(d_rf_freq);
-
-    tb->connect(src, 0, fft, 0);
-    tb->connect(src, 0, filter, 0);
-    tb->connect(src, 0, iq_sink, 0);
-
-    tb->unlock();
+    src->select_device(device);
 }
 
 
