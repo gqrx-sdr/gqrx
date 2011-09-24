@@ -44,7 +44,7 @@ typedef boost::shared_ptr<rx_agc_cc> rx_agc_cc_sptr;
  *                     parameter determines whether AGC is fast/slow/medium.
  *                     The default value is 100ms (fast AGC).
  *  \param use_hang    Whether AGC should "hang" before starting to decay.
- *                     The default is true.
+ *                     The default is false.
  *
  * This is effectively the public constructor for a new AGC block.
  * To avoid accidental use of raw pointers, the rx_agc_cc constructor is private.
