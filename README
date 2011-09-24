@@ -4,8 +4,8 @@ GNU Radio and the Qt GUI toolkit.
 Currently it works on Linux and can use the Funcube Dongle as input source.
 
 Dependencies:
-  - gnuradio-core 3.4.0-101 or later
-  - gnuradio-audio 3.4.0-101 or later
+  - gnuradio-core 3.4.0 or later
+  - gnuradio-audio 3.4.0 or later
   - gr-fcd (https://github.com/csete/gr-fcd)
   - Qt 4.7 (available in all recent Linux)
 
