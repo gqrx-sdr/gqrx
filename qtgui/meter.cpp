@@ -33,10 +33,10 @@
 
 //ratio to total control width or height
 #define CTRL_MARGIN 0.07		//left/right margin
-#define CTRL_MAJOR_START 0.4	//top of major tic line
-#define CTRL_MINOR_START 0.5	//top of minor tic line
-#define CTRL_XAXIS_HEGHT 0.6	//vert position of horizontal axis
-#define CTRL_NEEDLE_TOP 0.5		//vert position of top of needle triangle
+#define CTRL_MAJOR_START 0.3	//top of major tic line
+#define CTRL_MINOR_START 0.3	//top of minor tic line
+#define CTRL_XAXIS_HEGHT 0.4	//vert position of horizontal axis
+#define CTRL_NEEDLE_TOP 0.4		//vert position of top of needle triangle
 
 #define MIN_DB -100.0
 #define MAX_DB +0.0
@@ -50,13 +50,14 @@ CMeter::CMeter(QWidget *parent) : QFrame(parent)
     setAutoFillBackground(false);
     setAttribute(Qt::WA_OpaquePaintEvent, false);
     setAttribute(Qt::WA_NoSystemBackground, true);
-    setMouseTracking ( true );
+    setMouseTracking(true);
 
     m_2DPixmap = QPixmap(0,0);
     m_OverlayPixmap = QPixmap(0,0);
     m_Size = QSize(0,0);
     m_Slevel = 0;
     m_dBm = -120;
+    decay_alpha = 0.35;
 }
 
 CMeter::~CMeter()
@@ -104,20 +105,29 @@ void CMeter::resizeEvent(QResizeEvent* )
 //////////////////////////////////////////////////////////////////////
 void CMeter::setLevel(float dbfs)
 {
-    qreal w = (qreal)m_2DPixmap.width();
-
-    w = w - 2.0*CTRL_MARGIN*w;	//width of meter scale in pixels
-    m_dBm = (int)dbfs;
-
     if(dbfs < MIN_DB)
         dbfs = MIN_DB;
 
     if(dbfs > MAX_DB)
         dbfs = MAX_DB;
 
+    // decay delay
+    float level = (float)m_dBm;
+    if (dbfs < level) {
+        level = level*(1-decay_alpha) + dbfs*decay_alpha;
+    }
+    else {
+        level = dbfs;
+    }
+
+    m_dBm = (int)level;
+
+    qreal w = (qreal)m_2DPixmap.width();
+    w = w - 2.0*CTRL_MARGIN*w;	//width of meter scale in pixels
+
     /* pixels / dB */
     qreal pixperdb = w / fabs(MAX_DB - MIN_DB);
-    m_Slevel = (int)(-(MIN_DB-dbfs)*pixperdb);
+    m_Slevel = (int)(-(MIN_DB-level)*pixperdb);
 
     draw();
 }
@@ -145,30 +155,32 @@ void CMeter::draw()
     if(m_2DPixmap.isNull())
         return;
 
-    //get/draw the 2D spectrum
+    // get/draw the 2D spectrum
     w = m_2DPixmap.width();
     h = m_2DPixmap.height();
 
-    //first copy into 2Dbitmap the overlay bitmap.
+    // first copy into 2Dbitmap the overlay bitmap.
     m_2DPixmap = m_OverlayPixmap.copy(0,0,w,h);
     QPainter painter(&m_2DPixmap);
 
-    //DrawCurrent position indicator
+    // DrawCurrent position indicator
     qreal hline = (qreal)h*CTRL_XAXIS_HEGHT;
     qreal marg = (qreal)w*CTRL_MARGIN;
     qreal ht = (qreal)h*CTRL_NEEDLE_TOP;
     qreal x = marg + m_Slevel;
     QPoint pts[3];
-    pts[0].setX(x); pts[0].setY(ht);
-    pts[1].setX(x-6); pts[1].setY(hline+6);
-    pts[2].setX(x+6); pts[2].setY(hline+6);
+    pts[0].setX(x); pts[0].setY(ht+2);
+    pts[1].setX(x-6); pts[1].setY(hline+8);
+    pts[2].setX(x+6); pts[2].setY(hline+8);
 
 
-    painter.setBrush(QBrush(Qt::yellow));
+    //painter.setBrush(QBrush(Qt::green));
+    painter.setBrush(QBrush(QColor(0, 190, 0, 255)));
     painter.setOpacity(1.0);
-    painter.drawPolygon(pts,3);
+    //painter.drawPolygon(pts,3);
+    painter.drawRect(marg, ht+2, x-marg, 6);
 
-    //create Font to use for scales
+    // create Font to use for scales
     QFont Font("Arial");
     QFontMetrics metrics(Font);
     int y = (h)/4;
@@ -176,10 +188,10 @@ void CMeter::draw()
     Font.setWeight(QFont::Normal);
     painter.setFont(Font);
 
-    painter.setPen(QColor(0xE6,0xE6,0xE6,0xFF));
+    painter.setPen(QColor(0xEF,0xEF,0xEF,0xFF));
     painter.setOpacity(1.0);
     m_Str.setNum(m_dBm);
-    painter.drawText(marg, h-1, m_Str+" dBFS" );
+    painter.drawText(marg, h-2, m_Str+" dBFS" );
 
     update();
 }
@@ -215,8 +227,9 @@ void CMeter::DrawOverlay()
     qreal magstart = (qreal)h*CTRL_MAJOR_START;
     qreal minstart = (qreal)h*CTRL_MINOR_START;
     qreal hstop = (qreal)w-marg;
-    painter.setPen(QPen(Qt::white, 1,Qt::SolidLine));
-    painter.drawLine( QLineF( marg, hline, hstop, hline) );
+    painter.setPen(QPen(Qt::white, 1, Qt::SolidLine));
+    painter.drawLine(QLineF(marg, hline, hstop, hline));       // top line with ticks
+    painter.drawLine(QLineF(marg, hline+8, hstop, hline+8)); // bottom line
     qreal xpos = marg;
     for(x=0; x<11; x++) {
         if(x&1)	//minor tics

@@ -74,6 +74,8 @@ private:
     int m_Slevel;
     int m_dBm;
 
+    float decay_alpha;
+
 };
 
 #endif // METER_H
