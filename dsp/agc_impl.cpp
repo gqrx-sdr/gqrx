@@ -136,7 +136,8 @@ void CAgc::SetParameters(bool AgcOn,  bool UseHang, int Threshold, int ManualGai
     }
 
     //convert m_ThreshGain to linear manual gain value
-    m_ManualAgcGain = MAX_MANUAL_AMPLITUDE*pow(10.0, -(100-(double)m_ManualGain)/20.0);
+    //m_ManualAgcGain = MAX_MANUAL_AMPLITUDE*pow(10.0, -(100-(double)m_ManualGain)/20.0);
+    m_ManualAgcGain = MAX_MANUAL_AMPLITUDE * pow(10.0, (double)m_ManualGain / 20.0);
 
     //calculate parameters for AGC gain as a function of input magnitude
     m_Knee = (double)m_Threshold/20.0;
