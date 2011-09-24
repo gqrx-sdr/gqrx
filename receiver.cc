@@ -24,17 +24,16 @@
 #include <gr_audio_sink.h>
 #include <gr_complex_to_xxx.h>
 #include <gr_multiply_const_ff.h>
-#include <gr_agc2_cc.h>
 #include <gr_simple_squelch_cc.h>
 
 #include <receiver.h>
-//#include <fcd/fcd_source_c.h>
 #include <dsp/rx_source_fcd.h>
 #include <dsp/rx_filter.h>
 #include <dsp/rx_meter.h>
 #include <dsp/rx_demod_fm.h>
 #include <dsp/rx_demod_am.h>
 #include <dsp/rx_fft.h>
+#include <dsp/rx_agc_xx.h>
 
 
 
@@ -65,7 +64,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
 
     filter = make_rx_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
     bb_gain = gr_make_multiply_const_cc(1.0);
-    agc = gr_make_agc2_cc (0.5, 1.0e-4, 0.7, 1.0, 0.0);
+    agc = make_rx_agc_cc(d_bandwidth);
     sql = gr_make_simple_squelch_cc(-100.0, 0.001);
     meter = make_rx_meter_c(false);
     demod_ssb = gr_make_complex_to_real(1);

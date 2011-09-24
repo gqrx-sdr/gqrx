@@ -26,17 +26,16 @@
 #include <gr_multiply_const_ff.h>
 #include <gr_multiply_const_cc.h>
 #include <gr_simple_squelch_cc.h>
-#include <gr_agc2_cc.h>
 #include <gr_file_sink.h>
 #include <gr_file_source.h>
 #include <gr_throttle.h>
 #include <gr_wavfile_sink.h>
 #include <gr_wavfile_source.h>
 #include <gr_null_sink.h>
-//#include <fcd/fcd_source_c.h>
 #include <dsp/rx_source_fcd.h>
 #include <dsp/rx_filter.h>
 #include <dsp/rx_meter.h>
+#include <dsp/rx_agc_xx.h>
 #include <dsp/rx_demod_fm.h>
 #include <dsp/rx_demod_am.h>
 #include <dsp/rx_fft.h>
@@ -168,7 +167,7 @@ private:
     rx_filter_sptr            filter;
     rx_meter_c_sptr           meter;      /*! Signal strength. */
     gr_multiply_const_cc_sptr bb_gain;    /*! Baseband gain. Useful for AM-type modulations. */
-    gr_agc2_cc_sptr           agc;        /*! AGC. */
+    rx_agc_cc_sptr            agc;        /*! Receiver AGC. */
     gr_simple_squelch_cc_sptr sql;        /*! Squelch. */
     gr_complex_to_real_sptr   demod_ssb;  /*! SSB demodulator. */
     rx_demod_fm_sptr          demod_fm;   /*! FM demodulator. */
