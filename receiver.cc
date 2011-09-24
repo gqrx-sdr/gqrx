@@ -63,7 +63,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     //iq_throttle = gr_make_throttle(sizeof(gr_complex), d_bandwidth);
 
     filter = make_rx_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
-    agc = make_rx_agc_cc(d_bandwidth);
+    agc = make_rx_agc_cc(d_bandwidth, true, -100, 0, 2, 100, false);
     sql = gr_make_simple_squelch_cc(-100.0, 0.001);
     meter = make_rx_meter_c(false);
     demod_ssb = gr_make_complex_to_real(1);

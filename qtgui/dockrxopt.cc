@@ -23,7 +23,8 @@
 
 DockRxOpt::DockRxOpt(QWidget *parent) :
     QDockWidget(parent),
-    ui(new Ui::DockRxOpt)
+    ui(new Ui::DockRxOpt),
+    agc_is_on(true)
 {
     ui->setupUi(this);
 }
@@ -218,17 +219,120 @@ void DockRxOpt::on_sidebandSelector_activated(int index)
     emit sidebandSelected(index);
 }
 
-
-/*! \brief Baseband gain changed.
- *  \param value The new audio gain value in dB.
+/*! \brief AGC preset has changed.
+ *
+ * 0: Fast    decay = 500 msec
+ * 1: Medium  decay = 1500 msec
+ * 2: Slow    decay = 3000 msec
+ * 3: User    decay = set by user
+ * 4: Off     Only fixed gain
  */
-void DockRxOpt::on_bbGainDial_valueChanged(int value)
+void DockRxOpt::on_agcPresetCombo_activated(int index)
 {
-    float gain = float(value);
+    qDebug() << "NEW AGC preset:" << index;
 
-    emit bbGainChanged(gain);
+    switch (index) {
+    case 0:
+        if (!agc_is_on) {
+            emit agcToggled(true);
+            agc_is_on = true;
+        }
+        // decay
+        ui->agcDecayDial->setValue(100);
+        emit agcDecayChanged(100);
+        ui->agcDecayDial->setEnabled(false);
+        // slope
+        ui->agcSlopeDial->setValue(2);
+        emit agcSlopeChanged(2);
+        ui->agcSlopeDial->setEnabled(false);
+        break;
+    case 1:
+        if (!agc_is_on) {
+            emit agcToggled(true);
+            agc_is_on = true;
+        }
+        // decay
+        ui->agcDecayDial->setValue(800);
+        emit agcDecayChanged(800);
+        ui->agcDecayDial->setEnabled(false);
+        // slope
+        ui->agcSlopeDial->setValue(2);
+        emit agcSlopeChanged(2);
+        ui->agcSlopeDial->setEnabled(false);
+        break;
+    case 2:
+        if (!agc_is_on) {
+            emit agcToggled(true);
+            agc_is_on = true;
+        }
+        // decay
+        ui->agcDecayDial->setValue(2000);
+        emit agcDecayChanged(2000);
+        ui->agcDecayDial->setEnabled(false);
+        // slope
+        ui->agcSlopeDial->setValue(2);
+        emit agcSlopeChanged(2);
+        ui->agcSlopeDial->setEnabled(false);
+        break;
+    case 3:
+        if (!agc_is_on) {
+            emit agcToggled(true);
+            agc_is_on = true;
+        }
+        ui->agcDecayDial->setEnabled(true);
+        ui->agcSlopeDial->setEnabled(true);
+        break;
+    case 4:
+        if (agc_is_on) {
+            emit agcToggled(false);
+            agc_is_on = false;
+        }
+        break;
+    default:
+        qDebug() << "Invalid AGC preset:" << index;
+    }
 }
 
+void DockRxOpt::on_agcHangButton_toggled(bool checked)
+{
+    emit agcHangToggled(checked);
+}
+
+/*! \brief AGC threshold ("knee") changed.
+ *  \param value The new AGC threshold in dB.
+ */
+void DockRxOpt::on_agcThresholdDial_valueChanged(int value)
+{
+    qDebug() << "AGC threshold:" << value;
+    emit agcThresholdChanged(value);
+}
+
+/*! \brief AGC slope factor changed.
+ *  \param value The new slope factor in dB.
+ */
+void DockRxOpt::on_agcSlopeDial_valueChanged(int value)
+{
+    qDebug() << "AGC slope:" << value;
+    emit agcSlopeChanged(value);
+}
+
+/*! \brief AGC decay changed.
+ *  \param value The new slope factor in dB.
+ */
+void DockRxOpt::on_agcDecayDial_valueChanged(int value)
+{
+    qDebug() << "AGC decay:" << value;
+    emit agcDecayChanged(value);
+}
+
+/*! \brief AGC manual gain changed.
+ *  \param gain The new gain in dB.
+ */
+void DockRxOpt::on_agcGainDial_valueChanged(int gain)
+{
+    qDebug() << "AGC manual gain:" << gain;
+    emit agcGainChanged(gain);
+}
 
 /*! \brief Squelch level change.
  *  \param value The new squelch level in tens of dB (because slider uses int).

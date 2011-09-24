@@ -77,6 +77,24 @@ signals:
     /*! \brief Signal emitted when squelch level has changed. Level is in dBFS. */
     void sqlLevelChanged(double level);
 
+    /*! \brief Signal emitted when AGC is togglen ON/OFF. */
+    void agcToggled(bool agc_on);
+
+    /*! \brief Signal emitted when AGC hang is toggled. */
+    void agcHangToggled(bool use_hang);
+
+    /*! \brief Signal emitted when AGC threshold has changed. Threshold in dB. */
+    void agcThresholdChanged(int value);
+
+    /*! \brief Signal emitted when AGC slope has changed. Slope is in dB.*/
+    void agcSlopeChanged(int slope);
+
+    /*! \brief Signal emitted when AGC decay has changed. Decay is in millisec.*/
+    void agcDecayChanged(int decay);
+
+    /*! \brief Signal emitted when AGC manual gain has changed. Gain is in dB.*/
+    void agcGainChanged(int gain);
+
 
 private slots:
     void on_modeSelector_activated(int index);
@@ -84,11 +102,18 @@ private slots:
     void on_emphSelector_activated(int index);
     void on_dcr_toggled(bool checked);
     void on_sidebandSelector_activated(int index);
-    void on_bbGainDial_valueChanged(int value);
+    void on_agcPresetCombo_activated(int index);
+    void on_agcHangButton_toggled(bool checked);
+    void on_agcGainDial_valueChanged(int value);
+    void on_agcThresholdDial_valueChanged(int value);
+    void on_agcSlopeDial_valueChanged(int value);
+    void on_agcDecayDial_valueChanged(int value);
     void on_sqlSlider_valueChanged(int value);
 
 private:
     Ui::DockRxOpt *ui;   /*! The Qt designer UI file. */
+
+    bool agc_is_on;
 };
 
 #endif // DOCKRXOPT_H

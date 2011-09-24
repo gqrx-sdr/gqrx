@@ -120,7 +120,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
     connect(uiDockRxOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(setFmEmph(double)));
     connect(uiDockRxOpt, SIGNAL(sidebandSelected(int)), this, SLOT(setSideBand(int)));
-    connect(uiDockRxOpt, SIGNAL(bbGainChanged(float)), this, SLOT(setBasebandGain(float)));
+    connect(uiDockRxOpt, SIGNAL(agcToggled(bool)), this, SLOT(setAgcOn(bool)));
+    connect(uiDockRxOpt, SIGNAL(agcHangToggled(bool)), this, SLOT(setAgcHang(bool)));
+    connect(uiDockRxOpt, SIGNAL(agcThresholdChanged(int)), this, SLOT(setAgcThreshold(int)));
+    connect(uiDockRxOpt, SIGNAL(agcSlopeChanged(int)), this, SLOT(setAgcSlope(int)));
+    connect(uiDockRxOpt, SIGNAL(agcGainChanged(int)), this, SLOT(setAgcGain(int)));
+    connect(uiDockRxOpt, SIGNAL(agcDecayChanged(int)), this, SLOT(setAgcDecay(int)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
     connect(uiDockIqPlay, SIGNAL(playbackToggled(bool,QString)), this, SLOT(toggleIqPlayback(bool,QString)));
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
@@ -445,16 +450,6 @@ void MainWindow::setSideBand(int sideband)
 }
 
 
-/*! \brief BaSEBAND gain changed.
- *  \param value The new BASEBAND gain in dB.
- */
-void MainWindow::setBasebandGain(float value)
-{
-    rx->set_bb_gain(value);
-}
-
-
-
 /*! \brief Audio gain changed.
  *  \param value The new audio gain in dB.
  */
@@ -463,6 +458,53 @@ void MainWindow::setAudioGain(float value)
     rx->set_af_gain(value);
 }
 
+/*! \brief Set AGC ON/OFF.
+ *  \param agc_on Whether AGC is ON (true) or OFF (false).
+ */
+void MainWindow::setAgcOn(bool agc_on)
+{
+    rx->set_agc_on(agc_on);
+}
+
+/*! \brief AGC hang ON/OFF.
+ *  \param use_hang Whether to use hang.
+ */
+void MainWindow::setAgcHang(bool use_hang)
+{
+    rx->set_agc_hang(use_hang);
+}
+
+/*! \brief AGC threshold changed.
+ *  \param threshold The new threshold.
+ */
+void MainWindow::setAgcThreshold(int threshold)
+{
+    rx->set_agc_threshold(threshold);
+}
+
+/*! \brief AGC slope factor changed.
+ *  \param factor The new slope factor.
+ */
+void MainWindow::setAgcSlope(int factor)
+{
+    rx->set_agc_slope(factor);
+}
+
+/*! \brief AGC manual gain changed.
+ *  \param gain The new manual gain in dB.
+ */
+void MainWindow::setAgcGain(int gain)
+{
+    rx->set_agc_manual_gain(gain);
+}
+
+/*! \brief AGC decay changed.
+ *  \param factor The new AGC decay.
+ */
+void MainWindow::setAgcDecay(int msec)
+{
+    rx->set_agc_decay(msec);
+}
 
 /*! \brief Squelch level changed.
  *  \param level_db The new squelch level in dBFS.
