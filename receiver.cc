@@ -28,7 +28,8 @@
 #include <gr_simple_squelch_cc.h>
 
 #include <receiver.h>
-#include <fcd/fcd_source_c.h>
+//#include <fcd/fcd_source_c.h>
+#include <dsp/rx_source_fcd.h>
 #include <dsp/rx_filter.h>
 #include <dsp/rx_meter.h>
 #include <dsp/rx_demod_fm.h>
@@ -54,8 +55,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
 {
     tb = gr_make_top_block("gqrx");
 
-    fcd_src = fcd_make_source_c(input_device);
-    fcd_src->set_freq(d_rf_freq);
+    src = make_rx_source_fcd(input_device);
+    src->set_freq(d_rf_freq);
 
     fft = make_rx_fft_c(4096, 0, false);
 
@@ -79,9 +80,10 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     sniffer = make_sniffer_f();
     /* sniffer_rr is created at each activation. */
 
-    tb->connect(fcd_src, 0, fft, 0);
-    tb->connect(fcd_src, 0, iq_sink, 0);
-    tb->connect(fcd_src, 0, filter, 0);
+    tb->connect(src, 0, fft, 0);
+    tb->connect(src, 0, iq_sink, 0);
+    tb->connect(src, 0, filter, 0);
+
     tb->connect(filter, 0, meter, 0);
     tb->connect(filter, 0, sql, 0);
     tb->connect(sql, 0, bb_gain, 0);
@@ -132,15 +134,18 @@ void receiver::set_input_device(const std::string device)
 {
     tb->lock();
 
-    tb->disconnect(fcd_src, 0, fft, 0);
-    tb->disconnect(fcd_src, 0, filter, 0);
+    tb->disconnect(src, 0, fft, 0);
+    tb->disconnect(src, 0, filter, 0);
+    tb->disconnect(src, 0, iq_sink, 0);
 
-    fcd_src.reset();
-    fcd_src = fcd_make_source_c(device);
-    fcd_src->set_freq(d_rf_freq);
+    // FIXME: ought to use src->select_device() when implemented
+    src.reset();
+    src = make_rx_source_fcd(device);
+    src->set_freq(d_rf_freq);
 
-    tb->connect(fcd_src, 0, fft, 0);
-    tb->connect(fcd_src, 0, filter, 0);
+    tb->connect(src, 0, fft, 0);
+    tb->connect(src, 0, filter, 0);
+    tb->connect(src, 0, iq_sink, 0);
 
     tb->unlock();
 }
@@ -169,8 +174,9 @@ void receiver::set_output_device(const std::string device)
 receiver::status receiver::set_rf_freq(float freq_hz)
 {
     d_rf_freq = freq_hz;
-    /* FIXME: check frequency? */
-    fcd_src->set_freq(d_rf_freq);
+
+    src->set_freq(d_rf_freq);
+    // FIXME: read back frequency?
 
     return STATUS_OK;
 }
@@ -181,6 +187,7 @@ receiver::status receiver::set_rf_freq(float freq_hz)
  */
 float receiver::get_rf_freq()
 {
+    d_rf_freq = src->get_freq();
     return d_rf_freq;
 }
 
@@ -190,7 +197,7 @@ float receiver::get_rf_freq()
  */
 receiver::status receiver::set_rf_gain(float gain_db)
 {
-    fcd_src->set_lna_gain(gain_db);
+    src->set_gain(gain_db);
     return STATUS_OK;
 }
 
@@ -275,14 +282,14 @@ receiver::status receiver::set_filter_shape(filter_shape shape)
 
 receiver::status receiver::set_dc_corr(double dci, double dcq)
 {
-    fcd_src->set_dc_corr(dci, dcq);
+    src->set_dc_corr(dci, dcq);
 
     return STATUS_OK;
 }
 
 receiver::status receiver::set_iq_corr(double gain, double phase)
 {
-    fcd_src->set_iq_corr(gain, phase);
+    src->set_iq_corr(gain, phase);
 
     return STATUS_OK;
 }
@@ -623,9 +630,9 @@ receiver::status receiver::start_iq_playback(const std::string filename, float s
     tb->lock();
 
     /* disconenct hardware source */
-    tb->disconnect(fcd_src, 0, fft, 0);
-    tb->disconnect(fcd_src, 0, iq_sink, 0);
-    tb->disconnect(fcd_src, 0, filter, 0);
+    tb->disconnect(src, 0, fft, 0);
+    tb->disconnect(src, 0, iq_sink, 0);
+    tb->disconnect(src, 0, filter, 0);
 
     /* connect I/Q source via throttle block */
     //tb->connect(iq_src, 0, iq_throttle, 0);
@@ -657,9 +664,9 @@ receiver::status receiver::stop_iq_playback()
     tb->disconnect(iq_src, 0, filter, 0);
 
     /* reconenct hardware source */
-    tb->connect(fcd_src, 0, fft, 0);
-    tb->connect(fcd_src, 0, iq_sink, 0);
-    tb->connect(fcd_src, 0, filter, 0);
+    tb->connect(src, 0, fft, 0);
+    tb->connect(src, 0, iq_sink, 0);
+    tb->connect(src, 0, filter, 0);
 
     tb->unlock();
 

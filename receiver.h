@@ -33,7 +33,8 @@
 #include <gr_wavfile_sink.h>
 #include <gr_wavfile_source.h>
 #include <gr_null_sink.h>
-#include <fcd/fcd_source_c.h>
+//#include <fcd/fcd_source_c.h>
+#include <dsp/rx_source_fcd.h>
 #include <dsp/rx_filter.h>
 #include <dsp/rx_meter.h>
 #include <dsp/rx_demod_fm.h>
@@ -158,7 +159,11 @@ private:
     demod  d_demod;          /*! Current demodulator. */
 
     gr_top_block_sptr         tb;        /*! The GNU Radio top block. */
-    fcd_source_c_sptr         fcd_src;   /*! Funcube Dongle source. */
+
+    //fcd_source_c_sptr         fcd_src;   /*! Funcube Dongle source. */
+    //rx_source_base           *src;
+    rx_source_base_sptr       src;
+
     rx_fft_c_sptr             fft;       /*! Receiver FFT block. */
     rx_filter_sptr            filter;
     rx_meter_c_sptr           meter;      /*! Signal strength. */
