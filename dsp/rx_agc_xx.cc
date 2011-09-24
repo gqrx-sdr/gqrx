@@ -164,7 +164,7 @@ void rx_agc_cc::set_manual_gain(int gain)
  */
 void rx_agc_cc::set_slope(int slope)
 {
-    if (slope != d_slope) {
+    if ((slope != d_slope) && (slope >= 0) && (slope <= 10)) {
         boost::mutex::scoped_lock lock(d_mutex);
         d_slope = slope;
         d_agc->SetParameters(d_agc_on, d_use_hang, d_threshold, d_manual_gain,
@@ -177,7 +177,7 @@ void rx_agc_cc::set_slope(int slope)
  */
 void rx_agc_cc::set_decay(int decay)
 {
-    if (decay != d_decay) {
+    if ((decay != d_decay) && (decay >= 20) && (decay <= 5000)) {
         boost::mutex::scoped_lock lock(d_mutex);
         d_decay = decay;
         d_agc->SetParameters(d_agc_on, d_use_hang, d_threshold, d_manual_gain,
