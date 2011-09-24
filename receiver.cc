@@ -63,7 +63,6 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     //iq_throttle = gr_make_throttle(sizeof(gr_complex), d_bandwidth);
 
     filter = make_rx_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
-    bb_gain = gr_make_multiply_const_cc(1.0);
     agc = make_rx_agc_cc(d_bandwidth);
     sql = gr_make_simple_squelch_cc(-100.0, 0.001);
     meter = make_rx_meter_c(false);
@@ -85,8 +84,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
 
     tb->connect(filter, 0, meter, 0);
     tb->connect(filter, 0, sql, 0);
-    tb->connect(sql, 0, bb_gain, 0);
-    tb->connect(bb_gain, 0, agc, 0);
+    tb->connect(sql, 0, agc, 0);
     tb->connect(agc, 0, demod_fm, 0);
     tb->connect(demod_fm, 0, audio_rr, 0);
     tb->connect(audio_rr, 0, audio_gain, 0);
@@ -317,28 +315,50 @@ receiver::status receiver::set_sql_alpha(double alpha)
     sql->set_alpha(alpha);
 }
 
-
-/*! \brief Set baseband gain.
- *  \param gain_db The new gain in dB.
+/*! \brief Enable/disable receiver AGC.
  *
- * This is a manually controlled gain setting that is placed in between
- * the squelch and the AGC. This gain is very useful for AM-type modulations
- * where the amplitude of the incoming signal (often less than -60 dBFS)
- * is converted directly to audio amplitude.
+ * When AGC is disabled a fixed manual gain is used, see set_agc_manual_gain().
  */
-receiver::status receiver::set_bb_gain(float gain_db)
+receiver::status receiver::set_agc_on(bool agc_on)
 {
-    float k;
-
-    /* convert dB to factor */
-    k = pow(10.0, gain_db / 20.0);
-    //std::cout << "G:" << gain_db << "dB / K:" << k << std::endl;
-    bb_gain->set_k(k);
-
-    return STATUS_OK;
+    agc->set_agc_on(agc_on);
+    return STATUS_OK; // FIXME
 }
 
+/*! \brief Enable/disable AGC hang. */
+receiver::status receiver::set_agc_hang(bool use_hang)
+{
+    agc->set_use_hang(use_hang);
+    return STATUS_OK; // FIXME
+}
 
+/*! \brief Set AGC threshold. */
+receiver::status receiver::set_agc_threshold(int threshold)
+{
+    agc->set_threshold(threshold);
+    return STATUS_OK; // FIXME
+}
+
+/*! \brief Set AGC slope. */
+receiver::status receiver::set_agc_slope(int slope)
+{
+    agc->set_slope(slope);
+    return STATUS_OK; // FIXME
+}
+
+/*! \brief Set AGC decay time. */
+receiver::status receiver::set_agc_decay(int decay_ms)
+{
+    agc->set_decay(decay_ms);
+    return STATUS_OK; // FIXME
+}
+
+/*! \brief Set fixed gain used when AGC is OFF. */
+receiver::status receiver::set_agc_manual_gain(int gain)
+{
+    agc->set_manual_gain(gain);
+    return STATUS_OK; // FIXME
+}
 
 receiver::status receiver::set_demod(demod rx_demod)
 {

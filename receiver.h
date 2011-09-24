@@ -24,7 +24,6 @@
 #include <gr_audio_sink.h>
 #include <gr_complex_to_xxx.h>
 #include <gr_multiply_const_ff.h>
-#include <gr_multiply_const_cc.h>
 #include <gr_simple_squelch_cc.h>
 #include <gr_file_sink.h>
 #include <gr_file_source.h>
@@ -116,8 +115,13 @@ public:
     status set_sql_level(double level_db);
     status set_sql_alpha(double alpha);
 
-    /* AGC and baseband gain */
-    status set_bb_gain(float gain_db);
+    /* AGC */
+    status set_agc_on(bool agc_on);
+    status set_agc_hang(bool use_hang);
+    status set_agc_threshold(int threshold);
+    status set_agc_slope(int slope);
+    status set_agc_decay(int decay_ms);
+    status set_agc_manual_gain(int gain);
 
     status set_demod(demod rx_demod);
 
@@ -166,7 +170,6 @@ private:
     rx_fft_c_sptr             fft;       /*! Receiver FFT block. */
     rx_filter_sptr            filter;
     rx_meter_c_sptr           meter;      /*! Signal strength. */
-    gr_multiply_const_cc_sptr bb_gain;    /*! Baseband gain. Useful for AM-type modulations. */
     rx_agc_cc_sptr            agc;        /*! Receiver AGC. */
     gr_simple_squelch_cc_sptr sql;        /*! Squelch. */
     gr_complex_to_real_sptr   demod_ssb;  /*! SSB demodulator. */
