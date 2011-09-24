@@ -51,7 +51,7 @@ public:
     void setRange(float min_level, float max_level);
 
 
-    void draw();		//call to draw new fft data onto screen plot
+    void draw();
     void UpdateOverlay(){DrawOverlay();}
 
 signals:
@@ -67,12 +67,12 @@ protected:
 
 private:
     void DrawOverlay();
-	QPixmap m_2DPixmap;
-	QPixmap m_OverlayPixmap;
-	QSize m_Size;
-	QString m_Str;
-	int m_Slevel;
-	int m_dBm;
+    QPixmap m_2DPixmap;
+    QPixmap m_OverlayPixmap;
+    QSize m_Size;
+    QString m_Str;
+    int m_Slevel;
+    int m_dBm;
 
 };
 
