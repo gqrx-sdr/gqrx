@@ -112,7 +112,7 @@ FORMS    += \
 
 # dependencies via pkg-config
 # FIXME: check for version?
-linux-g++ {
+unix {
     CONFIG += link_pkgconfig
     PKGCONFIG += gnuradio-core gnuradio-audio gnuradio-fcd
 }
