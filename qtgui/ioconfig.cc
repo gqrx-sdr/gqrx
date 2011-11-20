@@ -19,6 +19,8 @@
  */
 #include <QtGlobal>
 #include <QSettings>
+#include <QFile>
+#include <QStringList>
 #include <QDebug>
 #include "qtgui/ioconfig.h"
 #include "ui_ioconfig.h"
@@ -52,6 +54,55 @@ CIoConfig::CIoConfig(QWidget *parent) :
 CIoConfig::~CIoConfig()
 {
     delete ui;
+}
+
+
+/*! \brief Utility function to find device name of the Funcibe Dogle.
+ *
+ * On linux we read /proc/asound/cards  (should work with ALSA and portaudio?)
+ * On Mac: ???
+ */
+QString CIoConfig::getFcdDeviceName()
+{
+
+#ifdef Q_OS_LINUX
+    // Format:
+    // 0 [VT82xx         ]: HDA-Intel - HDA VIA VT82xx
+    //                     HDA VIA VT82xx at 0xbfffc000 irq 17
+    // 1 [default        ]: USB-Audio - FUNcube Dongle V1.0
+    //                     Hanlincrest Ltd.          FUNcube Dongle V1.0   at usb-0000:00:10.4-4.1, full s
+
+    QFile file("/proc/asound/cards");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qDebug() << "Error opening /proc/asound/cards";
+        return "";
+    }
+
+    // Read all lines into a QByteArray, create a Qstring from it
+    // and split the lines into a QStringList
+    QStringList data(QString(file.readAll()).split("\n"));
+
+    for (int i = 0; i < data.length(); i+=2)
+    {
+        if (data[i].contains("USB-Audio - FUNcube Dongle"))
+        {
+            bool convOk;
+            uint devId;
+
+            // extract device number
+            devId = data[i].left(2).toUInt(&convOk);
+
+            return QString("hw:%1").arg(devId);
+        }
+    }
+
+    file.close();
+#elif defined(__APPLE__) && defined(__MACH__) // Works for X11 Qt on Mac OS X too
+    // TODO
+#endif
+
+    return "";
 }
 
 

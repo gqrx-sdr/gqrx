@@ -51,7 +51,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* create receiver object */
     QSettings settings;
-    QString indev = settings.value("input").toString();
+    //QString indev = settings.value("input").toString();
+    QString indev = CIoConfig::getFcdDeviceName();  /** FIXME: Need some checks **/
     QString outdev = settings.value("output").toString();
     rx = new receiver(indev.toStdString(), outdev.toStdString());
 

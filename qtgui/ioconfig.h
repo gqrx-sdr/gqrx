@@ -21,6 +21,7 @@
 #define IOCONFIG_H
 
 #include <QDialog>
+#include <QString>
 
 namespace Ui {
     class CIoConfig;
@@ -35,6 +36,8 @@ class CIoConfig : public QDialog
 public:
     explicit CIoConfig(QWidget *parent = 0);
     ~CIoConfig();
+
+    static QString getFcdDeviceName();
 
 private slots:
     void saveConfig();
