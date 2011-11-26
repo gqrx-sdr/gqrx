@@ -69,8 +69,12 @@ QString CIoConfig::getFcdDeviceName()
     // Format:
     // 0 [VT82xx         ]: HDA-Intel - HDA VIA VT82xx
     //                     HDA VIA VT82xx at 0xbfffc000 irq 17
-    // 1 [default        ]: USB-Audio - FUNcube Dongle V1.0
-    //                     Hanlincrest Ltd.          FUNcube Dongle V1.0   at usb-0000:00:10.4-4.1, full s
+    // 1 [V10            ]: USB-Audio - FUNcube Dongle V1.0
+    //                     Hanlincrest Ltd.          FUNcube Dongle V1.0   at usb-0000:00:10.4-4.1 ...
+    //
+    // Note that V10 is only displayed if the FCD was plugged in before boot.
+    // If FCD is plugged in after boot the text will say "default", so it's
+    // safest not to use that. We just search for "USB-Audio - FUNCube Dongle"
 
     QFile file("/proc/asound/cards");
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -93,7 +97,14 @@ QString CIoConfig::getFcdDeviceName()
             // extract device number
             devId = data[i].left(2).toUInt(&convOk);
 
-            return QString("hw:%1").arg(devId);
+            if (convOk)
+            {
+                return QString("hw:%1").arg(devId);
+            }
+            else
+            {
+                qDebug() << "Error extracting device ID from:" << data[i];
+            }
         }
     }
 
