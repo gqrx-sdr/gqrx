@@ -292,6 +292,9 @@
    </property>
   </action>
   <action name="actionBPSK1000">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>BPSK1000 Decoder</string>
    </property>
