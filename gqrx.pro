@@ -11,23 +11,25 @@ TEMPLATE = app
 
 # disable debug messages in release
 CONFIG(debug, debug|release) {
+    # Use for valgrind
+    #QMAKE_CFLAGS_DEBUG += '-g -O0'
+
     # Define version string (see below for releases)
     VER = $$system(git describe --abbrev=8)
 } else {
     DEFINES += QT_NO_DEBUG
     DEFINES += QT_NO_DEBUG_OUTPUT
     VER = 2.0
+
+    # Release binaries with gr bundled
+    # QMAKE_RPATH & co won't work with origin
+    QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/lib\''
 }
 
 # Tip from: http://www.qtcentre.org/wiki/index.php?title=Version_numbering_using_QMake
 VERSTR = '\\"$${VER}\\"'          # place quotes around the version string
 DEFINES += VERSION=\"$${VERSTR}\" # create a VERSION macro containing the version string
 
-# QMAKE_RPATH & co won't work with origin
-QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/lib\''
-
-# Use for valgrind
-#QMAKE_CFLAGS_DEBUG += '-g -O0'
 
 SOURCES +=\
     receiver.cc \
