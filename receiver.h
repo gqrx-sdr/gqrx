@@ -31,6 +31,7 @@
 #include <gr_wavfile_sink.h>
 #include <gr_wavfile_source.h>
 #include <gr_null_sink.h>
+#include "dsp/correct_iq_cc.h"
 #include <dsp/rx_source_fcd.h>
 #include <dsp/rx_filter.h>
 #include <dsp/rx_meter.h>
@@ -166,6 +167,8 @@ private:
     //fcd_source_c_sptr         fcd_src;   /*! Funcube Dongle source. */
     //rx_source_base           *src;
     rx_source_base_sptr       src;
+
+    dc_corr_cc_sptr           dc_corr;   /*! DC corrector block. */
 
     rx_fft_c_sptr             fft;       /*! Receiver FFT block. */
     rx_filter_sptr            filter;

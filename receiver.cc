@@ -28,6 +28,7 @@
 
 #include <receiver.h>
 #include <dsp/rx_source_fcd.h>
+#include "dsp/correct_iq_cc.h"
 #include <dsp/rx_filter.h>
 #include <dsp/rx_meter.h>
 #include <dsp/rx_demod_fm.h>
@@ -57,6 +58,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     src = make_rx_source_fcd(input_device);
     src->set_freq(d_rf_freq);
 
+    dc_corr = make_dc_corr_cc(0.1f);
     fft = make_rx_fft_c(4096, 0, false);
 
     iq_sink = gr_make_file_sink(sizeof(gr_complex), "/tmp/gqrx.bin");
@@ -78,9 +80,10 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     sniffer = make_sniffer_f();
     /* sniffer_rr is created at each activation. */
 
-    tb->connect(src, 0, fft, 0);
-    tb->connect(src, 0, iq_sink, 0);
-    tb->connect(src, 0, filter, 0);
+    tb->connect(src, 0, dc_corr, 0);
+    tb->connect(dc_corr, 0, fft, 0);
+    tb->connect(dc_corr, 0, iq_sink, 0);
+    tb->connect(dc_corr, 0, filter, 0);
 
     tb->connect(filter, 0, meter, 0);
     tb->connect(filter, 0, sql, 0);
@@ -634,9 +637,10 @@ receiver::status receiver::start_iq_playback(const std::string filename, float s
     tb->lock();
 
     /* disconenct hardware source */
-    tb->disconnect(src, 0, fft, 0);
-    tb->disconnect(src, 0, iq_sink, 0);
-    tb->disconnect(src, 0, filter, 0);
+    tb->disconnect(src, 0, dc_corr, 0);
+    tb->disconnect(dc_corr, 0, fft, 0);
+    tb->disconnect(dc_corr, 0, iq_sink, 0);
+    tb->disconnect(dc_corr, 0, filter, 0);
 
     /* connect I/Q source via throttle block */
     //tb->connect(iq_src, 0, iq_throttle, 0);
@@ -668,9 +672,10 @@ receiver::status receiver::stop_iq_playback()
     tb->disconnect(iq_src, 0, filter, 0);
 
     /* reconenct hardware source */
-    tb->connect(src, 0, fft, 0);
-    tb->connect(src, 0, iq_sink, 0);
-    tb->connect(src, 0, filter, 0);
+    tb->connect(src, 0, dc_corr, 0);
+    tb->connect(dc_corr, 0, fft, 0);
+    tb->connect(dc_corr, 0, iq_sink, 0);
+    tb->connect(dc_corr, 0, filter, 0);
 
     tb->unlock();
 
