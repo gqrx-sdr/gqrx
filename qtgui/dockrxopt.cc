@@ -27,6 +27,10 @@ DockRxOpt::DockRxOpt(QWidget *parent) :
     agc_is_on(true)
 {
     ui->setupUi(this);
+
+    /** FIXME: BW should be parameter */
+    ui->filterFreq->Setup(7, -40000, 40000, 1, UNITS_KHZ);
+    ui->filterFreq->SetFrequency(0);
 }
 
 DockRxOpt::~DockRxOpt()
