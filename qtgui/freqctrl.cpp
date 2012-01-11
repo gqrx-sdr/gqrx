@@ -245,12 +245,33 @@ void CFreqCtrl::SetFrequency(qint64 freq)
         if (m_DigitInfo[i].val != val)
         {
             m_DigitInfo[i].val = val;
+            qDebug() << "Digit" << i << "is" << val;
             m_DigitInfo[i].modified = TRUE;
         }
         rem = rem - val*m_DigitInfo[i].weight;
         acc += val;
         if ((acc == 0) && (i > m_DecPos))
+        {
             m_LeadZeroPos = i;
+            qDebug() << "Lead 0:" << m_LeadZeroPos;
+        }
+    }
+
+    // When frequency is negative all non-zero digits that
+    // have changed will have a negative sign. This loop will
+    // change all digits back to positive, except the one at
+    // position m_leadZeroPos-1
+    /** TBC if this works for all configurations */
+    if (m_freq < 0)
+    {
+        if (m_DigitInfo[m_LeadZeroPos-1].val > 0)
+            m_DigitInfo[m_LeadZeroPos-1].val = -m_DigitInfo[m_LeadZeroPos-1].val;
+
+        for (i = 0; i < (m_LeadZeroPos-1); i++)
+        {
+            if (m_DigitInfo[i].val < 0)
+                m_DigitInfo[i].val = -m_DigitInfo[i].val;
+        }
     }
 
     // signal the new frequency to world
@@ -460,7 +481,7 @@ void CFreqCtrl::mousePressEvent(QMouseEvent * event)
             {
                 if (m_LRMouseFreqSel)
                 {
-                    DecFreq();
+                    IncFreq();
                 }
                 else
                 {
@@ -480,14 +501,14 @@ void CFreqCtrl::mousePressEvent(QMouseEvent * event)
             {
                 if (m_LRMouseFreqSel)
                 {
-                    IncFreq();
+                    DecFreq();
                 }
                 else
                 {
                     if (pt.y() < m_DigitInfo[i].dQRect.bottom()/2)   //top half?
-                        IncDigit();
+                        IncFreq();//IncDigit();
                     else
-                        DecDigit();         //botom half
+                        DecFreq();//DecDigit();         //botom half
                 }
             }
         }
@@ -509,9 +530,8 @@ void CFreqCtrl::wheelEvent(QWheelEvent * event)
         {
             if (numSteps > 0)
                 IncFreq();
-            else
-                if (numSteps < 0)
-                    DecFreq();
+            else if (numSteps < 0)
+                DecFreq();
         }
     }
 }
@@ -701,6 +721,7 @@ void CFreqCtrl::DrawDigits(QPainter &Painter)
 //////////////////////////////////////////////////////////////////////////////
 void CFreqCtrl::IncDigit()
 {
+    /** FIXME: no longer used? */
     int tmp;
     qint64 tmpl;
 
@@ -759,6 +780,7 @@ void CFreqCtrl::IncFreq()
 //////////////////////////////////////////////////////////////////////////////
 void CFreqCtrl::DecDigit()
 {
+    /** FIXME: no longer used? */
     int tmp;
     qint64 tmpl;
 
