@@ -245,7 +245,6 @@ void CFreqCtrl::SetFrequency(qint64 freq)
         if (m_DigitInfo[i].val != val)
         {
             m_DigitInfo[i].val = val;
-            qDebug() << "Digit" << i << "is" << val;
             m_DigitInfo[i].modified = TRUE;
         }
         rem = rem - val*m_DigitInfo[i].weight;
@@ -253,7 +252,6 @@ void CFreqCtrl::SetFrequency(qint64 freq)
         if ((acc == 0) && (i > m_DecPos))
         {
             m_LeadZeroPos = i;
-            qDebug() << "Lead 0:" << m_LeadZeroPos;
         }
     }
 
