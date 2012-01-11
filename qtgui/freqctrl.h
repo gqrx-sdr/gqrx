@@ -48,7 +48,7 @@ public:
     void SetBkColor(QColor cr);
     void SetUnitsColor(QColor cr);
     void SetHighlightColor(QColor cr);
-    qint64 GetFrequency(){return m_freq;}
+    qint64 GetFrequency() { return m_freq; }
 
 signals:
     void NewFrequency(qint64 freq); //emitted when frequency has changed
@@ -57,12 +57,12 @@ public slots:
 
 protected:      //overrides for this control
     void paintEvent(QPaintEvent *);
-    void resizeEvent(QResizeEvent* );
-    void mouseMoveEvent(QMouseEvent * );
-    void mousePressEvent(QMouseEvent * );
-    void wheelEvent( QWheelEvent *  );
-    void leaveEvent( QEvent *  );
-    void keyPressEvent( QKeyEvent *  );
+    void resizeEvent(QResizeEvent *);
+    void mouseMoveEvent(QMouseEvent *);
+    void mousePressEvent(QMouseEvent *);
+    void wheelEvent(QWheelEvent *);
+    void leaveEvent(QEvent *);
+    void keyPressEvent(QKeyEvent *);
 
 private:
     void UpdateCtrl(bool all);
@@ -127,7 +127,7 @@ private:
         int val;    //value of this digit(0-9)
         bool modified;  //set if this digit has been modified
         bool editmode;  //set if this digit is selected for editing
-    }m_DigitInfo[MAX_DIGITS];
+    } m_DigitInfo[MAX_DIGITS];
 };
 
 #endif // FREQCTRL_H
