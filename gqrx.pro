@@ -19,7 +19,7 @@ CONFIG(debug, debug|release) {
 } else {
     DEFINES += QT_NO_DEBUG
     DEFINES += QT_NO_DEBUG_OUTPUT
-    VER = 2.0
+    VER = 0.0
 
     # Release binaries with gr bundled
     # QMAKE_RPATH & co won't work with origin
