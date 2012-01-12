@@ -23,21 +23,41 @@ public:
 
     //void SetSdrInterface(CSdrInterface* ptr){m_pSdrInterface = ptr;}
     void draw();		//call to draw new fft data onto screen plot
-    void SetRunningState(bool running){m_Running = running;}
-    void SetClickResolution(int clickres){m_ClickResolution=clickres;}
-    void SetFilterClickResolution(int clickres){m_FilterClickResolution=clickres;}
-    void SetPercent2DScreen(int percent){m_Percent2DScreen=percent;	m_Size = QSize(0,0);resizeEvent(NULL);}
+    void SetRunningState(bool running) { m_Running = running; }
+    void SetClickResolution(int clickres) { m_ClickResolution = clickres; }
+    void SetFilterClickResolution(int clickres) { m_FilterClickResolution = clickres; }
+    void SetPercent2DScreen(int percent)
+    {
+        m_Percent2DScreen = percent;
+        m_Size = QSize(0,0);
+        resizeEvent(NULL);
+    }
 
     void SetNewFttData(double *fftData, int size);
 
     void SetCenterFreq(quint64 f);
-    void SetDemodCenterFreq(quint64 f){m_DemodCenterFreq=f;}
-    void SetHiLowCutFrequencies(int LowCut, int HiCut){m_DemodLowCutFreq = LowCut; m_DemodHiCutFreq = HiCut; DrawOverlay();}
+
+    void SetDemodCenterFreq(quint64 f) { m_DemodCenterFreq = f; }
+
+    /*! \brief Move the filter to freq_hz from center. */
+    void SetFilterOffset(qint64 freq_hz)
+    {
+        m_DemodCenterFreq = m_CenterFreq + freq_hz;
+        DrawOverlay();
+    }
+
+    void SetHiLowCutFrequencies(int LowCut, int HiCut)
+    {
+        m_DemodLowCutFreq = LowCut;
+        m_DemodHiCutFreq = HiCut;
+        DrawOverlay();
+    }
+
     void SetDemodRanges(int FLowCmin, int FLowCmax, int FHiCmin, int FHiCmax, bool symetric);
-    void SetSpanFreq(quint32 s){m_Span=(qint32)s;}
-    void SetMaxdB(int max){m_MaxdB=max;}
-    void SetdBStepSize(int stepsz){m_dBStepSize=stepsz;}
-    void UpdateOverlay(){DrawOverlay();}
+    void SetSpanFreq(quint32 s) { m_Span = (qint32)s; }
+    void SetdBStepSize(int stepsz) { m_dBStepSize = stepsz; }
+    void SetMaxdB(int max) { m_MaxdB = max; }
+    void UpdateOverlay() { DrawOverlay(); }
 
 signals:
     void NewCenterFreq(qint64 f);
