@@ -38,6 +38,13 @@ DockRxOpt::~DockRxOpt()
     delete ui;
 }
 
+/*! \brief Set value of channel filter offset selector.
+ *  \param freq_hz The frequency in Hz
+ */
+void DockRxOpt::setFilterOffset(qint64 freq_hz)
+{
+    ui->filterFreq->SetFrequency(freq_hz);
+}
 
 /*! \brief Select new demodulator.
  *  \param demod Demodulator index corresponding to receiver::demod.
@@ -131,6 +138,18 @@ float DockRxOpt::currentMaxdev()
     return max_dev;
 }
 
+
+/*! \brief Channel filter offset has changed
+ *  \param freq The new filter offset in Hz
+ *
+ * This slot is activated when a new filter offset has been selected either
+ * usig the mouse or using the keyboard.
+ */
+void DockRxOpt::on_filterFreq_NewFrequency(qint64 freq)
+{
+    qDebug() << "New filter offset:" << freq << "Hz";
+    emit filterOffsetChanged(freq);
+}
 
 
 /*! \brief Mode selector activated.

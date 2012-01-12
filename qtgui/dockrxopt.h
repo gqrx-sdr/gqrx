@@ -45,6 +45,8 @@ public:
     explicit DockRxOpt(QWidget *parent = 0);
     ~DockRxOpt();
 
+    void setFilterOffset(qint64 freq_hz);
+
     void setCurrentDemod(int demod);
     int  currentDemod();
 
@@ -56,6 +58,9 @@ public:
 
 
 signals:
+    /*! \brief Signal emitted when the channel filter frequency has changed. */
+    void filterOffsetChanged(qint64 freq_hz);
+
     /*! \brief Signal emitted when new demodulator is selected. */
     void demodSelected(int demod);
 
@@ -97,6 +102,7 @@ signals:
 
 
 private slots:
+    void on_filterFreq_NewFrequency(qint64 freq);
     void on_modeSelector_activated(int index);
     void on_maxdevSelector_activated(int index);
     void on_emphSelector_activated(int index);

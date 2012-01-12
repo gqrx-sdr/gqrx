@@ -75,6 +75,7 @@ private:
     receiver *rx;
 
 private slots:
+    void setFilterOffset(qint64 freq_hz);
     void setRfGain(float gain);
     void setDcCorr(double dci, double dcq);
     void setIqCorr(double gain, double phase);

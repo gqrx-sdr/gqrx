@@ -50,6 +50,9 @@
         <height>32</height>
        </size>
       </property>
+      <property name="toolTip">
+       <string>Channel filter frequency</string>
+      </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
       </property>

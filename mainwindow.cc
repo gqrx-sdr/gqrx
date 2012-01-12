@@ -117,6 +117,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(uiDockFcdCtl, SIGNAL(lnaGainChanged(float)), SLOT(setRfGain(float)));
     connect(uiDockFcdCtl, SIGNAL(dcCorrChanged(double,double)), this, SLOT(setDcCorr(double,double)));
     connect(uiDockFcdCtl, SIGNAL(iqCorrChanged(double,double)), this, SLOT(setIqCorr(double,double)));
+    connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
     connect(uiDockRxOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(setFmEmph(double)));
@@ -263,8 +264,11 @@ void MainWindow::on_plotter_NewDemodFreq(qint64 freq, qint64 delta)
 {
     double rx_freq_mhz;
 
-    //qDebug() << "New demod freq: " << freq << "  Delta: " << delta;
+    // set RX filter
     rx->set_filter_offset((double) delta);
+
+    // update channel filter offset
+    uiDockRxOpt->setFilterOffset(delta);
 
     rx_freq_mhz = ((double)freq) / 1.0e6;
     ui->rxFreqLabel->setText(QString("%1 MHz").arg(rx_freq_mhz, 11, 'f', 6, ' '));
@@ -277,12 +281,20 @@ void MainWindow::on_plotter_NewFilterFreq(int low, int high)
 {
     receiver::status retcode;
 
-
     /* parameter correctness will be checked in receiver class */
     retcode = rx->set_filter((double) low, (double) high, d_filter_shape);
 
 }
 
+
+/*! \brief Set new channel filter offset.
+ *  \param freq_hs The new filter offset in Hz.
+ */
+void MainWindow::setFilterOffset(qint64 freq_hz)
+{
+    rx->set_filter_offset((double) freq_hz);
+    ui->plotter->SetFilterOffset(freq_hz);
+}
 
 /*! \brief Set RF gain.
  *  \param gain The new RF gain.
