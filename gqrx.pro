@@ -31,42 +31,42 @@ VERSTR = '\\"$${VER}\\"'          # place quotes around the version string
 DEFINES += VERSION=\"$${VERSTR}\" # create a VERSION macro containing the version string
 
 
-SOURCES +=\
-    receiver.cc \
-    main.cc \
-    mainwindow.cc \
+SOURCES += \
+    receiver.cpp \
+    main.cpp \
+    mainwindow.cpp \
     qtgui/freqctrl.cpp \
     qtgui/meter.cpp \
     qtgui/plotter.cpp \
-    dsp/rx_fft.cc \
-    dsp/rx_filter.cc \
-    dsp/rx_demod_fm.cc \
-    dsp/rx_meter.cc \
-    qtgui/dockrxopt.cc \
-    dsp/rx_demod_am.cc \
-    qtgui/ioconfig.cc \
+    dsp/rx_fft.cpp \
+    dsp/rx_filter.cpp \
+    dsp/rx_demod_fm.cpp \
+    dsp/rx_meter.cpp \
+    qtgui/dockrxopt.cpp \
+    dsp/rx_demod_am.cpp \
+    qtgui/ioconfig.cpp \
     qtgui/dockfcdctl.cpp \
     qtgui/dockaudio.cpp \
-    dsp/resampler_ff.cc \
+    dsp/resampler_ff.cpp \
     qtgui/dockfft.cpp \
-    dsp/sniffer_f.cc \
+    dsp/sniffer_f.cpp \
     dsp/afsk1200/costabf.c \
     dsp/afsk1200/cafsk12.cpp \
     qtgui/dockiqplayer.cpp \
-    qtgui/afsk1200win.cc \
-    qtgui/bpsk1000win.cc \
-    qtgui/arissattlm.cc \
+    qtgui/afsk1200win.cpp \
+    qtgui/bpsk1000win.cpp \
+    qtgui/arissattlm.cpp \
     tlm/arissat/scale_therm.c \
     tlm/arissat/scale_psu.c \
     tlm/arissat/scale_ppt.c \
-    dsp/rx_source_base.cc \
-    dsp/rx_source_fcd.cc \
-    dsp/rx_agc_xx.cc \
+    dsp/rx_source_base.cpp \
+    dsp/rx_source_fcd.cpp \
+    dsp/rx_agc_xx.cpp \
     dsp/agc_impl.cpp \
     dsp/correct_iq_cc.cpp
 
-
-HEADERS  += mainwindow.h \
+HEADERS += \
+    mainwindow.h \
     receiver.h \
     qtgui/freqctrl.h \
     qtgui/meter.h \
@@ -101,7 +101,7 @@ HEADERS  += mainwindow.h \
     dsp/agc_impl.h \
     dsp/correct_iq_cc.h
 
-FORMS    += \
+FORMS += \
     qtgui/dockrxopt.ui \
     mainwindow.ui \
     qtgui/ioconfig.ui \
