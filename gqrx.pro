@@ -63,7 +63,8 @@ SOURCES += \
     dsp/rx_source_fcd.cpp \
     dsp/rx_agc_xx.cpp \
     dsp/agc_impl.cpp \
-    dsp/correct_iq_cc.cpp
+    dsp/correct_iq_cc.cpp \
+    pulseaudio/pa_device_list.cc  # FIXME: Linux only
 
 HEADERS += \
     mainwindow.h \
@@ -99,7 +100,8 @@ HEADERS += \
     dsp/rx_source_fcd.h \
     dsp/rx_agc_xx.h \
     dsp/agc_impl.h \
-    dsp/correct_iq_cc.h
+    dsp/correct_iq_cc.h \
+    pulseaudio/pa_device_list.h  # FIXME: Linux only
 
 FORMS += \
     qtgui/dockrxopt.ui \
@@ -119,6 +121,7 @@ FORMS += \
 unix {
     CONFIG += link_pkgconfig
     PKGCONFIG += gnuradio-core gnuradio-audio gnuradio-fcd
+    PKGCONFIG += libpulse libpulse-simple
 }
 
 macx-g++ {
