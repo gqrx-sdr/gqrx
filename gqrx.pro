@@ -64,7 +64,9 @@ SOURCES += \
     dsp/rx_agc_xx.cpp \
     dsp/agc_impl.cpp \
     dsp/correct_iq_cc.cpp \
-    pulseaudio/pa_device_list.cc  # FIXME: Linux only
+    pulseaudio/pa_device_list.cc \  # FIXME: Linux only
+    pulseaudio/pa_sink.cc \
+    pulseaudio/pa_source.cc
 
 HEADERS += \
     mainwindow.h \
@@ -101,7 +103,9 @@ HEADERS += \
     dsp/rx_agc_xx.h \
     dsp/agc_impl.h \
     dsp/correct_iq_cc.h \
-    pulseaudio/pa_device_list.h  # FIXME: Linux only
+    pulseaudio/pa_device_list.h \  # FIXME: Linux only
+    pulseaudio/pa_sink.h \
+    pulseaudio/pa_source.h
 
 FORMS += \
     qtgui/dockrxopt.ui \
