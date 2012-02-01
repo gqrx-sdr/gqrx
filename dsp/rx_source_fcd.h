@@ -64,6 +64,7 @@ public:
     double get_sample_rate();
     std::vector<double> get_sample_rates();
 
+    void set_freq_corr(int ppm);
     void set_dc_corr(double dci, double dcq);
     void set_iq_corr(double gain, double phase);
 

@@ -126,6 +126,13 @@ std::vector<double> rx_source_fcd::get_sample_rates()
     return d_sample_rates;
 }
 
+void rx_source_fcd::set_freq_corr(int ppm)
+{
+    d_fcd_src->set_freq_corr(ppm);
+    // re-tune after frequency correction
+    d_fcd_src->set_freq((float) d_freq);
+}
+
 void rx_source_fcd::set_dc_corr(double dci, double dcq)
 {
     d_fcd_src->set_dc_corr(dci, dcq);
