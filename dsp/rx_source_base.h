@@ -74,6 +74,7 @@ public:
     virtual double get_sample_rate() = 0;
     virtual std::vector<double> get_sample_rates() = 0;
 
+    virtual void set_freq_corr(int ppm) = 0;
     virtual void set_dc_corr(double dci, double dcq) = 0;
     virtual void set_iq_corr(double gain, double phase) = 0;
 };
