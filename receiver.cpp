@@ -265,6 +265,14 @@ receiver::status receiver::set_filter_shape(filter_shape shape)
 }
 
 
+receiver::status receiver::set_freq_corr(int ppm)
+{
+    src->set_freq_corr(ppm);
+
+    return STATUS_OK;
+}
+
+
 receiver::status receiver::set_dc_corr(double dci, double dcq)
 {
     src->set_dc_corr(dci, dcq);
