@@ -104,6 +104,7 @@ public:
     status set_filter_high(double freq_hz);
     status set_filter_shape(filter_shape shape);
 
+    status set_freq_corr(int ppm);
     status set_dc_corr(double dci, double dcq);
     status set_iq_corr(double gain, double phase);
 

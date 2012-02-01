@@ -115,6 +115,7 @@ MainWindow::MainWindow(QWidget *parent) :
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(NewFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
     connect(uiDockFcdCtl, SIGNAL(lnaGainChanged(float)), SLOT(setRfGain(float)));
+    connect(uiDockFcdCtl, SIGNAL(freqCorrChanged(int)), this, SLOT(setFreqCorr(int)));
     connect(uiDockFcdCtl, SIGNAL(dcCorrChanged(double,double)), this, SLOT(setDcCorr(double,double)));
     connect(uiDockFcdCtl, SIGNAL(iqCorrChanged(double,double)), this, SLOT(setIqCorr(double,double)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
@@ -306,6 +307,16 @@ void MainWindow::setRfGain(float gain)
     rx->set_rf_gain(gain);
 }
 
+/*! \brief Set new frequency offset value.
+ *  \param ppm Frequency correction.
+ *
+ * The valid range is between -200 and 200, though this is not checked.
+ */
+void MainWindow::setFreqCorr(int ppm)
+{
+    qDebug() << "PPM:" << ppm;
+    rx->set_freq_corr(ppm);
+}
 
 /*! \brief Set new DC offset values.
  *  \param dci I correction.
