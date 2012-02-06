@@ -61,8 +61,9 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     dc_corr = make_dc_corr_cc(0.1f);
     fft = make_rx_fft_c(4096, 0, false);
 
+    /* dummy I/Q recorder */
     iq_sink = gr_make_file_sink(sizeof(gr_complex), "/tmp/gqrx.bin");
-    //iq_throttle = gr_make_throttle(sizeof(gr_complex), d_bandwidth);
+    iq_sink->close();
 
     filter = make_rx_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
     agc = make_rx_agc_cc(d_bandwidth, true, -100, 0, 2, 100, false);
@@ -74,8 +75,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     audio_rr = make_resampler_ff(d_bandwidth, d_audio_rate);
     audio_gain = gr_make_multiply_const_ff(0.1);
     audio_snk = audio_make_sink(d_audio_rate, audio_device, true);
-    wav_sink = gr_make_wavfile_sink("/tmp/gqrx.wav", 1, 48000, 16);
-    /* wav source is created when playback is started (wav_src does not have set_filename) */
+    /* wav sinki and source is created when rec/play is started */
     audio_null_sink = gr_make_null_sink(sizeof(float));
     sniffer = make_sniffer_f();
     /* sniffer_rr is created at each activation. */
@@ -92,10 +92,6 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     tb->connect(demod_fm, 0, audio_rr, 0);
     tb->connect(audio_rr, 0, audio_gain, 0);
     tb->connect(audio_gain, 0, audio_snk, 0);
-    tb->connect(audio_gain, 0, wav_sink, 0);
-
-    /* close wav file; this will disable writing */
-    wav_sink->close();
 }
 
 
@@ -490,27 +486,28 @@ receiver::status receiver::set_af_gain(float gain_db)
 
 /*! \brief Start WAV file recorder.
  *  \param filename The filename where to record.
+ *
+ * A new recorder object is created every timje we start recording and deleted every time
+ * we stop recording. The idea of creating one object and starting/stopping using different
+ * file names does not work with WAV files (the initial /tmp/gqrx.wav will not be stopped
+ * because the wav file can not be empty). See https://github.com/csete/gqrx/issues/36
  */
 receiver::status receiver::start_audio_recording(const std::string filename)
 {
     if (d_recording_wav) {
         /* error - we are already recording */
+        std::cout << "ERROR: Can not start audio recorder (already recording)" << std::endl;
         return STATUS_ERROR;
     }
 
-    /* wav_sink was created in the constructor */
-    if (wav_sink) {
-        //std::cout << "WAV sink exists" << std::endl;
+    // not strictly necessary to lock but I think it is safer
+    tb->lock();
+    wav_sink = gr_make_wavfile_sink(filename.c_str(), 1, 48000, 16);
+    tb->connect(audio_gain, 0, wav_sink, 0);
+    tb->unlock();
+    d_recording_wav = true;
 
-        // not strictly necessary to lock but I think it is safer
-        tb->lock();
-        wav_sink->open(filename.c_str());
-        tb->unlock();
-        d_recording_wav = true;
-    }
-    else {
-        std::cout << "BUG: WAV sink does not exist" << std::endl;
-    }
+    std::cout << "Recording audio to " << filename << std::endl;
 
     return STATUS_OK;
 }
@@ -521,14 +518,20 @@ receiver::status receiver::stop_audio_recording()
 {
     if (!d_recording_wav) {
         /* error: we are not recording */
+        std::cout << "ERROR: Can stop audio recorder (not recording)" << std::endl;
+
         return STATUS_ERROR;
     }
 
     // not strictly necessary to lock but I think it is safer
     tb->lock();
     wav_sink->close();
+    tb->disconnect(audio_gain, 0, wav_sink, 0);
+    wav_sink.reset();
     tb->unlock();
     d_recording_wav = false;
+
+    std::cout << "Audio recorder stopped" << std::endl;
 
     return STATUS_OK;
 }
