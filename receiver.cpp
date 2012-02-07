@@ -58,7 +58,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     src = make_rx_source_fcd(input_device);
     src->set_freq(d_rf_freq);
 
-    dc_corr = make_dc_corr_cc(0.1f);
+    dc_corr = make_dc_corr_cc(0.01f);
     fft = make_rx_fft_c(4096, 0, false);
 
     /* dummy I/Q recorder */
