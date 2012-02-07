@@ -70,14 +70,28 @@ int dc_corr_cc::work(int noutput_items,
     // lock mutex
     //boost::mutex::scoped_lock lock(d_mutex);
 
+    /** temporary debug to catch NaN cases **/
+    if (!noutput_items)
+    {
+        std::cout << "ERROR:  0 noutput_items" << std::endl;
+    }
+
     for (i = 0; i < noutput_items; i++)
     {
         sum_q += in[i].imag();
         sum_i += in[i].real();
     }
 
-    d_avg_i = d_avg_i*(1-d_alpha) + d_alpha*sum_i/noutput_items;
-    d_avg_q = d_avg_q*(1-d_alpha) + d_alpha*sum_q/noutput_items;
+    d_avg_i = d_avg_i*(1.f-d_alpha) + d_alpha*(sum_i/noutput_items);
+    d_avg_q = d_avg_q*(1.f-d_alpha) + d_alpha*(sum_q/noutput_items);
+
+    /** temporary debug to catch NaN cases **/
+    if ((d_avg_i != d_avg_i) || (d_avg_q != d_avg_q))
+    {
+        std::cout << "ERROR: AVG I/Q:" << d_avg_i << "/" << d_avg_q << std::endl;
+        d_avg_i = 0.f;
+        d_avg_q = 0.f;
+    }
 
     if (d_cnt == 100)
     {

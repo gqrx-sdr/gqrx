@@ -37,7 +37,7 @@ typedef boost::shared_ptr<dc_corr_cc> dc_corr_cc_sptr;
  * is private.
  * make_dc_corr_cc is the public interface for creating new instances.
  */
-dc_corr_cc_sptr make_dc_corr_cc(float alpha=0.1);
+dc_corr_cc_sptr make_dc_corr_cc(float alpha=0.01);
 
 
 /*! \brief Long time average-based DC offset correction block.
@@ -52,7 +52,7 @@ class dc_corr_cc : public gr_sync_block
     friend dc_corr_cc_sptr make_dc_corr_cc(float alpha);
 
 protected:
-    dc_corr_cc(float alpha=0.1);
+    dc_corr_cc(float alpha=0.01);
 
 public:
     ~dc_corr_cc();
