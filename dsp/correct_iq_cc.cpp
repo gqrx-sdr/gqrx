@@ -65,7 +65,8 @@ int dc_corr_cc::work(int noutput_items,
     gr_complex *out = (gr_complex *) output_items[0];
     int i;
 
-    float sum_i, sum_q;
+    float sum_i = 0.0;
+    float sum_q = 0.0;
 
     // lock mutex
     //boost::mutex::scoped_lock lock(d_mutex);
