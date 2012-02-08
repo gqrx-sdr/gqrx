@@ -30,7 +30,7 @@ dc_corr_cc_sptr make_dc_corr_cc(float alpha)
 }
 
 
-/*! \brief Create receiver AGC object.
+/*! \brief Create DC correction object object.
  *
  * Use make_dc_corr_cc() instead.
  */
@@ -65,10 +65,9 @@ int dc_corr_cc::work(int noutput_items,
     gr_complex *out = (gr_complex *) output_items[0];
     int i;
 
-    float sum_i, sum_q;
+    float sum_i = 0.0;
+    float sum_q = 0.0;
 
-    // lock mutex
-    //boost::mutex::scoped_lock lock(d_mutex);
 
     for (i = 0; i < noutput_items; i++)
     {
@@ -76,9 +75,10 @@ int dc_corr_cc::work(int noutput_items,
         sum_i += in[i].real();
     }
 
-    d_avg_i = d_avg_i*(1-d_alpha) + d_alpha*sum_i/noutput_items;
-    d_avg_q = d_avg_q*(1-d_alpha) + d_alpha*sum_q/noutput_items;
+    d_avg_i = d_avg_i*(1.f-d_alpha) + d_alpha*(sum_i/noutput_items);
+    d_avg_q = d_avg_q*(1.f-d_alpha) + d_alpha*(sum_q/noutput_items);
 
+#ifndef QT_NO_DEBUG_OUTPUT
     if (d_cnt == 100)
     {
         std::cout << "AVG I/Q: " << d_avg_i << "/" << d_avg_q << std::endl;
@@ -88,6 +88,7 @@ int dc_corr_cc::work(int noutput_items,
     {
         d_cnt++;
     }
+#endif
 
     for (i = 0; i < noutput_items; i++)
     {
