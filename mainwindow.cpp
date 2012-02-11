@@ -54,7 +54,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //QString indev = settings.value("input").toString();
     QString indev = CIoConfig::getFcdDeviceName();  /** FIXME: Need some checks **/
     QString outdev = settings.value("output").toString();
-    rx = new receiver(indev.toStdString(), outdev.toStdString());
+    //rx = new receiver(indev.toStdString(), outdev.toStdString());
+    rx = new receiver(indev.toStdString(), "");
 
     rx->set_rf_freq(144500000.0f);
 

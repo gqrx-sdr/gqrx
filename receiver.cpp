@@ -21,7 +21,7 @@
 #include <cmath>
 
 #include <gr_top_block.h>
-#include <gr_audio_sink.h>
+//#include <gr_audio_sink.h>
 #include <gr_complex_to_xxx.h>
 #include <gr_multiply_const_ff.h>
 #include <gr_simple_squelch_cc.h>
@@ -35,6 +35,7 @@
 #include <dsp/rx_demod_am.h>
 #include <dsp/rx_fft.h>
 #include <dsp/rx_agc_xx.h>
+#include <pulseaudio/pa_sink.h>
 
 
 
@@ -74,7 +75,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     demod_am = make_rx_demod_am(d_bandwidth, d_bandwidth, true);
     audio_rr = make_resampler_ff(d_bandwidth, d_audio_rate);
     audio_gain = gr_make_multiply_const_ff(0.1);
-    audio_snk = audio_make_sink(d_audio_rate, audio_device, true);
+    audio_snk = make_pa_sink(audio_device, d_audio_rate, "GQRX", "RX stream");
+
     /* wav sinki and source is created when rec/play is started */
     audio_null_sink = gr_make_null_sink(sizeof(float));
     sniffer = make_sniffer_f();
@@ -139,7 +141,7 @@ void receiver::set_output_device(const std::string device)
 
     tb->disconnect(audio_gain, 0, audio_snk, 0);
     audio_snk.reset();
-    audio_snk = audio_make_sink(d_audio_rate, device, true);
+    audio_snk = make_pa_sink(device, d_audio_rate); // FIXME: does this keep ap and stream name?
     tb->connect(audio_gain, 0, audio_snk, 0);
 
     tb->unlock();
