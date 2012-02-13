@@ -51,10 +51,11 @@ pa_source::pa_source (const string device_name, int sample_rate, int num_chan,
 {
     int error;
 
-
-    if ((num_chan != 1) && (num_chan != 2)) {
-        num_chan = 2;
-    }
+/** FIXME: only 2 channels supported **/
+//    if ((num_chan != 1) && (num_chan != 2)) {
+//        num_chan = 2;
+//    }
+    num_chan = 2;
 
     set_output_signature(gr_make_io_signature (1, num_chan, sizeof(float)));
 
