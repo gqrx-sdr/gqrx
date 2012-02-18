@@ -46,8 +46,8 @@ pa_source_sptr make_pa_source(const string device_name, int sample_rate, int num
 pa_source::pa_source (const string device_name, int sample_rate, int num_chan,
                       const string app_name, const string stream_name)
   : gr_sync_block ("pa_source",
-		   gr_make_io_signature (0, 0, 0),
-           gr_make_io_signature (0, 0, 0))
+        gr_make_io_signature (0, 0, 0),
+        gr_make_io_signature (0, 0, 0))
 {
     int error;
 
