@@ -121,12 +121,29 @@ int pa_source::work (int noutput_items,
                      gr_vector_const_void_star &input_items,
                      gr_vector_void_star &output_items)
 {
-    void *data = (void *) output_items[0];
-    int error;
+    //(void) noutput_items;
+    //(void) input_items;
 
-    if (pa_simple_read(d_pasrc, data, noutput_items/*d_ss.channels*/*sizeof(float), &error) < 0) {
+#define SAMPLES_PER_BUFFER 1024
+    float audio_buffer[SAMPLES_PER_BUFFER*2]; /** FIXME: Channels **/
+    float *out0 = (float *) output_items[0];
+    float *out1 = (float *) output_items[1];  // see gr_complex_to_float
+    int error=0;
+    int i=0;
+
+    //if (pa_simple_read(d_pasrc, data, noutput_items/*d_ss.channels*/*sizeof(float), &error) < 0) {
+    if (pa_simple_read(d_pasrc, &audio_buffer[0], sizeof(audio_buffer), &error) < 0)
+    {
         fprintf(stderr, __FILE__": pa_simple_read() failed: %s\n", pa_strerror(error));
+
+        return 0;
     }
 
-    return noutput_items;
+    for (i = 0; i < SAMPLES_PER_BUFFER; i++)
+    {
+        out0[i] = audio_buffer[i*2];
+        out1[i] = audio_buffer[(i*2)+1];
+    }
+
+    return SAMPLES_PER_BUFFER;
 }
