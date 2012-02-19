@@ -41,7 +41,10 @@
 #include <dsp/rx_fft.h>
 #include <dsp/resampler_ff.h>
 #include <dsp/sniffer_f.h>
+
+#include <gr_float_to_complex.h>
 #include <pulseaudio/pa_sink.h>
+#include <pulseaudio/pa_source.h>
 
 
 /*! \defgroup DSP Digital signal processing library based on GNU Radio */
@@ -168,7 +171,7 @@ private:
 
     //fcd_source_c_sptr         fcd_src;   /*! Funcube Dongle source. */
     //rx_source_base           *src;
-    rx_source_base_sptr       src;
+    //rx_source_base_sptr       src;
 
     dc_corr_cc_sptr           dc_corr;   /*! DC corrector block. */
 
@@ -193,7 +196,9 @@ private:
     sniffer_f_sptr            sniffer;    /*! Sample sniffer for data decoders. */
     resampler_ff_sptr         sniffer_rr; /*! Sniffer resampler. */
 
+    gr_float_to_complex_sptr  f2c;        /*! Convert audio L/R to complex I/Q. */
     pa_sink_sptr              audio_snk;  /*! Audio sink. */
+    pa_source_sptr            audio_src;  /*! Audio source. */
 
 protected:
 

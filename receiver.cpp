@@ -35,8 +35,10 @@
 #include <dsp/rx_demod_am.h>
 #include <dsp/rx_fft.h>
 #include <dsp/rx_agc_xx.h>
-#include <pulseaudio/pa_sink.h>
 
+#include <gr_float_to_complex.h>
+#include <pulseaudio/pa_sink.h>
+#include <pulseaudio/pa_source.h>
 
 
 /*! \brief Public contructor.
@@ -56,8 +58,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
 {
     tb = gr_make_top_block("gqrx");
 
-    src = make_rx_source_fcd(input_device);
-    src->set_freq(d_rf_freq);
+    //src = make_rx_source_fcd(input_device);
+    //src->set_freq(d_rf_freq);
 
     dc_corr = make_dc_corr_cc(0.01f);
     fft = make_rx_fft_c(4096, 0, false);
@@ -75,14 +77,21 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     demod_am = make_rx_demod_am(d_bandwidth, d_bandwidth, true);
     audio_rr = make_resampler_ff(d_bandwidth, d_audio_rate);
     audio_gain = gr_make_multiply_const_ff(0.1);
+
+    f2c = gr_make_float_to_complex(1);
     audio_snk = make_pa_sink(audio_device, d_audio_rate, "GQRX", "RX stream");
+    audio_src = make_pa_source("alsa_input.usb-Hanlincrest_Ltd._FUNcube_Dongle_V1.0-00-V10.analog-stereo",
+                               96000, 2, "GQRX", "Input");
 
     /* wav sinki and source is created when rec/play is started */
     audio_null_sink = gr_make_null_sink(sizeof(float));
     sniffer = make_sniffer_f();
     /* sniffer_rr is created at each activation. */
 
-    tb->connect(src, 0, dc_corr, 0);
+    //tb->connect(src, 0, dc_corr, 0);
+    tb->connect(audio_src, 0, f2c, 0);
+    tb->connect(audio_src, 1, f2c, 1);
+    tb->connect(f2c, 0, dc_corr, 0);
     tb->connect(dc_corr, 0, fft, 0);
     tb->connect(dc_corr, 0, iq_sink, 0);
     tb->connect(dc_corr, 0, filter, 0);
@@ -130,7 +139,7 @@ void receiver::stop()
  */
 void receiver::set_input_device(const std::string device)
 {
-    src->select_device(device);
+    //src->select_device(device);
 }
 
 
@@ -158,7 +167,7 @@ receiver::status receiver::set_rf_freq(float freq_hz)
 {
     d_rf_freq = freq_hz;
 
-    src->set_freq(d_rf_freq);
+    //src->set_freq(d_rf_freq);
     // FIXME: read back frequency?
 
     return STATUS_OK;
@@ -170,7 +179,7 @@ receiver::status receiver::set_rf_freq(float freq_hz)
  */
 float receiver::get_rf_freq()
 {
-    d_rf_freq = src->get_freq();
+    d_rf_freq = 50.0;//src->get_freq();
     return d_rf_freq;
 }
 
@@ -180,7 +189,7 @@ float receiver::get_rf_freq()
  */
 receiver::status receiver::set_rf_gain(float gain_db)
 {
-    src->set_gain(gain_db);
+    //src->set_gain(gain_db);
     return STATUS_OK;
 }
 
@@ -265,7 +274,7 @@ receiver::status receiver::set_filter_shape(filter_shape shape)
 
 receiver::status receiver::set_freq_corr(int ppm)
 {
-    src->set_freq_corr(ppm);
+    //src->set_freq_corr(ppm);
 
     return STATUS_OK;
 }
@@ -273,14 +282,14 @@ receiver::status receiver::set_freq_corr(int ppm)
 
 receiver::status receiver::set_dc_corr(double dci, double dcq)
 {
-    src->set_dc_corr(dci, dcq);
+    //src->set_dc_corr(dci, dcq);
 
     return STATUS_OK;
 }
 
 receiver::status receiver::set_iq_corr(double gain, double phase)
 {
-    src->set_iq_corr(gain, phase);
+    //src->set_iq_corr(gain, phase);
 
     return STATUS_OK;
 }
@@ -650,7 +659,8 @@ receiver::status receiver::start_iq_playback(const std::string filename, float s
     tb->lock();
 
     /* disconenct hardware source */
-    tb->disconnect(src, 0, dc_corr, 0);
+    //tb->disconnect(src, 0, dc_corr, 0);
+    tb->disconnect(f2c, 0, dc_corr, 0);
     tb->disconnect(dc_corr, 0, fft, 0);
     tb->disconnect(dc_corr, 0, iq_sink, 0);
     tb->disconnect(dc_corr, 0, filter, 0);
@@ -685,7 +695,8 @@ receiver::status receiver::stop_iq_playback()
     tb->disconnect(iq_src, 0, filter, 0);
 
     /* reconenct hardware source */
-    tb->connect(src, 0, dc_corr, 0);
+    //tb->connect(src, 0, dc_corr, 0);
+    tb->connect(f2c, 0, dc_corr, 0);
     tb->connect(dc_corr, 0, fft, 0);
     tb->connect(dc_corr, 0, iq_sink, 0);
     tb->connect(dc_corr, 0, filter, 0);
