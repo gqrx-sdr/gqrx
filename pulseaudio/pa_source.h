@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,6 +59,7 @@ public:
 
 private:
     pa_sample_spec d_ss;           /*! Sample specification. */
+    pa_buffer_attr d_attr;         /*! Buffer attributes. */
     string         d_stream_name;  /*! Descriptive name of the stream. */
     string         d_app_name;     /*! Descriptive name of the applcation. */
     pa_simple     *d_pasrc;        /*! The pulseaudio object. */

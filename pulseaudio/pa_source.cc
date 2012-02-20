@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,9 @@
 #include "pa_source.h"
 
 
+#define SAMPLES_PER_BUFFER 1024 /*! Max number of samples we read every cycle. */
+
+
 /*! \brief Create a new pulseaudio source object.
  *  \param device_name The name of the audio device, or NULL for default.
  *  \param audio_rate The sample rate of the audio stream.
@@ -47,7 +50,9 @@ pa_source::pa_source (const string device_name, int sample_rate, int num_chan,
                       const string app_name, const string stream_name)
   : gr_sync_block ("pa_source",
         gr_make_io_signature (0, 0, 0),
-        gr_make_io_signature (0, 0, 0))
+        gr_make_io_signature (0, 0, 0)),
+    d_app_name(app_name),
+    d_stream_name(stream_name)
 {
     int error;
 
@@ -59,30 +64,32 @@ pa_source::pa_source (const string device_name, int sample_rate, int num_chan,
 
     set_output_signature(gr_make_io_signature (1, num_chan, sizeof(float)));
 
-
     /* The sample type to use */
     d_ss.format = PA_SAMPLE_FLOAT32LE;
-    //d_ss.format = PA_SAMPLE_S16LE;
     d_ss.rate = sample_rate;
     d_ss.channels = num_chan;
 
+    /* Buffer attributes. Inspired by ghpsdr2-alex/softrockio */
+    d_attr.maxlength = d_attr.minreq = d_attr.prebuf = (uint32_t)-1;
+    d_attr.fragsize  = SAMPLES_PER_BUFFER*2 * sizeof(float);
+    d_attr.tlength   = SAMPLES_PER_BUFFER*2 * sizeof(float);
+
     d_pasrc = pa_simple_new(NULL,
-                            app_name.c_str(),
+                            d_app_name.c_str(),
                             PA_STREAM_RECORD,
                             device_name.empty() ? NULL : device_name.c_str(),
-                            stream_name.c_str(),
+                            d_stream_name.c_str(),
                             &d_ss,
                             NULL,
-                            NULL,
+                            &d_attr,
                             &error);
 
     if (!d_pasrc) {
         /** FIXME: throw and exception */
         fprintf(stderr, __FILE__": pa_simple_new() failed: %s\n", pa_strerror(error));
     }
-
-
 }
+
 
 pa_source::~pa_source()
 {
@@ -102,14 +109,14 @@ void pa_source::select_device(string device_name)
     pa_simple_free(d_pasrc);
 
     d_pasrc = pa_simple_new(NULL,
-                             d_app_name.c_str(),
-                             PA_STREAM_RECORD,
-                             device_name.empty() ? NULL : device_name.c_str(),
-                             d_stream_name.c_str(),
-                             &d_ss,
-                             NULL,
-                             NULL,
-                             &error);
+                            d_app_name.c_str(),
+                            PA_STREAM_RECORD,
+                            device_name.empty() ? NULL : device_name.c_str(),
+                            d_stream_name.c_str(),
+                            &d_ss,
+                            NULL,
+                            &d_attr,
+                            &error);
 
     if (!d_pasrc) {
         /** FIXME: Throw an exception **/
@@ -117,21 +124,20 @@ void pa_source::select_device(string device_name)
     }
 }
 
+
 int pa_source::work (int noutput_items,
                      gr_vector_const_void_star &input_items,
                      gr_vector_void_star &output_items)
 {
-    //(void) noutput_items;
-    //(void) input_items;
+    (void) input_items;
 
-#define SAMPLES_PER_BUFFER 1024
     float audio_buffer[SAMPLES_PER_BUFFER*2]; /** FIXME: Channels **/
     float *out0 = (float *) output_items[0];
     float *out1 = (float *) output_items[1];  // see gr_complex_to_float
     int error=0;
     int i=0;
 
-    //if (pa_simple_read(d_pasrc, data, noutput_items/*d_ss.channels*/*sizeof(float), &error) < 0) {
+
     if (pa_simple_read(d_pasrc, &audio_buffer[0], sizeof(audio_buffer), &error) < 0)
     {
         fprintf(stderr, __FILE__": pa_simple_read() failed: %s\n", pa_strerror(error));
