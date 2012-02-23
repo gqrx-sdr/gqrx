@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-//#include <gr_io_signature.h>
-#include <dsp/rx_source_fcd.h>
+#include "rx_source_fcd.h"
 
 
 rx_source_fcd_sptr make_rx_source_fcd(const std::string device_name)
@@ -27,22 +26,24 @@ rx_source_fcd_sptr make_rx_source_fcd(const std::string device_name)
 }
 
 
-
 rx_source_fcd::rx_source_fcd(const std::string device_name)
     : rx_source_base("rx_source_fcd"),
       d_freq(144.5e6),
       d_gain(20.0)
 {
-    d_fcd_src = fcd_make_source_c(device_name);
-    d_fcd_src->set_freq(144.5e6f);
-    d_fcd_src->set_lna_gain(20.0f);
-
+    //d_fcd_src->set_freq(144.5e6f);
+    //d_fcd_src->set_lna_gain(20.0f);
+    d_audio_src = make_pa_source(device_name, 96000, 2, "GQRX", "I/Q input");
     /** TODO: check error */
+
+    d_f2c = gr_make_float_to_complex(1);
 
     // populate supported sample rates
     d_sample_rates.push_back(96000.0);
 
-    connect(d_fcd_src, 0, self(), 0);
+    connect(d_audio_src, 0, d_f2c, 0);
+    connect(d_audio_src, 1, d_f2c, 1);
+    connect(d_f2c, 0, self(), 0);
 }
 
 
@@ -54,22 +55,18 @@ rx_source_fcd::~rx_source_fcd()
 
 void rx_source_fcd::select_device(const std::string device_name)
 {
-    // The only way to do this for now is to recreate FCD source
-    lock();
-    disconnect(d_fcd_src, 0, self(), 0);
-    d_fcd_src.reset();
-    d_fcd_src = fcd_make_source_c(device_name);
-    d_fcd_src->set_freq((float) d_freq);
-    d_fcd_src->set_lna_gain((float) d_gain);
-    connect(d_fcd_src, 0, self(), 0);
-    unlock();
+    d_audio_src->select_device(device_name);
+
+    /** FIXME **/
+    //d_fcd_src->set_freq((float) d_freq);
+    //d_fcd_src->set_lna_gain((float) d_gain);
 }
 
 void rx_source_fcd::set_freq(double freq)
 {
     if ((freq >= get_freq_min()) && (freq <= get_freq_max())) {
         d_freq = freq;
-        d_fcd_src->set_freq((float) d_freq);
+        //d_fcd_src->set_freq((float) d_freq);
     }
 }
 
@@ -92,7 +89,7 @@ void rx_source_fcd::set_gain(double gain)
 {
     if ((gain >= get_gain_min()) && (gain <= get_gain_max())) {
         d_gain = gain;
-        d_fcd_src->set_lna_gain((float)gain);
+        //d_fcd_src->set_lna_gain((float)gain);
     }
 }
 
@@ -126,19 +123,22 @@ std::vector<double> rx_source_fcd::get_sample_rates()
     return d_sample_rates;
 }
 
+/** FIXME: Remove? */
 void rx_source_fcd::set_freq_corr(int ppm)
 {
-    d_fcd_src->set_freq_corr(ppm);
+    //d_fcd_src->set_freq_corr(ppm);
     // re-tune after frequency correction
-    d_fcd_src->set_freq((float) d_freq);
+    //d_fcd_src->set_freq((float) d_freq);
 }
 
+/** FIXME: Remove? */
 void rx_source_fcd::set_dc_corr(double dci, double dcq)
 {
-    d_fcd_src->set_dc_corr(dci, dcq);
+    //d_fcd_src->set_dc_corr(dci, dcq);
 }
 
+/** FIXME: Remove? */
 void rx_source_fcd::set_iq_corr(double gain, double phase)
 {
-    d_fcd_src->set_iq_corr(gain, phase);
+    //d_fcd_src->set_iq_corr(gain, phase);
 }
