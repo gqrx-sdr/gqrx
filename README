@@ -3,16 +3,19 @@ GNU Radio and the Qt GUI toolkit.
 
 Currently it works on Linux and can use the Funcube Dongle as input source.
 
+Gqrx is very much work in progress and it is not yet ready for regular users.
+
+
 Dependencies:
   - gnuradio-core 3.4.0 or later
   - gnuradio-audio 3.4.0 or later
-  - gr-fcd (https://github.com/csete/gr-fcd)
-  - Qt 4.7 (available in all recent Linux)
+  - Qt 4.7
 
-You can download gqrx either as a source package or binary package from TBD website.
+You can download gqrx either as a source package or binary package from Sourceforge:
+https://sourceforge.net/projects/gqrx/
 
 The binary packages avaialble for 32 and 64 bit Linux include the necessary GNU Radio
-and FCD packages, but you still need to install their dependencies:
+ packages, but you still need to install their dependencies:
   - libfftw3
   - libgsl 1.14
   - Boost 1.42 or later (thread, datetime, system, filesystem)
@@ -24,7 +27,7 @@ available at http://gnuradio.org/redmine/projects/gnuradio/wiki/BuildGuide
 see the section called "Operating System Specific Instructions".
 
 If you choose to build gqrx from source you will have to build and install GNU Radio
-and gr-fcd yourself.
+yourself.
 
 The build system is based on qmake and to build gqrx simply load the gqrx.pro file
 into Qt Creator and click build (the hammer icon).

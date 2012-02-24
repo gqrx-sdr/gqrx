@@ -17,6 +17,11 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <iostream>
+#include <iomanip>
+//#include <limits>
+#include <fcdctl/fcd.h>
+#include <fcdctl/fcdhidcmd.h>
 #include "rx_source_fcd.h"
 
 
@@ -31,8 +36,6 @@ rx_source_fcd::rx_source_fcd(const std::string device_name)
       d_freq(144.5e6),
       d_gain(20.0)
 {
-    //d_fcd_src->set_freq(144.5e6f);
-    //d_fcd_src->set_lna_gain(20.0f);
     d_audio_src = make_pa_source(device_name, 96000, 2, "GQRX", "I/Q input");
     /** TODO: check error */
 
@@ -44,6 +47,9 @@ rx_source_fcd::rx_source_fcd(const std::string device_name)
     connect(d_audio_src, 0, d_f2c, 0);
     connect(d_audio_src, 1, d_f2c, 1);
     connect(d_f2c, 0, self(), 0);
+
+    set_freq(144.5e6f);
+    set_gain(20.0f);
 }
 
 
@@ -64,10 +70,22 @@ void rx_source_fcd::select_device(const std::string device_name)
 
 void rx_source_fcd::set_freq(double freq)
 {
-    if ((freq >= get_freq_min()) && (freq <= get_freq_max())) {
+    FCD_MODE_ENUM fme;
+
+    if ((freq >= get_freq_min()) && (freq <= get_freq_max()))
+    {
         d_freq = freq;
-        //d_fcd_src->set_freq((float) d_freq);
+        fme = fcdAppSetFreq((int) d_freq);
+
+        if (fme != FCD_MODE_APP)
+        {
+            /** FIXME: error message **/
+        }
     }
+
+#ifndef QT_NO_DEBUG_OUTPUT
+//        std::cout << __FUNCTION__ << ": " << std::setprecision(0) << std::fixed << freq << std::endl;
+#endif
 }
 
 double rx_source_fcd::get_freq()
@@ -87,9 +105,46 @@ double rx_source_fcd::get_freq_max()
 
 void rx_source_fcd::set_gain(double gain)
 {
-    if ((gain >= get_gain_min()) && (gain <= get_gain_max())) {
+    FCD_MODE_ENUM fme;
+    unsigned char g;
+
+    if ((gain >= get_gain_min()) && (gain <= get_gain_max()))
+    {
         d_gain = gain;
-        //d_fcd_src->set_lna_gain((float)gain);
+
+        /* convert gain to nearest discrete value */
+        if (gain > 27.5)
+            g = 14;              // 30.0 dB
+        else if (gain > 22.5)
+            g = 13;              // 25.0 dB
+        else if (gain > 18.75)
+            g = 12;              // 20.0 dB
+        else if (gain > 16.25)
+            g = 11;              // 17.5 dB
+        else if (gain > 13.75)
+            g = 10;              // 15.0 dB
+        else if (gain > 11.25)
+            g = 9;               // 12.5 dB
+        else if (gain > 8.75)
+            g = 8;               // 10.0 dB
+        else if (gain > 6.25)
+            g = 7;               // 7.5 dB
+        else if (gain > 3.75)
+            g = 6;               // 5.0 dB
+        else if (gain > 1.25)
+            g = 5;               // 2.5 dB
+        else if (gain > -1.25)
+            g = 4;               // 0.0 dB
+        else if (gain > -3.75)
+            g = 1;               // -2.5 dB
+        else
+            g = 0;               // -5.0 dB
+
+        fme = fcdAppSetParam(FCD_CMD_APP_SET_LNA_GAIN, &g, 1);
+        if (fme != FCD_MODE_APP)
+        {
+            /** FIUXME: error message **/
+        }
     }
 }
 

@@ -66,7 +66,11 @@ SOURCES += \
     dsp/correct_iq_cc.cpp \
     pulseaudio/pa_device_list.cc \  # FIXME: Linux only
     pulseaudio/pa_sink.cc \
-    pulseaudio/pa_source.cc
+    pulseaudio/pa_source.cc \
+    fcdctl/fcd.c \
+    fcdctl/hid-libusb.c  # FIXME: Linux only
+#    fcdctl/hidwin.c \
+#    fcdctl/hidmac.c \
 
 HEADERS += \
     mainwindow.h \
@@ -105,7 +109,10 @@ HEADERS += \
     dsp/correct_iq_cc.h \
     pulseaudio/pa_device_list.h \  # FIXME: Linux only
     pulseaudio/pa_sink.h \
-    pulseaudio/pa_source.h
+    pulseaudio/pa_source.h \
+    fcdctl/hidapi.h \
+    fcdctl/fcdhidcmd.h \
+    fcdctl/fcd.h
 
 FORMS += \
     qtgui/dockrxopt.ui \
@@ -124,13 +131,14 @@ FORMS += \
 # FIXME: check for version?
 unix {
     CONFIG += link_pkgconfig
-    PKGCONFIG += gnuradio-core gnuradio-audio gnuradio-fcd
+    PKGCONFIG += gnuradio-core gnuradio-audio
     PKGCONFIG += libpulse libpulse-simple
+    PKGCONFIG += libusb-1.0
 }
 
 macx-g++ {
     CONFIG += link_pkgconfig
-    PKGCONFIG += gnuradio-core gnuradio-audio gnuradio-fcd
+    PKGCONFIG += gnuradio-core gnuradio-audio
     INCLUDEPATH += /opt/local/include
     INCLUDEPATH += /opt/local/include/gnuradio
 }
