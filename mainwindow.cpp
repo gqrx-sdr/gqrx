@@ -26,7 +26,6 @@
 /* Qt Designer files */
 #include "ui_mainwindow.h"
 
-
 /* DSP */
 #include "receiver.h"
 
@@ -51,12 +50,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* create receiver object */
     QSettings settings;
-    //QString indev = settings.value("input").toString();
-    QString indev("alsa_input.usb-Hanlincrest_Ltd._FUNcube_Dongle_V1.0-00-default.analog-stereo");// = CIoConfig::getFcdDeviceName();  /** FIXME: Need some checks **/
-    QString outdev = settings.value("output").toString();
-    //rx = new receiver(indev.toStdString(), outdev.toStdString());
-    rx = new receiver(indev.toStdString(), "");
 
+    QString indev = CIoConfig::getFcdDeviceName(); /** FIXME: Need some checks **/
+    QString outdev = settings.value("output").toString();
+
+    rx = new receiver(indev.toStdString(), "");
     rx->set_rf_freq(144500000.0f);
 
     /* meter timer */
