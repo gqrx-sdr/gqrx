@@ -1,74 +1,85 @@
-Gqrx is an experimental AM, FM and SSB software defined receiver implemented using
-GNU Radio and the Qt GUI toolkit.
+Gqrx is an experimental AM, FM and SSB software defined receiver implemented
+using GNU Radio and the Qt GUI toolkit.
 
-Currently it works on Linux and can use the Funcube Dongle as input source.
+Currently it works on Linux and it can use the Funcube Dongle as input source.
 
 Gqrx is very much work in progress and it is not yet ready for regular users.
 
 
-Dependencies:
-  - gnuradio-core 3.4.0 or later
-  - gnuradio-audio 3.4.0 or later
-  - Qt 4.7
+1. Installation
 
-You can download gqrx either as a source package or binary package from Sourceforge:
-https://sourceforge.net/projects/gqrx/
+Gqrx is distributed as a source package and precompiled binary package
+available at Sourceforge: https://sourceforge.net/projects/gqrx/
 
-The binary packages avaialble for 32 and 64 bit Linux include the necessary GNU Radio
- packages, but you still need to install their dependencies:
+The binary package requires that you have the following libraries
+installed on your system:
+  - libusb 1.0.8 or later
+  - pulseaudio
+  - Qt 4.7 or later
   - libfftw3
   - libgsl 1.14
   - Boost 1.42 or later (thread, datetime, system, filesystem)
-  - libusb-1.0
-  - libasound2
 
-Something might be missing from the above list. A complete list of dependencies is
-available at http://gnuradio.org/redmine/projects/gnuradio/wiki/BuildGuide
-see the section called "Operating System Specific Instructions".
+In order to build gqrx from source you will aldo need:
+  - gnuradio-core 3.5.0 or later
 
-If you choose to build gqrx from source you will have to build and install GNU Radio
-yourself.
+as well as the so called -dev or -devel packages for the above mentioned
+libraries. Everything except GNU Radio should be available in all Linux
+desktop distributions.
 
-The build system is based on qmake and to build gqrx simply load the gqrx.pro file
+In order to build and install GNU Radio, you can try the build-gnuradio
+script by Marcus Leech, see
+http://gnuradio.org/redmine/projects/gnuradio/wiki/InstallingGR#Using-the-build-gnuradio-script
+
+or if you want to build it youself (experts only!), see
+http://gnuradio.org/redmine/projects/gnuradio/wiki/BuildGuide
+for platform specific instructions.
+
+The build system is based on qmake and to build gqrx, load the gqrx.pro file
 into Qt Creator and click build (the hammer icon).
 
-If the GNU Radio libraries have been installed into a non-standard location, e.g.
-/opt/gnuradio, Qt Creator may not be able to pick up the headers and libraries.
-Assuming that your PKG_CONFIG_PATH is set up correctly, you can work around this
-by launching Qt Creator from the terminal.
+If the GNU Radio libraries have been installed into a non-standard location,
+e.g. /opt/gnuradio, Qt Creator may not be able to pick up the headers and
+libraries. Assuming that your PKG_CONFIG_PATH is set up correctly, you can work
+around this by launching Qt Creator from the terminal.
 
 
-Whether you build gqrx from source or use the binary packages, you have to configure
-the FCD to be usable by non-root users. If you can already run qthid as regular user
-it is fine. If not, you need to create a udev rule. Create a udev file
-/etc/udev/rules.d/20-fcd.rules containing:
+2. Configure Funcube Dongle
+
+Whether you build gqrx from source or use the binary packages, you have to
+configure the FCD to be usable by non-root users. If you can already run qthid
+as regular user it is fine. If not, you need to create a udev rule. Create a
+udev file /etc/udev/rules.d/20-fcd.rules containing:
 
  SUBSYSTEMS=="usb" ATTRS{idVendor}=="04d8" ATTRS{idProduct}=="fb56" MODE:="0666" SYMLINK+="FCD"
 
 (hint: open a terminal and type: sudo gedit /etc/udev/rules.d/20-fcd.rules)
 
-Reload the rules using "sudo udevadm control --reload-rules". You can the verify the setup
-using qthid http://www.oz9aec.net/index.php/funcube-dongle/qthid-fcd-controller
+Reload the rules using "sudo udevadm control --reload-rules". You can then
+verify the setup using qthid: http://qthid.sf.net/
 
 
-First time you start gqrx it will ask you to specify the input and output device.
-For the input device you can check /proc/asound/cards to see what number the
-Funcube Dongle has. For example:
+3. Using Gqrx
 
- 0 [Intel          ]: HDA-Intel - HDA Intel
-                      HDA Intel at 0xf0120000 irq 49
- 1 [HDMI           ]: HDA-Intel - HDA ATI HDMI
-                      HDA ATI HDMI at 0xf0210000 irq 50
- 2 [default        ]: USB-Audio - FUNcube Dongle V1.0
-                      Hanlincrest Ltd.          FUNcube Dongle V1.0   at usb-0000:00:1d.0-1.7
+The current version only supports Funcube Dongle as input device and it will
+automatically detect the device. Therefore, you do not have to specify the
+input device.
 
-means that you can use hw:2 as input device.
+Gqrx will use the default audio output device and you can not select any other
+output devices from within Gqrx. You can however change the default output
+device in the desktop audio mixer.
 
-Technically, gqrx can use any soundcard as input device but the sample rate is fixed
-at 96 kHz (bug).
+If you have been using early versions of Gqrx you may have noticed that some
+features have disappeared. They have been disabled for now because they will
+not be fully implemented for the first release.
 
 
-Credits and License
+4. Reporting bugs and submitting patches
+
+Not yet please. Wait until 2.0.
+
+
+5. Credits and License
 
 Gqrx is designed and written by Alexandru Csete OZ9AEC, and it is licensed under the GNU General
 Public License.
