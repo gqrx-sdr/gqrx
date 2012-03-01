@@ -76,7 +76,7 @@ MainWindow::MainWindow(QWidget *parent) :
     uiDockRxOpt = new DockRxOpt();
     uiDockAudio = new DockAudio();
     uiDockFcdCtl = new DockFcdCtl();
-    uiDockIqPlay = new DockIqPlayer();
+    //uiDockIqPlay = new DockIqPlayer();
     uiDockFft = new DockFft();
 
     /* Add dock widgets to main window. This should be done even for
@@ -92,12 +92,12 @@ MainWindow::MainWindow(QWidget *parent) :
     addDockWidget(Qt::RightDockWidgetArea, uiDockFft);
     tabifyDockWidget(uiDockAudio, uiDockFft);
 
-    addDockWidget(Qt::BottomDockWidgetArea, uiDockIqPlay);
+    //addDockWidget(Qt::BottomDockWidgetArea, uiDockIqPlay);
 
     /* hide docks that we don't want to show initially */
     uiDockFcdCtl->hide();
     uiDockFft->hide();
-    uiDockIqPlay->hide();
+    //uiDockIqPlay->hide();
 
 
     /* Add dock widget actions to View menu. By doing it this way all signal/slot
@@ -107,7 +107,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->menu_View->addAction(uiDockRxOpt->toggleViewAction());
     ui->menu_View->addAction(uiDockAudio->toggleViewAction());
     ui->menu_View->addAction(uiDockFft->toggleViewAction());
-    ui->menu_View->addAction(uiDockIqPlay->toggleViewAction());
+    //ui->menu_View->addAction(uiDockIqPlay->toggleViewAction());
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
 
@@ -129,7 +129,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(agcGainChanged(int)), this, SLOT(setAgcGain(int)));
     connect(uiDockRxOpt, SIGNAL(agcDecayChanged(int)), this, SLOT(setAgcDecay(int)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
-    connect(uiDockIqPlay, SIGNAL(playbackToggled(bool,QString)), this, SLOT(toggleIqPlayback(bool,QString)));
+    //connect(uiDockIqPlay, SIGNAL(playbackToggled(bool,QString)), this, SLOT(toggleIqPlayback(bool,QString)));
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
     connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), this, SLOT(startAudioRec(QString)));
     connect(uiDockAudio, SIGNAL(audioRecStopped()), this, SLOT(stopAudioRec()));
@@ -158,7 +158,7 @@ MainWindow::~MainWindow()
     delete uiDockRxOpt;
     delete uiDockAudio;
     delete uiDockFft;
-    delete uiDockIqPlay;
+    //delete uiDockIqPlay;
     delete uiDockFcdCtl;
     delete rx;
     delete [] d_fftData;
@@ -225,6 +225,7 @@ void MainWindow::on_actionDSP_triggered(bool checked)
 /*! \brief Toggle I/Q recording. */
 void MainWindow::on_actionIqRec_triggered(bool checked)
 {
+#if 0
     if (checked) {
         /* generate file name using date, time, rf freq and BW */
         int freq = (int)rx->get_rf_freq()/1000;
@@ -256,7 +257,7 @@ void MainWindow::on_actionIqRec_triggered(bool checked)
         /* enable I/Q player */
         uiDockIqPlay->setEnabled(true);
     }
-
+#endif
 }
 
 /* CPlotter::NewDemodFreq() is emitted */

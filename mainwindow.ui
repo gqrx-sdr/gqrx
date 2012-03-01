@@ -138,8 +138,6 @@
      <string>&amp;File</string>
     </property>
     <addaction name="actionDSP"/>
-    <addaction name="actionIqRec"/>
-    <addaction name="actionIODevices"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -155,21 +153,13 @@
     <addaction name="actionAbout"/>
     <addaction name="actionAboutQt"/>
    </widget>
-   <widget class="QMenu" name="menu_Data">
-    <property name="title">
-     <string>&amp;Edit</string>
-    </property>
-   </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
-     <string>&amp;Tools</string>
+     <string>&amp;Data</string>
     </property>
-    <addaction name="actionSched"/>
-    <addaction name="actionBPSK1000"/>
     <addaction name="actionAFSK1200"/>
    </widget>
    <addaction name="menu_File"/>
-   <addaction name="menu_Data"/>
    <addaction name="menuTools"/>
    <addaction name="menu_View"/>
    <addaction name="menu_Help"/>
@@ -185,9 +175,6 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionDSP"/>
-   <addaction name="separator"/>
-   <addaction name="actionIqRec"/>
-   <addaction name="actionSched"/>
    <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -219,6 +206,9 @@
    </property>
   </action>
   <action name="actionIODevices">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>I/O Devices</string>
    </property>
@@ -275,7 +265,7 @@
     <bool>true</bool>
    </property>
    <property name="enabled">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="icon">
     <iconset resource="icons.qrc">

@@ -61,7 +61,7 @@ private:
     DockRxOpt      *uiDockRxOpt;
     DockAudio      *uiDockAudio;
     DockFcdCtl     *uiDockFcdCtl;
-    DockIqPlayer   *uiDockIqPlay;
+    //DockIqPlayer   *uiDockIqPlay;
     DockFft        *uiDockFft;
 
     /* data decoders */
