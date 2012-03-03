@@ -93,8 +93,8 @@ public:
     void set_input_device(const std::string device);
     void set_output_device(const std::string device);
 
-    status set_rf_freq(float freq_hz);
-    float  get_rf_freq();
+    status set_rf_freq(double freq_hz);
+    double get_rf_freq();
 
     status set_rf_gain(float gain_db);
 
@@ -158,7 +158,7 @@ public:
 private:
     float  d_bandwidth;        /*! Receiver bandwidth. */
     int    d_audio_rate;       /*! Audio output rate. */
-    float  d_rf_freq;          /*! Current RF frequency. */
+    double d_rf_freq;          /*! Current RF frequency. */
     double d_filter_offset;    /*! Current filter offset (tune within passband). */
     bool   d_recording_iq;     /*! Whether we are recording I/Q data. */
     bool   d_recording_wav;    /*! Whether we are recording WAV file. */

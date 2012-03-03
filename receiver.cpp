@@ -164,7 +164,7 @@ void receiver::set_output_device(const std::string device)
  *  \return RX_STATUS_ERROR if an error occurs, e.g. the frequency is out of range.
  *  \sa get_rf_freq()
  */
-receiver::status receiver::set_rf_freq(float freq_hz)
+receiver::status receiver::set_rf_freq(double freq_hz)
 {
     d_rf_freq = freq_hz;
 
@@ -178,7 +178,7 @@ receiver::status receiver::set_rf_freq(float freq_hz)
  *  \return The current RF frequency.
  *  \sa set_rf_freq()
  */
-float receiver::get_rf_freq()
+double receiver::get_rf_freq()
 {
     d_rf_freq = src->get_freq();
 

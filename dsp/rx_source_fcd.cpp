@@ -84,7 +84,7 @@ void rx_source_fcd::set_freq(double freq)
     }
 
 #ifndef QT_NO_DEBUG_OUTPUT
-//        std::cout << __FUNCTION__ << ": " << std::setprecision(0) << std::fixed << freq << std::endl;
+    std::cout << "FCD source new freq: " << (int) d_freq << " Hz" << std::endl;
 #endif
 }
 

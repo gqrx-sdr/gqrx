@@ -30,7 +30,6 @@
 #include "receiver.h"
 
 
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -177,7 +176,7 @@ void MainWindow::setNewFrequency(qint64 freq)
     double rx_freq_mhz;
 
     /* set receiver frequency */
-    rx->set_rf_freq((float) freq);
+    rx->set_rf_freq((double) freq);
 
     /* update pandapter */
     ui->plotter->SetCenterFreq(freq);
