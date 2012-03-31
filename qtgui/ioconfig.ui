@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>354</width>
-    <height>182</height>
+    <width>386</width>
+    <height>324</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,31 +19,155 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QFormLayout" name="formLayout">
-     <property name="margin">
-      <number>20</number>
+    <widget class="QGroupBox" name="groupBoxInput">
+     <property name="title">
+      <string>I/Q input</string>
      </property>
-     <item row="0" column="0">
-      <widget class="QLabel" name="inDevLabel">
-       <property name="text">
-        <string>Input device:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="inDevEdit"/>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="outDevLabel">
-       <property name="text">
-        <string>Output device:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="outDevEdit"/>
-     </item>
-    </layout>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="inTypeLabel">
+        <property name="text">
+         <string>Type</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="inTypeCombo">
+        <property name="toolTip">
+         <string>Select the type of input source.</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Funcube Dongle</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="inDevLabel">
+        <property name="text">
+         <string>Device</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="inDevCombo">
+        <property name="toolTip">
+         <string>Select or enter the input (sub)device.</string>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="inSrLabel">
+        <property name="text">
+         <string>Sample rate</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="inSrCombo">
+        <property name="toolTip">
+         <string>Select the sample rate of the input source</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>96 kHz</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="loLabel">
+        <property name="text">
+         <string>LNB LO</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QDoubleSpinBox" name="loSpinBox">
+        <property name="toolTip">
+         <string>LNB LO frequency. Use negative frequency for upconverters.</string>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::PlusMinus</enum>
+        </property>
+        <property name="suffix">
+         <string> MHz</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="minimum">
+         <double>-15000.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>15000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBoxOutput">
+     <property name="title">
+      <string>Audio output</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="outDevLabel">
+        <property name="text">
+         <string>Device</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="outDevCombo">
+        <property name="toolTip">
+         <string>Device to use for audio output.</string>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+        </property>
+        <property name="minimumContentsLength">
+         <number>15</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="outSrLabel">
+        <property name="text">
+         <string>Sample rate</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="outSrCombo">
+        <property name="toolTip">
+         <string>Select audio sample rate.</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>48 kHz</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">

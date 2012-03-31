@@ -40,15 +40,25 @@ CIoConfig::CIoConfig(QWidget *parent) :
 
 
 #ifdef Q_OS_LINUX
-    QString indev = settings.value("input", "hw:1").toString();
-    QString outdev = settings.value("output", "pulse").toString();
+
+    // get list of output devices
+    pa_device_list devices;
+    vector<pa_device> devlist = devices.get_output_devices();
+    unsigned int i;
+
+    qDebug() << __FUNCTION__ << ": Available input devices";
+    for (i = 0; i < devlist.size(); i++)
+    {
+        qDebug() << "    " << i << ":" << QString(devlist[i].get_description().c_str());
+        qDebug() << "        " << QString(devlist[i].get_name().c_str());
+        ui->outDevCombo->addItem(QString(devlist[i].get_description().c_str()));
+    }
+
 #elif defined(__APPLE__) && defined(__MACH__) // Works for X11 Qt on Mac OS X too
-    QString indev = settings.value("input", "").toString();
-    QString outdev = settings.value("output", "").toString();
+    //QString indev = settings.value("input", "").toString();
+    //QString outdev = settings.value("output", "").toString();
 #endif
 
-    ui->inDevEdit->setText(indev);
-    ui->outDevEdit->setText(outdev);
 
 }
 
@@ -95,6 +105,6 @@ void CIoConfig::saveConfig()
 {
     QSettings settings;
 
-    settings.setValue("input", ui->inDevEdit->text());
-    settings.setValue("output", ui->outDevEdit->text());
+    //settings.setValue("input", ui->inDevEdit->text());
+    //settings.setValue("output", ui->outDevEdit->text());
 }

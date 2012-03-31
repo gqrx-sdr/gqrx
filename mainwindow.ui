@@ -138,6 +138,7 @@
      <string>&amp;File</string>
     </property>
     <addaction name="actionDSP"/>
+    <addaction name="actionIODevices"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -175,6 +176,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionDSP"/>
+   <addaction name="actionIODevices"/>
    <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -207,7 +209,11 @@
   </action>
   <action name="actionIODevices">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/icons/flash.svg</normaloff>:/icons/icons/flash.svg</iconset>
    </property>
    <property name="text">
     <string>I/O Devices</string>
