@@ -37,7 +37,7 @@
       <item row="0" column="1">
        <widget class="QComboBox" name="inTypeCombo">
         <property name="toolTip">
-         <string>Select the type of input source.</string>
+         <string>Select the input device type</string>
         </property>
         <item>
          <property name="text">
@@ -56,7 +56,7 @@
       <item row="1" column="1">
        <widget class="QComboBox" name="inDevCombo">
         <property name="toolTip">
-         <string>Select or enter the input (sub)device.</string>
+         <string>Select or enter the input (sub)device</string>
         </property>
         <property name="editable">
          <bool>true</bool>
@@ -137,7 +137,8 @@
       <item row="0" column="1">
        <widget class="QComboBox" name="outDevCombo">
         <property name="toolTip">
-         <string>Device to use for audio output.</string>
+         <string>Select which device to use for audio output.
+Leave it at default unless you know what you are doing.</string>
         </property>
         <property name="sizeAdjustPolicy">
          <enum>QComboBox::AdjustToMinimumContentsLength</enum>
@@ -162,7 +163,7 @@
       <item row="1" column="1">
        <widget class="QComboBox" name="outSrCombo">
         <property name="toolTip">
-         <string>Select audio sample rate.</string>
+         <string>Select the audio sample rate</string>
         </property>
         <item>
          <property name="text">
