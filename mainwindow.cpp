@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QSettings settings;
 
     QString indev = CIoConfig::getFcdDeviceName(); /** FIXME: Need some checks **/
-    QString outdev = settings.value("output").toString();
+    //QString outdev = settings.value("output").toString();
 
     rx = new receiver(indev.toStdString(), "");
     rx->set_rf_freq(144500000.0f);

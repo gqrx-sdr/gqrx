@@ -22,19 +22,33 @@
 #include <QDebug>
 #include "qtgui/ioconfig.h"
 #include "mainwindow.h"
+#include "gqrx.h"
+
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    QCoreApplication::setOrganizationName("OZ9AEC");
-    QCoreApplication::setOrganizationDomain("oz9aec.net");
-    QCoreApplication::setApplicationName("GQRX");
-    QCoreApplication::setApplicationVersion("2.0");
+    QCoreApplication::setOrganizationName(GQRX_ORG_NAME);
+    QCoreApplication::setOrganizationDomain(GQRX_ORG_DOMAIN);
+    QCoreApplication::setApplicationName(GQRX_APP_NAME);
+#ifdef QT_NO_DEBUG
+    QCoreApplication::setApplicationVersion(QString("%1.%2.%3").
+                                            arg(GQRX_VERSION_MAJOR).
+                                            arg(GQRX_VERSION_MINOR).
+                                            arg(GQRX_VERSION_MICRO));
+#else
+    QCoreApplication::setApplicationVersion(VERSION);
+#endif
 
-    // we need at least an input device configured for FCD
-    QSettings settings;
+    //QSettings test("hello-test.conf", QSettings::IniFormat);
+    //test.setValue("system/testField", 5);
 
-    if (!settings.contains("input")) {
+    // Check that we have an input device configured
+    //QSettings settings(QSettings::IniFormat, QSettings::UserScope,
+    //                   GQRX_ORG_NAME, GQRX_APP_NAME);
+
+    /*
+    if (!settings.contains("Input/type")) {
 
         CIoConfig *ioconf = new CIoConfig();
         int confres = ioconf->exec();
@@ -43,9 +57,11 @@ int main(int argc, char *argv[])
 
         if (confres == QDialog::Rejected) {
             qDebug() << "I/O device configuration cancelled.";
+
             return 0;
         }
     }
+    */
 
     // We should now have at least an input device configured
     // and MainWindow will pick that up.

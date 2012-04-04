@@ -112,7 +112,8 @@ HEADERS += \
     pulseaudio/pa_source.h \
     fcdctl/hidapi.h \
     fcdctl/fcdhidcmd.h \
-    fcdctl/fcd.h
+    fcdctl/fcd.h \
+    gqrx.h
 
 FORMS += \
     qtgui/dockrxopt.ui \

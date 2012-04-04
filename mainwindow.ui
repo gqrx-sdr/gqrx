@@ -138,7 +138,6 @@
      <string>&amp;File</string>
     </property>
     <addaction name="actionDSP"/>
-    <addaction name="actionIODevices"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -176,7 +175,6 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionDSP"/>
-   <addaction name="actionIODevices"/>
    <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -205,21 +203,6 @@
    </property>
    <property name="toolTip">
     <string>About the Qt toolkit</string>
-   </property>
-  </action>
-  <action name="actionIODevices">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/icons/icons/flash.svg</normaloff>:/icons/icons/flash.svg</iconset>
-   </property>
-   <property name="text">
-    <string>I/O Devices</string>
-   </property>
-   <property name="toolTip">
-    <string>Configure I/O devices</string>
    </property>
   </action>
   <action name="actionDSP">
@@ -296,6 +279,24 @@
    </property>
    <property name="toolTip">
     <string>Start BPSK1000 decoder</string>
+   </property>
+  </action>
+  <action name="actionIODevices">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/icons/flash.svg</normaloff>:/icons/icons/flash.svg</iconset>
+   </property>
+   <property name="text">
+    <string>I/O Devices</string>
+   </property>
+   <property name="toolTip">
+    <string>Configure I/O devices</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
    </property>
   </action>
  </widget>

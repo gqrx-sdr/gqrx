@@ -32,21 +32,18 @@ CIoConfig::CIoConfig(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CIoConfig)
 {
-    QSettings settings;
 
     ui->setupUi(this);
 
     connect(this, SIGNAL(accepted()), this, SLOT(saveConfig()));
 
-
 #ifdef Q_OS_LINUX
-
     // get list of output devices
     pa_device_list devices;
     vector<pa_device> devlist = devices.get_output_devices();
     unsigned int i;
 
-    qDebug() << __FUNCTION__ << ": Available input devices";
+    qDebug() << __FUNCTION__ << ": Available output devices";
     for (i = 0; i < devlist.size(); i++)
     {
         qDebug() << "    " << i << ":" << QString(devlist[i].get_description().c_str());
@@ -96,6 +93,8 @@ QString CIoConfig::getFcdDeviceName()
     // TODO
 #endif
 
+    qDebug() << "  => " << retval;
+
     return retval;
 }
 
@@ -103,7 +102,7 @@ QString CIoConfig::getFcdDeviceName()
 /*! \brief Save configuration. */
 void CIoConfig::saveConfig()
 {
-    QSettings settings;
+    //QSettings settings;
 
     //settings.setValue("input", ui->inDevEdit->text());
     //settings.setValue("output", ui->outDevEdit->text());
