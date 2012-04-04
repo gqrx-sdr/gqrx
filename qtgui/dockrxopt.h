@@ -47,6 +47,8 @@ public:
 
     void setFilterOffset(qint64 freq_hz);
 
+    void setRfFreq(qint64 freq_hz);
+
     void setCurrentDemod(int demod);
     int  currentDemod();
 
@@ -56,6 +58,8 @@ public:
     void setCurrentSideBand(int sideband);
     int  currentSideBand();
 
+private:
+    void updateRxFreq();
 
 signals:
     /*! \brief Signal emitted when the channel filter frequency has changed. */
@@ -120,6 +124,8 @@ private:
     Ui::DockRxOpt *ui;   /*! The Qt designer UI file. */
 
     bool agc_is_on;
+
+    qint64 rf_freq_hz;   /*! Current RF frequency in Hz. Used to display RX frequency. */
 };
 
 #endif // DOCKRXOPT_H

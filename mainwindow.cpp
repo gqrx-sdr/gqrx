@@ -43,7 +43,6 @@ MainWindow::MainWindow(QWidget *parent) :
     /* frequency control widget */
     ui->freqCtrl->Setup(10, (quint64) 50e6, (quint64) 2e9, 1, UNITS_MHZ);
     ui->freqCtrl->SetFrequency(144500000);
-    ui->rxFreqLabel->setText("144.500000 MHz");
 
     d_filter_shape = receiver::FILTER_SHAPE_NORMAL;
 
@@ -173,16 +172,14 @@ MainWindow::~MainWindow()
  */
 void MainWindow::setNewFrequency(qint64 freq)
 {
-    double rx_freq_mhz;
-
     /* set receiver frequency */
     rx->set_rf_freq((double) freq);
 
     /* update pandapter */
     ui->plotter->SetCenterFreq(freq);
 
-    rx_freq_mhz = (freq + rx->get_filter_offset()) / 1.0e6;
-    ui->rxFreqLabel->setText(QString("%1 MHz").arg(rx_freq_mhz, 11, 'f', 6, ' '));
+    /* update RX frequncy label in rxopts */
+    uiDockRxOpt->setRfFreq(freq);
 }
 
 
@@ -262,16 +259,12 @@ void MainWindow::on_actionIqRec_triggered(bool checked)
 /* CPlotter::NewDemodFreq() is emitted */
 void MainWindow::on_plotter_NewDemodFreq(qint64 freq, qint64 delta)
 {
-    double rx_freq_mhz;
-
     // set RX filter
     rx->set_filter_offset((double) delta);
 
-    // update channel filter offset
+    // update RF freq label and channel filter offset
     uiDockRxOpt->setFilterOffset(delta);
-
-    rx_freq_mhz = ((double)freq) / 1.0e6;
-    ui->rxFreqLabel->setText(QString("%1 MHz").arg(rx_freq_mhz, 11, 'f', 6, ' '));
+    uiDockRxOpt->setRfFreq(freq-delta);
 }
 
 

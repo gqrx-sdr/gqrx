@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>218</width>
-    <height>424</height>
+    <height>521</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>218</width>
-    <height>424</height>
+    <height>478</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -60,6 +60,35 @@
        <enum>QFrame::Raised</enum>
       </property>
      </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_6">
+      <item>
+       <widget class="QLabel" name="rxFreqLabel">
+        <property name="toolTip">
+         <string>The frequency we actualy are listening on calculated
+as  rf_freq + filter_offset</string>
+        </property>
+        <property name="text">
+         <string>Receive:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="rxFreq">
+        <property name="toolTip">
+         <string>The frequency we actualy are listening on calculated
+as  rf_freq + filter_offset</string>
+        </property>
+        <property name="text">
+         <string>144.500000 MHz</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
      <layout class="QVBoxLayout" name="pageDemodVLayout1">
@@ -808,6 +837,9 @@ For digital modes it is best to switch it off.</string>
        <enum>Qt::Horizontal</enum>
       </property>
      </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_5"/>
     </item>
     <item>
      <spacer name="verticalSpacer">

@@ -24,7 +24,8 @@
 DockRxOpt::DockRxOpt(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockRxOpt),
-    agc_is_on(true)
+    agc_is_on(true),
+    rf_freq_hz(144500000)
 {
     ui->setupUi(this);
 
@@ -44,7 +45,31 @@ DockRxOpt::~DockRxOpt()
 void DockRxOpt::setFilterOffset(qint64 freq_hz)
 {
     ui->filterFreq->SetFrequency(freq_hz);
+    updateRxFreq();
 }
+
+
+/*! \brief Set new RF frequency
+ *  \param freq_hz The frequency in Hz
+ *
+ * RF frequency is the frequency to which the device device is tuned to
+ * The actual RX frequency is the sum of the RF frequency and the filter
+ * offset.
+ */
+void DockRxOpt::setRfFreq(qint64 freq_hz)
+{
+    rf_freq_hz = freq_hz;
+    updateRxFreq();
+}
+
+
+/*! \brief Update RX frequency label. */
+void DockRxOpt::updateRxFreq()
+{
+    double rx_freq_mhz = (rf_freq_hz + ui->filterFreq->GetFrequency()) / 1.0e6;
+    ui->rxFreq->setText(QString("%1 MHz").arg(rx_freq_mhz, 11, 'f', 6, ' '));
+}
+
 
 /*! \brief Select new demodulator.
  *  \param demod Demodulator index corresponding to receiver::demod.
@@ -148,6 +173,8 @@ float DockRxOpt::currentMaxdev()
 void DockRxOpt::on_filterFreq_NewFrequency(qint64 freq)
 {
     qDebug() << "New filter offset:" << freq << "Hz";
+    updateRxFreq();
+
     emit filterOffsetChanged(freq);
 }
 
