@@ -537,7 +537,6 @@ void MainWindow::meterTimeout()
     float level;
 
     level = rx->get_signal_pwr(true);
-    ui->rxSigLabel->setText(QString("%1 dBFS").arg(level, 7, 'f', 2, ' '));
     ui->sMeter->setLevel(level);
 }
 
