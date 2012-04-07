@@ -178,6 +178,12 @@ void DockRxOpt::on_filterFreq_NewFrequency(qint64 freq)
     emit filterOffsetChanged(freq);
 }
 
+/*! \brief Filter shape (TBC).
+ */
+void DockRxOpt::on_filterButton_clicked()
+{
+
+}
 
 /*! \brief Mode selector activated.
  *  \param New mode selection (see receiver::demod).

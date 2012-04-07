@@ -22,6 +22,7 @@
 
 #include <QDockWidget>
 
+
 namespace Ui {
     class DockRxOpt;
 }
@@ -107,6 +108,7 @@ signals:
 
 private slots:
     void on_filterFreq_NewFrequency(qint64 freq);
+    void on_filterButton_clicked();
     void on_modeSelector_activated(int index);
     void on_maxdevSelector_activated(int index);
     void on_emphSelector_activated(int index);
