@@ -79,7 +79,7 @@ CPlotter::CPlotter(QWidget *parent) :
     m_FLowCmax = -1000;
     m_FHiCmin = 1000;
     m_FHiCmax = 25000;
-    m_symetric = false;
+    m_symetric = true;
 
     m_ClickResolution = 10;
     m_FilterClickResolution = 10;
@@ -185,7 +185,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 m_DemodLowCutFreq = FreqfromX(pt.x()-m_GrabPosition ) - m_DemodCenterFreq;
                 m_DemodLowCutFreq = RoundFreq(m_DemodLowCutFreq, m_FilterClickResolution);
 
-                if (event->buttons() & Qt::LeftButton)  // symetric adjustment
+                if (m_symetric && (event->buttons() & Qt::LeftButton))  // symetric adjustment
                 {
                     m_DemodHiCutFreq = -m_DemodLowCutFreq;
                 }
@@ -216,7 +216,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 m_DemodHiCutFreq = FreqfromX( pt.x()-m_GrabPosition ) - m_DemodCenterFreq;
                 m_DemodHiCutFreq = RoundFreq(m_DemodHiCutFreq, m_FilterClickResolution);
 
-                if (event->buttons() & Qt::LeftButton) // symetric adjustment
+                if (m_symetric && (event->buttons() & Qt::LeftButton)) // symetric adjustment
                 {
                     m_DemodLowCutFreq = -m_DemodHiCutFreq;
                 }

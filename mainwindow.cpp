@@ -69,7 +69,6 @@ MainWindow::MainWindow(QWidget *parent) :
     dec_timer = new QTimer(this);
     connect(dec_timer, SIGNAL(timeout()), this, SLOT(decoderTimeout()));
 
-
     /* create dock widgets */
     uiDockRxOpt = new DockRxOpt();
     uiDockAudio = new DockAudio();
@@ -351,7 +350,7 @@ void MainWindow::selectDemod(int index)
     case receiver::DEMOD_SSB:
         if (uiDockRxOpt->currentSideBand()) {
             /* USB */
-            ui->plotter->SetDemodRanges(0, 500, 600, 10000, false);
+            ui->plotter->SetDemodRanges(0, 5000, 100, 10000, false);
             ui->plotter->SetHiLowCutFrequencies(200, 3000);
             rx->set_filter(200.0, 3000.0, receiver::FILTER_SHAPE_NORMAL);
         }
@@ -364,7 +363,7 @@ void MainWindow::selectDemod(int index)
         break;
 
     case receiver::DEMOD_AM:
-        ui->plotter->SetDemodRanges(-15000, -1000, 1000, 15000, true);
+        ui->plotter->SetDemodRanges(-20000, -100, 100, 20000, true);
         ui->plotter->SetHiLowCutFrequencies(-5000, 5000);
         rx->set_filter(-5000.0, 5000.0, receiver::FILTER_SHAPE_NORMAL);
         break;
@@ -373,7 +372,7 @@ void MainWindow::selectDemod(int index)
         /* filter params depend on max deviation */
         maxdev = uiDockRxOpt->currentMaxdev();
         if (maxdev < 20000.0) {
-            ui->plotter->SetDemodRanges(-25000, -1000, 1000, 25000, true);
+            ui->plotter->SetDemodRanges(-25000, -100, 100, 25000, true);
             ui->plotter->SetHiLowCutFrequencies(-5000, 5000);
             rx->set_filter(-5000.0, 5000.0, receiver::FILTER_SHAPE_NORMAL);
         }
