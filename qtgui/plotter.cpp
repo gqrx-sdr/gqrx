@@ -34,7 +34,7 @@
 //////////////////////////////////////////////////////////////////////
 // Local defines
 //////////////////////////////////////////////////////////////////////
-#define CUR_CUT_DELTA 3		//cursor capture delta in pixels
+#define CUR_CUT_DELTA 10		//cursor capture delta in pixels
 
 
 //////////////////////////////////////////////////////////////////////
@@ -79,7 +79,7 @@ CPlotter::CPlotter(QWidget *parent) :
     m_FLowCmax = -1000;
     m_FHiCmin = 1000;
     m_FHiCmax = 25000;
-    m_symetric = true;
+    m_symetric = false;
 
     m_ClickResolution = 10;
     m_FilterClickResolution = 10;
@@ -92,6 +92,7 @@ CPlotter::CPlotter(QWidget *parent) :
     m_FreqUnits = 1000000;
     m_CursorCaptured = NONE;
     m_Running = false;
+    m_DrawOverlay = false;
     m_2DPixmap = QPixmap(0,0);
     m_OverlayPixmap = QPixmap(0,0);
     m_WaterfallPixmap = QPixmap(0,0);
@@ -174,24 +175,26 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         }
     }
 
-    //process mouse moves while in cursor capture modes
+    // process mouse moves while in cursor capture modes
     if (LEFT == m_CursorCaptured)
-    {	//moving in demod lowcut region
-        if (event->buttons() & Qt::LeftButton)
-        {	//moving in demod lowcut region with left button held
+    {   // moving in demod lowcut region
+        if (event->buttons() & (Qt::LeftButton|Qt::RightButton))
+        {   //moving in demod lowcut region with left button held
             if (m_GrabPosition != 0)
             {
                 m_DemodLowCutFreq = FreqfromX(pt.x()-m_GrabPosition ) - m_DemodCenterFreq;
                 m_DemodLowCutFreq = RoundFreq(m_DemodLowCutFreq, m_FilterClickResolution);
-                //DrawOverlay();
-                if (m_symetric)
+
+                if (event->buttons() & Qt::LeftButton)  // symetric adjustment
                 {
                     m_DemodHiCutFreq = -m_DemodLowCutFreq;
-                    //emit NewHighCutFreq(m_DemodHiCutFreq);
                 }
-                //emit NewLowCutFreq(m_DemodLowCutFreq);
+
                 emit NewFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
-                DrawOverlay();
+                if (m_Running)
+                    m_DrawOverlay = true;  // schedule update of overlay during draw()
+                else
+                    DrawOverlay();  // not running so update oiverlay now
             }
             else
             {	//save initial grab postion from m_DemodFreqX
@@ -205,21 +208,24 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         }
     }
     else if (RIGHT == m_CursorCaptured)
-    {	//moving in demod highcut region
-        if (event->buttons() & Qt::LeftButton)
-        {	//moving in demod highcut region with right button held
+    {   // moving in demod highcut region
+        if (event->buttons() & (Qt::LeftButton|Qt::RightButton))
+        {   // moving in demod highcut region with right button held
             if (m_GrabPosition != 0)
             {
                 m_DemodHiCutFreq = FreqfromX( pt.x()-m_GrabPosition ) - m_DemodCenterFreq;
                 m_DemodHiCutFreq = RoundFreq(m_DemodHiCutFreq, m_FilterClickResolution);
-                DrawOverlay();
-                if (m_symetric)
+
+                if (event->buttons() & Qt::LeftButton) // symetric adjustment
                 {
                     m_DemodLowCutFreq = -m_DemodHiCutFreq;
-                    //emit NewLowCutFreq(m_DemodLowCutFreq);
                 }
-                //emit NewHighCutFreq(m_DemodHiCutFreq);
+
                 emit NewFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
+                if (m_Running)
+                    m_DrawOverlay = true;  // schedule update of overlay during draw()
+                else
+                    DrawOverlay();  // not running so update oiverlay now
             }
             else
             {	//save initial grab postion from m_DemodFreqX
@@ -233,14 +239,18 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         }
     }
     else if (CENTER == m_CursorCaptured)
-    {	//moving inbetween demod lowcut and highcut region
+    {   // moving inbetween demod lowcut and highcut region
         if (event->buttons() & Qt::LeftButton)
-        {//moving inbetween demod lowcut and highcut region with left button held
+        {   // moving inbetween demod lowcut and highcut region with left button held
             if (m_GrabPosition != 0)
             {
                 m_DemodCenterFreq = RoundFreq(FreqfromX(pt.x()-m_GrabPosition), m_ClickResolution );
                 emit NewDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
-                DrawOverlay();
+
+                if (m_Running)
+                    m_DrawOverlay = true;  // schedule update of overlay during draw()
+                else
+                    DrawOverlay();  // not running so update oiverlay now
             }
             else
             {	//save initial grab postion from m_DemodFreqX
@@ -429,6 +439,12 @@ void CPlotter::draw()
     int i;
     int w;
     int h;
+
+    if (m_DrawOverlay)
+    {
+        DrawOverlay();
+        m_DrawOverlay = false;
+    }
 
     QPoint LineBuf[MAX_SCREENSIZE];
 

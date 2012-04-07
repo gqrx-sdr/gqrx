@@ -109,6 +109,7 @@ private:
     QString m_Str;
     QString m_HDivText[HORZ_DIVS+1];
     bool m_Running;
+    bool m_DrawOverlay;
     qint64 m_CenterFreq;
     qint64 m_DemodCenterFreq;
     int m_DemodHiCutFreq;
