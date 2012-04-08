@@ -71,6 +71,23 @@ void DockRxOpt::updateRxFreq()
 }
 
 
+/*! \brief Select new filter preset.
+ *  \param index Index of the new filter preset (0=wide, 1=normal, 2=narrow).
+ */
+void DockRxOpt::setCurrentFilter(int index)
+{
+    ui->filterCombo->setCurrentIndex(index);
+}
+
+/*! \brief Get current filter preset.
+ *  \param The current filter preset (0=wide, 1=normal, 2=narrow).
+ */
+int  DockRxOpt::currentFilter()
+{
+    return ui->filterCombo->currentIndex();
+}
+
+
 /*! \brief Select new demodulator.
  *  \param demod Demodulator index corresponding to receiver::demod.
  */
@@ -178,6 +195,19 @@ void DockRxOpt::on_filterFreq_NewFrequency(qint64 freq)
     emit filterOffsetChanged(freq);
 }
 
+/*! \brief New filter preset selected.
+ *
+ * Instead of implementing a new signal, we simply emit demodSelected() since demodulator
+ * and filter preset are tightly coupled.
+ */
+void DockRxOpt::on_filterCombo_activated(int index)
+{
+    Q_UNUSED(index);
+
+    qDebug() << "New filter preset:" << ui->filterCombo->currentText();
+    emit demodSelected(ui->modeSelector->currentIndex());
+}
+
 /*! \brief Filter shape (TBC).
  */
 void DockRxOpt::on_filterButton_clicked()
@@ -186,15 +216,27 @@ void DockRxOpt::on_filterButton_clicked()
 }
 
 /*! \brief Mode selector activated.
- *  \param New mode selection (see receiver::demod).
+ *  \param New mode selection.
  *
  * This slot is activated when the user selects a new demodulator (mode change).
  * It is connected automatically by the UI constructor, and it emits the demodSelected()
  * signal.
+ *
+ * Note that the modes listed in the selector are different from those defined by
+ * receiver::demod (we want to list LSB/USB separately but they have identical demods).
  */
 void DockRxOpt::on_modeSelector_activated(int index)
 {
     qDebug() << "New mode: " << index;
+
+    if (!index)
+    {
+        qDebug() << "Raw I/Q not implemented (fallback to FM)";
+        ui->modeSelector->setCurrentIndex(2);
+
+        return;
+    }
+
     emit demodSelected(index);
 }
 

@@ -115,7 +115,7 @@ as  rf_freq + filter_offset</string>
          <bool>true</bool>
         </property>
         <property name="toolTip">
-         <string>Mode dependent filter width</string>
+         <string>Apply mode dependent filter preset.</string>
         </property>
         <property name="currentIndex">
          <number>1</number>
@@ -133,11 +133,6 @@ as  rf_freq + filter_offset</string>
         <item>
          <property name="text">
           <string>Narrow</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>User</string>
          </property>
         </item>
        </widget>
@@ -220,7 +215,7 @@ as  rf_freq + filter_offset</string>
         </property>
         <item>
          <property name="text">
-          <string>SSB</string>
+          <string>Raw I/Q</string>
          </property>
         </item>
         <item>
@@ -231,6 +226,26 @@ as  rf_freq + filter_offset</string>
         <item>
          <property name="text">
           <string>FM</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>LSB</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>USB</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>CWL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>CWU</string>
          </property>
         </item>
        </widget>

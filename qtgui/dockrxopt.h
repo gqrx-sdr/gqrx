@@ -48,6 +48,9 @@ public:
 
     void setFilterOffset(qint64 freq_hz);
 
+    void setCurrentFilter(int index);
+    int  currentFilter();
+
     void setRfFreq(qint64 freq_hz);
 
     void setCurrentDemod(int demod);
@@ -56,8 +59,8 @@ public:
     void setCurrentMaxdev(float maxdev);
     float currentMaxdev();
 
-    void setCurrentSideBand(int sideband);
-    int  currentSideBand();
+    void setCurrentSideBand(int sideband);  // remove
+    int  currentSideBand();                 // remove
 
 private:
     void updateRxFreq();
@@ -108,6 +111,7 @@ signals:
 
 private slots:
     void on_filterFreq_NewFrequency(qint64 freq);
+    void on_filterCombo_activated(int index);
     void on_filterButton_clicked();
     void on_modeSelector_activated(int index);
     void on_maxdevSelector_activated(int index);

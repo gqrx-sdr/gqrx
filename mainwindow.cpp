@@ -336,59 +336,177 @@ void MainWindow::setIqCorr(double gain, double phase)
 
 
 /*! \brief Select new demodulator.
- *  \param demod New demodulator index, see receiver::demod.
+ *  \param demod New demodulator index.
+ *
+ * This slot basically maps the index of the mode selector to receiver::demod
+ * and configures the default channel filter.
+ *
  */
 void MainWindow::selectDemod(int index)
 {
     float maxdev;
-    receiver::demod mode = (receiver::demod)index;
+    int filter_preset = uiDockRxOpt->currentFilter();
+    int flo, fhi;
 
-    rx->set_demod(mode);
 
-    switch (mode) {
+    switch (index) {
 
-    case receiver::DEMOD_SSB:
-        if (uiDockRxOpt->currentSideBand()) {
-            /* USB */
-            ui->plotter->SetDemodRanges(0, 5000, 100, 10000, false);
-            ui->plotter->SetHiLowCutFrequencies(200, 3000);
-            rx->set_filter(200.0, 3000.0, receiver::FILTER_SHAPE_NORMAL);
-        }
-        else {
-            /* LSB */
-            ui->plotter->SetDemodRanges(-10000, -600, -500, 0, false);
-            ui->plotter->SetHiLowCutFrequencies(-3000, -200);
-            rx->set_filter(-3000.0, -200.0, receiver::FILTER_SHAPE_NORMAL);
-        }
+    case 0:
+        /* Raw I/Q */
+        qDebug() << "RAW I/Q mode not implemented!";
         break;
 
-    case receiver::DEMOD_AM:
+        /* AM */
+    case 1:
+        rx->set_demod(receiver::DEMOD_AM);
         ui->plotter->SetDemodRanges(-20000, -100, 100, 20000, true);
-        ui->plotter->SetHiLowCutFrequencies(-5000, 5000);
-        rx->set_filter(-5000.0, 5000.0, receiver::FILTER_SHAPE_NORMAL);
+        switch (filter_preset) {
+        case 0: //wide
+            flo = -10000;
+            fhi = 10000;
+            break;
+        case 2: // narrow
+            flo = -2500;
+            fhi = 2500;
+            break;
+        default: // normal
+            flo = -5000;
+            fhi = 5000;
+            break;
+        }
         break;
 
-    case receiver::DEMOD_FM:
-        /* filter params depend on max deviation */
+        /* FM */
+    case 2:
+        rx->set_demod(receiver::DEMOD_FM);
         maxdev = uiDockRxOpt->currentMaxdev();
         if (maxdev < 20000.0) {
             ui->plotter->SetDemodRanges(-25000, -100, 100, 25000, true);
-            ui->plotter->SetHiLowCutFrequencies(-5000, 5000);
-            rx->set_filter(-5000.0, 5000.0, receiver::FILTER_SHAPE_NORMAL);
+            switch (filter_preset) {
+            case 0: //wide
+                flo = -10000;
+                fhi = 10000;
+                break;
+            case 2: // narrow
+                flo = -2500;
+                fhi = 2500;
+                break;
+            default: // normal
+                flo = -5000;
+                fhi = 5000;
+                break;
+            }
         }
         else {
             ui->plotter->SetDemodRanges(-45000, -10000, 10000, 45000, true);
-            ui->plotter->SetHiLowCutFrequencies(-35000, 35000);
-            rx->set_filter(-35000.0, 35000.0, receiver::FILTER_SHAPE_NORMAL);
+            switch (filter_preset) {
+            /** FIXME: not sure about these **/
+            case 0: //wide
+                flo = -45000;
+                fhi = 45000;
+                break;
+            case 2: // narrow
+                flo = -10000;
+                fhi = 10000;
+                break;
+            default: // normal
+                flo = -35000;
+                fhi = 35000;
+                break;
+            }
+        }
+        break;
+
+        /* LSB */
+    case 3:
+        rx->set_demod(receiver::DEMOD_SSB);
+        ui->plotter->SetDemodRanges(-10000, -100, -5000, 0, false);
+        switch (filter_preset) {
+        case 0: //wide
+            flo = -4100;
+            fhi = -100;
+            break;
+        case 2: // narrow
+            flo = -1600;
+            fhi = -200;
+            break;
+        default: // normal
+            flo = -3000;
+            fhi = -200;
+            break;
+        }
+        break;
+
+        /* USB */
+    case 4:
+        rx->set_demod(receiver::DEMOD_SSB);
+        ui->plotter->SetDemodRanges(0, 5000, 100, 10000, false);
+        switch (filter_preset) {
+        case 0: //wide
+            flo = 100;
+            fhi = 4100;
+            break;
+        case 2: // narrow
+            flo = 200;
+            fhi = 1600;
+            break;
+        default: // normal
+            flo = 200;
+            fhi = 3000;
+            break;
+        }
+        break;
+
+        /* CWL */
+    case 5:
+        rx->set_demod(receiver::DEMOD_SSB);
+        ui->plotter->SetDemodRanges(-10000, -100, -5000, 0, false);
+        switch (filter_preset) {
+        case 0: //wide
+            flo = -2300;
+            fhi = -200;
+            break;
+        case 2: // narrow
+            flo = -900;
+            fhi = -400;
+            break;
+        default: // normal
+            flo = -1200;
+            fhi = -200;
+            break;
+        }
+        break;
+
+        /* CWU */
+    case 6:
+        rx->set_demod(receiver::DEMOD_SSB);
+        ui->plotter->SetDemodRanges(0, 5000, 100, 10000, false);
+        switch (filter_preset) {
+        case 0: //wide
+            flo = 200;
+            fhi = 2300;
+            break;
+        case 2: // narrow
+            flo = 400;
+            fhi = 900;
+            break;
+        default: // normal
+            flo = 200;
+            fhi = 1200;
+            break;
         }
         break;
 
     default:
-        qDebug() << "Invalid mode selection: " << mode;
+        qDebug() << "Invalid mode selection: " << index;
+        flo = -5000;
+        fhi = 5000;
         break;
-
     }
 
+    qDebug() << "Filter preset for mode" << index << "LO:" << flo << "HI:" << fhi;
+    ui->plotter->SetHiLowCutFrequencies(flo, fhi);
+    rx->set_filter((double)flo, (double)fhi, receiver::FILTER_SHAPE_NORMAL);
 }
 
 
@@ -414,6 +532,7 @@ void MainWindow::setFmMaxdev(float max_dev)
         rx->set_filter(-35000.0, 35000.0, receiver::FILTER_SHAPE_NORMAL);
     }
 }
+
 
 /*! \brief New FM de-emphasis time consant selected.
  *  \param tau The new time constant
