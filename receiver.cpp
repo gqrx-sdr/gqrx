@@ -387,7 +387,7 @@ receiver::status receiver::set_demod(demod rx_demod)
     demod current_demod = d_demod;
 
     /* check if new demodulator selection is valid */
-    if ((rx_demod < DEMOD_SSB) || (rx_demod >= DEMOD_NUM))
+    if ((rx_demod < DEMOD_NONE) || (rx_demod >= DEMOD_NUM))
         return STATUS_ERROR;
 
     if (rx_demod == current_demod) {
@@ -401,6 +401,7 @@ receiver::status receiver::set_demod(demod rx_demod)
     /* disconnect current demodulator */
     switch (current_demod) {
 
+    case DEMOD_NONE: /** FIXME! **/
     case DEMOD_SSB:
         tb->disconnect(agc, 0, demod_ssb, 0);
         tb->disconnect(demod_ssb, 0, audio_rr, 0);
@@ -416,12 +417,12 @@ receiver::status receiver::set_demod(demod rx_demod)
         tb->disconnect(demod_fm, 0, audio_rr, 0);
         break;
 
-
     }
 
 
     switch (rx_demod) {
 
+    case DEMOD_NONE: /** FIXME! **/
     case DEMOD_SSB:
         d_demod = rx_demod;
         tb->connect(agc, 0, demod_ssb, 0);

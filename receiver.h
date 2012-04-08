@@ -70,10 +70,11 @@ public:
 
     /*! \brief Available demodulators. */
     enum demod {
-        DEMOD_SSB  = 0,  /*! Single Side Band. */
+        DEMOD_NONE = 0,  /*! No demod. Raw I/Q to audio. */
         DEMOD_AM   = 1,  /*! Amplitude modulation. */
         DEMOD_FM   = 2,  /*! Frequency modulation. */
-        DEMOD_NUM  = 3   /*! Included for convenience. */
+        DEMOD_SSB  = 3,  /*! Single Side Band. */
+        DEMOD_NUM  = 4   /*! Included for convenience. */
     };
 
     /*! \brief Filter shape (convenience wrappers for "transition width"). */
