@@ -68,7 +68,8 @@ SOURCES += \
     pulseaudio/pa_sink.cc \
     pulseaudio/pa_source.cc \
     fcdctl/fcd.c \
-    fcdctl/hid-libusb.c  # FIXME: Linux only
+    fcdctl/hid-libusb.c \  # FIXME: Linux only
+    qtgui/demod-options.cpp
 #    fcdctl/hidwin.c \
 #    fcdctl/hidmac.c \
 
@@ -113,7 +114,8 @@ HEADERS += \
     fcdctl/hidapi.h \
     fcdctl/fcdhidcmd.h \
     fcdctl/fcd.h \
-    gqrx.h
+    gqrx.h \
+    qtgui/demod-options.h
 
 FORMS += \
     qtgui/dockrxopt.ui \
@@ -125,7 +127,8 @@ FORMS += \
     qtgui/dockiqplayer.ui \
     qtgui/afsk1200win.ui \
     qtgui/bpsk1000win.ui \
-    qtgui/arissattlm.ui
+    qtgui/arissattlm.ui \
+    qtgui/demod-options.ui
 
 
 # dependencies via pkg-config

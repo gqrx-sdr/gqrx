@@ -32,11 +32,16 @@ DockRxOpt::DockRxOpt(QWidget *parent) :
     /** FIXME: BW should be parameter */
     ui->filterFreq->Setup(7, -45000, 45000, 1, UNITS_KHZ);
     ui->filterFreq->SetFrequency(0);
+
+    /* demodulator options dialog */
+    demodOpt = new CDemodOptions(this);
+    demodOpt->setCurrentPage(CDemodOptions::PAGE_FM_OPT);
 }
 
 DockRxOpt::~DockRxOpt()
 {
     delete ui;
+    delete demodOpt;
 }
 
 /*! \brief Set value of channel filter offset selector.
@@ -106,80 +111,11 @@ int  DockRxOpt::currentDemod()
 }
 
 
-/*! \brief Select new SSB side band.
- *  \param sideband New SSB side band selection (0=LSB, 1=USB).
- */
-void DockRxOpt::setCurrentSideBand(int sideband)
-{
-    ui->sidebandSelector->setCurrentIndex(sideband);
-}
-
-
-/*! \brief Get current SSB side band selection.
- *  \returns The current SSB side band selection (0=LSB, 1=USB).
- */
-int  DockRxOpt::currentSideBand()
-{
-    return ui->sidebandSelector->currentIndex();
-}
-
-
-/*! \brief Select new value in max_dev selector.
- *  \param maxdev The new value to select.
- */
-void DockRxOpt::setCurrentMaxdev(float maxdev)
-{
-    if (maxdev < 4000.0) {
-        /* select 2500 */
-        ui->maxdevSelector->setCurrentIndex(0);
-    }
-    else if (maxdev < 10000.0) {
-        /* select 5k */
-        ui->maxdevSelector->setCurrentIndex(1);
-    }
-    else if (maxdev < 35000.0) {
-        /* select 17k */
-        ui->maxdevSelector->setCurrentIndex(2);
-    }
-    else {
-        /* select 75k */
-        ui->maxdevSelector->setCurrentIndex(3);
-    }
-}
-
-
 float DockRxOpt::currentMaxdev()
 {
-    float max_dev;
-    int index = ui->maxdevSelector->currentIndex();
-
-    switch (index) {
-    case 0:
-        max_dev = 2500.0;
-        break;
-
-    case 1:
-        max_dev = 5000.0;
-        break;
-
-    case 2:
-        max_dev = 17000.0;
-        break;
-
-    case 3:
-        max_dev = 75000.0;
-        break;
-
-    default:
-        qDebug() << "Invalid max_dev index: " << index;
-        max_dev = 5000.0;
-        break;
-
-    }
-
-    return max_dev;
+    qDebug() << __FILE__ << __FUNCTION__ << "FIXME";
+    return 5000.0;
 }
-
 
 /*! \brief Channel filter offset has changed
  *  \param freq The new filter offset in Hz
@@ -237,85 +173,23 @@ void DockRxOpt::on_modeSelector_activated(int index)
         return;
     }
 
+    /* update demodulator option widget */
+    if (index == 2)
+        demodOpt->setCurrentPage(CDemodOptions::PAGE_FM_OPT);
+    else
+        demodOpt->setCurrentPage(CDemodOptions::PAGE_NO_OPT);
+
     emit demodSelected(index);
 }
 
-
-/*! \brief New FM maximum deviation selected.
- *  \param index The index of the selcted item (fixed max_dev options)
+/*! \brief Show demodulator options.
  */
-void DockRxOpt::on_maxdevSelector_activated(int index)
+void DockRxOpt::on_modeButton_clicked()
 {
-    float max_dev;
-
-    switch (index) {
-    case 0:
-        max_dev = 2500.0;
-        break;
-
-    case 1:
-        max_dev = 5000.0;
-        break;
-
-    case 2:
-        max_dev = 17000.0;
-        break;
-
-    case 3:
-        max_dev = 75000.0;
-        break;
-
-    default:
-        qDebug() << "Invalid max_dev index: " << index;
-        max_dev = 5000.0;
-        break;
-
-    }
-
-    emit fmMaxdevSelected(max_dev);
-
+    demodOpt->show();
 }
 
 
-/*! \brief New FM de-emphasis time constant selected.
- *  \param index The index of the new selection (fixed tau options).
- */
-void DockRxOpt::on_emphSelector_activated(int index)
-{
-    double tau_tbl[] = { 0.0, 25.0, 50.0, 75.0, 100.0, 250.0, 530.0, 1000.0};
-    double tau;
-
-    if ((index < 0) || (index > 7)) {
-        qDebug() << "Invalid tau selection index: " << index;
-        return;
-    }
-
-    tau = tau_tbl[index] * 1.0e-6;
-    emit fmEmphSelected(tau);
-}
-
-
-/*! \brief AM DCR checkbox state toggled
- *  \param checked Whether the checkbox is checked or not.
- */
-void DockRxOpt::on_dcr_toggled(bool checked)
-{
-    emit amDcrToggled(checked);
-}
-
-
-/*! \brief SSB side band selected.
- *  \param The side band band selection (0=LSB, 1=USB).
- *
- * This slot is activated when the user selects a new side band in SSB mode.
- * It is connected automatically by the UI constructor and it emits the sidebandSelected()
- * signal.
- */
-void DockRxOpt::on_sidebandSelector_activated(int index)
-{
-    qDebug() << "New side band: " << index;
-    emit sidebandSelected(index);
-}
 
 /*! \brief AGC preset has changed.
  *

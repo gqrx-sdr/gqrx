@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #define DOCKRXOPT_H
 
 #include <QDockWidget>
+#include "qtgui/demod-options.h"
 
 
 namespace Ui {
@@ -56,11 +57,7 @@ public:
     void setCurrentDemod(int demod);
     int  currentDemod();
 
-    void setCurrentMaxdev(float maxdev);
     float currentMaxdev();
-
-    void setCurrentSideBand(int sideband);  // remove
-    int  currentSideBand();                 // remove
 
 private:
     void updateRxFreq();
@@ -114,10 +111,7 @@ private slots:
     void on_filterCombo_activated(int index);
     void on_filterButton_clicked();
     void on_modeSelector_activated(int index);
-    void on_maxdevSelector_activated(int index);
-    void on_emphSelector_activated(int index);
-    void on_dcr_toggled(bool checked);
-    void on_sidebandSelector_activated(int index);
+    void on_modeButton_clicked();
     void on_agcPresetCombo_activated(int index);
     void on_agcHangButton_toggled(bool checked);
     void on_agcGainDial_valueChanged(int value);
@@ -127,7 +121,8 @@ private slots:
     void on_sqlSlider_valueChanged(int value);
 
 private:
-    Ui::DockRxOpt *ui;   /*! The Qt designer UI file. */
+    Ui::DockRxOpt *ui;        /*! The Qt designer UI file. */
+    CDemodOptions *demodOpt;  /*! Demodulator options. */
 
     bool agc_is_on;
 
