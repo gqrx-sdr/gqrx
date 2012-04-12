@@ -28,6 +28,7 @@
  */
 #include "plotter.h"
 #include <stdlib.h>
+#include <cmath>
 #include <QDebug>
 
 
@@ -86,9 +87,12 @@ CPlotter::CPlotter(QWidget *parent) :
     m_CursorCaptureDelta = CUR_CUT_DELTA;
 
     m_Span = 96000;
+
+    m_VertDivs = 6;
     m_MaxdB = 0;
     m_MindB = -120;
-    m_dBStepSize = 20;
+    m_dBStepSize = abs(m_MaxdB-m_MindB)/m_VertDivs;
+
     m_FreqUnits = 1000000;
     m_CursorCaptured = NONE;
     m_Running = false;
@@ -501,7 +505,8 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
     qint32 xprev = -1;
     qint32 maxbin;
     double dBmaxOffset = 0.0;//MaxdB/10.0;   FIXME
-    double dBGainFactor = 1.0/MindB;//-1.0/(MaxdB-MindB);  FIXME
+    //double dBGainFactor = 1.0/MindB;//-1.0/(MaxdB-MindB);  FIXME
+    double dBGainFactor = ((double)MaxHeight)/abs(MaxdB-MindB);
 
     qint32 m_PlotWidth = MaxWidth;
 
@@ -553,7 +558,10 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
             if (m_Invert)
                 y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[(m-i)] - dBmaxOffset));
             else
-                y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[i] - dBmaxOffset));
+            {
+                //y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[i] - dBmaxOffset));
+                y = (qint32)(dBGainFactor*(MaxdB-m_pFFTAveBuf[i]));
+            }
 
             if (y < 0)
                 y = 0;
@@ -655,7 +663,7 @@ void CPlotter::DrawOverlay()
     Font.setPointSize(9);
     QFontMetrics metrics(Font);
 
-    y = h/VERT_DIVS;
+    y = h/m_VertDivs;
     //if (y < metrics.height())
     //    Font.setPixelSize(y);
     Font.setWeight(QFont::Normal);
@@ -663,7 +671,7 @@ void CPlotter::DrawOverlay()
 
     //draw vertical grids
     pixperdiv = (float)w / (float)HORZ_DIVS;
-    y = h - h/VERT_DIVS/2;
+    y = h - h/m_VertDivs/2;
     for (int i = 1; i < HORZ_DIVS; i++)
     {
         x = (int)((float)i*pixperdiv);
@@ -680,8 +688,8 @@ void CPlotter::DrawOverlay()
     //draw frequency values
     MakeFrequencyStrs();
     painter.setPen(QColor(0xD8,0xBA,0xA1,0xFF));
-    y = h - (h/VERT_DIVS);
-    for (int i = 1; i < HORZ_DIVS; i++)
+    y = h - (h/m_VertDivs);
+    for (int i = 1; i < m_VertDivs; i++)
     {
         //if ((i==0) || (i==HORZ_DIVS))
         //{	//left justify the leftmost text
@@ -698,15 +706,17 @@ void CPlotter::DrawOverlay()
         //else
         //{	//center justify the rest of the text
         x = (int)((float)i*pixperdiv - pixperdiv/2);
-        rect.setRect(x, y, (int)pixperdiv, h/VERT_DIVS);
+        rect.setRect(x, y, (int)pixperdiv, h/m_VertDivs);
         painter.drawText(rect, Qt::AlignHCenter|Qt::AlignBottom, m_HDivText[i]);
         //}
     }
 
-    //draw horizontal grids
-    pixperdiv = (float)h / (float)VERT_DIVS;
+    // horizontal grids (size and grid calcs could be moved to resize)
+    m_VertDivs = h/VDIV_DELTA+1;
+    m_dBStepSize = abs(m_MaxdB-m_MindB)/(double)m_VertDivs;
+    pixperdiv = (float)h / (float)m_VertDivs;
     painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0x30), 1,Qt::DotLine));
-    for (int i = 1; i < VERT_DIVS; i++)
+    for (int i = 1; i < m_VertDivs; i++)
     {
         y = (int)((float) i*pixperdiv);
         painter.drawLine(5*metrics.width("0",-1), y, w, y);
@@ -718,15 +728,13 @@ void CPlotter::DrawOverlay()
     painter.setFont(Font);
     int dB = m_MaxdB;
     m_YAxisWidth = metrics.width("-120 ");
-    for (int i = 1; i < VERT_DIVS; i++)
+    for (int i = 1; i < m_VertDivs; i++)
     {
         dB -= m_dBStepSize;  /* move to end if want to include maxdb */
         y = (int)((float)i*pixperdiv);
         rect.setRect(0, y-metrics.height()/2, m_YAxisWidth, metrics.height());
         painter.drawText(rect, Qt::AlignRight|Qt::AlignVCenter, QString::number(dB));
     }
-
-    m_MindB = m_MaxdB - (VERT_DIVS)*m_dBStepSize;
 
     if (!m_Running)
     {	//if not running so is no data updates to draw to screen

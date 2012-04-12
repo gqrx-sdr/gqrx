@@ -6,9 +6,11 @@
 #include <QFrame>
 #include <QImage>
 
-#define VERT_DIVS 6   //specify grid screen divisions
+//#define VERT_DIVS 6   //specify grid screen divisions
 #define HORZ_DIVS 12
 #define MAX_SCREENSIZE 4096
+#define VDIV_DELTA 40 // Minimum distance in pixels between two horizontal grid lines (vertical division)
+#define HDIV_DELTA 60 // Minimum distance in pixels between two vertical grid lines (horizontal division)
 
 class CPlotter : public QFrame
 {
@@ -131,10 +133,11 @@ private:
     int m_FHiCmax;
     bool m_symetric;
 
-    qint32 m_Span;
+    qint32 m_VertDivs;   /*!< Current number of vertical divisions. Calculated from height. */
     qint32 m_MaxdB;
     qint32 m_MindB;
     qint32 m_dBStepSize;
+    qint32 m_Span;
     qint32 m_FreqUnits;
     int m_ClickResolution;
     int m_FilterClickResolution;
