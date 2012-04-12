@@ -681,16 +681,6 @@ void MainWindow::fftTimeout()
     /* Normalize, calculcate power and shift the FFT */
     for (i = 0; i < fftsize; i++) {
 
-        /*if (i < fftsize/2) {
-            d_realFftData[i] = 10.0*log10((d_fftData[fftsize/2+i].imag() * d_fftData[fftsize/2+i].imag() +
-                                           d_fftData[fftsize/2+i].real() * d_fftData[fftsize/2+i].real()) + 1.0e-20);
-        }
-        else {
-            d_realFftData[i] = 10.0*log10((d_fftData[i-fftsize/2].imag() * d_fftData[i-fftsize/2].imag() +
-                                           d_fftData[i-fftsize/2].real() * d_fftData[i-fftsize/2].real()) + 1.0e-20);
-
-        }*/
-
         /* normalize and shift */
         if (i < fftsize/2) {
             pt = d_fftData[fftsize/2+i] / scaleFactor;
@@ -702,6 +692,7 @@ void MainWindow::fftTimeout()
         /* calculate power in dBFS */
         d_realFftData[i] = 10.0 * log10(pt.imag()*pt.imag() + pt.real()*pt.real() + 1.0e-20);
 
+/*
         if (d_realFftData[i] < min)
             min = d_realFftData[i];
 
@@ -709,9 +700,7 @@ void MainWindow::fftTimeout()
             max = d_realFftData[i];
 
         avg = (avg+d_realFftData[i]) / 2.0;
-
-        //d_realFftData[i] = -110.0;
-
+*/
     }
 
     ui->plotter->SetNewFttData(d_realFftData, fftsize);
