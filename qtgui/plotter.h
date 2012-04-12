@@ -5,7 +5,6 @@
 #include <QtGui>
 #include <QFrame>
 #include <QImage>
-//#include "interface/sdrinterface.h"
 
 #define VERT_DIVS 6   //specify grid screen divisions
 #define HORZ_DIVS 12
@@ -14,6 +13,7 @@
 class CPlotter : public QFrame
 {
     Q_OBJECT
+
 public:
     explicit CPlotter(QWidget *parent = 0);
     ~CPlotter();
@@ -82,7 +82,9 @@ private:
         NONE,
         LEFT,
         CENTER,
-        RIGHT
+        RIGHT,
+        YAXIS,
+        XAXIS
     };
     void DrawOverlay();
     void MakeFrequencyStrs();
@@ -99,6 +101,8 @@ private:
     qint32 m_fftbuf[MAX_SCREENSIZE];
     double *m_fftData;     /*! pointer to incoming FFT data */
     int     m_fftDataSize;
+
+    int m_YAxisWidth;
 
     eCapturetype m_CursorCaptured;
     QPixmap m_2DPixmap;

@@ -152,6 +152,10 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     setCursor(QCursor(Qt::SizeHorCursor));
                 m_CursorCaptured = LEFT;
             }
+            else if (IsPointCloseTo(pt.x(), m_YAxisWidth/2, m_YAxisWidth/2))
+            {
+                m_CursorCaptured = YAXIS;
+            }
             else
             {	//if not near any grab boundaries
                 if (NONE != m_CursorCaptured)
@@ -355,38 +359,12 @@ void CPlotter::wheelEvent( QWheelEvent * event )
     int numDegrees = event->delta() / 8;
     int numSteps = numDegrees / 15;
 
-    if (event->buttons() == Qt::RightButton)
-    {	//right button held while wheel is spun
-        if (RIGHT == m_CursorCaptured)
-        {	//change demod high cut
-            m_DemodHiCutFreq += (numSteps*m_FilterClickResolution);
-            m_DemodHiCutFreq = RoundFreq(m_DemodHiCutFreq, m_FilterClickResolution);
-
-            if (m_symetric)
-            {
-                m_DemodLowCutFreq = -m_DemodHiCutFreq;
-                //emit NewLowCutFreq(m_DemodLowCutFreq);
-            }
-            //emit NewHighCutFreq(m_DemodHiCutFreq);
-            emit NewFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
-        }
-        else if (LEFT == m_CursorCaptured)
-        {	//change demod low cut
-            m_DemodLowCutFreq += (numSteps*m_FilterClickResolution);
-            m_DemodLowCutFreq = RoundFreq(m_DemodLowCutFreq, m_FilterClickResolution);
-
-            if (m_symetric)
-            {
-                m_DemodHiCutFreq = -m_DemodLowCutFreq;
-                //emit NewHighCutFreq(m_DemodHiCutFreq);
-            }
-            //emit NewLowCutFreq(m_DemodLowCutFreq);
-            emit NewFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
-
-        }
+    if (m_CursorCaptured == YAXIS)
+    {
+        qDebug() << "ZOOM:" << numDegrees << numSteps;
     }
     else
-    {	//inc/dec demod frequency if right button NOT pressed
+    { // inc/dec demod frequency if right button NOT pressed
         m_DemodCenterFreq += (numSteps*m_ClickResolution);
         m_DemodCenterFreq = RoundFreq(m_DemodCenterFreq, m_ClickResolution );
         emit NewDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
@@ -739,11 +717,12 @@ void CPlotter::DrawOverlay()
     //Font.setWeight(QFont::Light);
     painter.setFont(Font);
     int dB = m_MaxdB;
+    m_YAxisWidth = metrics.width("-120 ");
     for (int i = 1; i < VERT_DIVS; i++)
     {
         dB -= m_dBStepSize;  /* move to end if want to include maxdb */
         y = (int)((float)i*pixperdiv);
-        rect.setRect(0, y-metrics.height()/2, metrics.width("-120 "), metrics.height());
+        rect.setRect(0, y-metrics.height()/2, m_YAxisWidth, metrics.height());
         painter.drawText(rect, Qt::AlignRight|Qt::AlignVCenter, QString::number(dB));
     }
 
