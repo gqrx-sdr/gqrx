@@ -556,12 +556,9 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
         for (i = m_BinMin; i <= m_BinMax; i++ )
         {
             if (m_Invert)
-                y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[(m-i)] - dBmaxOffset));
+                y = (qint32)(dBGainFactor*(MaxdB-m_pFFTAveBuf[(m-i)]));
             else
-            {
-                //y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[i] - dBmaxOffset));
                 y = (qint32)(dBGainFactor*(MaxdB-m_pFFTAveBuf[i]));
-            }
 
             if (y < 0)
                 y = 0;
@@ -595,9 +592,10 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
         {
             i = m_pTranslateTbl[x];	//get plot to fft bin coordinate transform
             if (m_Invert)
-                y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[(m-i)] - dBmaxOffset));
+                y = (qint32)(dBGainFactor*(MaxdB-m_pFFTAveBuf[(m-i)]));
             else
-                y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[i] - dBmaxOffset));
+                y = (qint32)(dBGainFactor*(MaxdB-m_pFFTAveBuf[i]));
+
             if (y < 0)
                 y = 0;
             if (y > MaxHeight)
@@ -607,7 +605,6 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
     }
 
     delete [] m_pTranslateTbl;
-
 }
 
 
