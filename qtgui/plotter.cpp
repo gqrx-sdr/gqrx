@@ -560,11 +560,10 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
             else
                 y = (qint32)(dBGainFactor*(MaxdB-m_pFFTAveBuf[i]));
 
-            if (y < 0)
-                y = 0;
-
             if (y > MaxHeight)
                 y = MaxHeight;
+            else if (y < 0)
+                y = 0;
 
             x = m_pTranslateTbl[i];	//get fft bin to plot x coordinate transform
 
@@ -596,10 +595,11 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
             else
                 y = (qint32)(dBGainFactor*(MaxdB-m_pFFTAveBuf[i]));
 
-            if (y < 0)
-                y = 0;
             if (y > MaxHeight)
                 y = MaxHeight;
+            else if (y < 0)
+                y = 0;
+
             OutBuf[x] = y;
         }
     }
