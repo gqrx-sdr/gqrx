@@ -138,6 +138,7 @@ private:
     qint32 m_MindB;
     qint32 m_dBStepSize;
     qint32 m_Span;
+    double m_SampleFreq;
     qint32 m_FreqUnits;
     int m_ClickResolution;
     int m_FilterClickResolution;

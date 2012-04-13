@@ -87,6 +87,7 @@ CPlotter::CPlotter(QWidget *parent) :
     m_CursorCaptureDelta = CUR_CUT_DELTA;
 
     m_Span = 96000;
+    m_SampleFreq = 96000;
 
     m_VertDivs = 6;
     m_MaxdB = 0;
@@ -514,7 +515,6 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
 
     qint32 m_FFTSize = m_fftDataSize;
 
-    double m_SampleFreq = 96000;
     bool m_Invert = false;
 
     double* m_pFFTAveBuf = m_fftData;
@@ -661,8 +661,6 @@ void CPlotter::DrawOverlay()
     QFontMetrics metrics(Font);
 
     y = h/m_VertDivs;
-    //if (y < metrics.height())
-    //    Font.setPixelSize(y);
     Font.setWeight(QFont::Normal);
     painter.setFont(Font);
 
@@ -679,33 +677,17 @@ void CPlotter::DrawOverlay()
             painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0x30), 1, Qt::DotLine));
 
         painter.drawLine(x, 0, x , y);
-        //painter.drawLine(x, h-5, x , h);
     }
 
     //draw frequency values
     MakeFrequencyStrs();
     painter.setPen(QColor(0xD8,0xBA,0xA1,0xFF));
     y = h - (h/m_VertDivs);
-    for (int i = 1; i < m_VertDivs; i++)
+    for (int i = 1; i < HORZ_DIVS; i++)
     {
-        //if ((i==0) || (i==HORZ_DIVS))
-        //{	//left justify the leftmost text
-        //x = (int)( (float)i*pixperdiv);
-        //rect.setRect(x ,y, (int)pixperdiv, h/VERT_DIVS);
-        //painter.drawText(rect, Qt::AlignLeft|Qt::AlignVCenter, m_HDivText[i]);
-        //}
-        //else if(HORZ_DIVS == i)
-        //{	//right justify the rightmost text
-        //	x = (int)( (float)i*pixperdiv - pixperdiv);
-        //	rect.setRect(x ,y, (int)pixperdiv, h/VERT_DIVS);
-        //	painter.drawText(rect, Qt::AlignRight|Qt::AlignVCenter, m_HDivText[i]);
-        //}
-        //else
-        //{	//center justify the rest of the text
         x = (int)((float)i*pixperdiv - pixperdiv/2);
         rect.setRect(x, y, (int)pixperdiv, h/m_VertDivs);
         painter.drawText(rect, Qt::AlignHCenter|Qt::AlignBottom, m_HDivText[i]);
-        //}
     }
 
     // horizontal grids (size and grid calcs could be moved to resize)
