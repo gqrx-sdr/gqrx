@@ -133,7 +133,7 @@ private:
     int m_FHiCmax;
     bool m_symetric;
 
-    qint32 m_VertDivs;   /*!< Current number of vertical divisions. Calculated from height. */
+    qint32 m_VerDivs;   /*!< Current number of vertical divisions. Calculated from height. */
     qint32 m_MaxdB;
     qint32 m_MindB;
     qint32 m_dBStepSize;
