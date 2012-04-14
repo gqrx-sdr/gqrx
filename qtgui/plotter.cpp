@@ -35,7 +35,7 @@
 //////////////////////////////////////////////////////////////////////
 // Local defines
 //////////////////////////////////////////////////////////////////////
-#define CUR_CUT_DELTA 10		//cursor capture delta in pixels
+#define CUR_CUT_DELTA 5		//cursor capture delta in pixels
 
 
 //////////////////////////////////////////////////////////////////////
@@ -358,7 +358,7 @@ void CPlotter::mouseReleaseEvent(QMouseEvent * event)
 //////////////////////////////////////////////////////////////////////
 // Called when a mouse wheel is turned
 //////////////////////////////////////////////////////////////////////
-void CPlotter::wheelEvent( QWheelEvent * event )
+void CPlotter::wheelEvent(QWheelEvent * event)
 {
     QPoint pt = event->pos();
     int numDegrees = event->delta() / 8;
@@ -366,7 +366,14 @@ void CPlotter::wheelEvent( QWheelEvent * event )
 
     if (m_CursorCaptured == YAXIS)
     {
-        qDebug() << "ZOOM:" << numDegrees << numSteps;
+        float delta = 0.1*numSteps*((float)abs(m_MaxdB-m_MindB));
+        float weigth = (float)pt.y() / (float)m_OverlayPixmap.height(); // asymmetric zoom
+        //float d = abs(m_MaxdB-m_MindB);
+        m_MindB -= delta*weigth;
+        m_MaxdB += delta*(1.0-weigth);
+        m_dBStepSize = abs(m_MaxdB-m_MindB)/m_VerDivs;
+
+        qDebug() << "ZOOM:" << numDegrees << numSteps << delta << weigth;
     }
     else
     { // inc/dec demod frequency if right button NOT pressed
