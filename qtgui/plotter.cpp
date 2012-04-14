@@ -510,15 +510,9 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
     double dBGainFactor = ((double)MaxHeight)/abs(MaxdB-MindB);
 
     qint32 m_PlotWidth = MaxWidth;
-
     qint32 m_BinMin, m_BinMax;
-
     qint32 m_FFTSize = m_fftDataSize;
-
-    bool m_Invert = false;
-
     double* m_pFFTAveBuf = m_fftData;
-
     qint32* m_pTranslateTbl = new qint32[m_FFTSize];
 
 
@@ -555,10 +549,7 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
         //if more FFT points than plot points
         for (i = m_BinMin; i <= m_BinMax; i++ )
         {
-            if (m_Invert)
-                y = (qint32)(dBGainFactor*(MaxdB-m_pFFTAveBuf[(m-i)]));
-            else
-                y = (qint32)(dBGainFactor*(MaxdB-m_pFFTAveBuf[i]));
+            y = (qint32)(dBGainFactor*(MaxdB-m_pFFTAveBuf[i]));
 
             if (y > MaxHeight)
                 y = MaxHeight;
@@ -590,10 +581,7 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
         for (x = 0; x < m_PlotWidth; x++ )
         {
             i = m_pTranslateTbl[x];	//get plot to fft bin coordinate transform
-            if (m_Invert)
-                y = (qint32)(dBGainFactor*(MaxdB-m_pFFTAveBuf[(m-i)]));
-            else
-                y = (qint32)(dBGainFactor*(MaxdB-m_pFFTAveBuf[i]));
+            y = (qint32)(dBGainFactor*(MaxdB-m_pFFTAveBuf[i]));
 
             if (y > MaxHeight)
                 y = MaxHeight;
