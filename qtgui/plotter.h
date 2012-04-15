@@ -145,6 +145,7 @@ private:
     int m_ClickResolution;
     int m_FilterClickResolution;
 
+    int m_Yzero;  /*!< Used to measure mouse drag direction. */
 
     quint32 m_LastSampleRate;
 

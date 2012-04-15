@@ -185,7 +185,26 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
     }
 
     // process mouse moves while in cursor capture modes
-    if (LEFT == m_CursorCaptured)
+    if (YAXIS == m_CursorCaptured)
+    {
+        if (event->buttons() & Qt::LeftButton)
+        {
+            setCursor(QCursor(Qt::ClosedHandCursor));
+            // move Y scale up/down
+            int delta_px = m_Yzero - pt.y();
+            int delta_db = delta_px * abs(m_MindB-m_MaxdB)/m_OverlayPixmap.height();
+            m_MindB -= delta_db;
+            m_MaxdB -= delta_db;
+
+            if (m_Running)
+                m_DrawOverlay = true;
+            else
+                DrawOverlay();
+
+            m_Yzero = pt.y();
+        }
+    }
+    else if (LEFT == m_CursorCaptured)
     {   // moving in demod lowcut region
         if (event->buttons() & (Qt::LeftButton|Qt::RightButton))
         {   //moving in demod lowcut region with left button held
@@ -312,15 +331,25 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
             m_GrabPosition = pt.x()-m_DemodHiCutFreqX;
         }
         else
-        {	//if cursor not captured set demod frequency and start demod box capture
-            m_DemodCenterFreq = RoundFreq(FreqfromX(pt.x()),m_ClickResolution );
-            emit NewDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
-            //save initial grab postion from m_DemodFreqX
-            //setCursor(QCursor(Qt::CrossCursor));
-            m_CursorCaptured = CENTER;
-            m_GrabPosition = 1;
-            //m_GrabPosition = pt.x()-m_DemodFreqX;
-            DrawOverlay();
+        {
+            if (m_CursorCaptured != YAXIS)
+            {
+                //if cursor not captured set demod frequency and start demod box capture
+                m_DemodCenterFreq = RoundFreq(FreqfromX(pt.x()),m_ClickResolution );
+                emit NewDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
+
+                //save initial grab postion from m_DemodFreqX
+                //setCursor(QCursor(Qt::CrossCursor));
+                m_CursorCaptured = CENTER;
+                m_GrabPosition = 1;
+                //m_GrabPosition = pt.x()-m_DemodFreqX;
+                DrawOverlay();
+            }
+            else
+            {
+                // get ready for moving Y axis
+                m_Yzero = pt.y();
+            }
         }
     }
 
@@ -350,8 +379,11 @@ void CPlotter::mouseReleaseEvent(QMouseEvent * event)
     {	//not in Overlay region
         if (NONE != m_CursorCaptured)
             setCursor(QCursor(Qt::ArrowCursor));
+
         m_CursorCaptured = NONE;
         m_GrabPosition = 0;
+
+        m_Yzero = -1;
     }
 }
 
