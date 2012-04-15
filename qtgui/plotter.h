@@ -59,9 +59,9 @@ public:
     void SetSpanFreq(quint32 s) { m_Span = (qint32)s; }
     void UpdateOverlay() { DrawOverlay(); }
 
-    void setMaxDB(int max);
-    void setMinDB(int min);
-    void setMinMaxDB(int min, int max);
+    void setMaxDB(qint32 max);
+    void setMinDB(qint32 min);
+    void setMinMaxDB(qint32 min, qint32 max);
 
 signals:
     void NewCenterFreq(qint64 f);

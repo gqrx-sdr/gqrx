@@ -364,15 +364,29 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     int numDegrees = event->delta() / 8;
     int numSteps = numDegrees / 15;
 
+    // wheel down: zoom out
+    // wheel up: zoom in
     if (m_CursorCaptured == YAXIS)
     {
-        float delta = 0.1*numSteps*((float)abs(m_MaxdB-m_MindB));
-        float weigth = (float)pt.y() / (float)m_OverlayPixmap.height(); // asymmetric zoom
+        // distribute delta between Min and Max depending on
+        // where the wheel is activated.
+        if (abs(pt.y() - m_OverlayPixmap.height()/2) < 10)
+        {
+            m_MindB += 5*numSteps;
+            m_MaxdB -= 5*numSteps;
+        }
+        else if (pt.y() < m_OverlayPixmap.height()/2)
+        {
+            m_MindB += 8*numSteps;
+            m_MaxdB -= 2*numSteps;
+        }
+        else
+        {
+            m_MindB += 2*numSteps;
+            m_MaxdB -= 8*numSteps;
+        }
 
-        m_MindB -= delta*weigth;
-        m_MaxdB += delta*(1.0-weigth);
-
-        qDebug() << "ZOOM:" << numDegrees << numSteps << delta << weigth;
+        qDebug() << "Min:" << m_MindB << " Max:" << m_MaxdB;
     }
     else
     { // inc/dec demod frequency if right button NOT pressed
@@ -381,7 +395,10 @@ void CPlotter::wheelEvent(QWheelEvent * event)
         emit NewDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
     }
 
-    DrawOverlay();
+    if (m_Running)
+        m_DrawOverlay = true;
+    else
+        DrawOverlay();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -603,7 +620,7 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
 
 
 /*! \brief Set upper limit of dB scale. */
-void CPlotter::setMaxDB(int max)
+void CPlotter::setMaxDB(qint32 max)
 {
     m_MaxdB = max;
 
@@ -614,7 +631,7 @@ void CPlotter::setMaxDB(int max)
 }
 
 /*! \brief Set lower limit of dB scale. */
-void CPlotter::setMinDB(int min)
+void CPlotter::setMinDB(qint32 min)
 {
     m_MindB = min;
 
@@ -625,7 +642,7 @@ void CPlotter::setMinDB(int min)
 }
 
 /*! \brief Set limits of dB scale. */
-void CPlotter::setMinMaxDB(int min, int max)
+void CPlotter::setMinMaxDB(qint32 min, qint32 max)
 {
     m_MaxdB = max;
     m_MindB = min;
