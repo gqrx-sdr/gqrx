@@ -368,10 +368,9 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     {
         float delta = 0.1*numSteps*((float)abs(m_MaxdB-m_MindB));
         float weigth = (float)pt.y() / (float)m_OverlayPixmap.height(); // asymmetric zoom
-        //float d = abs(m_MaxdB-m_MindB);
+
         m_MindB -= delta*weigth;
         m_MaxdB += delta*(1.0-weigth);
-        m_dBStepSize = abs(m_MaxdB-m_MindB)/m_VerDivs;
 
         qDebug() << "ZOOM:" << numDegrees << numSteps << delta << weigth;
     }
@@ -607,7 +606,6 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
 void CPlotter::setMaxDB(int max)
 {
     m_MaxdB = max;
-    m_dBStepSize = abs(m_MaxdB-m_MindB)/m_VerDivs;
 
     if (m_Running)
         m_DrawOverlay = true;
@@ -619,7 +617,6 @@ void CPlotter::setMaxDB(int max)
 void CPlotter::setMinDB(int min)
 {
     m_MindB = min;
-    m_dBStepSize = abs(m_MaxdB-m_MindB)/m_VerDivs;
 
     if (m_Running)
         m_DrawOverlay = true;
@@ -632,7 +629,6 @@ void CPlotter::setMinMaxDB(int min, int max)
 {
     m_MaxdB = max;
     m_MindB = min;
-    m_dBStepSize = abs(m_MaxdB-m_MindB)/m_VerDivs;
 
     if (m_Running)
         m_DrawOverlay = true;
