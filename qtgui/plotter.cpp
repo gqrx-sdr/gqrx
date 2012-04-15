@@ -159,6 +159,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             }
             else if (IsPointCloseTo(pt.x(), m_YAxisWidth/2, m_YAxisWidth/2))
             {
+                if (YAXIS != m_CursorCaptured)
+                    setCursor(QCursor(Qt::OpenHandCursor));
                 m_CursorCaptured = YAXIS;
             }
             else
@@ -376,14 +378,20 @@ void CPlotter::mouseReleaseEvent(QMouseEvent * event)
     QPoint pt = event->pos();
 
     if (!m_OverlayPixmap.rect().contains(pt))
-    {	//not in Overlay region
+    { //not in Overlay region
         if (NONE != m_CursorCaptured)
             setCursor(QCursor(Qt::ArrowCursor));
 
         m_CursorCaptured = NONE;
         m_GrabPosition = 0;
-
-        m_Yzero = -1;
+    }
+    else
+    {
+        if (YAXIS == m_CursorCaptured)
+        {
+            setCursor(QCursor(Qt::OpenHandCursor));
+            m_Yzero = -1;
+        }
     }
 }
 
