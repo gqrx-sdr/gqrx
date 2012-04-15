@@ -57,9 +57,11 @@ public:
 
     void SetDemodRanges(int FLowCmin, int FLowCmax, int FHiCmin, int FHiCmax, bool symetric);
     void SetSpanFreq(quint32 s) { m_Span = (qint32)s; }
-    void SetdBStepSize(int stepsz) { m_dBStepSize = stepsz; }
-    void SetMaxdB(int max) { m_MaxdB = max; }
     void UpdateOverlay() { DrawOverlay(); }
+
+    void setMaxDB(int max);
+    void setMinDB(int min);
+    void setMinMaxDB(int min, int max);
 
 signals:
     void NewCenterFreq(qint64 f);

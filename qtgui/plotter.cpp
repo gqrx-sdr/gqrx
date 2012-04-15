@@ -603,6 +603,44 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
 }
 
 
+/*! \brief Set upper limit of dB scale. */
+void CPlotter::setMaxDB(int max)
+{
+    m_MaxdB = max;
+    m_dBStepSize = abs(m_MaxdB-m_MindB)/m_VerDivs;
+
+    if (m_Running)
+        m_DrawOverlay = true;
+    else
+        DrawOverlay();
+}
+
+/*! \brief Set lower limit of dB scale. */
+void CPlotter::setMinDB(int min)
+{
+    m_MindB = min;
+    m_dBStepSize = abs(m_MaxdB-m_MindB)/m_VerDivs;
+
+    if (m_Running)
+        m_DrawOverlay = true;
+    else
+        DrawOverlay();
+}
+
+/*! \brief Set limits of dB scale. */
+void CPlotter::setMinMaxDB(int min, int max)
+{
+    m_MaxdB = max;
+    m_MindB = min;
+    m_dBStepSize = abs(m_MaxdB-m_MindB)/m_VerDivs;
+
+    if (m_Running)
+        m_DrawOverlay = true;
+    else
+        DrawOverlay();
+}
+
+
 //////////////////////////////////////////////////////////////////////
 // Called to draw an overlay bitmap containing grid and text that
 // does not need to be recreated every fft data update.
