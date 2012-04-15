@@ -400,25 +400,8 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     // wheel up: zoom in
     if (m_CursorCaptured == YAXIS)
     {
-        // distribute delta between Min and Max depending on
-        // where the wheel is activated.
-        if (abs(pt.y() - m_OverlayPixmap.height()/2) < 10)
-        {
-            m_MindB += 5*numSteps;
-            m_MaxdB -= 5*numSteps;
-        }
-        else if (pt.y() < m_OverlayPixmap.height()/2)
-        {
-            m_MindB += 8*numSteps;
-            m_MaxdB -= 2*numSteps;
-        }
-        else
-        {
-            m_MindB += 2*numSteps;
-            m_MaxdB -= 8*numSteps;
-        }
-
-        qDebug() << "Min:" << m_MindB << " Max:" << m_MaxdB;
+        m_MindB += 5*numSteps;
+        m_MaxdB -= 5*numSteps;
     }
     else
     { // inc/dec demod frequency if right button NOT pressed
