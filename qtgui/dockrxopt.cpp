@@ -36,6 +36,8 @@ DockRxOpt::DockRxOpt(QWidget *parent) :
     /* demodulator options dialog */
     demodOpt = new CDemodOptions(this);
     demodOpt->setCurrentPage(CDemodOptions::PAGE_FM_OPT);
+    connect(demodOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(demodOpt_fmMaxdevSelected(float)));
+    connect(demodOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(demodOpt_fmEmphSelected(double)));
 }
 
 DockRxOpt::~DockRxOpt()
@@ -315,4 +317,20 @@ void DockRxOpt::on_sqlSlider_valueChanged(int value)
 
     //ui->sqlValueLabel->setText(QString("%1 dB").arg(level));
     emit sqlLevelChanged(level);
+}
+
+/*! \brief FM deviation changed by user.
+ *  \param max_dev The new deviation in Hz.
+ */
+void DockRxOpt::demodOpt_fmMaxdevSelected(float max_dev)
+{
+    emit fmMaxdevSelected(max_dev);
+}
+
+/*! \brief FM de-emphasis changed by user.
+ *  \param tau The new time constant in uS.
+ */
+void DockRxOpt::demodOpt_fmEmphSelected(double tau)
+{
+    emit fmEmphSelected(tau);
 }

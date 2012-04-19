@@ -120,6 +120,10 @@ private slots:
     void on_agcDecayDial_valueChanged(int value);
     void on_sqlSlider_valueChanged(int value);
 
+    /* Signals coming from demod options pop-up */
+    void demodOpt_fmMaxdevSelected(float max_dev);
+    void demodOpt_fmEmphSelected(double tau);
+
 private:
     Ui::DockRxOpt *ui;        /*! The Qt designer UI file. */
     CDemodOptions *demodOpt;  /*! Demodulator options. */
