@@ -54,7 +54,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
       d_demod(DEMOD_FM),
       d_recording_iq(false),
       d_recording_wav(false),
-      d_sniffer_active(false)
+      d_sniffer_active(false),
+      d_running(false)
 {
     tb = gr_make_top_block("gqrx");
 
@@ -120,15 +121,23 @@ receiver::~receiver()
 void receiver::start()
 {
     /* FIXME: Check that flow graph is not running */
-    tb->start();
+    if (!d_running)
+    {
+        tb->start();
+        d_running = true;
+    }
 }
 
 
 /*! \brief Stop the receiver. */
 void receiver::stop()
 {
-    tb->stop();
-    tb->wait(); // If the graph is needed to run again, wait() must be called after stop
+    if (d_running)
+    {
+        tb->stop();
+        tb->wait(); // If the graph is needed to run again, wait() must be called after stop
+        d_running = false;
+    }
 }
 
 
@@ -571,12 +580,12 @@ receiver::status receiver::start_audio_playback(const std::string filename)
         return STATUS_ERROR;
     }
 
-    tb->lock();
+    stop();
     /* route demodulator output to null sink */
     tb->disconnect(audio_rr, 0, audio_gain, 0);
     tb->connect(audio_rr, 0, audio_null_sink, 0);
     tb->connect(wav_src, 0, audio_gain, 0);
-    tb->unlock();
+    start();
 
     return STATUS_OK;
 }
@@ -586,11 +595,11 @@ receiver::status receiver::start_audio_playback(const std::string filename)
 receiver::status receiver::stop_audio_playback()
 {
     /* disconnect wav source and reconnect receiver */
-    tb->lock();
+    stop();
     tb->disconnect(wav_src, 0, audio_gain, 0);
     tb->disconnect(audio_rr, 0, audio_null_sink, 0);
     tb->connect(audio_rr, 0, audio_gain, 0);
-    tb->unlock();
+    start();
 
     /* delete wav_src since we can not change file name */
     wav_src.reset();

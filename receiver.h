@@ -157,6 +157,7 @@ public:
     void   get_sniffer_data(float * outbuff, int &num);
 
 private:
+    bool   d_running;          /*! Whether receiver is running or not. */
     float  d_bandwidth;        /*! Receiver bandwidth. */
     int    d_audio_rate;       /*! Audio output rate. */
     double d_rf_freq;          /*! Current RF frequency. */
