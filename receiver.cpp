@@ -511,16 +511,25 @@ receiver::status receiver::set_af_gain(float gain_db)
 /*! \brief Start WAV file recorder.
  *  \param filename The filename where to record.
  *
- * A new recorder object is created every timje we start recording and deleted every time
+ * A new recorder object is created every time we start recording and deleted every time
  * we stop recording. The idea of creating one object and starting/stopping using different
  * file names does not work with WAV files (the initial /tmp/gqrx.wav will not be stopped
  * because the wav file can not be empty). See https://github.com/csete/gqrx/issues/36
  */
 receiver::status receiver::start_audio_recording(const std::string filename)
 {
-    if (d_recording_wav) {
+    if (d_recording_wav)
+    {
         /* error - we are already recording */
         std::cout << "ERROR: Can not start audio recorder (already recording)" << std::endl;
+
+        return STATUS_ERROR;
+    }
+    if (!d_running)
+    {
+        /* receiver is not running */
+        std::cout << "Can not start audio recorder (receiver not running)" << std::endl;
+
         return STATUS_ERROR;
     }
 
@@ -543,6 +552,13 @@ receiver::status receiver::stop_audio_recording()
     if (!d_recording_wav) {
         /* error: we are not recording */
         std::cout << "ERROR: Can stop audio recorder (not recording)" << std::endl;
+
+        return STATUS_ERROR;
+    }
+    if (!d_running)
+    {
+        /* receiver is not running */
+        std::cout << "Can not start audio recorder (receiver not running)" << std::endl;
 
         return STATUS_ERROR;
     }
