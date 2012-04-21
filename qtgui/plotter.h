@@ -5,15 +5,17 @@
 #include <QtGui>
 #include <QFrame>
 #include <QImage>
-//#include "interface/sdrinterface.h"
 
-#define VERT_DIVS 6   //specify grid screen divisions
+//#define VERT_DIVS 6   //specify grid screen divisions
 #define HORZ_DIVS 12
 #define MAX_SCREENSIZE 4096
+#define VDIV_DELTA 40 // Minimum distance in pixels between two horizontal grid lines (vertical division)
+#define HDIV_DELTA 60 // Minimum distance in pixels between two vertical grid lines (horizontal division)
 
 class CPlotter : public QFrame
 {
     Q_OBJECT
+
 public:
     explicit CPlotter(QWidget *parent = 0);
     ~CPlotter();
@@ -55,9 +57,11 @@ public:
 
     void SetDemodRanges(int FLowCmin, int FLowCmax, int FHiCmin, int FHiCmax, bool symetric);
     void SetSpanFreq(quint32 s) { m_Span = (qint32)s; }
-    void SetdBStepSize(int stepsz) { m_dBStepSize = stepsz; }
-    void SetMaxdB(int max) { m_MaxdB = max; }
     void UpdateOverlay() { DrawOverlay(); }
+
+    void setMaxDB(qint32 max);
+    void setMinDB(qint32 min);
+    void setMinMaxDB(qint32 min, qint32 max);
 
 signals:
     void NewCenterFreq(qint64 f);
@@ -82,7 +86,9 @@ private:
         NONE,
         LEFT,
         CENTER,
-        RIGHT
+        RIGHT,
+        YAXIS,
+        XAXIS
     };
     void DrawOverlay();
     void MakeFrequencyStrs();
@@ -99,6 +105,8 @@ private:
     qint32 m_fftbuf[MAX_SCREENSIZE];
     double *m_fftData;     /*! pointer to incoming FFT data */
     int     m_fftDataSize;
+
+    int m_YAxisWidth;
 
     eCapturetype m_CursorCaptured;
     QPixmap m_2DPixmap;
@@ -127,14 +135,17 @@ private:
     int m_FHiCmax;
     bool m_symetric;
 
-    qint32 m_Span;
+    qint32 m_VerDivs;   /*!< Current number of vertical divisions. Calculated from height. */
     qint32 m_MaxdB;
     qint32 m_MindB;
     qint32 m_dBStepSize;
+    qint32 m_Span;
+    double m_SampleFreq;
     qint32 m_FreqUnits;
     int m_ClickResolution;
     int m_FilterClickResolution;
 
+    int m_Yzero;  /*!< Used to measure mouse drag direction. */
 
     quint32 m_LastSampleRate;
 

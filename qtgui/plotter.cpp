@@ -28,13 +28,14 @@
  */
 #include "plotter.h"
 #include <stdlib.h>
+#include <cmath>
 #include <QDebug>
 
 
 //////////////////////////////////////////////////////////////////////
 // Local defines
 //////////////////////////////////////////////////////////////////////
-#define CUR_CUT_DELTA 10		//cursor capture delta in pixels
+#define CUR_CUT_DELTA 5		//cursor capture delta in pixels
 
 
 //////////////////////////////////////////////////////////////////////
@@ -86,9 +87,13 @@ CPlotter::CPlotter(QWidget *parent) :
     m_CursorCaptureDelta = CUR_CUT_DELTA;
 
     m_Span = 96000;
+    m_SampleFreq = 96000;
+
+    m_VerDivs = 6;
     m_MaxdB = 0;
     m_MindB = -120;
-    m_dBStepSize = 20;
+    m_dBStepSize = abs(m_MaxdB-m_MindB)/m_VerDivs;
+
     m_FreqUnits = 1000000;
     m_CursorCaptured = NONE;
     m_Running = false;
@@ -152,6 +157,12 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     setCursor(QCursor(Qt::SizeHorCursor));
                 m_CursorCaptured = LEFT;
             }
+            else if (IsPointCloseTo(pt.x(), m_YAxisWidth/2, m_YAxisWidth/2))
+            {
+                if (YAXIS != m_CursorCaptured)
+                    setCursor(QCursor(Qt::OpenHandCursor));
+                m_CursorCaptured = YAXIS;
+            }
             else
             {	//if not near any grab boundaries
                 if (NONE != m_CursorCaptured)
@@ -176,7 +187,26 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
     }
 
     // process mouse moves while in cursor capture modes
-    if (LEFT == m_CursorCaptured)
+    if (YAXIS == m_CursorCaptured)
+    {
+        if (event->buttons() & Qt::LeftButton)
+        {
+            setCursor(QCursor(Qt::ClosedHandCursor));
+            // move Y scale up/down
+            int delta_px = m_Yzero - pt.y();
+            int delta_db = delta_px * abs(m_MindB-m_MaxdB)/m_OverlayPixmap.height();
+            m_MindB -= delta_db;
+            m_MaxdB -= delta_db;
+
+            if (m_Running)
+                m_DrawOverlay = true;
+            else
+                DrawOverlay();
+
+            m_Yzero = pt.y();
+        }
+    }
+    else if (LEFT == m_CursorCaptured)
     {   // moving in demod lowcut region
         if (event->buttons() & (Qt::LeftButton|Qt::RightButton))
         {   //moving in demod lowcut region with left button held
@@ -303,15 +333,25 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
             m_GrabPosition = pt.x()-m_DemodHiCutFreqX;
         }
         else
-        {	//if cursor not captured set demod frequency and start demod box capture
-            m_DemodCenterFreq = RoundFreq(FreqfromX(pt.x()),m_ClickResolution );
-            emit NewDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
-            //save initial grab postion from m_DemodFreqX
-            //setCursor(QCursor(Qt::CrossCursor));
-            m_CursorCaptured = CENTER;
-            m_GrabPosition = 1;
-            //m_GrabPosition = pt.x()-m_DemodFreqX;
-            DrawOverlay();
+        {
+            if (m_CursorCaptured != YAXIS)
+            {
+                //if cursor not captured set demod frequency and start demod box capture
+                m_DemodCenterFreq = RoundFreq(FreqfromX(pt.x()),m_ClickResolution );
+                emit NewDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
+
+                //save initial grab postion from m_DemodFreqX
+                //setCursor(QCursor(Qt::CrossCursor));
+                m_CursorCaptured = CENTER;
+                m_GrabPosition = 1;
+                //m_GrabPosition = pt.x()-m_DemodFreqX;
+                DrawOverlay();
+            }
+            else
+            {
+                // get ready for moving Y axis
+                m_Yzero = pt.y();
+            }
         }
     }
 
@@ -338,61 +378,50 @@ void CPlotter::mouseReleaseEvent(QMouseEvent * event)
     QPoint pt = event->pos();
 
     if (!m_OverlayPixmap.rect().contains(pt))
-    {	//not in Overlay region
+    { //not in Overlay region
         if (NONE != m_CursorCaptured)
             setCursor(QCursor(Qt::ArrowCursor));
+
         m_CursorCaptured = NONE;
         m_GrabPosition = 0;
+    }
+    else
+    {
+        if (YAXIS == m_CursorCaptured)
+        {
+            setCursor(QCursor(Qt::OpenHandCursor));
+            m_Yzero = -1;
+        }
     }
 }
 
 //////////////////////////////////////////////////////////////////////
 // Called when a mouse wheel is turned
 //////////////////////////////////////////////////////////////////////
-void CPlotter::wheelEvent( QWheelEvent * event )
+void CPlotter::wheelEvent(QWheelEvent * event)
 {
     QPoint pt = event->pos();
     int numDegrees = event->delta() / 8;
     int numSteps = numDegrees / 15;
 
-    if (event->buttons() == Qt::RightButton)
-    {	//right button held while wheel is spun
-        if (RIGHT == m_CursorCaptured)
-        {	//change demod high cut
-            m_DemodHiCutFreq += (numSteps*m_FilterClickResolution);
-            m_DemodHiCutFreq = RoundFreq(m_DemodHiCutFreq, m_FilterClickResolution);
-
-            if (m_symetric)
-            {
-                m_DemodLowCutFreq = -m_DemodHiCutFreq;
-                //emit NewLowCutFreq(m_DemodLowCutFreq);
-            }
-            //emit NewHighCutFreq(m_DemodHiCutFreq);
-            emit NewFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
-        }
-        else if (LEFT == m_CursorCaptured)
-        {	//change demod low cut
-            m_DemodLowCutFreq += (numSteps*m_FilterClickResolution);
-            m_DemodLowCutFreq = RoundFreq(m_DemodLowCutFreq, m_FilterClickResolution);
-
-            if (m_symetric)
-            {
-                m_DemodHiCutFreq = -m_DemodLowCutFreq;
-                //emit NewHighCutFreq(m_DemodHiCutFreq);
-            }
-            //emit NewLowCutFreq(m_DemodLowCutFreq);
-            emit NewFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
-
-        }
+    // wheel down: zoom out
+    // wheel up: zoom in
+    if (m_CursorCaptured == YAXIS)
+    {
+        m_MindB += 5*numSteps;
+        m_MaxdB -= 5*numSteps;
     }
     else
-    {	//inc/dec demod frequency if right button NOT pressed
+    { // inc/dec demod frequency if right button NOT pressed
         m_DemodCenterFreq += (numSteps*m_ClickResolution);
         m_DemodCenterFreq = RoundFreq(m_DemodCenterFreq, m_ClickResolution );
         emit NewDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
     }
 
-    DrawOverlay();
+    if (m_Running)
+        m_DrawOverlay = true;
+    else
+        DrawOverlay();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -522,20 +551,14 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
     qint32 ymax = 10000;
     qint32 xprev = -1;
     qint32 maxbin;
-    double dBmaxOffset = 0.0;//MaxdB/10.0;   FIXME
-    double dBGainFactor = 1.0/MindB;//-1.0/(MaxdB-MindB);  FIXME
+    //double dBmaxOffset = 0.0;//MaxdB/10.0;   FIXME
+    //double dBGainFactor = 1.0/MindB;//-1.0/(MaxdB-MindB);  FIXME
+    double dBGainFactor = ((double)MaxHeight)/abs(MaxdB-MindB);
 
     qint32 m_PlotWidth = MaxWidth;
-
     qint32 m_BinMin, m_BinMax;
-
     qint32 m_FFTSize = m_fftDataSize;
-
-    double m_SampleFreq = 96000;
-    bool m_Invert = false;
-
     double* m_pFFTAveBuf = m_fftData;
-
     qint32* m_pTranslateTbl = new qint32[m_FFTSize];
 
 
@@ -572,16 +595,12 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
         //if more FFT points than plot points
         for (i = m_BinMin; i <= m_BinMax; i++ )
         {
-            if (m_Invert)
-                y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[(m-i)] - dBmaxOffset));
-            else
-                y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[i] - dBmaxOffset));
-
-            if (y < 0)
-                y = 0;
+            y = (qint32)(dBGainFactor*(MaxdB-m_pFFTAveBuf[i]));
 
             if (y > MaxHeight)
                 y = MaxHeight;
+            else if (y < 0)
+                y = 0;
 
             x = m_pTranslateTbl[i];	//get fft bin to plot x coordinate transform
 
@@ -608,20 +627,53 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
         for (x = 0; x < m_PlotWidth; x++ )
         {
             i = m_pTranslateTbl[x];	//get plot to fft bin coordinate transform
-            if (m_Invert)
-                y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[(m-i)] - dBmaxOffset));
-            else
-                y = (qint32)((double)MaxHeight*dBGainFactor*(m_pFFTAveBuf[i] - dBmaxOffset));
-            if (y < 0)
-                y = 0;
+            y = (qint32)(dBGainFactor*(MaxdB-m_pFFTAveBuf[i]));
+
             if (y > MaxHeight)
                 y = MaxHeight;
+            else if (y < 0)
+                y = 0;
+
             OutBuf[x] = y;
         }
     }
 
     delete [] m_pTranslateTbl;
+}
 
+
+/*! \brief Set upper limit of dB scale. */
+void CPlotter::setMaxDB(qint32 max)
+{
+    m_MaxdB = max;
+
+    if (m_Running)
+        m_DrawOverlay = true;
+    else
+        DrawOverlay();
+}
+
+/*! \brief Set lower limit of dB scale. */
+void CPlotter::setMinDB(qint32 min)
+{
+    m_MindB = min;
+
+    if (m_Running)
+        m_DrawOverlay = true;
+    else
+        DrawOverlay();
+}
+
+/*! \brief Set limits of dB scale. */
+void CPlotter::setMinMaxDB(qint32 min, qint32 max)
+{
+    m_MaxdB = max;
+    m_MindB = min;
+
+    if (m_Running)
+        m_DrawOverlay = true;
+    else
+        DrawOverlay();
 }
 
 
@@ -677,15 +729,13 @@ void CPlotter::DrawOverlay()
     Font.setPointSize(9);
     QFontMetrics metrics(Font);
 
-    y = h/VERT_DIVS;
-    //if (y < metrics.height())
-    //    Font.setPixelSize(y);
+    y = h/m_VerDivs;
     Font.setWeight(QFont::Normal);
     painter.setFont(Font);
 
     //draw vertical grids
     pixperdiv = (float)w / (float)HORZ_DIVS;
-    y = h - h/VERT_DIVS/2;
+    y = h - h/m_VerDivs/2;
     for (int i = 1; i < HORZ_DIVS; i++)
     {
         x = (int)((float)i*pixperdiv);
@@ -696,39 +746,25 @@ void CPlotter::DrawOverlay()
             painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0x30), 1, Qt::DotLine));
 
         painter.drawLine(x, 0, x , y);
-        //painter.drawLine(x, h-5, x , h);
     }
 
     //draw frequency values
     MakeFrequencyStrs();
     painter.setPen(QColor(0xD8,0xBA,0xA1,0xFF));
-    y = h - (h/VERT_DIVS);
+    y = h - (h/m_VerDivs);
     for (int i = 1; i < HORZ_DIVS; i++)
     {
-        //if ((i==0) || (i==HORZ_DIVS))
-        //{	//left justify the leftmost text
-        //x = (int)( (float)i*pixperdiv);
-        //rect.setRect(x ,y, (int)pixperdiv, h/VERT_DIVS);
-        //painter.drawText(rect, Qt::AlignLeft|Qt::AlignVCenter, m_HDivText[i]);
-        //}
-        //else if(HORZ_DIVS == i)
-        //{	//right justify the rightmost text
-        //	x = (int)( (float)i*pixperdiv - pixperdiv);
-        //	rect.setRect(x ,y, (int)pixperdiv, h/VERT_DIVS);
-        //	painter.drawText(rect, Qt::AlignRight|Qt::AlignVCenter, m_HDivText[i]);
-        //}
-        //else
-        //{	//center justify the rest of the text
         x = (int)((float)i*pixperdiv - pixperdiv/2);
-        rect.setRect(x, y, (int)pixperdiv, h/VERT_DIVS);
+        rect.setRect(x, y, (int)pixperdiv, h/m_VerDivs);
         painter.drawText(rect, Qt::AlignHCenter|Qt::AlignBottom, m_HDivText[i]);
-        //}
     }
 
-    //draw horizontal grids
-    pixperdiv = (float)h / (float)VERT_DIVS;
+    // horizontal grids (size and grid calcs could be moved to resize)
+    m_VerDivs = h/VDIV_DELTA+1;
+    m_dBStepSize = abs(m_MaxdB-m_MindB)/(double)m_VerDivs;
+    pixperdiv = (float)h / (float)m_VerDivs;
     painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0x30), 1,Qt::DotLine));
-    for (int i = 1; i < VERT_DIVS; i++)
+    for (int i = 1; i < m_VerDivs; i++)
     {
         y = (int)((float) i*pixperdiv);
         painter.drawLine(5*metrics.width("0",-1), y, w, y);
@@ -739,15 +775,14 @@ void CPlotter::DrawOverlay()
     //Font.setWeight(QFont::Light);
     painter.setFont(Font);
     int dB = m_MaxdB;
-    for (int i = 1; i < VERT_DIVS; i++)
+    m_YAxisWidth = metrics.width("-120 ");
+    for (int i = 1; i < m_VerDivs; i++)
     {
         dB -= m_dBStepSize;  /* move to end if want to include maxdb */
         y = (int)((float)i*pixperdiv);
-        rect.setRect(0, y-metrics.height()/2, metrics.width("-120 "), metrics.height());
+        rect.setRect(0, y-metrics.height()/2, m_YAxisWidth, metrics.height());
         painter.drawText(rect, Qt::AlignRight|Qt::AlignVCenter, QString::number(dB));
     }
-
-    m_MindB = m_MaxdB - (VERT_DIVS)*m_dBStepSize;
 
     if (!m_Running)
     {	//if not running so is no data updates to draw to screen
