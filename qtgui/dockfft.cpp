@@ -75,20 +75,6 @@ void DockFft::on_fftRateComboBox_currentIndexChanged(const QString & text)
     emit fftRateChanged(fps);
 }
 
-/*! \brief Lower limit of Y-axis changed. */
-void DockFft::on_fftMinComboBox_currentIndexChanged(const QString &text)
-{
-    int value = text.toInt();
-    emit fftYminChanged(value);
-}
-
-/*! \brief Upper limit of Y-axis changed. */
-void DockFft::on_fftMaxComboBox_currentIndexChanged(const QString &text)
-{
-    int value = text.toInt();
-    emit fftYmaxChanged(value);
-}
-
 /*! \brief Split between waterfall and pandapter changed.
  *  \param value The percentage of the waterfall.
  */

@@ -134,8 +134,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(uiDockAudio, SIGNAL(audioPlayStopped()), this, SLOT(stopAudioPlayback()));
     connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setFftSize(int)));
     connect(uiDockFft, SIGNAL(fftRateChanged(int)), this, SLOT(setFftRate(int)));
-    connect(uiDockFft, SIGNAL(fftYminChanged(int)), this, SLOT(setFftYmin(int)));
-    connect(uiDockFft, SIGNAL(fftYmaxChanged(int)), this, SLOT(setFftYmax(int)));
     connect(uiDockFft, SIGNAL(fftSplitChanged(int)), this, SLOT(setFftSplit(int)));
 }
 
@@ -827,22 +825,6 @@ void MainWindow::setFftRate(int fps)
     if (fft_timer->isActive())
         fft_timer->setInterval(interval);
 }
-
-
-
-/*! \brief Lower limit of FFT plot Y-axis changed. */
-void MainWindow::setFftYmin(int value)
-{
-    qDebug() << "Changing FFT Y min TBD...";
-}
-
-
-/*! \brief Upper limit of FFT plot Y-axis changed. */
-void MainWindow::setFftYmax(int value)
-{
-    qDebug() << "Changing FFT Y max TBD...";
-}
-
 
 /*! \brief Vertical split between waterfall and pandapter changed.
  *  \param pct_pand The percentage of the waterfall.

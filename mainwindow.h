@@ -105,8 +105,6 @@ private slots:
     /* FFT settings */
     void setFftSize(int size);
     void setFftRate(int fps);
-    void setFftYmin(int value);
-    void setFftYmax(int value);
     void setFftSplit(int pct_wf);
 
     void on_plotter_NewDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
