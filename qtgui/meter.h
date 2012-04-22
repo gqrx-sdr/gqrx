@@ -74,7 +74,8 @@ private:
     int m_Slevel;
     int m_dBm;
 
-    float decay_alpha;
+    float d_alpha_decay;
+    float d_alpha_rise;
 
 };
 

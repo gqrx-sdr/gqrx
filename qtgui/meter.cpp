@@ -57,7 +57,8 @@ CMeter::CMeter(QWidget *parent) : QFrame(parent)
     m_Size = QSize(0,0);
     m_Slevel = 0;
     m_dBm = -120;
-    decay_alpha = 0.35;
+    d_alpha_decay = 0.25; // FIXME: Should set delta-t and Fs instead
+    d_alpha_rise = 0.7;   // FIXME: Should set delta-t and Fs instead
 }
 
 CMeter::~CMeter()
@@ -114,10 +115,10 @@ void CMeter::setLevel(float dbfs)
     // decay delay
     float level = (float)m_dBm;
     if (dbfs < level) {
-        level = level*(1-decay_alpha) + dbfs*decay_alpha;
+        level = level*(1-d_alpha_decay) + dbfs*d_alpha_decay;
     }
     else {
-        level = dbfs;
+        level = level*(1-d_alpha_rise) + dbfs*d_alpha_rise;
     }
 
     m_dBm = (int)level;
