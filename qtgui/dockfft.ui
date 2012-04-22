@@ -70,11 +70,26 @@
          <bool>false</bool>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>3</number>
         </property>
         <property name="insertPolicy">
          <enum>QComboBox::InsertAlphabetically</enum>
         </property>
+        <item>
+         <property name="text">
+          <string>32768</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>16384</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>8192</string>
+         </property>
+        </item>
         <item>
          <property name="text">
           <string>4096</string>
