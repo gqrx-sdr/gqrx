@@ -72,7 +72,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     filter = make_rx_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
     agc = make_rx_agc_cc(d_bandwidth, true, -100, 0, 2, 100, false);
     sql = gr_make_simple_squelch_cc(-100.0, 0.001);
-    meter = make_rx_meter_c(false);
+    meter = make_rx_meter_c(DETECTOR_TYPE_RMS);
     demod_ssb = gr_make_complex_to_real(1);
     demod_fm = make_rx_demod_fm(d_bandwidth, d_bandwidth, 5000.0, 530.0e-6);
     demod_am = make_rx_demod_am(d_bandwidth, d_bandwidth, true);

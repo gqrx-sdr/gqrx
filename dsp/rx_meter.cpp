@@ -23,21 +23,22 @@
 #include <iostream>
 
 
-rx_meter_c_sptr make_rx_meter_c (bool use_avg)
+rx_meter_c_sptr make_rx_meter_c (int detector)
 {
-    return gnuradio::get_initial_sptr(new rx_meter_c (use_avg));
+    return gnuradio::get_initial_sptr(new rx_meter_c (detector));
 }
 
-
-
-rx_meter_c::rx_meter_c(bool use_avg)
+rx_meter_c::rx_meter_c(int detector)
     : gr_sync_block ("rx_meter_c",
           gr_make_io_signature(1, 1, sizeof(gr_complex)),
           gr_make_io_signature(0, 0, 0)),
-      d_use_avg(use_avg),
+      d_detector(detector),
       d_level(0.0),
       d_level_db(0.0),
-      d_fs(1.0)
+      d_fs(1.0),
+      d_sum(0.0),
+      d_sumsq(0.0),
+      d_num(0)
 {
 
 }
@@ -56,39 +57,91 @@ int rx_meter_c::work (int noutput_items,
     const gr_complex *in = (const gr_complex *) input_items[0];
     float sum;
     float pwr = 0.0;
-    int   i;
+    int   i = 0;
 
-    //std::cout << "NUM: " << noutput_items << std::endl;
 
     sum = in[0].real()*in[0].real() + in[0].imag()*in[0].imag();
 
-    /* find the maximum power in this set of samples */
-    for (i = 1; i < noutput_items; i++) {
-        /* calculate power as amplitude squared */
-        pwr = in[i].real()*in[i].real() + in[i].imag()*in[i].imag();
-        sum = ALPHA*pwr + (1.0-ALPHA)*sum;
+    if (d_num == 0)
+    {
+        // first sample after a reset
+        d_level = in[0].real()*in[0].real() + in[0].imag()*in[0].imag();
+        d_sum = d_level;
+        d_sumsq = d_level*d_level;
+        i = 1;
     }
 
-    if (d_use_avg && (d_level > 0.0)) {
-        d_level = (d_level + sum) / 2.0;
-    }
-    else {
-        d_level = sum;
+    d_num += noutput_items;
+
+    // processing depends on detector type
+    switch (d_detector)
+    {
+    case DETECTOR_TYPE_SAMPLE:
+        // just take the first sample
+        d_level = in[0].real()*in[0].real() + in[0].imag()*in[0].imag();
+        break;
+
+    case DETECTOR_TYPE_MIN:
+        // minimum peak
+        while (i < noutput_items)
+        {
+            pwr = in[i].real()*in[i].real() + in[i].imag()*in[i].imag();
+            if (pwr < d_level)
+                d_level = pwr;
+            i++;
+        }
+        break;
+
+    case DETECTOR_TYPE_MAX:
+        // maximum peak
+        while (i < noutput_items)
+        {
+            pwr = in[i].real()*in[i].real() + in[i].imag()*in[i].imag();
+            if (pwr > d_level)
+                d_level = pwr;
+            i++;
+        }
+        break;
+
+    case DETECTOR_TYPE_AVG:
+        // mean value
+        while (i < noutput_items)
+        {
+            pwr = in[i].real()*in[i].real() + in[i].imag()*in[i].imag();
+            d_sum += pwr;
+            i++;
+        }
+        d_level = d_sum / (float)(d_num);
+        break;
+
+    case DETECTOR_TYPE_RMS:
+        // root mean square
+        while (i < noutput_items)
+        {
+            pwr = in[i].real()*in[i].real() + in[i].imag()*in[i].imag();
+            d_sumsq += pwr*pwr;
+            i++;
+        }
+        d_level = sqrt(d_sumsq / (float)(d_num));
+        break;
+
+    default:
+        std::cout << "Invalid detector type: " << d_detector << std::endl;
+        std::cout << "Fallback to DETECTOR_TYPE_RMS." << std::endl;
+        d_detector = DETECTOR_TYPE_RMS;
+        break;
     }
 
     d_level_db = (float) 10. * log10(d_level / d_fs + 1.0e-20);
 
-    return i;
+    return noutput_items;
 }
 
 
 float rx_meter_c::get_level()
 {
     float retval = d_level;
-
-    /* reset averaging */
-    d_level = 0.0;
-    d_level_db = 0.0;
+    reset_stats();
 
     return retval;
 }
@@ -96,10 +149,27 @@ float rx_meter_c::get_level()
 float rx_meter_c::get_level_db()
 {
     float retval = d_level_db;
-
-    /* reset averaging */
-    d_level = 0.0;
-    d_level_db = 0.0;
+    reset_stats();
 
     return retval;
+}
+
+
+void rx_meter_c::set_detector_type(int detector)
+{
+    if (d_detector == detector)
+        return;
+
+    d_detector = detector;
+    reset_stats();
+}
+
+/*! \brief Reset statistics. */
+void rx_meter_c::reset_stats()
+{
+    //d_level = 0.0;
+    d_level_db = 0.0;
+    d_sum = 0.0;
+    d_sumsq = 0.0;
+    d_num = 0;
 }
