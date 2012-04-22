@@ -79,21 +79,14 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     audio_rr = make_resampler_ff(d_bandwidth, d_audio_rate);
     audio_gain = gr_make_multiply_const_ff(0.1);
 
-    //f2c = gr_make_float_to_complex(1);
     audio_snk = make_pa_sink(audio_device, d_audio_rate, "GQRX", "Audio output");
-    //audio_src = make_pa_source(//"alsa_input.usb-Hanlincrest_Ltd._FUNcube_Dongle_V1.0-00-V10.analog-stereo",
-    //                           "alsa_input.usb-Hanlincrest_Ltd._FUNcube_Dongle_V1.0-00-default.analog-stereo",
-    //                           96000, 2, "GQRX", "I/Q input");
 
-    /* wav sinki and source is created when rec/play is started */
+    /* wav sink and source is created when rec/play is started */
     audio_null_sink = gr_make_null_sink(sizeof(float));
     sniffer = make_sniffer_f();
     /* sniffer_rr is created at each activation. */
 
     tb->connect(src, 0, dc_corr, 0);
-    //tb->connect(audio_src, 0, f2c, 0);
-    //tb->connect(audio_src, 1, f2c, 1);
-    //tb->connect(f2c, 0, dc_corr, 0);
     tb->connect(dc_corr, 0, fft, 0);
     tb->connect(dc_corr, 0, iq_sink, 0);
     tb->connect(dc_corr, 0, filter, 0);
@@ -160,7 +153,7 @@ void receiver::set_output_device(const std::string device)
 
     tb->disconnect(audio_gain, 0, audio_snk, 0);
     audio_snk.reset();
-    audio_snk = make_pa_sink(device, d_audio_rate); // FIXME: does this keep ap and stream name?
+    audio_snk = make_pa_sink(device, d_audio_rate); // FIXME: does this keep app and stream name?
     tb->connect(audio_gain, 0, audio_snk, 0);
 
     tb->unlock();
