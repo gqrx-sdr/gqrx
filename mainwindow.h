@@ -50,6 +50,7 @@ public slots:
     void setNewFrequency(qint64 freq);
 
 private:
+    qint64 d_lnb_lo;  /* LNB LO in Hz. */
 
     enum receiver::filter_shape d_filter_shape;
     std::complex<float>* d_fftData;
@@ -75,6 +76,10 @@ private:
     receiver *rx;
 
 private slots:
+    /* rf */
+    void setLnbLo(double freq_mhz);
+
+    /* baseband receiver */
     void setFilterOffset(qint64 freq_hz);
     void setRfGain(float gain);
     void setFreqCorr(int ppm);

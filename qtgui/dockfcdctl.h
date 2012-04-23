@@ -56,10 +56,12 @@ public:
 signals:
     void lnaGainChanged(float gain);
     void freqCorrChanged(int value);
+    void lnbLoChanged(double freq_mhz);
     void dcCorrChanged(double dci, double dcq);
     void iqCorrChanged(double gain, double phase);
 
 private slots:
+    void on_lnbSpinBox_valueChanged(double value);
     void on_lnaComboBox_activated(const QString value_str);
     void on_freqCorrSpinBox_valueChanged(int value);
     void on_dciSpinBox_valueChanged(double value);

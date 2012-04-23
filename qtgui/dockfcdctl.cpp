@@ -182,6 +182,12 @@ double DockFcdCtl::iqPhase()
 }
 
 
+/*! \brief LNB LO value has changed. */
+void DockFcdCtl::on_lnbSpinBox_valueChanged(double value)
+{
+    emit lnbLoChanged(value);
+}
+
 
 void DockFcdCtl::on_lnaComboBox_activated(const QString value)
 {

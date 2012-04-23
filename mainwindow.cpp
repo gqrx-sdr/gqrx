@@ -33,6 +33,7 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
+    d_lnb_lo(0),
     dec_bpsk1000(0),
     dec_afsk1200(0)
 {
@@ -41,7 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle(QString("gqrx %1").arg(VERSION));
 
     /* frequency control widget */
-    ui->freqCtrl->Setup(10, (quint64) 50e6, (quint64) 2e9, 1, UNITS_MHZ);
+    ui->freqCtrl->Setup(10, (quint64) 0, (quint64) 9999e6, 1, UNITS_MHZ);
     ui->freqCtrl->SetFrequency(144500000);
 
     d_filter_shape = receiver::FILTER_SHAPE_NORMAL;
@@ -110,6 +111,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(NewFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
+    connect(uiDockFcdCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
     connect(uiDockFcdCtl, SIGNAL(lnaGainChanged(float)), SLOT(setRfGain(float)));
     connect(uiDockFcdCtl, SIGNAL(freqCorrChanged(int)), this, SLOT(setFreqCorr(int)));
     connect(uiDockFcdCtl, SIGNAL(dcCorrChanged(double,double)), this, SLOT(setDcCorr(double,double)));
@@ -170,7 +172,7 @@ MainWindow::~MainWindow()
 void MainWindow::setNewFrequency(qint64 freq)
 {
     /* set receiver frequency */
-    rx->set_rf_freq((double) freq);
+    rx->set_rf_freq((double) (freq-d_lnb_lo));
 
     /* update pandapter */
     ui->plotter->SetCenterFreq(freq);
@@ -276,6 +278,20 @@ void MainWindow::on_plotter_NewFilterFreq(int low, int high)
 
 }
 
+/*! \brief Set new LNB LO frequency.
+ *  \param freq_mhz The new frequency in MHz.
+ */
+void MainWindow::setLnbLo(double freq_mhz)
+{
+    // calculate current RF frequency
+    qint64 rf_freq = ui->freqCtrl->GetFrequency() - d_lnb_lo;
+
+    d_lnb_lo = qint64(freq_mhz*1e6);
+    qDebug() << "New LNB LO:" << d_lnb_lo << "Hz";
+
+    // Show updated frequency in display
+    ui->freqCtrl->SetFrequency(d_lnb_lo + rf_freq);
+}
 
 /*! \brief Set new channel filter offset.
  *  \param freq_hs The new filter offset in Hz.
