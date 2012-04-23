@@ -19,5 +19,6 @@
         <file>icons/close.svg</file>
         <file>icons/info.svg</file>
         <file>icons/help.svg</file>
+        <file>icons/scope.svg</file>
     </qresource>
 </RCC>
