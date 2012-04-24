@@ -121,6 +121,7 @@ private slots:
     void on_actionIODevices_triggered();
     void on_actionAFSK1200_triggered();
     void on_actionBPSK1000_triggered();
+    void on_actionUserGroup_triggered();
     void on_actionAbout_triggered();
     void on_actionAboutQt_triggered();
 

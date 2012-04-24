@@ -19,6 +19,7 @@
  */
 #include <QSettings>
 #include <QDateTime>
+#include <QDesktopServices>
 #include <QDebug>
 #include "qtgui/ioconfig.h"
 #include "mainwindow.h"
@@ -1015,6 +1016,19 @@ void MainWindow::decoderTimeout()
 }
 
 
+/*! \brief Launch Gqrx google group website. */
+void MainWindow::on_actionUserGroup_triggered()
+{
+    bool res = QDesktopServices::openUrl(QUrl("https://groups.google.com/forum/#!forum/gqrx",
+                                              QUrl::TolerantMode));
+    if (!res)
+    {
+        QMessageBox::warning(this, tr("Error"),
+                             tr("Failed to open website:\n"
+                                "https://groups.google.com/forum/#!forum/gqrx"),
+                             QMessageBox::Close);
+    }
+}
 
 /*! \brief Action: About Qthid
  *
@@ -1025,16 +1039,21 @@ void MainWindow::on_actionAbout_triggered()
 {
     QMessageBox::about(this, tr("About Gqrx"),
                        tr("<p>This is Gqrx %1</p>"
-                          "<p><b>This is an alpha release!</b></p>"
-                          "<p>Gqrx is a software defined radio receiver for Funcube Dongle and "
-                          "Universal Software Radio Peripheral devices via the UHD driver.</p>"
-                          "<p>Gqrx is powered by GNU Radio and the Qt toolkit (see About Qt) and will be available "
-                          "for Linux, Mac and Windows. You can download the latest version from the "
-                          "<a href='http://gqrx.sf.net/'>gqrx website</a>.</p>"
+                          "<p><b>This is a beta release.</b></p>"
+                          "<p>Gqrx is a software defined radio receiver for the Funcube Dongle.</p>"
+                          "<p>Gqrx is powered by GNU Radio and the Qt toolkit (see About Qt) and is "
+                          "currently available for Linux. You can download the latest version from the "
+                          "<a href='http://gqrx.sf.net/'>Gqrx website</a>.</p>"
+                          "<p>"
+                          "You can get help in the <a href='https://groups.google.com/forum/#!forum/gqrx'>Gqrx Google group</a>."
+                          "</p>"
                           "<p>"
                           "<a href='http://www.gnuradio.org/'>GNU Radio website</a><br/>"
-                          "<a href='http://www.ettus.com/'>Ettus Research (USRP)</a><br/>"
                           "<a href='http://funcubedongle.com/'>Funcube Dongle website</a><br/>"
+                          "<a href='http://www.ettus.com/'>Ettus Research (USRP)</a><br/>"
+                          "</p>"
+                          "<p>"
+                          "Gqrx license: <a href='http://www.gnu.org/licenses/gpl.html'>GNU GPL</a>."
                           "</p>").arg(VERSION));
 }
 

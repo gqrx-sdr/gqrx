@@ -127,6 +127,8 @@
     <property name="title">
      <string>&amp;Help</string>
     </property>
+    <addaction name="actionUserGroup"/>
+    <addaction name="separator"/>
     <addaction name="actionAbout"/>
     <addaction name="actionAboutQt"/>
    </widget>
@@ -168,10 +170,10 @@
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string>About</string>
+    <string>About Gqrx</string>
    </property>
    <property name="toolTip">
-    <string>About gqrx</string>
+    <string>Information about Gqrx</string>
    </property>
   </action>
   <action name="actionAboutQt">
@@ -274,6 +276,18 @@
    </property>
    <property name="visible">
     <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionUserGroup">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/icons/help.svg</normaloff>:/icons/icons/help.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Gqrx user group</string>
+   </property>
+   <property name="toolTip">
+    <string>Discussion group for Gqrx users</string>
    </property>
   </action>
  </widget>
