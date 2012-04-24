@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="icons.qrc">
-    <normaloff>:/icons/icons/radio.svg</normaloff>:/icons/icons/radio.svg</iconset>
+    <normaloff>:/icons/icons/scope-256.png</normaloff>:/icons/icons/scope-256.png</iconset>
   </property>
   <property name="dockOptions">
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
