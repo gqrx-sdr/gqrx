@@ -40,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    setWindowTitle(QString("gqrx %1").arg(VERSION));
+    setWindowTitle(QString("gqrx %1 (Funcube Dongle)").arg(VERSION));
 
     /* frequency control widget */
     ui->freqCtrl->Setup(10, (quint64) 0, (quint64) 9999e6, 1, UNITS_MHZ);
@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
     /* create receiver object */
     QSettings settings;
 
-    QString indev = CIoConfig::getFcdDeviceName(); /** FIXME: Need some checks **/
+    QString indev = CIoConfig::getFcdDeviceName();
     //QString outdev = settings.value("output").toString();
 
     rx = new receiver(indev.toStdString(), "");
