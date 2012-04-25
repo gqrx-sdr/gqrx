@@ -183,7 +183,7 @@
       <item>
        <widget class="QLabel" name="wfLabel">
         <property name="text">
-         <string>WF</string>
+         <string>Pand</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -212,7 +212,7 @@
       <item>
        <widget class="QLabel" name="pandLabel">
         <property name="text">
-         <string>Pand</string>
+         <string>WF</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
