@@ -19,6 +19,7 @@
  */
 #include <QtGui/QApplication>
 #include <QSettings>
+#include <QMessageBox>
 #include <QDebug>
 #include "qtgui/ioconfig.h"
 #include "mainwindow.h"
@@ -62,6 +63,19 @@ int main(int argc, char *argv[])
         }
     }
     */
+
+    QString indev = CIoConfig::getFcdDeviceName();
+    if (indev.isEmpty())
+    {
+        QMessageBox::critical(NULL, "Gqrx error",
+                              "<b>Funcube Dongle could not be found</b><br><br>"
+                              "Please ensure that the Funcube Dongle is plugged in "
+                              "and properly configured with the latest firmware, "
+                              "then try again.",
+                              QMessageBox::Close);
+
+        return 0;
+    }
 
     // We should now have at least an input device configured
     // and MainWindow will pick that up.
