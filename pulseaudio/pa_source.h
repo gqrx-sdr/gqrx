@@ -51,9 +51,9 @@ public:
               const string app_name="GNU Radio", const string stream_name="SDR");
     ~pa_source();
 
-    virtual int work (int noutput_items,
-                      gr_vector_const_void_star &input_items,
-                      gr_vector_void_star &output_items);
+    int work (int noutput_items,
+              gr_vector_const_void_star &input_items,
+              gr_vector_void_star &output_items);
 
     void select_device(string device_name);
 
