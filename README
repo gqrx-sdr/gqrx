@@ -15,11 +15,11 @@ The binary package requires that you have the following libraries installed on y
   - Boost 1.42 or later (thread, datetime, system, filesystem)
 
 If you want to build Gqrx from source you will also need:
-  - gnuradio-core 3.5.0 or later (3.6 recommended)
+  - gnuradio-core 3.5 or later (3.6 recommended)
 
-as well as the so called -dev or -devel packages for the above mentioned libraries. Everything except GNU Radio should be available in all Linux desktop distributions.
+as well as the so called -dev or -devel packages for the above mentioned libraries. Everything except GNU Radio should be available in all Linux desktop distributions. Note that there are sufficiently recent GNU Radio packages available from the Debian project which may also work on Ubuntu and other APT-based system.
 
-In order to build and install GNU Radio, you can try the build-gnuradio script by Marcus Leech, see http://gnuradio.org/redmine/projects/gnuradio/wiki/InstallingGR#Using-the-build-gnuradio-script . If you want to build it youself (experts only!), see http://gnuradio.org/redmine/projects/gnuradio/wiki/BuildGuide for platform specific instructions.
+If you must build GNU Radio from source, you can try the build-gnuradio script by Marcus Leech, see http://gnuradio.org/redmine/projects/gnuradio/wiki/InstallingGR#Using-the-build-gnuradio-script . If you want to build it youself (experts only!), see http://gnuradio.org/redmine/projects/gnuradio/wiki/BuildGuide for platform specific instructions.
 
 The Gqrx build system is based on qmake and to build gqrx, load the gqrx.pro file into Qt Creator and click build (the hammer icon).
 
@@ -41,7 +41,7 @@ Reload the rules using "sudo udevadm control --reload-rules". You can then verif
 
 The current version only supports Funcube Dongle as input device and it will automatically detect the device. Therefore, you do not have to specify the input device.
 
-Gqrx will use the default audio output device. You can also change the default output device in the desktop audio mixer.
+Gqrx will use the default audio output device. You can change this device in the desktop audio mixer.
 
 If you have been using early versions of Gqrx you may have noticed that some features have disappeared. They have been disabled for now because they are not fully implemented for the first release.
 
