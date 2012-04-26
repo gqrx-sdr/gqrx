@@ -105,6 +105,9 @@ signals:
     /*! \brief Signal emitted when AGC manual gain has changed. Gain is in dB.*/
     void agcGainChanged(int gain);
 
+    /*! \brief Signal emitted when noise blanker status has changed. */
+    void noiseBlankerChanged(bool nb1, bool nb2, float threshold);
+
 
 private slots:
     void on_filterFreq_NewFrequency(qint64 freq);
@@ -119,6 +122,9 @@ private slots:
     void on_agcSlopeDial_valueChanged(int value);
     void on_agcDecayDial_valueChanged(int value);
     void on_sqlSlider_valueChanged(int value);
+    void on_nb1Button_toggled(bool checked);
+    void on_nb2Button_toggled(bool checked);
+    void on_nbThreshold_valueChanged(double value);
 
     /* Signals coming from demod options pop-up */
     void demodOpt_fmMaxdevSelected(float max_dev);

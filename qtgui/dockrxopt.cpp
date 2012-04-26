@@ -334,3 +334,27 @@ void DockRxOpt::demodOpt_fmEmphSelected(double tau)
 {
     emit fmEmphSelected(tau);
 }
+
+/*! \brief Noise blanker 1 button has been toggled. */
+void DockRxOpt::on_nb1Button_toggled(bool checked)
+{
+    emit noiseBlankerChanged(checked,
+                             ui->nb2Button->isChecked(),
+                             (float) ui->nbThreshold->value());
+}
+
+/*! \brief Noise blanker 2 button has been toggled. */
+void DockRxOpt::on_nb2Button_toggled(bool checked)
+{
+    emit noiseBlankerChanged(ui->nb1Button->isChecked(),
+                             checked,
+                             (float) ui->nbThreshold->value());
+}
+
+/*! \brief Noise blanker threshold has been changed. */
+void DockRxOpt::on_nbThreshold_valueChanged(double value)
+{
+    emit noiseBlankerChanged(ui->nb1Button->isChecked(),
+                             ui->nb2Button->isChecked(),
+                             (float) value);
+}

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>218</width>
+    <width>219</width>
     <height>336</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>218</width>
+    <width>219</width>
     <height>336</height>
    </size>
   </property>
@@ -525,23 +525,13 @@ as  rf_freq + filter_offset</string>
     </item>
     <item>
      <layout class="QHBoxLayout" name="pageFilterHLayout1">
-      <item>
-       <widget class="QLabel" name="nbLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Noise Blanker</string>
-        </property>
-       </widget>
-      </item>
+      <property name="spacing">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QPushButton" name="nb1Button">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -551,7 +541,7 @@ as  rf_freq + filter_offset</string>
         </property>
         <property name="maximumSize">
          <size>
-          <width>40</width>
+          <width>48</width>
           <height>16777215</height>
          </size>
         </property>
@@ -559,7 +549,7 @@ as  rf_freq + filter_offset</string>
          <string>Noise blanker 1</string>
         </property>
         <property name="text">
-         <string>1</string>
+         <string>NB1</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -569,7 +559,7 @@ as  rf_freq + filter_offset</string>
       <item>
        <widget class="QPushButton" name="nb2Button">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -579,7 +569,7 @@ as  rf_freq + filter_offset</string>
         </property>
         <property name="maximumSize">
          <size>
-          <width>40</width>
+          <width>48</width>
           <height>16777215</height>
          </size>
         </property>
@@ -587,10 +577,36 @@ as  rf_freq + filter_offset</string>
          <string>Noise blanker 2</string>
         </property>
         <property name="text">
-         <string>2</string>
+         <string>NB2</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Thld </string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="nbThreshold">
+        <property name="toolTip">
+         <string>Noise blanker threshold</string>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.010000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.500000000000000</double>
         </property>
        </widget>
       </item>

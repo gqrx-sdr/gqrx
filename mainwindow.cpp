@@ -128,6 +128,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(agcSlopeChanged(int)), this, SLOT(setAgcSlope(int)));
     connect(uiDockRxOpt, SIGNAL(agcGainChanged(int)), this, SLOT(setAgcGain(int)));
     connect(uiDockRxOpt, SIGNAL(agcDecayChanged(int)), this, SLOT(setAgcDecay(int)));
+    connect(uiDockRxOpt, SIGNAL(noiseBlankerChanged(bool,bool,float)), this, SLOT(setNoiseBlanker(bool,bool,float)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
     //connect(uiDockIqPlay, SIGNAL(playbackToggled(bool,QString)), this, SLOT(toggleIqPlayback(bool,QString)));
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
@@ -654,6 +655,17 @@ void MainWindow::setAgcDecay(int msec)
 {
     rx->set_agc_decay(msec);
 }
+
+/*! \brief Noide blanker configuration changed.
+ *  \param nb1 Noise blanker 1 ON/OFF.
+ *  \param nb2 Noise blanker 2 ON/OFF.
+ *  \param threshold Noise blanker threshold.
+ */
+void MainWindow::setNoiseBlanker(bool nb1, bool nb2, float threshold)
+{
+    qDebug() << "Noise blanker NB1:" << nb1 << " NB2:" << nb2 << "THLD:" << threshold;
+}
+
 
 /*! \brief Squelch level changed.
  *  \param level_db The new squelch level in dBFS.

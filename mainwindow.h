@@ -96,6 +96,7 @@ private slots:
     void setAgcSlope(int factor);
     void setAgcDecay(int msec);
     void setAgcGain(int gain);
+    void setNoiseBlanker(bool nb1, bool nb2, float threshold);
     void setSqlLevel(double level_db);
     void setAudioGain(float gain);
 
