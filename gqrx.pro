@@ -69,7 +69,8 @@ SOURCES += \
     pulseaudio/pa_source.cc \
     fcdctl/fcd.c \
     fcdctl/hid-libusb.c \  # FIXME: Linux only
-    qtgui/demod-options.cpp
+    qtgui/demod-options.cpp \
+    dsp/rx_noise_blanker_cc.cpp
 #    fcdctl/hidwin.c \
 #    fcdctl/hidmac.c \
 
@@ -115,7 +116,8 @@ HEADERS += \
     fcdctl/fcdhidcmd.h \
     fcdctl/fcd.h \
     gqrx.h \
-    qtgui/demod-options.h
+    qtgui/demod-options.h \
+    dsp/rx_noise_blanker_cc.h
 
 FORMS += \
     qtgui/dockrxopt.ui \
