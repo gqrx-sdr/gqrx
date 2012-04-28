@@ -65,6 +65,8 @@ public:
     void set_sample_rate(double sample_rate) { d_sample_rate = sample_rate; }
     void set_nb1_on(bool nb1_on) { d_nb1_on = nb1_on; }
     void set_nb2_on(bool nb2_on) { d_nb2_on = nb2_on; }
+    bool get_nb1_on() { return d_nb1_on; }
+    bool get_nb2_on() { return d_nb2_on; }
     void set_threshold1(float threshold);
     void set_threshold2(float threshold);
 
