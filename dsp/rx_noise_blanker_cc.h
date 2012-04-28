@@ -37,7 +37,7 @@ typedef boost::shared_ptr<rx_nb_cc> rx_nb_cc_sptr;
  * To avoid accidental use of raw pointers, the rx_nb_cc constructor is private.
  * make_rx_nb_cc is the public interface for creating new instances.
  */
-rx_nb_cc_sptr make_rx_nb_cc(double sample_rate = 96000.0, float threshold = 0.5);
+rx_nb_cc_sptr make_rx_nb_cc(double sample_rate=96000.0, float thld1=3.3, float thld2=2.5);
 
 
 /*! \brief Noise blanker block.
@@ -50,10 +50,10 @@ rx_nb_cc_sptr make_rx_nb_cc(double sample_rate = 96000.0, float threshold = 0.5)
  */
 class rx_nb_cc : public gr_sync_block
 {
-    friend rx_nb_cc_sptr make_rx_nb_cc(double sample_rate, float threshold);
+    friend rx_nb_cc_sptr make_rx_nb_cc(double sample_rate, float thld1, float thld2);
 
 protected:
-    rx_nb_cc(double sample_rate, float threshold);
+    rx_nb_cc(double sample_rate, float thld1, float thld2);
 
 public:
     ~rx_nb_cc();
@@ -65,7 +65,12 @@ public:
     void set_sample_rate(double sample_rate) { d_sample_rate = sample_rate; }
     void set_nb1_on(bool nb1_on) { d_nb1_on = nb1_on; }
     void set_nb2_on(bool nb2_on) { d_nb2_on = nb2_on; }
-    void set_threshold(float threshold) { d_threshold = threshold; }
+    void set_threshold1(float threshold);
+    void set_threshold2(float threshold);
+
+private:
+    void process_nb1(gr_complex *buf, int num);
+    void process_nb2(gr_complex *buf, int num);
 
 private:
     boost::mutex  d_mutex;  /*! Used to lock internal data while processing or setting parameters. */
@@ -73,7 +78,13 @@ private:
     bool   d_nb1_on;        /*! Current NB1 status (true/false). */
     bool   d_nb2_on;        /*! Current NB2 status (true/false). */
     double d_sample_rate;   /*! Current sample rate. */
-    int    d_threshold;     /*! Current noise blanker threshols (0.0 to 1.0). */
+    float  d_thld_nb1;      /*! Current threshold for noise blanker 1 (1.0 to 20.0 TBC). */
+    float  d_thld_nb2;      /*! Current threshold for noise blanker 2 (0.0 to 15.0 TBC). */
+    float  d_avgmag_nb1;    /*! Average magnitude. */
+    float  d_avgmag_nb2;    /*! Average magnitude. */
+    gr_complex d_avgsig, d_delay[8];
+    int    d_delidx, d_sigidx, d_hangtime;   // FIXME: need longer buffer for higher sampel rates?
+
 };
 
 

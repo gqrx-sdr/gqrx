@@ -23,9 +23,9 @@
 #include <gr_complex.h>
 #include "dsp/rx_noise_blanker_cc.h"
 
-rx_nb_cc_sptr make_rx_nb_cc(double sample_rate, float threshold)
+rx_nb_cc_sptr make_rx_nb_cc(double sample_rate, float thld1, float thld2)
 {
-    return gnuradio::get_initial_sptr(new rx_nb_cc(sample_rate, threshold));
+    return gnuradio::get_initial_sptr(new rx_nb_cc(sample_rate, thld1, thld2));
 }
 
 
@@ -33,16 +33,22 @@ rx_nb_cc_sptr make_rx_nb_cc(double sample_rate, float threshold)
  *
  * Use make_rx_nb_cc() instead.
  */
-rx_nb_cc::rx_nb_cc(double sample_rate, float threshold)
-    : gr_sync_block ("rx_agc_cc",
+rx_nb_cc::rx_nb_cc(double sample_rate, float thld1, float thld2)
+    : gr_sync_block ("rx_nb_cc",
           gr_make_io_signature(1, 1, sizeof(gr_complex)),
           gr_make_io_signature(1, 1, sizeof(gr_complex))),
       d_sample_rate(sample_rate),
-      d_threshold(threshold),
+      d_thld_nb1(thld1),
+      d_thld_nb2(thld2),
       d_nb1_on(false),
-      d_nb2_on(false)
+      d_nb2_on(false),
+      d_avgmag_nb1(1.0),
+      d_avgmag_nb2(1.0),
+      d_hangtime(0),
+      d_sigidx(0),
+      d_delidx(2)
 {
-
+    memset(d_delay, 0, 8 * sizeof(gr_complex));
 }
 
 rx_nb_cc::~rx_nb_cc()
@@ -63,23 +69,99 @@ int rx_nb_cc::work(int noutput_items,
     gr_complex *out = (gr_complex *) output_items[0];
     int i;
 
-    // lock mutex
     boost::mutex::scoped_lock lock(d_mutex);
 
-    if (d_nb1_on)
+    // copy data into output buffer then perform the processing on that buffer
+    for (i = 0; i < noutput_items; i++)
     {
-        // run noise blanker 1 processing
-    }
-    if (d_nb2_on)
-    {
-        // run noise blanker 1 processing
-    }
-
-
-    for (i = 0; i < noutput_items; i++) {
         out[i].imag() = in[i].imag();
         out[i].real() = in[i].real();
     }
 
+    if (d_nb1_on)
+    {
+        process_nb1(out, noutput_items);
+    }
+    if (d_nb2_on)
+    {
+        process_nb2(out, noutput_items);
+    }
+
     return noutput_items;
+}
+
+/*! \brief Perform noise blanker 1 processing.
+ *  \param buf The data buffer holding gr_complex samples.
+ *  \param num The number of samples in the buffer.
+ *
+ * Noise blanker 1 is the first noise blanker in the processing chain.
+ * It is intended to reduce the effect of impulse type noise.
+ *
+ * FIXME: Needs different constants for higher sample rates?
+ */
+void rx_nb_cc::process_nb1(gr_complex *buf, int num)
+{
+    float cmag;
+    gr_complex zero(0.0, 0.0);
+
+    for (int i = 0; i < num; i++)
+    {
+        cmag = abs(buf[i]);
+        d_delay[d_sigidx] = buf[i];
+        d_avgmag_nb1 = 0.999*d_avgmag_nb1 + 0.001*cmag;
+
+        if ((d_hangtime == 0) && (cmag > (d_thld_nb1*d_avgmag_nb1)))
+            d_hangtime = 7;
+
+        if (d_hangtime > 0)
+        {
+            buf[i] = zero;
+            d_hangtime--;
+        }
+        else
+        {
+            buf[i] = d_delay[d_delidx];
+        }
+
+        d_sigidx = (d_sigidx + 7) & 7;
+        d_delidx = (d_delidx + 7) & 7;
+    }
+}
+
+/*! \brief Perform noise blanker 2 processing.
+ *  \param buf The data buffer holding gr_complex samples.
+ *  \param num The number of samples in the buffer.
+ *
+ * Noise blanker 2 is the second noise blanker in the processing chain.
+ * It is intended to reduce non-pulse type noise (i.e. longer time constants).
+ *
+ * FIXME: Needs different constants for higher sample rates?
+ */
+void rx_nb_cc::process_nb2(gr_complex *buf, int num)
+{
+    float cmag;
+    gr_complex c1(0.75);
+    gr_complex c2(0.25);
+
+    for (int i = 0; i < num; i++)
+    {
+        cmag = abs(buf[i]);
+        d_avgsig = c1*d_avgsig + c2*buf[i];
+        d_avgmag_nb2 = 0.999*d_avgmag_nb2 + 0.001*cmag;
+
+        if (cmag > d_thld_nb2*d_avgmag_nb2)
+            buf[i] = d_avgsig;
+    }
+}
+
+void rx_nb_cc::set_threshold1(float threshold)
+{
+    if ((threshold >= 1.0) && (threshold <= 20.0))
+        d_thld_nb1 = threshold;
+}
+
+void rx_nb_cc::set_threshold2(float threshold)
+{
+    if ((threshold >= 0.0) && (threshold <= 15.0))
+        d_thld_nb2 = threshold;
 }
