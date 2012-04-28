@@ -32,15 +32,15 @@
 #include <gr_wavfile_source.h>
 #include <gr_null_sink.h>
 #include "dsp/correct_iq_cc.h"
-#include <dsp/rx_source_fcd.h>
-#include <dsp/rx_filter.h>
-#include <dsp/rx_meter.h>
-#include <dsp/rx_agc_xx.h>
-#include <dsp/rx_demod_fm.h>
-#include <dsp/rx_demod_am.h>
-#include <dsp/rx_fft.h>
-#include <dsp/resampler_ff.h>
-#include <dsp/sniffer_f.h>
+#include "dsp/rx_source_fcd.h"
+#include "dsp/rx_filter.h"
+#include "dsp/rx_meter.h"
+#include "dsp/rx_agc_xx.h"
+#include "dsp/rx_demod_fm.h"
+#include "dsp/rx_demod_am.h"
+#include "dsp/rx_fft.h"
+#include "dsp/resampler_ff.h"
+#include "dsp/sniffer_f.h"
 
 #include <pulseaudio/pa_sink.h>
 #include <pulseaudio/pa_source.h>

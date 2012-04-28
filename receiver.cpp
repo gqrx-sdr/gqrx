@@ -26,15 +26,15 @@
 #include <gr_multiply_const_ff.h>
 #include <gr_simple_squelch_cc.h>
 
-#include <receiver.h>
-#include <dsp/rx_source_fcd.h>
+#include "receiver.h"
+#include "dsp/rx_source_fcd.h"
 #include "dsp/correct_iq_cc.h"
-#include <dsp/rx_filter.h>
-#include <dsp/rx_meter.h>
-#include <dsp/rx_demod_fm.h>
-#include <dsp/rx_demod_am.h>
-#include <dsp/rx_fft.h>
-#include <dsp/rx_agc_xx.h>
+#include "dsp/rx_filter.h"
+#include "dsp/rx_meter.h"
+#include "dsp/rx_demod_fm.h"
+#include "dsp/rx_demod_am.h"
+#include "dsp/rx_fft.h"
+#include "dsp/rx_agc_xx.h"
 
 //#include <gr_float_to_complex.h>
 #include <pulseaudio/pa_sink.h>
