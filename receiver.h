@@ -33,6 +33,7 @@
 #include <gr_null_sink.h>
 #include "dsp/correct_iq_cc.h"
 #include "dsp/rx_source_fcd.h"
+#include "dsp/rx_noise_blanker_cc.h"
 #include "dsp/rx_filter.h"
 #include "dsp/rx_meter.h"
 #include "dsp/rx_agc_xx.h"
@@ -117,6 +118,10 @@ public:
 
     void get_fft_data(std::complex<float>* fftPoints, int &fftsize);
 
+    /* Noise blanker */
+    status set_nb_on(int nbid, bool on);
+    status set_nb_threshold(int nbid, float threshold);
+
     /* Squelch parameter */
     status set_sql_level(double level_db);
     status set_sql_alpha(double alpha);
@@ -174,8 +179,9 @@ private:
 
     dc_corr_cc_sptr           dc_corr;   /*!< DC corrector block. */
 
-    rx_fft_c_sptr             fft;       /*!< Receiver FFT block. */
-    rx_filter_sptr            filter;     /*!< BAndpass filter. */
+    rx_fft_c_sptr             fft;        /*!< Receiver FFT block. */
+    rx_nb_cc_sptr             nb;         /*!< Noise blanker. */
+    rx_filter_sptr            filter;     /*!< Bandpass filter. */
     rx_meter_c_sptr           meter;      /*!< Signal strength. */
     rx_agc_cc_sptr            agc;        /*!< Receiver AGC. */
     gr_simple_squelch_cc_sptr sql;        /*!< Squelch. */

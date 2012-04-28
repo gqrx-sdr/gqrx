@@ -69,6 +69,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     iq_sink = gr_make_file_sink(sizeof(gr_complex), "/tmp/gqrx.bin");
     iq_sink->close();
 
+    nb = make_rx_nb_cc(d_bandwidth, 3.3, 2.5);
     filter = make_rx_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
     agc = make_rx_agc_cc(d_bandwidth, true, -100, 0, 2, 100, false);
     sql = gr_make_simple_squelch_cc(-100.0, 0.001);
@@ -86,9 +87,10 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     sniffer = make_sniffer_f();
     /* sniffer_rr is created at each activation. */
 
-    tb->connect(src, 0, dc_corr, 0);
+    tb->connect(src, 0, iq_sink, 0);
+    tb->connect(src, 0, nb, 0);
+    tb->connect(nb, 0, dc_corr, 0);
     tb->connect(dc_corr, 0, fft, 0);
-    tb->connect(dc_corr, 0, iq_sink, 0);
     tb->connect(dc_corr, 0, filter, 0);
 
     tb->connect(filter, 0, meter, 0);
@@ -322,6 +324,26 @@ void receiver::get_fft_data(std::complex<float>* fftPoints, int &fftsize)
 }
 
 
+receiver::status receiver::set_nb_on(int nbid, bool on)
+{
+    if (nbid == 1)
+        nb->set_nb1_on(on);
+    else if (nbid == 2)
+        nb->set_nb2_on(on);
+
+    return STATUS_OK; // FIXME
+}
+
+receiver::status receiver::set_nb_threshold(int nbid, float threshold)
+{
+    if (nbid == 1)
+        nb->set_threshold1(threshold);
+    else if (nbid == 2)
+        nb->set_threshold2(threshold);
+
+    return STATUS_OK; // FIXME
+}
+
 
 /*! \brief Set squelch level.
  *  \param level_db The new level in dBFS.
@@ -329,6 +351,7 @@ void receiver::get_fft_data(std::complex<float>* fftPoints, int &fftsize)
 receiver::status receiver::set_sql_level(double level_db)
 {
     sql->set_threshold(level_db);
+    return STATUS_OK; // FIXME
 }
 
 
@@ -336,6 +359,7 @@ receiver::status receiver::set_sql_level(double level_db)
 receiver::status receiver::set_sql_alpha(double alpha)
 {
     sql->set_alpha(alpha);
+    return STATUS_OK; // FIXME
 }
 
 /*! \brief Enable/disable receiver AGC.
@@ -681,17 +705,12 @@ receiver::status receiver::start_iq_playback(const std::string filename, float s
     tb->lock();
 
     /* disconenct hardware source */
-    tb->disconnect(src, 0, dc_corr, 0);
-    //tb->disconnect(f2c, 0, dc_corr, 0);
-    tb->disconnect(dc_corr, 0, fft, 0);
-    tb->disconnect(dc_corr, 0, iq_sink, 0);
-    tb->disconnect(dc_corr, 0, filter, 0);
+    tb->disconnect(src, 0, nb, 0);
+    tb->disconnect(src, 0, iq_sink, 0);
 
     /* connect I/Q source via throttle block */
-    //tb->connect(iq_src, 0, iq_throttle, 0);
-    tb->connect(iq_src, 0, fft, 0);
+    tb->connect(iq_src, 0, nb, 0);
     tb->connect(iq_src, 0, iq_sink, 0);
-    tb->connect(iq_src, 0, filter, 0);
     tb->unlock();
 
     return STATUS_OK;
@@ -711,17 +730,12 @@ receiver::status receiver::stop_iq_playback()
     tb->lock();
 
     /* disconnect I/Q source and throttle block */
-    //tb->disconnect(iq_src, 0, iq_throttle, 0);
-    tb->disconnect(iq_src, 0, fft, 0);
+    tb->disconnect(iq_src, 0, nb, 0);
     tb->disconnect(iq_src, 0, iq_sink, 0);
-    tb->disconnect(iq_src, 0, filter, 0);
 
     /* reconenct hardware source */
-    tb->connect(src, 0, dc_corr, 0);
-    //tb->connect(f2c, 0, dc_corr, 0);
-    tb->connect(dc_corr, 0, fft, 0);
-    tb->connect(dc_corr, 0, iq_sink, 0);
-    tb->connect(dc_corr, 0, filter, 0);
+    tb->connect(src, 0, nb, 0);
+    tb->connect(src, 0, iq_sink, 0);
 
     tb->unlock();
 
