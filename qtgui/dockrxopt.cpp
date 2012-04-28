@@ -338,23 +338,23 @@ void DockRxOpt::demodOpt_fmEmphSelected(double tau)
 /*! \brief Noise blanker 1 button has been toggled. */
 void DockRxOpt::on_nb1Button_toggled(bool checked)
 {
-    emit noiseBlankerChanged(checked,
-                             ui->nb2Button->isChecked(),
-                             (float) ui->nbThreshold->value());
+    emit noiseBlankerChanged(1, checked, (float) ui->nb1Threshold->value());
 }
 
 /*! \brief Noise blanker 2 button has been toggled. */
 void DockRxOpt::on_nb2Button_toggled(bool checked)
 {
-    emit noiseBlankerChanged(ui->nb1Button->isChecked(),
-                             checked,
-                             (float) ui->nbThreshold->value());
+    emit noiseBlankerChanged(2, checked, (float) ui->nb2Threshold->value());
 }
 
-/*! \brief Noise blanker threshold has been changed. */
-void DockRxOpt::on_nbThreshold_valueChanged(double value)
+/*! \brief Noise blanker 1 threshold has been changed. */
+void DockRxOpt::on_nb1Threshold_valueChanged(double value)
 {
-    emit noiseBlankerChanged(ui->nb1Button->isChecked(),
-                             ui->nb2Button->isChecked(),
-                             (float) value);
+    emit noiseBlankerChanged(1, ui->nb1Button->isChecked(), (float) value);
+}
+
+/*! \brief Noise blanker 2 threshold has been changed. */
+void DockRxOpt::on_nb2Threshold_valueChanged(double value)
+{
+    emit noiseBlankerChanged(2, ui->nb2Button->isChecked(), (float) value);
 }

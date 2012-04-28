@@ -106,7 +106,7 @@ signals:
     void agcGainChanged(int gain);
 
     /*! \brief Signal emitted when noise blanker status has changed. */
-    void noiseBlankerChanged(bool nb1, bool nb2, float threshold);
+    void noiseBlankerChanged(int nbid, bool on, float threshold);
 
 
 private slots:
@@ -124,7 +124,8 @@ private slots:
     void on_sqlSlider_valueChanged(int value);
     void on_nb1Button_toggled(bool checked);
     void on_nb2Button_toggled(bool checked);
-    void on_nbThreshold_valueChanged(double value);
+    void on_nb1Threshold_valueChanged(double value);
+    void on_nb2Threshold_valueChanged(double value);
 
     /* Signals coming from demod options pop-up */
     void demodOpt_fmMaxdevSelected(float max_dev);

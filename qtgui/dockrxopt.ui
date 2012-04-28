@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>219</width>
+    <width>221</width>
     <height>336</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>219</width>
+    <width>221</width>
     <height>336</height>
    </size>
   </property>
@@ -541,12 +541,12 @@ as  rf_freq + filter_offset</string>
         </property>
         <property name="maximumSize">
          <size>
-          <width>48</width>
+          <width>42</width>
           <height>16777215</height>
          </size>
         </property>
         <property name="toolTip">
-         <string>Noise blanker 1</string>
+         <string>Noise blanker for pulse type noise</string>
         </property>
         <property name="text">
          <string>NB1</string>
@@ -569,12 +569,12 @@ as  rf_freq + filter_offset</string>
         </property>
         <property name="maximumSize">
          <size>
-          <width>48</width>
+          <width>42</width>
           <height>16777215</height>
          </size>
         </property>
         <property name="toolTip">
-         <string>Noise blanker 2</string>
+         <string>Noise blanker for non-pulse type noise</string>
         </property>
         <property name="text">
          <string>NB2</string>
@@ -585,28 +585,61 @@ as  rf_freq + filter_offset</string>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Thld </string>
+       <widget class="QDoubleSpinBox" name="nb1Threshold">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Noise blanker 1 threshold</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="minimum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>20.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>3.300000000000000</double>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="nbThreshold">
+       <widget class="QDoubleSpinBox" name="nb2Threshold">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="toolTip">
-         <string>Noise blanker threshold</string>
+         <string>Noise blanker 2 treshold</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="decimals">
+         <number>1</number>
         </property>
         <property name="maximum">
-         <double>1.000000000000000</double>
+         <double>15.000000000000000</double>
         </property>
         <property name="singleStep">
-         <double>0.010000000000000</double>
+         <double>0.100000000000000</double>
         </property>
         <property name="value">
-         <double>0.500000000000000</double>
+         <double>2.500000000000000</double>
         </property>
        </widget>
       </item>
