@@ -128,7 +128,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(agcSlopeChanged(int)), this, SLOT(setAgcSlope(int)));
     connect(uiDockRxOpt, SIGNAL(agcGainChanged(int)), this, SLOT(setAgcGain(int)));
     connect(uiDockRxOpt, SIGNAL(agcDecayChanged(int)), this, SLOT(setAgcDecay(int)));
-    connect(uiDockRxOpt, SIGNAL(noiseBlankerChanged(bool,bool,float)), this, SLOT(setNoiseBlanker(bool,bool,float)));
+    connect(uiDockRxOpt, SIGNAL(noiseBlankerChanged(int,bool,float)), this, SLOT(setNoiseBlanker(int,bool,float)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
     //connect(uiDockIqPlay, SIGNAL(playbackToggled(bool,QString)), this, SLOT(toggleIqPlayback(bool,QString)));
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
@@ -661,9 +661,12 @@ void MainWindow::setAgcDecay(int msec)
  *  \param nb2 Noise blanker 2 ON/OFF.
  *  \param threshold Noise blanker threshold.
  */
-void MainWindow::setNoiseBlanker(bool nb1, bool nb2, float threshold)
+void MainWindow::setNoiseBlanker(int nbid, bool on, float threshold)
 {
-    qDebug() << "Noise blanker NB1:" << nb1 << " NB2:" << nb2 << "THLD:" << threshold;
+    qDebug() << "Noise blanker NB:" << nbid << " ON:" << on << "THLD:" << threshold;
+
+    rx->set_nb_on(nbid, on);
+    rx->set_nb_threshold(nbid, threshold);
 }
 
 
