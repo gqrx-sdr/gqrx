@@ -27,6 +27,10 @@ DockAudio::DockAudio(QWidget *parent) :
     ui(new Ui::DockAudio)
 {
     ui->setupUi(this);
+
+    ui->audioSpectrum->SetPercent2DScreen(100);
+    ui->audioSpectrum->SetSpanFreq(24000);
+    ui->audioSpectrum->SetCenterFreq(12000);
 }
 
 DockAudio::~DockAudio()
