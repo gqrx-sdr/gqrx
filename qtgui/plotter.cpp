@@ -112,6 +112,8 @@ CPlotter::CPlotter(QWidget *parent) :
     m_FontSize = 9;
     m_VdivDelta = 40;
     m_HdivDelta = 60;
+
+    m_FreqDigits = 3;
 }
 
 CPlotter::~CPlotter()
@@ -813,9 +815,8 @@ void CPlotter::MakeFrequencyStrs()
     qint64 StartFreq = m_CenterFreq - m_Span/2;
     float freq;
     int i,j;
-    int numfractdigits = 3; // was: (int)log10((double)m_FreqUnits);
 
-    if (1 == m_FreqUnits)
+    if ((1 == m_FreqUnits) || (m_FreqDigits == 0))
     {	//if units is Hz then just output integer freq
         for (int i = 0; i <= m_HorDivs; i++)
         {
@@ -830,7 +831,7 @@ void CPlotter::MakeFrequencyStrs()
     for (int i = 0; i <= m_HorDivs; i++)
     {
         freq = (float)StartFreq/(float)m_FreqUnits;
-        m_HDivText[i].setNum(freq,'f', numfractdigits);
+        m_HDivText[i].setNum(freq,'f', m_FreqDigits);
         StartFreq += FreqPerDiv;
     }
     // now find the division text with the longest non-zero digit

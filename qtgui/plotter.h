@@ -67,6 +67,8 @@ public:
     void setHdivDelta(int delta) { m_HdivDelta = delta; }
     void setVdivDelta(int delta) { m_VdivDelta = delta; }
 
+    void setFreqDigits(int digits) { m_FreqDigits = digits>=0 ? digits : 0; }
+
 signals:
     void NewCenterFreq(qint64 f);
     void NewDemodFreq(qint64 freq, qint64 delta); /* delta is the offset from the center */
@@ -153,6 +155,7 @@ private:
     int m_FilterClickResolution;
 
     int m_Yzero;  /*!< Used to measure mouse drag direction. */
+    int m_FreqDigits;  /*!< Number of decimal digits in frequency strings. */
 
     int m_FontSize;  /*!< Font size in points. */
     int m_HdivDelta; /*!< Minimum distance in pixels between two horizontal grid lines (vertical division). */
