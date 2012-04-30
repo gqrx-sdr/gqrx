@@ -69,6 +69,8 @@ public:
 
     void setFreqDigits(int digits) { m_FreqDigits = digits>=0 ? digits : 0; }
 
+    void setSampleRate(double rate) { if (rate > 0.0) m_SampleFreq = rate; }
+
 signals:
     void NewCenterFreq(qint64 f);
     void NewDemodFreq(qint64 freq, qint64 delta); /* delta is the offset from the center */
@@ -149,7 +151,7 @@ private:
     qint32 m_MindB;
     qint32 m_dBStepSize;
     qint32 m_Span;
-    double m_SampleFreq;
+    double m_SampleFreq;    /*!< Sample rate. */
     qint32 m_FreqUnits;
     int m_ClickResolution;
     int m_FilterClickResolution;
