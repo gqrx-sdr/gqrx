@@ -98,6 +98,8 @@ MainWindow::MainWindow(QWidget *parent) :
     uiDockFft->hide();
     //uiDockIqPlay->hide();
 
+    /* misc configurations */
+    uiDockAudio->setFftRange(0, 8000); // FM
 
     /* Add dock widget actions to View menu. By doing it this way all signal/slot
        connections will be established automagially.

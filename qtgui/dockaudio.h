@@ -44,6 +44,8 @@ public:
     explicit DockAudio(QWidget *parent = 0);
     ~DockAudio();
 
+    void setFftRange(quint64 minf, quint64 maxf);
+
     void setAudioGain(int gain);
     int  audioGain();
 

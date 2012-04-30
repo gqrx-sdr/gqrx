@@ -29,8 +29,17 @@ DockAudio::DockAudio(QWidget *parent) :
     ui->setupUi(this);
 
     ui->audioSpectrum->SetPercent2DScreen(100);
+    ui->audioSpectrum->SetFreqUnits(1000);
+    ui->audioSpectrum->setSampleRate(48000);
     ui->audioSpectrum->SetSpanFreq(24000);
     ui->audioSpectrum->SetCenterFreq(12000);
+    ui->audioSpectrum->SetFilterBoxEnabled(false);
+    ui->audioSpectrum->SetCenterLineEnabled(false);
+    ui->audioSpectrum->setMinMaxDB(-60, 0);
+    ui->audioSpectrum->setFontSize(7);
+    ui->audioSpectrum->setVdivDelta(20);
+    ui->audioSpectrum->setHdivDelta(25);
+    ui->audioSpectrum->setFreqDigits(1);
 }
 
 DockAudio::~DockAudio()
@@ -38,6 +47,14 @@ DockAudio::~DockAudio()
     delete ui;
 }
 
+void DockAudio::setFftRange(quint64 minf, quint64 maxf)
+{
+    qint32 span = (qint32)(maxf - minf);
+    quint64 fc = minf + (maxf - minf)/2;
+
+    ui->audioSpectrum->SetCenterFreq(fc);
+    ui->audioSpectrum->SetSpanFreq(span);
+}
 
 /*! \brief Set new audio gain.
  *  \param gain the new audio gain in tens of dB (0 dB = 10)
