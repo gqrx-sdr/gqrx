@@ -55,7 +55,7 @@ CPlotter::CPlotter(QWidget *parent) :
 
     //create a default waterfall color scheme
     // *** Need to read from file ***
-    for( int i=0; i<256; i++)
+    for (int i = 0; i < 256; i++)
     {
         if( (i<43) )
             m_ColorTbl[i].setRgb( 0,0, 255*(i)/43);
@@ -86,9 +86,13 @@ CPlotter::CPlotter(QWidget *parent) :
     m_FilterClickResolution = 10;
     m_CursorCaptureDelta = CUR_CUT_DELTA;
 
+    m_FilterBoxEnabled = true;
+    m_CenterLineEnabled = true;
+
     m_Span = 96000;
     m_SampleFreq = 96000;
 
+    m_HorDivs = 12;
     m_VerDivs = 6;
     m_MaxdB = 0;
     m_MindB = -120;
@@ -104,6 +108,10 @@ CPlotter::CPlotter(QWidget *parent) :
     m_Size = QSize(0,0);
     m_GrabPosition = 0;
     m_Percent2DScreen = 50;	//percent of screen used for 2D display
+
+    m_FontSize = 9;
+    m_VdivDelta = 40;
+    m_HdivDelta = 60;
 }
 
 CPlotter::~CPlotter()
@@ -694,6 +702,12 @@ void CPlotter::DrawOverlay()
     QPainter painter(&m_OverlayPixmap);
     painter.initFrom(this);
 
+    // horizontal grids (size and grid calcs could be moved to resize)
+    m_VerDivs = h/m_VdivDelta+1;
+    m_HorDivs = w/m_HdivDelta;
+    if (m_HorDivs % 2)
+        m_HorDivs++;   // we want an odd number of divs so that we have a center line
+
     //m_OverlayPixmap.fill(Qt::black);
     //fill background with gradient
     QLinearGradient gradient(0, 0, 0 ,h);
@@ -703,43 +717,39 @@ void CPlotter::DrawOverlay()
     painter.drawRect(0, 0, w, h);
 
     //Draw demod filter box
-    ClampDemodParameters();
-    m_DemodFreqX = XfromFreq(m_DemodCenterFreq);
-    m_DemodLowCutFreqX = XfromFreq(m_DemodCenterFreq + m_DemodLowCutFreq);
-    m_DemodHiCutFreqX = XfromFreq(m_DemodCenterFreq + m_DemodHiCutFreq);
+    if (m_FilterBoxEnabled)
+    {
+        ClampDemodParameters();
+        m_DemodFreqX = XfromFreq(m_DemodCenterFreq);
+        m_DemodLowCutFreqX = XfromFreq(m_DemodCenterFreq + m_DemodLowCutFreq);
+        m_DemodHiCutFreqX = XfromFreq(m_DemodCenterFreq + m_DemodHiCutFreq);
 
-    int dw = m_DemodHiCutFreqX - m_DemodLowCutFreqX;
+        int dw = m_DemodHiCutFreqX - m_DemodLowCutFreqX;
 
-    painter.setBrush(Qt::SolidPattern);
-    painter.setOpacity(0.3);
-    painter.fillRect(m_DemodLowCutFreqX, 0, dw, h, Qt::gray);
+        painter.setBrush(Qt::SolidPattern);
+        painter.setOpacity(0.3);
+        painter.fillRect(m_DemodLowCutFreqX, 0, dw, h, Qt::gray);
 
-    painter.setOpacity(1.0);
-    // edge of filter -> we don't need different color
-    //painter.setPen(QPen(Qt::gray, 1, Qt::SolidLine));
-    //painter.drawLine(m_DemodLowCutFreqX, 0, m_DemodLowCutFreqX, h);
-    //painter.drawLine(m_DemodHiCutFreqX, 0, m_DemodHiCutFreqX, h);
-
-    painter.setPen(QPen(QColor(0xFF,0x71,0x71,0xFF), 1, Qt::SolidLine));
-    painter.drawLine(m_DemodFreqX, 0, m_DemodFreqX, h);
-
+        painter.setOpacity(1.0);
+        painter.setPen(QPen(QColor(0xFF,0x71,0x71,0xFF), 1, Qt::SolidLine));
+        painter.drawLine(m_DemodFreqX, 0, m_DemodFreqX, h);
+    }
 
     //create Font to use for scales
     QFont Font("Arial");
-    Font.setPointSize(9);
+    Font.setPointSize(m_FontSize);
     QFontMetrics metrics(Font);
 
-    y = h/m_VerDivs;
     Font.setWeight(QFont::Normal);
     painter.setFont(Font);
 
-    //draw vertical grids
-    pixperdiv = (float)w / (float)HORZ_DIVS;
+    // draw vertical grids
+    pixperdiv = (float)w / (float)m_HorDivs;
     y = h - h/m_VerDivs/2;
-    for (int i = 1; i < HORZ_DIVS; i++)
+    for (int i = 1; i < m_HorDivs; i++)
     {
         x = (int)((float)i*pixperdiv);
-        if (i == HORZ_DIVS/2)
+        if ((i == m_HorDivs/2) && m_CenterLineEnabled)
             // center line
             painter.setPen(QPen(QColor(0x78,0x82,0x96,0xFF), 1, Qt::SolidLine));
         else
@@ -752,15 +762,13 @@ void CPlotter::DrawOverlay()
     MakeFrequencyStrs();
     painter.setPen(QColor(0xD8,0xBA,0xA1,0xFF));
     y = h - (h/m_VerDivs);
-    for (int i = 1; i < HORZ_DIVS; i++)
+    for (int i = 1; i < m_HorDivs; i++)
     {
         x = (int)((float)i*pixperdiv - pixperdiv/2);
         rect.setRect(x, y, (int)pixperdiv, h/m_VerDivs);
         painter.drawText(rect, Qt::AlignHCenter|Qt::AlignBottom, m_HDivText[i]);
     }
 
-    // horizontal grids (size and grid calcs could be moved to resize)
-    m_VerDivs = h/VDIV_DELTA+1;
     m_dBStepSize = abs(m_MaxdB-m_MindB)/(double)m_VerDivs;
     pixperdiv = (float)h / (float)m_VerDivs;
     painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0x30), 1,Qt::DotLine));
@@ -801,7 +809,7 @@ void CPlotter::DrawOverlay()
 //////////////////////////////////////////////////////////////////////
 void CPlotter::MakeFrequencyStrs()
 {
-    qint64 FreqPerDiv = m_Span/HORZ_DIVS;
+    qint64 FreqPerDiv = m_Span/m_HorDivs;
     qint64 StartFreq = m_CenterFreq - m_Span/2;
     float freq;
     int i,j;
@@ -809,7 +817,7 @@ void CPlotter::MakeFrequencyStrs()
 
     if (1 == m_FreqUnits)
     {	//if units is Hz then just output integer freq
-        for (int i = 0; i <= HORZ_DIVS; i++)
+        for (int i = 0; i <= m_HorDivs; i++)
         {
             freq = (float)StartFreq/(float)m_FreqUnits;
             m_HDivText[i].setNum((int)freq);
@@ -817,18 +825,18 @@ void CPlotter::MakeFrequencyStrs()
         }
         return;
     }
-    //here if is fractional frequency values
-    //so create max sized text based on frequency units
-    for (int i = 0; i <= HORZ_DIVS; i++)
+    // here if is fractional frequency values
+    // so create max sized text based on frequency units
+    for (int i = 0; i <= m_HorDivs; i++)
     {
         freq = (float)StartFreq/(float)m_FreqUnits;
         m_HDivText[i].setNum(freq,'f', numfractdigits);
         StartFreq += FreqPerDiv;
     }
-    //now find the division text with the longest non-zero digit
-    //to the right of the decimal point.
+    // now find the division text with the longest non-zero digit
+    // to the right of the decimal point.
     int max = 0;
-    for (i = 0; i <= HORZ_DIVS; i++)
+    for (i = 0; i <= m_HorDivs; i++)
     {
         int dp = m_HDivText[i].indexOf('.');
         int l = m_HDivText[i].length()-1;
@@ -840,9 +848,9 @@ void CPlotter::MakeFrequencyStrs()
         if ((j-dp) > max)
             max = j-dp;
     }
-    //truncate all strings to maximum fractional length
+    // truncate all strings to maximum fractional length
     StartFreq = m_CenterFreq - m_Span/2;
-    for (i = 0; i <= HORZ_DIVS; i++)
+    for (i = 0; i <= m_HorDivs; i++)
     {
         freq = (float)StartFreq/(float)m_FreqUnits;
         m_HDivText[i].setNum(freq,'f', max);

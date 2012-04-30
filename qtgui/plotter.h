@@ -6,11 +6,8 @@
 #include <QFrame>
 #include <QImage>
 
-//#define VERT_DIVS 6   //specify grid screen divisions
-#define HORZ_DIVS 12
+#define HORZ_DIVS_MAX 50 //12
 #define MAX_SCREENSIZE 4096
-#define VDIV_DELTA 40 // Minimum distance in pixels between two horizontal grid lines (vertical division)
-#define HDIV_DELTA 60 // Minimum distance in pixels between two vertical grid lines (horizontal division)
 
 class CPlotter : public QFrame
 {
@@ -28,6 +25,8 @@ public:
     void SetRunningState(bool running) { m_Running = running; }
     void SetClickResolution(int clickres) { m_ClickResolution = clickres; }
     void SetFilterClickResolution(int clickres) { m_FilterClickResolution = clickres; }
+    void SetFilterBoxEnabled(bool enabled) { m_FilterBoxEnabled = enabled; }
+    void SetCenterLineEnabled(bool enabled) { m_CenterLineEnabled = enabled; }
     void SetPercent2DScreen(int percent)
     {
         m_Percent2DScreen = percent;
@@ -38,6 +37,7 @@ public:
     void SetNewFttData(double *fftData, int size);
 
     void SetCenterFreq(quint64 f);
+    void SetFreqUnits(qint32 unit) { m_FreqUnits = unit; }
 
     void SetDemodCenterFreq(quint64 f) { m_DemodCenterFreq = f; }
 
@@ -62,6 +62,10 @@ public:
     void setMaxDB(qint32 max);
     void setMinDB(qint32 min);
     void setMinMaxDB(qint32 min, qint32 max);
+
+    void setFontSize(int points) { m_FontSize = points; }
+    void setHdivDelta(int delta) { m_HdivDelta = delta; }
+    void setVdivDelta(int delta) { m_VdivDelta = delta; }
 
 signals:
     void NewCenterFreq(qint64 f);
@@ -115,11 +119,13 @@ private:
     QColor m_ColorTbl[256];
     QSize m_Size;
     QString m_Str;
-    QString m_HDivText[HORZ_DIVS+1];
+    QString m_HDivText[HORZ_DIVS_MAX+1];
     bool m_Running;
     bool m_DrawOverlay;
     qint64 m_CenterFreq;
     qint64 m_DemodCenterFreq;
+    bool m_CenterLineEnabled;  /*!< Distinguish center line. */
+    bool m_FilterBoxEnabled;   /*!< Draw filter box. */
     int m_DemodHiCutFreq;
     int m_DemodLowCutFreq;
     int m_DemodFreqX;		//screen coordinate x position
@@ -135,7 +141,8 @@ private:
     int m_FHiCmax;
     bool m_symetric;
 
-    qint32 m_VerDivs;   /*!< Current number of vertical divisions. Calculated from height. */
+    int    m_HorDivs;   /*!< Current number of horizontal divisions. Calculated from width. */
+    int    m_VerDivs;   /*!< Current number of vertical divisions. Calculated from height. */
     qint32 m_MaxdB;
     qint32 m_MindB;
     qint32 m_dBStepSize;
@@ -146,6 +153,10 @@ private:
     int m_FilterClickResolution;
 
     int m_Yzero;  /*!< Used to measure mouse drag direction. */
+
+    int m_FontSize;  /*!< Font size in points. */
+    int m_HdivDelta; /*!< Minimum distance in pixels between two horizontal grid lines (vertical division). */
+    int m_VdivDelta; /*!< Minimum distance in pixels between two vertical grid lines (horizontal division). */
 
     quint32 m_LastSampleRate;
 
