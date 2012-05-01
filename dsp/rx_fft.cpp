@@ -254,7 +254,7 @@ void rx_fft_f::get_fft_data(std::complex<float>* fftPoints, int &fftSize)
 {
     boost::mutex::scoped_lock lock(d_mutex);
 
-    if (d_cbuf.size() < d_fftsize) {
+    if (d_cbuf.size() < 2*d_fftsize) {
         // not enough samples in the buffer
         fftSize = 0;
 
@@ -271,7 +271,7 @@ void rx_fft_f::get_fft_data(std::complex<float>* fftPoints, int &fftSize)
 }
 
 /*! \brief Compute FFT on the available input data.
- *  \param data_in The data to compute FFt on.
+ *  \param data_in The data to compute FFT on.
  *  \param size The size of data_in.
  *
  * Note that this function does not lock the mutex since the caller, get_fft_data()
