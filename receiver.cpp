@@ -63,7 +63,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     //src->set_freq(d_rf_freq);
 
     dc_corr = make_dc_corr_cc(0.01f);
-    fft = make_rx_fft_c(4096, 0, false);
+    fft = make_rx_fft_c(4096, 0);
 
     /* dummy I/Q recorder */
     iq_sink = gr_make_file_sink(sizeof(gr_complex), "/tmp/gqrx.bin");

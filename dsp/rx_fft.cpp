@@ -25,26 +25,23 @@
 #include <dsp/rx_fft.h>
 
 
-rx_fft_c_sptr make_rx_fft_c (int fftsize, int wintype, bool use_avg)
+rx_fft_c_sptr make_rx_fft_c (int fftsize, int wintype)
 {
-    return gnuradio::get_initial_sptr(new rx_fft_c (fftsize, wintype, use_avg));
+    return gnuradio::get_initial_sptr(new rx_fft_c (fftsize, wintype));
 }
 
 
 /*! \brief Create receiver FFT object.
  *  \param fftsize The FFT size.
  *  \param wintype The window type (see gr_firdes::win_type).
- *  \param use_avg Whether to use averaging.
  *
- * \bug Implement use_avg.
  */
-rx_fft_c::rx_fft_c(int fftsize, int wintype, bool use_avg)
+rx_fft_c::rx_fft_c(int fftsize, int wintype)
     : gr_sync_block ("rx_fft_c",
           gr_make_io_signature(1, 1, sizeof(gr_complex)),
           gr_make_io_signature(0, 0, 0)),
       d_fftsize(fftsize),
-      d_wintype(-1),
-      d_use_avg(use_avg)
+      d_wintype(-1)
 {
 
     /* create FFT object */
@@ -62,9 +59,8 @@ rx_fft_c::~rx_fft_c()
     delete d_fft;
 }
 
-
 /*! \brief Receiver FFT work method.
- *  \param mooutput_items
+ *  \param noutput_items
  *  \param input_items
  *  \param output_items
  *
@@ -88,8 +84,6 @@ int rx_fft_c::work(int noutput_items,
     return noutput_items;
 
 }
-
-
 
 /*! \brief Get FFT data.
  *  \param fftPoint Buffer to copy FFT data
@@ -139,8 +133,6 @@ void rx_fft_c::do_fft(const gr_complex *data_in, int size)
     d_fft->execute();
 }
 
-
-
 /*! \brief Set new FFT size. */
 void rx_fft_c::set_fft_size(int fftsize)
 {
@@ -164,13 +156,11 @@ void rx_fft_c::set_fft_size(int fftsize)
 
 }
 
-
 /*! \brief Get currently used FFT size. */
 int rx_fft_c::get_fft_size()
 {
     return d_fftsize;
 }
-
 
 /*! \brief Set new window type. */
 void rx_fft_c::set_window_type(int wintype)
@@ -189,7 +179,6 @@ void rx_fft_c::set_window_type(int wintype)
     d_window.clear();
     d_window = gr_firdes::window((gr_firdes::win_type)d_wintype, d_fftsize, 6.76);
 }
-
 
 /*! \brief Get currently used window type. */
 int rx_fft_c::get_window_type()

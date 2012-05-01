@@ -39,13 +39,12 @@ typedef boost::shared_ptr<rx_fft_c> rx_fft_c_sptr;
 /*! \brief Return a shared_ptr to a new instance of rx_fft_c.
  *  \param fftsize The FFT size
  *  \param winttype The window type (see gr_firdes.h)
- *  \param use_avg Whether to use averaging.
  *
  * This is effectively the public constructor. To avoid accidental use
  * of raw pointers, the rx_fft_c constructor is private.
  * make_rx_fft_c is the public interface for creating new instances.
  */
-rx_fft_c_sptr make_rx_fft_c(int fftsize, int wintype, bool use_avg);
+rx_fft_c_sptr make_rx_fft_c(int fftsize, int wintype);
 
 
 /*! \brief Block for computing complex FFT.
@@ -60,10 +59,10 @@ rx_fft_c_sptr make_rx_fft_c(int fftsize, int wintype, bool use_avg);
  */
 class rx_fft_c : public gr_sync_block
 {
-    friend rx_fft_c_sptr make_rx_fft_c(int fftsize, int wintype, bool use_avg);
+    friend rx_fft_c_sptr make_rx_fft_c(int fftsize, int wintype);
 
 protected:
-    rx_fft_c(int fftsize=4096, int wintype=gr_firdes::WIN_HAMMING, bool use_avg=false);
+    rx_fft_c(int fftsize=4096, int wintype=gr_firdes::WIN_HAMMING);
 
 public:
     ~rx_fft_c();
@@ -83,7 +82,6 @@ public:
 private:
     int  d_fftsize;   /*! Current FFT size. */
     int  d_wintype;   /*! Current window type. */
-    bool d_use_avg;   /*! Whether to store the average or jsut the latest value. */
 
     boost::mutex d_mutex;  /*! Used to lock FFT output buffer. */
 
