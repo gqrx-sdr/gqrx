@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,10 +30,11 @@
 
 #define MAX_FFT_SIZE 20480
 
-
 class rx_fft_c;
+class rx_fft_f;
 
 typedef boost::shared_ptr<rx_fft_c> rx_fft_c_sptr;
+typedef boost::shared_ptr<rx_fft_f> rx_fft_f_sptr;
 
 
 /*! \brief Return a shared_ptr to a new instance of rx_fft_c.
@@ -44,7 +45,7 @@ typedef boost::shared_ptr<rx_fft_c> rx_fft_c_sptr;
  * of raw pointers, the rx_fft_c constructor is private.
  * make_rx_fft_c is the public interface for creating new instances.
  */
-rx_fft_c_sptr make_rx_fft_c(int fftsize, int wintype);
+rx_fft_c_sptr make_rx_fft_c(int fftsize=4096, int wintype=gr_firdes::WIN_HAMMING);
 
 
 /*! \brief Block for computing complex FFT.
@@ -53,9 +54,9 @@ rx_fft_c_sptr make_rx_fft_c(int fftsize, int wintype);
  * This block is used to compute the FFT of the received spectrum.
  *
  * The samples are collected in a cicular buffer with size FFT_SIZE.
- * When the GUI asks for a new set of FFT data vide get_fft_data() and FFT
+ * When the GUI asks for a new set of FFT data via get_fft_data() an FFT
  * will be performed on the data stored in the circular buffer - assuming
- * of course that the buffer is full.
+ * of course that the buffer contains at least fftsize samples.
  */
 class rx_fft_c : public gr_sync_block
 {
@@ -91,6 +92,66 @@ private:
     boost::circular_buffer<gr_complex> d_cbuf; /*! buffer to accumulate samples. */
 
     void do_fft(const gr_complex *data_in, int size);
+
+};
+
+
+/*! \brief Return a shared_ptr to a new instance of rx_fft_f.
+ *  \param fftsize The FFT size
+ *  \param winttype The window type (see gr_firdes.h)
+ *
+ * This is effectively the public constructor. To avoid accidental use
+ * of raw pointers, the rx_fft_f constructor is private.
+ * make_rx_fft_f is the public interface for creating new instances.
+ */
+rx_fft_f_sptr make_rx_fft_f(int fftsize=1024, int wintype=gr_firdes::WIN_HAMMING);
+
+
+/*! \brief Block for computing real FFT.
+ *  \ingroup DSP
+ *
+ * This block is used to compute the FFT of the audio spectrum or anything
+ * else where real FFT is useful.
+ *
+ * The samples are collected in a cicular buffer with size FFT_SIZE.
+ * When the GUI asks for a new set of FFT data using get_fft_data() an FFT
+ * will be performed on the data stored in the circular buffer - assuming
+ * that the buffer contains at least 2*fftsize samples.
+ */
+class rx_fft_f : public gr_sync_block
+{
+    friend rx_fft_f_sptr make_rx_fft_f(int fftsize, int wintype);
+
+protected:
+    rx_fft_f(int fftsize=1024, int wintype=gr_firdes::WIN_HAMMING);
+
+public:
+    ~rx_fft_f();
+
+    int work(int noutput_items,
+             gr_vector_const_void_star &input_items,
+             gr_vector_void_star &output_items);
+
+    void get_fft_data(std::complex<float>* fftPoints, int &fftSize);
+
+    void set_window_type(int wintype);
+    int  get_window_type();
+
+    void set_fft_size(int fftsize);
+    int  get_fft_size();
+
+private:
+    int  d_fftsize;   /*! Current FFT size. */
+    int  d_wintype;   /*! Current window type. */
+
+    boost::mutex d_mutex;  /*! Used to lock FFT output buffer. */
+
+    gri_fft_real_fwd    *d_fft;   /*! FFT object. */
+    std::vector<float>  d_window; /*! FFT window taps. */
+
+    boost::circular_buffer<float> d_cbuf; /*! buffer to accumulate samples. */
+
+    void do_fft(const float *data_in, int size);
 
 };
 
