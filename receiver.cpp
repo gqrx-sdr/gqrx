@@ -78,6 +78,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     demod_fm = make_rx_demod_fm(d_bandwidth, d_bandwidth, 5000.0, 530.0e-6);
     demod_am = make_rx_demod_am(d_bandwidth, d_bandwidth, true);
     audio_rr = make_resampler_ff(d_bandwidth, d_audio_rate);
+    audio_fft = make_rx_fft_f();
     audio_gain = gr_make_multiply_const_ff(0.1);
 
     audio_snk = make_pa_sink(audio_device, d_audio_rate, "GQRX", "Audio output");
@@ -98,6 +99,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     tb->connect(sql, 0, agc, 0);
     tb->connect(agc, 0, demod_fm, 0);
     tb->connect(demod_fm, 0, audio_rr, 0);
+    tb->connect(audio_rr, 0, audio_fft, 0);
     tb->connect(audio_rr, 0, audio_gain, 0);
     tb->connect(audio_gain, 0, audio_snk, 0);
 }
@@ -317,12 +319,17 @@ float receiver::get_signal_pwr(bool dbfs)
         return meter->get_level();
 }
 
-/*! \brief Get latest FFT data. */
+/*! \brief Get latest baseband FFT data. */
 void receiver::get_fft_data(std::complex<float>* fftPoints, int &fftsize)
 {
     fft->get_fft_data(fftPoints, fftsize);
 }
 
+/*! \brief Get latest audio FFT data. */
+void receiver::get_audio_fft_data(std::complex<float>* fftPoints, int &fftsize)
+{
+    audio_fft->get_fft_data(fftPoints, fftsize);
+}
 
 receiver::status receiver::set_nb_on(int nbid, bool on)
 {
@@ -616,8 +623,10 @@ receiver::status receiver::start_audio_playback(const std::string filename)
     stop();
     /* route demodulator output to null sink */
     tb->disconnect(audio_rr, 0, audio_gain, 0);
+    tb->disconnect(audio_rr, 0, audio_fft, 0);
     tb->connect(audio_rr, 0, audio_null_sink, 0);
     tb->connect(wav_src, 0, audio_gain, 0);
+    tb->connect(wav_src, 0, audio_fft, 0);
     start();
 
     return STATUS_OK;
@@ -630,8 +639,10 @@ receiver::status receiver::stop_audio_playback()
     /* disconnect wav source and reconnect receiver */
     stop();
     tb->disconnect(wav_src, 0, audio_gain, 0);
+    tb->disconnect(wav_src, 0, audio_fft, 0);
     tb->disconnect(audio_rr, 0, audio_null_sink, 0);
     tb->connect(audio_rr, 0, audio_gain, 0);
+    tb->connect(audio_rr, 0, audio_fft, 0);
     start();
 
     /* delete wav_src since we can not change file name */

@@ -117,6 +117,7 @@ public:
     float get_signal_pwr(bool dbfs);
 
     void get_fft_data(std::complex<float>* fftPoints, int &fftsize);
+    void get_audio_fft_data(std::complex<float>* fftPoints, int &fftsize);
 
     /* Noise blanker */
     status set_nb_on(int nbid, bool on);
@@ -180,6 +181,7 @@ private:
     dc_corr_cc_sptr           dc_corr;   /*!< DC corrector block. */
 
     rx_fft_c_sptr             fft;        /*!< Receiver FFT block. */
+    rx_fft_f_sptr             audio_fft;  /*!< Audio FFT block. */
     rx_nb_cc_sptr             nb;         /*!< Noise blanker. */
     rx_filter_sptr            filter;     /*!< Bandpass filter. */
     rx_meter_c_sptr           meter;      /*!< Signal strength. */
