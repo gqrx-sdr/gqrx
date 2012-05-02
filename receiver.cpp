@@ -63,7 +63,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     //src->set_freq(d_rf_freq);
 
     dc_corr = make_dc_corr_cc(0.01f);
-    fft = make_rx_fft_c(4096, 0);
+    iq_fft = make_rx_fft_c(4096, 0);
 
     /* dummy I/Q recorder */
     iq_sink = gr_make_file_sink(sizeof(gr_complex), "/tmp/gqrx.bin");
@@ -91,7 +91,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     tb->connect(src, 0, iq_sink, 0);
     tb->connect(src, 0, nb, 0);
     tb->connect(nb, 0, dc_corr, 0);
-    tb->connect(dc_corr, 0, fft, 0);
+    tb->connect(dc_corr, 0, iq_fft, 0);
     tb->connect(dc_corr, 0, filter, 0);
 
     tb->connect(filter, 0, meter, 0);
@@ -320,9 +320,9 @@ float receiver::get_signal_pwr(bool dbfs)
 }
 
 /*! \brief Get latest baseband FFT data. */
-void receiver::get_fft_data(std::complex<float>* fftPoints, int &fftsize)
+void receiver::get_iq_fft_data(std::complex<float>* fftPoints, int &fftsize)
 {
-    fft->get_fft_data(fftPoints, fftsize);
+    iq_fft->get_fft_data(fftPoints, fftsize);
 }
 
 /*! \brief Get latest audio FFT data. */

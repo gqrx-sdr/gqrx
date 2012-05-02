@@ -133,7 +133,7 @@ private slots:
     /* cyclic processing */
     void decoderTimeout();
     void meterTimeout();
-    void fftTimeout();
+    void iqFftTimeout();
 
 };
 

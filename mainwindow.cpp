@@ -63,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* FFT timer & data */
     fft_timer = new QTimer(this);
-    connect(fft_timer, SIGNAL(timeout()), this, SLOT(fftTimeout()));
+    connect(fft_timer, SIGNAL(timeout()), this, SLOT(iqFftTimeout()));
     d_fftData = new std::complex<float>[MAX_FFT_SIZE];
     d_realFftData = new double[MAX_FFT_SIZE];
 
@@ -691,7 +691,7 @@ void MainWindow::meterTimeout()
 }
 
 /*! \brief FFT plot timeout. */
-void MainWindow::fftTimeout()
+void MainWindow::iqFftTimeout()
 {
     int fftsize;
     int i;
@@ -700,7 +700,7 @@ void MainWindow::fftTimeout()
     double min=0.0,max=-120.0,avg=0.0;
 
 
-    rx->get_fft_data(d_fftData, fftsize);
+    rx->get_iq_fft_data(d_fftData, fftsize);
 
     if (fftsize == 0) {
         /* nothing to do, wait until next activation. */
