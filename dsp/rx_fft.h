@@ -57,6 +57,8 @@ rx_fft_c_sptr make_rx_fft_c(int fftsize=4096, int wintype=gr_firdes::WIN_HAMMING
  * When the GUI asks for a new set of FFT data via get_fft_data() an FFT
  * will be performed on the data stored in the circular buffer - assuming
  * of course that the buffer contains at least fftsize samples.
+ *
+ * \note Uses code from qtgui_sink_c
  */
 class rx_fft_c : public gr_sync_block
 {
@@ -117,6 +119,8 @@ rx_fft_f_sptr make_rx_fft_f(int fftsize=1024, int wintype=gr_firdes::WIN_HAMMING
  * When the GUI asks for a new set of FFT data using get_fft_data() an FFT
  * will be performed on the data stored in the circular buffer - assuming
  * that the buffer contains at least 2*fftsize samples.
+ *
+ * \note Uses code from qtgui_sink_f
  */
 class rx_fft_f : public gr_sync_block
 {
@@ -146,7 +150,7 @@ private:
 
     boost::mutex d_mutex;  /*! Used to lock FFT output buffer. */
 
-    gri_fft_real_fwd    *d_fft;   /*! FFT object. */
+    gri_fft_complex    *d_fft;    /*! FFT object. */
     std::vector<float>  d_window; /*! FFT window taps. */
 
     boost::circular_buffer<float> d_cbuf; /*! buffer to accumulate samples. */

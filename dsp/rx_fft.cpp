@@ -44,7 +44,7 @@ rx_fft_c::rx_fft_c(int fftsize, int wintype)
 {
 
     /* create FFT object */
-    d_fft = new gri_fft_complex (d_fftsize, true);
+    d_fft = new gri_fft_complex(d_fftsize, true);
 
     /* allocate circular buffer */
     d_cbuf.set_capacity(d_fftsize);
@@ -207,10 +207,10 @@ rx_fft_f::rx_fft_f(int fftsize, int wintype)
 {
 
     /* create FFT object */
-    d_fft = new gri_fft_real_fwd(d_fftsize);
+    d_fft = new gri_fft_complex(d_fftsize, true);
 
     /* allocate circular buffer */
-    d_cbuf.set_capacity(d_fftsize);
+    d_cbuf.set_capacity(2*d_fftsize);
 
     /* create FFT window */
     set_window_type(wintype);
@@ -279,20 +279,23 @@ void rx_fft_f::get_fft_data(std::complex<float>* fftPoints, int &fftSize)
  */
 void rx_fft_f::do_fft(const float *data_in, int size)
 {
-    /* apply window, if any */
+    gr_complex *dst = d_fft->get_inbuf();
+    int i;
+
+    /* apply window, and convert to complex */
     if (d_window.size()) {
-        float *dst = d_fft->get_inbuf();
-        int i;
         for (i = 0; i < size; i++)
             dst[i] = data_in[i] * d_window[i];
     }
     else {
-        memcpy(d_fft->get_inbuf(), data_in, sizeof(float)*size);
+        for (i = 0; i < size; i++)
+            dst[i] = data_in[i];
     }
 
     /* compute FFT */
     d_fft->execute();
 }
+
 
 /*! \brief Set new FFT size. */
 void rx_fft_f::set_fft_size(int fftsize)
@@ -312,9 +315,8 @@ void rx_fft_f::set_fft_size(int fftsize)
 
         /* reset FFT object (also reset FFTW plan) */
         delete d_fft;
-        d_fft = new gri_fft_real_fwd(d_fftsize);
+        d_fft = new gri_fft_complex(d_fftsize, true);
     }
-
 }
 
 /*! \brief Get currently used FFT size. */
