@@ -71,6 +71,7 @@ CPlotter::CPlotter(QWidget *parent) :
             m_ColorTbl[i].setRgb( 255, 0, 128*(i-217)/38);
     }
 
+    m_FftCenter = 0;
     m_CenterFreq = 144500000;
     m_DemodCenterFreq = 144500000;
     m_DemodHiCutFreq = 5000;
@@ -499,7 +500,9 @@ void CPlotter::draw()
 
     QPainter painter1(&m_WaterfallPixmap);
     //get scaled FFT data
-    GetScreenIntegerFFTData(255, w, m_MaxdB, m_MindB, -m_Span/2, m_Span/2, m_fftbuf);
+    GetScreenIntegerFFTData(255, w, m_MaxdB, m_MindB,
+                            m_FftCenter-m_Span/2, m_FftCenter+m_Span/2,
+                            m_fftbuf);
 
     //draw new line of fft data at top of waterfall bitmap
     for(i=0; i<w; i++)
@@ -517,7 +520,9 @@ void CPlotter::draw()
     QPainter painter2(&m_2DPixmap);
 
     //get new scaled fft data
-    GetScreenIntegerFFTData(h, w, m_MaxdB, m_MindB, -m_Span/2, m_Span/2, m_fftbuf);
+    GetScreenIntegerFFTData(h, w, m_MaxdB, m_MindB,
+                            m_FftCenter-m_Span/2, m_FftCenter+m_Span/2,
+                            m_fftbuf);
 
     //draw the 2D spectrum
     painter2.setPen(QColor(0x97,0xD0,0x97,0xFF));

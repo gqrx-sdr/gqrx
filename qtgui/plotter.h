@@ -56,6 +56,8 @@ public:
     }
 
     void SetDemodRanges(int FLowCmin, int FLowCmax, int FHiCmin, int FHiCmax, bool symetric);
+
+    /* Shown bandwidth around SetCenterFreq() */
     void SetSpanFreq(quint32 s) { m_Span = (qint32)s; }
     void UpdateOverlay() { DrawOverlay(); }
 
@@ -69,7 +71,10 @@ public:
 
     void setFreqDigits(int digits) { m_FreqDigits = digits>=0 ? digits : 0; }
 
+    /* Determines full bandwidth. */
     void setSampleRate(double rate) { if (rate > 0.0) m_SampleFreq = rate; }
+
+    void SetFftCenterFreq(qint64 f) { m_FftCenter = f; }
 
 signals:
     void NewCenterFreq(qint64 f);
@@ -127,6 +132,7 @@ private:
     bool m_Running;
     bool m_DrawOverlay;
     qint64 m_CenterFreq;
+    qint64 m_FftCenter;
     qint64 m_DemodCenterFreq;
     bool m_CenterLineEnabled;  /*!< Distinguish center line. */
     bool m_FilterBoxEnabled;   /*!< Draw filter box. */
