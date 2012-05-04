@@ -24,6 +24,7 @@
 
 DockAudio::DockAudio(QWidget *parent) :
     QDockWidget(parent),
+    autoSpan(true),
     ui(new Ui::DockAudio)
 {
     ui->setupUi(this);
@@ -51,12 +52,15 @@ DockAudio::~DockAudio()
 
 void DockAudio::setFftRange(quint64 minf, quint64 maxf)
 {
-    qint32 span = (qint32)(maxf - minf);
-    quint64 fc = minf + (maxf - minf)/2;
+    if (autoSpan)
+    {
+        qint32 span = (qint32)(maxf - minf);
+        quint64 fc = minf + (maxf - minf)/2;
 
-    ui->audioSpectrum->SetCenterFreq(fc);
-    ui->audioSpectrum->SetFftCenterFreq(fc);
-    ui->audioSpectrum->SetSpanFreq(span);
+        ui->audioSpectrum->SetFftCenterFreq(fc);
+        ui->audioSpectrum->SetSpanFreq(span);
+        ui->audioSpectrum->SetCenterFreq(fc);
+    }
 }
 
 void DockAudio::setNewFttData(double *fftData, int size)

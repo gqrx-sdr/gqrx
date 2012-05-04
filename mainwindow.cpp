@@ -386,6 +386,7 @@ void MainWindow::selectDemod(int index)
     case 1:
         rx->set_demod(receiver::DEMOD_AM);
         ui->plotter->SetDemodRanges(-20000, -100, 100, 20000, true);
+        uiDockAudio->setFftRange(0,15000);
         switch (filter_preset) {
         case 0: //wide
             flo = -10000;
@@ -408,6 +409,7 @@ void MainWindow::selectDemod(int index)
         maxdev = uiDockRxOpt->currentMaxdev();
         if (maxdev < 20000.0) {
             ui->plotter->SetDemodRanges(-25000, -100, 100, 25000, true);
+            uiDockAudio->setFftRange(0,12000);
             switch (filter_preset) {
             case 0: //wide
                 flo = -10000;
@@ -425,6 +427,7 @@ void MainWindow::selectDemod(int index)
         }
         else {
             ui->plotter->SetDemodRanges(-45000, -10000, 10000, 45000, true);
+            uiDockAudio->setFftRange(0,24000);
             switch (filter_preset) {
             /** FIXME: not sure about these **/
             case 0: //wide
@@ -447,6 +450,7 @@ void MainWindow::selectDemod(int index)
     case 3:
         rx->set_demod(receiver::DEMOD_SSB);
         ui->plotter->SetDemodRanges(-10000, -100, -5000, 0, false);
+        uiDockAudio->setFftRange(0,3500);
         switch (filter_preset) {
         case 0: //wide
             flo = -4100;
@@ -467,6 +471,7 @@ void MainWindow::selectDemod(int index)
     case 4:
         rx->set_demod(receiver::DEMOD_SSB);
         ui->plotter->SetDemodRanges(0, 5000, 100, 10000, false);
+        uiDockAudio->setFftRange(0,3500);
         switch (filter_preset) {
         case 0: //wide
             flo = 100;
@@ -487,6 +492,7 @@ void MainWindow::selectDemod(int index)
     case 5:
         rx->set_demod(receiver::DEMOD_SSB);
         ui->plotter->SetDemodRanges(-10000, -100, -5000, 0, false);
+        uiDockAudio->setFftRange(0,1500);
         switch (filter_preset) {
         case 0: //wide
             flo = -2300;
@@ -507,6 +513,7 @@ void MainWindow::selectDemod(int index)
     case 6:
         rx->set_demod(receiver::DEMOD_SSB);
         ui->plotter->SetDemodRanges(0, 5000, 100, 10000, false);
+        uiDockAudio->setFftRange(0,1500);
         switch (filter_preset) {
         case 0: //wide
             flo = 200;

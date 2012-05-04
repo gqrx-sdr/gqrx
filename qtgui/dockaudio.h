@@ -83,6 +83,7 @@ private slots:
 private:
     Ui::DockAudio *ui;
     QString        lastAudio;   /*! Last audio recording. */
+    bool           autoSpan;    /*! Whether to allow mode-dependent auto span. */
 };
 
 #endif // DOCKAUDIO_H
