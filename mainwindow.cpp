@@ -115,6 +115,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //ui->menu_View->addAction(uiDockIqPlay->toggleViewAction());
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
+    ui->menu_View->addSeparator();
+    ui->menu_View->addAction(ui->actionFullScreen);
 
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(NewFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
@@ -900,6 +902,14 @@ void MainWindow::setAudioFftRate(int fps)
 
     if (audio_fft_timer->isActive())
         audio_fft_timer->setInterval(interval);
+}
+
+void MainWindow::on_actionFullScreen_triggered(bool checked)
+{
+    if (checked)
+        showFullScreen();
+    else
+        showNormal();
 }
 
 /*! \brief Action: I/O device configurator triggered.

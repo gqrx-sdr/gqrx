@@ -155,6 +155,7 @@
    </attribute>
    <addaction name="actionDSP"/>
    <addaction name="separator"/>
+   <addaction name="actionFullScreen"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionQuit">
@@ -290,9 +291,33 @@
     <string>Discussion group for Gqrx users</string>
    </property>
   </action>
+  <action name="actionFullScreen">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/icons/fullscreen.svg</normaloff>:/icons/icons/fullscreen.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Full screen</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle full screen mode</string>
+   </property>
+   <property name="shortcut">
+    <string>F11</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
+  <customwidget>
+   <class>CPlotter</class>
+   <extends>QFrame</extends>
+   <header>qtgui/plotter.h</header>
+   <container>1</container>
+  </customwidget>
   <customwidget>
    <class>CFreqCtrl</class>
    <extends>QFrame</extends>
@@ -303,12 +328,6 @@
    <class>CMeter</class>
    <extends>QFrame</extends>
    <header>qtgui/meter.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>CPlotter</class>
-   <extends>QFrame</extends>
-   <header>qtgui/plotter.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
