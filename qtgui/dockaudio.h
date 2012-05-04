@@ -46,7 +46,7 @@ public:
 
     void setFftRange(quint64 minf, quint64 maxf);
     void setNewFttData(double *fftData, int size);
-    int  fftRate() { return 10; }
+    int  fftRate() { return 8; }
 
     void setAudioGain(int gain);
     int  audioGain();
