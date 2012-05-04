@@ -491,49 +491,57 @@ void CPlotter::draw()
     if (!m_Running)
         return;
 
-    //get/draw the waterfall
+    // get/draw the waterfall
     w = m_WaterfallPixmap.width();
     h = m_WaterfallPixmap.height();
 
-    //move current data down one line(must do before attaching a QPainter object)
-    m_WaterfallPixmap.scroll(0,1,0,0, w, h);
-
-    QPainter painter1(&m_WaterfallPixmap);
-    //get scaled FFT data
-    GetScreenIntegerFFTData(255, w, m_MaxdB, m_MindB,
-                            m_FftCenter-m_Span/2, m_FftCenter+m_Span/2,
-                            m_fftbuf);
-
-    //draw new line of fft data at top of waterfall bitmap
-    for(i=0; i<w; i++)
+    // no need to draw if pixmap is invisible
+    if ((w != 0) || (h != 0))
     {
-        painter1.setPen(m_ColorTbl[ 255-m_fftbuf[i] ]);
-        painter1.drawPoint(i,0);
+        // move current data down one line(must do before attaching a QPainter object)
+        m_WaterfallPixmap.scroll(0,1,0,0, w, h);
+
+        QPainter painter1(&m_WaterfallPixmap);
+        // get scaled FFT data
+        GetScreenIntegerFFTData(255, w, m_MaxdB, m_MindB,
+                                m_FftCenter-m_Span/2, m_FftCenter+m_Span/2,
+                                m_fftbuf);
+
+        // draw new line of fft data at top of waterfall bitmap
+        for (i = 0; i < w; i++)
+        {
+            painter1.setPen(m_ColorTbl[ 255-m_fftbuf[i] ]);
+            painter1.drawPoint(i,0);
+        }
     }
 
-    //get/draw the 2D spectrum
+    // get/draw the 2D spectrum
     w = m_2DPixmap.width();
     h = m_2DPixmap.height();
-    //first copy into 2Dbitmap the overlay bitmap.
-    m_2DPixmap = m_OverlayPixmap.copy(0,0,w,h);
 
-    QPainter painter2(&m_2DPixmap);
-
-    //get new scaled fft data
-    GetScreenIntegerFFTData(h, w, m_MaxdB, m_MindB,
-                            m_FftCenter-m_Span/2, m_FftCenter+m_Span/2,
-                            m_fftbuf);
-
-    //draw the 2D spectrum
-    painter2.setPen(QColor(0x97,0xD0,0x97,0xFF));
-    for(i=0; i<w; i++)
+    if ((w != 0) || (h != 0))
     {
-        LineBuf[i].setX(i);
-        LineBuf[i].setY(m_fftbuf[i]);
-    }
-    painter2.drawPolyline(LineBuf,w);
+        // first copy into 2Dbitmap the overlay bitmap.
+        m_2DPixmap = m_OverlayPixmap.copy(0,0,w,h);
 
-    //trigger a new paintEvent
+        QPainter painter2(&m_2DPixmap);
+
+        // get new scaled fft data
+        GetScreenIntegerFFTData(h, w, m_MaxdB, m_MindB,
+                                m_FftCenter-m_Span/2, m_FftCenter+m_Span/2,
+                                m_fftbuf);
+
+        // draw the 2D spectrum
+        painter2.setPen(QColor(0x97,0xD0,0x97,0xFF));
+        for (i = 0; i < w; i++)
+        {
+            LineBuf[i].setX(i);
+            LineBuf[i].setY(m_fftbuf[i]);
+        }
+        painter2.drawPolyline(LineBuf,w);
+    }
+
+    // trigger a new paintEvent
     update();
 
 }
