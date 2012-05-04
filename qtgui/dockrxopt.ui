@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>221</width>
-    <height>336</height>
+    <height>290</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>221</width>
-    <height>336</height>
+    <height>290</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -36,6 +36,21 @@
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>2</number>
+    </property>
+    <property name="leftMargin">
+     <number>5</number>
+    </property>
+    <property name="topMargin">
+     <number>2</number>
+    </property>
+    <property name="rightMargin">
+     <number>5</number>
+    </property>
+    <property name="bottomMargin">
+     <number>5</number>
+    </property>
     <item>
      <widget class="CFreqCtrl" name="filterFreq">
       <property name="sizePolicy">
@@ -63,6 +78,9 @@
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_6">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetDefaultConstraint</enum>
+      </property>
       <item>
        <widget class="QLabel" name="rxFreqLabel">
         <property name="toolTip">
@@ -71,6 +89,9 @@ as  rf_freq + filter_offset</string>
         </property>
         <property name="text">
          <string>Receive:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -99,6 +120,9 @@ as  rf_freq + filter_offset</string>
     </item>
     <item>
      <layout class="QGridLayout" name="gridLayout">
+      <property name="verticalSpacing">
+       <number>3</number>
+      </property>
       <item row="0" column="0">
        <widget class="QLabel" name="filterLabel">
         <property name="text">
@@ -381,6 +405,9 @@ as  rf_freq + filter_offset</string>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <property name="spacing">
+       <number>2</number>
+      </property>
       <item>
        <widget class="QDial" name="agcGainDial">
         <property name="sizePolicy">

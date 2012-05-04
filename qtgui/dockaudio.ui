@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>254</height>
+    <height>220</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>200</width>
-    <height>175</height>
+    <height>220</height>
    </size>
   </property>
   <property name="allowedAreas">
@@ -30,6 +30,12 @@
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="margin">
+     <number>5</number>
+    </property>
     <item>
      <widget class="CPlotter" name="audioSpectrum">
       <property name="sizePolicy">
