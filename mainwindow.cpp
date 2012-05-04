@@ -907,9 +907,15 @@ void MainWindow::setAudioFftRate(int fps)
 void MainWindow::on_actionFullScreen_triggered(bool checked)
 {
     if (checked)
+    {
+        ui->statusBar->hide();
         showFullScreen();
+    }
     else
+    {
+        ui->statusBar->show();
         showNormal();
+    }
 }
 
 /*! \brief Action: I/O device configurator triggered.
