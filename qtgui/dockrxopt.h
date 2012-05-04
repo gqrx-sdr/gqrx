@@ -78,9 +78,6 @@ signals:
     /*! \brief Signal emitted when AM DCR status is toggled. */
     void amDcrToggled(bool enabled);
 
-    /*! \brief Signal emitted when new SSB side band has been selected. */
-    void sidebandSelected(int sideband);
-
     /*! \brief Signal emitted when baseband gain has changed. Gain is in dB. */
     void bbGainChanged(float gain);
 

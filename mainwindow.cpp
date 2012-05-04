@@ -127,7 +127,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
     connect(uiDockRxOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(setFmEmph(double)));
-    connect(uiDockRxOpt, SIGNAL(sidebandSelected(int)), this, SLOT(setSideBand(int)));
     connect(uiDockRxOpt, SIGNAL(agcToggled(bool)), this, SLOT(setAgcOn(bool)));
     connect(uiDockRxOpt, SIGNAL(agcHangToggled(bool)), this, SLOT(setAgcHang(bool)));
     connect(uiDockRxOpt, SIGNAL(agcThresholdChanged(int)), this, SLOT(setAgcThreshold(int)));
@@ -136,7 +135,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(agcDecayChanged(int)), this, SLOT(setAgcDecay(int)));
     connect(uiDockRxOpt, SIGNAL(noiseBlankerChanged(int,bool,float)), this, SLOT(setNoiseBlanker(int,bool,float)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
-    //connect(uiDockIqPlay, SIGNAL(playbackToggled(bool,QString)), this, SLOT(toggleIqPlayback(bool,QString)));
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
     connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), this, SLOT(startAudioRec(QString)));
     connect(uiDockAudio, SIGNAL(audioRecStopped()), this, SLOT(stopAudioRec()));
@@ -581,36 +579,6 @@ void MainWindow::setAmDcrStatus(bool enabled)
 {
     rx->set_am_dcr(enabled);
 }
-
-/*! \brief Set new SSB sideband.
- *  \param sideband The new sideband(= = LSB, 1 = USB)
- */
-void MainWindow::setSideBand(int sideband)
-{
-    receiver::demod mode = (receiver::demod)uiDockRxOpt->currentDemod();
-
-    if (mode != receiver::DEMOD_SSB) {
-        // This should not be possible because sideband selector is only
-        // visible when demodulator type is SSB
-        qDebug() << "Sideband selected but current mode is not SSB";
-        return;
-    }
-
-    if (sideband) {
-        /* USB */
-        ui->plotter->SetDemodRanges(0, 500, 600, 10000, false);
-        ui->plotter->SetHiLowCutFrequencies(200, 3000);
-        rx->set_filter(200.0, 3000.0, receiver::FILTER_SHAPE_NORMAL);
-    }
-    else {
-        /* LSB */
-        ui->plotter->SetDemodRanges(-10000, -600, -500, 0, false);
-        ui->plotter->SetHiLowCutFrequencies(-3000, -200);
-        rx->set_filter(-3000.0, -200.0, receiver::FILTER_SHAPE_NORMAL);
-    }
-
-}
-
 
 /*! \brief Audio gain changed.
  *  \param value The new audio gain in dB.
