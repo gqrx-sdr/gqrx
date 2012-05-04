@@ -45,6 +45,8 @@ public:
     ~DockAudio();
 
     void setFftRange(quint64 minf, quint64 maxf);
+    void setNewFttData(double *fftData, int size);
+    int  fftRate() { return 5; }
 
     void setAudioGain(int gain);
     int  audioGain();
@@ -69,6 +71,8 @@ signals:
     /*! \brief Signal emitted when audio playback is stopped. */
     void audioPlayStopped();
 
+    /*! \brief FFT rate changed. */
+    void fftRateChanged(int fps);
 
 private slots:
     void on_audioGainSlider_valueChanged(int value);

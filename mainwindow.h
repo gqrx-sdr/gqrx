@@ -55,6 +55,7 @@ private:
     enum receiver::filter_shape d_filter_shape;
     std::complex<float>* d_fftData;
     double *d_realFftData;
+    //double *d_audioFttData;
 
     Ui::MainWindow *ui;
 
@@ -71,7 +72,8 @@ private:
 
     QTimer   *dec_timer;
     QTimer   *meter_timer;
-    QTimer   *fft_timer;
+    QTimer   *iq_fft_timer;
+    QTimer   *audio_fft_timer;
 
     receiver *rx;
 
@@ -109,9 +111,10 @@ private slots:
     void toggleIqPlayback(bool play, const QString filename);
 
     /* FFT settings */
-    void setFftSize(int size);
-    void setFftRate(int fps);
-    void setFftSplit(int pct_wf);
+    void setIqFftSize(int size);
+    void setIqFftRate(int fps);
+    void setIqFftSplit(int pct_wf);
+    void setAudioFftRate(int fps);
 
     void on_plotter_NewDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
     void on_plotter_NewFilterFreq(int low, int high);    /*! New filter width */
@@ -134,6 +137,7 @@ private slots:
     void decoderTimeout();
     void meterTimeout();
     void iqFftTimeout();
+    void audioFftTimeout();
 
 };
 

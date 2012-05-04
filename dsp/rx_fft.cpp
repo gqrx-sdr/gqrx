@@ -210,7 +210,7 @@ rx_fft_f::rx_fft_f(int fftsize, int wintype)
     d_fft = new gri_fft_complex(d_fftsize, true);
 
     /* allocate circular buffer */
-    d_cbuf.set_capacity(2*d_fftsize);
+    d_cbuf.set_capacity(d_fftsize);
 
     /* create FFT window */
     set_window_type(wintype);
@@ -254,7 +254,7 @@ void rx_fft_f::get_fft_data(std::complex<float>* fftPoints, int &fftSize)
 {
     boost::mutex::scoped_lock lock(d_mutex);
 
-    if (d_cbuf.size() < 2*d_fftsize) {
+    if (d_cbuf.size() < d_fftsize) {
         // not enough samples in the buffer
         fftSize = 0;
 

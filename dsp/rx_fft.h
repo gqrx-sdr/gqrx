@@ -118,7 +118,7 @@ rx_fft_f_sptr make_rx_fft_f(int fftsize=1024, int wintype=gr_firdes::WIN_HAMMING
  * The samples are collected in a cicular buffer with size FFT_SIZE.
  * When the GUI asks for a new set of FFT data using get_fft_data() an FFT
  * will be performed on the data stored in the circular buffer - assuming
- * that the buffer contains at least 2*fftsize samples.
+ * that the buffer contains at least fftsize samples.
  *
  * \note Uses code from qtgui_sink_f
  */

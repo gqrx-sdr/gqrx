@@ -62,8 +62,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(meter_timer, SIGNAL(timeout()), this, SLOT(meterTimeout()));
 
     /* FFT timer & data */
-    fft_timer = new QTimer(this);
-    connect(fft_timer, SIGNAL(timeout()), this, SLOT(iqFftTimeout()));
+    iq_fft_timer = new QTimer(this);
+    connect(iq_fft_timer, SIGNAL(timeout()), this, SLOT(iqFftTimeout()));
+
+    audio_fft_timer = new QTimer(this);
+    connect(audio_fft_timer, SIGNAL(timeout()), this, SLOT(audioFftTimeout()));
+
     d_fftData = new std::complex<float>[MAX_FFT_SIZE];
     d_realFftData = new double[MAX_FFT_SIZE];
 
@@ -99,7 +103,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //uiDockIqPlay->hide();
 
     /* misc configurations */
-    uiDockAudio->setFftRange(0, 8000); // FM
+    //uiDockAudio->setFftRange(0, 8000); // FM
 
     /* Add dock widget actions to View menu. By doing it this way all signal/slot
        connections will be established automagially.
@@ -138,9 +142,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(uiDockAudio, SIGNAL(audioRecStopped()), this, SLOT(stopAudioRec()));
     connect(uiDockAudio, SIGNAL(audioPlayStarted(QString)), this, SLOT(startAudioPlayback(QString)));
     connect(uiDockAudio, SIGNAL(audioPlayStopped()), this, SLOT(stopAudioPlayback()));
-    connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setFftSize(int)));
-    connect(uiDockFft, SIGNAL(fftRateChanged(int)), this, SLOT(setFftRate(int)));
-    connect(uiDockFft, SIGNAL(fftSplitChanged(int)), this, SLOT(setFftSplit(int)));
+    connect(uiDockAudio, SIGNAL(fftRateChanged(int)), this, SLOT(setAudioFftRate(int)));
+    connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setIqFftSize(int)));
+    connect(uiDockFft, SIGNAL(fftRateChanged(int)), this, SLOT(setIqFftRate(int)));
+    connect(uiDockFft, SIGNAL(fftSplitChanged(int)), this, SLOT(setIqFftSplit(int)));
 }
 
 MainWindow::~MainWindow()
@@ -152,8 +157,11 @@ MainWindow::~MainWindow()
     meter_timer->stop();
     delete meter_timer;
 
-    fft_timer->stop();
-    delete fft_timer;
+    iq_fft_timer->stop();
+    delete iq_fft_timer;
+
+    audio_fft_timer->stop();
+    delete audio_fft_timer;
 
     delete ui;
     delete uiDockRxOpt;
@@ -200,7 +208,8 @@ void MainWindow::on_actionDSP_triggered(bool checked)
 
         /* start GUI timers */
         meter_timer->start(100);
-        fft_timer->start(1000/uiDockFft->fftRate());
+        iq_fft_timer->start(1000/uiDockFft->fftRate());
+        audio_fft_timer->start(1000/uiDockAudio->fftRate());
 
         /* update menu text and button tooltip */
         ui->actionDSP->setToolTip(tr("Stop DSP processing"));
@@ -209,7 +218,8 @@ void MainWindow::on_actionDSP_triggered(bool checked)
     else {
         /* stop GUI timers */
         meter_timer->stop();
-        fft_timer->stop();
+        iq_fft_timer->stop();
+        audio_fft_timer->stop();
 
         /* stop receiver */
         rx->stop();
@@ -690,7 +700,7 @@ void MainWindow::meterTimeout()
     ui->sMeter->setLevel(level);
 }
 
-/*! \brief FFT plot timeout. */
+/*! \brief Baseband FFT plot timeout. */
 void MainWindow::iqFftTimeout()
 {
     int fftsize;
@@ -709,7 +719,7 @@ void MainWindow::iqFftTimeout()
 
     scaleFactor = std::complex<float>((float)fftsize);
 
-
+    /** FIXME: move post processing to rx_fft_c **/
     /* Normalize, calculcate power and shift the FFT */
     for (i = 0; i < fftsize; i++) {
 
@@ -740,11 +750,59 @@ void MainWindow::iqFftTimeout()
     //qDebug() << "FFT size: " << fftsize;
     //qDebug() << "FFT[0]=" << d_realFftData[0] << "  FFT[MID]=" << d_realFftData[fftsize/2];
     //qDebug() << "MIN:" << min << "  AVG:" << avg << "  MAX:" << max;
-
-
 }
 
+/*! \brief Audio FFT plot timeout. */
+void MainWindow::audioFftTimeout()
+{
+    int fftsize;
+    int i;
+    std::complex<float> pt;             /* a single FFT point used in calculations */
+    std::complex<float> scaleFactor;    /* normalizing factor (fftsize cast to complex) */
+    double min=0.0,max=-120.0,avg=0.0;
 
+
+    rx->get_audio_fft_data(d_fftData, fftsize);
+
+    if (fftsize == 0) {
+        /* nothing to do, wait until next activation. */
+        qDebug() << "No audio FFT data.";
+        return;
+    }
+
+    //fftsize /= 2;
+    scaleFactor = std::complex<float>((float)fftsize);
+
+    /** FIXME: move post processing to rx_fft_f **/
+    /* Normalize, calculcate power and shift the FFT */
+    for (i = 0; i < fftsize; i++) {
+
+        /* normalize and shift */
+        if (i < fftsize/2) {
+            pt = d_fftData[fftsize/2+i] / scaleFactor;
+        }
+        else {
+            pt = d_fftData[i-fftsize/2] / scaleFactor;
+        }
+
+        /* calculate power in dBFS */
+        d_realFftData[i] = 10.0 * log10(pt.imag()*pt.imag() + pt.real()*pt.real() + 1.0e-20);
+
+        /*
+        if (d_realFftData[i] < min)
+            min = d_realFftData[i];
+        if (d_realFftData[i] > max)
+            max = d_realFftData[i];
+        avg = (avg+d_realFftData[i]) / 2.0;
+        */
+    }
+
+    uiDockAudio->setNewFttData(d_realFftData, fftsize);
+
+    //qDebug() << "FFT size: " << fftsize;
+    //qDebug() << "FFT[0]=" << d_realFftData[0] << "  FFT[MID]=" << d_realFftData[fftsize/2];
+    //qDebug() << "MIN:" << min << "  AVG:" << avg << "  MAX:" << max;
+}
 
 
 /*! \brief Start audio recorder.
@@ -843,33 +901,44 @@ void MainWindow::toggleIqPlayback(bool play, const QString filename)
 
 
 /*! \brief FFT size has changed. */
-void MainWindow::setFftSize(int size)
+void MainWindow::setIqFftSize(int size)
 {
-    qDebug() << "Changing FFT size TBD...";
+    qDebug() << "Changing baseband FFT size TBD...";
 }
 
-/*! \brief FFT rate has changed. */
-void MainWindow::setFftRate(int fps)
+/*! \brief Baseband FFT rate has changed. */
+void MainWindow::setIqFftRate(int fps)
 {
     int interval = 1000 / fps;
 
     if (interval < 10)
         return;
 
-    if (fft_timer->isActive())
-        fft_timer->setInterval(interval);
+    if (iq_fft_timer->isActive())
+        iq_fft_timer->setInterval(interval);
 }
 
 /*! \brief Vertical split between waterfall and pandapter changed.
  *  \param pct_pand The percentage of the waterfall.
  */
-void MainWindow::setFftSplit(int pct_wf)
+void MainWindow::setIqFftSplit(int pct_wf)
 {
     if ((pct_wf >= 20) && (pct_wf <= 80)) {
         ui->plotter->SetPercent2DScreen(pct_wf);
     }
 }
 
+/*! \brief Audio FFT rate has changed. */
+void MainWindow::setAudioFftRate(int fps)
+{
+    int interval = 1000 / fps;
+
+    if (interval < 10)
+        return;
+
+    if (audio_fft_timer->isActive())
+        audio_fft_timer->setInterval(interval);
+}
 
 /*! \brief Action: I/O device configurator triggered.
  *
