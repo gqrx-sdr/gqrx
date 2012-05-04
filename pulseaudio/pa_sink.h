@@ -58,11 +58,11 @@ public:
     void select_device(string device_name);
 
 private:
-    pa_simple *d_pasink;        /*! The pulseaudio object. */
-    string d_stream_name;  /*! Descriptive name of the stream. */
-    string d_app_name;     /*! Descriptive name of the applcation. */
-    pa_sample_spec d_ss;        /*! pulseaudio sample specification. */
-
+    pa_simple *d_pasink;    /*! The pulseaudio object. */
+    string d_stream_name;   /*! Descriptive name of the stream. */
+    string d_app_name;      /*! Descriptive name of the applcation. */
+    pa_sample_spec d_ss;    /*! pulseaudio sample specification. */
+    pa_buffer_attr d_attr;  /*! Buffer attributes. */
 };
 
 #endif /* PA_SINK_H */
