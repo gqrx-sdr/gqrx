@@ -78,7 +78,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     demod_fm = make_rx_demod_fm(d_bandwidth, d_bandwidth, 5000.0, 530.0e-6);
     demod_am = make_rx_demod_am(d_bandwidth, d_bandwidth, true);
     audio_rr = make_resampler_ff(d_bandwidth, d_audio_rate);
-    audio_fft = make_rx_fft_f();
+    audio_fft = make_rx_fft_f(2048);
     audio_gain = gr_make_multiply_const_ff(0.1);
 
     audio_snk = make_pa_sink(audio_device, d_audio_rate, "GQRX", "Audio output");
