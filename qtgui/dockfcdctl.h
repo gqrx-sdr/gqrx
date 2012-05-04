@@ -40,35 +40,24 @@ public:
     void setFreqCorr(int corr);
     int  freqCorr();
 
-    void   setDci(double dci);
-    double dci();
-
-    void   setDcq(double dcq);
-    double dcq();
-
     void   setIqGain(double gain);
     double iqGain();
 
     void   setIqPhase(double phase);
     double iqPhase();
 
-
 signals:
     void lnaGainChanged(float gain);
     void freqCorrChanged(int value);
     void lnbLoChanged(double freq_mhz);
-    void dcCorrChanged(double dci, double dcq);
     void iqCorrChanged(double gain, double phase);
 
 private slots:
     void on_lnbSpinBox_valueChanged(double value);
     void on_lnaComboBox_activated(const QString value_str);
     void on_freqCorrSpinBox_valueChanged(int value);
-    void on_dciSpinBox_valueChanged(double value);
-    void on_dcqSpinBox_valueChanged(double value);
     void on_iqGainSpinBox_valueChanged(double value);
     void on_iqPhaseSpinBox_valueChanged(double value);
-    void on_resetButton_clicked();
 
 private:
     Ui::DockFcdCtl *ui;

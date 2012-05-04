@@ -123,7 +123,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(uiDockFcdCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
     connect(uiDockFcdCtl, SIGNAL(lnaGainChanged(float)), SLOT(setRfGain(float)));
     connect(uiDockFcdCtl, SIGNAL(freqCorrChanged(int)), this, SLOT(setFreqCorr(int)));
-    connect(uiDockFcdCtl, SIGNAL(dcCorrChanged(double,double)), this, SLOT(setDcCorr(double,double)));
     connect(uiDockFcdCtl, SIGNAL(iqCorrChanged(double,double)), this, SLOT(setIqCorr(double,double)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));

@@ -110,42 +110,6 @@ int DockFcdCtl::freqCorr()
 }
 
 
-/*! \brief Set new DC offet (in-phase).
- *  \param dci The new value within -1.0 ... +1.0
- */
-void DockFcdCtl::setDci(double dci)
-{
-    ui->dciSpinBox->setValue(dci);
-}
-
-
-/*! \brief Get current in-phase DC offset
- *  \return The currect DC offset in the range -1.0 ... +1.0
- */
-double DockFcdCtl::dci()
-{
-    return ui->dciSpinBox->value();
-}
-
-
-/*! \brief Set new DC offet (quadrature).
- *  \param dcq The new value within -1.0 ... +1.0
- */
-void DockFcdCtl::setDcq(double dcq)
-{
-    ui->dcqSpinBox->setValue(dcq);
-}
-
-
-/*! \brief Get current in-phase DC offset
- *  \return The currect DC offset in the range -1.0 ... +1.0
- */
-double DockFcdCtl::dcq()
-{
-    return ui->dcqSpinBox->value();
-}
-
-
 /*! \brief Set new I/Q gain.
  *  \param gain The new gain in the range -1.0 ... +1.0
  */
@@ -219,24 +183,6 @@ void DockFcdCtl::on_freqCorrSpinBox_valueChanged(int value)
 }
 
 
-/*! \brief In-phase DC offset changed.
- *  \param value The new offset.
- */
-void DockFcdCtl::on_dciSpinBox_valueChanged(double value)
-{
-    emit dcCorrChanged(value, ui->dcqSpinBox->value());
-}
-
-
-/*! \brief Quadrature DC offset changed.
- *  \param value The new offset.
- */
-void DockFcdCtl::on_dcqSpinBox_valueChanged(double value)
-{
-    emit dcCorrChanged(ui->dciSpinBox->value(), value);
-}
-
-
 /*! \brief I/Q gain changed.
  *  \param value The new I/Q gain
  */
@@ -254,13 +200,3 @@ void DockFcdCtl::on_iqPhaseSpinBox_valueChanged(double value)
     emit iqCorrChanged(ui->iqGainSpinBox->value(), value);
 }
 
-
-/*! \brief Reset I/Q corrections. */
-void DockFcdCtl::on_resetButton_clicked()
-{
-    // signals are emitted if new val differs from old val
-    ui->dciSpinBox->setValue(0.0);
-    ui->dcqSpinBox->setValue(0.0);
-    ui->iqGainSpinBox->setValue(1.0);
-    ui->iqPhaseSpinBox->setValue(0.0);
-}
