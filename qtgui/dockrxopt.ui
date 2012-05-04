@@ -676,7 +676,7 @@ as  rf_freq + filter_offset</string>
          <string>Squelch level in dBFS</string>
         </property>
         <property name="minimum">
-         <number>-1000</number>
+         <number>-1500</number>
         </property>
         <property name="maximum">
          <number>0</number>
@@ -685,7 +685,7 @@ as  rf_freq + filter_offset</string>
          <number>100</number>
         </property>
         <property name="value">
-         <number>-1000</number>
+         <number>-1500</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
