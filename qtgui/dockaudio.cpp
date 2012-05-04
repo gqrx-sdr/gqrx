@@ -30,12 +30,14 @@ DockAudio::DockAudio(QWidget *parent) :
 
     ui->audioSpectrum->SetPercent2DScreen(100);
     ui->audioSpectrum->SetFreqUnits(1000);
-    ui->audioSpectrum->setSampleRate(48000);
-    ui->audioSpectrum->SetSpanFreq(48000);
-    ui->audioSpectrum->SetCenterFreq(0);
+    ui->audioSpectrum->setSampleRate(48000);  // Full bandwidth
+    ui->audioSpectrum->SetSpanFreq(12000);
+    ui->audioSpectrum->SetCenterFreq(6000);
+    ui->audioSpectrum->SetFftCenterFreq(6000);
+    ui->audioSpectrum->SetDemodCenterFreq(3000);
     ui->audioSpectrum->SetFilterBoxEnabled(false);
     ui->audioSpectrum->SetCenterLineEnabled(false);
-    ui->audioSpectrum->setMinMaxDB(-80, -20);
+    ui->audioSpectrum->setMinMaxDB(-90, 0);
     ui->audioSpectrum->setFontSize(7);
     ui->audioSpectrum->setVdivDelta(20);
     ui->audioSpectrum->setHdivDelta(25);
@@ -53,6 +55,7 @@ void DockAudio::setFftRange(quint64 minf, quint64 maxf)
     quint64 fc = minf + (maxf - minf)/2;
 
     ui->audioSpectrum->SetCenterFreq(fc);
+    ui->audioSpectrum->SetFftCenterFreq(fc);
     ui->audioSpectrum->SetSpanFreq(span);
 }
 

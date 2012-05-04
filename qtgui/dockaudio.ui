@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>218</height>
+    <height>254</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -45,7 +45,7 @@
        </size>
       </property>
       <property name="toolTip">
-       <string>Audio spectrum and filter</string>
+       <string>Audio spectrum</string>
       </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
