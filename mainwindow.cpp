@@ -770,7 +770,6 @@ void MainWindow::audioFftTimeout()
         return;
     }
 
-    //fftsize /= 2;
     scaleFactor = std::complex<float>((float)fftsize);
 
     /** FIXME: move post processing to rx_fft_f **/
@@ -787,21 +786,9 @@ void MainWindow::audioFftTimeout()
 
         /* calculate power in dBFS */
         d_realFftData[i] = 10.0 * log10(pt.imag()*pt.imag() + pt.real()*pt.real() + 1.0e-20);
-
-        /*
-        if (d_realFftData[i] < min)
-            min = d_realFftData[i];
-        if (d_realFftData[i] > max)
-            max = d_realFftData[i];
-        avg = (avg+d_realFftData[i]) / 2.0;
-        */
     }
 
     uiDockAudio->setNewFttData(d_realFftData, fftsize);
-
-    //qDebug() << "FFT size: " << fftsize;
-    //qDebug() << "FFT[0]=" << d_realFftData[0] << "  FFT[MID]=" << d_realFftData[fftsize/2];
-    //qDebug() << "MIN:" << min << "  AVG:" << avg << "  MAX:" << max;
 }
 
 
