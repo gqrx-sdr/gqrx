@@ -193,105 +193,6 @@ void MainWindow::setNewFrequency(qint64 freq)
     uiDockRxOpt->setRfFreq(freq);
 }
 
-
-/*! \brief Start/Stop DSP processing.
- *  \param checked Flag indicating whether DSP processing should be ON or OFF.
- *
- * This slot is executed when the actionDSP is toggled by the user. This can either be
- * via the menu bar or the "power on" button in the main toolbar.
- */
-void MainWindow::on_actionDSP_triggered(bool checked)
-{
-    if (checked) {
-        /* start receiver */
-        rx->start();
-
-        /* start GUI timers */
-        meter_timer->start(100);
-        iq_fft_timer->start(1000/uiDockFft->fftRate());
-        audio_fft_timer->start(1000/uiDockAudio->fftRate());
-
-        /* update menu text and button tooltip */
-        ui->actionDSP->setToolTip(tr("Stop DSP processing"));
-        ui->actionDSP->setText(tr("Stop DSP"));
-    }
-    else {
-        /* stop GUI timers */
-        meter_timer->stop();
-        iq_fft_timer->stop();
-        audio_fft_timer->stop();
-
-        /* stop receiver */
-        rx->stop();
-
-        /* update menu text and button tooltip */
-        ui->actionDSP->setToolTip(tr("Start DSP processing"));
-        ui->actionDSP->setText(tr("Start DSP"));
-    }
-}
-
-
-/*! \brief Toggle I/Q recording. */
-void MainWindow::on_actionIqRec_triggered(bool checked)
-{
-#if 0
-    if (checked) {
-        /* generate file name using date, time, rf freq and BW */
-        int freq = (int)rx->get_rf_freq()/1000;
-        // FIXME: option to use local time
-        QString lastRec = QDateTime::currentDateTimeUtc().toString("gqrx-yyyyMMdd-hhmmss-%1-96.'bin'").arg(freq);
-
-        /* start recorder */
-        if (rx->start_iq_recording(lastRec.toStdString())) {
-            /* reset action status */
-            ui->actionIqRec->toggle();
-            ui->statusBar->showMessage(tr("Error starting I/Q recoder"));
-        }
-        else {
-            ui->statusBar->showMessage(tr("Recording I/Q data to: %1").arg(lastRec), 5000);
-
-            /* disable I/Q player */
-            uiDockIqPlay->setEnabled(false);
-        }
-    }
-    else {
-        /* stop current recording */
-        if (rx->stop_iq_recording()) {
-            ui->statusBar->showMessage(tr("Error stopping I/Q recoder"));
-        }
-        else {
-            ui->statusBar->showMessage(tr("I/Q data recoding stopped"), 5000);
-        }
-
-        /* enable I/Q player */
-        uiDockIqPlay->setEnabled(true);
-    }
-#endif
-}
-
-/* CPlotter::NewDemodFreq() is emitted */
-void MainWindow::on_plotter_NewDemodFreq(qint64 freq, qint64 delta)
-{
-    // set RX filter
-    rx->set_filter_offset((double) delta);
-
-    // update RF freq label and channel filter offset
-    uiDockRxOpt->setFilterOffset(delta);
-    uiDockRxOpt->setRfFreq(freq-delta);
-}
-
-
-
-/* CPlotter::NewfilterFreq() is emitted */
-void MainWindow::on_plotter_NewFilterFreq(int low, int high)
-{
-    receiver::status retcode;
-
-    /* parameter correctness will be checked in receiver class */
-    retcode = rx->set_filter((double) low, (double) high, d_filter_shape);
-
-}
-
 /*! \brief Set new LNB LO frequency.
  *  \param freq_mhz The new frequency in MHz.
  */
@@ -904,6 +805,103 @@ void MainWindow::setAudioFftRate(int fps)
         audio_fft_timer->setInterval(interval);
 }
 
+
+/*! \brief Start/Stop DSP processing.
+ *  \param checked Flag indicating whether DSP processing should be ON or OFF.
+ *
+ * This slot is executed when the actionDSP is toggled by the user. This can either be
+ * via the menu bar or the "power on" button in the main toolbar.
+ */
+void MainWindow::on_actionDSP_triggered(bool checked)
+{
+    if (checked) {
+        /* start receiver */
+        rx->start();
+
+        /* start GUI timers */
+        meter_timer->start(100);
+        iq_fft_timer->start(1000/uiDockFft->fftRate());
+        audio_fft_timer->start(1000/uiDockAudio->fftRate());
+
+        /* update menu text and button tooltip */
+        ui->actionDSP->setToolTip(tr("Stop DSP processing"));
+        ui->actionDSP->setText(tr("Stop DSP"));
+    }
+    else {
+        /* stop GUI timers */
+        meter_timer->stop();
+        iq_fft_timer->stop();
+        audio_fft_timer->stop();
+
+        /* stop receiver */
+        rx->stop();
+
+        /* update menu text and button tooltip */
+        ui->actionDSP->setToolTip(tr("Start DSP processing"));
+        ui->actionDSP->setText(tr("Start DSP"));
+    }
+}
+
+/*! \brief Toggle I/Q recording. */
+void MainWindow::on_actionIqRec_triggered(bool checked)
+{
+#if 0
+    if (checked) {
+        /* generate file name using date, time, rf freq and BW */
+        int freq = (int)rx->get_rf_freq()/1000;
+        // FIXME: option to use local time
+        QString lastRec = QDateTime::currentDateTimeUtc().toString("gqrx-yyyyMMdd-hhmmss-%1-96.'bin'").arg(freq);
+
+        /* start recorder */
+        if (rx->start_iq_recording(lastRec.toStdString())) {
+            /* reset action status */
+            ui->actionIqRec->toggle();
+            ui->statusBar->showMessage(tr("Error starting I/Q recoder"));
+        }
+        else {
+            ui->statusBar->showMessage(tr("Recording I/Q data to: %1").arg(lastRec), 5000);
+
+            /* disable I/Q player */
+            uiDockIqPlay->setEnabled(false);
+        }
+    }
+    else {
+        /* stop current recording */
+        if (rx->stop_iq_recording()) {
+            ui->statusBar->showMessage(tr("Error stopping I/Q recoder"));
+        }
+        else {
+            ui->statusBar->showMessage(tr("I/Q data recoding stopped"), 5000);
+        }
+
+        /* enable I/Q player */
+        uiDockIqPlay->setEnabled(true);
+    }
+#endif
+}
+
+/* CPlotter::NewDemodFreq() is emitted */
+void MainWindow::on_plotter_NewDemodFreq(qint64 freq, qint64 delta)
+{
+    // set RX filter
+    rx->set_filter_offset((double) delta);
+
+    // update RF freq label and channel filter offset
+    uiDockRxOpt->setFilterOffset(delta);
+    uiDockRxOpt->setRfFreq(freq-delta);
+}
+
+/* CPlotter::NewfilterFreq() is emitted */
+void MainWindow::on_plotter_NewFilterFreq(int low, int high)
+{
+    receiver::status retcode;
+
+    /* parameter correctness will be checked in receiver class */
+    retcode = rx->set_filter((double) low, (double) high, d_filter_shape);
+
+}
+
+/*! \brief Full screen button or menu item toggled. */
 void MainWindow::on_actionFullScreen_triggered(bool checked)
 {
     if (checked)
