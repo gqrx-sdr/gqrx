@@ -34,6 +34,7 @@ rx_source_fcd_sptr make_rx_source_fcd(const std::string device_name)
 rx_source_fcd::rx_source_fcd(const std::string device_name)
     : rx_source_base("rx_source_fcd"),
       d_freq(144.5e6),
+      d_freq_corr(-12), // S/N 820 or greater
       d_gain(20.0)
 {
     d_audio_src = make_pa_source(device_name, 96000, 2, "GQRX", "I/Q input");
@@ -71,11 +72,14 @@ void rx_source_fcd::select_device(const std::string device_name)
 void rx_source_fcd::set_freq(double freq)
 {
     FCD_MODE_ENUM fme;
+    double f = freq;
 
     if ((freq >= get_freq_min()) && (freq <= get_freq_max()))
     {
         d_freq = freq;
-        fme = fcdAppSetFreq((int) d_freq);
+
+        f *= 1.0 + d_freq_corr/1000000.0;
+        fme = fcdAppSetFreq((int)f);
 
         if (fme != FCD_MODE_APP)
         {
@@ -181,9 +185,8 @@ std::vector<double> rx_source_fcd::get_sample_rates()
 /** FIXME: Remove? */
 void rx_source_fcd::set_freq_corr(int ppm)
 {
-    //d_fcd_src->set_freq_corr(ppm);
-    // re-tune after frequency correction
-    //d_fcd_src->set_freq((float) d_freq);
+    d_freq_corr = ppm;
+    set_freq(d_freq);
 }
 
 /** FIXME: Remove? */

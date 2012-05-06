@@ -78,6 +78,7 @@ private:
     gr_float_to_complex_sptr d_f2c;           /*! Block to MUX audio L/R into complex I/Q. */
     std::vector<double>      d_sample_rates;  /*! Supported sample rates. */
     double                   d_freq;          /*! Current RF frequency. */
+    int                      d_freq_corr;     /*! Current frequency correction in ppm. */
     double                   d_gain;          /*! Current RF gain. */
 };
 
