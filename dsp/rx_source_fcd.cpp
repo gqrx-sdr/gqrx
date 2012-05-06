@@ -18,8 +18,6 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <iostream>
-#include <iomanip>
-//#include <limits>
 #include <fcdctl/fcd.h>
 #include <fcdctl/fcdhidcmd.h>
 #include "rx_source_fcd.h"
@@ -196,7 +194,30 @@ void rx_source_fcd::set_dc_corr(double dci, double dcq)
 }
 
 /** FIXME: Remove? */
-void rx_source_fcd::set_iq_corr(double gain, double phase)
+void rx_source_fcd::set_iq_corr(double _gain, double _phase)
 {
-    //d_fcd_src->set_iq_corr(gain, phase);
+    FCD_MODE_ENUM fme;
+    union {
+        unsigned char auc[4];
+        struct {
+            signed short phase;
+            signed short gain;
+        };
+    } iqinfo;
+
+    if ((_gain < -1.0) || (_gain > 1.0) || (_phase < -1.0) || (_phase > 1.0))
+        return;
+
+#ifndef QT_NO_DEBUG_OUTPUT
+    std::cout << "FCD source I/Q corr phase:" << _phase << " gain:" << _gain << std::endl;
+#endif
+
+    iqinfo.phase = static_cast<signed short>(_phase*32768.0);
+    iqinfo.gain = static_cast<signed short>(_gain*32768.0);
+
+    fme = fcdAppSetParam(FCD_CMD_APP_SET_IQ_CORR, iqinfo.auc, 4);
+    if (fme != FCD_MODE_APP)
+    {
+        /** FIUXME: error message **/
+    }
 }
