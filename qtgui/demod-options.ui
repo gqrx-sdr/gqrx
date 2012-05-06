@@ -157,7 +157,7 @@ For digital modes it is best to switch it off.</string>
             <bool>false</bool>
            </property>
            <property name="currentIndex">
-            <number>6</number>
+            <number>3</number>
            </property>
            <item>
             <property name="text">
