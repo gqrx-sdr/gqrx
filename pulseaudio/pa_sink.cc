@@ -19,6 +19,7 @@
  */
 #include "pa_sink.h"
 #include <gr_io_signature.h>
+#include <gruel/high_res_timer.h>
 #include <stdio.h>
 //#include <iostream>
 
@@ -49,7 +50,8 @@ pa_sink::pa_sink(const string device_name, int audio_rate,
         gr_make_io_signature (1, 1, sizeof(float)),
         gr_make_io_signature (0, 0, 0)),
     d_app_name(app_name),
-    d_stream_name(stream_name)
+    d_stream_name(stream_name),
+    d_auto_flush(300)
 {
     int error;
 
@@ -89,6 +91,18 @@ pa_sink::~pa_sink()
     }
 }
 
+bool pa_sink::start()
+{
+    d_last_flush = gruel::high_res_timer_now();
+
+    return true;
+}
+
+bool pa_sink::stop()
+{
+    return true;
+}
+
 
 /*! \brief Select a new pulseaudio output device.
  *  \param device_name The name of the new output.
@@ -122,6 +136,20 @@ int pa_sink::work (int noutput_items,
 {
     const void *data = (const void *) input_items[0];
     int error;
+
+    if (d_auto_flush > 0)
+    {
+        gruel::high_res_timer_type tnow = gruel::high_res_timer_now();
+        if ((tnow-d_last_flush)/gruel::high_res_timer_tps() > d_auto_flush)
+        {
+            pa_simple_flush(d_pasink, 0);
+            d_last_flush = tnow;
+
+#ifndef QT_NO_DEBUG_OUTPUT
+            fprintf(stderr, "Flushing pa_sink\n");
+#endif
+        }
+    }
 
     if (pa_simple_write(d_pasink, data, noutput_items*sizeof(float), &error) < 0) {
         fprintf(stderr, __FILE__": pa_simple_write() failed: %s\n", pa_strerror(error));

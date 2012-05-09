@@ -22,6 +22,7 @@
 
 #include <string>
 #include <gr_sync_block.h>
+#include <gruel/high_res_timer.h>
 #include <pulse/simple.h>
 
 using namespace std;
@@ -55,6 +56,9 @@ public:
               gr_vector_const_void_star &input_items,
               gr_vector_void_star &output_items);
 
+    bool start();
+    bool stop();
+
     void select_device(string device_name);
 
 private:
@@ -63,6 +67,11 @@ private:
     string d_app_name;      /*! Descriptive name of the applcation. */
     pa_sample_spec d_ss;    /*! pulseaudio sample specification. */
     pa_buffer_attr d_attr;  /*! Buffer attributes. */
+
+    // FIXME
+    // periodic flushing of audio buffer (until we have soundcard calibration)
+    int d_auto_flush;  // flush interval in seconds (negative means off)
+    gruel::high_res_timer_type d_last_flush;
 };
 
 #endif /* PA_SINK_H */
