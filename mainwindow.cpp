@@ -18,6 +18,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <QSettings>
+#include <QByteArray>
 #include <QDateTime>
 #include <QDesktopServices>
 #include <QDebug>
@@ -31,7 +32,7 @@
 #include "receiver.h"
 
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     d_lnb_lo(0),
@@ -39,6 +40,15 @@ MainWindow::MainWindow(QWidget *parent) :
     dec_afsk1200(0)
 {
     ui->setupUi(this);
+
+    /* Initialise default configuration directory */
+    QByteArray xdg_dir = qgetenv("XDG_CONFIG_HOME");
+    if (xdg_dir.isEmpty())
+        m_cfg_dir = QString("%1/.config/gqrx").arg(QDir::homePath()); // Qt takes care of conversion to native separators
+    else
+        m_cfg_dir = QString("%1/gqrx").arg(xdg_dir.data());
+
+    loadConfig(cfgfile);
 
     setWindowTitle(QString("gqrx %1 (Funcube Dongle)").arg(VERSION));
 
@@ -162,6 +172,12 @@ MainWindow::~MainWindow()
     audio_fft_timer->stop();
     delete audio_fft_timer;
 
+    if (m_settings)
+    {
+        m_settings->sync();
+        delete m_settings;
+    }
+
     delete ui;
     delete uiDockRxOpt;
     delete uiDockAudio;
@@ -171,6 +187,73 @@ MainWindow::~MainWindow()
     delete rx;
     delete [] d_fftData;
     delete [] d_realFftData;
+}
+
+/*! \brief Load new configuration.
+ *  \param cfgfile
+ *  \returns Always true.
+ *
+ * If cfgfile is an absolute path it will be used as is, otherwise it is assumed to be the
+ * name of a file under m_cfg_dir.
+ *
+ * If cfgfile does not exist it will be created.
+ */
+bool MainWindow::loadConfig(const QString cfgfile)
+{
+    qDebug() << "Loading configuration from:" << cfgfile;
+
+    if (m_settings)
+        delete m_settings;
+
+    if (QDir::isAbsolutePath(cfgfile))
+        m_settings = new QSettings(cfgfile, QSettings::IniFormat);
+    else
+        m_settings = new QSettings(QString("%1/%2").arg(m_cfg_dir).arg(cfgfile), QSettings::IniFormat);
+
+    qDebug() << "Configuration file:" << m_settings->fileName();
+
+    emit configChanged(m_settings);
+
+    return true;
+}
+
+/*! \brief Save current configuration to a file.
+ *  \param cfgfile
+ *  \returns True if the operation was successful.
+ *
+ * If cfgfile is an absolute path it will be used as is, otherwise it is assumed to be the
+ * name of a file under m_cfg_dir.
+ *
+ * If cfgfile already exists it will be overwritten (we assume that a file selection dialog
+ * has already asked for confirmation of overwrite.     *
+ *
+ * Since QSettings does not support "save as" we do this by copying the current
+ * settings to a new file.
+ */
+bool MainWindow::saveConfig(const QString cfgfile)
+{
+    QString oldfile = m_settings->fileName();
+    QString newfile;
+
+    qDebug() << "Saving configuration to:" << cfgfile;
+
+    m_settings->sync();
+
+    if (QDir::isAbsolutePath(cfgfile))
+        newfile = cfgfile;
+    else
+        newfile = QString("%1/%2").arg(m_cfg_dir).arg(cfgfile);
+
+    if (QFile::copy(oldfile, newfile))
+    {
+        loadConfig(cfgfile);
+        return true;
+    }
+    else
+    {
+        qDebug() << "Error saving configuration to" << newfile;
+        return false;
+    }
 }
 
 

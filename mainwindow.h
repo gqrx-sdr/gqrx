@@ -21,6 +21,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QPointer>
+#include <QSettings>
+#include <QString>
 #include <QTimer>
 
 #include "qtgui/dockrxopt.h"
@@ -43,13 +46,22 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(const QString cfgfile="default.conf", QWidget *parent = 0);
     ~MainWindow();
+
+    bool loadConfig(const QString cfgfile);
+    bool saveConfig(const QString cfgfile);
+
+signals:
+    void configChanged(QSettings *settings); /*!< New configuration has been loaded. */
 
 public slots:
     void setNewFrequency(qint64 freq);
 
 private:
+    QPointer<QSettings> m_settings;  /*!< Application wide settings. */
+    QString             m_cfg_dir;   /*!< Default config dir, e.g. XDG_CONFIG_HOME. */
+
     qint64 d_lnb_lo;  /* LNB LO in Hz. */
 
     enum receiver::filter_shape d_filter_shape;
