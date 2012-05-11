@@ -962,6 +962,55 @@ void MainWindow::on_actionDSP_triggered(bool checked)
     }
 }
 
+/*! \brief Load configuration activated by user. */
+void MainWindow::on_actionLoadSettings_triggered()
+{
+    QString cfgfile = QFileDialog::getOpenFileName(this,
+                                                   tr("Load settings"),
+                                                   m_last_dir.isEmpty() ? m_cfg_dir : m_last_dir,
+                                                   tr("Settings (*.conf)"));
+
+    qDebug() << "File to open:" << cfgfile;
+
+    if (cfgfile.isEmpty())
+        return;
+
+    if (!cfgfile.endsWith(".conf", Qt::CaseSensitive))
+            cfgfile.append(".conf");
+
+    loadConfig(cfgfile);
+
+    // store last dir
+    QFileInfo fi(cfgfile);
+    if (m_cfg_dir != fi.absolutePath())
+        m_last_dir = fi.absolutePath();
+}
+
+/*! \brief Save configuration activated by user. */
+void MainWindow::on_actionSaveSettings_triggered()
+{
+    QString cfgfile = QFileDialog::getSaveFileName(this,
+                                                   tr("Save settings"),
+                                                   m_last_dir.isEmpty() ? m_cfg_dir : m_last_dir,
+                                                   tr("Settings (*.conf)"));
+
+    qDebug() << "File to save:" << cfgfile;
+
+    if (cfgfile.isEmpty())
+        return;
+
+    if (!cfgfile.endsWith(".conf", Qt::CaseSensitive))
+            cfgfile.append(".conf");
+
+    saveConfig(cfgfile);
+
+    // store last dir
+    QFileInfo fi(cfgfile);
+    if (m_cfg_dir != fi.absolutePath())
+        m_last_dir = fi.absolutePath();
+}
+
+
 /*! \brief Toggle I/Q recording. */
 void MainWindow::on_actionIqRec_triggered(bool checked)
 {

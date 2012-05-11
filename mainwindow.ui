@@ -134,6 +134,9 @@
     </property>
     <addaction name="actionDSP"/>
     <addaction name="separator"/>
+    <addaction name="actionLoadSettings"/>
+    <addaction name="actionSaveSettings"/>
+    <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menu_View">
@@ -172,6 +175,9 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionDSP"/>
+   <addaction name="separator"/>
+   <addaction name="actionLoadSettings"/>
+   <addaction name="actionSaveSettings"/>
    <addaction name="separator"/>
    <addaction name="actionFullScreen"/>
   </widget>
@@ -329,6 +335,36 @@
    </property>
    <property name="shortcut">
     <string>F11</string>
+   </property>
+  </action>
+  <action name="actionLoadSettings">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/icons/folder.svg</normaloff>:/icons/icons/folder.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Load settings</string>
+   </property>
+   <property name="toolTip">
+    <string>Load previously stored configuration</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionSaveSettings">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/icons/floppy.svg</normaloff>:/icons/icons/floppy.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Save settings</string>
+   </property>
+   <property name="toolTip">
+    <string>Save current configuration</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
  </widget>

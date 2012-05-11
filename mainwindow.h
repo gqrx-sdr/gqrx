@@ -61,6 +61,7 @@ public slots:
 private:
     QPointer<QSettings> m_settings;  /*!< Application wide settings. */
     QString             m_cfg_dir;   /*!< Default config dir, e.g. XDG_CONFIG_HOME. */
+    QString             m_last_dir;
 
     qint64 d_lnb_lo;  /* LNB LO in Hz. */
 
@@ -132,6 +133,8 @@ private slots:
 
     /* menu and toolbar actions */
     void on_actionDSP_triggered(bool checked);
+    void on_actionLoadSettings_triggered();
+    void on_actionSaveSettings_triggered();
     void on_actionIqRec_triggered(bool checked);
     void on_actionFullScreen_triggered(bool checked);
     void on_actionIODevices_triggered();
