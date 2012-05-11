@@ -34,6 +34,9 @@ public:
     explicit DockFcdCtl(QWidget *parent = 0);
     ~DockFcdCtl();
 
+    void  setLnbLo(double freq_mhz);
+    double lnbLo();
+
     void  setLnaGain(float gain);
     float lnaGain();
 

@@ -34,6 +34,17 @@ DockFcdCtl::~DockFcdCtl()
 }
 
 
+void DockFcdCtl::setLnbLo(double freq_mhz)
+{
+    ui->lnbSpinBox->setValue(freq_mhz);
+}
+
+double DockFcdCtl::lnbLo()
+{
+    return ui->lnbSpinBox->value();
+}
+
+
 /*! \brief Set new LNA gain.
  *  \param gain The new gain in the range is -5.0 .. 30.0 dB.
  */
