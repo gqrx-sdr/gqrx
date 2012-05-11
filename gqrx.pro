@@ -19,11 +19,11 @@ CONFIG(debug, debug|release) {
 } else {
     DEFINES += QT_NO_DEBUG
     DEFINES += QT_NO_DEBUG_OUTPUT
-    VER = 0.0
+    VER = 2.0
 
     # Release binaries with gr bundled
     # QMAKE_RPATH & co won't work with origin
-    QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/lib\''
+    ## QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/lib\''
 }
 
 # Tip from: http://www.qtcentre.org/wiki/index.php?title=Version_numbering_using_QMake

@@ -24,7 +24,7 @@
 #define GQRX_APP_NAME   "gqrx"
 
 #define GQRX_CONFIG_VERSION 2
-#define GQRX_VERSION_MAJOR  1
-#define GQRX_VERSION_MINOR  9
-#define GQRX_VERSION_MICRO  0
+//#define GQRX_VERSION_MAJOR  2
+//#define GQRX_VERSION_MINOR  0
+//#define GQRX_VERSION_MICRO  0
 

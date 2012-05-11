@@ -1,7 +1,5 @@
 Gqrx is an experimental AM, FM and SSB software defined receiver implemented using GNU Radio and the Qt GUI toolkit. Currently it works on Linux and it can use the Funcube Dongle as input source.
 
-Gqrx is still a work in progress but should be fairly usable.
-
 
 1. Installation
 
@@ -19,16 +17,18 @@ If you want to build Gqrx from source you will also need:
 
 as well as the so called -dev or -devel packages for the above mentioned libraries. Everything except GNU Radio should be available in all Linux desktop distributions. Note that there are sufficiently recent GNU Radio packages available from the Debian project which may also work on Ubuntu and other APT-based system.
 
-If you must build GNU Radio from source, you can try the build-gnuradio script by Marcus Leech, see http://gnuradio.org/redmine/projects/gnuradio/wiki/InstallingGR#Using-the-build-gnuradio-script . If you want to build it youself (experts only!), see http://gnuradio.org/redmine/projects/gnuradio/wiki/BuildGuide for platform specific instructions.
+If you must build GNU Radio from source, you can try the build-gnuradio script by Marcus Leech, see http://gnuradio.org/redmine/projects/gnuradio/wiki/InstallingGR#Using-the-build-gnuradio-script . If you want to build GNU Radio without the script (experts only!), see http://gnuradio.org/redmine/projects/gnuradio/wiki/BuildGuide for platform specific instructions.
 
-The Gqrx build system is based on qmake and to build gqrx, load the gqrx.pro file into Qt Creator and click build (the hammer icon).
+The Gqrx build system is based on qmake and to build Gqrx, load the gqrx.pro file into Qt Creator and click build (the hammer icon).
 
 If the GNU Radio libraries have been installed into a non-standard location, e.g. /opt/gnuradio, Qt Creator may not be able to pick up the headers and libraries. Assuming that your PKG_CONFIG_PATH is set up correctly, you can work around this by launching Qt Creator from the terminal.
 
 
 2. Configure Funcube Dongle
 
-Whether you build gqrx from source or use the binary packages, you have to configure the FCD to be usable by non-root users. If you can already run qthid as regular user it is fine. If not, you need to create a udev rule. Create a udev file /etc/udev/rules.d/fcd.rules containing:
+Debian and Ubuntu: Just install the Qthid package from Debian, which will take care of configuring the Funcube Dongle.
+
+On other distrbutions, you have to configure the FCD to be usable by non-root users. If you can already run qthid as regular user it is fine. If not, you need to create an udev rule. Create a udev file /etc/udev/rules.d/fcd.rules containing:
 
  SUBSYSTEMS=="usb" ATTRS{idVendor}=="04d8" ATTRS{idProduct}=="fb56" MODE:="0666"
 
@@ -48,7 +48,7 @@ If you have been using early versions of Gqrx you may have noticed that some fea
 
 4. Getting help and reporting bugs
 
-There is now a Google groups for discussing anything related to Gqrx: https://groups.google.com/forum/#!forum/gqrx
+There is now a Google group for discussing anything related to Gqrx: https://groups.google.com/forum/#!forum/gqrx
 This include getting help with installation and troubleshooting.
 
 

@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,37 +32,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName(GQRX_ORG_NAME);
     QCoreApplication::setOrganizationDomain(GQRX_ORG_DOMAIN);
     QCoreApplication::setApplicationName(GQRX_APP_NAME);
-#ifdef QT_NO_DEBUG
-    QCoreApplication::setApplicationVersion(QString("%1.%2.%3").
-                                            arg(GQRX_VERSION_MAJOR).
-                                            arg(GQRX_VERSION_MINOR).
-                                            arg(GQRX_VERSION_MICRO));
-#else
     QCoreApplication::setApplicationVersion(VERSION);
-#endif
-
-    //QSettings test("hello-test.conf", QSettings::IniFormat);
-    //test.setValue("system/testField", 5);
-
-    // Check that we have an input device configured
-    //QSettings settings(QSettings::IniFormat, QSettings::UserScope,
-    //                   GQRX_ORG_NAME, GQRX_APP_NAME);
-
-    /*
-    if (!settings.contains("Input/type")) {
-
-        CIoConfig *ioconf = new CIoConfig();
-        int confres = ioconf->exec();
-
-        delete ioconf;
-
-        if (confres == QDialog::Rejected) {
-            qDebug() << "I/O device configuration cancelled.";
-
-            return 0;
-        }
-    }
-    */
 
     QString indev = CIoConfig::getFcdDeviceName();
     if (indev.isEmpty())

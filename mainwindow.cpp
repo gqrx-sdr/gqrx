@@ -1221,7 +1221,7 @@ void MainWindow::on_actionAbout_triggered()
 {
     QMessageBox::about(this, tr("About Gqrx"),
                        tr("<p>This is Gqrx %1</p>"
-                          "<p><b>This is a beta release.</b></p>"
+                          /*"<p><b>This is a beta release.</b></p>"*/
                           "<p>Gqrx is a software defined radio receiver for the Funcube Dongle.</p>"
                           "<p>Gqrx is powered by GNU Radio and the Qt toolkit (see About Qt) and is "
                           "currently available for Linux. You can download the latest version from the "
@@ -1232,7 +1232,7 @@ void MainWindow::on_actionAbout_triggered()
                           "<p>"
                           "<a href='http://www.gnuradio.org/'>GNU Radio website</a><br/>"
                           "<a href='http://funcubedongle.com/'>Funcube Dongle website</a><br/>"
-                          "<a href='http://www.ettus.com/'>Ettus Research (USRP)</a><br/>"
+                          /*"<a href='http://www.ettus.com/'>Ettus Research (USRP)</a><br/>"*/
                           "</p>"
                           "<p>"
                           "Gqrx license: <a href='http://www.gnu.org/licenses/gpl.html'>GNU GPL</a>."
