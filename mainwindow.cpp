@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,8 +48,6 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     else
         m_cfg_dir = QString("%1/gqrx").arg(xdg_dir.data());
 
-    loadConfig(cfgfile);
-
     setWindowTitle(QString("gqrx %1 (Funcube Dongle)").arg(VERSION));
 
     /* frequency control widget */
@@ -59,8 +57,6 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     d_filter_shape = receiver::FILTER_SHAPE_NORMAL;
 
     /* create receiver object */
-    QSettings settings;
-
     QString indev = CIoConfig::getFcdDeviceName();
     //QString outdev = settings.value("output").toString();
 
@@ -155,6 +151,9 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setIqFftSize(int)));
     connect(uiDockFft, SIGNAL(fftRateChanged(int)), this, SLOT(setIqFftRate(int)));
     connect(uiDockFft, SIGNAL(fftSplitChanged(int)), this, SLOT(setIqFftSplit(int)));
+
+    // restore last session
+    loadConfig(cfgfile);
 }
 
 MainWindow::~MainWindow()
@@ -174,6 +173,31 @@ MainWindow::~MainWindow()
 
     if (m_settings)
     {
+        m_settings->setValue("configversion", 2);
+
+        // save session
+        m_settings->setValue("input/frequency", ui->freqCtrl->GetFrequency());
+        if (d_lnb_lo)
+            m_settings->setValue("input/lnb_lo", d_lnb_lo);
+        else
+            m_settings->remove("input/lnb_lo");
+
+        double dblval = uiDockFcdCtl->lnaGain();
+        m_settings->setValue("input/gain", dblval);
+        m_settings->setValue("input/corr_freq", uiDockFcdCtl->freqCorr());
+
+        dblval = uiDockFcdCtl->iqGain();
+        if (dblval < 1.0)
+            m_settings->setValue("input/corr_iq_gain", dblval);
+        else
+            m_settings->remove("input/corr_iq_gain");
+
+        dblval = uiDockFcdCtl->iqPhase();
+        if (dblval != 0.0)
+            m_settings->setValue("input/corr_iq_phase", dblval);
+        else
+            m_settings->remove("input/corr_iq_phase");
+
         m_settings->sync();
         delete m_settings;
     }
@@ -214,6 +238,20 @@ bool MainWindow::loadConfig(const QString cfgfile)
 
     emit configChanged(m_settings);
 
+    // manual reconf (FIXME: check status)
+    bool cok = false;
+
+    uiDockFcdCtl->setFreqCorr(m_settings->value("input/corr_freq", -115).toInt(&cok));
+
+    d_lnb_lo = m_settings->value("input/lnb_lo", 0).toLongLong(&cok);
+    uiDockFcdCtl->setLnbLo((double)d_lnb_lo/1.0e6);
+    ui->freqCtrl->SetFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&cok));
+
+    uiDockFcdCtl->setLnaGain(m_settings->value("input/gain", 20).toFloat(&cok));
+    setRfGain(m_settings->value("input/gain", 20).toFloat(&cok));
+    uiDockFcdCtl->setIqGain(m_settings->value("input/corr_iq_gain", 1.0).toDouble(&cok));
+    uiDockFcdCtl->setIqPhase(m_settings->value("input/corr_iq_phase", 0.0).toDouble(&cok));
+
     return true;
 }
 
@@ -225,7 +263,7 @@ bool MainWindow::loadConfig(const QString cfgfile)
  * name of a file under m_cfg_dir.
  *
  * If cfgfile already exists it will be overwritten (we assume that a file selection dialog
- * has already asked for confirmation of overwrite.     *
+ * has already asked for confirmation of overwrite.
  *
  * Since QSettings does not support "save as" we do this by copying the current
  * settings to a new file.
