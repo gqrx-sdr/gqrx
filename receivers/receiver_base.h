@@ -55,28 +55,34 @@ public:
 
     virtual float get_signal_level(bool dbfs) = 0;
 
-    /* Noise blanker */
-    virtual bool has_nb() = 0;
-    virtual void set_nb_on(int nbid, bool on) = 0;
-    virtual void set_nb_threshold(int nbid, float threshold) = 0;
-
-    /* Squelch parameter */
-    virtual bool has_sql() = 0;
-    virtual void set_sql_level(double level_db) = 0;
-    virtual void set_sql_alpha(double alpha) = 0;
-
-    /* AGC */
-    virtual bool has_agc() = 0;
-    virtual void set_agc_on(bool agc_on) = 0;
-    virtual void set_agc_hang(bool use_hang) = 0;
-    virtual void set_agc_threshold(int threshold) = 0;
-    virtual void set_agc_slope(int slope) = 0;
-    virtual void set_agc_decay(int decay_ms) = 0;
-    virtual void set_agc_manual_gain(int gain) = 0;
-
     virtual void set_demod(int demod) = 0;
 
-    /* demod specific methods are not part of interface */
+    /* the rest is optional */
+
+    /* Noise blanker */
+    virtual bool has_nb() { return false; }
+    virtual void set_nb_on(int nbid, bool on) {};
+    virtual void set_nb_threshold(int nbid, float threshold) {};
+
+    /* Squelch parameter */
+    virtual bool has_sql() { return false; }
+    virtual void set_sql_level(double level_db) {};
+    virtual void set_sql_alpha(double alpha) {};
+
+    /* AGC */
+    virtual bool has_agc() { return false; }
+    virtual void set_agc_on(bool agc_on) {};
+    virtual void set_agc_hang(bool use_hang) {};
+    virtual void set_agc_threshold(int threshold) {};
+    virtual void set_agc_slope(int slope) {};
+    virtual void set_agc_decay(int decay_ms) {};
+    virtual void set_agc_manual_gain(int gain) {};
+
+    /* FM parameters */
+    virtual bool has_fm() { return false; }
+    virtual void set_fm_maxdev(float maxdev_hz) {};
+    virtual void set_fm_deemph(double tau) {};
+
 };
 
 #endif // RECEIVER_BASE_H
