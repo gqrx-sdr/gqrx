@@ -22,8 +22,8 @@
 
 #include <gr_hier_block2.h>
 #include <gr_float_to_complex.h>
-#include <dsp/rx_source_base.h>
-#include <pulseaudio/pa_source.h>
+#include "input/rx_source_base.h"
+#include "pulseaudio/pa_source.h"
 
 
 class rx_source_fcd;

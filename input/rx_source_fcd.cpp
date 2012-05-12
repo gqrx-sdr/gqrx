@@ -18,8 +18,8 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <iostream>
-#include <fcdctl/fcd.h>
-#include <fcdctl/fcdhidcmd.h>
+#include "input/fcdctl/fcd.h"
+#include "input/fcdctl/fcdhidcmd.h"
 #include "rx_source_fcd.h"
 
 

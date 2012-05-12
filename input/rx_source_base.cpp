@@ -18,7 +18,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <gr_io_signature.h>
-#include <dsp/rx_source_base.h>
+#include "input/rx_source_base.h"
 
 
 static const int MIN_IN = 0;  /* Mininum number of input streams. */

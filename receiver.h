@@ -21,19 +21,24 @@
 #define RECEIVER_H
 
 #include <gr_top_block.h>
-//#include <gr_audio_sink.h>
 #include <gr_multiply_const_ff.h>
 #include <gr_multiply_cc.h>
 #include <gr_sig_source_c.h>
 #include <gr_wavfile_sink.h>
 #include <gr_wavfile_source.h>
 #include <gr_null_sink.h>
-#include "receivers/nbrx.h"
 #include "dsp/correct_iq_cc.h"
-#include "dsp/rx_source_fcd.h"
+#include "dsp/rx_noise_blanker_cc.h"
+#include "dsp/rx_filter.h"
+#include "dsp/rx_meter.h"
+#include "dsp/rx_agc_xx.h"
+#include "dsp/rx_demod_fm.h"
+#include "dsp/rx_demod_am.h"
 #include "dsp/rx_fft.h"
 #include "dsp/sniffer_f.h"
 #include "dsp/resampler_xx.h"
+#include "input/rx_source_fcd.h"
+#include "receivers/nbrx.h"
 
 #include <pulseaudio/pa_sink.h>
 #include <pulseaudio/pa_source.h>
