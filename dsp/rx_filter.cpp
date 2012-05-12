@@ -20,18 +20,7 @@
 #include <cmath>
 #include <gr_io_signature.h>
 #include <gr_firdes.h>
-#include <dsp/rx_filter.h>
-
-
-/*
- * Create a new instance of rx_filter and return
- * a boost shared_ptr. This is effectively the public constructor.
- */
-rx_filter_sptr make_rx_filter(double sample_rate, double center, double low, double high, double trans_width)
-{
-    return gnuradio::get_initial_sptr(new rx_filter(sample_rate, center, low, high, trans_width));
-}
-
+#include "dsp/rx_filter.h"
 
 static const int MIN_IN = 1;  /* Mininum number of input streams. */
 static const int MAX_IN = 1;  /* Maximum number of input streams. */
@@ -39,8 +28,66 @@ static const int MIN_OUT = 1; /* Minimum number of output streams. */
 static const int MAX_OUT = 1; /* Maximum number of output streams. */
 
 
-rx_filter::rx_filter(double sample_rate, double center, double low, double high, double trans_width)
+/*
+ * Create a new instance of rx_filter and return
+ * a boost shared_ptr. This is effectively the public constructor.
+ */
+rx_filter_sptr make_rx_filter(double sample_rate, double low, double high, double trans_width)
+{
+    return gnuradio::get_initial_sptr(new rx_filter(sample_rate, low, high, trans_width));
+}
+
+rx_filter::rx_filter(double sample_rate, double low, double high, double trans_width)
     : gr_hier_block2 ("rx_filter",
+                      gr_make_io_signature (MIN_IN, MAX_IN, sizeof (gr_complex)),
+                      gr_make_io_signature (MIN_OUT, MAX_OUT, sizeof (gr_complex))),
+      d_sample_rate(sample_rate),
+      d_low(low),
+      d_high(high),
+      d_trans_width(trans_width)
+{
+    /* generate taps */
+    d_taps = gr_firdes::complex_band_pass(1.0, d_sample_rate, -d_high, -d_low, d_trans_width);
+
+    /* create band pass filter */
+    d_bpf = gr_make_fir_filter_ccc(1, d_taps);
+
+    /* connect filter */
+    connect(self(), 0, d_bpf, 0);
+    connect(d_bpf, 0, self(), 0);
+}
+
+rx_filter::~rx_filter ()
+{
+
+}
+
+void rx_filter::set_param(double low, double high, double trans_width)
+{
+    d_trans_width = trans_width;
+    d_low         = low;
+    d_high        = high;
+
+    /* generate new taps */
+    d_taps = gr_firdes::complex_band_pass(1.0, d_sample_rate, -d_high, -d_low, d_trans_width);
+
+    d_bpf->set_taps(d_taps);
+}
+
+
+/** Frequency translating filter **/
+
+/*
+ * Create a new instance of rx_xlating_filter and return
+ * a boost shared_ptr. This is effectively the public constructor.
+ */
+rx_xlating_filter_sptr make_rx_xlating_filter(double sample_rate, double center, double low, double high, double trans_width)
+{
+    return gnuradio::get_initial_sptr(new rx_xlating_filter(sample_rate, center, low, high, trans_width));
+}
+
+rx_xlating_filter::rx_xlating_filter(double sample_rate, double center, double low, double high, double trans_width)
+    : gr_hier_block2 ("rx_xlating_filter",
                       gr_make_io_signature (MIN_IN, MAX_IN, sizeof (gr_complex)),
                       gr_make_io_signature (MIN_OUT, MAX_OUT, sizeof (gr_complex))),
       d_sample_rate(sample_rate),
@@ -61,13 +108,13 @@ rx_filter::rx_filter(double sample_rate, double center, double low, double high,
 }
 
 
-rx_filter::~rx_filter ()
+rx_xlating_filter::~rx_xlating_filter()
 {
 
 }
 
 
-void rx_filter::set_offset(double center)
+void rx_xlating_filter::set_offset(double center)
 {
     /* we have to change sign because the set_center_freq() actually
        shifts the passband with the specified amount, which has
@@ -78,31 +125,7 @@ void rx_filter::set_offset(double center)
 }
 
 
-void rx_filter::set_low(double low)
-{
-
-}
-
-
-void rx_filter::set_high(double high)
-{
-
-}
-
-
-void rx_filter::set_trans_width(double trans_width)
-{
-
-}
-
-
-void rx_filter::set_param(double low, double high)
-{
-
-}
-
-
-void rx_filter::set_param(double low, double high, double trans_width)
+void rx_xlating_filter::set_param(double low, double high, double trans_width)
 {
     d_trans_width = trans_width;
     d_low         = low;
@@ -115,8 +138,9 @@ void rx_filter::set_param(double low, double high, double trans_width)
 }
 
 
-void rx_filter::set_param(double center, double low, double high, double trans_width)
+void rx_xlating_filter::set_param(double center, double low, double high, double trans_width)
 {
     set_offset(center);
     set_param(low, high, trans_width);
 }
+

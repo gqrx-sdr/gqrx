@@ -21,19 +21,69 @@
 #define RX_FILTER_H
 
 #include <gr_hier_block2.h>
+#include <gr_fir_filter_ccc.h>
 #include <gr_freq_xlating_fir_filter_ccc.h>
 
 
 #define RX_FILTER_MIN_WIDTH 100  /*! Minimum width of filter */
 
-
 class rx_filter;
-
+class rx_xlating_filter;
 
 typedef boost::shared_ptr<rx_filter> rx_filter_sptr;
+typedef boost::shared_ptr<rx_xlating_filter> rx_xlating_filter_sptr;
 
 
 /*! \brief Return a shared_ptr to a new instance of rx_filter.
+ *  \param sample_rate The sample rate.
+ *  \param low The lower limit of the bandpass filter.
+ *  \param high The upper limit of the filter.
+ *  \param trans_width The width of the transition band from
+ *
+ * This is effectively the public constructor. To avoid accidental use
+ * of raw pointers, rx_filter's constructor is private.
+ * make_rxfilter is the public interface for creating new instances.
+ */
+rx_filter_sptr make_rx_filter(double sample_rate,
+                              double low=-5000.0,
+                              double high=5000.0,
+                              double trans_width=1000.0);
+
+/*! \brief Complex band-pass filter with complex taps.
+ *  \ingroup DSP
+ *
+ * This class encapsulates a complex FIR filter and the code
+ * required to generate complex band pass filter taps. It provides a simple
+ * interface to set the filter parameters.
+ *
+ * The user of this class is expected to provide valid parameters and no checks are
+ * performed by the accessors (though the taps generator from gr_firdes does perform
+ * some sanity checks and throws std::out_of_range in case of bad parameter).
+ *
+ * \note In order to have proper LSB/USB, we must exchange low and high and reverse their sign
+ */
+class rx_filter : public gr_hier_block2
+{
+
+public:
+    rx_filter(double sample_rate=96000.0, double low=-5000.0, double high=5000.0, double trans_width=1000.0); // FIXME: should be private
+    ~rx_filter();
+
+    void set_param(double low, double high, double trans_width);
+
+private:
+    std::vector<gr_complex> d_taps;
+    gr_fir_filter_ccc_sptr  d_bpf;
+
+    double d_sample_rate;
+    double d_low;
+    double d_high;
+    double d_trans_width;
+};
+
+
+
+/*! \brief Return a shared_ptr to a new instance of rx_xlating_filter.
  *  \param sample_rate The sample rate.
  *  \param offset The filter offset.
  *  \param low The lower limit of the bandpass filter.
@@ -44,7 +94,11 @@ typedef boost::shared_ptr<rx_filter> rx_filter_sptr;
  * of raw pointers, rx_filter's constructor is private.
  * make_rxfilter is the public interface for creating new instances.
  */
-rx_filter_sptr make_rx_filter(double sample_rate, double center=0.0, double low=-5000.0, double high=5000.0, double trans_width=1000.0);
+rx_xlating_filter_sptr make_rx_xlating_filter(double sample_rate,
+                                              double center=0.0,
+                                              double low=-5000.0,
+                                              double high=5000.0,
+                                              double trans_width=1000.0);
 
 
 /*! \brief Frequency translating band-pass filter with complex taps.
@@ -64,19 +118,14 @@ rx_filter_sptr make_rx_filter(double sample_rate, double center=0.0, double low=
  *
  * \note In order to have proper LSB/USB, we must exchange low and high and reverse their sign?
  */
-class rx_filter : public gr_hier_block2
+class rx_xlating_filter : public gr_hier_block2
 {
 
 public:
-    rx_filter(double sample_rate=96000.0, double center=0.0, double low=-5000.0, double high=5000.0, double trans_width=1000.0); // FIXME: should be private
-    ~rx_filter();
+    rx_xlating_filter(double sample_rate=96000.0, double center=0.0, double low=-5000.0, double high=5000.0, double trans_width=1000.0); // FIXME: should be private
+    ~rx_xlating_filter();
 
     void set_offset(double center);
-    void set_low(double low);
-    void set_high(double high);
-    void set_trans_width(double trans_width);
-
-    void set_param(double low, double high);
     void set_param(double low, double high, double trans_width);
     void set_param(double center, double low, double high, double trans_width);
 
@@ -89,9 +138,7 @@ private:
     double d_low;
     double d_high;
     double d_trans_width;
-
 };
-
 
 
 #endif // RX_FILTER_H

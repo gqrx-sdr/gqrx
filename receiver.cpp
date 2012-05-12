@@ -70,7 +70,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     iq_sink->close();
 
     nb = make_rx_nb_cc(d_bandwidth, 3.3, 2.5);
-    filter = make_rx_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
+    filter = make_rx_xlating_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
     agc = make_rx_agc_cc(d_bandwidth, true, -100, 0, 2, 100, false);
     sql = gr_make_simple_squelch_cc(-150.0, 0.001);
     meter = make_rx_meter_c(DETECTOR_TYPE_RMS);

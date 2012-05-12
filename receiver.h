@@ -183,7 +183,7 @@ private:
     rx_fft_c_sptr             iq_fft;     /*!< Baseband FFT block. */
     rx_fft_f_sptr             audio_fft;  /*!< Audio FFT block. */
     rx_nb_cc_sptr             nb;         /*!< Noise blanker. */
-    rx_filter_sptr            filter;     /*!< Bandpass filter. */
+    rx_xlating_filter_sptr    filter;     /*!< Bandpass filter. */
     rx_meter_c_sptr           meter;      /*!< Signal strength. */
     rx_agc_cc_sptr            agc;        /*!< Receiver AGC. */
     gr_simple_squelch_cc_sptr sql;        /*!< Squelch. */
