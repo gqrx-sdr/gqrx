@@ -52,11 +52,8 @@ public:
     virtual void set_audio_rate(float audio_rate) = 0;
 
     virtual void set_filter(double low, double high, double tw) = 0;
-    virtual void set_filter_low(double freq_hz) = 0;
-    virtual void set_filter_high(double freq_hz) = 0;
-    virtual void set_filter_trans(double tw) = 0;
 
-    virtual float get_signal_level() = 0;
+    virtual float get_signal_level(bool dbfs) = 0;
 
     /* Noise blanker */
     virtual bool has_nb() = 0;
