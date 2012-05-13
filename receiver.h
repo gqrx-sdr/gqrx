@@ -22,26 +22,18 @@
 
 #include <gr_top_block.h>
 //#include <gr_audio_sink.h>
-#include <gr_complex_to_xxx.h>
 #include <gr_multiply_const_ff.h>
-#include <gr_simple_squelch_cc.h>
-#include <gr_file_sink.h>
-#include <gr_file_source.h>
-#include <gr_throttle.h>
+#include <gr_multiply_cc.h>
+#include <gr_sig_source_c.h>
 #include <gr_wavfile_sink.h>
 #include <gr_wavfile_source.h>
 #include <gr_null_sink.h>
+#include "receivers/nbrx.h"
 #include "dsp/correct_iq_cc.h"
 #include "dsp/rx_source_fcd.h"
-#include "dsp/rx_noise_blanker_cc.h"
-#include "dsp/rx_filter.h"
-#include "dsp/rx_meter.h"
-#include "dsp/rx_agc_xx.h"
-#include "dsp/rx_demod_fm.h"
-#include "dsp/rx_demod_am.h"
 #include "dsp/rx_fft.h"
-#include "dsp/resampler_ff.h"
 #include "dsp/sniffer_f.h"
+#include "dsp/resampler_xx.h"
 
 #include <pulseaudio/pa_sink.h>
 #include <pulseaudio/pa_source.h>
@@ -70,12 +62,12 @@ public:
     };
 
     /*! \brief Available demodulators. */
-    enum demod {
-        DEMOD_NONE = 0,  /*!< No demod. Raw I/Q to audio. */
-        DEMOD_AM   = 1,  /*!< Amplitude modulation. */
-        DEMOD_FM   = 2,  /*!< Frequency modulation. */
-        DEMOD_SSB  = 3,  /*!< Single Side Band. */
-        DEMOD_NUM  = 4   /*!< Included for convenience. */
+    enum rx_demod {
+        RX_DEMOD_NONE = 0,  /*!< No demod. Raw I/Q to audio. */
+        RX_DEMOD_AM   = 1,  /*!< Amplitude modulation. */
+        RX_DEMOD_FM   = 2,  /*!< Frequency modulation. */
+        RX_DEMOD_SSB  = 3,  /*!< Single Side Band. */
+        RX_DEMOD_NUM  = 4   /*!< Included for convenience. */
     };
 
     /*! \brief Filter shape (convenience wrappers for "transition width"). */
@@ -135,14 +127,11 @@ public:
     status set_agc_decay(int decay_ms);
     status set_agc_manual_gain(int gain);
 
-    status set_demod(demod rx_demod);
+    status set_demod(rx_demod demod);
 
     /* FM parameters */
     status set_fm_maxdev(float maxdev_hz);
     status set_fm_deemph(double tau);
-
-    /* AM parameters */
-    status set_am_dcr(bool enabled);
 
     /* Audio parameters */
     status set_af_gain(float gain_db);
@@ -168,44 +157,36 @@ private:
     int    d_audio_rate;       /*!< Audio output rate. */
     double d_rf_freq;          /*!< Current RF frequency. */
     double d_filter_offset;    /*!< Current filter offset (tune within passband). */
-    bool   d_recording_iq;     /*!< Whether we are recording I/Q data. */
     bool   d_recording_wav;    /*!< Whether we are recording WAV file. */
     bool   d_sniffer_active;   /*!< Only one data decoder allowed. */
 
-    demod  d_demod;          /*!< Current demodulator. */
+
+    rx_demod  d_demod;          /*!< Current demodulator. */
 
     gr_top_block_sptr         tb;        /*!< The GNU Radio top block. */
 
     rx_source_base_sptr       src;       /*!< Real time I/Q source. */
+    receiver_base_cf_sptr     rx;        /*!< receiver. */
 
     dc_corr_cc_sptr           dc_corr;   /*!< DC corrector block. */
 
     rx_fft_c_sptr             iq_fft;     /*!< Baseband FFT block. */
     rx_fft_f_sptr             audio_fft;  /*!< Audio FFT block. */
-    rx_nb_cc_sptr             nb;         /*!< Noise blanker. */
-    rx_xlating_filter_sptr    filter;     /*!< Bandpass filter. */
-    rx_meter_c_sptr           meter;      /*!< Signal strength. */
-    rx_agc_cc_sptr            agc;        /*!< Receiver AGC. */
-    gr_simple_squelch_cc_sptr sql;        /*!< Squelch. */
-    gr_complex_to_real_sptr   demod_ssb;  /*!< SSB demodulator. */
-    rx_demod_fm_sptr          demod_fm;   /*!< FM demodulator. */
-    rx_demod_am_sptr          demod_am;   /*!< AM demodulator. */
-    resampler_ff_sptr         audio_rr;   /*!< Audio resampler. */
+
+    gr_sig_source_c_sptr      lo;  /*!< oscillator used for tuning. */
+    gr_multiply_cc_sptr mixer;
+
+
     gr_multiply_const_ff_sptr audio_gain; /*!< Audio gain block. */
 
-    gr_file_sink_sptr         iq_sink;    /*!< I/Q file sink. */
-    gr_file_source_sptr       iq_src;     /*!< I/Q file source. */
-    gr_throttle::sptr         iq_throttle; /*!< Throttle for I/Q playback (in case we don't use audio sink) */
     gr_wavfile_sink_sptr      wav_sink;   /*!< WAV file sink for recording. */
     gr_wavfile_source_sptr    wav_src;    /*!< WAV file source for playback. */
     gr_null_sink_sptr         audio_null_sink; /*!< Audio null sink used during playback. */
+
     sniffer_f_sptr            sniffer;    /*!< Sample sniffer for data decoders. */
     resampler_ff_sptr         sniffer_rr; /*!< Sniffer resampler. */
 
     pa_sink_sptr              audio_snk;  /*!< Audio sink. */
-
-protected:
-
 
 };
 

@@ -21,25 +21,8 @@
 #include <cmath>
 
 #include <gr_top_block.h>
-//#include <gr_audio_sink.h>
-#include <gr_complex_to_xxx.h>
-#include <gr_multiply_const_ff.h>
-#include <gr_simple_squelch_cc.h>
-
-#include "receiver.h"
-#include "dsp/rx_source_fcd.h"
-#include "dsp/correct_iq_cc.h"
-#include "dsp/rx_filter.h"
-#include "dsp/rx_meter.h"
-#include "dsp/rx_demod_fm.h"
-#include "dsp/rx_demod_am.h"
-#include "dsp/rx_fft.h"
-#include "dsp/rx_agc_xx.h"
-
-//#include <gr_float_to_complex.h>
 #include <pulseaudio/pa_sink.h>
-//#include <pulseaudio/pa_source.h>
-
+#include "receiver.h"
 
 /*! \brief Public contructor.
  *  \param input_device Input device specifier, e.g. hw:1 for FCD source.
@@ -51,8 +34,7 @@
 receiver::receiver(const std::string input_device, const std::string audio_device)
     : d_bandwidth(96000.0), d_audio_rate(48000),
       d_rf_freq(144800000.0), d_filter_offset(0.0),
-      d_demod(DEMOD_FM),
-      d_recording_iq(false),
+      d_demod(RX_DEMOD_FM),
       d_recording_wav(false),
       d_sniffer_active(false),
       d_running(false)
@@ -62,22 +44,13 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     src = make_rx_source_fcd(input_device);
     //src->set_freq(d_rf_freq);
 
+    rx = make_nbrx(96000.0, 48000.0);
+    lo = gr_make_sig_source_c(96000, GR_SIN_WAVE, 0.0, 1.0);
+    mixer = gr_make_multiply_cc();
+
     dc_corr = make_dc_corr_cc(0.01f);
     iq_fft = make_rx_fft_c(4096, 0);
 
-    /* dummy I/Q recorder */
-    iq_sink = gr_make_file_sink(sizeof(gr_complex), "/tmp/gqrx.bin");
-    iq_sink->close();
-
-    nb = make_rx_nb_cc(d_bandwidth, 3.3, 2.5);
-    filter = make_rx_xlating_filter(d_bandwidth, d_filter_offset, -5000.0, 5000.0, 1000.0);
-    agc = make_rx_agc_cc(d_bandwidth, true, -100, 0, 2, 100, false);
-    sql = gr_make_simple_squelch_cc(-150.0, 0.001);
-    meter = make_rx_meter_c(DETECTOR_TYPE_RMS);
-    demod_ssb = gr_make_complex_to_real(1);
-    demod_fm = make_rx_demod_fm(d_bandwidth, d_bandwidth, 5000.0, 75.0e-6);
-    demod_am = make_rx_demod_am(d_bandwidth, d_bandwidth, true);
-    audio_rr = make_resampler_ff(d_bandwidth, d_audio_rate);
     audio_fft = make_rx_fft_f(3072);
     audio_gain = gr_make_multiply_const_ff(0.1);
 
@@ -88,19 +61,13 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     sniffer = make_sniffer_f();
     /* sniffer_rr is created at each activation. */
 
-    tb->connect(src, 0, iq_sink, 0);
-    tb->connect(src, 0, nb, 0);
-    tb->connect(nb, 0, dc_corr, 0);
+    tb->connect(src, 0, dc_corr, 0);
     tb->connect(dc_corr, 0, iq_fft, 0);
-    tb->connect(dc_corr, 0, filter, 0);
-
-    tb->connect(filter, 0, meter, 0);
-    tb->connect(filter, 0, sql, 0);
-    tb->connect(sql, 0, agc, 0);
-    tb->connect(agc, 0, demod_fm, 0);
-    tb->connect(demod_fm, 0, audio_rr, 0);
-    tb->connect(audio_rr, 0, audio_fft, 0);
-    tb->connect(audio_rr, 0, audio_gain, 0);
+    tb->connect(dc_corr, 0, mixer, 0);
+    tb->connect(lo, 0, mixer, 1);
+    tb->connect(mixer, 0, rx, 0);
+    tb->connect(rx, 0, audio_fft, 0);
+    tb->connect(rx, 0, audio_gain, 0);
     tb->connect(audio_gain, 0, audio_snk, 0);
 }
 
@@ -219,7 +186,8 @@ receiver::status receiver::set_rf_gain(float gain_db)
 receiver::status receiver::set_filter_offset(double offset_hz)
 {
     d_filter_offset = offset_hz;
-    filter->set_offset(d_filter_offset);
+    lo->set_frequency(-d_filter_offset);
+
     return STATUS_OK;
 }
 
@@ -257,7 +225,7 @@ receiver::status receiver::set_filter(double low, double high, filter_shape shap
 
     }
 
-    filter->set_param(low, high, trans_width);
+    rx->set_filter(low, high, trans_width);
 
     return STATUS_OK;
 }
@@ -313,10 +281,7 @@ receiver::status receiver::set_iq_corr(double gain, double phase)
  */
 float receiver::get_signal_pwr(bool dbfs)
 {
-    if (dbfs)
-        return meter->get_level_db();
-    else
-        return meter->get_level();
+    return rx->get_signal_level(dbfs);
 }
 
 /*! \brief Get latest baseband FFT data. */
@@ -333,20 +298,16 @@ void receiver::get_audio_fft_data(std::complex<float>* fftPoints, int &fftsize)
 
 receiver::status receiver::set_nb_on(int nbid, bool on)
 {
-    if (nbid == 1)
-        nb->set_nb1_on(on);
-    else if (nbid == 2)
-        nb->set_nb2_on(on);
+    if (rx->has_nb())
+        rx->set_nb_on(nbid, on);
 
     return STATUS_OK; // FIXME
 }
 
 receiver::status receiver::set_nb_threshold(int nbid, float threshold)
 {
-    if (nbid == 1)
-        nb->set_threshold1(threshold);
-    else if (nbid == 2)
-        nb->set_threshold2(threshold);
+    if (rx->has_nb())
+        rx->set_nb_threshold(nbid, threshold);
 
     return STATUS_OK; // FIXME
 }
@@ -357,7 +318,9 @@ receiver::status receiver::set_nb_threshold(int nbid, float threshold)
  */
 receiver::status receiver::set_sql_level(double level_db)
 {
-    sql->set_threshold(level_db);
+    if (rx->has_sql())
+        rx->set_sql_level(level_db);
+
     return STATUS_OK; // FIXME
 }
 
@@ -365,7 +328,9 @@ receiver::status receiver::set_sql_level(double level_db)
 /*! \brief Set squelch alpha */
 receiver::status receiver::set_sql_alpha(double alpha)
 {
-    sql->set_alpha(alpha);
+    if (rx->has_sql())
+        rx->set_sql_alpha(alpha);
+
     return STATUS_OK; // FIXME
 }
 
@@ -375,149 +340,85 @@ receiver::status receiver::set_sql_alpha(double alpha)
  */
 receiver::status receiver::set_agc_on(bool agc_on)
 {
-    agc->set_agc_on(agc_on);
+    if (rx->has_agc())
+        rx->set_agc_on(agc_on);
+
     return STATUS_OK; // FIXME
 }
 
 /*! \brief Enable/disable AGC hang. */
 receiver::status receiver::set_agc_hang(bool use_hang)
 {
-    agc->set_use_hang(use_hang);
+    if (rx->has_agc())
+        rx->set_agc_hang(use_hang);
+
     return STATUS_OK; // FIXME
 }
 
 /*! \brief Set AGC threshold. */
 receiver::status receiver::set_agc_threshold(int threshold)
 {
-    agc->set_threshold(threshold);
+    if (rx->has_agc())
+        rx->set_agc_threshold(threshold);
+
     return STATUS_OK; // FIXME
 }
 
 /*! \brief Set AGC slope. */
 receiver::status receiver::set_agc_slope(int slope)
 {
-    agc->set_slope(slope);
+    if (rx->has_agc())
+        rx->set_agc_slope(slope);
+
     return STATUS_OK; // FIXME
 }
 
 /*! \brief Set AGC decay time. */
 receiver::status receiver::set_agc_decay(int decay_ms)
 {
-    agc->set_decay(decay_ms);
+    if (rx->has_agc())
+        rx->set_agc_decay(decay_ms);
+
     return STATUS_OK; // FIXME
 }
 
 /*! \brief Set fixed gain used when AGC is OFF. */
 receiver::status receiver::set_agc_manual_gain(int gain)
 {
-    agc->set_manual_gain(gain);
+    if (rx->has_agc())
+        rx->set_agc_manual_gain(gain);
+
     return STATUS_OK; // FIXME
 }
 
-receiver::status receiver::set_demod(demod rx_demod)
+receiver::status receiver::set_demod(rx_demod demod)
 {
     status ret = STATUS_OK;
-    demod current_demod = d_demod;
 
-    /* check if new demodulator selection is valid */
-    if ((rx_demod < DEMOD_NONE) || (rx_demod >= DEMOD_NUM))
-        return STATUS_ERROR;
-
-    if (rx_demod == current_demod) {
-        /* nothing to do */
-        return STATUS_OK;
-    }
-
-    /* lock graph while we reconfigure */
-    tb->lock();
-
-    /* disconnect current demodulator */
-    switch (current_demod) {
-
-    case DEMOD_NONE: /** FIXME! **/
-    case DEMOD_SSB:
-        tb->disconnect(agc, 0, demod_ssb, 0);
-        tb->disconnect(demod_ssb, 0, audio_rr, 0);
-        break;
-
-    case DEMOD_AM:
-        tb->disconnect(agc, 0, demod_am, 0);
-        tb->disconnect(demod_am, 0, audio_rr, 0);
-        break;
-
-    case DEMOD_FM:
-        tb->disconnect(agc, 0, demod_fm, 0);
-        tb->disconnect(demod_fm, 0, audio_rr, 0);
-        break;
-
-    }
-
-
-    switch (rx_demod) {
-
-    case DEMOD_NONE: /** FIXME! **/
-    case DEMOD_SSB:
-        d_demod = rx_demod;
-        tb->connect(agc, 0, demod_ssb, 0);
-        tb->connect(demod_ssb, 0, audio_rr, 0);
-        break;
-
-    case DEMOD_AM:
-        d_demod = rx_demod;
-        tb->connect(agc, 0, demod_am, 0);
-        tb->connect(demod_am, 0, audio_rr, 0);
-        break;
-
-    case DEMOD_FM:
-        d_demod = DEMOD_FM;
-        tb->connect(agc, 0, demod_fm, 0);
-        tb->connect(demod_fm, 0, audio_rr, 0);
-        break;
-
-    default:
-        /* use FMN */
-        d_demod = DEMOD_FM;
-        tb->connect(agc, 0, demod_fm, 0);
-        tb->connect(demod_fm, 0, audio_rr, 0);
-        break;
-    }
-
-    /* continue processing */
-    tb->unlock();
+    /** FIXME: check ranges when we have multiple receivers */
+    rx->set_demod(demod);
 
     return ret;
 }
-
 
 /*! \brief Set maximum deviation of the FM demodulator.
  *  \param maxdev_hz The new maximum deviation in Hz.
  */
 receiver::status receiver::set_fm_maxdev(float maxdev_hz)
 {
-    demod_fm->set_max_dev(maxdev_hz);
+    if (rx->has_fm())
+        rx->set_fm_maxdev(maxdev_hz);
 
     return STATUS_OK;
 }
-
 
 receiver::status receiver::set_fm_deemph(double tau)
 {
-    demod_fm->set_tau(tau);
+    if (rx->has_fm())
+        rx->set_fm_deemph(tau);
 
     return STATUS_OK;
 }
-
-
-/*! \brief Set AM DCR status.
- *  \param enabled Flag indicating whether DCR should be enabled or disabled.
- */
-receiver::status receiver::set_am_dcr(bool enabled)
-{
-    demod_am->set_dcr(enabled);
-
-    return STATUS_OK;
-}
-
 
 receiver::status receiver::set_af_gain(float gain_db)
 {
@@ -622,9 +523,9 @@ receiver::status receiver::start_audio_playback(const std::string filename)
 
     stop();
     /* route demodulator output to null sink */
-    tb->disconnect(audio_rr, 0, audio_gain, 0);
-    tb->disconnect(audio_rr, 0, audio_fft, 0);
-    tb->connect(audio_rr, 0, audio_null_sink, 0);
+    tb->disconnect(rx, 0, audio_gain, 0);
+    tb->disconnect(rx, 0, audio_fft, 0);
+    tb->connect(rx, 0, audio_null_sink, 0);
     tb->connect(wav_src, 0, audio_gain, 0);
     tb->connect(wav_src, 0, audio_fft, 0);
     start();
@@ -640,9 +541,9 @@ receiver::status receiver::stop_audio_playback()
     stop();
     tb->disconnect(wav_src, 0, audio_gain, 0);
     tb->disconnect(wav_src, 0, audio_fft, 0);
-    tb->disconnect(audio_rr, 0, audio_null_sink, 0);
-    tb->connect(audio_rr, 0, audio_gain, 0);
-    tb->connect(audio_rr, 0, audio_fft, 0);
+    tb->disconnect(rx, 0, audio_null_sink, 0);
+    tb->connect(rx, 0, audio_gain, 0);
+    tb->connect(rx, 0, audio_fft, 0);
     start();
 
     /* delete wav_src since we can not change file name */
@@ -657,6 +558,7 @@ receiver::status receiver::stop_audio_playback()
  */
 receiver::status receiver::start_iq_recording(const std::string filename)
 {
+#if 0
     if (d_recording_iq) {
         /* error - we are already recording */
         return STATUS_ERROR;
@@ -673,7 +575,7 @@ receiver::status receiver::start_iq_recording(const std::string filename)
     else {
         std::cout << "BUG: I/Q file sink does not exist" << std::endl;
     }
-
+#endif
     return STATUS_OK;
 }
 
@@ -681,6 +583,7 @@ receiver::status receiver::start_iq_recording(const std::string filename)
 /*! \brief Stop I/Q data recorder. */
 receiver::status receiver::stop_iq_recording()
 {
+#if 0
     if (!d_recording_iq) {
         /* error: we are not recording */
         return STATUS_ERROR;
@@ -690,7 +593,7 @@ receiver::status receiver::stop_iq_recording()
     iq_sink->close();
     tb->unlock();
     d_recording_iq = false;
-
+#endif
     return STATUS_OK;
 }
 
@@ -701,6 +604,7 @@ receiver::status receiver::stop_iq_recording()
  */
 receiver::status receiver::start_iq_playback(const std::string filename, float samprate)
 {
+#if 0
     if (samprate != d_bandwidth) {
         return STATUS_ERROR;
     }
@@ -723,7 +627,7 @@ receiver::status receiver::start_iq_playback(const std::string filename, float s
     tb->connect(iq_src, 0, nb, 0);
     tb->connect(iq_src, 0, iq_sink, 0);
     tb->unlock();
-
+#endif
     return STATUS_OK;
 }
 
@@ -738,6 +642,7 @@ receiver::status receiver::start_iq_playback(const std::string filename, float s
  */
 receiver::status receiver::stop_iq_playback()
 {
+#if 0
     tb->lock();
 
     /* disconnect I/Q source and throttle block */
@@ -752,7 +657,7 @@ receiver::status receiver::stop_iq_playback()
 
     /* delete iq_src since we can not reuse for other files */
     iq_src.reset();
-
+#endif
     return STATUS_OK;
 }
 
@@ -770,9 +675,9 @@ receiver::status receiver::start_sniffer(unsigned int samprate, int buffsize)
     }
 
     sniffer->set_buffer_size(buffsize);
-    sniffer_rr = make_resampler_ff(d_audio_rate, samprate);
+    sniffer_rr = make_resampler_ff((float)d_audio_rate/(float)samprate);
     tb->lock();
-    tb->connect(audio_rr, 0, sniffer_rr, 0);
+    tb->connect(rx, 0, sniffer_rr, 0);
     tb->connect(sniffer_rr, 0, sniffer, 0);
     tb->unlock();
     d_sniffer_active = true;
@@ -790,7 +695,7 @@ receiver::status receiver::stop_sniffer()
     }
 
     tb->lock();
-    tb->disconnect(audio_rr, 0, sniffer_rr, 0);
+    tb->disconnect(rx, 0, sniffer_rr, 0);
     tb->disconnect(sniffer_rr, 0, sniffer, 0);
     tb->unlock();
     d_sniffer_active = false;

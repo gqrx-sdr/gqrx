@@ -407,7 +407,7 @@ void MainWindow::selectDemod(int index)
 
         /* AM */
     case 1:
-        rx->set_demod(receiver::DEMOD_AM);
+        rx->set_demod(receiver::RX_DEMOD_AM);
         ui->plotter->SetDemodRanges(-20000, -100, 100, 20000, true);
         uiDockAudio->setFftRange(0,15000);
         switch (filter_preset) {
@@ -428,7 +428,7 @@ void MainWindow::selectDemod(int index)
 
         /* FM */
     case 2:
-        rx->set_demod(receiver::DEMOD_FM);
+        rx->set_demod(receiver::RX_DEMOD_FM);
         maxdev = uiDockRxOpt->currentMaxdev();
         if (maxdev < 20000.0) {
             ui->plotter->SetDemodRanges(-25000, -100, 100, 25000, true);
@@ -471,7 +471,7 @@ void MainWindow::selectDemod(int index)
 
         /* LSB */
     case 3:
-        rx->set_demod(receiver::DEMOD_SSB);
+        rx->set_demod(receiver::RX_DEMOD_SSB);
         ui->plotter->SetDemodRanges(-10000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,3500);
         switch (filter_preset) {
@@ -492,7 +492,7 @@ void MainWindow::selectDemod(int index)
 
         /* USB */
     case 4:
-        rx->set_demod(receiver::DEMOD_SSB);
+        rx->set_demod(receiver::RX_DEMOD_SSB);
         ui->plotter->SetDemodRanges(0, 5000, 100, 10000, false);
         uiDockAudio->setFftRange(0,3500);
         switch (filter_preset) {
@@ -513,7 +513,7 @@ void MainWindow::selectDemod(int index)
 
         /* CWL */
     case 5:
-        rx->set_demod(receiver::DEMOD_SSB);
+        rx->set_demod(receiver::RX_DEMOD_SSB);
         ui->plotter->SetDemodRanges(-10000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,1500);
         switch (filter_preset) {
@@ -534,7 +534,7 @@ void MainWindow::selectDemod(int index)
 
         /* CWU */
     case 6:
-        rx->set_demod(receiver::DEMOD_SSB);
+        rx->set_demod(receiver::RX_DEMOD_SSB);
         ui->plotter->SetDemodRanges(0, 5000, 100, 10000, false);
         uiDockAudio->setFftRange(0,1500);
         switch (filter_preset) {
@@ -607,7 +607,8 @@ void MainWindow::setFmEmph(double tau)
  */
 void MainWindow::setAmDcrStatus(bool enabled)
 {
-    rx->set_am_dcr(enabled);
+    /** FIXME: obsolete */
+    //rx->set_am_dcr(enabled);
 }
 
 /*! \brief Audio gain changed.

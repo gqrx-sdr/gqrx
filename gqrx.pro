@@ -49,7 +49,6 @@ SOURCES += \
     qtgui/ioconfig.cpp \
     qtgui/dockfcdctl.cpp \
     qtgui/dockaudio.cpp \
-    dsp/resampler_ff.cpp \
     qtgui/dockfft.cpp \
     dsp/sniffer_f.cpp \
     dsp/afsk1200/costabf.c \
@@ -72,7 +71,10 @@ SOURCES += \
     fcdctl/fcd.c \
     fcdctl/hid-libusb.c \  # FIXME: Linux only
     qtgui/demod-options.cpp \
-    dsp/rx_noise_blanker_cc.cpp
+    dsp/rx_noise_blanker_cc.cpp \
+    receivers/receiver_base.cpp \
+    receivers/nbrx.cpp \
+    dsp/resampler_xx.cpp
 #    fcdctl/hidwin.c \
 #    fcdctl/hidmac.c \
 
@@ -91,7 +93,6 @@ HEADERS += \
     qtgui/ioconfig.h \
     qtgui/dockfcdctl.h \
     qtgui/dockaudio.h \
-    dsp/resampler_ff.h \
     qtgui/dockfft.h \
     dsp/sniffer_f.h \
     dsp/afsk1200/filter-i386.h \
@@ -119,7 +120,10 @@ HEADERS += \
     fcdctl/fcd.h \
     gqrx.h \
     qtgui/demod-options.h \
-    dsp/rx_noise_blanker_cc.h
+    dsp/rx_noise_blanker_cc.h \
+    receivers/receiver_base.h \
+    receivers/nbrx.h \
+    dsp/resampler_xx.h
 
 FORMS += \
     qtgui/dockrxopt.ui \
