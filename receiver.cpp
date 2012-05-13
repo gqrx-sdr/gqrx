@@ -675,7 +675,7 @@ receiver::status receiver::start_sniffer(unsigned int samprate, int buffsize)
     }
 
     sniffer->set_buffer_size(buffsize);
-    sniffer_rr = make_resampler_ff((float)d_audio_rate/(float)samprate);
+    sniffer_rr = make_resampler_ff((float)samprate/(float)d_audio_rate);
     tb->lock();
     tb->connect(rx, 0, sniffer_rr, 0);
     tb->connect(sniffer_rr, 0, sniffer, 0);
