@@ -46,7 +46,7 @@ resampler_cc::resampler_cc(float rate)
     double trans_width = 0.2;
     unsigned int flt_size = 32;
 
-    d_taps = gr_firdes::low_pass(flt_size, 2*flt_size, cutoff, trans_width);
+    d_taps = gr_firdes::low_pass(flt_size, flt_size, cutoff, trans_width);
 
     /* create the filter */
     d_filter = gr_make_pfb_arb_resampler_ccf(rate, d_taps, flt_size);
@@ -87,7 +87,7 @@ resampler_ff::resampler_ff(float rate)
     double trans_width = 0.2;
     unsigned int flt_size = 32;
 
-    d_taps = gr_firdes::low_pass(flt_size, 2*flt_size, cutoff, trans_width);
+    d_taps = gr_firdes::low_pass(flt_size, flt_size, cutoff, trans_width);
 
     /* create the filter */
     d_filter = gr_make_pfb_arb_resampler_fff(rate, d_taps, flt_size);
