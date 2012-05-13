@@ -46,6 +46,11 @@ rx_filter::rx_filter(double sample_rate, double low, double high, double trans_w
       d_high(high),
       d_trans_width(trans_width)
 {
+    if (low < -0.95*sample_rate/2.0)
+        d_low = -0.95*sample_rate/2.0;
+    if (high > 0.95*sample_rate/2.0)
+        d_high = 0.95*sample_rate/2.0;
+
     /* generate taps */
     d_taps = gr_firdes::complex_band_pass(1.0, d_sample_rate, d_low, d_high, d_trans_width);
 
@@ -67,6 +72,11 @@ void rx_filter::set_param(double low, double high, double trans_width)
     d_trans_width = trans_width;
     d_low         = low;
     d_high        = high;
+
+    if (d_low < -0.95*d_sample_rate/2.0)
+        d_low = -0.95*d_sample_rate/2.0;
+    if (d_high > 0.95*d_sample_rate/2.0)
+        d_high = 0.95*d_sample_rate/2.0;
 
     /* generate new taps */
     d_taps = gr_firdes::complex_band_pass(1.0, d_sample_rate, d_low, d_high, d_trans_width);
