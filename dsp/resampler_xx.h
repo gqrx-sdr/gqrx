@@ -18,29 +18,32 @@
  * Boston, MA 02110-1301, USA.
  */
 #ifndef RESAMPLER_XX_H
-#define RESAMPELR_XX_H
+#define RESAMPLER_XX_H
 
 #include <gr_hier_block2.h>
 #include <gr_pfb_arb_resampler_ccf.h>
+#include <gr_pfb_arb_resampler_fff.h>
+
 
 class resampler_cc;
+class resampler_ff;
 
 typedef boost::shared_ptr<resampler_cc> resampler_cc_sptr;
+typedef boost::shared_ptr<resampler_ff> resampler_ff_sptr;
 
 
 /*! \brief Return a shared_ptr to a new instance of resampler_cc.
- *  \param rate Resampling rate, i.e. output/input (tbc).
+ *  \param rate Resampling rate, i.e. output/input.
  *
  * This is effectively the public constructor.
  */
 resampler_cc_sptr make_resampler_cc(float rate);
 
-
-/*! \brief Rational resampler based on gr_pfb_arb_resampler_ccf
+/*! \brief Arbitrary rate resampler based on gr_pfb_arb_resampler_ccf
  *  \ingroup DSP
  *
  * This block is a convenience wrapper around gr_pfb_arb_resampler_ccf. It takes care
- * of generating filter taps that can be used for the resampler, as well as calculating
+ * of generating filter taps that can be used for the filter, as well as calculating
  * the other required parameters.
  */
 class resampler_cc : public gr_hier_block2
@@ -57,5 +60,34 @@ private:
     gr_pfb_arb_resampler_ccf_sptr d_filter;
 };
 
+
+/*! \brief Return a shared_ptr to a new instance of resampler_ff.
+ *  \param rate Resampling rate, i.e. output/input.
+ *
+ * This is effectively the public constructor.
+ */
+resampler_ff_sptr make_resampler_ff(float rate);
+
+
+/*! \brief Arbitrary rate resampler based on gr_pfb_arb_resampler_fff
+ *  \ingroup DSP
+ *
+ * This block is a convenience wrapper around gr_pfb_arb_resampler_fff. It takes care
+ * of generating filter taps that can be used for the filter, as well as calculating
+ * the other required parameters.
+ */
+class resampler_ff : public gr_hier_block2
+{
+
+public:
+    resampler_ff(float rate); // FIXME: should be private
+    ~resampler_ff();
+
+    void set_rate(float rate) { d_filter->set_rate(rate); }
+
+private:
+    std::vector<float>            d_taps;
+    gr_pfb_arb_resampler_fff_sptr d_filter;
+};
 
 #endif // RESAMPLER_XX_H

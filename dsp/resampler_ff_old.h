@@ -24,10 +24,10 @@
 #include <gr_rational_resampler_base_fff.h>
 
 
-class resampler_ff;
+class resampler_ffo;
 
 
-typedef boost::shared_ptr<resampler_ff> resampler_ff_sptr;
+typedef boost::shared_ptr<resampler_ffo> resampler_ffo_sptr;
 
 
 /*! \brief Return a shared_ptr to a new instance of resampler_ff.
@@ -36,7 +36,7 @@ typedef boost::shared_ptr<resampler_ff> resampler_ff_sptr;
  *
  * This is effectively the public constructor.
  */
-resampler_ff_sptr make_resampler_ff(unsigned int input_rate, unsigned int output_rate);
+resampler_ffo_sptr make_resampler_ffo(unsigned int input_rate, unsigned int output_rate);
 
 
 /*! \brief Rational resampler based on gr_rational_resampler_base_fff
@@ -46,12 +46,12 @@ resampler_ff_sptr make_resampler_ff(unsigned int input_rate, unsigned int output
  * of generating filter taps that can be used for the resampler, as well as calculating
  * the interpolation and decimation given the input/output sample rates.
  */
-class resampler_ff : public gr_hier_block2
+class resampler_ffo : public gr_hier_block2
 {
 
 public:
-    resampler_ff(unsigned int input_rate, unsigned int output_rate); // FIXME: should be private
-    ~resampler_ff();
+    resampler_ffo(unsigned int input_rate, unsigned int output_rate); // FIXME: should be private
+    ~resampler_ffo();
 
 private:
     std::vector<float> d_taps;

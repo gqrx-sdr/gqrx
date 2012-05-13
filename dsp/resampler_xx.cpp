@@ -22,8 +22,7 @@
 #include "dsp/resampler_xx.h"
 
 
-/*
- * Create a new instance of resampler_cc and return
+/* Create a new instance of resampler_cc and return
  * a boost shared_ptr. This is effectively the public constructor.
  */
 resampler_cc_sptr make_resampler_cc(float rate)
@@ -61,3 +60,46 @@ resampler_cc::~resampler_cc()
 {
 
 }
+
+
+
+/* Create a new instance of resampler_ff and return
+ * a boost shared_ptr. This is effectively the public constructor.
+ */
+resampler_ff_sptr make_resampler_ff(float rate)
+{
+    return gnuradio::get_initial_sptr(new resampler_ff(rate));
+}
+
+resampler_ff::resampler_ff(float rate)
+    : gr_hier_block2 ("resampler_ff",
+          gr_make_io_signature (1, 1, sizeof(float)),
+          gr_make_io_signature (1, 1, sizeof(float)))
+{
+    /* I ceated this code based on:
+       http://gnuradio.squarespace.com/blog/2010/12/6/new-interface-for-pfb_arb_resampler_ccf.html
+
+       and blks2.pfb_arb_resampler.py
+    */
+
+    /* generate taps */
+    double cutoff = 0.4;
+    double trans_width = 0.2;
+    unsigned int flt_size = 32;
+
+    d_taps = gr_firdes::low_pass(flt_size, 2*flt_size, cutoff, trans_width);
+
+    /* create the filter */
+    d_filter = gr_make_pfb_arb_resampler_fff(rate, d_taps, flt_size);
+
+    /* connect filter */
+    connect(self(), 0, d_filter, 0);
+    connect(d_filter, 0, self(), 0);
+}
+
+resampler_ff::~resampler_ff()
+{
+
+}
+
+

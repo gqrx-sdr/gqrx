@@ -28,9 +28,9 @@
  * Create a new instance of resampler_ff and return
  * a boost shared_ptr. This is effectively the public constructor.
  */
-resampler_ff_sptr make_resampler_ff(unsigned int input_rate, unsigned int output_rate)
+resampler_ffo_sptr make_resampler_ffo(unsigned int input_rate, unsigned int output_rate)
 {
-    return gnuradio::get_initial_sptr(new resampler_ff(input_rate, output_rate));
+    return gnuradio::get_initial_sptr(new resampler_ffo(input_rate, output_rate));
 }
 
 
@@ -40,8 +40,8 @@ static const int MIN_OUT = 1; /* Minimum number of output streams. */
 static const int MAX_OUT = 1; /* Maximum number of output streams. */
 
 
-resampler_ff::resampler_ff(unsigned int input_rate, unsigned int output_rate)
-    : gr_hier_block2 ("resampler_ff",
+resampler_ffo::resampler_ffo(unsigned int input_rate, unsigned int output_rate)
+    : gr_hier_block2 ("resampler_ffo",
                       gr_make_io_signature (MIN_IN, MAX_IN, sizeof (float)),
                       gr_make_io_signature (MIN_OUT, MAX_OUT, sizeof (float)))
 {
@@ -76,14 +76,14 @@ resampler_ff::resampler_ff(unsigned int input_rate, unsigned int output_rate)
 }
 
 
-resampler_ff::~resampler_ff ()
+resampler_ffo::~resampler_ffo ()
 {
 
 }
 
 
 /*! \brief Greatest common divisor. */
-unsigned long long resampler_ff::gcd(unsigned long long a, unsigned long long b)
+unsigned long long resampler_ffo::gcd(unsigned long long a, unsigned long long b)
 {
     unsigned long long c = a % b;
 
@@ -98,7 +98,7 @@ unsigned long long resampler_ff::gcd(unsigned long long a, unsigned long long b)
 }
 
 /*! \brief Least common multiple. */
-unsigned long long resampler_ff::lcm(unsigned long long a, unsigned long long b)
+unsigned long long resampler_ffo::lcm(unsigned long long a, unsigned long long b)
 {
     return ((a*b) / gcd(a,b));
 }
