@@ -34,96 +34,96 @@ DEFINES += VERSION=\"$${VERSTR}\" # create a VERSION macro containing the versio
 
 
 SOURCES += \
-    receiver.cpp \
     main.cpp \
     mainwindow.cpp \
-    qtgui/freqctrl.cpp \
-    qtgui/meter.cpp \
-    qtgui/plotter.cpp \
+    receiver.cpp \
     dsp/rx_fft.cpp \
     dsp/rx_filter.cpp \
     dsp/rx_demod_fm.cpp \
     dsp/rx_meter.cpp \
-    qtgui/dockrxopt.cpp \
     dsp/rx_demod_am.cpp \
-    qtgui/ioconfig.cpp \
-    qtgui/dockfcdctl.cpp \
-    qtgui/dockaudio.cpp \
-    qtgui/dockfft.cpp \
     dsp/sniffer_f.cpp \
     dsp/afsk1200/costabf.c \
     dsp/afsk1200/cafsk12.cpp \
-    qtgui/dockiqplayer.cpp \
-    qtgui/afsk1200win.cpp \
-    qtgui/bpsk1000win.cpp \
-    qtgui/arissattlm.cpp \
-    tlm/arissat/scale_therm.c \
-    tlm/arissat/scale_psu.c \
-    tlm/arissat/scale_ppt.c \
     dsp/rx_source_base.cpp \
     dsp/rx_source_fcd.cpp \
     dsp/rx_agc_xx.cpp \
     dsp/agc_impl.cpp \
     dsp/correct_iq_cc.cpp \
+    dsp/rx_noise_blanker_cc.cpp \
+    dsp/resampler_xx.cpp \
+    fcdctl/fcd.c \
+    fcdctl/hid-libusb.c \  # FIXME: Linux only
+#    fcdctl/hidwin.c \
+#    fcdctl/hidmac.c \
     pulseaudio/pa_device_list.cc \  # FIXME: Linux only
     pulseaudio/pa_sink.cc \
     pulseaudio/pa_source.cc \
-    fcdctl/fcd.c \
-    fcdctl/hid-libusb.c \  # FIXME: Linux only
+    qtgui/dockrxopt.cpp \
+    qtgui/freqctrl.cpp \
+    qtgui/meter.cpp \
+    qtgui/plotter.cpp \
+    qtgui/ioconfig.cpp \
+    qtgui/dockfcdctl.cpp \
+    qtgui/dockaudio.cpp \
+    qtgui/dockfft.cpp \
+    qtgui/dockiqplayer.cpp \
+    qtgui/afsk1200win.cpp \
+    qtgui/bpsk1000win.cpp \
+    qtgui/arissattlm.cpp \
     qtgui/demod-options.cpp \
-    dsp/rx_noise_blanker_cc.cpp \
     receivers/receiver_base.cpp \
     receivers/nbrx.cpp \
-    dsp/resampler_xx.cpp
-#    fcdctl/hidwin.c \
-#    fcdctl/hidmac.c \
+    tlm/arissat/scale_therm.c \
+    tlm/arissat/scale_psu.c \
+    tlm/arissat/scale_ppt.c
 
 HEADERS += \
     mainwindow.h \
     receiver.h \
-    qtgui/freqctrl.h \
-    qtgui/meter.h \
-    qtgui/plotter.h \
+    gqrx.h \
     dsp/rx_fft.h \
     dsp/rx_filter.h \
     dsp/rx_demod_fm.h \
     dsp/rx_meter.h \
-    qtgui/dockrxopt.h \
     dsp/rx_demod_am.h \
-    qtgui/ioconfig.h \
-    qtgui/dockfcdctl.h \
-    qtgui/dockaudio.h \
-    qtgui/dockfft.h \
     dsp/sniffer_f.h \
     dsp/afsk1200/filter-i386.h \
     dsp/afsk1200/filter.h \
     dsp/afsk1200/cafsk12.h \
-    qtgui/dockiqplayer.h \
-    qtgui/afsk1200win.h \
-    qtgui/bpsk1000win.h \
-    tlm/arissat/ss_types_common.h \
-    tlm/arissat/ss_stdint.h \
-    qtgui/arissattlm.h \
-    tlm/arissat/scale_therm.h \
-    tlm/arissat/scale_psu.h \
-    tlm/arissat/scale_ppt.h \
     dsp/rx_source_base.h \
     dsp/rx_source_fcd.h \
     dsp/rx_agc_xx.h \
     dsp/agc_impl.h \
     dsp/correct_iq_cc.h \
-    pulseaudio/pa_device_list.h \  # FIXME: Linux only
-    pulseaudio/pa_sink.h \
-    pulseaudio/pa_source.h \
+    dsp/resampler_xx.h \
     fcdctl/hidapi.h \
     fcdctl/fcdhidcmd.h \
     fcdctl/fcd.h \
-    gqrx.h \
-    qtgui/demod-options.h \
     dsp/rx_noise_blanker_cc.h \
+    pulseaudio/pa_device_list.h \  # FIXME: Linux only
+    pulseaudio/pa_sink.h \
+    pulseaudio/pa_source.h \
+    qtgui/freqctrl.h \
+    qtgui/meter.h \
+    qtgui/plotter.h \
+    qtgui/ioconfig.h \
+    qtgui/dockfcdctl.h \
+    qtgui/dockaudio.h \
+    qtgui/dockfft.h \
+    qtgui/dockrxopt.h \
+    qtgui/dockiqplayer.h \
+    qtgui/afsk1200win.h \
+    qtgui/bpsk1000win.h \
+    qtgui/arissattlm.h \
+    qtgui/demod-options.h \
     receivers/receiver_base.h \
     receivers/nbrx.h \
-    dsp/resampler_xx.h
+    tlm/arissat/ss_types_common.h \
+    tlm/arissat/ss_stdint.h \
+    tlm/arissat/scale_therm.h \
+    tlm/arissat/scale_psu.h \
+    tlm/arissat/scale_ppt.h
 
 FORMS += \
     qtgui/dockrxopt.ui \
