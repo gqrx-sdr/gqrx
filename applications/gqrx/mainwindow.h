@@ -34,7 +34,7 @@
 #include "qtgui/afsk1200win.h"
 #include "qtgui/bpsk1000win.h"
 
-#include <receiver.h>
+#include "applications/gqrx/receiver.h"
 
 
 namespace Ui {

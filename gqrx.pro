@@ -34,9 +34,9 @@ DEFINES += VERSION=\"$${VERSTR}\" # create a VERSION macro containing the versio
 
 
 SOURCES += \
-    main.cpp \
-    mainwindow.cpp \
-    receiver.cpp \
+    applications/gqrx/main.cpp \
+    applications/gqrx/mainwindow.cpp \
+    applications/gqrx/receiver.cpp \
     dsp/rx_fft.cpp \
     dsp/rx_filter.cpp \
     dsp/rx_demod_fm.cpp \
@@ -79,9 +79,9 @@ SOURCES += \
     tlm/arissat/scale_ppt.c
 
 HEADERS += \
-    mainwindow.h \
-    receiver.h \
-    gqrx.h \
+    applications/gqrx/mainwindow.h \
+    applications/gqrx/receiver.h \
+    applications/gqrx/gqrx.h \
     dsp/rx_fft.h \
     dsp/rx_filter.h \
     dsp/rx_demod_fm.h \
@@ -126,8 +126,8 @@ HEADERS += \
     tlm/arissat/scale_ppt.h
 
 FORMS += \
+    applications/gqrx/mainwindow.ui \
     qtgui/dockrxopt.ui \
-    mainwindow.ui \
     qtgui/ioconfig.ui \
     qtgui/dockfcdctl.ui \
     qtgui/dockaudio.ui \
