@@ -28,7 +28,7 @@
 
 
 
-CIoConfig::CIoConfig(QWidget *parent) :
+CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CIoConfig)
 {

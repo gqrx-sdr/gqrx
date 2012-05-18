@@ -22,6 +22,7 @@
 
 #include <QDialog>
 #include <QString>
+#include <QSettings>
 
 namespace Ui {
     class CIoConfig;
@@ -34,7 +35,7 @@ class CIoConfig : public QDialog
     Q_OBJECT
 
 public:
-    explicit CIoConfig(QWidget *parent = 0);
+    explicit CIoConfig(QSettings *settings, QWidget *parent = 0);
     ~CIoConfig();
 
     static QString getFcdDeviceName();
