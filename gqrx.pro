@@ -146,6 +146,7 @@ unix {
     PKGCONFIG += gnuradio-core gnuradio-audio
     PKGCONFIG += libpulse libpulse-simple
     PKGCONFIG += libusb-1.0
+    PKGCONFIG += gnuradio-osmosdr gnuradio-uhd gnuradio-fcd
 }
 
 macx-g++ {
