@@ -963,6 +963,26 @@ void MainWindow::on_actionDSP_triggered(bool checked)
     }
 }
 
+/*! \brief Action: I/O device configurator triggered.
+ *
+ * This slot is activated when the user selects "I/O Devices" in the
+ * menu. It activates the I/O configurator and if the user closes the
+ * configurator using the OK button, the new configuration is read and
+ * sent to the receiver.
+ */
+void MainWindow::on_actionIoConfig_triggered()
+{
+    qDebug() << "Configure I/O devices.";
+
+    CIoConfig *ioconf = new CIoConfig(m_settings);
+    int confres = ioconf->exec();
+
+    if (confres == QDialog::Accepted)
+        loadConfig(m_settings->fileName());
+
+    delete ioconf;
+}
+
 /*! \brief Load configuration activated by user. */
 void MainWindow::on_actionLoadSettings_triggered()
 {
@@ -1084,40 +1104,6 @@ void MainWindow::on_actionFullScreen_triggered(bool checked)
         ui->statusBar->show();
         showNormal();
     }
-}
-
-/*! \brief Action: I/O device configurator triggered.
- *
- * This slot is activated when the user selects "I/O Devices" in the
- * menu. It activates the I/O configurator and if the user closes the
- * configurator using the OK button, the new configuration is read and
- * sent to the receiver.
- */
-void MainWindow::on_actionIODevices_triggered()
-{
-    QSettings settings;
-    QString cindev = settings.value("input").toString();
-    QString coutdev = settings.value("output").toString();
-
-
-    CIoConfig *ioconf = new CIoConfig();
-    int confres = ioconf->exec();
-
-    if (confres == QDialog::Accepted) {
-        QString nindev = settings.value("input").toString();
-        QString noutdev = settings.value("output").toString();
-
-        // we need to ensure that we don't reconfigure RX
-        // with the same device as the already used one because
-        // that can crash the receiver when using ALSA :(
-        if (cindev != nindev)
-            rx->set_input_device(nindev.toStdString());
-
-        if (coutdev != noutdev)
-            rx->set_output_device(noutdev.toStdString());
-    }
-
-    delete ioconf;
 }
 
 

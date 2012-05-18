@@ -133,11 +133,11 @@ private slots:
 
     /* menu and toolbar actions */
     void on_actionDSP_triggered(bool checked);
+    void on_actionIoConfig_triggered();
     void on_actionLoadSettings_triggered();
     void on_actionSaveSettings_triggered();
     void on_actionIqRec_triggered(bool checked);
     void on_actionFullScreen_triggered(bool checked);
-    void on_actionIODevices_triggered();
     void on_actionAFSK1200_triggered();
     void on_actionBPSK1000_triggered();
     void on_actionUserGroup_triggered();

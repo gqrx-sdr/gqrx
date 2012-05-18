@@ -14,7 +14,7 @@
    <string>gqrx</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="icons.qrc">
+   <iconset resource="../../icons.qrc">
     <normaloff>:/icons/icons/scope-256.png</normaloff>:/icons/icons/scope-256.png</iconset>
   </property>
   <property name="dockOptions">
@@ -134,6 +134,7 @@
     </property>
     <addaction name="actionDSP"/>
     <addaction name="separator"/>
+    <addaction name="actionIoConfig"/>
     <addaction name="actionLoadSettings"/>
     <addaction name="actionSaveSettings"/>
     <addaction name="separator"/>
@@ -176,6 +177,7 @@
    </attribute>
    <addaction name="actionDSP"/>
    <addaction name="separator"/>
+   <addaction name="actionIoConfig"/>
    <addaction name="actionLoadSettings"/>
    <addaction name="actionSaveSettings"/>
    <addaction name="separator"/>
@@ -218,7 +220,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../../icons.qrc">
      <normaloff>:/icons/icons/power-off.svg</normaloff>:/icons/icons/power-off.svg</iconset>
    </property>
    <property name="text">
@@ -247,7 +249,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../../icons.qrc">
      <normaloff>:/icons/icons/clock.svg</normaloff>:/icons/icons/clock.svg</iconset>
    </property>
    <property name="text">
@@ -265,7 +267,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../../icons.qrc">
      <normaloff>:/icons/icons/record.svg</normaloff>:/icons/icons/record.svg</iconset>
    </property>
    <property name="text">
@@ -289,12 +291,12 @@
     <string>Start BPSK1000 decoder</string>
    </property>
   </action>
-  <action name="actionIODevices">
+  <action name="actionIoConfig">
    <property name="enabled">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../../icons.qrc">
      <normaloff>:/icons/icons/flash.svg</normaloff>:/icons/icons/flash.svg</iconset>
    </property>
    <property name="text">
@@ -309,7 +311,7 @@
   </action>
   <action name="actionUserGroup">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../../icons.qrc">
      <normaloff>:/icons/icons/help.svg</normaloff>:/icons/icons/help.svg</iconset>
    </property>
    <property name="text">
@@ -324,7 +326,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../../icons.qrc">
      <normaloff>:/icons/icons/fullscreen.svg</normaloff>:/icons/icons/fullscreen.svg</iconset>
    </property>
    <property name="text">
@@ -339,7 +341,7 @@
   </action>
   <action name="actionLoadSettings">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../../icons.qrc">
      <normaloff>:/icons/icons/folder.svg</normaloff>:/icons/icons/folder.svg</iconset>
    </property>
    <property name="text">
@@ -354,7 +356,7 @@
   </action>
   <action name="actionSaveSettings">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../../icons.qrc">
      <normaloff>:/icons/icons/floppy.svg</normaloff>:/icons/icons/floppy.svg</iconset>
    </property>
    <property name="text">
@@ -390,7 +392,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="icons.qrc"/>
+  <include location="../../icons.qrc"/>
  </resources>
  <connections>
   <connection>
