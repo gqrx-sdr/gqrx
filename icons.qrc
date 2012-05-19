@@ -20,9 +20,5 @@
         <file>icons/info.svg</file>
         <file>icons/help.svg</file>
         <file>icons/scope.svg</file>
-        <file>icons/scope-064.png</file>
-        <file>icons/scope-128.png</file>
-        <file>icons/scope-256.png</file>
-        <file>icons/scope-512.png</file>
     </qresource>
 </RCC>
