@@ -37,18 +37,26 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
 
     connect(this, SIGNAL(accepted()), this, SLOT(saveConfig()));
 
+    QString indev = settings->value("output/device", "").toString();
+
 #ifdef Q_OS_LINUX
     // get list of output devices
     pa_device_list devices;
-    vector<pa_device> devlist = devices.get_output_devices();
+    outDevList = devices.get_output_devices();
+
     unsigned int i;
 
     qDebug() << __FUNCTION__ << ": Available output devices";
-    for (i = 0; i < devlist.size(); i++)
+    for (i = 0; i < outDevList.size(); i++)
     {
-        qDebug() << "    " << i << ":" << QString(devlist[i].get_description().c_str());
-        qDebug() << "        " << QString(devlist[i].get_name().c_str());
-        ui->outDevCombo->addItem(QString(devlist[i].get_description().c_str()));
+        qDebug() << "   " << i << ":" << QString(outDevList[i].get_description().c_str());
+        //qDebug() << "     " << QString(outDevList[i].get_name().c_str());
+        ui->outDevCombo->addItem(QString(outDevList[i].get_description().c_str()));
+
+        // note that item #i in devlist will be item #(i+1)
+        // in combo box due to "default"
+        if (indev == QString(outDevList[i].get_name().c_str()))
+            ui->outDevCombo->setCurrentIndex(i+1);
     }
 
 #elif defined(__APPLE__) && defined(__MACH__) // Works for X11 Qt on Mac OS X too
@@ -102,7 +110,18 @@ QString CIoConfig::getFcdDeviceName()
 /*! \brief Save configuration. */
 void CIoConfig::saveConfig()
 {
-    //QSettings settings;
+    int idx=ui->outDevCombo->currentIndex();
+
+    if (idx > 0)
+    {
+        //m_settings->setValue("output/device", ui->outDevCombo->currentText());
+
+        qDebug() << "Output device" << idx << ":" << QString(outDevList[idx-1].get_name().c_str());
+        m_settings->setValue("output/device", QString(outDevList[idx-1].get_name().c_str()));
+    }
+    else
+        qDebug() << "Selected output device is 'default' (not saving)";
+
 
     //settings.setValue("input", ui->inDevEdit->text());
     //settings.setValue("output", ui->outDevEdit->text());

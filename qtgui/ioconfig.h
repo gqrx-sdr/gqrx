@@ -23,11 +23,12 @@
 #include <QDialog>
 #include <QString>
 #include <QSettings>
+#include "pulseaudio/pa_device_list.h"
+
 
 namespace Ui {
     class CIoConfig;
 }
-
 
 /*! \brief Inout/output device configurator. */
 class CIoConfig : public QDialog
@@ -45,6 +46,10 @@ private slots:
 
 private:
     Ui::CIoConfig *ui;
+
+    QSettings *m_settings;
+
+    vector<pa_device> outDevList;
 };
 
 #endif // IOCONFIG_H
