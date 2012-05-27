@@ -30,11 +30,11 @@ Debian and Ubuntu: Just install the Qthid package from Debian, which will take c
 
 On other distrbutions, you have to configure the FCD to be usable by non-root users. If you can already run qthid as regular user it is fine. If not, you need to create an udev rule. Create a udev file /etc/udev/rules.d/fcd.rules containing:
 
- SUBSYSTEMS=="usb" ATTRS{idVendor}=="04d8" ATTRS{idProduct}=="fb56" MODE:="0666"
+  KERNEL=="hidraw*", ATTRS{busnum}=="1", ATTRS{idVendor}=="04d8", ATTRS{idProduct}=="fb56", MODE="0666"
 
-(hint: open a terminal and type: sudo gedit /etc/udev/rules.d/fcd.rules)
+(hint: open a terminal and type: sudo gedit /lib/udev/rules.d/fcd.rules)
 
-Reload the rules using "sudo udevadm control --reload-rules". You can then verify the setup using Qthid available from http://qthid.sf.net/ . You should in any case update the firmware in the FCD to the latest version using Qthid.
+Plug in your FCD and it should be working now. You can then verify the setup using Qthid available from http://qthid.sf.net/ . You should in any case update the firmware in the FCD to the latest version using Qthid.
 
 
 3. Using Gqrx
