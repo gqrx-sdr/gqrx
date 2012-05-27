@@ -68,7 +68,7 @@ SOURCES += \
     pulseaudio/pa_sink.cc \
     pulseaudio/pa_source.cc \
     fcdctl/fcd.c \
-    fcdctl/hid-libusb.c \  # FIXME: Linux only
+    fcdctl/hidraw.c \  # FIXME: Linux only
     qtgui/demod-options.cpp \
     dsp/rx_noise_blanker_cc.cpp
 #    fcdctl/hidwin.c \
@@ -139,7 +139,8 @@ unix {
     CONFIG += link_pkgconfig
     PKGCONFIG += gnuradio-core gnuradio-audio
     PKGCONFIG += libpulse libpulse-simple
-    PKGCONFIG += libusb-1.0
+#    PKGCONFIG += libusb-1.0
+    LIBS += -ludev
 }
 
 macx-g++ {

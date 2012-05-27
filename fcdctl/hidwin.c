@@ -93,8 +93,8 @@ extern "C" {
 		USHORT Reserved[17];
 		USHORT fields_not_used_by_hidapi[10];
 	} HIDP_CAPS, *PHIDP_CAPS;
-	typedef char* HIDP_PREPARSED_DATA;
-	#define HIDP_STATUS_SUCCESS 0x0
+	typedef void* PHIDP_PREPARSED_DATA;
+	#define HIDP_STATUS_SUCCESS 0x110000
 
 	typedef BOOLEAN (__stdcall *HidD_GetAttributes_)(HANDLE device, PHIDD_ATTRIBUTES attrib);
 	typedef BOOLEAN (__stdcall *HidD_GetSerialNumberString_)(HANDLE device, PVOID buffer, ULONG buffer_len);
@@ -103,9 +103,9 @@ extern "C" {
 	typedef BOOLEAN (__stdcall *HidD_SetFeature_)(HANDLE handle, PVOID data, ULONG length);
 	typedef BOOLEAN (__stdcall *HidD_GetFeature_)(HANDLE handle, PVOID data, ULONG length);
 	typedef BOOLEAN (__stdcall *HidD_GetIndexedString_)(HANDLE handle, ULONG string_index, PVOID buffer, ULONG buffer_len);
-	typedef BOOLEAN (__stdcall *HidD_GetPreparsedData_)(HANDLE handle, HIDP_PREPARSED_DATA **preparsed_data);
-	typedef BOOLEAN (__stdcall *HidD_FreePreparsedData_)(HIDP_PREPARSED_DATA *preparsed_data);
-	typedef BOOLEAN (__stdcall *HidP_GetCaps_)(HIDP_PREPARSED_DATA *preparsed_data, HIDP_CAPS *caps);
+	typedef BOOLEAN (__stdcall *HidD_GetPreparsedData_)(HANDLE handle, PHIDP_PREPARSED_DATA *preparsed_data);
+	typedef BOOLEAN (__stdcall *HidD_FreePreparsedData_)(PHIDP_PREPARSED_DATA preparsed_data);
+	typedef NTSTATUS (__stdcall *HidP_GetCaps_)(PHIDP_PREPARSED_DATA preparsed_data, HIDP_CAPS *caps);
 
 	static HidD_GetAttributes_ HidD_GetAttributes;
 	static HidD_GetSerialNumberString_ HidD_GetSerialNumberString;
@@ -350,7 +350,7 @@ struct hid_device_info HID_API_EXPORT * HID_API_CALL hid_enumerate(unsigned shor
 			#define WSTR_LEN 512
 			const char *str;
 			struct hid_device_info *tmp;
-			HIDP_PREPARSED_DATA *pp_data = NULL;
+			PHIDP_PREPARSED_DATA pp_data = NULL;
 			HIDP_CAPS caps;
 			BOOLEAN res;
 			NTSTATUS nt_res;
@@ -472,7 +472,7 @@ void  HID_API_EXPORT HID_API_CALL hid_free_enumeration(struct hid_device_info *d
 }
 
 
-HID_API_EXPORT hid_device * HID_API_CALL hid_open(unsigned short vendor_id, unsigned short product_id, wchar_t *serial_number)
+HID_API_EXPORT hid_device * HID_API_CALL hid_open(unsigned short vendor_id, unsigned short product_id, const wchar_t *serial_number)
 {
 	// TODO: Merge this functions with the Linux version. This function should be platform independent.
 	struct hid_device_info *devs, *cur_dev;
@@ -512,7 +512,7 @@ HID_API_EXPORT hid_device * HID_API_CALL hid_open_path(const char *path)
 {
 	hid_device *dev;
 	HIDP_CAPS caps;
-	HIDP_PREPARSED_DATA *pp_data = NULL;
+	PHIDP_PREPARSED_DATA pp_data = NULL;
 	BOOLEAN res;
 	NTSTATUS nt_res;
 
