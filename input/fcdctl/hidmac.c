@@ -291,10 +291,10 @@ static int get_string_property(IOHIDDeviceRef device, CFStringRef prop, wchar_t 
 			&used_buf_len);
 
 		buf[chars_copied] = 0;
-		return chars_copied;
+		return 0;
 	}
 	else
-		return 0;
+		return -1;
 		
 }
 
@@ -442,8 +442,6 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 	CFIndex num_devices;
 	int i;
 	
-	setlocale(LC_ALL,"");
-
 	/* Set up the HID Manager if it hasn't been done */
 	if (hid_init() < 0)
 		return NULL;
@@ -543,7 +541,7 @@ void  HID_API_EXPORT hid_free_enumeration(struct hid_device_info *devs)
 	}
 }
 
-hid_device * HID_API_EXPORT hid_open(unsigned short vendor_id, unsigned short product_id, wchar_t *serial_number)
+hid_device * HID_API_EXPORT hid_open(unsigned short vendor_id, unsigned short product_id, const wchar_t *serial_number)
 {
 	/* This function is identical to the Linux version. Platform independent. */
 	struct hid_device_info *devs, *cur_dev;
@@ -752,6 +750,7 @@ hid_device * HID_API_EXPORT hid_open_path(const char *path)
 				char str[32];
 
 				free(device_array);
+				CFRetain(os_dev);
 				CFRelease(device_set);
 				dev->device_handle = os_dev;
 				
@@ -1044,6 +1043,7 @@ void HID_API_EXPORT hid_close(hid_device *dev)
 		return_data(dev, NULL, 0);
 	}
 	pthread_mutex_unlock(&dev->mutex);
+	CFRelease(dev->device_handle);
 
 	free_hid_device(dev);
 }
@@ -1127,8 +1127,6 @@ int main(void)
 	CFIndex num_devices = CFSetGetCount(device_set);
 	IOHIDDeviceRef *device_array = calloc(num_devices, sizeof(IOHIDDeviceRef));
 	CFSetGetValues(device_set, (const void **) device_array);
-	
-	setlocale(LC_ALL, "");
 	
 	for (i = 0; i < num_devices; i++) {
 		IOHIDDeviceRef dev = device_array[i];

@@ -53,7 +53,8 @@ SOURCES += \
     input/rx_source_base.cpp \
     input/rx_source_fcd.cpp \
     input/fcdctl/fcd.c \
-    input/fcdctl/hid-libusb.c \  # FIXME: Linux only
+    input/fcdctl/hidraw.c \  # FIXME: Linux only
+#    input/fcdctl/hid-libusb.c \
 #    input/fcdctl/hidwin.c \
 #    input/fcdctl/hidmac.c \
     pulseaudio/pa_device_list.cc \  # FIXME: Linux only
@@ -145,8 +146,9 @@ unix {
     CONFIG += link_pkgconfig
     PKGCONFIG += gnuradio-core gnuradio-audio
     PKGCONFIG += libpulse libpulse-simple
-    PKGCONFIG += libusb-1.0
+#    PKGCONFIG += libusb-1.0
     PKGCONFIG += gnuradio-osmosdr gnuradio-uhd gnuradio-fcd
+    LIBS += -ludev
 }
 
 macx-g++ {
