@@ -1,3 +1,8 @@
 Makefile
 gqrx.pro.user*
+gqrx
+*.o
+moc_*
+qrc_*
+ui_*
 
