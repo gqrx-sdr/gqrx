@@ -22,6 +22,7 @@
 
 #include <QDialog>
 #include <QString>
+#include <QStringList>
 #include <QSettings>
 #include "pulseaudio/pa_device_list.h"
 
@@ -49,6 +50,7 @@ private:
 
     QSettings *m_settings;
 
+    QStringList       inDevList;
     vector<pa_device> outDevList;
 };
 

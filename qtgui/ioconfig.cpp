@@ -20,8 +20,14 @@
 #include <QtGlobal>
 #include <QSettings>
 #include <QFile>
+#include <QString>
 #include <QStringList>
+#include <QRegExp>
 #include <QDebug>
+
+#include <osmosdr_device.h>
+#include <boost/foreach.hpp>
+
 #include "pulseaudio/pa_device_list.h"
 #include "qtgui/ioconfig.h"
 #include "ui_ioconfig.h"
@@ -32,21 +38,58 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CIoConfig)
 {
+    unsigned int i=0;
+    QRegExp rx("'([a-zA-Z0-9 \\.\\,\\(\\)]+)'"); // extracts device description
+    QString devstr;
+    QString devlabel;
 
     ui->setupUi(this);
-
     connect(this, SIGNAL(accepted()), this, SLOT(saveConfig()));
 
-    QString indev = settings->value("output/device", "").toString();
+    // Get list of input devices and show them in selector
+    osmosdr::devices_t devs = osmosdr::device::find();
+
+    qDebug() << __FUNCTION__ << ": Available input devices:";
+    BOOST_FOREACH(osmosdr::device_t &dev, devs)
+    {
+        if (dev.count("uhd"))   // FIXME: don't need this here?
+            dev["mcr"] = "52e6";
+
+        devstr = QString(dev.to_string().c_str());
+        inDevList << devstr;
+        if (rx.indexIn(devstr, 0) != -1)
+            devlabel = rx.cap(1);
+        else
+            devlabel = "Unknown";
+
+        qDebug() << "   " << i++ << ":"  << devlabel;
+
+        // Following code could be used for multiple matches
+        /*
+        QStringList list;
+        int pos = 0;
+        while ((pos = rx.indexIn(devstr, pos)) != -1)
+        {
+            list << rx.cap(1);
+            pos += rx.matchedLength();
+        }
+        */
+
+        // TODO:
+        //   - Add to combo box
+        //   - Select the active one according to config
+        //   - Sample rates according to device type
+    }
+
+    // Output device
+    QString outdev = settings->value("output/device", "").toString();
 
 #ifdef Q_OS_LINUX
     // get list of output devices
     pa_device_list devices;
     outDevList = devices.get_output_devices();
 
-    unsigned int i;
-
-    qDebug() << __FUNCTION__ << ": Available output devices";
+    qDebug() << __FUNCTION__ << ": Available output devices:";
     for (i = 0; i < outDevList.size(); i++)
     {
         qDebug() << "   " << i << ":" << QString(outDevList[i].get_description().c_str());
@@ -55,7 +98,7 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
 
         // note that item #i in devlist will be item #(i+1)
         // in combo box due to "default"
-        if (indev == QString(outDevList[i].get_name().c_str()))
+        if (outdev == QString(outDevList[i].get_name().c_str()))
             ui->outDevCombo->setCurrentIndex(i+1);
     }
 
