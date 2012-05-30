@@ -31,49 +31,35 @@
        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
       </property>
       <item row="0" column="0">
-       <widget class="QLabel" name="inTypeLabel">
+       <widget class="QLabel" name="inDevLabel1">
         <property name="text">
-         <string>Type</string>
+         <string>Device</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QComboBox" name="inTypeCombo">
+       <widget class="QComboBox" name="inDevCombo">
         <property name="enabled">
          <bool>true</bool>
         </property>
         <property name="toolTip">
-         <string>Select the input device type</string>
+         <string>Seelct an input device.</string>
         </property>
-        <item>
-         <property name="text">
-          <string>Funcube Dongle</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>RTL2832U DVB-T</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>USRP</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>OsmoSDR</string>
-         </property>
-        </item>
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+        </property>
+        <property name="minimumContentsLength">
+         <number>15</number>
+        </property>
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="inDevLabel">
+       <widget class="QLabel" name="inDevLabel2">
         <property name="toolTip">
          <string>Device arguments</string>
         </property>
         <property name="text">
-         <string>Device</string>
+         <string>Device string</string>
         </property>
        </widget>
       </item>
@@ -89,11 +75,6 @@
         <property name="toolTip">
          <string>Select the sample rate of the input source</string>
         </property>
-        <item>
-         <property name="text">
-          <string>96 kHz</string>
-         </property>
-        </item>
        </widget>
       </item>
       <item row="3" column="0">
@@ -142,7 +123,7 @@ Examples (some arguments may be optional):
 </string>
         </property>
         <property name="text">
-         <string>fcd=0</string>
+         <string/>
         </property>
        </widget>
       </item>
