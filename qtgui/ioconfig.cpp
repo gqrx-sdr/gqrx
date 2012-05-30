@@ -21,11 +21,13 @@
 #include <QSettings>
 #include <QFile>
 #include <QString>
-#include <QStringList>
 #include <QRegExp>
+#include <QVariant>
 #include <QDebug>
 
 #include <osmosdr_device.h>
+#include <osmosdr_source_c.h>
+#include <osmosdr_ranges.h>
 #include <boost/foreach.hpp>
 
 #include "pulseaudio/pa_device_list.h"
@@ -39,47 +41,59 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
     ui(new Ui::CIoConfig)
 {
     unsigned int i=0;
-    QRegExp rx("'([a-zA-Z0-9 \\.\\,\\(\\)]+)'"); // extracts device description
+    QRegExp rx("'([a-zA-Z0-9 \\-\\_\\/\\.\\,\\(\\)]+)'"); // extracts device description
     QString devstr;
     QString devlabel;
+    bool cfgmatch=false; //flag to indicate that device from config was found
 
     ui->setupUi(this);
-    connect(this, SIGNAL(accepted()), this, SLOT(saveConfig()));
 
-    // Get list of input devices and show them in selector
+    QString indev = settings->value("input/device", "").toString();
+
+    // Get list of input devices and store them in the input
+    // device selector together with the device descriptor strings
     osmosdr::devices_t devs = osmosdr::device::find();
 
     qDebug() << __FUNCTION__ << ": Available input devices:";
     BOOST_FOREACH(osmosdr::device_t &dev, devs)
     {
-        if (dev.count("uhd"))   // FIXME: don't need this here?
-            dev["mcr"] = "52e6";
-
         devstr = QString(dev.to_string().c_str());
-        inDevList << devstr;
         if (rx.indexIn(devstr, 0) != -1)
             devlabel = rx.cap(1);
         else
             devlabel = "Unknown";
 
+        ui->inDevCombo->addItem(devlabel, QVariant(devstr));
+
+        // is this the device stored in config?
+        if (indev == devstr)
+        {
+            ui->inDevCombo->setCurrentIndex(i);
+            ui->inDevEdit->setText(devstr);
+            cfgmatch = true;
+        }
+
         qDebug() << "   " << i++ << ":"  << devlabel;
 
         // Following code could be used for multiple matches
-        /*
-        QStringList list;
+        /* QStringList list;
         int pos = 0;
-        while ((pos = rx.indexIn(devstr, pos)) != -1)
-        {
+        while ((pos = rx.indexIn(devstr, pos)) != -1) {
             list << rx.cap(1);
             pos += rx.matchedLength();
-        }
-        */
+        } */
 
-        // TODO:
-        //   - Add to combo box
-        //   - Select the active one according to config
-        //   - Sample rates according to device type
     }
+    ui->inDevCombo->addItem(tr("Other..."), QVariant(""));
+
+    // If device string from config is not one of the detected devices
+    // we select the "Other..." entry in the combo box.
+    if (!cfgmatch)
+    {
+        ui->inDevCombo->setCurrentIndex(i);
+        ui->inDevEdit->setText(indev);
+    }
+    updateInputSampleRates(settings->value("input/sample_rate", 0).toInt());
 
     // Output device
     QString outdev = settings->value("output/device", "").toString();
@@ -107,6 +121,9 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
     //QString outdev = settings.value("output", "").toString();
 #endif
 
+    // Signals and slots
+    connect(this, SIGNAL(accepted()), this, SLOT(saveConfig()));
+    connect(ui->inDevCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(inputDeviceSelected(int)));
 
 }
 
@@ -168,4 +185,48 @@ void CIoConfig::saveConfig()
 
     //settings.setValue("input", ui->inDevEdit->text());
     //settings.setValue("output", ui->outDevEdit->text());
+}
+
+
+/*! \brief Update list of sample rates based on selected device.
+ *  \param rate The current sample rate from the configuration.
+ */
+void CIoConfig::updateInputSampleRates(int rate)
+{
+    ui->inSrCombo->clear();
+
+    if (ui->inDevEdit->text().isEmpty())
+    {
+        return;
+    }
+
+    /** FIXME: this code crashes on RTL device so we use fixed rates **/
+    //osmosdr_source_c_sptr src = osmosdr_make_source_c(ui->inDevEdit->text().toStdString());
+    //osmosdr::meta_range_t rates = src->get_sample_rates();
+    //BOOST_FOREACH(osmosdr::range_t &rate, rates)
+    //{
+    //    ui->inSrCombo->addItem(QString("%1 kHz").arg(rate.start()/1000, 0, 'f', 0));
+    //}
+    //src.reset();
+
+    if (rate > 0)
+        ui->inSrCombo->addItem(QString(rate));
+    else if (ui->inDevEdit->text().contains("fcd"))
+        ui->inSrCombo->addItem("96000");
+    else if (ui->inDevEdit->text().contains("rtl"))
+        ui->inSrCombo->addItem("1200000");
+
+}
+
+/*! \brief New input device has been selected by the user.
+ *  \param index The index of the item that has been selected in the combo box.
+ */
+void CIoConfig::inputDeviceSelected(int index)
+{
+    qDebug() << "New input device selected:" << index;
+    qDebug() << "  Label:" << ui->inDevCombo->itemText(index);
+    qDebug() << "  Devstr:" << ui->inDevCombo->itemData(index).toString();
+
+    ui->inDevEdit->setText(ui->inDevCombo->itemData(index).toString());
+    updateInputSampleRates(0);
 }

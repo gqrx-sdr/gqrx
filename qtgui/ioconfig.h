@@ -22,7 +22,6 @@
 
 #include <QDialog>
 #include <QString>
-#include <QStringList>
 #include <QSettings>
 #include "pulseaudio/pa_device_list.h"
 
@@ -44,13 +43,16 @@ public:
 
 private slots:
     void saveConfig();
+    void inputDeviceSelected(int index);
+
+private:
+    void updateInputSampleRates(int rate);
 
 private:
     Ui::CIoConfig *ui;
 
     QSettings *m_settings;
 
-    QStringList       inDevList;
     vector<pa_device> outDevList;
 };
 
