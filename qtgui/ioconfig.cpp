@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #include <QString>
 #include <QRegExp>
 #include <QVariant>
+#include <QPushButton>
 #include <QDebug>
 
 #include <osmosdr_device.h>
@@ -35,10 +36,10 @@
 #include "ui_ioconfig.h"
 
 
-
 CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::CIoConfig)
+    ui(new Ui::CIoConfig),
+    m_settings(settings)
 {
     unsigned int i=0;
     QRegExp rx("'([a-zA-Z0-9 \\-\\_\\/\\.\\,\\(\\)]+)'"); // extracts device description
@@ -92,8 +93,16 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
     {
         ui->inDevCombo->setCurrentIndex(i);
         ui->inDevEdit->setText(indev);
+
+        // Disable OK button if indev is empty
+        if (indev.isEmpty())
+            ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     }
+
     updateInputSampleRates(settings->value("input/sample_rate", 0).toInt());
+
+    // LNB LO
+    ui->loSpinBox->setValue(1.0e-6*settings->value("input/lnb_lo", 0.0).toDouble());
 
     // Output device
     QString outdev = settings->value("output/device", "").toString();
@@ -124,7 +133,7 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
     // Signals and slots
     connect(this, SIGNAL(accepted()), this, SLOT(saveConfig()));
     connect(ui->inDevCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(inputDeviceSelected(int)));
-
+    connect(ui->inDevEdit, SIGNAL(textChanged(QString)), this, SLOT(inputDevstrChanged(QString)));
 }
 
 CIoConfig::~CIoConfig()
@@ -170,21 +179,29 @@ QString CIoConfig::getFcdDeviceName()
 /*! \brief Save configuration. */
 void CIoConfig::saveConfig()
 {
-    int idx=ui->outDevCombo->currentIndex();
+    qDebug() << __FUNCTION__;
+
+    int idx = ui->outDevCombo->currentIndex();
 
     if (idx > 0)
     {
-        //m_settings->setValue("output/device", ui->outDevCombo->currentText());
-
         qDebug() << "Output device" << idx << ":" << QString(outDevList[idx-1].get_name().c_str());
         m_settings->setValue("output/device", QString(outDevList[idx-1].get_name().c_str()));
     }
     else
         qDebug() << "Selected output device is 'default' (not saving)";
 
+    // input settings
+    m_settings->setValue("input/device", ui->inDevEdit->text());  // "OK" button disabled if empty
+    m_settings->setValue("input/lnb_lo", (int)ui->loSpinBox->value()*1.0e6);
 
-    //settings.setValue("input", ui->inDevEdit->text());
-    //settings.setValue("output", ui->outDevEdit->text());
+    bool ok=false;
+    int sr = ui->inSrCombo->currentText().toInt(&ok);
+    if (ok)
+        m_settings->setValue("input/sample_rate", sr);
+    else
+        m_settings->remove("input/sample_rate");
+
 }
 
 
@@ -210,13 +227,14 @@ void CIoConfig::updateInputSampleRates(int rate)
     //src.reset();
 
     if (rate > 0)
-        ui->inSrCombo->addItem(QString(rate));
+        ui->inSrCombo->addItem(QString("%1").arg(rate));
     else if (ui->inDevEdit->text().contains("fcd"))
         ui->inSrCombo->addItem("96000");
     else if (ui->inDevEdit->text().contains("rtl"))
         ui->inSrCombo->addItem("1200000");
 
 }
+
 
 /*! \brief New input device has been selected by the user.
  *  \param index The index of the item that has been selected in the combo box.
@@ -229,4 +247,20 @@ void CIoConfig::inputDeviceSelected(int index)
 
     ui->inDevEdit->setText(ui->inDevCombo->itemData(index).toString());
     updateInputSampleRates(0);
+}
+
+
+/*! \brief Input device string has changed
+ *  \param text THe new device string
+ *
+ * This slot is activated when the device string in the text edit box has changed
+ * either by the user or programatically. We use this to enable/disable the OK
+ * button - we allo OK only if there is some text in the text entry.
+ */
+void CIoConfig::inputDevstrChanged(const QString &text)
+{
+    if (text.isEmpty())
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    else
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 }

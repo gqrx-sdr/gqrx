@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +44,7 @@ public:
 private slots:
     void saveConfig();
     void inputDeviceSelected(int index);
+    void inputDevstrChanged(const QString &text);
 
 private:
     void updateInputSampleRates(int rate);
