@@ -58,7 +58,11 @@ public:
     void SetDemodRanges(int FLowCmin, int FLowCmax, int FHiCmin, int FHiCmax, bool symetric);
 
     /* Shown bandwidth around SetCenterFreq() */
-    void SetSpanFreq(quint32 s) { m_Span = (qint32)s; }
+    void SetSpanFreq(quint32 s)
+    {
+        m_Span = (qint32)s;
+        DrawOverlay();
+    }
     void UpdateOverlay() { DrawOverlay(); }
 
     void setMaxDB(qint32 max);
@@ -72,7 +76,14 @@ public:
     void setFreqDigits(int digits) { m_FreqDigits = digits>=0 ? digits : 0; }
 
     /* Determines full bandwidth. */
-    void setSampleRate(double rate) { if (rate > 0.0) m_SampleFreq = rate; }
+    void setSampleRate(double rate)
+    {
+        if (rate > 0.0)
+        {
+            m_SampleFreq = rate;
+            DrawOverlay();
+        }
+    }
 
     void SetFftCenterFreq(qint64 f) { m_FftCenter = f; }
 
