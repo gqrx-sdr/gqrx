@@ -264,8 +264,7 @@ bool MainWindow::loadConfig(const QString cfgfile)
     int sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
     if (conv_ok && (sr > 0))
     {
-        qDebug() << "FIXME: Input sample rate not implemented!";
-        //rx->set_input_rate(sr);
+        rx->set_input_rate(sr);
     }
 
     uiDockFcdCtl->setFreqCorr(m_settings->value("input/corr_freq", -115).toInt(&conv_ok));

@@ -162,6 +162,28 @@ void receiver::set_output_device(const std::string device)
 }
 
 
+/*! \brief Set new input sample rate.
+ *  \param rate The desired input rate
+ *  \return The actual sample rate set.
+ */
+double receiver::set_input_rate(double rate)
+{
+    tb->lock();
+    d_bandwidth = src->set_sample_rate(rate);
+    rx->set_quad_rate(d_bandwidth);
+    lo->set_sampling_freq(d_bandwidth);
+    tb->unlock();
+
+    return d_bandwidth;
+}
+
+
+/*! \brief Get current input sample rate. */
+double receiver::get_input_rate()
+{
+    return d_bandwidth;
+}
+
 
 /*! \brief Set RF frequency.
  *  \param freq_hz The desired frequency in Hz.

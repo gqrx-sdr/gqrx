@@ -94,6 +94,9 @@ public:
     void set_input_device(const std::string device);
     void set_output_device(const std::string device);
 
+    double set_input_rate(double rate);
+    double get_input_rate();
+
     status set_rf_freq(double freq_hz);
     double get_rf_freq();
 
