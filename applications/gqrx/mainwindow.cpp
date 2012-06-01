@@ -264,7 +264,8 @@ bool MainWindow::loadConfig(const QString cfgfile)
     int sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
     if (conv_ok && (sr > 0))
     {
-        rx->set_input_rate(sr);
+        double actual_rate = rx->set_input_rate(sr);
+        uiDockRxOpt->setFilterOffsetRange((qint64)(0.9*actual_rate));
     }
 
     uiDockFcdCtl->setFreqCorr(m_settings->value("input/corr_freq", -115).toInt(&conv_ok));

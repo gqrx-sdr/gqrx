@@ -44,10 +44,11 @@ class DockRxOpt : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit DockRxOpt(QWidget *parent = 0);
+    explicit DockRxOpt(qint64 filterOffsetRange = 90000, QWidget *parent = 0);
     ~DockRxOpt();
 
     void setFilterOffset(qint64 freq_hz);
+    void setFilterOffsetRange(qint64 range_hz);
 
     void setCurrentFilter(int index);
     int  currentFilter();

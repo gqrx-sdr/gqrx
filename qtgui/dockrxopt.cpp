@@ -21,7 +21,7 @@
 #include "dockrxopt.h"
 #include "ui_dockrxopt.h"
 
-DockRxOpt::DockRxOpt(QWidget *parent) :
+DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockRxOpt),
     agc_is_on(true),
@@ -29,8 +29,7 @@ DockRxOpt::DockRxOpt(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    /** FIXME: BW should be parameter */
-    ui->filterFreq->Setup(7, -45000, 45000, 1, UNITS_KHZ);
+    ui->filterFreq->Setup(7, -filterOffsetRange/2, filterOffsetRange/2, 1, UNITS_KHZ);
     ui->filterFreq->SetFrequency(0);
 
     /* demodulator options dialog */
@@ -55,6 +54,14 @@ void DockRxOpt::setFilterOffset(qint64 freq_hz)
     updateRxFreq();
 }
 
+/*! \brief Set filter offset range.
+ *  \param range_hz The new range in Hz.
+ */
+void DockRxOpt::setFilterOffsetRange(qint64 range_hz)
+{
+    if (range_hz > 0)
+        ui->filterFreq->Setup(7, -range_hz/2, range_hz/2, 1, UNITS_KHZ);
+}
 
 /*! \brief Set new RF frequency
  *  \param freq_hz The frequency in Hz
