@@ -36,6 +36,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     d_lnb_lo(0),
+    configOk(true),
     dec_bpsk1000(0),
     dec_afsk1200(0)
 {
@@ -153,7 +154,16 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     connect(uiDockFft, SIGNAL(fftSplitChanged(int)), this, SLOT(setIqFftSplit(int)));
 
     // restore last session
-    loadConfig(cfgfile);
+    if (!loadConfig(cfgfile))
+    {
+        qDebug() << "No input device found";
+        if (on_actionIoConfig_triggered() != QDialog::Accepted)
+        {
+            qDebug() << "I/O device configuration cancelled.";
+            configOk = false;
+        }
+    }
+
 }
 
 MainWindow::~MainWindow()
@@ -215,15 +225,20 @@ MainWindow::~MainWindow()
 
 /*! \brief Load new configuration.
  *  \param cfgfile
- *  \returns Always true.
+ *  \returns True if config is OK, False if not (e.g. no input device specified).
  *
  * If cfgfile is an absolute path it will be used as is, otherwise it is assumed to be the
  * name of a file under m_cfg_dir.
  *
  * If cfgfile does not exist it will be created.
+ *
+ * If no input device is specified, we return false to signal that the I/O configuration
+ * dialog should be run.
  */
 bool MainWindow::loadConfig(const QString cfgfile)
 {
+    bool conf_ok = false;
+
     qDebug() << "Loading configuration from:" << cfgfile;
 
     if (m_settings)
@@ -238,21 +253,36 @@ bool MainWindow::loadConfig(const QString cfgfile)
 
     emit configChanged(m_settings);
 
+
     // manual reconf (FIXME: check status)
-    bool cok = false;
+    bool conv_ok = false;
 
-    uiDockFcdCtl->setFreqCorr(m_settings->value("input/corr_freq", -115).toInt(&cok));
+    QString indev = m_settings->value("input/device", "").toString();
+    if (!indev.isEmpty())
+    {
+        conf_ok = true;
+        rx->set_input_device(indev.toStdString());
+    }
 
-    d_lnb_lo = m_settings->value("input/lnb_lo", 0).toLongLong(&cok);
+    int sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
+    if (conv_ok && (sr > 0))
+    {
+        qDebug() << "FIXME: Input sample rate not implemented!";
+        //rx->set_input_rate(sr);
+    }
+
+    uiDockFcdCtl->setFreqCorr(m_settings->value("input/corr_freq", -115).toInt(&conv_ok));
+
+    d_lnb_lo = m_settings->value("input/lnb_lo", 0).toLongLong(&conv_ok);
     uiDockFcdCtl->setLnbLo((double)d_lnb_lo/1.0e6);
-    ui->freqCtrl->SetFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&cok));
+    ui->freqCtrl->SetFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&conv_ok));
 
-    uiDockFcdCtl->setLnaGain(m_settings->value("input/gain", 20).toFloat(&cok));
-    setRfGain(m_settings->value("input/gain", 20).toFloat(&cok));
-    uiDockFcdCtl->setIqGain(m_settings->value("input/corr_iq_gain", 1.0).toDouble(&cok));
-    uiDockFcdCtl->setIqPhase(m_settings->value("input/corr_iq_phase", 0.0).toDouble(&cok));
+    uiDockFcdCtl->setLnaGain(m_settings->value("input/gain", 20).toFloat(&conv_ok));
+    setRfGain(m_settings->value("input/gain", 20).toFloat(&conv_ok));
+    uiDockFcdCtl->setIqGain(m_settings->value("input/corr_iq_gain", 1.0).toDouble(&conv_ok));
+    uiDockFcdCtl->setIqPhase(m_settings->value("input/corr_iq_phase", 0.0).toDouble(&conv_ok));
 
-    return true;
+    return conf_ok;
 }
 
 /*! \brief Save current configuration to a file.
@@ -970,7 +1000,7 @@ void MainWindow::on_actionDSP_triggered(bool checked)
  * configurator using the OK button, the new configuration is read and
  * sent to the receiver.
  */
-void MainWindow::on_actionIoConfig_triggered()
+int MainWindow::on_actionIoConfig_triggered()
 {
     qDebug() << "Configure I/O devices.";
 
@@ -981,6 +1011,8 @@ void MainWindow::on_actionIoConfig_triggered()
         loadConfig(m_settings->fileName());
 
     delete ioconf;
+
+    return confres;
 }
 
 /*! \brief Load configuration activated by user. */

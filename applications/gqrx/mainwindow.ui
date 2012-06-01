@@ -193,7 +193,7 @@
     <string>Quit</string>
    </property>
    <property name="toolTip">
-    <string>Quict application</string>
+    <string>Quit application</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>

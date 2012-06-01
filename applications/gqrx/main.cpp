@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName(GQRX_APP_NAME);
     QCoreApplication::setApplicationVersion(VERSION);
 
+/*
     QString indev = CIoConfig::getFcdDeviceName();
     if (indev.isEmpty())
     {
@@ -46,11 +47,17 @@ int main(int argc, char *argv[])
 
         return 0;
     }
+*/
 
-    // We should now have at least an input device configured
-    // and MainWindow will pick that up.
+    // Mainwindow will check whether we have a configuration
+    // and open the config dialog if there is none.
     MainWindow w;
-    w.show();
 
-    return a.exec();
+    if (w.configOk)
+    {
+        w.show();
+        return a.exec();
+    }
+    else
+        return 1;
 }

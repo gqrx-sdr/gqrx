@@ -52,6 +52,8 @@ public:
     bool loadConfig(const QString cfgfile);
     bool saveConfig(const QString cfgfile);
 
+    bool configOk; /*!< Main app uses this flag to know whether we should abort or continue. */
+
 signals:
     void configChanged(QSettings *settings); /*!< New configuration has been loaded. */
 
@@ -133,7 +135,7 @@ private slots:
 
     /* menu and toolbar actions */
     void on_actionDSP_triggered(bool checked);
-    void on_actionIoConfig_triggered();
+    int  on_actionIoConfig_triggered();
     void on_actionLoadSettings_triggered();
     void on_actionSaveSettings_triggered();
     void on_actionIqRec_triggered(bool checked);
