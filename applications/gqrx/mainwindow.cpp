@@ -58,10 +58,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     d_filter_shape = receiver::FILTER_SHAPE_NORMAL;
 
     /* create receiver object */
-    QString indev = CIoConfig::getFcdDeviceName();
-    //QString outdev = settings.value("output").toString();
-
-    rx = new receiver(indev.toStdString(), "");
+    rx = new receiver("", "");
     rx->set_rf_freq(144500000.0f);
 
     /* meter timer */

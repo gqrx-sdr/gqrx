@@ -50,10 +50,10 @@ SOURCES += \
     dsp/correct_iq_cc.cpp \
     dsp/rx_noise_blanker_cc.cpp \
     dsp/resampler_xx.cpp \
-    input/rx_source_base.cpp \
-    input/rx_source_fcd.cpp \
-    input/fcdctl/fcd.c \
-    input/fcdctl/hidraw.c \  # FIXME: Linux only
+#    input/rx_source_base.cpp \
+#    input/rx_source_fcd.cpp \
+#    input/fcdctl/fcd.c \
+#    input/fcdctl/hidraw.c \  # FIXME: Linux only
 #    input/fcdctl/hid-libusb.c \
 #    input/fcdctl/hidwin.c \
 #    input/fcdctl/hidmac.c \
@@ -97,11 +97,11 @@ HEADERS += \
     dsp/correct_iq_cc.h \
     dsp/resampler_xx.h \
     dsp/rx_noise_blanker_cc.h \
-    input/rx_source_base.h \
-    input/rx_source_fcd.h \
-    input/fcdctl/hidapi.h \
-    input/fcdctl/fcdhidcmd.h \
-    input/fcdctl/fcd.h \
+#    input/rx_source_base.h \
+#    input/rx_source_fcd.h \
+#    input/fcdctl/hidapi.h \
+#    input/fcdctl/fcdhidcmd.h \
+#    input/fcdctl/fcd.h \
     pulseaudio/pa_device_list.h \  # FIXME: Linux only
     pulseaudio/pa_sink.h \
     pulseaudio/pa_source.h \

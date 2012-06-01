@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,9 @@
 #include <gr_wavfile_sink.h>
 #include <gr_wavfile_source.h>
 #include <gr_null_sink.h>
+
+#include <osmosdr_source_c.h>
+
 #include "dsp/correct_iq_cc.h"
 #include "dsp/rx_noise_blanker_cc.h"
 #include "dsp/rx_filter.h"
@@ -37,7 +40,6 @@
 #include "dsp/rx_fft.h"
 #include "dsp/sniffer_f.h"
 #include "dsp/resampler_xx.h"
-#include "input/rx_source_fcd.h"
 #include "receivers/nbrx.h"
 
 #include <pulseaudio/pa_sink.h>
@@ -170,7 +172,8 @@ private:
 
     gr_top_block_sptr         tb;        /*!< The GNU Radio top block. */
 
-    rx_source_base_sptr       src;       /*!< Real time I/Q source. */
+    osmosdr_source_c_sptr     src;       /*!< Real time I/Q source. */
+    //rx_source_base_sptr       src;       /*!< Real time I/Q source. */
     receiver_base_cf_sptr     rx;        /*!< receiver. */
 
     dc_corr_cc_sptr           dc_corr;   /*!< DC corrector block. */

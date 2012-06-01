@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,8 +25,9 @@
 #include <gr_multiply_const_ff.h>
 #include <gr_simple_squelch_cc.h>
 
+#include <osmosdr_source_c.h>
+
 #include "receiver.h"
-#include "input/rx_source_fcd.h"
 #include "dsp/correct_iq_cc.h"
 #include "dsp/rx_filter.h"
 #include "dsp/rx_meter.h"
@@ -38,7 +39,7 @@
 
 
 /*! \brief Public contructor.
- *  \param input_device Input device specifier, e.g. hw:1 for FCD source.
+ *  \param input_device Input device specifier.
  *  \param audio_device Audio output device specifier,
  *                      e.g. hw:0 when using ALSA or Portaudio.
  *
@@ -54,8 +55,15 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
 {
     tb = gr_make_top_block("gqrx");
 
-    src = make_rx_source_fcd(input_device);
-    //src->set_freq(d_rf_freq);
+    if (input_device.empty())
+    {
+        // FIXME: other OS
+        src = osmosdr_make_source_c("file=/dev/random,freq=428e6,rate=96000,repeat=true,throttle=true");
+    }
+    else
+    {
+        src = osmosdr_make_source_c(input_device);
+    }
 
     rx = make_nbrx(96000.0, 48000.0);
     lo = gr_make_sig_source_c(96000, GR_SIN_WAVE, 0.0, 1.0);
@@ -126,7 +134,17 @@ void receiver::stop()
  */
 void receiver::set_input_device(const std::string device)
 {
-    src->select_device(device);
+    if (device.empty())
+        return;
+
+    tb->lock();
+
+    tb->disconnect(src, 0, dc_corr, 0);
+    src.reset();
+    src = osmosdr_make_source_c(device);
+    tb->connect(src, 0, dc_corr, 0);
+
+    tb->unlock();
 }
 
 
@@ -154,7 +172,7 @@ receiver::status receiver::set_rf_freq(double freq_hz)
 {
     d_rf_freq = freq_hz;
 
-    src->set_freq(d_rf_freq);
+    src->set_center_freq(d_rf_freq);
     // FIXME: read back frequency?
 
     return STATUS_OK;
@@ -166,7 +184,7 @@ receiver::status receiver::set_rf_freq(double freq_hz)
  */
 double receiver::get_rf_freq()
 {
-    d_rf_freq = src->get_freq();
+    d_rf_freq = src->get_center_freq();
 
     return d_rf_freq;
 }
@@ -272,14 +290,14 @@ receiver::status receiver::set_freq_corr(int ppm)
 
 receiver::status receiver::set_dc_corr(double dci, double dcq)
 {
-    src->set_dc_corr(dci, dcq);
+    //src->set_dc_corr(dci, dcq);   FIXME!
 
     return STATUS_OK;
 }
 
 receiver::status receiver::set_iq_corr(double gain, double phase)
 {
-    src->set_iq_corr(gain, phase);
+    //src->set_iq_corr(gain, phase);   FIXME!
 
     return STATUS_OK;
 }
