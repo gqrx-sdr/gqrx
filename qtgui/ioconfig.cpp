@@ -88,15 +88,23 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
     ui->inDevCombo->addItem(tr("Other..."), QVariant(""));
 
     // If device string from config is not one of the detected devices
-    // we select the "Other..." entry in the combo box.
+    // it could be that device is not plugged in (in which case we select
+    // other) or that this is the first time (select the first detected device).
     if (!cfgmatch)
     {
-        ui->inDevCombo->setCurrentIndex(i);
-        ui->inDevEdit->setText(indev);
-
-        // Disable OK button if indev is empty
         if (indev.isEmpty())
+        {
+            // First time config: select the first detected device
+            ui->inDevCombo->setCurrentIndex(0);
+            ui->inDevEdit->setText(ui->inDevCombo->itemData(0).toString());
             ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+        }
+        else
+        {
+            // Select other
+            ui->inDevCombo->setCurrentIndex(i);
+            ui->inDevEdit->setText(indev);
+        }
     }
 
     updateInputSampleRates(settings->value("input/sample_rate", 0).toInt());
