@@ -46,12 +46,14 @@
  * \todo Option to use UHD device instead of FCD.
  */
 receiver::receiver(const std::string input_device, const std::string audio_device)
-    : d_input_rate(96000.0), d_audio_rate(48000),
-      d_rf_freq(144800000.0), d_filter_offset(0.0),
-      d_demod(RX_DEMOD_FM),
+    : d_running(false),
+      d_input_rate(96000.0),
+      d_audio_rate(48000),
+      d_rf_freq(144800000.0),
+      d_filter_offset(0.0),
       d_recording_wav(false),
       d_sniffer_active(false),
-      d_running(false)
+      d_demod(RX_DEMOD_FM)
 {
     tb = gr_make_top_block("gqrx");
 
