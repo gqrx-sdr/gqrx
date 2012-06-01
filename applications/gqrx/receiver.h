@@ -163,8 +163,8 @@ public:
 
 private:
     bool   d_running;          /*!< Whether receiver is running or not. */
-    float  d_bandwidth;        /*!< Receiver bandwidth. */
-    int    d_audio_rate;       /*!< Audio output rate. */
+    double d_input_rate;       /*!< Input sample rate. */
+    double d_audio_rate;       /*!< Audio output rate. */
     double d_rf_freq;          /*!< Current RF frequency. */
     double d_filter_offset;    /*!< Current filter offset (tune within passband). */
     bool   d_recording_wav;    /*!< Whether we are recording WAV file. */

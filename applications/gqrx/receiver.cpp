@@ -46,7 +46,7 @@
  * \todo Option to use UHD device instead of FCD.
  */
 receiver::receiver(const std::string input_device, const std::string audio_device)
-    : d_bandwidth(96000.0), d_audio_rate(48000),
+    : d_input_rate(96000.0), d_audio_rate(48000),
       d_rf_freq(144800000.0), d_filter_offset(0.0),
       d_demod(RX_DEMOD_FM),
       d_recording_wav(false),
@@ -65,8 +65,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
         src = osmosdr_make_source_c(input_device);
     }
 
-    rx = make_nbrx(96000.0, 48000.0);
-    lo = gr_make_sig_source_c(96000, GR_SIN_WAVE, 0.0, 1.0);
+    rx = make_nbrx(d_input_rate, d_audio_rate);
+    lo = gr_make_sig_source_c(d_input_rate, GR_SIN_WAVE, 0.0, 1.0);
     mixer = gr_make_multiply_cc();
 
     dc_corr = make_dc_corr_cc(0.01f);
@@ -169,19 +169,19 @@ void receiver::set_output_device(const std::string device)
 double receiver::set_input_rate(double rate)
 {
     tb->lock();
-    d_bandwidth = src->set_sample_rate(rate);
-    rx->set_quad_rate(d_bandwidth);
-    lo->set_sampling_freq(d_bandwidth);
+    d_input_rate = src->set_sample_rate(rate);
+    rx->set_quad_rate(d_input_rate);
+    lo->set_sampling_freq(d_input_rate);
     tb->unlock();
 
-    return d_bandwidth;
+    return d_input_rate;
 }
 
 
 /*! \brief Get current input sample rate. */
 double receiver::get_input_rate()
 {
-    return d_bandwidth;
+    return d_input_rate;
 }
 
 
