@@ -265,6 +265,8 @@ bool MainWindow::loadConfig(const QString cfgfile)
     if (conv_ok && (sr > 0))
     {
         double actual_rate = rx->set_input_rate(sr);
+        qDebug() << "Requested sample rate:" << sr;
+        qDebug() << "Actual sample rate   :" << QString("%1").arg(actual_rate, 0, 'f', 6);
         uiDockRxOpt->setFilterOffsetRange((qint64)(0.9*actual_rate));
         ui->plotter->setSampleRate(actual_rate);
         ui->plotter->SetSpanFreq((quint32)actual_rate);
