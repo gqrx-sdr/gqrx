@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>296</width>
+    <width>300</width>
     <height>324</height>
    </rect>
   </property>
@@ -74,6 +74,9 @@
        <widget class="QComboBox" name="inSrCombo">
         <property name="toolTip">
          <string>Select the sample rate of the input source</string>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
