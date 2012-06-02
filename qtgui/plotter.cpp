@@ -230,6 +230,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 {
                     m_DemodHiCutFreq = -m_DemodLowCutFreq;
                 }
+                ClampDemodParameters();
 
                 emit NewFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
                 if (m_Running)
@@ -261,6 +262,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 {
                     m_DemodLowCutFreq = -m_DemodHiCutFreq;
                 }
+                ClampDemodParameters();
 
                 emit NewFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
                 if (m_Running)
@@ -724,17 +726,19 @@ void CPlotter::DrawOverlay()
         m_HorDivs++;   // we want an odd number of divs so that we have a center line
 
     //m_OverlayPixmap.fill(Qt::black);
-    //fill background with gradient
+    // fill background with gradient
     QLinearGradient gradient(0, 0, 0 ,h);
     gradient.setColorAt(0, QColor(0x20,0x20,0x20,0xFF));
     gradient.setColorAt(1, QColor(0x4F,0x4F,0x4F,0xFF));
     painter.setBrush(gradient);
     painter.drawRect(0, 0, w, h);
 
-    //Draw demod filter box
+    // Draw demod filter box
     if (m_FilterBoxEnabled)
     {
-        ClampDemodParameters();
+        // Clamping no longer necessary as we do it in mouseMove()
+        //ClampDemodParameters();
+
         m_DemodFreqX = XfromFreq(m_DemodCenterFreq);
         m_DemodLowCutFreqX = XfromFreq(m_DemodCenterFreq + m_DemodLowCutFreq);
         m_DemodHiCutFreqX = XfromFreq(m_DemodCenterFreq + m_DemodHiCutFreq);
@@ -750,7 +754,7 @@ void CPlotter::DrawOverlay()
         painter.drawLine(m_DemodFreqX, 0, m_DemodFreqX, h);
     }
 
-    //create Font to use for scales
+    // create Font to use for scales
     QFont Font("Arial");
     Font.setPointSize(m_FontSize);
     QFontMetrics metrics(Font);
@@ -773,7 +777,7 @@ void CPlotter::DrawOverlay()
         painter.drawLine(x, 0, x , y);
     }
 
-    //draw frequency values
+    // draw frequency values
     MakeFrequencyStrs();
     painter.setPen(QColor(0xD8,0xBA,0xA1,0xFF));
     y = h - (h/m_VerDivs);
@@ -793,7 +797,7 @@ void CPlotter::DrawOverlay()
         painter.drawLine(5*metrics.width("0",-1), y, w, y);
     }
 
-    //draw amplitude values
+    // draw amplitude values
     painter.setPen(QColor(0xD8,0xBA,0xA1,0xFF));
     //Font.setWeight(QFont::Light);
     painter.setFont(Font);
@@ -801,17 +805,19 @@ void CPlotter::DrawOverlay()
     m_YAxisWidth = metrics.width("-120 ");
     for (int i = 1; i < m_VerDivs; i++)
     {
-        dB -= m_dBStepSize;  /* move to end if want to include maxdb */
+        dB -= m_dBStepSize;  // move to end if want to include maxdb
         y = (int)((float)i*pixperdiv);
         rect.setRect(0, y-metrics.height()/2, m_YAxisWidth, metrics.height());
         painter.drawText(rect, Qt::AlignRight|Qt::AlignVCenter, QString::number(dB));
     }
 
     if (!m_Running)
-    {	//if not running so is no data updates to draw to screen
-        //copy into 2Dbitmap the overlay bitmap.
+    {
+        // if not running so is no data updates to draw to screen
+        // copy into 2Dbitmap the overlay bitmap.
         m_2DPixmap = m_OverlayPixmap.copy(0,0,w,h);
-        //trigger a new paintEvent
+
+        // trigger a new paintEvent
         update();
     }
 }
