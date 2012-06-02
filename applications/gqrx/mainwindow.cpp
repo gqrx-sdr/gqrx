@@ -49,7 +49,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     else
         m_cfg_dir = QString("%1/gqrx").arg(xdg_dir.data());
 
-    setWindowTitle(QString("gqrx %1 (Funcube Dongle)").arg(VERSION));
+    setWindowTitle(QString("Gqrx %1").arg(VERSION));
 
     /* frequency control widget */
     ui->freqCtrl->Setup(10, (quint64) 0, (quint64) 9999e6, 1, UNITS_MHZ);
@@ -259,6 +259,16 @@ bool MainWindow::loadConfig(const QString cfgfile)
     {
         conf_ok = true;
         rx->set_input_device(indev.toStdString());
+
+        // Update window title
+        QRegExp rx("'([a-zA-Z0-9 \\-\\_\\/\\.\\,\\(\\)]+)'");
+        QString devlabel;
+        if (rx.indexIn(indev, 0) != -1)
+            devlabel = rx.cap(1);
+        else
+            devlabel = "Unknown";
+
+        setWindowTitle(QString("Gqrx %1 - %2").arg(VERSION).arg(devlabel));
     }
 
     int sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
