@@ -61,6 +61,8 @@ public slots:
     void setNewFrequency(qint64 freq);
 
 private:
+    Ui::MainWindow *ui;
+
     QPointer<QSettings> m_settings;  /*!< Application wide settings. */
     QString             m_cfg_dir;   /*!< Default config dir, e.g. XDG_CONFIG_HOME. */
     QString             m_last_dir;
@@ -72,8 +74,6 @@ private:
     double *d_realFftData;
     //double *d_audioFttData;
 
-    Ui::MainWindow *ui;
-
     /* dock widgets */
     DockRxOpt      *uiDockRxOpt;
     DockAudio      *uiDockAudio;
@@ -82,8 +82,8 @@ private:
     DockFft        *uiDockFft;
 
     /* data decoders */
-    Afsk1200Win    *dec_afsk1200;
     Bpsk1000Win    *dec_bpsk1000;
+    Afsk1200Win    *dec_afsk1200;
 
     QTimer   *dec_timer;
     QTimer   *meter_timer;

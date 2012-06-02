@@ -34,9 +34,9 @@
 
 MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     QMainWindow(parent),
+    configOk(true),
     ui(new Ui::MainWindow),
     d_lnb_lo(0),
-    configOk(true),
     dec_bpsk1000(0),
     dec_afsk1200(0)
 {
@@ -747,7 +747,6 @@ void MainWindow::iqFftTimeout()
     int i;
     std::complex<float> pt;             /* a single FFT point used in calculations */
     std::complex<float> scaleFactor;    /* normalizing factor (fftsize cast to complex) */
-    double min=0.0,max=-120.0,avg=0.0;
 
 
     rx->get_iq_fft_data(d_fftData, fftsize);
@@ -799,7 +798,6 @@ void MainWindow::audioFftTimeout()
     int i;
     std::complex<float> pt;             /* a single FFT point used in calculations */
     std::complex<float> scaleFactor;    /* normalizing factor (fftsize cast to complex) */
-    double min=0.0,max=-120.0,avg=0.0;
 
 
     rx->get_audio_fft_data(d_fftData, fftsize);
@@ -1177,10 +1175,10 @@ void MainWindow::on_actionAFSK1200_triggered()
             dec_timer->start(100);
         }
         else {
-            int ret = QMessageBox::warning(this, tr("Gqrx error"),
-                                           tr("Error starting sample sniffer.\n"
-                                              "Close all data decoders and try again."),
-                                           QMessageBox::Ok, QMessageBox::Ok);
+            QMessageBox::warning(this, tr("Gqrx error"),
+                                 tr("Error starting sample sniffer.\n"
+                                    "Close all data decoders and try again."),
+                                 QMessageBox::Ok, QMessageBox::Ok);
         }
     }
 }
@@ -1229,10 +1227,10 @@ void MainWindow::on_actionBPSK1000_triggered()
             dec_timer->start(100);
         }
         else {
-            int ret = QMessageBox::warning(this, tr("Gqrx error"),
-                                           tr("Error starting sample sniffer.\n"
-                                              "Close all data decoders and try again."),
-                                           QMessageBox::Ok, QMessageBox::Ok);
+            QMessageBox::warning(this, tr("Gqrx error"),
+                                 tr("Error starting sample sniffer.\n"
+                                    "Close all data decoders and try again."),
+                                 QMessageBox::Ok, QMessageBox::Ok);
         }
     }
 }
