@@ -30,10 +30,10 @@ nbrx_sptr make_nbrx(float quad_rate, float audio_rate)
 
 nbrx::nbrx(float quad_rate, float audio_rate)
     : receiver_base_cf("NBRX"),
+      d_running(false),
       d_quad_rate(quad_rate),
       d_audio_rate(audio_rate),
-      d_demod(NBRX_DEMOD_FM),
-      d_running(false)
+      d_demod(NBRX_DEMOD_FM)
 {
     iq_resamp = make_resampler_cc(PREF_QUAD_RATE/d_quad_rate);
 
@@ -68,11 +68,15 @@ nbrx::~nbrx()
 bool nbrx::start()
 {
     d_running = true;
+
+    return true;
 }
 
 bool nbrx::stop()
 {
     d_running = false;
+
+    return true;
 }
 
 void nbrx::set_quad_rate(float quad_rate)
@@ -91,7 +95,7 @@ void nbrx::set_quad_rate(float quad_rate)
 
 void nbrx::set_audio_rate(float audio_rate)
 {
-
+    (void) audio_rate;
 }
 
 void nbrx::set_filter(double low, double high, double tw)
