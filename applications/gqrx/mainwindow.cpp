@@ -191,7 +191,11 @@ MainWindow::~MainWindow()
 
         double dblval = uiDockFcdCtl->lnaGain();
         m_settings->setValue("input/gain", dblval);
-        m_settings->setValue("input/corr_freq", uiDockFcdCtl->freqCorr());
+
+        if (uiDockFcdCtl->freqCorr())
+            m_settings->setValue("input/corr_freq", uiDockFcdCtl->freqCorr());
+        else
+            m_settings->remove("input/corr_freq");
 
         dblval = uiDockFcdCtl->iqGain();
         if (dblval < 1.0)
@@ -282,8 +286,8 @@ bool MainWindow::loadConfig(const QString cfgfile)
         ui->plotter->SetSpanFreq((quint32)actual_rate);
     }
 
-    uiDockFcdCtl->setFreqCorr(m_settings->value("input/corr_freq", -115).toInt(&conv_ok));
-    rx->set_freq_corr(m_settings->value("input/corr_freq", -115).toInt(&conv_ok));
+    uiDockFcdCtl->setFreqCorr(m_settings->value("input/corr_freq", 0).toInt(&conv_ok));
+    rx->set_freq_corr(m_settings->value("input/corr_freq", 0).toInt(&conv_ok));
 
     d_lnb_lo = m_settings->value("input/lnb_lo", 0).toLongLong(&conv_ok);
     uiDockFcdCtl->setLnbLo((double)d_lnb_lo/1.0e6);
