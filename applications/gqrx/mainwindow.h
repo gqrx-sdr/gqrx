@@ -28,7 +28,7 @@
 
 #include "qtgui/dockrxopt.h"
 #include "qtgui/dockaudio.h"
-#include "qtgui/dockfcdctl.h"
+#include "qtgui/dockinputctl.h"
 #include "qtgui/dockiqplayer.h"
 #include "qtgui/dockfft.h"
 #include "qtgui/afsk1200win.h"
@@ -77,7 +77,7 @@ private:
     /* dock widgets */
     DockRxOpt      *uiDockRxOpt;
     DockAudio      *uiDockAudio;
-    DockFcdCtl     *uiDockFcdCtl;
+    DockInputCtl   *uiDockInputCtl;
     //DockIqPlayer   *uiDockIqPlay;
     DockFft        *uiDockFft;
 

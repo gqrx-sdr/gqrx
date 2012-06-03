@@ -18,28 +18,28 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <QDebug>
-#include "dockfcdctl.h"
-#include "ui_dockfcdctl.h"
+#include "dockinputctl.h"
+#include "ui_dockinputctl.h"
 
-DockFcdCtl::DockFcdCtl(QWidget *parent) :
+DockInputCtl::DockInputCtl(QWidget *parent) :
     QDockWidget(parent),
-    ui(new Ui::DockFcdCtl)
+    ui(new Ui::DockInputCtl)
 {
     ui->setupUi(this);
 }
 
-DockFcdCtl::~DockFcdCtl()
+DockInputCtl::~DockInputCtl()
 {
     delete ui;
 }
 
 
-void DockFcdCtl::setLnbLo(double freq_mhz)
+void DockInputCtl::setLnbLo(double freq_mhz)
 {
     ui->lnbSpinBox->setValue(freq_mhz);
 }
 
-double DockFcdCtl::lnbLo()
+double DockInputCtl::lnbLo()
 {
     return ui->lnbSpinBox->value();
 }
@@ -48,7 +48,7 @@ double DockFcdCtl::lnbLo()
 /*! \brief Set new LNA gain.
  *  \param gain The new gain in the range is -5.0 .. 30.0 dB.
  */
-void DockFcdCtl::setLnaGain(float gain)
+void DockInputCtl::setLnaGain(float gain)
 {
     int index = -1;
 
@@ -83,7 +83,7 @@ void DockFcdCtl::setLnaGain(float gain)
 }
 
 /*! \brief Get current LNA gain. */
-float DockFcdCtl::lnaGain()
+float DockInputCtl::lnaGain()
 {
     QString strval = ui->lnaComboBox->currentText();
     float gain;
@@ -108,14 +108,14 @@ float DockFcdCtl::lnaGain()
 /*! \brief Set new frequency correction.
  *  \param corr The new frequency correction in PPM.
  */
-void DockFcdCtl::setFreqCorr(int corr)
+void DockInputCtl::setFreqCorr(int corr)
 {
     ui->freqCorrSpinBox->setValue(corr);
 }
 
 
 /*! \brief Get current frequency correction. */
-int DockFcdCtl::freqCorr()
+int DockInputCtl::freqCorr()
 {
     return ui->freqCorrSpinBox->value();
 }
@@ -124,7 +124,7 @@ int DockFcdCtl::freqCorr()
 /*! \brief Set new I/Q gain.
  *  \param gain The new gain in the range -1.0 ... +1.0
  */
-void   DockFcdCtl::setIqGain(double gain)
+void DockInputCtl::setIqGain(double gain)
 {
     ui->iqGainSpinBox->setValue(gain);
 }
@@ -133,7 +133,7 @@ void   DockFcdCtl::setIqGain(double gain)
 /*! \brief Get current I/Q gain.
  *  \return The current I/Q gain in the range -1.0 ... +1.0
  */
-double DockFcdCtl::iqGain()
+double DockInputCtl::iqGain()
 {
     return ui->iqGainSpinBox->value();
 }
@@ -142,7 +142,7 @@ double DockFcdCtl::iqGain()
 /*! \brief Set new I/Q phase.
  *  \param gain The new phase in the range -1.0 ... +1.0
  */
-void  DockFcdCtl::setIqPhase(double phase)
+void DockInputCtl::setIqPhase(double phase)
 {
     ui->iqPhaseSpinBox->setValue(phase);
 }
@@ -151,20 +151,20 @@ void  DockFcdCtl::setIqPhase(double phase)
 /*! \brief Get current I/Q phase.
  *  \return The current I/Q phase in the range -1.0 ... +1.0
  */
-double DockFcdCtl::iqPhase()
+double DockInputCtl::iqPhase()
 {
     return ui->iqPhaseSpinBox->value();
 }
 
 
 /*! \brief LNB LO value has changed. */
-void DockFcdCtl::on_lnbSpinBox_valueChanged(double value)
+void DockInputCtl::on_lnbSpinBox_valueChanged(double value)
 {
     emit lnbLoChanged(value);
 }
 
 
-void DockFcdCtl::on_lnaComboBox_activated(const QString value)
+void DockInputCtl::on_lnaComboBox_activated(const QString value)
 {
     QString strval = value;
     float gain;
@@ -188,7 +188,7 @@ void DockFcdCtl::on_lnaComboBox_activated(const QString value)
 /*! \brief Frequency correction changed.
  *  \param value The new frequency correction in ppm.
  */
-void DockFcdCtl::on_freqCorrSpinBox_valueChanged(int value)
+void DockInputCtl::on_freqCorrSpinBox_valueChanged(int value)
 {
     emit freqCorrChanged(value);
 }
@@ -197,7 +197,7 @@ void DockFcdCtl::on_freqCorrSpinBox_valueChanged(int value)
 /*! \brief I/Q gain changed.
  *  \param value The new I/Q gain
  */
-void DockFcdCtl::on_iqGainSpinBox_valueChanged(double value)
+void DockInputCtl::on_iqGainSpinBox_valueChanged(double value)
 {
     emit iqCorrChanged(value, ui->iqPhaseSpinBox->value());
 }
@@ -206,7 +206,7 @@ void DockFcdCtl::on_iqGainSpinBox_valueChanged(double value)
 /*! \brief I/Q phase changed.
  *  \param The new I/Q phase.
  */
-void DockFcdCtl::on_iqPhaseSpinBox_valueChanged(double value)
+void DockInputCtl::on_iqPhaseSpinBox_valueChanged(double value)
 {
     emit iqCorrChanged(ui->iqGainSpinBox->value(), value);
 }

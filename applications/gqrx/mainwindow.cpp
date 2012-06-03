@@ -82,7 +82,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     /* create dock widgets */
     uiDockRxOpt = new DockRxOpt();
     uiDockAudio = new DockAudio();
-    uiDockFcdCtl = new DockFcdCtl();
+    uiDockInputCtl = new DockInputCtl();
     //uiDockIqPlay = new DockIqPlayer();
     uiDockFft = new DockFft();
 
@@ -91,9 +91,9 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
        end up floating in their own top-level window and can not be
        docked to the mainwindow.
     */
-    addDockWidget(Qt::RightDockWidgetArea, uiDockFcdCtl);
+    addDockWidget(Qt::RightDockWidgetArea, uiDockInputCtl);
     addDockWidget(Qt::RightDockWidgetArea, uiDockRxOpt);
-    tabifyDockWidget(uiDockFcdCtl, uiDockRxOpt);
+    tabifyDockWidget(uiDockInputCtl, uiDockRxOpt);
 
     addDockWidget(Qt::RightDockWidgetArea, uiDockAudio);
     addDockWidget(Qt::RightDockWidgetArea, uiDockFft);
@@ -102,7 +102,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     //addDockWidget(Qt::BottomDockWidgetArea, uiDockIqPlay);
 
     /* hide docks that we don't want to show initially */
-    uiDockFcdCtl->hide();
+    uiDockInputCtl->hide();
     uiDockFft->hide();
     //uiDockIqPlay->hide();
 
@@ -112,7 +112,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     /* Add dock widget actions to View menu. By doing it this way all signal/slot
        connections will be established automagially.
     */
-    ui->menu_View->addAction(uiDockFcdCtl->toggleViewAction());
+    ui->menu_View->addAction(uiDockInputCtl->toggleViewAction());
     ui->menu_View->addAction(uiDockRxOpt->toggleViewAction());
     ui->menu_View->addAction(uiDockAudio->toggleViewAction());
     ui->menu_View->addAction(uiDockFft->toggleViewAction());
@@ -124,10 +124,10 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
 
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(NewFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
-    connect(uiDockFcdCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
-    connect(uiDockFcdCtl, SIGNAL(lnaGainChanged(float)), SLOT(setRfGain(float)));
-    connect(uiDockFcdCtl, SIGNAL(freqCorrChanged(int)), this, SLOT(setFreqCorr(int)));
-    connect(uiDockFcdCtl, SIGNAL(iqCorrChanged(double,double)), this, SLOT(setIqCorr(double,double)));
+    connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
+    connect(uiDockInputCtl, SIGNAL(lnaGainChanged(float)), SLOT(setRfGain(float)));
+    connect(uiDockInputCtl, SIGNAL(freqCorrChanged(int)), this, SLOT(setFreqCorr(int)));
+    connect(uiDockInputCtl, SIGNAL(iqCorrChanged(double,double)), this, SLOT(setIqCorr(double,double)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
@@ -189,21 +189,21 @@ MainWindow::~MainWindow()
         else
             m_settings->remove("input/lnb_lo");
 
-        double dblval = uiDockFcdCtl->lnaGain();
+        double dblval = uiDockInputCtl->lnaGain();
         m_settings->setValue("input/gain", dblval);
 
-        if (uiDockFcdCtl->freqCorr())
-            m_settings->setValue("input/corr_freq", uiDockFcdCtl->freqCorr());
+        if (uiDockInputCtl->freqCorr())
+            m_settings->setValue("input/corr_freq", uiDockInputCtl->freqCorr());
         else
             m_settings->remove("input/corr_freq");
 
-        dblval = uiDockFcdCtl->iqGain();
+        dblval = uiDockInputCtl->iqGain();
         if (dblval < 1.0)
             m_settings->setValue("input/corr_iq_gain", dblval);
         else
             m_settings->remove("input/corr_iq_gain");
 
-        dblval = uiDockFcdCtl->iqPhase();
+        dblval = uiDockInputCtl->iqPhase();
         if (dblval != 0.0)
             m_settings->setValue("input/corr_iq_phase", dblval);
         else
@@ -218,7 +218,7 @@ MainWindow::~MainWindow()
     delete uiDockAudio;
     delete uiDockFft;
     //delete uiDockIqPlay;
-    delete uiDockFcdCtl;
+    delete uiDockInputCtl;
     delete rx;
     delete [] d_fftData;
     delete [] d_realFftData;
@@ -286,17 +286,17 @@ bool MainWindow::loadConfig(const QString cfgfile)
         ui->plotter->SetSpanFreq((quint32)actual_rate);
     }
 
-    uiDockFcdCtl->setFreqCorr(m_settings->value("input/corr_freq", 0).toInt(&conv_ok));
+    uiDockInputCtl->setFreqCorr(m_settings->value("input/corr_freq", 0).toInt(&conv_ok));
     rx->set_freq_corr(m_settings->value("input/corr_freq", 0).toInt(&conv_ok));
 
     d_lnb_lo = m_settings->value("input/lnb_lo", 0).toLongLong(&conv_ok);
-    uiDockFcdCtl->setLnbLo((double)d_lnb_lo/1.0e6);
+    uiDockInputCtl->setLnbLo((double)d_lnb_lo/1.0e6);
     ui->freqCtrl->SetFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&conv_ok));
 
-    uiDockFcdCtl->setLnaGain(m_settings->value("input/gain", 20).toFloat(&conv_ok));
+    uiDockInputCtl->setLnaGain(m_settings->value("input/gain", 20).toFloat(&conv_ok));
     setRfGain(m_settings->value("input/gain", 20).toFloat(&conv_ok));
-    uiDockFcdCtl->setIqGain(m_settings->value("input/corr_iq_gain", 1.0).toDouble(&conv_ok));
-    uiDockFcdCtl->setIqPhase(m_settings->value("input/corr_iq_phase", 0.0).toDouble(&conv_ok));
+    uiDockInputCtl->setIqGain(m_settings->value("input/corr_iq_gain", 1.0).toDouble(&conv_ok));
+    uiDockInputCtl->setIqPhase(m_settings->value("input/corr_iq_phase", 0.0).toDouble(&conv_ok));
 
     return conf_ok;
 }

@@ -17,22 +17,22 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#ifndef DOCKFCDCTL_H
-#define DOCKFCDCTL_H
+#ifndef DOCKINPUTCTL_H
+#define DOCKINPUTCTL_H
 
 #include <QDockWidget>
 
 namespace Ui {
-    class DockFcdCtl;
+    class DockInputCtl;
 }
 
-class DockFcdCtl : public QDockWidget
+class DockInputCtl : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit DockFcdCtl(QWidget *parent = 0);
-    ~DockFcdCtl();
+    explicit DockInputCtl(QWidget *parent = 0);
+    ~DockInputCtl();
 
     void  setLnbLo(double freq_mhz);
     double lnbLo();
@@ -63,7 +63,7 @@ private slots:
     void on_iqPhaseSpinBox_valueChanged(double value);
 
 private:
-    Ui::DockFcdCtl *ui;
+    Ui::DockInputCtl *ui;
 };
 
-#endif // FCDCTL_H
+#endif // DOCKINPUTCTL_H

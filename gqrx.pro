@@ -65,7 +65,7 @@ SOURCES += \
     qtgui/meter.cpp \
     qtgui/plotter.cpp \
     qtgui/ioconfig.cpp \
-    qtgui/dockfcdctl.cpp \
+    qtgui/dockinputctl.cpp \
     qtgui/dockaudio.cpp \
     qtgui/dockfft.cpp \
     qtgui/dockiqplayer.cpp \
@@ -109,7 +109,7 @@ HEADERS += \
     qtgui/meter.h \
     qtgui/plotter.h \
     qtgui/ioconfig.h \
-    qtgui/dockfcdctl.h \
+    qtgui/dockinputctl.h \
     qtgui/dockaudio.h \
     qtgui/dockfft.h \
     qtgui/dockrxopt.h \
@@ -130,7 +130,7 @@ FORMS += \
     applications/gqrx/mainwindow.ui \
     qtgui/dockrxopt.ui \
     qtgui/ioconfig.ui \
-    qtgui/dockfcdctl.ui \
+    qtgui/dockinputctl.ui \
     qtgui/dockaudio.ui \
     qtgui/dockfft.ui \
     qtgui/dockiqplayer.ui \
