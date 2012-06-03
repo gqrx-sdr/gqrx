@@ -26,6 +26,7 @@
 #include <gr_simple_squelch_cc.h>
 
 #include <osmosdr_source_c.h>
+#include <osmosdr_ranges.h>
 
 #include "receiver.h"
 #include "dsp/correct_iq_cc.h"
@@ -214,12 +215,34 @@ double receiver::get_rf_freq()
 }
 
 /*! \brief Set RF gain.
- *  \param gain_db The desired gain in dB.
+ *  \param gain_rel The desired relative gain between 0.0 and 1.0 (use -1 for AGC where supported).
  *  \return RX_STATUS_ERROR if an error occurs, e.g. the gain is out of valid range.
  */
-receiver::status receiver::set_rf_gain(float gain_db)
+receiver::status receiver::set_rf_gain(double gain_rel)
 {
-    src->set_gain(gain_db);
+    if (gain_rel > 1.0)
+        gain_rel = 1.0;
+
+    if (gain_rel < 0.0)
+    {
+        src->set_gain_mode(true);
+    }
+    else
+    {
+        if (src->get_gain_mode())
+            // disable HW AGC
+            src->set_gain_mode(false);
+
+        // convert relative gain to absolute gain
+        osmosdr::gain_range_t range = src->get_gain_range();
+        double gain =  range.start() + gain_rel*(range.stop()-range.start());
+        src->set_gain(gain);
+
+#ifndef QT_NO_DEBUG
+        std::cout << "Gain start/stop/rel/abs:" << range.start() << "/"
+                  << range.stop() << "/" << gain_rel << "/" << gain << std::endl;
+#endif
+    }
 
     return STATUS_OK;
 }

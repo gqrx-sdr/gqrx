@@ -100,7 +100,7 @@ public:
     status set_rf_freq(double freq_hz);
     double get_rf_freq();
 
-    status set_rf_gain(float gain_db);
+    status set_rf_gain(double gain_rel);
 
 
     status set_filter_offset(double offset_hz);
@@ -169,7 +169,6 @@ private:
     double d_filter_offset;    /*!< Current filter offset (tune within passband). */
     bool   d_recording_wav;    /*!< Whether we are recording WAV file. */
     bool   d_sniffer_active;   /*!< Only one data decoder allowed. */
-
 
     rx_demod  d_demod;          /*!< Current demodulator. */
 

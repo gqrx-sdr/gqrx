@@ -125,9 +125,8 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(NewFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
-    connect(uiDockInputCtl, SIGNAL(lnaGainChanged(float)), SLOT(setRfGain(float)));
+    connect(uiDockInputCtl, SIGNAL(gainChanged(double)), SLOT(setRfGain(double)));
     connect(uiDockInputCtl, SIGNAL(freqCorrChanged(int)), this, SLOT(setFreqCorr(int)));
-    connect(uiDockInputCtl, SIGNAL(iqCorrChanged(double,double)), this, SLOT(setIqCorr(double,double)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
@@ -388,7 +387,7 @@ void MainWindow::setFilterOffset(qint64 freq_hz)
  *
  * Valid range depends on hardware.
  */
-void MainWindow::setRfGain(float gain)
+void MainWindow::setRfGain(double gain)
 {
     rx->set_rf_gain(gain);
 }
