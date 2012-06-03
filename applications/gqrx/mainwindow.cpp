@@ -283,6 +283,7 @@ bool MainWindow::loadConfig(const QString cfgfile)
     }
 
     uiDockFcdCtl->setFreqCorr(m_settings->value("input/corr_freq", -115).toInt(&conv_ok));
+    rx->set_freq_corr(m_settings->value("input/corr_freq", -115).toInt(&conv_ok));
 
     d_lnb_lo = m_settings->value("input/lnb_lo", 0).toLongLong(&conv_ok);
     uiDockFcdCtl->setLnbLo((double)d_lnb_lo/1.0e6);
@@ -395,7 +396,7 @@ void MainWindow::setRfGain(float gain)
  */
 void MainWindow::setFreqCorr(int ppm)
 {
-    qDebug() << "PPM:" << ppm;
+    qDebug() << __FUNCTION__ << ":" << ppm << "ppm";
     rx->set_freq_corr(ppm);
 }
 
@@ -407,6 +408,7 @@ void MainWindow::setFreqCorr(int ppm)
  */
 void MainWindow::setDcCorr(double dci, double dcq)
 {
+    qDebug() << "*** FIXME:" << __FUNCTION__;
     qDebug() << "DCI:" << dci << "  DCQ:" << dcq;
     rx->set_dc_corr(dci, dcq);
 }
@@ -420,6 +422,7 @@ void MainWindow::setDcCorr(double dci, double dcq)
  */
 void MainWindow::setIqCorr(double gain, double phase)
 {
+    qDebug() << "*** FIXME:" << __FUNCTION__;
     qDebug() << "Gain:" << gain << "  Phase:" << phase;
     rx->set_iq_corr(gain, phase);
 }
