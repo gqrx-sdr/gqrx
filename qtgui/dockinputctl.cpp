@@ -45,63 +45,36 @@ double DockInputCtl::lnbLo()
 }
 
 
-/*! \brief Set new LNA gain.
- *  \param gain The new gain in the range is -5.0 .. 30.0 dB.
+/*! \brief Set new relative gain.
+ *  \param gain The new gain in the range 0.0 .. 1.0 or -1 to enable AGC.
  */
-void DockInputCtl::setLnaGain(float gain)
+void DockInputCtl::setGain(double gain)
 {
-    int index = -1;
+    if (gain > 1.0)
+    {
+        qDebug() << "DockInputCtl::setGain :" << gain;
+        gain = 1.0;
+    }
 
-    if (gain > 27.5)
-        index = 0;
-    else if (gain > 22.5)
-        index = 1;
-    else if (gain > 18.5)
-        index = 2;
-    else if (gain > 16.5)
-        index = 3;
-    else if (gain > 13.5)
-        index = 4;
-    else if (gain > 11.5)
-        index = 5;
-    else if (gain > 8.5)
-        index = 6;
-    else if (gain > 6.5)
-        index = 7;
-    else if (gain > 3.5)
-        index = 8;
-    else if (gain > 1.5)
-        index = 9;
-    else if (gain > -1.5)
-        index = 10;
-    else if (gain > -3.5)
-        index = 11;
+    if (gain < 0.0)
+    {
+        ui->gainButton->setChecked(true);
+    }
     else
-        index = 12;
-
-    ui->lnaComboBox->setCurrentIndex(index);
+    {
+        ui->gainButton->setChecked(false);
+        ui->gainSlider->setValue((int)(gain*100.0));
+    }
 }
 
-/*! \brief Get current LNA gain. */
-float DockInputCtl::lnaGain()
+/*! \brief Get current gain.
+ *  \returns The relative gain between 0.0 and 1.0 or -1 if HW AGC is enabled.
+ */
+double DockInputCtl::gain()
 {
-    QString strval = ui->lnaComboBox->currentText();
-    float gain;
-    bool ok;
+    double gain = ui->gainButton->isChecked() ? -1.0 : (double)ui->gainSlider->value()/100.0;
 
-    strval.remove(" dB");
-    gain = strval.toFloat(&ok);
-
-    if (ok)
-    {
-        return gain;
-    }
-    else
-    {
-        qDebug() << "Could not convert" << strval << "to float";
-        return 0.0;
-    }
-
+    return gain;
 }
 
 
@@ -121,42 +94,6 @@ int DockInputCtl::freqCorr()
 }
 
 
-/*! \brief Set new I/Q gain.
- *  \param gain The new gain in the range -1.0 ... +1.0
- */
-void DockInputCtl::setIqGain(double gain)
-{
-    ui->iqGainSpinBox->setValue(gain);
-}
-
-
-/*! \brief Get current I/Q gain.
- *  \return The current I/Q gain in the range -1.0 ... +1.0
- */
-double DockInputCtl::iqGain()
-{
-    return ui->iqGainSpinBox->value();
-}
-
-
-/*! \brief Set new I/Q phase.
- *  \param gain The new phase in the range -1.0 ... +1.0
- */
-void DockInputCtl::setIqPhase(double phase)
-{
-    ui->iqPhaseSpinBox->setValue(phase);
-}
-
-
-/*! \brief Get current I/Q phase.
- *  \return The current I/Q phase in the range -1.0 ... +1.0
- */
-double DockInputCtl::iqPhase()
-{
-    return ui->iqPhaseSpinBox->value();
-}
-
-
 /*! \brief LNB LO value has changed. */
 void DockInputCtl::on_lnbSpinBox_valueChanged(double value)
 {
@@ -164,26 +101,23 @@ void DockInputCtl::on_lnbSpinBox_valueChanged(double value)
 }
 
 
-void DockInputCtl::on_lnaComboBox_activated(const QString value)
+/*! \brief Manual gain value has changed. */
+void DockInputCtl::on_gainSlider_valueChanged(int value)
 {
-    QString strval = value;
-    float gain;
-    bool ok;
+    double gain = (double)ui->gainSlider->value()/100.0;
 
-    strval.remove(" dB");
-    gain = strval.toFloat(&ok);
-
-    if (ok)
-    {
-        emit lnaGainChanged(gain);
-    }
-    else
-    {
-        qDebug() << "DockFcdCtl::on_lnaComboBox_activated : Could not convert" <<
-                    value << "to number";
-    }
-
+    emit gainChanged(gain);
 }
+
+/*! \brief Automatic gain control button has been toggled. */
+void DockInputCtl::on_gainButton_toggled(bool checked)
+{
+    double gain = checked ? -1.0 : (double)ui->gainSlider->value()/100.0;
+    ui->gainSlider->setEnabled(!checked);
+
+    emit gainChanged(gain);
+}
+
 
 /*! \brief Frequency correction changed.
  *  \param value The new frequency correction in ppm.
@@ -192,22 +126,3 @@ void DockInputCtl::on_freqCorrSpinBox_valueChanged(int value)
 {
     emit freqCorrChanged(value);
 }
-
-
-/*! \brief I/Q gain changed.
- *  \param value The new I/Q gain
- */
-void DockInputCtl::on_iqGainSpinBox_valueChanged(double value)
-{
-    emit iqCorrChanged(value, ui->iqPhaseSpinBox->value());
-}
-
-
-/*! \brief I/Q phase changed.
- *  \param The new I/Q phase.
- */
-void DockInputCtl::on_iqPhaseSpinBox_valueChanged(double value)
-{
-    emit iqCorrChanged(ui->iqGainSpinBox->value(), value);
-}
-

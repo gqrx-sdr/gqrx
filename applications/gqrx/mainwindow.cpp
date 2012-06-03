@@ -189,7 +189,7 @@ MainWindow::~MainWindow()
         else
             m_settings->remove("input/lnb_lo");
 
-        double dblval = uiDockInputCtl->lnaGain();
+        double dblval = uiDockInputCtl->gain();
         m_settings->setValue("input/gain", dblval);
 
         if (uiDockInputCtl->freqCorr())
@@ -197,6 +197,7 @@ MainWindow::~MainWindow()
         else
             m_settings->remove("input/corr_freq");
 
+        /**
         dblval = uiDockInputCtl->iqGain();
         if (dblval < 1.0)
             m_settings->setValue("input/corr_iq_gain", dblval);
@@ -208,6 +209,7 @@ MainWindow::~MainWindow()
             m_settings->setValue("input/corr_iq_phase", dblval);
         else
             m_settings->remove("input/corr_iq_phase");
+        **/
 
         m_settings->sync();
         delete m_settings;
@@ -293,10 +295,8 @@ bool MainWindow::loadConfig(const QString cfgfile)
     uiDockInputCtl->setLnbLo((double)d_lnb_lo/1.0e6);
     ui->freqCtrl->SetFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&conv_ok));
 
-    uiDockInputCtl->setLnaGain(m_settings->value("input/gain", 20).toFloat(&conv_ok));
-    setRfGain(m_settings->value("input/gain", 20).toFloat(&conv_ok));
-    uiDockInputCtl->setIqGain(m_settings->value("input/corr_iq_gain", 1.0).toDouble(&conv_ok));
-    uiDockInputCtl->setIqPhase(m_settings->value("input/corr_iq_phase", 0.0).toDouble(&conv_ok));
+    uiDockInputCtl->setGain(m_settings->value("input/gain", 0.5).toDouble(&conv_ok));
+    setRfGain(m_settings->value("input/gain", 0.5).toDouble(&conv_ok));
 
     return conf_ok;
 }

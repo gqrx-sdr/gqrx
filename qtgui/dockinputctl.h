@@ -37,30 +37,22 @@ public:
     void  setLnbLo(double freq_mhz);
     double lnbLo();
 
-    void  setLnaGain(float gain);
-    float lnaGain();
+    void   setGain(double gain);
+    double gain();
 
     void setFreqCorr(int corr);
     int  freqCorr();
 
-    void   setIqGain(double gain);
-    double iqGain();
-
-    void   setIqPhase(double phase);
-    double iqPhase();
-
 signals:
-    void lnaGainChanged(float gain);
+    void gainChanged(double gain); /*!< Relative gain between 0.0 and 1.0 (negative means auto). */
     void freqCorrChanged(int value);
     void lnbLoChanged(double freq_mhz);
-    void iqCorrChanged(double gain, double phase);
 
 private slots:
     void on_lnbSpinBox_valueChanged(double value);
-    void on_lnaComboBox_activated(const QString value_str);
+    void on_gainSlider_valueChanged(int value);
+    void on_gainButton_toggled(bool checked);
     void on_freqCorrSpinBox_valueChanged(int value);
-    void on_iqGainSpinBox_valueChanged(double value);
-    void on_iqPhaseSpinBox_valueChanged(double value);
 
 private:
     Ui::DockInputCtl *ui;
