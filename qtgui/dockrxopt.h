@@ -44,6 +44,20 @@ class DockRxOpt : public QDockWidget
     Q_OBJECT
 
 public:
+
+    /*! \brief Mode selector entries. */
+    enum rxopt_mode_idx {
+        MODE_OFF  = 0,     /*!< Demodulator completely off. */
+        MODE_RAW  = 1,     /*!< Raw I/Q passthrough. */
+        MODE_AM   = 2,     /*!< Amplitude modulation. */
+        MODE_FMN  = 3,     /*!< Narrow band FM. */
+        MODE_FMW  = 4,     /*!< Broadcast FM. */
+        MODE_LSB  = 5,     /*!< Lower side band. */
+        MODE_USB  = 6,     /*!< Upper side band. */
+        MODE_CWL  = 7,     /*!< CW using LSB filter. */
+        MODE_CWU  = 8      /*!< CW using USB filter. */
+    };
+
     explicit DockRxOpt(qint64 filterOffsetRange = 90000, QWidget *parent = 0);
     ~DockRxOpt();
 

@@ -447,13 +447,21 @@ void MainWindow::selectDemod(int index)
 
     switch (index) {
 
-    case 0:
+    case DockRxOpt::MODE_OFF:
+        /* Spectrum analyzer only */
+        qDebug() << "Demod Off not implemented!";
+        flo = -5000;
+        fhi = 5000;
+
+        break;
+
+    case DockRxOpt::MODE_RAW:
         /* Raw I/Q */
         qDebug() << "RAW I/Q mode not implemented!";
         break;
 
         /* AM */
-    case 1:
+    case DockRxOpt::MODE_AM:
         rx->set_demod(receiver::RX_DEMOD_AM);
         ui->plotter->SetDemodRanges(-20000, -100, 100, 20000, true);
         uiDockAudio->setFftRange(0,15000);
@@ -473,11 +481,11 @@ void MainWindow::selectDemod(int index)
         }
         break;
 
-        /* FM */
-    case 2:
+        /* FM-N */
+    case DockRxOpt::MODE_FMN:
         rx->set_demod(receiver::RX_DEMOD_FM);
         maxdev = uiDockRxOpt->currentMaxdev();
-        if (maxdev < 20000.0) {
+        if (maxdev < 20000.0) { /** FIXME **/
             ui->plotter->SetDemodRanges(-25000, -100, 100, 25000, true);
             uiDockAudio->setFftRange(0,12000);
             switch (filter_preset) {
@@ -516,8 +524,30 @@ void MainWindow::selectDemod(int index)
         }
         break;
 
+        /* Broadcast FM */
+    case DockRxOpt::MODE_FMW:
+        /** FIXME: Switch receiver **/
+        /* if quad rate < 200 ksps : lock demod ranges */
+        ui->plotter->SetDemodRanges(-45000, -10000, 10000, 45000, true);  /** FIXME: get quad rate from rx **/
+        uiDockAudio->setFftRange(0,24000);  /** FIXME: get audio rate from rx **/
+        switch (filter_preset) {
+        case 0: //wide
+            flo = -100000;
+            fhi = 100000;
+            break;
+        case 2: // narrow
+            flo = -50000;
+            fhi = 50000;
+            break;
+        default: // normal
+            flo = -80000;
+            fhi = 80000;
+            break;
+        }
+        break;
+
         /* LSB */
-    case 3:
+    case DockRxOpt::MODE_LSB:
         rx->set_demod(receiver::RX_DEMOD_SSB);
         ui->plotter->SetDemodRanges(-10000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,3500);
@@ -538,7 +568,7 @@ void MainWindow::selectDemod(int index)
         break;
 
         /* USB */
-    case 4:
+    case DockRxOpt::MODE_USB:
         rx->set_demod(receiver::RX_DEMOD_SSB);
         ui->plotter->SetDemodRanges(0, 5000, 100, 10000, false);
         uiDockAudio->setFftRange(0,3500);
@@ -558,8 +588,8 @@ void MainWindow::selectDemod(int index)
         }
         break;
 
-        /* CWL */
-    case 5:
+        /* CW-L */
+    case DockRxOpt::MODE_CWL:
         rx->set_demod(receiver::RX_DEMOD_SSB);
         ui->plotter->SetDemodRanges(-10000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,1500);
@@ -579,8 +609,8 @@ void MainWindow::selectDemod(int index)
         }
         break;
 
-        /* CWU */
-    case 6:
+        /* CW-U */
+    case DockRxOpt::MODE_CWU:
         rx->set_demod(receiver::RX_DEMOD_SSB);
         ui->plotter->SetDemodRanges(0, 5000, 100, 10000, false);
         uiDockAudio->setFftRange(0,1500);
@@ -601,7 +631,7 @@ void MainWindow::selectDemod(int index)
         break;
 
     default:
-        qDebug() << "Invalid mode selection: " << index;
+        qDebug() << "Unsupported mode selection: " << index;
         flo = -5000;
         fhi = 5000;
         break;

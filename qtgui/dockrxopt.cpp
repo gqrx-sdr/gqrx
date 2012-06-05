@@ -107,7 +107,8 @@ int  DockRxOpt::currentFilter()
  */
 void DockRxOpt::setCurrentDemod(int demod)
 {
-    ui->modeSelector->setCurrentIndex(demod);
+    if ((demod >= MODE_OFF) && (demod <= MODE_CWU))
+        ui->modeSelector->setCurrentIndex(demod);
 }
 
 
@@ -174,16 +175,24 @@ void DockRxOpt::on_modeSelector_activated(int index)
 {
     qDebug() << "New mode: " << index;
 
-    if (!index)
+    if (index == MODE_OFF)
     {
-        qDebug() << "Raw I/Q not implemented (fallback to FM)";
-        ui->modeSelector->setCurrentIndex(2);
+        qDebug() << "Demod Off not implemented (fallback to FM-N)";
+        ui->modeSelector->setCurrentIndex(MODE_FMN);
+        emit demodSelected(MODE_FMN);
+        return;
+    }
 
+    if (index == MODE_RAW)
+    {
+        qDebug() << "Raw I/Q not implemented (fallback to FM-N)";
+        ui->modeSelector->setCurrentIndex(MODE_FMN);
+        emit demodSelected(MODE_FMN);
         return;
     }
 
     /* update demodulator option widget */
-    if (index == 2)
+    if (index == MODE_FMN)
         demodOpt->setCurrentPage(CDemodOptions::PAGE_FM_OPT);
     else
         demodOpt->setCurrentPage(CDemodOptions::PAGE_NO_OPT);

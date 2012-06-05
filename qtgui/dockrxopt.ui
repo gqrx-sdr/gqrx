@@ -238,8 +238,13 @@ as  rf_freq + filter_offset</string>
          <string>Demodulator type (mode)</string>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>3</number>
         </property>
+        <item>
+         <property name="text">
+          <string>Demod Off</string>
+         </property>
+        </item>
         <item>
          <property name="text">
           <string>Raw I/Q</string>
@@ -252,7 +257,12 @@ as  rf_freq + filter_offset</string>
         </item>
         <item>
          <property name="text">
-          <string>FM</string>
+          <string>FM-N</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>FM-W</string>
          </property>
         </item>
         <item>
@@ -267,12 +277,12 @@ as  rf_freq + filter_offset</string>
         </item>
         <item>
          <property name="text">
-          <string>CWL</string>
+          <string>CW-L</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>CWU</string>
+          <string>CW-U</string>
          </property>
         </item>
        </widget>
