@@ -221,13 +221,16 @@ receiver::status receiver::set_rf_gain(double gain_rel)
 
         // convert relative gain to absolute gain
         osmosdr::gain_range_t range = src->get_gain_range();
-        double gain =  range.start() + gain_rel*(range.stop()-range.start());
-        src->set_gain(gain);
+        if (!range.empty())
+        {
+            double gain =  range.start() + gain_rel*(range.stop()-range.start());
+            src->set_gain(gain);
 
 #ifndef QT_NO_DEBUG
         std::cout << "Gain start/stop/rel/abs:" << range.start() << "/"
                   << range.stop() << "/" << gain_rel << "/" << gain << std::endl;
 #endif
+        }
     }
 
     return STATUS_OK;
