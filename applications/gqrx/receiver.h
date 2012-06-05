@@ -40,7 +40,7 @@
 #include "dsp/rx_fft.h"
 #include "dsp/sniffer_f.h"
 #include "dsp/resampler_xx.h"
-#include "receivers/nbrx.h"
+#include "receivers/receiver_base.h"
 
 #include <pulseaudio/pa_sink.h>
 #include <pulseaudio/pa_source.h>

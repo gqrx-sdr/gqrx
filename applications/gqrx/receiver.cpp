@@ -21,22 +21,16 @@
 #include <cmath>
 
 #include <gr_top_block.h>
-#include <gr_complex_to_xxx.h>
 #include <gr_multiply_const_ff.h>
-#include <gr_simple_squelch_cc.h>
 
 #include <osmosdr_source_c.h>
 #include <osmosdr_ranges.h>
 
-#include "receiver.h"
+#include "applications/gqrx/receiver.h"
 #include "dsp/correct_iq_cc.h"
-#include "dsp/rx_filter.h"
-#include "dsp/rx_meter.h"
-#include "dsp/rx_demod_fm.h"
-#include "dsp/rx_demod_am.h"
 #include "dsp/rx_fft.h"
-#include "dsp/rx_agc_xx.h"
 #include "pulseaudio/pa_sink.h"
+#include "receivers/nbrx.h"
 
 
 /*! \brief Public contructor.
