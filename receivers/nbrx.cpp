@@ -45,7 +45,7 @@ nbrx::nbrx(float quad_rate, float audio_rate)
     demod_ssb = gr_make_complex_to_real(1);
     demod_fm = make_rx_demod_fm(PREF_QUAD_RATE, PREF_AUDIO_RATE, 5000.0, 75.0e-6);
     demod_am = make_rx_demod_am(PREF_QUAD_RATE, PREF_AUDIO_RATE, true);
-    audio_rr = make_resampler_ff(PREF_AUDIO_RATE/d_audio_rate);
+    audio_rr = make_resampler_ff(d_audio_rate/PREF_AUDIO_RATE);
 
     connect(self(), 0, iq_resamp, 0);
     connect(iq_resamp, 0, nb, 0);
