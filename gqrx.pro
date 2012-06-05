@@ -77,7 +77,8 @@ SOURCES += \
     receivers/nbrx.cpp \
     tlm/arissat/scale_therm.c \
     tlm/arissat/scale_psu.c \
-    tlm/arissat/scale_ppt.c
+    tlm/arissat/scale_ppt.c \
+    receivers/wfmrx.cpp
 
 HEADERS += \
     applications/gqrx/mainwindow.h \
@@ -124,7 +125,8 @@ HEADERS += \
     tlm/arissat/ss_stdint.h \
     tlm/arissat/scale_therm.h \
     tlm/arissat/scale_psu.h \
-    tlm/arissat/scale_ppt.h
+    tlm/arissat/scale_ppt.h \
+    receivers/wfmrx.h
 
 FORMS += \
     applications/gqrx/mainwindow.ui \
