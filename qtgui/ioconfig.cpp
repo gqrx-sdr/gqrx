@@ -97,7 +97,8 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
             // First time config: select the first detected device
             ui->inDevCombo->setCurrentIndex(0);
             ui->inDevEdit->setText(ui->inDevCombo->itemData(0).toString());
-            ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+            if (ui->inDevEdit->text().isEmpty())
+                ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
         }
         else
         {
