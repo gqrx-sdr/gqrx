@@ -36,7 +36,7 @@ class nbrx;
 
 typedef boost::shared_ptr<nbrx> nbrx_sptr;
 
-/*! \brief Public constructor of rx_source_fcd. */
+/*! \brief Public constructor of nbrx_sptr. */
 nbrx_sptr make_nbrx(float quad_rate, float audio_rate);
 
 /*! \brief Narrow band analog receiver
@@ -117,4 +117,4 @@ private:
 
 };
 
-#endif // RECEIVER_BASE_H
+#endif // NBRX_H
