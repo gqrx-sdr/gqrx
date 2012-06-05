@@ -483,7 +483,7 @@ void MainWindow::selectDemod(int index)
 
         /* FM-N */
     case DockRxOpt::MODE_FMN:
-        rx->set_demod(receiver::RX_DEMOD_FM);
+        rx->set_demod(receiver::RX_DEMOD_FMN);
         maxdev = uiDockRxOpt->currentMaxdev();
         if (maxdev < 20000.0) { /** FIXME **/
             ui->plotter->SetDemodRanges(-25000, -100, 100, 25000, true);

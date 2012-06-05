@@ -70,11 +70,12 @@ public:
 
     /*! \brief Available demodulators. */
     enum rx_demod {
-        RX_DEMOD_NONE = 0,  /*!< No demod. Raw I/Q to audio. */
-        RX_DEMOD_AM   = 1,  /*!< Amplitude modulation. */
-        RX_DEMOD_FM   = 2,  /*!< Frequency modulation. */
-        RX_DEMOD_SSB  = 3,  /*!< Single Side Band. */
-        RX_DEMOD_NUM  = 4   /*!< Included for convenience. */
+        RX_DEMOD_OFF  = 0,  /*!< No receiver. */
+        RX_DEMOD_NONE = 1,  /*!< No demod. Raw I/Q to audio. */
+        RX_DEMOD_AM   = 2,  /*!< Amplitude modulation. */
+        RX_DEMOD_FMN  = 3,  /*!< Frequency modulation. */
+        RX_DEMOD_FMW  = 4,  /*!< Frequency modulation. */
+        RX_DEMOD_SSB  = 5   /*!< Single Side Band. */
     };
 
     /*! \brief Filter shape (convenience wrappers for "transition width"). */

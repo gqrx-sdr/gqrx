@@ -54,7 +54,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
       d_filter_offset(0.0),
       d_recording_wav(false),
       d_sniffer_active(false),
-      d_demod(RX_DEMOD_FM)
+      d_demod(RX_DEMOD_FMN)
 {
     tb = gr_make_top_block("gqrx");
 
@@ -471,10 +471,64 @@ receiver::status receiver::set_agc_manual_gain(int gain)
 
 receiver::status receiver::set_demod(rx_demod demod)
 {
+    bool needs_restart = d_running;
     status ret = STATUS_OK;
 
+    if (demod == d_demod)
+        return ret;
+
+    if (d_running)
+        stop();
+
     /** FIXME: check ranges when we have multiple receivers */
-    rx->set_demod(demod);
+    switch (demod)
+    {
+    case RX_DEMOD_OFF:
+        // input to mixer
+        tb->disconnect(dc_corr, 0, mixer, 0);
+        break;
+
+    case RX_DEMOD_NONE:
+        if (d_demod == RX_DEMOD_OFF)
+            /** FIXME check rx is NB **/
+            tb->connect(dc_corr, 0, mixer, 0);
+        rx->set_demod(nbrx::NBRX_DEMOD_NONE);
+        break;
+
+    case RX_DEMOD_AM:
+        if (d_demod == RX_DEMOD_OFF)
+            /** FIXME check rx is NB **/
+            tb->connect(dc_corr, 0, mixer, 0);
+        rx->set_demod(nbrx::NBRX_DEMOD_AM);
+        break;
+
+    case RX_DEMOD_FMN:
+        if (d_demod == RX_DEMOD_OFF)
+            /** FIXME check rx is NB **/
+            tb->connect(dc_corr, 0, mixer, 0);
+        rx->set_demod(nbrx::NBRX_DEMOD_FM);
+        break;
+
+    case RX_DEMOD_FMW:
+
+        break;
+
+    case RX_DEMOD_SSB:
+        if (d_demod == RX_DEMOD_OFF)
+            /** FIXME check rx is NB **/
+            tb->connect(dc_corr, 0, mixer, 0);
+        rx->set_demod(nbrx::NBRX_DEMOD_SSB);
+        break;
+
+    default:
+        ret = STATUS_ERROR;
+        break;
+    }
+
+    d_demod = demod;
+
+    if (needs_restart)
+        start();
 
     return ret;
 }
