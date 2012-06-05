@@ -449,9 +449,9 @@ void MainWindow::selectDemod(int index)
 
     case DockRxOpt::MODE_OFF:
         /* Spectrum analyzer only */
-        qDebug() << "Demod Off not implemented!";
-        flo = -5000;
-        fhi = 5000;
+        rx->set_demod(receiver::RX_DEMOD_OFF);
+        flo = 0;
+        fhi = 0;
 
         break;
 

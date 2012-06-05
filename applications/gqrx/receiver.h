@@ -78,6 +78,12 @@ public:
         RX_DEMOD_SSB  = 5   /*!< Single Side Band. */
     };
 
+    /*! \brief Supported receiver types. */
+    enum rx_chain {
+        RX_CHAIN_NONE = 0,   /*!< No receiver, just spectrum analyzer. */
+        RX_CHAIN_NBRX = 1    /*!< Narrow band receiver (AM, FM, SSB). */
+    };
+
     /*! \brief Filter shape (convenience wrappers for "transition width"). */
     enum filter_shape {
         FILTER_SHAPE_SOFT = 0,   /*!< Soft: Transition band is TBD of width. */
@@ -161,6 +167,9 @@ public:
     status start_sniffer(unsigned int samplrate, int buffsize);
     status stop_sniffer();
     void   get_sniffer_data(float * outbuff, int &num);
+
+private:
+    void connect_all(rx_chain type);
 
 private:
     bool   d_running;          /*!< Whether receiver is running or not. */

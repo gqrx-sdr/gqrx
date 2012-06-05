@@ -175,14 +175,6 @@ void DockRxOpt::on_modeSelector_activated(int index)
 {
     qDebug() << "New mode: " << index;
 
-    if (index == MODE_OFF)
-    {
-        qDebug() << "Demod Off not implemented (fallback to FM-N)";
-        ui->modeSelector->setCurrentIndex(MODE_FMN);
-        emit demodSelected(MODE_FMN);
-        return;
-    }
-
     if (index == MODE_RAW)
     {
         qDebug() << "Raw I/Q not implemented (fallback to FM-N)";

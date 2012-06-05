@@ -85,14 +85,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     sniffer = make_sniffer_f();
     /* sniffer_rr is created at each activation. */
 
-    tb->connect(src, 0, dc_corr, 0);
-    tb->connect(dc_corr, 0, iq_fft, 0);
-    tb->connect(dc_corr, 0, mixer, 0);
-    tb->connect(lo, 0, mixer, 1);
-    tb->connect(mixer, 0, rx, 0);
-    tb->connect(rx, 0, audio_fft, 0);
-    tb->connect(rx, 0, audio_gain, 0);
-    tb->connect(audio_gain, 0, audio_snk, 0);
+    connect_all(RX_CHAIN_NBRX);
 }
 
 
@@ -116,7 +109,6 @@ void receiver::start()
     }
 }
 
-
 /*! \brief Stop the receiver. */
 void receiver::stop()
 {
@@ -127,7 +119,6 @@ void receiver::stop()
         d_running = false;
     }
 }
-
 
 /*! \brief Select new input device.
  *
@@ -484,28 +475,34 @@ receiver::status receiver::set_demod(rx_demod demod)
     switch (demod)
     {
     case RX_DEMOD_OFF:
-        // input to mixer
-        tb->disconnect(dc_corr, 0, mixer, 0);
+        tb->disconnect_all();
+        connect_all(RX_CHAIN_NONE);
         break;
 
     case RX_DEMOD_NONE:
         if (d_demod == RX_DEMOD_OFF)
-            /** FIXME check rx is NB **/
-            tb->connect(dc_corr, 0, mixer, 0);
+        {
+            tb->disconnect_all();
+            connect_all(RX_CHAIN_NBRX);
+        }
         rx->set_demod(nbrx::NBRX_DEMOD_NONE);
         break;
 
     case RX_DEMOD_AM:
         if (d_demod == RX_DEMOD_OFF)
-            /** FIXME check rx is NB **/
-            tb->connect(dc_corr, 0, mixer, 0);
+        {
+            tb->disconnect_all();
+            connect_all(RX_CHAIN_NBRX);
+        }
         rx->set_demod(nbrx::NBRX_DEMOD_AM);
         break;
 
     case RX_DEMOD_FMN:
         if (d_demod == RX_DEMOD_OFF)
-            /** FIXME check rx is NB **/
-            tb->connect(dc_corr, 0, mixer, 0);
+        {
+            tb->disconnect_all();
+            connect_all(RX_CHAIN_NBRX);
+        }
         rx->set_demod(nbrx::NBRX_DEMOD_FM);
         break;
 
@@ -515,8 +512,10 @@ receiver::status receiver::set_demod(rx_demod demod)
 
     case RX_DEMOD_SSB:
         if (d_demod == RX_DEMOD_OFF)
-            /** FIXME check rx is NB **/
-            tb->connect(dc_corr, 0, mixer, 0);
+        {
+            tb->disconnect_all();
+            connect_all(RX_CHAIN_NBRX);
+        }
         rx->set_demod(nbrx::NBRX_DEMOD_SSB);
         break;
 
@@ -842,4 +841,38 @@ receiver::status receiver::stop_sniffer()
 void receiver::get_sniffer_data(float * outbuff, int &num)
 {
     sniffer->get_samples(outbuff, num);
+}
+
+
+
+/*! \brief Convenience function to connect all blocks. */
+void receiver::connect_all(rx_chain type)
+{
+    switch (type)
+    {
+    case RX_CHAIN_NONE:
+        tb->connect(src, 0, dc_corr, 0);
+        tb->connect(dc_corr, 0, iq_fft, 0);
+        break;
+
+    case RX_CHAIN_NBRX:
+        if (rx->name() != "NBRX")
+        {
+            rx.reset();
+            rx = make_nbrx(d_input_rate, d_audio_rate);
+        }
+        tb->connect(src, 0, dc_corr, 0);
+        tb->connect(dc_corr, 0, iq_fft, 0);
+        tb->connect(dc_corr, 0, mixer, 0);
+        tb->connect(lo, 0, mixer, 1);
+        tb->connect(mixer, 0, rx, 0);
+        tb->connect(rx, 0, audio_fft, 0);
+        tb->connect(rx, 0, audio_gain, 0);
+        tb->connect(audio_gain, 0, audio_snk, 0);
+        break;
+
+    default:
+        break;
+    }
+
 }
