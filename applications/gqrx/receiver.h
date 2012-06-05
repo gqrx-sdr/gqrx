@@ -80,8 +80,9 @@ public:
 
     /*! \brief Supported receiver types. */
     enum rx_chain {
-        RX_CHAIN_NONE = 0,   /*!< No receiver, just spectrum analyzer. */
-        RX_CHAIN_NBRX = 1    /*!< Narrow band receiver (AM, FM, SSB). */
+        RX_CHAIN_NONE  = 0,   /*!< No receiver, just spectrum analyzer. */
+        RX_CHAIN_NBRX  = 1,   /*!< Narrow band receiver (AM, FM, SSB). */
+        RX_CHAIN_WFMRX = 2    /*!< Wide band FM receiver (for broadcast). */
     };
 
     /*! \brief Filter shape (convenience wrappers for "transition width"). */

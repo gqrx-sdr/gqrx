@@ -31,6 +31,7 @@
 #include "dsp/rx_fft.h"
 #include "pulseaudio/pa_sink.h"
 #include "receivers/nbrx.h"
+#include "receivers/wfmrx.h"
 
 
 /*! \brief Public contructor.
@@ -465,7 +466,6 @@ receiver::status receiver::set_demod(rx_demod demod)
     if (d_running)
         stop();
 
-    /** FIXME: check ranges when we have multiple receivers */
     switch (demod)
     {
     case RX_DEMOD_OFF:
@@ -474,7 +474,7 @@ receiver::status receiver::set_demod(rx_demod demod)
         break;
 
     case RX_DEMOD_NONE:
-        if (d_demod == RX_DEMOD_OFF)
+        if ((d_demod == RX_DEMOD_OFF) || (d_demod == RX_DEMOD_FMW))
         {
             tb->disconnect_all();
             connect_all(RX_CHAIN_NBRX);
@@ -483,7 +483,7 @@ receiver::status receiver::set_demod(rx_demod demod)
         break;
 
     case RX_DEMOD_AM:
-        if (d_demod == RX_DEMOD_OFF)
+        if ((d_demod == RX_DEMOD_OFF) || (d_demod == RX_DEMOD_FMW))
         {
             tb->disconnect_all();
             connect_all(RX_CHAIN_NBRX);
@@ -492,7 +492,7 @@ receiver::status receiver::set_demod(rx_demod demod)
         break;
 
     case RX_DEMOD_FMN:
-        if (d_demod == RX_DEMOD_OFF)
+        if ((d_demod == RX_DEMOD_OFF) || (d_demod == RX_DEMOD_FMW))
         {
             tb->disconnect_all();
             connect_all(RX_CHAIN_NBRX);
@@ -501,11 +501,16 @@ receiver::status receiver::set_demod(rx_demod demod)
         break;
 
     case RX_DEMOD_FMW:
+        if (d_demod != RX_DEMOD_FMW)
+        {
+            tb->disconnect_all();
+            connect_all(RX_CHAIN_WFMRX);
+        }
 
         break;
 
     case RX_DEMOD_SSB:
-        if (d_demod == RX_DEMOD_OFF)
+        if ((d_demod == RX_DEMOD_OFF) || (d_demod == RX_DEMOD_FMW))
         {
             tb->disconnect_all();
             connect_all(RX_CHAIN_NBRX);
@@ -854,6 +859,22 @@ void receiver::connect_all(rx_chain type)
         {
             rx.reset();
             rx = make_nbrx(d_input_rate, d_audio_rate);
+        }
+        tb->connect(src, 0, dc_corr, 0);
+        tb->connect(dc_corr, 0, iq_fft, 0);
+        tb->connect(dc_corr, 0, mixer, 0);
+        tb->connect(lo, 0, mixer, 1);
+        tb->connect(mixer, 0, rx, 0);
+        tb->connect(rx, 0, audio_fft, 0);
+        tb->connect(rx, 0, audio_gain, 0);
+        tb->connect(audio_gain, 0, audio_snk, 0);
+        break;
+
+    case RX_CHAIN_WFMRX:
+        if (rx->name() != "WFMRX")
+        {
+            rx.reset();
+            rx = make_wfmrx(d_input_rate, d_audio_rate);
         }
         tb->connect(src, 0, dc_corr, 0);
         tb->connect(dc_corr, 0, iq_fft, 0);

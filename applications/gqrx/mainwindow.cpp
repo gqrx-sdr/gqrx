@@ -440,6 +440,7 @@ void MainWindow::setIqCorr(double gain, double phase)
  */
 void MainWindow::selectDemod(int index)
 {
+    double quad_rate;
     float maxdev;
     int filter_preset = uiDockRxOpt->currentFilter();
     int flo, fhi;
@@ -526,9 +527,13 @@ void MainWindow::selectDemod(int index)
 
         /* Broadcast FM */
     case DockRxOpt::MODE_FMW:
-        /** FIXME: Switch receiver **/
-        /* if quad rate < 200 ksps : lock demod ranges */
-        ui->plotter->SetDemodRanges(-45000, -10000, 10000, 45000, true);  /** FIXME: get quad rate from rx **/
+        quad_rate = rx->get_input_rate();
+        if (quad_rate < 200.0e3)
+            ui->plotter->SetDemodRanges(-0.9*quad_rate/2.0, -10000,
+                                        10000, 0.9*quad_rate/2.0,
+                                        true);
+        else
+            ui->plotter->SetDemodRanges(-250000, -10000, 10000, 250000, true);
         uiDockAudio->setFftRange(0,24000);  /** FIXME: get audio rate from rx **/
         switch (filter_preset) {
         case 0: //wide
@@ -536,14 +541,15 @@ void MainWindow::selectDemod(int index)
             fhi = 100000;
             break;
         case 2: // narrow
-            flo = -50000;
-            fhi = 50000;
+            flo = -60000;
+            fhi = 60000;
             break;
         default: // normal
             flo = -80000;
             fhi = 80000;
             break;
         }
+        rx->set_demod(receiver::RX_DEMOD_FMW);
         break;
 
         /* LSB */
