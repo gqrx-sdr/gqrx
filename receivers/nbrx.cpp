@@ -56,7 +56,7 @@ nbrx::nbrx(float quad_rate, float audio_rate)
     connect(agc, 0, demod_fm, 0);
     connect(demod_fm, 0, audio_rr, 0);
     connect(audio_rr, 0, self(), 0);
-    // FIXME: we only need audio_rr when audio_rate != PREF_AUDIO_RATE and it should support arbitrary resampling
+    // FIXME: we only need audio_rr when audio_rate != PREF_AUDIO_RATE
 
 }
 
