@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>300</width>
+    <width>301</width>
     <height>324</height>
    </rect>
   </property>
@@ -43,7 +43,7 @@
          <bool>true</bool>
         </property>
         <property name="toolTip">
-         <string>Seelct an input device.</string>
+         <string>Select an input device</string>
         </property>
         <property name="sizeAdjustPolicy">
          <enum>QComboBox::AdjustToMinimumContentsLength</enum>
