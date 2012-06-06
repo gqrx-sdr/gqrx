@@ -17,6 +17,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <cstdio>
 #include <gr_io_signature.h>
 #include <gr_firdes.h>
 #include "dsp/resampler_xx.h"
@@ -39,11 +40,14 @@ resampler_cc::resampler_cc(float rate)
        http://gnuradio.squarespace.com/blog/2010/12/6/new-interface-for-pfb_arb_resampler_ccf.html
 
        and blks2.pfb_arb_resampler.py
+
+       Note: In case of decimation, we limit the cutoff to the output bandwidth to avoid "phantom"
+             signals when we have a frequency translation in front of the PFB resampler.
     */
 
     /* generate taps */
-    double cutoff = 0.4;
-    double trans_width = 0.2;
+    double cutoff = rate > 1.0 ? 0.4 : 0.4*rate;
+    double trans_width = rate > 1.0 ? 0.2 : 0.2*rate;
     unsigned int flt_size = 32;
 
     d_taps = gr_firdes::low_pass(flt_size, flt_size, cutoff, trans_width);
@@ -61,7 +65,24 @@ resampler_cc::~resampler_cc()
 
 }
 
+void resampler_cc::set_rate(float rate)
+{
+    /* generate taps */
+    double cutoff = rate > 1.0 ? 0.4 : 0.4*rate;
+    double trans_width = rate > 1.0 ? 0.2 : 0.2*rate;
+    unsigned int flt_size = 32;
+    d_taps = gr_firdes::low_pass(flt_size, flt_size, cutoff, trans_width);
 
+    /* FIXME: Should implement set_taps() in PFB */
+    lock();
+    disconnect(self(), 0, d_filter, 0);
+    disconnect(d_filter, 0, self(), 0);
+    d_filter.reset();
+    d_filter = gr_make_pfb_arb_resampler_ccf(rate, d_taps, flt_size);
+    connect(self(), 0, d_filter, 0);
+    connect(d_filter, 0, self(), 0);
+    unlock();
+}
 
 /* Create a new instance of resampler_ff and return
  * a boost shared_ptr. This is effectively the public constructor.
@@ -80,11 +101,14 @@ resampler_ff::resampler_ff(float rate)
        http://gnuradio.squarespace.com/blog/2010/12/6/new-interface-for-pfb_arb_resampler_ccf.html
 
        and blks2.pfb_arb_resampler.py
+
+       Note: In case of decimation, we limit the cutoff to the output bandwidth to avoid "phantom"
+             signals when we have a frequency translation in front of the PFB resampler.
     */
 
     /* generate taps */
-    double cutoff = 0.4;
-    double trans_width = 0.2;
+    double cutoff = rate > 1.0 ? 0.4 : 0.4*rate;
+    double trans_width = rate > 1.0 ? 0.2 : 0.2*rate;
     unsigned int flt_size = 32;
 
     d_taps = gr_firdes::low_pass(flt_size, flt_size, cutoff, trans_width);
@@ -102,4 +126,21 @@ resampler_ff::~resampler_ff()
 
 }
 
+void resampler_ff::set_rate(float rate)
+{
+    /* generate taps */
+    double cutoff = rate > 1.0 ? 0.4 : 0.4*rate;
+    double trans_width = rate > 1.0 ? 0.2 : 0.2*rate;
+    unsigned int flt_size = 32;
+    d_taps = gr_firdes::low_pass(flt_size, flt_size, cutoff, trans_width);
 
+    /* FIXME: Should implement set_taps() in PFB */
+    lock();
+    disconnect(self(), 0, d_filter, 0);
+    disconnect(d_filter, 0, self(), 0);
+    d_filter.reset();
+    d_filter = gr_make_pfb_arb_resampler_fff(rate, d_taps, flt_size);
+    connect(self(), 0, d_filter, 0);
+    connect(d_filter, 0, self(), 0);
+    unlock();
+}

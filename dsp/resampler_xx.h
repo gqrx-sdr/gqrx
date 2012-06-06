@@ -53,7 +53,7 @@ public:
     resampler_cc(float rate); // FIXME: should be private
     ~resampler_cc();
 
-    void set_rate(float rate) { d_filter->set_rate(rate); }
+    void set_rate(float rate);
 
 private:
     std::vector<float>            d_taps;
@@ -83,7 +83,7 @@ public:
     resampler_ff(float rate); // FIXME: should be private
     ~resampler_ff();
 
-    void set_rate(float rate) { d_filter->set_rate(rate); }
+    void set_rate(float rate);
 
 private:
     std::vector<float>            d_taps;
