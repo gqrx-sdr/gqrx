@@ -51,6 +51,7 @@ public:
 
     bool loadConfig(const QString cfgfile);
     bool saveConfig(const QString cfgfile);
+    void storeSession();
 
     bool configOk; /*!< Main app uses this flag to know whether we should abort or continue. */
 

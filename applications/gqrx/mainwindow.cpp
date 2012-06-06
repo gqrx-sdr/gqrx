@@ -182,33 +182,7 @@ MainWindow::~MainWindow()
         m_settings->setValue("configversion", 2);
 
         // save session
-        m_settings->setValue("input/frequency", ui->freqCtrl->GetFrequency());
-        if (d_lnb_lo)
-            m_settings->setValue("input/lnb_lo", d_lnb_lo);
-        else
-            m_settings->remove("input/lnb_lo");
-
-        double dblval = uiDockInputCtl->gain();
-        m_settings->setValue("input/gain", dblval);
-
-        if (uiDockInputCtl->freqCorr())
-            m_settings->setValue("input/corr_freq", uiDockInputCtl->freqCorr());
-        else
-            m_settings->remove("input/corr_freq");
-
-        /**
-        dblval = uiDockInputCtl->iqGain();
-        if (dblval < 1.0)
-            m_settings->setValue("input/corr_iq_gain", dblval);
-        else
-            m_settings->remove("input/corr_iq_gain");
-
-        dblval = uiDockInputCtl->iqPhase();
-        if (dblval != 0.0)
-            m_settings->setValue("input/corr_iq_phase", dblval);
-        else
-            m_settings->remove("input/corr_iq_phase");
-        **/
+        storeSession();
 
         m_settings->sync();
         delete m_settings;
@@ -339,6 +313,30 @@ bool MainWindow::saveConfig(const QString cfgfile)
     }
 }
 
+/*! \brief Store session-related parameters (frequency, gain,...)
+ *
+ * This needs to be called when we switch input source, otherwise the
+ * new source would use the parameters stored on last exit.
+ */
+void MainWindow::storeSession()
+{
+    if (m_settings)
+    {
+        m_settings->setValue("input/frequency", ui->freqCtrl->GetFrequency());
+        if (d_lnb_lo)
+            m_settings->setValue("input/lnb_lo", d_lnb_lo);
+        else
+            m_settings->remove("input/lnb_lo");
+
+        double dblval = uiDockInputCtl->gain();
+        m_settings->setValue("input/gain", dblval);
+
+        if (uiDockInputCtl->freqCorr())
+            m_settings->setValue("input/corr_freq", uiDockInputCtl->freqCorr());
+        else
+            m_settings->remove("input/corr_freq");
+    }
+}
 
 /*! \brief Slot for receiving frequency change signals.
  *  \param[in] freq The new frequency.
@@ -1059,7 +1057,9 @@ int MainWindow::on_actionIoConfig_triggered()
     int confres = ioconf->exec();
 
     if (confres == QDialog::Accepted)
+    {
         loadConfig(m_settings->fileName());
+    }
 
     delete ioconf;
 
