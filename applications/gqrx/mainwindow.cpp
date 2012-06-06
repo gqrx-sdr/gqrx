@@ -267,6 +267,7 @@ bool MainWindow::loadConfig(const QString cfgfile)
     d_lnb_lo = m_settings->value("input/lnb_lo", 0).toLongLong(&conv_ok);
     uiDockInputCtl->setLnbLo((double)d_lnb_lo/1.0e6);
     ui->freqCtrl->SetFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&conv_ok));
+    setNewFrequency(ui->freqCtrl->GetFrequency()); // ensure all GUI and RF is updated
 
     uiDockInputCtl->setGain(m_settings->value("input/gain", 0.5).toDouble(&conv_ok));
     setRfGain(m_settings->value("input/gain", 0.5).toDouble(&conv_ok));
