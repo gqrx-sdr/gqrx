@@ -1058,6 +1058,7 @@ int MainWindow::on_actionIoConfig_triggered()
 
     if (confres == QDialog::Accepted)
     {
+        storeSession();
         loadConfig(m_settings->fileName());
     }
 
