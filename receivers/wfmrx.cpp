@@ -20,7 +20,7 @@
 #include <iostream>
 #include "receivers/wfmrx.h"
 
-#define PREF_QUAD_RATE  200000.0  // Nominal channel width
+#define PREF_QUAD_RATE  240000.0  // Nominal channel width
 #define PREF_AUDIO_RATE 48000.0
 
 wfmrx_sptr make_wfmrx(float quad_rate, float audio_rate)
