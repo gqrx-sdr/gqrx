@@ -125,7 +125,7 @@
          <number>-800</number>
         </property>
         <property name="maximum">
-         <number>200</number>
+         <number>500</number>
         </property>
         <property name="value">
          <number>-200</number>
