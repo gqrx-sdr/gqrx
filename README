@@ -27,6 +27,9 @@ Open gqrx.pro in Qt Creator and click build.
 If you have been running pre-2.1, please delete $HOME/.config/gqrx/*
 Gqrx will now open a device configuration dialog when you start and it will automatically detect all supported devices that are plugged in.
 
+If you don't see your device it could be that you forgot to add the udev rule to /etc/udev/rules.d/
+You can test your device first with rtl_test, qthid, or uhd_usrp_probe that come wit the respective packages.
+
 
 4. Known problems
 
@@ -35,6 +38,7 @@ Gqrx will now open a device configuration dialog when you start and it will auto
 - Only works on Linux.
 - Device arguments not documented.
 - Only tested with Funcube Dongle and RT2832U-based devices.
+- Funcube Dongle will not work on systems with libusb-1.0.9 (try gqrx-2.0 instead)
 
 
 5. Getting help and reporting bugs
