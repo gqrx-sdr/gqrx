@@ -442,7 +442,7 @@ void MainWindow::selectDemod(int index)
     double quad_rate;
     float maxdev;
     int filter_preset = uiDockRxOpt->currentFilter();
-    int flo, fhi;
+    int flo=0, fhi=0, click_res=100;
 
 
     switch (index) {
@@ -452,6 +452,7 @@ void MainWindow::selectDemod(int index)
         rx->set_demod(receiver::RX_DEMOD_OFF);
         flo = 0;
         fhi = 0;
+        click_res = 100;
 
         break;
 
@@ -465,6 +466,7 @@ void MainWindow::selectDemod(int index)
         rx->set_demod(receiver::RX_DEMOD_AM);
         ui->plotter->SetDemodRanges(-20000, -100, 100, 20000, true);
         uiDockAudio->setFftRange(0,15000);
+        click_res = 100;
         switch (filter_preset) {
         case 0: //wide
             flo = -10000;
@@ -484,6 +486,7 @@ void MainWindow::selectDemod(int index)
         /* FM-N */
     case DockRxOpt::MODE_FMN:
         rx->set_demod(receiver::RX_DEMOD_FMN);
+        click_res = 100;
         maxdev = uiDockRxOpt->currentMaxdev();
         if (maxdev < 20000.0) { /** FIXME **/
             ui->plotter->SetDemodRanges(-25000, -100, 100, 25000, true);
@@ -534,6 +537,7 @@ void MainWindow::selectDemod(int index)
         else
             ui->plotter->SetDemodRanges(-250000, -10000, 10000, 250000, true);
         uiDockAudio->setFftRange(0,24000);  /** FIXME: get audio rate from rx **/
+        click_res = 1000;
         switch (filter_preset) {
         case 0: //wide
             flo = -100000;
@@ -556,6 +560,7 @@ void MainWindow::selectDemod(int index)
         rx->set_demod(receiver::RX_DEMOD_SSB);
         ui->plotter->SetDemodRanges(-10000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,3500);
+        click_res = 10;
         switch (filter_preset) {
         case 0: //wide
             flo = -4100;
@@ -577,6 +582,7 @@ void MainWindow::selectDemod(int index)
         rx->set_demod(receiver::RX_DEMOD_SSB);
         ui->plotter->SetDemodRanges(0, 5000, 100, 10000, false);
         uiDockAudio->setFftRange(0,3500);
+        click_res = 10;
         switch (filter_preset) {
         case 0: //wide
             flo = 100;
@@ -598,6 +604,7 @@ void MainWindow::selectDemod(int index)
         rx->set_demod(receiver::RX_DEMOD_SSB);
         ui->plotter->SetDemodRanges(-10000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,1500);
+        click_res = 10;
         switch (filter_preset) {
         case 0: //wide
             flo = -2300;
@@ -619,6 +626,7 @@ void MainWindow::selectDemod(int index)
         rx->set_demod(receiver::RX_DEMOD_SSB);
         ui->plotter->SetDemodRanges(0, 5000, 100, 10000, false);
         uiDockAudio->setFftRange(0,1500);
+        click_res = 10;
         switch (filter_preset) {
         case 0: //wide
             flo = 200;
@@ -639,11 +647,14 @@ void MainWindow::selectDemod(int index)
         qDebug() << "Unsupported mode selection: " << index;
         flo = -5000;
         fhi = 5000;
+        click_res = 100;
         break;
     }
 
     qDebug() << "Filter preset for mode" << index << "LO:" << flo << "HI:" << fhi;
     ui->plotter->SetHiLowCutFrequencies(flo, fhi);
+    ui->plotter->SetClickResolution(click_res);
+    ui->plotter->SetFilterClickResolution(click_res);
     rx->set_filter((double)flo, (double)fhi, receiver::FILTER_SHAPE_NORMAL);
 }
 

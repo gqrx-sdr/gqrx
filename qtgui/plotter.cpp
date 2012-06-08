@@ -83,8 +83,8 @@ CPlotter::CPlotter(QWidget *parent) :
     m_FHiCmax = 25000;
     m_symetric = true;
 
-    m_ClickResolution = 10;
-    m_FilterClickResolution = 10;
+    m_ClickResolution = 100;
+    m_FilterClickResolution = 100;
     m_CursorCaptureDelta = CUR_CUT_DELTA;
 
     m_FilterBoxEnabled = true;
