@@ -1,58 +1,49 @@
-Gqrx is an experimental AM, FM and SSB software defined receiver implemented using GNU Radio and the Qt GUI toolkit. Currently it works on Linux and it can use the Funcube Dongle as input source.
+Gqrx is an experimental software defined radio receiver implemented using GNU Radio and the Qt GUI toolkit. Currently it works on Linux and it can use the Funcube Dongle, RTL2832U-based DVB-T dongle and USRP devices by Ettus Research as input source.
+
+The following sections are some very generic instructions for building the latest v2.1-git series.
 
 
-1. Installation
+1. Dependencies
 
-Gqrx is distributed as a source package and binary packages available from Sourceforge: https://sourceforge.net/projects/gqrx/
-
-The binary package requires that you have the following libraries installed on your system:
-  - libusb 1.0.8 (1.0.9-rc are known to crash with the FCD).
-  - pulseaudio
-  - Qt 4.7 or later
-  - libfftw3
-  - Boost 1.42 or later (thread, datetime, system, filesystem)
-
-If you want to build Gqrx from source you will also need:
-  - gnuradio-core 3.5 or later (3.6 recommended)
-
-as well as the so called -dev or -devel packages for the above mentioned libraries. Everything except GNU Radio should be available in all Linux desktop distributions. Note that there are sufficiently recent GNU Radio packages available from the Debian project which may also work on Ubuntu and other APT-based system.
-
-If you must build GNU Radio from source, you can try the build-gnuradio script by Marcus Leech, see http://gnuradio.org/redmine/projects/gnuradio/wiki/InstallingGR#Using-the-build-gnuradio-script . If you want to build GNU Radio without the script (experts only!), see http://gnuradio.org/redmine/projects/gnuradio/wiki/BuildGuide for platform specific instructions.
-
-The Gqrx build system is based on qmake and to build Gqrx, load the gqrx.pro file into Qt Creator and click build (the hammer icon).
-
-If the GNU Radio libraries have been installed into a non-standard location, e.g. /opt/gnuradio, Qt Creator may not be able to pick up the headers and libraries. Assuming that your PKG_CONFIG_PATH is set up correctly, you can work around this by launching Qt Creator from the terminal.
+- GNU Radio (gnuradio-core and gnuradio-audio)
+- At least one of:
+    - gr-fcd
+    - gr-uhd
+    - RTL-SDR from http://cgit.osmocom.org/cgit/rtl-sdr/
+    - Osmo SDR from http://cgit.osmocom.org/cgit/osmo-sdr/
+- GR OsmoSDR from http://cgit.osmocom.org/cgit/gr-osmosdr/
+- pulseaudio
+- Qt 4.7 or later and Qt Creator.
 
 
-2. Configure Funcube Dongle
+2. Installation
 
-Debian and Ubuntu: Just install the Qthid package from Debian, which will take care of configuring the Funcube Dongle.
-
-On other distrbutions, you have to configure the FCD to be usable by non-root users. If you can already run qthid as regular user it is fine. If not, you need to create an udev rule. Create a udev file /etc/udev/rules.d/fcd.rules containing:
-
- SUBSYSTEMS=="usb" ATTRS{idVendor}=="04d8" ATTRS{idProduct}=="fb56" MODE:="0666"
-
-(hint: open a terminal and type: sudo gedit /etc/udev/rules.d/fcd.rules)
-
-Reload the rules using "sudo udevadm control --reload-rules". You can then verify the setup using Qthid available from http://qthid.sf.net/ . You should in any case update the firmware in the FCD to the latest version using Qthid.
+Get the latest code from: https://github.com/csete/gqrx
+Open gqrx.pro in Qt Creator and click build.
 
 
-3. Using Gqrx
+3. Usage
 
-The current version only supports Funcube Dongle as input device and it will automatically detect the device. Therefore, you do not have to specify the input device.
-
-Gqrx will use the default audio output device. You can change this device in the desktop audio mixer.
-
-If you have been using early versions of Gqrx you may have noticed that some features have disappeared. They have been disabled for now because they are not fully implemented for the first release.
+If you have been running pre-2.1, please delete $HOME/.config/gqrx/*
+Gqrx will now open a device configuration dialog when you start and it will automatically detect all supported devices that are plugged in.
 
 
-4. Getting help and reporting bugs
+4. Known problems
+
+- Opening the IO device configurator and pressing OK with the
+  same device will crash the application.
+- Only works on Linux.
+- Device arguments not documented.
+- Only tested with Funcube Dongle and RT2832U-based devices.
+
+
+5. Getting help and reporting bugs
 
 There is now a Google group for discussing anything related to Gqrx: https://groups.google.com/forum/#!forum/gqrx
 This include getting help with installation and troubleshooting.
 
 
-5. Credits and License
+6. Credits and License
 
 Gqrx is designed and written by Alexandru Csete OZ9AEC, and it is licensed under the GNU General Public License.
 
