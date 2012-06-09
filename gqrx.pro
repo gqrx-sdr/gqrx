@@ -151,6 +151,7 @@ unix {
 #    PKGCONFIG += libusb-1.0
     PKGCONFIG += gnuradio-osmosdr gnuradio-uhd gnuradio-fcd
     LIBS += -ludev
+    LIBS += -lrt  # need to include on some distros
 }
 
 macx-g++ {
