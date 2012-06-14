@@ -182,6 +182,7 @@ private:
     bool   d_sniffer_active;   /*!< Only one data decoder allowed. */
 
     rx_demod  d_demod;          /*!< Current demodulator. */
+    int d_channels;             /*!< Current number of audio channels (1 or 2). */
 
     gr_top_block_sptr         tb;        /*!< The GNU Radio top block. */
 

@@ -134,10 +134,8 @@ int pa_sink::work (int noutput_items,
                    gr_vector_const_void_star &input_items,
                    gr_vector_void_star &output_items)
 {
-    const float *data1 = (const float*) input_items[0]; //!!!
-    const float *data2 = (const float*) input_items[1]; //!!!
-    static float data[100000]; // FIXME !!!
-    float *ptr;
+    static float buf[100000]; //!!! FIXME
+    float *ptr = &buf[0];      //!!!
     int i, error;
 
     if (d_auto_flush > 0)
@@ -155,18 +153,30 @@ int pa_sink::work (int noutput_items,
     }
 
     //!!!
-    ptr = &data[0];
-    for (i = 0; i < noutput_items; i++)
-    {
-      *ptr++ = *data1++; // left audio channel
-      *ptr++ = *data2++; // right audio channel
+    if (input_items.size() == 1)
+    { // mono
+      const float *items = (const float*) input_items[0];
+      for (i = noutput_items; i > 0; i--)
+      {
+        float a = *items++;
+        *ptr++ = a; // left  channel
+        *ptr++ = a; // right channel
+      }
+    }
+    else // if (input_items.size() == 2)
+    { // stereo
+      const float *items0 = (const float*) input_items[0];
+      const float *items1 = (const float*) input_items[1];
+      for (i = noutput_items; i > 0; i--)
+      {
+        *ptr++ = *items0++; // left  channel
+        *ptr++ = *items1++; // right channel
+      }
     }
 
-    if (pa_simple_write(d_pasink, data, 2*noutput_items*sizeof(float), &error) < 0) { //!!!
+    if (pa_simple_write(d_pasink, buf, 2*noutput_items*sizeof(float), &error) < 0) { //!!!
         fprintf(stderr, __FILE__": pa_simple_write() failed: %s\n", pa_strerror(error));
     }
 
-
     return noutput_items;
 }
-
