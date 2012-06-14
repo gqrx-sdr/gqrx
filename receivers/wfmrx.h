@@ -1,6 +1,7 @@
 /* -*- c++ -*- */
 /*
  * Copyright 2012 Alexandru Csete OZ9AEC.
+ * FM stereo implementation by Alex Grinkov a.grinkov(at)gmail.com.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +45,12 @@ class wfmrx : public receiver_base_cf
 {
 
 public:
+    /*! \brief Available demodulators. */
+    enum wfmrx_demod {
+        WFMRX_DEMOD_MONO       = 0,  /*!< Mono. */
+        WFMRX_DEMOD_STEREO     = 1,  /*!< FM stereo. */
+        WFMRX_DEMOD_UKW_STEREO = 2   /*!< UKW stereo. */
+    };
     wfmrx(float quad_rate, float audio_rate);
     ~wfmrx();
 
@@ -87,6 +94,8 @@ private:
     bool   d_running;          /*!< Whether receiver is running or not. */
     float  d_quad_rate;        /*!< Input sample rate. */
     int    d_audio_rate;       /*!< Audio output rate. */
+
+    wfmrx_demod               d_demod;    /*!< Current demodulator. */
 
     resampler_cc_sptr         iq_resamp;   /*!< Baseband resampler. */
     rx_filter_sptr            filter;      /*!< Non-translating bandpass filter.*/

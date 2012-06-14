@@ -529,6 +529,7 @@ void MainWindow::selectDemod(int index)
 
         /* Broadcast FM */
     case DockRxOpt::MODE_FMW:
+    case DockRxOpt::MODE_FMS:
         quad_rate = rx->get_input_rate();
         if (quad_rate < 200.0e3)
             ui->plotter->SetDemodRanges(-0.9*quad_rate/2.0, -10000,
@@ -552,7 +553,10 @@ void MainWindow::selectDemod(int index)
             fhi = 80000;
             break;
         }
-        rx->set_demod(receiver::RX_DEMOD_FMW);
+        if (index == DockRxOpt::MODE_FMS)
+            rx->set_demod(receiver::RX_DEMOD_FMS);
+        else
+            rx->set_demod(receiver::RX_DEMOD_FMW);
         break;
 
         /* LSB */

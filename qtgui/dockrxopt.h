@@ -51,11 +51,12 @@ public:
         MODE_RAW  = 1,     /*!< Raw I/Q passthrough. */
         MODE_AM   = 2,     /*!< Amplitude modulation. */
         MODE_FMN  = 3,     /*!< Narrow band FM. */
-        MODE_FMW  = 4,     /*!< Broadcast FM. */
-        MODE_LSB  = 5,     /*!< Lower side band. */
-        MODE_USB  = 6,     /*!< Upper side band. */
-        MODE_CWL  = 7,     /*!< CW using LSB filter. */
-        MODE_CWU  = 8      /*!< CW using USB filter. */
+        MODE_FMW  = 4,     /*!< Broadcast FM (wide). */
+        MODE_FMS  = 5,     /*!< Broadcast FM (stereo). */
+        MODE_LSB  = 6,     /*!< Lower side band. */
+        MODE_USB  = 7,     /*!< Upper side band. */
+        MODE_CWL  = 8,     /*!< CW using LSB filter. */
+        MODE_CWU  = 9      /*!< CW using USB filter. */
     };
 
     explicit DockRxOpt(qint64 filterOffsetRange = 90000, QWidget *parent = 0);

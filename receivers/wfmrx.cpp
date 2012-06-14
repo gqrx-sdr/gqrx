@@ -1,6 +1,7 @@
 /* -*- c++ -*- */
 /*
  * Copyright 2012 Alexandru Csete OZ9AEC.
+ * FM stereo implementation by Alex Grinkov a.grinkov(at)gmail.com.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +22,7 @@
 #include "receivers/wfmrx.h"
 
 #define PREF_QUAD_RATE  240000.0  // Nominal channel spacing is 200 kHz
-#define PREF_AUDIO_RATE 120000.0  //!!! 48000
+#define PREF_AUDIO_RATE 48000
 
 wfmrx_sptr make_wfmrx(float quad_rate, float audio_rate)
 {
@@ -32,7 +33,8 @@ wfmrx::wfmrx(float quad_rate, float audio_rate)
     : receiver_base_cf("WFMRX"),
       d_running(false),
       d_quad_rate(quad_rate),
-      d_audio_rate(audio_rate)
+      d_audio_rate(audio_rate),
+      d_demod(WFMRX_DEMOD_MONO)
 {
     iq_resamp = make_resampler_cc(PREF_QUAD_RATE/d_quad_rate);
 
@@ -50,7 +52,8 @@ wfmrx::wfmrx(float quad_rate, float audio_rate)
     connect(filter, 0, sql, 0);
     connect(sql, 0, demod_fm, 0);
     connect(demod_fm, 0, audio_rr, 0);
-    connect(audio_rr, 0, self(), 0);
+    connect(audio_rr, 0, self(), 0); // left  channel
+    connect(audio_rr, 0, self(), 1); // right channel
 }
 
 wfmrx::~wfmrx()
@@ -167,7 +170,9 @@ void nbrx::set_agc_manual_gain(int gain)
 
 void wfmrx::set_demod(int rx_demod)
 {
-    (void) rx_demod;
+    wfmrx_demod current_demod = d_demod;
+    // FIXME !!!
+
 }
 
 void wfmrx::set_fm_maxdev(float maxdev_hz)
