@@ -47,7 +47,7 @@ pa_sink_sptr make_pa_sink(const string device_name, int audio_rate,
 pa_sink::pa_sink(const string device_name, int audio_rate,
                  const string app_name, const string stream_name)
   : gr_sync_block ("pa_sink",
-        gr_make_io_signature (1, 1, sizeof(float)),
+        gr_make_io_signature (1, 2, sizeof(float)), //!!!
         gr_make_io_signature (0, 0, 0)),
     d_app_name(app_name),
     d_stream_name(stream_name),
@@ -58,7 +58,7 @@ pa_sink::pa_sink(const string device_name, int audio_rate,
     /* The sample type to use */
     d_ss.format = PA_SAMPLE_FLOAT32LE;
     d_ss.rate = audio_rate;
-    d_ss.channels = 1;
+    d_ss.channels = 2; //!!!
 
     /* Buffer attributes tuned for low latency, see Documentation/Developer/Clients/LactencyControl */
     size_t latency = pa_usec_to_bytes(10000, &d_ss);
@@ -134,8 +134,11 @@ int pa_sink::work (int noutput_items,
                    gr_vector_const_void_star &input_items,
                    gr_vector_void_star &output_items)
 {
-    const void *data = (const void *) input_items[0];
-    int error;
+    const float *data1 = (const float*) input_items[0]; //!!!
+    const float *data2 = (const float*) input_items[1]; //!!!
+    static float data[100000]; // FIXME !!!
+    float *ptr;
+    int i, error;
 
     if (d_auto_flush > 0)
     {
@@ -151,7 +154,15 @@ int pa_sink::work (int noutput_items,
         }
     }
 
-    if (pa_simple_write(d_pasink, data, noutput_items*sizeof(float), &error) < 0) {
+    //!!!
+    ptr = &data[0];
+    for (i = 0; i < noutput_items; i++)
+    {
+      *ptr++ = *data1++; // left audio channel
+      *ptr++ = *data2++; // right audio channel
+    }
+
+    if (pa_simple_write(d_pasink, data, 2*noutput_items*sizeof(float), &error) < 0) { //!!!
         fprintf(stderr, __FILE__": pa_simple_write() failed: %s\n", pa_strerror(error));
     }
 

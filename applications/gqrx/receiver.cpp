@@ -143,9 +143,11 @@ void receiver::set_output_device(const std::string device)
     tb->lock();
 
     tb->disconnect(audio_gain, 0, audio_snk, 0);
+    tb->disconnect(audio_gain, 0, audio_snk, 1); //!!!
     audio_snk.reset();
     audio_snk = make_pa_sink(device, d_audio_rate); // FIXME: does this keep app and stream name?
     tb->connect(audio_gain, 0, audio_snk, 0);
+    tb->connect(audio_gain, 0, audio_snk, 1); //!!!
 
     tb->unlock();
 }
@@ -871,6 +873,7 @@ void receiver::connect_all(rx_chain type)
         tb->connect(rx, 0, audio_fft, 0);
         tb->connect(rx, 0, audio_gain, 0);
         tb->connect(audio_gain, 0, audio_snk, 0);
+        tb->connect(audio_gain, 0, audio_snk, 1); //!!!
         break;
 
     case RX_CHAIN_WFMRX:
@@ -887,6 +890,7 @@ void receiver::connect_all(rx_chain type)
         tb->connect(rx, 0, audio_fft, 0);
         tb->connect(rx, 0, audio_gain, 0);
         tb->connect(audio_gain, 0, audio_snk, 0);
+        tb->connect(audio_gain, 0, audio_snk, 1); //!!!
         break;
 
     default:

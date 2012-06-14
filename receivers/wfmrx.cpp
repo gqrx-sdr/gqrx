@@ -21,7 +21,7 @@
 #include "receivers/wfmrx.h"
 
 #define PREF_QUAD_RATE  240000.0  // Nominal channel spacing is 200 kHz
-#define PREF_AUDIO_RATE 48000.0
+#define PREF_AUDIO_RATE 120000.0  //!!! 48000
 
 wfmrx_sptr make_wfmrx(float quad_rate, float audio_rate)
 {
