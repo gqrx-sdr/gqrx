@@ -50,7 +50,8 @@ public:
     enum wfmrx_demod {
         WFMRX_DEMOD_MONO       = 0,  /*!< Mono. */
         WFMRX_DEMOD_STEREO     = 1,  /*!< FM stereo. */
-        WFMRX_DEMOD_UKW_STEREO = 2   /*!< UKW stereo. */
+        WFMRX_DEMOD_STEREO_UKW = 2,  /*!< UKW stereo. */
+        WFMRX_DEMOD_NUM        = 3   /*!< Included for convenience. */
     };
     wfmrx(float quad_rate, float audio_rate);
     ~wfmrx();
@@ -96,16 +97,17 @@ private:
     float  d_quad_rate;        /*!< Input sample rate. */
     int    d_audio_rate;       /*!< Audio output rate. */
 
-    wfmrx_demod               d_demod;    /*!< Current demodulator. */
+    wfmrx_demod               d_demod;   /*!< Current demodulator. */
 
-    resampler_cc_sptr         iq_resamp;   /*!< Baseband resampler. */
-    rx_filter_sptr            filter;      /*!< Non-translating bandpass filter.*/
+    resampler_cc_sptr         iq_resamp; /*!< Baseband resampler. */
+    rx_filter_sptr            filter;    /*!< Non-translating bandpass filter.*/
 
-    rx_meter_c_sptr           meter;      /*!< Signal strength. */
-    gr_simple_squelch_cc_sptr sql;        /*!< Squelch. */
-    rx_demod_fm_sptr          demod_fm;   /*!< FM demodulator. */
-    resampler_ff_sptr         midle_rr;   /*!< Resampler. */
-    stereo_demod_sptr         stereo;     /*!< FM stereo demodulator. */
+    rx_meter_c_sptr           meter;     /*!< Signal strength. */
+    gr_simple_squelch_cc_sptr sql;       /*!< Squelch. */
+    rx_demod_fm_sptr          demod_fm;  /*!< FM demodulator. */
+    resampler_ff_sptr         midle_rr;  /*!< Resampler. */
+    stereo_demod_sptr         stereo;    /*!< FM stereo demodulator. */
+    stereo_demod_sptr         mono;      /*!< FM stereo demodulator OFF. */
 };
 
 #endif // WFMRX_H

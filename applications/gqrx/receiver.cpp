@@ -81,7 +81,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     sniffer = make_sniffer_f();
     /* sniffer_rr is created at each activation. */
 
-    set_demod(RX_DEMOD_FMS);
+    set_demod(RX_DEMOD_FMN);
 }
 
 

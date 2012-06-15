@@ -238,7 +238,7 @@ as  rf_freq + filter_offset</string>
          <string>Demodulator type (mode)</string>
         </property>
         <property name="currentIndex">
-         <number>5</number>
+         <number>0</number>
         </property>
         <item>
          <property name="text">
@@ -262,12 +262,12 @@ as  rf_freq + filter_offset</string>
         </item>
         <item>
          <property name="text">
-          <string>FM-W</string>
+          <string>FM-W (mono)</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>FM-Stereo</string>
+          <string>FM-W (stereo)</string>
          </property>
         </item>
         <item>

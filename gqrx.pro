@@ -51,6 +51,7 @@ SOURCES += \
     dsp/rx_noise_blanker_cc.cpp \
     dsp/resampler_xx.cpp \
     dsp/stereo_demod.cpp \
+    dsp/lpf.cpp \
 #    input/rx_source_base.cpp \
 #    input/rx_source_fcd.cpp \
 #    input/fcdctl/fcd.c \
@@ -100,6 +101,7 @@ HEADERS += \
     dsp/resampler_xx.h \
     dsp/rx_noise_blanker_cc.h \
     dsp/stereo_demod.h \
+    dsp/lpf.h \
 #    input/rx_source_base.h \
 #    input/rx_source_fcd.h \
 #    input/fcdctl/hidapi.h \
