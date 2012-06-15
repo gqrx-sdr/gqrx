@@ -21,8 +21,8 @@
 #include <iostream>
 #include "receivers/wfmrx.h"
 
-#define PREF_QUAD_RATE  240000.0  // Nominal channel spacing is 200 kHz
-#define PREF_AUDIO_RATE 48000
+#define PREF_QUAD_RATE  240e3 // Nominal channel spacing is 200 kHz
+#define PREF_MIDLE_RATE 120e3 // Midle rate for stereo decoder
 
 wfmrx_sptr make_wfmrx(float quad_rate, float audio_rate)
 {
@@ -41,19 +41,19 @@ wfmrx::wfmrx(float quad_rate, float audio_rate)
     filter = make_rx_filter(PREF_QUAD_RATE, -80000.0, 80000.0, 20000.0);
     sql = gr_make_simple_squelch_cc(-150.0, 0.001);
     meter = make_rx_meter_c(DETECTOR_TYPE_RMS);
-    demod_fm = make_rx_demod_fm(PREF_QUAD_RATE, PREF_AUDIO_RATE, 75000.0, 50.0e-6);
-
-    std::cout << __FUNCTION__ << ": FIXME: audio filter" << std::endl;
-    audio_rr = make_resampler_ff(d_audio_rate/PREF_QUAD_RATE); // cause we have no audio filter...
+    demod_fm = make_rx_demod_fm(PREF_QUAD_RATE, PREF_MIDLE_RATE, 75000.0, 50.0e-6);
+    midle_rr = make_resampler_ff(PREF_MIDLE_RATE/PREF_QUAD_RATE);
+    stereo = make_stereo_demod(PREF_MIDLE_RATE, d_audio_rate);
 
     connect(self(), 0, iq_resamp, 0);
     connect(iq_resamp, 0, filter, 0);
     connect(filter, 0, meter, 0);
     connect(filter, 0, sql, 0);
     connect(sql, 0, demod_fm, 0);
-    connect(demod_fm, 0, audio_rr, 0);
-    connect(audio_rr, 0, self(), 0); // left  channel
-    connect(audio_rr, 0, self(), 1); // right channel
+    connect(demod_fm, 0, midle_rr, 0);
+    connect(midle_rr, 0, stereo, 0);
+    connect(stereo, 0, self(), 0); // left  channel
+    connect(stereo, 1, self(), 1); // right channel
 }
 
 wfmrx::~wfmrx()

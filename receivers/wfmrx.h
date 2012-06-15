@@ -27,6 +27,7 @@
 #include "dsp/rx_filter.h"
 #include "dsp/rx_meter.h"
 #include "dsp/rx_demod_fm.h"
+#include "dsp/stereo_demod.h"
 #include "dsp/resampler_xx.h"
 
 class wfmrx;
@@ -103,8 +104,8 @@ private:
     rx_meter_c_sptr           meter;      /*!< Signal strength. */
     gr_simple_squelch_cc_sptr sql;        /*!< Squelch. */
     rx_demod_fm_sptr          demod_fm;   /*!< FM demodulator. */
-    resampler_ff_sptr         audio_rr;   /*!< Audio resampler. */
-
+    resampler_ff_sptr         midle_rr;   /*!< Resampler. */
+    stereo_demod_sptr         stereo;     /*!< FM stereo demodulator. */
 };
 
 #endif // WFMRX_H
