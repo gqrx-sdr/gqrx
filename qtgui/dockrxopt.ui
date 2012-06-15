@@ -238,7 +238,7 @@ as  rf_freq + filter_offset</string>
          <string>Demodulator type (mode)</string>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>3</number>
         </property>
         <item>
          <property name="text">
