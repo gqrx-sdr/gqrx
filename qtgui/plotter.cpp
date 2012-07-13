@@ -413,7 +413,6 @@ void CPlotter::mouseReleaseEvent(QMouseEvent * event)
 //////////////////////////////////////////////////////////////////////
 void CPlotter::wheelEvent(QWheelEvent * event)
 {
-    QPoint pt = event->pos();
     int numDegrees = event->delta() / 8;
     int numSteps = numDegrees / 15;
 
@@ -590,7 +589,6 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
     qint32 i;
     qint32 y;
     qint32 x;
-    qint32 m;
     qint32 ymax = 10000;
     qint32 xprev = -1;
     qint32 maxbin;
@@ -632,7 +630,6 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
             m_pTranslateTbl[i] = m_BinMin + (i*(m_BinMax - m_BinMin)) / m_PlotWidth;
     }
 
-    m = (m_FFTSize);
     if ((m_BinMax-m_BinMin) > m_PlotWidth)
     {
         //if more FFT points than plot points
