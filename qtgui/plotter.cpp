@@ -424,6 +424,22 @@ void CPlotter::wheelEvent(QWheelEvent * event)
         m_MindB += 5*numSteps;
         m_MaxdB -= 5*numSteps;
     }
+    else if (event->modifiers() & Qt::ControlModifier)
+    {
+        // filter width
+        m_DemodLowCutFreq -= numSteps*m_ClickResolution;
+        m_DemodHiCutFreq += numSteps*m_ClickResolution;
+        ClampDemodParameters();
+        emit NewFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
+    }
+    else if (event->modifiers() & Qt::ShiftModifier)
+    {
+        // filter shift
+        m_DemodLowCutFreq -= numSteps*m_ClickResolution;
+        m_DemodHiCutFreq -= numSteps*m_ClickResolution;
+        ClampDemodParameters();
+        emit NewFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
+    }
     else
     { // inc/dec demod frequency if right button NOT pressed
         m_DemodCenterFreq += (numSteps*m_ClickResolution);
