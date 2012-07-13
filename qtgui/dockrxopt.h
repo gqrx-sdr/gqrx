@@ -64,6 +64,7 @@ public:
     void setFilterOffset(qint64 freq_hz);
     void setFilterOffsetRange(qint64 range_hz);
 
+    void setFilterParam(int lo, int hi);
     void setCurrentFilter(int index);
     int  currentFilter();
 

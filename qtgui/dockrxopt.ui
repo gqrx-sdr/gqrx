@@ -142,7 +142,7 @@ as  rf_freq + filter_offset</string>
          <string>Apply mode dependent filter preset</string>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <item>
          <property name="text">
@@ -157,6 +157,11 @@ as  rf_freq + filter_offset</string>
         <item>
          <property name="text">
           <string>Narrow</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>User</string>
          </property>
         </item>
        </widget>

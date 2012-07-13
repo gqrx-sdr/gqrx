@@ -21,6 +21,8 @@
 #include "dockrxopt.h"
 #include "ui_dockrxopt.h"
 
+#define FILT_SEL_USER_IDX 3
+
 DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockRxOpt),
@@ -82,6 +84,23 @@ void DockRxOpt::updateRxFreq()
 {
     double rx_freq_mhz = (rf_freq_hz + ui->filterFreq->GetFrequency()) / 1.0e6;
     ui->rxFreq->setText(QString("%1 MHz").arg(rx_freq_mhz, 11, 'f', 6, ' '));
+}
+
+
+/*! \brief Set filter parameters
+ *  \param lo Low cutoff frequency in Hz
+ *  \param hi High cutoff frequency in Hz.
+ *
+ * This function will automatically select te "User" preset in the
+ * combo box.
+ */
+void DockRxOpt::setFilterParam(int lo, int hi)
+{
+    float width_f = fabs((hi-lo)/1000.0);
+
+    ui->filterCombo->setCurrentIndex(FILT_SEL_USER_IDX);
+    ui->filterCombo->setItemText(FILT_SEL_USER_IDX, QString("User (%1k)").arg(width_f));
+
 }
 
 
