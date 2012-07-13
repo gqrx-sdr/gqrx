@@ -1185,6 +1185,7 @@ void MainWindow::on_plotter_NewFilterFreq(int low, int high)
     /* parameter correctness will be checked in receiver class */
     retcode = rx->set_filter((double) low, (double) high, d_filter_shape);
 
+    uiDockRxOpt->setFilterParam(low, high);
 }
 
 /*! \brief Full screen button or menu item toggled. */
