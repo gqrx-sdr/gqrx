@@ -30,7 +30,7 @@ dc_corr_cc_sptr make_dc_corr_cc(float alpha)
 }
 
 
-/*! \brief Create DC correction object object.
+/*! \brief Create DC correction object.
  *
  * Use make_dc_corr_cc() instead.
  */

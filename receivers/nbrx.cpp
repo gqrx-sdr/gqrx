@@ -55,7 +55,8 @@ nbrx::nbrx(float quad_rate, float audio_rate)
     connect(sql, 0, agc, 0);
     connect(agc, 0, demod_fm, 0);
     connect(demod_fm, 0, audio_rr, 0);
-    connect(audio_rr, 0, self(), 0);
+    connect(audio_rr, 0, self(), 0); // left  channel
+    connect(audio_rr, 0, self(), 1); // right channel
     // FIXME: we only need audio_rr when audio_rate != PREF_AUDIO_RATE
 
 }

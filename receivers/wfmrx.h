@@ -1,6 +1,7 @@
 /* -*- c++ -*- */
 /*
  * Copyright 2012 Alexandru Csete OZ9AEC.
+ * FM stereo implementation by Alex Grinkov a.grinkov(at)gmail.com.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +27,7 @@
 #include "dsp/rx_filter.h"
 #include "dsp/rx_meter.h"
 #include "dsp/rx_demod_fm.h"
+#include "dsp/stereo_demod.h"
 #include "dsp/resampler_xx.h"
 
 class wfmrx;
@@ -44,6 +46,13 @@ class wfmrx : public receiver_base_cf
 {
 
 public:
+    /*! \brief Available demodulators. */
+    enum wfmrx_demod {
+        WFMRX_DEMOD_MONO       = 0,  /*!< Mono. */
+        WFMRX_DEMOD_STEREO     = 1,  /*!< FM stereo. */
+        WFMRX_DEMOD_STEREO_UKW = 2,  /*!< UKW stereo. */
+        WFMRX_DEMOD_NUM        = 3   /*!< Included for convenience. */
+    };
     wfmrx(float quad_rate, float audio_rate);
     ~wfmrx();
 
@@ -88,14 +97,17 @@ private:
     float  d_quad_rate;        /*!< Input sample rate. */
     int    d_audio_rate;       /*!< Audio output rate. */
 
-    resampler_cc_sptr         iq_resamp;   /*!< Baseband resampler. */
-    rx_filter_sptr            filter;      /*!< Non-translating bandpass filter.*/
+    wfmrx_demod               d_demod;   /*!< Current demodulator. */
 
-    rx_meter_c_sptr           meter;      /*!< Signal strength. */
-    gr_simple_squelch_cc_sptr sql;        /*!< Squelch. */
-    rx_demod_fm_sptr          demod_fm;   /*!< FM demodulator. */
-    resampler_ff_sptr         audio_rr;   /*!< Audio resampler. */
+    resampler_cc_sptr         iq_resamp; /*!< Baseband resampler. */
+    rx_filter_sptr            filter;    /*!< Non-translating bandpass filter.*/
 
+    rx_meter_c_sptr           meter;     /*!< Signal strength. */
+    gr_simple_squelch_cc_sptr sql;       /*!< Squelch. */
+    rx_demod_fm_sptr          demod_fm;  /*!< FM demodulator. */
+    resampler_ff_sptr         midle_rr;  /*!< Resampler. */
+    stereo_demod_sptr         stereo;    /*!< FM stereo demodulator. */
+    stereo_demod_sptr         mono;      /*!< FM stereo demodulator OFF. */
 };
 
 #endif // WFMRX_H

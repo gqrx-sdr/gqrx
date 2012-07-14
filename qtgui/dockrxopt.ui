@@ -267,7 +267,12 @@ as  rf_freq + filter_offset</string>
         </item>
         <item>
          <property name="text">
-          <string>FM-W</string>
+          <string>FM-W (mono)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>FM-W (stereo)</string>
          </property>
         </item>
         <item>

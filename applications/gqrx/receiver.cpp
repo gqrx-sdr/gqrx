@@ -33,7 +33,6 @@
 #include "receivers/nbrx.h"
 #include "receivers/wfmrx.h"
 
-
 /*! \brief Public contructor.
  *  \param input_device Input device specifier.
  *  \param audio_device Audio output device specifier,
@@ -49,7 +48,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
       d_filter_offset(0.0),
       d_recording_wav(false),
       d_sniffer_active(false),
-      d_demod(RX_DEMOD_FMN)
+      d_demod(RX_DEMOD_OFF),
+      d_channels(1)
 {
     tb = gr_make_top_block("gqrx");
 
@@ -71,7 +71,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     iq_fft = make_rx_fft_c(4096, 0);
 
     audio_fft = make_rx_fft_f(3072);
-    audio_gain = gr_make_multiply_const_ff(0.1);
+    audio_gain0 = gr_make_multiply_const_ff(0.1);
+    audio_gain1 = gr_make_multiply_const_ff(0.1);
 
     audio_snk = make_pa_sink(audio_device, d_audio_rate, "GQRX", "Audio output");
 
@@ -80,7 +81,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     sniffer = make_sniffer_f();
     /* sniffer_rr is created at each activation. */
 
-    connect_all(RX_CHAIN_NBRX);
+    set_demod(RX_DEMOD_FMN);
 }
 
 
@@ -142,10 +143,14 @@ void receiver::set_output_device(const std::string device)
 {
     tb->lock();
 
-    tb->disconnect(audio_gain, 0, audio_snk, 0);
+    tb->disconnect(audio_gain0, 0, audio_snk, 0);
+    tb->disconnect(audio_gain1, 0, audio_snk, 1);
+
     audio_snk.reset();
     audio_snk = make_pa_sink(device, d_audio_rate); // FIXME: does this keep app and stream name?
-    tb->connect(audio_gain, 0, audio_snk, 0);
+
+    tb->connect(audio_gain0, 0, audio_snk, 0);
+    tb->connect(audio_gain1, 0, audio_snk, 1);
 
     tb->unlock();
 }
@@ -461,6 +466,7 @@ receiver::status receiver::set_agc_manual_gain(int gain)
 receiver::status receiver::set_demod(rx_demod demod)
 {
     bool needs_restart = d_running;
+    bool wide = (d_demod == RX_DEMOD_FMW) || (d_demod == RX_DEMOD_FMS);
     status ret = STATUS_OK;
 
     if (demod == d_demod)
@@ -468,6 +474,8 @@ receiver::status receiver::set_demod(rx_demod demod)
 
     if (d_running)
         stop();
+
+    d_channels = 1;
 
     switch (demod)
     {
@@ -477,7 +485,7 @@ receiver::status receiver::set_demod(rx_demod demod)
         break;
 
     case RX_DEMOD_NONE:
-        if ((d_demod == RX_DEMOD_OFF) || (d_demod == RX_DEMOD_FMW))
+        if ((d_demod == RX_DEMOD_OFF) || wide)
         {
             tb->disconnect_all();
             connect_all(RX_CHAIN_NBRX);
@@ -486,7 +494,7 @@ receiver::status receiver::set_demod(rx_demod demod)
         break;
 
     case RX_DEMOD_AM:
-        if ((d_demod == RX_DEMOD_OFF) || (d_demod == RX_DEMOD_FMW))
+        if ((d_demod == RX_DEMOD_OFF) || wide)
         {
             tb->disconnect_all();
             connect_all(RX_CHAIN_NBRX);
@@ -495,7 +503,7 @@ receiver::status receiver::set_demod(rx_demod demod)
         break;
 
     case RX_DEMOD_FMN:
-        if ((d_demod == RX_DEMOD_OFF) || (d_demod == RX_DEMOD_FMW))
+        if ((d_demod == RX_DEMOD_OFF) || wide)
         {
             tb->disconnect_all();
             connect_all(RX_CHAIN_NBRX);
@@ -504,16 +512,26 @@ receiver::status receiver::set_demod(rx_demod demod)
         break;
 
     case RX_DEMOD_FMW:
-        if (d_demod != RX_DEMOD_FMW)
+        if (!wide)
         {
             tb->disconnect_all();
             connect_all(RX_CHAIN_WFMRX);
         }
+        rx->set_demod(wfmrx::WFMRX_DEMOD_MONO);
+        break;
 
+    case RX_DEMOD_FMS:
+        if (!wide)
+        {
+            tb->disconnect_all();
+            connect_all(RX_CHAIN_WFMRX);
+        }
+        rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO);
+        d_channels = 2;
         break;
 
     case RX_DEMOD_SSB:
-        if ((d_demod == RX_DEMOD_OFF) || (d_demod == RX_DEMOD_FMW))
+        if ((d_demod == RX_DEMOD_OFF) || wide)
         {
             tb->disconnect_all();
             connect_all(RX_CHAIN_NBRX);
@@ -560,7 +578,8 @@ receiver::status receiver::set_af_gain(float gain_db)
     /* convert dB to factor */
     k = pow(10.0, gain_db / 20.0);
     //std::cout << "G:" << gain_db << "dB / K:" << k << std::endl;
-    audio_gain->set_k(k);
+    audio_gain0->set_k(k);
+    audio_gain1->set_k(k);
 
     return STATUS_OK;
 }
@@ -594,7 +613,7 @@ receiver::status receiver::start_audio_recording(const std::string filename)
     // not strictly necessary to lock but I think it is safer
     tb->lock();
     wav_sink = gr_make_wavfile_sink(filename.c_str(), 1, 48000, 16);
-    tb->connect(audio_gain, 0, wav_sink, 0);
+    tb->connect(audio_gain0, 0, wav_sink, 0);
     tb->unlock();
     d_recording_wav = true;
 
@@ -624,7 +643,7 @@ receiver::status receiver::stop_audio_recording()
     // not strictly necessary to lock but I think it is safer
     tb->lock();
     wav_sink->close();
-    tb->disconnect(audio_gain, 0, wav_sink, 0);
+    tb->disconnect(audio_gain0, 0, wav_sink, 0);
     wav_sink.reset();
     tb->unlock();
     d_recording_wav = false;
@@ -656,10 +675,11 @@ receiver::status receiver::start_audio_playback(const std::string filename)
 
     stop();
     /* route demodulator output to null sink */
-    tb->disconnect(rx, 0, audio_gain, 0);
+    tb->disconnect(rx, 0, audio_gain0, 0);
+    tb->disconnect(rx, 1, audio_gain1, 0);
     tb->disconnect(rx, 0, audio_fft, 0);
     tb->connect(rx, 0, audio_null_sink, 0);
-    tb->connect(wav_src, 0, audio_gain, 0);
+    tb->connect(wav_src, 0, audio_gain0, 0);
     tb->connect(wav_src, 0, audio_fft, 0);
     start();
 
@@ -672,10 +692,11 @@ receiver::status receiver::stop_audio_playback()
 {
     /* disconnect wav source and reconnect receiver */
     stop();
-    tb->disconnect(wav_src, 0, audio_gain, 0);
+    tb->disconnect(wav_src, 0, audio_gain0, 0);
     tb->disconnect(wav_src, 0, audio_fft, 0);
     tb->disconnect(rx, 0, audio_null_sink, 0);
-    tb->connect(rx, 0, audio_gain, 0);
+    tb->connect(rx, 0, audio_gain0, 0);
+    tb->connect(rx, 1, audio_gain1, 0);
     tb->connect(rx, 0, audio_fft, 0);
     start();
 
@@ -869,8 +890,10 @@ void receiver::connect_all(rx_chain type)
         tb->connect(lo, 0, mixer, 1);
         tb->connect(mixer, 0, rx, 0);
         tb->connect(rx, 0, audio_fft, 0);
-        tb->connect(rx, 0, audio_gain, 0);
-        tb->connect(audio_gain, 0, audio_snk, 0);
+        tb->connect(rx, 0, audio_gain0, 0);
+        tb->connect(rx, 1, audio_gain1, 0);
+        tb->connect(audio_gain0, 0, audio_snk, 0);
+        tb->connect(audio_gain1, 0, audio_snk, 1);
         break;
 
     case RX_CHAIN_WFMRX:
@@ -885,8 +908,10 @@ void receiver::connect_all(rx_chain type)
         tb->connect(lo, 0, mixer, 1);
         tb->connect(mixer, 0, rx, 0);
         tb->connect(rx, 0, audio_fft, 0);
-        tb->connect(rx, 0, audio_gain, 0);
-        tb->connect(audio_gain, 0, audio_snk, 0);
+        tb->connect(rx, 0, audio_gain0, 0);
+        tb->connect(rx, 1, audio_gain1, 0);
+        tb->connect(audio_gain0, 0, audio_snk, 0);
+        tb->connect(audio_gain1, 0, audio_snk, 1);
         break;
 
     default:

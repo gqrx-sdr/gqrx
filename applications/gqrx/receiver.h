@@ -74,8 +74,9 @@ public:
         RX_DEMOD_NONE = 1,  /*!< No demod. Raw I/Q to audio. */
         RX_DEMOD_AM   = 2,  /*!< Amplitude modulation. */
         RX_DEMOD_FMN  = 3,  /*!< Frequency modulation. */
-        RX_DEMOD_FMW  = 4,  /*!< Frequency modulation. */
-        RX_DEMOD_SSB  = 5   /*!< Single Side Band. */
+        RX_DEMOD_FMW  = 4,  /*!< Frequency modulation (wide). */
+        RX_DEMOD_FMS  = 5,  /*!< Frequency modulation (stereo). */
+        RX_DEMOD_SSB  = 6   /*!< Single Side Band. */
     };
 
     /*! \brief Supported receiver types. */
@@ -182,6 +183,7 @@ private:
     bool   d_sniffer_active;   /*!< Only one data decoder allowed. */
 
     rx_demod  d_demod;          /*!< Current demodulator. */
+    int d_channels;             /*!< Current number of audio channels (1 or 2). */
 
     gr_top_block_sptr         tb;        /*!< The GNU Radio top block. */
 
@@ -198,7 +200,8 @@ private:
     gr_multiply_cc_sptr mixer;
 
 
-    gr_multiply_const_ff_sptr audio_gain; /*!< Audio gain block. */
+    gr_multiply_const_ff_sptr audio_gain0; /*!< Audio gain block. */
+    gr_multiply_const_ff_sptr audio_gain1; /*!< Audio gain block. */
 
     gr_wavfile_sink_sptr      wav_sink;   /*!< WAV file sink for recording. */
     gr_wavfile_source_sptr    wav_src;    /*!< WAV file source for playback. */
