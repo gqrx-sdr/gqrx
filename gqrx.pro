@@ -148,7 +148,7 @@ unix {
     CONFIG += link_pkgconfig
     PKGCONFIG += gnuradio-core gnuradio-audio
     PKGCONFIG += libpulse libpulse-simple
-    PKGCONFIG += gnuradio-osmosdr gnuradio-uhd gnuradio-fcd
+    PKGCONFIG += gnuradio-osmosdr
     LIBS += -lrt  # need to include on some distros
 }
 
