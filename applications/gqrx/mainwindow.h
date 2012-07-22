@@ -129,6 +129,7 @@ private slots:
     void setIqFftSize(int size);
     void setIqFftRate(int fps);
     void setIqFftSplit(int pct_wf);
+    void setIqFftZoom(int zoom);
     void setAudioFftRate(int fps);
 
     void on_plotter_NewDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */

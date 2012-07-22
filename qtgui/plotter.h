@@ -47,6 +47,10 @@ public:
         m_DemodCenterFreq = m_CenterFreq + freq_hz;
         DrawOverlay();
     }
+    qint64 GetFilterOffset(void)
+    {
+        return m_DemodCenterFreq - m_CenterFreq;
+    }
 
     void SetHiLowCutFrequencies(int LowCut, int HiCut)
     {
@@ -83,6 +87,11 @@ public:
             m_SampleFreq = rate;
             DrawOverlay();
         }
+    }
+
+    double getSampleRate(void)
+    {
+        return m_SampleFreq;
     }
 
     void SetFftCenterFreq(qint64 f) { m_FftCenter = f; }
