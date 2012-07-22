@@ -754,9 +754,9 @@ void CPlotter::DrawOverlay()
         // Clamping no longer necessary as we do it in mouseMove()
         //ClampDemodParameters();
 
-        m_DemodFreqX = XfromFreq(m_DemodCenterFreq);
-        m_DemodLowCutFreqX = XfromFreq(m_DemodCenterFreq + m_DemodLowCutFreq);
-        m_DemodHiCutFreqX = XfromFreq(m_DemodCenterFreq + m_DemodHiCutFreq);
+        m_DemodFreqX = XfromFreq(m_DemodCenterFreq - m_FftCenter);
+        m_DemodLowCutFreqX = XfromFreq(m_DemodCenterFreq + m_DemodLowCutFreq - m_FftCenter);
+        m_DemodHiCutFreqX = XfromFreq(m_DemodCenterFreq + m_DemodHiCutFreq - m_FftCenter);
 
         int dw = m_DemodHiCutFreqX - m_DemodLowCutFreqX;
 
@@ -780,16 +780,22 @@ void CPlotter::DrawOverlay()
     // draw vertical grids
     pixperdiv = (float)w / (float)m_HorDivs;
     y = h - h/m_VerDivs/2;
+    painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0x30), 1, Qt::DotLine));
     for (int i = 1; i < m_HorDivs; i++)
     {
         x = (int)((float)i*pixperdiv);
-        if ((i == m_HorDivs/2) && m_CenterLineEnabled)
-            // center line
-            painter.setPen(QPen(QColor(0x78,0x82,0x96,0xFF), 1, Qt::SolidLine));
-        else
-            painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0x30), 1, Qt::DotLine));
+        painter.drawLine(x, 0, x, y);
+    }
 
-        painter.drawLine(x, 0, x , y);
+    if (m_CenterLineEnabled)
+    {
+        // center line
+        x = XfromFreq(m_CenterFreq - m_FftCenter);
+        if (x > 0 && x < w)
+        {
+            painter.setPen(QPen(QColor(0x78,0x82,0x96,0xFF), 1, Qt::SolidLine));
+            painter.drawLine(x, 0, x, y);
+        }
     }
 
     // draw frequency values
@@ -846,7 +852,7 @@ void CPlotter::DrawOverlay()
 void CPlotter::MakeFrequencyStrs()
 {
     qint64 FreqPerDiv = m_Span/m_HorDivs;
-    qint64 StartFreq = m_CenterFreq - m_Span/2;
+    qint64 StartFreq = m_CenterFreq + m_FftCenter - m_Span/2;
     float freq;
     int i,j;
 
@@ -884,7 +890,7 @@ void CPlotter::MakeFrequencyStrs()
             max = j-dp;
     }
     // truncate all strings to maximum fractional length
-    StartFreq = m_CenterFreq - m_Span/2;
+    StartFreq = m_CenterFreq + m_FftCenter - m_Span/2;
     for (i = 0; i <= m_HorDivs; i++)
     {
         freq = (float)StartFreq/(float)m_FreqUnits;
