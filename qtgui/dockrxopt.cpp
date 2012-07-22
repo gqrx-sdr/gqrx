@@ -342,6 +342,8 @@ void DockRxOpt::on_sqlSlider_valueChanged(int value)
 {
     double level = double(value) / 10.0;
 
+    /* update dB label */
+    ui->sqlDbLabel->setText(QString("%1 dBFS").arg(level));
     //ui->sqlValueLabel->setText(QString("%1 dB").arg(level));
     emit sqlLevelChanged(level);
 }
