@@ -498,6 +498,7 @@ void CPlotter::draw()
     int i;
     int w;
     int h;
+    int xmin, xmax;
 
     if (m_DrawOverlay)
     {
@@ -524,10 +525,15 @@ void CPlotter::draw()
         // get scaled FFT data
         GetScreenIntegerFFTData(255, w, m_MaxdB, m_MindB,
                                 m_FftCenter-m_Span/2, m_FftCenter+m_Span/2,
-                                m_fftbuf);
+                                m_fftbuf, &xmin, &xmax);
 
         // draw new line of fft data at top of waterfall bitmap
-        for (i = 0; i < w; i++)
+        painter1.setPen(QColor(0, 0, 0));
+        for (i = 0; i < xmin; i++)
+            painter1.drawPoint(i,0);
+        for (i = xmax; i < w; i++)
+            painter1.drawPoint(i,0);
+        for (i = xmin; i < xmax; i++)
         {
             painter1.setPen(m_ColorTbl[ 255-m_fftbuf[i] ]);
             painter1.drawPoint(i,0);
@@ -548,16 +554,16 @@ void CPlotter::draw()
         // get new scaled fft data
         GetScreenIntegerFFTData(h, w, m_MaxdB, m_MindB,
                                 m_FftCenter-m_Span/2, m_FftCenter+m_Span/2,
-                                m_fftbuf);
+                                m_fftbuf, &xmin, &xmax);
 
         // draw the 2D spectrum
         painter2.setPen(QColor(0x97,0xD0,0x97,0xFF));
-        for (i = 0; i < w; i++)
+        for (i = 0; i < xmax - xmin; i++)
         {
-            LineBuf[i].setX(i);
-            LineBuf[i].setY(m_fftbuf[i]);
+            LineBuf[i].setX(i + xmin);
+            LineBuf[i].setY(m_fftbuf[i + xmin]);
         }
-        painter2.drawPolyline(LineBuf,w);
+        painter2.drawPolyline(LineBuf, xmax - xmin);
     }
 
     // trigger a new paintEvent
@@ -584,14 +590,15 @@ void CPlotter::SetNewFttData(double *fftData, int size)
 void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
                                        double MaxdB, double MindB,
                                        qint32 StartFreq, qint32 StopFreq,
-                                       qint32* OutBuf)
+                                       qint32* OutBuf, int* xmin,
+                                       int* xmax)
 {
     qint32 i;
     qint32 y;
     qint32 x;
     qint32 ymax = 10000;
     qint32 xprev = -1;
-    qint32 maxbin;
+    qint32 minbin, maxbin;
     //double dBmaxOffset = 0.0;//MaxdB/10.0;   FIXME
     //double dBGainFactor = 1.0/MindB;//-1.0/(MaxdB-MindB);  FIXME
     double dBGainFactor = ((double)MaxHeight)/abs(MaxdB-MindB);
@@ -602,38 +609,38 @@ void CPlotter::GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
     double* m_pFFTAveBuf = m_fftData;
     qint32* m_pTranslateTbl = new qint32[m_FFTSize];
 
-
-    maxbin = m_FFTSize - 1;
     m_BinMin = (qint32)((double)StartFreq*(double)m_FFTSize/m_SampleFreq);
     m_BinMin += (m_FFTSize/2);
     m_BinMax = (qint32)((double)StopFreq*(double)m_FFTSize/m_SampleFreq);
     m_BinMax += (m_FFTSize/2);
 
-    if (m_BinMin < 0)	//don't allow these go outside the translate table
-        m_BinMin = 0;
-    if (m_BinMin >= maxbin)
-        m_BinMin = maxbin;
-    if (m_BinMax < 0)
-        m_BinMax = 0;
-    if (m_BinMax >= maxbin)
-        m_BinMax = maxbin;
+    minbin = m_BinMin < 0 ? 0 : m_BinMin;
+    if (m_BinMin > m_FFTSize)
+        m_BinMin = m_FFTSize - 1;
+    if (m_BinMax <= m_BinMin)
+        m_BinMax = m_BinMin + 1;
+    maxbin = m_BinMax < m_FFTSize ? m_BinMax : m_FFTSize;
     if ((m_BinMax-m_BinMin) > m_PlotWidth)
     {
         //if more FFT points than plot points
-        for (i = m_BinMin; i <= m_BinMax; i++)
+        for (i = minbin; i < maxbin; i++)
             m_pTranslateTbl[i] = ((i-m_BinMin)*m_PlotWidth) / (m_BinMax - m_BinMin);
+        *xmin = m_pTranslateTbl[minbin];
+        *xmax = m_pTranslateTbl[maxbin - 1];
     }
     else
     {
         //if more plot points than FFT points
         for (i = 0; i < m_PlotWidth; i++)
             m_pTranslateTbl[i] = m_BinMin + (i*(m_BinMax - m_BinMin)) / m_PlotWidth;
+        *xmin = 0;
+        *xmax = m_PlotWidth;
     }
 
     if ((m_BinMax-m_BinMin) > m_PlotWidth)
     {
         //if more FFT points than plot points
-        for (i = m_BinMin; i <= m_BinMax; i++ )
+        for (i = minbin; i < maxbin; i++ )
         {
             y = (qint32)(dBGainFactor*(MaxdB-m_pFFTAveBuf[i]));
 
@@ -754,9 +761,9 @@ void CPlotter::DrawOverlay()
         // Clamping no longer necessary as we do it in mouseMove()
         //ClampDemodParameters();
 
-        m_DemodFreqX = XfromFreq(m_DemodCenterFreq - m_FftCenter);
-        m_DemodLowCutFreqX = XfromFreq(m_DemodCenterFreq + m_DemodLowCutFreq - m_FftCenter);
-        m_DemodHiCutFreqX = XfromFreq(m_DemodCenterFreq + m_DemodHiCutFreq - m_FftCenter);
+        m_DemodFreqX = XfromFreq(m_DemodCenterFreq);
+        m_DemodLowCutFreqX = XfromFreq(m_DemodCenterFreq + m_DemodLowCutFreq);
+        m_DemodHiCutFreqX = XfromFreq(m_DemodCenterFreq + m_DemodHiCutFreq);
 
         int dw = m_DemodHiCutFreqX - m_DemodLowCutFreqX;
 
@@ -790,7 +797,7 @@ void CPlotter::DrawOverlay()
     if (m_CenterLineEnabled)
     {
         // center line
-        x = XfromFreq(m_CenterFreq - m_FftCenter);
+        x = XfromFreq(m_CenterFreq);
         if (x > 0 && x < w)
         {
             painter.setPen(QPen(QColor(0x78,0x82,0x96,0xFF), 1, Qt::SolidLine));
@@ -904,8 +911,8 @@ void CPlotter::MakeFrequencyStrs()
 //////////////////////////////////////////////////////////////////////
 int CPlotter::XfromFreq(qint64 freq)
 {
-    float w = m_OverlayPixmap.width();
-    float StartFreq = (float)m_CenterFreq - (float)m_Span/2.;
+    int w = m_OverlayPixmap.width();
+    qint64 StartFreq = m_CenterFreq + m_FftCenter - m_Span/2;
     int x = (int) w * ((float)freq - StartFreq)/(float)m_Span;
     if (x < 0)
         return 0;
@@ -916,8 +923,8 @@ int CPlotter::XfromFreq(qint64 freq)
 
 qint64 CPlotter::FreqfromX(int x)
 {
-    float w = m_OverlayPixmap.width();
-    float StartFreq = (float)m_CenterFreq - (float)m_Span/2.;
+    int w = m_OverlayPixmap.width();
+    qint64 StartFreq = m_CenterFreq + m_FftCenter - m_Span/2;
     qint64 f = (int)(StartFreq + (float)m_Span * (float)x/(float)w );
     return f;
 }

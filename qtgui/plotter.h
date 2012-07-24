@@ -133,7 +133,7 @@ private:
     void GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
                                  double MaxdB, double MindB,
                                  qint32 StartFreq, qint32 StopFreq,
-                                 qint32* OutBuf);
+                                 qint32* OutBuf, qint32 *maxbin, qint32 *minbin);
 
     qint32 m_fftbuf[MAX_SCREENSIZE];
     double *m_fftData;     /*! pointer to incoming FFT data */
