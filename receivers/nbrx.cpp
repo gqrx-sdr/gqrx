@@ -45,6 +45,7 @@ nbrx::nbrx(float quad_rate, float audio_rate)
     demod_ssb = gr_make_complex_to_real(1);
     demod_fm = make_rx_demod_fm(PREF_QUAD_RATE, PREF_AUDIO_RATE, 5000.0, 75.0e-6);
     demod_am = make_rx_demod_am(PREF_QUAD_RATE, PREF_AUDIO_RATE, true);
+    demod_p25 = make_rx_demod_p25(PREF_QUAD_RATE, PREF_AUDIO_RATE, 600.0);
     audio_rr = make_resampler_ff(d_audio_rate/PREF_AUDIO_RATE);
 
     connect(self(), 0, iq_resamp, 0);
@@ -204,6 +205,11 @@ void nbrx::set_demod(int rx_demod)
         disconnect(agc, 0, demod_fm, 0);
         disconnect(demod_fm, 0, audio_rr, 0);
         break;
+
+    case NBRX_DEMOD_P25:
+        disconnect(agc, 0, demod_p25, 0);
+        disconnect(demod_p25, 0, audio_rr, 0);
+        break;
     }
 
     switch (rx_demod) {
@@ -225,6 +231,12 @@ void nbrx::set_demod(int rx_demod)
         d_demod = NBRX_DEMOD_FM;
         connect(agc, 0, demod_fm, 0);
         connect(demod_fm, 0, audio_rr, 0);
+        break;
+
+    case NBRX_DEMOD_P25:
+        d_demod = NBRX_DEMOD_P25;
+        connect(agc, 0, demod_p25, 0);
+        connect(demod_p25, 0, audio_rr, 0);
         break;
 
     default:

@@ -307,6 +307,11 @@ as  rf_freq + filter_offset</string>
           <string>CW-U</string>
          </property>
         </item>
+        <item>
+         <property name="text">
+          <string>P25</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item row="1" column="2">
