@@ -150,10 +150,10 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
     {	//is in Overlay bitmap region
         if (event->buttons() == Qt::NoButton)
         {	//if no mouse button monitor grab regions and change cursor icon
-            if (IsPointCloseTo(pt.x(), (m_DemodHiCutFreqX+m_DemodLowCutFreqX)/2, m_CursorCaptureDelta))
+            if (IsPointCloseTo(pt.x(), m_DemodFreqX, m_CursorCaptureDelta))
             {	//in move demod box center frequency region
                 if (CENTER != m_CursorCaptured)
-                    setCursor(QCursor(Qt::SizeHorCursor));
+                    setCursor(QCursor(Qt::CrossCursor));
                 m_CursorCaptured = CENTER;
             }
             else if (IsPointCloseTo(pt.x(), m_DemodHiCutFreqX, m_CursorCaptureDelta))
@@ -330,8 +330,6 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
 
         if (IsPointCloseTo(pt.x(), m_DemodFreqX, m_CursorCaptureDelta))
         {	//in move demod box center frequency region
-            if (CENTER != m_CursorCaptured)
-                setCursor(QCursor(Qt::CrossCursor));
             m_CursorCaptured = CENTER;
             m_GrabPosition = pt.x()-m_DemodFreqX;
         }
