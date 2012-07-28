@@ -1199,6 +1199,12 @@ void MainWindow::on_plotter_NewFilterFreq(int low, int high)
     uiDockRxOpt->setFilterParam(low, high);
 }
 
+void MainWindow::on_plotter_NewCenterFreq(qint64 f)
+{
+    rx->set_rf_freq(f);
+    ui->freqCtrl->SetFrequency(f);
+}
+
 /*! \brief Full screen button or menu item toggled. */
 void MainWindow::on_actionFullScreen_triggered(bool checked)
 {

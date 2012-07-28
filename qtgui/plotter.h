@@ -139,6 +139,7 @@ private:
     double *m_fftData;     /*! pointer to incoming FFT data */
     int     m_fftDataSize;
 
+    int m_XAxisYCenter;
     int m_YAxisWidth;
 
     eCapturetype m_CursorCaptured;
@@ -182,6 +183,7 @@ private:
     int m_ClickResolution;
     int m_FilterClickResolution;
 
+    int m_Xzero;
     int m_Yzero;  /*!< Used to measure mouse drag direction. */
     int m_FreqDigits;  /*!< Number of decimal digits in frequency strings. */
 

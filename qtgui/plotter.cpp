@@ -174,6 +174,12 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     setCursor(QCursor(Qt::OpenHandCursor));
                 m_CursorCaptured = YAXIS;
             }
+            else if (IsPointCloseTo(pt.y(), m_XAxisYCenter, m_CursorCaptureDelta))
+            {
+                if (XAXIS != m_CursorCaptured)
+                    setCursor(QCursor(Qt::OpenHandCursor));
+                m_CursorCaptured = XAXIS;
+            }
             else
             {	//if not near any grab boundaries
                 if (NONE != m_CursorCaptured)
@@ -215,6 +221,32 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 DrawOverlay();
 
             m_Yzero = pt.y();
+        }
+    }
+    else if (XAXIS == m_CursorCaptured)
+    {
+        if (event->buttons() & (Qt::LeftButton | Qt::MiddleButton))
+        {
+            setCursor(QCursor(Qt::ClosedHandCursor));
+            // pan viewable range or move center frequency
+            int delta_px = m_Xzero - pt.x();
+            qint64 delta_hz = delta_px * m_Span / m_OverlayPixmap.width();
+            if (event->buttons() & Qt::MiddleButton)
+            {
+                m_CenterFreq += delta_hz;
+                m_DemodCenterFreq += delta_hz;
+                emit NewCenterFreq(m_CenterFreq);
+            }
+            else
+            {
+                m_FftCenter += delta_hz;
+            }
+            if (m_Running)
+                m_DrawOverlay = true;
+            else
+                DrawOverlay();
+
+            m_Xzero = pt.x();
         }
     }
     else if (LEFT == m_CursorCaptured)
@@ -325,9 +357,8 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
 {
     QPoint pt = event->pos();
 
-    if (event->buttons()==Qt::LeftButton)
+    if (NONE == m_CursorCaptured)
     {
-
         if (IsPointCloseTo(pt.x(), m_DemodFreqX, m_CursorCaptureDelta))
         {	//in move demod box center frequency region
             m_CursorCaptured = CENTER;
@@ -345,7 +376,7 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
         }
         else
         {
-            if (m_CursorCaptured != YAXIS)
+            if (event->buttons() == Qt::LeftButton)
             {
                 //if cursor not captured set demod frequency and start demod box capture
                 m_DemodCenterFreq = RoundFreq(FreqfromX(pt.x()),m_ClickResolution );
@@ -358,27 +389,24 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                 //m_GrabPosition = pt.x()-m_DemodFreqX;
                 DrawOverlay();
             }
-            else
+            else if (event->buttons() == Qt::MiddleButton)
             {
-                // get ready for moving Y axis
-                m_Yzero = pt.y();
+                // set center freq
+                m_CenterFreq = RoundFreq(FreqfromX(pt.x()), m_ClickResolution);
+                m_DemodCenterFreq = m_CenterFreq;
+                emit NewCenterFreq(m_CenterFreq);
+                emit NewDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
             }
         }
     }
-
-#if 0
-    else if (event->buttons() == Qt::MiddleButton)
+    else
     {
-        qDebug() << "MiddleButton";
-
-        if (NONE == m_CursorCaptured)
-        {	//if cursor not captured set center freq
-            m_CenterFreq = RoundFreq(FreqfromX(pt.x()),m_ClickResolution );
-            m_DemodCenterFreq = m_CenterFreq;
-            emit NewCenterFreq(m_CenterFreq);
-        }
+        if (m_CursorCaptured == YAXIS)
+            // get ready for moving Y axis
+            m_Yzero = pt.y();
+        else if (m_CursorCaptured == XAXIS)
+            m_Xzero = pt.x();
     }
-#endif
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -403,6 +431,11 @@ void CPlotter::mouseReleaseEvent(QMouseEvent * event)
             setCursor(QCursor(Qt::OpenHandCursor));
             m_Yzero = -1;
         }
+        else if (XAXIS == m_CursorCaptured)
+        {
+            setCursor(QCursor(Qt::OpenHandCursor));
+            m_Xzero = -1;
+        }
     }
 }
 
@@ -420,6 +453,18 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     {
         m_MindB += 5*numSteps;
         m_MaxdB -= 5*numSteps;
+    }
+    else if (m_CursorCaptured == XAXIS)
+    {
+        // pan fft window
+        int divisor;
+        if (event->modifiers() & Qt::ControlModifier)
+            divisor = 200;
+        else if (event->modifiers() & Qt::ShiftModifier)
+            divisor = 20;
+        else
+            divisor = 100;
+        m_FftCenter += numSteps*m_Span/divisor;
     }
     else if (event->modifiers() & Qt::ControlModifier)
     {
@@ -807,6 +852,7 @@ void CPlotter::DrawOverlay()
     MakeFrequencyStrs();
     painter.setPen(QColor(0xD8,0xBA,0xA1,0xFF));
     y = h - (h/m_VerDivs);
+    m_XAxisYCenter = h - metrics.height()/2;
     for (int i = 1; i < m_HorDivs; i++)
     {
         x = (int)((float)i*pixperdiv - pixperdiv/2);
