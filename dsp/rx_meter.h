@@ -93,7 +93,7 @@ public:
     float get_fs() {return d_fs;}
 
 private:
-    bool   d_detector;  /*! Detector type. */
+    int    d_detector;  /*! Detector type. */
     float  d_level;     /*! The current level in the range 0.0 to 1.0 */
     float  d_level_db;  /*! The current level in dBFS with FS = 1.0 */
     float  d_sum;       /*! Sum of msamples. */
