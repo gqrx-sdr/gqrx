@@ -35,10 +35,10 @@ rx_meter_c::rx_meter_c(int detector)
       d_detector(detector),
       d_level(0.0),
       d_level_db(0.0),
-      d_fs(1.0),
       d_sum(0.0),
       d_sumsq(0.0),
-      d_num(0)
+      d_num(0),
+      d_fs(1.0)
 {
 
 }

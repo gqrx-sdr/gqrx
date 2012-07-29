@@ -28,9 +28,9 @@
 DockIqPlayer::DockIqPlayer(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockIqPlayer),
+    d_pos(0),
     d_samprate(96000),
-    d_bps(8),     /* sizeof(gr_complex) */
-    d_pos(0)
+    d_bps(8)     /* sizeof(gr_complex) */
 {
     ui->setupUi(this);
 }
