@@ -1196,7 +1196,8 @@ void MainWindow::on_plotter_NewFilterFreq(int low, int high)
     /* parameter correctness will be checked in receiver class */
     retcode = rx->set_filter((double) low, (double) high, d_filter_shape);
 
-    uiDockRxOpt->setFilterParam(low, high);
+    if (retcode == receiver::STATUS_OK)
+        uiDockRxOpt->setFilterParam(low, high);
 }
 
 void MainWindow::on_plotter_NewCenterFreq(qint64 f)
