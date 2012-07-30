@@ -149,6 +149,7 @@ unix {
     PKGCONFIG += gnuradio-core gnuradio-audio
     PKGCONFIG += libpulse libpulse-simple
     PKGCONFIG += gnuradio-osmosdr
+    LIBS += -lboost_system # required with boost 1.50.0 on Arch Linux
     LIBS += -lrt  # need to include on some distros
 }
 
