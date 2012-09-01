@@ -70,13 +70,13 @@ public:
 
     /*! \brief Available demodulators. */
     enum rx_demod {
-        RX_DEMOD_OFF  = 0,  /*!< No receiver. */
-        RX_DEMOD_NONE = 1,  /*!< No demod. Raw I/Q to audio. */
-        RX_DEMOD_AM   = 2,  /*!< Amplitude modulation. */
-        RX_DEMOD_FMN  = 3,  /*!< Frequency modulation. */
-        RX_DEMOD_FMW  = 4,  /*!< Frequency modulation (wide). */
-        RX_DEMOD_FMS  = 5,  /*!< Frequency modulation (stereo). */
-        RX_DEMOD_SSB  = 6   /*!< Single Side Band. */
+        RX_DEMOD_OFF   = 0,  /*!< No receiver. */
+        RX_DEMOD_NONE  = 1,  /*!< No demod. Raw I/Q to audio. */
+        RX_DEMOD_AM    = 2,  /*!< Amplitude modulation. */
+        RX_DEMOD_NFM   = 3,  /*!< Frequency modulation. */
+        RX_DEMOD_WFM_M = 4,  /*!< Frequency modulation (wide, mono). */
+        RX_DEMOD_WFM_S = 5,  /*!< Frequency modulation (wide, stereo). */
+        RX_DEMOD_SSB   = 6   /*!< Single Side Band. */
     };
 
     /*! \brief Supported receiver types. */

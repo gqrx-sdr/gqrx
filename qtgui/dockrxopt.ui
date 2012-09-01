@@ -262,17 +262,17 @@ as  rf_freq + filter_offset</string>
         </item>
         <item>
          <property name="text">
-          <string>FM-N</string>
+          <string>Narrow FM</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>FM-W (mono)</string>
+          <string>Wide FM (mono)</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>FM-W (stereo)</string>
+          <string>Wide FM (stereo)</string>
          </property>
         </item>
         <item>

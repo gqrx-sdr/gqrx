@@ -197,13 +197,13 @@ void DockRxOpt::on_modeSelector_activated(int index)
     if (index == MODE_RAW)
     {
         qDebug() << "Raw I/Q not implemented (fallback to FM-N)";
-        ui->modeSelector->setCurrentIndex(MODE_FMN);
-        emit demodSelected(MODE_FMN);
+        ui->modeSelector->setCurrentIndex(MODE_NFM);
+        emit demodSelected(MODE_NFM);
         return;
     }
 
     /* update demodulator option widget */
-    if (index == MODE_FMN)
+    if (index == MODE_NFM)
         demodOpt->setCurrentPage(CDemodOptions::PAGE_FM_OPT);
     else
         demodOpt->setCurrentPage(CDemodOptions::PAGE_NO_OPT);

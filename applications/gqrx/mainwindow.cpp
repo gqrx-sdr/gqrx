@@ -483,9 +483,9 @@ void MainWindow::selectDemod(int index)
         }
         break;
 
-        /* FM-N */
-    case DockRxOpt::MODE_FMN:
-        rx->set_demod(receiver::RX_DEMOD_FMN);
+        /* Narrow FM */
+    case DockRxOpt::MODE_NFM:
+        rx->set_demod(receiver::RX_DEMOD_NFM);
         click_res = 100;
         maxdev = uiDockRxOpt->currentMaxdev();
         if (maxdev < 20000.0) { /** FIXME **/
@@ -528,8 +528,8 @@ void MainWindow::selectDemod(int index)
         break;
 
         /* Broadcast FM */
-    case DockRxOpt::MODE_FMW:
-    case DockRxOpt::MODE_FMS:
+    case DockRxOpt::MODE_WFM_MONO:
+    case DockRxOpt::MODE_WFM_STEREO:
         quad_rate = rx->get_input_rate();
         if (quad_rate < 200.0e3)
             ui->plotter->SetDemodRanges(-0.9*quad_rate/2.0, -10000,
@@ -553,10 +553,11 @@ void MainWindow::selectDemod(int index)
             fhi = 80000;
             break;
         }
-        if (index == DockRxOpt::MODE_FMS)
-            rx->set_demod(receiver::RX_DEMOD_FMS);
+        if (index == DockRxOpt::MODE_WFM_MONO)
+            rx->set_demod(receiver::RX_DEMOD_WFM_M);
         else
-            rx->set_demod(receiver::RX_DEMOD_FMW);
+            rx->set_demod(receiver::RX_DEMOD_WFM_S);
+
         break;
 
         /* LSB */
