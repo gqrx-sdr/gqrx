@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2012 Alexandru Csete OZ9AEC.
  * FM stereo implementation by Alex Grinkov a.grinkov(at)gmail.com.
  *
  * Gqrx is free software; you can redistribute it and/or modify
