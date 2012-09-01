@@ -48,8 +48,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
       d_filter_offset(0.0),
       d_recording_wav(false),
       d_sniffer_active(false),
-      d_demod(RX_DEMOD_OFF),
-      d_channels(1)
+      d_demod(RX_DEMOD_OFF)
 {
     tb = gr_make_top_block("gqrx");
 
@@ -475,8 +474,6 @@ receiver::status receiver::set_demod(rx_demod demod)
     if (d_running)
         stop();
 
-    d_channels = 1;
-
     switch (demod)
     {
     case RX_DEMOD_OFF:
@@ -527,7 +524,6 @@ receiver::status receiver::set_demod(rx_demod demod)
             connect_all(RX_CHAIN_WFMRX);
         }
         rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO);
-        d_channels = 2;
         break;
 
     case RX_DEMOD_SSB:
