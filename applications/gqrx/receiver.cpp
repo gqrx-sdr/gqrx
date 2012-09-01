@@ -608,8 +608,9 @@ receiver::status receiver::start_audio_recording(const std::string filename)
 
     // not strictly necessary to lock but I think it is safer
     tb->lock();
-    wav_sink = gr_make_wavfile_sink(filename.c_str(), 1, 48000, 16);
+    wav_sink = gr_make_wavfile_sink(filename.c_str(), 2, 48000, 16);
     tb->connect(audio_gain0, 0, wav_sink, 0);
+    tb->connect(audio_gain1, 0, wav_sink, 1);
     tb->unlock();
     d_recording_wav = true;
 
@@ -640,6 +641,7 @@ receiver::status receiver::stop_audio_recording()
     tb->lock();
     wav_sink->close();
     tb->disconnect(audio_gain0, 0, wav_sink, 0);
+    tb->disconnect(audio_gain1, 0, wav_sink, 1);
     wav_sink.reset();
     tb->unlock();
     d_recording_wav = false;
@@ -675,7 +677,7 @@ receiver::status receiver::start_audio_playback(const std::string filename)
     tb->disconnect(rx, 1, audio_gain1, 0);
     tb->disconnect(rx, 0, audio_fft, 0);
     tb->connect(rx, 0, audio_null_sink, 0);
-    tb->connect(wav_src, 0, audio_gain0, 0);
+    tb->connect(wav_src, 0, audio_gain0, 0);  // FIXME: 2 channels
     tb->connect(wav_src, 0, audio_fft, 0);
     start();
 
