@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ pa_sink_sptr make_pa_sink(const string device_name, int audio_rate,
 /*! \brief Pulseaudio sink
  *  \ingroup IO
  *
- * This block implements a one channel pulseaudio sink using the Pulseaudio simple API.
+ * This block implements a two-channel pulseaudio sink using the Pulseaudio simple API.
  *
  */
 class pa_sink : public gr_sync_block

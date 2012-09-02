@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,6 @@
 #include <pulse/gccmacro.h>
 
 
-
 /*! \brief Create a new pulseaudio sink object.
  *  \param device_name The name of the audio device, or NULL for default.
  *  \param audio_rate The sample rate of the audio stream.
@@ -47,7 +46,7 @@ pa_sink_sptr make_pa_sink(const string device_name, int audio_rate,
 pa_sink::pa_sink(const string device_name, int audio_rate,
                  const string app_name, const string stream_name)
   : gr_sync_block ("pa_sink",
-        gr_make_io_signature (1, 2, sizeof(float)), //!!!
+        gr_make_io_signature (1, 2, sizeof(float)),
         gr_make_io_signature (0, 0, 0)),
     d_app_name(app_name),
     d_stream_name(stream_name),
@@ -58,7 +57,7 @@ pa_sink::pa_sink(const string device_name, int audio_rate,
     /* The sample type to use */
     d_ss.format = PA_SAMPLE_FLOAT32LE;
     d_ss.rate = audio_rate;
-    d_ss.channels = 2; //!!!
+    d_ss.channels = 2;
 
     /* Buffer attributes tuned for low latency, see Documentation/Developer/Clients/LactencyControl */
     size_t latency = pa_usec_to_bytes(10000, &d_ss);
@@ -130,13 +129,20 @@ void pa_sink::select_device(string device_name)
 }
 
 
+#define BUFFER_SIZE 100000
+
 int pa_sink::work (int noutput_items,
                    gr_vector_const_void_star &input_items,
                    gr_vector_void_star &output_items)
 {
-    static float buf[100000]; //!!! FIXME
-    float *ptr = &buf[0];      //!!!
+    static float audio_buffer[BUFFER_SIZE];
+    float *ptr = &audio_buffer[0];
     int i, error;
+
+    (void) output_items;
+
+    if (noutput_items > BUFFER_SIZE/2)
+        noutput_items = BUFFER_SIZE/2;
 
     if (d_auto_flush > 0)
     {
@@ -152,29 +158,30 @@ int pa_sink::work (int noutput_items,
         }
     }
 
-    //!!!
-    if (input_items.size() == 1)
-    { // mono
-      const float *items = (const float*) input_items[0];
-      for (i = noutput_items; i > 0; i--)
-      {
-        float a = *items++;
-        *ptr++ = a; // left  channel
-        *ptr++ = a; // right channel
-      }
+    if (input_items.size() == 2)
+    {
+        // two channels (stereo)
+        const float *data_l = (const float*) input_items[0]; // left channel
+        const float *data_r = (const float*) input_items[1]; // right channel
+        for (i = noutput_items; i > 0; i--)
+        {
+            *ptr++ = *data_l++;
+            *ptr++ = *data_r++;
+        }
     }
-    else // if (input_items.size() == 2)
-    { // stereo
-      const float *items0 = (const float*) input_items[0];
-      const float *items1 = (const float*) input_items[1];
-      for (i = noutput_items; i > 0; i--)
-      {
-        *ptr++ = *items0++; // left  channel
-        *ptr++ = *items1++; // right channel
-      }
+    else
+    {
+        // assume 1 channel (mono)
+        const float *data = (const float*) input_items[0];
+        for (i = noutput_items; i > 0; i--)
+        {
+            float a = *data++;
+            *ptr++ = a; // same data in left and right channel
+            *ptr++ = a;
+        }
     }
 
-    if (pa_simple_write(d_pasink, buf, 2*noutput_items*sizeof(float), &error) < 0) { //!!!
+    if (pa_simple_write(d_pasink, audio_buffer, 2*noutput_items*sizeof(float), &error) < 0) { //!!!
         fprintf(stderr, __FILE__": pa_simple_write() failed: %s\n", pa_strerror(error));
     }
 
