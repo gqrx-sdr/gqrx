@@ -152,23 +152,19 @@ FORMS += \
 # dependencies via pkg-config
 # FIXME: check for version?
 unix {
-#    CONFIG += link_pkgconfig
-#    PKGCONFIG += gnuradio-core gnuradio-audio
+    CONFIG += link_pkgconfig
+    PKGCONFIG += gnuradio-core gnuradio-audio
 #    PKGCONFIG += libpulse libpulse-simple
-#    PKGCONFIG += gnuradio-osmosdr
-#    LIBS += -lboost_system # required with boost 1.50.0 on Arch Linux
+    PKGCONFIG += gnuradio-osmosdr
+    LIBS += -lboost_system # required with boost 1.50.0 on Arch Linux
 #    LIBS += -lrt  # need to include on some distros
 }
 
 macx-g++ {
-#    CONFIG += link_pkgconfig
-#    PKGCONFIG += gnuradio-core gnuradio-audio
-    INCLUDEPATH += /usr/local/include
-    INCLUDEPATH += /usr/local/include/gnuradio
-    INCLUDEPATH += /usr/local/include/osmosdr
-    INCLUDEPATH += /opt/local/include
-    LIBS += -L/opt/local/lib -lusb -lboost_system
-    LIBS += -L/usr/local/lib -lgnuradio-core -lgnuradio-audio -lgnuradio-osmosdr
+#    INCLUDEPATH += /usr/local/include
+#    INCLUDEPATH += /usr/local/include/gnuradio
+#    INCLUDEPATH += /usr/local/include/osmosdr
+#    INCLUDEPATH += /opt/local/include
 }
 
 OTHER_FILES += \
