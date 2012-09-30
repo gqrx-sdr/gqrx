@@ -107,7 +107,9 @@ void receiver::start()
     /* FIXME: Check that flow graph is not running */
     if (!d_running)
     {
+#ifndef PULSEAUDIO
         set_output_device("");
+#endif
         tb->start();
         d_running = true;
     }

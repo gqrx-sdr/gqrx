@@ -4,10 +4,13 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui svg
 
 TARGET = gqrx
 TEMPLATE = app
+
+ICON = icons/scope.icns
+RESOURCES += icons.qrc
 
 #CONFIG += debug
 
@@ -172,5 +175,3 @@ OTHER_FILES += \
     README \
     COPYING
 
-RESOURCES += \
-    icons.qrc
