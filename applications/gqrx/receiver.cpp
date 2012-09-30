@@ -107,6 +107,7 @@ void receiver::start()
     /* FIXME: Check that flow graph is not running */
     if (!d_running)
     {
+        set_output_device("");
         tb->start();
         d_running = true;
     }
