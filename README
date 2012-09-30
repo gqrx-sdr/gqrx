@@ -1,3 +1,6 @@
+This branch has re-enabled the GNU Radio audio sink in order to support operating systems that have no pulseaudio port.
+
+
 Gqrx is an experimental software defined radio receiver implemented using GNU Radio and the Qt GUI toolkit. Currently it works on Linux and it can use the Funcube Dongle, RTL2832U-based DVB-T dongle and USRP devices by Ettus Research as input source.
 
 The following sections are some very generic instructions for building the latest v2.1-git series.
