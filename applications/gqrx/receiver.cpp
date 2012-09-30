@@ -108,6 +108,7 @@ void receiver::start()
     if (!d_running)
     {
 #ifndef PULSEAUDIO
+    if(d_demod != RX_DEMOD_OFF)
         set_output_device("");
 #endif
         tb->start();
