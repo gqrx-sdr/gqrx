@@ -47,6 +47,10 @@ public:
         m_DemodCenterFreq = m_CenterFreq + freq_hz;
         DrawOverlay();
     }
+    qint64 GetFilterOffset(void)
+    {
+        return m_DemodCenterFreq - m_CenterFreq;
+    }
 
     void SetHiLowCutFrequencies(int LowCut, int HiCut)
     {
@@ -83,6 +87,11 @@ public:
             m_SampleFreq = rate;
             DrawOverlay();
         }
+    }
+
+    double getSampleRate(void)
+    {
+        return m_SampleFreq;
     }
 
     void SetFftCenterFreq(qint64 f) { m_FftCenter = f; }
@@ -124,12 +133,13 @@ private:
     void GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
                                  double MaxdB, double MindB,
                                  qint32 StartFreq, qint32 StopFreq,
-                                 qint32* OutBuf);
+                                 qint32* OutBuf, qint32 *maxbin, qint32 *minbin);
 
     qint32 m_fftbuf[MAX_SCREENSIZE];
     double *m_fftData;     /*! pointer to incoming FFT data */
     int     m_fftDataSize;
 
+    int m_XAxisYCenter;
     int m_YAxisWidth;
 
     eCapturetype m_CursorCaptured;
@@ -173,6 +183,7 @@ private:
     int m_ClickResolution;
     int m_FilterClickResolution;
 
+    int m_Xzero;
     int m_Yzero;  /*!< Used to measure mouse drag direction. */
     int m_FreqDigits;  /*!< Number of decimal digits in frequency strings. */
 

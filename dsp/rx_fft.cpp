@@ -71,7 +71,7 @@ int rx_fft_c::work(int noutput_items,
                    gr_vector_const_void_star &input_items,
                    gr_vector_void_star &output_items)
 {
-    int i,j = 0;
+    int i;
     const gr_complex *in = (const gr_complex*)input_items[0];
 
     /* just throw new samples into the buffer */
@@ -234,7 +234,7 @@ int rx_fft_f::work(int noutput_items,
                    gr_vector_const_void_star &input_items,
                    gr_vector_void_star &output_items)
 {
-    int i,j = 0;
+    int i;
     const float *in = (const float*)input_items[0];
 
     /* just throw new samples into the buffer */

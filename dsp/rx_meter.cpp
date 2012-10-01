@@ -35,10 +35,10 @@ rx_meter_c::rx_meter_c(int detector)
       d_detector(detector),
       d_level(0.0),
       d_level_db(0.0),
-      d_fs(1.0),
       d_sum(0.0),
       d_sumsq(0.0),
-      d_num(0)
+      d_num(0),
+      d_fs(1.0)
 {
 
 }
@@ -55,12 +55,8 @@ int rx_meter_c::work (int noutput_items,
                       gr_vector_void_star &output_items)
 {
     const gr_complex *in = (const gr_complex *) input_items[0];
-    float sum;
     float pwr = 0.0;
     int   i = 0;
-
-
-    sum = in[0].real()*in[0].real() + in[0].imag()*in[0].imag();
 
     if (d_num == 0)
     {

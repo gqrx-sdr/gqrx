@@ -51,8 +51,8 @@ pa_source::pa_source (const string device_name, int sample_rate, int num_chan,
   : gr_sync_block ("pa_source",
         gr_make_io_signature (0, 0, 0),
         gr_make_io_signature (0, 0, 0)),
-    d_app_name(app_name),
-    d_stream_name(stream_name)
+    d_stream_name(stream_name),
+    d_app_name(app_name)
 {
     int error;
 
