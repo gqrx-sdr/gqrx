@@ -684,7 +684,6 @@ void CFreqCtrl::DrawBkGround(QPainter &Painter)
 //////////////////////////////////////////////////////////////////////////////
 void CFreqCtrl::DrawDigits(QPainter &Painter)
 {
-    char digchar;
     Painter.setFont(m_DigitFont);
     m_FirstEditableDigit = m_DigStart;
     //qDebug() <<m_DigStart <<m_LeadZeroPos;
@@ -706,7 +705,6 @@ void CFreqCtrl::DrawDigits(QPainter &Painter)
             else
                 Painter.setPen(m_DigitColor);
 
-            digchar = '0' + m_DigitInfo[i].val;
             Painter.drawText(m_DigitInfo[i].dQRect, Qt::AlignHCenter|Qt::AlignVCenter,
                              QString().number(m_DigitInfo[i].val));
             m_DigitInfo[i].modified = FALSE;

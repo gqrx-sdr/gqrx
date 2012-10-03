@@ -48,8 +48,8 @@ pa_sink::pa_sink(const string device_name, int audio_rate,
   : gr_sync_block ("pa_sink",
         gr_make_io_signature (1, 2, sizeof(float)),
         gr_make_io_signature (0, 0, 0)),
-    d_app_name(app_name),
     d_stream_name(stream_name),
+    d_app_name(app_name),
     d_auto_flush(300)
 {
     int error;

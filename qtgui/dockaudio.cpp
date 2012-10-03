@@ -24,8 +24,8 @@
 
 DockAudio::DockAudio(QWidget *parent) :
     QDockWidget(parent),
-    autoSpan(true),
-    ui(new Ui::DockAudio)
+    ui(new Ui::DockAudio),
+    autoSpan(true)
 {
     ui->setupUi(this);
 

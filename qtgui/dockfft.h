@@ -42,11 +42,13 @@ signals:
     void fftSizeChanged(int size);  /*! \brief FFT size changed. */
     void fftRateChanged(int fps);   /*! \brief FFT rate changed. */
     void fftSplitChanged(int pct);  /*! \brief Split between pandapter and waterfall changed. */
+    void fftZoomChanged(int size);  /*! \brief Pandapter and waterfall zoom changed  */
 
 private slots:
     void on_fftSizeComboBox_currentIndexChanged(const QString & text);
     void on_fftRateComboBox_currentIndexChanged(const QString & text);
     void on_fftSplitSlider_valueChanged(int value);
+    void on_fftZoomSlider_valueChanged(int value);
 
 private:
     Ui::DockFft *ui;
