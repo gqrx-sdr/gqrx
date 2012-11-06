@@ -4,10 +4,13 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui svg
 
 TARGET = gqrx
 TEMPLATE = app
+
+ICON = icons/scope.icns
+RESOURCES += icons.qrc
 
 #CONFIG += debug
 
@@ -59,9 +62,9 @@ SOURCES += \
 #    input/fcdctl/hid-libusb.c \
 #    input/fcdctl/hidwin.c \
 #    input/fcdctl/hidmac.c \
-    pulseaudio/pa_device_list.cc \  # FIXME: Linux only
-    pulseaudio/pa_sink.cc \
-    pulseaudio/pa_source.cc \
+#    pulseaudio/pa_device_list.cc \  # FIXME: Linux only
+#    pulseaudio/pa_sink.cc \
+#    pulseaudio/pa_source.cc \
     qtgui/dockrxopt.cpp \
     qtgui/freqctrl.cpp \
     qtgui/meter.cpp \
@@ -107,9 +110,9 @@ HEADERS += \
 #    input/fcdctl/hidapi.h \
 #    input/fcdctl/fcdhidcmd.h \
 #    input/fcdctl/fcd.h \
-    pulseaudio/pa_device_list.h \  # FIXME: Linux only
-    pulseaudio/pa_sink.h \
-    pulseaudio/pa_source.h \
+#    pulseaudio/pa_device_list.h \  # FIXME: Linux only
+#    pulseaudio/pa_sink.h \
+#    pulseaudio/pa_source.h \
     qtgui/freqctrl.h \
     qtgui/meter.h \
     qtgui/plotter.h \
@@ -151,22 +154,20 @@ FORMS += \
 unix {
     CONFIG += link_pkgconfig
     PKGCONFIG += gnuradio-core gnuradio-audio
-    PKGCONFIG += libpulse libpulse-simple
+#    PKGCONFIG += libpulse libpulse-simple
     PKGCONFIG += gnuradio-osmosdr
     LIBS += -lboost_system # required with boost 1.50.0 on Arch Linux
-    LIBS += -lrt  # need to include on some distros
+#    LIBS += -lrt  # need to include on some distros
 }
 
 macx-g++ {
-    CONFIG += link_pkgconfig
-    PKGCONFIG += gnuradio-core gnuradio-audio
-    INCLUDEPATH += /opt/local/include
-    INCLUDEPATH += /opt/local/include/gnuradio
+#    INCLUDEPATH += /usr/local/include
+#    INCLUDEPATH += /usr/local/include/gnuradio
+#    INCLUDEPATH += /usr/local/include/osmosdr
+#    INCLUDEPATH += /opt/local/include
 }
 
 OTHER_FILES += \
     README \
     COPYING
 
-RESOURCES += \
-    icons.qrc

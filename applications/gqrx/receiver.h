@@ -42,8 +42,12 @@
 #include "dsp/resampler_xx.h"
 #include "receivers/receiver_base.h"
 
+#ifdef PULSEAUDIO //pafix
 #include <pulseaudio/pa_sink.h>
 #include <pulseaudio/pa_source.h>
+#else
+#include <gr_audio_sink.h>
+#endif
 
 
 /*! \defgroup DSP Digital signal processing library based on GNU Radio */
@@ -209,8 +213,11 @@ private:
     sniffer_f_sptr            sniffer;    /*!< Sample sniffer for data decoders. */
     resampler_ff_sptr         sniffer_rr; /*!< Sniffer resampler. */
 
-    pa_sink_sptr              audio_snk;  /*!< Audio sink. */
-
+#ifdef PULSEAUDIO //pafix
+    pa_sink_sptr              audio_snk;  /*!< Pulse audio sink. */
+#else
+    audio_sink::sptr          audio_snk;  /*!< gr audio sink */
+#endif
 };
 
 #endif // RECEIVER_H

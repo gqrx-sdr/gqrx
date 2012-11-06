@@ -29,7 +29,11 @@
 #include "applications/gqrx/receiver.h"
 #include "dsp/correct_iq_cc.h"
 #include "dsp/rx_fft.h"
+
+#ifdef PULSEAUDIO //pafix
 #include "pulseaudio/pa_sink.h"
+#endif
+
 #include "receivers/nbrx.h"
 #include "receivers/wfmrx.h"
 
@@ -67,13 +71,17 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     mixer = gr_make_multiply_cc();
 
     dc_corr = make_dc_corr_cc(0.01f);
-    iq_fft = make_rx_fft_c(4096, 0);
+    iq_fft = make_rx_fft_c(16384, 0); // higher resolution FFT -> moar pretty
 
     audio_fft = make_rx_fft_f(3072);
     audio_gain0 = gr_make_multiply_const_ff(0.1);
     audio_gain1 = gr_make_multiply_const_ff(0.1);
 
+#ifdef PULSEAUDIO //pafix
     audio_snk = make_pa_sink(audio_device, d_audio_rate, "GQRX", "Audio output");
+#else
+    audio_snk = audio_make_sink(d_audio_rate, audio_device, true);
+#endif
 
     /* wav sink and source is created when rec/play is started */
     audio_null_sink = gr_make_null_sink(sizeof(float));
@@ -99,6 +107,10 @@ void receiver::start()
     /* FIXME: Check that flow graph is not running */
     if (!d_running)
     {
+#ifndef PULSEAUDIO
+    if(d_demod != RX_DEMOD_OFF)
+        set_output_device("");
+#endif
         tb->start();
         d_running = true;
     }
@@ -142,6 +154,7 @@ void receiver::set_output_device(const std::string device)
 {
     tb->lock();
 
+#ifdef PULSEAUDIO //pafix
     tb->disconnect(audio_gain0, 0, audio_snk, 0);
     tb->disconnect(audio_gain1, 0, audio_snk, 1);
 
@@ -150,6 +163,16 @@ void receiver::set_output_device(const std::string device)
 
     tb->connect(audio_gain0, 0, audio_snk, 0);
     tb->connect(audio_gain1, 0, audio_snk, 1);
+#else
+    tb->disconnect(audio_gain0, 0, audio_snk, 0);
+    tb->disconnect(audio_gain1, 0, audio_snk, 1);
+
+    audio_snk.reset();
+    audio_snk = audio_make_sink(d_audio_rate, device, true);
+
+    tb->connect(audio_gain0, 0, audio_snk, 0);
+    tb->connect(audio_gain1, 0, audio_snk, 1);
+#endif
 
     tb->unlock();
 }
@@ -888,10 +911,19 @@ void receiver::connect_all(rx_chain type)
         tb->connect(lo, 0, mixer, 1);
         tb->connect(mixer, 0, rx, 0);
         tb->connect(rx, 0, audio_fft, 0);
+#ifdef PULSEAUDIO //pafix
         tb->connect(rx, 0, audio_gain0, 0);
         tb->connect(rx, 1, audio_gain1, 0);
+
         tb->connect(audio_gain0, 0, audio_snk, 0);
         tb->connect(audio_gain1, 0, audio_snk, 1);
+#else
+        tb->connect(rx, 0, audio_gain0, 0);
+        tb->connect(rx, 1, audio_gain1, 0);
+
+        tb->connect(audio_gain0, 0, audio_snk, 0);
+        tb->connect(audio_gain1, 0, audio_snk, 1);
+#endif
         break;
 
     case RX_CHAIN_WFMRX:
@@ -906,10 +938,19 @@ void receiver::connect_all(rx_chain type)
         tb->connect(lo, 0, mixer, 1);
         tb->connect(mixer, 0, rx, 0);
         tb->connect(rx, 0, audio_fft, 0);
+#ifdef PULSEAUDIO //pafix
         tb->connect(rx, 0, audio_gain0, 0);
         tb->connect(rx, 1, audio_gain1, 0);
+
         tb->connect(audio_gain0, 0, audio_snk, 0);
         tb->connect(audio_gain1, 0, audio_snk, 1);
+#else
+        tb->connect(rx, 0, audio_gain0, 0);
+        tb->connect(rx, 1, audio_gain1, 0);
+
+        tb->connect(audio_gain0, 0, audio_snk, 0);
+        tb->connect(audio_gain1, 0, audio_snk, 1);
+#endif
         break;
 
     default:
