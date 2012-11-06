@@ -31,7 +31,10 @@
 #include <osmosdr_ranges.h>
 #include <boost/foreach.hpp>
 
+#ifdef PULSEAUDIO //pafix
 #include "pulseaudio/pa_device_list.h"
+#endif
+
 #include "qtgui/ioconfig.h"
 #include "ui_ioconfig.h"
 
@@ -194,8 +197,10 @@ void CIoConfig::saveConfig()
 
     if (idx > 0)
     {
+#ifdef PULSEAUDIO //pafix
         qDebug() << "Output device" << idx << ":" << QString(outDevList[idx-1].get_name().c_str());
         m_settings->setValue("output/device", QString(outDevList[idx-1].get_name().c_str()));
+#endif
     }
     else
         qDebug() << "Selected output device is 'default' (not saving)";

@@ -23,7 +23,10 @@
 #include <QDialog>
 #include <QString>
 #include <QSettings>
+
+#ifdef PULSEAUDIO //pafix
 #include "pulseaudio/pa_device_list.h"
+#endif
 
 
 namespace Ui {
@@ -54,7 +57,9 @@ private:
 
     QSettings *m_settings;
 
+#ifdef PULSEAUDIO //pafix
     vector<pa_device> outDevList;
+#endif
 };
 
 #endif // IOCONFIG_H
