@@ -37,16 +37,16 @@ rx_nb_cc::rx_nb_cc(double sample_rate, float thld1, float thld2)
     : gr_sync_block ("rx_nb_cc",
           gr_make_io_signature(1, 1, sizeof(gr_complex)),
           gr_make_io_signature(1, 1, sizeof(gr_complex))),
+      d_nb1_on(false),
+      d_nb2_on(false),
       d_sample_rate(sample_rate),
       d_thld_nb1(thld1),
       d_thld_nb2(thld2),
-      d_nb1_on(false),
-      d_nb2_on(false),
       d_avgmag_nb1(1.0),
       d_avgmag_nb2(1.0),
-      d_hangtime(0),
+      d_delidx(2),
       d_sigidx(0),
-      d_delidx(2)
+      d_hangtime(0)
 {
     memset(d_delay, 0, 8 * sizeof(gr_complex));
 }

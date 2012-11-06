@@ -148,6 +148,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setIqFftSize(int)));
     connect(uiDockFft, SIGNAL(fftRateChanged(int)), this, SLOT(setIqFftRate(int)));
     connect(uiDockFft, SIGNAL(fftSplitChanged(int)), this, SLOT(setIqFftSplit(int)));
+    connect(uiDockFft, SIGNAL(fftZoomChanged(int)), this, SLOT(setIqFftZoom(int)));
 
     // restore last session
     if (!loadConfig(cfgfile))
@@ -1010,6 +1011,16 @@ void MainWindow::setIqFftSplit(int pct_wf)
     }
 }
 
+void MainWindow::setIqFftZoom(int zoom)
+{
+    float factor = ((float)zoom) / 100;
+    float offset = ui->plotter->GetFilterOffset();
+    if (factor > 0.9)
+        offset *= (1 - factor) * 10;
+    ui->plotter->SetFftCenterFreq((qint64)(offset));
+    ui->plotter->SetSpanFreq((quint32)((float)ui->plotter->getSampleRate() * factor));
+}
+
 /*! \brief Audio FFT rate has changed. */
 void MainWindow::setAudioFftRate(int fps)
 {
@@ -1190,7 +1201,14 @@ void MainWindow::on_plotter_NewFilterFreq(int low, int high)
     /* parameter correctness will be checked in receiver class */
     retcode = rx->set_filter((double) low, (double) high, d_filter_shape);
 
-    uiDockRxOpt->setFilterParam(low, high);
+    if (retcode == receiver::STATUS_OK)
+        uiDockRxOpt->setFilterParam(low, high);
+}
+
+void MainWindow::on_plotter_NewCenterFreq(qint64 f)
+{
+    rx->set_rf_freq(f);
+    ui->freqCtrl->SetFrequency(f);
 }
 
 /*! \brief Full screen button or menu item toggled. */

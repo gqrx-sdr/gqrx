@@ -104,7 +104,7 @@ void DockInputCtl::on_lnbSpinBox_valueChanged(double value)
 /*! \brief Manual gain value has changed. */
 void DockInputCtl::on_gainSlider_valueChanged(int value)
 {
-    double gain = (double)ui->gainSlider->value()/100.0;
+    double gain = (double)value/100.0;
 
     emit gainChanged(gain);
 }

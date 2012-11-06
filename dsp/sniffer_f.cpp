@@ -66,7 +66,7 @@ int sniffer_f::work(int noutput_items,
                     gr_vector_const_void_star &input_items,
                     gr_vector_void_star &output_items)
 {
-    int i,j = 0;
+    int i;
     const float *in = (const float *)input_items[0];
 
     boost::mutex::scoped_lock lock(d_mutex);
