@@ -31,7 +31,7 @@
 #include <osmosdr_ranges.h>
 #include <boost/foreach.hpp>
 
-#ifdef PULSEAUDIO //pafix
+#ifdef WITH_PULSEAUDIO
 #include "pulseaudio/pa_device_list.h"
 #endif
 
@@ -120,6 +120,8 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
     QString outdev = settings->value("output/device", "").toString();
 
 #ifdef Q_OS_LINUX
+
+#ifdef WITH_PULSEAUDIO
     // get list of output devices
     pa_device_list devices;
     outDevList = devices.get_output_devices();
@@ -136,6 +138,7 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
         if (outdev == QString(outDevList[i].get_name().c_str()))
             ui->outDevCombo->setCurrentIndex(i+1);
     }
+#endif // WITH_PULSEAUDIO
 
 #elif defined(__APPLE__) && defined(__MACH__) // Works for X11 Qt on Mac OS X too
     //QString indev = settings.value("input", "").toString();
@@ -151,40 +154,6 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
 CIoConfig::~CIoConfig()
 {
     delete ui;
-}
-
-
-/*! \brief Utility function to find device name of the Funcube Dogle.
- *
- * Linux: Get list of pulseaudio sources and search for "FUNcube Dongle" in the description
- * Mac: tbd...
- */
-QString CIoConfig::getFcdDeviceName()
-{
-    QString retval("");
-
-#ifdef Q_OS_LINUX
-    pa_device_list devices;
-    vector<pa_device> devlist = devices.get_input_devices();
-    unsigned int i;
-
-    qDebug() << __FUNCTION__ << ": Available input devices";
-    for (i = 0; i < devlist.size(); i++)
-    {
-        qDebug() << "    " << i << ":" << QString(devlist[i].get_description().c_str());
-        if (QString(devlist[i].get_description().c_str()).contains("FUNcube Dongle"))
-        {
-            retval = QString(devlist[i].get_name().c_str());
-        }
-    }
-
-#elif defined(__APPLE__) && defined(__MACH__) // Works for X11 Qt on Mac OS X too
-    // TODO
-#endif
-
-    qDebug() << "  => " << retval;
-
-    return retval;
 }
 
 

@@ -5,12 +5,19 @@
 #-------------------------------------------------
 
 QT       += core gui svg
-
-TARGET = gqrx
 TEMPLATE = app
 
-ICON = icons/scope.icns
+macx {
+    TARGET = Gqrx
+    ICON = icons/scope.icns
+} else {
+    TARGET = gqrx
+}
+
 RESOURCES += icons.qrc
+
+# Comment out to use gnuradio-audio (wont work on Linux)
+AUDIO_BACKEND = pulse
 
 #CONFIG += debug
 
@@ -55,16 +62,6 @@ SOURCES += \
     dsp/rx_noise_blanker_cc.cpp \
     dsp/resampler_xx.cpp \
     dsp/stereo_demod.cpp \
-#    input/rx_source_base.cpp \
-#    input/rx_source_fcd.cpp \
-#    input/fcdctl/fcd.c \
-#    input/fcdctl/hidraw.c \  # FIXME: Linux only
-#    input/fcdctl/hid-libusb.c \
-#    input/fcdctl/hidwin.c \
-#    input/fcdctl/hidmac.c \
-#    pulseaudio/pa_device_list.cc \  # FIXME: Linux only
-#    pulseaudio/pa_sink.cc \
-#    pulseaudio/pa_source.cc \
     qtgui/dockrxopt.cpp \
     qtgui/freqctrl.cpp \
     qtgui/meter.cpp \
@@ -105,14 +102,6 @@ HEADERS += \
     dsp/rx_agc_xx.h \
     dsp/rx_noise_blanker_cc.h \
     dsp/stereo_demod.h \
-#    input/rx_source_base.h \
-#    input/rx_source_fcd.h \
-#    input/fcdctl/hidapi.h \
-#    input/fcdctl/fcdhidcmd.h \
-#    input/fcdctl/fcd.h \
-#    pulseaudio/pa_device_list.h \  # FIXME: Linux only
-#    pulseaudio/pa_sink.h \
-#    pulseaudio/pa_source.h \
     qtgui/freqctrl.h \
     qtgui/meter.h \
     qtgui/plotter.h \
@@ -149,12 +138,29 @@ FORMS += \
     qtgui/demod-options.ui
 
 
+# Use pulseaudio (ps: could use equals? undocumented)
+contains(AUDIO_BACKEND, pulse): {
+    HEADERS += \
+        pulseaudio/pa_device_list.h \
+        pulseaudio/pa_sink.h \
+        pulseaudio/pa_source.h
+    SOURCES += \
+        pulseaudio/pa_device_list.cc \
+        pulseaudio/pa_sink.cc \
+        pulseaudio/pa_source.cc
+    DEFINES += WITH_PULSEAUDIO
+}
+
 # dependencies via pkg-config
 # FIXME: check for version?
 unix {
     CONFIG += link_pkgconfig
-    PKGCONFIG += gnuradio-core gnuradio-audio
-#    PKGCONFIG += libpulse libpulse-simple
+
+    contains(AUDIO_BACKEND, pulse): {
+        PKGCONFIG += libpulse libpulse-simple
+    } else {
+        PKGCONFIG += gnuradio-core gnuradio-audio
+    }
     PKGCONFIG += gnuradio-osmosdr
     LIBS += -lboost_system # required with boost 1.50.0 on Arch Linux
 #    LIBS += -lrt  # need to include on some distros

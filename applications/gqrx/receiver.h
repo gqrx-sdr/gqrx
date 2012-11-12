@@ -42,9 +42,9 @@
 #include "dsp/resampler_xx.h"
 #include "receivers/receiver_base.h"
 
-#ifdef PULSEAUDIO //pafix
+#ifdef WITH_PULSEAUDIO
 #include <pulseaudio/pa_sink.h>
-#include <pulseaudio/pa_source.h>
+//#include <pulseaudio/pa_source.h>
 #else
 #include <gr_audio_sink.h>
 #endif
@@ -213,7 +213,7 @@ private:
     sniffer_f_sptr            sniffer;    /*!< Sample sniffer for data decoders. */
     resampler_ff_sptr         sniffer_rr; /*!< Sniffer resampler. */
 
-#ifdef PULSEAUDIO //pafix
+#ifdef WITH_PULSEAUDIO
     pa_sink_sptr              audio_snk;  /*!< Pulse audio sink. */
 #else
     audio_sink::sptr          audio_snk;  /*!< gr audio sink */

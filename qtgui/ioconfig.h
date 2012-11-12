@@ -24,7 +24,7 @@
 #include <QString>
 #include <QSettings>
 
-#ifdef PULSEAUDIO //pafix
+#ifdef WITH_PULSEAUDIO
 #include "pulseaudio/pa_device_list.h"
 #endif
 
@@ -42,8 +42,6 @@ public:
     explicit CIoConfig(QSettings *settings, QWidget *parent = 0);
     ~CIoConfig();
 
-    static QString getFcdDeviceName();
-
 private slots:
     void saveConfig();
     void inputDeviceSelected(int index);
@@ -57,7 +55,7 @@ private:
 
     QSettings *m_settings;
 
-#ifdef PULSEAUDIO //pafix
+#ifdef WITH_PULSEAUDIO
     vector<pa_device> outDevList;
 #endif
 };

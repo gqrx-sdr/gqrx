@@ -1,44 +1,42 @@
-This branch has re-enabled the GNU Radio audio sink in order to support operating systems that have no pulseaudio port.
+Gqrx is an experimental software defined radio receiver implemented using GNU Radio and the Qt GUI toolkit. Currently it works on Linux and Mac and it can use the Funcube Dongle, RTL2832U-based DVB-T dongles, OsmoSDR devices and USRP devices as input source.
 
-
-Gqrx is an experimental software defined radio receiver implemented using GNU Radio and the Qt GUI toolkit. Currently it works on Linux and it can use the Funcube Dongle, RTL2832U-based DVB-T dongle and USRP devices by Ettus Research as input source.
-
-The following sections are some very generic instructions for building the latest v2.1-git series.
+The following sections are some rather generic instructions for building the latest v2.1-git series.
 
 
 1. Dependencies
 
 - GNU Radio (gnuradio-core and gnuradio-audio)
 - At least one of:
-    - gr-fcd
-    - gr-uhd
+    - gnuradio-fcd
+    - gnuradio-uhd
     - RTL-SDR from http://cgit.osmocom.org/cgit/rtl-sdr/
     - Osmo SDR from http://cgit.osmocom.org/cgit/osmo-sdr/
-- GR OsmoSDR from http://cgit.osmocom.org/cgit/gr-osmosdr/
-- pulseaudio
+- gnuradio-osmosdr from http://cgit.osmocom.org/cgit/gr-osmosdr/
+- pulseaudio (Linux only)
 - Qt 4.7 or later and Qt Creator.
 
 
 2. Installation
 
 Get the latest code from: https://github.com/csete/gqrx
-Open gqrx.pro in Qt Creator and click build.
+If you are compiling on Mac open gqrx.pro in Qt Creator and comment out the "AUDIO_BACKEND = pulse" line. You can now build gqrx from within Qt Creator (click build) or in a terminal:
+$ qmake gqrx.pro
+$ make
 
 
 3. Usage
 
 If you have been running pre-2.1, please delete $HOME/.config/gqrx/*
-Gqrx will now open a device configuration dialog when you start and it will automatically detect all supported devices that are plugged in.
+Gqrx will now open a device configuration dialog when you start and it will automatically detect all supported input devices that are plugged in.
 
 If you don't see your device it could be that you forgot to add the udev rule to /etc/udev/rules.d/
-You can test your device first with rtl_test, qthid, or uhd_usrp_probe that come wit the respective packages.
+You can test your device first with rtl_test, qthid, or uhd_usrp_probe that come with the respective packages.
 
 
 4. Known problems
 
 - Opening the IO device configurator and pressing OK with the
   same device will crash the application.
-- Only works on Linux.
 - Device arguments not documented.
 - Only tested with Funcube Dongle and RT2832U-based devices.
 - Funcube Dongle will not work on systems with libusb-1.0.9 (try gqrx-2.0 instead)
@@ -47,7 +45,7 @@ You can test your device first with rtl_test, qthid, or uhd_usrp_probe that come
 5. Getting help and reporting bugs
 
 There is now a Google group for discussing anything related to Gqrx: https://groups.google.com/forum/#!forum/gqrx
-This include getting help with installation and troubleshooting.
+This includes getting help with installation and troubleshooting.
 
 
 6. Credits and License
@@ -56,7 +54,8 @@ Gqrx is designed and written by Alexandru Csete OZ9AEC, and it is licensed under
 
 Some of the source files were adopted from Cutesdr by Moe Weatley. These files come with a BSD license.
 
+Elias Önal has contributed work to re-enable building Gqrx on Mac OS X.
+
 Some icons are from the GNOME and Tango icon themes.
 The scope.svg icon is based on the utilities-system-monitor.svg icon from the Mint-X icon theme licensed under GNU GPL.
-
 
