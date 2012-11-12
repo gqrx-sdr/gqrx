@@ -14,10 +14,12 @@ macx {
     TARGET = gqrx
 }
 
-RESOURCES += icons.qrc
+linux-g++|linux-g++-64 {
+    # Comment out to use gnuradio-audio (wont work on Linux)
+    AUDIO_BACKEND = pulse
+}
 
-# Comment out to use gnuradio-audio (wont work on Linux)
-AUDIO_BACKEND = pulse
+RESOURCES += icons.qrc
 
 #CONFIG += debug
 
