@@ -131,6 +131,7 @@ public:
 
     float get_signal_pwr(bool dbfs);
 
+    void set_iq_fft_size(int newsize);
     void get_iq_fft_data(std::complex<float>* fftPoints, int &fftsize);
     void get_audio_fft_data(std::complex<float>* fftPoints, int &fftsize);
 

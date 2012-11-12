@@ -987,7 +987,8 @@ void MainWindow::toggleIqPlayback(bool play, const QString filename)
 /*! \brief FFT size has changed. */
 void MainWindow::setIqFftSize(int size)
 {
-    qDebug() << "Changing baseband FFT size TBD...";
+    qDebug() << "Changing baseband FFT size to" << size;
+    rx->set_iq_fft_size(size);
 }
 
 /*! \brief Baseband FFT rate has changed. */

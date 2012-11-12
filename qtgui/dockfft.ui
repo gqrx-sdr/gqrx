@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>140</height>
+    <height>172</height>
    </rect>
   </property>
   <property name="windowIcon">
@@ -61,7 +61,7 @@
       <item row="0" column="1">
        <widget class="QComboBox" name="fftSizeComboBox">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="toolTip">
          <string>Number of FFT points to calculate. Higher values will require more CPU time. This will not influence the number of points on the display since that parameter is adjusted automatically according to the display size.</string>

@@ -374,6 +374,12 @@ float receiver::get_signal_pwr(bool dbfs)
     return rx->get_signal_level(dbfs);
 }
 
+/*! \brief Set new FFT size. */
+void receiver::set_iq_fft_size(int newsize)
+{
+    iq_fft->set_fft_size(newsize);
+}
+
 /*! \brief Get latest baseband FFT data. */
 void receiver::get_iq_fft_data(std::complex<float>* fftPoints, int &fftsize)
 {
