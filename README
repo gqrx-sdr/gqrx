@@ -54,6 +54,8 @@ Gqrx is designed and written by Alexandru Csete OZ9AEC, and it is licensed under
 
 Some of the source files were adopted from Cutesdr by Moe Weatley. These files come with a BSD license.
 
+Vincent Pelletier has contributed work on the horizontal zooming / scrolling code.
+
 Elias Önal has contributed work to re-enable building Gqrx on Mac OS X.
 
 Some icons are from the GNOME and Tango icon themes.
