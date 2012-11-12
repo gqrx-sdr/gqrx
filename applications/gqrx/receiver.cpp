@@ -73,7 +73,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     mixer = gr_make_multiply_cc();
 
     dc_corr = make_dc_corr_cc(0.01f);
-    iq_fft = make_rx_fft_c(16384, 0); // higher resolution FFT -> moar pretty
+    iq_fft = make_rx_fft_c(4096, 0);
 
     audio_fft = make_rx_fft_f(3072);
     audio_gain0 = gr_make_multiply_const_ff(0.1);
