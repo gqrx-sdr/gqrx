@@ -164,11 +164,15 @@ unix {
         PKGCONFIG += gnuradio-core gnuradio-audio
     }
     PKGCONFIG += gnuradio-osmosdr
+}
+
+unix:!macx {
     LIBS += -lboost_system # required with boost 1.50.0 on Arch Linux
 #    LIBS += -lrt  # need to include on some distros
 }
 
 macx-g++ {
+     LIBS += -lboost_system-mt
 #    INCLUDEPATH += /usr/local/include
 #    INCLUDEPATH += /usr/local/include/gnuradio
 #    INCLUDEPATH += /usr/local/include/osmosdr
