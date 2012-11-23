@@ -446,7 +446,7 @@ void CPlotter::wheelEvent(QWheelEvent * event)
 {
     QPoint pt = event->pos();
     int numDegrees = event->delta() / 8;
-    int numSteps = numDegrees / 15;
+    int numSteps = numDegrees / 15;  /** FIXME: Only used for direction **/
 
     // During zoom we try to keep the point (dB or kHz) under the cursor fixed
     // wheel down: zoom out
