@@ -20,9 +20,10 @@
 #ifndef CORRECT_IQ_CC_H
 #define CORRECT_IQ_CC_H
 
+#include <boost/thread/mutex.hpp>
 #include <gr_sync_block.h>
 #include <gr_complex.h>
-#include <boost/thread/mutex.hpp>
+#include <gruel/high_res_timer.h>
 
 class dc_corr_cc;
 
@@ -61,6 +62,9 @@ public:
              gr_vector_const_void_star &input_items,
              gr_vector_void_star &output_items);
 
+    bool start();
+    bool stop();
+
 private:
     boost::mutex  d_mutex;
 
@@ -68,7 +72,7 @@ private:
     float d_avg_i;  /*! Long time average of the I channel. */
     float d_avg_q;  /*! Long time average of the Q channel. */
 
-    int d_cnt;
+    gruel::high_res_timer_type d_dbg_timer; /*!< last time statistics were printed. */
 };
 
 

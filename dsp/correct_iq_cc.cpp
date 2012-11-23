@@ -20,6 +20,7 @@
 #include <math.h>
 #include <gr_io_signature.h>
 #include <gr_complex.h>
+#include <gruel/high_res_timer.h>
 #include <iostream>
 #include "dsp/correct_iq_cc.h"
 
@@ -40,8 +41,7 @@ dc_corr_cc::dc_corr_cc(float alpha)
           gr_make_io_signature(1, 1, sizeof(gr_complex))),
       d_alpha(alpha),
       d_avg_i(0.0),
-      d_avg_q(0.0),
-      d_cnt(0)
+      d_avg_q(0.0)
 {
 
 }
@@ -79,14 +79,11 @@ int dc_corr_cc::work(int noutput_items,
     d_avg_q = d_avg_q*(1.f-d_alpha) + d_alpha*(sum_q/noutput_items);
 
 #ifndef QT_NO_DEBUG_OUTPUT
-    if (d_cnt == 100)
+    gruel::high_res_timer_type tnow = gruel::high_res_timer_now();
+    if ((tnow-d_dbg_timer) / gruel::high_res_timer_tps() > 5)
     {
-        std::cout << "AVG I/Q: " << d_avg_i << "/" << d_avg_q << std::endl;
-        d_cnt = 0;
-    }
-    else
-    {
-        d_cnt++;
+        d_dbg_timer = tnow;
+        std::cout << "AVG I/Q: " << d_avg_i << " / " << d_avg_q << std::endl;
     }
 #endif
 
@@ -97,4 +94,17 @@ int dc_corr_cc::work(int noutput_items,
     }
 
     return noutput_items;
+}
+
+
+bool dc_corr_cc::start()
+{
+    d_dbg_timer = gruel::high_res_timer_now();
+
+    return true;
+}
+
+bool dc_corr_cc::stop()
+{
+    return true;
 }
