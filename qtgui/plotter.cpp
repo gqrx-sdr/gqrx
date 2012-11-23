@@ -444,15 +444,26 @@ void CPlotter::mouseReleaseEvent(QMouseEvent * event)
 //////////////////////////////////////////////////////////////////////
 void CPlotter::wheelEvent(QWheelEvent * event)
 {
+    QPoint pt = event->pos();
     int numDegrees = event->delta() / 8;
     int numSteps = numDegrees / 15;
 
+    // During zoom we try to keep the point (dB or kHz) under the cursor fixed
     // wheel down: zoom out
     // wheel up: zoom in
     if (m_CursorCaptured == YAXIS)
     {
-        m_MindB += 5*numSteps;
-        m_MaxdB -= 5*numSteps;
+        float zoom_fac = event->delta() < 0 ? 1.1 : 0.9;
+        float ratio = (float)pt.y() / (float)m_OverlayPixmap.height();
+        float db_range = (float)(m_MaxdB - m_MindB);
+        float y_range = (float)m_OverlayPixmap.height();
+        float db_per_pix = db_range / y_range;
+        float fixed_db = m_MaxdB - pt.y() * db_per_pix;
+
+        db_range *= zoom_fac;
+
+        m_MaxdB = fixed_db + ratio*db_range;
+        m_MindB = m_MaxdB - db_range;
     }
     else if (m_CursorCaptured == XAXIS)
     {
