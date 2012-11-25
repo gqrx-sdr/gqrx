@@ -448,11 +448,11 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     int numDegrees = event->delta() / 8;
     int numSteps = numDegrees / 15;  /** FIXME: Only used for direction **/
 
-    // During zoom we try to keep the point (dB or kHz) under the cursor fixed
-    // wheel down: zoom out
-    // wheel up: zoom in
+    /** FIXME: zooming could use some optimisation **/
     if (m_CursorCaptured == YAXIS)
     {
+        // Vertical zoom. Wheel down: zoom out, wheel up: zoom in
+        // During zoom we try to keep the point (dB or kHz) under the cursor fixed
         float zoom_fac = event->delta() < 0 ? 1.1 : 0.9;
         float ratio = (float)pt.y() / (float)m_OverlayPixmap.height();
         float db_range = (float)(m_MaxdB - m_MindB);
@@ -467,15 +467,21 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     }
     else if (m_CursorCaptured == XAXIS)
     {
-        // pan fft window
-        int divisor;
-        if (event->modifiers() & Qt::ControlModifier)
-            divisor = 200;
-        else if (event->modifiers() & Qt::ShiftModifier)
-            divisor = 20;
-        else
-            divisor = 100;
-        m_FftCenter += numSteps*m_Span/divisor;
+        // calculate new range shown on FFT
+        float zoom_factor = event->delta() < 0 ? 1.1 : 0.9;
+        float new_range = (float)(m_Span) * zoom_factor;
+
+        // Frequency where event occured is kept fixed under mouse
+        float ratio = (float)pt.x() / (float)m_OverlayPixmap.width();
+
+        float fixed_hz = FreqfromX(pt.x());
+
+        float f_max = fixed_hz + (1.0 - ratio) * new_range;
+        float f_min = f_max - new_range;
+        qint64 fc = (qint64)(f_min + (f_max - f_min) / 2.0);
+
+        SetFftCenterFreq(fc-m_CenterFreq);
+        SetSpanFreq((quint32)new_range);
     }
     else if (event->modifiers() & Qt::ControlModifier)
     {
