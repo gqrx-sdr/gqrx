@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>226</width>
-    <height>387</height>
+    <width>224</width>
+    <height>383</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>226</width>
-    <height>387</height>
+    <width>224</width>
+    <height>383</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -105,8 +105,11 @@ as  rf_freq + filter_offset</string>
     </item>
     <item>
      <layout class="QGridLayout" name="gridLayout">
+      <property name="horizontalSpacing">
+       <number>5</number>
+      </property>
       <property name="verticalSpacing">
-       <number>3</number>
+       <number>2</number>
       </property>
       <item row="0" column="0">
        <widget class="QLabel" name="filterLabel">
@@ -563,18 +566,61 @@ as  rf_freq + filter_offset</string>
       <property name="verticalSpacing">
        <number>2</number>
       </property>
-      <item row="1" column="3">
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+      <item row="0" column="0">
+       <widget class="QPushButton" name="nb1Button">
+        <property name="enabled">
+         <bool>true</bool>
         </property>
-        <property name="sizeHint" stdset="0">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
          <size>
-          <width>40</width>
-          <height>20</height>
+          <width>16777215</width>
+          <height>16777215</height>
          </size>
         </property>
-       </spacer>
+        <property name="toolTip">
+         <string>Noise blanker for pulse type noise</string>
+        </property>
+        <property name="text">
+         <string>NB1</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QDoubleSpinBox" name="nb2Threshold">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Noise blanker 2 treshold</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <double>15.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>2.500000000000000</double>
+        </property>
+       </widget>
       </item>
       <item row="0" column="1">
        <widget class="QDoubleSpinBox" name="nb1Threshold">
@@ -607,76 +653,7 @@ as  rf_freq + filter_offset</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
-       <widget class="QDoubleSpinBox" name="nb2Threshold">
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Noise blanker 2 treshold</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <double>15.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-        <property name="value">
-         <double>2.500000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="nb1Button">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Noise blanker for pulse type noise</string>
-        </property>
-        <property name="text">
-         <string>NB1</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
+      <item row="1" column="0">
        <widget class="QPushButton" name="nb2Button">
         <property name="enabled">
          <bool>true</bool>
@@ -703,32 +680,6 @@ as  rf_freq + filter_offset</string>
          <bool>true</bool>
         </property>
        </widget>
-      </item>
-      <item row="0" column="0">
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="1" column="0">
-       <spacer name="horizontalSpacer_4">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </item>
