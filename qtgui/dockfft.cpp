@@ -82,8 +82,3 @@ void DockFft::on_fftSplitSlider_valueChanged(int value)
 {
     emit fftSplitChanged(value);
 }
-
-void DockFft::on_fftZoomSlider_valueChanged(int value)
-{
-    emit fftZoomChanged(value);
-}
