@@ -174,7 +174,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     setCursor(QCursor(Qt::OpenHandCursor));
                 m_CursorCaptured = YAXIS;
             }
-            else if (IsPointCloseTo(pt.y(), m_XAxisYCenter, m_CursorCaptureDelta))
+            else if (IsPointCloseTo(pt.y(), m_XAxisYCenter, m_CursorCaptureDelta+5))
             {
                 if (XAXIS != m_CursorCaptured)
                     setCursor(QCursor(Qt::OpenHandCursor));
