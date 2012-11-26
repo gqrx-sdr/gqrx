@@ -482,6 +482,9 @@ void CPlotter::wheelEvent(QWheelEvent * event)
 
         SetFftCenterFreq(fc-m_CenterFreq);
         SetSpanFreq((quint32)new_range);
+
+        zoom_factor = (float)m_SampleFreq/(float)m_Span;
+        qDebug() << QString("Spectrum zoom: %1x").arg(zoom_factor, 0, 'f', 1);
     }
     else if (event->modifiers() & Qt::ControlModifier)
     {
