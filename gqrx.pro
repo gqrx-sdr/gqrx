@@ -167,12 +167,12 @@ unix {
 }
 
 unix:!macx {
-    LIBS += -lboost_system # required with boost 1.50.0 on Arch Linux
+    LIBS += -lboost_system -lboost_program_options
 #    LIBS += -lrt  # need to include on some distros
 }
 
 macx-g++ {
-     LIBS += -lboost_system-mt
+     LIBS += -lboost_system-mt -lboost_program_options-mt
 #    INCLUDEPATH += /usr/local/include
 #    INCLUDEPATH += /usr/local/include/gnuradio
 #    INCLUDEPATH += /usr/local/include/osmosdr

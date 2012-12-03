@@ -18,40 +18,67 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <QtGui/QApplication>
-#include <QSettings>
-#include <QMessageBox>
+#include <QString>
 #include <QDebug>
-#include "qtgui/ioconfig.h"
 #include "mainwindow.h"
 #include "gqrx.h"
+
+#include <iostream>
+#include <boost/program_options.hpp>
+namespace po = boost::program_options;
 
 
 int main(int argc, char *argv[])
 {
+    std::string conf;
+    bool clierr=false;
+
     QApplication a(argc, argv);
     QCoreApplication::setOrganizationName(GQRX_ORG_NAME);
     QCoreApplication::setOrganizationDomain(GQRX_ORG_DOMAIN);
     QCoreApplication::setApplicationName(GQRX_APP_NAME);
     QCoreApplication::setApplicationVersion(VERSION);
 
-/*
-    QString indev = CIoConfig::getFcdDeviceName();
-    if (indev.isEmpty())
-    {
-        QMessageBox::critical(NULL, "Gqrx error",
-                              "<b>Funcube Dongle could not be found</b><br><br>"
-                              "Please ensure that the Funcube Dongle is plugged in "
-                              "and properly configured with the latest firmware, "
-                              "then try again.",
-                              QMessageBox::Close);
+    //setup the program options
+    po::options_description desc("Command line options");
+    desc.add_options()
+        ("help,h", "This help message")
+        ("reset,r", "Reset default configuration file (not implemented)")
+        ("conf,c", po::value<std::string>(&conf), "Start with the specified configuration file")
+        ("edit,e", "Edit the configuration before using it (not implemented)")
+    ;
 
-        return 0;
+    po::variables_map vm;
+    try {
+        po::store(po::parse_command_line(argc, argv, desc), vm);
     }
-*/
+    catch(const boost::program_options::invalid_command_line_syntax& ex)
+    {
+        /* happens if e.g. -c without file name */
+        clierr = true;
+    }
+
+    po::notify(vm);
+
+    //print the help message
+    if (vm.count("help") || clierr){
+        std::cout << "Gqrx software defined radio receiver " << VERSION << std::endl << desc << std::endl;
+        return 1;
+    }
+
+    if (!conf.empty())
+    {
+        qDebug() << "User specified config file:" << QString::fromStdString(conf);
+    }
+    else
+    {
+        qDebug() << "No user supplied config file. Using default.";
+    }
 
     // Mainwindow will check whether we have a configuration
-    // and open the config dialog if there is none.
-    MainWindow w;
+    // and open the config dialog if there is none or the specified
+    // file does not exist.
+    MainWindow w(conf.empty() ? "default.conf" : QString::fromStdString(conf));
 
     if (w.configOk)
     {
@@ -59,5 +86,7 @@ int main(int argc, char *argv[])
         return a.exec();
     }
     else
+    {
         return 1;
+    }
 }
