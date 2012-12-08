@@ -468,7 +468,8 @@ void MainWindow::selectDemod(int index)
         ui->plotter->SetDemodRanges(-20000, -100, 100, 20000, true);
         uiDockAudio->setFftRange(0,15000);
         click_res = 100;
-        switch (filter_preset) {
+        switch (filter_preset)
+        {
         case 0: //wide
             flo = -10000;
             fhi = 10000;
@@ -489,7 +490,8 @@ void MainWindow::selectDemod(int index)
         rx->set_demod(receiver::RX_DEMOD_NFM);
         click_res = 100;
         maxdev = uiDockRxOpt->currentMaxdev();
-        if (maxdev < 20000.0) { /** FIXME **/
+        if (maxdev < 20000.0)
+        {   /** FIXME **/
             ui->plotter->SetDemodRanges(-25000, -100, 100, 25000, true);
             uiDockAudio->setFftRange(0,12000);
             switch (filter_preset) {
@@ -507,7 +509,8 @@ void MainWindow::selectDemod(int index)
                 break;
             }
         }
-        else {
+        else
+        {
             ui->plotter->SetDemodRanges(-45000, -10000, 10000, 45000, true);
             uiDockAudio->setFftRange(0,24000);
             switch (filter_preset) {
@@ -540,7 +543,8 @@ void MainWindow::selectDemod(int index)
             ui->plotter->SetDemodRanges(-250000, -10000, 10000, 250000, true);
         uiDockAudio->setFftRange(0,24000);  /** FIXME: get audio rate from rx **/
         click_res = 1000;
-        switch (filter_preset) {
+        switch (filter_preset)
+        {
         case 0: //wide
             flo = -100000;
             fhi = 100000;
@@ -567,7 +571,8 @@ void MainWindow::selectDemod(int index)
         ui->plotter->SetDemodRanges(-10000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,3500);
         click_res = 10;
-        switch (filter_preset) {
+        switch (filter_preset)
+        {
         case 0: //wide
             flo = -4100;
             fhi = -100;
@@ -589,7 +594,8 @@ void MainWindow::selectDemod(int index)
         ui->plotter->SetDemodRanges(0, 5000, 100, 10000, false);
         uiDockAudio->setFftRange(0,3500);
         click_res = 10;
-        switch (filter_preset) {
+        switch (filter_preset)
+        {
         case 0: //wide
             flo = 100;
             fhi = 4100;
@@ -611,7 +617,8 @@ void MainWindow::selectDemod(int index)
         ui->plotter->SetDemodRanges(-10000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,1500);
         click_res = 10;
-        switch (filter_preset) {
+        switch (filter_preset)
+        {
         case 0: //wide
             flo = -2300;
             fhi = -200;
@@ -633,7 +640,8 @@ void MainWindow::selectDemod(int index)
         ui->plotter->SetDemodRanges(0, 5000, 100, 10000, false);
         uiDockAudio->setFftRange(0,1500);
         click_res = 10;
-        switch (filter_preset) {
+        switch (filter_preset)
+        {
         case 0: //wide
             flo = 200;
             fhi = 2300;
@@ -676,12 +684,14 @@ void MainWindow::setFmMaxdev(float max_dev)
     rx->set_fm_maxdev(max_dev);
 
     /* update filter */
-    if (max_dev < 20000.0) {
+    if (max_dev < 20000.0)
+    {
         ui->plotter->SetDemodRanges(-25000, -1000, 1000, 25000, true);
         ui->plotter->SetHiLowCutFrequencies(-5000, 5000);
         rx->set_filter(-5000.0, 5000.0, receiver::FILTER_SHAPE_NORMAL);
     }
-    else {
+    else
+    {
         ui->plotter->SetDemodRanges(-45000, -10000, 10000, 45000, true);
         ui->plotter->SetHiLowCutFrequencies(-35000, 35000);
         rx->set_filter(-35000.0, 35000.0, receiver::FILTER_SHAPE_NORMAL);
@@ -809,7 +819,8 @@ void MainWindow::iqFftTimeout()
 
     rx->get_iq_fft_data(d_fftData, fftsize);
 
-    if (fftsize == 0) {
+    if (fftsize == 0)
+    {
         /* nothing to do, wait until next activation. */
         return;
     }
@@ -818,13 +829,16 @@ void MainWindow::iqFftTimeout()
 
     /** FIXME: move post processing to rx_fft_c **/
     /* Normalize, calculcate power and shift the FFT */
-    for (i = 0; i < fftsize; i++) {
+    for (i = 0; i < fftsize; i++)
+    {
 
         /* normalize and shift */
-        if (i < fftsize/2) {
+        if (i < fftsize/2)
+        {
             pt = d_fftData[fftsize/2+i] / scaleFactor;
         }
-        else {
+        else
+        {
             pt = d_fftData[i-fftsize/2] / scaleFactor;
         }
 
@@ -860,7 +874,8 @@ void MainWindow::audioFftTimeout()
 
     rx->get_audio_fft_data(d_fftData, fftsize);
 
-    if (fftsize == 0) {
+    if (fftsize == 0)
+    {
         /* nothing to do, wait until next activation. */
         qDebug() << "No audio FFT data.";
         return;
@@ -870,13 +885,15 @@ void MainWindow::audioFftTimeout()
 
     /** FIXME: move post processing to rx_fft_f **/
     /* Normalize, calculcate power and shift the FFT */
-    for (i = 0; i < fftsize; i++) {
-
+    for (i = 0; i < fftsize; i++)
+    {
         /* normalize and shift */
-        if (i < fftsize/2) {
+        if (i < fftsize/2)
+        {
             pt = d_fftData[fftsize/2+i] / scaleFactor;
         }
-        else {
+        else
+        {
             pt = d_fftData[i-fftsize/2] / scaleFactor;
         }
 
@@ -893,13 +910,15 @@ void MainWindow::audioFftTimeout()
  */
 void MainWindow::startAudioRec(const QString filename)
 {
-    if (rx->start_audio_recording(filename.toStdString())) {
+    if (rx->start_audio_recording(filename.toStdString()))
+    {
         ui->statusBar->showMessage(tr("Error starting audio recorder"));
 
         /* reset state of record button */
         uiDockAudio->setAudioRecButtonState(false);
     }
-    else {
+    else
+    {
         ui->statusBar->showMessage(tr("Recording audio to %1").arg(filename));
     }
 }
@@ -908,13 +927,15 @@ void MainWindow::startAudioRec(const QString filename)
 /*! \brief Stop audio recorder. */
 void MainWindow::stopAudioRec()
 {
-    if (rx->stop_audio_recording()) {
+    if (rx->stop_audio_recording())
+    {
         /* okay, this one would be weird if it really happened */
         ui->statusBar->showMessage(tr("Error stopping audio recorder"));
 
         uiDockAudio->setAudioRecButtonState(true);
     }
-    else {
+    else
+    {
         ui->statusBar->showMessage(tr("Audio recorder stopped"), 5000);
     }
 }
@@ -923,13 +944,15 @@ void MainWindow::stopAudioRec()
 /*! \brief Start playback of audio file. */
 void MainWindow::startAudioPlayback(const QString filename)
 {
-    if (rx->start_audio_playback(filename.toStdString())) {
+    if (rx->start_audio_playback(filename.toStdString()))
+    {
         ui->statusBar->showMessage(tr("Error trying to play %1").arg(filename));
 
         /* reset state of record button */
         uiDockAudio->setAudioPlayButtonState(false);
     }
-    else {
+    else
+    {
         ui->statusBar->showMessage(tr("Playing %1").arg(filename));
     }
 }
@@ -937,13 +960,15 @@ void MainWindow::startAudioPlayback(const QString filename)
 /*! \brief Stop playback of audio file. */
 void MainWindow::stopAudioPlayback()
 {
-    if (rx->stop_audio_playback()) {
+    if (rx->stop_audio_playback())
+    {
         /* okay, this one would be weird if it really happened */
         ui->statusBar->showMessage(tr("Error stopping audio playback"));
 
         uiDockAudio->setAudioPlayButtonState(true);
     }
-    else {
+    else
+    {
         ui->statusBar->showMessage(tr("Audio playback stopped"), 5000);
     }
 }
@@ -955,25 +980,31 @@ void MainWindow::stopAudioPlayback()
  */
 void MainWindow::toggleIqPlayback(bool play, const QString filename)
 {
-    if (play) {
+    if (play)
+    {
         /* starting playback */
-        if (rx->start_iq_playback(filename.toStdString(), 96000.0)) {
+        if (rx->start_iq_playback(filename.toStdString(), 96000.0))
+        {
             ui->statusBar->showMessage(tr("Error trying to play %1").arg(filename));
         }
-        else {
+        else
+        {
             ui->statusBar->showMessage(tr("Playing %1").arg(filename));
 
             /* disable REC button */
             ui->actionIqRec->setEnabled(false);
         }
     }
-    else {
+    else
+    {
         /* stopping playback */
-        if (rx->stop_iq_playback()) {
+        if (rx->stop_iq_playback())
+        {
             /* okay, this one would be weird if it really happened */
             ui->statusBar->showMessage(tr("Error stopping I/Q playback"));
         }
-        else {
+        else
+        {
             ui->statusBar->showMessage(tr("I/Q playback stopped"), 5000);
         }
 
@@ -1007,7 +1038,8 @@ void MainWindow::setIqFftRate(int fps)
  */
 void MainWindow::setIqFftSplit(int pct_wf)
 {
-    if ((pct_wf >= 20) && (pct_wf <= 80)) {
+    if ((pct_wf >= 20) && (pct_wf <= 80))
+    {
         ui->plotter->SetPercent2DScreen(pct_wf);
     }
 }
@@ -1034,7 +1066,8 @@ void MainWindow::setAudioFftRate(int fps)
  */
 void MainWindow::on_actionDSP_triggered(bool checked)
 {
-    if (checked) {
+    if (checked)
+    {
         /* start receiver */
         rx->start();
 
@@ -1047,7 +1080,8 @@ void MainWindow::on_actionDSP_triggered(bool checked)
         ui->actionDSP->setToolTip(tr("Stop DSP processing"));
         ui->actionDSP->setText(tr("Stop DSP"));
     }
-    else {
+    else
+    {
         /* stop GUI timers */
         meter_timer->stop();
         iq_fft_timer->stop();
@@ -1140,31 +1174,37 @@ void MainWindow::on_actionSaveSettings_triggered()
 void MainWindow::on_actionIqRec_triggered(bool checked)
 {
 #if 0
-    if (checked) {
+    if (checked)
+    {
         /* generate file name using date, time, rf freq and BW */
         int freq = (int)rx->get_rf_freq()/1000;
         // FIXME: option to use local time
         QString lastRec = QDateTime::currentDateTimeUtc().toString("gqrx-yyyyMMdd-hhmmss-%1-96.'bin'").arg(freq);
 
         /* start recorder */
-        if (rx->start_iq_recording(lastRec.toStdString())) {
+        if (rx->start_iq_recording(lastRec.toStdString()))
+        {
             /* reset action status */
             ui->actionIqRec->toggle();
             ui->statusBar->showMessage(tr("Error starting I/Q recoder"));
         }
-        else {
+        else
+        {
             ui->statusBar->showMessage(tr("Recording I/Q data to: %1").arg(lastRec), 5000);
 
             /* disable I/Q player */
             uiDockIqPlay->setEnabled(false);
         }
     }
-    else {
+    else
+    {
         /* stop current recording */
-        if (rx->stop_iq_recording()) {
+        if (rx->stop_iq_recording())
+        {
             ui->statusBar->showMessage(tr("Error stopping I/Q recoder"));
         }
-        else {
+        else
+        {
             ui->statusBar->showMessage(tr("I/Q data recoding stopped"), 5000);
         }
 
@@ -1230,22 +1270,26 @@ void MainWindow::on_actionFullScreen_triggered(bool checked)
 void MainWindow::on_actionAFSK1200_triggered()
 {
 
-    if (dec_afsk1200 != 0) {
+    if (dec_afsk1200 != 0)
+    {
         qDebug() << "AFSK1200 decoder already active.";
         dec_afsk1200->raise();
     }
-    else {
+    else
+    {
         qDebug() << "Starting AFSK1200 decoder.";
 
         /* start sample sniffer */
-        if (rx->start_sniffer(22050, DATA_BUFFER_SIZE) == receiver::STATUS_OK) {
+        if (rx->start_sniffer(22050, DATA_BUFFER_SIZE) == receiver::STATUS_OK)
+        {
             dec_afsk1200 = new Afsk1200Win(this);
             connect(dec_afsk1200, SIGNAL(windowClosed()), this, SLOT(afsk1200win_closed()));
             dec_afsk1200->show();
 
             dec_timer->start(100);
         }
-        else {
+        else
+        {
             QMessageBox::warning(this, tr("Gqrx error"),
                                  tr("Error starting sample sniffer.\n"
                                     "Close all data decoders and try again."),
@@ -1282,22 +1326,26 @@ void MainWindow::afsk1200win_closed()
 void MainWindow::on_actionBPSK1000_triggered()
 {
 
-    if (dec_bpsk1000 != 0) {
+    if (dec_bpsk1000 != 0)
+    {
         qDebug() << "BPSK1000 decoder already active.";
         dec_bpsk1000->raise();
     }
-    else {
+    else
+    {
         qDebug() << "Starting BPSK1000 decoder.";
 
         /* start sample sniffer */
-        if (rx->start_sniffer(48000, DATA_BUFFER_SIZE) == receiver::STATUS_OK) {
+        if (rx->start_sniffer(48000, DATA_BUFFER_SIZE) == receiver::STATUS_OK)
+        {
             dec_bpsk1000 = new Bpsk1000Win(this);
             connect(dec_bpsk1000, SIGNAL(windowClosed()), this, SLOT(bpsk1000win_closed()));
             dec_bpsk1000->show();
 
             dec_timer->start(100);
         }
-        else {
+        else
+        {
             QMessageBox::warning(this, tr("Gqrx error"),
                                  tr("Error starting sample sniffer.\n"
                                     "Close all data decoders and try again."),
@@ -1336,10 +1384,12 @@ void MainWindow::decoderTimeout()
     //qDebug() << "Process decoder";
 
     rx->get_sniffer_data(&buffer[0], num);
-    if (dec_bpsk1000) {
+    if (dec_bpsk1000)
+    {
         dec_bpsk1000->process_samples(&buffer[0], num);
     }
-    else if (dec_afsk1200) {
+    else if (dec_afsk1200)
+    {
         dec_afsk1200->process_samples(&buffer[0], num);
     }
     /* else stop timeout and sniffer? */
