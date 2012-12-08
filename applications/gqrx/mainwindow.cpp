@@ -1369,21 +1369,31 @@ void MainWindow::on_actionAbout_triggered()
 {
     QMessageBox::about(this, tr("About Gqrx"),
                        tr("<p>This is Gqrx %1</p>"
-                          /*"<p><b>This is a beta release.</b></p>"*/
-                          "<p>Gqrx is a software defined radio receiver for the Funcube Dongle.</p>"
-                          "<p>Gqrx is powered by GNU Radio and the Qt toolkit (see About Qt) and is "
-                          "currently available for Linux. You can download the latest version from the "
-                          "<a href='http://gqrx.sf.net/'>Gqrx website</a>.</p>"
-                          "<p>"
-                          "You can get help in the <a href='https://groups.google.com/forum/#!forum/gqrx'>Gqrx Google group</a>."
+                          "<p>Copyright (C) 2011-2012 Alexandru Csete & contributors.</p>"
+                          "<p>Gqrx is a software defined radio receiver powered by GNU Radio and the Qt toolkit. "
+                          "<p>Gqrx uses the OsmoSDR GNU Radio package and and works with any input device "
+                          "supported by OsmoSDR, including:"
+                          "<ul>"
+                          "<li>Funcube Dongle Pro</li>"
+                          "<li>RTL2832U-based DVB-T tuners (rtlsdr and rtlsdr-tcp)</li>"
+                          "<li>Ettus Research USRP devices</li>"
+                          "<li>OsmoSDR devices</li>"
+                          "</ul></p>"
+                          "<p>You can download the latest version from the "
+                          "<a href='http://gqrx.sf.net/'>Gqrx website</a>.<br/>"
+                          "Help is available in the <a href='https://groups.google.com/forum/#!forum/gqrx'>Gqrx Google group</a>."
                           "</p>"
                           "<p>"
-                          "<a href='http://www.gnuradio.org/'>GNU Radio website</a><br/>"
-                          "<a href='http://funcubedongle.com/'>Funcube Dongle website</a><br/>"
-                          /*"<a href='http://www.ettus.com/'>Ettus Research (USRP)</a><br/>"*/
+                          "Gqrx is licensed under the <a href='http://www.gnu.org/licenses/gpl.html'>GNU General Public License</a>."
                           "</p>"
-                          "<p>"
-                          "Gqrx license: <a href='http://www.gnu.org/licenses/gpl.html'>GNU GPL</a>."
+                          "<hr />"
+                          "<p>References:"
+                          "<ul>"
+                          "<li><a href='http://www.gnuradio.org/'>GNU Radio website</a></li>"
+                          "<li><a href='http://sdr.osmocom.org/trac/wiki/GrOsmoSDR'>OsmoSDR GNU Radio Source</a></li>"
+                          "<li><a href='http://funcubedongle.com/'>Funcube Dongle website</a></li>"
+                          "<li><a href='http://www.ettus.com/'>Ettus Research (USRP)</a></li>"
+                          "</li>"
                           "</p>").arg(VERSION));
 }
 
