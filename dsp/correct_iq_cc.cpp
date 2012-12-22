@@ -41,7 +41,8 @@ dc_corr_cc::dc_corr_cc(float alpha)
           gr_make_io_signature(1, 1, sizeof(gr_complex))),
       d_alpha(alpha),
       d_avg_i(0.0),
-      d_avg_q(0.0)
+      d_avg_q(0.0),
+      d_iq_rev(false)
 {
 
 }
@@ -87,10 +88,21 @@ int dc_corr_cc::work(int noutput_items,
     }
 #endif
 
-    for (i = 0; i < noutput_items; i++)
+    if (d_iq_rev)
     {
-        out[i].imag() = in[i].imag() - d_avg_q;
-        out[i].real() = in[i].real() - d_avg_i;
+        for (i = 0; i < noutput_items; i++)
+        {
+            out[i].imag() = in[i].real() - d_avg_i;
+            out[i].real() = in[i].imag() - d_avg_q;
+        }
+    }
+    else
+    {
+        for (i = 0; i < noutput_items; i++)
+        {
+            out[i].imag() = in[i].imag() - d_avg_q;
+            out[i].real() = in[i].real() - d_avg_i;
+        }
     }
 
     return noutput_items;
@@ -107,4 +119,9 @@ bool dc_corr_cc::start()
 bool dc_corr_cc::stop()
 {
     return true;
+}
+
+void dc_corr_cc::set_iq_swap(bool rev)
+{
+    d_iq_rev = rev;
 }

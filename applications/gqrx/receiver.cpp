@@ -54,6 +54,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
       d_filter_offset(0.0),
       d_recording_wav(false),
       d_sniffer_active(false),
+      d_iq_rev(false),
       d_demod(RX_DEMOD_OFF)
 {
     tb = gr_make_top_block("gqrx");
@@ -194,6 +195,22 @@ double receiver::set_input_rate(double rate)
 double receiver::get_input_rate()
 {
     return d_input_rate;
+}
+
+/*! \brief Set I/Q reversed. */
+void receiver::set_iq_swap(bool reversed)
+{
+    if (reversed == d_iq_rev)
+        return;
+
+    dc_corr->set_iq_swap(reversed);
+    d_iq_rev = reversed;
+}
+
+/*! \brief Get current I/Q reversed setting. */
+bool receiver::get_iq_swap(void)
+{
+    return d_iq_rev;
 }
 
 

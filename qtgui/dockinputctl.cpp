@@ -93,6 +93,18 @@ int DockInputCtl::freqCorr()
     return ui->freqCorrSpinBox->value();
 }
 
+/*! \brief Enasble/disable I/Q swapping. */
+void DockInputCtl::setIqSwap(bool reversed)
+{
+    ui->iqSwapButton->setChecked(reversed);
+}
+
+/*! \brief Get current I/Q swapping. */
+bool DockInputCtl::iqSwap(void)
+{
+    return ui->iqSwapButton->isChecked();
+}
+
 
 /*! \brief LNB LO value has changed. */
 void DockInputCtl::on_lnbSpinBox_valueChanged(double value)
@@ -125,4 +137,12 @@ void DockInputCtl::on_gainButton_toggled(bool checked)
 void DockInputCtl::on_freqCorrSpinBox_valueChanged(int value)
 {
     emit freqCorrChanged(value);
+}
+
+/*! \brief I/Q swapping checkbox changed.
+ *  \param checked True if I/Q swapping is enabled, false otherwise
+ */
+void DockInputCtl::on_iqSwapButton_toggled(bool checked)
+{
+    emit iqSwapChanged(checked);
 }

@@ -110,6 +110,9 @@ public:
     double set_input_rate(double rate);
     double get_input_rate();
 
+    void set_iq_swap(bool reversed);
+    bool get_iq_swap(void);
+
     status set_rf_freq(double freq_hz);
     double get_rf_freq();
 
@@ -186,6 +189,7 @@ private:
     double d_filter_offset;    /*!< Current filter offset (tune within passband). */
     bool   d_recording_wav;    /*!< Whether we are recording WAV file. */
     bool   d_sniffer_active;   /*!< Only one data decoder allowed. */
+    bool   d_iq_rev;           /*!< Whether I/Q is reversed or not. */
 
     rx_demod  d_demod;          /*!< Current demodulator. */
 

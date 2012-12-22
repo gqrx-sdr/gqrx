@@ -101,6 +101,7 @@ private slots:
     void setFilterOffset(qint64 freq_hz);
     void setRfGain(double gain);
     void setFreqCorr(int ppm);
+    void setIqSwap(bool reversed);
     void setDcCorr(double dci, double dcq);
     void setIqCorr(double gain, double phase);
     void selectDemod(int index);

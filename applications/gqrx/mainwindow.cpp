@@ -128,6 +128,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
     connect(uiDockInputCtl, SIGNAL(gainChanged(double)), SLOT(setRfGain(double)));
     connect(uiDockInputCtl, SIGNAL(freqCorrChanged(int)), this, SLOT(setFreqCorr(int)));
+    connect(uiDockInputCtl, SIGNAL(iqSwapChanged(bool)), this, SLOT(setIqSwap(bool)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
@@ -265,6 +266,9 @@ bool MainWindow::loadConfig(const QString cfgfile)
     uiDockInputCtl->setFreqCorr(m_settings->value("input/corr_freq", 0).toInt(&conv_ok));
     rx->set_freq_corr(m_settings->value("input/corr_freq", 0).toInt(&conv_ok));
 
+    uiDockInputCtl->setIqSwap(m_settings->value("input/swap_iq", false).toBool());
+    rx->set_iq_swap(m_settings->value("input/swap_iq", false).toBool());
+
     d_lnb_lo = m_settings->value("input/lnb_lo", 0).toLongLong(&conv_ok);
     uiDockInputCtl->setLnbLo((double)d_lnb_lo/1.0e6);
     ui->freqCtrl->SetFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&conv_ok));
@@ -337,6 +341,11 @@ void MainWindow::storeSession()
             m_settings->setValue("input/corr_freq", uiDockInputCtl->freqCorr());
         else
             m_settings->remove("input/corr_freq");
+
+        if (uiDockInputCtl->iqSwap())
+            m_settings->setValue("input/swap_iq", true);
+        else
+            m_settings->remove("input/swap_iq");
     }
 }
 
@@ -401,6 +410,13 @@ void MainWindow::setFreqCorr(int ppm)
 {
     qDebug() << __FUNCTION__ << ":" << ppm << "ppm";
     rx->set_freq_corr(ppm);
+}
+
+
+/*! \brief Enable/disable I/Q reversion. */
+void MainWindow::setIqSwap(bool reversed)
+{
+    rx->set_iq_swap(reversed);
 }
 
 /*! \brief Set new DC offset values.

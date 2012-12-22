@@ -44,8 +44,7 @@ dc_corr_cc_sptr make_dc_corr_cc(float alpha=0.01);
 /*! \brief Long time average-based DC offset correction block.
  *  \ingroup DSP
  *
- * This block performs automatic gain control.
- * To be written...
+ * This block performs automatic DC offset removal.
  *
  */
 class dc_corr_cc : public gr_sync_block
@@ -65,12 +64,15 @@ public:
     bool start();
     bool stop();
 
+    void set_iq_swap(bool rev);
+
 private:
     boost::mutex  d_mutex;
 
     float d_alpha;
     float d_avg_i;  /*! Long time average of the I channel. */
     float d_avg_q;  /*! Long time average of the Q channel. */
+    bool  d_iq_rev; /*! I/Q reverse I/Q order. */
 
     gruel::high_res_timer_type d_dbg_timer; /*!< last time statistics were printed. */
 };
