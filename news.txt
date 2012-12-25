@@ -1,0 +1,23 @@
+   2.1.xyz
+
+       NEW: I/Q swapping option.
+       NEW: Save and restore FFT settings.
+
+
+   2.1.148  Released on December 9, 2012
+
+       NEW: Support for USRP and RTL2832U (rtlsdr) devices.
+       NEW: Pan & zoom on the pandapter axes.
+       NEW: Allow changing FFT size.
+     FIXED: Mac OS X compatibility.
+  IMPROVED: Various improvements to the user iterface.
+
+
+   2.0      Released on July 7, 2012
+       
+       First stable release of C++ version with Funcube Dongle support.
+
+   1.x
+
+       Initial experiments using Python and gr-qtgui.
+
