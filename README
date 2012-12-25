@@ -23,6 +23,8 @@ If you are compiling on Mac open gqrx.pro in Qt Creator and comment out the "AUD
 $ qmake gqrx.pro
 $ make
 
+To build in debug mode add "CONFIG+=debug" (with the quotes) to the qmake step above.
+
 
 3. Usage
 
