@@ -263,6 +263,7 @@ bool MainWindow::loadConfig(const QString cfgfile)
         ui->plotter->SetSpanFreq((quint32)actual_rate);
     }
 
+    /** FIXME: move to DockInputCtl **/
     uiDockInputCtl->setFreqCorr(m_settings->value("input/corr_freq", 0).toInt(&conv_ok));
     rx->set_freq_corr(m_settings->value("input/corr_freq", 0).toInt(&conv_ok));
 
@@ -276,6 +277,8 @@ bool MainWindow::loadConfig(const QString cfgfile)
 
     uiDockInputCtl->setGain(m_settings->value("input/gain", 0.5).toDouble(&conv_ok));
     setRfGain(m_settings->value("input/gain", 0.5).toDouble(&conv_ok));
+
+    uiDockFft->readSettings(m_settings);
 
     return conf_ok;
 }
@@ -346,6 +349,9 @@ void MainWindow::storeSession()
             m_settings->setValue("input/swap_iq", true);
         else
             m_settings->remove("input/swap_iq");
+
+        // FFT settings
+        uiDockFft->saveSettings(m_settings);
     }
 }
 

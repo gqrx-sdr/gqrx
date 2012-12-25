@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #define DOCKFFT_H
 
 #include <QDockWidget>
+#include <QSettings>
 
 namespace Ui {
     class DockFft;
@@ -37,6 +38,13 @@ public:
     ~DockFft();
 
     int fftRate();
+    int setFftRate(int fft_rate);
+
+    int fftSize();
+    int setFftSize(int fft_size);
+
+    void saveSettings(QSettings *settings);
+    void readSettings(QSettings *settings);
 
 signals:
     void fftSizeChanged(int size);  /*! \brief FFT size changed. */
