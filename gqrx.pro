@@ -64,6 +64,7 @@ SOURCES += \
     dsp/rx_noise_blanker_cc.cpp \
     dsp/resampler_xx.cpp \
     dsp/stereo_demod.cpp \
+    qtgui/agc_options.cpp \
     qtgui/dockrxopt.cpp \
     qtgui/freqctrl.cpp \
     qtgui/meter.cpp \
@@ -104,6 +105,7 @@ HEADERS += \
     dsp/rx_agc_xx.h \
     dsp/rx_noise_blanker_cc.h \
     dsp/stereo_demod.h \
+    qtgui/agc_options.h \
     qtgui/freqctrl.h \
     qtgui/meter.h \
     qtgui/plotter.h \
@@ -128,6 +130,7 @@ HEADERS += \
 
 FORMS += \
     applications/gqrx/mainwindow.ui \
+    qtgui/agc_options.ui \
     qtgui/dockrxopt.ui \
     qtgui/ioconfig.ui \
     qtgui/dockinputctl.ui \
