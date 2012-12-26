@@ -1033,7 +1033,11 @@ void CPlotter::SetDemodRanges(int FLowCmin, int FLowCmax, int FHiCmin, int FHiCm
     m_FHiCmax=FHiCmax;
     m_symetric=symetric;
     ClampDemodParameters();
-    DrawOverlay();
+
+    if (m_Running)
+        m_DrawOverlay = true;
+    else
+        DrawOverlay();
 }
 
 
@@ -1044,5 +1048,8 @@ void CPlotter::SetCenterFreq(quint64 f)
     m_CenterFreq = f;
     m_DemodCenterFreq = m_CenterFreq - offset;
 
-    DrawOverlay();
+    if (m_Running)
+        m_DrawOverlay = true;
+    else
+        DrawOverlay();
 }
