@@ -2,6 +2,7 @@
 
        NEW: I/Q swapping option.
        NEW: Save and restore FFT settings.
+     FIXED: Removed graphics redraw delay when changing frequency or demodulator.
 
 
    2.1.148  Released on December 9, 2012
