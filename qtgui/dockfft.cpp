@@ -17,6 +17,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <QString>
 #include <QSettings>
 #include <QDebug>
 #include "dockfft.h"
@@ -93,7 +94,7 @@ int DockFft::setFftRate(int fft_rate)
 int DockFft::setFftSize(int fft_size)
 {
     int idx = -1;
-    QString size_str = QString("%1").arg(fft_size);
+    QString size_str = QString::number(fft_size);
 
     qDebug() << __func__ << "to" << size_str;
 
