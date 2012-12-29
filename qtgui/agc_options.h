@@ -21,6 +21,7 @@
 #define AGC_OPTIONS_H
 
 #include <QDialog>
+#include <QCloseEvent>
 
 namespace Ui {
 class CAgcOptions;
@@ -45,6 +46,8 @@ class CAgcOptions : public QDialog
 public:
     explicit CAgcOptions(QWidget *parent = 0);
     ~CAgcOptions();
+
+    void closeEvent(QCloseEvent *event);
     
     int gain();
     void setGain(int value);
@@ -63,6 +66,17 @@ public:
 
     bool hang();
     void setHang(bool checked);
+
+    enum agc_preset_e
+    {
+        AGC_FAST = 0,    /*! decay =  500 ms, slope = 2 */
+        AGC_MEDIUM = 1,  /*! decay = 1500 ms, slope = 2 */
+        AGC_SLOW = 2,    /*! decay = 3000 ms, slope = 2 */
+        AGC_USER = 3,
+        AGC_OFF = 4
+    };
+
+    void setPreset(agc_preset_e preset);
 
 signals:
     void gainChanged(int gain);

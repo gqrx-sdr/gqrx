@@ -21,6 +21,7 @@
 #define DOCKRXOPT_H
 
 #include <QDockWidget>
+#include "qtgui/agc_options.h"
 #include "qtgui/demod-options.h"
 
 
@@ -96,7 +97,7 @@ signals:
     void amDcrToggled(bool enabled);
 
     /*! \brief Signal emitted when baseband gain has changed. Gain is in dB. */
-    void bbGainChanged(float gain);
+    //void bbGainChanged(float gain);
 
     /*! \brief Signal emitted when squelch level has changed. Level is in dBFS. */
     void sqlLevelChanged(double level);
@@ -129,12 +130,8 @@ private slots:
     void on_filterButton_clicked();
     void on_modeSelector_activated(int index);
     void on_modeButton_clicked();
+    void on_agcButton_clicked();
     void on_agcPresetCombo_activated(int index);
-    void on_agcHangButton_toggled(bool checked);
-    void on_agcGainDial_valueChanged(int value);
-    void on_agcThresholdDial_valueChanged(int value);
-    void on_agcSlopeDial_valueChanged(int value);
-    void on_agcDecayDial_valueChanged(int value);
     void on_sqlSlider_valueChanged(int value);
     void on_nb1Button_toggled(bool checked);
     void on_nb2Button_toggled(bool checked);
@@ -145,9 +142,17 @@ private slots:
     void demodOpt_fmMaxdevSelected(float max_dev);
     void demodOpt_fmEmphSelected(double tau);
 
+    /* Signals coming from AGC options popup */
+    void agcOpt_hangToggled(bool checked);
+    void agcOpt_gainChanged(int value);
+    void agcOpt_thresholdChanged(int value);
+    void agcOpt_slopeChanged(int value);
+    void agcOpt_decayChanged(int value);
+
 private:
     Ui::DockRxOpt *ui;        /*! The Qt designer UI file. */
     CDemodOptions *demodOpt;  /*! Demodulator options. */
+    CAgcOptions   *agcOpt;    /*! AGC options. */
 
     bool agc_is_on;
 

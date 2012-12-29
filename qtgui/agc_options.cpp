@@ -17,6 +17,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <QDebug>
 #include <QString>
 #include "agc_options.h"
 #include "ui_agc_options.h"
@@ -33,17 +34,75 @@ CAgcOptions::~CAgcOptions()
     delete ui;
 }
 
+/*! \brief Catch window close events.
+ *
+ * This method is called when the uses closes the dialog window using the
+ * window close icon. We catch the event and hide the dialog but keep it
+ * around for later use.
+ */
+void CAgcOptions::closeEvent(QCloseEvent *event)
+{
+    hide();
+    event->ignore();
+}
+
 /*! \brief Get current gain slider value. */
 int CAgcOptions::gain()
 {
     return ui->gainSlider->value();
 }
 
+/*! \brief Set AGC preset. */
+void CAgcOptions::setPreset(agc_preset_e preset)
+{
+    switch (preset)
+    {
+    case AGC_FAST:
+        setDecay(100);
+        enableDecay(false);
+        setSlope(2);
+        enableSlope(false);
+        enableGain(false);
+        break;
+
+    case AGC_MEDIUM:
+        setDecay(800);
+        enableDecay(false);
+        setSlope(2);
+        enableSlope(false);
+        enableGain(false);
+        break;
+
+    case AGC_SLOW:
+        setDecay(2000);
+        enableDecay(false);
+        setSlope(2);
+        enableSlope(false);
+        enableGain(false);
+        break;
+
+    case AGC_USER:
+        enableDecay(true);
+        enableSlope(true);
+        enableGain(false);
+        break;
+
+    case AGC_OFF:
+        enableGain(true);
+        break;
+
+    default:
+        qDebug() << __func__ << "Invalid AGC preset" << preset;
+        break;
+
+    }
+}
+
 /*! \brief Set new gain slider value. */
 void CAgcOptions::setGain(int value)
 {
     ui->gainSlider->setValue(value);
-    ui->gainLabel->setText(QString::number(ui->gainSlider->value()));
+    ui->gainLabel->setText(QString("%1 dB").arg(ui->gainSlider->value()));
 }
 
 /*! \brief Enable or disable gain slider.
@@ -69,7 +128,7 @@ int CAgcOptions::threshold()
 void CAgcOptions::setThreshold(int value)
 {
     ui->thresholdSlider->setValue(value);
-    ui->thresholdLabel->setText(QString::number(ui->thresholdSlider->value()));
+    ui->thresholdLabel->setText(QString("%1 dB").arg(ui->thresholdSlider->value()));
 }
 
 /*! \brief Get current AGC slope. */
@@ -82,7 +141,7 @@ int CAgcOptions::slope()
 void CAgcOptions::setSlope(int value)
 {
     ui->slopeSlider->setValue(value);
-    ui->slopeLabel->setText(QString::number(ui->slopeSlider->value()));
+    ui->slopeLabel->setText(QString("%1 dB").arg(ui->slopeSlider->value()));
 }
 
 /*! \brief Enable or disable AGC slope slider.
@@ -107,7 +166,7 @@ int CAgcOptions::decay()
 void CAgcOptions::setDecay(int value)
 {
     ui->decaySlider->setValue(value);
-    ui->decayLabel->setText(QString::number(ui->decaySlider->value()));
+    ui->decayLabel->setText(QString("%1 ms").arg(ui->decaySlider->value()));
 }
 
 /*! \brief Enable or disable AGC decay slider.
@@ -139,29 +198,34 @@ void CAgcOptions::setHang(bool checked)
 /*! \brief AGC gain slider value has changed. */
 void CAgcOptions::on_gainSlider_valueChanged(int gain)
 {
+    ui->gainLabel->setText(QString("%1 dB").arg(ui->gainSlider->value()));
     emit gainChanged(gain);
 }
 
 /*! \brief AGC threshold slider value has changed. */
 void CAgcOptions::on_thresholdSlider_valueChanged(int threshold)
 {
+    ui->thresholdLabel->setText(QString("%1 dB").arg(ui->thresholdSlider->value()));
     emit thresholdChanged(threshold);
 }
 
 /*! \brief AGC slope slider value has changed. */
 void CAgcOptions::on_slopeSlider_valueChanged(int slope)
 {
+    ui->slopeLabel->setText(QString("%1 dB").arg(ui->slopeSlider->value()));
     emit slopeChanged(slope);
 }
 
 /*! \brief AGC decay slider value has changed. */
 void CAgcOptions::on_decaySlider_valueChanged(int decay)
 {
+    ui->decayLabel->setText(QString("%1 ms").arg(ui->decaySlider->value()));
     emit decayChanged(decay);
 }
 
 /*! \brief AGC hang button has been toggled. */
 void CAgcOptions::on_hangButton_toggled(bool checked)
 {
+    ui->hangButton->setText(checked ? tr("Enabled") : tr("Disabled"));
     emit hangChanged(checked);
 }

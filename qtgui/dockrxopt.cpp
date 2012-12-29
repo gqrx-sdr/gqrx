@@ -39,12 +39,21 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     demodOpt->setCurrentPage(CDemodOptions::PAGE_FM_OPT);
     connect(demodOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(demodOpt_fmMaxdevSelected(float)));
     connect(demodOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(demodOpt_fmEmphSelected(double)));
+
+    /* AGC options dialog */
+    agcOpt = new CAgcOptions(this);
+    connect(agcOpt, SIGNAL(gainChanged(int)), this, SLOT(agcOpt_gainChanged(int)));
+    connect(agcOpt, SIGNAL(thresholdChanged(int)), this, SLOT(agcOpt_thresholdChanged(int)));
+    connect(agcOpt, SIGNAL(decayChanged(int)), this, SLOT(agcOpt_decayChanged(int)));
+    connect(agcOpt, SIGNAL(slopeChanged(int)), this, SLOT(agcOpt_slopeChanged(int)));
+    connect(agcOpt, SIGNAL(hangChanged(bool)), this, SLOT(agcOpt_hangToggled(bool)));
 }
 
 DockRxOpt::~DockRxOpt()
 {
     delete ui;
     delete demodOpt;
+    delete agcOpt;
 }
 
 /*! \brief Set value of channel filter offset selector.
@@ -218,91 +227,57 @@ void DockRxOpt::on_modeButton_clicked()
     demodOpt->show();
 }
 
-
-
-/*! \brief AGC preset has changed.
- *
- * 0: Fast    decay = 500 msec
- * 1: Medium  decay = 1500 msec
- * 2: Slow    decay = 3000 msec
- * 3: User    decay = set by user
- * 4: Off     Only fixed gain
+/*! \brief Show AGC options.
  */
+void DockRxOpt::on_agcButton_clicked()
+{
+    agcOpt->show();
+}
+
+
+/*! \brief AGC preset has changed. */
 void DockRxOpt::on_agcPresetCombo_activated(int index)
 {
-    qDebug() << "NEW AGC preset:" << index;
+    CAgcOptions::agc_preset_e preset = (CAgcOptions::agc_preset_e) index;
 
-    switch (index) {
-    case 0:
-        if (!agc_is_on) {
+    switch (preset)
+    {
+    case CAgcOptions::AGC_FAST:
+    case CAgcOptions::AGC_MEDIUM:
+    case CAgcOptions::AGC_SLOW:
+    case CAgcOptions::AGC_USER:
+        if (!agc_is_on)
+        {
             emit agcToggled(true);
             agc_is_on = true;
         }
-        // decay
-        ui->agcDecayDial->setValue(100);
-        emit agcDecayChanged(100);
-        ui->agcDecayDial->setEnabled(false);
-        // slope
-        ui->agcSlopeDial->setValue(2);
-        emit agcSlopeChanged(2);
-        ui->agcSlopeDial->setEnabled(false);
+        agcOpt->setPreset(preset);
         break;
-    case 1:
-        if (!agc_is_on) {
-            emit agcToggled(true);
-            agc_is_on = true;
-        }
-        // decay
-        ui->agcDecayDial->setValue(800);
-        emit agcDecayChanged(800);
-        ui->agcDecayDial->setEnabled(false);
-        // slope
-        ui->agcSlopeDial->setValue(2);
-        emit agcSlopeChanged(2);
-        ui->agcSlopeDial->setEnabled(false);
-        break;
-    case 2:
-        if (!agc_is_on) {
-            emit agcToggled(true);
-            agc_is_on = true;
-        }
-        // decay
-        ui->agcDecayDial->setValue(2000);
-        emit agcDecayChanged(2000);
-        ui->agcDecayDial->setEnabled(false);
-        // slope
-        ui->agcSlopeDial->setValue(2);
-        emit agcSlopeChanged(2);
-        ui->agcSlopeDial->setEnabled(false);
-        break;
-    case 3:
-        if (!agc_is_on) {
-            emit agcToggled(true);
-            agc_is_on = true;
-        }
-        ui->agcDecayDial->setEnabled(true);
-        ui->agcSlopeDial->setEnabled(true);
-        break;
-    case 4:
-        if (agc_is_on) {
+
+    case CAgcOptions::AGC_OFF:
+        if (agc_is_on)
+        {
             emit agcToggled(false);
             agc_is_on = false;
         }
+        agcOpt->setPreset(preset);
         break;
+
     default:
         qDebug() << "Invalid AGC preset:" << index;
     }
 }
 
-void DockRxOpt::on_agcHangButton_toggled(bool checked)
+void DockRxOpt::agcOpt_hangToggled(bool checked)
 {
+    qDebug() << "AGC hang" << (checked ? "ON" : "OFF");
     emit agcHangToggled(checked);
 }
 
 /*! \brief AGC threshold ("knee") changed.
  *  \param value The new AGC threshold in dB.
  */
-void DockRxOpt::on_agcThresholdDial_valueChanged(int value)
+void DockRxOpt::agcOpt_thresholdChanged(int value)
 {
     qDebug() << "AGC threshold:" << value;
     emit agcThresholdChanged(value);
@@ -311,16 +286,16 @@ void DockRxOpt::on_agcThresholdDial_valueChanged(int value)
 /*! \brief AGC slope factor changed.
  *  \param value The new slope factor in dB.
  */
-void DockRxOpt::on_agcSlopeDial_valueChanged(int value)
+void DockRxOpt::agcOpt_slopeChanged(int value)
 {
     qDebug() << "AGC slope:" << value;
     emit agcSlopeChanged(value);
 }
 
 /*! \brief AGC decay changed.
- *  \param value The new slope factor in dB.
+ *  \param value The new decay rate in ms (tbc).
  */
-void DockRxOpt::on_agcDecayDial_valueChanged(int value)
+void DockRxOpt::agcOpt_decayChanged(int value)
 {
     qDebug() << "AGC decay:" << value;
     emit agcDecayChanged(value);
@@ -329,7 +304,7 @@ void DockRxOpt::on_agcDecayDial_valueChanged(int value)
 /*! \brief AGC manual gain changed.
  *  \param gain The new gain in dB.
  */
-void DockRxOpt::on_agcGainDial_valueChanged(int gain)
+void DockRxOpt::agcOpt_gainChanged(int gain)
 {
     qDebug() << "AGC manual gain:" << gain;
     emit agcGainChanged(gain);
