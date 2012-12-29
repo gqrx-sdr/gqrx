@@ -60,7 +60,7 @@
          <string> MHz</string>
         </property>
         <property name="decimals">
-         <number>3</number>
+         <number>6</number>
         </property>
         <property name="minimum">
          <double>-2000.000000000000000</double>
