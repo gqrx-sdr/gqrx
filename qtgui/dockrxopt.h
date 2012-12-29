@@ -22,7 +22,7 @@
 
 #include <QDockWidget>
 #include "qtgui/agc_options.h"
-#include "qtgui/demod-options.h"
+#include "qtgui/demod_options.h"
 
 
 namespace Ui {

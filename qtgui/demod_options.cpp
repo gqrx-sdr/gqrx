@@ -18,8 +18,8 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <QDebug>
-#include "demod-options.h"
-#include "ui_demod-options.h"
+#include "demod_options.h"
+#include "ui_demod_options.h"
 
 CDemodOptions::CDemodOptions(QWidget *parent) :
     QDialog(parent),

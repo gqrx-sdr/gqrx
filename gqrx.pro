@@ -65,6 +65,7 @@ SOURCES += \
     dsp/resampler_xx.cpp \
     dsp/stereo_demod.cpp \
     qtgui/agc_options.cpp \
+    qtgui/demod_options.cpp \
     qtgui/dockrxopt.cpp \
     qtgui/freqctrl.cpp \
     qtgui/meter.cpp \
@@ -77,7 +78,6 @@ SOURCES += \
     qtgui/afsk1200win.cpp \
     qtgui/bpsk1000win.cpp \
     qtgui/arissattlm.cpp \
-    qtgui/demod-options.cpp \
     receivers/receiver_base.cpp \
     receivers/nbrx.cpp \
     tlm/arissat/scale_therm.c \
@@ -106,6 +106,7 @@ HEADERS += \
     dsp/rx_noise_blanker_cc.h \
     dsp/stereo_demod.h \
     qtgui/agc_options.h \
+    qtgui/demod_options.h \
     qtgui/freqctrl.h \
     qtgui/meter.h \
     qtgui/plotter.h \
@@ -118,7 +119,6 @@ HEADERS += \
     qtgui/afsk1200win.h \
     qtgui/bpsk1000win.h \
     qtgui/arissattlm.h \
-    qtgui/demod-options.h \
     receivers/receiver_base.h \
     receivers/nbrx.h \
     tlm/arissat/ss_types_common.h \
@@ -133,14 +133,14 @@ FORMS += \
     qtgui/agc_options.ui \
     qtgui/dockrxopt.ui \
     qtgui/ioconfig.ui \
+    qtgui/demod_options.ui \
     qtgui/dockinputctl.ui \
     qtgui/dockaudio.ui \
     qtgui/dockfft.ui \
     qtgui/dockiqplayer.ui \
     qtgui/afsk1200win.ui \
     qtgui/bpsk1000win.ui \
-    qtgui/arissattlm.ui \
-    qtgui/demod-options.ui
+    qtgui/arissattlm.ui
 
 
 # Use pulseaudio (ps: could use equals? undocumented)

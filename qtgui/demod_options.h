@@ -17,8 +17,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#ifndef DEMODOPTIONS_H
-#define DEMODOPTIONS_H
+#ifndef DEMOD_OPTIONS_H
+#define DEMOD_OPTIONS_H
 
 #include <QDialog>
 #include <QCloseEvent>
@@ -67,4 +67,4 @@ private:
     Ui::CDemodOptions *ui;
 };
 
-#endif // DEMODOPTIONS_H
+#endif // DEMOD_OPTIONS_H
