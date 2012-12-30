@@ -153,19 +153,19 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             if (IsPointCloseTo(pt.x(), m_DemodFreqX, m_CursorCaptureDelta))
             {	//in move demod box center frequency region
                 if (CENTER != m_CursorCaptured)
-                    setCursor(QCursor(Qt::CrossCursor));
+                    setCursor(QCursor(Qt::SizeHorCursor));
                 m_CursorCaptured = CENTER;
             }
             else if (IsPointCloseTo(pt.x(), m_DemodHiCutFreqX, m_CursorCaptureDelta))
             {	//in move demod hicut region
                 if (RIGHT != m_CursorCaptured)
-                    setCursor(QCursor(Qt::SizeHorCursor));
+                    setCursor(QCursor(Qt::SizeFDiagCursor));
                 m_CursorCaptured = RIGHT;
             }
             else if (IsPointCloseTo(pt.x(), m_DemodLowCutFreqX, m_CursorCaptureDelta))
             {	//in move demod lowcut region
                 if (LEFT != m_CursorCaptured)
-                    setCursor(QCursor(Qt::SizeHorCursor));
+                    setCursor(QCursor(Qt::SizeBDiagCursor));
                 m_CursorCaptured = LEFT;
             }
             else if (IsPointCloseTo(pt.x(), m_YAxisWidth/2, m_YAxisWidth/2))
