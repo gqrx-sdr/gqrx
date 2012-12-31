@@ -77,7 +77,8 @@ int rx_fft_c::work(int noutput_items,
 
     /* just throw new samples into the buffer */
     boost::mutex::scoped_lock lock(d_mutex);
-    for (i = 0; i < noutput_items; i++) {
+    for (i = 0; i < noutput_items; i++)
+    {
         d_cbuf.push_back(in[i]);
     }
 
@@ -93,7 +94,8 @@ void rx_fft_c::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
 {
     boost::mutex::scoped_lock lock(d_mutex);
 
-    if (d_cbuf.size() < d_fftsize) {
+    if (d_cbuf.size() < d_fftsize)
+    {
         // not enough samples in the buffer
         fftSize = 0;
 
@@ -119,13 +121,14 @@ void rx_fft_c::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
 void rx_fft_c::do_fft(const gr_complex *data_in, unsigned int size)
 {
     /* apply window, if any */
-    if (d_window.size()) {
+    if (d_window.size())
+    {
         gr_complex *dst = d_fft->get_inbuf();
-        int i;
-        for (i = 0; i < size; i++)
+        for (unsigned int i = 0; i < size; i++)
             dst[i] = data_in[i] * d_window[i];
     }
-    else {
+    else
+    {
         memcpy(d_fft->get_inbuf(), data_in, sizeof(gr_complex)*size);
     }
 
@@ -136,7 +139,8 @@ void rx_fft_c::do_fft(const gr_complex *data_in, unsigned int size)
 /*! \brief Set new FFT size. */
 void rx_fft_c::set_fft_size(unsigned int fftsize)
 {
-    if (fftsize != d_fftsize) {
+    if (fftsize != d_fftsize)
+    {
         boost::mutex::scoped_lock lock(d_mutex);
 
         d_fftsize = fftsize;
@@ -165,14 +169,16 @@ unsigned int rx_fft_c::get_fft_size()
 /*! \brief Set new window type. */
 void rx_fft_c::set_window_type(int wintype)
 {
-    if (wintype == d_wintype) {
+    if (wintype == d_wintype)
+    {
         /* nothing to do */
         return;
     }
 
     d_wintype = wintype;
 
-    if ((d_wintype < gr_firdes::WIN_HAMMING) || (d_wintype > gr_firdes::WIN_BLACKMAN_hARRIS)) {
+    if ((d_wintype < gr_firdes::WIN_HAMMING) || (d_wintype > gr_firdes::WIN_BLACKMAN_hARRIS))
+    {
         d_wintype = gr_firdes::WIN_HAMMING;
     }
 
@@ -241,7 +247,8 @@ int rx_fft_f::work(int noutput_items,
 
     /* just throw new samples into the buffer */
     boost::mutex::scoped_lock lock(d_mutex);
-    for (i = 0; i < noutput_items; i++) {
+    for (i = 0; i < noutput_items; i++)
+    {
         d_cbuf.push_back(in[i]);
     }
 
@@ -256,7 +263,8 @@ void rx_fft_f::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
 {
     boost::mutex::scoped_lock lock(d_mutex);
 
-    if (d_cbuf.size() < d_fftsize) {
+    if (d_cbuf.size() < d_fftsize)
+    {
         // not enough samples in the buffer
         fftSize = 0;
 
@@ -282,14 +290,16 @@ void rx_fft_f::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
 void rx_fft_f::do_fft(const float *data_in, unsigned int size)
 {
     gr_complex *dst = d_fft->get_inbuf();
-    int i;
+    unsigned int i;
 
     /* apply window, and convert to complex */
-    if (d_window.size()) {
+    if (d_window.size())
+    {
         for (i = 0; i < size; i++)
             dst[i] = data_in[i] * d_window[i];
     }
-    else {
+    else
+    {
         for (i = 0; i < size; i++)
             dst[i] = data_in[i];
     }
@@ -302,7 +312,8 @@ void rx_fft_f::do_fft(const float *data_in, unsigned int size)
 /*! \brief Set new FFT size. */
 void rx_fft_f::set_fft_size(unsigned int fftsize)
 {
-    if (fftsize != d_fftsize) {
+    if (fftsize != d_fftsize)
+    {
         boost::mutex::scoped_lock lock(d_mutex);
 
         d_fftsize = fftsize;
@@ -330,14 +341,16 @@ unsigned int rx_fft_f::get_fft_size()
 /*! \brief Set new window type. */
 void rx_fft_f::set_window_type(int wintype)
 {
-    if (wintype == d_wintype) {
+    if (wintype == d_wintype)
+    {
         /* nothing to do */
         return;
     }
 
     d_wintype = wintype;
 
-    if ((d_wintype < gr_firdes::WIN_HAMMING) || (d_wintype > gr_firdes::WIN_BLACKMAN_hARRIS)) {
+    if ((d_wintype < gr_firdes::WIN_HAMMING) || (d_wintype > gr_firdes::WIN_BLACKMAN_hARRIS))
+    {
         d_wintype = gr_firdes::WIN_HAMMING;
     }
 

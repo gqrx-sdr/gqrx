@@ -737,6 +737,8 @@ void MainWindow::setFmEmph(double tau)
  */
 void MainWindow::setAmDcrStatus(bool enabled)
 {
+    Q_UNUSED(enabled)
+
     /** FIXME: obsolete */
     //rx->set_am_dcr(enabled);
 }
