@@ -49,75 +49,76 @@ SOURCES += \
     applications/gqrx/main.cpp \
     applications/gqrx/mainwindow.cpp \
     applications/gqrx/receiver.cpp \
-    dsp/rx_fft.cpp \
-    dsp/rx_filter.cpp \
-    dsp/rx_demod_fm.cpp \
-    dsp/rx_meter.cpp \
-    dsp/rx_demod_am.cpp \
-    dsp/sniffer_f.cpp \
-    dsp/afsk1200/costabf.c \
     dsp/afsk1200/cafsk12.cpp \
+    dsp/afsk1200/costabf.c \
     dsp/agc_impl.cpp \
     dsp/correct_iq_cc.cpp \
     dsp/lpf.cpp \
+    dsp/resampler_xx.cpp \
+    dsp/rx_demod_am.cpp \
+    dsp/rx_demod_fm.cpp \
+    dsp/rx_fft.cpp \
+    dsp/rx_filter.cpp \
+    dsp/rx_meter.cpp \
     dsp/rx_agc_xx.cpp \
     dsp/rx_noise_blanker_cc.cpp \
-    dsp/resampler_xx.cpp \
+    dsp/sniffer_f.cpp \
     dsp/stereo_demod.cpp \
+    qtgui/afsk1200win.cpp \
     qtgui/agc_options.cpp \
     qtgui/demod_options.cpp \
-    qtgui/dockrxopt.cpp \
-    qtgui/freqctrl.cpp \
-    qtgui/meter.cpp \
-    qtgui/plotter.cpp \
-    qtgui/ioconfig.cpp \
     qtgui/dockinputctl.cpp \
     qtgui/dockaudio.cpp \
     qtgui/dockfft.cpp \
     qtgui/dockiqplayer.cpp \
-    qtgui/afsk1200win.cpp \
-    receivers/receiver_base.cpp \
+    qtgui/dockrxopt.cpp \
+    qtgui/freqctrl.cpp \
+    qtgui/ioconfig.cpp \
+    qtgui/meter.cpp \
+    qtgui/plotter.cpp \
     receivers/nbrx.cpp \
+    receivers/receiver_base.cpp \
     receivers/wfmrx.cpp
 
 HEADERS += \
     applications/gqrx/mainwindow.h \
     applications/gqrx/receiver.h \
     applications/gqrx/gqrx.h \
-    dsp/rx_fft.h \
-    dsp/rx_filter.h \
-    dsp/rx_demod_fm.h \
-    dsp/rx_meter.h \
-    dsp/rx_demod_am.h \
-    dsp/sniffer_f.h \
-    dsp/afsk1200/filter-i386.h \
-    dsp/afsk1200/filter.h \
     dsp/afsk1200/cafsk12.h \
+    dsp/afsk1200/filter.h \
+    dsp/afsk1200/filter-i386.h \
     dsp/agc_impl.h \
     dsp/correct_iq_cc.h \
     dsp/lpf.h \
     dsp/resampler_xx.h \
     dsp/rx_agc_xx.h \
+    dsp/rx_demod_am.h \
+    dsp/rx_demod_fm.h \
+    dsp/rx_fft.h \
+    dsp/rx_filter.h \
+    dsp/rx_meter.h \
     dsp/rx_noise_blanker_cc.h \
+    dsp/sniffer_f.h \
     dsp/stereo_demod.h \
+    qtgui/afsk1200win.h \
     qtgui/agc_options.h \
     qtgui/demod_options.h \
-    qtgui/freqctrl.h \
-    qtgui/meter.h \
-    qtgui/plotter.h \
-    qtgui/ioconfig.h \
-    qtgui/dockinputctl.h \
     qtgui/dockaudio.h \
     qtgui/dockfft.h \
-    qtgui/dockrxopt.h \
+    qtgui/dockinputctl.h \
     qtgui/dockiqplayer.h \
-    qtgui/afsk1200win.h \
-    receivers/receiver_base.h \
+    qtgui/dockrxopt.h \
+    qtgui/freqctrl.h \
+    qtgui/ioconfig.h \
+    qtgui/meter.h \
+    qtgui/plotter.h \
     receivers/nbrx.h \
+    receivers/receiver_base.h \
     receivers/wfmrx.h
 
 FORMS += \
     applications/gqrx/mainwindow.ui \
+    qtgui/afsk1200win.ui \
     qtgui/agc_options.ui \
     qtgui/dockrxopt.ui \
     qtgui/ioconfig.ui \
@@ -125,8 +126,7 @@ FORMS += \
     qtgui/dockinputctl.ui \
     qtgui/dockaudio.ui \
     qtgui/dockfft.ui \
-    qtgui/dockiqplayer.ui \
-    qtgui/afsk1200win.ui
+    qtgui/dockiqplayer.ui
 
 # Use pulseaudio (ps: could use equals? undocumented)
 contains(AUDIO_BACKEND, pulse): {
