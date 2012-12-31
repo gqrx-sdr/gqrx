@@ -832,8 +832,8 @@ void MainWindow::meterTimeout()
 /*! \brief Baseband FFT plot timeout. */
 void MainWindow::iqFftTimeout()
 {
-    int fftsize;
-    int i;
+    unsigned int fftsize;
+    unsigned int i;
     std::complex<float> pt;             /* a single FFT point used in calculations */
     std::complex<float> scaleFactor;    /* normalizing factor (fftsize cast to complex) */
 
@@ -887,8 +887,8 @@ void MainWindow::iqFftTimeout()
 /*! \brief Audio FFT plot timeout. */
 void MainWindow::audioFftTimeout()
 {
-    int fftsize;
-    int i;
+    unsigned int fftsize;
+    unsigned int i;
     std::complex<float> pt;             /* a single FFT point used in calculations */
     std::complex<float> scaleFactor;    /* normalizing factor (fftsize cast to complex) */
 
@@ -1194,6 +1194,8 @@ void MainWindow::on_actionSaveSettings_triggered()
 /*! \brief Toggle I/Q recording. */
 void MainWindow::on_actionIqRec_triggered(bool checked)
 {
+    Q_UNUSED(checked)
+
 #if 0
     if (checked)
     {
@@ -1344,7 +1346,7 @@ void MainWindow::afsk1200win_closed()
 void MainWindow::decoderTimeout()
 {
     float buffer[DATA_BUFFER_SIZE];
-    int num;
+    unsigned int num;
 
     //qDebug() << "Process decoder";
 

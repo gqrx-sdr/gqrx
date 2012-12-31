@@ -123,9 +123,9 @@ public:
     double get_filter_offset();
 
     status set_filter(double low, double high, filter_shape shape);
-    status set_filter_low(double freq_hz);
-    status set_filter_high(double freq_hz);
-    status set_filter_shape(filter_shape shape);
+    //status set_filter_low(double freq_hz);
+    //status set_filter_high(double freq_hz);
+    //status set_filter_shape(filter_shape shape);
 
     status set_freq_corr(int ppm);
     status set_dc_corr(double dci, double dcq);
@@ -135,8 +135,8 @@ public:
     float get_signal_pwr(bool dbfs);
 
     void set_iq_fft_size(int newsize);
-    void get_iq_fft_data(std::complex<float>* fftPoints, int &fftsize);
-    void get_audio_fft_data(std::complex<float>* fftPoints, int &fftsize);
+    void get_iq_fft_data(std::complex<float>* fftPoints, unsigned int &fftsize);
+    void get_audio_fft_data(std::complex<float>* fftPoints, unsigned int &fftsize);
 
     /* Noise blanker */
     status set_nb_on(int nbid, bool on);
@@ -176,7 +176,7 @@ public:
     /* sample sniffer */
     status start_sniffer(unsigned int samplrate, int buffsize);
     status stop_sniffer();
-    void   get_sniffer_data(float * outbuff, int &num);
+    void   get_sniffer_data(float * outbuff, unsigned int &num);
 
 private:
     void connect_all(rx_chain type);

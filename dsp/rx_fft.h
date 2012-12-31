@@ -45,7 +45,7 @@ typedef boost::shared_ptr<rx_fft_f> rx_fft_f_sptr;
  * of raw pointers, the rx_fft_c constructor is private.
  * make_rx_fft_c is the public interface for creating new instances.
  */
-rx_fft_c_sptr make_rx_fft_c(int fftsize=4096, int wintype=gr_firdes::WIN_HAMMING);
+rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize=4096, int wintype=gr_firdes::WIN_HAMMING);
 
 
 /*! \brief Block for computing complex FFT.
@@ -62,10 +62,10 @@ rx_fft_c_sptr make_rx_fft_c(int fftsize=4096, int wintype=gr_firdes::WIN_HAMMING
  */
 class rx_fft_c : public gr_sync_block
 {
-    friend rx_fft_c_sptr make_rx_fft_c(int fftsize, int wintype);
+    friend rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize, int wintype);
 
 protected:
-    rx_fft_c(int fftsize=4096, int wintype=gr_firdes::WIN_HAMMING);
+    rx_fft_c(unsigned int fftsize=4096, int wintype=gr_firdes::WIN_HAMMING);
 
 public:
     ~rx_fft_c();
@@ -74,17 +74,17 @@ public:
              gr_vector_const_void_star &input_items,
              gr_vector_void_star &output_items);
 
-    void get_fft_data(std::complex<float>* fftPoints, int &fftSize);
+    void get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSize);
 
     void set_window_type(int wintype);
     int  get_window_type();
 
-    void set_fft_size(int fftsize);
-    int  get_fft_size();
+    void set_fft_size(unsigned int fftsize);
+    unsigned int get_fft_size();
 
 private:
-    int  d_fftsize;   /*! Current FFT size. */
-    int  d_wintype;   /*! Current window type. */
+    unsigned int d_fftsize;   /*! Current FFT size. */
+    int          d_wintype;   /*! Current window type. */
 
     boost::mutex d_mutex;  /*! Used to lock FFT output buffer. */
 
@@ -93,7 +93,7 @@ private:
 
     boost::circular_buffer<gr_complex> d_cbuf; /*! buffer to accumulate samples. */
 
-    void do_fft(const gr_complex *data_in, int size);
+    void do_fft(const gr_complex *data_in, unsigned int size);
 
 };
 
@@ -106,7 +106,7 @@ private:
  * of raw pointers, the rx_fft_f constructor is private.
  * make_rx_fft_f is the public interface for creating new instances.
  */
-rx_fft_f_sptr make_rx_fft_f(int fftsize=1024, int wintype=gr_firdes::WIN_HAMMING);
+rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize=1024, int wintype=gr_firdes::WIN_HAMMING);
 
 
 /*! \brief Block for computing real FFT.
@@ -124,10 +124,10 @@ rx_fft_f_sptr make_rx_fft_f(int fftsize=1024, int wintype=gr_firdes::WIN_HAMMING
  */
 class rx_fft_f : public gr_sync_block
 {
-    friend rx_fft_f_sptr make_rx_fft_f(int fftsize, int wintype);
+    friend rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize, int wintype);
 
 protected:
-    rx_fft_f(int fftsize=1024, int wintype=gr_firdes::WIN_HAMMING);
+    rx_fft_f(unsigned int fftsize=1024, int wintype=gr_firdes::WIN_HAMMING);
 
 public:
     ~rx_fft_f();
@@ -136,17 +136,17 @@ public:
              gr_vector_const_void_star &input_items,
              gr_vector_void_star &output_items);
 
-    void get_fft_data(std::complex<float>* fftPoints, int &fftSize);
+    void get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSize);
 
     void set_window_type(int wintype);
     int  get_window_type();
 
-    void set_fft_size(int fftsize);
-    int  get_fft_size();
+    void set_fft_size(unsigned int fftsize);
+    unsigned int  get_fft_size();
 
 private:
-    int  d_fftsize;   /*! Current FFT size. */
-    int  d_wintype;   /*! Current window type. */
+    unsigned int d_fftsize;   /*! Current FFT size. */
+    int          d_wintype;   /*! Current window type. */
 
     boost::mutex d_mutex;  /*! Used to lock FFT output buffer. */
 
@@ -155,7 +155,7 @@ private:
 
     boost::circular_buffer<float> d_cbuf; /*! buffer to accumulate samples. */
 
-    void do_fft(const float *data_in, int size);
+    void do_fft(const float *data_in, unsigned int size);
 
 };
 

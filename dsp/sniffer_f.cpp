@@ -69,6 +69,8 @@ int sniffer_f::work(int noutput_items,
     int i;
     const float *in = (const float *)input_items[0];
 
+    (void) output_items;
+
     boost::mutex::scoped_lock lock(d_mutex);
 
     /* dump new samples into the buffer */
@@ -98,7 +100,7 @@ int  sniffer_f::samples_available()
  *             Should be at least as big as buffer_size().
  *  \param num The number of sampels returned.
  */
-void sniffer_f::get_samples(float * out, int &num)
+void sniffer_f::get_samples(float * out, unsigned int &num)
 {
     boost::mutex::scoped_lock lock(d_mutex);
 

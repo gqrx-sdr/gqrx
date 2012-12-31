@@ -188,6 +188,8 @@ void pa_device_list::pa_state_cb(pa_context *c, void *userdata)
  */
 void pa_device_list::pa_sinklist_cb(pa_context *ctx, const pa_sink_info *info, int eol, void *userdata)
 {
+    (void) ctx;
+
     pa_device_list *pdl = reinterpret_cast<pa_device_list *>(userdata);
 
     // exit if we have reached the end of the list
@@ -213,6 +215,8 @@ void pa_device_list::pa_sinklist_cb(pa_context *ctx, const pa_sink_info *info, i
 void pa_device_list::pa_sourcelist_cb(pa_context *ctx, const pa_source_info *info, int eol, void *userdata)
 {
     pa_device_list *pdl = reinterpret_cast<pa_device_list *>(userdata);
+
+    (void) ctx;
 
     // exit if we have reached the end of the list
     if (eol > 0) {

@@ -67,19 +67,19 @@ public:
              gr_vector_void_star &output_items);
 
     int  samples_available();
-    void get_samples(float * buffer, int &num);
+    void get_samples(float * buffer, unsigned int &num);
 
     void set_buffer_size(int newsize);
     int  buffer_size();
 
-    void set_min_samples(int num) {d_minsamp = num;};
-    int min_samples() {return d_minsamp;};
+    void set_min_samples(unsigned int num) {d_minsamp = num;}
+    int min_samples() {return d_minsamp;}
 
 private:
 
     boost::mutex d_mutex;                   /*! Used to prevent concurrent access to buffer. */
     boost::circular_buffer<float> d_buffer; /*! buffer to accumulate samples. */
-    int d_minsamp;                          /*! smallest number of samples we want to return. */
+    unsigned int d_minsamp;                 /*! smallest number of samples we want to return. */
 
 };
 

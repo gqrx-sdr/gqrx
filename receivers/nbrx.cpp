@@ -188,6 +188,7 @@ void nbrx::set_demod(int rx_demod)
     /* disconnect current demodulator */
     switch (current_demod) {
 
+    default:
     case NBRX_DEMOD_NONE: /** FIXME! **/
     case NBRX_DEMOD_SSB:
         disconnect(agc, 0, demod_ssb, 0);

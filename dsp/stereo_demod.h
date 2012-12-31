@@ -91,9 +91,9 @@ private:
     gr_add_ff_sptr add1;           /*!< Right stereo channel. */
 
     /* other parameters */
-    bool  d_stereo;                      /*! On/off stereo mode. */
     float d_input_rate;                  /*! Input rate. */
     float d_audio_rate;                  /*! Audio rate. */
+    bool  d_stereo;                      /*! On/off stereo mode. */
     std::vector<gr_complex> d_tone_taps; /*! Tone BPF taps. */
     std::vector<float> d_pll_taps;       /*! Subtone BPF taps. */
 };

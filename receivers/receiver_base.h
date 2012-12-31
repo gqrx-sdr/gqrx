@@ -60,28 +60,28 @@ public:
     /* the rest is optional */
 
     /* Noise blanker */
-    virtual bool has_nb() { return false; }
-    virtual void set_nb_on(int nbid, bool on) {};
-    virtual void set_nb_threshold(int nbid, float threshold) {};
+    virtual bool has_nb();
+    virtual void set_nb_on(int nbid, bool on);
+    virtual void set_nb_threshold(int nbid, float threshold);
 
     /* Squelch parameter */
-    virtual bool has_sql() { return false; }
-    virtual void set_sql_level(double level_db) {};
-    virtual void set_sql_alpha(double alpha) {};
+    virtual bool has_sql();
+    virtual void set_sql_level(double level_db);
+    virtual void set_sql_alpha(double alpha);
 
     /* AGC */
-    virtual bool has_agc() { return false; }
-    virtual void set_agc_on(bool agc_on) {};
-    virtual void set_agc_hang(bool use_hang) {};
-    virtual void set_agc_threshold(int threshold) {};
-    virtual void set_agc_slope(int slope) {};
-    virtual void set_agc_decay(int decay_ms) {};
-    virtual void set_agc_manual_gain(int gain) {};
+    virtual bool has_agc();
+    virtual void set_agc_on(bool agc_on);
+    virtual void set_agc_hang(bool use_hang);
+    virtual void set_agc_threshold(int threshold);
+    virtual void set_agc_slope(int slope);
+    virtual void set_agc_decay(int decay_ms);
+    virtual void set_agc_manual_gain(int gain);
 
     /* FM parameters */
-    virtual bool has_fm() { return false; }
-    virtual void set_fm_maxdev(float maxdev_hz) {};
-    virtual void set_fm_deemph(double tau) {};
+    virtual bool has_fm();
+    virtual void set_fm_maxdev(float maxdev_hz);
+    virtual void set_fm_deemph(double tau);
 
 };
 

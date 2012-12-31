@@ -25,7 +25,7 @@
 #include "dsp/rx_fft.h"
 
 
-rx_fft_c_sptr make_rx_fft_c (int fftsize, int wintype)
+rx_fft_c_sptr make_rx_fft_c (unsigned int fftsize, int wintype)
 {
     return gnuradio::get_initial_sptr(new rx_fft_c (fftsize, wintype));
 }
@@ -35,7 +35,7 @@ rx_fft_c_sptr make_rx_fft_c (int fftsize, int wintype)
  *  \param wintype The window type (see gr_firdes::win_type).
  *
  */
-rx_fft_c::rx_fft_c(int fftsize, int wintype)
+rx_fft_c::rx_fft_c(unsigned int fftsize, int wintype)
     : gr_sync_block ("rx_fft_c",
           gr_make_io_signature(1, 1, sizeof(gr_complex)),
           gr_make_io_signature(0, 0, 0)),
@@ -73,6 +73,7 @@ int rx_fft_c::work(int noutput_items,
 {
     int i;
     const gr_complex *in = (const gr_complex*)input_items[0];
+    (void) output_items;
 
     /* just throw new samples into the buffer */
     boost::mutex::scoped_lock lock(d_mutex);
@@ -88,7 +89,7 @@ int rx_fft_c::work(int noutput_items,
  *  \param fftPoints Buffer to copy FFT data
  *  \param fftSize Current FFT size (output).
  */
-void rx_fft_c::get_fft_data(std::complex<float>* fftPoints, int &fftSize)
+void rx_fft_c::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSize)
 {
     boost::mutex::scoped_lock lock(d_mutex);
 
@@ -115,7 +116,7 @@ void rx_fft_c::get_fft_data(std::complex<float>* fftPoints, int &fftSize)
  * Note that this function does not lock the mutex since the caller, get_fft_data()
  * has alrady locked it.
  */
-void rx_fft_c::do_fft(const gr_complex *data_in, int size)
+void rx_fft_c::do_fft(const gr_complex *data_in, unsigned int size)
 {
     /* apply window, if any */
     if (d_window.size()) {
@@ -133,7 +134,7 @@ void rx_fft_c::do_fft(const gr_complex *data_in, int size)
 }
 
 /*! \brief Set new FFT size. */
-void rx_fft_c::set_fft_size(int fftsize)
+void rx_fft_c::set_fft_size(unsigned int fftsize)
 {
     if (fftsize != d_fftsize) {
         boost::mutex::scoped_lock lock(d_mutex);
@@ -156,7 +157,7 @@ void rx_fft_c::set_fft_size(int fftsize)
 }
 
 /*! \brief Get currently used FFT size. */
-int rx_fft_c::get_fft_size()
+unsigned int rx_fft_c::get_fft_size()
 {
     return d_fftsize;
 }
@@ -188,7 +189,7 @@ int rx_fft_c::get_window_type()
 
 /**   rx_fft_f     **/
 
-rx_fft_f_sptr make_rx_fft_f(int fftsize, int wintype)
+rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize, int wintype)
 {
     return gnuradio::get_initial_sptr(new rx_fft_f (fftsize, wintype));
 }
@@ -198,7 +199,7 @@ rx_fft_f_sptr make_rx_fft_f(int fftsize, int wintype)
  *  \param wintype The window type (see gr_firdes::win_type).
  *
  */
-rx_fft_f::rx_fft_f(int fftsize, int wintype)
+rx_fft_f::rx_fft_f(unsigned int fftsize, int wintype)
     : gr_sync_block ("rx_fft_f",
           gr_make_io_signature(1, 1, sizeof(float)),
           gr_make_io_signature(0, 0, 0)),
@@ -236,6 +237,7 @@ int rx_fft_f::work(int noutput_items,
 {
     int i;
     const float *in = (const float*)input_items[0];
+    (void) output_items;
 
     /* just throw new samples into the buffer */
     boost::mutex::scoped_lock lock(d_mutex);
@@ -250,7 +252,7 @@ int rx_fft_f::work(int noutput_items,
  *  \param fftPoints Buffer to copy FFT data
  *  \param fftSize Current FFT size (output).
  */
-void rx_fft_f::get_fft_data(std::complex<float>* fftPoints, int &fftSize)
+void rx_fft_f::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSize)
 {
     boost::mutex::scoped_lock lock(d_mutex);
 
@@ -277,7 +279,7 @@ void rx_fft_f::get_fft_data(std::complex<float>* fftPoints, int &fftSize)
  * Note that this function does not lock the mutex since the caller, get_fft_data()
  * has alrady locked it.
  */
-void rx_fft_f::do_fft(const float *data_in, int size)
+void rx_fft_f::do_fft(const float *data_in, unsigned int size)
 {
     gr_complex *dst = d_fft->get_inbuf();
     int i;
@@ -298,7 +300,7 @@ void rx_fft_f::do_fft(const float *data_in, int size)
 
 
 /*! \brief Set new FFT size. */
-void rx_fft_f::set_fft_size(int fftsize)
+void rx_fft_f::set_fft_size(unsigned int fftsize)
 {
     if (fftsize != d_fftsize) {
         boost::mutex::scoped_lock lock(d_mutex);
@@ -320,7 +322,7 @@ void rx_fft_f::set_fft_size(int fftsize)
 }
 
 /*! \brief Get currently used FFT size. */
-int rx_fft_f::get_fft_size()
+unsigned int rx_fft_f::get_fft_size()
 {
     return d_fftsize;
 }

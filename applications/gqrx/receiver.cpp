@@ -74,9 +74,9 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     mixer = gr_make_multiply_cc();
 
     dc_corr = make_dc_corr_cc(0.01f);
-    iq_fft = make_rx_fft_c(4096, 0);
+    iq_fft = make_rx_fft_c(4096u, 0);
 
-    audio_fft = make_rx_fft_f(3072);
+    audio_fft = make_rx_fft_f(3072u);
     audio_gain0 = gr_make_multiply_const_ff(0.1);
     audio_gain1 = gr_make_multiply_const_ff(0.1);
 
@@ -337,7 +337,7 @@ receiver::status receiver::set_filter(double low, double high, filter_shape shap
     return STATUS_OK;
 }
 
-
+/**
 receiver::status receiver::set_filter_low(double freq_hz)
 {
     return STATUS_OK;
@@ -354,7 +354,7 @@ receiver::status receiver::set_filter_shape(filter_shape shape)
 {
     return STATUS_OK;
 }
-
+**/
 
 receiver::status receiver::set_freq_corr(int ppm)
 {
@@ -378,7 +378,6 @@ receiver::status receiver::set_iq_corr(double gain, double phase)
     return STATUS_OK;
 }
 
-
 /*! \brief Get current signal power.
  *  \param dbfs Whether to use dbfs or absolute power.
  *  \return The current signal power.
@@ -398,13 +397,13 @@ void receiver::set_iq_fft_size(int newsize)
 }
 
 /*! \brief Get latest baseband FFT data. */
-void receiver::get_iq_fft_data(std::complex<float>* fftPoints, int &fftsize)
+void receiver::get_iq_fft_data(std::complex<float>* fftPoints, unsigned int &fftsize)
 {
     iq_fft->get_fft_data(fftPoints, fftsize);
 }
 
 /*! \brief Get latest audio FFT data. */
-void receiver::get_audio_fft_data(std::complex<float>* fftPoints, int &fftsize)
+void receiver::get_audio_fft_data(std::complex<float>* fftPoints, unsigned int &fftsize)
 {
     audio_fft->get_fft_data(fftPoints, fftsize);
 }
@@ -901,7 +900,7 @@ receiver::status receiver::stop_sniffer()
 }
 
 /*! \brief Get sniffer data. */
-void receiver::get_sniffer_data(float * outbuff, int &num)
+void receiver::get_sniffer_data(float * outbuff, unsigned int &num)
 {
     sniffer->get_samples(outbuff, num);
 }

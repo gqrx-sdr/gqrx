@@ -38,3 +38,86 @@ receiver_base_cf::~receiver_base_cf()
 {
 
 }
+
+
+bool receiver_base_cf::has_nb()
+{
+    return false;
+}
+
+void receiver_base_cf::set_nb_on(int nbid, bool on)
+{
+    (void) nbid;
+    (void) on;
+}
+
+void receiver_base_cf::set_nb_threshold(int nbid, float threshold)
+{
+    (void) nbid;
+    (void) threshold;
+}
+
+bool receiver_base_cf::has_sql()
+{
+    return false;
+}
+
+void receiver_base_cf::set_sql_level(double level_db)
+{
+    (void) level_db;
+}
+
+void receiver_base_cf::set_sql_alpha(double alpha)
+{
+    (void) alpha;
+}
+
+bool receiver_base_cf::has_agc()
+{
+    return false;
+}
+
+void receiver_base_cf::set_agc_on(bool agc_on)
+{
+    (void) agc_on;
+}
+
+void receiver_base_cf::set_agc_hang(bool use_hang)
+{
+    (void) use_hang;
+}
+
+void receiver_base_cf::set_agc_threshold(int threshold)
+{
+    (void) threshold;
+}
+
+void receiver_base_cf::set_agc_slope(int slope)
+{
+    (void) slope;
+}
+
+void receiver_base_cf::set_agc_decay(int decay_ms)
+{
+    (void) decay_ms;
+}
+
+void receiver_base_cf::set_agc_manual_gain(int gain)
+{
+    (void) gain;
+}
+
+bool receiver_base_cf::has_fm()
+{
+    return false;
+}
+
+void receiver_base_cf::set_fm_maxdev(float maxdev_hz)
+{
+    (void) maxdev_hz;
+}
+
+void receiver_base_cf::set_fm_deemph(double tau)
+{
+    (void) tau;
+}
