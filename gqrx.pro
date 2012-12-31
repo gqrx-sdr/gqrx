@@ -76,13 +76,8 @@ SOURCES += \
     qtgui/dockfft.cpp \
     qtgui/dockiqplayer.cpp \
     qtgui/afsk1200win.cpp \
-    qtgui/bpsk1000win.cpp \
-    qtgui/arissattlm.cpp \
     receivers/receiver_base.cpp \
     receivers/nbrx.cpp \
-    tlm/arissat/scale_therm.c \
-    tlm/arissat/scale_psu.c \
-    tlm/arissat/scale_ppt.c \
     receivers/wfmrx.cpp
 
 HEADERS += \
@@ -117,15 +112,8 @@ HEADERS += \
     qtgui/dockrxopt.h \
     qtgui/dockiqplayer.h \
     qtgui/afsk1200win.h \
-    qtgui/bpsk1000win.h \
-    qtgui/arissattlm.h \
     receivers/receiver_base.h \
     receivers/nbrx.h \
-    tlm/arissat/ss_types_common.h \
-    tlm/arissat/ss_stdint.h \
-    tlm/arissat/scale_therm.h \
-    tlm/arissat/scale_psu.h \
-    tlm/arissat/scale_ppt.h \
     receivers/wfmrx.h
 
 FORMS += \
@@ -138,10 +126,7 @@ FORMS += \
     qtgui/dockaudio.ui \
     qtgui/dockfft.ui \
     qtgui/dockiqplayer.ui \
-    qtgui/afsk1200win.ui \
-    qtgui/bpsk1000win.ui \
-    qtgui/arissattlm.ui
-
+    qtgui/afsk1200win.ui
 
 # Use pulseaudio (ps: could use equals? undocumented)
 contains(AUDIO_BACKEND, pulse): {
