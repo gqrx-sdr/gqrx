@@ -139,10 +139,10 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
             ui->outDevCombo->setCurrentIndex(i+1);
     }
 #endif // WITH_PULSEAUDIO
-
 #elif defined(__APPLE__) && defined(__MACH__) // Works for X11 Qt on Mac OS X too
-    //QString indev = settings.value("input", "").toString();
-    //QString outdev = settings.value("output", "").toString();
+    // Make output device selector editable
+    ui->outDevCombo->setEditable(true);
+
 #endif
 
     // Signals and slots
@@ -217,11 +217,9 @@ void CIoConfig::updateInputSampleRates(int rate)
     {
         if (rate > 0)
             ui->inSrCombo->addItem(QString("%1").arg(rate));
-        ui->inSrCombo->addItem("910000");
-        ui->inSrCombo->addItem("1024000");
-        ui->inSrCombo->addItem("1200000");
-        ui->inSrCombo->addItem("1600000");
-        ui->inSrCombo->addItem("2048000");
+        ui->inSrCombo->addItem("1000000");
+        ui->inSrCombo->addItem("1500000");
+        ui->inSrCombo->addItem("2000000");
         ui->inSrCombo->addItem("2400000");
         ui->inSrCombo->addItem("3000000");
     }
