@@ -271,6 +271,7 @@ bool MainWindow::loadConfig(const QString cfgfile)
 
     d_lnb_lo = m_settings->value("input/lnb_lo", 0).toLongLong(&conv_ok);
     uiDockInputCtl->setLnbLo((double)d_lnb_lo/1.0e6);
+    updateFrequencyRange();
     ui->freqCtrl->SetFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&conv_ok));
     setNewFrequency(ui->freqCtrl->GetFrequency()); // ensure all GUI and RF is updated
 
@@ -354,6 +355,35 @@ void MainWindow::storeSession()
     }
 }
 
+/*! \brief Update RF frequency range.
+ *
+ * Useful when we read a new configuration with a new input device. This function will
+ * fetch the frequency range of the receiver and update the frequency control and frequency
+ * bar widgets.
+ *
+ * This function must also be called when the LNB LO has changed.
+ */
+void MainWindow::updateFrequencyRange()
+{
+    double startd, stopd, stepd;
+
+    if (rx->get_rf_range(&startd, &stopd, &stepd) == receiver::STATUS_OK)
+    {
+        qDebug() << QString("New frequnecy range: %1 - %2 MHz with %3 Hz step.").
+                    arg(startd*1.0e-6).arg(stopd*1.0e-6).arg(stepd);
+
+        qint64 start = (qint64)startd + d_lnb_lo;
+        qint64 stop  = (qint64)stopd  + d_lnb_lo;
+        int step     = stepd > 0.0 ? (int)stepd : 1;
+
+        ui->freqCtrl->Setup(10, start, stop, (int)step, UNITS_MHZ);
+    }
+    else
+    {
+        qDebug() << __func__ << "failed fetching new frequency range";
+    }
+}
+
 /*! \brief Slot for receiving frequency change signals.
  *  \param[in] freq The new frequency.
  *
@@ -383,7 +413,8 @@ void MainWindow::setLnbLo(double freq_mhz)
     d_lnb_lo = qint64(freq_mhz*1e6);
     qDebug() << "New LNB LO:" << d_lnb_lo << "Hz";
 
-    // Show updated frequency in display
+    // Update ranges and show updated frequency in display
+    updateFrequencyRange();
     ui->freqCtrl->SetFrequency(d_lnb_lo + rf_freq);
 }
 

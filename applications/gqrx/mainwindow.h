@@ -90,6 +90,9 @@ private:
 
     receiver *rx;
 
+private:
+    void updateFrequencyRange();
+
 private slots:
     /* rf */
     void setLnbLo(double freq_mhz);

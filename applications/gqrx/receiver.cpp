@@ -240,6 +240,30 @@ double receiver::get_rf_freq()
     return d_rf_freq;
 }
 
+/*! \brief Get the RF frequency range of the current input device.
+ *  \param start The lower limit of the range in Hz.
+ *  \param stop  The upper limit of the range in Hz.
+ *  \param step  The frequency step in Hz.
+ *  \returns STATUS_OK if the range could be retrieved, STATUS_ERROR if an error has occurred.
+ */
+receiver::status receiver::get_rf_range(double *start, double *stop, double *step)
+{
+    osmosdr::freq_range_t range;
+
+    range = src->get_freq_range();
+
+    if (range.start() < range.stop())
+    {
+        *start = range.start();
+        *stop  = range.stop();
+        *step  = range.step();  /** FIXME: got 0 for rtl-sdr? **/
+
+        return STATUS_OK;
+    }
+
+    return STATUS_ERROR;
+}
+
 /*! \brief Set RF gain.
  *  \param gain_rel The desired relative gain between 0.0 and 1.0 (use -1 for AGC where supported).
  *  \return RX_STATUS_ERROR if an error occurs, e.g. the gain is out of valid range.

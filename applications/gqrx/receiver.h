@@ -115,6 +115,7 @@ public:
 
     status set_rf_freq(double freq_hz);
     double get_rf_freq();
+    status get_rf_range(double *start, double *stop, double *step);
 
     status set_rf_gain(double gain_rel);
 

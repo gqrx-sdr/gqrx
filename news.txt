@@ -3,6 +3,7 @@
        NEW: I/Q swapping option.
        NEW: Save and restore FFT settings.
      FIXED: Removed graphics redraw delay when changing frequency or demodulator.
+     FIXED: Respect RF frequency range of input device.
   IMPROVED: AGC settings moved to dialog window.
   IMPROVED: Increase LO resolution to 1 Hz.
 
