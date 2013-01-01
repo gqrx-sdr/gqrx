@@ -252,13 +252,17 @@ receiver::status receiver::get_rf_range(double *start, double *stop, double *ste
 
     range = src->get_freq_range();
 
-    if (range.start() < range.stop())
+    // currently range is empty for all but E4000
+    if (!range.empty())
     {
-        *start = range.start();
-        *stop  = range.stop();
-        *step  = range.step();  /** FIXME: got 0 for rtl-sdr? **/
+        if (range.start() < range.stop())
+        {
+            *start = range.start();
+            *stop  = range.stop();
+            *step  = range.step();  /** FIXME: got 0 for rtl-sdr? **/
 
-        return STATUS_OK;
+            return STATUS_OK;
+        }
     }
 
     return STATUS_ERROR;
