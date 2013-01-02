@@ -369,14 +369,13 @@ void MainWindow::updateFrequencyRange()
 
     if (rx->get_rf_range(&startd, &stopd, &stepd) == receiver::STATUS_OK)
     {
-        qDebug() << QString("New frequnecy range: %1 - %2 MHz with %3 Hz step.").
+        qDebug() << QString("New frequnecy range: %1 - %2 MHz (step is %3 Hz but we use 1 Hz).").
                     arg(startd*1.0e-6).arg(stopd*1.0e-6).arg(stepd);
 
         qint64 start = (qint64)startd + d_lnb_lo;
         qint64 stop  = (qint64)stopd  + d_lnb_lo;
-        int step     = stepd > 0.0 ? (int)stepd : 1;
 
-        ui->freqCtrl->Setup(10, start, stop, (int)step, UNITS_MHZ);
+        ui->freqCtrl->Setup(10, start, stop, 1, UNITS_MHZ);
     }
     else
     {
