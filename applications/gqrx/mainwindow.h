@@ -91,7 +91,7 @@ private:
     receiver *rx;
 
 private:
-    void updateFrequencyRange();
+    void updateFrequencyRange(bool ignore_limits);
 
 private slots:
     /* rf */
@@ -102,6 +102,7 @@ private slots:
     void setRfGain(double gain);
     void setFreqCorr(int ppm);
     void setIqSwap(bool reversed);
+    void setIgnoreLimits(bool ignore_limits);
     void setDcCorr(double dci, double dcq);
     void setIqCorr(double gain, double phase);
     void selectDemod(int index);

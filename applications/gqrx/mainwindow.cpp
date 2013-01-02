@@ -128,6 +128,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     connect(uiDockInputCtl, SIGNAL(gainChanged(double)), SLOT(setRfGain(double)));
     connect(uiDockInputCtl, SIGNAL(freqCorrChanged(int)), this, SLOT(setFreqCorr(int)));
     connect(uiDockInputCtl, SIGNAL(iqSwapChanged(bool)), this, SLOT(setIqSwap(bool)));
+    connect(uiDockInputCtl, SIGNAL(ignoreLimitsChanged(bool)), this, SLOT(setIgnoreLimits(bool)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
@@ -271,7 +272,10 @@ bool MainWindow::loadConfig(const QString cfgfile)
 
     d_lnb_lo = m_settings->value("input/lnb_lo", 0).toLongLong(&conv_ok);
     uiDockInputCtl->setLnbLo((double)d_lnb_lo/1.0e6);
-    updateFrequencyRange();
+
+    bool ignore_limits = m_settings->value("input/ignore_limits", false).toBool();
+    uiDockInputCtl->setIgnoreLimits(ignore_limits);
+    updateFrequencyRange(ignore_limits);
     ui->freqCtrl->SetFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&conv_ok));
     setNewFrequency(ui->freqCtrl->GetFrequency()); // ensure all GUI and RF is updated
 
@@ -350,12 +354,18 @@ void MainWindow::storeSession()
         else
             m_settings->remove("input/swap_iq");
 
+        if (uiDockInputCtl->ignoreLimits())
+            m_settings->setValue("input/ignore_limits", true);
+        else
+            m_settings->remove("input/ignore_limits");
+
         // FFT settings
         uiDockFft->saveSettings(m_settings);
     }
 }
 
 /*! \brief Update RF frequency range.
+ *  \param ignore_limits Whether ignore the hardware specd and allow DC-to-light range.
  *
  * Useful when we read a new configuration with a new input device. This function will
  * fetch the frequency range of the receiver and update the frequency control and frequency
@@ -363,11 +373,15 @@ void MainWindow::storeSession()
  *
  * This function must also be called when the LNB LO has changed.
  */
-void MainWindow::updateFrequencyRange()
+void MainWindow::updateFrequencyRange(bool ignore_limits)
 {
     double startd, stopd, stepd;
 
-    if (rx->get_rf_range(&startd, &stopd, &stepd) == receiver::STATUS_OK)
+    if (ignore_limits)
+    {
+        ui->freqCtrl->Setup(10, (quint64) 0, (quint64) 9999e6, 1, UNITS_MHZ);
+    }
+    else if (rx->get_rf_range(&startd, &stopd, &stepd) == receiver::STATUS_OK)
     {
         qDebug() << QString("New frequnecy range: %1 - %2 MHz (step is %3 Hz but we use 1 Hz).").
                     arg(startd*1.0e-6).arg(stopd*1.0e-6).arg(stepd);
@@ -413,7 +427,7 @@ void MainWindow::setLnbLo(double freq_mhz)
     qDebug() << "New LNB LO:" << d_lnb_lo << "Hz";
 
     // Update ranges and show updated frequency in display
-    updateFrequencyRange();
+    updateFrequencyRange(uiDockInputCtl->ignoreLimits());
     ui->freqCtrl->SetFrequency(d_lnb_lo + rf_freq);
 }
 
@@ -452,6 +466,26 @@ void MainWindow::setFreqCorr(int ppm)
 void MainWindow::setIqSwap(bool reversed)
 {
     rx->set_iq_swap(reversed);
+}
+
+/*! \brief Ignore hardware limits.
+ *  \param ignore_limits Whether harware limits should be ignored or not.
+ *
+ * This slot is triggered when the user changes the "Ignore hardware limits" option.
+ * It will update the allowed frequency range and also update the current RF center
+ * frequency, which may change when we swich from ignore to don't ignore.
+ */
+void MainWindow::setIgnoreLimits(bool ignore_limits)
+{
+    updateFrequencyRange(ignore_limits);
+
+    qint64 freq = (qint64)rx->get_rf_freq();
+    ui->freqCtrl->SetFrequency(d_lnb_lo + freq);
+
+    // This will ensure that if frequency is clamped, the UI
+    // will be updated with the correct frequwncy.
+    freq = ui->freqCtrl->GetFrequency();
+    setNewFrequency(freq);
 }
 
 /*! \brief Set new DC offset values.
