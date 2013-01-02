@@ -106,6 +106,19 @@ bool DockInputCtl::iqSwap(void)
 }
 
 
+/*! \brief Enasble/disable ignoring hardware limits. */
+void DockInputCtl::setIgnoreLimits(bool reversed)
+{
+    ui->ignoreButton->setChecked(reversed);
+}
+
+/*! \brief Get current status of whether limits should be ignored or not. */
+bool DockInputCtl::ignoreLimits(void)
+{
+    return ui->ignoreButton->isChecked();
+}
+
+
 /*! \brief LNB LO value has changed. */
 void DockInputCtl::on_lnbSpinBox_valueChanged(double value)
 {
@@ -145,4 +158,14 @@ void DockInputCtl::on_freqCorrSpinBox_valueChanged(int value)
 void DockInputCtl::on_iqSwapButton_toggled(bool checked)
 {
     emit iqSwapChanged(checked);
+}
+
+/*! \brief Ignore hardware limits checkbox changed.
+ *  \param checked True if hardware limits should be ignored, false otherwise
+ *
+ * This option exists to allow experimenting with out-of-spec settings.
+ */
+void DockInputCtl::on_ignoreButton_toggled(bool checked)
+{
+    emit ignoreLimitsChanged(checked);
 }
