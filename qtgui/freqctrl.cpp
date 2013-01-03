@@ -254,7 +254,6 @@ void CFreqCtrl::SetFrequency(qint64 freq)
             m_LeadZeroPos = i;
         }
     }
-
     // When frequency is negative all non-zero digits that
     // have changed will have a negative sign. This loop will
     // change all digits back to positive, except the one at
@@ -686,7 +685,6 @@ void CFreqCtrl::DrawDigits(QPainter &Painter)
 {
     Painter.setFont(m_DigitFont);
     m_FirstEditableDigit = m_DigStart;
-    //qDebug() <<m_DigStart <<m_LeadZeroPos;
 
     for (int i = m_DigStart; i < m_NumDigits; i++)
     {
