@@ -28,7 +28,7 @@
 #include <boost/circular_buffer.hpp>
 
 
-#define MAX_FFT_SIZE 20480
+#define MAX_FFT_SIZE 32768
 
 class rx_fft_c;
 class rx_fft_f;
