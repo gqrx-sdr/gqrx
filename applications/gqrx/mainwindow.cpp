@@ -51,8 +51,8 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     setWindowTitle(QString("Gqrx %1").arg(VERSION));
 
     /* frequency control widget */
-    ui->freqCtrl->Setup(10, (quint64) 0, (quint64) 9999e6, 1, UNITS_MHZ);
-    ui->freqCtrl->SetFrequency(144500000);
+    ui->freqCtrl->setup(10, (quint64) 0, (quint64) 9999e6, 1, UNITS_MHZ);
+    ui->freqCtrl->setFrequency(144500000);
 
     d_filter_shape = receiver::FILTER_SHAPE_NORMAL;
 
@@ -123,7 +123,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     ui->menu_View->addAction(ui->actionFullScreen);
 
     /* connect signals and slots */
-    connect(ui->freqCtrl, SIGNAL(NewFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
+    connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
     connect(uiDockInputCtl, SIGNAL(gainChanged(double)), SLOT(setRfGain(double)));
     connect(uiDockInputCtl, SIGNAL(freqCorrChanged(int)), this, SLOT(setFreqCorr(int)));
@@ -276,8 +276,8 @@ bool MainWindow::loadConfig(const QString cfgfile)
     bool ignore_limits = m_settings->value("input/ignore_limits", false).toBool();
     uiDockInputCtl->setIgnoreLimits(ignore_limits);
     updateFrequencyRange(ignore_limits);
-    ui->freqCtrl->SetFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&conv_ok));
-    setNewFrequency(ui->freqCtrl->GetFrequency()); // ensure all GUI and RF is updated
+    ui->freqCtrl->setFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&conv_ok));
+    setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
 
     uiDockInputCtl->setGain(m_settings->value("input/gain", 0.5).toDouble(&conv_ok));
     setRfGain(m_settings->value("input/gain", 0.5).toDouble(&conv_ok));
@@ -335,7 +335,7 @@ void MainWindow::storeSession()
 {
     if (m_settings)
     {
-        m_settings->setValue("input/frequency", ui->freqCtrl->GetFrequency());
+        m_settings->setValue("input/frequency", ui->freqCtrl->getFrequency());
         if (d_lnb_lo)
             m_settings->setValue("input/lnb_lo", d_lnb_lo);
         else
@@ -379,7 +379,7 @@ void MainWindow::updateFrequencyRange(bool ignore_limits)
 
     if (ignore_limits)
     {
-        ui->freqCtrl->Setup(10, (quint64) 0, (quint64) 9999e6, 1, UNITS_MHZ);
+        ui->freqCtrl->setup(10, (quint64) 0, (quint64) 9999e6, 1, UNITS_MHZ);
     }
     else if (rx->get_rf_range(&startd, &stopd, &stepd) == receiver::STATUS_OK)
     {
@@ -389,7 +389,7 @@ void MainWindow::updateFrequencyRange(bool ignore_limits)
         qint64 start = (qint64)startd + d_lnb_lo;
         qint64 stop  = (qint64)stopd  + d_lnb_lo;
 
-        ui->freqCtrl->Setup(10, start, stop, 1, UNITS_MHZ);
+        ui->freqCtrl->setup(10, start, stop, 1, UNITS_MHZ);
     }
     else
     {
@@ -400,7 +400,7 @@ void MainWindow::updateFrequencyRange(bool ignore_limits)
 /*! \brief Slot for receiving frequency change signals.
  *  \param[in] freq The new frequency.
  *
- * This slot is connected to the CFreqCtrl::NewFrequency() signal and is used
+ * This slot is connected to the CFreqCtrl::newFrequency() signal and is used
  * to set new RF frequency.
  */
 void MainWindow::setNewFrequency(qint64 freq)
@@ -421,14 +421,14 @@ void MainWindow::setNewFrequency(qint64 freq)
 void MainWindow::setLnbLo(double freq_mhz)
 {
     // calculate current RF frequency
-    qint64 rf_freq = ui->freqCtrl->GetFrequency() - d_lnb_lo;
+    qint64 rf_freq = ui->freqCtrl->getFrequency() - d_lnb_lo;
 
     d_lnb_lo = qint64(freq_mhz*1e6);
     qDebug() << "New LNB LO:" << d_lnb_lo << "Hz";
 
     // Update ranges and show updated frequency in display
     updateFrequencyRange(uiDockInputCtl->ignoreLimits());
-    ui->freqCtrl->SetFrequency(d_lnb_lo + rf_freq);
+    ui->freqCtrl->setFrequency(d_lnb_lo + rf_freq);
 }
 
 /*! \brief Set new channel filter offset.
@@ -480,11 +480,11 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
     updateFrequencyRange(ignore_limits);
 
     qint64 freq = (qint64)rx->get_rf_freq();
-    ui->freqCtrl->SetFrequency(d_lnb_lo + freq);
+    ui->freqCtrl->setFrequency(d_lnb_lo + freq);
 
     // This will ensure that if frequency is clamped, the UI
     // will be updated with the correct frequwncy.
-    freq = ui->freqCtrl->GetFrequency();
+    freq = ui->freqCtrl->getFrequency();
     setNewFrequency(freq);
 }
 
@@ -1329,7 +1329,7 @@ void MainWindow::on_plotter_newFilterFreq(int low, int high)
 void MainWindow::on_plotter_newCenterFreq(qint64 f)
 {
     rx->set_rf_freq(f);
-    ui->freqCtrl->SetFrequency(f);
+    ui->freqCtrl->setFrequency(f);
 }
 
 /*! \brief Full screen button or menu item toggled. */

@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,8 +31,8 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->filterFreq->Setup(7, -filterOffsetRange/2, filterOffsetRange/2, 1, UNITS_KHZ);
-    ui->filterFreq->SetFrequency(0);
+    ui->filterFreq->setup(7, -filterOffsetRange/2, filterOffsetRange/2, 1, UNITS_KHZ);
+    ui->filterFreq->setFrequency(0);
 
     /* demodulator options dialog */
     demodOpt = new CDemodOptions(this);
@@ -61,7 +61,7 @@ DockRxOpt::~DockRxOpt()
  */
 void DockRxOpt::setFilterOffset(qint64 freq_hz)
 {
-    ui->filterFreq->SetFrequency(freq_hz);
+    ui->filterFreq->setFrequency(freq_hz);
     updateRxFreq();
 }
 
@@ -71,7 +71,7 @@ void DockRxOpt::setFilterOffset(qint64 freq_hz)
 void DockRxOpt::setFilterOffsetRange(qint64 range_hz)
 {
     if (range_hz > 0)
-        ui->filterFreq->Setup(7, -range_hz/2, range_hz/2, 1, UNITS_KHZ);
+        ui->filterFreq->setup(7, -range_hz/2, range_hz/2, 1, UNITS_KHZ);
 }
 
 /*! \brief Set new RF frequency
@@ -91,7 +91,7 @@ void DockRxOpt::setRfFreq(qint64 freq_hz)
 /*! \brief Update RX frequency label. */
 void DockRxOpt::updateRxFreq()
 {
-    double rx_freq_mhz = (rf_freq_hz + ui->filterFreq->GetFrequency()) / 1.0e6;
+    double rx_freq_mhz = (rf_freq_hz + ui->filterFreq->getFrequency()) / 1.0e6;
     ui->rxFreq->setText(QString("%1 MHz").arg(rx_freq_mhz, 11, 'f', 6, ' '));
 }
 
@@ -161,7 +161,7 @@ float DockRxOpt::currentMaxdev()
  * This slot is activated when a new filter offset has been selected either
  * usig the mouse or using the keyboard.
  */
-void DockRxOpt::on_filterFreq_NewFrequency(qint64 freq)
+void DockRxOpt::on_filterFreq_newFrequency(qint64 freq)
 {
     qDebug() << "New filter offset:" << freq << "Hz";
     updateRxFreq();

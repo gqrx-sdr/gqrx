@@ -67,7 +67,7 @@ CFreqCtrl::CFreqCtrl(QWidget *parent) :
     m_HighlightColor = QColor(0x5A, 0x5A, 0x5A, 0xFF);
     m_UnitsColor = Qt::gray;
     m_freq = 146123456;
-    Setup(10, 1, 4000000000U, 1, UNITS_MHZ);
+    setup(10, 1, 4000000000U, 1, UNITS_MHZ);
     m_Oldfreq = 0;
     m_LastLeadZeroPos = 0;
     m_LRMouseFreqSel = FALSE;
@@ -97,7 +97,7 @@ QSize CFreqCtrl::sizeHint() const
 /////////////////////////////////////////////////////////////////////
 //  Various helper functions
 /////////////////////////////////////////////////////////////////////
-bool CFreqCtrl::InRect(QRect &rect, QPoint &point)
+bool CFreqCtrl::inRect(QRect &rect, QPoint &point)
 {
     if ((point.x() < rect.right()) && (point.x() > rect.x()) &&
         (point.y() < rect.bottom()) && (point.y() > rect.y()))
@@ -109,7 +109,7 @@ bool CFreqCtrl::InRect(QRect &rect, QPoint &point)
 //////////////////////////////////////////////////////////////////////////////
 //  Setup various parameters for the control
 //////////////////////////////////////////////////////////////////////////////
-void CFreqCtrl::Setup(int NumDigits, qint64 Minf, qint64 Maxf,int MinStep, FUNITS UnitsType)
+void CFreqCtrl::setup(int NumDigits, qint64 Minf, qint64 Maxf,int MinStep, FUNITS UnitsType)
 {
     int i;
     qint64 pwr = 1;
@@ -219,7 +219,7 @@ void CFreqCtrl::Setup(int NumDigits, qint64 Minf, qint64 Maxf,int MinStep, FUNIT
 //////////////////////////////////////////////////////////////////////////////
 //  Sets the frequency and individual digit values
 //////////////////////////////////////////////////////////////////////////////
-void CFreqCtrl::SetFrequency(qint64 freq)
+void CFreqCtrl::setFrequency(qint64 freq)
 {
     int i;
     qint64 acc = 0;
@@ -273,27 +273,27 @@ void CFreqCtrl::SetFrequency(qint64 freq)
 
     // signal the new frequency to world
     m_Oldfreq = m_freq;
-    emit NewFrequency(m_freq);
-    UpdateCtrl(m_LastLeadZeroPos != m_LeadZeroPos);
+    emit newFrequency(m_freq);
+    updateCtrl(m_LastLeadZeroPos != m_LeadZeroPos);
     m_LastLeadZeroPos = m_LeadZeroPos;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 //  Sets the Digit and comma and decimal pt color
 //////////////////////////////////////////////////////////////////////////////
-void CFreqCtrl::SetDigitColor(QColor cr)
+void CFreqCtrl::setDigitColor(QColor cr)
 {
     m_UpdateAll = TRUE;
     m_DigitColor = cr;
     for(int i=m_DigStart; i<m_NumDigits; i++)
         m_DigitInfo[i].modified = TRUE;
-    UpdateCtrl(TRUE);
+    updateCtrl(TRUE);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 //  Sets the Digit units
 //////////////////////////////////////////////////////////////////////////////
-void CFreqCtrl::SetUnits(FUNITS units)
+void CFreqCtrl::setUnits(FUNITS units)
 {
     switch(units)
     {
@@ -331,13 +331,13 @@ void CFreqCtrl::SetUnits(FUNITS units)
             break;
     }
     m_UpdateAll = TRUE;
-    UpdateCtrl(TRUE);
+    updateCtrl(TRUE);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 //  Sets the Background color
 //////////////////////////////////////////////////////////////////////////////
-void CFreqCtrl::SetBkColor(QColor cr)
+void CFreqCtrl::setBkColor(QColor cr)
 {
     m_UpdateAll = TRUE;
     m_BkColor = cr;
@@ -345,34 +345,34 @@ void CFreqCtrl::SetBkColor(QColor cr)
     for (int i = m_DigStart; i < m_NumDigits; i++)
         m_DigitInfo[i].modified = TRUE;
 
-    UpdateCtrl(TRUE);
+    updateCtrl(TRUE);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 //  Sets the Units text color
 //////////////////////////////////////////////////////////////////////////////
-void CFreqCtrl::SetUnitsColor(QColor cr)
+void CFreqCtrl::setUnitsColor(QColor cr)
 {
     m_UpdateAll = TRUE;
     m_UnitsColor = cr;
-    UpdateCtrl(TRUE);
+    updateCtrl(TRUE);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 //  Sets the Mouse edit selection text background color
 //////////////////////////////////////////////////////////////////////////////
-void CFreqCtrl::SetHighlightColor(QColor cr)
+void CFreqCtrl::setHighlightColor(QColor cr)
 {
     m_UpdateAll = TRUE;
     m_HighlightColor = cr;
-    UpdateCtrl(TRUE);
+    updateCtrl(TRUE);
 }
 
 
 //////////////////////////////////////////////////////////////////////////////
 //  call to force control to redraw
 //////////////////////////////////////////////////////////////////////////////
-void CFreqCtrl::UpdateCtrl(bool all)
+void CFreqCtrl::updateCtrl(bool all)
 {
     if (all)
     {
@@ -404,7 +404,7 @@ void CFreqCtrl::leaveEvent( QEvent *  )
             m_DigitInfo[m_ActiveEditDigit].editmode = FALSE;
             m_DigitInfo[m_ActiveEditDigit].modified = TRUE;
             m_ActiveEditDigit = -1;
-            UpdateCtrl(FALSE);
+            updateCtrl(FALSE);
         }
     }
 }
@@ -418,11 +418,11 @@ void CFreqCtrl::paintEvent(QPaintEvent *)
 
     if (m_UpdateAll) //if need to redraw everything
     {
-        DrawBkGround(painter);
+        drawBkGround(painter);
         m_UpdateAll = FALSE;
     }
     // draw any modified digits to the m_MemDC
-    DrawDigits(painter);
+    drawDigits(painter);
     //now draw pixmap onto screen
     QPainter scrnpainter(this);
     scrnpainter.drawPixmap(0,0,m_Pixmap);   //blt to the screen(flickers like a candle, why?)
@@ -442,7 +442,7 @@ QPoint pt = event->pos();
 
         for (int i = m_DigStart; i < m_NumDigits; i++)
         {
-            if (InRect(m_DigitInfo[i].dQRect, pt))
+            if (inRect(m_DigitInfo[i].dQRect, pt))
             {
                 if (!m_DigitInfo[i].editmode)
                 {
@@ -460,7 +460,7 @@ QPoint pt = event->pos();
             }
         }
 
-        UpdateCtrl(FALSE);
+        updateCtrl(FALSE);
     }
 }
 
@@ -474,18 +474,18 @@ void CFreqCtrl::mousePressEvent(QMouseEvent * event)
     {
         for (int i = m_DigStart; i < m_NumDigits; i++)
         {
-            if (InRect(m_DigitInfo[i].dQRect, pt))    //if in i'th digit
+            if (inRect(m_DigitInfo[i].dQRect, pt))    //if in i'th digit
             {
                 if (m_LRMouseFreqSel)
                 {
-                    IncFreq();
+                    incFreq();
                 }
                 else
                 {
                     if (pt.y() < m_DigitInfo[i].dQRect.bottom()/2)   //top half?
-                        IncFreq();
+                        incFreq();
                     else
-                        DecFreq();          //bottom half
+                        decFreq();          //bottom half
                 }
             }
         }
@@ -494,18 +494,18 @@ void CFreqCtrl::mousePressEvent(QMouseEvent * event)
     {
         for (int i = m_DigStart; i < m_NumDigits; i++)
         {
-            if (InRect(m_DigitInfo[i].dQRect, pt))    //if in i'th digit
+            if (inRect(m_DigitInfo[i].dQRect, pt))    //if in i'th digit
             {
                 if (m_LRMouseFreqSel)
                 {
-                    DecFreq();
+                    decFreq();
                 }
                 else
                 {
                     if (pt.y() < m_DigitInfo[i].dQRect.bottom()/2)   //top half?
-                        IncFreq();//IncDigit();
+                        incFreq();//IncDigit();
                     else
-                        DecFreq();//DecDigit();         //botom half
+                        decFreq();//DecDigit();         //botom half
                 }
             }
         }
@@ -523,12 +523,12 @@ void CFreqCtrl::wheelEvent(QWheelEvent * event)
 
     for (int i = m_DigStart; i < m_NumDigits; i++)
     {
-        if (InRect(m_DigitInfo[i].dQRect, pt))    //if in i'th digit
+        if (inRect(m_DigitInfo[i].dQRect, pt))    //if in i'th digit
         {
             if (numSteps > 0)
-                IncFreq();
+                incFreq();
             else if (numSteps < 0)
-                DecFreq();
+                decFreq();
         }
     }
 }
@@ -564,46 +564,46 @@ void CFreqCtrl::keyPressEvent( QKeyEvent * event )
                     tmp = (m_freq/m_DigitInfo[m_ActiveEditDigit].weight) % 10;
                     m_freq -= tmp*m_DigitInfo[m_ActiveEditDigit].weight;
                     m_freq = m_freq+(event->key()-'0')*m_DigitInfo[m_ActiveEditDigit].weight;
-                    SetFrequency(m_freq);
+                    setFrequency(m_freq);
                 }
             }
-            MoveCursorRight();
+            moveCursorRight();
             fSkipMsg = TRUE;
             break;
         case Qt::Key_Left:
             if (m_ActiveEditDigit != -1)
             {
-                MoveCursorLeft();
+                moveCursorLeft();
                 fSkipMsg = TRUE;
             }
             break;
         case Qt::Key_Up:
             if (m_ActiveEditDigit != -1)
             {
-                IncFreq();
+                incFreq();
                 fSkipMsg = TRUE;
             }
             break;
         case Qt::Key_Down:
             if (m_ActiveEditDigit != -1)
             {
-                DecFreq();
+                decFreq();
                 fSkipMsg = TRUE;
             }
             break;
         case Qt::Key_Right:
             if (m_ActiveEditDigit != -1)
             {
-                MoveCursorRight();
+                moveCursorRight();
                 fSkipMsg = TRUE;
             }
             break;
         case Qt::Key_Home:
-            CursorHome();
+            cursorHome();
             fSkipMsg = TRUE;
             break;
         case Qt::Key_End:
-            CursorEnd();
+            cursorEnd();
             fSkipMsg = TRUE;
             break;
         default:
@@ -618,7 +618,7 @@ void CFreqCtrl::keyPressEvent( QKeyEvent * event )
 //  Calculates all the rectangles for the digits, separators, and units text
 //    and creates the fonts for them.
 //////////////////////////////////////////////////////////////////////////////
-void CFreqCtrl::DrawBkGround(QPainter &Painter)
+void CFreqCtrl::drawBkGround(QPainter &Painter)
 {
     QRect rect(0, 0, width(), height());
 
@@ -681,7 +681,7 @@ void CFreqCtrl::DrawBkGround(QPainter &Painter)
 //////////////////////////////////////////////////////////////////////////////
 //  Draws just the Digits that have been modified
 //////////////////////////////////////////////////////////////////////////////
-void CFreqCtrl::DrawDigits(QPainter &Painter)
+void CFreqCtrl::drawDigits(QPainter &Painter)
 {
     Painter.setFont(m_DigitFont);
     m_FirstEditableDigit = m_DigStart;
@@ -724,7 +724,7 @@ void CFreqCtrl::DrawDigits(QPainter &Painter)
 //////////////////////////////////////////////////////////////////////////////
 //  Increment just the digit active in edit mode
 //////////////////////////////////////////////////////////////////////////////
-void CFreqCtrl::IncDigit()
+void CFreqCtrl::incDigit()
 {
     /** FIXME: no longer used? */
     int tmp;
@@ -755,7 +755,7 @@ void CFreqCtrl::IncDigit()
                 }
                 m_freq = tmpl;
             }
-            SetFrequency(m_freq);
+            setFrequency(m_freq);
         }
     }
 }
@@ -763,7 +763,7 @@ void CFreqCtrl::IncDigit()
 //////////////////////////////////////////////////////////////////////////////
 //  Increment the frequency by this digit active in edit mode
 //////////////////////////////////////////////////////////////////////////////
-void CFreqCtrl::IncFreq()
+void CFreqCtrl::incFreq()
 {
     if (m_ActiveEditDigit >= 0)
     {
@@ -774,7 +774,7 @@ void CFreqCtrl::IncFreq()
                 /* Set digits below the active one to 0 */
                 m_freq = m_freq - m_freq%m_DigitInfo[m_ActiveEditDigit].weight;
             }
-            SetFrequency(m_freq);
+            setFrequency(m_freq);
             m_LastEditDigit = m_ActiveEditDigit;
         }
     }
@@ -783,7 +783,7 @@ void CFreqCtrl::IncFreq()
 //////////////////////////////////////////////////////////////////////////////
 //  Decrement the digit active in edit mode
 //////////////////////////////////////////////////////////////////////////////
-void CFreqCtrl::DecDigit()
+void CFreqCtrl::decDigit()
 {
     /** FIXME: no longer used? */
     int tmp;
@@ -814,26 +814,27 @@ void CFreqCtrl::DecDigit()
                 }
                 m_freq = tmpl;
             }
-            SetFrequency(m_freq);
+            setFrequency(m_freq);
         }
     }
 }
 //////////////////////////////////////////////////////////////////////////////
 //  Decrement the frequency by this digit active in edit mode
 //////////////////////////////////////////////////////////////////////////////
-void CFreqCtrl::DecFreq()
+void CFreqCtrl::decFreq()
 {
     if (m_ActiveEditDigit >= 0)
     {
         if (m_DigitInfo[m_ActiveEditDigit].editmode)
         {
             m_freq -= m_DigitInfo[m_ActiveEditDigit].incval;
-            if (m_ResetLowerDigits) {
+            if (m_ResetLowerDigits)
+            {
                 /* digits below the active one are reset to 0 */
                 m_freq = m_freq - m_freq%m_DigitInfo[m_ActiveEditDigit].weight;
             }
 
-            SetFrequency(m_freq);
+            setFrequency(m_freq);
             m_LastEditDigit = m_ActiveEditDigit;
         }
     }
@@ -842,36 +843,32 @@ void CFreqCtrl::DecFreq()
 /////////////////////////////////////////////////////////////////////
 //  Cursor move routines for arrow key editing
 /////////////////////////////////////////////////////////////////////
-void CFreqCtrl::MoveCursorLeft()
+void CFreqCtrl::moveCursorLeft()
 {
-    QPoint pt;
-    if ((m_ActiveEditDigit >= 0) && (m_ActiveEditDigit < m_NumDigits-1) )
+    if ((m_ActiveEditDigit >= 0) && (m_ActiveEditDigit < m_NumDigits-1))
     {
         cursor().setPos(mapToGlobal(m_DigitInfo[++m_ActiveEditDigit].dQRect.center()));
     }
 }
 
-void CFreqCtrl::MoveCursorRight()
+void CFreqCtrl::moveCursorRight()
 {
-    QPoint pt;
     if (m_ActiveEditDigit > m_FirstEditableDigit)
     {
-        cursor().setPos( mapToGlobal(m_DigitInfo[--m_ActiveEditDigit].dQRect.center()));
+        cursor().setPos(mapToGlobal(m_DigitInfo[--m_ActiveEditDigit].dQRect.center()));
     }
 }
 
-void CFreqCtrl::CursorHome()
+void CFreqCtrl::cursorHome()
 {
-    QPoint pt;
     if (m_ActiveEditDigit >= 0)
     {
         cursor().setPos(mapToGlobal( m_DigitInfo[m_NumDigits-1].dQRect.center()));
     }
 }
 
-void CFreqCtrl::CursorEnd()
+void CFreqCtrl::cursorEnd()
 {
-    QPoint pt;
     if (m_ActiveEditDigit > 0)
     {
         cursor().setPos(mapToGlobal(m_DigitInfo[m_FirstEditableDigit].dQRect.center()));
