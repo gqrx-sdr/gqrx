@@ -22,52 +22,52 @@ public:
 
     //void SetSdrInterface(CSdrInterface* ptr){m_pSdrInterface = ptr;}
     void draw();		//call to draw new fft data onto screen plot
-    void SetRunningState(bool running) { m_Running = running; }
-    void SetClickResolution(int clickres) { m_ClickResolution = clickres; }
-    void SetFilterClickResolution(int clickres) { m_FilterClickResolution = clickres; }
-    void SetFilterBoxEnabled(bool enabled) { m_FilterBoxEnabled = enabled; }
-    void SetCenterLineEnabled(bool enabled) { m_CenterLineEnabled = enabled; }
-    void SetPercent2DScreen(int percent)
+    void setRunningState(bool running) { m_Running = running; }
+    void setClickResolution(int clickres) { m_ClickResolution = clickres; }
+    void setFilterClickResolution(int clickres) { m_FilterClickResolution = clickres; }
+    void setFilterBoxEnabled(bool enabled) { m_FilterBoxEnabled = enabled; }
+    void setCenterLineEnabled(bool enabled) { m_CenterLineEnabled = enabled; }
+    void setPercent2DScreen(int percent)
     {
         m_Percent2DScreen = percent;
         m_Size = QSize(0,0);
         resizeEvent(NULL);
     }
 
-    void SetNewFttData(double *fftData, int size);
+    void setNewFttData(double *fftData, int size);
 
-    void SetCenterFreq(quint64 f);
-    void SetFreqUnits(qint32 unit) { m_FreqUnits = unit; }
+    void setCenterFreq(quint64 f);
+    void setFreqUnits(qint32 unit) { m_FreqUnits = unit; }
 
-    void SetDemodCenterFreq(quint64 f) { m_DemodCenterFreq = f; }
+    void setDemodCenterFreq(quint64 f) { m_DemodCenterFreq = f; }
 
     /*! \brief Move the filter to freq_hz from center. */
-    void SetFilterOffset(qint64 freq_hz)
+    void setFilterOffset(qint64 freq_hz)
     {
         m_DemodCenterFreq = m_CenterFreq + freq_hz;
-        DrawOverlay();
+        drawOverlay();
     }
-    qint64 GetFilterOffset(void)
+    qint64 getFilterOffset(void)
     {
         return m_DemodCenterFreq - m_CenterFreq;
     }
 
-    void SetHiLowCutFrequencies(int LowCut, int HiCut)
+    void setHiLowCutFrequencies(int LowCut, int HiCut)
     {
         m_DemodLowCutFreq = LowCut;
         m_DemodHiCutFreq = HiCut;
-        DrawOverlay();
+        drawOverlay();
     }
 
-    void SetDemodRanges(int FLowCmin, int FLowCmax, int FHiCmin, int FHiCmax, bool symetric);
+    void setDemodRanges(int FLowCmin, int FLowCmax, int FHiCmin, int FHiCmax, bool symetric);
 
     /* Shown bandwidth around SetCenterFreq() */
-    void SetSpanFreq(quint32 s)
+    void setSpanFreq(quint32 s)
     {
         m_Span = (qint32)s;
-        DrawOverlay();
+        drawOverlay();
     }
-    void UpdateOverlay() { DrawOverlay(); }
+    void updateOverlay() { drawOverlay(); }
 
     void setMaxDB(qint32 max);
     void setMinDB(qint32 min);
@@ -85,7 +85,7 @@ public:
         if (rate > 0.0)
         {
             m_SampleFreq = rate;
-            DrawOverlay();
+            drawOverlay();
         }
     }
 
@@ -94,14 +94,14 @@ public:
         return m_SampleFreq;
     }
 
-    void SetFftCenterFreq(qint64 f) { m_FftCenter = f; }
+    void setFftCenterFreq(qint64 f) { m_FftCenter = f; }
 
 signals:
-    void NewCenterFreq(qint64 f);
-    void NewDemodFreq(qint64 freq, qint64 delta); /* delta is the offset from the center */
-    void NewLowCutFreq(int f);
-    void NewHighCutFreq(int f);
-    void NewFilterFreq(int low, int high);  /* substute for NewLow / NewHigh */
+    void newCenterFreq(qint64 f);
+    void newDemodFreq(qint64 freq, qint64 delta); /* delta is the offset from the center */
+    void newLowCutFreq(int f);
+    void newHighCutFreq(int f);
+    void newFilterFreq(int low, int high);  /* substute for NewLow / NewHigh */
 
 public slots:
 
@@ -123,14 +123,14 @@ private:
         YAXIS,
         XAXIS
     };
-    void DrawOverlay();
-    void MakeFrequencyStrs();
-    int XfromFreq(qint64 freq);
-    qint64 FreqfromX(int x);
-    qint64 RoundFreq(qint64 freq, int resolution);
-    bool IsPointCloseTo(int x, int xr, int delta){return ((x > (xr-delta) ) && ( x<(xr+delta)) );}
-    void ClampDemodParameters();
-    void GetScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
+    void drawOverlay();
+    void makeFrequencyStrs();
+    int xFromFreq(qint64 freq);
+    qint64 freqFromX(int x);
+    qint64 roundFreq(qint64 freq, int resolution);
+    bool isPointCloseTo(int x, int xr, int delta){return ((x > (xr-delta) ) && ( x<(xr+delta)) );}
+    void clampDemodParameters();
+    void getScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
                                  double MaxdB, double MindB,
                                  qint32 StartFreq, qint32 StopFreq,
                                  qint32* OutBuf, qint32 *maxbin, qint32 *minbin);

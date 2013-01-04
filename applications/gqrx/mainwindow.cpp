@@ -260,7 +260,7 @@ bool MainWindow::loadConfig(const QString cfgfile)
         qDebug() << "Actual sample rate   :" << QString("%1").arg(actual_rate, 0, 'f', 6);
         uiDockRxOpt->setFilterOffsetRange((qint64)(0.9*actual_rate));
         ui->plotter->setSampleRate(actual_rate);
-        ui->plotter->SetSpanFreq((quint32)actual_rate);
+        ui->plotter->setSpanFreq((quint32)actual_rate);
     }
 
     /** FIXME: move to DockInputCtl **/
@@ -409,7 +409,7 @@ void MainWindow::setNewFrequency(qint64 freq)
     rx->set_rf_freq((double) (freq-d_lnb_lo));
 
     /* update pandapter */
-    ui->plotter->SetCenterFreq(freq);
+    ui->plotter->setCenterFreq(freq);
 
     /* update RX frequncy label in rxopts */
     uiDockRxOpt->setRfFreq(freq);
@@ -437,7 +437,7 @@ void MainWindow::setLnbLo(double freq_mhz)
 void MainWindow::setFilterOffset(qint64 freq_hz)
 {
     rx->set_filter_offset((double) freq_hz);
-    ui->plotter->SetFilterOffset(freq_hz);
+    ui->plotter->setFilterOffset(freq_hz);
 }
 
 /*! \brief Set RF gain.
@@ -550,7 +550,7 @@ void MainWindow::selectDemod(int index)
         /* AM */
     case DockRxOpt::MODE_AM:
         rx->set_demod(receiver::RX_DEMOD_AM);
-        ui->plotter->SetDemodRanges(-20000, -100, 100, 20000, true);
+        ui->plotter->setDemodRanges(-20000, -100, 100, 20000, true);
         uiDockAudio->setFftRange(0,15000);
         click_res = 100;
         switch (filter_preset)
@@ -577,7 +577,7 @@ void MainWindow::selectDemod(int index)
         maxdev = uiDockRxOpt->currentMaxdev();
         if (maxdev < 20000.0)
         {   /** FIXME **/
-            ui->plotter->SetDemodRanges(-25000, -100, 100, 25000, true);
+            ui->plotter->setDemodRanges(-25000, -100, 100, 25000, true);
             uiDockAudio->setFftRange(0,12000);
             switch (filter_preset) {
             case 0: //wide
@@ -596,7 +596,7 @@ void MainWindow::selectDemod(int index)
         }
         else
         {
-            ui->plotter->SetDemodRanges(-45000, -10000, 10000, 45000, true);
+            ui->plotter->setDemodRanges(-45000, -10000, 10000, 45000, true);
             uiDockAudio->setFftRange(0,24000);
             switch (filter_preset) {
             /** FIXME: not sure about these **/
@@ -621,11 +621,11 @@ void MainWindow::selectDemod(int index)
     case DockRxOpt::MODE_WFM_STEREO:
         quad_rate = rx->get_input_rate();
         if (quad_rate < 200.0e3)
-            ui->plotter->SetDemodRanges(-0.9*quad_rate/2.0, -10000,
+            ui->plotter->setDemodRanges(-0.9*quad_rate/2.0, -10000,
                                         10000, 0.9*quad_rate/2.0,
                                         true);
         else
-            ui->plotter->SetDemodRanges(-250000, -10000, 10000, 250000, true);
+            ui->plotter->setDemodRanges(-250000, -10000, 10000, 250000, true);
         uiDockAudio->setFftRange(0,24000);  /** FIXME: get audio rate from rx **/
         click_res = 1000;
         switch (filter_preset)
@@ -653,7 +653,7 @@ void MainWindow::selectDemod(int index)
         /* LSB */
     case DockRxOpt::MODE_LSB:
         rx->set_demod(receiver::RX_DEMOD_SSB);
-        ui->plotter->SetDemodRanges(-10000, -100, -5000, 0, false);
+        ui->plotter->setDemodRanges(-10000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,3500);
         click_res = 10;
         switch (filter_preset)
@@ -676,7 +676,7 @@ void MainWindow::selectDemod(int index)
         /* USB */
     case DockRxOpt::MODE_USB:
         rx->set_demod(receiver::RX_DEMOD_SSB);
-        ui->plotter->SetDemodRanges(0, 5000, 100, 10000, false);
+        ui->plotter->setDemodRanges(0, 5000, 100, 10000, false);
         uiDockAudio->setFftRange(0,3500);
         click_res = 10;
         switch (filter_preset)
@@ -699,7 +699,7 @@ void MainWindow::selectDemod(int index)
         /* CW-L */
     case DockRxOpt::MODE_CWL:
         rx->set_demod(receiver::RX_DEMOD_SSB);
-        ui->plotter->SetDemodRanges(-10000, -100, -5000, 0, false);
+        ui->plotter->setDemodRanges(-10000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,1500);
         click_res = 10;
         switch (filter_preset)
@@ -722,7 +722,7 @@ void MainWindow::selectDemod(int index)
         /* CW-U */
     case DockRxOpt::MODE_CWU:
         rx->set_demod(receiver::RX_DEMOD_SSB);
-        ui->plotter->SetDemodRanges(0, 5000, 100, 10000, false);
+        ui->plotter->setDemodRanges(0, 5000, 100, 10000, false);
         uiDockAudio->setFftRange(0,1500);
         click_res = 10;
         switch (filter_preset)
@@ -751,9 +751,9 @@ void MainWindow::selectDemod(int index)
     }
 
     qDebug() << "Filter preset for mode" << index << "LO:" << flo << "HI:" << fhi;
-    ui->plotter->SetHiLowCutFrequencies(flo, fhi);
-    ui->plotter->SetClickResolution(click_res);
-    ui->plotter->SetFilterClickResolution(click_res);
+    ui->plotter->setHiLowCutFrequencies(flo, fhi);
+    ui->plotter->setClickResolution(click_res);
+    ui->plotter->setFilterClickResolution(click_res);
     rx->set_filter((double)flo, (double)fhi, receiver::FILTER_SHAPE_NORMAL);
 }
 
@@ -771,14 +771,14 @@ void MainWindow::setFmMaxdev(float max_dev)
     /* update filter */
     if (max_dev < 20000.0)
     {
-        ui->plotter->SetDemodRanges(-25000, -1000, 1000, 25000, true);
-        ui->plotter->SetHiLowCutFrequencies(-5000, 5000);
+        ui->plotter->setDemodRanges(-25000, -1000, 1000, 25000, true);
+        ui->plotter->setHiLowCutFrequencies(-5000, 5000);
         rx->set_filter(-5000.0, 5000.0, receiver::FILTER_SHAPE_NORMAL);
     }
     else
     {
-        ui->plotter->SetDemodRanges(-45000, -10000, 10000, 45000, true);
-        ui->plotter->SetHiLowCutFrequencies(-35000, 35000);
+        ui->plotter->setDemodRanges(-45000, -10000, 10000, 45000, true);
+        ui->plotter->setHiLowCutFrequencies(-35000, 35000);
         rx->set_filter(-35000.0, 35000.0, receiver::FILTER_SHAPE_NORMAL);
     }
 }
@@ -943,7 +943,7 @@ void MainWindow::iqFftTimeout()
 */
     }
 
-    ui->plotter->SetNewFttData(d_realFftData, fftsize);
+    ui->plotter->setNewFttData(d_realFftData, fftsize);
 
     //qDebug() << "FFT size: " << fftsize;
     //qDebug() << "FFT[0]=" << d_realFftData[0] << "  FFT[MID]=" << d_realFftData[fftsize/2];
@@ -1127,7 +1127,7 @@ void MainWindow::setIqFftSplit(int pct_wf)
 {
     if ((pct_wf >= 20) && (pct_wf <= 80))
     {
-        ui->plotter->SetPercent2DScreen(pct_wf);
+        ui->plotter->setPercent2DScreen(pct_wf);
     }
 }
 
@@ -1304,7 +1304,7 @@ void MainWindow::on_actionIqRec_triggered(bool checked)
 }
 
 /* CPlotter::NewDemodFreq() is emitted */
-void MainWindow::on_plotter_NewDemodFreq(qint64 freq, qint64 delta)
+void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
 {
     // set RX filter
     rx->set_filter_offset((double) delta);
@@ -1315,7 +1315,7 @@ void MainWindow::on_plotter_NewDemodFreq(qint64 freq, qint64 delta)
 }
 
 /* CPlotter::NewfilterFreq() is emitted */
-void MainWindow::on_plotter_NewFilterFreq(int low, int high)
+void MainWindow::on_plotter_newFilterFreq(int low, int high)
 {
     receiver::status retcode;
 
@@ -1326,7 +1326,7 @@ void MainWindow::on_plotter_NewFilterFreq(int low, int high)
         uiDockRxOpt->setFilterParam(low, high);
 }
 
-void MainWindow::on_plotter_NewCenterFreq(qint64 f)
+void MainWindow::on_plotter_newCenterFreq(qint64 f)
 {
     rx->set_rf_freq(f);
     ui->freqCtrl->SetFrequency(f);

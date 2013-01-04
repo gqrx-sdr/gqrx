@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,15 +29,15 @@ DockAudio::DockAudio(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->audioSpectrum->SetPercent2DScreen(100);
-    ui->audioSpectrum->SetFreqUnits(1000);
+    ui->audioSpectrum->setPercent2DScreen(100);
+    ui->audioSpectrum->setFreqUnits(1000);
     ui->audioSpectrum->setSampleRate(48000);  // Full bandwidth
-    ui->audioSpectrum->SetSpanFreq(12000);
-    ui->audioSpectrum->SetCenterFreq(0);
-    ui->audioSpectrum->SetFftCenterFreq(6000);
-    ui->audioSpectrum->SetDemodCenterFreq(0);
-    ui->audioSpectrum->SetFilterBoxEnabled(false);
-    ui->audioSpectrum->SetCenterLineEnabled(false);
+    ui->audioSpectrum->setSpanFreq(12000);
+    ui->audioSpectrum->setCenterFreq(0);
+    ui->audioSpectrum->setFftCenterFreq(6000);
+    ui->audioSpectrum->setDemodCenterFreq(0);
+    ui->audioSpectrum->setFilterBoxEnabled(false);
+    ui->audioSpectrum->setCenterLineEnabled(false);
     ui->audioSpectrum->setMinMaxDB(-120, 0);
     ui->audioSpectrum->setFontSize(8);
     ui->audioSpectrum->setVdivDelta(20);
@@ -57,15 +57,15 @@ void DockAudio::setFftRange(quint64 minf, quint64 maxf)
         qint32 span = (qint32)(maxf - minf);
         quint64 fc = minf + (maxf - minf)/2;
 
-        ui->audioSpectrum->SetFftCenterFreq(fc);
-        ui->audioSpectrum->SetSpanFreq(span);
-        ui->audioSpectrum->SetCenterFreq(0);
+        ui->audioSpectrum->setFftCenterFreq(fc);
+        ui->audioSpectrum->setSpanFreq(span);
+        ui->audioSpectrum->setCenterFreq(0);
     }
 }
 
 void DockAudio::setNewFttData(double *fftData, int size)
 {
-    ui->audioSpectrum->SetNewFttData(fftData, size);
+    ui->audioSpectrum->setNewFttData(fftData, size);
 }
 
 /*! \brief Set new audio gain.

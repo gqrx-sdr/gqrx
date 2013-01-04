@@ -133,9 +133,9 @@ private slots:
     void setIqFftSplit(int pct_wf);
     void setAudioFftRate(int fps);
 
-    void on_plotter_NewDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
-    void on_plotter_NewFilterFreq(int low, int high);    /*! New filter width */
-    void on_plotter_NewCenterFreq(qint64 f);
+    void on_plotter_newDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
+    void on_plotter_newFilterFreq(int low, int high);    /*! New filter width */
+    void on_plotter_newCenterFreq(qint64 f);
 
     /* menu and toolbar actions */
     void on_actionDSP_triggered(bool checked);
