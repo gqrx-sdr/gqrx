@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>200</width>
-    <height>141</height>
+    <width>214</width>
+    <height>224</height>
    </rect>
   </property>
   <property name="windowIcon">
@@ -49,7 +49,7 @@
        <number>10</number>
       </property>
       <item row="0" column="0">
-       <widget class="QLabel" name="fftsizeLabel">
+       <widget class="QLabel" name="fftSizeLabel">
         <property name="text">
          <string>FFT size:</string>
         </property>
@@ -63,8 +63,15 @@
         <property name="enabled">
          <bool>true</bool>
         </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="toolTip">
-         <string>Number of FFT points to calculate. Higher values will require more CPU time. This will not influence the number of points on the display since that parameter is adjusted automatically according to the display size.</string>
+         <string>&lt;html&gt;Number of FFT points to calculate. Higher values will require more CPU time. This will not influence the number of points on the display since that parameter is adjusted automatically according to the display size.
+&lt;/html&gt;</string>
         </property>
         <property name="editable">
          <bool>false</bool>
@@ -131,6 +138,15 @@
       </item>
       <item row="1" column="1">
        <widget class="QComboBox" name="fftRateComboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>FFT refresh rate.</string>
+        </property>
         <property name="currentIndex">
          <number>5</number>
         </property>
@@ -174,6 +190,69 @@
           <string>1 fps</string>
          </property>
         </item>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="fftFilterTypeLabel">
+        <property name="text">
+         <string>Filter type:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="fftFilterTypeCombo">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>FIXME: Add tooltip</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Non-linear</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Linear gain</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Fixed gain</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>None</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="fftFilterGainLabel">
+        <property name="text">
+         <string>Filter gain:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QSlider" name="fftFilterGainSlider">
+        <property name="toolTip">
+         <string>FIXME: Add tooltip</string>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="value">
+         <number>50</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
        </widget>
       </item>
      </layout>

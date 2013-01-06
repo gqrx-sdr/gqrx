@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011-2012 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -209,4 +209,18 @@ void DockFft::on_fftRateComboBox_currentIndexChanged(const QString & text)
 void DockFft::on_fftSplitSlider_valueChanged(int value)
 {
     emit fftSplitChanged(value);
+}
+
+/*! \brief FFT filter type has changed. */
+void DockFft::on_fftFilterTypeCombo_currentIndexChanged(int index)
+{
+    emit fftFilterTypeChanged(index);
+}
+
+/*! \brief FFT filter gain changed. */
+void DockFft::on_fftFilterGainSlider_valueChanged(int value)
+{
+    double gain = 1.0e-2*((double)value);
+
+    emit fftFilterGainChanged(gain);
 }

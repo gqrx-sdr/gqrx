@@ -37,6 +37,8 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     configOk(true),
     ui(new Ui::MainWindow),
     d_lnb_lo(0),
+    d_fftFilterType(0),
+    d_fftFilterGain(0.5),
     dec_afsk1200(0)
 {
     ui->setupUi(this);
@@ -73,6 +75,10 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
 
     d_fftData = new std::complex<float>[MAX_FFT_SIZE];
     d_realFftData = new double[MAX_FFT_SIZE];
+    d_pwrFftData = new double[MAX_FFT_SIZE]();
+    d_iirFftData = new double[MAX_FFT_SIZE];
+    for (int i = 0; i < MAX_FFT_SIZE; i++)
+        d_iirFftData[i] = -120.0;  // dBFS
 
     /* timer for data decoders */
     dec_timer = new QTimer(this);
@@ -150,6 +156,8 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setIqFftSize(int)));
     connect(uiDockFft, SIGNAL(fftRateChanged(int)), this, SLOT(setIqFftRate(int)));
     connect(uiDockFft, SIGNAL(fftSplitChanged(int)), this, SLOT(setIqFftSplit(int)));
+    connect(uiDockFft, SIGNAL(fftFilterTypeChanged(int)), this, SLOT(setIqFftFilterType(int)));
+    connect(uiDockFft, SIGNAL(fftFilterGainChanged(double)), this, SLOT(setIqFftFilterGain(double)));
 
     // restore last session
     if (!loadConfig(cfgfile))
@@ -199,6 +207,8 @@ MainWindow::~MainWindow()
     delete rx;
     delete [] d_fftData;
     delete [] d_realFftData;
+    delete [] d_iirFftData;
+    delete [] d_pwrFftData;
 }
 
 /*! \brief Load new configuration.
@@ -900,6 +910,8 @@ void MainWindow::iqFftTimeout()
 {
     unsigned int fftsize;
     unsigned int i;
+    double gain = d_fftFilterGain;
+    double pwr;
     std::complex<float> pt;             /* a single FFT point used in calculations */
     std::complex<float> scaleFactor;    /* normalizing factor (fftsize cast to complex) */
 
@@ -928,26 +940,40 @@ void MainWindow::iqFftTimeout()
         {
             pt = d_fftData[i-fftsize/2] / scaleFactor;
         }
+        pwr = pt.imag()*pt.imag() + pt.real()*pt.real();
 
         /* calculate power in dBFS */
-        d_realFftData[i] = 10.0 * log10(pt.imag()*pt.imag() + pt.real()*pt.real() + 1.0e-20);
+        d_realFftData[i] = 10.0 * log10(pwr + 1.0e-20);
 
-/*
-        if (d_realFftData[i] < min)
-            min = d_realFftData[i];
+        /* video filter */
+        switch (d_fftFilterType)
+        {
+        case 0:
+            // IIR filter with variable non-linear gain
+            // Gain := (1 - exp(-(const *newSpectrum[i])));
+            gain = (1.0 - exp(-d_fftFilterGain*(150.0+d_realFftData[i])/150.0));
+            break;
+        case 1:
+            // Linear gain
+            gain = d_fftFilterGain * (150.0+d_realFftData[i])/150.0;
+            break;
+        case 2:
+            // Fixed gain
+            gain = d_fftFilterGain;
+            break;
+        case 3:
+            // filter off
+            gain = 1.0;
+            break;
+        }
+        //gain = 0.1;
 
-        if (d_realFftData[i] > max)
-            max = d_realFftData[i];
+        d_iirFftData[i] = (1.0 - gain) * d_iirFftData[i] + gain * d_realFftData[i];
 
-        avg = (avg+d_realFftData[i]) / 2.0;
-*/
     }
 
-    ui->plotter->setNewFttData(d_realFftData, fftsize);
+    ui->plotter->setNewFttData(d_iirFftData, d_realFftData, fftsize);
 
-    //qDebug() << "FFT size: " << fftsize;
-    //qDebug() << "FFT[0]=" << d_realFftData[0] << "  FFT[MID]=" << d_realFftData[fftsize/2];
-    //qDebug() << "MIN:" << min << "  AVG:" << avg << "  MAX:" << max;
 }
 
 /*! \brief Audio FFT plot timeout. */
@@ -1131,6 +1157,19 @@ void MainWindow::setIqFftSplit(int pct_wf)
     }
 }
 
+void MainWindow::setIqFftFilterType(int type)
+{
+    qDebug() << "FFT filter type:" << type;
+    if ((type >= 0) && (type <= 3))
+        d_fftFilterType = type;
+}
+
+void MainWindow::setIqFftFilterGain(double gain)
+{
+    qDebug() << "FFT filter gain:" << gain;
+    if ((gain >= 0) && (gain <= 1.0))
+        d_fftFilterGain = gain;
+}
 
 /*! \brief Audio FFT rate has changed. */
 void MainWindow::setAudioFftRate(int fps)

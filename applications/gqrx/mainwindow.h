@@ -70,8 +70,12 @@ private:
 
     enum receiver::filter_shape d_filter_shape;
     std::complex<float>* d_fftData;
-    double *d_realFftData;
+    double *d_realFftData; /** FIXME: use vector */
+    double *d_iirFftData;  /** FIXME: use vector */
+    double *d_pwrFftData;  /** FIXME: use vector */
     //double *d_audioFttData;
+    int             d_fftFilterType;
+    double          d_fftFilterGain;
 
     /* dock widgets */
     DockRxOpt      *uiDockRxOpt;
@@ -131,6 +135,8 @@ private slots:
     void setIqFftSize(int size);
     void setIqFftRate(int fps);
     void setIqFftSplit(int pct_wf);
+    void setIqFftFilterType(int type);
+    void setIqFftFilterGain(double gain);
     void setAudioFftRate(int fps);
 
     void on_plotter_newDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
