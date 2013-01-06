@@ -5,6 +5,7 @@
 #include <QtGui>
 #include <QFrame>
 #include <QImage>
+#include <vector>
 
 #define HORZ_DIVS_MAX 50 //12
 #define MAX_SCREENSIZE 4096
@@ -35,6 +36,7 @@ public:
     }
 
     void setNewFttData(double *fftData, int size);
+    void setNewFttData(double *fftData, double *wfData, int size);
 
     void setCenterFreq(quint64 f);
     void setFreqUnits(qint32 unit) { m_FreqUnits = unit; }
@@ -130,13 +132,16 @@ private:
     qint64 roundFreq(qint64 freq, int resolution);
     bool isPointCloseTo(int x, int xr, int delta){return ((x > (xr-delta) ) && ( x<(xr+delta)) );}
     void clampDemodParameters();
+
     void getScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
                                  double MaxdB, double MindB,
                                  qint32 StartFreq, qint32 StopFreq,
-                                 qint32* OutBuf, qint32 *maxbin, qint32 *minbin);
+                                 double *InBuf, qint32* OutBuf,
+                                 qint32 *maxbin, qint32 *minbin);
 
     qint32 m_fftbuf[MAX_SCREENSIZE];
     double *m_fftData;     /*! pointer to incoming FFT data */
+    double *m_wfData;
     int     m_fftDataSize;
 
     int m_XAxisYCenter;

@@ -588,7 +588,7 @@ void CPlotter::draw()
         // get scaled FFT data
         getScreenIntegerFFTData(255, w, m_MaxdB, m_MindB,
                                 m_FftCenter-m_Span/2, m_FftCenter+m_Span/2,
-                                m_fftbuf, &xmin, &xmax);
+                                m_wfData, m_fftbuf, &xmin, &xmax);
 
         // draw new line of fft data at top of waterfall bitmap
         painter1.setPen(QColor(0, 0, 0));
@@ -617,7 +617,7 @@ void CPlotter::draw()
         // get new scaled fft data
         getScreenIntegerFFTData(h, w, m_MaxdB, m_MindB,
                                 m_FftCenter-m_Span/2, m_FftCenter+m_Span/2,
-                                m_fftbuf, &xmin, &xmax);
+                                m_fftData, m_fftbuf, &xmin, &xmax);
 
         // draw the 2D spectrum
         painter2.setPen(QColor(0x97,0xD0,0x97,0xFF));
@@ -634,8 +634,13 @@ void CPlotter::draw()
 
 }
 
-
-/*! \brief Set new FFT data. */
+/*! \brief Set new FFT data.
+ *  \param fftData Pointer to the new FFT data (same data for pandapter and waterfall).
+ *  \param size The FFT size.
+ *
+ * When FFT data is set using this method, the same data will be used for bith the
+ * pandapter and the waterfall.
+ */
 void CPlotter::setNewFttData(double *fftData, int size)
 {
 
@@ -643,18 +648,41 @@ void CPlotter::setNewFttData(double *fftData, int size)
     if (!m_Running)
         m_Running = true;
 
+    m_wfData = fftData;
     m_fftData = fftData;
     m_fftDataSize = size;
 
     draw();
 }
 
+/*! \brief Set new FFT data.
+ *  \param fftData Pointer to the new FFT data used on the pandapter.
+ *  \param wfData Pointer to the FFT data used in the waterfall.
+ *  \param size The FFT size.
+ *
+ * This method can be used to set different FFT data set for the pandapter and the
+ * waterfall.
+ */
+
+void CPlotter::setNewFttData(double *fftData, double *wfData, int size)
+{
+
+    /** FIXME **/
+    if (!m_Running)
+        m_Running = true;
+
+    m_wfData = wfData;
+    m_fftData = fftData;
+    m_fftDataSize = size;
+
+    draw();
+}
 
 void CPlotter::getScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
                                        double MaxdB, double MindB,
                                        qint32 StartFreq, qint32 StopFreq,
-                                       qint32* OutBuf, int* xmin,
-                                       int* xmax)
+                                       double *InBuf, qint32 *OutBuf,
+                                       int *xmin, int *xmax)
 {
     qint32 i;
     qint32 y;
@@ -669,7 +697,7 @@ void CPlotter::getScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
     qint32 m_PlotWidth = MaxWidth;
     qint32 m_BinMin, m_BinMax;
     qint32 m_FFTSize = m_fftDataSize;
-    double* m_pFFTAveBuf = m_fftData;
+    double* m_pFFTAveBuf = InBuf;
     qint32* m_pTranslateTbl = new qint32[m_FFTSize];
 
     m_BinMin = (qint32)((double)StartFreq*(double)m_FFTSize/m_SampleFreq);
