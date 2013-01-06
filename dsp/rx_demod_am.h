@@ -1,6 +1,7 @@
 /* -*- c++ -*- */
 /*
  * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2013 Vesa Solonen OH2JCP.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +23,8 @@
 
 #include <gr_hier_block2.h>
 #include <gr_complex_to_xxx.h>
-#include <gr_add_const_ff.h>
+#include <gr_iir_filter_ffd.h>
+#include <vector>
 
 
 class rx_demod_am;
@@ -44,9 +46,9 @@ rx_demod_am_sptr make_rx_demod_am(float quad_rate, float audio_rate, bool dcr=tr
 /*! \brief AM demodulator.
  *  \ingroup DSP
  *
- * This class implements the AM demodulator.
+ * This class implements the AM demodulator as envelope detector.
  * AM demodulation is simply a conversion from complex to magnitude.
- * This block does not include any audio filter.
+ * This block implements an optional IIR DC-removal filter for the demodulated signal.
  *
  */
 class rx_demod_am : public gr_hier_block2
@@ -61,14 +63,18 @@ public:
 
 private:
     /* GR blocks */
-    gr_complex_to_mag_sptr  d_demod;   /*! AM demodulation (complex to magnitude). */
-    gr_add_const_ff_sptr    d_dcr;     /*! DC removal (substract 1.0). */
+    gr_complex_to_mag_sptr  d_demod;    /*! AM demodulation (complex to magnitude). */
+    gr_iir_filter_ffd_sptr    d_dcr;    /*! DC removal (IIR high pass). */
 
 
     /* other parameters */
     float  d_quad_rate;     /*! Quadrature rate. */
     float  d_audio_rate;    /*! Audio rate. */
     bool   d_dcr_enabled;   /*! DC removal flag. */
+    
+    /* IIR DC-removal filter taps */
+    std::vector<double> d_fftaps;   /*! Feed forward taps. */
+    std::vector<double> d_fbtaps;   /*! Feed back taps. */
 
 };
 

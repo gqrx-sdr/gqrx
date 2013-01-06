@@ -1,6 +1,7 @@
 /* -*- c++ -*- */
 /*
  * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2013 Vesa Solonen OH2JCP.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,16 +48,27 @@ rx_demod_am::rx_demod_am(float quad_rate, float audio_rate, bool dcr)
     /* demodulator */
     d_demod = gr_make_complex_to_mag(1);
 
-    /* DC removal */
-    if (d_dcr_enabled)
-        d_dcr = gr_make_add_const_ff(-1.0);
-    else
-        d_dcr = gr_make_add_const_ff(0.0);
-
     /* connect blocks */
     connect(self(), 0, d_demod, 0);
-    connect(d_demod, 0, d_dcr, 0);
-    connect(d_dcr, 0,  self(), 0);
+
+    /* DC removal */
+    if (d_dcr_enabled) {
+        d_fftaps.resize(2);
+        d_fbtaps.resize(2);
+        
+        d_fftaps[0] = 1.0;      // FIXME: could be configurable with a specified time constant
+        d_fftaps[1] = -1.0;
+        d_fbtaps[0] = 0.0;
+        d_fbtaps[1] = 0.999;
+        
+        d_dcr = gr_make_iir_filter_ffd(d_fftaps, d_fbtaps);
+        
+        connect(d_demod, 0, d_dcr, 0);
+        connect(d_dcr, 0,  self(), 0);
+    }
+    else {
+        connect(d_demod, 0,  self(), 0);
+    }
 
 }
 
@@ -75,11 +87,6 @@ void rx_demod_am::set_dcr(bool dcr)
     if (dcr == d_dcr_enabled) {
         return;
     }
-
-    if (dcr)
-        d_dcr->set_k(-1.0);
-    else
-        d_dcr->set_k(0.0);
 
     d_dcr_enabled = dcr;
 }
