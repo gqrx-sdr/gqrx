@@ -211,12 +211,6 @@ void DockFft::on_fftSplitSlider_valueChanged(int value)
     emit fftSplitChanged(value);
 }
 
-/*! \brief FFT filter type has changed. */
-void DockFft::on_fftFilterTypeCombo_currentIndexChanged(int index)
-{
-    emit fftFilterTypeChanged(index);
-}
-
 /*! \brief FFT filter gain changed. */
 void DockFft::on_fftFilterGainSlider_valueChanged(int value)
 {

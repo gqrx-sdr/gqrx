@@ -37,7 +37,6 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     configOk(true),
     ui(new Ui::MainWindow),
     d_lnb_lo(0),
-    d_fftFilterType(0),
     d_fftFilterGain(0.5),
     dec_afsk1200(0)
 {
@@ -156,7 +155,6 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setIqFftSize(int)));
     connect(uiDockFft, SIGNAL(fftRateChanged(int)), this, SLOT(setIqFftRate(int)));
     connect(uiDockFft, SIGNAL(fftSplitChanged(int)), this, SLOT(setIqFftSplit(int)));
-    connect(uiDockFft, SIGNAL(fftFilterTypeChanged(int)), this, SLOT(setIqFftFilterType(int)));
     connect(uiDockFft, SIGNAL(fftFilterGainChanged(double)), this, SLOT(setIqFftFilterGain(double)));
 
     // restore last session
@@ -946,26 +944,7 @@ void MainWindow::iqFftTimeout()
         d_realFftData[i] = 10.0 * log10(pwr + 1.0e-20);
 
         /* video filter */
-        switch (d_fftFilterType)
-        {
-        case 0:
-            // IIR filter with variable non-linear gain
-            // Gain := (1 - exp(-(const *newSpectrum[i])));
-            gain = (1.0 - exp(-d_fftFilterGain*(150.0+d_realFftData[i])/150.0));
-            break;
-        case 1:
-            // Linear gain
-            gain = d_fftFilterGain * (150.0+d_realFftData[i])/150.0;
-            break;
-        case 2:
-            // Fixed gain
-            gain = d_fftFilterGain;
-            break;
-        case 3:
-            // filter off
-            gain = 1.0;
-            break;
-        }
+        gain = d_fftFilterGain * (150.0+d_realFftData[i])/150.0;
         //gain = 0.1;
 
         d_iirFftData[i] = (1.0 - gain) * d_iirFftData[i] + gain * d_realFftData[i];
@@ -1155,13 +1134,6 @@ void MainWindow::setIqFftSplit(int pct_wf)
     {
         ui->plotter->setPercent2DScreen(pct_wf);
     }
-}
-
-void MainWindow::setIqFftFilterType(int type)
-{
-    qDebug() << "FFT filter type:" << type;
-    if ((type >= 0) && (type <= 3))
-        d_fftFilterType = type;
 }
 
 void MainWindow::setIqFftFilterGain(double gain)

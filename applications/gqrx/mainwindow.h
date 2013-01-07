@@ -74,8 +74,7 @@ private:
     double *d_iirFftData;  /** FIXME: use vector */
     double *d_pwrFftData;  /** FIXME: use vector */
     //double *d_audioFttData;
-    int             d_fftFilterType;
-    double          d_fftFilterGain;
+    double  d_fftFilterGain; /*!< Filter gain set by user (not the true gain). */
 
     /* dock widgets */
     DockRxOpt      *uiDockRxOpt;
@@ -135,7 +134,6 @@ private slots:
     void setIqFftSize(int size);
     void setIqFftRate(int fps);
     void setIqFftSplit(int pct_wf);
-    void setIqFftFilterType(int type);
     void setIqFftFilterGain(double gain);
     void setAudioFftRate(int fps);
 

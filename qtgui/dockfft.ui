@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>214</width>
-    <height>224</height>
+    <height>170</height>
    </rect>
   </property>
   <property name="windowIcon">
@@ -193,53 +193,13 @@
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QLabel" name="fftFilterTypeLabel">
-        <property name="text">
-         <string>Filter type:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QComboBox" name="fftFilterTypeCombo">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>FIXME: Add tooltip</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>Non-linear</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Linear gain</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Fixed gain</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>None</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="3" column="0">
        <widget class="QLabel" name="fftFilterGainLabel">
         <property name="text">
          <string>Filter gain:</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
+      <item row="2" column="1">
        <widget class="QSlider" name="fftFilterGainSlider">
         <property name="toolTip">
          <string>FIXME: Add tooltip</string>
