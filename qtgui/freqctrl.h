@@ -12,7 +12,7 @@
 //  Promote it to the CFreqCtrl class and include file freqctrl.h
 // Initilaize the control in the constructor of the controls parent
 //  ex: ui->frameFreqCtrl->Setup(9, 10000U, 230000000U, 1, UNITS_MHZ );
-// where 9 is the number of display digits, min freq is 10KHz , Max is 230MHz
+// where 9 is the number of display digits, min freq is 10kHz , Max is 230MHz
 // the minimum step size is 1Hz and the freq is displayed as MHz
 //    NOTE: the frequency is a qint64  64 bit integer value
 //  to change frequency call SetFrequency()
