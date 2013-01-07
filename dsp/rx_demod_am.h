@@ -29,9 +29,7 @@
 
 class rx_demod_am;
 
-
 typedef boost::shared_ptr<rx_demod_am> rx_demod_am_sptr;
-
 
 /*! \brief Return a shared_ptr to a new instance of rx_demod_am.
  *  \param quad_rate The input sample rate.
@@ -66,12 +64,11 @@ private:
     gr_complex_to_mag_sptr  d_demod;    /*! AM demodulation (complex to magnitude). */
     gr_iir_filter_ffd_sptr    d_dcr;    /*! DC removal (IIR high pass). */
 
-
     /* other parameters */
     float  d_quad_rate;     /*! Quadrature rate. */
     float  d_audio_rate;    /*! Audio rate. */
     bool   d_dcr_enabled;   /*! DC removal flag. */
-    
+
     /* IIR DC-removal filter taps */
     std::vector<double> d_fftaps;   /*! Feed forward taps. */
     std::vector<double> d_fbtaps;   /*! Feed back taps. */

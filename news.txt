@@ -5,7 +5,7 @@
      FIXED: Removed graphics redraw delay when changing frequency or demodulator.
      FIXED: Respect RF frequency range of input device.
      FIXED: Correctly show the sign of filter offsets between 0 and -1 kHz.
-     FIXED: AM demodulator (envelope detector) DC-removal implemented.
+     FIXED: AM DC removal reimplemented using IIR filter.
   IMPROVED: AGC settings moved to dialog window.
   IMPROVED: Increase LO resolution to 1 Hz.
 
