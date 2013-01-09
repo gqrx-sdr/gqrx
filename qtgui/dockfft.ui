@@ -193,16 +193,19 @@
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QLabel" name="fftFilterGainLabel">
+       <widget class="QLabel" name="fftAvgLabel">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;FFT averaging speed.&lt;/p&gt;&lt;p&gt;Also known as video filter on spectrum analyzers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
-         <string>Filter gain:</string>
+         <string>Averaging:</string>
         </property>
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QSlider" name="fftFilterGainSlider">
+       <widget class="QSlider" name="fftAvgSlider">
         <property name="toolTip">
-         <string>FIXME: Add tooltip</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;FFT averaging speed.&lt;/p&gt;&lt;p&gt;The averaging does not apply to the waterfall, which is always updated with the latest unfiltered samples.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="maximum">
          <number>100</number>
@@ -212,6 +215,12 @@
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="invertedAppearance">
+         <bool>false</bool>
+        </property>
+        <property name="invertedControls">
+         <bool>false</bool>
         </property>
        </widget>
       </item>

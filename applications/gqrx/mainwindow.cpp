@@ -37,7 +37,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     configOk(true),
     ui(new Ui::MainWindow),
     d_lnb_lo(0),
-    d_fftFilterGain(0.5),
+    d_fftAvg(0.5),
     dec_afsk1200(0)
 {
     ui->setupUi(this);
@@ -155,7 +155,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setIqFftSize(int)));
     connect(uiDockFft, SIGNAL(fftRateChanged(int)), this, SLOT(setIqFftRate(int)));
     connect(uiDockFft, SIGNAL(fftSplitChanged(int)), this, SLOT(setIqFftSplit(int)));
-    connect(uiDockFft, SIGNAL(fftFilterGainChanged(double)), this, SLOT(setIqFftFilterGain(double)));
+    connect(uiDockFft, SIGNAL(fftAvgChanged(double)), this, SLOT(setIqFftAvg(double)));
 
     // restore last session
     if (!loadConfig(cfgfile))
@@ -908,7 +908,7 @@ void MainWindow::iqFftTimeout()
 {
     unsigned int fftsize;
     unsigned int i;
-    double gain = d_fftFilterGain;
+    double gain;
     double pwr;
     std::complex<float> pt;             /* a single FFT point used in calculations */
     std::complex<float> scaleFactor;    /* normalizing factor (fftsize cast to complex) */
@@ -943,8 +943,8 @@ void MainWindow::iqFftTimeout()
         /* calculate power in dBFS */
         d_realFftData[i] = 10.0 * log10(pwr + 1.0e-20);
 
-        /* video filter */
-        gain = d_fftFilterGain * (150.0+d_realFftData[i])/150.0;
+        /* FFT averaging (aka. video filter) */
+        gain = d_fftAvg * (150.0+d_realFftData[i])/150.0;
         //gain = 0.1;
 
         d_iirFftData[i] = (1.0 - gain) * d_iirFftData[i] + gain * d_realFftData[i];
@@ -1136,11 +1136,11 @@ void MainWindow::setIqFftSplit(int pct_wf)
     }
 }
 
-void MainWindow::setIqFftFilterGain(double gain)
+void MainWindow::setIqFftAvg(double avg)
 {
-    qDebug() << "FFT filter gain:" << gain;
-    if ((gain >= 0) && (gain <= 1.0))
-        d_fftFilterGain = gain;
+    qDebug() << "FFT filter gain:" << avg;
+    if ((avg >= 0) && (avg <= 1.0))
+        d_fftAvg = avg;
 }
 
 /*! \brief Audio FFT rate has changed. */
