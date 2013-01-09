@@ -24,9 +24,10 @@
 #include "ui_dockfft.h"
 
 
-#define DEFAULT_FFT_RATE 10
-#define DEFAULT_FFT_SIZE 4096
+#define DEFAULT_FFT_RATE  10
+#define DEFAULT_FFT_SIZE  4096
 #define DEFAULT_FFT_SPLIT 50
+#define DEFAULT_FFT_AVG   50
 
 
 DockFft::DockFft(QWidget *parent) :
@@ -152,6 +153,11 @@ void DockFft::saveSettings(QSettings *settings)
     else
         settings->remove("fft_rate");
 
+    if (ui->fftAvgSlider->value() != DEFAULT_FFT_AVG)
+        settings->setValue("averaging", ui->fftAvgSlider->value());
+    else
+        settings->remove("averaging");
+
     if (ui->fftSplitSlider->value() != DEFAULT_FFT_SPLIT)
         settings->setValue("split", ui->fftSplitSlider->value());
     else
@@ -179,6 +185,10 @@ void DockFft::readSettings(QSettings *settings)
     intval = settings->value("fft_size", DEFAULT_FFT_SIZE).toInt(&conv_ok);
     if (conv_ok)
         setFftSize(intval);
+
+    intval = settings->value("averaging", DEFAULT_FFT_AVG).toInt(&conv_ok);
+    if (conv_ok)
+        ui->fftAvgSlider->setValue(intval);
 
     intval = settings->value("split", DEFAULT_FFT_SPLIT).toInt(&conv_ok);
     if (conv_ok)
