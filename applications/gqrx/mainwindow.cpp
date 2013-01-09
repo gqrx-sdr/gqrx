@@ -1138,7 +1138,6 @@ void MainWindow::setIqFftSplit(int pct_wf)
 
 void MainWindow::setIqFftAvg(double avg)
 {
-    qDebug() << "FFT filter gain:" << avg;
     if ((avg >= 0) && (avg <= 1.0))
         d_fftAvg = avg;
 }
