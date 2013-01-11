@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>220</height>
+    <height>239</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -31,7 +31,7 @@
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
-     <number>0</number>
+     <number>1</number>
     </property>
     <property name="margin">
      <number>5</number>
@@ -67,7 +67,7 @@
        <number>6</number>
       </property>
       <property name="verticalSpacing">
-       <number>0</number>
+       <number>-1</number>
       </property>
       <item row="0" column="0">
        <widget class="QLabel" name="audioGainLabel">
@@ -110,10 +110,16 @@
       <item row="1" column="0" colspan="2">
        <widget class="QSlider" name="audioGainSlider">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>22</height>
+         </size>
         </property>
         <property name="toolTip">
          <string>Audio gain</string>

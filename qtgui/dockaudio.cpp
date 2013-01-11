@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011-2012 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,14 @@ DockAudio::DockAudio(QWidget *parent) :
     autoSpan(true)
 {
     ui->setupUi(this);
+
+#ifdef Q_WS_MAC
+    // Workaround for Mac, see http://stackoverflow.com/questions/3978889/why-is-qhboxlayout-causing-widgets-to-overlap
+    // Might be fixed in Qt 5?
+    ui->audioPlayButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+    ui->audioRecButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+    ui->audioRecConfButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+#endif
 
     ui->audioSpectrum->setPercent2DScreen(100);
     ui->audioSpectrum->setFreqUnits(1000);

@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011-2012 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,14 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     rf_freq_hz(144500000)
 {
     ui->setupUi(this);
+
+#ifdef Q_WS_MAC
+    // Workaround for Mac, see http://stackoverflow.com/questions/3978889/why-is-qhboxlayout-causing-widgets-to-overlap
+    // Might be fixed in Qt 5?
+    ui->filterButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+    ui->modeButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+    ui->agcButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+#endif
 
     ui->filterFreq->setup(7, -filterOffsetRange/2, filterOffsetRange/2, 1, UNITS_KHZ);
     ui->filterFreq->setFrequency(0);
