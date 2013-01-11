@@ -5,3 +5,5 @@ gqrx.pro.user*
 moc_*
 qrc_*
 ui_*
+.DS_Store
+Info.plist
