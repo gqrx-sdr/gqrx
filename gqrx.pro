@@ -75,6 +75,7 @@ SOURCES += \
     qtgui/freqctrl.cpp \
     qtgui/ioconfig.cpp \
     qtgui/meter.cpp \
+    qtgui/nb_options.cpp \
     qtgui/plotter.cpp \
     receivers/nbrx.cpp \
     receivers/receiver_base.cpp \
@@ -111,6 +112,7 @@ HEADERS += \
     qtgui/freqctrl.h \
     qtgui/ioconfig.h \
     qtgui/meter.h \
+    qtgui/nb_options.h \
     qtgui/plotter.h \
     receivers/nbrx.h \
     receivers/receiver_base.h \
@@ -126,7 +128,8 @@ FORMS += \
     qtgui/dockinputctl.ui \
     qtgui/dockaudio.ui \
     qtgui/dockfft.ui \
-    qtgui/dockiqplayer.ui
+    qtgui/dockiqplayer.ui \
+    qtgui/nb_options.ui
 
 # Use pulseaudio (ps: could use equals? undocumented)
 contains(AUDIO_BACKEND, pulse): {

@@ -55,6 +55,10 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     connect(agcOpt, SIGNAL(decayChanged(int)), this, SLOT(agcOpt_decayChanged(int)));
     connect(agcOpt, SIGNAL(slopeChanged(int)), this, SLOT(agcOpt_slopeChanged(int)));
     connect(agcOpt, SIGNAL(hangChanged(bool)), this, SLOT(agcOpt_hangToggled(bool)));
+
+    /* Noise blanker options */
+    nbOpt = new CNbOptions(this);
+    connect(nbOpt, SIGNAL(thresholdChanged(int,double)), this, SLOT(nbOpt_thresholdChanged(int,double)));
 }
 
 DockRxOpt::~DockRxOpt()
@@ -62,6 +66,7 @@ DockRxOpt::~DockRxOpt()
     delete ui;
     delete demodOpt;
     delete agcOpt;
+    delete nbOpt;
 }
 
 /*! \brief Set value of channel filter offset selector.
@@ -350,23 +355,25 @@ void DockRxOpt::demodOpt_fmEmphSelected(double tau)
 /*! \brief Noise blanker 1 button has been toggled. */
 void DockRxOpt::on_nb1Button_toggled(bool checked)
 {
-    emit noiseBlankerChanged(1, checked, (float) ui->nb1Threshold->value());
+    emit noiseBlankerChanged(1, checked, (float) nbOpt->nbThreshold(1));
 }
 
 /*! \brief Noise blanker 2 button has been toggled. */
 void DockRxOpt::on_nb2Button_toggled(bool checked)
 {
-    emit noiseBlankerChanged(2, checked, (float) ui->nb2Threshold->value());
+    emit noiseBlankerChanged(2, checked, (float) nbOpt->nbThreshold(2));
 }
 
-/*! \brief Noise blanker 1 threshold has been changed. */
-void DockRxOpt::on_nb1Threshold_valueChanged(double value)
+/*! \brief Noise blanker threshold has been changed. */
+void DockRxOpt::nbOpt_thresholdChanged(int nbid, double value)
 {
-    emit noiseBlankerChanged(1, ui->nb1Button->isChecked(), (float) value);
+    if (nbid == 1)
+        emit noiseBlankerChanged(nbid, ui->nb1Button->isChecked(), (float) value);
+    else
+        emit noiseBlankerChanged(nbid, ui->nb2Button->isChecked(), (float) value);
 }
 
-/*! \brief Noise blanker 2 threshold has been changed. */
-void DockRxOpt::on_nb2Threshold_valueChanged(double value)
+void DockRxOpt::on_nbOptButton_clicked()
 {
-    emit noiseBlankerChanged(2, ui->nb2Button->isChecked(), (float) value);
+    nbOpt->show();
 }

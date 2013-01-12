@@ -23,6 +23,7 @@
 #include <QDockWidget>
 #include "qtgui/agc_options.h"
 #include "qtgui/demod_options.h"
+#include "qtgui/nb_options.h"
 
 
 namespace Ui {
@@ -135,8 +136,10 @@ private slots:
     void on_sqlSlider_valueChanged(int value);
     void on_nb1Button_toggled(bool checked);
     void on_nb2Button_toggled(bool checked);
-    void on_nb1Threshold_valueChanged(double value);
-    void on_nb2Threshold_valueChanged(double value);
+    void on_nbOptButton_clicked();
+
+    /* Signals coming from noise blanker pop-up */
+    void nbOpt_thresholdChanged(int nbid, double value);
 
     /* Signals coming from demod options pop-up */
     void demodOpt_fmMaxdevSelected(float max_dev);
@@ -153,6 +156,7 @@ private:
     Ui::DockRxOpt *ui;        /*! The Qt designer UI file. */
     CDemodOptions *demodOpt;  /*! Demodulator options. */
     CAgcOptions   *agcOpt;    /*! AGC options. */
+    CNbOptions    *nbOpt;     /*! Noise blanker options. */
 
     bool agc_is_on;
 
