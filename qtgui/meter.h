@@ -1,6 +1,7 @@
 /* -*- c++ -*- */
 /* + + +   This Software is released under the "Simplified BSD License"  + + +
  * Copyright 2010 Moe Wheatley. All rights reserved.
+ * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
@@ -50,7 +51,6 @@ public:
     void setMax(float max_level);
     void setRange(float min_level, float max_level);
 
-
     void draw();
     void UpdateOverlay(){DrawOverlay();}
 
@@ -58,7 +58,6 @@ signals:
 
 public slots:
     void setLevel(float dbfs);
-
 
 protected:
     //re-implemented widget event handlers
@@ -76,7 +75,6 @@ private:
 
     float d_alpha_decay;
     float d_alpha_rise;
-
 };
 
 #endif // METER_H

@@ -138,14 +138,14 @@ private slots:
     void on_nb2Button_toggled(bool checked);
     void on_nbOptButton_clicked();
 
-    /* Signals coming from noise blanker pop-up */
+    // Signals coming from noise blanker pop-up
     void nbOpt_thresholdChanged(int nbid, double value);
 
-    /* Signals coming from demod options pop-up */
+    // Signals coming from demod options pop-up
     void demodOpt_fmMaxdevSelected(float max_dev);
     void demodOpt_fmEmphSelected(double tau);
 
-    /* Signals coming from AGC options popup */
+    // Signals coming from AGC options popup
     void agcOpt_hangToggled(bool checked);
     void agcOpt_gainChanged(int value);
     void agcOpt_thresholdChanged(int value);

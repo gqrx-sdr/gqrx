@@ -101,7 +101,7 @@ void DockAudio::on_audioGainSlider_valueChanged(int value)
 {
     float gain = float(value) / 10.0;
 
-    /* update dB label */
+    // update dB label
     ui->audioGainDbLabel->setText(QString("%1 dB").arg(gain));
     emit audioGainChanged(gain);
 }
@@ -148,7 +148,7 @@ void DockAudio::on_audioPlayButton_clicked(bool checked)
         emit audioPlayStarted(lastAudio);
 
         ui->audioPlayButton->setToolTip(tr("Stop audio playback"));
-        ui->audioRecButton->setEnabled(false); /* prevent recording while we play */
+        ui->audioRecButton->setEnabled(false); // prevent recording while we play
     }
     else {
         ui->audioPlayButton->setToolTip(tr("Start playback of last recorded audio file"));
@@ -167,7 +167,7 @@ void DockAudio::setAudioRecButtonState(bool checked)
         return;
     }
 
-    /* toggle the button and set the state of the other buttons accordingly */
+    // toggle the button and set the state of the other buttons accordingly
     ui->audioRecButton->toggle();
     bool isChecked = ui->audioRecButton->isChecked();
 
@@ -180,11 +180,11 @@ void DockAudio::setAudioRecButtonState(bool checked)
 void DockAudio::setAudioPlayButtonState(bool checked)
 {
     if (checked == ui->audioPlayButton->isChecked()) {
-        /* nothing to do */
+        // nothing to do
         return;
     }
 
-    /* toggle the button and set the state of the other buttons accordingly */
+    // toggle the button and set the state of the other buttons accordingly
     ui->audioPlayButton->toggle();
     bool isChecked = ui->audioPlayButton->isChecked();
 

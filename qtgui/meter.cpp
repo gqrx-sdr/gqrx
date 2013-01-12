@@ -1,6 +1,7 @@
 /* -*- c++ -*- */
 /* + + +   This Software is released under the "Simplified BSD License"  + + +
  * Copyright 2010 Moe Wheatley. All rights reserved.
+ * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
@@ -124,9 +125,9 @@ void CMeter::setLevel(float dbfs)
     m_dBm = (int)level;
 
     qreal w = (qreal)m_2DPixmap.width();
-    w = w - 2.0*CTRL_MARGIN*w;	//width of meter scale in pixels
+    w = w - 2.0*CTRL_MARGIN*w;	// width of meter scale in pixels
 
-    /* pixels / dB */
+    // pixels / dB
     qreal pixperdb = w / fabs(MAX_DB - MIN_DB);
     m_Slevel = (int)(-(MIN_DB-level)*pixperdb);
 

@@ -42,13 +42,13 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     ui->filterFreq->setup(7, -filterOffsetRange/2, filterOffsetRange/2, 1, UNITS_KHZ);
     ui->filterFreq->setFrequency(0);
 
-    /* demodulator options dialog */
+    // demodulator options dialog
     demodOpt = new CDemodOptions(this);
     demodOpt->setCurrentPage(CDemodOptions::PAGE_FM_OPT);
     connect(demodOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(demodOpt_fmMaxdevSelected(float)));
     connect(demodOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(demodOpt_fmEmphSelected(double)));
 
-    /* AGC options dialog */
+    // AGC options dialog
     agcOpt = new CAgcOptions(this);
     connect(agcOpt, SIGNAL(gainChanged(int)), this, SLOT(agcOpt_gainChanged(int)));
     connect(agcOpt, SIGNAL(thresholdChanged(int)), this, SLOT(agcOpt_thresholdChanged(int)));
@@ -56,7 +56,7 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     connect(agcOpt, SIGNAL(slopeChanged(int)), this, SLOT(agcOpt_slopeChanged(int)));
     connect(agcOpt, SIGNAL(hangChanged(bool)), this, SLOT(agcOpt_hangToggled(bool)));
 
-    /* Noise blanker options */
+    // Noise blanker options
     nbOpt = new CNbOptions(this);
     connect(nbOpt, SIGNAL(thresholdChanged(int,double)), this, SLOT(nbOpt_thresholdChanged(int,double)));
 }
@@ -224,7 +224,7 @@ void DockRxOpt::on_modeSelector_activated(int index)
         return;
     }
 
-    /* update demodulator option widget */
+    // update demodulator option widget
     if (index == MODE_NFM)
         demodOpt->setCurrentPage(CDemodOptions::PAGE_FM_OPT);
     else
@@ -330,7 +330,7 @@ void DockRxOpt::on_sqlSlider_valueChanged(int value)
 {
     double level = double(value) / 10.0;
 
-    /* update dB label */
+    // update dB label
     ui->sqlDbLabel->setText(QString("%1 dBFS").arg(level));
     //ui->sqlValueLabel->setText(QString("%1 dB").arg(level));
     emit sqlLevelChanged(level);
