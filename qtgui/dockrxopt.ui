@@ -51,7 +51,8 @@
        </size>
       </property>
       <property name="toolTip">
-       <string>Channel filter frequency</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Channel filter offset.&lt;br/&gt;
+This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -83,8 +84,8 @@ as  rf_freq + filter_offset</string>
       <item>
        <widget class="QLabel" name="rxFreq">
         <property name="toolTip">
-         <string>The frequency we actualy are listening on calculated
-as  rf_freq + filter_offset</string>
+         <string>The frequency we actualy are listening on.
+Calculated as  rf_freq + filter_offset</string>
         </property>
         <property name="text">
          <string>144.500000 MHz</string>
