@@ -205,6 +205,23 @@ For digital modes it is best to switch it off.</string>
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="demodAmOpt">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QCheckBox" name="dcrCheckBox">
+         <property name="toolTip">
+          <string>Enable/disable DC removal.</string>
+         </property>
+         <property name="text">
+          <string>DCR</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>

@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2012 Alexandru Csete OZ9AEC.
+ * Copyright 2012-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,6 +82,10 @@ public:
     virtual bool has_fm();
     virtual void set_fm_maxdev(float maxdev_hz);
     virtual void set_fm_deemph(double tau);
+
+    /* AM parameters */
+    virtual bool has_am();
+    virtual void set_am_dcr(bool enabled);
 
 };
 

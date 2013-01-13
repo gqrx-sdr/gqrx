@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011-2012 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,8 @@ public:
     enum page {
         PAGE_NO_OPT = 0,
         PAGE_FM_OPT = 1,
-        PAGE_NUM    = 2
+        PAGE_AM_OPT = 2,
+        PAGE_NUM    = 3
     };
 
     explicit CDemodOptions(QWidget *parent = 0);
@@ -59,9 +60,13 @@ signals:
     /*! \brief Signal emitted when new FM de-emphasis constant is selected. */
     void fmEmphSelected(double tau);
 
+    /*! \brief Signal emitted when AM DCR is toggled. */
+    void amDcrToggled(bool enabled);
+
 private slots:
     void on_maxdevSelector_activated(int index);
     void on_emphSelector_activated(int index);
+    void on_dcrCheckBox_toggled(bool checked);
 
 private:
     Ui::CDemodOptions *ui;

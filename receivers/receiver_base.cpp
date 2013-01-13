@@ -121,3 +121,13 @@ void receiver_base_cf::set_fm_deemph(double tau)
 {
     (void) tau;
 }
+
+bool receiver_base_cf::has_am()
+{
+    return false;
+}
+
+void receiver_base_cf::set_am_dcr(bool enabled)
+{
+    (void) enabled;
+}

@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011-2012 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -247,4 +247,9 @@ void nbrx::set_fm_maxdev(float maxdev_hz)
 void nbrx::set_fm_deemph(double tau)
 {
     demod_fm->set_tau(tau);
+}
+
+void nbrx::set_am_dcr(bool enabled)
+{
+    demod_am->set_dcr(enabled);
 }

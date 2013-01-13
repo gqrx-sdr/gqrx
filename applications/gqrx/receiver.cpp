@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011-2012 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -632,6 +632,14 @@ receiver::status receiver::set_fm_deemph(double tau)
 {
     if (rx->has_fm())
         rx->set_fm_deemph(tau);
+
+    return STATUS_OK;
+}
+
+receiver::status receiver::set_am_dcr(bool enabled)
+{
+    if (rx->has_am())
+        rx->set_am_dcr(enabled);
 
     return STATUS_OK;
 }

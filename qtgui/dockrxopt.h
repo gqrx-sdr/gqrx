@@ -144,6 +144,7 @@ private slots:
     // Signals coming from demod options pop-up
     void demodOpt_fmMaxdevSelected(float max_dev);
     void demodOpt_fmEmphSelected(double tau);
+    void demodOpt_amDcrToggled(bool enabled);
 
     // Signals coming from AGC options popup
     void agcOpt_hangToggled(bool checked);

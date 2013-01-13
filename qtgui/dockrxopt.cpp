@@ -47,6 +47,7 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     demodOpt->setCurrentPage(CDemodOptions::PAGE_FM_OPT);
     connect(demodOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(demodOpt_fmMaxdevSelected(float)));
     connect(demodOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(demodOpt_fmEmphSelected(double)));
+    connect(demodOpt, SIGNAL(amDcrToggled(bool)), this, SLOT(demodOpt_amDcrToggled(bool)));
 
     // AGC options dialog
     agcOpt = new CAgcOptions(this);
@@ -227,6 +228,8 @@ void DockRxOpt::on_modeSelector_activated(int index)
     // update demodulator option widget
     if (index == MODE_NFM)
         demodOpt->setCurrentPage(CDemodOptions::PAGE_FM_OPT);
+    else if (index == MODE_AM)
+        demodOpt->setCurrentPage(CDemodOptions::PAGE_AM_OPT);
     else
         demodOpt->setCurrentPage(CDemodOptions::PAGE_NO_OPT);
 
@@ -350,6 +353,14 @@ void DockRxOpt::demodOpt_fmMaxdevSelected(float max_dev)
 void DockRxOpt::demodOpt_fmEmphSelected(double tau)
 {
     emit fmEmphSelected(tau);
+}
+
+/*! \brief AM DC removal toggled by user.
+ *  \param enabled Whether DCR is enabled or not.
+ */
+void DockRxOpt::demodOpt_amDcrToggled(bool enabled)
+{
+    emit amDcrToggled(enabled);
 }
 
 /*! \brief Noise blanker 1 button has been toggled. */

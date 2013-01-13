@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011-2012 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -160,6 +160,9 @@ public:
     /* FM parameters */
     status set_fm_maxdev(float maxdev_hz);
     status set_fm_deemph(double tau);
+
+    /* AM parameters */
+    status set_am_dcr(bool enabled);
 
     /* Audio parameters */
     status set_af_gain(float gain_db);

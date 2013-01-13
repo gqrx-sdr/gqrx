@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011-2012 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,4 +102,9 @@ void CDemodOptions::on_emphSelector_activated(int index)
 
     tau = tau_tbl[index] * 1.0e-6;
     emit fmEmphSelected(tau);
+}
+
+void CDemodOptions::on_dcrCheckBox_toggled(bool checked)
+{
+    emit amDcrToggled(checked);
 }

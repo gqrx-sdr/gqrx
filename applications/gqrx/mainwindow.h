@@ -111,7 +111,7 @@ private slots:
     void selectDemod(int index);
     void setFmMaxdev(float max_dev);
     void setFmEmph(double tau);
-    void setAmDcrStatus(bool enabled);
+    void setAmDcr(bool enabled);
     void setAgcOn(bool agc_on);
     void setAgcHang(bool use_hang);
     void setAgcThreshold(int threshold);

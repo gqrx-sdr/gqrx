@@ -138,6 +138,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
     connect(uiDockRxOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(setFmEmph(double)));
+    connect(uiDockRxOpt, SIGNAL(amDcrToggled(bool)), this, SLOT(setAmDcr(bool)));
     connect(uiDockRxOpt, SIGNAL(agcToggled(bool)), this, SLOT(setAgcOn(bool)));
     connect(uiDockRxOpt, SIGNAL(agcHangToggled(bool)), this, SLOT(setAgcHang(bool)));
     connect(uiDockRxOpt, SIGNAL(agcThresholdChanged(int)), this, SLOT(setAgcThreshold(int)));
@@ -807,12 +808,9 @@ void MainWindow::setFmEmph(double tau)
 /*! \brief AM DCR status changed (slot).
  *  \param enabled Whether DCR is enabled or not.
  */
-void MainWindow::setAmDcrStatus(bool enabled)
+void MainWindow::setAmDcr(bool enabled)
 {
-    Q_UNUSED(enabled)
-
-    /** FIXME: obsolete */
-    //rx->set_am_dcr(enabled);
+    rx->set_am_dcr(enabled);
 }
 
 /*! \brief Audio gain changed.
