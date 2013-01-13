@@ -45,7 +45,6 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
     m_settings(settings)
 {
     unsigned int i=0;
-    QRegExp rx("'([a-zA-Z0-9 \\-\\_\\/\\.\\,\\(\\)]+)'"); // extracts device description
     QString devstr;
     QString devlabel;
     bool cfgmatch=false; //flag to indicate that device from config was found
@@ -61,12 +60,17 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
     qDebug() << __FUNCTION__ << ": Available input devices:";
     BOOST_FOREACH(osmosdr::device_t &dev, devs)
     {
-        devstr = QString(dev.to_string().c_str());
-        if (rx.indexIn(devstr, 0) != -1)
-            devlabel = rx.cap(1);
+        if (dev.count("label"))
+        {
+            devlabel = QString(dev["label"].c_str());
+            dev.erase("label");
+        }
         else
+        {
             devlabel = "Unknown";
+        }
 
+        devstr = QString(dev.to_string().c_str());
         ui->inDevCombo->addItem(devlabel, QVariant(devstr));
 
         // is this the device stored in config?
