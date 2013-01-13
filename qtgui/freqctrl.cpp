@@ -708,17 +708,6 @@ void CFreqCtrl::drawDigits(QPainter &Painter)
             m_DigitInfo[i].modified = FALSE;
         }
     }
-
-    if (Q_UNLIKELY(-1000 < m_freq && m_freq < 1000))
-    {
-        if (m_DigitInfo[m_LeadZeroPos-1].editmode && m_DigitInfo[m_LeadZeroPos-1].incval != 0)
-            Painter.fillRect(m_DigitInfo[m_LeadZeroPos-1].dQRect, m_HighlightColor);
-        else
-            Painter.fillRect(m_DigitInfo[m_LeadZeroPos-1].dQRect, m_BkColor);
-
-        Painter.drawText(m_DigitInfo[m_LeadZeroPos-1].dQRect, Qt::AlignHCenter|Qt::AlignVCenter,
-                         m_freq < 0 ? "-0" : "0");
-    }
 }
 
 //////////////////////////////////////////////////////////////////////////////
