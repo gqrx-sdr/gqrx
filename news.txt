@@ -10,6 +10,7 @@
   IMPROVED: AGC settings moved to dialog window.
   IMPROVED: Increase LO resolution to 1 Hz.
   IMPROVED: GUI layout fixes for Mac OS X.
+  IMPROVED: Shortcuts for resetting and re-centering FFT plot after zooming.
 
 
    2.1.148  Released on December 9, 2012
