@@ -41,7 +41,7 @@ DockFft::DockFft(QWidget *parent) :
     // Might be fixed in Qt 5?
     ui->resetButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     ui->centerButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
-    ui->demodButon->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+    ui->demodButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
 #endif
 }
 
