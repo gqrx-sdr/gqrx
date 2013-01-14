@@ -35,6 +35,14 @@ DockFft::DockFft(QWidget *parent) :
     ui(new Ui::DockFft)
 {
     ui->setupUi(this);
+
+#ifdef Q_WS_MAC
+    // Workaround for Mac, see http://stackoverflow.com/questions/3978889/why-is-qhboxlayout-causing-widgets-to-overlap
+    // Might be fixed in Qt 5?
+    ui->resetButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+    ui->centerButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+    ui->demodButon->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+#endif
 }
 
 DockFft::~DockFft()
@@ -227,4 +235,19 @@ void DockFft::on_fftAvgSlider_valueChanged(int value)
     double avg = 1.0 - 1.0e-2*((double)value);
 
     emit fftAvgChanged(avg);
+}
+
+void DockFft::on_resetButton_clicked(void)
+{
+    emit resetFftZoom();
+}
+
+void DockFft::on_centerButton_clicked(void)
+{
+    emit gotoFftCenter();
+}
+
+void DockFft::on_demodButton_clicked(void)
+{
+    emit gotoDemodFreq();
 }

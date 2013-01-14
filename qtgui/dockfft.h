@@ -50,12 +50,18 @@ signals:
     void fftRateChanged(int fps);   /*! \brief FFT rate changed. */
     void fftSplitChanged(int pct);  /*! \brief Split between pandapter and waterfall changed. */
     void fftAvgChanged(double gain);  /*! \brief FFT video filter gain has changed. */
+    void resetFftZoom(void);          /*! \brief FFT zoom reset. */
+    void gotoFftCenter(void);         /*! \brief Go to FFT center. */
+    void gotoDemodFreq(void);         /*! \brief Center FFT around demodulator frequency. */
 
 private slots:
     void on_fftSizeComboBox_currentIndexChanged(const QString & text);
     void on_fftRateComboBox_currentIndexChanged(const QString & text);
     void on_fftSplitSlider_valueChanged(int value);
     void on_fftAvgSlider_valueChanged(int value);
+    void on_resetButton_clicked(void);
+    void on_centerButton_clicked(void);
+    void on_demodButton_clicked(void);
 
 private:
     Ui::DockFft *ui;
