@@ -106,6 +106,10 @@ signals:
     void newFilterFreq(int low, int high);  /* substute for NewLow / NewHigh */
 
 public slots:
+    // zoom functions
+    void resetHorizontalZoom(void);
+    void moveToCenterFreq(void);
+    void moveToDemodFreq(void);
 
 protected:
     //re-implemented widget event handlers

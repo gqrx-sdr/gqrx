@@ -1,6 +1,7 @@
 /* -*- c++ -*- */
 /* + + +   This Software is released under the "Simplified BSD License"  + + +
  * Copyright 2010 Moe Wheatley. All rights reserved.
+ * Copyright 2011-2013 Alexandru Csete OZ9AEC
  *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
@@ -1068,7 +1069,6 @@ void CPlotter::setDemodRanges(int FLowCmin, int FLowCmax, int FHiCmin, int FHiCm
         drawOverlay();
 }
 
-
 void CPlotter::setCenterFreq(quint64 f)
 {
     qint64 offset = m_CenterFreq - m_DemodCenterFreq;
@@ -1076,6 +1076,33 @@ void CPlotter::setCenterFreq(quint64 f)
     m_CenterFreq = f;
     m_DemodCenterFreq = m_CenterFreq - offset;
 
+    if (m_Running)
+        m_DrawOverlay = true;
+    else
+        drawOverlay();
+}
+
+/*! \brief Reset horizontal zoom to 100% and centered around 0. */
+void CPlotter::resetHorizontalZoom(void)
+{
+    setFftCenterFreq(0);
+    setSpanFreq((qint32)m_SampleFreq);
+}
+
+/*! \brief Center FFT plot around 0 (corresponds to center freq). */
+void CPlotter::moveToCenterFreq(void)
+{
+    setFftCenterFreq(0);
+    if (m_Running)
+        m_DrawOverlay = true;
+    else
+        drawOverlay();
+}
+
+/*! \brief Center FFT plot around the dmeodulator frequency. */
+void CPlotter::moveToDemodFreq(void)
+{
+    setFftCenterFreq(m_DemodCenterFreq-m_CenterFreq);
     if (m_Running)
         m_DrawOverlay = true;
     else
