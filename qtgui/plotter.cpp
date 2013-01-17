@@ -226,13 +226,13 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
     }
     else if (XAXIS == m_CursorCaptured)
     {
-        if (event->buttons() & (Qt::LeftButton | Qt::MiddleButton))
+        if (event->buttons() & (Qt::LeftButton | Qt::MidButton))
         {
             setCursor(QCursor(Qt::ClosedHandCursor));
             // pan viewable range or move center frequency
             int delta_px = m_Xzero - pt.x();
             qint64 delta_hz = delta_px * m_Span / m_OverlayPixmap.width();
-            if (event->buttons() & Qt::MiddleButton)
+            if (event->buttons() & Qt::MidButton)
             {
                 m_CenterFreq += delta_hz;
                 m_DemodCenterFreq += delta_hz;
@@ -390,7 +390,7 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                 //m_GrabPosition = pt.x()-m_DemodFreqX;
                 drawOverlay();
             }
-            else if (event->buttons() == Qt::MiddleButton)
+            else if (event->buttons() == Qt::MidButton)
             {
                 // set center freq
                 m_CenterFreq = roundFreq(freqFromX(pt.x()), m_ClickResolution);
