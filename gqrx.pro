@@ -57,6 +57,7 @@ SOURCES += \
     dsp/resampler_xx.cpp \
     dsp/rx_demod_am.cpp \
     dsp/rx_demod_fm.cpp \
+    dsp/rx_demod_p25.cpp \
     dsp/rx_fft.cpp \
     dsp/rx_filter.cpp \
     dsp/rx_meter.cpp \
@@ -95,6 +96,7 @@ HEADERS += \
     dsp/rx_agc_xx.h \
     dsp/rx_demod_am.h \
     dsp/rx_demod_fm.h \
+    dsp/rx_demod_p25.h \
     dsp/rx_fft.h \
     dsp/rx_filter.h \
     dsp/rx_meter.h \
@@ -143,6 +145,8 @@ contains(AUDIO_BACKEND, pulse): {
         pulseaudio/pa_source.cc
     DEFINES += WITH_PULSEAUDIO
 }
+
+LIBS += -lop25 -litpp -lop25repeater
 
 # dependencies via pkg-config
 # FIXME: check for version?

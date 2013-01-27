@@ -29,6 +29,7 @@
 #include "dsp/rx_agc_xx.h"
 #include "dsp/rx_demod_fm.h"
 #include "dsp/rx_demod_am.h"
+#include "dsp/rx_demod_p25.h"
 //#include "dsp/resampler_ff.h"
 #include "dsp/resampler_xx.h"
 
@@ -53,7 +54,8 @@ public:
         NBRX_DEMOD_AM   = 1,  /*!< Amplitude modulation. */
         NBRX_DEMOD_FM   = 2,  /*!< Frequency modulation. */
         NBRX_DEMOD_SSB  = 3,  /*!< Single Side Band. */
-        NBRX_DEMOD_NUM  = 4   /*!< Included for convenience. */
+        NBRX_DEMOD_P25  = 4,  /*!< P25. */
+        NBRX_DEMOD_NUM  = 5   /*!< Included for convenience. */
     };
 
 public:
@@ -117,6 +119,7 @@ private:
     gr_complex_to_real_sptr   demod_ssb;  /*!< SSB demodulator. */
     rx_demod_fm_sptr          demod_fm;   /*!< FM demodulator. */
     rx_demod_am_sptr          demod_am;   /*!< AM demodulator. */
+    rx_demod_p25_sptr         demod_p25;  /*!< P25 demodulator. */
     resampler_ff_sptr         audio_rr;   /*!< Audio resampler. */
 
 };

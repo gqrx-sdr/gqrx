@@ -604,6 +604,15 @@ receiver::status receiver::set_demod(rx_demod demod)
         rx->set_demod(nbrx::NBRX_DEMOD_SSB);
         break;
 
+    case RX_DEMOD_P25:
+        if ((d_demod == RX_DEMOD_OFF) || wide_fm)
+        {
+            tb->disconnect_all();
+            connect_all(RX_CHAIN_NBRX);
+        }
+        rx->set_demod(nbrx::NBRX_DEMOD_P25);
+        break;
+
     default:
         ret = STATUS_ERROR;
         break;
