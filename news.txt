@@ -1,12 +1,14 @@
    2.1.xyz
 
        NEW: I/Q swapping option.
+       NEW: FFT video filter with non-linear gain.
        NEW: Save and restore FFT settings.
        NEW: AM DC removal using IIR filter.
      FIXED: Removed graphics redraw delay when changing frequency or demodulator.
      FIXED: Respect RF frequency range of input device.
-     FIXED: Correctly show the sign of filter offsets between 0 and -1 kHz.
+(not)FIXED: Correctly show the sign of filter offsets between 0 and -1 kHz.
      FIXED: Added workaround for pixel error introduced in Qt 4.8.
+     FIXED: Crash when FFT size is smaller than plot width.
   IMPROVED: AGC settings moved to dialog window.
   IMPROVED: Increase LO resolution to 1 Hz.
   IMPROVED: GUI layout fixes for Mac OS X.

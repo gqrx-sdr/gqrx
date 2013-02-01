@@ -137,10 +137,10 @@ private:
     bool isPointCloseTo(int x, int xr, int delta){return ((x > (xr-delta) ) && ( x<(xr+delta)) );}
     void clampDemodParameters();
 
-    void getScreenIntegerFFTData(qint32 MaxHeight, qint32 MaxWidth,
-                                 double MaxdB, double MindB,
-                                 qint32 StartFreq, qint32 StopFreq,
-                                 double *InBuf, qint32* OutBuf,
+    void getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
+                                 double maxdB, double mindB,
+                                 qint32 startFreq, qint32 stopFreq,
+                                 double *inBuf, qint32 *outBuf,
                                  qint32 *maxbin, qint32 *minbin);
 
     qint32 m_fftbuf[MAX_SCREENSIZE];
