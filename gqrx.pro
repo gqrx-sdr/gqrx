@@ -15,7 +15,7 @@ macx {
 }
 
 linux-g++|linux-g++-64 {
-    # Comment out to use gnuradio-audio (wont work on Linux)
+    # Comment out to use gnuradio-audio (may not work on Linux)
     AUDIO_BACKEND = pulse
 }
 
@@ -159,7 +159,7 @@ unix {
 
 unix:!macx {
     LIBS += -lboost_system -lboost_program_options
-#    LIBS += -lrt  # need to include on some distros
+    LIBS += -lrt  # need to include on some distros
 }
 
 macx-g++ {
