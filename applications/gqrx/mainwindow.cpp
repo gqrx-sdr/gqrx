@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011-2012 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  * Copyright (C) 2013 by Elias Oenal <EliasOenal@gmail.com>
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -164,7 +164,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
 
 
     // restore last session
-    if (!loadConfig(cfgfile))
+    if (!loadConfig(cfgfile, true))
     {
         qDebug() << "No input device found";
         if (on_actionIoConfig_triggered() != QDialog::Accepted)
@@ -194,9 +194,9 @@ MainWindow::~MainWindow()
     if (m_settings)
     {
         m_settings->setValue("configversion", 2);
+        m_settings->setValue("crashed", false);
 
         // save session
-        m_settings->setValue("status/deadlockGuard", false);
         storeSession();
 
         m_settings->sync();
@@ -227,10 +227,13 @@ MainWindow::~MainWindow()
  *
  * If no input device is specified, we return false to signal that the I/O configuration
  * dialog should be run.
+ *
+ * FIXME: Refactor.
  */
-bool MainWindow::loadConfig(const QString cfgfile)
+bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
 {
     bool conf_ok = false;
+    bool skipLoadingSettings = false;
 
     qDebug() << "Loading configuration from:" << cfgfile;
 
@@ -244,42 +247,36 @@ bool MainWindow::loadConfig(const QString cfgfile)
 
     qDebug() << "Configuration file:" << m_settings->fileName();
 
-    static bool onlyOnce = true;
-    bool deadlockGuard = false;
-    if(onlyOnce)
+    if (check_crash)
     {
-        deadlockGuard = m_settings->value("status/deadlockGuard", false).toBool();
-        onlyOnce = false;
-    }
-    bool skipLoadingSettings = false;
-    if(deadlockGuard)
-    {
-        qDebug() << "Deadlock guard triggered!" << endl;
-        QMessageBox* askUserAboutConfig =
-                new QMessageBox(QMessageBox::Warning, tr("Crash Detected!"),
-                                tr("Deadlock Guard\n\n"
-                                   "It seems like gqrx exited ungraceful last time you used it. "
-                                   "Loading the previous settings could cause the problem again. "
-                                   "Do you want to instead reset all settings to default?"),
-                                QMessageBox::Yes | QMessageBox::No);
-        askUserAboutConfig->setDefaultButton(QMessageBox::Yes);
-        askUserAboutConfig->exec();
-        if(askUserAboutConfig->result() == QMessageBox::Yes)
-            skipLoadingSettings = true;
-        delete askUserAboutConfig;
+        if (m_settings->value("crashed", false).toBool())
+        {
+            qDebug() << "Crash guard triggered!" << endl;
+            QMessageBox* askUserAboutConfig =
+                    new QMessageBox(QMessageBox::Warning, tr("Crash Detected!"),
+                                    tr("<p>Gqrx has detected problems with the current configuration. "
+                                       "Loading the configuration again could cause the application to crash.</p>"
+                                       "<p>Do you want to edit the settings?</p>"),
+                                    QMessageBox::Yes | QMessageBox::No);
+            askUserAboutConfig->setDefaultButton(QMessageBox::Yes);
+            askUserAboutConfig->setTextFormat(Qt::RichText);
+            askUserAboutConfig->exec();
+            if (askUserAboutConfig->result() == QMessageBox::Yes)
+                skipLoadingSettings = true;
 
-    }
-    else
-    {
-        m_settings->setValue("status/deadlockGuard", true);
-        saveConfig(cfgfile);
+            delete askUserAboutConfig;
+        }
+        else
+        {
+            m_settings->setValue("crashed", true); // clean exit will set this to FALSE
+            saveConfig(cfgfile);
+        }
     }
 
-    if(skipLoadingSettings)
+    if (skipLoadingSettings)
         return false;
 
     emit configChanged(m_settings);
-
 
     // manual reconf (FIXME: check status)
     bool conv_ok = false;
@@ -365,7 +362,7 @@ bool MainWindow::saveConfig(const QString cfgfile)
 
     if (QFile::copy(oldfile, newfile))
     {
-        loadConfig(cfgfile);
+        loadConfig(cfgfile, false);
         return true;
     }
     else
@@ -1248,7 +1245,7 @@ int MainWindow::on_actionIoConfig_triggered()
     if (confres == QDialog::Accepted)
     {
         storeSession();
-        loadConfig(m_settings->fileName());
+        loadConfig(m_settings->fileName(), false);
     }
 
     delete ioconf;
@@ -1272,7 +1269,7 @@ void MainWindow::on_actionLoadSettings_triggered()
     if (!cfgfile.endsWith(".conf", Qt::CaseSensitive))
         cfgfile.append(".conf");
 
-    loadConfig(cfgfile);
+    loadConfig(cfgfile, cfgfile != m_settings->fileName());
 
     // store last dir
     QFileInfo fi(cfgfile);

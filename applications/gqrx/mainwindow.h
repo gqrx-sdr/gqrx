@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011-2012 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ public:
     explicit MainWindow(const QString cfgfile="default.conf", QWidget *parent = 0);
     ~MainWindow();
 
-    bool loadConfig(const QString cfgfile);
+    bool loadConfig(const QString cfgfile, bool check_crash);
     bool saveConfig(const QString cfgfile);
     void storeSession();
 
