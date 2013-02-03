@@ -1,6 +1,7 @@
 /* -*- c++ -*- */
 /*
  * Copyright 2011-2012 Alexandru Csete OZ9AEC.
+ * Copyright (C) 2013 by Elias Oenal <EliasOenal@gmail.com>
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -107,8 +108,8 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
 
     /* hide docks that we don't want to show initially */
     /** FIXME: Hide them initially but store layout in config **/
-//    uiDockInputCtl->hide();
-//    uiDockFft->hide();
+    //    uiDockInputCtl->hide();
+    //    uiDockFft->hide();
     //uiDockIqPlay->hide();
 
     /* misc configurations */
@@ -161,6 +162,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     connect(uiDockFft, SIGNAL(gotoFftCenter()), ui->plotter, SLOT(moveToCenterFreq()));
     connect(uiDockFft, SIGNAL(gotoDemodFreq()), ui->plotter, SLOT(moveToDemodFreq()));
 
+
     // restore last session
     if (!loadConfig(cfgfile))
     {
@@ -194,6 +196,7 @@ MainWindow::~MainWindow()
         m_settings->setValue("configversion", 2);
 
         // save session
+        m_settings->setValue("status/deadlockGuard", false);
         storeSession();
 
         m_settings->sync();
@@ -240,6 +243,40 @@ bool MainWindow::loadConfig(const QString cfgfile)
         m_settings = new QSettings(QString("%1/%2").arg(m_cfg_dir).arg(cfgfile), QSettings::IniFormat);
 
     qDebug() << "Configuration file:" << m_settings->fileName();
+
+    static bool onlyOnce = true;
+    bool deadlockGuard = false;
+    if(onlyOnce)
+    {
+        deadlockGuard = m_settings->value("status/deadlockGuard", false).toBool();
+        onlyOnce = false;
+    }
+    bool skipLoadingSettings = false;
+    if(deadlockGuard)
+    {
+        qDebug() << "Deadlock guard triggered!" << endl;
+        QMessageBox* askUserAboutConfig =
+                new QMessageBox(QMessageBox::Warning, tr("Crash Detected!"),
+                                tr("Deadlock Guard\n\n"
+                                   "It seems like gqrx exited ungraceful last time you used it. "
+                                   "Loading the previous settings could cause the problem again. "
+                                   "Do you want to instead reset all settings to default?"),
+                                QMessageBox::Yes | QMessageBox::No);
+        askUserAboutConfig->setDefaultButton(QMessageBox::Yes);
+        askUserAboutConfig->exec();
+        if(askUserAboutConfig->result() == QMessageBox::Yes)
+            skipLoadingSettings = true;
+        delete askUserAboutConfig;
+
+    }
+    else
+    {
+        m_settings->setValue("status/deadlockGuard", true);
+        saveConfig(cfgfile);
+    }
+
+    if(skipLoadingSettings)
+        return false;
 
     emit configChanged(m_settings);
 
@@ -1233,7 +1270,7 @@ void MainWindow::on_actionLoadSettings_triggered()
         return;
 
     if (!cfgfile.endsWith(".conf", Qt::CaseSensitive))
-            cfgfile.append(".conf");
+        cfgfile.append(".conf");
 
     loadConfig(cfgfile);
 
@@ -1257,7 +1294,7 @@ void MainWindow::on_actionSaveSettings_triggered()
         return;
 
     if (!cfgfile.endsWith(".conf", Qt::CaseSensitive))
-            cfgfile.append(".conf");
+        cfgfile.append(".conf");
 
     saveConfig(cfgfile);
 
