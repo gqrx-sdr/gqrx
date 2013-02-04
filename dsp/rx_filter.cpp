@@ -20,6 +20,7 @@
 #include <cmath>
 #include <gr_io_signature.h>
 #include <gr_firdes.h>
+#include <iostream>
 #include "dsp/rx_filter.h"
 
 static const int MIN_IN = 1;  /* Mininum number of input streams. */
@@ -80,6 +81,12 @@ void rx_filter::set_param(double low, double high, double trans_width)
 
     /* generate new taps */
     d_taps = gr_firdes::complex_band_pass(1.0, d_sample_rate, d_low, d_high, d_trans_width);
+
+#ifndef QT_NO_DEBUG_OUTPUT
+    std::cout << "Genrating taps for new filter LO:" << d_low <<
+                 " HI:" << d_high << " TW:" << d_trans_width << std::endl;
+    std::cout << "Required number of taps: " << d_taps.size() << std::endl;
+#endif
 
     d_bpf->set_taps(d_taps);
 }
