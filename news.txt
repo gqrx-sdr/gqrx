@@ -9,6 +9,8 @@
 (not)FIXED: Correctly show the sign of filter offsets between 0 and -1 kHz.
      FIXED: Added workaround for pixel error introduced in Qt 4.8.
      FIXED: Crash when FFT size is smaller than plot width.
+     FIXED: Show correct intial filter preset in filter selector.
+     FIXED: Workaround for 'jerky streaming' when DSP is started using rtlsdr.
   IMPROVED: AGC settings moved to dialog window.
   IMPROVED: Increase LO resolution to 1 Hz.
   IMPROVED: GUI layout fixes for Mac OS X.
