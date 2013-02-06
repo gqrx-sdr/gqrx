@@ -156,6 +156,8 @@ private slots:
     /* window close signals */
     void afsk1200win_closed();
 
+    void forceRxReconf();
+
     /* cyclic processing */
     void decoderTimeout();
     void meterTimeout();

@@ -23,6 +23,7 @@
 #include <QDateTime>
 #include <QDesktopServices>
 #include <QDebug>
+#include <QTimer>
 #include "qtgui/ioconfig.h"
 #include "mainwindow.h"
 
@@ -1189,6 +1190,23 @@ void MainWindow::setAudioFftRate(int fps)
         audio_fft_timer->setInterval(interval);
 }
 
+/*! \brief Force receiver reconfiguration.
+ *
+ * Aka. jerky dongle workaround.
+ *
+ * This function forces a receiver reconfiguration by sending a fake
+ * selectDemod() signal using the current demodulator selection.
+ *
+ * This function provides a workaround for the "jerky streaming" that has
+ * been experienced using some RTL-SDR dongles when DSP processing is
+ * started. The jerkyness disappears when trhe receiver is reconfigured
+ * by selecting a new demodulator.
+ */
+void MainWindow::forceRxReconf()
+{
+    qDebug() << "Force RX reconf (jerky dongle workarond)...";
+    selectDemod(uiDockRxOpt->currentDemod());
+}
 
 /*! \brief Start/Stop DSP processing.
  *  \param checked Flag indicating whether DSP processing should be ON or OFF.
@@ -1211,6 +1229,9 @@ void MainWindow::on_actionDSP_triggered(bool checked)
         /* update menu text and button tooltip */
         ui->actionDSP->setToolTip(tr("Stop DSP processing"));
         ui->actionDSP->setText(tr("Stop DSP"));
+
+        // reconfigure RX after 1s to counteract possible jerky streaming from rtl dongles
+        QTimer::singleShot(1000, this, SLOT(forceRxReconf()));
     }
     else
     {

@@ -20,6 +20,8 @@
 #include <iostream>
 #include <cmath>
 
+#include <unistd.h>
+
 #include <gr_top_block.h>
 #include <gr_multiply_const_ff.h>
 
@@ -537,8 +539,11 @@ receiver::status receiver::set_demod(rx_demod demod)
     bool wide_fm = (d_demod == RX_DEMOD_WFM_M) || (d_demod == RX_DEMOD_WFM_S);
     status ret = STATUS_OK;
 
-    if (demod == d_demod)
-        return ret;
+    // Allow reconf using same demod to provide a workaround
+    // for the "jerky streaming" we may experience with rtl
+    // dongles (the jerkyness disappears when we run this function)
+    //if (demod == d_demod)
+    //    return ret;
 
     if (d_running)
         stop();
