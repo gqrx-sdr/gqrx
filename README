@@ -12,7 +12,7 @@ The following sections are some rather generic instructions for building the lat
     - RTL-SDR from http://cgit.osmocom.org/cgit/rtl-sdr/
     - Osmo SDR from http://cgit.osmocom.org/cgit/osmo-sdr/
 - gnuradio-osmosdr from http://cgit.osmocom.org/cgit/gr-osmosdr/
-- pulseaudio (Linux only)
+- pulseaudio (Linux only and optional)
 - Qt 4.7 or later and Qt Creator.
 
 
@@ -53,15 +53,35 @@ This includes getting help with installation and troubleshooting.
 6. Credits and License
 
 Gqrx is designed and written by Alexandru Csete OZ9AEC, and it is licensed under the GNU General Public License.
+Some of the source files were adopted from Cutesdr by Moe Weatley and these come with a BSD license.
+Following people have contributed in one way or other:
 
-Some of the source files were adopted from Cutesdr by Moe Weatley. These files come with a BSD license.
+Alex Grinkov:
+  - FM stereo demodulator.
 
-FM Stereo demodulator by Alex Grinkov.
+Elias Önal:
+  - Building Gqrx on Mac OS X.
+  - Crash recovery dialog.
 
-Vincent Pelletier has contributed work on the horizontal zooming / scrolling code.
+Frank Brickle, AB2KT:
+Bob McGwier, N4HY:
+  - Noise blanker (from dttsp).
 
-Elias Önal has contributed work to re-enable building Gqrx on Mac OS X.
+Moe Weatley:
+  - FFT plotter and waterfall.
+  - Frequency selector.
+  - Signal strength indicator.
+  - AGC
+
+Vesa Solonen:
+  - DC removal in AM demodulator.
+
+Vincent Pelletier
+  - Initial work on the horizontal zooming / scrolling.
 
 Some icons are from the GNOME and Tango icon themes.
 The scope.svg icon is based on the utilities-system-monitor.svg icon from the Mint-X icon theme licensed under GNU GPL.
 
+Let me know if somebody or someting is missing from the list!
+
+Alex OZ9AEC
