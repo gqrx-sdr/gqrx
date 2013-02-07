@@ -24,7 +24,7 @@
 #include "ui_dockfft.h"
 
 
-#define DEFAULT_FFT_RATE  10
+#define DEFAULT_FFT_RATE  15
 #define DEFAULT_FFT_SIZE  4096
 #define DEFAULT_FFT_SPLIT 50
 #define DEFAULT_FFT_AVG   50
@@ -64,16 +64,10 @@ int DockFft::fftRate()
     fps = strval.toInt(&ok, 10);
 
     if (!ok)
-    {
         qDebug() << "DockFft::fftRate : Could not convert" <<
                     strval << "to number.";
-    }
-
-    if (fps == 0)
-    {
-        qDebug() << "Somehow we ended up with FFT rate = 0; using" << DEFAULT_FFT_RATE;
-        fps = DEFAULT_FFT_RATE;
-    }
+    else
+        qDebug() << "New FFT rate:" << fps << "Hz";
 
     return fps;
 }

@@ -93,7 +93,7 @@
           <bool>false</bool>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <property name="insertPolicy">
           <enum>QComboBox::InsertAlphabetically</enum>
@@ -172,6 +172,11 @@
          </property>
          <item>
           <property name="text">
+           <string>50 fps</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
            <string>30 fps</string>
           </property>
          </item>
@@ -208,6 +213,11 @@
          <item>
           <property name="text">
            <string>1 fps</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>0 fps</string>
           </property>
          </item>
         </widget>

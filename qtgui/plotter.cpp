@@ -53,7 +53,7 @@ CPlotter::CPlotter(QWidget *parent) :
     setAutoFillBackground(false);
     setAttribute(Qt::WA_OpaquePaintEvent, false);
     setAttribute(Qt::WA_NoSystemBackground, true);
-    setMouseTracking ( true );
+    setMouseTracking(true);
 
     //create a default waterfall color scheme
     // *** Need to read from file ***
@@ -104,7 +104,7 @@ CPlotter::CPlotter(QWidget *parent) :
     m_FreqUnits = 1000000;
     m_CursorCaptured = NONE;
     m_Running = false;
-    m_DrawOverlay = false;
+    m_DrawOverlay = true;
     m_2DPixmap = QPixmap(0,0);
     m_OverlayPixmap = QPixmap(0,0);
     m_WaterfallPixmap = QPixmap(0,0);

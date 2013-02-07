@@ -1152,12 +1152,22 @@ void MainWindow::setIqFftSize(int size)
 /*! \brief Baseband FFT rate has changed. */
 void MainWindow::setIqFftRate(int fps)
 {
-    int interval = 1000 / fps;
+    int interval;
 
-    if (interval < 10)
-        return;
+    if (fps == 0)
+    {
+        interval = 36e7; // 100 hours
+        ui->plotter->setRunningState(false);
+    }
+    else
+    {
+        interval = 1000 / fps;
 
-    if (iq_fft_timer->isActive())
+        if (iq_fft_timer->isActive())
+            ui->plotter->setRunningState(true);
+    }
+
+    if (interval > 9 && iq_fft_timer->isActive())
         iq_fft_timer->setInterval(interval);
 }
 
@@ -1223,8 +1233,19 @@ void MainWindow::on_actionDSP_triggered(bool checked)
 
         /* start GUI timers */
         meter_timer->start(100);
-        iq_fft_timer->start(1000/uiDockFft->fftRate());
-        audio_fft_timer->start(1000/uiDockAudio->fftRate());
+
+        if (uiDockFft->fftRate())
+        {
+            iq_fft_timer->start(1000/uiDockFft->fftRate());
+            ui->plotter->setRunningState(true);
+        }
+        else
+        {
+            iq_fft_timer->start(36e7); // 100 hours
+            ui->plotter->setRunningState(false);
+        }
+
+        audio_fft_timer->start(100);
 
         /* update menu text and button tooltip */
         ui->actionDSP->setToolTip(tr("Stop DSP processing"));
@@ -1246,6 +1267,8 @@ void MainWindow::on_actionDSP_triggered(bool checked)
         /* update menu text and button tooltip */
         ui->actionDSP->setToolTip(tr("Start DSP processing"));
         ui->actionDSP->setText(tr("Start DSP"));
+
+        ui->plotter->setRunningState(false);
     }
 }
 
