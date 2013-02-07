@@ -40,6 +40,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     ui(new Ui::MainWindow),
     d_lnb_lo(0),
     d_fftAvg(0.5),
+    d_have_audio(true),
     dec_afsk1200(0)
 {
     ui->setupUi(this);
@@ -802,6 +803,8 @@ void MainWindow::selectDemod(int index)
     ui->plotter->setClickResolution(click_res);
     ui->plotter->setFilterClickResolution(click_res);
     rx->set_filter((double)flo, (double)fhi, receiver::FILTER_SHAPE_NORMAL);
+
+    d_have_audio = ((index != DockRxOpt::MODE_OFF) && (index != DockRxOpt::MODE_RAW));
 }
 
 
@@ -999,6 +1002,8 @@ void MainWindow::audioFftTimeout()
     std::complex<float> pt;             /* a single FFT point used in calculations */
     std::complex<float> scaleFactor;    /* normalizing factor (fftsize cast to complex) */
 
+    if (!d_have_audio)
+        return;
 
     rx->get_audio_fft_data(d_fftData, fftsize);
 
