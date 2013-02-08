@@ -290,10 +290,10 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         rx->set_input_device(indev.toStdString());
 
         // Update window title
-        QRegExp regxp("'([a-zA-Z0-9 \\-\\_\\/\\.\\,\\(\\)]+)'");
+        QRegExp regexp("'([a-zA-Z0-9 \\-\\_\\/\\.\\,\\(\\)]+)'");
         QString devlabel;
-        if (regxp.indexIn(indev, 0) != -1)
-            devlabel = regxp.cap(1);
+        if (regexp.indexIn(indev, 0) != -1)
+            devlabel = regexp.cap(1);
         else
             devlabel = indev; //"Unknown";
 
