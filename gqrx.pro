@@ -41,8 +41,7 @@ CONFIG(debug, debug|release) {
 }
 
 # Tip from: http://www.qtcentre.org/wiki/index.php?title=Version_numbering_using_QMake
-#VERSTR = '\\"$${VER}\\"'          # place quotes around the version string
-VERSTR = '\\"$$system(git describe)\\"'
+VERSTR = '\\"$${VER}\\"'          # place quotes around the version string
 DEFINES += VERSION=\"$${VERSTR}\" # create a VERSION macro containing the version string
 
 
