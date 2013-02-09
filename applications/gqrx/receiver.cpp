@@ -17,29 +17,26 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include <iostream>
 #include <cmath>
-
+#include <iostream>
 #include <unistd.h>
 
 #include <gr_top_block.h>
 #include <gr_multiply_const_ff.h>
-
 #include <osmosdr_source_c.h>
 #include <osmosdr_ranges.h>
 
 #include "applications/gqrx/receiver.h"
 #include "dsp/correct_iq_cc.h"
 #include "dsp/rx_fft.h"
+#include "receivers/nbrx.h"
+#include "receivers/wfmrx.h"
 
 #ifdef WITH_PULSEAUDIO //pafix
 #include "pulseaudio/pa_sink.h"
 #else
 #include <gr_audio_sink.h>
 #endif
-
-#include "receivers/nbrx.h"
-#include "receivers/wfmrx.h"
 
 /*! \brief Public contructor.
  *  \param input_device Input device specifier.
