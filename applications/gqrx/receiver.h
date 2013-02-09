@@ -20,6 +20,8 @@
 #ifndef RECEIVER_H
 #define RECEIVER_H
 
+#include <string>
+
 #include <gr_multiply_const_ff.h>
 #include <gr_multiply_cc.h>
 #include <gr_null_sink.h>
@@ -193,6 +195,9 @@ private:
     bool   d_recording_wav;    /*!< Whether we are recording WAV file. */
     bool   d_sniffer_active;   /*!< Only one data decoder allowed. */
     bool   d_iq_rev;           /*!< Whether I/Q is reversed or not. */
+
+    std::string input_devstr;  /*!< Current input device string. */
+    std::string output_devstr; /*!< Current output device string. */
 
     rx_demod  d_demod;          /*!< Current demodulator. */
 
