@@ -1293,8 +1293,16 @@ int MainWindow::on_actionIoConfig_triggered()
 
     if (confres == QDialog::Accepted)
     {
+        if (ui->actionDSP->isChecked())
+            // suspend DSP while we reload settings
+            on_actionDSP_triggered(false);
+
         storeSession();
         loadConfig(m_settings->fileName(), false);
+
+        if (ui->actionDSP->isChecked())
+            // restsart DSP
+            on_actionDSP_triggered(true);
     }
 
     delete ioconf;

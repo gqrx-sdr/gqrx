@@ -17,29 +17,26 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include <iostream>
 #include <cmath>
-
+#include <iostream>
 #include <unistd.h>
 
 #include <gr_top_block.h>
 #include <gr_multiply_const_ff.h>
-
 #include <osmosdr_source_c.h>
 #include <osmosdr_ranges.h>
 
 #include "applications/gqrx/receiver.h"
 #include "dsp/correct_iq_cc.h"
 #include "dsp/rx_fft.h"
+#include "receivers/nbrx.h"
+#include "receivers/wfmrx.h"
 
 #ifdef WITH_PULSEAUDIO //pafix
 #include "pulseaudio/pa_sink.h"
 #else
 #include <gr_audio_sink.h>
 #endif
-
-#include "receivers/nbrx.h"
-#include "receivers/wfmrx.h"
 
 /*! \brief Public contructor.
  *  \param input_device Input device specifier.
@@ -68,6 +65,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     }
     else
     {
+        input_devstr = input_device;
         src = osmosdr_make_source_c(input_device);
     }
 
@@ -87,6 +85,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
 #else
     audio_snk = audio_make_sink(d_audio_rate, audio_device, true);
 #endif
+
+    output_devstr = audio_device;
 
     /* wav sink and source is created when rec/play is started */
     audio_null_sink = gr_make_null_sink(sizeof(float));
@@ -144,6 +144,18 @@ void receiver::set_input_device(const std::string device)
     if (device.empty())
         return;
 
+    if (input_devstr.compare(device) == 0)
+    {
+#ifndef QT_NO_DEBUG_OUTPUT
+        std::cout << "No change in input device:" << std::endl
+                  << "  old: " << input_devstr << std::endl
+                  << "  new: " << device << std::endl;
+#endif
+        return;
+    }
+
+    input_devstr = device;
+
     tb->lock();
 
     tb->disconnect(src, 0, dc_corr, 0);
@@ -158,6 +170,16 @@ void receiver::set_input_device(const std::string device)
 /*! \brief Select new audio output device. */
 void receiver::set_output_device(const std::string device)
 {
+    if (output_devstr.compare(device) == 0)
+    {
+#ifndef QT_NO_DEBUG_OUTPUT
+        std::cout << "No change in output device:" << std::endl
+                  << "  old: " << output_devstr << std::endl
+                  << "  new: " << device << std::endl;
+#endif
+        return;
+    }
+
     tb->lock();
 
     tb->disconnect(audio_gain0, 0, audio_snk, 0);
@@ -183,11 +205,21 @@ void receiver::set_output_device(const std::string device)
  */
 double receiver::set_input_rate(double rate)
 {
-    tb->lock();
-    d_input_rate = src->set_sample_rate(rate);
-    rx->set_quad_rate(d_input_rate);
-    lo->set_sampling_freq(d_input_rate);
-    tb->unlock();
+    // don't bother with sub-hertz changes
+    if (fabs(rate-d_input_rate) < 1.0)
+    {
+#ifndef QT_NO_DEBUG_OUTPUT
+        std::cout << "No siginficant change in input sample rate" << std::endl;
+#endif
+    }
+    else
+    {
+        tb->lock();
+        d_input_rate = src->set_sample_rate(rate);
+        rx->set_quad_rate(d_input_rate);
+        lo->set_sampling_freq(d_input_rate);
+        tb->unlock();
+    }
 
     return d_input_rate;
 }
