@@ -327,8 +327,8 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
     ui->freqCtrl->setFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&conv_ok));
     setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
 
-    uiDockInputCtl->setGain(m_settings->value("input/gain", 0.5).toDouble(&conv_ok));
-    setRfGain(m_settings->value("input/gain", 0.5).toDouble(&conv_ok));
+    uiDockInputCtl->setGain(m_settings->value("input/gain", -1).toDouble(&conv_ok));
+    setRfGain(m_settings->value("input/gain", -1).toDouble(&conv_ok));
 
     uiDockFft->readSettings(m_settings);
 
