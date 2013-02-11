@@ -12,6 +12,7 @@
      FIXED: Show correct intial filter preset in filter selector.
      FIXED: Workaround for 'jerky streaming' when DSP is started using rtlsdr.
      FIXED: Freeze when channel filter becomes too narrow in AM and FM modes.
+   CHANGED: Show device ID (e.g. rtl=0) in title bar ionstead of description.
   IMPROVED: AGC settings moved to dialog window.
   IMPROVED: Increase LO resolution to 1 Hz.
   IMPROVED: GUI layout fixes for Mac OS X.
