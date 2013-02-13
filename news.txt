@@ -1,7 +1,7 @@
    2.1.xyz
 
        NEW: I/Q swapping option.
-       NEW: FFT video filter with non-linear gain.
+       NEW: FFT video filter with non-linear gain (still WIP).
        NEW: Save and restore FFT settings.
        NEW: AM DC removal using IIR filter.
      FIXED: Removed graphics redraw delay when changing frequency or demodulator.
@@ -12,6 +12,7 @@
      FIXED: Show correct intial filter preset in filter selector.
      FIXED: Workaround for 'jerky streaming' when DSP is started using rtlsdr.
      FIXED: Freeze when channel filter becomes too narrow in AM and FM modes.
+     FIXED: Crash when changing sample rate of the current input device.
    CHANGED: Show device ID (e.g. rtl=0) in title bar ionstead of description.
   IMPROVED: AGC settings moved to dialog window.
   IMPROVED: Increase LO resolution to 1 Hz.
