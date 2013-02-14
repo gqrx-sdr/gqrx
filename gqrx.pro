@@ -21,6 +21,9 @@ linux-g++|linux-g++-64 {
 
 RESOURCES += icons.qrc
 
+# make clean target
+QMAKE_CLEAN += gqrx
+
 #CONFIG += debug
 
 # disable debug messages in release
@@ -41,12 +44,8 @@ CONFIG(debug, debug|release) {
 }
 
 # Tip from: http://www.qtcentre.org/wiki/index.php?title=Version_numbering_using_QMake
-#VERSTR = '\\"$${VER}\\"'          # place quotes around the version string
-VERSTR = '\\"$$system(git describe)\\"'
+VERSTR = '\\"$${VER}\\"'          # place quotes around the version string
 DEFINES += VERSION=\"$${VERSTR}\" # create a VERSION macro containing the version string
-
-# remove the target executable
-QMAKE_CLEAN += gqrx
 
 SOURCES += \
     applications/gqrx/main.cpp \
