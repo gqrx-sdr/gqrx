@@ -290,12 +290,12 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         rx->set_input_device(indev.toStdString());
 
         // Update window title
-        QRegExp rx("'([a-zA-Z0-9 \\-\\_\\/\\.\\,\\(\\)]+)'");
+        QRegExp regexp("'([a-zA-Z0-9 \\-\\_\\/\\.\\,\\(\\)]+)'");
         QString devlabel;
-        if (rx.indexIn(indev, 0) != -1)
-            devlabel = rx.cap(1);
+        if (regexp.indexIn(indev, 0) != -1)
+            devlabel = regexp.cap(1);
         else
-            devlabel = "Unknown";
+            devlabel = indev; //"Unknown";
 
         setWindowTitle(QString("Gqrx %1 - %2").arg(VERSION).arg(devlabel));
     }
@@ -327,8 +327,8 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
     ui->freqCtrl->setFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&conv_ok));
     setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
 
-    uiDockInputCtl->setGain(m_settings->value("input/gain", 0.5).toDouble(&conv_ok));
-    setRfGain(m_settings->value("input/gain", 0.5).toDouble(&conv_ok));
+    uiDockInputCtl->setGain(m_settings->value("input/gain", -1).toDouble(&conv_ok));
+    setRfGain(m_settings->value("input/gain", -1).toDouble(&conv_ok));
 
     uiDockFft->readSettings(m_settings);
 
@@ -598,7 +598,7 @@ void MainWindow::selectDemod(int index)
         /* AM */
     case DockRxOpt::MODE_AM:
         rx->set_demod(receiver::RX_DEMOD_AM);
-        ui->plotter->setDemodRanges(-20000, -100, 100, 20000, true);
+        ui->plotter->setDemodRanges(-20000, -250, 250, 20000, true);
         uiDockAudio->setFftRange(0,15000);
         click_res = 100;
         switch (filter_preset)
@@ -625,7 +625,7 @@ void MainWindow::selectDemod(int index)
         maxdev = uiDockRxOpt->currentMaxdev();
         if (maxdev < 20000.0)
         {   /** FIXME **/
-            ui->plotter->setDemodRanges(-25000, -100, 100, 25000, true);
+            ui->plotter->setDemodRanges(-25000, -250, 250, 25000, true);
             uiDockAudio->setFftRange(0,12000);
             switch (filter_preset) {
             case 0: //wide
@@ -1293,8 +1293,16 @@ int MainWindow::on_actionIoConfig_triggered()
 
     if (confres == QDialog::Accepted)
     {
+        if (ui->actionDSP->isChecked())
+            // suspend DSP while we reload settings
+            on_actionDSP_triggered(false);
+
         storeSession();
         loadConfig(m_settings->fileName(), false);
+
+        if (ui->actionDSP->isChecked())
+            // restsart DSP
+            on_actionDSP_triggered(true);
     }
 
     delete ioconf;

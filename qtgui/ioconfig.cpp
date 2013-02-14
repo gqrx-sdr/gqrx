@@ -219,13 +219,24 @@ void CIoConfig::updateInputSampleRates(int rate)
     }
     else if (ui->inDevEdit->text().contains("rtl"))
     {
-        if (rate > 0)
-            ui->inSrCombo->addItem(QString("%1").arg(rate));
-        ui->inSrCombo->addItem("1000000");
+        ui->inSrCombo->addItem("250000");
+        ui->inSrCombo->addItem("1200000");
         ui->inSrCombo->addItem("1500000");
+        ui->inSrCombo->addItem("1700000");
         ui->inSrCombo->addItem("2000000");
+        ui->inSrCombo->addItem("2200000");
         ui->inSrCombo->addItem("2400000");
-        ui->inSrCombo->addItem("3000000");
+        ui->inSrCombo->addItem("2700000");
+        ui->inSrCombo->addItem("3200000");
+        if (rate > 0)
+        {
+            ui->inSrCombo->addItem(QString("%1").arg(rate));
+            ui->inSrCombo->setCurrentIndex(9);
+        }
+        else
+        {
+            ui->inSrCombo->setCurrentIndex(2);
+        }
     }
     else if (ui->inDevEdit->text().contains("uhd"))
     {

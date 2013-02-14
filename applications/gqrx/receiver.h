@@ -20,13 +20,15 @@
 #ifndef RECEIVER_H
 #define RECEIVER_H
 
-#include <gr_top_block.h>
+#include <string>
+
 #include <gr_multiply_const_ff.h>
 #include <gr_multiply_cc.h>
+#include <gr_null_sink.h>
 #include <gr_sig_source_c.h>
+#include <gr_top_block.h>
 #include <gr_wavfile_sink.h>
 #include <gr_wavfile_source.h>
-#include <gr_null_sink.h>
 
 #include <osmosdr_source_c.h>
 
@@ -44,7 +46,6 @@
 
 #ifdef WITH_PULSEAUDIO
 #include <pulseaudio/pa_sink.h>
-//#include <pulseaudio/pa_source.h>
 #else
 #include <gr_audio_sink.h>
 #endif
@@ -194,6 +195,9 @@ private:
     bool   d_recording_wav;    /*!< Whether we are recording WAV file. */
     bool   d_sniffer_active;   /*!< Only one data decoder allowed. */
     bool   d_iq_rev;           /*!< Whether I/Q is reversed or not. */
+
+    std::string input_devstr;  /*!< Current input device string. */
+    std::string output_devstr; /*!< Current output device string. */
 
     rx_demod  d_demod;          /*!< Current demodulator. */
 
