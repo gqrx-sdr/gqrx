@@ -45,6 +45,8 @@ CONFIG(debug, debug|release) {
 VERSTR = '\\"$$system(git describe)\\"'
 DEFINES += VERSION=\"$${VERSTR}\" # create a VERSION macro containing the version string
 
+# remove the target executable
+QMAKE_CLEAN += gqrx
 
 SOURCES += \
     applications/gqrx/main.cpp \
