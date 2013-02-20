@@ -5,7 +5,7 @@ The following sections are some rather generic instructions for building the lat
 
 1. Dependencies
 
-- GNU Radio (gnuradio-core and gnuradio-audio)
+- GNU Radio 3.6 or later (gnuradio-core and gnuradio-audio)
 - At least one of:
     - gnuradio-fcd
     - gnuradio-uhd
@@ -13,7 +13,7 @@ The following sections are some rather generic instructions for building the lat
     - Osmo SDR from http://cgit.osmocom.org/cgit/osmo-sdr/
 - gnuradio-osmosdr from http://cgit.osmocom.org/cgit/gr-osmosdr/
 - pulseaudio (Linux only and optional)
-- Qt 4.7 or later and Qt Creator.
+- Qt 4.6 or later and Qt Creator
 
 
 2. Installation
@@ -23,7 +23,13 @@ If you are compiling on Mac open gqrx.pro in Qt Creator and comment out the "AUD
 $ qmake gqrx.pro
 $ make
 
-To build in debug mode add "CONFIG+=debug" (with the quotes) to the qmake step above.
+To build in debug mode add "CONFIG+=debug" to the qmake step above.
+
+Various snapshot releases (source and binaries) are avaialble from:
+http://sourceforge.net/projects/gqrx/
+
+Third party app bundle for Macs can be downloaded here:
+http://dekar.wc3edit.net/2012/09/30/osx-port-of-the-awesome-gqrx-sdr-software/
 
 
 3. Usage
@@ -34,30 +40,34 @@ Gqrx will now open a device configuration dialog when you start and it will auto
 If you don't see your device it could be that you forgot to add the udev rule to /etc/udev/rules.d/
 You can test your device first with rtl_test, qthid, or uhd_usrp_probe that come with the respective packages.
 
+Gqrx supports multiple configurations and sessions if you have several devices or if you want to use the same device under different configurations. You can load a configuratio from the GUI or using the -c command line argument. See "gqrx --help" for a complete list of command line arguments.
+
 
 4. Known problems
 
-- Opening the IO device configurator and pressing OK with the
-  same device will crash the application.
-- Device arguments not documented.
-- Only tested with Funcube Dongle and RT2832U-based devices.
-- Funcube Dongle will not work on systems with libusb-1.0.9 (try gqrx-2.0 instead)
+- Reconfiguring a device may lead to applicvation freeze or crash.
+- Device arguments not well documented.
+- Funcube Dongle may not work well on systems with libusb-1.0.9 (try gqrx-2.0 instead).
+- Some settings are not saved between sessions.
 
 
 5. Getting help and reporting bugs
 
 There is now a Google group for discussing anything related to Gqrx: https://groups.google.com/forum/#!forum/gqrx
-This includes getting help with installation and troubleshooting.
+This includes getting help with installation and troubleshooting. Please remember to provide detailed description of your problem, your setup, what steps you followed, etc.
 
 
 6. Credits and License
 
 Gqrx is designed and written by Alexandru Csete OZ9AEC, and it is licensed under the GNU General Public License.
 Some of the source files were adopted from Cutesdr by Moe Weatley and these come with a BSD license.
-Following people have contributed in one way or other:
+Following people have contributed:
 
 Alex Grinkov:
   - FM stereo demodulator.
+
+Anthony Willard:
+  - Various fixes and improvements
 
 Elias Önal:
   - Building Gqrx on Mac OS X.
