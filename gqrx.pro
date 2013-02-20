@@ -173,7 +173,7 @@ macx-g++ {
 }
 
 OTHER_FILES += \
-    README \
+    README.md \
     COPYING \
     news.txt
 
