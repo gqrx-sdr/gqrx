@@ -73,7 +73,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     lo = gr_make_sig_source_c(d_input_rate, GR_SIN_WAVE, 0.0, 1.0);
     mixer = gr_make_multiply_cc();
 
-    dc_corr = make_dc_corr_cc(0.01f);
+    iq_swap = make_iq_swap_cc(false);
+    dc_corr = make_dc_corr_cc(d_input_rate, 0.1);
     iq_fft = make_rx_fft_c(4096u, 0);
 
     audio_fft = make_rx_fft_f(3072u);
@@ -158,10 +159,10 @@ void receiver::set_input_device(const std::string device)
 
     tb->lock();
 
-    tb->disconnect(src, 0, dc_corr, 0);
+    tb->disconnect(src, 0, iq_swap, 0);
     src.reset();
     src = osmosdr_make_source_c(device);
-    tb->connect(src, 0, dc_corr, 0);
+    tb->connect(src, 0, iq_swap, 0);
 
     tb->unlock();
 }
@@ -216,6 +217,7 @@ double receiver::set_input_rate(double rate)
     {
         tb->lock();
         d_input_rate = src->set_sample_rate(rate);
+        dc_corr->set_sample_rate(d_input_rate);
         rx->set_quad_rate(d_input_rate);
         lo->set_sampling_freq(d_input_rate);
         tb->unlock();
@@ -237,8 +239,8 @@ void receiver::set_iq_swap(bool reversed)
     if (reversed == d_iq_rev)
         return;
 
-    dc_corr->set_iq_swap(reversed);
     d_iq_rev = reversed;
+    iq_swap->set_enabled(d_iq_rev);
 }
 
 /*! \brief Get current I/Q reversed setting. */
@@ -986,7 +988,8 @@ void receiver::connect_all(rx_chain type)
     switch (type)
     {
     case RX_CHAIN_NONE:
-        tb->connect(src, 0, dc_corr, 0);
+        tb->connect(src, 0, iq_swap, 0);
+        tb->connect(iq_swap, 0, dc_corr, 0);
         tb->connect(dc_corr, 0, iq_fft, 0);
         break;
 
@@ -996,7 +999,8 @@ void receiver::connect_all(rx_chain type)
             rx.reset();
             rx = make_nbrx(d_input_rate, d_audio_rate);
         }
-        tb->connect(src, 0, dc_corr, 0);
+        tb->connect(src, 0, iq_swap, 0);
+        tb->connect(iq_swap, 0,dc_corr, 0);
         tb->connect(dc_corr, 0, iq_fft, 0);
         tb->connect(dc_corr, 0, mixer, 0);
         tb->connect(lo, 0, mixer, 1);
@@ -1014,7 +1018,8 @@ void receiver::connect_all(rx_chain type)
             rx.reset();
             rx = make_wfmrx(d_input_rate, d_audio_rate);
         }
-        tb->connect(src, 0, dc_corr, 0);
+        tb->connect(src, 0, iq_swap, 0);
+        tb->connect(iq_swap, 0,dc_corr, 0);
         tb->connect(dc_corr, 0, iq_fft, 0);
         tb->connect(dc_corr, 0, mixer, 0);
         tb->connect(lo, 0, mixer, 1);

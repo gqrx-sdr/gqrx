@@ -20,6 +20,7 @@
   IMPROVED: Shortcuts for resetting and re-centering FFT plot after zooming.
   IMPROVED: Crash recovery in case of bad config file.
   IMPROVED: Support 50 fps FFT rate and allow disabling FFT.
+  IMPROVED: I/Q DC cancelling.
 
 
    2.1.148  Released on December 9, 2012

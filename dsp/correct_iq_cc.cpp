@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2012 Alexandru Csete OZ9AEC.
+ * Copyright 2012-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,17 +17,15 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include <math.h>
 #include <gr_io_signature.h>
 #include <gr_complex.h>
-#include <gruel/high_res_timer.h>
 #include <iostream>
 #include "dsp/correct_iq_cc.h"
 
 
-dc_corr_cc_sptr make_dc_corr_cc(float alpha)
+dc_corr_cc_sptr make_dc_corr_cc(double sample_rate, double tau)
 {
-    return gnuradio::get_initial_sptr(new dc_corr_cc(alpha));
+    return gnuradio::get_initial_sptr(new dc_corr_cc(sample_rate, tau));
 }
 
 
@@ -35,16 +33,26 @@ dc_corr_cc_sptr make_dc_corr_cc(float alpha)
  *
  * Use make_dc_corr_cc() instead.
  */
-dc_corr_cc::dc_corr_cc(float alpha)
-    : gr_sync_block ("dc_corr_cc",
+dc_corr_cc::dc_corr_cc(double sample_rate, double tau)
+    : gr_hier_block2 ("dc_corr_cc",
           gr_make_io_signature(1, 1, sizeof(gr_complex)),
-          gr_make_io_signature(1, 1, sizeof(gr_complex))),
-      d_alpha(alpha),
-      d_avg_i(0.0),
-      d_avg_q(0.0),
-      d_iq_rev(false)
+          gr_make_io_signature(1, 1, sizeof(gr_complex)))
 {
+    d_period = 1.0 / sample_rate;
+    d_tau = tau;
+    d_alpha = 1.0 / (1.0 + d_tau * sample_rate);
 
+#ifndef QT_NO_DEBUG_OUTPUT
+    std::cout << "IQ DCR alpha: " << d_alpha << std::endl;
+#endif
+
+    d_iir = gr_make_single_pole_iir_filter_cc(d_alpha, 1);
+    d_sub = gr_make_sub_cc(1);
+
+    connect(self(), 0, d_iir, 0);
+    connect(self(), 0, d_sub, 0);
+    connect(d_iir, 0, d_sub, 1);
+    connect(d_sub, 0, self(), 0);
 }
 
 dc_corr_cc::~dc_corr_cc()
@@ -52,76 +60,133 @@ dc_corr_cc::~dc_corr_cc()
 
 }
 
-
-/*! \brief DC correction block work method.
- *  \param moutput_items
- *  \param input_items
- *  \param output_items
- */
-int dc_corr_cc::work(int noutput_items,
-                     gr_vector_const_void_star &input_items,
-                     gr_vector_void_star &output_items)
+/*! \brief Set new sample rate. */
+void dc_corr_cc::set_sample_rate(double sample_rate)
 {
-    const gr_complex *in = (const gr_complex *) input_items[0];
-    gr_complex *out = (gr_complex *) output_items[0];
-    int i;
+    d_period = 1.0 / sample_rate;
+    d_alpha = 1.0 / (1.0 + d_tau * sample_rate);
 
-    float sum_i = 0.0;
-    float sum_q = 0.0;
-
-
-    for (i = 0; i < noutput_items; i++)
-    {
-        sum_q += in[i].imag();
-        sum_i += in[i].real();
-    }
-
-    d_avg_i = d_avg_i*(1.f-d_alpha) + d_alpha*(sum_i/noutput_items);
-    d_avg_q = d_avg_q*(1.f-d_alpha) + d_alpha*(sum_q/noutput_items);
+    d_iir->set_taps(d_alpha);
 
 #ifndef QT_NO_DEBUG_OUTPUT
-    gruel::high_res_timer_type tnow = gruel::high_res_timer_now();
-    if ((tnow-d_dbg_timer) / gruel::high_res_timer_tps() > 5)
-    {
-        d_dbg_timer = tnow;
-        std::cout << "AVG I/Q: " << d_avg_i << " / " << d_avg_q << std::endl;
-    }
+    std::cout << "IQ DCR samp_rate / period: " << sample_rate << " / " << d_period << std::endl;
+    std::cout << "IQ DCR alpha: " << d_alpha << std::endl;
 #endif
+}
 
-    if (d_iq_rev)
+/*! \brief Set new time constant. */
+void dc_corr_cc::set_tau(double tau)
+{
+    d_tau = tau;
+    d_alpha = 1.0 / (1.0 + d_tau / d_period);
+
+    d_iir->set_taps(d_alpha);
+
+#ifndef QT_NO_DEBUG_OUTPUT
+    std::cout << "IQ DCR alpha: " << d_alpha << std::endl;
+#endif
+}
+
+void dc_corr_cc::set_enabled(bool enabled)
+{
+    lock();
+    disconnect_all();
+    if (enabled)
     {
-        for (i = 0; i < noutput_items; i++)
-        {
-            out[i].imag() = in[i].real() - d_avg_i;
-            out[i].real() = in[i].imag() - d_avg_q;
-        }
+        connect(self(), 0, d_iir, 0);
+        connect(self(), 0, d_sub, 0);
+        connect(d_iir, 0, d_sub, 1);
+        connect(d_sub, 0, self(), 0);
     }
     else
     {
-        for (i = 0; i < noutput_items; i++)
-        {
-            out[i].imag() = in[i].imag() - d_avg_q;
-            out[i].real() = in[i].real() - d_avg_i;
-        }
+        // connect input and output
+        connect(self(), 0, self(), 0);
+    }
+    unlock();
+
+}
+
+
+
+/** I/Q swap **/
+iq_swap_cc_sptr make_iq_swap_cc(bool enabled)
+{
+    return gnuradio::get_initial_sptr(new iq_swap_cc(enabled));
+}
+
+iq_swap_cc::iq_swap_cc(bool enabled)
+    : gr_hier_block2 ("iq_swap_cc",
+          gr_make_io_signature(1, 1, sizeof(gr_complex)),
+          gr_make_io_signature(1, 1, sizeof(gr_complex)))
+{
+    d_enabled = enabled;
+    d_c2f = gr_make_complex_to_float();
+    d_f2c = gr_make_float_to_complex();
+
+    connect(self(), 0, d_c2f, 0);
+    if (enabled)
+    {
+        connect(d_c2f, 0, d_f2c, 1);
+        connect(d_c2f, 1, d_f2c, 0);
+    }
+    else
+    {
+        connect(d_c2f, 0, d_f2c, 0);
+        connect(d_c2f, 1, d_f2c, 1);
+    }
+    connect(d_f2c, 0, self(), 0);
+}
+
+iq_swap_cc::~iq_swap_cc()
+{
+
+}
+
+/*! \brief Enabled or disable I/Q swapping. */
+void iq_swap_cc::set_enabled(bool enabled)
+{
+    if (enabled == d_enabled)
+        return;
+
+#ifndef QT_NO_DEBUG_OUTPUT
+    std::cout << "IQ swap: " << enabled << std::endl;
+#endif
+
+    d_enabled = enabled;
+
+    lock();
+    if (d_enabled)
+    {
+        disconnect(d_c2f, 0, d_f2c, 0);
+        disconnect(d_c2f, 1, d_f2c, 1);
+        connect(d_c2f, 0, d_f2c, 1);
+        connect(d_c2f, 1, d_f2c, 0);
+    }
+    else
+    {
+        disconnect(d_c2f, 0, d_f2c, 1);
+        disconnect(d_c2f, 1, d_f2c, 0);
+        connect(d_c2f, 0, d_f2c, 0);
+        connect(d_c2f, 1, d_f2c, 1);
     }
 
-    return noutput_items;
-}
-
-
-bool dc_corr_cc::start()
-{
-    d_dbg_timer = gruel::high_res_timer_now();
-
-    return true;
-}
-
-bool dc_corr_cc::stop()
-{
-    return true;
-}
-
-void dc_corr_cc::set_iq_swap(bool rev)
-{
-    d_iq_rev = rev;
+/** DEBUG **/
+/** disconnect_all() does not work here **/
+/*
+    disconnect_all();
+    connect(self(), 0, d_c2f, 0);
+    if (enabled)
+    {
+        connect(d_c2f, 0, d_f2c, 1);
+        connect(d_c2f, 1, d_f2c, 0);
+    }
+    else
+    {
+        connect(d_c2f, 0, d_f2c, 0);
+        connect(d_c2f, 1, d_f2c, 1);
+    }
+    connect(d_f2c, 0, self(), 0);
+*/
+    unlock();
 }

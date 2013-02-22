@@ -208,6 +208,7 @@ private:
     receiver_base_cf_sptr     rx;        /*!< receiver. */
 
     dc_corr_cc_sptr           dc_corr;   /*!< DC corrector block. */
+    iq_swap_cc_sptr           iq_swap;   /*!< I/Q swapping block. */
 
     rx_fft_c_sptr             iq_fft;     /*!< Baseband FFT block. */
     rx_fft_f_sptr             audio_fft;  /*!< Audio FFT block. */
