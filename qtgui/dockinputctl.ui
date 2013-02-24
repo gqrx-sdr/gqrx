@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>209</width>
+    <width>220</width>
     <height>247</height>
    </rect>
   </property>
@@ -26,7 +26,7 @@
       <item>
        <widget class="QLabel" name="lnbLabel">
         <property name="text">
-         <string>LO</string>
+         <string>LNB LO</string>
         </property>
         <property name="indent">
          <number>10</number>

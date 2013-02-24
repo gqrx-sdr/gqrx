@@ -33,6 +33,64 @@ DockInputCtl::~DockInputCtl()
     delete ui;
 }
 
+void DockInputCtl::readSettings(QSettings *settings)
+{
+    bool conv_ok;
+
+    setFreqCorr(settings->value("input/corr_freq", 0).toInt(&conv_ok));
+    emit freqCorrChanged(ui->freqCorrSpinBox->value());
+
+    setIqSwap(settings->value("input/swap_iq", false).toBool());
+    emit iqSwapChanged(ui->iqSwapButton->isChecked());
+
+    setDcCancel(settings->value("input/dc_cancel", false).toBool());
+    emit dcCancelChanged(ui->dcCancelButton->isChecked());
+
+    qint64 lnb_lo = settings->value("input/lnb_lo", 0).toLongLong(&conv_ok);
+    setLnbLo((double)lnb_lo/1.0e6);
+    emit lnbLoChanged(ui->lnbSpinBox->value());
+
+    bool ignore_limits = settings->value("input/ignore_limits", false).toBool();
+    setIgnoreLimits(ignore_limits);
+    emit ignoreLimitsChanged(ignore_limits);
+
+    double gain = settings->value("input/gain", -1).toDouble(&conv_ok);
+    setGain(gain);
+    emit gainChanged(gain);
+}
+
+void DockInputCtl::saveSettings(QSettings *settings)
+{
+    qint64 lnb_lo = (qint64)ui->lnbSpinBox->value()*1e6;
+    if (lnb_lo)
+        settings->setValue("input/lnb_lo", lnb_lo);
+    else
+        settings->remove("input/lnb_lo");
+
+    double dblval = gain();
+    settings->setValue("input/gain", dblval);
+
+    if (freqCorr())
+        settings->setValue("input/corr_freq", freqCorr());
+    else
+        settings->remove("input/corr_freq");
+
+    if (iqSwap())
+        settings->setValue("input/swap_iq", true);
+    else
+        settings->remove("input/swap_iq");
+
+    if (dcCancel())
+        settings->setValue("input/dc_cancel", true);
+    else
+        settings->remove("input/dc_cancel");
+
+    if (ignoreLimits())
+        settings->setValue("input/ignore_limits", true);
+    else
+        settings->remove("input/ignore_limits");
+
+}
 
 void DockInputCtl::setLnbLo(double freq_mhz)
 {

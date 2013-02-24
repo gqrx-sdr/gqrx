@@ -312,28 +312,10 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         ui->plotter->setSpanFreq((quint32)actual_rate);
     }
 
-    /** FIXME: move to DockInputCtl **/
-    uiDockInputCtl->setFreqCorr(m_settings->value("input/corr_freq", 0).toInt(&conv_ok));
-    rx->set_freq_corr(m_settings->value("input/corr_freq", 0).toInt(&conv_ok));
-
-    uiDockInputCtl->setIqSwap(m_settings->value("input/swap_iq", false).toBool());
-    rx->set_iq_swap(m_settings->value("input/swap_iq", false).toBool());
-
-    uiDockInputCtl->setDcCancel(m_settings->value("input/dc_cancel", false).toBool());
-    rx->set_dc_cancel(m_settings->value("input/dc_cancel", false).toBool());
-
-    d_lnb_lo = m_settings->value("input/lnb_lo", 0).toLongLong(&conv_ok);
-    uiDockInputCtl->setLnbLo((double)d_lnb_lo/1.0e6);
-
-    bool ignore_limits = m_settings->value("input/ignore_limits", false).toBool();
-    uiDockInputCtl->setIgnoreLimits(ignore_limits);
-    updateFrequencyRange(ignore_limits);
     ui->freqCtrl->setFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&conv_ok));
     setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
 
-    uiDockInputCtl->setGain(m_settings->value("input/gain", -1).toDouble(&conv_ok));
-    setRfGain(m_settings->value("input/gain", -1).toDouble(&conv_ok));
-
+    uiDockInputCtl->readSettings(m_settings);
     uiDockFft->readSettings(m_settings);
 
     return conf_ok;
@@ -387,37 +369,9 @@ void MainWindow::storeSession()
 {
     if (m_settings)
     {
-        /** FIXME: move to DockInputCtl **/
         m_settings->setValue("input/frequency", ui->freqCtrl->getFrequency());
-        if (d_lnb_lo)
-            m_settings->setValue("input/lnb_lo", d_lnb_lo);
-        else
-            m_settings->remove("input/lnb_lo");
 
-        double dblval = uiDockInputCtl->gain();
-        m_settings->setValue("input/gain", dblval);
-
-        if (uiDockInputCtl->freqCorr())
-            m_settings->setValue("input/corr_freq", uiDockInputCtl->freqCorr());
-        else
-            m_settings->remove("input/corr_freq");
-
-        if (uiDockInputCtl->iqSwap())
-            m_settings->setValue("input/swap_iq", true);
-        else
-            m_settings->remove("input/swap_iq");
-
-        if (uiDockInputCtl->dcCancel())
-            m_settings->setValue("input/dc_cancel", true);
-        else
-            m_settings->remove("input/dc_cancel");
-
-        if (uiDockInputCtl->ignoreLimits())
-            m_settings->setValue("input/ignore_limits", true);
-        else
-            m_settings->remove("input/ignore_limits");
-
-        // FFT settings
+        uiDockInputCtl->saveSettings(m_settings);
         uiDockFft->saveSettings(m_settings);
     }
 }

@@ -21,6 +21,7 @@
 #define DOCKINPUTCTL_H
 
 #include <QDockWidget>
+#include <QSettings>
 
 namespace Ui {
     class DockInputCtl;
@@ -33,6 +34,9 @@ class DockInputCtl : public QDockWidget
 public:
     explicit DockInputCtl(QWidget *parent = 0);
     ~DockInputCtl();
+
+    void readSettings(QSettings *settings);
+    void saveSettings(QSettings *settings);
 
     void  setLnbLo(double freq_mhz);
     double lnbLo();
