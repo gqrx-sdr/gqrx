@@ -334,6 +334,9 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
     uiDockInputCtl->setGain(m_settings->value("input/gain", -1).toDouble(&conv_ok));
     setRfGain(m_settings->value("input/gain", -1).toDouble(&conv_ok));
 
+    // load mode setting, default to NFM.
+    uiDockRxOpt->setCurrentDemod( m_settings->value( "input/mode", 3 ).toInt(&conv_ok));
+
     uiDockFft->readSettings(m_settings);
 
     return conf_ok;
@@ -416,6 +419,9 @@ void MainWindow::storeSession()
             m_settings->setValue("input/ignore_limits", true);
         else
             m_settings->remove("input/ignore_limits");
+
+	// store the current mode
+	m_settings->setValue( "input/mode",  uiDockRxOpt->currentDemod() );
 
         // FFT settings
         uiDockFft->saveSettings(m_settings);
