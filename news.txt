@@ -3,6 +3,7 @@
        NEW: I/Q swapping option.
        NEW: FFT video filter with non-linear gain (still WIP).
        NEW: Save and restore FFT settings.
+       NEW: Save and restore receiver options (offset, mode and squelch level).
        NEW: AM DC removal using IIR filter.
      FIXED: Removed graphics redraw delay when changing frequency or demodulator.
      FIXED: Respect RF frequency range of input device.
