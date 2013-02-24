@@ -114,6 +114,9 @@ public:
     void set_iq_swap(bool reversed);
     bool get_iq_swap(void);
 
+    void set_dc_cancel(bool enable);
+    bool get_dc_cancel(void);
+
     status set_rf_freq(double freq_hz);
     double get_rf_freq();
     status get_rf_range(double *start, double *stop, double *step);
@@ -130,9 +133,6 @@ public:
     //status set_filter_shape(filter_shape shape);
 
     status set_freq_corr(int ppm);
-    status set_dc_corr(double dci, double dcq);
-    status set_iq_corr(double gain, double phase);
-
 
     float get_signal_pwr(bool dbfs);
 
@@ -195,6 +195,7 @@ private:
     bool   d_recording_wav;    /*!< Whether we are recording WAV file. */
     bool   d_sniffer_active;   /*!< Only one data decoder allowed. */
     bool   d_iq_rev;           /*!< Whether I/Q is reversed or not. */
+    bool   d_dc_cancel;        /*!< Enable automatic DC removal. */
 
     std::string input_devstr;  /*!< Current input device string. */
     std::string output_devstr; /*!< Current output device string. */

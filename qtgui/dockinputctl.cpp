@@ -105,6 +105,17 @@ bool DockInputCtl::iqSwap(void)
     return ui->iqSwapButton->isChecked();
 }
 
+/*! \brief Enable automatic DC removal. */
+void DockInputCtl::setDcCancel(bool enabled)
+{
+    ui->dcCancelButton->setChecked(enabled);
+}
+
+/*! \brief Get current DC remove status. */
+bool DockInputCtl::dcCancel(void)
+{
+    return ui->dcCancelButton->isChecked();
+}
 
 /*! \brief Enasble/disable ignoring hardware limits. */
 void DockInputCtl::setIgnoreLimits(bool reversed)
@@ -158,6 +169,14 @@ void DockInputCtl::on_freqCorrSpinBox_valueChanged(int value)
 void DockInputCtl::on_iqSwapButton_toggled(bool checked)
 {
     emit iqSwapChanged(checked);
+}
+
+/*! \brief DC removal checkbox changed.
+ *  \param checked True if DC removal is enabled, false otherwise
+ */
+void DockInputCtl::on_dcCancelButton_toggled(bool checked)
+{
+    emit dcCancelChanged(checked);
 }
 
 /*! \brief Ignore hardware limits checkbox changed.

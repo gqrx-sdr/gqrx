@@ -107,9 +107,8 @@ private slots:
     void setRfGain(double gain);
     void setFreqCorr(int ppm);
     void setIqSwap(bool reversed);
+    void setDcCancel(bool enabled);
     void setIgnoreLimits(bool ignore_limits);
-    void setDcCorr(double dci, double dcq);
-    void setIqCorr(double gain, double phase);
     void selectDemod(int index);
     void setFmMaxdev(float max_dev);
     void setFmEmph(double tau);

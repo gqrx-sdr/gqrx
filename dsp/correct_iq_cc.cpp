@@ -87,27 +87,6 @@ void dc_corr_cc::set_tau(double tau)
 #endif
 }
 
-void dc_corr_cc::set_enabled(bool enabled)
-{
-    lock();
-    disconnect_all();
-    if (enabled)
-    {
-        connect(self(), 0, d_iir, 0);
-        connect(self(), 0, d_sub, 0);
-        connect(d_iir, 0, d_sub, 1);
-        connect(d_sub, 0, self(), 0);
-    }
-    else
-    {
-        // connect input and output
-        connect(self(), 0, self(), 0);
-    }
-    unlock();
-
-}
-
-
 
 /** I/Q swap **/
 iq_swap_cc_sptr make_iq_swap_cc(bool enabled)
