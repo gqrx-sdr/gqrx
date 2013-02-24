@@ -18,6 +18,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <QDebug>
+#include <QVariant>
 #include "dockrxopt.h"
 #include "ui_dockrxopt.h"
 
@@ -167,6 +168,50 @@ float DockRxOpt::currentMaxdev()
 {
     qDebug() << __FILE__ << __FUNCTION__ << "FIXME";
     return 5000.0;
+}
+
+/*! \brief Read receiver configuration from settings data. */
+void DockRxOpt::readSettings(QSettings *settings)
+{
+    bool conv_ok;
+    int intVal;
+
+    intVal = settings->value("receiver/demod", -1).toInt(&conv_ok);
+    if (intVal >= 0)
+    {
+        setCurrentDemod(intVal);
+        emit demodSelected(intVal);
+    }
+
+    qint64 offs = settings->value("receiver/offset", 0).toInt(&conv_ok);
+    if (offs)
+    {
+        setFilterOffset(offs);
+        emit filterOffsetChanged(offs);
+    }
+
+    intVal = settings->value("receiver/sql_level", 1).toInt(&conv_ok);
+    if (intVal != 1)
+        ui->sqlSlider->setValue(intVal); // signal emitted automatically
+}
+
+/*! \brief Save receiver configuration to settings. */
+void DockRxOpt::saveSettings(QSettings *settings)
+{
+    settings->setValue("receiver/demod", ui->modeSelector->currentIndex());
+
+    qint64 offs = ui->filterFreq->getFrequency();
+    if (offs)
+        settings->setValue("receiver/offset", offs);
+    else
+        settings->remove("receiver/offset");
+
+    qDebug() << __func__ << "*** FIXME_ SQL on/off";
+    int sql_lvl = double(ui->sqlSlider->value());  // note: dBFS*10 as int
+    if (sql_lvl > -1500)
+        settings->setValue("receiver/sql_level", sql_lvl);
+    else
+        settings->remove("receiver/sql_level");
 }
 
 /*! \brief Channel filter offset has changed
@@ -335,7 +380,6 @@ void DockRxOpt::on_sqlSlider_valueChanged(int value)
 
     // update dB label
     ui->sqlDbLabel->setText(QString("%1 dBFS").arg(level));
-    //ui->sqlValueLabel->setText(QString("%1 dB").arg(level));
     emit sqlLevelChanged(level);
 }
 

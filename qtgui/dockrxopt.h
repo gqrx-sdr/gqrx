@@ -21,6 +21,7 @@
 #define DOCKRXOPT_H
 
 #include <QDockWidget>
+#include <QSettings>
 #include "qtgui/agc_options.h"
 #include "qtgui/demod_options.h"
 #include "qtgui/nb_options.h"
@@ -63,6 +64,9 @@ public:
 
     explicit DockRxOpt(qint64 filterOffsetRange = 90000, QWidget *parent = 0);
     ~DockRxOpt();
+
+    void readSettings(QSettings *settings);
+    void saveSettings(QSettings *settings);
 
     void setFilterOffset(qint64 freq_hz);
     void setFilterOffsetRange(qint64 range_hz);

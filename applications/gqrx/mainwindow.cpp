@@ -316,6 +316,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
     setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
 
     uiDockInputCtl->readSettings(m_settings);
+    uiDockRxOpt->readSettings(m_settings);
     uiDockFft->readSettings(m_settings);
 
     return conf_ok;
@@ -372,6 +373,7 @@ void MainWindow::storeSession()
         m_settings->setValue("input/frequency", ui->freqCtrl->getFrequency());
 
         uiDockInputCtl->saveSettings(m_settings);
+        uiDockRxOpt->saveSettings(m_settings);
         uiDockFft->saveSettings(m_settings);
     }
 }
