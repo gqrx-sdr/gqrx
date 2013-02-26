@@ -61,7 +61,7 @@ private:
     gr_single_pole_iir_filter_cc_sptr d_iir;
     gr_sub_cc_sptr                    d_sub;
 
-    double d_period; /*!< Sampling period. */
+    double d_sr;     /*!< Sample rate. */
     double d_tau;    /*!< Time constant. */
     double d_alpha;  /*!< 1/(1+tau/T). */
 };

@@ -38,7 +38,7 @@ dc_corr_cc::dc_corr_cc(double sample_rate, double tau)
           gr_make_io_signature(1, 1, sizeof(gr_complex)),
           gr_make_io_signature(1, 1, sizeof(gr_complex)))
 {
-    d_period = 1.0 / sample_rate;
+    d_sr = sample_rate;
     d_tau = tau;
     d_alpha = 1.0 / (1.0 + d_tau * sample_rate);
 
@@ -63,13 +63,13 @@ dc_corr_cc::~dc_corr_cc()
 /*! \brief Set new sample rate. */
 void dc_corr_cc::set_sample_rate(double sample_rate)
 {
-    d_period = 1.0 / sample_rate;
+    d_sr = sample_rate;
     d_alpha = 1.0 / (1.0 + d_tau * sample_rate);
 
     d_iir->set_taps(d_alpha);
 
 #ifndef QT_NO_DEBUG_OUTPUT
-    std::cout << "IQ DCR samp_rate / period: " << sample_rate << " / " << d_period << std::endl;
+    std::cout << "IQ DCR samp_rate: " << sample_rate << std::endl;
     std::cout << "IQ DCR alpha: " << d_alpha << std::endl;
 #endif
 }
@@ -78,7 +78,7 @@ void dc_corr_cc::set_sample_rate(double sample_rate)
 void dc_corr_cc::set_tau(double tau)
 {
     d_tau = tau;
-    d_alpha = 1.0 / (1.0 + d_tau / d_period);
+    d_alpha = 1.0 / (1.0 + d_tau * d_sr);
 
     d_iir->set_taps(d_alpha);
 
