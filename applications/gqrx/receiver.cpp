@@ -75,7 +75,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     mixer = gr_make_multiply_cc();
 
     iq_swap = make_iq_swap_cc(false);
-    dc_corr = make_dc_corr_cc(d_input_rate, 0.1);
+    dc_corr = make_dc_corr_cc(d_input_rate, 1.0);
     iq_fft = make_rx_fft_c(4096u, 0);
 
     audio_fft = make_rx_fft_f(3072u);

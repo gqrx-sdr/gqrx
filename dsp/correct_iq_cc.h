@@ -37,7 +37,7 @@ typedef boost::shared_ptr<iq_swap_cc> iq_swap_cc_sptr;
  *  \param sample_rate The sample rate
  *  \param tau The time constant for the filter
  */
-dc_corr_cc_sptr make_dc_corr_cc(double sample_rate, double tau=0.0);
+dc_corr_cc_sptr make_dc_corr_cc(double sample_rate, double tau=1.0);
 
 /*! \brief Single pole IIR filter-based DC offset correction block.
  *  \ingroup DSP
