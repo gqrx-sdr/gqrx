@@ -1,4 +1,4 @@
-   2.1.xyz
+   2.1.246  Released on February 29, 2013
 
        NEW: I/Q swapping option.
        NEW: FFT video filter with non-linear gain (still WIP).
