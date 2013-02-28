@@ -36,6 +36,7 @@ http://sourceforge.net/projects/gqrx/
 Third party app bundle for Macs can be downloaded here:
 http://dekar.wc3edit.net/2012/09/30/osx-port-of-the-awesome-gqrx-sdr-software/
 
+The binary packages are bundles containing the necessary GNU Radio, UHD, rtlsdr and Boost libraries.
 
 Usage
 -----
