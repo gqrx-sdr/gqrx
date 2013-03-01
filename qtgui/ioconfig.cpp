@@ -81,7 +81,9 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
             cfgmatch = true;
         }
 
-        qDebug() << "   " << i++ << ":"  << devlabel;
+        qDebug() << "   " << i << ":"  << devlabel;
+
+        ++i;
 
         // Following code could be used for multiple matches
         /* QStringList list;
