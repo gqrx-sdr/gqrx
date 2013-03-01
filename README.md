@@ -93,6 +93,9 @@ Moe Weatley:
 - Signal strength indicator.
 - AGC
 
+Nadeem Hasan:
+- Bug fixes.
+
 Vesa Solonen:
 - DC removal in AM demodulator.
 

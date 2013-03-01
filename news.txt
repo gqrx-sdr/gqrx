@@ -1,3 +1,8 @@
+   2.1.251  Released on March 1, 2013
+
+     FIXED: Incorrect device selection in config dialog.
+
+
    2.1.246  Released on February 29, 2013
 
        NEW: I/Q swapping option.
