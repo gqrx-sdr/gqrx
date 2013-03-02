@@ -172,7 +172,7 @@ void CIoConfig::saveConfig()
 
     if (idx > 0)
     {
-#ifdef PULSEAUDIO //pafix
+#ifdef WITH_PULSEAUDIO //pafix
         qDebug() << "Output device" << idx << ":" << QString(outDevList[idx-1].get_name().c_str());
         m_settings->setValue("output/device", QString(outDevList[idx-1].get_name().c_str()));
 #endif
