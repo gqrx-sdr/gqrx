@@ -178,7 +178,9 @@ void CIoConfig::saveConfig()
 #endif
     }
     else
-        qDebug() << "Selected output device is 'default' (not saving)";
+    {
+        m_settings->remove("output/device");
+    }
 
     // input settings
     m_settings->setValue("input/device", ui->inDevEdit->text());  // "OK" button disabled if empty

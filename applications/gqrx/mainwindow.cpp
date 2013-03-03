@@ -302,10 +302,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
     }
 
     QString outdev = m_settings->value("output/device", "").toString();
-    if (!outdev.isEmpty())
-    {
-        rx->set_output_device(outdev.toStdString());
-    }
+    rx->set_output_device(outdev.toStdString());
 
     int sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
     if (conv_ok && (sr > 0))
