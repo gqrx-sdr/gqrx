@@ -1,3 +1,7 @@
+   2.1.xyz
+      NEW: Allow using audio output devices other than the default.
+
+
    2.1.251  Released on March 1, 2013
 
      FIXED: Incorrect device selection in config dialog.
