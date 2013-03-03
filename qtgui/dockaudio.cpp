@@ -192,3 +192,24 @@ void DockAudio::setAudioPlayButtonState(bool checked)
     ui->audioRecButton->setEnabled(!isChecked);
     //ui->audioRecConfButton->setEnabled(!isChecked);
 }
+
+void DockAudio::saveSettings(QSettings *settings)
+{
+    if (!settings)
+        return;
+
+    settings->setValue("audio/gain", audioGain());
+}
+
+void DockAudio::readSettings(QSettings *settings)
+{
+    if (!settings)
+        return;
+
+    bool conv_ok = false;
+
+    int gain = settings->value("audio/gain", QVariant( -200 ) ).toInt(&conv_ok);
+    if (conv_ok) {
+        setAudioGain(gain);
+    }
+}

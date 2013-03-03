@@ -21,6 +21,7 @@
 #define DOCKAUDIO_H
 
 #include <QDockWidget>
+#include <QSettings>
 
 namespace Ui {
     class DockAudio;
@@ -54,6 +55,8 @@ public:
     void setAudioRecButtonState(bool checked);
     void setAudioPlayButtonState(bool checked);
 
+    void saveSettings(QSettings *settings);
+    void readSettings(QSettings *settings);
 
 signals:
     /*! \brief Signal emitted when audio gain has changed. Gain is in dB. */
