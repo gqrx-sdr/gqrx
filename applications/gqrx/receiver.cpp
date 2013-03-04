@@ -55,6 +55,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
       d_sniffer_active(false),
       d_iq_rev(false),
       d_dc_cancel(false),
+      d_iq_balance(false),
       d_demod(RX_DEMOD_OFF)
 {
     tb = gr_make_top_block("gqrx");
@@ -281,6 +282,27 @@ bool receiver::get_dc_cancel(void)
     return d_dc_cancel;
 }
 
+/*! \brief Enable/disable automatic I/Q balance.
+ *  \param enable Whether automatic I/Q balance should be enabled.
+ */
+void receiver::set_iq_balance(bool enable)
+{
+    if (enable == d_iq_balance)
+        return;
+
+    d_iq_balance = enable;
+
+    src->set_iq_balance_mode(enable ? 2 : 0);
+}
+
+/*! \brief Get auto I/Q balance status.
+ *  \retval true  Automatic I/Q balance is enabled.
+ *  \retval false Automatic I/Q balance is disabled.
+ */
+bool receiver::get_iq_balance(void)
+{
+    return d_iq_balance;
+}
 /*! \brief Set RF frequency.
  *  \param freq_hz The desired frequency in Hz.
  *  \return RX_STATUS_ERROR if an error occurs, e.g. the frequency is out of range.

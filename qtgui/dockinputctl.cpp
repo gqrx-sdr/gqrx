@@ -46,6 +46,9 @@ void DockInputCtl::readSettings(QSettings *settings)
     setDcCancel(settings->value("input/dc_cancel", false).toBool());
     emit dcCancelChanged(ui->dcCancelButton->isChecked());
 
+    setIqBalance(settings->value("input/iq_balance", false).toBool());
+    emit iqBalanceChanged(ui->iqBalanceButton->isChecked());
+
     qint64 lnb_lo = settings->value("input/lnb_lo", 0).toLongLong(&conv_ok);
     setLnbLo((double)lnb_lo/1.0e6);
     emit lnbLoChanged(ui->lnbSpinBox->value());
@@ -84,6 +87,11 @@ void DockInputCtl::saveSettings(QSettings *settings)
         settings->setValue("input/dc_cancel", true);
     else
         settings->remove("input/dc_cancel");
+
+    if (iqBalance())
+        settings->setValue("input/iq_balance", true);
+    else
+        settings->remove("input/iq_balance");
 
     if (ignoreLimits())
         settings->setValue("input/ignore_limits", true);
@@ -175,6 +183,18 @@ bool DockInputCtl::dcCancel(void)
     return ui->dcCancelButton->isChecked();
 }
 
+/*! \brief Enable automatic IQ balance. */
+void DockInputCtl::setIqBalance(bool enabled)
+{
+    ui->iqBalanceButton->setChecked(enabled);
+}
+
+/*! \brief Get current IQ balance status. */
+bool DockInputCtl::iqBalance(void)
+{
+    return ui->iqBalanceButton->isChecked();
+}
+
 /*! \brief Enasble/disable ignoring hardware limits. */
 void DockInputCtl::setIgnoreLimits(bool reversed)
 {
@@ -235,6 +255,14 @@ void DockInputCtl::on_iqSwapButton_toggled(bool checked)
 void DockInputCtl::on_dcCancelButton_toggled(bool checked)
 {
     emit dcCancelChanged(checked);
+}
+
+/*! \brief IQ balance checkbox changed.
+ *  \param checked True if automatic IQ balance is enabled, false otherwise
+ */
+void DockInputCtl::on_iqBalanceButton_toggled(bool checked)
+{
+    emit iqBalanceChanged(checked);
 }
 
 /*! \brief Ignore hardware limits checkbox changed.

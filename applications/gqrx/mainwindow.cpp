@@ -137,6 +137,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     connect(uiDockInputCtl, SIGNAL(freqCorrChanged(int)), this, SLOT(setFreqCorr(int)));
     connect(uiDockInputCtl, SIGNAL(iqSwapChanged(bool)), this, SLOT(setIqSwap(bool)));
     connect(uiDockInputCtl, SIGNAL(dcCancelChanged(bool)), this, SLOT(setDcCancel(bool)));
+    connect(uiDockInputCtl, SIGNAL(iqBalanceChanged(bool)), this, SLOT(setIqBalance(bool)));
     connect(uiDockInputCtl, SIGNAL(ignoreLimitsChanged(bool)), this, SLOT(setIgnoreLimits(bool)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
@@ -491,6 +492,12 @@ void MainWindow::setIqSwap(bool reversed)
 void MainWindow::setDcCancel(bool enabled)
 {
     rx->set_dc_cancel(enabled);
+}
+
+/*! \brief Enable/disable automatic IQ balance. */
+void MainWindow::setIqBalance(bool enabled)
+{
+    rx->set_iq_balance(enabled);
 }
 
 /*! \brief Ignore hardware limits.

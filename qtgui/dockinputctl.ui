@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>220</width>
-    <height>247</height>
+    <height>259</height>
    </rect>
   </property>
   <property name="floating">
@@ -156,6 +156,16 @@
       </property>
       <property name="text">
        <string>DC cancel</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="iqBalanceButton">
+      <property name="toolTip">
+       <string>Enable automatic I/Q balance</string>
+      </property>
+      <property name="text">
+       <string>IQ balance</string>
       </property>
      </widget>
     </item>

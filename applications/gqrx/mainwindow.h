@@ -108,6 +108,7 @@ private slots:
     void setFreqCorr(int ppm);
     void setIqSwap(bool reversed);
     void setDcCancel(bool enabled);
+    void setIqBalance(bool enabled);
     void setIgnoreLimits(bool ignore_limits);
     void selectDemod(int index);
     void setFmMaxdev(float max_dev);
