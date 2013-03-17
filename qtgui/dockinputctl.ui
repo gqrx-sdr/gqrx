@@ -162,7 +162,7 @@
     <item>
      <widget class="QCheckBox" name="iqBalanceButton">
       <property name="toolTip">
-       <string>Enable automatic I/Q balance</string>
+       <string>Enable automatic I/Q balance (requires gr-iqbal component)</string>
       </property>
       <property name="text">
        <string>IQ balance</string>
