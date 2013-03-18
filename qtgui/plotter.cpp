@@ -212,8 +212,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         {
             setCursor(QCursor(Qt::ClosedHandCursor));
             // move Y scale up/down
-            int delta_px = m_Yzero - pt.y();
-            int delta_db = delta_px * abs(m_MindB-m_MaxdB)/m_OverlayPixmap.height();
+            double delta_px = m_Yzero - pt.y();
+            double delta_db = delta_px * abs(m_MindB-m_MaxdB)/(double)m_OverlayPixmap.height();
             m_MindB -= delta_db;
             m_MaxdB -= delta_db;
 
@@ -781,7 +781,7 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
 
 
 /*! \brief Set upper limit of dB scale. */
-void CPlotter::setMaxDB(qint32 max)
+void CPlotter::setMaxDB(double max)
 {
     m_MaxdB = max;
 
@@ -792,7 +792,7 @@ void CPlotter::setMaxDB(qint32 max)
 }
 
 /*! \brief Set lower limit of dB scale. */
-void CPlotter::setMinDB(qint32 min)
+void CPlotter::setMinDB(double min)
 {
     m_MindB = min;
 
@@ -803,7 +803,7 @@ void CPlotter::setMinDB(qint32 min)
 }
 
 /*! \brief Set limits of dB scale. */
-void CPlotter::setMinMaxDB(qint32 min, qint32 max)
+void CPlotter::setMinMaxDB(double min, double max)
 {
     m_MaxdB = max;
     m_MindB = min;

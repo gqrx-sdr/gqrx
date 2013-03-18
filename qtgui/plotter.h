@@ -71,9 +71,9 @@ public:
     }
     void updateOverlay() { drawOverlay(); }
 
-    void setMaxDB(qint32 max);
-    void setMinDB(qint32 min);
-    void setMinMaxDB(qint32 min, qint32 max);
+    void setMaxDB(double max);
+    void setMinDB(double min);
+    void setMinMaxDB(double min, double max);
 
     void setFontSize(int points) { m_FontSize = points; }
     void setHdivDelta(int delta) { m_HdivDelta = delta; }
@@ -183,8 +183,8 @@ private:
 
     int    m_HorDivs;   /*!< Current number of horizontal divisions. Calculated from width. */
     int    m_VerDivs;   /*!< Current number of vertical divisions. Calculated from height. */
-    qint32 m_MaxdB;
-    qint32 m_MindB;
+    double m_MaxdB;
+    double m_MindB;
     qint32 m_dBStepSize;
     qint32 m_Span;
     double m_SampleFreq;    /*!< Sample rate. */
