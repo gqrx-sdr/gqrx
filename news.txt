@@ -1,5 +1,7 @@
    2.1.xyz
-      NEW: Allow using audio output devices other than the default.
+       NEW: Allow using audio output devices other than the default.
+       NEW: Automatic I/Q phase and gain correction (requires gr-iqbal).
+  IMPROVED: Y-axis panning (click-and-drag).
 
 
    2.1.251  Released on March 1, 2013
