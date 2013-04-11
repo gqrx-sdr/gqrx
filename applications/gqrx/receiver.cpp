@@ -23,8 +23,8 @@
 
 #include <gr_top_block.h>
 #include <gr_multiply_const_ff.h>
-#include <osmosdr_source_c.h>
-#include <osmosdr_ranges.h>
+#include <osmosdr/osmosdr_source_c.h>
+#include <osmosdr/osmosdr_ranges.h>
 
 #include "applications/gqrx/receiver.h"
 #include "dsp/correct_iq_cc.h"

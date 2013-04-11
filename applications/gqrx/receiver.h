@@ -30,7 +30,7 @@
 #include <gr_wavfile_sink.h>
 #include <gr_wavfile_source.h>
 
-#include <osmosdr_source_c.h>
+#include <osmosdr/osmosdr_source_c.h>
 
 #include "dsp/correct_iq_cc.h"
 #include "dsp/rx_noise_blanker_cc.h"

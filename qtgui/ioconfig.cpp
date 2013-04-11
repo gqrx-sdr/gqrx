@@ -26,9 +26,9 @@
 #include <QPushButton>
 #include <QDebug>
 
-#include <osmosdr_device.h>
-#include <osmosdr_source_c.h>
-#include <osmosdr_ranges.h>
+#include <osmosdr/osmosdr_device.h>
+#include <osmosdr/osmosdr_source_c.h>
+#include <osmosdr/osmosdr_ranges.h>
 #include <boost/foreach.hpp>
 
 #ifdef WITH_PULSEAUDIO
