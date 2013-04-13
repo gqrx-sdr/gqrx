@@ -560,7 +560,7 @@ void CPlotter::paintEvent(QPaintEvent *)
 //////////////////////////////////////////////////////////////////////
 void CPlotter::draw()
 {
-    int i;
+    int i,n;
     int w;
     int h;
     int xmin, xmax;
@@ -623,12 +623,36 @@ void CPlotter::draw()
 
         // draw the 2D spectrum
         painter2.setPen(QColor(0x97,0xD0,0x97,0xFF));
-        for (i = 0; i < xmax - xmin; i++)
+        //painter2.setPen(QPen(QColor(0x97,0xD0,0x97,0xFF), 1.4, Qt::SolidLine));
+
+        n = xmax - xmin;
+        for (i = 0; i < n; i++)
         {
             LineBuf[i].setX(i + xmin);
             LineBuf[i].setY(m_fftbuf[i + xmin]);
         }
-        painter2.drawPolyline(LineBuf, xmax - xmin);
+
+        //painter2.drawPolyline(LineBuf, n);
+        QLinearGradient linGrad(QPointF(xmin, h), QPointF(xmin, 0));
+        linGrad.setColorAt(0.0, QColor(0x97,0xD0,0x97,0x00));
+        linGrad.setColorAt(1.0, QColor(0x97,0xD0,0x97,0xA0));
+        painter2.setBrush(QBrush(QGradient(linGrad)));
+        if (n < MAX_SCREENSIZE-2)
+        {
+            LineBuf[n].setX(xmax-1);
+            LineBuf[n].setY(h);
+            LineBuf[n+1].setX(xmin);
+            LineBuf[n+1].setY(h);
+            painter2.drawPolygon(LineBuf, n+2);
+        }
+        else
+        {
+            LineBuf[MAX_SCREENSIZE-2].setX(xmax-1);
+            LineBuf[MAX_SCREENSIZE-2].setY(h);
+            LineBuf[MAX_SCREENSIZE-1].setX(xmin);
+            LineBuf[MAX_SCREENSIZE-1].setY(h);
+            painter2.drawPolygon(LineBuf, n);
+        }
     }
 
     // trigger a new paintEvent
