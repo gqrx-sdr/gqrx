@@ -42,7 +42,14 @@ DockFft::DockFft(QWidget *parent) :
     ui->resetButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     ui->centerButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     ui->demodButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+    ui->fillButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
 #endif
+
+    // Add predefined gqrx colors to chooser.
+    ui->colorPicker->insertColor(QColor(0x97,0xD0,0x97,0xFF), "Green");
+    ui->colorPicker->insertColor(QColor(0xFA,0x62,0x46,0xFF), "Red");
+    ui->colorPicker->insertColor(QColor(0x1D,0x8D,0xFb,0xFF), "Blue"); // 1d8dfb
+    ui->colorPicker->insertColor(QColor(0xFA,0xFA,0xFA,0xFF), "White");
 }
 
 DockFft::~DockFft()
@@ -165,6 +172,17 @@ void DockFft::saveSettings(QSettings *settings)
     else
         settings->remove("split");
 
+    QColor fftColor = ui->colorPicker->currentColor();
+    if (fftColor != QColor(0x97,0xD0,0x97,0xFF))
+        settings->setValue("pandapter_color", fftColor);
+    else
+        settings->remove("pandapter_color");
+
+    if (ui->fillButton->isChecked())
+        settings->setValue("pandapter_fill", true);
+    else
+        settings->remove("pandapter_fill");
+
     settings->endGroup();
 }
 
@@ -172,8 +190,9 @@ void DockFft::saveSettings(QSettings *settings)
 void DockFft::readSettings(QSettings *settings)
 {
     int intval;
+    bool bool_val = false;
     bool conv_ok = false;
-
+    QColor color;
 
     if (!settings)
         return;
@@ -195,6 +214,12 @@ void DockFft::readSettings(QSettings *settings)
     intval = settings->value("split", DEFAULT_FFT_SPLIT).toInt(&conv_ok);
     if (conv_ok)
         ui->fftSplitSlider->setValue(intval);
+
+    color = settings->value("pandapter_color", QColor(0x97,0xD0,0x97,0xFF)).value<QColor>();
+    ui->colorPicker->setCurrentColor(color);
+
+    bool_val = settings->value("pandapter_fill", false).toBool();
+    ui->fillButton->setChecked(bool_val);
 
     settings->endGroup();
 }
@@ -244,4 +269,16 @@ void DockFft::on_centerButton_clicked(void)
 void DockFft::on_demodButton_clicked(void)
 {
     emit gotoDemodFreq();
+}
+
+/*! FFT color has changed. */
+void DockFft::on_colorPicker_colorChanged(const QColor &color)
+{
+    emit fftColorChanged(color);
+}
+
+/*! FFT plot fill button toggled. */
+void DockFft::on_fillButton_toggled(bool checked)
+{
+    emit fftFillToggled(checked);
 }

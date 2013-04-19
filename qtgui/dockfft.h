@@ -46,13 +46,15 @@ public:
     void readSettings(QSettings *settings);
 
 signals:
-    void fftSizeChanged(int size);  /*! \brief FFT size changed. */
-    void fftRateChanged(int fps);   /*! \brief FFT rate changed. */
-    void fftSplitChanged(int pct);  /*! \brief Split between pandapter and waterfall changed. */
-    void fftAvgChanged(double gain);  /*! \brief FFT video filter gain has changed. */
-    void resetFftZoom(void);          /*! \brief FFT zoom reset. */
-    void gotoFftCenter(void);         /*! \brief Go to FFT center. */
-    void gotoDemodFreq(void);         /*! \brief Center FFT around demodulator frequency. */
+    void fftSizeChanged(int size);   /*! FFT size changed. */
+    void fftRateChanged(int fps);    /*! FFT rate changed. */
+    void fftSplitChanged(int pct);   /*! Split between pandapter and waterfall changed. */
+    void fftAvgChanged(double gain); /*! FFT video filter gain has changed. */
+    void resetFftZoom(void);         /*! FFT zoom reset. */
+    void gotoFftCenter(void);        /*! Go to FFT center. */
+    void gotoDemodFreq(void);        /*! Center FFT around demodulator frequency. */
+    void fftColorChanged(const QColor &); /*! FFT color has changed. */
+    void fftFillToggled(bool fill);  /*! Toggle filling area under FFT plot. */
 
 private slots:
     void on_fftSizeComboBox_currentIndexChanged(const QString & text);
@@ -62,6 +64,8 @@ private slots:
     void on_resetButton_clicked(void);
     void on_centerButton_clicked(void);
     void on_demodButton_clicked(void);
+    void on_colorPicker_colorChanged(const QColor &);
+    void on_fillButton_toggled(bool checked);
 
 private:
     Ui::DockFft *ui;
