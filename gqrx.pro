@@ -79,6 +79,7 @@ SOURCES += \
     qtgui/meter.cpp \
     qtgui/nb_options.cpp \
     qtgui/plotter.cpp \
+    qtgui/qtcolorpicker.cpp \
     receivers/nbrx.cpp \
     receivers/receiver_base.cpp \
     receivers/wfmrx.cpp
@@ -116,6 +117,7 @@ HEADERS += \
     qtgui/meter.h \
     qtgui/nb_options.h \
     qtgui/plotter.h \
+    qtgui/qtcolorpicker.h \
     receivers/nbrx.h \
     receivers/receiver_base.h \
     receivers/wfmrx.h
