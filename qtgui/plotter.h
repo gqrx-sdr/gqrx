@@ -98,6 +98,16 @@ public:
 
     void setFftCenterFreq(qint64 f) { m_FftCenter = f; }
 
+    void setFftPlotColor(QColor color)
+    {
+        m_FftColor = color;
+        m_FftCol0 = color;
+        m_FftCol0.setAlpha(0x00);
+        m_FftCol1 = color;
+        m_FftCol1.setAlpha(0xA0);
+    }
+    void setFftFill(bool enabled) { m_FftFill = enabled; }
+
 signals:
     void newCenterFreq(qint64 f);
     void newDemodFreq(qint64 freq, qint64 delta); /* delta is the offset from the center */
@@ -201,6 +211,9 @@ private:
     int m_VdivDelta; /*!< Minimum distance in pixels between two vertical grid lines (horizontal division). */
 
     quint32 m_LastSampleRate;
+
+    QColor m_FftColor, m_FftCol0, m_FftCol1;
+    bool m_FftFill;
 
 };
 
