@@ -58,7 +58,7 @@ signals:
     void configChanged(QSettings *settings); /*!< New configuration has been loaded. */
 
 public slots:
-    void setNewFrequency(qint64 freq);
+    void setNewFrequency(qint64 rx_freq);
 
 private:
     Ui::MainWindow *ui;
@@ -68,6 +68,7 @@ private:
     QString             m_last_dir;
 
     qint64 d_lnb_lo;  /* LNB LO in Hz. */
+    qint64 d_hw_freq;
 
     enum receiver::filter_shape d_filter_shape;
     std::complex<float>* d_fftData;

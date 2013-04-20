@@ -74,7 +74,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
 as  rf_freq + filter_offset</string>
         </property>
         <property name="text">
-         <string>Receive:</string>
+         <string>Hardware freq:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -82,10 +82,9 @@ as  rf_freq + filter_offset</string>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="rxFreq">
+       <widget class="QLabel" name="hwFreq">
         <property name="toolTip">
-         <string>The frequency we actualy are listening on.
-Calculated as  rf_freq + filter_offset</string>
+         <string>The frequency of the hardware PLL</string>
         </property>
         <property name="text">
          <string>144.500000 MHz</string>

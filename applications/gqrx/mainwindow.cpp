@@ -39,6 +39,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     configOk(true),
     ui(new Ui::MainWindow),
     d_lnb_lo(0),
+    d_hw_freq(0),
     d_fftAvg(0.5),
     d_have_audio(true),
     dec_afsk1200(0)
@@ -423,18 +424,19 @@ void MainWindow::updateFrequencyRange(bool ignore_limits)
  *  \param[in] freq The new frequency.
  *
  * This slot is connected to the CFreqCtrl::newFrequency() signal and is used
- * to set new RF frequency.
+ * to set new receive frequency.
  */
-void MainWindow::setNewFrequency(qint64 freq)
+void MainWindow::setNewFrequency(qint64 rx_freq)
 {
-    /* set receiver frequency */
-    rx->set_rf_freq((double) (freq-d_lnb_lo));
+    double hw_freq = (double)(rx_freq-d_lnb_lo) - rx->get_filter_offset();
+    d_hw_freq = (qint64)hw_freq;
 
-    /* update pandapter */
-    ui->plotter->setCenterFreq(freq);
+    // set receiver frequency
+    rx->set_rf_freq(hw_freq);
 
-    /* update RX frequncy label in rxopts */
-    uiDockRxOpt->setRfFreq(freq);
+    // update widgets
+    ui->plotter->setCenterFreq(d_hw_freq);
+    uiDockRxOpt->setHwFreq(d_hw_freq);
 }
 
 /*! \brief Set new LNB LO frequency.
@@ -454,12 +456,15 @@ void MainWindow::setLnbLo(double freq_mhz)
 }
 
 /*! \brief Set new channel filter offset.
- *  \param freq_hs The new filter offset in Hz.
+ *  \param freq_hz The new filter offset in Hz.
  */
 void MainWindow::setFilterOffset(qint64 freq_hz)
 {
     rx->set_filter_offset((double) freq_hz);
     ui->plotter->setFilterOffset(freq_hz);
+
+    qint64 rx_freq = d_hw_freq + d_lnb_lo + freq_hz;
+    ui->freqCtrl->setFrequency(rx_freq);
 }
 
 /*! \brief Set RF gain.
@@ -1385,7 +1390,7 @@ void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
 
     // update RF freq label and channel filter offset
     uiDockRxOpt->setFilterOffset(delta);
-    uiDockRxOpt->setRfFreq(freq-delta);
+    ui->freqCtrl->setFrequency(freq);
 }
 
 /* CPlotter::NewfilterFreq() is emitted */

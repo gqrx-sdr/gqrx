@@ -75,7 +75,7 @@ public:
     void setCurrentFilter(int index);
     int  currentFilter();
 
-    void setRfFreq(qint64 freq_hz);
+    void setHwFreq(qint64 freq_hz);
 
     void setCurrentDemod(int demod);
     int  currentDemod();
@@ -83,7 +83,7 @@ public:
     float currentMaxdev();
 
 private:
-    void updateRxFreq();
+    void updateHwFreq();
 
 signals:
     /*! \brief Signal emitted when the channel filter frequency has changed. */
@@ -165,7 +165,7 @@ private:
 
     bool agc_is_on;
 
-    qint64 rf_freq_hz;   /*! Current RF frequency in Hz. Used to display RX frequency. */
+    qint64 hw_freq_hz;   /*! Current PLL frequency in Hz. */
 };
 
 #endif // DOCKRXOPT_H
