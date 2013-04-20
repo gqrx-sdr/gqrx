@@ -47,8 +47,10 @@ DockFft::DockFft(QWidget *parent) :
 
     // Add predefined gqrx colors to chooser.
     ui->colorPicker->insertColor(QColor(0x97,0xD0,0x97,0xFF), "Green");
-    ui->colorPicker->insertColor(QColor(0xFA,0x62,0x46,0xFF), "Red");
-    ui->colorPicker->insertColor(QColor(0x1D,0x8D,0xFb,0xFF), "Blue"); // 1d8dfb
+    ui->colorPicker->insertColor(QColor(0xFF,0x62,0x46,0xFF), "Red");
+    ui->colorPicker->insertColor(QColor(0x55,0xAA,0xFF,0xFF), "Blue");
+    ui->colorPicker->insertColor(QColor(0x7F,0xFA,0xFA,0xFF), "Cyan");
+    ui->colorPicker->insertColor(QColor(0xFA,0xFA,0x7F,0xFF), "Yellow");
     ui->colorPicker->insertColor(QColor(0xFA,0xFA,0xFA,0xFF), "White");
 }
 
