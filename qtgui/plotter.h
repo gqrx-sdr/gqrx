@@ -98,7 +98,8 @@ public:
 
     void setFftCenterFreq(qint64 f) { m_FftCenter = f; }
 
-    void setFftPlotColor(QColor color)
+    /*! Set FFT plot color. */
+    void setFftPlotColor(const QColor color)
     {
         m_FftColor = color;
         m_FftCol0 = color;

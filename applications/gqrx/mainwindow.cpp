@@ -165,6 +165,8 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     connect(uiDockFft, SIGNAL(resetFftZoom()), ui->plotter, SLOT(resetHorizontalZoom()));
     connect(uiDockFft, SIGNAL(gotoFftCenter()), ui->plotter, SLOT(moveToCenterFreq()));
     connect(uiDockFft, SIGNAL(gotoDemodFreq()), ui->plotter, SLOT(moveToDemodFreq()));
+    connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
+    connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
 
 
     // restore last session
@@ -1159,6 +1161,18 @@ void MainWindow::setAudioFftRate(int fps)
 
     if (audio_fft_timer->isActive())
         audio_fft_timer->setInterval(interval);
+}
+
+/*! Set FFT plot color. */
+void MainWindow::setFftColor(const QColor color)
+{
+    ui->plotter->setFftPlotColor(color);
+}
+
+/*! Enalbe/disable filling the aread below the FFT plot. */
+void MainWindow::setFftFill(bool enable)
+{
+    ui->plotter->setFftFill(enable);
 }
 
 /*! \brief Force receiver reconfiguration.

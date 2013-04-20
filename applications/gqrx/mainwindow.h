@@ -20,6 +20,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QColor>
 #include <QMainWindow>
 #include <QPointer>
 #include <QSettings>
@@ -138,6 +139,8 @@ private slots:
     void setIqFftSplit(int pct_wf);
     void setIqFftAvg(double avg);
     void setAudioFftRate(int fps);
+    void setFftColor(const QColor color);
+    void setFftFill(bool enable);
 
     void on_plotter_newDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
     void on_plotter_newFilterFreq(int low, int high);    /*! New filter width */
