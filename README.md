@@ -9,7 +9,8 @@ The following sections are some rather generic instructions for building the lat
 Dependencies
 ------------
 
-- GNU Radio 3.6 or later (gnuradio-core and gnuradio-audio)
+- The latest GNU Radio 3.6 (gnuradio-core and gnuradio-audio)
+- The gr-iqbalance library (optional)
 - At least one of:
     - gnuradio-fcd
     - gnuradio-uhd
@@ -17,7 +18,7 @@ Dependencies
     - Osmo SDR from http://cgit.osmocom.org/cgit/osmo-sdr/
 - gnuradio-osmosdr from http://cgit.osmocom.org/cgit/gr-osmosdr/
 - pulseaudio (Linux only and optional)
-- Qt 4.6 or later and Qt Creator
+- Qt 4.6 or later and optionally Qt Creator
 
 
 Installation
@@ -71,7 +72,7 @@ Credits and License
 
 Gqrx is designed and written by Alexandru Csete OZ9AEC, and it is licensed under the GNU General Public License.
 Some of the source files were adopted from Cutesdr by Moe Weatley and these come with a BSD license.
-Following people have contributed:
+Following people and organisations have contributed:
 
 Alex Grinkov:
 - FM stereo demodulator.
@@ -95,6 +96,9 @@ Moe Weatley:
 
 Nadeem Hasan:
 - Bug fixes.
+
+Nokia:
+- QtColorPicker widget.
 
 Vesa Solonen:
 - DC removal in AM demodulator.

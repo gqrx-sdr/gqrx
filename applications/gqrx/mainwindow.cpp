@@ -1522,7 +1522,7 @@ void MainWindow::on_actionAbout_triggered()
 {
     QMessageBox::about(this, tr("About Gqrx"),
                        tr("<p>This is Gqrx %1</p>"
-                          "<p>Copyright (C) 2011-2012 Alexandru Csete & contributors.</p>"
+                          "<p>Copyright (C) 2011-2013 Alexandru Csete & contributors.</p>"
                           "<p>Gqrx is a software defined radio receiver powered by GNU Radio and the Qt toolkit. "
                           "<p>Gqrx uses the OsmoSDR GNU Radio package and and works with any input device "
                           "supported by OsmoSDR, including:"
