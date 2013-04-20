@@ -20,6 +20,7 @@
 #ifndef DOCKAUDIO_H
 #define DOCKAUDIO_H
 
+#include <QColor>
 #include <QDockWidget>
 #include <QSettings>
 
@@ -54,6 +55,9 @@ public:
 
     void setAudioRecButtonState(bool checked);
     void setAudioPlayButtonState(bool checked);
+
+    void setFftColor(QColor color);
+    void setFftFill(bool enabled);
 
     void saveSettings(QSettings *settings);
     void readSettings(QSettings *settings);

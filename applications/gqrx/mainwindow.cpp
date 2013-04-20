@@ -1167,12 +1167,14 @@ void MainWindow::setAudioFftRate(int fps)
 void MainWindow::setFftColor(const QColor color)
 {
     ui->plotter->setFftPlotColor(color);
+    uiDockAudio->setFftColor(color);
 }
 
 /*! Enalbe/disable filling the aread below the FFT plot. */
 void MainWindow::setFftFill(bool enable)
 {
     ui->plotter->setFftFill(enable);
+    uiDockAudio->setFftFill(enable);
 }
 
 /*! \brief Force receiver reconfiguration.

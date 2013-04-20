@@ -98,17 +98,6 @@ public:
 
     void setFftCenterFreq(qint64 f) { m_FftCenter = f; }
 
-    /*! Set FFT plot color. */
-    void setFftPlotColor(const QColor color)
-    {
-        m_FftColor = color;
-        m_FftCol0 = color;
-        m_FftCol0.setAlpha(0x00);
-        m_FftCol1 = color;
-        m_FftCol1.setAlpha(0xA0);
-    }
-    void setFftFill(bool enabled) { m_FftFill = enabled; }
-
 signals:
     void newCenterFreq(qint64 f);
     void newDemodFreq(qint64 freq, qint64 delta); /* delta is the offset from the center */
@@ -121,6 +110,8 @@ public slots:
     void resetHorizontalZoom(void);
     void moveToCenterFreq(void);
     void moveToDemodFreq(void);
+    void setFftPlotColor(const QColor color);
+    void setFftFill(bool enabled);
 
 protected:
     //re-implemented widget event handlers

@@ -93,6 +93,18 @@ int  DockAudio::audioGain()
     return ui->audioGainSlider->value();
 }
 
+/*! Set FFT plot color. */
+void DockAudio::setFftColor(QColor color)
+{
+    ui->audioSpectrum->setFftPlotColor(color);
+}
+
+/*! Enable/disable filling area under FFT plot. */
+void DockAudio::setFftFill(bool enabled)
+{
+    ui->audioSpectrum->setFftFill(enabled);
+}
+
 
 /*! \brief Audio gain changed.
  *  \param value The new audio gain value in tens of dB (because slider uses int)

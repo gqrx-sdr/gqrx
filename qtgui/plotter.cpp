@@ -1139,3 +1139,19 @@ void CPlotter::moveToDemodFreq(void)
     else
         drawOverlay();
 }
+
+/*! Set FFT plot color. */
+void CPlotter::setFftPlotColor(const QColor color)
+{
+    m_FftColor = color;
+    m_FftCol0 = color;
+    m_FftCol0.setAlpha(0x00);
+    m_FftCol1 = color;
+    m_FftCol1.setAlpha(0xA0);
+}
+
+/*! Enable/disable filling the area below the FFT plot. */
+void CPlotter::setFftFill(bool enabled)
+{
+    m_FftFill = enabled;
+}
