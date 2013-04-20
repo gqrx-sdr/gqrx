@@ -404,10 +404,10 @@
           <string>Spatial distribution between pandapter and waterfall</string>
          </property>
          <property name="minimum">
-          <number>20</number>
+          <number>0</number>
          </property>
          <property name="maximum">
-          <number>80</number>
+          <number>100</number>
          </property>
          <property name="value">
           <number>50</number>

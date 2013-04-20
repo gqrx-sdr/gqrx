@@ -1144,7 +1144,7 @@ void MainWindow::setIqFftRate(int fps)
  */
 void MainWindow::setIqFftSplit(int pct_wf)
 {
-    if ((pct_wf >= 20) && (pct_wf <= 80))
+    if ((pct_wf >= 10) && (pct_wf <= 100))
     {
         ui->plotter->setPercent2DScreen(pct_wf);
     }
