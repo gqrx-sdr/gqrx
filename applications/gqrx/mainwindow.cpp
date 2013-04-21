@@ -450,9 +450,10 @@ void MainWindow::setLnbLo(double freq_mhz)
     d_lnb_lo = qint64(freq_mhz*1e6);
     qDebug() << "New LNB LO:" << d_lnb_lo << "Hz";
 
-    // Update ranges and show updated frequency in display
+    // Update ranges and show updated frequency
     updateFrequencyRange(uiDockInputCtl->ignoreLimits());
     ui->freqCtrl->setFrequency(d_lnb_lo + rf_freq);
+    ui->plotter->setCenterFreq(d_lnb_lo + d_hw_freq);
 }
 
 /*! \brief Set new channel filter offset.
