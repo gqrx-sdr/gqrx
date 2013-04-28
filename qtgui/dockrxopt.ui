@@ -70,8 +70,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
       <item>
        <widget class="QLabel" name="rxFreqLabel">
         <property name="toolTip">
-         <string>The frequency we actualy are listening on calculated
-as  rf_freq + filter_offset</string>
+         <string>The frequency of the hardware (not including LNB)</string>
         </property>
         <property name="text">
          <string>Hardware freq:</string>
@@ -84,7 +83,7 @@ as  rf_freq + filter_offset</string>
       <item>
        <widget class="QLabel" name="hwFreq">
         <property name="toolTip">
-         <string>The frequency of the hardware PLL</string>
+         <string>The frequency of the hardware (not including LNB)</string>
         </property>
         <property name="text">
          <string>144.500000 MHz</string>
