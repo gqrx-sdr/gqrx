@@ -429,13 +429,15 @@ void MainWindow::updateFrequencyRange(bool ignore_limits)
 void MainWindow::setNewFrequency(qint64 rx_freq)
 {
     double hw_freq = (double)(rx_freq-d_lnb_lo) - rx->get_filter_offset();
+    qint64 center_freq = rx_freq - (qint64)rx->get_filter_offset();
+
     d_hw_freq = (qint64)hw_freq;
 
     // set receiver frequency
     rx->set_rf_freq(hw_freq);
 
     // update widgets
-    ui->plotter->setCenterFreq(d_hw_freq);
+    ui->plotter->setCenterFreq(center_freq);
     uiDockRxOpt->setHwFreq(d_hw_freq);
 }
 
