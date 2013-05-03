@@ -465,7 +465,7 @@ void CPlotter::wheelEvent(QWheelEvent * event)
         float db_per_pix = db_range / y_range;
         float fixed_db = m_MaxdB - pt.y() * db_per_pix;
 
-        db_range *= zoom_fac;
+        db_range = qBound(1.0f, db_range * zoom_fac, 2000.0f);
 
         m_MaxdB = fixed_db + ratio*db_range;
         m_MindB = m_MaxdB - db_range;
