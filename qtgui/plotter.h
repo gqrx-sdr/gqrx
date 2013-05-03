@@ -66,7 +66,10 @@ public:
     /* Shown bandwidth around SetCenterFreq() */
     void setSpanFreq(quint32 s)
     {
-        m_Span = (qint32)s;
+        if (s > 0 && s < INT_MAX) {
+            m_Span = (qint32)s;
+            setFftCenterFreq(m_FftCenter);
+        }
         drawOverlay();
     }
     void updateOverlay() { drawOverlay(); }
@@ -96,7 +99,10 @@ public:
         return m_SampleFreq;
     }
 
-    void setFftCenterFreq(qint64 f) { m_FftCenter = f; }
+    void setFftCenterFreq(qint64 f) {
+        qint64 limit = ((qint64)m_SampleFreq + m_Span) / 2 - 1;
+        m_FftCenter = qBound(-limit, f, limit);
+    }
 
 signals:
     void newCenterFreq(qint64 f);

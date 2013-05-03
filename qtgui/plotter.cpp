@@ -244,7 +244,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             }
             else
             {
-                m_FftCenter += delta_hz;
+                setFftCenterFreq(m_FftCenter + delta_hz);
             }
             if (m_Running)
                 m_DrawOverlay = true;
@@ -465,7 +465,7 @@ void CPlotter::wheelEvent(QWheelEvent * event)
         float db_per_pix = db_range / y_range;
         float fixed_db = m_MaxdB - pt.y() * db_per_pix;
 
-        db_range *= zoom_fac;
+        db_range = qBound(1.0f, db_range * zoom_fac, 2000.0f);
 
         m_MaxdB = fixed_db + ratio*db_range;
         m_MindB = m_MaxdB - db_range;
@@ -474,7 +474,9 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     {
         // calculate new range shown on FFT
         float zoom_factor = event->delta() < 0 ? 1.1 : 0.9;
-        float new_range = (float)(m_Span) * zoom_factor;
+        float new_range = qBound(10.0f,
+                                 (float)(m_Span) * zoom_factor,
+                                 (float)(m_SampleFreq) * 10.0f);
 
         // Frequency where event occured is kept fixed under mouse
         float ratio = (float)pt.x() / (float)m_OverlayPixmap.width();
@@ -591,7 +593,7 @@ void CPlotter::draw()
 
         QPainter painter1(&m_WaterfallPixmap);
         // get scaled FFT data
-        getScreenIntegerFFTData(255, w, m_MaxdB, m_MindB,
+        getScreenIntegerFFTData(255, qMin(w, MAX_SCREENSIZE), m_MaxdB, m_MindB,
                                 m_FftCenter-m_Span/2, m_FftCenter+m_Span/2,
                                 m_wfData, m_fftbuf, &xmin, &xmax);
 
@@ -620,7 +622,7 @@ void CPlotter::draw()
         QPainter painter2(&m_2DPixmap);
 
         // get new scaled fft data
-        getScreenIntegerFFTData(h, w, m_MaxdB, m_MindB,
+        getScreenIntegerFFTData(h, qMin(w, MAX_SCREENSIZE), m_MaxdB, m_MindB,
                                 m_FftCenter-m_Span/2, m_FftCenter+m_Span/2,
                                 m_fftData, m_fftbuf, &xmin, &xmax);
 
@@ -864,7 +866,7 @@ void CPlotter::drawOverlay()
 
     // horizontal grids (size and grid calcs could be moved to resize)
     m_VerDivs = h/m_VdivDelta+1;
-    m_HorDivs = w/m_HdivDelta;
+    m_HorDivs = qMin(w/m_HdivDelta, HORZ_DIVS_MAX);
     if (m_HorDivs % 2)
         m_HorDivs++;   // we want an odd number of divs so that we have a center line
 
