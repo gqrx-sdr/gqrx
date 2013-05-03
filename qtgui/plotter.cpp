@@ -474,7 +474,9 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     {
         // calculate new range shown on FFT
         float zoom_factor = event->delta() < 0 ? 1.1 : 0.9;
-        float new_range = qMax((float)(m_Span) * zoom_factor, 10.0f);
+        float new_range = qBound(10.0f,
+                                 (float)(m_Span) * zoom_factor,
+                                 (float)(m_SampleFreq) * 10.0f);
 
         // Frequency where event occured is kept fixed under mouse
         float ratio = (float)pt.x() / (float)m_OverlayPixmap.width();
