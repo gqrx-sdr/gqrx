@@ -319,13 +319,13 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         ui->plotter->setSpanFreq((quint32)actual_rate);
     }
 
-    ui->freqCtrl->setFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&conv_ok));
-    setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
-
     uiDockInputCtl->readSettings(m_settings);
     uiDockRxOpt->readSettings(m_settings);
     uiDockFft->readSettings(m_settings);
     uiDockAudio->readSettings(m_settings);
+
+    ui->freqCtrl->setFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&conv_ok));
+    setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
 
     return conf_ok;
 }
