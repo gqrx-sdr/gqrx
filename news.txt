@@ -1,25 +1,37 @@
    2.1.xyz
+       NEW: Allow using audio output devices other than the default.
+       NEW: Automatic I/Q phase and gain correction (requires gr-iqbal).
+  IMPROVED: Y-axis panning (click-and-drag).
+
+
+   2.1.251  Released on March 1, 2013
+
+     FIXED: Incorrect device selection in config dialog.
+
+
+   2.1.246  Released on February 29, 2013
 
        NEW: I/Q swapping option.
        NEW: FFT video filter with non-linear gain (still WIP).
        NEW: Save and restore FFT settings.
+       NEW: Save and restore receiver options (offset, mode and squelch level).
        NEW: AM DC removal using IIR filter.
      FIXED: Removed graphics redraw delay when changing frequency or demodulator.
      FIXED: Respect RF frequency range of input device.
-(not)FIXED: Correctly show the sign of filter offsets between 0 and -1 kHz.
      FIXED: Added workaround for pixel error introduced in Qt 4.8.
      FIXED: Crash when FFT size is smaller than plot width.
-     FIXED: Show correct intial filter preset in filter selector.
+     FIXED: Show correct initial filter preset in filter selector.
      FIXED: Workaround for 'jerky streaming' when DSP is started using rtlsdr.
      FIXED: Freeze when channel filter becomes too narrow in AM and FM modes.
      FIXED: Crash when changing sample rate of the current input device.
-   CHANGED: Show device ID (e.g. rtl=0) in title bar ionstead of description.
+   CHANGED: Show device ID (e.g. rtl=0) in title bar instead of description.
   IMPROVED: AGC settings moved to dialog window.
   IMPROVED: Increase LO resolution to 1 Hz.
   IMPROVED: GUI layout fixes for Mac OS X.
   IMPROVED: Shortcuts for resetting and re-centering FFT plot after zooming.
   IMPROVED: Crash recovery in case of bad config file.
   IMPROVED: Support 50 fps FFT rate and allow disabling FFT.
+  IMPROVED: I/Q DC canceling.
 
 
    2.1.148  Released on December 9, 2012

@@ -23,8 +23,8 @@
 
 #include <gr_top_block.h>
 #include <gr_multiply_const_ff.h>
-#include <osmosdr_source_c.h>
-#include <osmosdr_ranges.h>
+#include <osmosdr/osmosdr_source_c.h>
+#include <osmosdr/osmosdr_ranges.h>
 
 #include "applications/gqrx/receiver.h"
 #include "dsp/correct_iq_cc.h"
@@ -54,6 +54,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
       d_recording_wav(false),
       d_sniffer_active(false),
       d_iq_rev(false),
+      d_dc_cancel(false),
+      d_iq_balance(false),
       d_demod(RX_DEMOD_OFF)
 {
     tb = gr_make_top_block("gqrx");
@@ -73,7 +75,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     lo = gr_make_sig_source_c(d_input_rate, GR_SIN_WAVE, 0.0, 1.0);
     mixer = gr_make_multiply_cc();
 
-    dc_corr = make_dc_corr_cc(0.01f);
+    iq_swap = make_iq_swap_cc(false);
+    dc_corr = make_dc_corr_cc(d_input_rate, 1.0);
     iq_fft = make_rx_fft_c(4096u, 0);
 
     audio_fft = make_rx_fft_f(3072u);
@@ -158,10 +161,10 @@ void receiver::set_input_device(const std::string device)
 
     tb->lock();
 
-    tb->disconnect(src, 0, dc_corr, 0);
+    tb->disconnect(src, 0, iq_swap, 0);
     src.reset();
     src = osmosdr_make_source_c(device);
-    tb->connect(src, 0, dc_corr, 0);
+    tb->connect(src, 0, iq_swap, 0);
 
     tb->unlock();
 }
@@ -180,6 +183,8 @@ void receiver::set_output_device(const std::string device)
         return;
     }
 
+    output_devstr = device;
+
     tb->lock();
 
     tb->disconnect(audio_gain0, 0, audio_snk, 0);
@@ -187,7 +192,7 @@ void receiver::set_output_device(const std::string device)
     audio_snk.reset();
 
 #ifdef WITH_PULSEAUDIO
-    audio_snk = make_pa_sink(device, d_audio_rate); // FIXME: does this keep app and stream name?
+    audio_snk = make_pa_sink(device, d_audio_rate);
 #else
     audio_snk = audio_make_sink(d_audio_rate, device, true);
 #endif
@@ -216,6 +221,7 @@ double receiver::set_input_rate(double rate)
     {
         tb->lock();
         d_input_rate = src->set_sample_rate(rate);
+        dc_corr->set_sample_rate(d_input_rate);
         rx->set_quad_rate(d_input_rate);
         lo->set_sampling_freq(d_input_rate);
         tb->unlock();
@@ -237,17 +243,66 @@ void receiver::set_iq_swap(bool reversed)
     if (reversed == d_iq_rev)
         return;
 
-    dc_corr->set_iq_swap(reversed);
     d_iq_rev = reversed;
+    iq_swap->set_enabled(d_iq_rev);
 }
 
-/*! \brief Get current I/Q reversed setting. */
+/*! \brief Get current I/Q reversed setting.
+ *  \retval true I/Q swappign is enabled.
+ *  \retval false I/Q swapping is disabled.
+ */
 bool receiver::get_iq_swap(void)
 {
     return d_iq_rev;
 }
 
+/*! \brief Enable/disable automatic DC removal in the I/Q stream.
+ *  \param enable Whether DC removal should enabled or not.
+ */
+void receiver::set_dc_cancel(bool enable)
+{
+    if (enable == d_dc_cancel)
+        return;
 
+    d_dc_cancel = enable;
+
+    // until we have a way to switch on/off
+    // inside the dc_corr_cc we do a reconf
+    rx_demod demod = d_demod;
+    d_demod = RX_DEMOD_OFF;
+    set_demod(demod);
+}
+
+/*! \brief Get auto DC cancel status.
+ *  \retval true  Automatic DC removal is enabled.
+ *  \retval false Automatic DC removal is disabled.
+ */
+bool receiver::get_dc_cancel(void)
+{
+    return d_dc_cancel;
+}
+
+/*! \brief Enable/disable automatic I/Q balance.
+ *  \param enable Whether automatic I/Q balance should be enabled.
+ */
+void receiver::set_iq_balance(bool enable)
+{
+    if (enable == d_iq_balance)
+        return;
+
+    d_iq_balance = enable;
+
+    src->set_iq_balance_mode(enable ? 2 : 0);
+}
+
+/*! \brief Get auto I/Q balance status.
+ *  \retval true  Automatic I/Q balance is enabled.
+ *  \retval false Automatic I/Q balance is disabled.
+ */
+bool receiver::get_iq_balance(void)
+{
+    return d_iq_balance;
+}
 /*! \brief Set RF frequency.
  *  \param freq_hz The desired frequency in Hz.
  *  \return RX_STATUS_ERROR if an error occurs, e.g. the frequency is out of range.
@@ -421,21 +476,6 @@ receiver::status receiver::set_filter_shape(filter_shape shape)
 receiver::status receiver::set_freq_corr(int ppm)
 {
     src->set_freq_corr(ppm);
-
-    return STATUS_OK;
-}
-
-
-receiver::status receiver::set_dc_corr(double dci, double dcq)
-{
-    //src->set_dc_corr(dci, dcq);   FIXME!
-
-    return STATUS_OK;
-}
-
-receiver::status receiver::set_iq_corr(double gain, double phase)
-{
-    //src->set_iq_corr(gain, phase);   FIXME!
 
     return STATUS_OK;
 }
@@ -986,8 +1026,16 @@ void receiver::connect_all(rx_chain type)
     switch (type)
     {
     case RX_CHAIN_NONE:
-        tb->connect(src, 0, dc_corr, 0);
-        tb->connect(dc_corr, 0, iq_fft, 0);
+        tb->connect(src, 0, iq_swap, 0);
+        if (d_dc_cancel)
+        {
+            tb->connect(iq_swap, 0, dc_corr, 0);
+            tb->connect(dc_corr, 0, iq_fft, 0);
+        }
+        else
+        {
+            tb->connect(iq_swap, 0, iq_fft, 0);
+        }
         break;
 
     case RX_CHAIN_NBRX:
@@ -996,9 +1044,18 @@ void receiver::connect_all(rx_chain type)
             rx.reset();
             rx = make_nbrx(d_input_rate, d_audio_rate);
         }
-        tb->connect(src, 0, dc_corr, 0);
-        tb->connect(dc_corr, 0, iq_fft, 0);
-        tb->connect(dc_corr, 0, mixer, 0);
+        tb->connect(src, 0, iq_swap, 0);
+        if (d_dc_cancel)
+        {
+            tb->connect(iq_swap, 0, dc_corr, 0);
+            tb->connect(dc_corr, 0, iq_fft, 0);
+            tb->connect(dc_corr, 0, mixer, 0);
+        }
+        else
+        {
+            tb->connect(iq_swap, 0, iq_fft, 0);
+            tb->connect(iq_swap, 0, mixer, 0);
+        }
         tb->connect(lo, 0, mixer, 1);
         tb->connect(mixer, 0, rx, 0);
         tb->connect(rx, 0, audio_fft, 0);
@@ -1014,9 +1071,18 @@ void receiver::connect_all(rx_chain type)
             rx.reset();
             rx = make_wfmrx(d_input_rate, d_audio_rate);
         }
-        tb->connect(src, 0, dc_corr, 0);
-        tb->connect(dc_corr, 0, iq_fft, 0);
-        tb->connect(dc_corr, 0, mixer, 0);
+        tb->connect(src, 0, iq_swap, 0);
+        if (d_dc_cancel)
+        {
+            tb->connect(iq_swap, 0, dc_corr, 0);
+            tb->connect(dc_corr, 0, iq_fft, 0);
+            tb->connect(dc_corr, 0, mixer, 0);
+        }
+        else
+        {
+            tb->connect(iq_swap, 0, iq_fft, 0);
+            tb->connect(iq_swap, 0, mixer, 0);
+        }
         tb->connect(lo, 0, mixer, 1);
         tb->connect(mixer, 0, rx, 0);
         tb->connect(rx, 0, audio_fft, 0);

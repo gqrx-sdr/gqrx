@@ -39,6 +39,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     configOk(true),
     ui(new Ui::MainWindow),
     d_lnb_lo(0),
+    d_hw_freq(0),
     d_fftAvg(0.5),
     d_have_audio(true),
     dec_afsk1200(0)
@@ -136,6 +137,8 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     connect(uiDockInputCtl, SIGNAL(gainChanged(double)), SLOT(setRfGain(double)));
     connect(uiDockInputCtl, SIGNAL(freqCorrChanged(int)), this, SLOT(setFreqCorr(int)));
     connect(uiDockInputCtl, SIGNAL(iqSwapChanged(bool)), this, SLOT(setIqSwap(bool)));
+    connect(uiDockInputCtl, SIGNAL(dcCancelChanged(bool)), this, SLOT(setDcCancel(bool)));
+    connect(uiDockInputCtl, SIGNAL(iqBalanceChanged(bool)), this, SLOT(setIqBalance(bool)));
     connect(uiDockInputCtl, SIGNAL(ignoreLimitsChanged(bool)), this, SLOT(setIgnoreLimits(bool)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
@@ -163,6 +166,8 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     connect(uiDockFft, SIGNAL(resetFftZoom()), ui->plotter, SLOT(resetHorizontalZoom()));
     connect(uiDockFft, SIGNAL(gotoFftCenter()), ui->plotter, SLOT(moveToCenterFreq()));
     connect(uiDockFft, SIGNAL(gotoDemodFreq()), ui->plotter, SLOT(moveToDemodFreq()));
+    connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
+    connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
 
 
     // restore last session
@@ -300,6 +305,9 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         setWindowTitle(QString("Gqrx %1 - %2").arg(VERSION).arg(devlabel));
     }
 
+    QString outdev = m_settings->value("output/device", "").toString();
+    rx->set_output_device(outdev.toStdString());
+
     int sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
     if (conv_ok && (sr > 0))
     {
@@ -311,26 +319,13 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         ui->plotter->setSpanFreq((quint32)actual_rate);
     }
 
-    /** FIXME: move to DockInputCtl **/
-    uiDockInputCtl->setFreqCorr(m_settings->value("input/corr_freq", 0).toInt(&conv_ok));
-    rx->set_freq_corr(m_settings->value("input/corr_freq", 0).toInt(&conv_ok));
+    uiDockInputCtl->readSettings(m_settings);
+    uiDockRxOpt->readSettings(m_settings);
+    uiDockFft->readSettings(m_settings);
+    uiDockAudio->readSettings(m_settings);
 
-    uiDockInputCtl->setIqSwap(m_settings->value("input/swap_iq", false).toBool());
-    rx->set_iq_swap(m_settings->value("input/swap_iq", false).toBool());
-
-    d_lnb_lo = m_settings->value("input/lnb_lo", 0).toLongLong(&conv_ok);
-    uiDockInputCtl->setLnbLo((double)d_lnb_lo/1.0e6);
-
-    bool ignore_limits = m_settings->value("input/ignore_limits", false).toBool();
-    uiDockInputCtl->setIgnoreLimits(ignore_limits);
-    updateFrequencyRange(ignore_limits);
     ui->freqCtrl->setFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&conv_ok));
     setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
-
-    uiDockInputCtl->setGain(m_settings->value("input/gain", -1).toDouble(&conv_ok));
-    setRfGain(m_settings->value("input/gain", -1).toDouble(&conv_ok));
-
-    uiDockFft->readSettings(m_settings);
 
     return conf_ok;
 }
@@ -384,31 +379,11 @@ void MainWindow::storeSession()
     if (m_settings)
     {
         m_settings->setValue("input/frequency", ui->freqCtrl->getFrequency());
-        if (d_lnb_lo)
-            m_settings->setValue("input/lnb_lo", d_lnb_lo);
-        else
-            m_settings->remove("input/lnb_lo");
 
-        double dblval = uiDockInputCtl->gain();
-        m_settings->setValue("input/gain", dblval);
-
-        if (uiDockInputCtl->freqCorr())
-            m_settings->setValue("input/corr_freq", uiDockInputCtl->freqCorr());
-        else
-            m_settings->remove("input/corr_freq");
-
-        if (uiDockInputCtl->iqSwap())
-            m_settings->setValue("input/swap_iq", true);
-        else
-            m_settings->remove("input/swap_iq");
-
-        if (uiDockInputCtl->ignoreLimits())
-            m_settings->setValue("input/ignore_limits", true);
-        else
-            m_settings->remove("input/ignore_limits");
-
-        // FFT settings
+        uiDockInputCtl->saveSettings(m_settings);
+        uiDockRxOpt->saveSettings(m_settings);
         uiDockFft->saveSettings(m_settings);
+        uiDockAudio->saveSettings(m_settings);
     }
 }
 
@@ -449,18 +424,21 @@ void MainWindow::updateFrequencyRange(bool ignore_limits)
  *  \param[in] freq The new frequency.
  *
  * This slot is connected to the CFreqCtrl::newFrequency() signal and is used
- * to set new RF frequency.
+ * to set new receive frequency.
  */
-void MainWindow::setNewFrequency(qint64 freq)
+void MainWindow::setNewFrequency(qint64 rx_freq)
 {
-    /* set receiver frequency */
-    rx->set_rf_freq((double) (freq-d_lnb_lo));
+    double hw_freq = (double)(rx_freq-d_lnb_lo) - rx->get_filter_offset();
+    qint64 center_freq = rx_freq - (qint64)rx->get_filter_offset();
 
-    /* update pandapter */
-    ui->plotter->setCenterFreq(freq);
+    d_hw_freq = (qint64)hw_freq;
 
-    /* update RX frequncy label in rxopts */
-    uiDockRxOpt->setRfFreq(freq);
+    // set receiver frequency
+    rx->set_rf_freq(hw_freq);
+
+    // update widgets
+    ui->plotter->setCenterFreq(center_freq);
+    uiDockRxOpt->setHwFreq(d_hw_freq);
 }
 
 /*! \brief Set new LNB LO frequency.
@@ -474,18 +452,22 @@ void MainWindow::setLnbLo(double freq_mhz)
     d_lnb_lo = qint64(freq_mhz*1e6);
     qDebug() << "New LNB LO:" << d_lnb_lo << "Hz";
 
-    // Update ranges and show updated frequency in display
+    // Update ranges and show updated frequency
     updateFrequencyRange(uiDockInputCtl->ignoreLimits());
     ui->freqCtrl->setFrequency(d_lnb_lo + rf_freq);
+    ui->plotter->setCenterFreq(d_lnb_lo + d_hw_freq);
 }
 
 /*! \brief Set new channel filter offset.
- *  \param freq_hs The new filter offset in Hz.
+ *  \param freq_hz The new filter offset in Hz.
  */
 void MainWindow::setFilterOffset(qint64 freq_hz)
 {
     rx->set_filter_offset((double) freq_hz);
     ui->plotter->setFilterOffset(freq_hz);
+
+    qint64 rx_freq = d_hw_freq + d_lnb_lo + freq_hz;
+    ui->freqCtrl->setFrequency(rx_freq);
 }
 
 /*! \brief Set RF gain.
@@ -516,6 +498,18 @@ void MainWindow::setIqSwap(bool reversed)
     rx->set_iq_swap(reversed);
 }
 
+/*! \brief Enable/disable automatic DC removal. */
+void MainWindow::setDcCancel(bool enabled)
+{
+    rx->set_dc_cancel(enabled);
+}
+
+/*! \brief Enable/disable automatic IQ balance. */
+void MainWindow::setIqBalance(bool enabled)
+{
+    rx->set_iq_balance(enabled);
+}
+
 /*! \brief Ignore hardware limits.
  *  \param ignore_limits Whether harware limits should be ignored or not.
  *
@@ -535,34 +529,6 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
     freq = ui->freqCtrl->getFrequency();
     setNewFrequency(freq);
 }
-
-/*! \brief Set new DC offset values.
- *  \param dci I correction.
- *  \param dcq Q correction.
- *
- * The valid range is between -1.0 and 1.0, though hthis is not checked.
- */
-void MainWindow::setDcCorr(double dci, double dcq)
-{
-    qDebug() << "*** FIXME:" << __FUNCTION__;
-    qDebug() << "DCI:" << dci << "  DCQ:" << dcq;
-    rx->set_dc_corr(dci, dcq);
-}
-
-
-/*! \brief Set new IQ correction values.
- *  \param gain IQ gain correction.
- *  \param phase IQ phase correction.
- *
- * The valid range is between -1.0 and 1.0, though hthis is not checked.
- */
-void MainWindow::setIqCorr(double gain, double phase)
-{
-    qDebug() << "*** FIXME:" << __FUNCTION__;
-    qDebug() << "Gain:" << gain << "  Phase:" << phase;
-    rx->set_iq_corr(gain, phase);
-}
-
 
 /*! \brief Select new demodulator.
  *  \param demod New demodulator index.
@@ -1181,7 +1147,7 @@ void MainWindow::setIqFftRate(int fps)
  */
 void MainWindow::setIqFftSplit(int pct_wf)
 {
-    if ((pct_wf >= 20) && (pct_wf <= 80))
+    if ((pct_wf >= 10) && (pct_wf <= 100))
     {
         ui->plotter->setPercent2DScreen(pct_wf);
     }
@@ -1203,6 +1169,20 @@ void MainWindow::setAudioFftRate(int fps)
 
     if (audio_fft_timer->isActive())
         audio_fft_timer->setInterval(interval);
+}
+
+/*! Set FFT plot color. */
+void MainWindow::setFftColor(const QColor color)
+{
+    ui->plotter->setFftPlotColor(color);
+    uiDockAudio->setFftColor(color);
+}
+
+/*! Enalbe/disable filling the aread below the FFT plot. */
+void MainWindow::setFftFill(bool enable)
+{
+    ui->plotter->setFftFill(enable);
+    uiDockAudio->setFftFill(enable);
 }
 
 /*! \brief Force receiver reconfiguration.
@@ -1413,7 +1393,7 @@ void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
 
     // update RF freq label and channel filter offset
     uiDockRxOpt->setFilterOffset(delta);
-    uiDockRxOpt->setRfFreq(freq-delta);
+    ui->freqCtrl->setFrequency(freq);
 }
 
 /* CPlotter::NewfilterFreq() is emitted */
@@ -1550,7 +1530,7 @@ void MainWindow::on_actionAbout_triggered()
 {
     QMessageBox::about(this, tr("About Gqrx"),
                        tr("<p>This is Gqrx %1</p>"
-                          "<p>Copyright (C) 2011-2012 Alexandru Csete & contributors.</p>"
+                          "<p>Copyright (C) 2011-2013 Alexandru Csete & contributors.</p>"
                           "<p>Gqrx is a software defined radio receiver powered by GNU Radio and the Qt toolkit. "
                           "<p>Gqrx uses the OsmoSDR GNU Radio package and and works with any input device "
                           "supported by OsmoSDR, including:"

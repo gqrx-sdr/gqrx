@@ -21,6 +21,7 @@
 #define DOCKRXOPT_H
 
 #include <QDockWidget>
+#include <QSettings>
 #include "qtgui/agc_options.h"
 #include "qtgui/demod_options.h"
 #include "qtgui/nb_options.h"
@@ -64,6 +65,9 @@ public:
     explicit DockRxOpt(qint64 filterOffsetRange = 90000, QWidget *parent = 0);
     ~DockRxOpt();
 
+    void readSettings(QSettings *settings);
+    void saveSettings(QSettings *settings);
+
     void setFilterOffset(qint64 freq_hz);
     void setFilterOffsetRange(qint64 range_hz);
 
@@ -71,7 +75,7 @@ public:
     void setCurrentFilter(int index);
     int  currentFilter();
 
-    void setRfFreq(qint64 freq_hz);
+    void setHwFreq(qint64 freq_hz);
 
     void setCurrentDemod(int demod);
     int  currentDemod();
@@ -79,7 +83,7 @@ public:
     float currentMaxdev();
 
 private:
-    void updateRxFreq();
+    void updateHwFreq();
 
 signals:
     /*! \brief Signal emitted when the channel filter frequency has changed. */
@@ -161,7 +165,7 @@ private:
 
     bool agc_is_on;
 
-    qint64 rf_freq_hz;   /*! Current RF frequency in Hz. Used to display RX frequency. */
+    qint64 hw_freq_hz;   /*! Current PLL frequency in Hz. */
 };
 
 #endif // DOCKRXOPT_H

@@ -18,6 +18,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <QDebug>
+#include <QVariant>
 #include "dockrxopt.h"
 #include "ui_dockrxopt.h"
 
@@ -27,7 +28,7 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockRxOpt),
     agc_is_on(true),
-    rf_freq_hz(144500000)
+    hw_freq_hz(144500000)
 {
     ui->setupUi(this);
 
@@ -76,7 +77,6 @@ DockRxOpt::~DockRxOpt()
 void DockRxOpt::setFilterOffset(qint64 freq_hz)
 {
     ui->filterFreq->setFrequency(freq_hz);
-    updateRxFreq();
 }
 
 /*! \brief Set filter offset range.
@@ -95,18 +95,18 @@ void DockRxOpt::setFilterOffsetRange(qint64 range_hz)
  * The actual RX frequency is the sum of the RF frequency and the filter
  * offset.
  */
-void DockRxOpt::setRfFreq(qint64 freq_hz)
+void DockRxOpt::setHwFreq(qint64 freq_hz)
 {
-    rf_freq_hz = freq_hz;
-    updateRxFreq();
+    hw_freq_hz = freq_hz;
+    updateHwFreq();
 }
 
 
 /*! \brief Update RX frequency label. */
-void DockRxOpt::updateRxFreq()
+void DockRxOpt::updateHwFreq()
 {
-    double rx_freq_mhz = (rf_freq_hz + ui->filterFreq->getFrequency()) / 1.0e6;
-    ui->rxFreq->setText(QString("%1 MHz").arg(rx_freq_mhz, 11, 'f', 6, ' '));
+    double hw_freq_mhz = hw_freq_hz / 1.0e6;
+    ui->hwFreq->setText(QString("%1 MHz").arg(hw_freq_mhz, 11, 'f', 6, ' '));
 }
 
 
@@ -169,6 +169,50 @@ float DockRxOpt::currentMaxdev()
     return 5000.0;
 }
 
+/*! \brief Read receiver configuration from settings data. */
+void DockRxOpt::readSettings(QSettings *settings)
+{
+    bool conv_ok;
+    int intVal;
+
+    intVal = settings->value("receiver/demod", -1).toInt(&conv_ok);
+    if (intVal >= 0)
+    {
+        setCurrentDemod(intVal);
+        emit demodSelected(intVal);
+    }
+
+    qint64 offs = settings->value("receiver/offset", 0).toInt(&conv_ok);
+    if (offs)
+    {
+        setFilterOffset(offs);
+        emit filterOffsetChanged(offs);
+    }
+
+    intVal = settings->value("receiver/sql_level", 1).toInt(&conv_ok);
+    if (intVal != 1)
+        ui->sqlSlider->setValue(intVal); // signal emitted automatically
+}
+
+/*! \brief Save receiver configuration to settings. */
+void DockRxOpt::saveSettings(QSettings *settings)
+{
+    settings->setValue("receiver/demod", ui->modeSelector->currentIndex());
+
+    qint64 offs = ui->filterFreq->getFrequency();
+    if (offs)
+        settings->setValue("receiver/offset", offs);
+    else
+        settings->remove("receiver/offset");
+
+    qDebug() << __func__ << "*** FIXME_ SQL on/off";
+    int sql_lvl = double(ui->sqlSlider->value());  // note: dBFS*10 as int
+    if (sql_lvl > -1500)
+        settings->setValue("receiver/sql_level", sql_lvl);
+    else
+        settings->remove("receiver/sql_level");
+}
+
 /*! \brief Channel filter offset has changed
  *  \param freq The new filter offset in Hz
  *
@@ -178,7 +222,7 @@ float DockRxOpt::currentMaxdev()
 void DockRxOpt::on_filterFreq_newFrequency(qint64 freq)
 {
     qDebug() << "New filter offset:" << freq << "Hz";
-    updateRxFreq();
+    updateHwFreq();
 
     emit filterOffsetChanged(freq);
 }
@@ -335,7 +379,6 @@ void DockRxOpt::on_sqlSlider_valueChanged(int value)
 
     // update dB label
     ui->sqlDbLabel->setText(QString("%1 dBFS").arg(level));
-    //ui->sqlValueLabel->setText(QString("%1 dB").arg(level));
     emit sqlLevelChanged(level);
 }
 

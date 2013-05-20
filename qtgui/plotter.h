@@ -66,14 +66,17 @@ public:
     /* Shown bandwidth around SetCenterFreq() */
     void setSpanFreq(quint32 s)
     {
-        m_Span = (qint32)s;
+        if (s > 0 && s < INT_MAX) {
+            m_Span = (qint32)s;
+            setFftCenterFreq(m_FftCenter);
+        }
         drawOverlay();
     }
     void updateOverlay() { drawOverlay(); }
 
-    void setMaxDB(qint32 max);
-    void setMinDB(qint32 min);
-    void setMinMaxDB(qint32 min, qint32 max);
+    void setMaxDB(double max);
+    void setMinDB(double min);
+    void setMinMaxDB(double min, double max);
 
     void setFontSize(int points) { m_FontSize = points; }
     void setHdivDelta(int delta) { m_HdivDelta = delta; }
@@ -96,7 +99,10 @@ public:
         return m_SampleFreq;
     }
 
-    void setFftCenterFreq(qint64 f) { m_FftCenter = f; }
+    void setFftCenterFreq(qint64 f) {
+        qint64 limit = ((qint64)m_SampleFreq + m_Span) / 2 - 1;
+        m_FftCenter = qBound(-limit, f, limit);
+    }
 
 signals:
     void newCenterFreq(qint64 f);
@@ -110,6 +116,8 @@ public slots:
     void resetHorizontalZoom(void);
     void moveToCenterFreq(void);
     void moveToDemodFreq(void);
+    void setFftPlotColor(const QColor color);
+    void setFftFill(bool enabled);
 
 protected:
     //re-implemented widget event handlers
@@ -183,8 +191,8 @@ private:
 
     int    m_HorDivs;   /*!< Current number of horizontal divisions. Calculated from width. */
     int    m_VerDivs;   /*!< Current number of vertical divisions. Calculated from height. */
-    qint32 m_MaxdB;
-    qint32 m_MindB;
+    double m_MaxdB;
+    double m_MindB;
     qint32 m_dBStepSize;
     qint32 m_Span;
     double m_SampleFreq;    /*!< Sample rate. */
@@ -201,6 +209,9 @@ private:
     int m_VdivDelta; /*!< Minimum distance in pixels between two vertical grid lines (horizontal division). */
 
     quint32 m_LastSampleRate;
+
+    QColor m_FftColor, m_FftCol0, m_FftCol1;
+    bool m_FftFill;
 
 };
 

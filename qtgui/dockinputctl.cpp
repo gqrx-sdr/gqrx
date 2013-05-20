@@ -33,6 +33,72 @@ DockInputCtl::~DockInputCtl()
     delete ui;
 }
 
+void DockInputCtl::readSettings(QSettings *settings)
+{
+    bool conv_ok;
+
+    setFreqCorr(settings->value("input/corr_freq", 0).toInt(&conv_ok));
+    emit freqCorrChanged(ui->freqCorrSpinBox->value());
+
+    setIqSwap(settings->value("input/swap_iq", false).toBool());
+    emit iqSwapChanged(ui->iqSwapButton->isChecked());
+
+    setDcCancel(settings->value("input/dc_cancel", false).toBool());
+    emit dcCancelChanged(ui->dcCancelButton->isChecked());
+
+    setIqBalance(settings->value("input/iq_balance", false).toBool());
+    emit iqBalanceChanged(ui->iqBalanceButton->isChecked());
+
+    qint64 lnb_lo = settings->value("input/lnb_lo", 0).toLongLong(&conv_ok);
+    setLnbLo((double)lnb_lo/1.0e6);
+    emit lnbLoChanged(ui->lnbSpinBox->value());
+
+    bool ignore_limits = settings->value("input/ignore_limits", false).toBool();
+    setIgnoreLimits(ignore_limits);
+    emit ignoreLimitsChanged(ignore_limits);
+
+    double gain = settings->value("input/gain", -1).toDouble(&conv_ok);
+    setGain(gain);
+    emit gainChanged(gain);
+}
+
+void DockInputCtl::saveSettings(QSettings *settings)
+{
+    qint64 lnb_lo = (qint64)ui->lnbSpinBox->value()*1e6;
+    if (lnb_lo)
+        settings->setValue("input/lnb_lo", lnb_lo);
+    else
+        settings->remove("input/lnb_lo");
+
+    double dblval = gain();
+    settings->setValue("input/gain", dblval);
+
+    if (freqCorr())
+        settings->setValue("input/corr_freq", freqCorr());
+    else
+        settings->remove("input/corr_freq");
+
+    if (iqSwap())
+        settings->setValue("input/swap_iq", true);
+    else
+        settings->remove("input/swap_iq");
+
+    if (dcCancel())
+        settings->setValue("input/dc_cancel", true);
+    else
+        settings->remove("input/dc_cancel");
+
+    if (iqBalance())
+        settings->setValue("input/iq_balance", true);
+    else
+        settings->remove("input/iq_balance");
+
+    if (ignoreLimits())
+        settings->setValue("input/ignore_limits", true);
+    else
+        settings->remove("input/ignore_limits");
+
+}
 
 void DockInputCtl::setLnbLo(double freq_mhz)
 {
@@ -105,6 +171,29 @@ bool DockInputCtl::iqSwap(void)
     return ui->iqSwapButton->isChecked();
 }
 
+/*! \brief Enable automatic DC removal. */
+void DockInputCtl::setDcCancel(bool enabled)
+{
+    ui->dcCancelButton->setChecked(enabled);
+}
+
+/*! \brief Get current DC remove status. */
+bool DockInputCtl::dcCancel(void)
+{
+    return ui->dcCancelButton->isChecked();
+}
+
+/*! \brief Enable automatic IQ balance. */
+void DockInputCtl::setIqBalance(bool enabled)
+{
+    ui->iqBalanceButton->setChecked(enabled);
+}
+
+/*! \brief Get current IQ balance status. */
+bool DockInputCtl::iqBalance(void)
+{
+    return ui->iqBalanceButton->isChecked();
+}
 
 /*! \brief Enasble/disable ignoring hardware limits. */
 void DockInputCtl::setIgnoreLimits(bool reversed)
@@ -158,6 +247,22 @@ void DockInputCtl::on_freqCorrSpinBox_valueChanged(int value)
 void DockInputCtl::on_iqSwapButton_toggled(bool checked)
 {
     emit iqSwapChanged(checked);
+}
+
+/*! \brief DC removal checkbox changed.
+ *  \param checked True if DC removal is enabled, false otherwise
+ */
+void DockInputCtl::on_dcCancelButton_toggled(bool checked)
+{
+    emit dcCancelChanged(checked);
+}
+
+/*! \brief IQ balance checkbox changed.
+ *  \param checked True if automatic IQ balance is enabled, false otherwise
+ */
+void DockInputCtl::on_iqBalanceButton_toggled(bool checked)
+{
+    emit iqBalanceChanged(checked);
 }
 
 /*! \brief Ignore hardware limits checkbox changed.

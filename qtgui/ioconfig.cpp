@@ -26,9 +26,9 @@
 #include <QPushButton>
 #include <QDebug>
 
-#include <osmosdr_device.h>
-#include <osmosdr_source_c.h>
-#include <osmosdr_ranges.h>
+#include <osmosdr/osmosdr_device.h>
+#include <osmosdr/osmosdr_source_c.h>
+#include <osmosdr/osmosdr_ranges.h>
 #include <boost/foreach.hpp>
 
 #ifdef WITH_PULSEAUDIO
@@ -81,7 +81,9 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
             cfgmatch = true;
         }
 
-        qDebug() << "   " << i++ << ":"  << devlabel;
+        qDebug() << "   " << i << ":"  << devlabel;
+
+        ++i;
 
         // Following code could be used for multiple matches
         /* QStringList list;
@@ -170,13 +172,15 @@ void CIoConfig::saveConfig()
 
     if (idx > 0)
     {
-#ifdef PULSEAUDIO //pafix
+#ifdef WITH_PULSEAUDIO //pafix
         qDebug() << "Output device" << idx << ":" << QString(outDevList[idx-1].get_name().c_str());
         m_settings->setValue("output/device", QString(outDevList[idx-1].get_name().c_str()));
 #endif
     }
     else
-        qDebug() << "Selected output device is 'default' (not saving)";
+    {
+        m_settings->remove("output/device");
+    }
 
     // input settings
     m_settings->setValue("input/device", ui->inDevEdit->text());  // "OK" button disabled if empty

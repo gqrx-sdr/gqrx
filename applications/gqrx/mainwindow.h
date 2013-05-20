@@ -20,6 +20,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QColor>
 #include <QMainWindow>
 #include <QPointer>
 #include <QSettings>
@@ -57,7 +58,7 @@ signals:
     void configChanged(QSettings *settings); /*!< New configuration has been loaded. */
 
 public slots:
-    void setNewFrequency(qint64 freq);
+    void setNewFrequency(qint64 rx_freq);
 
 private:
     Ui::MainWindow *ui;
@@ -67,6 +68,7 @@ private:
     QString             m_last_dir;
 
     qint64 d_lnb_lo;  /* LNB LO in Hz. */
+    qint64 d_hw_freq;
 
     enum receiver::filter_shape d_filter_shape;
     std::complex<float>* d_fftData;
@@ -107,9 +109,9 @@ private slots:
     void setRfGain(double gain);
     void setFreqCorr(int ppm);
     void setIqSwap(bool reversed);
+    void setDcCancel(bool enabled);
+    void setIqBalance(bool enabled);
     void setIgnoreLimits(bool ignore_limits);
-    void setDcCorr(double dci, double dcq);
-    void setIqCorr(double gain, double phase);
     void selectDemod(int index);
     void setFmMaxdev(float max_dev);
     void setFmEmph(double tau);
@@ -138,6 +140,8 @@ private slots:
     void setIqFftSplit(int pct_wf);
     void setIqFftAvg(double avg);
     void setAudioFftRate(int fps);
+    void setFftColor(const QColor color);
+    void setFftFill(bool enable);
 
     void on_plotter_newDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
     void on_plotter_newFilterFreq(int low, int high);    /*! New filter width */

@@ -20,7 +20,9 @@
 #ifndef DOCKAUDIO_H
 #define DOCKAUDIO_H
 
+#include <QColor>
 #include <QDockWidget>
+#include <QSettings>
 
 namespace Ui {
     class DockAudio;
@@ -54,6 +56,11 @@ public:
     void setAudioRecButtonState(bool checked);
     void setAudioPlayButtonState(bool checked);
 
+    void setFftColor(QColor color);
+    void setFftFill(bool enabled);
+
+    void saveSettings(QSettings *settings);
+    void readSettings(QSettings *settings);
 
 signals:
     /*! \brief Signal emitted when audio gain has changed. Gain is in dB. */

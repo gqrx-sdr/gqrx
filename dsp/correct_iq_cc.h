@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2012 Alexandru Csete OZ9AEC.
+ * Copyright 2012-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,62 +20,78 @@
 #ifndef CORRECT_IQ_CC_H
 #define CORRECT_IQ_CC_H
 
-#include <boost/thread/mutex.hpp>
-#include <gr_sync_block.h>
 #include <gr_complex.h>
-#include <gruel/high_res_timer.h>
+#include <gr_complex_to_xxx.h>
+#include <gr_float_to_complex.h>
+#include <gr_hier_block2.h>
+#include <gr_single_pole_iir_filter_cc.h>
+#include <gr_sub_cc.h>
 
 class dc_corr_cc;
+class iq_swap_cc;
 
 typedef boost::shared_ptr<dc_corr_cc> dc_corr_cc_sptr;
-
+typedef boost::shared_ptr<iq_swap_cc> iq_swap_cc_sptr;
 
 /*! \brief Return a shared_ptr to a new instance of dc_corr_cc.
- *  \param alpha The "speed" of averaging between 0.0 and 1.0
- *
- * This is effectively the public constructor for a new DC correction block.
- * To avoid accidental use of raw pointers, the dc_corr_cc constructor
- * is private.
- * make_dc_corr_cc is the public interface for creating new instances.
+ *  \param sample_rate The sample rate
+ *  \param tau The time constant for the filter
  */
-dc_corr_cc_sptr make_dc_corr_cc(float alpha=0.01);
+dc_corr_cc_sptr make_dc_corr_cc(double sample_rate, double tau=1.0);
 
-
-/*! \brief Long time average-based DC offset correction block.
+/*! \brief Single pole IIR filter-based DC offset correction block.
  *  \ingroup DSP
  *
- * This block performs automatic DC offset removal.
- *
+ * This block performs automatic DC offset removal using a single pole IIR
+ * filter
  */
-class dc_corr_cc : public gr_sync_block
+class dc_corr_cc : public gr_hier_block2
 {
-    friend dc_corr_cc_sptr make_dc_corr_cc(float alpha);
+    friend dc_corr_cc_sptr make_dc_corr_cc(double sample_rate, double tau);
 
 protected:
-    dc_corr_cc(float alpha=0.01);
+    dc_corr_cc(double sample_rate, double tau);
 
 public:
     ~dc_corr_cc();
-
-    int work(int noutput_items,
-             gr_vector_const_void_star &input_items,
-             gr_vector_void_star &output_items);
-
-    bool start();
-    bool stop();
-
-    void set_iq_swap(bool rev);
+    void set_sample_rate(double sample_rate);
+    void set_tau(double tau);
 
 private:
-    boost::mutex  d_mutex;
+    gr_single_pole_iir_filter_cc_sptr d_iir;
+    gr_sub_cc_sptr                    d_sub;
 
-    float d_alpha;
-    float d_avg_i;  /*! Long time average of the I channel. */
-    float d_avg_q;  /*! Long time average of the Q channel. */
-    bool  d_iq_rev; /*! I/Q reverse I/Q order. */
-
-    gruel::high_res_timer_type d_dbg_timer; /*!< last time statistics were printed. */
+    double d_sr;     /*!< Sample rate. */
+    double d_tau;    /*!< Time constant. */
+    double d_alpha;  /*!< 1/(1+tau/T). */
 };
+
+
+
+/*! \brief Return a shared_ptr to a new instance of iq_swap_cc. */
+iq_swap_cc_sptr make_iq_swap_cc(bool enabled);
+
+/*! \brief Block to swap I and Q channels.
+ *  \ingroup DSP
+ */
+class iq_swap_cc : public gr_hier_block2
+{
+    friend iq_swap_cc_sptr make_iq_swap_cc(bool enabled);
+
+protected:
+    iq_swap_cc(bool enabled);
+
+public:
+    ~iq_swap_cc();
+    void set_enabled(bool enabled);
+
+private:
+    gr_complex_to_float_sptr d_c2f;
+    gr_float_to_complex_sptr d_f2c;
+    bool d_enabled;
+};
+
+
 
 
 #endif /* CORRECT_IQ_CC_H */

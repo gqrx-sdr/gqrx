@@ -56,6 +56,9 @@
           <height>41</height>
          </size>
         </property>
+        <property name="toolTip">
+         <string/>
+        </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
         </property>

@@ -93,6 +93,18 @@ int  DockAudio::audioGain()
     return ui->audioGainSlider->value();
 }
 
+/*! Set FFT plot color. */
+void DockAudio::setFftColor(QColor color)
+{
+    ui->audioSpectrum->setFftPlotColor(color);
+}
+
+/*! Enable/disable filling area under FFT plot. */
+void DockAudio::setFftFill(bool enabled)
+{
+    ui->audioSpectrum->setFftFill(enabled);
+}
+
 
 /*! \brief Audio gain changed.
  *  \param value The new audio gain value in tens of dB (because slider uses int)
@@ -191,4 +203,25 @@ void DockAudio::setAudioPlayButtonState(bool checked)
     ui->audioPlayButton->setToolTip(isChecked ? tr("Stop audio playback") : tr("Start playback of last recorded audio file"));
     ui->audioRecButton->setEnabled(!isChecked);
     //ui->audioRecConfButton->setEnabled(!isChecked);
+}
+
+void DockAudio::saveSettings(QSettings *settings)
+{
+    if (!settings)
+        return;
+
+    settings->setValue("audio/gain", audioGain());
+}
+
+void DockAudio::readSettings(QSettings *settings)
+{
+    if (!settings)
+        return;
+
+    bool conv_ok = false;
+
+    int gain = settings->value("audio/gain", QVariant( -200 ) ).toInt(&conv_ok);
+    if (conv_ok) {
+        setAudioGain(gain);
+    }
 }
