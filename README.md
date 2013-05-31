@@ -1,3 +1,24 @@
+
+Charly's Fork of Gqrx
+=====================
+
+This fork of gqrx adds a list of Frequencies which you can click on to tune to it. 
+
+The list is read from (on Linux) : ~/.config/gqrx/frequency-list/radio.csv
+
+The File List looks like this: 
+
+```
+# Freq   , Name        , Modulation, Bandwidth
+ 98500000, Bayern3     , WFM       , 400000
+ 99000000, Oe3         , WFM       , 122000
+105700000, Bayern 5    , WFM       ,
+```
+
+Modulation and Bandwidth are not yet used. 
+
+![Screenshot](screenshot.png)
+
 Gqrx
 ====
 

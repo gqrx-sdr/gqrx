@@ -80,10 +80,11 @@ SOURCES += \
     qtgui/nb_options.cpp \
     qtgui/plotter.cpp \
     qtgui/qtcolorpicker.cpp \
+    qtgui/frequencylisttablemodel.cpp \
     receivers/nbrx.cpp \
     receivers/receiver_base.cpp \
     receivers/wfmrx.cpp
-
+    
 HEADERS += \
     applications/gqrx/mainwindow.h \
     applications/gqrx/receiver.h \
@@ -118,6 +119,7 @@ HEADERS += \
     qtgui/nb_options.h \
     qtgui/plotter.h \
     qtgui/qtcolorpicker.h \
+    qtgui/frequencylisttablemodel.h \
     receivers/nbrx.h \
     receivers/receiver_base.h \
     receivers/wfmrx.h

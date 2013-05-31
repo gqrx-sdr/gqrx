@@ -34,6 +34,7 @@
 #include "qtgui/dockfft.h"
 #include "qtgui/afsk1200win.h"
 #include "applications/gqrx/receiver.h"
+#include "qtgui/frequencylisttablemodel.h"
 
 
 namespace Ui {
@@ -96,6 +97,8 @@ private:
     QTimer   *audio_fft_timer;
 
     receiver *rx;
+
+    FrequencyListTableModel *frequencyListTableModel;
 
 private:
     void updateFrequencyRange(bool ignore_limits);

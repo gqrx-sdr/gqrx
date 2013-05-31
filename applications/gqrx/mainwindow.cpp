@@ -131,6 +131,11 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->actionFullScreen);
 
+    // Frequency List
+    frequencyListTableModel = new FrequencyListTableModel;
+    frequencyListTableModel->load(m_cfg_dir, "radio");
+    ui->tableViewFrequencyList->setModel(frequencyListTableModel);
+
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
@@ -168,7 +173,8 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     connect(uiDockFft, SIGNAL(gotoDemodFreq()), ui->plotter, SLOT(moveToDemodFreq()));
     connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
-
+    connect(ui->tableViewFrequencyList, SIGNAL(activated(const QModelIndex &)), frequencyListTableModel, SLOT(activated(const QModelIndex &)));
+    connect(frequencyListTableModel, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
 
     // restore last session
     if (!loadConfig(cfgfile, true))
@@ -185,6 +191,9 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    delete frequencyListTableModel;
+    frequencyListTableModel = 0;
+
     /* stop and delete timers */
     dec_timer->stop();
     delete dec_timer;
@@ -439,6 +448,7 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
     // update widgets
     ui->plotter->setCenterFreq(center_freq);
     uiDockRxOpt->setHwFreq(d_hw_freq);
+    ui->freqCtrl->setFrequency(rx_freq);
 }
 
 /*! \brief Set new LNB LO frequency.
