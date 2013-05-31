@@ -32,9 +32,9 @@
 #include "qtgui/dockinputctl.h"
 #include "qtgui/dockiqplayer.h"
 #include "qtgui/dockfft.h"
+#include "qtgui/dockfreqtable.h"
 #include "qtgui/afsk1200win.h"
 #include "applications/gqrx/receiver.h"
-#include "qtgui/frequencylisttablemodel.h"
 
 
 namespace Ui {
@@ -87,6 +87,7 @@ private:
     DockInputCtl   *uiDockInputCtl;
     //DockIqPlayer   *uiDockIqPlay;
     DockFft        *uiDockFft;
+    DockFreqTable  *uiDockFreqTable;
 
     /* data decoders */
     Afsk1200Win    *dec_afsk1200;
@@ -97,8 +98,6 @@ private:
     QTimer   *audio_fft_timer;
 
     receiver *rx;
-
-    FrequencyListTableModel *frequencyListTableModel;
 
 private:
     void updateFrequencyRange(bool ignore_limits);

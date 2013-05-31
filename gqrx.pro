@@ -83,7 +83,8 @@ SOURCES += \
     qtgui/frequencylisttablemodel.cpp \
     receivers/nbrx.cpp \
     receivers/receiver_base.cpp \
-    receivers/wfmrx.cpp
+    receivers/wfmrx.cpp \
+    qtgui/dockfreqtable.cpp
     
 HEADERS += \
     applications/gqrx/mainwindow.h \
@@ -122,7 +123,8 @@ HEADERS += \
     qtgui/frequencylisttablemodel.h \
     receivers/nbrx.h \
     receivers/receiver_base.h \
-    receivers/wfmrx.h
+    receivers/wfmrx.h \
+    qtgui/dockfreqtable.h
 
 FORMS += \
     applications/gqrx/mainwindow.ui \
@@ -135,7 +137,8 @@ FORMS += \
     qtgui/dockaudio.ui \
     qtgui/dockfft.ui \
     qtgui/dockiqplayer.ui \
-    qtgui/nb_options.ui
+    qtgui/nb_options.ui \
+    qtgui/dockfreqtable.ui
 
 # Use pulseaudio (ps: could use equals? undocumented)
 contains(AUDIO_BACKEND, pulse): {

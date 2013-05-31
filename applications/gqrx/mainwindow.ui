@@ -120,9 +120,6 @@
       </property>
      </widget>
     </item>
-    <item>
-     <widget class="QTableView" name="tableViewFrequencyList"/>
-    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">

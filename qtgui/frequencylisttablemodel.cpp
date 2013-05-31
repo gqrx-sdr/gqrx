@@ -58,16 +58,16 @@ QVariant FrequencyListTableModel::headerData ( int section, Qt::Orientation orie
     {
         switch(section)
         {
-        case 0:
+        case COL_FREQUENCY:
             return QString("Frequency");
             break;
-        case 1:
+        case COL_NAME:
             return QString("Name");
             break;
-        case 2:
+        case COL_MODULATION:
             return QString("Modulation");
             break;
-        case 3:
+        case COL_BANDWIDTH:
             return QString("Bandwidth");
             break;
         }
@@ -85,16 +85,16 @@ QVariant FrequencyListTableModel::data ( const QModelIndex & index, int role ) c
     {
         switch(index.column())
         {
-        case 0:
+        case COL_FREQUENCY:
             return table[index.row()].frequency;
             break;
-        case 1:
+        case COL_NAME:
             return table[index.row()].name;
             break;
-        case 2:
+        case COL_MODULATION:
             return table[index.row()].modulation;
             break;
-        case 3:
+        case COL_BANDWIDTH:
             return table[index.row()].bandwidth;
             break;
         }
@@ -102,8 +102,7 @@ QVariant FrequencyListTableModel::data ( const QModelIndex & index, int role ) c
     return QVariant();
 }
 
-void FrequencyListTableModel::activated(const QModelIndex & index )
+Qt::ItemFlags FrequencyListTableModel::flags ( const QModelIndex & index ) const
 {
-    qint64 freq = table[index.row()].frequency;
-    emit newFrequency(freq);
+  return (Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 }

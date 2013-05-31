@@ -29,9 +29,18 @@ class FrequencyListTableModel : public QAbstractTableModel
             this->bandwidth = bandwidth;
         }
     };
-    QList<Row> table;
 
 public:
+    enum EColumns
+    {
+        COL_FREQUENCY,
+        COL_NAME,
+        COL_MODULATION,
+        COL_BANDWIDTH
+    };
+
+    QList<Row> table;
+
     explicit FrequencyListTableModel(QObject *parent = 0);
     
     bool load(QString configDir, QString filename);
@@ -44,11 +53,10 @@ public:
 
     QVariant data ( const QModelIndex & index, int role = Qt::DisplayRole ) const;
 
-signals:
-    void newFrequency(qint64);
+    Qt::ItemFlags flags ( const QModelIndex & index ) const;
 
+signals:
 public slots:
-    void activated(const QModelIndex & index );
 };
 
 #endif // FREQUENCYLISTTABLEMODEL_H

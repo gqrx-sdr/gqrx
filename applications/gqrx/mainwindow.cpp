@@ -93,6 +93,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     uiDockInputCtl = new DockInputCtl();
     //uiDockIqPlay = new DockIqPlayer();
     uiDockFft = new DockFft();
+    uiDockFreqTable = new DockFreqTable(m_cfg_dir, this);
 
     /* Add dock widgets to main window. This should be done even for
        dock widgets that are going to be hidden, otherwise they will
@@ -106,6 +107,10 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     addDockWidget(Qt::RightDockWidgetArea, uiDockAudio);
     addDockWidget(Qt::RightDockWidgetArea, uiDockFft);
     tabifyDockWidget(uiDockFft, uiDockAudio);
+
+    addDockWidget(Qt::BottomDockWidgetArea, uiDockFreqTable);
+    //addDockWidget(Qt::RightDockWidgetArea, uiDockFreqTable);
+    //tabifyDockWidget(uiDockFft, uiDockFreqTable);
 
     //addDockWidget(Qt::BottomDockWidgetArea, uiDockIqPlay);
 
@@ -130,11 +135,6 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->actionFullScreen);
-
-    // Frequency List
-    frequencyListTableModel = new FrequencyListTableModel;
-    frequencyListTableModel->load(m_cfg_dir, "radio");
-    ui->tableViewFrequencyList->setModel(frequencyListTableModel);
 
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
@@ -173,8 +173,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     connect(uiDockFft, SIGNAL(gotoDemodFreq()), ui->plotter, SLOT(moveToDemodFreq()));
     connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
-    connect(ui->tableViewFrequencyList, SIGNAL(activated(const QModelIndex &)), frequencyListTableModel, SLOT(activated(const QModelIndex &)));
-    connect(frequencyListTableModel, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
+    connect(uiDockFreqTable, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
 
     // restore last session
     if (!loadConfig(cfgfile, true))
@@ -191,9 +190,6 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete frequencyListTableModel;
-    frequencyListTableModel = 0;
-
     /* stop and delete timers */
     dec_timer->stop();
     delete dec_timer;
@@ -225,6 +221,7 @@ MainWindow::~MainWindow()
     delete uiDockFft;
     //delete uiDockIqPlay;
     delete uiDockInputCtl;
+    delete uiDockFreqTable;
     delete rx;
     delete [] d_fftData;
     delete [] d_realFftData;
@@ -449,6 +446,7 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
     ui->plotter->setCenterFreq(center_freq);
     uiDockRxOpt->setHwFreq(d_hw_freq);
     ui->freqCtrl->setFrequency(rx_freq);
+    uiDockFreqTable->setNewFrequency(rx_freq);
 }
 
 /*! \brief Set new LNB LO frequency.
