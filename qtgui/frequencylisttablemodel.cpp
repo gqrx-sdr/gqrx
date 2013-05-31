@@ -2,19 +2,20 @@
 #include <QFile>
 #include <QStringList>
 
-FrequencyListTableModel::FrequencyListTableModel(QObject *parent) :
-    QAbstractTableModel(parent)
+FrequencyListTableModel::FrequencyListTableModel(QString dir, QObject *parent) :
+    QAbstractTableModel(parent),
+    freqTableDir(dir)
 {
 }
 
-bool FrequencyListTableModel::load(QString configDir, QString filename)
+bool FrequencyListTableModel::load(QString filename)
 {
     //table.append(Row( 98.5e6, "Radio Bayern 3", 400e3, "WFM"));
     //table.append(Row( 99.0e6, "Radio Oe3", 400e3, "WFM"));
 
     // Read from comma-separated file:
-    QString pathAndFilename = configDir + "/frequency-list/" + filename + ".csv";
-    QFile file(pathAndFilename);
+    table.clear();
+    QFile file(freqTableDir + filename);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         while (!file.atEnd())
@@ -35,10 +36,12 @@ bool FrequencyListTableModel::load(QString configDir, QString filename)
             }
         }
         file.close();
+        emit layoutChanged();
         return true;
     }
     else
     {
+        emit layoutChanged();
         return false;
     }
 }

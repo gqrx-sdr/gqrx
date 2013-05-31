@@ -30,6 +30,8 @@ class FrequencyListTableModel : public QAbstractTableModel
         }
     };
 
+    QString freqTableDir;
+
 public:
     enum EColumns
     {
@@ -41,10 +43,8 @@ public:
 
     QList<Row> table;
 
-    explicit FrequencyListTableModel(QObject *parent = 0);
+    explicit FrequencyListTableModel(QString dir, QObject *parent = 0);
     
-    bool load(QString configDir, QString filename);
-
     int rowCount ( const QModelIndex & parent = QModelIndex() ) const;
 
     int columnCount ( const QModelIndex & parent = QModelIndex() ) const;
@@ -57,6 +57,7 @@ public:
 
 signals:
 public slots:
+    bool load(QString filename);
 };
 
 #endif // FREQUENCYLISTTABLEMODEL_H

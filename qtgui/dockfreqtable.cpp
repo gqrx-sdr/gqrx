@@ -1,6 +1,6 @@
 #include "dockfreqtable.h"
 #include "ui_dockfreqtable.h"
-
+#include <QDir>
 
 DockFreqTable::DockFreqTable(const QString& cfg_dir, QWidget *parent) :
     QDockWidget(parent),
@@ -8,16 +8,32 @@ DockFreqTable::DockFreqTable(const QString& cfg_dir, QWidget *parent) :
     m_cfg_dir(cfg_dir)
 {
     ui->setupUi(this);
+    QString FreqTableDir = m_cfg_dir + "/frequency-list/";
+    frequencyListTableModel = new FrequencyListTableModel(FreqTableDir);
+
+    // Fill ComboBox
+    QDir dir(FreqTableDir);
+    QStringList filters;
+    filters << "*.csv";
+    dir.setNameFilters(filters);
+    QStringList tables = dir.entryList();
+    ui->comboBoxSelectFreqTable->addItems(tables);
+    connect(ui->comboBoxSelectFreqTable, SIGNAL(currentIndexChanged(QString)),
+            frequencyListTableModel, SLOT(load(QString)));
 
     // Frequency List
-    frequencyListTableModel = new FrequencyListTableModel;
-    frequencyListTableModel->load(m_cfg_dir, "radio");
     ui->tableViewFrequencyList->setModel(frequencyListTableModel);
     ui->tableViewFrequencyList->setColumnWidth( FrequencyListTableModel::COL_NAME,
         ui->tableViewFrequencyList->columnWidth(FrequencyListTableModel::COL_NAME)*2 );
     ui->tableViewFrequencyList->setSelectionBehavior(QAbstractItemView::SelectRows);
-
     connect(ui->tableViewFrequencyList, SIGNAL(activated(const QModelIndex &)), this, SLOT(activated(const QModelIndex &)));
+
+    // Hide Scan Buttons
+    ui->pushButtonScan->hide();
+    ui->spinBoxScanSpeed->hide();
+
+    // Update GUI
+    frequencyListTableModel->load(ui->comboBoxSelectFreqTable->currentText());
 }
 
 DockFreqTable::~DockFreqTable()
