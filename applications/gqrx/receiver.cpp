@@ -21,10 +21,10 @@
 #include <iostream>
 #include <unistd.h>
 
-#include <gr_top_block.h>
-#include <gr_multiply_const_ff.h>
-#include <osmosdr/osmosdr_source_c.h>
-#include <osmosdr/osmosdr_ranges.h>
+#include <gnuradio/top_block.h>
+#include <gnuradio/blocks/multiply_const_ff.h>
+#include <osmosdr/source.h>
+#include <osmosdr/ranges.h>
 
 #include "applications/gqrx/receiver.h"
 #include "dsp/correct_iq_cc.h"
@@ -35,7 +35,7 @@
 #ifdef WITH_PULSEAUDIO //pafix
 #include "pulseaudio/pa_sink.h"
 #else
-#include <gr_audio_sink.h>
+#include <gnuradio/audio/sink.h>
 #endif
 
 /*! \brief Public contructor.
@@ -58,41 +58,41 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
       d_iq_balance(false),
       d_demod(RX_DEMOD_OFF)
 {
-    tb = gr_make_top_block("gqrx");
+    tb = gr::make_top_block("gqrx");
 
     if (input_device.empty())
     {
         // FIXME: other OS
-        src = osmosdr_make_source_c("file=/dev/random,freq=428e6,rate=96000,repeat=true,throttle=true");
+        src = osmosdr::source::make("file=/dev/random,freq=428e6,rate=96000,repeat=true,throttle=true");
     }
     else
     {
         input_devstr = input_device;
-        src = osmosdr_make_source_c(input_device);
+        src = osmosdr::source::make(input_device);
     }
 
     rx = make_nbrx(d_input_rate, d_audio_rate);
-    lo = gr_make_sig_source_c(d_input_rate, GR_SIN_WAVE, 0.0, 1.0);
-    mixer = gr_make_multiply_cc();
+    lo = gr::analog::sig_source_c::make(d_input_rate, gr::analog::GR_SIN_WAVE, 0.0, 1.0);
+    mixer = gr::blocks::multiply_cc::make();
 
     iq_swap = make_iq_swap_cc(false);
     dc_corr = make_dc_corr_cc(d_input_rate, 1.0);
     iq_fft = make_rx_fft_c(4096u, 0);
 
     audio_fft = make_rx_fft_f(3072u);
-    audio_gain0 = gr_make_multiply_const_ff(0.1);
-    audio_gain1 = gr_make_multiply_const_ff(0.1);
+    audio_gain0 = gr::blocks::multiply_const_ff::make(0.1);
+    audio_gain1 = gr::blocks::multiply_const_ff::make(0.1);
 
 #ifdef WITH_PULSEAUDIO //pafix
     audio_snk = make_pa_sink(audio_device, d_audio_rate, "GQRX", "Audio output");
 #else
-    audio_snk = audio_make_sink(d_audio_rate, audio_device, true);
+    audio_snk = gr::audio::sink::make(d_audio_rate, audio_device, true);
 #endif
 
     output_devstr = audio_device;
 
     /* wav sink and source is created when rec/play is started */
-    audio_null_sink = gr_make_null_sink(sizeof(float));
+    audio_null_sink = gr::blocks::null_sink::make(sizeof(float));
     sniffer = make_sniffer_f();
     /* sniffer_rr is created at each activation. */
 
@@ -163,7 +163,7 @@ void receiver::set_input_device(const std::string device)
 
     tb->disconnect(src, 0, iq_swap, 0);
     src.reset();
-    src = osmosdr_make_source_c(device);
+    src = osmosdr::source::make(device);
     tb->connect(src, 0, iq_swap, 0);
 
     tb->unlock();
@@ -194,7 +194,7 @@ void receiver::set_output_device(const std::string device)
 #ifdef WITH_PULSEAUDIO
     audio_snk = make_pa_sink(device, d_audio_rate);
 #else
-    audio_snk = audio_make_sink(d_audio_rate, device, true);
+    audio_snk = gr::audio::sink::make(d_audio_rate, device, true);
 #endif
 
     tb->connect(audio_gain0, 0, audio_snk, 0);
@@ -762,7 +762,7 @@ receiver::status receiver::start_audio_recording(const std::string filename)
 
     // not strictly necessary to lock but I think it is safer
     tb->lock();
-    wav_sink = gr_make_wavfile_sink(filename.c_str(), 2, 48000, 16);
+    wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(), 2, 48000, 16);
     tb->connect(audio_gain0, 0, wav_sink, 0);
     tb->connect(audio_gain1, 0, wav_sink, 1);
     tb->unlock();
@@ -810,7 +810,7 @@ receiver::status receiver::stop_audio_recording()
 receiver::status receiver::start_audio_playback(const std::string filename)
 {
     try {
-        wav_src = gr_make_wavfile_source(filename.c_str(), false);
+        wav_src = gr::blocks::wavfile_source::make(filename.c_str(), false);
     }
     catch (std::runtime_error &e) {
         std::cout << "Error loading " << filename << ": " << e.what() << std::endl;

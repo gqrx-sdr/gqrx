@@ -20,10 +20,10 @@
 #ifndef RX_FFT_H
 #define RX_FFT_H
 
-#include <gr_sync_block.h>
-#include <gri_fft.h>
-#include <gr_firdes.h>       /* contains enum win_type */
-#include <gr_complex.h>
+#include <gnuradio/sync_block.h>
+#include <gnuradio/fft/fft.h>
+#include <gnuradio/filter/firdes.h>       /* contains enum win_type */
+#include <gnuradio/gr_complex.h>
 #include <boost/thread/mutex.hpp>
 #include <boost/circular_buffer.hpp>
 
@@ -39,13 +39,13 @@ typedef boost::shared_ptr<rx_fft_f> rx_fft_f_sptr;
 
 /*! \brief Return a shared_ptr to a new instance of rx_fft_c.
  *  \param fftsize The FFT size
- *  \param winttype The window type (see gr_firdes.h)
+ *  \param winttype The window type (see gnuradio/filter/firdes.h)
  *
  * This is effectively the public constructor. To avoid accidental use
  * of raw pointers, the rx_fft_c constructor is private.
  * make_rx_fft_c is the public interface for creating new instances.
  */
-rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize=4096, int wintype=gr_firdes::WIN_HAMMING);
+rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize=4096, int wintype=gr::filter::firdes::WIN_HAMMING);
 
 
 /*! \brief Block for computing complex FFT.
@@ -60,12 +60,12 @@ rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize=4096, int wintype=gr_firdes::WI
  *
  * \note Uses code from qtgui_sink_c
  */
-class rx_fft_c : public gr_sync_block
+class rx_fft_c : public gr::sync_block
 {
     friend rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize, int wintype);
 
 protected:
-    rx_fft_c(unsigned int fftsize=4096, int wintype=gr_firdes::WIN_HAMMING);
+    rx_fft_c(unsigned int fftsize=4096, int wintype=gr::filter::firdes::WIN_HAMMING);
 
 public:
     ~rx_fft_c();
@@ -88,7 +88,7 @@ private:
 
     boost::mutex d_mutex;  /*! Used to lock FFT output buffer. */
 
-    gri_fft_complex    *d_fft;    /*! FFT object. */
+    gr::fft::fft_complex    *d_fft;    /*! FFT object. */
     std::vector<float>  d_window; /*! FFT window taps. */
 
     boost::circular_buffer<gr_complex> d_cbuf; /*! buffer to accumulate samples. */
@@ -100,13 +100,13 @@ private:
 
 /*! \brief Return a shared_ptr to a new instance of rx_fft_f.
  *  \param fftsize The FFT size
- *  \param winttype The window type (see gr_firdes.h)
+ *  \param winttype The window type (see gnuradio/filter/firdes.h)
  *
  * This is effectively the public constructor. To avoid accidental use
  * of raw pointers, the rx_fft_f constructor is private.
  * make_rx_fft_f is the public interface for creating new instances.
  */
-rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize=1024, int wintype=gr_firdes::WIN_HAMMING);
+rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize=1024, int wintype=gr::filter::firdes::WIN_HAMMING);
 
 
 /*! \brief Block for computing real FFT.
@@ -122,12 +122,12 @@ rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize=1024, int wintype=gr_firdes::WI
  *
  * \note Uses code from qtgui_sink_f
  */
-class rx_fft_f : public gr_sync_block
+class rx_fft_f : public gr::sync_block
 {
     friend rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize, int wintype);
 
 protected:
-    rx_fft_f(unsigned int fftsize=1024, int wintype=gr_firdes::WIN_HAMMING);
+    rx_fft_f(unsigned int fftsize=1024, int wintype=gr::filter::firdes::WIN_HAMMING);
 
 public:
     ~rx_fft_f();
@@ -150,7 +150,7 @@ private:
 
     boost::mutex d_mutex;  /*! Used to lock FFT output buffer. */
 
-    gri_fft_complex    *d_fft;    /*! FFT object. */
+    gr::fft::fft_complex    *d_fft;    /*! FFT object. */
     std::vector<float>  d_window; /*! FFT window taps. */
 
     boost::circular_buffer<float> d_cbuf; /*! buffer to accumulate samples. */

@@ -21,16 +21,16 @@
 #ifndef STEREO_DEMOD_H
 #define STEREO_DEMOD_H
 
-#include <gr_hier_block2.h>
-#include <gr_firdes.h>
-#include <gr_fir_filter_fcc.h>
-#include <gr_fir_filter_fff.h>
-#include <gr_pll_refout_cc.h>
-#include <gr_multiply_cc.h>
-#include <gr_multiply_ff.h>
-#include <gr_multiply_const_ff.h>
-#include <gr_complex_to_xxx.h>
-#include <gr_add_ff.h>
+#include <gnuradio/hier_block2.h>
+#include <gnuradio/filter/firdes.h>
+#include <gnuradio/filter/fir_filter_fcc.h>
+#include <gnuradio/filter/fir_filter_fff.h>
+#include <gnuradio/analog/pll_refout_cc.h>
+#include <gnuradio/blocks/multiply_cc.h>
+#include <gnuradio/blocks/multiply_ff.h>
+#include <gnuradio/blocks/multiply_const_ff.h>
+#include <gnuradio/blocks/complex_to_imag.h>
+#include <gnuradio/blocks/add_ff.h>
 #include <vector>
 #include "dsp/lpf.h"
 #include "dsp/resampler_xx.h"
@@ -61,7 +61,7 @@ stereo_demod_sptr make_stereo_demod(float quad_rate=120e3,
  * This class implements the stereo demodulator for 87.5...108 MHz band.
  *
  */
-class stereo_demod : public gr_hier_block2
+class stereo_demod : public gr::hier_block2
 {
     friend stereo_demod_sptr make_stereo_demod(float input_rate,
                                                float audio_rate,
@@ -75,20 +75,20 @@ public:
 
 private:
     /* GR blocks */
-    gr_fir_filter_fcc_sptr  tone;  /*!< Pilot tone BPF. */
-    gr_pll_refout_cc_sptr   pll;   /*!< Pilot tone PLL. */
-    gr_multiply_cc_sptr subtone;   /*!< Stereo subtone. */
-    gr_complex_to_imag_sptr lo;    /*!< Complex tone imag. */
-    gr_fir_filter_fff_sptr  lo2;   /*!< Subtone BPF. */
-    gr_multiply_ff_sptr mixer;     /*!< Balance mixer. */
+    gr::filter::fir_filter_fcc::sptr  tone;  /*!< Pilot tone BPF. */
+    gr::analog::pll_refout_cc::sptr   pll;   /*!< Pilot tone PLL. */
+    gr::blocks::multiply_cc::sptr subtone;   /*!< Stereo subtone. */
+    gr::blocks::complex_to_imag::sptr lo;    /*!< Complex tone imag. */
+    gr::filter::fir_filter_fff::sptr  lo2;   /*!< Subtone BPF. */
+    gr::blocks::multiply_ff::sptr mixer;     /*!< Balance mixer. */
     lpf_ff_sptr lpf0;              /*!< Low-pass filter #0. */
     lpf_ff_sptr lpf1;              /*!< Low-pass filter #1. */
     resampler_ff_sptr audio_rr0;   /*!< Audio resampler #0. */
     resampler_ff_sptr audio_rr1;   /*!< Audio resampler #1. */
-    gr_multiply_const_ff_sptr cdp; /*!< Channel delta (plus). */
-    gr_multiply_const_ff_sptr cdm; /*!< Channel delta (minus). */
-    gr_add_ff_sptr add0;           /*!< Left stereo channel. */
-    gr_add_ff_sptr add1;           /*!< Right stereo channel. */
+    gr::blocks::multiply_const_ff::sptr cdp; /*!< Channel delta (plus). */
+    gr::blocks::multiply_const_ff::sptr cdm; /*!< Channel delta (minus). */
+    gr::blocks::add_ff::sptr add0;           /*!< Left stereo channel. */
+    gr::blocks::add_ff::sptr add1;           /*!< Right stereo channel. */
 
     /* other parameters */
     float d_input_rate;                  /*! Input rate. */

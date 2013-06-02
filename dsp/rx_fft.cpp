@@ -18,10 +18,10 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <math.h>
-#include <gr_io_signature.h>
-#include <gr_firdes.h>
-#include <gr_complex.h>
-#include <gri_fft.h>
+#include <gnuradio/io_signature.h>
+#include <gnuradio/filter/firdes.h>
+#include <gnuradio/gr_complex.h>
+#include <gnuradio/fft/fft.h>
 #include "dsp/rx_fft.h"
 
 
@@ -32,19 +32,19 @@ rx_fft_c_sptr make_rx_fft_c (unsigned int fftsize, int wintype)
 
 /*! \brief Create receiver FFT object.
  *  \param fftsize The FFT size.
- *  \param wintype The window type (see gr_firdes::win_type).
+ *  \param wintype The window type (see gr::filter::firdes::win_type).
  *
  */
 rx_fft_c::rx_fft_c(unsigned int fftsize, int wintype)
-    : gr_sync_block ("rx_fft_c",
-          gr_make_io_signature(1, 1, sizeof(gr_complex)),
-          gr_make_io_signature(0, 0, 0)),
+    : gr::sync_block ("rx_fft_c",
+          gr::io_signature::make(1, 1, sizeof(gr_complex)),
+          gr::io_signature::make(0, 0, 0)),
       d_fftsize(fftsize),
       d_wintype(-1)
 {
 
     /* create FFT object */
-    d_fft = new gri_fft_complex(d_fftsize, true);
+    d_fft = new gr::fft::fft_complex(d_fftsize, true);
 
     /* allocate circular buffer */
     d_cbuf.set_capacity(d_fftsize);
@@ -155,7 +155,7 @@ void rx_fft_c::set_fft_size(unsigned int fftsize)
 
         /* reset FFT object (also reset FFTW plan) */
         delete d_fft;
-        d_fft = new gri_fft_complex (d_fftsize, true);
+        d_fft = new gr::fft::fft_complex (d_fftsize, true);
     }
 
 }
@@ -177,13 +177,13 @@ void rx_fft_c::set_window_type(int wintype)
 
     d_wintype = wintype;
 
-    if ((d_wintype < gr_firdes::WIN_HAMMING) || (d_wintype > gr_firdes::WIN_BLACKMAN_hARRIS))
+    if ((d_wintype < gr::filter::firdes::WIN_HAMMING) || (d_wintype > gr::filter::firdes::WIN_BLACKMAN_hARRIS))
     {
-        d_wintype = gr_firdes::WIN_HAMMING;
+        d_wintype = gr::filter::firdes::WIN_HAMMING;
     }
 
     d_window.clear();
-    d_window = gr_firdes::window((gr_firdes::win_type)d_wintype, d_fftsize, 6.76);
+    d_window = gr::filter::firdes::window((gr::filter::firdes::win_type)d_wintype, d_fftsize, 6.76);
 }
 
 /*! \brief Get currently used window type. */
@@ -202,19 +202,19 @@ rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize, int wintype)
 
 /*! \brief Create receiver FFT object.
  *  \param fftsize The FFT size.
- *  \param wintype The window type (see gr_firdes::win_type).
+ *  \param wintype The window type (see gr::filter::firdes::win_type).
  *
  */
 rx_fft_f::rx_fft_f(unsigned int fftsize, int wintype)
-    : gr_sync_block ("rx_fft_f",
-          gr_make_io_signature(1, 1, sizeof(float)),
-          gr_make_io_signature(0, 0, 0)),
+    : gr::sync_block ("rx_fft_f",
+          gr::io_signature::make(1, 1, sizeof(float)),
+          gr::io_signature::make(0, 0, 0)),
       d_fftsize(fftsize),
       d_wintype(-1)
 {
 
     /* create FFT object */
-    d_fft = new gri_fft_complex(d_fftsize, true);
+    d_fft = new gr::fft::fft_complex(d_fftsize, true);
 
     /* allocate circular buffer */
     d_cbuf.set_capacity(d_fftsize);
@@ -328,7 +328,7 @@ void rx_fft_f::set_fft_size(unsigned int fftsize)
 
         /* reset FFT object (also reset FFTW plan) */
         delete d_fft;
-        d_fft = new gri_fft_complex(d_fftsize, true);
+        d_fft = new gr::fft::fft_complex(d_fftsize, true);
     }
 }
 
@@ -349,13 +349,13 @@ void rx_fft_f::set_window_type(int wintype)
 
     d_wintype = wintype;
 
-    if ((d_wintype < gr_firdes::WIN_HAMMING) || (d_wintype > gr_firdes::WIN_BLACKMAN_hARRIS))
+    if ((d_wintype < gr::filter::firdes::WIN_HAMMING) || (d_wintype > gr::filter::firdes::WIN_BLACKMAN_hARRIS))
     {
-        d_wintype = gr_firdes::WIN_HAMMING;
+        d_wintype = gr::filter::firdes::WIN_HAMMING;
     }
 
     d_window.clear();
-    d_window = gr_firdes::window((gr_firdes::win_type)d_wintype, d_fftsize, 6.76);
+    d_window = gr::filter::firdes::window((gr::filter::firdes::win_type)d_wintype, d_fftsize, 6.76);
 }
 
 /*! \brief Get currently used window type. */

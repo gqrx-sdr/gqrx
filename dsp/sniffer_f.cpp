@@ -18,7 +18,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <math.h>
-#include <gr_io_signature.h>
+#include <gnuradio/io_signature.h>
 #include <dsp/sniffer_f.h>
 
 
@@ -37,9 +37,9 @@ sniffer_f_sptr make_sniffer_f(int buffsize)
  *  - How ofter the data will be popped.
  */
 sniffer_f::sniffer_f(int buffsize)
-    : gr_sync_block ("rx_fft_c",
-          gr_make_io_signature(1, 1, sizeof(float)),
-          gr_make_io_signature(0, 0, 0)),
+    : gr::sync_block ("rx_fft_c",
+          gr::io_signature::make(1, 1, sizeof(float)),
+          gr::io_signature::make(0, 0, 0)),
       d_minsamp(1000)
 {
 

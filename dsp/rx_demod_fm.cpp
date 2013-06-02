@@ -17,8 +17,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include <gr_io_signature.h>
-#include <gr_firdes.h>
+#include <gnuradio/io_signature.h>
+#include <gnuradio/filter/firdes.h>
 #include <dsp/rx_demod_fm.h>
 #include <math.h>
 #include <iostream>
@@ -39,9 +39,9 @@ static const int MAX_OUT = 1; /* Maximum number of output streams. */
 
 
 rx_demod_fm::rx_demod_fm(float quad_rate, float audio_rate, float max_dev, double tau)
-    : gr_hier_block2 ("rx_demod_fm",
-                      gr_make_io_signature (MIN_IN, MAX_IN, sizeof (gr_complex)),
-                      gr_make_io_signature (MIN_OUT, MAX_OUT, sizeof (float))),
+    : gr::hier_block2 ("rx_demod_fm",
+                      gr::io_signature::make (MIN_IN, MAX_IN, sizeof (gr_complex)),
+                      gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof (float))),
     d_quad_rate(quad_rate),
     d_audio_rate(audio_rate),
     d_max_dev(max_dev),
@@ -55,13 +55,13 @@ rx_demod_fm::rx_demod_fm(float quad_rate, float audio_rate, float max_dev, doubl
     //std::cout << "G: " << gain << std::endl;
 
     /* demodulator */
-    d_quad = gr_make_quadrature_demod_cf(gain);
+    d_quad = gr::analog::quadrature_demod_cf::make(gain);
 
     /* de-emphasis */
     d_fftaps.resize(2);
     d_fbtaps.resize(2);
     calculate_iir_taps(d_tau);
-    d_deemph = gr_make_iir_filter_ffd(d_fftaps, d_fbtaps);
+    d_deemph = gr::filter::iir_filter_ffd::make(d_fftaps, d_fbtaps);
 
     /* connect block */
     connect(self(), 0, d_quad, 0);
