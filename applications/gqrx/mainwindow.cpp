@@ -108,9 +108,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     addDockWidget(Qt::RightDockWidgetArea, uiDockFft);
     tabifyDockWidget(uiDockFft, uiDockAudio);
 
-    addDockWidget(Qt::BottomDockWidgetArea, uiDockFreqTable);
-    //addDockWidget(Qt::RightDockWidgetArea, uiDockFreqTable);
-    //tabifyDockWidget(uiDockFft, uiDockFreqTable);
+    addDockWidget(Qt::LeftDockWidgetArea, uiDockFreqTable);
 
     //addDockWidget(Qt::BottomDockWidgetArea, uiDockIqPlay);
 
