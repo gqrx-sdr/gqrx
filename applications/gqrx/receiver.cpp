@@ -164,6 +164,11 @@ void receiver::set_input_device(const std::string device)
     tb->disconnect(src, 0, iq_swap, 0);
     src.reset();
     src = osmosdr_make_source_c(device);
+
+    if (device.find("TX/RX") != string::npos) {
+        src->set_antenna("TX/RX");
+    }
+
     tb->connect(src, 0, iq_swap, 0);
 
     tb->unlock();
