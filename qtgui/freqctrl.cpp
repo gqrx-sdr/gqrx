@@ -61,7 +61,7 @@ CFreqCtrl::CFreqCtrl(QWidget *parent) :
     setAutoFillBackground(false);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setFocusPolicy(Qt::StrongFocus);
-    setMouseTracking(TRUE);
+    setMouseTracking(false);
     m_BkColor = QColor(0x20,0x20,0x20,0xFF);
     m_DigitColor = QColor(0xFF, 0xE6, 0xC8, 0xFF);
     m_HighlightColor = QColor(0x5A, 0x5A, 0x5A, 0xFF);
@@ -70,9 +70,9 @@ CFreqCtrl::CFreqCtrl(QWidget *parent) :
     setup(10, 1, 4000000000U, 1, UNITS_MHZ);
     m_Oldfreq = 0;
     m_LastLeadZeroPos = 0;
-    m_LRMouseFreqSel = FALSE;
+    m_LRMouseFreqSel = false;
     m_ActiveEditDigit = -1;
-    m_ResetLowerDigits = FALSE;
+    m_ResetLowerDigits = false;
     m_UnitsFont = QFont("Arial", 12, QFont::Normal);
     m_DigitFont = QFont("Arial", 12, QFont::Normal);
 }
@@ -101,9 +101,9 @@ bool CFreqCtrl::inRect(QRect &rect, QPoint &point)
 {
     if ((point.x() < rect.right()) && (point.x() > rect.x()) &&
         (point.y() < rect.bottom()) && (point.y() > rect.y()))
-        return TRUE;
+        return true;
     else
-        return FALSE;
+        return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -142,8 +142,8 @@ void CFreqCtrl::setup(int NumDigits, qint64 Minf, qint64 Maxf,int MinStep, FUNIT
     {
         m_DigitInfo[i].weight = pwr;
         m_DigitInfo[i].incval = pwr;
-        m_DigitInfo[i].modified = TRUE;
-        m_DigitInfo[i].editmode = FALSE;
+        m_DigitInfo[i].modified = true;
+        m_DigitInfo[i].editmode = false;
         m_DigitInfo[i].val = 0;
         pwr *= 10;
     }
@@ -245,7 +245,7 @@ void CFreqCtrl::setFrequency(qint64 freq)
         if (m_DigitInfo[i].val != val)
         {
             m_DigitInfo[i].val = val;
-            m_DigitInfo[i].modified = TRUE;
+            m_DigitInfo[i].modified = true;
         }
         rem = rem - val*m_DigitInfo[i].weight;
         acc += val;
@@ -283,11 +283,11 @@ void CFreqCtrl::setFrequency(qint64 freq)
 //////////////////////////////////////////////////////////////////////////////
 void CFreqCtrl::setDigitColor(QColor cr)
 {
-    m_UpdateAll = TRUE;
+    m_UpdateAll = true;
     m_DigitColor = cr;
     for(int i=m_DigStart; i<m_NumDigits; i++)
-        m_DigitInfo[i].modified = TRUE;
-    updateCtrl(TRUE);
+        m_DigitInfo[i].modified = true;
+    updateCtrl(true);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -330,8 +330,8 @@ void CFreqCtrl::setUnits(FUNITS units)
             m_UnitString = "nS ";
             break;
     }
-    m_UpdateAll = TRUE;
-    updateCtrl(TRUE);
+    m_UpdateAll = true;
+    updateCtrl(true);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -339,13 +339,13 @@ void CFreqCtrl::setUnits(FUNITS units)
 //////////////////////////////////////////////////////////////////////////////
 void CFreqCtrl::setBkColor(QColor cr)
 {
-    m_UpdateAll = TRUE;
+    m_UpdateAll = true;
     m_BkColor = cr;
 
     for (int i = m_DigStart; i < m_NumDigits; i++)
-        m_DigitInfo[i].modified = TRUE;
+        m_DigitInfo[i].modified = true;
 
-    updateCtrl(TRUE);
+    updateCtrl(true);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -353,9 +353,9 @@ void CFreqCtrl::setBkColor(QColor cr)
 //////////////////////////////////////////////////////////////////////////////
 void CFreqCtrl::setUnitsColor(QColor cr)
 {
-    m_UpdateAll = TRUE;
+    m_UpdateAll = true;
     m_UnitsColor = cr;
-    updateCtrl(TRUE);
+    updateCtrl(true);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -363,9 +363,9 @@ void CFreqCtrl::setUnitsColor(QColor cr)
 //////////////////////////////////////////////////////////////////////////////
 void CFreqCtrl::setHighlightColor(QColor cr)
 {
-    m_UpdateAll = TRUE;
+    m_UpdateAll = true;
     m_HighlightColor = cr;
-    updateCtrl(TRUE);
+    updateCtrl(true);
 }
 
 
@@ -376,9 +376,9 @@ void CFreqCtrl::updateCtrl(bool all)
 {
     if (all)
     {
-        m_UpdateAll = TRUE;
+        m_UpdateAll = true;
         for (int i = m_DigStart; i < m_NumDigits; i++)
-            m_DigitInfo[i].modified = TRUE;
+            m_DigitInfo[i].modified = true;
     }
     update();
 }
@@ -392,7 +392,7 @@ void CFreqCtrl::resizeEvent(QResizeEvent* )
 //qDebug() <<rect.width() << rect.height();
     m_Pixmap = QPixmap(size());     //resize pixmap to current control size
     m_Pixmap.fill(m_BkColor);
-    m_UpdateAll = TRUE;
+    m_UpdateAll = true;
 }
 
 void CFreqCtrl::leaveEvent( QEvent *  )
@@ -401,10 +401,10 @@ void CFreqCtrl::leaveEvent( QEvent *  )
     {
         if( m_DigitInfo[m_ActiveEditDigit].editmode )
         {
-            m_DigitInfo[m_ActiveEditDigit].editmode = FALSE;
-            m_DigitInfo[m_ActiveEditDigit].modified = TRUE;
+            m_DigitInfo[m_ActiveEditDigit].editmode = false;
+            m_DigitInfo[m_ActiveEditDigit].modified = true;
             m_ActiveEditDigit = -1;
-            updateCtrl(FALSE);
+            updateCtrl(false);
         }
     }
 }
@@ -419,7 +419,7 @@ void CFreqCtrl::paintEvent(QPaintEvent *)
     if (m_UpdateAll) //if need to redraw everything
     {
         drawBkGround(painter);
-        m_UpdateAll = FALSE;
+        m_UpdateAll = false;
     }
     // draw any modified digits to the m_MemDC
     drawDigits(painter);
@@ -446,7 +446,7 @@ QPoint pt = event->pos();
             {
                 if (!m_DigitInfo[i].editmode)
                 {
-                    m_DigitInfo[i].editmode = TRUE;
+                    m_DigitInfo[i].editmode = true;
                     m_ActiveEditDigit = i;
                 }
             }
@@ -454,13 +454,13 @@ QPoint pt = event->pos();
             {       //un-highlight the previous digit if moved off it
                 if (m_DigitInfo[i].editmode)
                 {
-                    m_DigitInfo[i].editmode = FALSE;
-                    m_DigitInfo[i].modified = TRUE;
+                    m_DigitInfo[i].editmode = false;
+                    m_DigitInfo[i].modified = true;
                 }
             }
         }
 
-        updateCtrl(FALSE);
+        updateCtrl(false);
     }
 }
 
@@ -540,7 +540,7 @@ void CFreqCtrl::wheelEvent(QWheelEvent * event)
 void CFreqCtrl::keyPressEvent( QKeyEvent * event )
 {
     //call base class if dont over ride key
-    bool fSkipMsg = FALSE;
+    bool fSkipMsg = false;
     qint64 tmp;
 
     //qDebug() <<event->key();
@@ -568,43 +568,43 @@ void CFreqCtrl::keyPressEvent( QKeyEvent * event )
                 }
             }
             moveCursorRight();
-            fSkipMsg = TRUE;
+            fSkipMsg = true;
             break;
         case Qt::Key_Left:
             if (m_ActiveEditDigit != -1)
             {
                 moveCursorLeft();
-                fSkipMsg = TRUE;
+                fSkipMsg = true;
             }
             break;
         case Qt::Key_Up:
             if (m_ActiveEditDigit != -1)
             {
                 incFreq();
-                fSkipMsg = TRUE;
+                fSkipMsg = true;
             }
             break;
         case Qt::Key_Down:
             if (m_ActiveEditDigit != -1)
             {
                 decFreq();
-                fSkipMsg = TRUE;
+                fSkipMsg = true;
             }
             break;
         case Qt::Key_Right:
             if (m_ActiveEditDigit != -1)
             {
                 moveCursorRight();
-                fSkipMsg = TRUE;
+                fSkipMsg = true;
             }
             break;
         case Qt::Key_Home:
             cursorHome();
-            fSkipMsg = TRUE;
+            fSkipMsg = true;
             break;
         case Qt::Key_End:
             cursorEnd();
-            fSkipMsg = TRUE;
+            fSkipMsg = true;
             break;
         default:
             break;
@@ -705,7 +705,7 @@ void CFreqCtrl::drawDigits(QPainter &Painter)
 
             Painter.drawText(m_DigitInfo[i].dQRect, Qt::AlignHCenter|Qt::AlignVCenter,
                              QString().number(m_DigitInfo[i].val));
-            m_DigitInfo[i].modified = FALSE;
+            m_DigitInfo[i].modified = false;
         }
     }
 }

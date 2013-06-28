@@ -26,6 +26,8 @@
 #include <QSettings>
 #include <QString>
 #include <QTimer>
+#include <QMessageBox>
+#include <QFileDialog>
 
 #include "qtgui/dockrxopt.h"
 #include "qtgui/dockaudio.h"

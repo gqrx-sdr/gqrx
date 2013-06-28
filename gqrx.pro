@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui svg
+QT       += core gui svg widgets gui declarative
 TEMPLATE = app
 
 macx {
