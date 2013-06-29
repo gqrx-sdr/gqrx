@@ -88,6 +88,9 @@ Frank Brickle, AB2KT:
 Bob McGwier, N4HY:
 - Noise blanker (from dttsp).
 
+Göran Weinholt, SM6-8239:
+- Various GUI improvements.
+
 Moe Weatley:
 - FFT plotter and waterfall.
 - Frequency selector.
