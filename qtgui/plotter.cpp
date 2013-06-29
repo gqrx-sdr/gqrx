@@ -539,9 +539,17 @@ void CPlotter::resizeEvent(QResizeEvent* )
         m_OverlayPixmap.fill(Qt::black);
         m_2DPixmap = QPixmap(m_Size.width(), m_Percent2DScreen*m_Size.height()/100);
         m_2DPixmap.fill(Qt::black);
-        m_WaterfallPixmap = QPixmap(m_Size.width(), (100-m_Percent2DScreen)*m_Size.height()/100);
+
+        int height = (100-m_Percent2DScreen)*m_Size.height()/100;
+        if (m_WaterfallPixmap.isNull()) {
+            m_WaterfallPixmap = QPixmap(m_Size.width(), height);
+            m_WaterfallPixmap.fill(Qt::black);
+        } else {
+            m_WaterfallPixmap = m_WaterfallPixmap.scaled(m_Size.width(), height,
+                                                         Qt::IgnoreAspectRatio,
+                                                         Qt::SmoothTransformation);
+        }
     }
-    m_WaterfallPixmap.fill(Qt::black);
     drawOverlay();
 }
 
