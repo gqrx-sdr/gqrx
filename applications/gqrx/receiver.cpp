@@ -1,6 +1,7 @@
 /* -*- c++ -*- */
 /*
  * Copyright 2011-2013 Alexandru Csete OZ9AEC.
+ * Copyright (C) 2013 by Elias Oenal <EliasOenal@gmail.com>
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -180,7 +181,11 @@ void receiver::set_output_device(const std::string device)
                   << "  old: " << output_devstr << std::endl
                   << "  new: " << device << std::endl;
 #endif
+
+//At least on OSX there's only noise output without the sink reset
+#ifdef WITH_PULSEAUDIO
         return;
+#endif
     }
 
     output_devstr = device;
