@@ -16,6 +16,7 @@ Dependencies
     - gnuradio-uhd
     - RTL-SDR from http://cgit.osmocom.org/cgit/rtl-sdr/
     - Osmo SDR from http://cgit.osmocom.org/cgit/osmo-sdr/
+    - HackRF Jawbreaker from http://greatscottgadgets.com/hackrf/
 - gnuradio-osmosdr from http://cgit.osmocom.org/cgit/gr-osmosdr/
 - pulseaudio (Linux only and optional)
 - Qt 4.6 or later and optionally Qt Creator
