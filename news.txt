@@ -2,6 +2,7 @@
        NEW: Allow using audio output devices other than the default.
        NEW: Automatic I/Q phase and gain correction (requires gr-iqbal).
        NEW: Qt 5 support.
+       NEW: HackRF Jawbreaker support.
      FIXED: Frequency control widget with recent Qt was broken.
   IMPROVED: Y-axis panning (click-and-drag).
   IMPROVED: Rescale waterfall when resizing the main window.

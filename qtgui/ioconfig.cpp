@@ -252,6 +252,16 @@ void CIoConfig::updateInputSampleRates(int rate)
         ui->inSrCombo->addItem("4000000");
         ui->inSrCombo->addItem("8000000");
     }
+    else if (ui->inDevEdit->text().contains("hackrf"))
+    {
+        if (rate > 0)
+            ui->inSrCombo->addItem(QString("%1").arg(rate));
+        ui->inSrCombo->addItem("8000000");
+        ui->inSrCombo->addItem("10000000");
+        ui->inSrCombo->addItem("12500000");
+        ui->inSrCombo->addItem("16000000");
+        ui->inSrCombo->addItem("20000000");
+    }
 }
 
 
