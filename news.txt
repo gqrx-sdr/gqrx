@@ -6,6 +6,7 @@
      FIXED: Frequency control widget with recent Qt was broken.
   IMPROVED: Y-axis panning (click-and-drag).
   IMPROVED: Rescale waterfall when resizing the main window.
+  IMPROVED: gr-audio support on Linux.
 
 
    2.1.251  Released on March 1, 2013
