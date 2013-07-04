@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011-2012 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -125,8 +125,6 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
     // Output device
     QString outdev = settings->value("output/device", "").toString();
 
-#ifdef Q_OS_LINUX
-
 #ifdef WITH_PULSEAUDIO
     // get list of output devices
     pa_device_list devices;
@@ -144,12 +142,9 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
         if (outdev == QString(outDevList[i].get_name().c_str()))
             ui->outDevCombo->setCurrentIndex(i+1);
     }
-#endif // WITH_PULSEAUDIO
-#elif defined(__APPLE__) && defined(__MACH__) // Works for X11 Qt on Mac OS X too
-    // Make output device selector editable
+#else
     ui->outDevCombo->setEditable(true);
-
-#endif
+#endif // WITH_PULSEAUDIO
 
     // Signals and slots
     connect(this, SIGNAL(accepted()), this, SLOT(saveConfig()));
