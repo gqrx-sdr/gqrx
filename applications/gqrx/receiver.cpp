@@ -181,7 +181,7 @@ void receiver::set_output_device(const std::string device)
                   << "  new: " << device << std::endl;
 #endif
 
-#ifndef Q_WS_MAC
+#ifndef GQRX_OS_MACX
         // we can return on any platform but OS X becasue of
         // https://github.com/csete/gqrx/issues/66
         return;

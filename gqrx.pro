@@ -14,6 +14,7 @@ TEMPLATE = app
 macx {
     TARGET = Gqrx
     ICON = icons/scope.icns
+    DEFINES += GQRX_OS_MACX
 } else {
     TARGET = gqrx
 }
