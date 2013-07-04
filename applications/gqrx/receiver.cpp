@@ -180,7 +180,12 @@ void receiver::set_output_device(const std::string device)
                   << "  old: " << output_devstr << std::endl
                   << "  new: " << device << std::endl;
 #endif
+
+#ifndef Q_WS_MAC
+        // we can return on any platform but OS X becasue of
+        // https://github.com/csete/gqrx/issues/66
         return;
+#endif
     }
 
     output_devstr = device;
