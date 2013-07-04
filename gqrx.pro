@@ -19,7 +19,7 @@ macx {
 }
 
 linux-g++|linux-g++-64 {
-    # Comment out to use gnuradio-audio (may not work on Linux)
+    # Comment out to use gr-audio (gr 3.6.5.1 or later recommended)
     AUDIO_BACKEND = pulse
 }
 
