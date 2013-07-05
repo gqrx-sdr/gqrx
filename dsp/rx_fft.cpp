@@ -150,8 +150,9 @@ void rx_fft_c::set_fft_size(unsigned int fftsize)
         d_cbuf.set_capacity(d_fftsize);
 
         /* reset window */
+        int wintype = d_wintype; // FIXME: would be nicer with a window_reset()
         d_wintype = -1;
-        set_window_type(d_wintype);
+        set_window_type(wintype);
 
         /* reset FFT object (also reset FFTW plan) */
         delete d_fft;
@@ -323,8 +324,9 @@ void rx_fft_f::set_fft_size(unsigned int fftsize)
         d_cbuf.set_capacity(d_fftsize);
 
         /* reset window */
+        int wintype = d_wintype; // FIXME: would be nicer with a window_reset()
         d_wintype = -1;
-        set_window_type(d_wintype);
+        set_window_type(wintype);
 
         /* reset FFT object (also reset FFTW plan) */
         delete d_fft;

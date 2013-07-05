@@ -4,6 +4,7 @@
        NEW: Qt 5 support.
        NEW: HackRF Jawbreaker support.
      FIXED: Frequency control widget with recent Qt was broken.
+     FIXED: Bug that caused audio FFT data to be leaked into the I/Q FFT.
   IMPROVED: Y-axis panning (click-and-drag).
   IMPROVED: Rescale waterfall when resizing the main window.
   IMPROVED: gr-audio support on Linux.
