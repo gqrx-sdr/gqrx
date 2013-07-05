@@ -1,7 +1,14 @@
 Gqrx
 ====
 
-Gqrx is an experimental software defined radio receiver implemented using GNU Radio and the Qt GUI toolkit. Currently it works on Linux and Mac and it can use the Funcube Dongle, RTL2832U-based DVB-T dongles, OsmoSDR devices and USRP devices as input source.
+Gqrx is an experimental software defined radio receiver implemented using GNU Radio and the Qt GUI toolkit. Currently it works on Linux and Mac and supports the following devices:
+- Funcube Dongle Pro (not Pro+)
+- RTL2832U-based DVB-T dongles (rtlsdr)
+- OsmoSDR
+- USRP
+- HackRF Jawbreaker
+
+Gqrx can operate as a traditional AM/FM/SSB receiver outputting audio or as an FFT-only instrument.
 
 The following sections are some rather generic instructions for building the latest v2.1-git series.
 
@@ -56,7 +63,6 @@ Known problems
 --------------
 
 - Reconfiguring a device may lead to application freeze or crash.
-- Device arguments not well documented.
 - Funcube Dongle may not work well on systems with libusb-1.0.9 (try gqrx-2.0 instead).
 - Some settings are not saved between sessions.
 
