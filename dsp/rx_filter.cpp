@@ -18,8 +18,8 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <cmath>
-#include <gr_io_signature.h>
-#include <gr_firdes.h>
+#include <gnuradio/io_signature.h>
+#include <gnuradio/filter/firdes.h>
 #include <iostream>
 #include "dsp/rx_filter.h"
 
@@ -39,9 +39,9 @@ rx_filter_sptr make_rx_filter(double sample_rate, double low, double high, doubl
 }
 
 rx_filter::rx_filter(double sample_rate, double low, double high, double trans_width)
-    : gr_hier_block2 ("rx_filter",
-                      gr_make_io_signature (MIN_IN, MAX_IN, sizeof (gr_complex)),
-                      gr_make_io_signature (MIN_OUT, MAX_OUT, sizeof (gr_complex))),
+    : gr::hier_block2 ("rx_filter",
+                      gr::io_signature::make (MIN_IN, MAX_IN, sizeof (gr_complex)),
+                      gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof (gr_complex))),
       d_sample_rate(sample_rate),
       d_low(low),
       d_high(high),
@@ -53,10 +53,10 @@ rx_filter::rx_filter(double sample_rate, double low, double high, double trans_w
         d_high = 0.95*sample_rate/2.0;
 
     /* generate taps */
-    d_taps = gr_firdes::complex_band_pass(1.0, d_sample_rate, d_low, d_high, d_trans_width);
+    d_taps = gr::filter::firdes::complex_band_pass(1.0, d_sample_rate, d_low, d_high, d_trans_width);
 
     /* create band pass filter */
-    d_bpf = gr_make_fir_filter_ccc(1, d_taps);
+    d_bpf = gr::filter::fir_filter_ccc::make(1, d_taps);
 
     /* connect filter */
     connect(self(), 0, d_bpf, 0);
@@ -80,7 +80,7 @@ void rx_filter::set_param(double low, double high, double trans_width)
         d_high = 0.95*d_sample_rate/2.0;
 
     /* generate new taps */
-    d_taps = gr_firdes::complex_band_pass(1.0, d_sample_rate, d_low, d_high, d_trans_width);
+    d_taps = gr::filter::firdes::complex_band_pass(1.0, d_sample_rate, d_low, d_high, d_trans_width);
 
 #ifndef QT_NO_DEBUG_OUTPUT
     std::cout << "Genrating taps for new filter LO:" << d_low <<
@@ -104,9 +104,9 @@ rx_xlating_filter_sptr make_rx_xlating_filter(double sample_rate, double center,
 }
 
 rx_xlating_filter::rx_xlating_filter(double sample_rate, double center, double low, double high, double trans_width)
-    : gr_hier_block2 ("rx_xlating_filter",
-                      gr_make_io_signature (MIN_IN, MAX_IN, sizeof (gr_complex)),
-                      gr_make_io_signature (MIN_OUT, MAX_OUT, sizeof (gr_complex))),
+    : gr::hier_block2 ("rx_xlating_filter",
+                      gr::io_signature::make (MIN_IN, MAX_IN, sizeof (gr_complex)),
+                      gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof (gr_complex))),
       d_sample_rate(sample_rate),
       d_center(center),
       d_low(low),
@@ -114,10 +114,10 @@ rx_xlating_filter::rx_xlating_filter(double sample_rate, double center, double l
       d_trans_width(trans_width)
 {
     /* generate taps */
-    d_taps = gr_firdes::complex_band_pass(1.0, d_sample_rate, -d_high, -d_low, d_trans_width);
+    d_taps = gr::filter::firdes::complex_band_pass(1.0, d_sample_rate, -d_high, -d_low, d_trans_width);
 
     /* create band pass filter */
-    d_bpf = gr_make_freq_xlating_fir_filter_ccc(1, d_taps, d_center, d_sample_rate);
+    d_bpf = gr::filter::freq_xlating_fir_filter_ccc::make(1, d_taps, d_center, d_sample_rate);
 
     /* connect filter */
     connect(self(), 0, d_bpf, 0);
@@ -149,7 +149,7 @@ void rx_xlating_filter::set_param(double low, double high, double trans_width)
     d_high        = high;
 
     /* generate new taps */
-    d_taps = gr_firdes::complex_band_pass(1.0, d_sample_rate, -d_high, -d_low, d_trans_width);
+    d_taps = gr::filter::firdes::complex_band_pass(1.0, d_sample_rate, -d_high, -d_low, d_trans_width);
 
     d_bpf->set_taps(d_taps);
 }

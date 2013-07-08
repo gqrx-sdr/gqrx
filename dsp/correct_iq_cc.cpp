@@ -17,8 +17,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include <gr_io_signature.h>
-#include <gr_complex.h>
+#include <gnuradio/io_signature.h>
+#include <gnuradio/gr_complex.h>
 #include <iostream>
 #include "dsp/correct_iq_cc.h"
 
@@ -34,9 +34,9 @@ dc_corr_cc_sptr make_dc_corr_cc(double sample_rate, double tau)
  * Use make_dc_corr_cc() instead.
  */
 dc_corr_cc::dc_corr_cc(double sample_rate, double tau)
-    : gr_hier_block2 ("dc_corr_cc",
-          gr_make_io_signature(1, 1, sizeof(gr_complex)),
-          gr_make_io_signature(1, 1, sizeof(gr_complex)))
+    : gr::hier_block2 ("dc_corr_cc",
+          gr::io_signature::make(1, 1, sizeof(gr_complex)),
+          gr::io_signature::make(1, 1, sizeof(gr_complex)))
 {
     d_sr = sample_rate;
     d_tau = tau;
@@ -46,8 +46,8 @@ dc_corr_cc::dc_corr_cc(double sample_rate, double tau)
     std::cout << "IQ DCR alpha: " << d_alpha << std::endl;
 #endif
 
-    d_iir = gr_make_single_pole_iir_filter_cc(d_alpha, 1);
-    d_sub = gr_make_sub_cc(1);
+    d_iir = gr::filter::single_pole_iir_filter_cc::make(d_alpha, 1);
+    d_sub = gr::blocks::sub_cc::make(1);
 
     connect(self(), 0, d_iir, 0);
     connect(self(), 0, d_sub, 0);
@@ -95,13 +95,13 @@ iq_swap_cc_sptr make_iq_swap_cc(bool enabled)
 }
 
 iq_swap_cc::iq_swap_cc(bool enabled)
-    : gr_hier_block2 ("iq_swap_cc",
-          gr_make_io_signature(1, 1, sizeof(gr_complex)),
-          gr_make_io_signature(1, 1, sizeof(gr_complex)))
+    : gr::hier_block2 ("iq_swap_cc",
+          gr::io_signature::make(1, 1, sizeof(gr_complex)),
+          gr::io_signature::make(1, 1, sizeof(gr_complex)))
 {
     d_enabled = enabled;
-    d_c2f = gr_make_complex_to_float();
-    d_f2c = gr_make_float_to_complex();
+    d_c2f = gr::blocks::complex_to_float::make();
+    d_f2c = gr::blocks::float_to_complex::make();
 
     connect(self(), 0, d_c2f, 0);
     if (enabled)

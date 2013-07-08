@@ -21,7 +21,7 @@
 #define PA_SOURCE_H
 
 #include <string>
-#include <gr_sync_block.h>
+#include <gnuradio/sync_block.h>
 #include <pulse/simple.h>
 
 using namespace std;
@@ -41,7 +41,7 @@ pa_source_sptr make_pa_source(const string device_name,
  *  \ingroup IO
  *
  */
-class pa_source : public gr_sync_block
+class pa_source : public gr::sync_block
 {
     friend pa_source_sptr make_pa_source(const string device_name, int sample_rate, int num_chan,
                                          const string app_name, const string stream_name);
