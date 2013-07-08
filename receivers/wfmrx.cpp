@@ -39,7 +39,7 @@ wfmrx::wfmrx(float quad_rate, float audio_rate)
     iq_resamp = make_resampler_cc(PREF_QUAD_RATE/d_quad_rate);
 
     filter = make_rx_filter(PREF_QUAD_RATE, -80000.0, 80000.0, 20000.0);
-    sql = gr_make_simple_squelch_cc(-150.0, 0.001);
+    sql = gr::analog::simple_squelch_cc::make(-150.0, 0.001);
     meter = make_rx_meter_c(DETECTOR_TYPE_RMS);
     demod_fm = make_rx_demod_fm(PREF_QUAD_RATE, PREF_MIDLE_RATE, 75000.0, 50.0e-6);
     midle_rr = make_resampler_ff(PREF_MIDLE_RATE/PREF_QUAD_RATE);

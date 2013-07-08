@@ -18,8 +18,8 @@
  * Boston, MA 02110-1301, USA.
  */
 #include "pa_sink.h"
-#include <gr_io_signature.h>
-#include <gruel/high_res_timer.h>
+#include <gnuradio/io_signature.h>
+#include <gnuradio/high_res_timer.h>
 #include <stdio.h>
 //#include <iostream>
 
@@ -45,9 +45,9 @@ pa_sink_sptr make_pa_sink(const string device_name, int audio_rate,
 
 pa_sink::pa_sink(const string device_name, int audio_rate,
                  const string app_name, const string stream_name)
-  : gr_sync_block ("pa_sink",
-        gr_make_io_signature (1, 2, sizeof(float)),
-        gr_make_io_signature (0, 0, 0)),
+  : gr::sync_block ("pa_sink",
+        gr::io_signature::make (1, 2, sizeof(float)),
+        gr::io_signature::make (0, 0, 0)),
     d_stream_name(stream_name),
     d_app_name(app_name),
     d_auto_flush(300)
@@ -92,7 +92,7 @@ pa_sink::~pa_sink()
 
 bool pa_sink::start()
 {
-    d_last_flush = gruel::high_res_timer_now();
+    d_last_flush = gr::high_res_timer_now();
 
     return true;
 }
@@ -146,8 +146,8 @@ int pa_sink::work (int noutput_items,
 
     if (d_auto_flush > 0)
     {
-        gruel::high_res_timer_type tnow = gruel::high_res_timer_now();
-        if ((tnow-d_last_flush)/gruel::high_res_timer_tps() > d_auto_flush)
+        gr::high_res_timer_type tnow = gr::high_res_timer_now();
+        if ((tnow-d_last_flush)/gr::high_res_timer_tps() > d_auto_flush)
         {
             pa_simple_flush(d_pasink, 0);
             d_last_flush = tnow;

@@ -21,7 +21,7 @@
 #ifndef WFMRX_H
 #define WFMRX_H
 
-#include <gr_simple_squelch_cc.h>
+#include <gnuradio/analog/simple_squelch_cc.h>
 #include "receivers/receiver_base.h"
 #include "dsp/rx_noise_blanker_cc.h"
 #include "dsp/rx_filter.h"
@@ -103,7 +103,7 @@ private:
     rx_filter_sptr            filter;    /*!< Non-translating bandpass filter.*/
 
     rx_meter_c_sptr           meter;     /*!< Signal strength. */
-    gr_simple_squelch_cc_sptr sql;       /*!< Squelch. */
+    gr::analog::simple_squelch_cc::sptr sql;       /*!< Squelch. */
     rx_demod_fm_sptr          demod_fm;  /*!< FM demodulator. */
     resampler_ff_sptr         midle_rr;  /*!< Resampler. */
     stereo_demod_sptr         stereo;    /*!< FM stereo demodulator. */

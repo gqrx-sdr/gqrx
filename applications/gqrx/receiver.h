@@ -22,15 +22,15 @@
 
 #include <string>
 
-#include <gr_multiply_const_ff.h>
-#include <gr_multiply_cc.h>
-#include <gr_null_sink.h>
-#include <gr_sig_source_c.h>
-#include <gr_top_block.h>
-#include <gr_wavfile_sink.h>
-#include <gr_wavfile_source.h>
+#include <gnuradio/blocks/multiply_const_ff.h>
+#include <gnuradio/blocks/multiply_cc.h>
+#include <gnuradio/blocks/null_sink.h>
+#include <gnuradio/analog/sig_source_c.h>
+#include <gnuradio/top_block.h>
+#include <gnuradio/blocks/wavfile_sink.h>
+#include <gnuradio/blocks/wavfile_source.h>
 
-#include <osmosdr/osmosdr_source_c.h>
+#include <osmosdr/source.h>
 
 #include "dsp/correct_iq_cc.h"
 #include "dsp/rx_noise_blanker_cc.h"
@@ -47,7 +47,7 @@
 #ifdef WITH_PULSEAUDIO
 #include <pulseaudio/pa_sink.h>
 #else
-#include <gr_audio_sink.h>
+#include <gnuradio/audio/sink.h>
 #endif
 
 
@@ -206,10 +206,10 @@ private:
 
     rx_demod  d_demod;          /*!< Current demodulator. */
 
-    gr_top_block_sptr         tb;        /*!< The GNU Radio top block. */
+    gr::top_block_sptr         tb;        /*!< The GNU Radio top block. */
 
-    osmosdr_source_c_sptr     src;       /*!< Real time I/Q source. */
-    //rx_source_base_sptr       src;       /*!< Real time I/Q source. */
+    osmosdr::source::sptr     src;       /*!< Real time I/Q source. */
+    //rx_source_base::sptr       src;       /*!< Real time I/Q source. */
     receiver_base_cf_sptr     rx;        /*!< receiver. */
 
     dc_corr_cc_sptr           dc_corr;   /*!< DC corrector block. */
@@ -218,16 +218,15 @@ private:
     rx_fft_c_sptr             iq_fft;     /*!< Baseband FFT block. */
     rx_fft_f_sptr             audio_fft;  /*!< Audio FFT block. */
 
-    gr_sig_source_c_sptr      lo;  /*!< oscillator used for tuning. */
-    gr_multiply_cc_sptr mixer;
+    gr::analog::sig_source_c::sptr      lo;  /*!< oscillator used for tuning. */
+    gr::blocks::multiply_cc::sptr mixer;
 
+    gr::blocks::multiply_const_ff::sptr audio_gain0; /*!< Audio gain block. */
+    gr::blocks::multiply_const_ff::sptr audio_gain1; /*!< Audio gain block. */
 
-    gr_multiply_const_ff_sptr audio_gain0; /*!< Audio gain block. */
-    gr_multiply_const_ff_sptr audio_gain1; /*!< Audio gain block. */
-
-    gr_wavfile_sink_sptr      wav_sink;   /*!< WAV file sink for recording. */
-    gr_wavfile_source_sptr    wav_src;    /*!< WAV file source for playback. */
-    gr_null_sink_sptr         audio_null_sink; /*!< Audio null sink used during playback. */
+    gr::blocks::wavfile_sink::sptr      wav_sink;   /*!< WAV file sink for recording. */
+    gr::blocks::wavfile_source::sptr    wav_src;    /*!< WAV file source for playback. */
+    gr::blocks::null_sink::sptr         audio_null_sink; /*!< Audio null sink used during playback. */
 
     sniffer_f_sptr            sniffer;    /*!< Sample sniffer for data decoders. */
     resampler_ff_sptr         sniffer_rr; /*!< Sniffer resampler. */
@@ -235,7 +234,7 @@ private:
 #ifdef WITH_PULSEAUDIO
     pa_sink_sptr              audio_snk;  /*!< Pulse audio sink. */
 #else
-    audio_sink::sptr          audio_snk;  /*!< gr audio sink */
+    gr::audio::sink::sptr     audio_snk;  /*!< gr audio sink */
 #endif
 };
 

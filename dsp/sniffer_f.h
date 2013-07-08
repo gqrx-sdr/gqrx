@@ -20,7 +20,7 @@
 #ifndef SNIFFER_F_H
 #define SNIFFER_F_H
 
-#include <gr_sync_block.h>
+#include <gnuradio/sync_block.h>
 #include <boost/thread/mutex.hpp>
 #include <boost/circular_buffer.hpp>
 
@@ -52,7 +52,7 @@ sniffer_f_sptr make_sniffer_f(int buffsize=48000);
  * exceed the buffer size, old samples will be overwritten. The collected samples
  * can be accessed via the get_samples() method.
  */
-class sniffer_f : public gr_sync_block
+class sniffer_f : public gr::sync_block
 {
     friend sniffer_f_sptr make_sniffer_f(int buffsize);
 

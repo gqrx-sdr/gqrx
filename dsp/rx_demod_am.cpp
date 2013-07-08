@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include <gr_io_signature.h>
+#include <gnuradio/io_signature.h>
 #include <dsp/rx_demod_am.h>
 
 
@@ -34,16 +34,16 @@ static const int MIN_OUT = 1; /* Minimum number of output streams. */
 static const int MAX_OUT = 1; /* Maximum number of output streams. */
 
 rx_demod_am::rx_demod_am(float quad_rate, float audio_rate, bool dcr)
-    : gr_hier_block2 ("rx_demod_am",
-                      gr_make_io_signature (MIN_IN, MAX_IN, sizeof (gr_complex)),
-                      gr_make_io_signature (MIN_OUT, MAX_OUT, sizeof (float))),
+    : gr::hier_block2 ("rx_demod_am",
+                      gr::io_signature::make (MIN_IN, MAX_IN, sizeof (gr_complex)),
+                      gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof (float))),
     d_quad_rate(quad_rate),
     d_audio_rate(audio_rate),
     d_dcr_enabled(dcr)
 {
 
     /* demodulator */
-    d_demod = gr_make_complex_to_mag(1);
+    d_demod = gr::blocks::complex_to_mag::make(1);
 
     /* connect blocks */
     connect(self(), 0, d_demod, 0);
@@ -55,7 +55,7 @@ rx_demod_am::rx_demod_am(float quad_rate, float audio_rate, bool dcr)
     d_fftaps[1] = -1.0;
     d_fbtaps[0] = 0.0;
     d_fbtaps[1] = 0.999;
-    d_dcr = gr_make_iir_filter_ffd(d_fftaps, d_fbtaps);
+    d_dcr = gr::filter::iir_filter_ffd::make(d_fftaps, d_fbtaps);
 
     if (d_dcr_enabled) {
         connect(d_demod, 0, d_dcr, 0);
