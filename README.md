@@ -16,7 +16,13 @@ The following sections are some rather generic instructions for building the lat
 Dependencies
 ------------
 
-- The latest GNU Radio 3.6 (gnuradio-core and gnuradio-audio)
+- GNU Radio 3.7 with the following components:
+    - gnuradio-runtime
+    - gnuradio-analog
+    - gnuradio-blocks
+    - gnuradio-filter
+    - gnuradio-fft
+    - gnuradio-audio (optional)
 - The gr-iqbalance library (optional)
 - At least one of:
     - gnuradio-fcd
@@ -25,7 +31,7 @@ Dependencies
     - Osmo SDR from http://cgit.osmocom.org/cgit/osmo-sdr/
     - HackRF Jawbreaker from http://greatscottgadgets.com/hackrf/
 - gnuradio-osmosdr from http://cgit.osmocom.org/cgit/gr-osmosdr/
-- pulseaudio (Linux only and optional)
+- pulseaudio (Linux only and optional; can use gnuradio-audio instead)
 - Qt 4.6 or later and optionally Qt Creator
 
 
@@ -97,6 +103,9 @@ Bob McGwier, N4HY:
 
 Göran Weinholt, SM6-8239:
 - Various GUI improvements.
+
+Jiří Pinkava:
+- Port to gnuradio 3.7 API
 
 Moe Weatley:
 - FFT plotter and waterfall.
