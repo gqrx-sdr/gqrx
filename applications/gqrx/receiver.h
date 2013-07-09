@@ -109,7 +109,7 @@ public:
     void set_output_device(const std::string device);
 
     std::vector<std::string> get_antennas(void);
-    void set_antenna(const string &antenna);
+    void set_antenna(const std::string &antenna);
 
     double set_input_rate(double rate);
     double get_input_rate();
