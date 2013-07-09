@@ -2,6 +2,7 @@
        NEW: Allow using audio output devices other than the default.
        NEW: Automatic I/Q phase and gain correction (requires gr-iqbal).
        NEW: Qt 5 support.
+       NEW: GNU Radio 3.7 support.
        NEW: HackRF Jawbreaker support.
      FIXED: Frequency control widget with recent Qt was broken.
      FIXED: Bug that caused audio FFT data to be leaked into the I/Q FFT.
