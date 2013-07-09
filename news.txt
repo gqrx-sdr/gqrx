@@ -10,6 +10,7 @@
   IMPROVED: Y-axis panning (click-and-drag).
   IMPROVED: Rescale waterfall when resizing the main window.
   IMPROVED: gr-audio support on Linux.
+  IMPROVED: Audio gain setting no longer has impact on WAV recording.
 
 
    2.1.251  Released on March 1, 2013

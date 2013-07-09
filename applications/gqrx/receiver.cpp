@@ -777,9 +777,12 @@ receiver::status receiver::start_audio_recording(const std::string filename)
 
     // not strictly necessary to lock but I think it is safer
     tb->lock();
-    wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(), 2, 48000, 16);
-    tb->connect(audio_gain0, 0, wav_sink, 0);
-    tb->connect(audio_gain1, 0, wav_sink, 1);
+    wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(),
+                                              2,
+                                              (unsigned int) d_audio_rate,
+                                              16);
+    tb->connect(rx, 0, wav_sink, 0);
+    tb->connect(rx, 1, wav_sink, 1);
     tb->unlock();
     d_recording_wav = true;
 
@@ -809,9 +812,9 @@ receiver::status receiver::stop_audio_recording()
     // not strictly necessary to lock but I think it is safer
     tb->lock();
     wav_sink->close();
-    tb->disconnect(audio_gain0, 0, wav_sink, 0);
-    tb->disconnect(audio_gain1, 0, wav_sink, 1);
-    wav_sink.reset();
+    tb->disconnect(rx, 0, wav_sink, 0);
+    tb->disconnect(rx, 1, wav_sink, 1);
+    wav_sink.reset(); /** FIXME **/
     tb->unlock();
     d_recording_wav = false;
 
