@@ -155,14 +155,15 @@ void DockAudio::on_audioRecButton_clicked(bool checked)
 void DockAudio::on_audioPlayButton_clicked(bool checked)
 {
     if (checked) {
-
         // emit signal and start timer
         emit audioPlayStarted(lastAudio);
 
+        ui->audioRecLabel->setText(lastAudio);
         ui->audioPlayButton->setToolTip(tr("Stop audio playback"));
         ui->audioRecButton->setEnabled(false); // prevent recording while we play
     }
     else {
+        ui->audioRecLabel->setText("<i>DSP</i>");
         ui->audioPlayButton->setToolTip(tr("Start playback of last recorded audio file"));
         emit audioPlayStopped();
 

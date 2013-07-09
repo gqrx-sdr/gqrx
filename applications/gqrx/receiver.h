@@ -229,7 +229,8 @@ private:
 
     gr::blocks::wavfile_sink::sptr      wav_sink;   /*!< WAV file sink for recording. */
     gr::blocks::wavfile_source::sptr    wav_src;    /*!< WAV file source for playback. */
-    gr::blocks::null_sink::sptr         audio_null_sink; /*!< Audio null sink used during playback. */
+    gr::blocks::null_sink::sptr         audio_null_sink0; /*!< Audio null sink used during playback. */
+    gr::blocks::null_sink::sptr         audio_null_sink1; /*!< Audio null sink used during playback. */
 
     sniffer_f_sptr            sniffer;    /*!< Sample sniffer for data decoders. */
     resampler_ff_sptr         sniffer_rr; /*!< Sniffer resampler. */

@@ -92,7 +92,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     output_devstr = audio_device;
 
     /* wav sink and source is created when rec/play is started */
-    audio_null_sink = gr::blocks::null_sink::make(sizeof(float));
+    audio_null_sink0 = gr::blocks::null_sink::make(sizeof(float));
+    audio_null_sink1 = gr::blocks::null_sink::make(sizeof(float));
     sniffer = make_sniffer_f();
     /* sniffer_rr is created at each activation. */
 
@@ -797,7 +798,7 @@ receiver::status receiver::stop_audio_recording()
 {
     if (!d_recording_wav) {
         /* error: we are not recording */
-        std::cout << "ERROR: Can stop audio recorder (not recording)" << std::endl;
+        std::cout << "ERROR: Can not stop audio recorder (not recording)" << std::endl;
 
         return STATUS_ERROR;
     }
@@ -828,6 +829,7 @@ receiver::status receiver::stop_audio_recording()
 receiver::status receiver::start_audio_playback(const std::string filename)
 {
     try {
+        // output ports set automatically from file
         wav_src = gr::blocks::wavfile_source::make(filename.c_str(), false);
     }
     catch (std::runtime_error &e) {
@@ -835,9 +837,20 @@ receiver::status receiver::start_audio_playback(const std::string filename)
         return STATUS_ERROR;
     }
 
-    /** FIXME: We can only handle 48k for now (should maybe use the audio_rr)? */
-    if (wav_src->sample_rate() != 48000) {
-        std::cout << "BUG: Can not handle sample rate " << wav_src->sample_rate() << std::cout;
+    /** FIXME: We can only handle native rate (should maybe use the audio_rr)? */
+    unsigned int audio_rate = (unsigned int) d_audio_rate;
+    if (wav_src->sample_rate() != audio_rate)
+    {
+        std::cout << "BUG: Can not handle sample rate " << wav_src->sample_rate() << std::endl;
+        wav_src.reset();
+
+        return STATUS_ERROR;
+    }
+
+    /** FIXME: We can only handle stereo files */
+    if (wav_src->channels() != 2)
+    {
+        std::cout << "BUG: Can not handle other than 2 channels. File has " << wav_src->channels() << std::endl;
         wav_src.reset();
 
         return STATUS_ERROR;
@@ -848,10 +861,14 @@ receiver::status receiver::start_audio_playback(const std::string filename)
     tb->disconnect(rx, 0, audio_gain0, 0);
     tb->disconnect(rx, 1, audio_gain1, 0);
     tb->disconnect(rx, 0, audio_fft, 0);
-    tb->connect(rx, 0, audio_null_sink, 0);
-    tb->connect(wav_src, 0, audio_gain0, 0);  // FIXME: 2 channels
+    tb->connect(rx, 0, audio_null_sink0, 0); /** FIXME: other channel? */
+    tb->connect(rx, 1, audio_null_sink1, 0); /** FIXME: other channel? */
+    tb->connect(wav_src, 0, audio_gain0, 0);
+    tb->connect(wav_src, 1, audio_gain1, 0);
     tb->connect(wav_src, 0, audio_fft, 0);
     start();
+
+    std::cout << "Playing audio from " << filename << std::endl;
 
     return STATUS_OK;
 }
@@ -863,11 +880,13 @@ receiver::status receiver::stop_audio_playback()
     /* disconnect wav source and reconnect receiver */
     stop();
     tb->disconnect(wav_src, 0, audio_gain0, 0);
+    tb->disconnect(wav_src, 1, audio_gain1, 0);
     tb->disconnect(wav_src, 0, audio_fft, 0);
-    tb->disconnect(rx, 0, audio_null_sink, 0);
+    tb->disconnect(rx, 0, audio_null_sink0, 0);
+    tb->disconnect(rx, 1, audio_null_sink1, 0);
     tb->connect(rx, 0, audio_gain0, 0);
     tb->connect(rx, 1, audio_gain1, 0);
-    tb->connect(rx, 0, audio_fft, 0);
+    tb->connect(rx, 0, audio_fft, 0);  /** FIXME: other channel? */
     start();
 
     /* delete wav_src since we can not change file name */
