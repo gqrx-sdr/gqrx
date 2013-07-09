@@ -140,6 +140,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     connect(uiDockInputCtl, SIGNAL(dcCancelChanged(bool)), this, SLOT(setDcCancel(bool)));
     connect(uiDockInputCtl, SIGNAL(iqBalanceChanged(bool)), this, SLOT(setIqBalance(bool)));
     connect(uiDockInputCtl, SIGNAL(ignoreLimitsChanged(bool)), this, SLOT(setIgnoreLimits(bool)));
+    connect(uiDockInputCtl, SIGNAL(antennaSelected(QString)), this, SLOT(setAntenna(QString)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
@@ -303,6 +304,10 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
             devlabel = indev; //"Unknown";
 
         setWindowTitle(QString("Gqrx %1 - %2").arg(VERSION).arg(devlabel));
+
+        // Add available antenna connectors to the UI
+        std::vector<std::string> antennas = rx->get_antennas();
+        uiDockInputCtl->setAntennas(antennas);
     }
 
     QString outdev = m_settings->value("output/device", "").toString();
@@ -456,6 +461,13 @@ void MainWindow::setLnbLo(double freq_mhz)
     updateFrequencyRange(uiDockInputCtl->ignoreLimits());
     ui->freqCtrl->setFrequency(d_lnb_lo + rf_freq);
     ui->plotter->setCenterFreq(d_lnb_lo + d_hw_freq);
+}
+
+/*! \brief Select new antenna connector. */
+void MainWindow::setAntenna(const QString antenna)
+{
+    qDebug() << "New antenna selected:" << antenna;
+    rx->set_antenna(antenna.toStdString());
 }
 
 /*! \brief Set new channel filter offset.

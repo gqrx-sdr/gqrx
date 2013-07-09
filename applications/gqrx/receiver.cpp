@@ -165,7 +165,6 @@ void receiver::set_input_device(const std::string device)
     src.reset();
     src = osmosdr::source::make(device);
     tb->connect(src, 0, iq_swap, 0);
-
     tb->unlock();
 }
 
@@ -208,6 +207,17 @@ void receiver::set_output_device(const std::string device)
     tb->unlock();
 }
 
+/*! \brief Get a list of available antenna connectors. */
+std::vector<std::string> receiver::get_antennas(void)
+{
+    return src->get_antennas();
+}
+
+/*! \brief Select antenna conenctor. */
+void receiver::set_antenna(const std::string &antenna)
+{
+    src->set_antenna(antenna);
+}
 
 /*! \brief Set new input sample rate.
  *  \param rate The desired input rate

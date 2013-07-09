@@ -105,6 +105,7 @@ private:
 private slots:
     /* rf */
     void setLnbLo(double freq_mhz);
+    void setAntenna(const QString antenna);
 
     /* baseband receiver */
     void setFilterOffset(qint64 freq_hz);

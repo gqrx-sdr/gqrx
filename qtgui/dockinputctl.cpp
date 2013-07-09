@@ -60,6 +60,14 @@ void DockInputCtl::readSettings(QSettings *settings)
     double gain = settings->value("input/gain", -1).toDouble(&conv_ok);
     setGain(gain);
     emit gainChanged(gain);
+
+    // Ignore antenna selection if there is only one option
+    if (ui->antSelector->count() > 1)
+    {
+        QString ant = settings->value("input/antenna", "").toString();
+        setAntenna(ant);
+    }
+
 }
 
 void DockInputCtl::saveSettings(QSettings *settings)
@@ -98,6 +106,11 @@ void DockInputCtl::saveSettings(QSettings *settings)
     else
         settings->remove("input/ignore_limits");
 
+    // save antenna selection if there is more than one option
+    if (ui->antSelector->count() > 1)
+        settings->setValue("input/antenna", ui->antSelector->currentText());
+    else
+        settings->remove("input/antenna");
 }
 
 void DockInputCtl::setLnbLo(double freq_mhz)
@@ -207,6 +220,23 @@ bool DockInputCtl::ignoreLimits(void)
     return ui->ignoreButton->isChecked();
 }
 
+/*! \brief Populate antenna selector combo box with strings. */
+void DockInputCtl::setAntennas(std::vector<std::string> &antennas)
+{
+    ui->antSelector->clear();
+    for (std::vector<std::string>::iterator it = antennas.begin(); it != antennas.end(); ++it)
+    {
+        ui->antSelector->addItem(QString(it->c_str()));
+    }
+}
+
+/*! \brief Select antenna. */
+void DockInputCtl::setAntenna(const QString &antenna)
+{
+    int index = ui->antSelector->findText(antenna, Qt::MatchExactly);
+    if (index != -1)
+        ui->antSelector->setCurrentIndex(index);
+}
 
 /*! \brief LNB LO value has changed. */
 void DockInputCtl::on_lnbSpinBox_valueChanged(double value)
@@ -273,4 +303,10 @@ void DockInputCtl::on_iqBalanceButton_toggled(bool checked)
 void DockInputCtl::on_ignoreButton_toggled(bool checked)
 {
     emit ignoreLimitsChanged(checked);
+}
+
+/*! \brief Antenna selection has changed. */
+void DockInputCtl::on_antennaSelector_currentIndexChanged(const QString &antenna)
+{
+    emit antennaSelected(antenna);
 }

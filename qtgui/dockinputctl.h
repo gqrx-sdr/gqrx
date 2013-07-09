@@ -20,8 +20,12 @@
 #ifndef DOCKINPUTCTL_H
 #define DOCKINPUTCTL_H
 
+#include <vector>
+#include <string>
+
 #include <QDockWidget>
 #include <QSettings>
+#include <QString>
 
 namespace Ui {
     class DockInputCtl;
@@ -59,6 +63,9 @@ public:
     void setIgnoreLimits(bool reversed);
     bool ignoreLimits(void);
 
+    void setAntennas(std::vector<std::string> &antennas);
+    void setAntenna(const QString &antenna);
+
 signals:
     void gainChanged(double gain); /*!< Relative gain between 0.0 and 1.0 (negative means auto). */
     void freqCorrChanged(int value);
@@ -67,6 +74,7 @@ signals:
     void dcCancelChanged(bool enabled);
     void iqBalanceChanged(bool enabled);
     void ignoreLimitsChanged(bool ignore);
+    void antennaSelected(QString antenna);
 
 private slots:
     void on_lnbSpinBox_valueChanged(double value);
@@ -77,6 +85,7 @@ private slots:
     void on_dcCancelButton_toggled(bool checked);
     void on_iqBalanceButton_toggled(bool checked);
     void on_ignoreButton_toggled(bool checked);
+    void on_antennaSelector_currentIndexChanged(const QString &antenna);
 
 private:
     Ui::DockInputCtl *ui;
