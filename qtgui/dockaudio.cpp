@@ -37,6 +37,8 @@ DockAudio::DockAudio(QWidget *parent) :
     ui->audioRecConfButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
 #endif
 
+    audioOptions = new CAudioOptions(this);
+
     ui->audioSpectrum->setPercent2DScreen(100);
     ui->audioSpectrum->setFreqUnits(1000);
     ui->audioSpectrum->setSampleRate(48000);  // Full bandwidth
@@ -171,6 +173,11 @@ void DockAudio::on_audioPlayButton_clicked(bool checked)
     }
 }
 
+/*! \brief Configure button clicked. */
+void DockAudio::on_audioConfButton_clicked()
+{
+    audioOptions->show();
+}
 
 /*! \brief Set status of audio record button. */
 void DockAudio::setAudioRecButtonState(bool checked)

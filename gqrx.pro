@@ -73,6 +73,7 @@ SOURCES += \
     dsp/stereo_demod.cpp \
     qtgui/afsk1200win.cpp \
     qtgui/agc_options.cpp \
+    qtgui/audio_options.cpp \
     qtgui/demod_options.cpp \
     qtgui/dockinputctl.cpp \
     qtgui/dockaudio.cpp \
@@ -111,6 +112,7 @@ HEADERS += \
     dsp/stereo_demod.h \
     qtgui/afsk1200win.h \
     qtgui/agc_options.h \
+    qtgui/audio_options.h \
     qtgui/demod_options.h \
     qtgui/dockaudio.h \
     qtgui/dockfft.h \
@@ -131,13 +133,14 @@ FORMS += \
     applications/gqrx/mainwindow.ui \
     qtgui/afsk1200win.ui \
     qtgui/agc_options.ui \
-    qtgui/dockrxopt.ui \
-    qtgui/ioconfig.ui \
+    qtgui/audio_options.ui \
     qtgui/demod_options.ui \
-    qtgui/dockinputctl.ui \
     qtgui/dockaudio.ui \
     qtgui/dockfft.ui \
     qtgui/dockiqplayer.ui \
+    qtgui/dockinputctl.ui \
+    qtgui/dockrxopt.ui \
+    qtgui/ioconfig.ui \
     qtgui/nb_options.ui
 
 # Use pulseaudio (ps: could use equals? undocumented)

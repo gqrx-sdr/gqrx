@@ -23,6 +23,7 @@
 #include <QColor>
 #include <QDockWidget>
 #include <QSettings>
+#include "audio_options.h"
 
 namespace Ui {
     class DockAudio;
@@ -85,12 +86,14 @@ private slots:
     void on_audioGainSlider_valueChanged(int value);
     void on_audioRecButton_clicked(bool checked);
     void on_audioPlayButton_clicked(bool checked);
+    void on_audioConfButton_clicked();
 
 
 private:
     Ui::DockAudio *ui;
-    QString        lastAudio;   /*! Last audio recording. */
-    bool           autoSpan;    /*! Whether to allow mode-dependent auto span. */
+    CAudioOptions *audioOptions; /*! Audio options dialog. */
+    QString        lastAudio;    /*! Last audio recording. */
+    bool           autoSpan;     /*! Whether to allow mode-dependent auto span. */
 };
 
 #endif // DOCKAUDIO_H
