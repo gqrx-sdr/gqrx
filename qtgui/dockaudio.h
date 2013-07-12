@@ -92,6 +92,7 @@ private slots:
 private:
     Ui::DockAudio *ui;
     CAudioOptions *audioOptions; /*! Audio options dialog. */
+    QString        rec_dir;      /*! Location for audio recordings. */
     QString        lastAudio;    /*! Last audio recording. */
     bool           autoSpan;     /*! Whether to allow mode-dependent auto span. */
 };

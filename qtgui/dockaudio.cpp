@@ -19,6 +19,7 @@
  */
 #include <QDebug>
 #include <QDateTime>
+#include <QDir>
 #include "dockaudio.h"
 #include "ui_dockaudio.h"
 
@@ -219,6 +220,11 @@ void DockAudio::saveSettings(QSettings *settings)
         return;
 
     settings->setValue("audio/gain", audioGain());
+
+    if (rec_dir != QDir::homePath())
+        settings->setValue("audio/rec_dir", rec_dir);
+    else
+        settings->remove("audio/rec_dir");
 }
 
 void DockAudio::readSettings(QSettings *settings)
@@ -228,8 +234,11 @@ void DockAudio::readSettings(QSettings *settings)
 
     bool conv_ok = false;
 
-    int gain = settings->value("audio/gain", QVariant( -200 ) ).toInt(&conv_ok);
-    if (conv_ok) {
+    int gain = settings->value("audio/gain", QVariant(-200)).toInt(&conv_ok);
+    if (conv_ok)
         setAudioGain(gain);
-    }
+
+    // Location of audio recordings
+    rec_dir = settings->value("audio/rec_dir", QDir::homePath()).toString();
+    audioOptions->setRecDir(rec_dir);
 }

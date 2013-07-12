@@ -20,8 +20,10 @@
 #ifndef AUDIO_OPTIONS_H
 #define AUDIO_OPTIONS_H
 
-#include <QDialog>
 #include <QCloseEvent>
+#include <QDialog>
+#include <QDir>
+#include <QPalette>
 
 namespace Ui {
     class CAudioOptions;
@@ -38,8 +40,20 @@ public:
 
     void closeEvent(QCloseEvent *event);
 
+    void setRecDir(const QString &dir);
+
+signals:
+    /*! \brief Signal emitted when a new valid directory has been selected. */
+    void newRecDirSelected(QString dir);
+
+private slots:
+    void on_recDirEdit_textChanged(const QString &text);
+    void on_recDirButton_clicked();
+
 private:
-    Ui::CAudioOptions *ui;
+    Ui::CAudioOptions *ui;            /*!< The user interface widget. */
+    QDir              *work_dir;      /*!< Used for validating chosen directory. */
+    QPalette          *error_palette; /*!< Palette used to indicate an error. */
 };
 
 #endif // AUDIO_OPTIONS_H
