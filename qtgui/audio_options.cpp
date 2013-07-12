@@ -45,7 +45,7 @@ CAudioOptions::~CAudioOptions()
 
 /*! \brief Catch window close events.
  *
- * This method is called when the uses closes the audio options dialog
+ * This method is called when the user closes the audio options dialog
  * window using the window close icon. We catch the event and hide the
  * dialog but keep it around for later use.
  */

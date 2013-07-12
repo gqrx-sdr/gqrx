@@ -36,7 +36,7 @@ CDemodOptions::~CDemodOptions()
 
 /*! \brief Catch window close events.
  *
- * This method is called when the uses closes the demod options dialog
+ * This method is called when the user closes the demod options dialog
  * window using the window close icon. We catch the event and hide the
  * dialog but keep it around for later use.
  */
