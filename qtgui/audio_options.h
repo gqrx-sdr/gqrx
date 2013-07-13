@@ -44,7 +44,7 @@ public:
 
 signals:
     /*! \brief Signal emitted when a new valid directory has been selected. */
-    void newRecDirSelected(QString dir);
+    void newRecDirSelected(const QString &dir);
 
 private slots:
     void on_recDirEdit_textChanged(const QString &text);
