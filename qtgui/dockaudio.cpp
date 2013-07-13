@@ -40,6 +40,8 @@ DockAudio::DockAudio(QWidget *parent) :
 
     audioOptions = new CAudioOptions(this);
 
+    connect(audioOptions, SIGNAL(newRecDirSelected(QString)), this, SLOT(setNewRecDir(QString)));
+
     ui->audioSpectrum->setPercent2DScreen(100);
     ui->audioSpectrum->setFreqUnits(1000);
     ui->audioSpectrum->setSampleRate(48000);  // Full bandwidth
@@ -133,10 +135,11 @@ void DockAudio::on_audioRecButton_clicked(bool checked)
     if (checked) {
         // FIXME: option to use local time
         // use toUTC() function compatible with older versions of Qt.
-        lastAudio = QDateTime::currentDateTime().toUTC().toString("gqrx-yyyyMMdd-hhmmss.'wav'");
+        QString file_name = QDateTime::currentDateTime().toUTC().toString("gqrx-yyyyMMdd-hhmmss.'wav'");
+        last_audio = QString("%1/%2").arg(rec_dir).arg(file_name);
 
         // emit signal and start timer
-        emit audioRecStarted(lastAudio);
+        emit audioRecStarted(last_audio);
 
         ui->audioRecButton->setToolTip(tr("Stop audio recorder"));
         ui->audioPlayButton->setEnabled(false); /* prevent playback while recording */
@@ -159,9 +162,9 @@ void DockAudio::on_audioPlayButton_clicked(bool checked)
 {
     if (checked) {
         // emit signal and start timer
-        emit audioPlayStarted(lastAudio);
+        emit audioPlayStarted(last_audio);
 
-        ui->audioRecLabel->setText(lastAudio);
+        ui->audioRecLabel->setText(QFileInfo(last_audio).fileName());
         ui->audioPlayButton->setToolTip(tr("Stop audio playback"));
         ui->audioRecButton->setEnabled(false); // prevent recording while we play
     }
@@ -241,4 +244,12 @@ void DockAudio::readSettings(QSettings *settings)
     // Location of audio recordings
     rec_dir = settings->value("audio/rec_dir", QDir::homePath()).toString();
     audioOptions->setRecDir(rec_dir);
+}
+
+/*! \brief Slot called when a new valid recording directory has been selected
+ *         in the audio conf dialog.
+ */
+void DockAudio::setNewRecDir(const QString &dir)
+{
+    rec_dir = dir;
 }

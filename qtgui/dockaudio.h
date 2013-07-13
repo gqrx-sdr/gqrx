@@ -87,13 +87,14 @@ private slots:
     void on_audioRecButton_clicked(bool checked);
     void on_audioPlayButton_clicked(bool checked);
     void on_audioConfButton_clicked();
+    void setNewRecDir(const QString &dir);
 
 
 private:
     Ui::DockAudio *ui;
     CAudioOptions *audioOptions; /*! Audio options dialog. */
     QString        rec_dir;      /*! Location for audio recordings. */
-    QString        lastAudio;    /*! Last audio recording. */
+    QString        last_audio;   /*! Last audio recording. */
     bool           autoSpan;     /*! Whether to allow mode-dependent auto span. */
 };
 
