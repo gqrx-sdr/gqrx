@@ -1,10 +1,12 @@
-   2.1.xyz
+2.2         TBD...
+
        NEW: Allow using audio output devices other than the default.
        NEW: Automatic I/Q phase and gain correction (requires gr-iqbal).
        NEW: Qt 5 support.
        NEW: GNU Radio 3.7 support.
        NEW: HackRF Jawbreaker support.
        NEW: Option to select antenna connector on e.g. USRP devices.
+       NEW: Configuration option to choose location of WAV recordings.
      FIXED: Frequency control widget with recent Qt was broken.
      FIXED: Bug that caused audio FFT data to be leaked into the I/Q FFT.
      FIXED: Audio recording & playback.
@@ -14,12 +16,12 @@
   IMPROVED: Audio gain setting no longer has impact on WAV recording.
 
 
-   2.1.251  Released on March 1, 2013
+2.1.251     Released on March 1, 2013
 
      FIXED: Incorrect device selection in config dialog.
 
 
-   2.1.246  Released on February 29, 2013
+2.1.246     Released on February 29, 2013
 
        NEW: I/Q swapping option.
        NEW: FFT video filter with non-linear gain (still WIP).
@@ -44,7 +46,7 @@
   IMPROVED: I/Q DC canceling.
 
 
-   2.1.148  Released on December 9, 2012
+2.1.148     Released on December 9, 2012
 
        NEW: Support for USRP and RTL2832U (rtlsdr) devices.
        NEW: Pan & zoom on the pandapter axes.
@@ -53,11 +55,11 @@
   IMPROVED: Various improvements to the user iterface.
 
 
-   2.0      Released on July 7, 2012
+2.0         Released on July 7, 2012
        
        First stable release of C++ version with Funcube Dongle support.
 
-   1.x
+1.x
 
        Initial experiments using Python and gr-qtgui.
 
