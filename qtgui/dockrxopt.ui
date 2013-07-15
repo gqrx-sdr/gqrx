@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>234</width>
-    <height>320</height>
+    <width>239</width>
+    <height>328</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>234</width>
-    <height>320</height>
+    <width>239</width>
+    <height>328</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -434,6 +434,12 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
          <iconset resource="../icons.qrc">
           <normaloff>:/icons/icons/settings.svg</normaloff>:/icons/icons/settings.svg</iconset>
         </property>
+        <property name="iconSize">
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
+        </property>
         <property name="checkable">
          <bool>false</bool>
         </property>
@@ -549,6 +555,12 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         <property name="icon">
          <iconset resource="../icons.qrc">
           <normaloff>:/icons/icons/settings.svg</normaloff>:/icons/icons/settings.svg</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
         </property>
         <property name="checkable">
          <bool>false</bool>
