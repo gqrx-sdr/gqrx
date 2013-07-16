@@ -214,7 +214,14 @@ void CIoConfig::updateInputSampleRates(int rate)
 
     if (ui->inDevEdit->text().contains("fcd"))
     {
-        ui->inSrCombo->addItem("96000");
+        if (ui->inDevCombo->currentText().contains("V2.0"))
+        {
+            ui->inSrCombo->addItem("192000");
+        }
+        else
+        {
+            ui->inSrCombo->addItem("96000");
+        }
     }
     else if (ui->inDevEdit->text().contains("rtl"))
     {
