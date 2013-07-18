@@ -2,11 +2,12 @@ Gqrx
 ====
 
 Gqrx is an experimental software defined radio receiver implemented using GNU Radio and the Qt GUI toolkit. Currently it works on Linux and Mac and supports the following devices:
-- Funcube Dongle Pro (and Pro+ with latest gr-osmosdr)
+- Funcube Dongle Pro and Pro+
 - RTL2832U-based DVB-T dongles (rtlsdr)
 - OsmoSDR
 - USRP
 - HackRF Jawbreaker
+- basically any device supported by gr-osmosdr library
 
 Gqrx can operate as a traditional AM/FM/SSB receiver outputting audio or as an FFT-only instrument.
 
@@ -22,17 +23,18 @@ Dependencies
     - gnuradio-blocks
     - gnuradio-filter
     - gnuradio-fft
-    - gnuradio-audio (optional)
+    - gnuradio-audio
 - The gr-iqbalance library (optional)
 - At least one of:
-    - gnuradio-fcd
-    - gnuradio-uhd
-    - RTL-SDR from http://cgit.osmocom.org/cgit/rtl-sdr/
-    - Osmo SDR from http://cgit.osmocom.org/cgit/osmo-sdr/
-    - HackRF Jawbreaker from http://greatscottgadgets.com/hackrf/
+    - Funcube Dongle Pro driver via gnuradio-fcd
+    - UHD driver via gnuradio-uhd
+    - Funcube Dongle Pro+ driver from https://github.com/dl1ksv/gr-fcdproplus
+    - RTL-SDR driver from http://cgit.osmocom.org/cgit/rtl-sdr/
+    - OsmoSDR driver from http://cgit.osmocom.org/cgit/osmo-sdr/
+    - HackRF Jawbreaker driver from http://greatscottgadgets.com/hackrf/
 - gnuradio-osmosdr from http://cgit.osmocom.org/cgit/gr-osmosdr/
-- pulseaudio (Linux only and optional; can use gnuradio-audio instead)
-- Qt 4.6 or later and optionally Qt Creator
+- pulseaudio (Linux only and optional)
+- Qt 4.6 or later and optionally Qt Creator (gqrx works with Qt 5)
 
 
 Installation
@@ -125,6 +127,7 @@ Vesa Solonen:
 Vincent Pelletier
 - Initial work on the horizontal zooming / scrolling.
 
+Also thanks to Volker Schroer and Alexey Bazhin for bringing Funcube Dongle Pro+ support to GNU Radio and Gqrx.
 Some icons are from the GNOME and Tango icon themes.
 The scope.svg icon is based on the utilities-system-monitor.svg icon from the Mint-X icon theme licensed under GNU GPL.
 
