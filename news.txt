@@ -11,6 +11,7 @@
      FIXED: Frequency control widget with recent Qt was broken.
      FIXED: Bug that caused audio FFT data to be leaked into the I/Q FFT.
      FIXED: Audio recording & playback.
+     FIXED: Proper handling of frequencies above 2147483647 Hz. 
   IMPROVED: Y-axis panning (click-and-drag).
   IMPROVED: Rescale waterfall when resizing the main window.
   IMPROVED: gr-audio support on Linux.

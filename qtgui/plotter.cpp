@@ -601,9 +601,12 @@ void CPlotter::draw()
 
         QPainter painter1(&m_WaterfallPixmap);
         // get scaled FFT data
-        getScreenIntegerFFTData(255, qMin(w, MAX_SCREENSIZE), m_MaxdB, m_MindB,
-                                m_FftCenter-m_Span/2, m_FftCenter+m_Span/2,
-                                m_wfData, m_fftbuf, &xmin, &xmax);
+        getScreenIntegerFFTData(255, qMin(w, MAX_SCREENSIZE),
+                                m_MaxdB, m_MindB,
+                                m_FftCenter - (qint64)m_Span/2,
+                                m_FftCenter + (qint64)m_Span/2,
+                                m_wfData, m_fftbuf,
+                                &xmin, &xmax);
 
         // draw new line of fft data at top of waterfall bitmap
         painter1.setPen(QColor(0, 0, 0));
@@ -636,9 +639,12 @@ void CPlotter::draw()
 #endif
 
         // get new scaled fft data
-        getScreenIntegerFFTData(h, qMin(w, MAX_SCREENSIZE), m_MaxdB, m_MindB,
-                                m_FftCenter-m_Span/2, m_FftCenter+m_Span/2,
-                                m_fftData, m_fftbuf, &xmin, &xmax);
+        getScreenIntegerFFTData(h, qMin(w, MAX_SCREENSIZE),
+                                m_MaxdB, m_MindB,
+                                m_FftCenter - (qint64)m_Span/2,
+                                m_FftCenter + (qint64)m_Span/2,
+                                m_fftData, m_fftbuf,
+                                &xmin, &xmax);
 
         // draw the pandapter
         painter2.setPen(m_FftColor);
@@ -728,7 +734,7 @@ void CPlotter::setNewFttData(double *fftData, double *wfData, int size)
 
 void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
                                        double maxdB, double mindB,
-                                       qint32 startFreq, qint32 stopFreq,
+                                       qint64 startFreq, qint64 stopFreq,
                                        double *inBuf, qint32 *outBuf,
                                        int *xmin, int *xmax)
 {
@@ -744,6 +750,7 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
     double  dBGainFactor = ((double)plotHeight)/abs(maxdB-mindB);
     qint32* m_pTranslateTbl = new qint32[qMax(m_FFTSize, plotWidth)];
 
+    /** FIXME: qint64 -> qint32 **/
     m_BinMin = (qint32)((double)startFreq*(double)m_FFTSize/m_SampleFreq);
     m_BinMin += (m_FFTSize/2);
     m_BinMax = (qint32)((double)stopFreq*(double)m_FFTSize/m_SampleFreq);
@@ -1063,7 +1070,7 @@ qint64 CPlotter::freqFromX(int x)
 {
     int w = m_OverlayPixmap.width();
     qint64 StartFreq = m_CenterFreq + m_FftCenter - m_Span/2;
-    qint64 f = (int)(StartFreq + (float)m_Span * (float)x/(float)w );
+    qint64 f = (qint64)(StartFreq + (float)m_Span * (float)x/(float)w );
     return f;
 }
 
