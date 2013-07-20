@@ -19,9 +19,14 @@ macx {
     TARGET = gqrx
 }
 
+unix {
+    CONFIG += link_pkgconfig
+}
 linux-g++|linux-g++-64 {
-    # Comment out to use gr-audio (gr 3.6.5.1 or later recommended)
-    AUDIO_BACKEND = pulse
+    # Comment out to use gnuradio-audio (may not work on Linux)
+   packagesExist(pulseaudio) {
+     AUDIO_BACKEND = pulse
+   }
 }
 
 RESOURCES += icons.qrc
@@ -160,7 +165,6 @@ contains(AUDIO_BACKEND, pulse): {
 # FIXME: check for version?
 unix {
     CONFIG += link_pkgconfig
-
     contains(AUDIO_BACKEND, pulse): {
         PKGCONFIG += libpulse libpulse-simple
     } else {
