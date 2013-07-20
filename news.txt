@@ -5,9 +5,11 @@
        NEW: Qt 5 support.
        NEW: GNU Radio 3.7 support.
        NEW: HackRF Jawbreaker support.
+       NEW: Funcube Dongle Pro+ support.
        NEW: Option to select antenna connector on e.g. USRP devices.
        NEW: Configuration option to choose location of WAV recordings.
        NEW: Uses gr-audio as default on all platform (pulseaudio still possible).
+       NEW: Command line option to remove configuration file.
      FIXED: Frequency control widget with recent Qt was broken.
      FIXED: Bug that caused audio FFT data to be leaked into the I/Q FFT.
      FIXED: Audio recording & playback.
