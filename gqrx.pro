@@ -21,12 +21,11 @@ macx {
 
 unix {
     CONFIG += link_pkgconfig
-}
-linux-g++|linux-g++-64 {
-    # Comment out to use gnuradio-audio (may not work on Linux)
-   packagesExist(pulseaudio) {
-     AUDIO_BACKEND = pulse
-   }
+    packagesExist(libpulse libpulse-simple) {
+        # Comment out to use gr-audio (not recommended with ALSA and Funcube Dongle Pro)
+        AUDIO_BACKEND = pulse
+        message("Gqrx configured with pulseaudio backend")
+    }
 }
 
 RESOURCES += icons.qrc
@@ -164,7 +163,6 @@ contains(AUDIO_BACKEND, pulse): {
 # dependencies via pkg-config
 # FIXME: check for version?
 unix {
-    CONFIG += link_pkgconfig
     contains(AUDIO_BACKEND, pulse): {
         PKGCONFIG += libpulse libpulse-simple
     } else {
