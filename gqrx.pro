@@ -2,11 +2,6 @@
 #
 # Qmake project file for gqrx
 #
-# Qmake command line options:
-#
-#   CONFIG+=debug
-#   AUDIOSYS=pulse
-#
 #-------------------------------------------------
 
 QT       += core gui svg
@@ -22,6 +17,11 @@ macx {
     DEFINES += GQRX_OS_MACX
 } else {
     TARGET = gqrx
+}
+
+linux-g++|linux-g++-64 {
+    # Comment out to use gr-audio (gr 3.6.5.1 or later recommended)
+    AUDIO_BACKEND = pulse
 }
 
 RESOURCES += icons.qrc
@@ -144,7 +144,7 @@ FORMS += \
     qtgui/nb_options.ui
 
 # Use pulseaudio (ps: could use equals? undocumented)
-contains(AUDIOSYS, pulse): {
+contains(AUDIO_BACKEND, pulse): {
     HEADERS += \
         pulseaudio/pa_device_list.h \
         pulseaudio/pa_sink.h \
@@ -161,7 +161,7 @@ contains(AUDIOSYS, pulse): {
 unix {
     CONFIG += link_pkgconfig
 
-    contains(AUDIOSYS, pulse): {
+    contains(AUDIO_BACKEND, pulse): {
         PKGCONFIG += libpulse libpulse-simple
     } else {
         PKGCONFIG += gnuradio-audio
