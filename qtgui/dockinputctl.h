@@ -85,7 +85,7 @@ private slots:
     void on_dcCancelButton_toggled(bool checked);
     void on_iqBalanceButton_toggled(bool checked);
     void on_ignoreButton_toggled(bool checked);
-    void on_antennaSelector_currentIndexChanged(const QString &antenna);
+    void on_antSelector_currentIndexChanged(const QString &antenna);
 
 private:
     Ui::DockInputCtl *ui;

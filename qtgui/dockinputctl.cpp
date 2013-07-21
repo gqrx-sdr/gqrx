@@ -306,7 +306,7 @@ void DockInputCtl::on_ignoreButton_toggled(bool checked)
 }
 
 /*! \brief Antenna selection has changed. */
-void DockInputCtl::on_antennaSelector_currentIndexChanged(const QString &antenna)
+void DockInputCtl::on_antSelector_currentIndexChanged(const QString &antenna)
 {
     emit antennaSelected(antenna);
 }
