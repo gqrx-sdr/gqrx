@@ -58,6 +58,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
       d_iq_balance(false),
       d_demod(RX_DEMOD_OFF)
 {
+
     tb = gr::make_top_block("gqrx");
 
     if (input_device.empty())

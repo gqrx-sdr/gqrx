@@ -22,6 +22,7 @@
 #include <QDesktopServices>
 #include <QFile>
 #include <QString>
+#include <QtGlobal>
 
 #include "mainwindow.h"
 #include "gqrx.h"
@@ -45,7 +46,14 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName(GQRX_APP_NAME);
     QCoreApplication::setApplicationVersion(VERSION);
 
-    //setup the program options
+    // setup controlport via environment variables
+    // see http://lists.gnu.org/archive/html/discuss-gnuradio/2013-05/msg00270.html
+    if (qputenv("GR_CONF_CONTROLPORT_ON", "False"))
+        qDebug() << "Controlport disabled";
+    else
+        qDebug() << "Failed to disable controlport";
+
+    // setup the program options
     po::options_description desc("Command line options");
     desc.add_options()
         ("help,h", "This help message")
