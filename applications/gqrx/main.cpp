@@ -34,8 +34,10 @@ static void reset_conf(const QString &file_name);
 
 int main(int argc, char *argv[])
 {
+    QString cfg_file;
     std::string conf;
     bool clierr=false;
+    bool edit_conf = false;
 
     QApplication a(argc, argv);
     QCoreApplication::setOrganizationName(GQRX_ORG_NAME);
@@ -48,7 +50,7 @@ int main(int argc, char *argv[])
     desc.add_options()
         ("help,h", "This help message")
         ("conf,c", po::value<std::string>(&conf), "Start with this config file")
-        ("edit,e", "Edit the config file before using it (not implemented)")
+        ("edit,e", "Edit the config file before using it")
         ("reset,r", "Reset configuration file")
     ;
 
@@ -74,21 +76,24 @@ int main(int argc, char *argv[])
 
     if (!conf.empty())
     {
-        qDebug() << "User specified config file:" << QString::fromStdString(conf);
-        if (vm.count("reset"))
-            reset_conf(QString::fromStdString(conf));
+        cfg_file = QString::fromStdString(conf);
+        qDebug() << "User specified config file:" << cfg_file;
     }
     else
     {
-        qDebug() << "No user supplied config file. Using default.";
-        if (vm.count("reset"))
-            reset_conf("default.conf");
+        cfg_file = "default.conf";
+        qDebug() << "No user supplied config file. Using" << cfg_file;
     }
+
+    if (vm.count("reset"))
+        reset_conf(cfg_file);
+    else if (vm.count("edit"))
+        edit_conf = true;
 
     // Mainwindow will check whether we have a configuration
     // and open the config dialog if there is none or the specified
     // file does not exist.
-    MainWindow w(conf.empty() ? "default.conf" : QString::fromStdString(conf));
+    MainWindow w(cfg_file, edit_conf);
 
     if (w.configOk)
     {

@@ -10,6 +10,7 @@
        NEW: Configuration option to choose location of WAV recordings.
        NEW: Uses gr-audio as default on all platform (pulseaudio still possible).
        NEW: Command line option to remove configuration file.
+       NEW: Command line option to launch I/O device editor before application.
      FIXED: Frequency control widget with recent Qt was broken.
      FIXED: Bug that caused audio FFT data to be leaked into the I/Q FFT.
      FIXED: Audio recording & playback.

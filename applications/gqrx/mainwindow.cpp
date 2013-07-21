@@ -34,7 +34,7 @@
 #include "receiver.h"
 
 
-MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
+MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     QMainWindow(parent),
     configOk(true),
     ui(new Ui::MainWindow),
@@ -172,13 +172,17 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
 
 
     // restore last session
-    if (!loadConfig(cfgfile, true))
+    if (!loadConfig(cfgfile, true) || edit_conf == true)
     {
-        qDebug() << "No input device found";
+        qDebug() << "Launching I/O device editor";
         if (on_actionIoConfig_triggered() != QDialog::Accepted)
         {
             qDebug() << "I/O device configuration cancelled.";
             configOk = false;
+        }
+        else
+        {
+            configOk = true;
         }
     }
 
