@@ -35,8 +35,11 @@
 #include "qtgui/dockiqplayer.h"
 #include "qtgui/dockfft.h"
 #include "qtgui/afsk1200win.h"
-#include "applications/gqrx/receiver.h"
 
+// see https://bugreports.qt-project.org/browse/QTBUG-22829
+#ifndef Q_MOC_RUN
+#include "applications/gqrx/receiver.h"
+#endif
 
 namespace Ui {
     class MainWindow;  /*! The main window UI */
