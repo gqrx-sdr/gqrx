@@ -175,8 +175,9 @@ unix {
                  gnuradio-osmosdr
 }
 
+# When building from source we only get libboost_xyz-mt
 unix:!macx {
-    LIBS += -lboost_system -lboost_program_options
+    LIBS += -lboost_system-mt -lboost_program_options-mt
     LIBS += -lrt  # need to include on some distros
 }
 
