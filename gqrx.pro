@@ -33,6 +33,15 @@ RESOURCES += icons.qrc
 # make clean target
 QMAKE_CLEAN += gqrx
 
+# make install target
+isEmpty(PREFIX) {
+    message(No prefix given. Using /usr/local)
+    PREFIX=/usr/local
+}
+
+target.path  = $$PREFIX/bin
+INSTALLS    += target 
+
 #CONFIG += debug
 
 # disable debug messages in release
