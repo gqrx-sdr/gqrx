@@ -1,8 +1,13 @@
-#-------------------------------------------------
+#--------------------------------------------------------------------------------
 #
 # Qmake project file for gqrx - http://gqrx.dk
 #
-#-------------------------------------------------
+# Common options you may want to passs to qmake:
+#
+#    CONFIG+=debug         Enable debug mode
+#    PREFIX=/some/prefix   Installation prefix
+#    BOOST_SUFFIX=-mt      To link against libboost-xyz-mt (needed for pybombs)
+#--------------------------------------------------------------------------------
 
 QT       += core gui svg
 contains(QT_MAJOR_VERSION,5) {
@@ -185,7 +190,7 @@ unix {
 }
 
 unix:!macx {
-    LIBS += -lboost_system -lboost_program_options
+    LIBS += -lboost_system$$BOOST_SUFFIX -lboost_program_options$$BOOST_SUFFIX
     LIBS += -lrt  # need to include on some distros
 }
 
