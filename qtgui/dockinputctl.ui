@@ -124,7 +124,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Automatic gain control</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Automatic gain control&lt;br/&gt;(not supported by all devices)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>A</string>
