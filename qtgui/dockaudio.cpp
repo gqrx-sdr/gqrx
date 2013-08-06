@@ -38,7 +38,7 @@ DockAudio::DockAudio(QWidget *parent) :
     // Might be fixed in Qt 5?
     ui->audioPlayButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     ui->audioRecButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
-    ui->audioRecConfButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+    ui->audioConfButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
 #endif
 
     audioOptions = new CAudioOptions(this);
