@@ -51,10 +51,21 @@ int main(int argc, char *argv[])
 
     // setup controlport via environment variables
     // see http://lists.gnu.org/archive/html/discuss-gnuradio/2013-05/msg00270.html
+    // Note: tried using gr::prefs().save() but that doesn't have effect until the next time
     if (qputenv("GR_CONF_CONTROLPORT_ON", "False"))
         qDebug() << "Controlport disabled";
     else
         qDebug() << "Failed to disable controlport";
+
+#ifdef GQRX_OS_MACX
+    // FIXME: This should be user configurable although for now
+    // the audio-osx-source is useless and the only way to use the
+    // Funcube Dongle Pro and Pro+ is via portaudio.
+    if (qputenv("GR_CONF_AUDIO_AUDIO_MODULE", "portaudio"))
+        qDebug() << "GR_CONF_AUDIO_AUDIO_MODULE set to portaudio";
+    else
+        qDebug() << "Failed to set GR_CONF_AUDIO_AUDIO_MODULE=portaudio";
+#endif
 
     // setup the program options
     po::options_description desc("Command line options");

@@ -24,6 +24,7 @@
 #include <iostream>
 #include <unistd.h>
 
+#include <gnuradio/prefs.h>
 #include <gnuradio/top_block.h>
 #include <gnuradio/blocks/multiply_const_ff.h>
 #include <osmosdr/source.h>
@@ -40,6 +41,7 @@
 #else
 #include <gnuradio/audio/sink.h>
 #endif
+
 
 /*! \brief Public contructor.
  *  \param input_device Input device specifier.
@@ -102,6 +104,13 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     /* sniffer_rr is created at each activation. */
 
     set_demod(RX_DEMOD_NFM);
+
+#ifndef QT_NO_DEBUG_OUTPUT
+    gr::prefs pref;
+    std::cout << "Using audio backend: "
+              << pref.get_string("audio", "audio_module", "N/A")
+              << std::endl;
+#endif
 }
 
 
