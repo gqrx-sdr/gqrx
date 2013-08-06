@@ -176,7 +176,7 @@ contains(AUDIO_BACKEND, pulse): {
 
 # dependencies via pkg-config
 # FIXME: check for version?
-unix {
+unix:!macx {
     contains(AUDIO_BACKEND, pulse): {
         PKGCONFIG += libpulse libpulse-simple
     } else {
@@ -187,19 +187,21 @@ unix {
                  gnuradio-filter \
                  gnuradio-fft \
                  gnuradio-osmosdr
-}
 
-unix:!macx {
     LIBS += -lboost_system$$BOOST_SUFFIX -lboost_program_options$$BOOST_SUFFIX
     LIBS += -lrt  # need to include on some distros
 }
 
-macx-g++ {
-     LIBS += -lboost_system-mt -lboost_program_options-mt
-#    INCLUDEPATH += /usr/local/include
-#    INCLUDEPATH += /usr/local/include/gnuradio
-#    INCLUDEPATH += /usr/local/include/osmosdr
-#    INCLUDEPATH += /opt/local/include
+macx {
+    # macports
+    INCLUDEPATH += /opt/local/include
+
+    # local stuff
+    INCLUDEPATH += /Users/alexc/gqrx/runtime/include
+    LIBS += -L/opt/local/lib -L/Users/alexc/gqrx/runtime/lib
+
+    LIBS += -lboost_system-mt -lboost_program_options-mt
+    LIBS += -lgnuradio-runtime -lgnuradio-pmt -lgnuradio-audio -lgnuradio-analog -lgnuradio-blocks -lgnuradio-filter -lgnuradio-fft -lgnuradio-osmosdr
 }
 
 OTHER_FILES += \
