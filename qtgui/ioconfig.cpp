@@ -36,6 +36,8 @@
 
 #ifdef WITH_PULSEAUDIO
 #include "pulseaudio/pa_device_list.h"
+#elif defined(WITH_PORTAUDIO)
+#include "portaudio/device_list.h"
 #endif
 
 #include "qtgui/ioconfig.h"
@@ -56,8 +58,39 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
 
     QString indev = settings->value("input/device", "").toString();
 
-    // Get list of input devices and store them in the input
-    // device selector together with the device descriptor strings
+    // automatic discovery of FCD does not work on Mac
+    // so we do it ourselves if we have portaudio
+#if defined(Q_WS_MAC) && defined(WITH_PORTAUDIO)
+    portaudio_device_list devices;
+    inDevList = devices.get_input_devices();
+
+    string this_dev;
+    for (i = 0; i < inDevList.size(); i++)
+    {
+        this_dev = inDevList[i].get_name();
+        if (this_dev.find("FUNcube Dongle V1.0") != string::npos)
+        {
+            devstr = "fcd,type=1,device='FUNcube Dongle V1.0'";
+            ui->inDevCombo->addItem("FUNcube Dongle V1.0", QVariant(devstr));
+            
+        }
+        else if (this_dev.find("FUNcube Dongle V2.0") != string::npos)
+        {
+            devstr = "fcd,type=2,device='FUNcube Dongle V2.0'";
+            ui->inDevCombo->addItem("FUNcube Dongle V2.0", QVariant(devstr));
+        }
+
+        if (indev == QString(inDevList[i].get_name().c_str()))
+        {
+            ui->inDevCombo->setCurrentIndex(i);
+            ui->inDevEdit->setText(devstr);
+            cfgmatch = true;
+        }
+    }
+#endif
+
+    // Get list of input devices discovered by gr-osmosdr and store them in
+    // the input device selector together with the device descriptor strings
     osmosdr::devices_t devs = osmosdr::device::find();
 
     qDebug() << __FUNCTION__ << ": Available input devices:";
@@ -85,7 +118,6 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
         }
 
         qDebug() << "   " << i << ":"  << devlabel;
-
         ++i;
 
         // Following code could be used for multiple matches
@@ -97,6 +129,7 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
         } */
 
     }
+
     ui->inDevCombo->addItem(tr("Other..."), QVariant(""));
 
     // If device string from config is not one of the detected devices
@@ -145,6 +178,24 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
         if (outdev == QString(outDevList[i].get_name().c_str()))
             ui->outDevCombo->setCurrentIndex(i+1);
     }
+
+#elif defined(Q_WS_MAC) && defined(WITH_PORTAUDIO)
+    // get list of output devices
+    // (already defined) portaudio_device_list devices;
+    outDevList = devices.get_output_devices();
+
+    qDebug() << __FUNCTION__ << ": Available output devices:";
+    for (i = 0; i < outDevList.size(); i++)
+    {
+        qDebug() << "   " << i << ":" << QString(outDevList[i].get_name().c_str());
+        ui->outDevCombo->addItem(QString(outDevList[i].get_name().c_str()));
+
+        // note that item #i in devlist will be item #(i+1)
+        // in combo box due to "default"
+        if (outdev == QString(outDevList[i].get_name().c_str()))
+            ui->outDevCombo->setCurrentIndex(i+1);
+    }
+
 #else
     ui->outDevCombo->setEditable(true);
 #endif // WITH_PULSEAUDIO

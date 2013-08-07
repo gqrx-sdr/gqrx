@@ -175,6 +175,13 @@ contains(AUDIO_BACKEND, pulse): {
     DEFINES += WITH_PULSEAUDIO
 }
 
+# Introduced in 2.2 for FCD support on OS X
+contains(AUDIO_BACKEND, portaudio): {
+    HEADERS += portaudio/device_list.h
+    SOURCES += portaudio/device_list.cpp
+    DEFINES += WITH_PORTAUDIO
+}
+
 # dependencies via pkg-config
 # FIXME: check for version?
 unix:!macx {
@@ -208,7 +215,6 @@ macx {
     # portaudio
     contains(AUDIO_BACKEND, portaudio): {
         LIBS    += -lportaudio
-        DEFINES += WITH_PORTAUDIO
     }
 }
 
