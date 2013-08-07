@@ -112,7 +112,11 @@ CPlotter::CPlotter(QWidget *parent) :
     m_GrabPosition = 0;
     m_Percent2DScreen = 50;	//percent of screen used for 2D display
 
+#ifdef Q_WS_MAC
+    m_FontSize = 11;
+#else
     m_FontSize = 9;
+#endif
     m_VdivDelta = 40;
     m_HdivDelta = 60;
 
