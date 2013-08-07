@@ -57,7 +57,8 @@ int main(int argc, char *argv[])
     else
         qDebug() << "Failed to disable controlport";
 
-#ifdef GQRX_OS_MACX
+//#ifdef GQRX_OS_MACX
+#ifdef WITH_PORTAUDIO
     // FIXME: This should be user configurable although for now
     // the audio-osx-source is useless and the only way to use the
     // Funcube Dongle Pro and Pro+ is via portaudio.

@@ -4,9 +4,10 @@
 #
 # Common options you may want to passs to qmake:
 #
-#    CONFIG+=debug         Enable debug mode
-#    PREFIX=/some/prefix   Installation prefix
-#    BOOST_SUFFIX=-mt      To link against libboost-xyz-mt (needed for pybombs)
+#    CONFIG+=debug            Enable debug mode
+#    PREFIX=/some/prefix      Installation prefix
+#    BOOST_SUFFIX=-mt         To link against libboost-xyz-mt (needed for pybombs)
+#    AUDIO_BACKEND=portaudio  Use it on Mac OS X to have FCD Pro and Pro+ support
 #--------------------------------------------------------------------------------
 
 QT       += core gui svg
@@ -24,7 +25,7 @@ macx {
     TARGET = gqrx
 }
 
-unix {
+unix:!macx {
     CONFIG += link_pkgconfig
     packagesExist(libpulse libpulse-simple) {
         # Comment out to use gr-audio (not recommended with ALSA and Funcube Dongle Pro)
@@ -201,7 +202,14 @@ macx {
     LIBS += -L/opt/local/lib -L/Users/alexc/gqrx/runtime/lib
 
     LIBS += -lboost_system-mt -lboost_program_options-mt
-    LIBS += -lgnuradio-runtime -lgnuradio-pmt -lgnuradio-audio -lgnuradio-analog -lgnuradio-blocks -lgnuradio-filter -lgnuradio-fft -lgnuradio-osmosdr
+    LIBS += -lgnuradio-runtime -lgnuradio-pmt -lgnuradio-audio -lgnuradio-analog
+    LIBS += -lgnuradio-blocks -lgnuradio-filter -lgnuradio-fft -lgnuradio-osmosdr
+
+    # portaudio
+    contains(AUDIO_BACKEND, portaudio): {
+        LIBS    += -lportaudio
+        DEFINES += WITH_PORTAUDIO
+    }
 }
 
 OTHER_FILES += \
