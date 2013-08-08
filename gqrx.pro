@@ -57,15 +57,18 @@ CONFIG(debug, debug|release) {
 
     # Define version string (see below for releases)
     VER = $$system(git describe --abbrev=8)
+
 } else {
     DEFINES += QT_NO_DEBUG
     DEFINES += QT_NO_DEBUG_OUTPUT
-    VER = '2.2rc' #$$system(git describe --abbrev=1)
+    VER = $$system(git describe --abbrev=1)
 
     # Release binaries with gr bundled
     # QMAKE_RPATH & co won't work with origin
     ## QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/lib\''
 }
+
+VER = '2.2'
 
 # Tip from: http://www.qtcentre.org/wiki/index.php?title=Version_numbering_using_QMake
 VERSTR = '\\"$${VER}\\"'          # place quotes around the version string
