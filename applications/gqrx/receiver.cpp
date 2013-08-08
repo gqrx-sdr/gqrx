@@ -914,6 +914,7 @@ receiver::status receiver::stop_audio_playback()
  */
 receiver::status receiver::start_iq_recording(const std::string filename)
 {
+    (void) filename;
 #if 0
     if (d_recording_iq) {
         /* error - we are already recording */
@@ -960,6 +961,8 @@ receiver::status receiver::stop_iq_recording()
  */
 receiver::status receiver::start_iq_playback(const std::string filename, float samprate)
 {
+    (void) filename;
+    (void) samprate;
 #if 0
     if (samprate != d_bandwidth) {
         return STATUS_ERROR;
