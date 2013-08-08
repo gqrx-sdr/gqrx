@@ -465,7 +465,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
          <bool>true</bool>
         </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
           <horstretch>0</horstretch>
           <verstretch>28</verstretch>
          </sizepolicy>
@@ -483,7 +483,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
          </size>
         </property>
         <property name="toolTip">
-         <string>Noise blanker for pulse type noise</string>
+         <string>Noise blanker for atatic type noise</string>
         </property>
         <property name="text">
          <string>NB1</string>
@@ -499,7 +499,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
          <bool>true</bool>
         </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -517,7 +517,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
          </size>
         </property>
         <property name="toolTip">
-         <string>Noise blanker for non-pulse type noise</string>
+         <string>Noise blanker for pulse type noise</string>
         </property>
         <property name="text">
          <string>NB2</string>
