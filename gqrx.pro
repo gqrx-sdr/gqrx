@@ -68,7 +68,6 @@ CONFIG(debug, debug|release) {
     ## QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/lib\''
 }
 
-VER = '2.2'
 
 # Tip from: http://www.qtcentre.org/wiki/index.php?title=Version_numbering_using_QMake
 VERSTR = '\\"$${VER}\\"'          # place quotes around the version string
