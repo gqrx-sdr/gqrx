@@ -233,7 +233,10 @@ void CIoConfig::saveConfig()
 
     // input settings
     m_settings->setValue("input/device", ui->inDevEdit->text());  // "OK" button disabled if empty
-    m_settings->setValue("input/lnb_lo", (int)ui->loSpinBox->value()*1.0e6);
+
+    qint64 lnb_lo = (qint64)(ui->loSpinBox->value()*1.e6);
+    if (lnb_lo)
+		m_settings->setValue("input/lnb_lo", lnb_lo);
 
     bool ok=false;
     int sr = ui->inSrCombo->currentText().toInt(&ok);

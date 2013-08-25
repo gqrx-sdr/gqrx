@@ -53,7 +53,7 @@ void DockInputCtl::readSettings(QSettings *settings)
     emit iqBalanceChanged(ui->iqBalanceButton->isChecked());
 
     qint64 lnb_lo = settings->value("input/lnb_lo", 0).toLongLong(&conv_ok);
-    setLnbLo((double)lnb_lo/1.0e6);
+    setLnbLo(((double)lnb_lo)/1.0e6);
     emit lnbLoChanged(ui->lnbSpinBox->value());
 
     bool ignore_limits = settings->value("input/ignore_limits", false).toBool();
@@ -75,7 +75,7 @@ void DockInputCtl::readSettings(QSettings *settings)
 
 void DockInputCtl::saveSettings(QSettings *settings)
 {
-    qint64 lnb_lo = (qint64)ui->lnbSpinBox->value()*1e6;
+    qint64 lnb_lo = (qint64)(ui->lnbSpinBox->value()*1.e6);
     if (lnb_lo)
         settings->setValue("input/lnb_lo", lnb_lo);
     else

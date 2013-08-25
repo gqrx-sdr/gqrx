@@ -172,6 +172,8 @@ private slots:
     void afsk1200win_closed();
 
     void forceRxReconf();
+    
+    int  firstTimeConfig();
 
     /* cyclic processing */
     void decoderTimeout();

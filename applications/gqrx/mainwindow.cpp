@@ -175,7 +175,21 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
 
 
     // restore last session
-    if (!loadConfig(cfgfile, true) || edit_conf == true)
+    if (!loadConfig(cfgfile, true))
+    {
+		// first time config
+        qDebug() << "Launching I/O device editor";
+        if (firstTimeConfig() != QDialog::Accepted)
+        {
+            qDebug() << "I/O device configuration cancelled.";
+            configOk = false;
+        }
+        else
+        {
+            configOk = true;
+        }
+    }
+    else if (edit_conf == true)
     {
         qDebug() << "Launching I/O device editor";
         if (on_actionIoConfig_triggered() != QDialog::Accepted)
@@ -187,7 +201,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
         {
             configOk = true;
         }
-    }
+	}
 
 }
 
@@ -1308,6 +1322,24 @@ int MainWindow::on_actionIoConfig_triggered()
 
     return confres;
 }
+
+
+/*! \brief Runc first time configurator. */
+int MainWindow::firstTimeConfig()
+{
+    qDebug() << __func__;
+
+    CIoConfig *ioconf = new CIoConfig(m_settings);
+    int confres = ioconf->exec();
+
+    if (confres == QDialog::Accepted)
+        loadConfig(m_settings->fileName(), false);
+
+    delete ioconf;
+
+    return confres;
+}
+
 
 /*! \brief Load configuration activated by user. */
 void MainWindow::on_actionLoadSettings_triggered()
