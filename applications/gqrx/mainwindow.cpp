@@ -334,6 +334,14 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
     QString outdev = m_settings->value("output/device", "").toString();
     rx->set_output_device(outdev.toStdString());
 
+    qint64 bw = m_settings->value("input/bandwidth", 0.0).toInt(&conv_ok);
+    if (conv_ok && (bw > 0))
+    {
+        double actual_bw = rx->set_analog_bandwidth((double)bw);
+        qDebug() << "Requested bandwidth:" << bw << "Hz";
+        qDebug() << "Actual bandwidth   :" << actual_bw << "Hz";
+    }
+
     int sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
     if (conv_ok && (sr > 0))
     {

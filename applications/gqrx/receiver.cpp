@@ -266,6 +266,23 @@ double receiver::get_input_rate()
     return d_input_rate;
 }
 
+/*! \brief Set new analog bandwidth.
+ *  \param bw The new bandwidth.
+ *  \return The actual bandwidth.
+ */
+double receiver::set_analog_bandwidth(double bw)
+{
+    return src->set_bandwidth(bw);
+}
+
+/*! \brief Get current analog bandwidth. */
+double receiver::get_analog_bandwidth()
+{
+    return src->get_bandwidth();
+}
+
+
+
 /*! \brief Set I/Q reversed. */
 void receiver::set_iq_swap(bool reversed)
 {

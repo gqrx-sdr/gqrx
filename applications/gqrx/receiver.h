@@ -117,6 +117,9 @@ public:
     double set_input_rate(double rate);
     double get_input_rate();
 
+    double set_analog_bandwidth(double bw);
+    double get_analog_bandwidth();
+
     void set_iq_swap(bool reversed);
     bool get_iq_swap(void);
 

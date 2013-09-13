@@ -155,6 +155,9 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
 
     updateInputSampleRates(settings->value("input/sample_rate", 0).toInt());
 
+    // Analog bandwidth
+    ui->bwSpinBox->setValue(1.0e-6*settings->value("input/bandwidth", 0.0).toDouble());
+
     // LNB LO
     ui->loSpinBox->setValue(1.0e-6*settings->value("input/lnb_lo", 0.0).toDouble());
 
@@ -234,9 +237,13 @@ void CIoConfig::saveConfig()
     // input settings
     m_settings->setValue("input/device", ui->inDevEdit->text());  // "OK" button disabled if empty
 
-    qint64 lnb_lo = (qint64)(ui->loSpinBox->value()*1.e6);
-    if (lnb_lo)
-		m_settings->setValue("input/lnb_lo", lnb_lo);
+    qint64 value = (qint64)(ui->bwSpinBox->value()*1.e6);
+    if (value)
+        m_settings->setValue("input/bandwidth", value);
+
+    value = (qint64)(ui->loSpinBox->value()*1.e6);
+    if (value)
+        m_settings->setValue("input/lnb_lo", value);
 
     bool ok=false;
     int sr = ui->inSrCombo->currentText().toInt(&ok);

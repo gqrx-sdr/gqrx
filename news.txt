@@ -1,5 +1,6 @@
      2.3.0  TBD...
 
+       NEW: Support for setting analog bandwidth.
      FIXED: Incorrect handling of decimal values in LNB LO frequency.
      FIXED: Correctly apply initial LNB LO frequency.
      FIXED: Audio output device selection on Mac OS X.
