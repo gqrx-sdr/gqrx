@@ -240,6 +240,8 @@ void CIoConfig::saveConfig()
     qint64 value = (qint64)(ui->bwSpinBox->value()*1.e6);
     if (value)
         m_settings->setValue("input/bandwidth", value);
+    else
+        m_settings->remove("input/bandwidth");
 
     value = (qint64)(ui->loSpinBox->value()*1.e6);
     if (value)

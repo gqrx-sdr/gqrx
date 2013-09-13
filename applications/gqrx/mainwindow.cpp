@@ -334,9 +334,10 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
     QString outdev = m_settings->value("output/device", "").toString();
     rx->set_output_device(outdev.toStdString());
 
-    qint64 bw = m_settings->value("input/bandwidth", 0.0).toInt(&conv_ok);
-    if (conv_ok && (bw > 0))
+    qint64 bw = m_settings->value("input/bandwidth", 0).toInt(&conv_ok);
+    if (conv_ok)
     {
+        // set analog bw even if 0 since for some devices 0 Hz means "auto"
         double actual_bw = rx->set_analog_bandwidth((double)bw);
         qDebug() << "Requested bandwidth:" << bw << "Hz";
         qDebug() << "Actual bandwidth   :" << actual_bw << "Hz";
