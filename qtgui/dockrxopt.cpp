@@ -192,9 +192,12 @@ void DockRxOpt::readSettings(QSettings *settings)
         emit filterOffsetChanged(offs);
     }
 
-    intVal = settings->value("receiver/sql_level", 1).toInt(&conv_ok);
-    if (intVal != 1)
-        ui->sqlSlider->setValue(intVal); // signal emitted automatically
+    double dblVal = settings->value("receiver/sql_level", 1.0).toDouble(&conv_ok);
+    if (conv_ok && dblVal < 1.0)
+    {
+        //ui->sqlSlider->setValue(intVal); // signal emitted automatically
+        ui->sqlSpinBox->setValue(dblVal);
+    }
 }
 
 /*! \brief Save receiver configuration to settings. */
@@ -209,8 +212,9 @@ void DockRxOpt::saveSettings(QSettings *settings)
         settings->remove("receiver/offset");
 
     qDebug() << __func__ << "*** FIXME_ SQL on/off";
-    int sql_lvl = double(ui->sqlSlider->value());  // note: dBFS*10 as int
-    if (sql_lvl > -1500)
+    //int sql_lvl = double(ui->sqlSlider->value());  // note: dBFS*10 as int
+    double sql_lvl = ui->sqlSpinBox->value();
+    if (sql_lvl > -150.0)
         settings->setValue("receiver/sql_level", sql_lvl);
     else
         settings->remove("receiver/sql_level");
@@ -374,15 +378,11 @@ void DockRxOpt::agcOpt_gainChanged(int gain)
 }
 
 /*! \brief Squelch level change.
- *  \param value The new squelch level in tens of dB (because slider uses int).
+ *  \param value The new squelch level in dB.
  */
-void DockRxOpt::on_sqlSlider_valueChanged(int value)
+void DockRxOpt::on_sqlSpinBox_valueChanged(double value)
 {
-    double level = double(value) / 10.0;
-
-    // update dB label
-    ui->sqlDbLabel->setText(QString("%1 dBFS").arg(level));
-    emit sqlLevelChanged(level);
+    emit sqlLevelChanged(value);
 }
 
 /*! \brief FM deviation changed by user.

@@ -140,7 +140,7 @@ private slots:
     void on_modeButton_clicked();
     void on_agcButton_clicked();
     void on_agcPresetCombo_activated(int index);
-    void on_sqlSlider_valueChanged(int value);
+    void on_sqlSpinBox_valueChanged(double value);
     void on_nb1Button_toggled(bool checked);
     void on_nb2Button_toggled(bool checked);
     void on_nbOptButton_clicked();
