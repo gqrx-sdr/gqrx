@@ -21,7 +21,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include <gnuradio/io_signature.h>
+#include <gnuradio/gr_io_signature.h>
 #include <math.h>
 #include <iostream>
 #include <dsp/stereo_demod.h>
@@ -48,9 +48,9 @@ static const int MAX_OUT = 2; /* Maximum number of output streams. */
  * Use make_stereo_demod() instead.
  */
 stereo_demod::stereo_demod(float input_rate, float audio_rate, bool stereo)
-    : gr::hier_block2("stereo_demod",
-                     gr::io_signature::make (MIN_IN,  MAX_IN,  sizeof (float)),
-                     gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof (float))),
+    : gr_hier_block2("stereo_demod",
+                     gr_make_io_signature (MIN_IN,  MAX_IN,  sizeof (float)),
+                     gr_make_io_signature (MIN_OUT, MAX_OUT, sizeof (float))),
     d_input_rate(input_rate),
     d_audio_rate(audio_rate),
     d_stereo(stereo)

@@ -21,7 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <math.h>
-#include <gnuradio/io_signature.h>
+#include <gnuradio/gr_io_signature.h>
 #include <dsp/rx_meter.h>
 #include <iostream>
 
@@ -32,9 +32,9 @@ rx_meter_c_sptr make_rx_meter_c (int detector)
 }
 
 rx_meter_c::rx_meter_c(int detector)
-    : gr::sync_block ("rx_meter_c",
-          gr::io_signature::make(1, 1, sizeof(gr_complex)),
-          gr::io_signature::make(0, 0, 0)),
+    : gr_sync_block ("rx_meter_c",
+          gr_make_io_signature(1, 1, sizeof(gr_complex)),
+          gr_make_io_signature(0, 0, 0)),
       d_detector(detector),
       d_level(0.0),
       d_level_db(0.0),

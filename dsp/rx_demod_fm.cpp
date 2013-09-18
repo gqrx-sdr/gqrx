@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include <gnuradio/io_signature.h>
+#include <gnuradio/gr_io_signature.h>
 #include <gnuradio/filter/firdes.h>
 #include <dsp/rx_demod_fm.h>
 #include <math.h>
@@ -42,9 +42,9 @@ static const int MAX_OUT = 1; /* Maximum number of output streams. */
 
 
 rx_demod_fm::rx_demod_fm(float quad_rate, float audio_rate, float max_dev, double tau)
-    : gr::hier_block2 ("rx_demod_fm",
-                      gr::io_signature::make (MIN_IN, MAX_IN, sizeof (gr_complex)),
-                      gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof (float))),
+    : gr_hier_block2 ("rx_demod_fm",
+                      gr_make_io_signature (MIN_IN, MAX_IN, sizeof (gr_complex)),
+                      gr_make_io_signature (MIN_OUT, MAX_OUT, sizeof (float))),
     d_quad_rate(quad_rate),
     d_audio_rate(audio_rate),
     d_max_dev(max_dev),

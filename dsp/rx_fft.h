@@ -23,7 +23,7 @@
 #ifndef RX_FFT_H
 #define RX_FFT_H
 
-#include <gnuradio/sync_block.h>
+#include <gnuradio/gr_sync_block.h>
 #include <gnuradio/fft/fft.h>
 #include <gnuradio/filter/firdes.h>       /* contains enum win_type */
 #include <gnuradio/gr_complex.h>
@@ -63,7 +63,7 @@ rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize=4096, int wintype=gr::filter::f
  *
  * \note Uses code from qtgui_sink_c
  */
-class rx_fft_c : public gr::sync_block
+class rx_fft_c : public gr_sync_block
 {
     friend rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize, int wintype);
 
@@ -125,7 +125,7 @@ rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize=1024, int wintype=gr::filter::f
  *
  * \note Uses code from qtgui_sink_f
  */
-class rx_fft_f : public gr::sync_block
+class rx_fft_f : public gr_sync_block
 {
     friend rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize, int wintype);
 

@@ -29,11 +29,11 @@
 #include <gnuradio/blocks/multiply_cc.h>
 #include <gnuradio/blocks/null_sink.h>
 #include <gnuradio/analog/sig_source_c.h>
-#include <gnuradio/top_block.h>
+#include <gnuradio/gr_top_block.h>
 #include <gnuradio/blocks/wavfile_sink.h>
 #include <gnuradio/blocks/wavfile_source.h>
 
-#include <osmosdr/source.h>
+#include <osmosdr/osmosdr_source_c.h>
 
 #include "dsp/correct_iq_cc.h"
 #include "dsp/rx_noise_blanker_cc.h"
@@ -50,7 +50,7 @@
 #ifdef WITH_PULSEAUDIO
 #include <pulseaudio/pa_sink.h>
 #else
-#include <gnuradio/audio/sink.h>
+#include <gnuradio/gr_audio_sink.h>
 #endif
 
 
@@ -215,9 +215,9 @@ private:
 
     rx_demod  d_demod;          /*!< Current demodulator. */
 
-    gr::top_block_sptr         tb;        /*!< The GNU Radio top block. */
+    gr_top_block_sptr         tb;        /*!< The GNU Radio top block. */
 
-    osmosdr::source::sptr     src;       /*!< Real time I/Q source. */
+    osmosdr_source_c_sptr     src;       /*!< Real time I/Q source. */
     //rx_source_base::sptr       src;       /*!< Real time I/Q source. */
     receiver_base_cf_sptr     rx;        /*!< receiver. */
 
@@ -244,7 +244,7 @@ private:
 #ifdef WITH_PULSEAUDIO
     pa_sink_sptr              audio_snk;  /*!< Pulse audio sink. */
 #else
-    gr::audio::sink::sptr     audio_snk;  /*!< gr audio sink */
+    audio_sink::sptr           audio_snk;  /*!< gr audio sink */
 #endif
 };
 

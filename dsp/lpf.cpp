@@ -21,7 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <cmath>
-#include <gnuradio/io_signature.h>
+#include <gnuradio/gr_io_signature.h>
 #include <gnuradio/filter/firdes.h>
 #include "dsp/lpf.h"
 
@@ -45,9 +45,9 @@ lpf_ff_sptr make_lpf_ff(double sample_rate, double cutoff_freq,
 
 lpf_ff::lpf_ff(double sample_rate, double cutoff_freq,
                double trans_width, double gain)
-    : gr::hier_block2("lpf_ff",
-                     gr::io_signature::make(MIN_IN,  MAX_IN,  sizeof (float)),
-                     gr::io_signature::make(MIN_OUT, MAX_OUT, sizeof (float))),
+    : gr_hier_block2("lpf_ff",
+                     gr_make_io_signature(MIN_IN,  MAX_IN,  sizeof (float)),
+                     gr_make_io_signature(MIN_OUT, MAX_OUT, sizeof (float))),
     d_sample_rate(sample_rate),
     d_cutoff_freq(cutoff_freq),
     d_trans_width(trans_width),

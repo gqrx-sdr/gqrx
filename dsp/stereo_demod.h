@@ -24,7 +24,7 @@
 #ifndef STEREO_DEMOD_H
 #define STEREO_DEMOD_H
 
-#include <gnuradio/hier_block2.h>
+#include <gnuradio/gr_hier_block2.h>
 #include <gnuradio/filter/firdes.h>
 #include <gnuradio/filter/fir_filter_fcc.h>
 #include <gnuradio/filter/fir_filter_fff.h>
@@ -64,7 +64,7 @@ stereo_demod_sptr make_stereo_demod(float quad_rate=120e3,
  * This class implements the stereo demodulator for 87.5...108 MHz band.
  *
  */
-class stereo_demod : public gr::hier_block2
+class stereo_demod : public gr_hier_block2
 {
     friend stereo_demod_sptr make_stereo_demod(float input_rate,
                                                float audio_rate,

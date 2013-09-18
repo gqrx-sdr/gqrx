@@ -22,7 +22,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <math.h>
-#include <gnuradio/io_signature.h>
+#include <gnuradio/gr_io_signature.h>
 #include <gnuradio/gr_complex.h>
 #include "dsp/rx_noise_blanker_cc.h"
 
@@ -37,9 +37,9 @@ rx_nb_cc_sptr make_rx_nb_cc(double sample_rate, float thld1, float thld2)
  * Use make_rx_nb_cc() instead.
  */
 rx_nb_cc::rx_nb_cc(double sample_rate, float thld1, float thld2)
-    : gr::sync_block ("rx_nb_cc",
-          gr::io_signature::make(1, 1, sizeof(gr_complex)),
-          gr::io_signature::make(1, 1, sizeof(gr_complex))),
+    : gr_sync_block ("rx_nb_cc",
+          gr_make_io_signature(1, 1, sizeof(gr_complex)),
+          gr_make_io_signature(1, 1, sizeof(gr_complex))),
       d_nb1_on(false),
       d_nb2_on(false),
       d_sample_rate(sample_rate),

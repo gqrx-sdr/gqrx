@@ -23,7 +23,7 @@
 #ifndef RX_FILTER_H
 #define RX_FILTER_H
 
-#include <gnuradio/hier_block2.h>
+#include <gnuradio/gr_hier_block2.h>
 #include <gnuradio/filter/fir_filter_ccc.h>
 #include <gnuradio/filter/freq_xlating_fir_filter_ccc.h>
 
@@ -65,7 +65,7 @@ rx_filter_sptr make_rx_filter(double sample_rate,
  *
  * \note In order to have proper LSB/USB, we must exchange low and high and reverse their sign
  */
-class rx_filter : public gr::hier_block2
+class rx_filter : public gr_hier_block2
 {
 
 public:
@@ -121,7 +121,7 @@ rx_xlating_filter_sptr make_rx_xlating_filter(double sample_rate,
  *
  * \note In order to have proper LSB/USB, we must exchange low and high and reverse their sign?
  */
-class rx_xlating_filter : public gr::hier_block2
+class rx_xlating_filter : public gr_hier_block2
 {
 
 public:

@@ -26,7 +26,7 @@
 #include <gnuradio/gr_complex.h>
 #include <gnuradio/blocks/complex_to_float.h>
 #include <gnuradio/blocks/float_to_complex.h>
-#include <gnuradio/hier_block2.h>
+#include <gnuradio/gr_hier_block2.h>
 #include <gnuradio/filter/single_pole_iir_filter_cc.h>
 #include <gnuradio/blocks/sub_cc.h>
 
@@ -48,7 +48,7 @@ dc_corr_cc_sptr make_dc_corr_cc(double sample_rate, double tau=1.0);
  * This block performs automatic DC offset removal using a single pole IIR
  * filter
  */
-class dc_corr_cc : public gr::hier_block2
+class dc_corr_cc : public gr_hier_block2 
 {
     friend dc_corr_cc_sptr make_dc_corr_cc(double sample_rate, double tau);
 
@@ -77,7 +77,7 @@ iq_swap_cc_sptr make_iq_swap_cc(bool enabled);
 /*! \brief Block to swap I and Q channels.
  *  \ingroup DSP
  */
-class iq_swap_cc : public gr::hier_block2
+class iq_swap_cc : public gr_hier_block2
 {
     friend iq_swap_cc_sptr make_iq_swap_cc(bool enabled);
 
