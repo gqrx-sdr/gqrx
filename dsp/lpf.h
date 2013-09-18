@@ -23,7 +23,7 @@
 #ifndef LPF_H
 #define LPF_H
 
-#include <gnuradio/hier_block2.h>
+#include <gnuradio/gr_hier_block2.h>
 #include <gnuradio/filter/firdes.h>
 #include <gnuradio/filter/fir_filter_fff.h>
 
@@ -60,7 +60,7 @@ lpf_ff_sptr make_lpf_ff(double sample_rate=48000.,
  * performed by the accessors (though the taps generator from gr::filter::firdes does perform
  * some sanity checks and throws std::out_of_range in case of bad parameter).
  */
-class lpf_ff : public gr::hier_block2
+class lpf_ff : public gr_hier_block2
 {
   friend lpf_ff_sptr make_lpf_ff(double sample_rate, double cutoff_freq,
                                  double trans_width, double gain);

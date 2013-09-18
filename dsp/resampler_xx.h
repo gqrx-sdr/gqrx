@@ -23,7 +23,7 @@
 #ifndef RESAMPLER_XX_H
 #define RESAMPLER_XX_H
 
-#include <gnuradio/hier_block2.h>
+#include <gnuradio/gr_hier_block2.h>
 #include <gnuradio/filter/pfb_arb_resampler_ccf.h>
 #include <gnuradio/filter/pfb_arb_resampler_fff.h>
 
@@ -49,7 +49,7 @@ resampler_cc_sptr make_resampler_cc(float rate);
  * of generating filter taps that can be used for the filter, as well as calculating
  * the other required parameters.
  */
-class resampler_cc : public gr::hier_block2
+class resampler_cc : public gr_hier_block2
 {
 
 public:
@@ -79,7 +79,7 @@ resampler_ff_sptr make_resampler_ff(float rate);
  * of generating filter taps that can be used for the filter, as well as calculating
  * the other required parameters.
  */
-class resampler_ff : public gr::hier_block2
+class resampler_ff : public gr_hier_block2
 {
 
 public:

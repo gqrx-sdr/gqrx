@@ -21,7 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <cstdio>
-#include <gnuradio/io_signature.h>
+#include <gnuradio/gr_io_signature.h>
 #include <gnuradio/filter/firdes.h>
 #include "dsp/resampler_xx.h"
 
@@ -35,9 +35,9 @@ resampler_cc_sptr make_resampler_cc(float rate)
 }
 
 resampler_cc::resampler_cc(float rate)
-    : gr::hier_block2 ("resampler_cc",
-          gr::io_signature::make (1, 1, sizeof(gr_complex)),
-          gr::io_signature::make (1, 1, sizeof(gr_complex)))
+    : gr_hier_block2 ("resampler_cc",
+          gr_make_io_signature (1, 1, sizeof(gr_complex)),
+          gr_make_io_signature (1, 1, sizeof(gr_complex)))
 {
     /* I ceated this code based on:
        http://gnuradio.squarespace.com/blog/2010/12/6/new-interface-for-pfb_arb_resampler_ccf.html
@@ -96,9 +96,9 @@ resampler_ff_sptr make_resampler_ff(float rate)
 }
 
 resampler_ff::resampler_ff(float rate)
-    : gr::hier_block2 ("resampler_ff",
-          gr::io_signature::make (1, 1, sizeof(float)),
-          gr::io_signature::make (1, 1, sizeof(float)))
+    : gr_hier_block2 ("resampler_ff",
+          gr_make_io_signature (1, 1, sizeof(float)),
+          gr_make_io_signature (1, 1, sizeof(float)))
 {
     /* I ceated this code based on:
        http://gnuradio.squarespace.com/blog/2010/12/6/new-interface-for-pfb_arb_resampler_ccf.html

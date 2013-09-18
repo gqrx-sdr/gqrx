@@ -23,7 +23,7 @@
 #ifndef RX_NB_CC_H
 #define RX_NB_CC_H
 
-#include <gnuradio/sync_block.h>
+#include <gnuradio/gr_sync_block.h>
 #include <gnuradio/gr_complex.h>
 #include <boost/thread/mutex.hpp>
 
@@ -51,7 +51,7 @@ rx_nb_cc_sptr make_rx_nb_cc(double sample_rate=96000.0, float thld1=3.3, float t
 
  *
  */
-class rx_nb_cc : public gr::sync_block
+class rx_nb_cc : public gr_sync_block
 {
     friend rx_nb_cc_sptr make_rx_nb_cc(double sample_rate, float thld1, float thld2);
 

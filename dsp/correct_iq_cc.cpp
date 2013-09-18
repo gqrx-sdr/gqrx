@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include <gnuradio/io_signature.h>
+#include <gnuradio/gr_io_signature.h>
 #include <gnuradio/gr_complex.h>
 #include <iostream>
 #include "dsp/correct_iq_cc.h"
@@ -37,9 +37,9 @@ dc_corr_cc_sptr make_dc_corr_cc(double sample_rate, double tau)
  * Use make_dc_corr_cc() instead.
  */
 dc_corr_cc::dc_corr_cc(double sample_rate, double tau)
-    : gr::hier_block2 ("dc_corr_cc",
-          gr::io_signature::make(1, 1, sizeof(gr_complex)),
-          gr::io_signature::make(1, 1, sizeof(gr_complex)))
+    : gr_hier_block2 ("dc_corr_cc",
+          gr_make_io_signature(1, 1, sizeof(gr_complex)),
+          gr_make_io_signature(1, 1, sizeof(gr_complex)))
 {
     d_sr = sample_rate;
     d_tau = tau;
@@ -98,9 +98,9 @@ iq_swap_cc_sptr make_iq_swap_cc(bool enabled)
 }
 
 iq_swap_cc::iq_swap_cc(bool enabled)
-    : gr::hier_block2 ("iq_swap_cc",
-          gr::io_signature::make(1, 1, sizeof(gr_complex)),
-          gr::io_signature::make(1, 1, sizeof(gr_complex)))
+    : gr_hier_block2 ("iq_swap_cc",
+          gr_make_io_signature(1, 1, sizeof(gr_complex)),
+          gr_make_io_signature(1, 1, sizeof(gr_complex)))
 {
     d_enabled = enabled;
     d_c2f = gr::blocks::complex_to_float::make();

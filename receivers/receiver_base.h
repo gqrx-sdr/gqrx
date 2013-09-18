@@ -23,7 +23,7 @@
 #ifndef RECEIVER_BASE_H
 #define RECEIVER_BASE_H
 
-#include <gnuradio/hier_block2.h>
+#include <gnuradio/gr_hier_block2.h>
 
 
 class receiver_base_cf;
@@ -38,7 +38,7 @@ typedef boost::shared_ptr<receiver_base_cf> receiver_base_cf_sptr;
  * outpout audio (or other kind of float data).
  *
  */
-class receiver_base_cf : public gr::hier_block2
+class receiver_base_cf : public gr_hier_block2
 {
 
 public:

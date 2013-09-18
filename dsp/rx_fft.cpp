@@ -21,7 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <math.h>
-#include <gnuradio/io_signature.h>
+#include <gnuradio/gr_io_signature.h>
 #include <gnuradio/filter/firdes.h>
 #include <gnuradio/gr_complex.h>
 #include <gnuradio/fft/fft.h>
@@ -39,9 +39,9 @@ rx_fft_c_sptr make_rx_fft_c (unsigned int fftsize, int wintype)
  *
  */
 rx_fft_c::rx_fft_c(unsigned int fftsize, int wintype)
-    : gr::sync_block ("rx_fft_c",
-          gr::io_signature::make(1, 1, sizeof(gr_complex)),
-          gr::io_signature::make(0, 0, 0)),
+    : gr_sync_block ("rx_fft_c",
+          gr_make_io_signature(1, 1, sizeof(gr_complex)),
+          gr_make_io_signature(0, 0, 0)),
       d_fftsize(fftsize),
       d_wintype(-1)
 {
@@ -210,9 +210,9 @@ rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize, int wintype)
  *
  */
 rx_fft_f::rx_fft_f(unsigned int fftsize, int wintype)
-    : gr::sync_block ("rx_fft_f",
-          gr::io_signature::make(1, 1, sizeof(float)),
-          gr::io_signature::make(0, 0, 0)),
+    : gr_sync_block ("rx_fft_f",
+          gr_make_io_signature(1, 1, sizeof(float)),
+          gr_make_io_signature(0, 0, 0)),
       d_fftsize(fftsize),
       d_wintype(-1)
 {

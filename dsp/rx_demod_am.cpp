@@ -21,7 +21,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include <gnuradio/io_signature.h>
+#include <gnuradio/gr_io_signature.h>
 #include <dsp/rx_demod_am.h>
 
 
@@ -37,9 +37,9 @@ static const int MIN_OUT = 1; /* Minimum number of output streams. */
 static const int MAX_OUT = 1; /* Maximum number of output streams. */
 
 rx_demod_am::rx_demod_am(float quad_rate, float audio_rate, bool dcr)
-    : gr::hier_block2 ("rx_demod_am",
-                      gr::io_signature::make (MIN_IN, MAX_IN, sizeof (gr_complex)),
-                      gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof (float))),
+    : gr_hier_block2 ("rx_demod_am",
+                      gr_make_io_signature (MIN_IN, MAX_IN, sizeof (gr_complex)),
+                      gr_make_io_signature (MIN_OUT, MAX_OUT, sizeof (float))),
     d_quad_rate(quad_rate),
     d_audio_rate(audio_rate),
     d_dcr_enabled(dcr)

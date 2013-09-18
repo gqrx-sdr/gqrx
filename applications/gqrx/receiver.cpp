@@ -24,11 +24,11 @@
 #include <iostream>
 #include <unistd.h>
 
-#include <gnuradio/prefs.h>
-#include <gnuradio/top_block.h>
+#include <gnuradio/gr_prefs.h>
+#include <gnuradio/gr_top_block.h>
 #include <gnuradio/blocks/multiply_const_ff.h>
-#include <osmosdr/source.h>
-#include <osmosdr/ranges.h>
+#include <osmosdr/osmosdr_source_c.h>
+#include <osmosdr/osmosdr_ranges.h>
 
 #include "applications/gqrx/receiver.h"
 #include "dsp/correct_iq_cc.h"
@@ -39,7 +39,7 @@
 #ifdef WITH_PULSEAUDIO //pafix
 #include "pulseaudio/pa_sink.h"
 #else
-#include <gnuradio/audio/sink.h>
+#include <gnuradio/gr_audio_sink.h>
 #endif
 
 
@@ -64,17 +64,17 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
       d_demod(RX_DEMOD_OFF)
 {
 
-    tb = gr::make_top_block("gqrx");
+    tb = gr_make_top_block("gqrx");
 
     if (input_device.empty())
     {
         // FIXME: other OS
-        src = osmosdr::source::make("file=/dev/random,freq=428e6,rate=96000,repeat=true,throttle=true");
+        src = osmosdr_make_source_c("file=/dev/random,freq=428e6,rate=96000,repeat=true,throttle=true");
     }
     else
     {
         input_devstr = input_device;
-        src = osmosdr::source::make(input_device);
+        src = osmosdr_make_source_c(input_device);
     }
 
     rx = make_nbrx(d_input_rate, d_audio_rate);
@@ -92,7 +92,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
 #ifdef WITH_PULSEAUDIO //pafix
     audio_snk = make_pa_sink(audio_device, d_audio_rate, "GQRX", "Audio output");
 #else
-    audio_snk = gr::audio::sink::make(d_audio_rate, audio_device, true);
+    audio_snk = audio_make_sink(d_audio_rate, audio_device, true);
 #endif
 
     output_devstr = audio_device;
@@ -177,7 +177,7 @@ void receiver::set_input_device(const std::string device)
 
     tb->disconnect(src, 0, iq_swap, 0);
     src.reset();
-    src = osmosdr::source::make(device);
+    src = osmosdr_make_source_c(device);
     tb->connect(src, 0, iq_swap, 0);
     tb->unlock();
 }
@@ -212,7 +212,7 @@ void receiver::set_output_device(const std::string device)
 #ifdef WITH_PULSEAUDIO
     audio_snk = make_pa_sink(device, d_audio_rate);
 #else
-    audio_snk = gr::audio::sink::make(d_audio_rate, device, true);
+    audio_snk = audio_make_sink(d_audio_rate, device, true);
 #endif
 
     tb->connect(audio_gain0, 0, audio_snk, 0);

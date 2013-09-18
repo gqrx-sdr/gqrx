@@ -21,7 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <cmath>
-#include <gnuradio/io_signature.h>
+#include <gnuradio/gr_io_signature.h>
 #include <gnuradio/filter/firdes.h>
 #include <iostream>
 #include "dsp/rx_filter.h"
@@ -42,9 +42,9 @@ rx_filter_sptr make_rx_filter(double sample_rate, double low, double high, doubl
 }
 
 rx_filter::rx_filter(double sample_rate, double low, double high, double trans_width)
-    : gr::hier_block2 ("rx_filter",
-                      gr::io_signature::make (MIN_IN, MAX_IN, sizeof (gr_complex)),
-                      gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof (gr_complex))),
+    : gr_hier_block2 ("rx_filter",
+                      gr_make_io_signature (MIN_IN, MAX_IN, sizeof (gr_complex)),
+                      gr_make_io_signature (MIN_OUT, MAX_OUT, sizeof (gr_complex))),
       d_sample_rate(sample_rate),
       d_low(low),
       d_high(high),
@@ -107,9 +107,9 @@ rx_xlating_filter_sptr make_rx_xlating_filter(double sample_rate, double center,
 }
 
 rx_xlating_filter::rx_xlating_filter(double sample_rate, double center, double low, double high, double trans_width)
-    : gr::hier_block2 ("rx_xlating_filter",
-                      gr::io_signature::make (MIN_IN, MAX_IN, sizeof (gr_complex)),
-                      gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof (gr_complex))),
+    : gr_hier_block2 ("rx_xlating_filter",
+                      gr_make_io_signature (MIN_IN, MAX_IN, sizeof (gr_complex)),
+                      gr_make_io_signature (MIN_OUT, MAX_OUT, sizeof (gr_complex))),
       d_sample_rate(sample_rate),
       d_center(center),
       d_low(low),

@@ -24,7 +24,7 @@
 #ifndef RX_DEMOD_AM_H
 #define RX_DEMOD_AM_H
 
-#include <gnuradio/hier_block2.h>
+#include <gnuradio/gr_hier_block2.h>
 #include <gnuradio/blocks/complex_to_mag.h>
 #include <gnuradio/filter/iir_filter_ffd.h>
 #include <vector>
@@ -52,7 +52,7 @@ rx_demod_am_sptr make_rx_demod_am(float quad_rate, float audio_rate, bool dcr=tr
  * This block implements an optional IIR DC-removal filter for the demodulated signal.
  *
  */
-class rx_demod_am : public gr::hier_block2
+class rx_demod_am : public gr_hier_block2
 {
 
 public:

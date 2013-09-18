@@ -23,7 +23,7 @@
 #ifndef RX_DEMOD_FM_H
 #define RX_DEMOD_FM_H
 
-#include <gnuradio/hier_block2.h>
+#include <gnuradio/gr_hier_block2.h>
 #include <gnuradio/analog/quadrature_demod_cf.h>
 #include <gnuradio/filter/iir_filter_ffd.h>
 #include <gnuradio/filter/pfb_arb_resampler_ccf.h>
@@ -56,7 +56,7 @@ rx_demod_fm_sptr make_rx_demod_fm(float quad_rate, float audio_rate, float max_d
  * It also provides de-emphasis with variable time constant (use 0.0 to disable).
  *
  */
-class rx_demod_fm : public gr::hier_block2
+class rx_demod_fm : public gr_hier_block2
 {
 
 public:
