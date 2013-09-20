@@ -225,6 +225,12 @@ MainWindow::~MainWindow()
         m_settings->setValue("configversion", 2);
         m_settings->setValue("crashed", false);
 
+        // hide toolbar (default=false)
+        if (ui->mainToolBar->isHidden())
+            m_settings->setValue("gui/hide_toolbar", true);
+        else
+            m_settings->remove("gui/hide_toolbar");
+
         // save session
         storeSession();
 
@@ -309,6 +315,11 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
 
     // manual reconf (FIXME: check status)
     bool conv_ok = false;
+
+    // hide toolbar
+    bool bool_val = m_settings->value("gui/hide_toolbar", false).toBool();
+    if (bool_val)
+        ui->mainToolBar->hide();
 
     QString indev = m_settings->value("input/device", "").toString();
     if (!indev.isEmpty())
