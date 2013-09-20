@@ -29,11 +29,15 @@ DockInputCtl::DockInputCtl(QWidget *parent) :
     ui(new Ui::DockInputCtl)
 {
     ui->setupUi(this);
+
+    // gain options dialog
+    gainOpt = new CGainOptions(this);
 }
 
 DockInputCtl::~DockInputCtl()
 {
     delete ui;
+    delete gainOpt;
 }
 
 void DockInputCtl::readSettings(QSettings *settings)
@@ -265,6 +269,11 @@ void DockInputCtl::on_gainButton_toggled(bool checked)
     emit gainChanged(gain);
 }
 
+/*! \brief Gain options buttion clicked. Show dialog. */
+void DockInputCtl::on_gainOptButton_pressed()
+{
+    gainOpt->show();
+}
 
 /*! \brief Frequency correction changed.
  *  \param value The new frequency correction in ppm.

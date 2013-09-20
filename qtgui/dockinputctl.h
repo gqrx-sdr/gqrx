@@ -30,6 +30,8 @@
 #include <QSettings>
 #include <QString>
 
+#include "qtgui/gain_options.h"
+
 namespace Ui {
     class DockInputCtl;
 }
@@ -83,6 +85,7 @@ private slots:
     void on_lnbSpinBox_valueChanged(double value);
     void on_gainSlider_valueChanged(int value);
     void on_gainButton_toggled(bool checked);
+    void on_gainOptButton_pressed();
     void on_freqCorrSpinBox_valueChanged(int value);
     void on_iqSwapButton_toggled(bool checked);
     void on_dcCancelButton_toggled(bool checked);
@@ -91,7 +94,8 @@ private slots:
     void on_antSelector_currentIndexChanged(const QString &antenna);
 
 private:
-    Ui::DockInputCtl *ui;
+    Ui::DockInputCtl *ui;       /*!< User interface. */
+    CGainOptions     *gainOpt;  /*!< Gain options popup. */
 };
 
 #endif // DOCKINPUTCTL_H
