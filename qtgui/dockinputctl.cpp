@@ -245,6 +245,15 @@ void DockInputCtl::setAntenna(const QString &antenna)
         ui->antSelector->setCurrentIndex(index);
 }
 
+/*! \brief Set gain stages.
+ *  \param gain_list A list containing the gain stages for this device.
+ */
+void DockInputCtl::setGainStages(gain_list_t &gain_list)
+{
+    gainOpt->setGainStages(gain_list);
+}
+
+
 /*! \brief LNB LO value has changed. */
 void DockInputCtl::on_lnbSpinBox_valueChanged(double value)
 {

@@ -71,6 +71,8 @@ public:
     void setAntennas(std::vector<std::string> &antennas);
     void setAntenna(const QString &antenna);
 
+    void setGainStages(gain_list_t &gain_list);
+
 signals:
     void gainChanged(double gain); /*!< Relative gain between 0.0 and 1.0 (negative means auto). */
     void freqCorrChanged(int value);

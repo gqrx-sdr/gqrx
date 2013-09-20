@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>255</width>
-    <height>298</height>
+    <width>0</width>
+    <height>0</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -326,12 +326,12 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </item>
         <item>
          <property name="text">
-          <string>Wide FM (mono)</string>
+          <string>WFM (mono)</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Wide FM (stereo)</string>
+          <string>WFM (stereo)</string>
          </property>
         </item>
         <item>

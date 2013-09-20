@@ -20,6 +20,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <QDebug>
+
 #include "gain_options.h"
 #include "ui_gain_options.h"
 
@@ -45,4 +47,18 @@ void CGainOptions::closeEvent(QCloseEvent *event)
 {
     hide();
     event->ignore();
+}
+
+/*! \brief Set gain stages for new device. */
+void CGainOptions::setGainStages(gain_list_t &gain_list)
+{
+    qDebug() << "********************";
+    for (gain_list_t::iterator it = gain_list.begin(); it != gain_list.end(); ++it)
+    {
+        qDebug() << "Gain name:" << QString(it->name.c_str());
+        qDebug() << "      min:" << it->start;
+        qDebug() << "      max:" << it->stop;
+        qDebug() << "     step:" << it->step;
+    }
+    qDebug() << "********************";
 }

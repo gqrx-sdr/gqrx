@@ -133,8 +133,9 @@ public:
     double get_rf_freq();
     status get_rf_range(double *start, double *stop, double *step);
 
+    std::vector<std::string> get_gain_names();
+    status get_gain_range(std::string &name, double *start, double *stop, double *step);
     status set_rf_gain(double gain_rel);
-
 
     status set_filter_offset(double offset_hz);
     double get_filter_offset();

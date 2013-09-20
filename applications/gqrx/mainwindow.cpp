@@ -21,6 +21,9 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <string>
+#include <vector>
+
 #include <QSettings>
 #include <QByteArray>
 #include <QDateTime>
@@ -340,6 +343,9 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         // Add available antenna connectors to the UI
         std::vector<std::string> antennas = rx->get_antennas();
         uiDockInputCtl->setAntennas(antennas);
+
+        // update gain stages
+        updateGainStages();
     }
 
     QString outdev = m_settings->value("output/device", "").toString();
@@ -464,6 +470,27 @@ void MainWindow::updateFrequencyRange(bool ignore_limits)
     {
         qDebug() << __func__ << "failed fetching new frequency range";
     }
+}
+
+/*! \brief Update gain stages.
+ *
+ * This function fetches a list of available gain stages with their range
+ * and sends them to the input control UI widget.
+ */
+void MainWindow::updateGainStages()
+{
+    gain_list_t gain_list;
+    std::vector<std::string> gain_names = rx->get_gain_names();
+    gain_t gain;
+
+    for (std::vector<std::string>::iterator it = gain_names.begin(); it != gain_names.end(); ++it)
+    {
+        gain.name = *it;
+        rx->get_gain_range(gain.name, &gain.start, &gain.stop, &gain.step);
+        gain_list.push_back(gain);
+    }
+
+    uiDockInputCtl->setGainStages(gain_list);
 }
 
 /*! \brief Slot for receiving frequency change signals.

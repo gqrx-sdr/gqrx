@@ -107,6 +107,7 @@ private:
 
 private:
     void updateFrequencyRange(bool ignore_limits);
+    void updateGainStages();
 
 private slots:
     /* rf */

@@ -23,12 +23,27 @@
 #ifndef GAIN_OPTIONS_H
 #define GAIN_OPTIONS_H
 
+#include <string>
+#include <vector>
+
 #include <QCloseEvent>
 #include <QDialog>
 
 namespace Ui {
 class CGainOptions;
 }
+
+/*! \brief Structure describing a gain parameter with its range. */
+typedef struct
+{
+    std::string name;   /*!< The name of this gain stage. */
+    double      start;  /*!< The lower limit. */
+    double      stop;   /*!< The uppewr limit. */
+    double      step;   /*!< The resolution/step. */
+} gain_t;
+
+/*! \brief A vector with gain parameters. */
+typedef std::vector<gain_t> gain_list_t;
 
 /*! \brief Adjust individual gain stages. */
 class CGainOptions : public QDialog
@@ -40,6 +55,8 @@ public:
     ~CGainOptions();
     
     void closeEvent(QCloseEvent *event);
+
+    void setGainStages(gain_list_t &gain_list);
 
 private:
     Ui::CGainOptions *ui;

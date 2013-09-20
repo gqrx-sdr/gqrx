@@ -403,6 +403,32 @@ receiver::status receiver::get_rf_range(double *start, double *stop, double *ste
     return STATUS_ERROR;
 }
 
+/*! \brief Get the names of available gain stages. */
+std::vector<std::string> receiver::get_gain_names()
+{
+    return src->get_gain_names();
+}
+
+/*! \brief Get gain range for a specific stage.
+ *  \param[in]  name The name of the gain stage.
+ *  \param[out] start Lower limit for this gain setting.
+ *  \param[out] stop  Upper limit for this gain setting.
+ *  \param[out] step  The resolution for this gain setting.
+ *
+ * This function retunrs the range for the requested gain stage.
+ */
+receiver::status receiver::get_gain_range(std::string &name, double *start, double *stop, double *step)
+{
+    osmosdr::gain_range_t range;
+
+    range = src->get_gain_range(name);
+    *start = range.start();
+    *stop  = range.stop();
+    *step  = range.step();
+
+    return STATUS_OK;
+}
+
 /*! \brief Set RF gain.
  *  \param gain_rel The desired relative gain between 0.0 and 1.0 (use -1 for AGC where supported).
  *  \return RX_STATUS_ERROR if an error occurs, e.g. the gain is out of valid range.
