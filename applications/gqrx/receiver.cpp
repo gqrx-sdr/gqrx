@@ -1166,4 +1166,10 @@ void receiver::connect_all(rx_chain type)
         break;
     }
 
+    // re-connect audio data sniffer if it is activated
+    if (d_sniffer_active)
+    {
+        tb->connect(rx, 0, sniffer_rr, 0);
+        tb->connect(sniffer_rr, 0, sniffer, 0);
+    }
 }
