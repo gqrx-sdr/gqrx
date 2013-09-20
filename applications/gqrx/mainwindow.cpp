@@ -262,7 +262,7 @@ MainWindow::~MainWindow()
 bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
 {
     bool conf_ok = false;
-    bool skipLoadingSettings = false;
+    bool skip_loading_cfg = false;
 
     qDebug() << "Loading configuration from:" << cfgfile;
 
@@ -291,7 +291,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
             askUserAboutConfig->setTextFormat(Qt::RichText);
             askUserAboutConfig->exec();
             if (askUserAboutConfig->result() == QMessageBox::Yes)
-                skipLoadingSettings = true;
+                skip_loading_cfg = true;
 
             delete askUserAboutConfig;
         }
@@ -302,7 +302,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         }
     }
 
-    if (skipLoadingSettings)
+    if (skip_loading_cfg)
         return false;
 
     emit configChanged(m_settings);
