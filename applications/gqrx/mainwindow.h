@@ -31,6 +31,9 @@
 #include <QTimer>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QMenu>
+#include <QAction>
+#include <QSystemTrayIcon>
 
 #include "qtgui/dockrxopt.h"
 #include "qtgui/dockaudio.h"
@@ -105,9 +108,21 @@ private:
 
     receiver *rx;
 
+    //systray icon
+    QMenu *_trayIconMenu;
+    QAction *_restoreAction;
+    QAction *_quitAction;
+    QSystemTrayIcon *_trayIcon;
+
 private:
     void updateFrequencyRange(bool ignore_limits);
     void updateGainStages();
+
+    // systray icon
+    void createActions();
+    void createTrayIcon();
+
+    void closeEvent(QCloseEvent *event);
 
 private slots:
     /* rf */
