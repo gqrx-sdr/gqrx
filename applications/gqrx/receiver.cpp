@@ -429,6 +429,19 @@ receiver::status receiver::get_gain_range(std::string &name, double *start, doub
     return STATUS_OK;
 }
 
+receiver::status receiver::set_gain(std::string name, double value)
+{
+    src->set_gain(value, name);
+
+    return STATUS_OK;
+}
+
+double receiver::get_gain(std::string name)
+{
+    return src->get_gain(name);
+}
+
+
 /*! \brief Set RF gain.
  *  \param gain_rel The desired relative gain between 0.0 and 1.0 (use -1 for AGC where supported).
  *  \return RX_STATUS_ERROR if an error occurs, e.g. the gain is out of valid range.

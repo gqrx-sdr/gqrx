@@ -136,6 +136,8 @@ public:
     std::vector<std::string> get_gain_names();
     status get_gain_range(std::string &name, double *start, double *stop, double *step);
     status set_rf_gain(double gain_rel);
+    status set_gain(std::string name, double value);
+    double get_gain(std::string name);
 
     status set_filter_offset(double offset_hz);
     double get_filter_offset();

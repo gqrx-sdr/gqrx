@@ -141,6 +141,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
     connect(uiDockInputCtl, SIGNAL(gainChanged(double)), SLOT(setRfGain(double)));
+    connect(uiDockInputCtl, SIGNAL(namedGainChanged(QString, double)), this, SLOT(setGain(QString,double)));
     connect(uiDockInputCtl, SIGNAL(freqCorrChanged(int)), this, SLOT(setFreqCorr(int)));
     connect(uiDockInputCtl, SIGNAL(iqSwapChanged(bool)), this, SLOT(setIqSwap(bool)));
     connect(uiDockInputCtl, SIGNAL(dcCancelChanged(bool)), this, SLOT(setDcCancel(bool)));
@@ -487,6 +488,7 @@ void MainWindow::updateGainStages()
     {
         gain.name = *it;
         rx->get_gain_range(gain.name, &gain.start, &gain.stop, &gain.step);
+        gain.value = rx->get_gain(gain.name);
         gain_list.push_back(gain);
     }
 
@@ -558,6 +560,15 @@ void MainWindow::setFilterOffset(qint64 freq_hz)
 void MainWindow::setRfGain(double gain)
 {
     rx->set_rf_gain(gain);
+}
+
+/*! \brief Set a specific gain.
+ *  \param name The name of the gain stage to adjust.
+ *  \param gain The new value.
+ */
+void MainWindow::setGain(QString name, double gain)
+{
+    rx->set_gain(name.toStdString(), gain);
 }
 
 /*! \brief Set new frequency offset value.

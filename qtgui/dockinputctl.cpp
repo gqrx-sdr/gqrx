@@ -32,6 +32,7 @@ DockInputCtl::DockInputCtl(QWidget *parent) :
 
     // gain options dialog
     gainOpt = new CGainOptions(this);
+    connect(gainOpt, SIGNAL(gainChanged(QString,double)), this, SLOT(gainChanged(QString,double)));
 }
 
 DockInputCtl::~DockInputCtl()
@@ -151,6 +152,12 @@ void DockInputCtl::setGain(double gain)
         ui->gainButton->setChecked(false);
         ui->gainSlider->setValue((int)(gain*100.0));
     }
+}
+
+/*! \brief Set new value of a specific gain. */
+void DockInputCtl::setNamedGain(QString &name, double value)
+{
+    gainOpt->setGain(name, value);
 }
 
 /*! \brief Get current gain.
@@ -330,4 +337,10 @@ void DockInputCtl::on_ignoreButton_toggled(bool checked)
 void DockInputCtl::on_antSelector_currentIndexChanged(const QString &antenna)
 {
     emit antennaSelected(antenna);
+}
+
+
+void DockInputCtl::gainChanged(QString name, double value)
+{
+    emit namedGainChanged(name, value);
 }

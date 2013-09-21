@@ -28,6 +28,10 @@
 
 #include <QCloseEvent>
 #include <QDialog>
+#include <QGridLayout>
+#include <QLabel>
+#include <QList>
+#include <QSlider>
 
 namespace Ui {
 class CGainOptions;
@@ -37,12 +41,17 @@ class CGainOptions;
 typedef struct
 {
     std::string name;   /*!< The name of this gain stage. */
+    double      value;  /*!< Initial value. */
     double      start;  /*!< The lower limit. */
     double      stop;   /*!< The uppewr limit. */
     double      step;   /*!< The resolution/step. */
 } gain_t;
 
-/*! \brief A vector with gain parameters. */
+/*! \brief A vector with gain parameters.
+ *
+ * This data structure is used for transfering
+ * information about available gain stages.
+ */
 typedef std::vector<gain_t> gain_list_t;
 
 /*! \brief Adjust individual gain stages. */
@@ -57,9 +66,25 @@ public:
     void closeEvent(QCloseEvent *event);
 
     void setGainStages(gain_list_t &gain_list);
+    void setGain(QString &name, double gain);
+
+signals:
+    void gainChanged(QString name, double value);
 
 private:
+    void clearWidgets();
+    void updateLabel(int idx, double value);
+
+private slots:
+    void sliderValueChanged(int value);
+
+private:
+    QList<QSlider *> gain_sliders; /*!< A list containing the gain sliders. */
+    QList<QLabel *>  gain_labels;  /*!< A list containing the gain labels. */
+    QList<QLabel *>  value_labels; /*!< A list containing labels showing the current gain value. */
+
     Ui::CGainOptions *ui;
+    QGridLayout      *layout;
 };
 
 #endif // GAIN_OPTIONS_H

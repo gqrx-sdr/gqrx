@@ -53,6 +53,8 @@ public:
     void   setGain(double gain);
     double gain();
 
+    void setNamedGain(QString &name, double value);
+
     void setFreqCorr(int corr);
     int  freqCorr();
 
@@ -75,6 +77,7 @@ public:
 
 signals:
     void gainChanged(double gain); /*!< Relative gain between 0.0 and 1.0 (negative means auto). */
+    void namedGainChanged(QString name, double value);
     void freqCorrChanged(int value);
     void lnbLoChanged(double freq_mhz);
     void iqSwapChanged(bool reverse);
@@ -94,6 +97,8 @@ private slots:
     void on_iqBalanceButton_toggled(bool checked);
     void on_ignoreButton_toggled(bool checked);
     void on_antSelector_currentIndexChanged(const QString &antenna);
+
+    void gainChanged(QString name, double value);
 
 private:
     Ui::DockInputCtl *ui;       /*!< User interface. */
