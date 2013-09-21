@@ -176,6 +176,9 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
 
+    // tray icon
+    this->createActions();
+    this->createTrayIcon();
 
     // restore last session
     if (!loadConfig(cfgfile, true))
@@ -252,6 +255,66 @@ MainWindow::~MainWindow()
     delete [] d_realFftData;
     delete [] d_iirFftData;
     delete [] d_pwrFftData;
+}
+
+/**
+ * @brief Systray actions
+ */
+void MainWindow::createActions()
+{
+    _restoreAction = new QAction(tr("&Restore"), this);
+    connect(_restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
+
+    _quitAction = new QAction(tr("&Quit"), this);
+    connect(_quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+}
+
+/**
+ * @brief Systray icon
+ */
+void MainWindow::createTrayIcon()
+{
+    _trayIconMenu = new QMenu(this);
+    _trayIconMenu->addAction(_restoreAction);
+    _trayIconMenu->addSeparator();
+    _trayIconMenu->addAction(_quitAction);
+
+    _trayIcon = new QSystemTrayIcon(this);
+    _trayIcon->setContextMenu(_trayIconMenu);
+    QIcon icon;
+    QPixmap px;
+    px.load(":icons/icons/scope.svg");
+    icon.addPixmap(px, QIcon::Normal, QIcon::Off);
+    _trayIcon->setIcon(icon);
+
+    connect(_trayIcon,SIGNAL(messageClicked()),this,SLOT(raise()));
+
+    _trayIcon->setToolTip("Gqrx");
+    // fix for Linux by Mihailo Milenkovic
+    _trayIcon->setVisible(true);
+    _trayIcon->show();
+
+    _trayIcon->hide();
+    qApp->processEvents();
+    _trayIcon->show();
+}
+
+/**
+ * @brief Override window::close()
+ * @param event
+ */
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if (_trayIcon->isVisible())
+    {
+         QMessageBox::information(this, tr("Systray"),
+                                  tr("The program will keep running in the "
+                                     "system tray. To terminate the program, "
+                                     "choose <b>Quit</b> in the context menu "
+                                     "of the system tray entry."));
+         hide();
+         event->ignore();
+    }
 }
 
 /*! \brief Load new configuration.
