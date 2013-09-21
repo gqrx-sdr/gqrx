@@ -255,6 +255,11 @@ MainWindow::~MainWindow()
     delete [] d_realFftData;
     delete [] d_iirFftData;
     delete [] d_pwrFftData;
+
+    delete _restoreAction;
+    delete _quitAction;
+    delete _trayIcon;
+    delete _trayIconMenu;
 }
 
 /**
