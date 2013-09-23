@@ -113,50 +113,31 @@
           <item>
            <widget class="QLabel" name="gainLabel">
             <property name="text">
-             <string>Gain</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSlider" name="gainSlider">
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Manual gain control.&lt;/p&gt;&lt;p&gt;This control will try to distribute the gain between the available stages. Known to work with USRP and single-stage devices such as rtlsdr.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>50</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="tickPosition">
-             <enum>QSlider::NoTicks</enum>
-            </property>
-            <property name="tickInterval">
-             <number>10</number>
+             <string>Gain:</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="gainButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
             <property name="minimumSize">
              <size>
-              <width>28</width>
-              <height>28</height>
+              <width>0</width>
+              <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>28</width>
-              <height>28</height>
+              <width>16777215</width>
+              <height>16777215</height>
              </size>
             </property>
             <property name="baseSize">
@@ -166,41 +147,13 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Automatic gain control.&lt;br/&gt;Requires hardware support. Know to work with rtl-sdr.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Automatic gain control.&lt;br/&gt;Requires hardware support. Known to work with rtl-sdr.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>A</string>
+             <string>Auto</string>
             </property>
             <property name="checkable">
              <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="gainOptButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Manual gain control.&lt;/p&gt;&lt;p&gt;Allows you to adjust the gain of each individual stage.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="text">
-             <string>...</string>
             </property>
            </widget>
           </item>

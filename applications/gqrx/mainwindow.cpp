@@ -140,8 +140,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
-    connect(uiDockInputCtl, SIGNAL(gainChanged(double)), SLOT(setRfGain(double)));
-    connect(uiDockInputCtl, SIGNAL(namedGainChanged(QString, double)), this, SLOT(setGain(QString,double)));
+    connect(uiDockInputCtl, SIGNAL(gainChanged(QString, double)), this, SLOT(setGain(QString,double)));
     connect(uiDockInputCtl, SIGNAL(freqCorrChanged(int)), this, SLOT(setFreqCorr(int)));
     connect(uiDockInputCtl, SIGNAL(iqSwapChanged(bool)), this, SLOT(setIqSwap(bool)));
     connect(uiDockInputCtl, SIGNAL(dcCancelChanged(bool)), this, SLOT(setDcCancel(bool)));
@@ -550,16 +549,6 @@ void MainWindow::setFilterOffset(qint64 freq_hz)
 
     qint64 rx_freq = d_hw_freq + d_lnb_lo + freq_hz;
     ui->freqCtrl->setFrequency(rx_freq);
-}
-
-/*! \brief Set RF gain.
- *  \param gain The new RF gain.
- *
- * Valid range depends on hardware.
- */
-void MainWindow::setRfGain(double gain)
-{
-    rx->set_rf_gain(gain);
 }
 
 /*! \brief Set a specific gain.

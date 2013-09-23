@@ -32,7 +32,7 @@ DockInputCtl::DockInputCtl(QWidget *parent) :
 
     // Grid layout with gain contorls (device dependent)
     gainLayout = new QGridLayout(this);
-    ui->verticalLayout->insertLayout(1, gainLayout);
+    ui->verticalLayout->insertLayout(2, gainLayout);
 }
 
 DockInputCtl::~DockInputCtl()
@@ -66,9 +66,9 @@ void DockInputCtl::readSettings(QSettings *settings)
     emit ignoreLimitsChanged(ignore_limits);
 
     // FIXME
-    double gain = settings->value("input/gain", -1).toDouble(&conv_ok);
-    setGain(gain);
-    emit gainChanged(gain);
+    //double gain = settings->value("input/gain", -1).toDouble(&conv_ok);
+    //setGain(gain);
+    //emit gainChanged(gain);
 
     // Ignore antenna selection if there is only one option
     if (ui->antSelector->count() > 1)
@@ -88,8 +88,8 @@ void DockInputCtl::saveSettings(QSettings *settings)
         settings->remove("input/lnb_lo");
 
     // FIXME
-    double dblval = gain();
-    settings->setValue("input/gain", dblval);
+    //double dblval = gain();
+    //settings->setValue("input/gain", dblval);
 
     if (freqCorr())
         settings->setValue("input/corr_freq", freqCorr());
@@ -133,34 +133,11 @@ double DockInputCtl::lnbLo()
     return ui->lnbSpinBox->value();
 }
 
-
-/*! \brief Set new relative gain.
- *  \param gain The new gain in the range 0.0 .. 1.0 or -1 to enable AGC.
- */
-void DockInputCtl::setGain(double gain)
-{
-    if (gain > 1.0)
-    {
-        qDebug() << "DockInputCtl::setGain :" << gain;
-        gain = 1.0;
-    }
-
-    if (gain < 0.0)
-    {
-        ui->gainButton->setChecked(true);
-    }
-    else
-    {
-        ui->gainButton->setChecked(false);
-        ui->gainSlider->setValue((int)(gain*100.0));
-    }
-}
-
 /*! \brief Set new value of a specific gain.
  *  \param name The name of the gain to change.
  *  \param value The new value.
  */
-void DockInputCtl::setNamedGain(QString &name, double value)
+void DockInputCtl::setGain(QString &name, double value)
 {
     int gain = -1;
 
@@ -178,11 +155,12 @@ void DockInputCtl::setNamedGain(QString &name, double value)
 /*! \brief Get current gain.
  *  \returns The relative gain between 0.0 and 1.0 or -1 if HW AGC is enabled.
  */
-double DockInputCtl::gain()
+double DockInputCtl::gain(QString &name)
 {
-    double gain = ui->gainButton->isChecked() ? -1.0 : (double)ui->gainSlider->value()/100.0;
+    qDebug() << "*** FIXME:" << __func__;
+    //double gain = ui->gainButton->isChecked() ? -1.0 : (double)ui->gainSlider->value()/100.0;
 
-    return gain;
+    return 0.0;
 }
 
 
@@ -287,7 +265,7 @@ void DockInputCtl::setGainStages(gain_list_t &gain_list)
         step  = (int)(10.0 * gain_list[i].step);
         gain  = (int)(10.0 * gain_list[i].value);
 
-        label = new QLabel(gain_list[i].name.c_str(), this);
+        label = new QLabel(QString("%1 gain").arg(gain_list[i].name.c_str()), this);
         label->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum));
 
         value = new QLabel(QString("%1 dB").arg(gain_list[i].value, 0, 'f', 1), this);
@@ -331,29 +309,16 @@ void DockInputCtl::on_lnbSpinBox_valueChanged(double value)
     emit lnbLoChanged(value);
 }
 
-
-/*! \brief Manual gain value has changed. */
-/*void DockInputCtl::on_gainSlider_valueChanged(int value)
-{
-    double gain = (double)value/100.0;
-
-    emit gainChanged(gain);
-}*/
-
 /*! \brief Automatic gain control button has been toggled. */
 void DockInputCtl::on_gainButton_toggled(bool checked)
 {
-    double gain = checked ? -1.0 : (double)ui->gainSlider->value()/100.0;
+    qDebug() << "*** FIXME:" << __func__;
+/*    double gain = checked ? -1.0 : (double)ui->gainSlider->value()/100.0;
     ui->gainSlider->setEnabled(!checked);
 
     emit gainChanged(gain);
+    */
 }
-
-/*! \brief Gain options buttion clicked. Show dialog. */
-/*void DockInputCtl::on_gainOptButton_pressed()
-{
-    gainOpt->show();
-}*/
 
 /*! \brief Frequency correction changed.
  *  \param value The new frequency correction in ppm.
@@ -403,7 +368,6 @@ void DockInputCtl::on_antSelector_currentIndexChanged(const QString &antenna)
     emit antennaSelected(antenna);
 }
 
-
 /*! \brief Remove all widgets from the lists. */
 void DockInputCtl::clearWidgets()
 {
@@ -450,7 +414,8 @@ void DockInputCtl::sliderValueChanged(int value)
     // convert to double and send signal
     double gain = (double)value / 10.0;
     updateLabel(idx, gain);
-    emit namedGainChanged(gain_labels.at(idx)->text(), gain);
+
+    emit gainChanged(gain_labels.at(idx)->text(), gain);
 }
 
 /*! \brief Update value label

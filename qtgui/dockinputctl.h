@@ -71,10 +71,8 @@ public:
     void  setLnbLo(double freq_mhz);
     double lnbLo();
 
-    void   setGain(double gain);
-    double gain();
-
-    void setNamedGain(QString &name, double value);
+    void setGain(QString &name, double value);
+    double gain(QString &name);
 
     void setFreqCorr(int corr);
     int  freqCorr();
@@ -97,8 +95,7 @@ public:
     void setGainStages(gain_list_t &gain_list);
 
 signals:
-    void gainChanged(double gain); // FIXME
-    void namedGainChanged(QString name, double value);  // FIXME
+    void gainChanged(QString name, double value);
     void freqCorrChanged(int value);
     void lnbLoChanged(double freq_mhz);
     void iqSwapChanged(bool reverse);
@@ -109,9 +106,7 @@ signals:
 
 private slots:
     void on_lnbSpinBox_valueChanged(double value);
-    //void on_gainSlider_valueChanged(int value);
     void on_gainButton_toggled(bool checked);
-    //void on_gainOptButton_pressed();
     void on_freqCorrSpinBox_valueChanged(int value);
     void on_iqSwapButton_toggled(bool checked);
     void on_dcCancelButton_toggled(bool checked);
@@ -120,7 +115,6 @@ private slots:
     void on_antSelector_currentIndexChanged(const QString &antenna);
 
     void sliderValueChanged(int value);
-    //void gainChanged(QString name, double value);
 
 private:
     void clearWidgets();
