@@ -30,15 +30,15 @@ DockInputCtl::DockInputCtl(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // gain options dialog
-    gainOpt = new CGainOptions(this);
-    connect(gainOpt, SIGNAL(gainChanged(QString,double)), this, SLOT(gainChanged(QString,double)));
+    // Grid layout with gain contorls (device dependent)
+    gainLayout = new QGridLayout(this);
+    ui->verticalLayout->insertLayout(1, gainLayout);
 }
 
 DockInputCtl::~DockInputCtl()
 {
     delete ui;
-    delete gainOpt;
+    delete gainLayout;
 }
 
 void DockInputCtl::readSettings(QSettings *settings)
@@ -65,6 +65,7 @@ void DockInputCtl::readSettings(QSettings *settings)
     setIgnoreLimits(ignore_limits);
     emit ignoreLimitsChanged(ignore_limits);
 
+    // FIXME
     double gain = settings->value("input/gain", -1).toDouble(&conv_ok);
     setGain(gain);
     emit gainChanged(gain);
@@ -86,6 +87,7 @@ void DockInputCtl::saveSettings(QSettings *settings)
     else
         settings->remove("input/lnb_lo");
 
+    // FIXME
     double dblval = gain();
     settings->setValue("input/gain", dblval);
 
@@ -154,10 +156,23 @@ void DockInputCtl::setGain(double gain)
     }
 }
 
-/*! \brief Set new value of a specific gain. */
+/*! \brief Set new value of a specific gain.
+ *  \param name The name of the gain to change.
+ *  \param value The new value.
+ */
 void DockInputCtl::setNamedGain(QString &name, double value)
 {
-    gainOpt->setGain(name, value);
+    int gain = -1;
+
+    for (int idx = 0; idx < gain_labels.length(); idx++)
+    {
+        if (gain_labels.at(idx)->text() == name)
+        {
+            gain = (int)(10 * value);
+            gain_sliders.at(idx)->setValue(gain);
+            break;
+        }
+    }
 }
 
 /*! \brief Get current gain.
@@ -257,7 +272,56 @@ void DockInputCtl::setAntenna(const QString &antenna)
  */
 void DockInputCtl::setGainStages(gain_list_t &gain_list)
 {
-    gainOpt->setGainStages(gain_list);
+    QLabel  *label;
+    QSlider *slider;
+    QLabel  *value;
+    int start, stop, step, gain;
+
+    // ensure that gain lists are empty
+    clearWidgets();
+
+    for (unsigned int i = 0; i < gain_list.size(); i++)
+    {
+        start = (int)(10.0 * gain_list[i].start);
+        stop  = (int)(10.0 * gain_list[i].stop);
+        step  = (int)(10.0 * gain_list[i].step);
+        gain  = (int)(10.0 * gain_list[i].value);
+
+        label = new QLabel(gain_list[i].name.c_str(), this);
+        label->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum));
+
+        value = new QLabel(QString("%1 dB").arg(gain_list[i].value, 0, 'f', 1), this);
+        value->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum));
+
+        slider = new QSlider(Qt::Horizontal, this);
+        slider->setProperty("idx", i);
+        slider->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
+        slider->setRange(start, stop);
+        slider->setSingleStep(step);
+        slider->setValue(gain);
+        if (abs(stop - start) > 10 * step)
+            slider->setPageStep(10 * step);
+
+        gainLayout->addWidget(label, i, 0, Qt::AlignLeft);
+        gainLayout->addWidget(slider, i, 1, Qt::AlignCenter);
+        gainLayout->addWidget(value, i, 2, Qt::AlignLeft);
+
+        gain_labels.push_back(label);
+        gain_sliders.push_back(slider);
+        value_labels.push_back(value);
+
+        connect(slider, SIGNAL(valueChanged(int)), this, SLOT(sliderValueChanged(int)));
+    }
+
+    qDebug() << "********************";
+    for (gain_list_t::iterator it = gain_list.begin(); it != gain_list.end(); ++it)
+    {
+        qDebug() << "Gain name:" << QString(it->name.c_str());
+        qDebug() << "      min:" << it->start;
+        qDebug() << "      max:" << it->stop;
+        qDebug() << "     step:" << it->step;
+    }
+    qDebug() << "********************";
 }
 
 
@@ -269,12 +333,12 @@ void DockInputCtl::on_lnbSpinBox_valueChanged(double value)
 
 
 /*! \brief Manual gain value has changed. */
-void DockInputCtl::on_gainSlider_valueChanged(int value)
+/*void DockInputCtl::on_gainSlider_valueChanged(int value)
 {
     double gain = (double)value/100.0;
 
     emit gainChanged(gain);
-}
+}*/
 
 /*! \brief Automatic gain control button has been toggled. */
 void DockInputCtl::on_gainButton_toggled(bool checked)
@@ -286,10 +350,10 @@ void DockInputCtl::on_gainButton_toggled(bool checked)
 }
 
 /*! \brief Gain options buttion clicked. Show dialog. */
-void DockInputCtl::on_gainOptButton_pressed()
+/*void DockInputCtl::on_gainOptButton_pressed()
 {
     gainOpt->show();
-}
+}*/
 
 /*! \brief Frequency correction changed.
  *  \param value The new frequency correction in ppm.
@@ -340,7 +404,62 @@ void DockInputCtl::on_antSelector_currentIndexChanged(const QString &antenna)
 }
 
 
-void DockInputCtl::gainChanged(QString name, double value)
+/*! \brief Remove all widgets from the lists. */
+void DockInputCtl::clearWidgets()
 {
-    emit namedGainChanged(name, value);
+    QWidget *widget;
+
+    // sliders
+    while (!gain_sliders.isEmpty())
+    {
+        widget = gain_sliders.takeFirst();
+        gainLayout->removeWidget(widget);
+        delete widget;
+    }
+
+    // labels
+    while (!gain_labels.isEmpty())
+    {
+        widget = gain_labels.takeFirst();
+        gainLayout->removeWidget(widget);
+        delete widget;
+    }
+
+    // value labels
+    while (!value_labels.isEmpty())
+    {
+        widget = value_labels.takeFirst();
+        gainLayout->removeWidget(widget);
+        delete widget;
+    }
+}
+
+/*! \brief Slot for managing slider value changed signals.
+ *  \param value The value of the slider.
+ *
+ * Note. We use the sender() function to find out which slider has emitted the signal.
+ */
+void DockInputCtl::sliderValueChanged(int value)
+{
+    QSlider *slider = (QSlider *) sender();
+    int idx = slider->property("idx").toInt();
+
+    // convert to discrete value according to step
+    value = slider->singleStep() * (value / slider->singleStep());
+
+    // convert to double and send signal
+    double gain = (double)value / 10.0;
+    updateLabel(idx, gain);
+    emit namedGainChanged(gain_labels.at(idx)->text(), gain);
+}
+
+/*! \brief Update value label
+ *  \param idx The index of the gain
+ *  \param value The new value
+ */
+void DockInputCtl::updateLabel(int idx, double value)
+{
+    QLabel *label = value_labels.at(idx);
+
+    label->setText(QString("%1 dB").arg(value, 0, 'f', 1));
 }

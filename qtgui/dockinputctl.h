@@ -27,10 +27,31 @@
 #include <string>
 
 #include <QDockWidget>
+#include <QGridLayout>
+#include <QLabel>
+#include <QList>
 #include <QSettings>
+#include <QSlider>
 #include <QString>
 
-#include "qtgui/gain_options.h"
+
+/*! \brief Structure describing a gain parameter with its range. */
+typedef struct
+{
+    std::string name;   /*!< The name of this gain stage. */
+    double      value;  /*!< Initial value. */
+    double      start;  /*!< The lower limit. */
+    double      stop;   /*!< The uppewr limit. */
+    double      step;   /*!< The resolution/step. */
+} gain_t;
+
+/*! \brief A vector with gain parameters.
+ *
+ * This data structure is used for transfering
+ * information about available gain stages.
+ */
+typedef std::vector<gain_t> gain_list_t;
+
 
 namespace Ui {
     class DockInputCtl;
@@ -76,8 +97,8 @@ public:
     void setGainStages(gain_list_t &gain_list);
 
 signals:
-    void gainChanged(double gain); /*!< Relative gain between 0.0 and 1.0 (negative means auto). */
-    void namedGainChanged(QString name, double value);
+    void gainChanged(double gain); // FIXME
+    void namedGainChanged(QString name, double value);  // FIXME
     void freqCorrChanged(int value);
     void lnbLoChanged(double freq_mhz);
     void iqSwapChanged(bool reverse);
@@ -88,9 +109,9 @@ signals:
 
 private slots:
     void on_lnbSpinBox_valueChanged(double value);
-    void on_gainSlider_valueChanged(int value);
+    //void on_gainSlider_valueChanged(int value);
     void on_gainButton_toggled(bool checked);
-    void on_gainOptButton_pressed();
+    //void on_gainOptButton_pressed();
     void on_freqCorrSpinBox_valueChanged(int value);
     void on_iqSwapButton_toggled(bool checked);
     void on_dcCancelButton_toggled(bool checked);
@@ -98,11 +119,20 @@ private slots:
     void on_ignoreButton_toggled(bool checked);
     void on_antSelector_currentIndexChanged(const QString &antenna);
 
-    void gainChanged(QString name, double value);
+    void sliderValueChanged(int value);
+    //void gainChanged(QString name, double value);
 
 private:
-    Ui::DockInputCtl *ui;       /*!< User interface. */
-    CGainOptions     *gainOpt;  /*!< Gain options popup. */
+    void clearWidgets();
+    void updateLabel(int idx, double value);
+
+private:
+    QList<QSlider *>  gain_sliders; /*!< A list containing the gain sliders. */
+    QList<QLabel *>   gain_labels;  /*!< A list containing the gain labels. */
+    QList<QLabel *>   value_labels; /*!< A list containing labels showing the current gain value. */
+
+    Ui::DockInputCtl *ui;           /*!< User interface. */
+    QGridLayout      *gainLayout;   /*!< Grid layout containing gain controls and labels. */
 };
 
 #endif // DOCKINPUTCTL_H

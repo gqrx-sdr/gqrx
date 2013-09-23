@@ -102,7 +102,6 @@ SOURCES += \
     qtgui/dockiqplayer.cpp \
     qtgui/dockrxopt.cpp \
     qtgui/freqctrl.cpp \
-    qtgui/gain_options.cpp \
     qtgui/ioconfig.cpp \
     qtgui/meter.cpp \
     qtgui/nb_options.cpp \
@@ -142,7 +141,6 @@ HEADERS += \
     qtgui/dockiqplayer.h \
     qtgui/dockrxopt.h \
     qtgui/freqctrl.h \
-    qtgui/gain_options.h \
     qtgui/ioconfig.h \
     qtgui/meter.h \
     qtgui/nb_options.h \
@@ -163,7 +161,6 @@ FORMS += \
     qtgui/dockiqplayer.ui \
     qtgui/dockinputctl.ui \
     qtgui/dockrxopt.ui \
-    qtgui/gain_options.ui \
     qtgui/ioconfig.ui \
     qtgui/nb_options.ui
 
