@@ -307,7 +307,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         else
         {
             m_settings->setValue("crashed", true); // clean exit will set this to FALSE
-            saveConfig(cfgfile);
+            m_settings->sync();
         }
     }
 
@@ -1428,6 +1428,7 @@ void MainWindow::on_actionSaveSettings_triggered()
     if (!cfgfile.endsWith(".conf", Qt::CaseSensitive))
         cfgfile.append(".conf");
 
+    storeSession();
     saveConfig(cfgfile);
 
     // store last dir
