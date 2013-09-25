@@ -419,6 +419,10 @@ bool MainWindow::saveConfig(const QString cfgfile)
     }
     if (QFile::copy(oldfile, newfile))
     {
+        // ensure that old config has crash cleared
+        m_settings->setValue("crashed", false);
+        m_settings->sync();
+
         loadConfig(cfgfile, false);
         return true;
     }
