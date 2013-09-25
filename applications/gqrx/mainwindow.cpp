@@ -409,6 +409,14 @@ bool MainWindow::saveConfig(const QString cfgfile)
     else
         newfile = QString("%1/%2").arg(m_cfg_dir).arg(cfgfile);
 
+    if (QFile::exists(newfile))
+    {
+        qDebug() << "File" << newfile << "already exists => DELETING...";
+        if (QFile::remove(newfile))
+            qDebug() << "Deleted" << newfile;
+        else
+            qDebug() << "Failed to delete" << newfile;
+    }
     if (QFile::copy(oldfile, newfile))
     {
         loadConfig(cfgfile, false);
