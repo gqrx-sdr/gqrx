@@ -74,6 +74,9 @@ public:
     void setGain(QString &name, double value);
     double gain(QString &name);
 
+    void setAgc(bool enabled);
+    bool agc();
+
     void setFreqCorr(int corr);
     int  freqCorr();
 
@@ -96,6 +99,7 @@ public:
 
 signals:
     void gainChanged(QString name, double value);
+    void autoGainChanged(bool enabled);
     void freqCorrChanged(int value);
     void lnbLoChanged(double freq_mhz);
     void iqSwapChanged(bool reverse);
@@ -106,7 +110,7 @@ signals:
 
 private slots:
     void on_lnbSpinBox_valueChanged(double value);
-    void on_gainButton_toggled(bool checked);
+    void on_agcButton_toggled(bool checked);
     void on_freqCorrSpinBox_valueChanged(int value);
     void on_iqSwapButton_toggled(bool checked);
     void on_dcCancelButton_toggled(bool checked);

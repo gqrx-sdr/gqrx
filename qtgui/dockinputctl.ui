@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>220</width>
-    <height>276</height>
+    <height>329</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -59,7 +59,7 @@
          <x>0</x>
          <y>0</y>
          <width>220</width>
-         <height>251</height>
+         <height>304</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -111,49 +111,12 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QLabel" name="gainLabel">
-            <property name="text">
-             <string>Gain:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="gainButton">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="baseSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
+           <widget class="QCheckBox" name="agcButton">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Automatic gain control.&lt;br/&gt;Requires hardware support. Known to work with rtl-sdr.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Toggle hardware-based automatic gain control.&lt;/p&gt;&lt;p&gt;This feature requires hardware that supports it. It is known to work with RTL-SDR devices.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>Auto</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
+             <string>Hardware AGC</string>
             </property>
            </widget>
           </item>

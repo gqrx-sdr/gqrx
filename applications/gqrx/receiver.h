@@ -135,7 +135,7 @@ public:
 
     std::vector<std::string> get_gain_names();
     status get_gain_range(std::string &name, double *start, double *stop, double *step);
-    status set_rf_gain(double gain_rel);
+    status set_auto_gain(bool automatic);
     status set_gain(std::string name, double value);
     double get_gain(std::string name);
 

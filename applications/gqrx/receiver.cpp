@@ -446,34 +446,9 @@ double receiver::get_gain(std::string name)
  *  \param gain_rel The desired relative gain between 0.0 and 1.0 (use -1 for AGC where supported).
  *  \return RX_STATUS_ERROR if an error occurs, e.g. the gain is out of valid range.
  */
-receiver::status receiver::set_rf_gain(double gain_rel)
+receiver::status receiver::set_auto_gain(bool automatic)
 {
-    if (gain_rel > 1.0)
-        gain_rel = 1.0;
-
-    if (gain_rel < 0.0)
-    {
-        src->set_gain_mode(true);
-    }
-    else
-    {
-        if (src->get_gain_mode())
-            // disable HW AGC
-            src->set_gain_mode(false);
-
-        // convert relative gain to absolute gain
-        osmosdr::gain_range_t range = src->get_gain_range();
-        if (!range.empty())
-        {
-            double gain =  range.start() + gain_rel*(range.stop()-range.start());
-            src->set_gain(gain);
-
-#ifndef QT_NO_DEBUG
-        std::cout << "Gain start/stop/rel/abs:" << range.start() << "/"
-                  << range.stop() << "/" << gain_rel << "/" << gain << std::endl;
-#endif
-        }
-    }
+    src->set_gain_mode(automatic);
 
     return STATUS_OK;
 }

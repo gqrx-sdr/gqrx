@@ -61,9 +61,12 @@ void DockInputCtl::readSettings(QSettings *settings)
     setLnbLo(((double)lnb_lo)/1.0e6);
     emit lnbLoChanged(ui->lnbSpinBox->value());
 
-    bool ignore_limits = settings->value("input/ignore_limits", false).toBool();
-    setIgnoreLimits(ignore_limits);
-    emit ignoreLimitsChanged(ignore_limits);
+    bool bool_val = settings->value("input/ignore_limits", false).toBool();
+    setIgnoreLimits(bool_val);
+    emit ignoreLimitsChanged(bool_val);
+
+    bool_val = settings->value("input/hwagc", false).toBool();
+    setAgc(bool_val);
 
     // FIXME
     //double gain = settings->value("input/gain", -1).toDouble(&conv_ok);
@@ -116,6 +119,11 @@ void DockInputCtl::saveSettings(QSettings *settings)
     else
         settings->remove("input/ignore_limits");
 
+    if (agc())
+        settings->setValue("input/hwagc", true);
+    else
+        settings->remove("input/hwagc");
+
     // save antenna selection if there is more than one option
     if (ui->antSelector->count() > 1)
         settings->setValue("input/antenna", ui->antSelector->currentText());
@@ -161,6 +169,22 @@ double DockInputCtl::gain(QString &name)
     //double gain = ui->gainButton->isChecked() ? -1.0 : (double)ui->gainSlider->value()/100.0;
 
     return 0.0;
+}
+
+/*! \brief Set status of hardware AGC button.
+ *  \param enabled Whether hardware AGC is enabled or not.
+ */
+void DockInputCtl::setAgc(bool enabled)
+{
+    ui->agcButton->setChecked(enabled);
+}
+
+/*! \brief Get status of hardware AGC button.
+ *  \return Whether hardware AGC is enabled or not.
+ */
+bool DockInputCtl::agc()
+{
+    return ui->agcButton->isChecked();
 }
 
 
@@ -311,14 +335,14 @@ void DockInputCtl::on_lnbSpinBox_valueChanged(double value)
 }
 
 /*! \brief Automatic gain control button has been toggled. */
-void DockInputCtl::on_gainButton_toggled(bool checked)
+void DockInputCtl::on_agcButton_toggled(bool checked)
 {
-    qDebug() << "*** FIXME:" << __func__;
-/*    double gain = checked ? -1.0 : (double)ui->gainSlider->value()/100.0;
-    ui->gainSlider->setEnabled(!checked);
+    for (int i = 0; i < gain_sliders.length(); ++i)
+    {
+        gain_sliders.at(i)->setEnabled(!checked);
+    }
 
-    emit gainChanged(gain);
-    */
+    emit autoGainChanged(checked);
 }
 
 /*! \brief Frequency correction changed.
