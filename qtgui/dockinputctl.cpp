@@ -165,10 +165,18 @@ void DockInputCtl::setGain(QString &name, double value)
  */
 double DockInputCtl::gain(QString &name)
 {
-    qDebug() << "*** FIXME:" << __func__;
-    //double gain = ui->gainButton->isChecked() ? -1.0 : (double)ui->gainSlider->value()/100.0;
+    double gain = 0.0;
 
-    return 0.0;
+    for (int idx = 0; idx < gain_labels.length(); ++idx)
+    {
+        if (gain_labels.at(idx)->text() == name)
+        {
+            gain = 0.1 * (double)gain_sliders.at(idx)->value();
+            break;
+        }
+    }
+
+    return gain;
 }
 
 /*! \brief Set status of hardware AGC button.
