@@ -273,6 +273,7 @@ void DockInputCtl::setGainStages(gain_list_t &gain_list)
 
         slider = new QSlider(Qt::Horizontal, this);
         slider->setProperty("idx", i);
+        slider->setProperty("name", QString(gain_list[i].name.c_str()));
         slider->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
         slider->setRange(start, stop);
         slider->setSingleStep(step);
@@ -415,7 +416,7 @@ void DockInputCtl::sliderValueChanged(int value)
     double gain = (double)value / 10.0;
     updateLabel(idx, gain);
 
-    emit gainChanged(gain_labels.at(idx)->text(), gain);
+    emit gainChanged(slider->property("name").toString(), gain);
 }
 
 /*! \brief Update value label
