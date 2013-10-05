@@ -235,6 +235,9 @@ MainWindow::~MainWindow()
         else
             m_settings->remove("gui/hide_toolbar");
 
+        m_settings->setValue("gui/geometry", saveGeometry());
+        m_settings->setValue("gui/state", saveState());
+
         // save session
         storeSession();
 
@@ -324,6 +327,10 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
     bool bool_val = m_settings->value("gui/hide_toolbar", false).toBool();
     if (bool_val)
         ui->mainToolBar->hide();
+
+    // main window settings
+    restoreGeometry(m_settings->value("gui/geometry", saveGeometry()).toByteArray());
+    restoreState(m_settings->value("gui/state", saveState()).toByteArray());
 
     QString indev = m_settings->value("input/device", "").toString();
     if (!indev.isEmpty())

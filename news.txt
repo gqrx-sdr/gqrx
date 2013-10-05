@@ -2,6 +2,8 @@
 
        NEW: Support for setting analog bandwidth of receivers that support it.
        NEW: Remember visibility status of main toolbar.
+       NEW: Restore the geometry of the main window between sessions.
+       NEW: Restore the state and placement of the dock windows.
      FIXED: Incorrect handling of decimal values in LNB LO frequency.
      FIXED: Correctly apply initial LNB LO frequency.
      FIXED: Audio output device selection on Mac OS X.
