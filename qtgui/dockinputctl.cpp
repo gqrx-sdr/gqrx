@@ -68,16 +68,32 @@ void DockInputCtl::readSettings(QSettings *settings)
     bool_val = settings->value("input/hwagc", false).toBool();
     setAgc(bool_val);
 
-    // FIXME
-    //double gain = settings->value("input/gain", -1).toDouble(&conv_ok);
-    //setGain(gain);
-    //emit gainChanged(gain);
-
     // Ignore antenna selection if there is only one option
     if (ui->antSelector->count() > 1)
     {
         QString ant = settings->value("input/antenna", "").toString();
         setAntenna(ant);
+    }
+
+    // gains are stored as a QMap<QString, QVariant(int)>
+    // note that we store the integer values, i.e. dB*10
+    QMap <QString, QVariant> allgains;
+    QString gain_name;
+    double gain_value;
+    if (settings->contains("input/gains"))
+    {
+        allgains = settings->value("input/gains").toMap();
+        QMapIterator <QString, QVariant> gain_iter(allgains);
+
+        while (gain_iter.hasNext())
+        {
+            gain_iter.next();
+
+            gain_name = gain_iter.key();
+            gain_value = 0.1 * (double)(gain_iter.value().toInt());
+            setGain(gain_name, gain_value);
+            emit gainChanged(gain_name, gain_value);
+        }
     }
 
 }
@@ -90,9 +106,14 @@ void DockInputCtl::saveSettings(QSettings *settings)
     else
         settings->remove("input/lnb_lo");
 
-    // FIXME
-    //double dblval = gain();
-    //settings->setValue("input/gain", dblval);
+    // gains are stored as a QMap<QString, QVariant(int)>
+    // note that we store the integer values, i.e. dB*10
+    QMap <QString, QVariant> gains;
+    getGains(&gains);
+    if (gains.empty())
+        settings->remove("input/gains");
+    else
+        settings->setValue("input/gains", gains);
 
     if (freqCorr())
         settings->setValue("input/corr_freq", freqCorr());
@@ -151,7 +172,7 @@ void DockInputCtl::setGain(QString &name, double value)
 
     for (int idx = 0; idx < gain_labels.length(); idx++)
     {
-        if (gain_labels.at(idx)->text() == name)
+        if (gain_labels.at(idx)->text().contains(name))
         {
             gain = (int)(10 * value);
             gain_sliders.at(idx)->setValue(gain);
@@ -460,4 +481,18 @@ void DockInputCtl::updateLabel(int idx, double value)
     QLabel *label = value_labels.at(idx);
 
     label->setText(QString("%1 dB").arg(value, 0, 'f', 1));
+}
+
+/*! \brief Get all gains.
+ *  \param gains Pointer to a map where the gains and thier names are stored.
+ *
+ * This is a private utility function used when storing the settings.
+ */
+void DockInputCtl::getGains(QMap<QString, QVariant> *gains)
+{
+    for (int idx = 0; idx < gain_sliders.length(); ++idx)
+    {
+        gains->insert(gain_sliders.at(idx)->property("name").toString(),
+                      QVariant(gain_sliders.at(idx)->value()));
+    }
 }

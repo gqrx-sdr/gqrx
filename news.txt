@@ -1,6 +1,7 @@
      2.3.0  TBD...
 
        NEW: Support for setting analog bandwidth of receivers that support it.
+       NEW: Support for setting gain stages individually.
        NEW: Remember visibility status of main toolbar.
        NEW: Restore the geometry of the main window between sessions.
        NEW: Restore the state and placement of the dock windows.

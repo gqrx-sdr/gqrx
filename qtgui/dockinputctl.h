@@ -32,7 +32,9 @@
 #include <QList>
 #include <QSettings>
 #include <QSlider>
+#include <QMap>
 #include <QString>
+#include <QVariant>
 
 
 /*! \brief Structure describing a gain parameter with its range. */
@@ -123,6 +125,8 @@ private slots:
 private:
     void clearWidgets();
     void updateLabel(int idx, double value);
+    void getGains(QMap<QString, QVariant> *gains);
+    void setGains(QMap<QString, QVariant> *gains);
 
 private:
     QList<QSlider *>  gain_sliders; /*!< A list containing the gain sliders. */
