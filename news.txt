@@ -9,6 +9,7 @@
      FIXED: Correctly apply initial LNB LO frequency.
      FIXED: Audio output device selection on Mac OS X.
      FIXED: Properly store settings when using Save As function.
+     FIXED: Crash when recording audio whith no rec directory set.
   IMPROVED: Gqrx can fit on small screens (900x600 pixels).
 
 

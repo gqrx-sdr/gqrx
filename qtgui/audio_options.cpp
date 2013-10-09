@@ -56,6 +56,13 @@ void CAudioOptions::closeEvent(QCloseEvent *event)
 {
     hide();
     event->ignore();
+
+    // check if we ended up with empty dir, if yes reset to $HOME
+    if (ui->recDirEdit->text().isEmpty())
+    {
+        setRecDir(QDir::homePath());
+        emit newRecDirSelected(QDir::homePath());
+    }
 }
 
 /*! \brief Set initial location of WAV files. */
@@ -69,6 +76,7 @@ void CAudioOptions::setRecDir(const QString &dir)
  */
 void CAudioOptions::on_recDirEdit_textChanged(const QString &dir)
 {
+
     if (work_dir->exists(dir))
     {
         ui->recDirEdit->setPalette(QPalette());  // Clear custom color
