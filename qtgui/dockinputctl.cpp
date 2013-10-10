@@ -30,8 +30,9 @@ DockInputCtl::DockInputCtl(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // Grid layout with gain contorls (device dependent)
-    gainLayout = new QGridLayout(this);
+    // Grid layout with gain controls (device dependent)
+    gainLayout = new QGridLayout();
+    gainLayout->setObjectName(QString::fromUtf8("gainLayout"));
     ui->verticalLayout->insertLayout(2, gainLayout);
 }
 
