@@ -6,9 +6,15 @@
 #include <QFrame>
 #include <QImage>
 #include <vector>
+#include <QMap>
 
 #define HORZ_DIVS_MAX 50 //12
 #define MAX_SCREENSIZE 4096
+
+#define PEAK_CLICK_MAX_H_DISTANCE 10 //Maximum horizontal distance of clicked point from peak
+#define PEAK_CLICK_MAX_V_DISTANCE 20 //Maximum vertical distance of clicked point from peak
+#define PEAK_H_TOLERANCE 2
+
 
 class CPlotter : public QFrame
 {
@@ -103,6 +109,8 @@ public:
         qint64 limit = ((qint64)m_SampleFreq + m_Span) / 2 - 1;
         m_FftCenter = qBound(-limit, f, limit);
     }
+
+    int getNearestPeak(QPoint pt);
 
 signals:
     void newCenterFreq(qint64 f);
@@ -215,6 +223,7 @@ private:
     bool m_FftFill;
 
     double m_PeakDetection;
+    QMap<int,int> m_Peaks;
 };
 
 #endif // PLOTTER_H

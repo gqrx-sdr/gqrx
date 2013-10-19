@@ -122,6 +122,7 @@ CPlotter::CPlotter(QWidget *parent) :
 
     m_FreqDigits = 3;
 
+    m_Peaks = QMap<int,int>();
     setPeakDetection(false, 2);
 
     setFftPlotColor(QColor(0x97,0xD0,0x97,0xFF));
@@ -361,6 +362,32 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
     }
 }
 
+
+int CPlotter::getNearestPeak(QPoint pt)
+{
+    QMap<int, int>::const_iterator i = m_Peaks.lowerBound(pt.x()-PEAK_CLICK_MAX_H_DISTANCE);
+    QMap<int, int>::const_iterator upperBound = m_Peaks.upperBound(pt.x()+PEAK_CLICK_MAX_H_DISTANCE);
+    double dist=1e10;
+    int best=-1;
+    for(;i != upperBound;i++)
+    {
+        int x=i.key();
+        int y=i.value();
+
+        if(abs(y-pt.y())>PEAK_CLICK_MAX_V_DISTANCE)
+            continue;
+
+        double d=pow(y-pt.y(),2)+pow(x-pt.x(),2);
+        if(d<dist)
+        {
+            dist=d;
+            best=x;
+        }
+    }
+
+    return best;
+}
+
 //////////////////////////////////////////////////////////////////////
 // Called when a mouse button is pressed
 //////////////////////////////////////////////////////////////////////
@@ -389,8 +416,16 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
         {
             if (event->buttons() == Qt::LeftButton)
             {
+                int best=-1;
+                if(m_PeakDetection>0)
+                    best = getNearestPeak(pt);
+
+                if(best!=-1)
+                    m_DemodCenterFreq = freqFromX(best);
+                else
+                    m_DemodCenterFreq = roundFreq(freqFromX(pt.x()),m_ClickResolution );
+
                 //if cursor not captured set demod frequency and start demod box capture
-                m_DemodCenterFreq = roundFreq(freqFromX(pt.x()),m_ClickResolution );
                 emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
 
                 //save initial grab postion from m_DemodFreqX
@@ -689,9 +724,11 @@ void CPlotter::draw()
             painter2.drawPolyline(LineBuf, n);
         }
 
+        //Peak detection
         if(m_PeakDetection>0)
         {
-            //Peak detection
+            m_Peaks.clear();
+
             double mean=0;
             double sum_of_sq=0;
             for (i = 0; i < n; i++)
@@ -706,12 +743,14 @@ void CPlotter::draw()
             for (i = 0; i < n; i++)
             {
                 //m_PeakDetection times the std over the mean or better than current peak
-                double d = (lastPeak==-1)?mean-m_PeakDetection*stdev:m_fftbuf[lastPeak];
+                double d = (lastPeak==-1)?(mean-m_PeakDetection*stdev):m_fftbuf[lastPeak+xmin];
 
                 if(m_fftbuf[i + xmin] < d)
                     lastPeak=i;
-                else if(i-lastPeak>5 || i==n-1)
+
+                if(lastPeak!=-1 && (i-lastPeak>PEAK_H_TOLERANCE || i==n-1))
                 {
+                    m_Peaks.insert(lastPeak+xmin, m_fftbuf[lastPeak + xmin]);
                     painter2.drawEllipse(lastPeak+xmin-5, m_fftbuf[lastPeak + xmin]-5, 10, 10);
                     lastPeak=-1;
                 }
