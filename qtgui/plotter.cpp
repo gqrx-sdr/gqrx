@@ -686,6 +686,35 @@ void CPlotter::draw()
         {
             painter2.drawPolyline(LineBuf, n);
         }
+
+		//Preak detection
+        double mean=0;
+        double sum_of_sq=0;
+        for (i = 0; i < n; i++)
+        {
+            mean+=m_fftbuf[i + xmin];
+            sum_of_sq+=m_fftbuf[i + xmin]*m_fftbuf[i + xmin];
+        }
+		mean/=n;
+        double stdev= sqrt( sum_of_sq/n-mean*mean );
+
+        int lastPeak=-1;
+        for (i = 0; i < n; i++)
+        {
+            //2 times the std over the mean or better than current peak
+            double d = (lastPeak==-1)?mean-2*stdev:m_fftbuf[lastPeak];
+
+			if(m_fftbuf[i + xmin] < d)
+				lastPeak=i;
+			else if(i-lastPeak>5 || i==n-1)
+            {
+            	painter2.drawEllipse(lastPeak+xmin-5, m_fftbuf[lastPeak + xmin]-5, 10, 10);
+                lastPeak=-1;
+            }
+        }
+
+		painter2.end();
+
     }
 
     // trigger a new paintEvent
