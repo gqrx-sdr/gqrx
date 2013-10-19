@@ -1215,6 +1215,10 @@ void CPlotter::setFftFill(bool enabled)
     m_FftFill = enabled;
 }
 
+/*! \brief Set peak detection on or off.
+ *  \param enabled The new state of peak detection.
+ *  \param c Minimum distance of peaks from mean, in multiples of standard deviation.
+ */
 void CPlotter::setPeakDetection(bool enabled, double c)
 {
     if(!enabled || c<=0)
