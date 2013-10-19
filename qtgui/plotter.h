@@ -118,6 +118,7 @@ public slots:
     void moveToDemodFreq(void);
     void setFftPlotColor(const QColor color);
     void setFftFill(bool enabled);
+    void setPeakDetection(bool enabled, double c);
 
 protected:
     //re-implemented widget event handlers
@@ -213,6 +214,7 @@ private:
     QColor m_FftColor, m_FftCol0, m_FftCol1;
     bool m_FftFill;
 
+    double m_PeakDetection;
 };
 
 #endif // PLOTTER_H

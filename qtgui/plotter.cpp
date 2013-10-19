@@ -122,6 +122,8 @@ CPlotter::CPlotter(QWidget *parent) :
 
     m_FreqDigits = 3;
 
+    setPeakDetection(false, 2);
+
     setFftPlotColor(QColor(0x97,0xD0,0x97,0xFF));
     setFftFill(false);
 }
@@ -687,29 +689,32 @@ void CPlotter::draw()
             painter2.drawPolyline(LineBuf, n);
         }
 
-		//Preak detection
-        double mean=0;
-        double sum_of_sq=0;
-        for (i = 0; i < n; i++)
+        if(m_PeakDetection>0)
         {
-            mean+=m_fftbuf[i + xmin];
-            sum_of_sq+=m_fftbuf[i + xmin]*m_fftbuf[i + xmin];
-        }
-		mean/=n;
-        double stdev= sqrt( sum_of_sq/n-mean*mean );
-
-        int lastPeak=-1;
-        for (i = 0; i < n; i++)
-        {
-            //2 times the std over the mean or better than current peak
-            double d = (lastPeak==-1)?mean-2*stdev:m_fftbuf[lastPeak];
-
-			if(m_fftbuf[i + xmin] < d)
-				lastPeak=i;
-			else if(i-lastPeak>5 || i==n-1)
+            //Peak detection
+            double mean=0;
+            double sum_of_sq=0;
+            for (i = 0; i < n; i++)
             {
-            	painter2.drawEllipse(lastPeak+xmin-5, m_fftbuf[lastPeak + xmin]-5, 10, 10);
-                lastPeak=-1;
+                mean+=m_fftbuf[i + xmin];
+                sum_of_sq+=m_fftbuf[i + xmin]*m_fftbuf[i + xmin];
+            }
+            mean/=n;
+            double stdev= sqrt( sum_of_sq/n-mean*mean );
+
+            int lastPeak=-1;
+            for (i = 0; i < n; i++)
+            {
+                //m_PeakDetection times the std over the mean or better than current peak
+                double d = (lastPeak==-1)?mean-m_PeakDetection*stdev:m_fftbuf[lastPeak];
+
+                if(m_fftbuf[i + xmin] < d)
+                    lastPeak=i;
+                else if(i-lastPeak>5 || i==n-1)
+                {
+                    painter2.drawEllipse(lastPeak+xmin-5, m_fftbuf[lastPeak + xmin]-5, 10, 10);
+                    lastPeak=-1;
+                }
             }
         }
 
@@ -1208,4 +1213,12 @@ void CPlotter::setFftPlotColor(const QColor color)
 void CPlotter::setFftFill(bool enabled)
 {
     m_FftFill = enabled;
+}
+
+void CPlotter::setPeakDetection(bool enabled, double c)
+{
+    if(!enabled || c<=0)
+        m_PeakDetection=-1;
+    else
+        m_PeakDetection=c;
 }

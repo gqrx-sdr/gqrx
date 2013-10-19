@@ -287,3 +287,9 @@ void DockFft::on_fillButton_toggled(bool checked)
 {
     emit fftFillToggled(checked);
 }
+
+/*! peakDetection check box toggled */
+void DockFft::on_peakDetectionButton_stateChanged(int state)
+{
+    emit peakDetectionToggled(state!=0);
+}
