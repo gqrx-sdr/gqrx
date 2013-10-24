@@ -73,6 +73,9 @@ CPlotter::CPlotter(QWidget *parent) :
             m_ColorTbl[i].setRgb( 255, 0, 128*(i-217)/38);
     }
 
+    m_PeakHoldActive=false;
+    m_PeakHoldValid=false;
+
     m_FftCenter = 0;
     m_CenterFreq = 144500000;
     m_DemodCenterFreq = 144500000;
@@ -553,6 +556,8 @@ void CPlotter::resizeEvent(QResizeEvent* )
                                                          Qt::IgnoreAspectRatio,
                                                          Qt::SmoothTransformation);
         }
+
+        m_PeakHoldValid=false;
     }
     drawOverlay();
 }
@@ -586,6 +591,9 @@ void CPlotter::draw()
     {
         drawOverlay();
         m_DrawOverlay = false;
+
+        //FIXME: dirty hack to avoid invalidating Peak data througout the code
+        m_PeakHoldValid=false;
     }
 
     QPoint LineBuf[MAX_SCREENSIZE];
@@ -685,6 +693,23 @@ void CPlotter::draw()
         else
         {
             painter2.drawPolyline(LineBuf, n);
+        }
+
+        //Peak hold
+        if(m_PeakHoldActive)
+        {
+            for (i = 0; i < n; i++)
+            {
+                if(!m_PeakHoldValid || m_fftbuf[i] < m_fftPeakHoldBuf[i])
+                    m_fftPeakHoldBuf[i]=m_fftbuf[i];
+
+                LineBuf[i].setX(i + xmin);
+                LineBuf[i].setY(m_fftPeakHoldBuf[i + xmin]);
+            }
+            painter2.setPen(m_PeakHoldColor);
+            painter2.drawPolyline(LineBuf, n);
+
+            m_PeakHoldValid=true;
         }
     }
 
@@ -1173,10 +1198,18 @@ void CPlotter::setFftPlotColor(const QColor color)
     m_FftCol0.setAlpha(0x00);
     m_FftCol1 = color;
     m_FftCol1.setAlpha(0xA0);
+    m_PeakHoldColor=color;
+    m_PeakHoldColor.setAlpha(60);
 }
 
 /*! Enable/disable filling the area below the FFT plot. */
 void CPlotter::setFftFill(bool enabled)
 {
     m_FftFill = enabled;
+}
+
+void CPlotter::setPeakHold(bool enabled)
+{
+    m_PeakHoldActive=enabled;
+    m_PeakHoldValid=false;
 }
