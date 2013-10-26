@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  * Copyright (C) 2013 by Elias Oenal <EliasOenal@gmail.com>
  *
@@ -18,6 +21,9 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <string>
+#include <vector>
+
 #include <QSettings>
 #include <QByteArray>
 #include <QDateTime>
@@ -34,7 +40,7 @@
 #include "receiver.h"
 
 
-MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
+MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     QMainWindow(parent),
     configOk(true),
     ui(new Ui::MainWindow),
@@ -137,12 +143,14 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
-    connect(uiDockInputCtl, SIGNAL(gainChanged(double)), SLOT(setRfGain(double)));
+    connect(uiDockInputCtl, SIGNAL(gainChanged(QString, double)), this, SLOT(setGain(QString,double)));
+    connect(uiDockInputCtl, SIGNAL(autoGainChanged(bool)), this, SLOT(setAutoGain(bool)));
     connect(uiDockInputCtl, SIGNAL(freqCorrChanged(int)), this, SLOT(setFreqCorr(int)));
     connect(uiDockInputCtl, SIGNAL(iqSwapChanged(bool)), this, SLOT(setIqSwap(bool)));
     connect(uiDockInputCtl, SIGNAL(dcCancelChanged(bool)), this, SLOT(setDcCancel(bool)));
     connect(uiDockInputCtl, SIGNAL(iqBalanceChanged(bool)), this, SLOT(setIqBalance(bool)));
     connect(uiDockInputCtl, SIGNAL(ignoreLimitsChanged(bool)), this, SLOT(setIgnoreLimits(bool)));
+    connect(uiDockInputCtl, SIGNAL(antennaSelected(QString)), this, SLOT(setAntenna(QString)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
@@ -176,13 +184,31 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     // restore last session
     if (!loadConfig(cfgfile, true))
     {
-        qDebug() << "No input device found";
+		// first time config
+        qDebug() << "Launching I/O device editor";
+        if (firstTimeConfig() != QDialog::Accepted)
+        {
+            qDebug() << "I/O device configuration cancelled.";
+            configOk = false;
+        }
+        else
+        {
+            configOk = true;
+        }
+    }
+    else if (edit_conf == true)
+    {
+        qDebug() << "Launching I/O device editor";
         if (on_actionIoConfig_triggered() != QDialog::Accepted)
         {
             qDebug() << "I/O device configuration cancelled.";
             configOk = false;
         }
-    }
+        else
+        {
+            configOk = true;
+        }
+	}
 
 }
 
@@ -205,6 +231,15 @@ MainWindow::~MainWindow()
     {
         m_settings->setValue("configversion", 2);
         m_settings->setValue("crashed", false);
+
+        // hide toolbar (default=false)
+        if (ui->mainToolBar->isHidden())
+            m_settings->setValue("gui/hide_toolbar", true);
+        else
+            m_settings->remove("gui/hide_toolbar");
+
+        m_settings->setValue("gui/geometry", saveGeometry());
+        m_settings->setValue("gui/state", saveState());
 
         // save session
         storeSession();
@@ -244,7 +279,7 @@ MainWindow::~MainWindow()
 bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
 {
     bool conf_ok = false;
-    bool skipLoadingSettings = false;
+    bool skip_loading_cfg = false;
 
     qDebug() << "Loading configuration from:" << cfgfile;
 
@@ -273,24 +308,33 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
             askUserAboutConfig->setTextFormat(Qt::RichText);
             askUserAboutConfig->exec();
             if (askUserAboutConfig->result() == QMessageBox::Yes)
-                skipLoadingSettings = true;
+                skip_loading_cfg = true;
 
             delete askUserAboutConfig;
         }
         else
         {
             m_settings->setValue("crashed", true); // clean exit will set this to FALSE
-            saveConfig(cfgfile);
+            m_settings->sync();
         }
     }
 
-    if (skipLoadingSettings)
+    if (skip_loading_cfg)
         return false;
 
     emit configChanged(m_settings);
 
     // manual reconf (FIXME: check status)
     bool conv_ok = false;
+
+    // hide toolbar
+    bool bool_val = m_settings->value("gui/hide_toolbar", false).toBool();
+    if (bool_val)
+        ui->mainToolBar->hide();
+
+    // main window settings
+    restoreGeometry(m_settings->value("gui/geometry", saveGeometry()).toByteArray());
+    restoreState(m_settings->value("gui/state", saveState()).toByteArray());
 
     QString indev = m_settings->value("input/device", "").toString();
     if (!indev.isEmpty())
@@ -307,6 +351,13 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
             devlabel = indev; //"Unknown";
 
         setWindowTitle(QString("Gqrx %1 - %2").arg(VERSION).arg(devlabel));
+
+        // Add available antenna connectors to the UI
+        std::vector<std::string> antennas = rx->get_antennas();
+        uiDockInputCtl->setAntennas(antennas);
+
+        // update gain stages
+        updateGainStages();
     }
 
     QString outdev = m_settings->value("output/device", "").toString();
@@ -321,6 +372,15 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         uiDockRxOpt->setFilterOffsetRange((qint64)(0.9*actual_rate));
         ui->plotter->setSampleRate(actual_rate);
         ui->plotter->setSpanFreq((quint32)actual_rate);
+    }
+
+    qint64 bw = m_settings->value("input/bandwidth", 0).toInt(&conv_ok);
+    if (conv_ok)
+    {
+        // set analog bw even if 0 since for some devices 0 Hz means "auto"
+        double actual_bw = rx->set_analog_bandwidth((double)bw);
+        qDebug() << "Requested bandwidth:" << bw << "Hz";
+        qDebug() << "Actual bandwidth   :" << actual_bw << "Hz";
     }
 
     uiDockInputCtl->readSettings(m_settings);
@@ -361,8 +421,20 @@ bool MainWindow::saveConfig(const QString cfgfile)
     else
         newfile = QString("%1/%2").arg(m_cfg_dir).arg(cfgfile);
 
+    if (QFile::exists(newfile))
+    {
+        qDebug() << "File" << newfile << "already exists => DELETING...";
+        if (QFile::remove(newfile))
+            qDebug() << "Deleted" << newfile;
+        else
+            qDebug() << "Failed to delete" << newfile;
+    }
     if (QFile::copy(oldfile, newfile))
     {
+        // ensure that old config has crash cleared
+        m_settings->setValue("crashed", false);
+        m_settings->sync();
+
         loadConfig(cfgfile, false);
         return true;
     }
@@ -424,6 +496,28 @@ void MainWindow::updateFrequencyRange(bool ignore_limits)
     }
 }
 
+/*! \brief Update gain stages.
+ *
+ * This function fetches a list of available gain stages with their range
+ * and sends them to the input control UI widget.
+ */
+void MainWindow::updateGainStages()
+{
+    gain_list_t gain_list;
+    std::vector<std::string> gain_names = rx->get_gain_names();
+    gain_t gain;
+
+    for (std::vector<std::string>::iterator it = gain_names.begin(); it != gain_names.end(); ++it)
+    {
+        gain.name = *it;
+        rx->get_gain_range(gain.name, &gain.start, &gain.stop, &gain.step);
+        gain.value = rx->get_gain(gain.name);
+        gain_list.push_back(gain);
+    }
+
+    uiDockInputCtl->setGainStages(gain_list);
+}
+
 /*! \brief Slot for receiving frequency change signals.
  *  \param[in] freq The new frequency.
  *
@@ -464,6 +558,13 @@ void MainWindow::setLnbLo(double freq_mhz)
     ui->plotter->setCenterFreq(d_lnb_lo + d_hw_freq);
 }
 
+/*! \brief Select new antenna connector. */
+void MainWindow::setAntenna(const QString antenna)
+{
+    qDebug() << "New antenna selected:" << antenna;
+    rx->set_antenna(antenna.toStdString());
+}
+
 /*! \brief Set new channel filter offset.
  *  \param freq_hz The new filter offset in Hz.
  */
@@ -476,14 +577,19 @@ void MainWindow::setFilterOffset(qint64 freq_hz)
     ui->freqCtrl->setFrequency(rx_freq);
 }
 
-/*! \brief Set RF gain.
- *  \param gain The new RF gain.
- *
- * Valid range depends on hardware.
+/*! \brief Set a specific gain.
+ *  \param name The name of the gain stage to adjust.
+ *  \param gain The new value.
  */
-void MainWindow::setRfGain(double gain)
+void MainWindow::setGain(QString name, double gain)
 {
-    rx->set_rf_gain(gain);
+    rx->set_gain(name.toStdString(), gain);
+}
+
+/*! \brief Enable / disable hardware AGC. */
+void MainWindow::setAutoGain(bool enabled)
+{
+    rx->set_auto_gain(enabled);
 }
 
 /*! \brief Set new frequency offset value.
@@ -1296,6 +1402,24 @@ int MainWindow::on_actionIoConfig_triggered()
     return confres;
 }
 
+
+/*! \brief Runc first time configurator. */
+int MainWindow::firstTimeConfig()
+{
+    qDebug() << __func__;
+
+    CIoConfig *ioconf = new CIoConfig(m_settings);
+    int confres = ioconf->exec();
+
+    if (confres == QDialog::Accepted)
+        loadConfig(m_settings->fileName(), false);
+
+    delete ioconf;
+
+    return confres;
+}
+
+
 /*! \brief Load configuration activated by user. */
 void MainWindow::on_actionLoadSettings_triggered()
 {
@@ -1336,6 +1460,7 @@ void MainWindow::on_actionSaveSettings_triggered()
     if (!cfgfile.endsWith(".conf", Qt::CaseSensitive))
         cfgfile.append(".conf");
 
+    storeSession();
     saveConfig(cfgfile);
 
     // store last dir
@@ -1537,30 +1662,23 @@ void MainWindow::on_actionAbout_triggered()
     QMessageBox::about(this, tr("About Gqrx"),
                        tr("<p>This is Gqrx %1</p>"
                           "<p>Copyright (C) 2011-2013 Alexandru Csete & contributors.</p>"
-                          "<p>Gqrx is a software defined radio receiver powered by GNU Radio and the Qt toolkit. "
-                          "<p>Gqrx uses the OsmoSDR GNU Radio package and and works with any input device "
-                          "supported by OsmoSDR, including:"
+                          "<p>Gqrx is a software defined radio receiver powered by "
+                          "<a href='http://www.gnuradio.org/'>GNU Radio</a> and the Qt toolkit. "
+                          "<p>Gqrx uses the <a href='http://sdr.osmocom.org/trac/wiki/GrOsmoSDR'>GrOsmoSDR</a> "
+                          "input source block and and works with any input device supported by it including:"
                           "<ul>"
-                          "<li>Funcube Dongle Pro</li>"
-                          "<li>RTL2832U-based DVB-T tuners (rtlsdr and rtlsdr-tcp)</li>"
-                          "<li>Ettus Research USRP devices</li>"
-                          "<li>OsmoSDR devices</li>"
+                          "<li><a href='http://funcubedongle.com/'>Funcube Dongle Pro and Pro+</a></li>"
+                          "<li><a href='http://sdr.osmocom.org/trac/wiki/rtl-sdr'>RTL2832U-based DVB-T tuners (rtlsdr and rtlsdr-tcp)</a></li>"
+                          "<li><a href='http://www.ettus.com/'>Ettus Research USRP devices</a></li>"
+                          "<li><a href='http://sdr.osmocom.org/trac/'>OsmoSDR devices</a></li>"
+                          "<li><a href='https://greatscottgadgets.com/hackrf/'>HackRF Jawbreaker</a></li>"
+                          "<li><a href='http://nuand.com/bladeRF'>Nuand bladeRF</a></li>"
                           "</ul></p>"
                           "<p>You can download the latest version from the "
-                          "<a href='http://gqrx.sf.net/'>Gqrx website</a>.<br/>"
-                          "Help is available in the <a href='https://groups.google.com/forum/#!forum/gqrx'>Gqrx Google group</a>."
+                          "<a href='http://gqrx.dk/'>Gqrx website</a>."
                           "</p>"
                           "<p>"
                           "Gqrx is licensed under the <a href='http://www.gnu.org/licenses/gpl.html'>GNU General Public License</a>."
-                          "</p>"
-                          "<hr />"
-                          "<p>References:"
-                          "<ul>"
-                          "<li><a href='http://www.gnuradio.org/'>GNU Radio website</a></li>"
-                          "<li><a href='http://sdr.osmocom.org/trac/wiki/GrOsmoSDR'>OsmoSDR GNU Radio Source</a></li>"
-                          "<li><a href='http://funcubedongle.com/'>Funcube Dongle website</a></li>"
-                          "<li><a href='http://www.ettus.com/'>Ettus Research (USRP)</a></li>"
-                          "</li>"
                           "</p>").arg(VERSION));
 }
 

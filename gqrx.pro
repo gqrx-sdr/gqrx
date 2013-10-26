@@ -1,28 +1,52 @@
-#-------------------------------------------------
+#--------------------------------------------------------------------------------
 #
-# Qmake project file for gqrx
+# Qmake project file for gqrx - http://gqrx.dk
 #
-#-------------------------------------------------
+# Common options you may want to passs to qmake:
+#
+#    CONFIG+=debug            Enable debug mode
+#    PREFIX=/some/prefix      Installation prefix
+#    BOOST_SUFFIX=-mt         To link against libboost-xyz-mt (needed for pybombs)
+#    AUDIO_BACKEND=portaudio  Use it on Mac OS X to have FCD Pro and Pro+ support
+#--------------------------------------------------------------------------------
 
 QT       += core gui svg
+contains(QT_MAJOR_VERSION,5) {
+    QT += widgets
+}
+
 TEMPLATE = app
 
 macx {
     TARGET = Gqrx
     ICON = icons/scope.icns
+    DEFINES += GQRX_OS_MACX
 } else {
     TARGET = gqrx
 }
 
-linux-g++|linux-g++-64 {
-    # Comment out to use gnuradio-audio (may not work on Linux)
-    AUDIO_BACKEND = pulse
+unix:!macx {
+    CONFIG += link_pkgconfig
+    packagesExist(libpulse libpulse-simple) {
+        # Comment out to use gr-audio (not recommended with ALSA and Funcube Dongle Pro)
+        AUDIO_BACKEND = pulse
+        message("Gqrx configured with pulseaudio backend")
+    }
 }
 
 RESOURCES += icons.qrc
 
 # make clean target
 QMAKE_CLEAN += gqrx
+
+# make install target
+isEmpty(PREFIX) {
+    message(No prefix given. Using /usr/local)
+    PREFIX=/usr/local
+}
+
+target.path  = $$PREFIX/bin
+INSTALLS    += target 
 
 #CONFIG += debug
 
@@ -33,15 +57,17 @@ CONFIG(debug, debug|release) {
 
     # Define version string (see below for releases)
     VER = $$system(git describe --abbrev=8)
+
 } else {
     DEFINES += QT_NO_DEBUG
     DEFINES += QT_NO_DEBUG_OUTPUT
-    VER = 0.0
+    VER = $$system(git describe --abbrev=1)
 
     # Release binaries with gr bundled
     # QMAKE_RPATH & co won't work with origin
     ## QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/lib\''
 }
+
 
 # Tip from: http://www.qtcentre.org/wiki/index.php?title=Version_numbering_using_QMake
 VERSTR = '\\"$${VER}\\"'          # place quotes around the version string
@@ -68,6 +94,7 @@ SOURCES += \
     dsp/stereo_demod.cpp \
     qtgui/afsk1200win.cpp \
     qtgui/agc_options.cpp \
+    qtgui/audio_options.cpp \
     qtgui/demod_options.cpp \
     qtgui/dockinputctl.cpp \
     qtgui/dockaudio.cpp \
@@ -108,6 +135,7 @@ HEADERS += \
     dsp/stereo_demod.h \
     qtgui/afsk1200win.h \
     qtgui/agc_options.h \
+    qtgui/audio_options.h \
     qtgui/demod_options.h \
     qtgui/dockaudio.h \
     qtgui/dockfft.h \
@@ -130,14 +158,15 @@ FORMS += \
     applications/gqrx/mainwindow.ui \
     qtgui/afsk1200win.ui \
     qtgui/agc_options.ui \
-    qtgui/dockrxopt.ui \
-    qtgui/ioconfig.ui \
+    qtgui/audio_options.ui \
     qtgui/demod_options.ui \
-    qtgui/dockinputctl.ui \
     qtgui/dockaudio.ui \
     qtgui/dockfft.ui \
     qtgui/dockiqplayer.ui \
-    qtgui/nb_options.ui \
+    qtgui/dockinputctl.ui \
+    qtgui/dockrxopt.ui \
+    qtgui/ioconfig.ui \
+    qtgui/nb_options.ui
     qtgui/dockfreqtable.ui
 
 # Use pulseaudio (ps: could use equals? undocumented)
@@ -153,30 +182,47 @@ contains(AUDIO_BACKEND, pulse): {
     DEFINES += WITH_PULSEAUDIO
 }
 
+# Introduced in 2.2 for FCD support on OS X
+contains(AUDIO_BACKEND, portaudio): {
+    HEADERS += portaudio/device_list.h
+    SOURCES += portaudio/device_list.cpp
+    DEFINES += WITH_PORTAUDIO
+}
+
 # dependencies via pkg-config
 # FIXME: check for version?
-unix {
-    CONFIG += link_pkgconfig
-
+unix:!macx {
     contains(AUDIO_BACKEND, pulse): {
         PKGCONFIG += libpulse libpulse-simple
     } else {
         PKGCONFIG += gnuradio-audio
     }
-    PKGCONFIG += gnuradio-core gnuradio-osmosdr
-}
+    PKGCONFIG += gnuradio-analog \
+                 gnuradio-blocks \
+                 gnuradio-filter \
+                 gnuradio-fft \
+                 gnuradio-osmosdr
 
-unix:!macx {
-    LIBS += -lboost_system -lboost_program_options
+    LIBS += -lboost_system$$BOOST_SUFFIX -lboost_program_options$$BOOST_SUFFIX
     LIBS += -lrt  # need to include on some distros
 }
 
-macx-g++ {
-     LIBS += -lboost_system-mt -lboost_program_options-mt
-#    INCLUDEPATH += /usr/local/include
-#    INCLUDEPATH += /usr/local/include/gnuradio
-#    INCLUDEPATH += /usr/local/include/osmosdr
-#    INCLUDEPATH += /opt/local/include
+macx {
+    # macports
+    INCLUDEPATH += /opt/local/include
+
+    # local stuff
+    INCLUDEPATH += /Users/alexc/gqrx/runtime/include
+    LIBS += -L/opt/local/lib -L/Users/alexc/gqrx/runtime/lib
+
+    LIBS += -lboost_system-mt -lboost_program_options-mt
+    LIBS += -lgnuradio-runtime -lgnuradio-pmt -lgnuradio-audio -lgnuradio-analog
+    LIBS += -lgnuradio-blocks -lgnuradio-filter -lgnuradio-fft -lgnuradio-osmosdr
+
+    # portaudio
+    contains(AUDIO_BACKEND, portaudio): {
+        LIBS    += -lportaudio
+    }
 }
 
 OTHER_FILES += \

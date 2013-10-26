@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -26,6 +29,8 @@
 #include <QSettings>
 #include <QString>
 #include <QTimer>
+#include <QMessageBox>
+#include <QFileDialog>
 
 #include "qtgui/dockrxopt.h"
 #include "qtgui/dockaudio.h"
@@ -34,8 +39,11 @@
 #include "qtgui/dockfft.h"
 #include "qtgui/dockfreqtable.h"
 #include "qtgui/afsk1200win.h"
-#include "applications/gqrx/receiver.h"
 
+// see https://bugreports.qt-project.org/browse/QTBUG-22829
+#ifndef Q_MOC_RUN
+#include "applications/gqrx/receiver.h"
+#endif
 
 namespace Ui {
     class MainWindow;  /*! The main window UI */
@@ -46,7 +54,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(const QString cfgfile="default.conf", QWidget *parent = 0);
+    explicit MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent = 0);
     ~MainWindow();
 
     bool loadConfig(const QString cfgfile, bool check_crash);
@@ -101,14 +109,17 @@ private:
 
 private:
     void updateFrequencyRange(bool ignore_limits);
+    void updateGainStages();
 
 private slots:
     /* rf */
     void setLnbLo(double freq_mhz);
+    void setAntenna(const QString antenna);
 
     /* baseband receiver */
     void setFilterOffset(qint64 freq_hz);
-    void setRfGain(double gain);
+    void setGain(QString name, double gain);
+    void setAutoGain(bool enabled);
     void setFreqCorr(int ppm);
     void setIqSwap(bool reversed);
     void setDcCancel(bool enabled);
@@ -165,6 +176,8 @@ private slots:
     void afsk1200win_closed();
 
     void forceRxReconf();
+    
+    int  firstTimeConfig();
 
     /* cyclic processing */
     void decoderTimeout();

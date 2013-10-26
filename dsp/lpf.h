@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -20,9 +23,9 @@
 #ifndef LPF_H
 #define LPF_H
 
-#include <gr_hier_block2.h>
-#include <gr_firdes.h>
-#include <gr_fir_filter_fff.h>
+#include <gnuradio/hier_block2.h>
+#include <gnuradio/filter/firdes.h>
+#include <gnuradio/filter/fir_filter_fff.h>
 
 
 class lpf_ff;
@@ -54,10 +57,10 @@ lpf_ff_sptr make_lpf_ff(double sample_rate=48000.,
  * interface to set the filter parameters.
  *
  * The user of this class is expected to provide valid parameters and no checks are
- * performed by the accessors (though the taps generator from gr_firdes does perform
+ * performed by the accessors (though the taps generator from gr::filter::firdes does perform
  * some sanity checks and throws std::out_of_range in case of bad parameter).
  */
-class lpf_ff : public gr_hier_block2
+class lpf_ff : public gr::hier_block2
 {
   friend lpf_ff_sptr make_lpf_ff(double sample_rate, double cutoff_freq,
                                  double trans_width, double gain);
@@ -72,7 +75,7 @@ public:
 
 private:
     /* GR blocks */
-    gr_fir_filter_fff_sptr lpf;
+    gr::filter::fir_filter_fff::sptr lpf;
 
     /* other parameters */
     std::vector<float> d_taps;

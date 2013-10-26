@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>301</width>
-    <height>324</height>
+    <height>371</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -80,14 +80,17 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
+      <item row="4" column="0">
        <widget class="QLabel" name="loLabel">
+        <property name="toolTip">
+         <string>LNB LO frequency. Use negative frequency for upconverters.</string>
+        </property>
         <property name="text">
          <string>LNB LO</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
+      <item row="4" column="1">
        <widget class="QDoubleSpinBox" name="loSpinBox">
         <property name="toolTip">
          <string>LNB LO frequency. Use negative frequency for upconverters.</string>
@@ -128,6 +131,35 @@ You can test the device strings in gnuradio-companion.</string>
         </property>
         <property name="text">
          <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QDoubleSpinBox" name="bwSpinBox">
+        <property name="toolTip">
+         <string>Analog bandwidth (leave at 0 for default)</string>
+        </property>
+        <property name="suffix">
+         <string> MHz</string>
+        </property>
+        <property name="decimals">
+         <number>6</number>
+        </property>
+        <property name="maximum">
+         <double>100.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="bwLabel">
+        <property name="toolTip">
+         <string>Analog bandwidth (leave at 0 for default)</string>
+        </property>
+        <property name="text">
+         <string>Bandwidth</string>
         </property>
        </widget>
       </item>

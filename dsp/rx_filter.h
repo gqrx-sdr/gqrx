@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -20,9 +23,9 @@
 #ifndef RX_FILTER_H
 #define RX_FILTER_H
 
-#include <gr_hier_block2.h>
-#include <gr_fir_filter_ccc.h>
-#include <gr_freq_xlating_fir_filter_ccc.h>
+#include <gnuradio/hier_block2.h>
+#include <gnuradio/filter/fir_filter_ccc.h>
+#include <gnuradio/filter/freq_xlating_fir_filter_ccc.h>
 
 
 #define RX_FILTER_MIN_WIDTH 100  /*! Minimum width of filter */
@@ -57,12 +60,12 @@ rx_filter_sptr make_rx_filter(double sample_rate,
  * interface to set the filter parameters.
  *
  * The user of this class is expected to provide valid parameters and no checks are
- * performed by the accessors (though the taps generator from gr_firdes does perform
+ * performed by the accessors (though the taps generator from gr::filter::firdes does perform
  * some sanity checks and throws std::out_of_range in case of bad parameter).
  *
  * \note In order to have proper LSB/USB, we must exchange low and high and reverse their sign
  */
-class rx_filter : public gr_hier_block2
+class rx_filter : public gr::hier_block2
 {
 
 public:
@@ -73,7 +76,7 @@ public:
 
 private:
     std::vector<gr_complex> d_taps;
-    gr_fir_filter_ccc_sptr  d_bpf;
+    gr::filter::fir_filter_ccc::sptr  d_bpf;
 
     double d_sample_rate;
     double d_low;
@@ -113,12 +116,12 @@ rx_xlating_filter_sptr make_rx_xlating_filter(double sample_rate,
  * they can be both positive and negative.
  *
  * The user of this class is expected to provide valid parameters and no checks are
- * performed by the accessors (though the taps generator from gr_firdes does perform
+ * performed by the accessors (though the taps generator from gr::filter::firdes does perform
  * some sanity checks and throws std::out_of_range in case of bad parameter).
  *
  * \note In order to have proper LSB/USB, we must exchange low and high and reverse their sign?
  */
-class rx_xlating_filter : public gr_hier_block2
+class rx_xlating_filter : public gr::hier_block2
 {
 
 public:
@@ -131,7 +134,7 @@ public:
 
 private:
     std::vector<gr_complex> d_taps;
-    gr_freq_xlating_fir_filter_ccc_sptr d_bpf;
+    gr::filter::freq_xlating_fir_filter_ccc::sptr d_bpf;
 
     double d_sample_rate;
     double d_center;

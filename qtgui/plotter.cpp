@@ -112,7 +112,11 @@ CPlotter::CPlotter(QWidget *parent) :
     m_GrabPosition = 0;
     m_Percent2DScreen = 50;	//percent of screen used for 2D display
 
+#ifdef Q_WS_MAC
+    m_FontSize = 11;
+#else
     m_FontSize = 9;
+#endif
     m_VdivDelta = 40;
     m_HdivDelta = 60;
 
@@ -539,9 +543,17 @@ void CPlotter::resizeEvent(QResizeEvent* )
         m_OverlayPixmap.fill(Qt::black);
         m_2DPixmap = QPixmap(m_Size.width(), m_Percent2DScreen*m_Size.height()/100);
         m_2DPixmap.fill(Qt::black);
-        m_WaterfallPixmap = QPixmap(m_Size.width(), (100-m_Percent2DScreen)*m_Size.height()/100);
+
+        int height = (100-m_Percent2DScreen)*m_Size.height()/100;
+        if (m_WaterfallPixmap.isNull()) {
+            m_WaterfallPixmap = QPixmap(m_Size.width(), height);
+            m_WaterfallPixmap.fill(Qt::black);
+        } else {
+            m_WaterfallPixmap = m_WaterfallPixmap.scaled(m_Size.width(), height,
+                                                         Qt::IgnoreAspectRatio,
+                                                         Qt::SmoothTransformation);
+        }
     }
-    m_WaterfallPixmap.fill(Qt::black);
     drawOverlay();
 }
 
@@ -593,9 +605,12 @@ void CPlotter::draw()
 
         QPainter painter1(&m_WaterfallPixmap);
         // get scaled FFT data
-        getScreenIntegerFFTData(255, qMin(w, MAX_SCREENSIZE), m_MaxdB, m_MindB,
-                                m_FftCenter-m_Span/2, m_FftCenter+m_Span/2,
-                                m_wfData, m_fftbuf, &xmin, &xmax);
+        getScreenIntegerFFTData(255, qMin(w, MAX_SCREENSIZE),
+                                m_MaxdB, m_MindB,
+                                m_FftCenter - (qint64)m_Span/2,
+                                m_FftCenter + (qint64)m_Span/2,
+                                m_wfData, m_fftbuf,
+                                &xmin, &xmax);
 
         // draw new line of fft data at top of waterfall bitmap
         painter1.setPen(QColor(0, 0, 0));
@@ -621,10 +636,19 @@ void CPlotter::draw()
 
         QPainter painter2(&m_2DPixmap);
 
+// workaround for "fixed" line drawing since Qt 5
+// see http://stackoverflow.com/questions/16990326 
+#if QT_VERSION >= 0x050000
+        painter2.translate(0.5, 0.5);
+#endif
+
         // get new scaled fft data
-        getScreenIntegerFFTData(h, qMin(w, MAX_SCREENSIZE), m_MaxdB, m_MindB,
-                                m_FftCenter-m_Span/2, m_FftCenter+m_Span/2,
-                                m_fftData, m_fftbuf, &xmin, &xmax);
+        getScreenIntegerFFTData(h, qMin(w, MAX_SCREENSIZE),
+                                m_MaxdB, m_MindB,
+                                m_FftCenter - (qint64)m_Span/2,
+                                m_FftCenter + (qint64)m_Span/2,
+                                m_fftData, m_fftbuf,
+                                &xmin, &xmax);
 
         // draw the pandapter
         painter2.setPen(m_FftColor);
@@ -714,7 +738,7 @@ void CPlotter::setNewFttData(double *fftData, double *wfData, int size)
 
 void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
                                        double maxdB, double mindB,
-                                       qint32 startFreq, qint32 stopFreq,
+                                       qint64 startFreq, qint64 stopFreq,
                                        double *inBuf, qint32 *outBuf,
                                        int *xmin, int *xmax)
 {
@@ -730,6 +754,7 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
     double  dBGainFactor = ((double)plotHeight)/abs(maxdB-mindB);
     qint32* m_pTranslateTbl = new qint32[qMax(m_FFTSize, plotWidth)];
 
+    /** FIXME: qint64 -> qint32 **/
     m_BinMin = (qint32)((double)startFreq*(double)m_FFTSize/m_SampleFreq);
     m_BinMin += (m_FFTSize/2);
     m_BinMax = (qint32)((double)stopFreq*(double)m_FFTSize/m_SampleFreq);
@@ -1049,7 +1074,7 @@ qint64 CPlotter::freqFromX(int x)
 {
     int w = m_OverlayPixmap.width();
     qint64 StartFreq = m_CenterFreq + m_FftCenter - m_Span/2;
-    qint64 f = (int)(StartFreq + (float)m_Span * (float)x/(float)w );
+    qint64 f = (qint64)(StartFreq + (float)m_Span * (float)x/(float)w );
     return f;
 }
 

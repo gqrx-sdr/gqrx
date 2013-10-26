@@ -1,6 +1,9 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011-2012 Alexandru Csete OZ9AEC.
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
+ * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,13 +29,15 @@
 #include <QPushButton>
 #include <QDebug>
 
-#include <osmosdr/osmosdr_device.h>
-#include <osmosdr/osmosdr_source_c.h>
-#include <osmosdr/osmosdr_ranges.h>
+#include <osmosdr/device.h>
+#include <osmosdr/source.h>
+#include <osmosdr/ranges.h>
 #include <boost/foreach.hpp>
 
 #ifdef WITH_PULSEAUDIO
 #include "pulseaudio/pa_device_list.h"
+#elif defined(WITH_PORTAUDIO)
+#include "portaudio/device_list.h"
 #endif
 
 #include "qtgui/ioconfig.h"
@@ -53,8 +58,39 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
 
     QString indev = settings->value("input/device", "").toString();
 
-    // Get list of input devices and store them in the input
-    // device selector together with the device descriptor strings
+    // automatic discovery of FCD does not work on Mac
+    // so we do it ourselves if we have portaudio
+#if defined(Q_WS_MAC) && defined(WITH_PORTAUDIO)
+    portaudio_device_list devices;
+    inDevList = devices.get_input_devices();
+
+    string this_dev;
+    for (i = 0; i < inDevList.size(); i++)
+    {
+        this_dev = inDevList[i].get_name();
+        if (this_dev.find("FUNcube Dongle V1.0") != string::npos)
+        {
+            devstr = "fcd,type=1,device='FUNcube Dongle V1.0'";
+            ui->inDevCombo->addItem("FUNcube Dongle V1.0", QVariant(devstr));
+            
+        }
+        else if (this_dev.find("FUNcube Dongle V2.0") != string::npos)
+        {
+            devstr = "fcd,type=2,device='FUNcube Dongle V2.0'";
+            ui->inDevCombo->addItem("FUNcube Dongle V2.0", QVariant(devstr));
+        }
+
+        if (indev == QString(inDevList[i].get_name().c_str()))
+        {
+            ui->inDevCombo->setCurrentIndex(i);
+            ui->inDevEdit->setText(devstr);
+            cfgmatch = true;
+        }
+    }
+#endif
+
+    // Get list of input devices discovered by gr-osmosdr and store them in
+    // the input device selector together with the device descriptor strings
     osmosdr::devices_t devs = osmosdr::device::find();
 
     qDebug() << __FUNCTION__ << ": Available input devices:";
@@ -82,7 +118,6 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
         }
 
         qDebug() << "   " << i << ":"  << devlabel;
-
         ++i;
 
         // Following code could be used for multiple matches
@@ -94,6 +129,7 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
         } */
 
     }
+
     ui->inDevCombo->addItem(tr("Other..."), QVariant(""));
 
     // If device string from config is not one of the detected devices
@@ -119,13 +155,14 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
 
     updateInputSampleRates(settings->value("input/sample_rate", 0).toInt());
 
+    // Analog bandwidth
+    ui->bwSpinBox->setValue(1.0e-6*settings->value("input/bandwidth", 0.0).toDouble());
+
     // LNB LO
     ui->loSpinBox->setValue(1.0e-6*settings->value("input/lnb_lo", 0.0).toDouble());
 
     // Output device
     QString outdev = settings->value("output/device", "").toString();
-
-#ifdef Q_OS_LINUX
 
 #ifdef WITH_PULSEAUDIO
     // get list of output devices
@@ -144,12 +181,27 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
         if (outdev == QString(outDevList[i].get_name().c_str()))
             ui->outDevCombo->setCurrentIndex(i+1);
     }
-#endif // WITH_PULSEAUDIO
-#elif defined(__APPLE__) && defined(__MACH__) // Works for X11 Qt on Mac OS X too
-    // Make output device selector editable
-    ui->outDevCombo->setEditable(true);
 
-#endif
+#elif defined(Q_WS_MAC) && defined(WITH_PORTAUDIO)
+    // get list of output devices
+    // (already defined) portaudio_device_list devices;
+    outDevList = devices.get_output_devices();
+
+    qDebug() << __FUNCTION__ << ": Available output devices:";
+    for (i = 0; i < outDevList.size(); i++)
+    {
+        qDebug() << "   " << i << ":" << QString(outDevList[i].get_name().c_str());
+        ui->outDevCombo->addItem(QString(outDevList[i].get_name().c_str()));
+
+        // note that item #i in devlist will be item #(i+1)
+        // in combo box due to "default"
+        if (outdev == QString(outDevList[i].get_name().c_str()))
+            ui->outDevCombo->setCurrentIndex(i+1);
+    }
+
+#else
+    ui->outDevCombo->setEditable(true);
+#endif // WITH_PULSEAUDIO
 
     // Signals and slots
     connect(this, SIGNAL(accepted()), this, SLOT(saveConfig()));
@@ -172,7 +224,7 @@ void CIoConfig::saveConfig()
 
     if (idx > 0)
     {
-#ifdef WITH_PULSEAUDIO //pafix
+#if defined(WITH_PULSEAUDIO) || defined(WITH_PORTAUDIO)
         qDebug() << "Output device" << idx << ":" << QString(outDevList[idx-1].get_name().c_str());
         m_settings->setValue("output/device", QString(outDevList[idx-1].get_name().c_str()));
 #endif
@@ -184,7 +236,16 @@ void CIoConfig::saveConfig()
 
     // input settings
     m_settings->setValue("input/device", ui->inDevEdit->text());  // "OK" button disabled if empty
-    m_settings->setValue("input/lnb_lo", (int)ui->loSpinBox->value()*1.0e6);
+
+    qint64 value = (qint64)(ui->bwSpinBox->value()*1.e6);
+    if (value)
+        m_settings->setValue("input/bandwidth", value);
+    else
+        m_settings->remove("input/bandwidth");
+
+    value = (qint64)(ui->loSpinBox->value()*1.e6);
+    if (value)
+        m_settings->setValue("input/lnb_lo", value);
 
     bool ok=false;
     int sr = ui->inSrCombo->currentText().toInt(&ok);
@@ -219,7 +280,14 @@ void CIoConfig::updateInputSampleRates(int rate)
 
     if (ui->inDevEdit->text().contains("fcd"))
     {
-        ui->inSrCombo->addItem("96000");
+        if (ui->inDevCombo->currentText().contains("V2.0"))
+        {
+            ui->inSrCombo->addItem("192000");
+        }
+        else
+        {
+            ui->inSrCombo->addItem("96000");
+        }
     }
     else if (ui->inDevEdit->text().contains("rtl"))
     {
@@ -251,6 +319,16 @@ void CIoConfig::updateInputSampleRates(int rate)
         ui->inSrCombo->addItem("2000000");
         ui->inSrCombo->addItem("4000000");
         ui->inSrCombo->addItem("8000000");
+    }
+    else if (ui->inDevEdit->text().contains("hackrf"))
+    {
+        if (rate > 0)
+            ui->inSrCombo->addItem(QString("%1").arg(rate));
+        ui->inSrCombo->addItem("8000000");
+        ui->inSrCombo->addItem("10000000");
+        ui->inSrCombo->addItem("12500000");
+        ui->inSrCombo->addItem("16000000");
+        ui->inSrCombo->addItem("20000000");
     }
 }
 

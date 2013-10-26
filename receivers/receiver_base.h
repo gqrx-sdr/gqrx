@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2012-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -20,7 +23,7 @@
 #ifndef RECEIVER_BASE_H
 #define RECEIVER_BASE_H
 
-#include <gr_hier_block2.h>
+#include <gnuradio/hier_block2.h>
 
 
 class receiver_base_cf;
@@ -35,12 +38,12 @@ typedef boost::shared_ptr<receiver_base_cf> receiver_base_cf_sptr;
  * outpout audio (or other kind of float data).
  *
  */
-class receiver_base_cf : public gr_hier_block2
+class receiver_base_cf : public gr::hier_block2
 {
 
 public:
     /*! \brief Public contructor.
-     *  \param src_name Descriptive name used in the contructor of gr_hier_block2
+     *  \param src_name Descriptive name used in the contructor of gr::hier_block2
      */
     receiver_base_cf(std::string src_name);
     ~receiver_base_cf();

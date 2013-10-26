@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -17,7 +20,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include <gr_io_signature.h>
+#include <gnuradio/io_signature.h>
 #include "receivers/receiver_base.h"
 
 
@@ -27,9 +30,9 @@ static const int MIN_OUT = 2; /* Minimum number of output streams. */
 static const int MAX_OUT = 2; /* Maximum number of output streams. */
 
 receiver_base_cf::receiver_base_cf(std::string src_name)
-    : gr_hier_block2 (src_name,
-                      gr_make_io_signature (MIN_IN, MAX_IN, sizeof(gr_complex)),
-                      gr_make_io_signature (MIN_OUT, MAX_OUT, sizeof(float)))
+    : gr::hier_block2 (src_name,
+                      gr::io_signature::make (MIN_IN, MAX_IN, sizeof(gr_complex)),
+                      gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof(float)))
 {
 
 }

@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -18,8 +21,8 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <cmath>
-#include <gr_io_signature.h>
-#include <gr_firdes.h>
+#include <gnuradio/io_signature.h>
+#include <gnuradio/filter/firdes.h>
 #include "dsp/lpf.h"
 
 static const int MIN_IN  = 1; /* Mininum number of input streams. */
@@ -42,20 +45,20 @@ lpf_ff_sptr make_lpf_ff(double sample_rate, double cutoff_freq,
 
 lpf_ff::lpf_ff(double sample_rate, double cutoff_freq,
                double trans_width, double gain)
-    : gr_hier_block2("lpf_ff",
-                     gr_make_io_signature(MIN_IN,  MAX_IN,  sizeof (float)),
-                     gr_make_io_signature(MIN_OUT, MAX_OUT, sizeof (float))),
+    : gr::hier_block2("lpf_ff",
+                     gr::io_signature::make(MIN_IN,  MAX_IN,  sizeof (float)),
+                     gr::io_signature::make(MIN_OUT, MAX_OUT, sizeof (float))),
     d_sample_rate(sample_rate),
     d_cutoff_freq(cutoff_freq),
     d_trans_width(trans_width),
     d_gain(gain)
 {
     /* generate taps */
-    d_taps = gr_firdes::low_pass(d_gain, d_sample_rate,
+    d_taps = gr::filter::firdes::low_pass(d_gain, d_sample_rate,
                                  d_cutoff_freq, d_trans_width);
 
     /* create low-pass filter (decimation=1) */
-    lpf = gr_make_fir_filter_fff(1, d_taps);
+    lpf = gr::filter::fir_filter_fff::make(1, d_taps);
 
     /* connect filter */
     connect(self(), 0, lpf, 0);
@@ -75,7 +78,7 @@ void lpf_ff::set_param(double cutoff_freq, double trans_width)
     d_trans_width = trans_width;
 
     /* generate new taps */
-    d_taps = gr_firdes::low_pass(d_gain, d_sample_rate,
+    d_taps = gr::filter::firdes::low_pass(d_gain, d_sample_rate,
                                  d_cutoff_freq, d_trans_width);
 
     lpf->set_taps(d_taps);

@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -20,7 +23,7 @@
 #ifndef RX_METER_H
 #define RX_METER_H
 
-#include <gr_sync_block.h>
+#include <gnuradio/sync_block.h>
 
 enum detector_type_e {
     DETECTOR_TYPE_NONE   = 0,
@@ -55,7 +58,7 @@ rx_meter_c_sptr make_rx_meter_c(int detector=DETECTOR_TYPE_RMS);
  * which then can be retrieved using the get_level() and get_level_db()
  * methods.
  */
-class rx_meter_c : public gr_sync_block
+class rx_meter_c : public gr::sync_block
 {
     friend rx_meter_c_sptr make_rx_meter_c(int detector);
 

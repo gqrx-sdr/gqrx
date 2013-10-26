@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -19,6 +22,7 @@
  */
 #include <QDebug>
 #include <QDateTime>
+#include <QDir>
 #include "dockaudio.h"
 #include "ui_dockaudio.h"
 
@@ -34,8 +38,12 @@ DockAudio::DockAudio(QWidget *parent) :
     // Might be fixed in Qt 5?
     ui->audioPlayButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     ui->audioRecButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
-    ui->audioRecConfButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+    ui->audioConfButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
 #endif
+
+    audioOptions = new CAudioOptions(this);
+
+    connect(audioOptions, SIGNAL(newRecDirSelected(QString)), this, SLOT(setNewRecDir(QString)));
 
     ui->audioSpectrum->setPercent2DScreen(100);
     ui->audioSpectrum->setFreqUnits(1000);
@@ -130,10 +138,11 @@ void DockAudio::on_audioRecButton_clicked(bool checked)
     if (checked) {
         // FIXME: option to use local time
         // use toUTC() function compatible with older versions of Qt.
-        lastAudio = QDateTime::currentDateTime().toUTC().toString("gqrx-yyyyMMdd-hhmmss.'wav'");
+        QString file_name = QDateTime::currentDateTime().toUTC().toString("gqrx-yyyyMMdd-hhmmss.'wav'");
+        last_audio = QString("%1/%2").arg(rec_dir).arg(file_name);
 
         // emit signal and start timer
-        emit audioRecStarted(lastAudio);
+        emit audioRecStarted(last_audio);
 
         ui->audioRecButton->setToolTip(tr("Stop audio recorder"));
         ui->audioPlayButton->setEnabled(false); /* prevent playback while recording */
@@ -155,14 +164,15 @@ void DockAudio::on_audioRecButton_clicked(bool checked)
 void DockAudio::on_audioPlayButton_clicked(bool checked)
 {
     if (checked) {
-
         // emit signal and start timer
-        emit audioPlayStarted(lastAudio);
+        emit audioPlayStarted(last_audio);
 
+        ui->audioRecLabel->setText(QFileInfo(last_audio).fileName());
         ui->audioPlayButton->setToolTip(tr("Stop audio playback"));
         ui->audioRecButton->setEnabled(false); // prevent recording while we play
     }
     else {
+        ui->audioRecLabel->setText("<i>DSP</i>");
         ui->audioPlayButton->setToolTip(tr("Start playback of last recorded audio file"));
         emit audioPlayStopped();
 
@@ -170,6 +180,11 @@ void DockAudio::on_audioPlayButton_clicked(bool checked)
     }
 }
 
+/*! \brief Configure button clicked. */
+void DockAudio::on_audioConfButton_clicked()
+{
+    audioOptions->show();
+}
 
 /*! \brief Set status of audio record button. */
 void DockAudio::setAudioRecButtonState(bool checked)
@@ -211,6 +226,11 @@ void DockAudio::saveSettings(QSettings *settings)
         return;
 
     settings->setValue("audio/gain", audioGain());
+
+    if (rec_dir != QDir::homePath())
+        settings->setValue("audio/rec_dir", rec_dir);
+    else
+        settings->remove("audio/rec_dir");
 }
 
 void DockAudio::readSettings(QSettings *settings)
@@ -220,8 +240,19 @@ void DockAudio::readSettings(QSettings *settings)
 
     bool conv_ok = false;
 
-    int gain = settings->value("audio/gain", QVariant( -200 ) ).toInt(&conv_ok);
-    if (conv_ok) {
+    int gain = settings->value("audio/gain", QVariant(-200)).toInt(&conv_ok);
+    if (conv_ok)
         setAudioGain(gain);
-    }
+
+    // Location of audio recordings
+    rec_dir = settings->value("audio/rec_dir", QDir::homePath()).toString();
+    audioOptions->setRecDir(rec_dir);
+}
+
+/*! \brief Slot called when a new valid recording directory has been selected
+ *         in the audio conf dialog.
+ */
+void DockAudio::setNewRecDir(const QString &dir)
+{
+    rec_dir = dir;
 }

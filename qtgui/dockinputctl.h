@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -20,8 +23,37 @@
 #ifndef DOCKINPUTCTL_H
 #define DOCKINPUTCTL_H
 
+#include <vector>
+#include <string>
+
 #include <QDockWidget>
+#include <QGridLayout>
+#include <QLabel>
+#include <QList>
 #include <QSettings>
+#include <QSlider>
+#include <QMap>
+#include <QString>
+#include <QVariant>
+
+
+/*! \brief Structure describing a gain parameter with its range. */
+typedef struct
+{
+    std::string name;   /*!< The name of this gain stage. */
+    double      value;  /*!< Initial value. */
+    double      start;  /*!< The lower limit. */
+    double      stop;   /*!< The uppewr limit. */
+    double      step;   /*!< The resolution/step. */
+} gain_t;
+
+/*! \brief A vector with gain parameters.
+ *
+ * This data structure is used for transfering
+ * information about available gain stages.
+ */
+typedef std::vector<gain_t> gain_list_t;
+
 
 namespace Ui {
     class DockInputCtl;
@@ -41,8 +73,11 @@ public:
     void  setLnbLo(double freq_mhz);
     double lnbLo();
 
-    void   setGain(double gain);
-    double gain();
+    void setGain(QString &name, double value);
+    double gain(QString &name);
+
+    void setAgc(bool enabled);
+    bool agc();
 
     void setFreqCorr(int corr);
     int  freqCorr();
@@ -59,27 +94,47 @@ public:
     void setIgnoreLimits(bool reversed);
     bool ignoreLimits(void);
 
+    void setAntennas(std::vector<std::string> &antennas);
+    void setAntenna(const QString &antenna);
+
+    void setGainStages(gain_list_t &gain_list);
+
 signals:
-    void gainChanged(double gain); /*!< Relative gain between 0.0 and 1.0 (negative means auto). */
+    void gainChanged(QString name, double value);
+    void autoGainChanged(bool enabled);
     void freqCorrChanged(int value);
     void lnbLoChanged(double freq_mhz);
     void iqSwapChanged(bool reverse);
     void dcCancelChanged(bool enabled);
     void iqBalanceChanged(bool enabled);
     void ignoreLimitsChanged(bool ignore);
+    void antennaSelected(QString antenna);
 
 private slots:
     void on_lnbSpinBox_valueChanged(double value);
-    void on_gainSlider_valueChanged(int value);
-    void on_gainButton_toggled(bool checked);
+    void on_agcButton_toggled(bool checked);
     void on_freqCorrSpinBox_valueChanged(int value);
     void on_iqSwapButton_toggled(bool checked);
     void on_dcCancelButton_toggled(bool checked);
     void on_iqBalanceButton_toggled(bool checked);
     void on_ignoreButton_toggled(bool checked);
+    void on_antSelector_currentIndexChanged(const QString &antenna);
+
+    void sliderValueChanged(int value);
 
 private:
-    Ui::DockInputCtl *ui;
+    void clearWidgets();
+    void updateLabel(int idx, double value);
+    void getGains(QMap<QString, QVariant> *gains);
+    void setGains(QMap<QString, QVariant> *gains);
+
+private:
+    QList<QSlider *>  gain_sliders; /*!< A list containing the gain sliders. */
+    QList<QLabel *>   gain_labels;  /*!< A list containing the gain labels. */
+    QList<QLabel *>   value_labels; /*!< A list containing labels showing the current gain value. */
+
+    Ui::DockInputCtl *ui;           /*!< User interface. */
+    QGridLayout      *gainLayout;   /*!< Grid layout containing gain controls and labels. */
 };
 
 #endif // DOCKINPUTCTL_H

@@ -147,7 +147,7 @@ private:
 
     void getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
                                  double maxdB, double mindB,
-                                 qint32 startFreq, qint32 stopFreq,
+                                 qint64 startFreq, qint64 stopFreq,
                                  double *inBuf, qint32 *outBuf,
                                  qint32 *maxbin, qint32 *minbin);
 

@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -23,6 +26,7 @@
 #include <QColor>
 #include <QDockWidget>
 #include <QSettings>
+#include "audio_options.h"
 
 namespace Ui {
     class DockAudio;
@@ -85,12 +89,16 @@ private slots:
     void on_audioGainSlider_valueChanged(int value);
     void on_audioRecButton_clicked(bool checked);
     void on_audioPlayButton_clicked(bool checked);
+    void on_audioConfButton_clicked();
+    void setNewRecDir(const QString &dir);
 
 
 private:
     Ui::DockAudio *ui;
-    QString        lastAudio;   /*! Last audio recording. */
-    bool           autoSpan;    /*! Whether to allow mode-dependent auto span. */
+    CAudioOptions *audioOptions; /*! Audio options dialog. */
+    QString        rec_dir;      /*! Location for audio recordings. */
+    QString        last_audio;   /*! Last audio recording. */
+    bool           autoSpan;     /*! Whether to allow mode-dependent auto span. */
 };
 
 #endif // DOCKAUDIO_H

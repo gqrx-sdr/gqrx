@@ -20,37 +20,43 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#ifndef NB_OPTIONS_H
-#define NB_OPTIONS_H
+#ifndef AUDIO_OPTIONS_H
+#define AUDIO_OPTIONS_H
 
-#include <QDialog>
 #include <QCloseEvent>
+#include <QDialog>
+#include <QDir>
+#include <QPalette>
 
 namespace Ui {
-class CNbOptions;
+    class CAudioOptions;
 }
 
-class CNbOptions : public QDialog
+/*! \brief GUI widget for configuring audio options. */
+class CAudioOptions : public QDialog
 {
     Q_OBJECT
     
 public:
-    explicit CNbOptions(QWidget *parent = 0);
-    ~CNbOptions();
+    explicit CAudioOptions(QWidget *parent = 0);
+    ~CAudioOptions();
 
     void closeEvent(QCloseEvent *event);
 
-    double nbThreshold(int nbid);
+    void setRecDir(const QString &dir);
 
 signals:
-    void thresholdChanged(int nb, double val);
+    /*! \brief Signal emitted when a new valid directory has been selected. */
+    void newRecDirSelected(const QString &dir);
 
 private slots:
-    void on_nb1Threshold_valueChanged(double val);
-    void on_nb2Threshold_valueChanged(double val);
+    void on_recDirEdit_textChanged(const QString &text);
+    void on_recDirButton_clicked();
 
 private:
-    Ui::CNbOptions *ui;
+    Ui::CAudioOptions *ui;            /*!< The user interface widget. */
+    QDir              *work_dir;      /*!< Used for validating chosen directory. */
+    QPalette          *error_palette; /*!< Palette used to indicate an error. */
 };
 
-#endif // NB_OPTIONS_H
+#endif // AUDIO_OPTIONS_H

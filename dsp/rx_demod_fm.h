@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -20,10 +23,10 @@
 #ifndef RX_DEMOD_FM_H
 #define RX_DEMOD_FM_H
 
-#include <gr_hier_block2.h>
-#include <gr_quadrature_demod_cf.h>
-#include <gr_iir_filter_ffd.h>
-#include <gr_pfb_arb_resampler_ccf.h>
+#include <gnuradio/hier_block2.h>
+#include <gnuradio/analog/quadrature_demod_cf.h>
+#include <gnuradio/filter/iir_filter_ffd.h>
+#include <gnuradio/filter/pfb_arb_resampler_ccf.h>
 #include <vector>
 
 
@@ -53,7 +56,7 @@ rx_demod_fm_sptr make_rx_demod_fm(float quad_rate, float audio_rate, float max_d
  * It also provides de-emphasis with variable time constant (use 0.0 to disable).
  *
  */
-class rx_demod_fm : public gr_hier_block2
+class rx_demod_fm : public gr::hier_block2
 {
 
 public:
@@ -65,9 +68,9 @@ public:
 
 private:
     /* GR blocks */
-    gr_quadrature_demod_cf_sptr   d_quad;      /*! The quadrature demodulator block. */
-    gr_iir_filter_ffd_sptr        d_deemph;    /*! De-emphasis IIR filter. */
-    gr_pfb_arb_resampler_ccf_sptr d_resampler; /*! PFB resampler. */
+    gr::analog::quadrature_demod_cf::sptr   d_quad;      /*! The quadrature demodulator block. */
+    gr::filter::iir_filter_ffd::sptr        d_deemph;    /*! De-emphasis IIR filter. */
+    gr::filter::pfb_arb_resampler_ccf::sptr d_resampler; /*! PFB resampler. */
     std::vector<float>            d_taps;      /*! Taps for the PFB resampler. */
 
     /* other parameters */

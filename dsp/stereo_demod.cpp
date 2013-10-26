@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2012 Alexandru Csete OZ9AEC.
  * FM stereo implementation by Alex Grinkov a.grinkov(at)gmail.com.
  *
@@ -18,7 +21,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include <gr_io_signature.h>
+#include <gnuradio/io_signature.h>
 #include <math.h>
 #include <iostream>
 #include <dsp/stereo_demod.h>
@@ -45,9 +48,9 @@ static const int MAX_OUT = 2; /* Maximum number of output streams. */
  * Use make_stereo_demod() instead.
  */
 stereo_demod::stereo_demod(float input_rate, float audio_rate, bool stereo)
-    : gr_hier_block2("stereo_demod",
-                     gr_make_io_signature (MIN_IN,  MAX_IN,  sizeof (float)),
-                     gr_make_io_signature (MIN_OUT, MAX_OUT, sizeof (float))),
+    : gr::hier_block2("stereo_demod",
+                     gr::io_signature::make (MIN_IN,  MAX_IN,  sizeof (float)),
+                     gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof (float))),
     d_input_rate(input_rate),
     d_audio_rate(audio_rate),
     d_stereo(stereo)
@@ -60,39 +63,39 @@ stereo_demod::stereo_demod(float input_rate, float audio_rate, bool stereo)
     lpf1 = make_lpf_ff(d_input_rate, 17e3, 2e3); // FIXME
     audio_rr1 = make_resampler_ff(d_audio_rate/d_input_rate);
 
-    d_tone_taps = gr_firdes::complex_band_pass(
+    d_tone_taps = gr::filter::firdes::complex_band_pass(
                                        1.0,          // gain,
 		                                   d_input_rate, // sampling_freq
                                        18800.,       // low_cutoff_freq
                                        19200.,       // high_cutoff_freq
                                        300.);        // transition_width
-    tone = gr_make_fir_filter_fcc(1, d_tone_taps);
+    tone = gr::filter::fir_filter_fcc::make(1, d_tone_taps);
 
-    pll = gr_make_pll_refout_cc(0.001,                        // loop_bw FIXME
+    pll = gr::analog::pll_refout_cc::make(0.001,                        // loop_bw FIXME
                                 2*M_PI * 19200 / input_rate,  // max_freq
                                 2*M_PI * 18800 / input_rate); // min_freq
 
-    subtone = gr_make_multiply_cc();
+    subtone = gr::blocks::multiply_cc::make();
 
-    lo = gr_make_complex_to_imag();
+    lo = gr::blocks::complex_to_imag::make();
 
 #ifdef STEREO_DEMOD_PARANOIC
-    d_pll_taps = gr_firdes::band_pass(
+    d_pll_taps = gr::filter::firdes::band_pass(
                                        1.0,          // gain,
 		                                   d_input_rate, // sampling_freq
                                        37600.,       // low_cutoff_freq
                                        38400.,       // high_cutoff_freq
                                        400.);        // transition_width
-    lo2 = gr_make_fir_filter_fff(1, d_pll_taps);
+    lo2 = gr::filter::fir_filter_fff::make(1, d_pll_taps);
 #endif
 
-    mixer = gr_make_multiply_ff();
+    mixer = gr::blocks::multiply_ff::make();
 
-    cdp = gr_make_multiply_const_ff( 2.); // FIXME
-    cdm = gr_make_multiply_const_ff(-2.); // FIXME
+    cdp = gr::blocks::multiply_const_ff::make( 2.); // FIXME
+    cdm = gr::blocks::multiply_const_ff::make(-2.); // FIXME
 
-    add0 = gr_make_add_ff();
-    add1 = gr_make_add_ff();
+    add0 = gr::blocks::add_ff::make();
+    add1 = gr::blocks::add_ff::make();
 
     /* connect block */
     connect(self(), 0, tone, 0);

@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011-2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -26,6 +29,8 @@
 
 #ifdef WITH_PULSEAUDIO
 #include "pulseaudio/pa_device_list.h"
+#elif defined(WITH_PORTAUDIO)
+#include "portaudio/device_list.h"
 #endif
 
 
@@ -57,7 +62,11 @@ private:
 
 #ifdef WITH_PULSEAUDIO
     vector<pa_device> outDevList;
+#elif defined(WITH_PORTAUDIO)
+    vector<portaudio_device> outDevList;
+    vector<portaudio_device> inDevList;
 #endif
+
 };
 
 #endif // IOCONFIG_H

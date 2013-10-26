@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -20,8 +23,8 @@
 #ifndef RX_NB_CC_H
 #define RX_NB_CC_H
 
-#include <gr_sync_block.h>
-#include <gr_complex.h>
+#include <gnuradio/sync_block.h>
+#include <gnuradio/gr_complex.h>
 #include <boost/thread/mutex.hpp>
 
 class rx_nb_cc;
@@ -48,7 +51,7 @@ rx_nb_cc_sptr make_rx_nb_cc(double sample_rate=96000.0, float thld1=3.3, float t
 
  *
  */
-class rx_nb_cc : public gr_sync_block
+class rx_nb_cc : public gr::sync_block
 {
     friend rx_nb_cc_sptr make_rx_nb_cc(double sample_rate, float thld1, float thld2);
 

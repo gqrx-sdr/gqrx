@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -17,7 +20,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include <gr_io_signature.h>
+#include <gnuradio/io_signature.h>
 #include <stdio.h>
 
 #include <pulse/simple.h>
@@ -48,9 +51,9 @@ pa_source_sptr make_pa_source(const string device_name, int sample_rate, int num
 
 pa_source::pa_source (const string device_name, int sample_rate, int num_chan,
                       const string app_name, const string stream_name)
-  : gr_sync_block ("pa_source",
-        gr_make_io_signature (0, 0, 0),
-        gr_make_io_signature (0, 0, 0)),
+  : gr::sync_block ("pa_source",
+        gr::io_signature::make (0, 0, 0),
+        gr::io_signature::make (0, 0, 0)),
     d_stream_name(stream_name),
     d_app_name(app_name)
 {
@@ -62,7 +65,7 @@ pa_source::pa_source (const string device_name, int sample_rate, int num_chan,
 //    }
     num_chan = 2;
 
-    set_output_signature(gr_make_io_signature (1, num_chan, sizeof(float)));
+    set_output_signature(gr::io_signature::make (1, num_chan, sizeof(float)));
 
     /* The sample type to use */
     d_ss.format = PA_SAMPLE_FLOAT32LE;

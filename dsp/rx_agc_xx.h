@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -20,8 +23,8 @@
 #ifndef RX_AGC_XX_H
 #define RX_AGC_XX_H
 
-#include <gr_sync_block.h>
-#include <gr_complex.h>
+#include <gnuradio/sync_block.h>
+#include <gnuradio/gr_complex.h>
 #include <boost/thread/mutex.hpp>
 #include <dsp/agc_impl.h>
 
@@ -64,7 +67,7 @@ rx_agc_cc_sptr make_rx_agc_cc(double sample_rate = 96000.0, bool agc_on = true,
  *
  * \todo rx_agc_ff
  */
-class rx_agc_cc : public gr_sync_block
+class rx_agc_cc : public gr::sync_block
 {
     friend rx_agc_cc_sptr make_rx_agc_cc(double sample_rate, bool agc_on,
                                          int threshold, int manual_gain,
