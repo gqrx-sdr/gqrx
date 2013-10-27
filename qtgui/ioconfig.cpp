@@ -72,7 +72,6 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
         {
             devstr = "fcd,type=1,device='FUNcube Dongle V1.0'";
             ui->inDevCombo->addItem("FUNcube Dongle V1.0", QVariant(devstr));
-            
         }
         else if (this_dev.find("FUNcube Dongle V2.0") != string::npos)
         {
@@ -329,6 +328,50 @@ void CIoConfig::updateInputSampleRates(int rate)
         ui->inSrCombo->addItem("12500000");
         ui->inSrCombo->addItem("16000000");
         ui->inSrCombo->addItem("20000000");
+    }
+    else if (ui->inDevEdit->text().contains("bladerf"))
+    {
+        if (rate > 0)
+            ui->inSrCombo->addItem(QString("%1").arg(rate));
+        ui->inSrCombo->addItem("160000");
+        ui->inSrCombo->addItem("250000");
+        ui->inSrCombo->addItem("500000");
+        ui->inSrCombo->addItem("1000000");
+        ui->inSrCombo->addItem("2000000");
+        ui->inSrCombo->addItem("5000000");
+        ui->inSrCombo->addItem("8000000");
+        ui->inSrCombo->addItem("10000000");
+        ui->inSrCombo->addItem("15000000");
+        ui->inSrCombo->addItem("20000000");
+        ui->inSrCombo->addItem("25000000");
+        ui->inSrCombo->addItem("30000000");
+        ui->inSrCombo->addItem("35000000");
+        ui->inSrCombo->addItem("40000000");
+    }
+    else if (ui->inDevEdit->text().contains("netsdr"))
+    {
+        if (rate > 0)
+            ui->inSrCombo->addItem(QString("%1").arg(rate));
+        ui->inSrCombo->addItem("32000");
+        ui->inSrCombo->addItem("40000");
+        ui->inSrCombo->addItem("50000");
+        ui->inSrCombo->addItem("62500");
+        ui->inSrCombo->addItem("78125");
+        ui->inSrCombo->addItem("80000");
+        ui->inSrCombo->addItem("100000");
+        ui->inSrCombo->addItem("125000");
+        ui->inSrCombo->addItem("156250");
+        ui->inSrCombo->addItem("160000");
+        ui->inSrCombo->addItem("200000");
+        ui->inSrCombo->addItem("250000");
+        ui->inSrCombo->addItem("312500");
+        ui->inSrCombo->addItem("400000");
+        ui->inSrCombo->addItem("500000");
+        ui->inSrCombo->addItem("625000");
+        ui->inSrCombo->addItem("800000");
+        ui->inSrCombo->addItem("1000000");
+        ui->inSrCombo->addItem("1250000");
+        ui->inSrCombo->addItem("2000000");
     }
 }
 

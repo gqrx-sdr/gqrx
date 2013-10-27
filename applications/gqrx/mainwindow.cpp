@@ -184,6 +184,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(gotoDemodFreq()), ui->plotter, SLOT(moveToDemodFreq()));
     connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
+    connect(uiDockFft, SIGNAL(peakDetectionToggled(bool)), this, SLOT(setPeakDetection(bool)));
     connect(uiDockFreqTable, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
 
     // restore last session
@@ -259,7 +260,6 @@ MainWindow::~MainWindow()
     delete uiDockFft;
     //delete uiDockIqPlay;
     delete uiDockInputCtl;
-    delete uiDockFreqTable;
     delete rx;
     delete [] d_fftData;
     delete [] d_realFftData;
@@ -1300,6 +1300,11 @@ void MainWindow::setFftFill(bool enable)
 {
     ui->plotter->setFftFill(enable);
     uiDockAudio->setFftFill(enable);
+}
+
+void MainWindow::setPeakDetection(bool enabled)
+{
+    ui->plotter->setPeakDetection(enabled ,2);
 }
 
 /*! \brief Force receiver reconfiguration.

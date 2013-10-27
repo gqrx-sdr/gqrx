@@ -6,9 +6,15 @@
 #include <QFrame>
 #include <QImage>
 #include <vector>
+#include <QMap>
 
 #define HORZ_DIVS_MAX 50 //12
 #define MAX_SCREENSIZE 4096
+
+#define PEAK_CLICK_MAX_H_DISTANCE 10 //Maximum horizontal distance of clicked point from peak
+#define PEAK_CLICK_MAX_V_DISTANCE 20 //Maximum vertical distance of clicked point from peak
+#define PEAK_H_TOLERANCE 2
+
 
 class CPlotter : public QFrame
 {
@@ -104,6 +110,8 @@ public:
         m_FftCenter = qBound(-limit, f, limit);
     }
 
+    int getNearestPeak(QPoint pt);
+
 signals:
     void newCenterFreq(qint64 f);
     void newDemodFreq(qint64 freq, qint64 delta); /* delta is the offset from the center */
@@ -118,6 +126,7 @@ public slots:
     void moveToDemodFreq(void);
     void setFftPlotColor(const QColor color);
     void setFftFill(bool enabled);
+    void setPeakDetection(bool enabled, double c);
 
 protected:
     //re-implemented widget event handlers
@@ -213,6 +222,9 @@ private:
 
     QColor m_FftColor, m_FftCol0, m_FftCol1;
     bool m_FftFill;
+
+    double m_PeakDetection;
+    QMap<int,int> m_Peaks;
 
     QList< QPair<QRect, qint64> > m_BookmarkTags;
 };

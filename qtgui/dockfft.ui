@@ -34,16 +34,7 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
+    <property name="margin">
      <number>0</number>
     </property>
     <item>
@@ -61,9 +52,9 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>0</y>
-         <width>250</width>
-         <height>203</height>
+         <y>-13</y>
+         <width>234</width>
+         <height>226</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -250,6 +241,37 @@
           </property>
          </widget>
         </item>
+        <item row="3" column="1">
+         <widget class="QSlider" name="fftSplitSlider">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>22</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Spatial distribution between pandapter and waterfall</string>
+          </property>
+          <property name="minimum">
+           <number>0</number>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>50</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
         <item row="2" column="1">
          <widget class="QSlider" name="fftAvgSlider">
           <property name="sizePolicy">
@@ -294,37 +316,6 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
-         <widget class="QSlider" name="fftSplitSlider">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>22</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Spatial distribution between pandapter and waterfall</string>
-          </property>
-          <property name="minimum">
-           <number>0</number>
-          </property>
-          <property name="maximum">
-           <number>100</number>
-          </property>
-          <property name="value">
-           <number>50</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
         <item row="3" column="2">
          <widget class="QLabel" name="wfLabel">
           <property name="text">
@@ -335,7 +326,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
+        <item row="5" column="0">
          <widget class="QLabel" name="zoomLAbel">
           <property name="toolTip">
            <string>Zooming shortcuts</string>
@@ -348,7 +339,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
+        <item row="5" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout">
           <property name="spacing">
            <number>0</number>
@@ -439,7 +430,7 @@
           </item>
          </layout>
         </item>
-        <item row="5" column="0">
+        <item row="6" column="0">
          <widget class="QLabel" name="colorLabel">
           <property name="toolTip">
            <string>Color for the FFT plot</string>
@@ -452,7 +443,7 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
+        <item row="6" column="1">
          <widget class="QtColorPicker" name="colorPicker">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -468,7 +459,7 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="2">
+        <item row="6" column="2">
          <widget class="QPushButton" name="fillButton">
           <property name="sizePolicy">
            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
@@ -499,6 +490,19 @@
           </property>
          </widget>
         </item>
+        <item row="4" column="0" colspan="3">
+         <widget class="QCheckBox" name="peakDetectionButton">
+          <property name="toolTip">
+           <string>Enable peak detection in FFT</string>
+          </property>
+          <property name="text">
+           <string>Peak detection</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
        </layout>
        <zorder>fillButton</zorder>
        <zorder>zoomLAbel</zorder>
@@ -514,6 +518,7 @@
        <zorder>fftRateComboBox</zorder>
        <zorder></zorder>
        <zorder>colorLabel</zorder>
+       <zorder>peakDetectionButton</zorder>
       </widget>
      </widget>
     </item>
