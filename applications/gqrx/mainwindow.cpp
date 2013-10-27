@@ -176,6 +176,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(gotoDemodFreq()), ui->plotter, SLOT(moveToDemodFreq()));
     connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
+    connect(uiDockFft, SIGNAL(fftPeakHoldToggled(bool)), this, SLOT(setFftPeakHold(bool)));
     connect(uiDockFft, SIGNAL(peakDetectionToggled(bool)), this, SLOT(setPeakDetection(bool)));
 
     // restore last session
@@ -1289,6 +1290,11 @@ void MainWindow::setFftFill(bool enable)
 {
     ui->plotter->setFftFill(enable);
     uiDockAudio->setFftFill(enable);
+}
+
+void MainWindow::setFftPeakHold(bool enable)
+{
+    ui->plotter->setPeakHold(enable);
 }
 
 void MainWindow::setPeakDetection(bool enabled)

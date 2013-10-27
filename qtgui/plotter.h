@@ -126,6 +126,7 @@ public slots:
     void moveToDemodFreq(void);
     void setFftPlotColor(const QColor color);
     void setFftFill(bool enabled);
+    void setPeakHold(bool enabled);
     void setPeakDetection(bool enabled, double c);
 
 protected:
@@ -160,7 +161,10 @@ private:
                                  double *inBuf, qint32 *outBuf,
                                  qint32 *maxbin, qint32 *minbin);
 
+    bool m_PeakHoldActive;
+    bool m_PeakHoldValid;
     qint32 m_fftbuf[MAX_SCREENSIZE];
+    qint32 m_fftPeakHoldBuf[MAX_SCREENSIZE];
     double *m_fftData;     /*! pointer to incoming FFT data */
     double *m_wfData;
     int     m_fftDataSize;
@@ -219,7 +223,7 @@ private:
 
     quint32 m_LastSampleRate;
 
-    QColor m_FftColor, m_FftCol0, m_FftCol1;
+    QColor m_FftColor, m_FftCol0, m_FftCol1, m_PeakHoldColor;
     bool m_FftFill;
 
     double m_PeakDetection;
