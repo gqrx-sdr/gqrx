@@ -156,6 +156,7 @@ private slots:
     void setFftColor(const QColor color);
     void setFftFill(bool enable);
     void setPeakDetection(bool enabled);
+    void setFftPeakHold(bool enable);
 
     void on_plotter_newDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
     void on_plotter_newFilterFreq(int low, int high);    /*! New filter width */
