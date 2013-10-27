@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>250</width>
-    <height>276</height>
+    <height>314</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -30,14 +30,11 @@
    <string>FFT Settings</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <property name="spacing">
-     <number>0</number>
-    </property>
+   <layout class="QGridLayout" name="gridLayout_2">
     <property name="margin">
      <number>0</number>
     </property>
-    <item>
+    <item row="0" column="0">
      <widget class="QScrollArea" name="scrollArea">
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
@@ -54,7 +51,7 @@
          <x>0</x>
          <y>0</y>
          <width>250</width>
-         <height>251</height>
+         <height>248</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -64,40 +61,8 @@
         </sizepolicy>
        </property>
        <layout class="QGridLayout" name="gridLayout">
-        <property name="verticalSpacing">
-         <number>5</number>
-        </property>
-        <item row="4" column="0" colspan="3">
-         <widget class="QCheckBox" name="peakHoldButton">
-          <property name="toolTip">
-           <string>Toggle peak hold in FFT</string>
-          </property>
-          <property name="text">
-           <string>Peak hold</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="tristate">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="fftSizeLabel">
-          <property name="text">
-           <string>FFT size</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QComboBox" name="fftSizeComboBox">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
+        <item row="3" column="2" colspan="4">
+         <widget class="QSlider" name="fftSplitSlider">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -107,75 +72,122 @@
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>0</height>
+            <height>22</height>
            </size>
           </property>
           <property name="toolTip">
-           <string>&lt;html&gt;Number of FFT points to calculate. Higher values will require more CPU time. This will not influence the number of points on the display since that parameter is adjusted automatically according to the display size.
-&lt;/html&gt;</string>
+           <string>Spatial distribution between pandapter and waterfall</string>
           </property>
-          <property name="editable">
-           <bool>false</bool>
+          <property name="minimum">
+           <number>0</number>
           </property>
-          <property name="currentIndex">
-           <number>2</number>
+          <property name="maximum">
+           <number>100</number>
           </property>
-          <property name="insertPolicy">
-           <enum>QComboBox::InsertAlphabetically</enum>
+          <property name="value">
+           <number>50</number>
           </property>
-          <item>
-           <property name="text">
-            <string>16384</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>8192</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>4096</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>3840</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>2048</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>1024</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>768</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>512</string>
-           </property>
-          </item>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="fftRateLabel">
+        <item row="6" column="4">
+         <widget class="QPushButton" name="demodButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>28</width>
+            <height>28</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>32</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Center FFT around demodulator frequency</string>
+          </property>
           <property name="text">
-           <string>Rate</string>
+           <string>D</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="9">
+         <widget class="QLabel" name="wfLabel">
+          <property name="text">
+           <string>WF</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="peakLabel">
+          <property name="text">
+           <string>Peak</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
+        <item row="6" column="0">
+         <widget class="QLabel" name="zoomLAbel">
+          <property name="toolTip">
+           <string>Zooming shortcuts</string>
+          </property>
+          <property name="text">
+           <string>Zoom</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2" colspan="4">
+         <widget class="QSlider" name="fftAvgSlider">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>22</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;FFT averaging speed.&lt;/p&gt;&lt;p&gt;The averaging does not apply to the waterfall, which is always updated with the latest unfiltered samples.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>50</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="invertedAppearance">
+           <bool>false</bool>
+          </property>
+          <property name="invertedControls">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2" colspan="4">
          <widget class="QComboBox" name="fftRateComboBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -247,78 +259,13 @@
           </item>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="fftAvgLabel">
-          <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;FFT averaging speed.&lt;/p&gt;&lt;p&gt;Also known as video filter on spectrum analyzers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
+        <item row="0" column="0">
+         <widget class="QLabel" name="fftSizeLabel">
           <property name="text">
-           <string>Averaging</string>
+           <string>FFT size</string>
           </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QSlider" name="fftSplitSlider">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>22</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Spatial distribution between pandapter and waterfall</string>
-          </property>
-          <property name="minimum">
-           <number>0</number>
-          </property>
-          <property name="maximum">
-           <number>100</number>
-          </property>
-          <property name="value">
-           <number>50</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QSlider" name="fftAvgSlider">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>22</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;FFT averaging speed.&lt;/p&gt;&lt;p&gt;The averaging does not apply to the waterfall, which is always updated with the latest unfiltered samples.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="maximum">
-           <number>100</number>
-          </property>
-          <property name="value">
-           <number>50</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="invertedAppearance">
-           <bool>false</bool>
-          </property>
-          <property name="invertedControls">
-           <bool>false</bool>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -332,121 +279,17 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="2">
-         <widget class="QLabel" name="wfLabel">
+        <item row="1" column="0">
+         <widget class="QLabel" name="fftRateLabel">
           <property name="text">
-           <string>WF</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="zoomLAbel">
-          <property name="toolTip">
-           <string>Zooming shortcuts</string>
-          </property>
-          <property name="text">
-           <string>Zoom</string>
+           <string>Rate</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <property name="spacing">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QPushButton" name="resetButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>32</width>
-              <height>32</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Reset zoom level to 100%</string>
-            </property>
-            <property name="text">
-             <string>R</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="centerButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>32</width>
-              <height>32</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Center FFT around original center frequency</string>
-            </property>
-            <property name="text">
-             <string>C</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="demodButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>32</width>
-              <height>32</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Center FFT around demodulator frequency</string>
-            </property>
-            <property name="text">
-             <string>D</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="6" column="0">
+        <item row="7" column="0">
          <widget class="QLabel" name="colorLabel">
           <property name="toolTip">
            <string>Color for the FFT plot</string>
@@ -459,23 +302,207 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
-         <widget class="QtColorPicker" name="colorPicker">
+        <item row="4" column="2">
+         <widget class="QPushButton" name="peakDetectionButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>28</width>
+            <height>28</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>32</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Enable peak detection in FFT</string>
+          </property>
+          <property name="text">
+           <string>D</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="fftAvgLabel">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;FFT averaging speed.&lt;/p&gt;&lt;p&gt;Also known as video filter on spectrum analyzers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Averaging</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="3">
+         <widget class="QPushButton" name="peakHoldButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>28</width>
+            <height>28</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>32</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Toggle peak hold in FFT</string>
+          </property>
+          <property name="text">
+           <string>H</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="3">
+         <widget class="QPushButton" name="centerButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>28</width>
+            <height>28</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>32</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Center FFT around original center frequency</string>
+          </property>
+          <property name="text">
+           <string>C</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="2">
+         <widget class="QPushButton" name="resetButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>28</width>
+            <height>28</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>32</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Reset zoom level to 100%</string>
+          </property>
+          <property name="text">
+           <string>R</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2" colspan="4">
+         <widget class="QComboBox" name="fftSizeComboBox">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="toolTip">
-           <string>Color for the FFT plot</string>
+           <string>&lt;html&gt;Number of FFT points to calculate. Higher values will require more CPU time. This will not influence the number of points on the display since that parameter is adjusted automatically according to the display size.
+&lt;/html&gt;</string>
           </property>
-          <property name="text">
-           <string/>
+          <property name="editable">
+           <bool>false</bool>
           </property>
+          <property name="currentIndex">
+           <number>2</number>
+          </property>
+          <property name="insertPolicy">
+           <enum>QComboBox::InsertAlphabetically</enum>
+          </property>
+          <item>
+           <property name="text">
+            <string>16384</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>8192</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>4096</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>3840</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>2048</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>1024</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>768</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>512</string>
+           </property>
+          </item>
          </widget>
         </item>
-        <item row="6" column="2">
+        <item row="7" column="9">
          <widget class="QPushButton" name="fillButton">
           <property name="sizePolicy">
            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
@@ -506,27 +533,25 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="1">
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
+        <item row="7" column="2" colspan="3">
+         <widget class="QtColorPicker" name="colorPicker">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Expanding</enum>
+          <property name="toolTip">
+           <string>Color for the FFT plot</string>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>20</height>
-           </size>
+          <property name="text">
+           <string/>
           </property>
-         </spacer>
+         </widget>
         </item>
        </layout>
-       <zorder>fillButton</zorder>
        <zorder>zoomLAbel</zorder>
        <zorder>fftAvgLabel</zorder>
-       <zorder>colorPicker</zorder>
        <zorder>fftSizeComboBox</zorder>
        <zorder>wfLabel</zorder>
        <zorder>fftSplitSlider</zorder>
@@ -535,12 +560,33 @@
        <zorder>pandLabel</zorder>
        <zorder>fftAvgSlider</zorder>
        <zorder>fftRateComboBox</zorder>
-       <zorder></zorder>
        <zorder>colorLabel</zorder>
+       <zorder>peakLabel</zorder>
+       <zorder>resetButton</zorder>
+       <zorder>centerButton</zorder>
+       <zorder>demodButton</zorder>
+       <zorder>peakDetectionButton</zorder>
        <zorder>peakHoldButton</zorder>
-       <zorder>verticalSpacer</zorder>
+       <zorder>colorPicker</zorder>
+       <zorder>fillButton</zorder>
       </widget>
      </widget>
+    </item>
+    <item row="1" column="0">
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Expanding</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
     </item>
    </layout>
   </widget>

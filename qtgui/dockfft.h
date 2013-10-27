@@ -59,6 +59,7 @@ signals:
     void fftColorChanged(const QColor &); /*! FFT color has changed. */
     void fftFillToggled(bool fill);  /*! Toggle filling area under FFT plot. */
     void fftPeakHoldToggled(bool enable); /*! Toggle peak hold in FFT area. */
+    void peakDetectionToggled(bool enabled); /*! Enable peak detection in FFT plot */
 
 private slots:
     void on_fftSizeComboBox_currentIndexChanged(const QString & text);
@@ -70,7 +71,8 @@ private slots:
     void on_demodButton_clicked(void);
     void on_colorPicker_colorChanged(const QColor &);
     void on_fillButton_toggled(bool checked);
-    void on_peakHoldButton_stateChanged(int state);
+    void on_peakHoldButton_toggled(bool checked);
+    void on_peakDetectionButton_toggled(bool checked);
 
 private:
     Ui::DockFft *ui;

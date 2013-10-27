@@ -124,6 +124,9 @@ Nadeem Hasan:
 Nokia:
 - QtColorPicker widget.
 
+Steven--:
+- Peak detection for the FFT plot.
+
 Vesa Solonen:
 - DC removal in AM demodulator.
 

@@ -288,8 +288,14 @@ void DockFft::on_fillButton_toggled(bool checked)
     emit fftFillToggled(checked);
 }
 
-/*! peakHold check box toggled */
-void DockFft::on_peakHoldButton_stateChanged(int state)
+/*! peakHold button toggled */
+void DockFft::on_peakHoldButton_toggled(bool checked)
 {
-    emit fftPeakHoldToggled(state!=0);
+    emit fftPeakHoldToggled(checked);
+}
+
+/*! peakDetection button toggled */
+void DockFft::on_peakDetectionButton_toggled(bool checked)
+{
+    emit peakDetectionToggled(checked);
 }

@@ -177,6 +177,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
     connect(uiDockFft, SIGNAL(fftPeakHoldToggled(bool)), this, SLOT(setFftPeakHold(bool)));
+    connect(uiDockFft, SIGNAL(peakDetectionToggled(bool)), this, SLOT(setPeakDetection(bool)));
 
     // restore last session
     if (!loadConfig(cfgfile, true))
@@ -1294,6 +1295,11 @@ void MainWindow::setFftFill(bool enable)
 void MainWindow::setFftPeakHold(bool enable)
 {
     ui->plotter->setPeakHold(enable);
+}
+
+void MainWindow::setPeakDetection(bool enabled)
+{
+    ui->plotter->setPeakDetection(enabled ,2);
 }
 
 /*! \brief Force receiver reconfiguration.
