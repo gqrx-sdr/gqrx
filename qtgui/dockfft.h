@@ -58,6 +58,7 @@ signals:
     void gotoDemodFreq(void);        /*! Center FFT around demodulator frequency. */
     void fftColorChanged(const QColor &); /*! FFT color has changed. */
     void fftFillToggled(bool fill);  /*! Toggle filling area under FFT plot. */
+    void peakDetectionToggled(bool enabled); /*! Enable peak detection in FFT plot */
 
 private slots:
     void on_fftSizeComboBox_currentIndexChanged(const QString & text);
@@ -69,6 +70,7 @@ private slots:
     void on_demodButton_clicked(void);
     void on_colorPicker_colorChanged(const QColor &);
     void on_fillButton_toggled(bool checked);
+    void on_peakDetectionButton_stateChanged(int state);
 
 private:
     Ui::DockFft *ui;
