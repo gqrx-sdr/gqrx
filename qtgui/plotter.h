@@ -135,7 +135,8 @@ private:
         CENTER,
         RIGHT,
         YAXIS,
-        XAXIS
+        XAXIS,
+        BOOKMARK
     };
     void drawOverlay();
     void makeFrequencyStrs();
@@ -213,6 +214,7 @@ private:
     QColor m_FftColor, m_FftCol0, m_FftCol1;
     bool m_FftFill;
 
+    QList< QPair<QRect, qint64> > m_BookmarkTags;
 };
 
 #endif // PLOTTER_H

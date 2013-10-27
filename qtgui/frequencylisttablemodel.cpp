@@ -19,8 +19,10 @@
  */
 
 #include "frequencylisttablemodel.h"
+#include "applications/gqrx/bookmarks.h"
 #include <QFile>
 #include <QStringList>
+
 
 FrequencyListTableModel::FrequencyListTableModel(QString dir, QObject *parent) :
     QAbstractTableModel(parent),
@@ -30,53 +32,18 @@ FrequencyListTableModel::FrequencyListTableModel(QString dir, QObject *parent) :
 
 bool FrequencyListTableModel::load(QString filename)
 {
-    //table.append(Row( 98.5e6, "Radio Bayern 3", 400e3, "WFM"));
-    //table.append(Row( 99.0e6, "Radio Oe3", 400e3, "WFM"));
-
-    // Read from comma-separated file:
-    table.clear();
-    QFile file(freqTableDir + filename);
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        while (!file.atEnd())
-        {
-            QString line = file.readLine().trimmed();
-            if(line.count()>0 && line.left(1).compare("#") != 0)
-            {
-                QStringList strings = line.split(",");
-                if(strings.count() == Row::iNumColumns)
-                {
-                    Row row;
-                    row.frequency  = strings[0].toInt();
-                    row.name       = strings[1].trimmed();
-                    row.modulation = strings[2].trimmed();
-                    row.bandwidth  = strings[3].toInt();
-                    table.append(row);
-                }
-                else
-                {
-                    printf("\nIgnoring Line:\n  %s\n", line.toAscii().data());
-                }
-            }
-        }
-        file.close();
+        bool result = Bookmarks::load(freqTableDir + filename);
         emit layoutChanged();
-        return true;
-    }
-    else
-    {
-        emit layoutChanged();
-        return false;
-    }
+        return result;
 }
 
 int FrequencyListTableModel::rowCount ( const QModelIndex & /*parent*/ ) const
 {
-    return table.count();
+    return Bookmarks::size();
 }
 int FrequencyListTableModel::columnCount ( const QModelIndex & /*parent*/ ) const
 {
-    return Row::iNumColumns;
+    return 4;
 }
 
 QVariant FrequencyListTableModel::headerData ( int section, Qt::Orientation orientation, int role ) const
@@ -110,28 +77,29 @@ QVariant FrequencyListTableModel::data ( const QModelIndex & index, int role ) c
 {
     if(role == Qt::DisplayRole)
     {
+        BookmarkInfo& info = Bookmarks::getBookmark(index.row());
         switch(index.column())
         {
         case COL_FREQUENCY:
             {
-                qint64 value = table[index.row()].frequency;
+                qint64 value = info.frequency;
                 if(value == 0) return QString("");
                 else return value;
                 break;
             }
         case COL_NAME:
             {
-                return table[index.row()].name;
+                return info.name;
                 break;
             }
         case COL_MODULATION:
             {
-                return table[index.row()].modulation;
+                return info.modulation;
                 break;
             }
         case COL_BANDWIDTH:
             {
-                qint64 value = table[index.row()].bandwidth;
+                qint64 value = info.bandwidth;
                 if(value == 0) return QString("");
                 else return value;
                 break;
@@ -143,5 +111,10 @@ QVariant FrequencyListTableModel::data ( const QModelIndex & index, int role ) c
 
 Qt::ItemFlags FrequencyListTableModel::flags ( const QModelIndex & index ) const
 {
-  return (Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+    return (Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+}
+
+void FrequencyListTableModel::update()
+{
+    emit layoutChanged();
 }

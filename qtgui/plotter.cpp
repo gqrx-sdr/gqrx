@@ -28,6 +28,7 @@
  * or implied, of Moe Wheatley.
  */
 #include "plotter.h"
+#include "applications/gqrx/bookmarks.h"
 #include <stdlib.h>
 #include <cmath>
 #include <QDebug>
@@ -158,8 +159,23 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
     if (m_OverlayPixmap.rect().contains(pt))
     {	//is in Overlay bitmap region
         if (event->buttons() == Qt::NoButton)
-        {	//if no mouse button monitor grab regions and change cursor icon
-            if (isPointCloseTo(pt.x(), m_DemodFreqX, m_CursorCaptureDelta))
+        {
+            bool onTag=false;
+            if(pt.y()<15*3) //FIXME
+            {
+                for(int i=0; i<m_BookmarkTags.size() && !onTag; i++)
+                {
+                    if(m_BookmarkTags[i].first.contains(event->pos()))
+                        onTag=true;
+                }
+            }
+            //if no mouse button monitor grab regions and change cursor icon
+            if(onTag)
+            {
+                setCursor(QCursor(Qt::PointingHandCursor));
+                m_CursorCaptured=BOOKMARK;
+            }
+            else if (isPointCloseTo(pt.x(), m_DemodFreqX, m_CursorCaptureDelta))
             {	//in move demod box center frequency region
                 if (CENTER != m_CursorCaptured)
                     setCursor(QCursor(Qt::SizeHorCursor));
@@ -415,6 +431,18 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
             m_Yzero = pt.y();
         else if (m_CursorCaptured == XAXIS)
             m_Xzero = pt.x();
+        else if(m_CursorCaptured==BOOKMARK)
+        {
+            for(int i=0; i<m_BookmarkTags.size(); i++)
+            {
+                if(m_BookmarkTags[i].first.contains(event->pos()))
+                {
+                    m_DemodCenterFreq = m_BookmarkTags[i].second;
+                    emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
+                    break;
+                }
+            }
+        }
     }
 }
 
@@ -942,6 +970,53 @@ void CPlotter::drawOverlay()
         painter.drawLine(x, 0, x, y);
     }
 
+    //Draw Bookmark Tags
+    m_BookmarkTags.clear();
+    static const QFontMetrics fm(painter.font());
+    static const int fontHeight = fm.ascent()+1; // height();
+    static const int slant = 5;
+    static const int levelHeight = fontHeight+5;
+    static const int nLevels = 3;
+    QList<BookmarkInfo> bookmarks = Bookmarks::getBookmarksInRange(m_CenterFreq+m_FftCenter-m_Span/2, m_CenterFreq+m_FftCenter+m_Span/2);
+    int tagEnd[nLevels] = {0};
+    for(int i=0; i<bookmarks.size(); i++)
+    {
+        x=xFromFreq(bookmarks[i].frequency);
+#if defined(_WIN16) || defined(_WIN32) || defined(_WIN64)
+        int nameWidth= fm.width(bookmarks[i].name);
+#else
+        int nameWidth= fm.boundingRect(bookmarks[i].name).width();
+#endif
+
+        int level = 0;
+        for(; level<nLevels && tagEnd[level]>x; level++);
+        level%=nLevels;
+
+        tagEnd[level]=x+nameWidth+slant-1;
+        m_BookmarkTags.append(qMakePair<QRect, qint64>(QRect(x, level*levelHeight, nameWidth+slant, fontHeight), bookmarks[i].frequency));
+
+        painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0x60), 1, Qt::DashLine));
+        painter.drawLine(x, level*levelHeight+fontHeight+slant, x, y); //Vertical line
+
+        painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0x60), 1, Qt::SolidLine));
+        painter.drawLine(x+slant, level*levelHeight+fontHeight, x+nameWidth+slant-1, level*levelHeight+fontHeight); //Horizontal line
+        painter.drawLine(x+1,level*levelHeight+fontHeight+slant-1, x+slant-1, level*levelHeight+fontHeight+1); //Diagonal line
+/*
+        painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0xB0), 1, Qt::SolidLine));
+        QPolygon polygon(6);
+        polygon.setPoint(0, 0, 10);
+        polygon.setPoint(1, 5, 15);
+        polygon.setPoint(2, 5+nameWidth, 15);
+        polygon.setPoint(3, 5+nameWidth, 0);
+        polygon.setPoint(4, 5, 0);
+        polygon.setPoint(5, 0, 5);
+        polygon.translate(x, level*18);
+        painter.drawPolygon(polygon);
+*/
+        painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0xFF), 2, Qt::SolidLine));
+        painter.drawText(x+slant,level*levelHeight, nameWidth, fontHeight, Qt::AlignVCenter | Qt::AlignHCenter, bookmarks[i].name);
+    }
+
     if (m_CenterLineEnabled)
     {
         // center line
@@ -997,6 +1072,8 @@ void CPlotter::drawOverlay()
         // trigger a new paintEvent
         update();
     }
+
+    painter.end();
 }
 
 //////////////////////////////////////////////////////////////////////

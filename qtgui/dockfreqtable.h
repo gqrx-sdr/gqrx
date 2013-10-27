@@ -35,6 +35,8 @@ class DockFreqTable : public QDockWidget
 private:
     Ui::DockFreqTable *ui; // ui->tableViewFrequencyList
     QString            m_cfg_dir;   /*!< Default config dir, e.g. XDG_CONFIG_HOME. */
+    qint64             m_currentFrequency;
+    QString            m_freqTableDir;
 
 public:
     explicit DockFreqTable(const QString& cfg_dir, QWidget *parent = 0);
@@ -48,6 +50,9 @@ signals:
 public slots:
     void activated(const QModelIndex & index );
     void setNewFrequency(qint64 rx_freq);
+    void on_addButton_clicked();
+    void on_delButton_clicked();
+
 };
 
 #endif // DOCKFREQTABLE_H

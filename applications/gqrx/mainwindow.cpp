@@ -101,6 +101,11 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     uiDockFft = new DockFft();
     uiDockFreqTable = new DockFreqTable(m_cfg_dir, this);
 
+    setCorner( Qt::TopLeftCorner, Qt::LeftDockWidgetArea );
+    setCorner( Qt::TopRightCorner, Qt::RightDockWidgetArea );
+    setCorner( Qt::BottomLeftCorner, Qt::LeftDockWidgetArea );
+    setCorner( Qt::BottomRightCorner, Qt::RightDockWidgetArea );
+
     /* Add dock widgets to main window. This should be done even for
        dock widgets that are going to be hidden, otherwise they will
        end up floating in their own top-level window and can not be
