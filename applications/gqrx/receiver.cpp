@@ -872,6 +872,14 @@ receiver::status receiver::stop_audio_recording()
 /*! \brief Start audio playback. */
 receiver::status receiver::start_audio_playback(const std::string filename)
 {
+    if (!d_running)
+    {
+        /* receiver is not running */
+        std::cout << "Can not start audio playback (receiver not running)" << std::endl;
+
+        return STATUS_ERROR;
+    }
+
     try {
         // output ports set automatically from file
         wav_src = gr::blocks::wavfile_source::make(filename.c_str(), false);
