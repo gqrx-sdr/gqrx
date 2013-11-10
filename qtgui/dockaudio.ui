@@ -154,10 +154,14 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Audio streaming over UDP</string>
+         <string>Stream audio over UDP</string>
         </property>
         <property name="text">
-         <string>S</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../icons.qrc">
+          <normaloff>:/icons/icons/tangeo-network-idle.svg</normaloff>:/icons/icons/tangeo-network-idle.svg</iconset>
         </property>
         <property name="iconSize">
          <size>
