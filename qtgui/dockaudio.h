@@ -70,6 +70,12 @@ signals:
     /*! \brief Signal emitted when audio gain has changed. Gain is in dB. */
     void audioGainChanged(float gain);
 
+    /*! \brief Audio streaming over UDP has started. */
+    void audioStreamingStarted(const QString host, int port);
+
+    /*! \brief Audio streaming stopped. */
+    void audioStreamingStopped();
+
     /*! \brief Signal emitted when audio recording is started. */
     void audioRecStarted(const QString filename);
 
@@ -87,10 +93,13 @@ signals:
 
 private slots:
     void on_audioGainSlider_valueChanged(int value);
+    void on_audioStreamButton_clicked(bool checked);
     void on_audioRecButton_clicked(bool checked);
     void on_audioPlayButton_clicked(bool checked);
     void on_audioConfButton_clicked();
     void setNewRecDir(const QString &dir);
+    void setNewUdpHost(const QString &host);
+    void setNewUdpPort(int port);
 
 
 private:
@@ -98,6 +107,10 @@ private:
     CAudioOptions *audioOptions; /*! Audio options dialog. */
     QString        rec_dir;      /*! Location for audio recordings. */
     QString        last_audio;   /*! Last audio recording. */
+
+    QString        udp_host;     /*! UDP client host name. */
+    int            udp_port;     /*! UDP client port number. */
+
     bool           autoSpan;     /*! Whether to allow mode-dependent auto span. */
 };
 

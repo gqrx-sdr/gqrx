@@ -109,7 +109,8 @@ SOURCES += \
     qtgui/qtcolorpicker.cpp \
     receivers/nbrx.cpp \
     receivers/receiver_base.cpp \
-    receivers/wfmrx.cpp
+    receivers/wfmrx.cpp \
+    interfaces/udp_sink_f.cpp
 
 HEADERS += \
     applications/gqrx/mainwindow.h \
@@ -148,7 +149,8 @@ HEADERS += \
     qtgui/qtcolorpicker.h \
     receivers/nbrx.h \
     receivers/receiver_base.h \
-    receivers/wfmrx.h
+    receivers/wfmrx.h \
+    interfaces/udp_sink_f.h
 
 FORMS += \
     applications/gqrx/mainwindow.ui \

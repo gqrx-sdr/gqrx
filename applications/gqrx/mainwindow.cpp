@@ -162,6 +162,8 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(noiseBlankerChanged(int,bool,float)), this, SLOT(setNoiseBlanker(int,bool,float)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
+    connect(uiDockAudio, SIGNAL(audioStreamingStarted(QString,int)), this, SLOT(startAudioStream(QString,int)));
+    connect(uiDockAudio, SIGNAL(audioStreamingStopped()), this, SLOT(stopAudioStreaming()));
     connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), this, SLOT(startAudioRec(QString)));
     connect(uiDockAudio, SIGNAL(audioRecStopped()), this, SLOT(stopAudioRec()));
     connect(uiDockAudio, SIGNAL(audioPlayStarted(QString)), this, SLOT(startAudioPlayback(QString)));
@@ -1177,6 +1179,18 @@ void MainWindow::stopAudioPlayback()
     {
         ui->statusBar->showMessage(tr("Audio playback stopped"), 5000);
     }
+}
+
+/*! \brief Start streaming audio over UDP. */
+void MainWindow::startAudioStream(const QString udp_host, int udp_port)
+{
+    rx->start_udp_streaming(udp_host.toStdString(), udp_port);
+}
+
+/*! \brief Stop streaming audio over UDP. */
+void MainWindow::stopAudioStreaming()
+{
+    rx->stop_udp_streaming();
 }
 
 

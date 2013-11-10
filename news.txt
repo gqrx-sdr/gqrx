@@ -9,6 +9,7 @@
        NEW: RF Space Netsdr support.
        NEW: Peak detection on the FFT plot.
        NEW: Max hold on the FFT plot.
+       NEW: Audio streaming over UDP.
      FIXED: Incorrect handling of decimal values in LNB LO frequency.
      FIXED: Correctly apply initial LNB LO frequency.
      FIXED: Audio output device selection on Mac OS X.

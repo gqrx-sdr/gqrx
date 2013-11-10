@@ -143,6 +143,9 @@ private slots:
     void startAudioPlayback(const QString filename);
     void stopAudioPlayback();
 
+    void startAudioStream(const QString udp_host, int udp_port);
+    void stopAudioStreaming();
+
     void toggleIqPlayback(bool play, const QString filename);
 
     /* FFT settings */

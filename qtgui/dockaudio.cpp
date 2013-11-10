@@ -44,6 +44,8 @@ DockAudio::DockAudio(QWidget *parent) :
     audioOptions = new CAudioOptions(this);
 
     connect(audioOptions, SIGNAL(newRecDirSelected(QString)), this, SLOT(setNewRecDir(QString)));
+    connect(audioOptions, SIGNAL(newUdpHost(QString)), this, SLOT(setNewUdpHost(QString)));
+    connect(audioOptions, SIGNAL(newUdpPort(int)), this, SLOT(setNewUdpPort(int)));
 
     ui->audioSpectrum->setPercent2DScreen(100);
     ui->audioSpectrum->setFreqUnits(1000);
@@ -126,6 +128,16 @@ void DockAudio::on_audioGainSlider_valueChanged(int value)
     emit audioGainChanged(gain);
 }
 
+/*! \brief Streaming button clicked.
+ *  \param checked Whether streaming is ON or OFF.
+ */
+void DockAudio::on_audioStreamButton_clicked(bool checked)
+{
+    if (checked)
+        emit audioStreamingStarted(udp_host, udp_port);
+    else
+        emit audioStreamingStopped();
+}
 
 /*! \brief Record button clicked.
  *  \param checked Whether recording is ON or OFF.
@@ -231,6 +243,16 @@ void DockAudio::saveSettings(QSettings *settings)
         settings->setValue("audio/rec_dir", rec_dir);
     else
         settings->remove("audio/rec_dir");
+
+    if ((udp_host != "localhost") && (udp_host != "127.0.0.1"))
+        settings->setValue("audio/udp_host", udp_host);
+    else
+        settings->remove("audio/udp_host");
+
+    if (udp_port != 7355)
+        settings->setValue("audio/udp_port", udp_port);
+    else
+        settings->remove("audio/udp_port");
 }
 
 void DockAudio::readSettings(QSettings *settings)
@@ -247,6 +269,15 @@ void DockAudio::readSettings(QSettings *settings)
     // Location of audio recordings
     rec_dir = settings->value("audio/rec_dir", QDir::homePath()).toString();
     audioOptions->setRecDir(rec_dir);
+
+    // Audio streaming host and port
+    udp_host = settings->value("audio/udp_host", "localhost").toString();
+    udp_port = settings->value("audio/udp_port", 7355).toInt(&conv_ok);
+    if (!conv_ok)
+        udp_port = 7355;
+
+    audioOptions->setUdpHost(udp_host);
+    audioOptions->setUdpPort(udp_port);
 }
 
 /*! \brief Slot called when a new valid recording directory has been selected
@@ -255,4 +286,19 @@ void DockAudio::readSettings(QSettings *settings)
 void DockAudio::setNewRecDir(const QString &dir)
 {
     rec_dir = dir;
+}
+
+/*! \brief Slot called when a new network host has been entered. */
+void DockAudio::setNewUdpHost(const QString &host)
+{
+    if (host.isEmpty())
+        udp_host = "localhost";
+    else
+        udp_host = host;
+}
+
+/*! \brief Slot called when a new network port has been entered. */
+void DockAudio::setNewUdpPort(int port)
+{
+    udp_port = port;
 }

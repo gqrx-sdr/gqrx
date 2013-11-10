@@ -89,6 +89,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     audio_gain0 = gr::blocks::multiply_const_ff::make(0.1);
     audio_gain1 = gr::blocks::multiply_const_ff::make(0.1);
 
+    audio_udp_sink = make_udp_sink_f();
+
 #ifdef WITH_PULSEAUDIO //pafix
     audio_snk = make_pa_sink(audio_device, d_audio_rate, "GQRX", "Audio output");
 #else
@@ -913,11 +915,13 @@ receiver::status receiver::start_audio_playback(const std::string filename)
     tb->disconnect(rx, 0, audio_gain0, 0);
     tb->disconnect(rx, 1, audio_gain1, 0);
     tb->disconnect(rx, 0, audio_fft, 0);
+    tb->disconnect(rx, 0, audio_udp_sink, 0);
     tb->connect(rx, 0, audio_null_sink0, 0); /** FIXME: other channel? */
     tb->connect(rx, 1, audio_null_sink1, 0); /** FIXME: other channel? */
     tb->connect(wav_src, 0, audio_gain0, 0);
     tb->connect(wav_src, 1, audio_gain1, 0);
     tb->connect(wav_src, 0, audio_fft, 0);
+    tb->connect(wav_src, 0, audio_udp_sink, 0);
     start();
 
     std::cout << "Playing audio from " << filename << std::endl;
@@ -934,16 +938,33 @@ receiver::status receiver::stop_audio_playback()
     tb->disconnect(wav_src, 0, audio_gain0, 0);
     tb->disconnect(wav_src, 1, audio_gain1, 0);
     tb->disconnect(wav_src, 0, audio_fft, 0);
+    tb->disconnect(wav_src, 0, audio_udp_sink, 0);
     tb->disconnect(rx, 0, audio_null_sink0, 0);
     tb->disconnect(rx, 1, audio_null_sink1, 0);
     tb->connect(rx, 0, audio_gain0, 0);
     tb->connect(rx, 1, audio_gain1, 0);
     tb->connect(rx, 0, audio_fft, 0);  /** FIXME: other channel? */
+    tb->connect(rx, 0, audio_udp_sink, 0);
     start();
 
     /* delete wav_src since we can not change file name */
     wav_src.reset();
 
+    return STATUS_OK;
+}
+
+
+/*! \brief Start UDP streaming of audio. */
+receiver::status receiver::start_udp_streaming(const std::string host, int port)
+{
+    audio_udp_sink->start_streaming(host, port);
+    return STATUS_OK;
+}
+
+/*! \brief Stop UDP streaming of audio. */
+receiver::status receiver::stop_udp_streaming()
+{
+    audio_udp_sink->stop_streaming();
     return STATUS_OK;
 }
 
@@ -1151,6 +1172,7 @@ void receiver::connect_all(rx_chain type)
         tb->connect(lo, 0, mixer, 1);
         tb->connect(mixer, 0, rx, 0);
         tb->connect(rx, 0, audio_fft, 0);
+        tb->connect(rx, 0, audio_udp_sink, 0);
         tb->connect(rx, 0, audio_gain0, 0);
         tb->connect(rx, 1, audio_gain1, 0);
         tb->connect(audio_gain0, 0, audio_snk, 0);
@@ -1178,6 +1200,7 @@ void receiver::connect_all(rx_chain type)
         tb->connect(lo, 0, mixer, 1);
         tb->connect(mixer, 0, rx, 0);
         tb->connect(rx, 0, audio_fft, 0);
+        tb->connect(rx, 0, audio_udp_sink, 0);
         tb->connect(rx, 0, audio_gain0, 0);
         tb->connect(rx, 1, audio_gain1, 0);
         tb->connect(audio_gain0, 0, audio_snk, 0);

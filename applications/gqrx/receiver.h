@@ -45,6 +45,7 @@
 #include "dsp/rx_fft.h"
 #include "dsp/sniffer_f.h"
 #include "dsp/resampler_xx.h"
+#include "interfaces/udp_sink_f.h"
 #include "receivers/receiver_base.h"
 
 #ifdef WITH_PULSEAUDIO
@@ -187,6 +188,9 @@ public:
     status start_audio_playback(const std::string filename);
     status stop_audio_playback();
 
+    status start_udp_streaming(const std::string host, int port);
+    status stop_udp_streaming();
+
     /* I/Q recording and playback */
     status start_iq_recording(const std::string filename);
     status stop_iq_recording();
@@ -241,8 +245,9 @@ private:
     gr::blocks::null_sink::sptr         audio_null_sink0; /*!< Audio null sink used during playback. */
     gr::blocks::null_sink::sptr         audio_null_sink1; /*!< Audio null sink used during playback. */
 
-    sniffer_f_sptr            sniffer;    /*!< Sample sniffer for data decoders. */
-    resampler_ff_sptr         sniffer_rr; /*!< Sniffer resampler. */
+    udp_sink_f_sptr   audio_udp_sink;  /*!< UDP sink to stream audio over the network. */
+    sniffer_f_sptr    sniffer;    /*!< Sample sniffer for data decoders. */
+    resampler_ff_sptr sniffer_rr; /*!< Sniffer resampler. */
 
 #ifdef WITH_PULSEAUDIO
     pa_sink_sptr              audio_snk;  /*!< Pulse audio sink. */
