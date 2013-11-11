@@ -133,7 +133,7 @@ CPlotter::CPlotter(QWidget *parent) :
     m_Peaks = QMap<int,int>();
     setPeakDetection(false, 2);
 
-    setFftPlotColor(QColor(0x97,0xD0,0x97,0xFF));
+    setFftPlotColor(QColor(0xFF,0xFF,0xFF,0xFF));
     setFftFill(false);
 }
 

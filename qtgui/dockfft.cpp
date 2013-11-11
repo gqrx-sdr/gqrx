@@ -49,12 +49,12 @@ DockFft::DockFft(QWidget *parent) :
 #endif
 
     // Add predefined gqrx colors to chooser.
-    ui->colorPicker->insertColor(QColor(0x97,0xD0,0x97,0xFF), "Green");
-    ui->colorPicker->insertColor(QColor(0xFF,0x62,0x46,0xFF), "Red");
-    ui->colorPicker->insertColor(QColor(0x55,0xAA,0xFF,0xFF), "Blue");
-    ui->colorPicker->insertColor(QColor(0x7F,0xFA,0xFA,0xFF), "Cyan");
+    ui->colorPicker->insertColor(QColor(0xFF,0xFF,0xFF,0xFF), "White");
     ui->colorPicker->insertColor(QColor(0xFA,0xFA,0x7F,0xFF), "Yellow");
-    ui->colorPicker->insertColor(QColor(0xFA,0xFA,0xFA,0xFF), "White");
+    ui->colorPicker->insertColor(QColor(0x97,0xD0,0x97,0xFF), "Green");
+    ui->colorPicker->insertColor(QColor(0xFF,0xC8,0xC8,0xFF), "Pink");
+    ui->colorPicker->insertColor(QColor(0xB7,0xE0,0xFF,0xFF), "Blue");
+    ui->colorPicker->insertColor(QColor(0x7F,0xFA,0xFA,0xFF), "Cyan");
 }
 
 DockFft::~DockFft()
@@ -178,7 +178,7 @@ void DockFft::saveSettings(QSettings *settings)
         settings->remove("split");
 
     QColor fftColor = ui->colorPicker->currentColor();
-    if (fftColor != QColor(0x97,0xD0,0x97,0xFF))
+    if (fftColor != QColor(0xFF,0xFF,0xFF,0xFF))
         settings->setValue("pandapter_color", fftColor);
     else
         settings->remove("pandapter_color");
@@ -220,7 +220,7 @@ void DockFft::readSettings(QSettings *settings)
     if (conv_ok)
         ui->fftSplitSlider->setValue(intval);
 
-    color = settings->value("pandapter_color", QColor(0x97,0xD0,0x97,0xFF)).value<QColor>();
+    color = settings->value("pandapter_color", QColor(0xFF,0xFF,0xFF,0xFF)).value<QColor>();
     ui->colorPicker->setCurrentColor(color);
 
     bool_val = settings->value("pandapter_fill", false).toBool();
