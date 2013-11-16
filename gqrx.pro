@@ -10,7 +10,7 @@
 #    AUDIO_BACKEND=portaudio  Use it on Mac OS X to have FCD Pro and Pro+ support
 #--------------------------------------------------------------------------------
 
-QT       += core gui svg
+QT       += core gui svg network
 contains(QT_MAJOR_VERSION,5) {
     QT += widgets
 }
@@ -110,7 +110,8 @@ SOURCES += \
     receivers/nbrx.cpp \
     receivers/receiver_base.cpp \
     receivers/wfmrx.cpp \
-    interfaces/udp_sink_f.cpp
+    interfaces/udp_sink_f.cpp \
+    applications/gqrx/remote_control.cpp
 
 HEADERS += \
     applications/gqrx/mainwindow.h \
@@ -150,7 +151,8 @@ HEADERS += \
     receivers/nbrx.h \
     receivers/receiver_base.h \
     receivers/wfmrx.h \
-    interfaces/udp_sink_f.h
+    interfaces/udp_sink_f.h \
+    applications/gqrx/remote_control.h
 
 FORMS += \
     applications/gqrx/mainwindow.ui \

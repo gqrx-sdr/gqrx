@@ -71,6 +71,9 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     rx = new receiver("", "");
     rx->set_rf_freq(144500000.0f);
 
+    // remote controller
+    remote = new RemoteControl();
+
     /* meter timer */
     meter_timer = new QTimer(this);
     connect(meter_timer, SIGNAL(timeout()), this, SLOT(meterTimeout()));
@@ -139,6 +142,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
 
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
+    connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), remote, SLOT(setNewFrequency(qint64)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
     connect(uiDockInputCtl, SIGNAL(gainChanged(QString, double)), this, SLOT(setGain(QString,double)));
     connect(uiDockInputCtl, SIGNAL(autoGainChanged(bool)), this, SLOT(setAutoGain(bool)));
@@ -149,6 +153,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockInputCtl, SIGNAL(ignoreLimitsChanged(bool)), this, SLOT(setIgnoreLimits(bool)));
     connect(uiDockInputCtl, SIGNAL(antennaSelected(QString)), this, SLOT(setAntenna(QString)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
+    connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), remote, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
     connect(uiDockRxOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(setFmEmph(double)));
@@ -180,6 +185,10 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
     connect(uiDockFft, SIGNAL(fftPeakHoldToggled(bool)), this, SLOT(setFftPeakHold(bool)));
     connect(uiDockFft, SIGNAL(peakDetectionToggled(bool)), this, SLOT(setPeakDetection(bool)));
+
+    connect(remote, SIGNAL(newFilterOffset(qint64)), this, SLOT(setFilterOffset(qint64)));
+    connect(remote, SIGNAL(newFilterOffset(qint64)), uiDockRxOpt, SLOT(setFilterOffset(qint64)));
+    connect(remote, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
 
     // restore last session
     if (!loadConfig(cfgfile, true))
@@ -255,6 +264,7 @@ MainWindow::~MainWindow()
     //delete uiDockIqPlay;
     delete uiDockInputCtl;
     delete rx;
+    delete remote;
     delete [] d_fftData;
     delete [] d_realFftData;
     delete [] d_iirFftData;
@@ -371,6 +381,8 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         uiDockRxOpt->setFilterOffsetRange((qint64)(0.9*actual_rate));
         ui->plotter->setSampleRate(actual_rate);
         ui->plotter->setSpanFreq((quint32)actual_rate);
+
+        remote->setBandwidth(sr);
     }
 
     qint64 bw = m_settings->value("input/bandwidth", 0).toInt(&conv_ok);
@@ -389,6 +401,8 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
 
     ui->freqCtrl->setFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&conv_ok));
     setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
+
+    remote->readSettings(m_settings);
 
     return conf_ok;
 }
@@ -459,6 +473,8 @@ void MainWindow::storeSession()
         uiDockRxOpt->saveSettings(m_settings);
         uiDockFft->saveSettings(m_settings);
         uiDockAudio->saveSettings(m_settings);
+
+        remote->saveSettings(m_settings);
     }
 }
 

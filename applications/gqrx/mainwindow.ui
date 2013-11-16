@@ -163,7 +163,15 @@
     </property>
     <addaction name="actionAFSK1200"/>
    </widget>
+   <widget class="QMenu" name="menu_Tools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="actionRemoteCtl"/>
+    <addaction name="actionRemoteConfig"/>
+   </widget>
    <addaction name="menu_File"/>
+   <addaction name="menu_Tools"/>
    <addaction name="menuTools"/>
    <addaction name="menu_View"/>
    <addaction name="menu_Help"/>
@@ -183,6 +191,9 @@
    <addaction name="actionIoConfig"/>
    <addaction name="actionLoadSettings"/>
    <addaction name="actionSaveSettings"/>
+   <addaction name="separator"/>
+   <addaction name="actionRemoteCtl"/>
+   <addaction name="actionRemoteConfig"/>
    <addaction name="separator"/>
    <addaction name="actionFullScreen"/>
   </widget>
@@ -283,17 +294,6 @@
     <string>Ctrl+R</string>
    </property>
   </action>
-  <action name="actionBPSK1000">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>BPSK1000 Decoder</string>
-   </property>
-   <property name="toolTip">
-    <string>Start BPSK1000 decoder</string>
-   </property>
-  </action>
   <action name="actionIoConfig">
    <property name="enabled">
     <bool>true</bool>
@@ -370,6 +370,33 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionRemoteCtl">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../icons.qrc">
+     <normaloff>:/icons/icons/tangeo-network-idle.svg</normaloff>:/icons/icons/tangeo-network-idle.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Remote control</string>
+   </property>
+   <property name="toolTip">
+    <string>Remote control via TCP</string>
+   </property>
+  </action>
+  <action name="actionRemoteConfig">
+   <property name="icon">
+    <iconset resource="../../icons.qrc">
+     <normaloff>:/icons/icons/settings.svg</normaloff>:/icons/icons/settings.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Remote &amp;control settings</string>
+   </property>
+   <property name="toolTip">
+    <string>Configure remote control settings</string>
    </property>
   </action>
  </widget>

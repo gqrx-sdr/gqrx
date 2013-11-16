@@ -39,6 +39,8 @@
 #include "qtgui/dockfft.h"
 #include "qtgui/afsk1200win.h"
 
+#include "applications/gqrx/remote_control.h"
+
 // see https://bugreports.qt-project.org/browse/QTBUG-22829
 #ifndef Q_MOC_RUN
 #include "applications/gqrx/receiver.h"
@@ -104,6 +106,8 @@ private:
     QTimer   *audio_fft_timer;
 
     receiver *rx;
+
+    RemoteControl *remote;
 
 private:
     void updateFrequencyRange(bool ignore_limits);

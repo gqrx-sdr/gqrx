@@ -71,7 +71,6 @@ public:
     void readSettings(QSettings *settings);
     void saveSettings(QSettings *settings);
 
-    void setFilterOffset(qint64 freq_hz);
     void setFilterOffsetRange(qint64 range_hz);
 
     void setFilterParam(int lo, int hi);
@@ -84,6 +83,9 @@ public:
     int  currentDemod();
 
     float currentMaxdev();
+
+public slots:
+    void setFilterOffset(qint64 freq_hz);
 
 private:
     void updateHwFreq();
