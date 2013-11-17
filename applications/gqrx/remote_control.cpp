@@ -37,6 +37,8 @@ RemoteControl::RemoteControl(QObject *parent) :
     rc_port = 7356;
     rc_allowed_hosts.append("127.0.0.1");
 
+    rc_socket = 0;
+
     connect(&rc_server, SIGNAL(newConnection()), this, SLOT(acceptConnection()));
 
 }
@@ -55,10 +57,12 @@ void RemoteControl::start_server()
 /*! \brief Stop the server. */
 void RemoteControl::stop_server()
 {
+    if (rc_socket != 0)
+        rc_socket->close();
+
     if (rc_server.isListening())
         rc_server.close();
 
-    rc_socket->close();
 }
 
 /*! \brief Read settings. */
