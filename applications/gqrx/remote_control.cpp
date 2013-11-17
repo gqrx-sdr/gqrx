@@ -30,14 +30,14 @@ RemoteControl::RemoteControl(QObject *parent) :
     QObject(parent)
 {
 
-    rx_freq = 0;
-    filter_offset = 0;
+    rc_freq = 0;
+    rc_filter_offset = 0;
     bw_half = 740e3;
 
-    port = 7356;
-    allowed_hosts.append("127.0.0.1");
+    rc_port = 7356;
+    rc_allowed_hosts.append("127.0.0.1");
 
-    connect(&server, SIGNAL(newConnection()), this, SLOT(acceptConnection()));
+    connect(&rc_server, SIGNAL(newConnection()), this, SLOT(acceptConnection()));
 
 }
 
@@ -49,17 +49,16 @@ RemoteControl::~RemoteControl()
 /*! \brief Start the server. */
 void RemoteControl::start_server()
 {
-    qDebug() << __func__;
-    server.listen(QHostAddress::Any, port);
+    rc_server.listen(QHostAddress::Any, rc_port);
 }
 
 /*! \brief Stop the server. */
 void RemoteControl::stop_server()
 {
-    if (server.isListening())
-        server.close();
+    if (rc_server.isListening())
+        rc_server.close();
 
-    socket->close();
+    rc_socket->close();
 }
 
 /*! \brief Read settings. */
@@ -67,33 +66,60 @@ void RemoteControl::readSettings(QSettings *settings)
 {
     bool conv_ok;
 
-    rx_freq = settings->value("input/frequency", 144500000).toLongLong(&conv_ok);
-    filter_offset = settings->value("receiver/offset", 0).toInt(&conv_ok);
+    rc_freq = settings->value("input/frequency", 144500000).toLongLong(&conv_ok);
+    rc_filter_offset = settings->value("receiver/offset", 0).toInt(&conv_ok);
 
     // Get port number; restart server if running
-    port = settings->value("remote_control/port", 7356).toInt(&conv_ok);
-    if (server.isListening())
+    rc_port = settings->value("remote_control/port", 7356).toInt(&conv_ok);
+    if (rc_server.isListening())
     {
-        server.close();
-        server.listen(QHostAddress::Any, port);
+        rc_server.close();
+        rc_server.listen(QHostAddress::Any, rc_port);
     }
 
     // get list of allowed hosts
-    if (settings->contains("remote_control/port"))
-        allowed_hosts = settings->value("remote_control/port").toStringList();
+    if (settings->contains("remote_control/allowed_hosts"))
+        rc_allowed_hosts = settings->value("remote_control/allowed_hosts").toStringList();
 }
 
 void RemoteControl::saveSettings(QSettings *settings) const
 {
-    if (port != 7356)
-        settings->setValue("remote_control/port", port);
+    if (rc_port != 7356)
+        settings->setValue("remote_control/port", rc_port);
     else
         settings->remove("remote_control/port");
 
-    if ((allowed_hosts.count() != 1) || (allowed_hosts.at(0) != "127.0.0.1"))
-        settings->setValue("remote_control/allowed_hosts", allowed_hosts);
+    if ((rc_allowed_hosts.count() != 1) || (rc_allowed_hosts.at(0) != "127.0.0.1"))
+        settings->setValue("remote_control/allowed_hosts", rc_allowed_hosts);
     else
         settings->remove("remote_control/allowed_hosts");
+}
+
+/*! \brief Set new network port.
+ *  \param port The new network port.
+ *
+ * If the server is running it will be restarted.
+ *
+ */
+void RemoteControl::setPort(int port)
+{
+    if (port == rc_port)
+        return;
+
+    rc_port = port;
+    if (rc_server.isListening())
+    {
+        rc_server.close();
+        rc_server.listen(QHostAddress::Any, rc_port);
+    }
+}
+
+void RemoteControl::setHosts(QStringList hosts)
+{
+    rc_allowed_hosts.clear();
+
+    for (int i = 0; i < hosts.count(); i++)
+        rc_allowed_hosts << hosts.at(i);
 }
 
 
@@ -103,18 +129,18 @@ void RemoteControl::saveSettings(QSettings *settings) const
  */
 void RemoteControl::acceptConnection()
 {
-    socket = server.nextPendingConnection();
+    rc_socket = rc_server.nextPendingConnection();
 
     // check if host is allowed
-    QString address = socket->peerAddress().toString();
-    if (allowed_hosts.indexOf(address) == -1)
+    QString address = rc_socket->peerAddress().toString();
+    if (rc_allowed_hosts.indexOf(address) == -1)
     {
         qDebug() << "Connection attempt from" << address << "(not in allowed list)";
-        socket->close();
+        rc_socket->close();
     }
     else
     {
-        connect(socket, SIGNAL(readyRead()), this, SLOT(startRead()));
+        connect(rc_socket, SIGNAL(readyRead()), this, SLOT(startRead()));
     }
 }
 
@@ -130,7 +156,7 @@ void RemoteControl::startRead()
     qint64  freq;
 
 
-    bytes_read = socket->readLine(buffer, 1024);
+    bytes_read = rc_socket->readLine(buffer, 1024);
     if (bytes_read < 2)  // command + '\n'
         return;
 
@@ -142,22 +168,22 @@ void RemoteControl::startRead()
         if (sscanf(buffer,"F %lld\n", &freq) == 1)
         {
             setNewRemoteFreq(freq);
-            socket->write("RPRT 0\n");
+            rc_socket->write("RPRT 0\n");
         }
         else
         {
-            socket->write("RPRT 1\n");
+            rc_socket->write("RPRT 1\n");
         }
     }
     else if (buffer[0] == 'f')
     {
         // get frequency
-        socket->write(QString("%1\n").arg(rx_freq).toAscii());
+        rc_socket->write(QString("%1\n").arg(rc_freq).toAscii());
     }
     else if (buffer[0] == 'c')
     {
         // FIXME: for now we assume 'close' command
-        socket->close();
+        rc_socket->close();
     }
 }
 
@@ -169,13 +195,13 @@ void RemoteControl::startRead()
  */
 void RemoteControl::setNewFrequency(qint64 freq)
 {
-    rx_freq = freq;
+    rc_freq = freq;
 }
 
 /*! \brief Slot called when the filter offset is changed. */
 void RemoteControl::setFilterOffset(qint64 freq)
 {
-    filter_offset = freq;
+    rc_filter_offset = freq;
 }
 
 void RemoteControl::setBandwidth(qint64 bw)
@@ -187,13 +213,13 @@ void RemoteControl::setBandwidth(qint64 bw)
 /*! \brief New remote frequency received. */
 void RemoteControl::setNewRemoteFreq(qint64 freq)
 {
-    qint64 delta = freq - rx_freq;
+    qint64 delta = freq - rc_freq;
 
-    if (abs(filter_offset + delta) < bw_half)
+    if (abs(rc_filter_offset + delta) < bw_half)
     {
         // move filter offset
-        filter_offset += delta;
-        emit newFilterOffset(filter_offset);
+        rc_filter_offset += delta;
+        emit newFilterOffset(rc_filter_offset);
     }
     else
     {
@@ -202,5 +228,5 @@ void RemoteControl::setNewRemoteFreq(qint64 freq)
         emit newFrequency(freq);
     }
 
-    rx_freq = freq;
+    rc_freq = freq;
 }

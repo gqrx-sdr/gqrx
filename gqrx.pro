@@ -77,6 +77,8 @@ SOURCES += \
     applications/gqrx/main.cpp \
     applications/gqrx/mainwindow.cpp \
     applications/gqrx/receiver.cpp \
+    applications/gqrx/remote_control.cpp \
+    applications/gqrx/remote_control_settings.cpp \
     dsp/afsk1200/cafsk12.cpp \
     dsp/afsk1200/costabf.c \
     dsp/agc_impl.cpp \
@@ -92,6 +94,7 @@ SOURCES += \
     dsp/rx_noise_blanker_cc.cpp \
     dsp/sniffer_f.cpp \
     dsp/stereo_demod.cpp \
+    interfaces/udp_sink_f.cpp \
     qtgui/afsk1200win.cpp \
     qtgui/agc_options.cpp \
     qtgui/audio_options.cpp \
@@ -109,14 +112,14 @@ SOURCES += \
     qtgui/qtcolorpicker.cpp \
     receivers/nbrx.cpp \
     receivers/receiver_base.cpp \
-    receivers/wfmrx.cpp \
-    interfaces/udp_sink_f.cpp \
-    applications/gqrx/remote_control.cpp
+    receivers/wfmrx.cpp
 
 HEADERS += \
     applications/gqrx/mainwindow.h \
     applications/gqrx/receiver.h \
     applications/gqrx/gqrx.h \
+    applications/gqrx/remote_control.h \
+    applications/gqrx/remote_control_settings.h \
     dsp/afsk1200/cafsk12.h \
     dsp/afsk1200/filter.h \
     dsp/afsk1200/filter-i386.h \
@@ -133,6 +136,7 @@ HEADERS += \
     dsp/rx_noise_blanker_cc.h \
     dsp/sniffer_f.h \
     dsp/stereo_demod.h \
+    interfaces/udp_sink_f.h \
     qtgui/afsk1200win.h \
     qtgui/agc_options.h \
     qtgui/audio_options.h \
@@ -150,12 +154,11 @@ HEADERS += \
     qtgui/qtcolorpicker.h \
     receivers/nbrx.h \
     receivers/receiver_base.h \
-    receivers/wfmrx.h \
-    interfaces/udp_sink_f.h \
-    applications/gqrx/remote_control.h
+    receivers/wfmrx.h
 
 FORMS += \
     applications/gqrx/mainwindow.ui \
+    applications/gqrx/remote_control_settings.ui \
     qtgui/afsk1200win.ui \
     qtgui/agc_options.ui \
     qtgui/audio_options.ui \

@@ -66,6 +66,18 @@ public:
     void readSettings(QSettings *settings);
     void saveSettings(QSettings *settings) const;
 
+    void setPort(int port);
+    int  getPort(void) const
+    {
+        return rc_port;
+    }
+
+    void setHosts(QStringList hosts);
+    QStringList getHosts(void) const
+    {
+        return rc_allowed_hosts;
+    }
+
 public slots:
     void setNewFrequency(qint64 freq);
     void setFilterOffset(qint64 freq);
@@ -80,14 +92,14 @@ private slots:
     void startRead();
 
 private:
-    QTcpServer  server;         /*!< The active server object. */
-    QTcpSocket* socket;         /*!< The active socket object. */
+    QTcpServer  rc_server;         /*!< The active server object. */
+    QTcpSocket* rc_socket;         /*!< The active socket object. */
 
-    QStringList allowed_hosts;  /*!< Hosts where we accept connection from. */
-    int         port;           /*!< The port we are listening on. */
+    QStringList rc_allowed_hosts;  /*!< Hosts where we accept connection from. */
+    int         rc_port;           /*!< The port we are listening on. */
     
-    qint64      rx_freq;
-    qint64      filter_offset;
+    qint64      rc_freq;
+    qint64      rc_filter_offset;
     qint64      bw_half;
 
     void        setNewRemoteFreq(qint64 freq);

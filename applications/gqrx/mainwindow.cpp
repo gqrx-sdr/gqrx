@@ -38,6 +38,7 @@
 
 /* DSP */
 #include "receiver.h"
+#include "remote_control_settings.h"
 
 
 MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
@@ -1603,6 +1604,25 @@ void MainWindow::on_actionRemoteControl_triggered(bool checked)
     else
         remote->stop_server();
 }
+
+/*! \brief Remote control configuration button (or menu item) clicked. */
+void MainWindow::on_actionRemoteConfig_triggered()
+{
+    RemoteControlSettings *rcs = new RemoteControlSettings();
+
+    rcs->setPort(remote->getPort());
+    rcs->setHosts(remote->getHosts());
+
+    if (rcs->exec() == QDialog::Accepted)
+    {
+        qDebug() << "ACCEPTED:";
+        remote->setPort(rcs->getPort());
+        remote->setHosts(rcs->getHosts());
+    }
+
+    delete rcs;
+}
+
 
 #define DATA_BUFFER_SIZE 48000
 

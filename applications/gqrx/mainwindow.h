@@ -175,6 +175,7 @@ private slots:
     void on_actionIqRec_triggered(bool checked);
     void on_actionFullScreen_triggered(bool checked);
     void on_actionRemoteControl_triggered(bool checked);
+    void on_actionRemoteConfig_triggered();
     void on_actionAFSK1200_triggered();
     void on_actionUserGroup_triggered();
     void on_actionAbout_triggered();
