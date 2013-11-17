@@ -20,8 +20,6 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include <stdio.h>
-#include <QDebug>
 #include <QString>
 
 #include "remote_control.h"
@@ -163,8 +161,6 @@ void RemoteControl::startRead()
     bytes_read = rc_socket->readLine(buffer, 1024);
     if (bytes_read < 2)  // command + '\n'
         return;
-
-    printf("%s", buffer);
 
     if (buffer[0] == 'F')
     {

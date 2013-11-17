@@ -1615,7 +1615,6 @@ void MainWindow::on_actionRemoteConfig_triggered()
 
     if (rcs->exec() == QDialog::Accepted)
     {
-        qDebug() << "ACCEPTED:";
         remote->setPort(rcs->getPort());
         remote->setHosts(rcs->getHosts());
     }
