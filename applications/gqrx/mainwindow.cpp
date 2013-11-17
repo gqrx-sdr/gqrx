@@ -1595,6 +1595,14 @@ void MainWindow::on_actionFullScreen_triggered(bool checked)
     }
 }
 
+/*! \brief Remote control button (or menu item) toggled. */
+void MainWindow::on_actionRemoteControl_triggered(bool checked)
+{
+    if (checked)
+        remote->start_server();
+    else
+        remote->stop_server();
+}
 
 #define DATA_BUFFER_SIZE 48000
 

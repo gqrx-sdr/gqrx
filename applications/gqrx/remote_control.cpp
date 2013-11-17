@@ -39,13 +39,27 @@ RemoteControl::RemoteControl(QObject *parent) :
 
     connect(&server, SIGNAL(newConnection()), this, SLOT(acceptConnection()));
 
-    server.listen(QHostAddress::Any, port);
 }
 
 RemoteControl::~RemoteControl()
 {
+    stop_server();
+}
+
+/*! \brief Start the server. */
+void RemoteControl::start_server()
+{
+    qDebug() << __func__;
+    server.listen(QHostAddress::Any, port);
+}
+
+/*! \brief Stop the server. */
+void RemoteControl::stop_server()
+{
     if (server.isListening())
         server.close();
+
+    socket->close();
 }
 
 /*! \brief Read settings. */
@@ -59,8 +73,10 @@ void RemoteControl::readSettings(QSettings *settings)
     // Get port number; restart server if running
     port = settings->value("remote_control/port", 7356).toInt(&conv_ok);
     if (server.isListening())
+    {
         server.close();
-    server.listen(QHostAddress::Any, port);
+        server.listen(QHostAddress::Any, port);
+    }
 
     // get list of allowed hosts
     if (settings->contains("remote_control/port"))

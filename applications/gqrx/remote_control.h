@@ -60,6 +60,9 @@ public:
     explicit RemoteControl(QObject *parent = 0);
     ~RemoteControl();
 
+    void start_server(void);
+    void stop_server(void);
+
     void readSettings(QSettings *settings);
     void saveSettings(QSettings *settings) const;
 

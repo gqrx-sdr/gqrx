@@ -161,7 +161,7 @@
     <property name="title">
      <string>&amp;Tools</string>
     </property>
-    <addaction name="actionRemoteCtl"/>
+    <addaction name="actionRemoteControl"/>
     <addaction name="actionRemoteConfig"/>
     <addaction name="separator"/>
     <addaction name="actionAFSK1200"/>
@@ -187,7 +187,7 @@
    <addaction name="actionLoadSettings"/>
    <addaction name="actionSaveSettings"/>
    <addaction name="separator"/>
-   <addaction name="actionRemoteCtl"/>
+   <addaction name="actionRemoteControl"/>
    <addaction name="actionRemoteConfig"/>
    <addaction name="separator"/>
    <addaction name="actionFullScreen"/>
@@ -367,7 +367,7 @@
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="actionRemoteCtl">
+  <action name="actionRemoteControl">
    <property name="checkable">
     <bool>true</bool>
    </property>
