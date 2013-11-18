@@ -124,7 +124,7 @@ Nadeem Hasan:
 Nokia:
 - QtColorPicker widget.
 
-Steven--:
+Stefano Leucci:
 - Peak detection and hold for the FFT plot.
 
 Vesa Solonen:
