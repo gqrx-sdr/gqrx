@@ -8,6 +8,7 @@ Gqrx is an experimental software defined radio receiver implemented using GNU Ra
 - USRP
 - HackRF Jawbreaker
 - Nuand bladeRF
+- RFspace NetSDR
 - any other device supported by the gr-osmosdr library
 
 Gqrx can operate as a traditional AM/FM/SSB receiver with audio output or as an FFT-only instrument.
@@ -31,6 +32,9 @@ If you don't see your device listed in the drop-down list it could be because:
 You can test your device first with rtl_test, qthid, or uhd_usrp_probe that come with the respective packages.
 
 Gqrx supports multiple configurations and sessions if you have several devices or if you want to use the same device under different configurations. You can load a configuration from the GUI or using the -c command line argument. See "gqrx --help" for a complete list of command line arguments.
+
+Tutorials and howtos are being written and published on the website
+http://gqrx.dk/
 
 
 Known problems
