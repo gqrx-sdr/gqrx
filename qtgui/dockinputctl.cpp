@@ -464,7 +464,9 @@ void DockInputCtl::sliderValueChanged(int value)
     int idx = slider->property("idx").toInt();
 
     // convert to discrete value according to step
-    value = slider->singleStep() * (value / slider->singleStep());
+    if (slider->singleStep()) {
+        value = slider->singleStep() * (value / slider->singleStep());
+    }
 
     // convert to double and send signal
     double gain = (double)value / 10.0;
