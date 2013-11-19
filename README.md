@@ -137,6 +137,9 @@ Vesa Solonen:
 Vincent Pelletier
 - Initial work on the horizontal zooming / scrolling.
 
+Will Scales
+- Bug fixes.
+
 Also thanks to Volker Schroer and Alexey Bazhin for bringing Funcube Dongle Pro+ support to GNU Radio and Gqrx.
 
 Some of the icons are from the GNOME and Tango icon themes. The scope.svg icon is based on the utilities-system-monitor.svg icon from the Mint-X icon theme licensed under GNU GPL.
