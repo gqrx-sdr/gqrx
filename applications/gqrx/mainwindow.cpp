@@ -191,6 +191,10 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(remote, SIGNAL(newFilterOffset(qint64)), uiDockRxOpt, SLOT(setFilterOffset(qint64)));
     connect(remote, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
 
+    // satellite events
+    connect(remote, SIGNAL(satAosEvent()), uiDockAudio, SLOT(startAudioRecorder()));
+    connect(remote, SIGNAL(satLosEvent()), uiDockAudio, SLOT(stopAudioRecorder()));
+
     // restore last session
     if (!loadConfig(cfgfile, true))
     {

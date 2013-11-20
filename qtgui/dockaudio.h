@@ -52,7 +52,7 @@ public:
 
     void setFftRange(quint64 minf, quint64 maxf);
     void setNewFttData(double *fftData, int size);
-    int  fftRate() { return 10; }
+    int  fftRate() const { return 10; }
 
     void setAudioGain(int gain);
     int  audioGain();
@@ -65,6 +65,10 @@ public:
 
     void saveSettings(QSettings *settings);
     void readSettings(QSettings *settings);
+
+public slots:
+    void startAudioRecorder(void);
+    void stopAudioRecorder(void);
 
 signals:
     /*! \brief Signal emitted when audio gain has changed. Gain is in dB. */

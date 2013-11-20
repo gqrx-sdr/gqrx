@@ -185,6 +185,33 @@ void RemoteControl::startRead()
         // FIXME: for now we assume 'close' command
         rc_socket->close();
     }
+
+    // Gpredict / Gqrx specific commands:
+    //   AOS  - satellite AOS event
+    //   LOS  - satellite LOS event
+    else if (bytes_read >= 4 && buffer[1] == 'O' && buffer[2] == 'S')
+    {
+        if (buffer[0] == 'A')
+        {
+            emit satAosEvent();
+            rc_socket->write("RPRT 0\n");
+        }
+        else if (buffer[0] == 'L')
+        {
+            emit satLosEvent();
+            rc_socket->write("RPRT 0\n");
+        }
+        else
+        {
+            rc_socket->write("RPRT 1\n");
+        }
+    }
+
+    else
+    {
+        // respond with an error
+        rc_socket->write("RPRT 1\n");
+    }
 }
 
 /*! \brief Slot called when the receiver is tuned to a new frequency.

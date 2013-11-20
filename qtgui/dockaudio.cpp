@@ -115,6 +115,34 @@ void DockAudio::setFftFill(bool enabled)
     ui->audioSpectrum->setFftFill(enabled);
 }
 
+/*! Public slot to trig audio recording by external events (e.g. satellite AOS).
+ *
+ * If a recording is already in progress we ignore the event.
+ */
+void DockAudio::startAudioRecorder(void)
+{
+    if (ui->audioRecButton->isChecked())
+    {
+        qDebug() << __func__ << "An audio recording is already in progress";
+        return;
+    }
+
+    // emulate a button click
+    ui->audioRecButton->click();
+}
+
+/*! Public slot to stop audio recording by external events (e.g. satellite LOS).
+ *
+ * The event is ignored if no audio recording is in progress.
+ */
+void DockAudio::stopAudioRecorder(void)
+{
+    if (ui->audioRecButton->isChecked())
+        ui->audioRecButton->click(); // emulate a button click
+    else
+        qDebug() << __func__ << "No audio recording in progress";
+}
+
 
 /*! \brief Audio gain changed.
  *  \param value The new audio gain value in tens of dB (because slider uses int)
