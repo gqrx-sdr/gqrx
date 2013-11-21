@@ -19,6 +19,7 @@
      FIXED: Only allow audio playback while DSP is running.
   IMPROVED: Gqrx can fit on small screens (900x600 pixels).
   IMPROVED: Better color gradient for the waterfall.
+  IMPROVED: FFT presentation at high rates and high sizes.
 
 
      2.2.0  Released August 8, 2013
