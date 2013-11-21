@@ -1382,7 +1382,7 @@ void MainWindow::on_actionDSP_triggered(bool checked)
             ui->plotter->setRunningState(false);
         }
 
-        audio_fft_timer->start(100);
+        audio_fft_timer->start(40);
 
         /* update menu text and button tooltip */
         ui->actionDSP->setToolTip(tr("Stop DSP processing"));
