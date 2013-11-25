@@ -31,7 +31,16 @@
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout_2">
-    <property name="margin">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
      <number>0</number>
     </property>
     <item row="0" column="0">
@@ -51,7 +60,7 @@
          <x>0</x>
          <y>0</y>
          <width>250</width>
-         <height>248</height>
+         <height>240</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -205,8 +214,13 @@
            <string>FFT refresh rate</string>
           </property>
           <property name="currentIndex">
-           <number>5</number>
+           <number>6</number>
           </property>
+          <item>
+           <property name="text">
+            <string>60 fps</string>
+           </property>
+          </item>
           <item>
            <property name="text">
             <string>50 fps</string>
