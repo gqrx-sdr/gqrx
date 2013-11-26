@@ -116,6 +116,9 @@ Göran Weinholt, SM6-8239:
 Jiří Pinkava:
 - Port to gnuradio 3.7 API
 
+Michael Dickens:
+- Bugfixes on OSX.
+
 Moe Weatley:
 - FFT plotter and waterfall.
 - Frequency selector.
