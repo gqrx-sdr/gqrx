@@ -77,8 +77,7 @@ int rx_nb_cc::work(int noutput_items,
     // copy data into output buffer then perform the processing on that buffer
     for (i = 0; i < noutput_items; i++)
     {
-        out[i].imag() = in[i].imag();
-        out[i].real() = in[i].real();
+        out[i] = in[i];
     }
 
     if (d_nb1_on)
