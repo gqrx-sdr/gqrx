@@ -58,6 +58,7 @@ signals:
 
 public slots:
     void setLevel(float dbfs);
+    void setSNRLevel(float db);
 
 protected:
     //re-implemented widget event handlers
@@ -69,9 +70,11 @@ private:
     QPixmap m_2DPixmap;
     QPixmap m_OverlayPixmap;
     QSize m_Size;
-    QString m_Str;
+    QString m_dBStr;
+    QString m_SNRdBStr;
     int m_Slevel;
     int m_dBm;
+    int m_SNRdBm;
 
     float d_alpha_decay;
     float d_alpha_rise;

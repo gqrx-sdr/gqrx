@@ -92,6 +92,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     d_iirFftData = new double[MAX_FFT_SIZE];
     for (int i = 0; i < MAX_FFT_SIZE; i++)
         d_iirFftData[i] = -120.0;  // dBFS
+    d_fftSize = 0;
 
     /* timer for data decoders */
     dec_timer = new QTimer(this);
@@ -1032,10 +1033,22 @@ void MainWindow::setSqlLevel(double level_db)
 /*! \brief Signal strength meter timeout */
 void MainWindow::meterTimeout()
 {
-    float level;
+    float level, noise_level, snr_level;
 
+
+
+    // Calculate the noise level
+    //noise_level = rx->get_sql_level(); // TODO: Should be a better way of getting the background noise (rather than using the squeltch)
+    double total = 0.0;
+    for(unsigned int i = 0; i < d_fftSize; i++)
+        total += d_iirFftData[i];
+
+    noise_level = (total / (double)d_fftSize) * (2.0/3.0); // why does this need to "* (2.0/3.0)"?
     level = rx->get_signal_pwr(true);
+    snr_level = max(0.0f, level - noise_level);
+
     ui->sMeter->setLevel(level);
+    ui->sMeter->setSNRLevel(snr_level);
 }
 
 /*! \brief Baseband FFT plot timeout. */
@@ -1048,7 +1061,6 @@ void MainWindow::iqFftTimeout()
     std::complex<float> pt;             /* a single FFT point used in calculations */
     std::complex<float> scaleFactor;    /* normalizing factor (fftsize cast to complex) */
 
-
     rx->get_iq_fft_data(d_fftData, fftsize);
 
     if (fftsize == 0)
@@ -1057,6 +1069,7 @@ void MainWindow::iqFftTimeout()
         return;
     }
 
+    d_fftSize = fftsize;
     scaleFactor = std::complex<float>((float)fftsize);
 
     /** FIXME: move post processing to rx_fft_c **/

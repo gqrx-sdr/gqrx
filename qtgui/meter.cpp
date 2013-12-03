@@ -58,6 +58,7 @@ CMeter::CMeter(QWidget *parent) : QFrame(parent)
     m_Size = QSize(0,0);
     m_Slevel = 0;
     m_dBm = -120;
+    m_SNRdBm = 0;
     d_alpha_decay = 0.25; // FIXME: Should set delta-t and Fs instead
     d_alpha_rise = 0.7;   // FIXME: Should set delta-t and Fs instead
 }
@@ -135,6 +136,15 @@ void CMeter::setLevel(float dbfs)
 }
 
 //////////////////////////////////////////////////////////////////////
+// Slot called to update SNR level
+//////////////////////////////////////////////////////////////////////
+void CMeter::setSNRLevel(float db)
+{
+    m_SNRdBm = (int)db;
+    draw();
+}
+
+//////////////////////////////////////////////////////////////////////
 // Called by QT when screen needs to be redrawn
 //////////////////////////////////////////////////////////////////////
 void CMeter::paintEvent(QPaintEvent *)
@@ -198,8 +208,17 @@ void CMeter::draw()
 
     painter.setPen(QColor(0xEF,0xEF,0xEF,0xFF));
     painter.setOpacity(1.0);
-    m_Str.setNum(m_dBm);
-    painter.drawText(marg, h-2, m_Str+" dBFS" );
+
+    m_dBStr.setNum(m_dBm);
+    m_SNRdBStr.setNum(m_SNRdBm);
+
+    QString dbstr = QString("%1 dBFS").arg(m_dBm);
+    QString snrstr = QString("%1 dB SNR").arg(m_SNRdBm);
+
+    int snrwidth = metrics.width(snrstr) / 2; // Why does this need /2?
+
+    painter.drawText(marg, h-2, dbstr);
+    painter.drawText(w - marg * 2 /* Why does this need * 2? */ - snrwidth, h-2, snrstr);
 
     update();
 }
@@ -256,26 +275,27 @@ void CMeter::DrawOverlay()
     Font.setWeight(QFont::Normal);
     painter.setFont(Font);
     int rwidth = (int)((hstop-marg)/5.0);
-    m_Str = "-100";
+    m_dBStr = "-100";
+    m_SNRdBStr = "0";
     rect.setRect(marg/2-5, 0, rwidth, magstart);
 
     for (x = MIN_DB; x <= MAX_DB; x += 20)
     {
-        m_Str.setNum(x);
-        painter.drawText(rect, Qt::AlignHCenter|Qt::AlignVCenter, m_Str);
+        m_dBStr.setNum(x);
+        painter.drawText(rect, Qt::AlignHCenter|Qt::AlignVCenter, m_dBStr);
         rect.translate(rwidth, 0);
     }
 
     /*
     for(x=1; x<=9; x+=2) {
         m_Str.setNum(x);
-        painter.drawText(rect, Qt::AlignHCenter|Qt::AlignVCenter, m_Str);
+        painter.drawText(rect, Qt::AlignHCenter|Qt::AlignVCenter, m_dBStr);
         rect.translate( rwidth,0);
     }
     painter.setPen(QPen(Qt::red, 1,Qt::SolidLine));
     for(x=20; x<=60; x+=20) {
         m_Str = "+" + m_Str.setNum(x);
-        painter.drawText(rect, Qt::AlignHCenter|Qt::AlignVCenter, m_Str);
+        painter.drawText(rect, Qt::AlignHCenter|Qt::AlignVCenter, m_dBStr);
         rect.translate( rwidth,0);
     }
     */
