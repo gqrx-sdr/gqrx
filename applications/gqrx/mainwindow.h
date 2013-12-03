@@ -139,6 +139,7 @@ private slots:
     void setAgcGain(int gain);
     void setNoiseBlanker(int nbid, bool on, float threshold);
     void setSqlLevel(double level_db);
+    double setSqlLevelAuto();
     void setAudioGain(float gain);
 
     /* audio recording and playback */

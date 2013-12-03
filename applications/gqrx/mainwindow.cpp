@@ -167,6 +167,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(agcDecayChanged(int)), this, SLOT(setAgcDecay(int)));
     connect(uiDockRxOpt, SIGNAL(noiseBlankerChanged(int,bool,float)), this, SLOT(setNoiseBlanker(int,bool,float)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
+    connect(uiDockRxOpt, SIGNAL(sqlAutoClicked()), this, SLOT(setSqlLevelAuto()));
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
     connect(uiDockAudio, SIGNAL(audioStreamingStarted(QString,int)), this, SLOT(startAudioStream(QString,int)));
     connect(uiDockAudio, SIGNAL(audioStreamingStopped()), this, SLOT(stopAudioStreaming()));
@@ -1028,6 +1029,15 @@ void MainWindow::setSqlLevel(double level_db)
     rx->set_sql_level(level_db);
 }
 
+/*! \brief Squelch level auto clicked
+ *  \return new squeltch value
+ */
+double MainWindow::setSqlLevelAuto()
+{
+    double level = ui->sMeter->getLevel() + 1.0;
+    setSqlLevel(level);
+    return level;
+}
 
 /*! \brief Signal strength meter timeout */
 void MainWindow::meterTimeout()
