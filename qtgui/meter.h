@@ -58,6 +58,7 @@ signals:
 
 public slots:
     void setLevel(float dbfs);
+    double getLevel();
 
 protected:
     //re-implemented widget event handlers

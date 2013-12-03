@@ -41,6 +41,7 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     ui->filterButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     ui->modeButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     ui->agcButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+    ui->asButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
 #endif
 
     ui->filterFreq->setup(7, -filterOffsetRange/2, filterOffsetRange/2, 1, UNITS_KHZ);
@@ -299,6 +300,12 @@ void DockRxOpt::on_modeButton_clicked()
 void DockRxOpt::on_agcButton_clicked()
 {
     agcOpt->show();
+}
+
+void DockRxOpt::on_asButton_clicked()
+{
+    double newval = sqlAutoClicked();
+    ui->sqlSpinBox->setValue(newval);
 }
 
 
