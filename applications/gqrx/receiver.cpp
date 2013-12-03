@@ -600,6 +600,10 @@ receiver::status receiver::set_sql_level(double level_db)
     return STATUS_OK; // FIXME
 }
 
+double receiver::get_sql_level()
+{
+    return rx->get_sql_level();
+}
 
 /*! \brief Set squelch alpha */
 receiver::status receiver::set_sql_alpha(double alpha)

@@ -82,6 +82,7 @@ private:
 
     enum receiver::filter_shape d_filter_shape;
     std::complex<float>* d_fftData;
+    unsigned int d_fftSize;
     double *d_realFftData; /** FIXME: use vector */
     double *d_iirFftData;  /** FIXME: use vector */
     double *d_pwrFftData;  /** FIXME: use vector */
