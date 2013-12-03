@@ -137,6 +137,11 @@ void nbrx::set_sql_level(double level_db)
     sql->set_threshold(level_db);
 }
 
+double nbrx::get_sql_level()
+{
+    return sql->threshold();
+}
+
 void nbrx::set_sql_alpha(double alpha)
 {
     sql->set_alpha(alpha);

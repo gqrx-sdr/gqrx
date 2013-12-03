@@ -81,6 +81,7 @@ public:
     /* Squelch parameter */
     bool has_sql() { return true; }
     void set_sql_level(double level_db);
+    double get_sql_level();
     void set_sql_alpha(double alpha);
 
     /* AGC */

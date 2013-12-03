@@ -70,6 +70,11 @@ void receiver_base_cf::set_sql_level(double level_db)
     (void) level_db;
 }
 
+double receiver_base_cf::get_sql_level()
+{
+    return 0;
+}
+
 void receiver_base_cf::set_sql_alpha(double alpha)
 {
     (void) alpha;
