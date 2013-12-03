@@ -112,6 +112,9 @@ signals:
     /*! \brief Signal emitted when squelch level has changed. Level is in dBFS. */
     void sqlLevelChanged(double level);
 
+    /*! \brief Signal emitted when auto squelch level is clicked. */
+    double sqlAutoClicked();
+
     /*! \brief Signal emitted when AGC is togglen ON/OFF. */
     void agcToggled(bool agc_on);
 
@@ -141,6 +144,7 @@ private slots:
     void on_modeSelector_activated(int index);
     void on_modeButton_clicked();
     void on_agcButton_clicked();
+    void on_asButton_clicked();
     void on_agcPresetCombo_activated(int index);
     void on_sqlSpinBox_valueChanged(double value);
     void on_nb1Button_toggled(bool checked);
