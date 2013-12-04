@@ -1034,7 +1034,7 @@ void MainWindow::setSqlLevel(double level_db)
  */
 double MainWindow::setSqlLevelAuto()
 {
-    double level = ui->sMeter->getLevel() + 1.0;
+    double level = rx->get_signal_pwr(true) + 1.0;
     setSqlLevel(level);
     return level;
 }
