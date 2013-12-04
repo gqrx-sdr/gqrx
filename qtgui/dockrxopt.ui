@@ -39,7 +39,16 @@
     <property name="spacing">
      <number>5</number>
     </property>
-    <property name="margin">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
      <number>0</number>
     </property>
     <item>
@@ -92,7 +101,16 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         <property name="spacing">
          <number>3</number>
         </property>
-        <property name="margin">
+        <property name="leftMargin">
+         <number>5</number>
+        </property>
+        <property name="topMargin">
+         <number>5</number>
+        </property>
+        <property name="rightMargin">
+         <number>5</number>
+        </property>
+        <property name="bottomMargin">
          <number>5</number>
         </property>
         <item>
@@ -532,7 +550,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
            </widget>
           </item>
           <item row="3" column="2">
-           <widget class="QPushButton" name="asButton">
+           <widget class="QPushButton" name="autoSquelchButton">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -546,7 +564,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
              </size>
             </property>
             <property name="toolTip">
-             <string>Set squelch to current dBFS</string>
+             <string>Set squelch to the current signal or noise level</string>
             </property>
             <property name="text">
              <string>A</string>

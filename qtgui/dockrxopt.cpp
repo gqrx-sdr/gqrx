@@ -302,9 +302,15 @@ void DockRxOpt::on_agcButton_clicked()
     agcOpt->show();
 }
 
-void DockRxOpt::on_asButton_clicked()
+/*! \brief Auto-squelch button clicked.
+ *
+ * This slot is called when the user clicks on the auto-squelch button.
+ *
+ */
+void DockRxOpt::on_autoSquelchButton_clicked()
 {
-    double newval = sqlAutoClicked();
+    // Emit signal
+    double newval = sqlAutoClicked(); // FIXME: We rely on signal only being connected to one slot
     ui->sqlSpinBox->setValue(newval);
 }
 
