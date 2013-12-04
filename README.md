@@ -114,7 +114,10 @@ Göran Weinholt, SM6-8239:
 - Various GUI improvements.
 
 Jiří Pinkava:
-- Port to gnuradio 3.7 API
+- Port to gnuradio 3.7 API.
+
+Kobra @ Xiatek:
+- Auto squelch.
 
 Michael Dickens:
 - Bugfixes on OSX.
