@@ -5,7 +5,7 @@
        NEW: Remember visibility status of main toolbar.
        NEW: Restore the geometry of the main window between sessions.
        NEW: Restore the state and placement of the dock windows.
-       NEW: Nuand BladeRF supprot.
+       NEW: Nuand BladeRF support.
        NEW: RF Space Netsdr support.
        NEW: Peak detection on the FFT plot.
        NEW: Max hold on the FFT plot.
