@@ -348,10 +348,49 @@ void CIoConfig::updateInputSampleRates(int rate)
         ui->inSrCombo->addItem("35000000");
         ui->inSrCombo->addItem("40000000");
     }
+    else if (ui->inDevEdit->text().contains("sdr-iq"))
+    {
+        if (rate > 0)
+            ui->inSrCombo->addItem(QString("%1").arg(rate));
+
+        ui->inSrCombo->addItem("8138");
+        ui->inSrCombo->addItem("16276");
+        ui->inSrCombo->addItem("37793");
+        ui->inSrCombo->addItem("55556");
+        ui->inSrCombo->addItem("111111");
+        ui->inSrCombo->addItem("158730");
+        ui->inSrCombo->addItem("196078");
+    }
+    else if (ui->inDevEdit->text().contains("sdr-ip"))
+    {
+        if (rate > 0)
+            ui->inSrCombo->addItem(QString("%1").arg(rate));
+
+        ui->inSrCombo->addItem("31250");
+        ui->inSrCombo->addItem("32000");
+        ui->inSrCombo->addItem("40000");
+        ui->inSrCombo->addItem("50000");
+        ui->inSrCombo->addItem("62500");
+        ui->inSrCombo->addItem("64000");
+        ui->inSrCombo->addItem("80000");
+        ui->inSrCombo->addItem("100000");
+        ui->inSrCombo->addItem("125000");
+        ui->inSrCombo->addItem("160000");
+        ui->inSrCombo->addItem("200000");
+        ui->inSrCombo->addItem("250000");
+        ui->inSrCombo->addItem("320000");
+        ui->inSrCombo->addItem("400000");
+        ui->inSrCombo->addItem("500000");
+        ui->inSrCombo->addItem("800000");
+        ui->inSrCombo->addItem("1000000");
+        ui->inSrCombo->addItem("1600000");
+        ui->inSrCombo->addItem("2000000");
+    }
     else if (ui->inDevEdit->text().contains("netsdr"))
     {
         if (rate > 0)
             ui->inSrCombo->addItem(QString("%1").arg(rate));
+
         ui->inSrCombo->addItem("32000");
         ui->inSrCombo->addItem("40000");
         ui->inSrCombo->addItem("50000");
