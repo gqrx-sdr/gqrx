@@ -6,7 +6,7 @@
        NEW: Restore the geometry of the main window between sessions.
        NEW: Restore the state and placement of the dock windows.
        NEW: Nuand BladeRF support.
-       NEW: RF Space Netsdr support.
+       NEW: RF Space SDR-IQ, SDR-IP and Netsdr support.
        NEW: Peak detection on the FFT plot.
        NEW: Max hold on the FFT plot.
        NEW: Audio streaming over UDP socket.
