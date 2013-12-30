@@ -178,7 +178,7 @@ void RemoteControl::startRead()
     else if (buffer[0] == 'f')
     {
         // get frequency
-        rc_socket->write(QString("%1\n").arg(rc_freq).toAscii());
+        rc_socket->write(QString("%1\n").arg(rc_freq).toLatin1());
     }
     else if (buffer[0] == 'c')
     {
