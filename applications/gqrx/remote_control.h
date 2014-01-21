@@ -82,6 +82,7 @@ public slots:
     void setNewFrequency(qint64 freq);
     void setFilterOffset(qint64 freq);
     void setBandwidth(qint64 bw);
+    void setSignalLevel(float level);
 
 signals:
     void newFrequency(qint64 freq);
@@ -104,6 +105,8 @@ private:
     qint64      rc_freq;
     qint64      rc_filter_offset;
     qint64      bw_half;
+
+    float       signal_level;      /*!< Signal level in dBFS */
 
     void        setNewRemoteFreq(qint64 freq);
 };

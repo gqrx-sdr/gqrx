@@ -32,6 +32,8 @@ RemoteControl::RemoteControl(QObject *parent) :
     rc_filter_offset = 0;
     bw_half = 740e3;
 
+    signal_level = -200.0;
+
     rc_port = 7356;
     rc_allowed_hosts.append("127.0.0.1");
 
@@ -186,6 +188,14 @@ void RemoteControl::startRead()
         rc_socket->close();
     }
 
+    // Get level
+    // FIXME: For now only signal strength is returned
+    else if (buffer[0] == 'l')
+    {
+        rc_socket->write(QString("%1\n").arg(signal_level, 0, 'f', 1).toLatin1());
+    }
+
+
     // Gpredict / Gqrx specific commands:
     //   AOS  - satellite AOS event
     //   LOS  - satellite LOS event
@@ -236,6 +246,13 @@ void RemoteControl::setBandwidth(qint64 bw)
     // we want to leave some margin
     bw_half = 0.9 * (bw / 2);
 }
+
+/*! \brief Set signal level in dBFS. */
+void RemoteControl::setSignalLevel(float level)
+{
+    signal_level = level;
+}
+
 
 /*! \brief New remote frequency received. */
 void RemoteControl::setNewRemoteFreq(qint64 freq)

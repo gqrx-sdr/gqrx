@@ -1046,6 +1046,7 @@ void MainWindow::meterTimeout()
 
     level = rx->get_signal_pwr(true);
     ui->sMeter->setLevel(level);
+    remote->setSignalLevel(level);
 }
 
 /*! \brief Baseband FFT plot timeout. */
