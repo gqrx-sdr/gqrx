@@ -195,6 +195,27 @@ void RemoteControl::startRead()
         rc_socket->write(QString("%1\n").arg(signal_level, 0, 'f', 1).toLatin1());
     }
 
+    // Mode and filter
+    else if (buffer[0] == 'M')
+    {
+        int mode = modeStrToInt(buffer);
+        if (mode == -1)
+        {
+            // invalid string
+            rc_socket->write("RPRT 1\n");
+        }
+        else
+        {
+            rc_socket->write("RPRT 0\n");
+            rc_mode = mode;
+            emit newMode(rc_mode);
+        }
+    }
+    else if (buffer[0] == 'm')
+    {
+        rc_socket->write(QString("%1\n").arg(intToModeStr(rc_mode)).toLatin1());
+    }
+
 
     // Gpredict / Gqrx specific commands:
     //   AOS  - satellite AOS event
@@ -253,6 +274,11 @@ void RemoteControl::setSignalLevel(float level)
     signal_level = level;
 }
 
+/*! \brief Set demodulator (from mainwindow). */
+void RemoteControl::setMode(int mode)
+{
+    rc_mode = mode;
+}
 
 /*! \brief New remote frequency received. */
 void RemoteControl::setNewRemoteFreq(qint64 freq)
@@ -273,4 +299,125 @@ void RemoteControl::setNewRemoteFreq(qint64 freq)
     }
 
     rc_freq = freq;
+}
+
+
+/*! \brief Convert mode string to enum (DockRxOpt::rxopt_mode_idx)
+ *  \param mode The Hamlib rigctld compatible mode string
+ *  \return An integer corresponding to the mode.
+ *
+ * Following mode strings are recognized: OFF, RAW, AM, FM, WFM,
+ * WFM_ST, LSB, USB, CW, CWL, CWU.
+ */
+int RemoteControl::modeStrToInt(const char *buffer)
+{
+    int mode_int = 0;
+
+    QString mode_str = QString(buffer).split(' ', QString::SkipEmptyParts).at(1).trimmed();
+
+    if (mode_str.compare("OFF", Qt::CaseInsensitive) == 0)
+    {
+        mode_int = 0;
+    }
+    else if (mode_str.compare("RAW", Qt::CaseInsensitive) == 0)
+    {
+        mode_int = 1;
+    }
+    else if (mode_str.compare("AM", Qt::CaseInsensitive) == 0)
+    {
+        mode_int = 2;
+    }
+    else if (mode_str.compare("FM", Qt::CaseInsensitive) == 0)
+    {
+        mode_int = 3;
+    }
+    else if (mode_str.compare("WFM", Qt::CaseInsensitive) == 0)
+    {
+        mode_int = 4;
+    }
+    else if (mode_str.compare("WFM_ST", Qt::CaseInsensitive) == 0)
+    {
+        mode_int = 5;
+    }
+    else if (mode_str.compare("LSB", Qt::CaseInsensitive) == 0)
+    {
+        mode_int = 6;
+    }
+    else if (mode_str.compare("USB", Qt::CaseInsensitive) == 0)
+    {
+        mode_int = 7;
+    }
+    else if (mode_str.compare("CW", Qt::CaseInsensitive) == 0)
+    {
+        mode_int = 8;
+    }
+    else if (mode_str.compare("CWL", Qt::CaseInsensitive) == 0)
+    {
+        mode_int = 8;
+    }
+    else if (mode_str.compare("CWU", Qt::CaseInsensitive) == 0)
+    {
+        mode_int = 9;
+    }
+
+
+    return mode_int;
+}
+
+/*! \brief Convert mode enum to string.
+ *  \param mode The mode ID c.f. DockRxOpt::rxopt_mode_idx
+ *  \returns The mode string.
+ */
+QString RemoteControl::intToModeStr(int mode)
+{
+    QString mode_str;
+
+    switch (mode)
+    {
+    case 0:
+        mode_str = "OFF";
+        break;
+
+    case 1:
+        mode_str = "RAW";
+        break;
+
+    case 2:
+        mode_str = "AM";
+        break;
+
+    case 3:
+        mode_str = "FM";
+        break;
+
+    case 4:
+        mode_str = "WFM";
+        break;
+
+    case 5:
+        mode_str = "WFM_ST";
+        break;
+
+    case 6:
+        mode_str = "LSB";
+        break;
+
+    case 7:
+        mode_str = "USB";
+        break;
+
+    case 8:
+        mode_str = "CWL";
+        break;
+
+    case 9:
+        mode_str = "CWU";
+        break;
+
+    default:
+        mode_str = "ERR";
+        break;
+    }
+
+    return mode_str;
 }

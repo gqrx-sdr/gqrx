@@ -25,6 +25,7 @@
 
 #include <QObject>
 #include <QSettings>
+#include <QString>
 #include <QStringList>
 #include <QTcpServer>
 #include <QTcpSocket>
@@ -83,10 +84,12 @@ public slots:
     void setFilterOffset(qint64 freq);
     void setBandwidth(qint64 bw);
     void setSignalLevel(float level);
+    void setMode(int mode);
 
 signals:
     void newFrequency(qint64 freq);
     void newFilterOffset(qint64 offset);
+    void newMode(int mode);
 
     void satAosEvent(void); /*! Satellite AOS event received through the socket. */
     void satLosEvent(void); /*! Satellite LOS event received through the socket. */
@@ -106,9 +109,12 @@ private:
     qint64      rc_filter_offset;
     qint64      bw_half;
 
+    int         rc_mode;           /*!< Current mode. */
     float       signal_level;      /*!< Signal level in dBFS */
 
     void        setNewRemoteFreq(qint64 freq);
+    int         modeStrToInt(const char *buffer);
+    QString     intToModeStr(int mode);
 };
 
 #endif // REMOTE_CONTROL_H

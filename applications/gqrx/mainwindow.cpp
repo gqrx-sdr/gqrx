@@ -156,6 +156,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), remote, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
+    connect(uiDockRxOpt, SIGNAL(demodSelected(int)), remote, SLOT(setMode(int)));
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
     connect(uiDockRxOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(setFmEmph(double)));
     connect(uiDockRxOpt, SIGNAL(amDcrToggled(bool)), this, SLOT(setAmDcr(bool)));
@@ -191,6 +192,8 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(remote, SIGNAL(newFilterOffset(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(remote, SIGNAL(newFilterOffset(qint64)), uiDockRxOpt, SLOT(setFilterOffset(qint64)));
     connect(remote, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
+    connect(remote, SIGNAL(newMode(int)), this, SLOT(selectDemod(int)));
+    connect(remote, SIGNAL(newMode(int)), uiDockRxOpt, SLOT(setCurrentDemod(int)));
 
     // satellite events
     connect(remote, SIGNAL(satAosEvent()), uiDockAudio, SLOT(startAudioRecorder()));
@@ -660,6 +663,7 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
     freq = ui->freqCtrl->getFrequency();
     setNewFrequency(freq);
 }
+
 
 /*! \brief Select new demodulator.
  *  \param demod New demodulator index.

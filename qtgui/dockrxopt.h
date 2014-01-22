@@ -51,7 +51,9 @@ class DockRxOpt : public QDockWidget
 
 public:
 
-    /*! \brief Mode selector entries. */
+    /*! \brief Mode selector entries.
+     *  \note If you change this enum, remember to update the TCP interface.
+     */
     enum rxopt_mode_idx {
         MODE_OFF        = 0, /*!< Demodulator completely off. */
         MODE_RAW        = 1, /*!< Raw I/Q passthrough. */
@@ -79,12 +81,12 @@ public:
 
     void setHwFreq(qint64 freq_hz);
 
-    void setCurrentDemod(int demod);
     int  currentDemod();
 
     float currentMaxdev();
 
 public slots:
+    void setCurrentDemod(int demod);
     void setFilterOffset(qint64 freq_hz);
 
 private:
