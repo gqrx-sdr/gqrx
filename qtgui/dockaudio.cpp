@@ -267,7 +267,7 @@ void DockAudio::saveSettings(QSettings *settings)
 
     settings->setValue("audio/gain", audioGain());
 
-    if (rec_dir != QDir::homePath())
+    if (rec_dir != QDir::homePath() && rec_dir.length() > 0)
         settings->setValue("audio/rec_dir", rec_dir);
     else
         settings->remove("audio/rec_dir");
@@ -296,6 +296,10 @@ void DockAudio::readSettings(QSettings *settings)
 
     // Location of audio recordings
     rec_dir = settings->value("audio/rec_dir", QDir::homePath()).toString();
+    // bugfix
+    if (rec_dir.length() == 0)
+        rec_dir = QDir::homePath();
+
     audioOptions->setRecDir(rec_dir);
 
     // Audio streaming host and port
