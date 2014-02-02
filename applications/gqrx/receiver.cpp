@@ -824,10 +824,20 @@ receiver::status receiver::start_audio_recording(const std::string filename)
 
     // not strictly necessary to lock but I think it is safer
     tb->lock();
-    wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(),
-                                              2,
-                                              (unsigned int) d_audio_rate,
-                                              16);
+
+    // if this fails, we don't want to go and crash now, do we
+    try {
+        wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(),
+                                                  2,
+                                                  (unsigned int) d_audio_rate,
+                                                  16);
+    }
+    catch (std::runtime_error &e) {
+        std::cout << "Error opening " << filename << ": " << e.what() << std::endl;
+	tb->unlock();
+        return STATUS_ERROR;
+    }
+
     tb->connect(rx, 0, wav_sink, 0);
     tb->connect(rx, 1, wav_sink, 1);
     tb->unlock();
