@@ -9,6 +9,7 @@ Gqrx is an experimental software defined radio receiver implemented using GNU Ra
 - HackRF Jawbreaker
 - Nuand bladeRF
 - RFspace SDR-IQ, SDR-IP and NetSDR
+- Airspy
 - any other device supported by the gr-osmosdr library
 
 Gqrx can operate as a traditional AM/FM/SSB receiver with audio output or as an FFT-only instrument.

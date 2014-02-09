@@ -288,7 +288,7 @@ void CIoConfig::updateInputSampleRates(int rate)
             ui->inSrCombo->addItem("96000");
         }
     }
-    else if (ui->inDevEdit->text().contains("rtl"))
+    else if (ui->inDevEdit->text().contains("rtl") || ui->inDevEdit->text().contains("rtl_tcp"))
     {
         ui->inSrCombo->addItem("250000");
         ui->inSrCombo->addItem("1200000");
@@ -297,7 +297,9 @@ void CIoConfig::updateInputSampleRates(int rate)
         ui->inSrCombo->addItem("2000000");
         ui->inSrCombo->addItem("2200000");
         ui->inSrCombo->addItem("2400000");
+	ui->inSrCombo->addItem("2560000");
         ui->inSrCombo->addItem("2700000");
+	ui->inSrCombo->addItem("2800000");
         ui->inSrCombo->addItem("3200000");
         if (rate > 0)
         {
@@ -411,6 +413,13 @@ void CIoConfig::updateInputSampleRates(int rate)
         ui->inSrCombo->addItem("1000000");
         ui->inSrCombo->addItem("1250000");
         ui->inSrCombo->addItem("2000000");
+    }
+    else if (ui->inDevEdit->text().contains("airspy"))
+    {
+        if (rate > 0)
+            ui->inSrCombo->addItem(QString("%1").arg(rate));
+
+        ui->inSrCombo->addItem("10000000");
     }
 }
 
