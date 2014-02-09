@@ -7,11 +7,13 @@
        NEW: Restore the state and placement of the dock windows.
        NEW: Nuand BladeRF support.
        NEW: RF Space SDR-IQ, SDR-IP and Netsdr support.
+       NEW: Airspy support.
        NEW: Peak detection on the FFT plot.
        NEW: Max hold on the FFT plot.
        NEW: Audio streaming over UDP socket.
        NEW: Remote control through TCP socket.
        NEW: Set squelch level from current signal/noise level.
+       NEW: Command line option to list existing configurations.
      FIXED: Incorrect handling of decimal values in LNB LO frequency.
      FIXED: Correctly apply initial LNB LO frequency.
      FIXED: Audio output device selection on Mac OS X.
