@@ -111,7 +111,7 @@ Frank Brickle, AB2KT:
 Bob McGwier, N4HY:
 - Noise blanker (from dttsp).
 
-Göran Weinholt, SM6-8239:
+Göran Weinholt, SA6CJK:
 - Various GUI improvements.
 
 Jiří Pinkava:
