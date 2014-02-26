@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=gqrx
+GenericName=Software Defined Radio
+Comment=Software defined radio receiver implemented using GNU Radio and the Qt GUI toolkit
+# FIXME add comments in other languages
+GenericName[ru]=Программно-определённое радио
+Comment[ru]=Приемник для программно-определенного радио (SDR) использующий GNU Radio и библиотеку Qt.
+Exec=gqrx
+Terminal=false
+Categories=Audio;Qt;HamRadio;
+Terminal=false
+# FIXME gqrx deb package do not providing any icons.
+#Icon=
+Keywords=SDR;Radio;HAM
