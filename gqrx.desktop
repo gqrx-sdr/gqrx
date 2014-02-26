@@ -11,6 +11,5 @@ Exec=gqrx
 Terminal=false
 Categories=Audio;Qt;HamRadio;
 Terminal=false
-# FIXME gqrx deb package do not providing any icons.
-#Icon=
+Icon=gqrx
 Keywords=SDR;Radio;HAM
