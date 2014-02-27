@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Encoding=UTF-8
-Name=gqrx
+Name=Gqrx
 GenericName=Software Defined Radio
 Comment=Software defined radio receiver implemented using GNU Radio and the Qt GUI toolkit
 # FIXME add comments in other languages
