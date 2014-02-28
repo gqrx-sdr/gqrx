@@ -12,7 +12,9 @@ Vcs-Git: https://github.com/csete/gqrx.git
 Package: gqrx
 Version: auto
 Architecture: any
-Depends:libboost-all, liblog5cpp, gnuradio, gr-osmosdr, libgnuradio-runtime3.7.2.1, libgnuradio-analog3.7.2.1, libgnuradio-blocks3.7.2.1, libgnuradio-filter3.7.2.1, libgnuradio-fft3.7.2.1, libgnuradio-audio3.7.2.1, libqt4-core
+Depends:libboost-all-dev, liblog4cpp5, gnuradio, gr-osmosdr, libgnuradio-runtime3.7.2.1, libgnuradio-analog3.7.2.1, libgnuradio-blocks3.7.2.1, libgnuradio-filter3.7.2.1, libgnuradio-fft3.7.2.1, libgnuradio-audio3.7.2.1, libqt4-core
 Recomends: gr-fcdproplus, gr-iqbal, libgnuradio-uhd3.7.2.1, libgnuradio-fcd3.7.2.1
 Description: Gqrx software defined radio
  Gqrx is an experimental software defined radio receiver implemented using GNU Radio and the Qt GUI toolkit.
+ 
+# Need to fix dependancy for boost

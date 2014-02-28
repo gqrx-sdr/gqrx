@@ -1,8 +1,34 @@
-gqrx (2.2.0-89+gitfb49da8) unstable; urgency=low
+gqrx (2.2.0-93+git5be5f95) unstable; urgency=low
+
+  * Merge remote-tracking branch 'freedesktop/master' into debian-package
+
+ -- Kate Adams <self@kateadams.eu>  Fri, 28 Feb 2014 23:18:18 +0000
+
+gqrx (2.2.0-89+gitb5762c4) unstable; urgency=low
 
   * Package builder for Debian
 
- -- Kate Adams <self@kateadams.eu>  Fri, 28 Feb 2014 22:56:31 +0000
+ -- Kate Adams <self@kateadams.eu>  Fri, 28 Feb 2014 23:18:11 +0000
+
+gqrx (2.2.0-91+git785491c) unstable; urgency=low
+
+  * Fix typo
+
+ -- Greg <mail@oxapentane.com>  Thu, 27 Feb 2014 17:52:00 +0300
+
+gqrx (2.2.0-90+git2b39b14) unstable; urgency=low
+
+  * Set Icon value
+  *  
+  * Set icon value since gqrx.svg is to be installed by deb package.
+
+ -- Greg <mail@oxapentane.com>  Wed, 26 Feb 2014 23:17:02 +0300
+
+gqrx (2.2.0-89+git817adc6) unstable; urgency=low
+
+  * Add .desktop file for better linux user expirence
+
+ -- Grigory Shipunov <mail@oxapentane.com>  Wed, 26 Feb 2014 23:40:58 +0400
 
 gqrx (2.2.0-88+git75aa570) unstable; urgency=low
 
