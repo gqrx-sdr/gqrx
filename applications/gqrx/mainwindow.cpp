@@ -1559,7 +1559,7 @@ void MainWindow::on_actionIqRec_triggered(bool checked)
         qint64 freq = (int)(rx->get_rf_freq());
         qint64 sr = (int)(rx->get_input_rate());
         QString lastRec = QDateTime::currentDateTimeUtc().
-                toString("gqrx_yyyy.MM.dd_hh:mm:ss_%1_%2_fc.'raw'").arg(freq).arg(sr);
+                toString("gqrx_yyyyMMdd_hhmmss_%1_%2_fc.'raw'").arg(freq).arg(sr);
 
         // start recorder
         if (rx->start_iq_recording(lastRec.toStdString()))
