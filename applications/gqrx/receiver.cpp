@@ -80,7 +80,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
 
     // create I/Q sink and close it
     iq_sink = gr::blocks::file_sink::make(sizeof(gr_complex), "/dev/null", false);
-    iq_sink->set_unbuffered(true);
+    //iq_sink->set_unbuffered(true);
     iq_sink->close();
 
     rx = make_nbrx(d_input_rate, d_audio_rate);
@@ -1161,7 +1161,6 @@ void receiver::connect_all(rx_chain type)
     switch (type)
     {
     case RX_CHAIN_NONE:
-        tb->connect(src, 0, iq_sink, 0);
         tb->connect(src, 0, iq_swap, 0);
         if (d_dc_cancel)
         {
@@ -1180,7 +1179,6 @@ void receiver::connect_all(rx_chain type)
             rx.reset();
             rx = make_nbrx(d_input_rate, d_audio_rate);
         }
-        tb->connect(src, 0, iq_sink, 0);
         tb->connect(src, 0, iq_swap, 0);
         if (d_dc_cancel)
         {
@@ -1209,7 +1207,6 @@ void receiver::connect_all(rx_chain type)
             rx.reset();
             rx = make_wfmrx(d_input_rate, d_audio_rate);
         }
-        tb->connect(src, 0, iq_sink, 0);
         tb->connect(src, 0, iq_swap, 0);
         if (d_dc_cancel)
         {
@@ -1234,6 +1231,11 @@ void receiver::connect_all(rx_chain type)
 
     default:
         break;
+    }
+
+    if (d_recording_iq)
+    {
+        tb->connect(src, 0, iq_sink, 0);
     }
 
     // re-connect audio data sniffer if it is activated
