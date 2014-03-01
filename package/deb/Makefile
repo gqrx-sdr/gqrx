@@ -2,7 +2,7 @@ include config
 
 INSTALL           = install -D
 
-all: deb
+#all: deb
 
 gqrx:
 	mkdir -p ../../build
