@@ -29,6 +29,7 @@
 #include <QDateTime>
 #include <QDesktopServices>
 #include <QDebug>
+#include <QMessageBox>
 #include <QTimer>
 #include "qtgui/ioconfig.h"
 #include "mainwindow.h"
@@ -56,9 +57,14 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     /* Initialise default configuration directory */
     QByteArray xdg_dir = qgetenv("XDG_CONFIG_HOME");
     if (xdg_dir.isEmpty())
-        m_cfg_dir = QString("%1/.config/gqrx").arg(QDir::homePath()); // Qt takes care of conversion to native separators
+    {
+        // Qt takes care of conversion to native separators
+        m_cfg_dir = QString("%1/.config/gqrx").arg(QDir::homePath());
+    }
     else
+    {
         m_cfg_dir = QString("%1/gqrx").arg(xdg_dir.data());
+    }
 
     setWindowTitle(QString("Gqrx %1").arg(VERSION));
 
@@ -96,6 +102,9 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     /* timer for data decoders */
     dec_timer = new QTimer(this);
     connect(dec_timer, SIGNAL(timeout()), this, SLOT(decoderTimeout()));
+
+    // create I/Q tool widget
+    iq_tool = new CIqTool();
 
     /* create dock widgets */
     uiDockRxOpt = new DockRxOpt();
@@ -135,7 +144,6 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     ui->menu_View->addAction(uiDockRxOpt->toggleViewAction());
     ui->menu_View->addAction(uiDockAudio->toggleViewAction());
     ui->menu_View->addAction(uiDockFft->toggleViewAction());
-    //ui->menu_View->addAction(uiDockIqPlay->toggleViewAction());
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
     ui->menu_View->addSeparator();
@@ -189,6 +197,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(fftPeakHoldToggled(bool)), this, SLOT(setFftPeakHold(bool)));
     connect(uiDockFft, SIGNAL(peakDetectionToggled(bool)), this, SLOT(setPeakDetection(bool)));
 
+    // remote control
     connect(remote, SIGNAL(newFilterOffset(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(remote, SIGNAL(newFilterOffset(qint64)), uiDockRxOpt, SLOT(setFilterOffset(qint64)));
     connect(remote, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
@@ -266,11 +275,11 @@ MainWindow::~MainWindow()
         delete m_settings;
     }
 
+    delete iq_tool;
     delete ui;
     delete uiDockRxOpt;
     delete uiDockAudio;
     delete uiDockFft;
-    //delete uiDockIqPlay;
     delete uiDockInputCtl;
     delete rx;
     delete remote;
@@ -1148,7 +1157,6 @@ void MainWindow::audioFftTimeout()
     uiDockAudio->setNewFttData(d_realFftData, fftsize);
 }
 
-
 /*! \brief Start audio recorder.
  *  \param filename The file name into which audio should be recorded.
  */
@@ -1528,29 +1536,37 @@ void MainWindow::on_actionSaveSettings_triggered()
 /*! \brief Toggle I/Q recording. */
 void MainWindow::on_actionIqRec_triggered(bool checked)
 {
-    Q_UNUSED(checked)
 
-#if 0
     if (checked)
     {
-        /* generate file name using date, time, rf freq and BW */
-        int freq = (int)rx->get_rf_freq()/1000;
-        // FIXME: option to use local time
-        QString lastRec = QDateTime::currentDateTimeUtc().toString("gqrx-yyyyMMdd-hhmmss-%1-96.'bin'").arg(freq);
+        // generate file name using date, time, rf freq in kHz and BW in Hz
+        // gqrx_iq_yyyy.mm.dd_hh:mm:ss_freq_bw_fc.raw
+        qint64 freq = (int)(rx->get_rf_freq());
+        qint64 sr = (int)(rx->get_input_rate());
+        QString lastRec = QDateTime::currentDateTimeUtc().
+                toString("gqrx_yyyy.MM.dd_hh:mm:ss_%1_%2_fc.'raw'").arg(freq).arg(sr);
 
-        /* start recorder */
+        // start recorder
         if (rx->start_iq_recording(lastRec.toStdString()))
         {
-            /* reset action status */
+            // reset action status
             ui->actionIqRec->toggle();
             ui->statusBar->showMessage(tr("Error starting I/Q recoder"));
+
+            // show an error message to user
+            QMessageBox msg_box;
+            msg_box.setIcon(QMessageBox::Critical);
+            msg_box.setText(tr("There was an error starting the I/Q recorder.\n"
+                               "Check write permissions for the selected location."));
+            msg_box.exec();
+
         }
         else
         {
             ui->statusBar->showMessage(tr("Recording I/Q data to: %1").arg(lastRec), 5000);
 
             /* disable I/Q player */
-            uiDockIqPlay->setEnabled(false);
+            //uiDockIqPlay->setEnabled(false);
         }
     }
     else
@@ -1566,9 +1582,9 @@ void MainWindow::on_actionIqRec_triggered(bool checked)
         }
 
         /* enable I/Q player */
-        uiDockIqPlay->setEnabled(true);
+        //uiDockIqPlay->setEnabled(true);
     }
-#endif
+
 }
 
 /* CPlotter::NewDemodFreq() is emitted */

@@ -25,6 +25,7 @@
 
 #include <string>
 
+#include <gnuradio/blocks/file_sink.h>
 #include <gnuradio/blocks/multiply_const_ff.h>
 #include <gnuradio/blocks/multiply_cc.h>
 #include <gnuradio/blocks/null_sink.h>
@@ -211,6 +212,7 @@ private:
     double d_audio_rate;       /*!< Audio output rate. */
     double d_rf_freq;          /*!< Current RF frequency. */
     double d_filter_offset;    /*!< Current filter offset (tune within passband). */
+    bool   d_recording_iq;     /*!< Whether we are recording I/Q file. */
     bool   d_recording_wav;    /*!< Whether we are recording WAV file. */
     bool   d_sniffer_active;   /*!< Only one data decoder allowed. */
     bool   d_iq_rev;           /*!< Whether I/Q is reversed or not. */
@@ -225,7 +227,6 @@ private:
     gr::top_block_sptr         tb;        /*!< The GNU Radio top block. */
 
     osmosdr::source::sptr     src;       /*!< Real time I/Q source. */
-    //rx_source_base::sptr       src;       /*!< Real time I/Q source. */
     receiver_base_cf_sptr     rx;        /*!< receiver. */
 
     dc_corr_cc_sptr           dc_corr;   /*!< DC corrector block. */
@@ -235,10 +236,12 @@ private:
     rx_fft_f_sptr             audio_fft;  /*!< Audio FFT block. */
 
     gr::analog::sig_source_c::sptr      lo;  /*!< oscillator used for tuning. */
-    gr::blocks::multiply_cc::sptr mixer;
+    gr::blocks::multiply_cc::sptr       mixer;
 
     gr::blocks::multiply_const_ff::sptr audio_gain0; /*!< Audio gain block. */
     gr::blocks::multiply_const_ff::sptr audio_gain1; /*!< Audio gain block. */
+
+    gr::blocks::file_sink::sptr         iq_sink;    /*!< I/Q file sink. */
 
     gr::blocks::wavfile_sink::sptr      wav_sink;   /*!< WAV file sink for recording. */
     gr::blocks::wavfile_source::sptr    wav_src;    /*!< WAV file source for playback. */

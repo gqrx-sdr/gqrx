@@ -164,6 +164,8 @@
     <addaction name="actionRemoteControl"/>
     <addaction name="actionRemoteConfig"/>
     <addaction name="separator"/>
+    <addaction name="actionIqRec"/>
+    <addaction name="separator"/>
     <addaction name="actionAFSK1200"/>
    </widget>
    <addaction name="menu_File"/>
@@ -187,10 +189,13 @@
    <addaction name="actionLoadSettings"/>
    <addaction name="actionSaveSettings"/>
    <addaction name="separator"/>
+   <addaction name="actionIqRec"/>
+   <addaction name="separator"/>
    <addaction name="actionRemoteControl"/>
    <addaction name="actionRemoteConfig"/>
    <addaction name="separator"/>
    <addaction name="actionFullScreen"/>
+   <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="enabled">
@@ -273,7 +278,7 @@
     <bool>true</bool>
    </property>
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="icon">
     <iconset resource="../../icons.qrc">
@@ -283,7 +288,7 @@
     <string>Record I/Q</string>
    </property>
    <property name="toolTip">
-    <string>Record the raw I/Q samples to a binary file (will be large)</string>
+    <string>Record and replay raw baseband spectrum files</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>

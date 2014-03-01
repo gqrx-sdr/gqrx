@@ -56,6 +56,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
       d_audio_rate(48000),
       d_rf_freq(144800000.0),
       d_filter_offset(0.0),
+      d_recording_iq(false),
       d_recording_wav(false),
       d_sniffer_active(false),
       d_iq_rev(false),
@@ -76,6 +77,11 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
         input_devstr = input_device;
         src = osmosdr::source::make(input_device);
     }
+
+    // create I/Q sink and close it
+    iq_sink = gr::blocks::file_sink::make(sizeof(gr_complex), "/dev/null", false);
+    iq_sink->set_unbuffered(true);
+    iq_sink->close();
 
     rx = make_nbrx(d_input_rate, d_audio_rate);
     lo = gr::analog::sig_source_c::make(d_input_rate, gr::analog::GR_SIN_WAVE, 0.0, 1.0);
@@ -984,25 +990,34 @@ receiver::status receiver::stop_udp_streaming()
  */
 receiver::status receiver::start_iq_recording(const std::string filename)
 {
-    (void) filename;
-#if 0
+
     if (d_recording_iq) {
-        /* error - we are already recording */
+        std::cout << __func__ << ": already recording" << std::endl;
         return STATUS_ERROR;
     }
 
-    /* iq_sink was created in the constructor */
+    // iq_sink was created in the constructor
     if (iq_sink) {
-        /* not strictly necessary to lock but I think it is safer */
+
         tb->lock();
-        iq_sink->open(filename.c_str());
+
+        if (iq_sink->open(filename.c_str()))
+        {
+            std::cout << __func__ << " FD not 0";
+        }
+        else
+        {
+            std::cout << __func__ << " FD is 0";
+        }
+
         tb->unlock();
         d_recording_iq = true;
     }
     else {
-        std::cout << "BUG: I/Q file sink does not exist" << std::endl;
+        std::cout << __func__ << ": I/Q file sink does not exist" << std::endl;
+        return STATUS_ERROR;
     }
-#endif
+
     return STATUS_OK;
 }
 
@@ -1010,7 +1025,6 @@ receiver::status receiver::start_iq_recording(const std::string filename)
 /*! \brief Stop I/Q data recorder. */
 receiver::status receiver::stop_iq_recording()
 {
-#if 0
     if (!d_recording_iq) {
         /* error: we are not recording */
         return STATUS_ERROR;
@@ -1020,7 +1034,7 @@ receiver::status receiver::stop_iq_recording()
     iq_sink->close();
     tb->unlock();
     d_recording_iq = false;
-#endif
+
     return STATUS_OK;
 }
 
@@ -1141,14 +1155,13 @@ void receiver::get_sniffer_data(float * outbuff, unsigned int &num)
     sniffer->get_samples(outbuff, num);
 }
 
-
-
 /*! \brief Convenience function to connect all blocks. */
 void receiver::connect_all(rx_chain type)
 {
     switch (type)
     {
     case RX_CHAIN_NONE:
+        tb->connect(src, 0, iq_sink, 0);
         tb->connect(src, 0, iq_swap, 0);
         if (d_dc_cancel)
         {
@@ -1167,6 +1180,7 @@ void receiver::connect_all(rx_chain type)
             rx.reset();
             rx = make_nbrx(d_input_rate, d_audio_rate);
         }
+        tb->connect(src, 0, iq_sink, 0);
         tb->connect(src, 0, iq_swap, 0);
         if (d_dc_cancel)
         {
@@ -1195,6 +1209,7 @@ void receiver::connect_all(rx_chain type)
             rx.reset();
             rx = make_wfmrx(d_input_rate, d_audio_rate);
         }
+        tb->connect(src, 0, iq_sink, 0);
         tb->connect(src, 0, iq_swap, 0);
         if (d_dc_cancel)
         {

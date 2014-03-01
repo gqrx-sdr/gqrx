@@ -102,7 +102,6 @@ SOURCES += \
     qtgui/dockinputctl.cpp \
     qtgui/dockaudio.cpp \
     qtgui/dockfft.cpp \
-    qtgui/dockiqplayer.cpp \
     qtgui/dockrxopt.cpp \
     qtgui/freqctrl.cpp \
     qtgui/ioconfig.cpp \
@@ -112,7 +111,8 @@ SOURCES += \
     qtgui/qtcolorpicker.cpp \
     receivers/nbrx.cpp \
     receivers/receiver_base.cpp \
-    receivers/wfmrx.cpp
+    receivers/wfmrx.cpp \
+    qtgui/iq_tool.cpp
 
 HEADERS += \
     applications/gqrx/mainwindow.h \
@@ -144,7 +144,6 @@ HEADERS += \
     qtgui/dockaudio.h \
     qtgui/dockfft.h \
     qtgui/dockinputctl.h \
-    qtgui/dockiqplayer.h \
     qtgui/dockrxopt.h \
     qtgui/freqctrl.h \
     qtgui/ioconfig.h \
@@ -154,7 +153,8 @@ HEADERS += \
     qtgui/qtcolorpicker.h \
     receivers/nbrx.h \
     receivers/receiver_base.h \
-    receivers/wfmrx.h
+    receivers/wfmrx.h \
+    qtgui/iq_tool.h
 
 FORMS += \
     applications/gqrx/mainwindow.ui \
@@ -165,11 +165,11 @@ FORMS += \
     qtgui/demod_options.ui \
     qtgui/dockaudio.ui \
     qtgui/dockfft.ui \
-    qtgui/dockiqplayer.ui \
     qtgui/dockinputctl.ui \
     qtgui/dockrxopt.ui \
     qtgui/ioconfig.ui \
-    qtgui/nb_options.ui
+    qtgui/nb_options.ui \
+    qtgui/iq_tool.ui
 
 # Use pulseaudio (ps: could use equals? undocumented)
 contains(AUDIO_BACKEND, pulse): {

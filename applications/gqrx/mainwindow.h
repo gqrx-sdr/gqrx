@@ -35,9 +35,9 @@
 #include "qtgui/dockrxopt.h"
 #include "qtgui/dockaudio.h"
 #include "qtgui/dockinputctl.h"
-#include "qtgui/dockiqplayer.h"
 #include "qtgui/dockfft.h"
 #include "qtgui/afsk1200win.h"
+#include "qtgui/iq_tool.h"
 
 #include "applications/gqrx/remote_control.h"
 
@@ -94,8 +94,10 @@ private:
     DockRxOpt      *uiDockRxOpt;
     DockAudio      *uiDockAudio;
     DockInputCtl   *uiDockInputCtl;
-    //DockIqPlayer   *uiDockIqPlay;
     DockFft        *uiDockFft;
+
+    CIqTool        *iq_tool;
+
 
     /* data decoders */
     Afsk1200Win    *dec_afsk1200;
@@ -164,6 +166,7 @@ private slots:
     void setPeakDetection(bool enabled);
     void setFftPeakHold(bool enable);
 
+    /* FFT plot */
     void on_plotter_newDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
     void on_plotter_newFilterFreq(int low, int high);    /*! New filter width */
     void on_plotter_newCenterFreq(qint64 f);
