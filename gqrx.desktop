@@ -1,6 +1,5 @@
 [Desktop Entry]
 Type=Application
-Encoding=UTF-8
 Name=Gqrx
 GenericName=Software Defined Radio
 Comment=Software defined radio receiver implemented using GNU Radio and the Qt GUI toolkit
@@ -8,8 +7,7 @@ Comment=Software defined radio receiver implemented using GNU Radio and the Qt G
 GenericName[ru]=Программно-определённое радио
 Comment[ru]=Приемник для программно-определенного радио (SDR) использующий GNU Radio и библиотеку Qt.
 Exec=gqrx
-Terminal=false
-Categories=Audio;Qt;HamRadio;
+Categories=AudioVideo;Audio;Qt;HamRadio;
 Terminal=false
 Icon=gqrx
-Keywords=SDR;Radio;HAM
+Keywords=SDR;Radio;HAM;
