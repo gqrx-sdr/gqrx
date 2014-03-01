@@ -203,6 +203,9 @@ public:
     status stop_sniffer();
     void   get_sniffer_data(float * outbuff, unsigned int &num);
 
+    bool is_recording_audio(void) const { return d_recording_wav; }
+    bool is_snifffer_active(void) const { return d_sniffer_active; }
+
 private:
     void connect_all(rx_chain type);
 

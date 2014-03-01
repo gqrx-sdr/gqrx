@@ -840,7 +840,6 @@ receiver::status receiver::start_audio_recording(const std::string filename)
     }
     catch (std::runtime_error &e) {
         std::cout << "Error opening " << filename << ": " << e.what() << std::endl;
-	tb->unlock();
         return STATUS_ERROR;
     }
 
@@ -867,7 +866,7 @@ receiver::status receiver::stop_audio_recording()
     if (!d_running)
     {
         /* receiver is not running */
-        std::cout << "Can not start audio recorder (receiver not running)" << std::endl;
+        std::cout << "Can not stop audio recorder (receiver not running)" << std::endl;
 
         return STATUS_ERROR;
     }
@@ -1233,12 +1232,18 @@ void receiver::connect_all(rx_chain type)
         break;
     }
 
+    // reconnect recorders and sniffers
     if (d_recording_iq)
     {
         tb->connect(src, 0, iq_sink, 0);
     }
 
-    // re-connect audio data sniffer if it is activated
+    if (d_recording_wav)
+    {
+        tb->connect(rx, 0, wav_sink, 0);
+        tb->connect(rx, 1, wav_sink, 1);
+    }
+
     if (d_sniffer_active)
     {
         tb->connect(rx, 0, sniffer_rr, 0);

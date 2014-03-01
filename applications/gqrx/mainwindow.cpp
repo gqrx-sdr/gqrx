@@ -693,6 +693,12 @@ void MainWindow::selectDemod(int index)
 
     case DockRxOpt::MODE_OFF:
         /* Spectrum analyzer only */
+        if (rx->is_recording_audio())
+        {
+            stopAudioRec();
+            uiDockAudio->setAudioRecButtonState(false);
+        }
+
         rx->set_demod(receiver::RX_DEMOD_OFF);
         flo = 0;
         fhi = 0;
@@ -1162,7 +1168,16 @@ void MainWindow::audioFftTimeout()
  */
 void MainWindow::startAudioRec(const QString filename)
 {
-    if (rx->start_audio_recording(filename.toStdString()))
+    if (!d_have_audio)
+    {
+        QMessageBox msg_box;
+        msg_box.setIcon(QMessageBox::Critical);
+        msg_box.setText(tr("Recording audio requires a demodulator.\n"
+                           "Currently, demodulation is switched off (Mode->Demod off)."));
+        msg_box.exec();
+        uiDockAudio->setAudioRecButtonState(false);
+    }
+    else if (rx->start_audio_recording(filename.toStdString()))
     {
         ui->statusBar->showMessage(tr("Error starting audio recorder"));
 
