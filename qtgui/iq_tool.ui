@@ -37,13 +37,19 @@
      </item>
      <item>
       <widget class="QLineEdit" name="locationEntry">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="toolTip">
-        <string>Enter a different location ir use the select button</string>
+        <string>Enter a different location or use the select button</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="locationButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -64,22 +70,22 @@
     </layout>
    </item>
    <item>
-    <widget class="QListView" name="listView">
-     <property name="editTriggers">
-      <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
+    <widget class="QListWidget" name="listWidget">
+     <property name="alternatingRowColors">
+      <bool>true</bool>
      </property>
-     <property name="gridSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
+     <property name="uniformItemSizes">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QPushButton" name="gfxButton">
+      <widget class="QPushButton" name="plotButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="minimumSize">
         <size>
          <width>32</width>
@@ -112,6 +118,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="recButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="minimumSize">
         <size>
          <width>32</width>
@@ -125,7 +134,7 @@
         </size>
        </property>
        <property name="toolTip">
-        <string>Start recording</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Button disabled.&lt;/p&gt;&lt;p&gt;Please use the record button in the main window.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
         <string/>

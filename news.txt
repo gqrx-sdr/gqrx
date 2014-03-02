@@ -14,6 +14,7 @@
        NEW: Remote control through TCP socket.
        NEW: Set squelch level from current signal/noise level.
        NEW: Command line option to list existing configurations.
+       NEW: I/Q recording and playback.
      FIXED: Incorrect handling of decimal values in LNB LO frequency.
      FIXED: Correctly apply initial LNB LO frequency.
      FIXED: Audio output device selection on Mac OS X.

@@ -22,6 +22,12 @@
  */
 #include <QMessageBox>
 #include <QDebug>
+#include <QFileInfo>
+#include <QDir>
+#include <QString>
+#include <QStringList>
+#include <QTime>
+
 #include "iq_tool.h"
 #include "ui_iq_tool.h"
 
@@ -36,63 +42,122 @@ CIqTool::CIqTool(QWidget *parent) :
     is_playing = false;
     bytes_per_sample = 8;
     sample_rate = 192000;
+
+    ui->locationEntry->setText(QDir::currentPath());
+
+    recdir = new QDir("", "*.raw");
+
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(refreshDir()));
 }
 
 CIqTool::~CIqTool()
 {
+    timer->stop();
+    delete timer;
     delete ui;
+    delete recdir;
+
+}
+
+/*! \brief Set new sample rate. */
+void CIqTool::setSampleRate(qint64 sr)
+{
+    sample_rate = sr;
+
+    if (!current_file.isEmpty())
+    {
+        // Get duration of selected recording and update label
+        QFileInfo info(*recdir, current_file);
+        rec_len = (int)(info.size() / (sample_rate * bytes_per_sample));
+        refreshTimeWidgets();
+    }
+}
+
+/*! \brief Slot activated when the user selects a file. */
+void CIqTool::on_listWidget_currentTextChanged(const QString &currentText)
+{
+
+    current_file = currentText;
+    QFileInfo info(*recdir, current_file);
+
+    // Get duration of selected recording and update label
+    sample_rate = sampleRateFromFileName(currentText);
+    rec_len = (int)(info.size() / (sample_rate * bytes_per_sample));
+
+    refreshTimeWidgets();
+
+    // launch waveform plotter
+    if (ui->plotButton->isChecked())
+    {
+        qDebug() << "plot plot ...";
+    }
+}
+
+/*! \brief Start/stop playback */
+void CIqTool::on_playButton_clicked(bool checked)
+{
+    is_playing = checked;
+
+    if (checked)
+    {
+        if (current_file.isEmpty())
+        {
+            QMessageBox msg_box;
+            msg_box.setIcon(QMessageBox::Critical);
+            if (ui->listWidget->count() == 0)
+            {
+                msg_box.setText(tr("There are no I/Q files in the current directory."));
+            }
+            else
+            {
+                msg_box.setText(tr("Please select a file to play."));
+            }
+            msg_box.exec();
+
+            ui->playButton->setChecked(false); // will not trig clicked()
+        }
+        else
+        {
+            ui->listWidget->setEnabled(false);
+            emit startPlayback(recdir->absoluteFilePath(current_file), (float)sample_rate);
+        }
+    }
+    else
+    {
+        emit stopPlayback();
+        ui->listWidget->setEnabled(true);
+    }
+}
+
+/*! \brief Cancel playback.
+ *
+ * This slot can be activated to cancel an ongoing playback.
+ *
+ * This slot should be used to signal that a playback could not be started.
+ */
+void CIqTool::cancelPlayback()
+{
+    ui->playButton->setChecked(false);
+    ui->listWidget->setEnabled(true);
+    is_playing = false;
+}
+
+
+/*! \brief Slider value (seek position) has changed. */
+void CIqTool::on_slider_valueChanged(int value)
+{
+    refreshTimeWidgets();
+
+    qint64 seek_pos = (qint64)value * (sample_rate * bytes_per_sample);
+    emit seek(seek_pos);
 }
 
 
 /*! \brief Start/stop recording */
 void CIqTool::on_recButton_clicked(bool checked)
 {
-    if (checked)
-    {
-        if (is_recording)
-        {
-            qDebug() << "An I/Q recording is already in progress";
-            return;
-        }
-        is_recording = true;
-
-        // get a unique filename
-
-        // add new file to list
-
-        // disable buttons
-        ui->playButton->setEnabled(false);
-        ui->locationButton->setEnabled(false);
-        ui->locationEntry->setEnabled(false);
-
-        // emit recording signal
-        recfile = "/home/alc/gqrx_iq_2014.02.28_23:00:00_14236000_192000_fc.raw";
-        emit start_recording(recfile);
-
-        // start monitoring thread
-
-
-    }
-    else
-    {
-        if (!is_recording)
-        {
-            qDebug() << "No I/Q recording is in progress";
-            return;
-        }
-        is_recording = false;
-
-        // emit stop signal
-        emit stop_recording();
-
-        // stop monitoring thread
-
-        // re-enable buttons
-        ui->playButton->setEnabled(true);
-        ui->locationButton->setEnabled(true);
-        ui->locationEntry->setEnabled(true);
-    }
-
+    Q_UNUSED(checked);
 }
 
 /*! \brief Cancel a recording.
@@ -105,28 +170,7 @@ void CIqTool::on_recButton_clicked(bool checked)
  */
 void CIqTool::cancelRecording()
 {
-    if (is_recording)
-    {
-        // update button and object states
-        is_recording = false;
-        ui->recButton->setChecked(false);
-        ui->playButton->setEnabled(true);
-        ui->locationButton->setEnabled(true);
-        ui->locationEntry->setEnabled(true);
 
-        // delete file
-
-        // show an error message to user
-        QMessageBox msg_box;
-        msg_box.setIcon(QMessageBox::Critical);
-        msg_box.setText(tr("There was an error starting the I/Q recorder.\n"
-                           "Check write permissions for the selected location."));
-        msg_box.exec();
-    }
-    else
-    {
-        qDebug() << "Error: No recording to cancel";
-    }
 }
 
 /*! \brief Catch window close events.
@@ -137,6 +181,83 @@ void CIqTool::cancelRecording()
  */
 void CIqTool::closeEvent(QCloseEvent *event)
 {
+    timer->stop();
     hide();
     event->ignore();
+}
+
+/*! \brief Catch window show events. */
+void CIqTool::showEvent(QShowEvent * event)
+{
+    Q_UNUSED(event);
+    refreshDir();
+    refreshTimeWidgets();
+    timer->start(5000);
+}
+
+
+/*! \brief Refresh list of files in current working directory. */
+void CIqTool::refreshDir()
+{
+    int selection = ui->listWidget->currentRow();
+
+    recdir->refresh();
+    QStringList files = recdir->entryList();
+
+    ui->listWidget->blockSignals(true);
+    ui->listWidget->clear();
+    ui->listWidget->insertItems(0, files);
+    ui->listWidget->setCurrentRow(selection);
+    ui->listWidget->blockSignals(false);
+}
+
+/*! \brief Refresh time labels and slider position
+ *
+ * \note Safe for recordings > 24 hours
+ */
+void CIqTool::refreshTimeWidgets(void)
+{
+    ui->slider->setMaximum(rec_len);
+
+    // duration
+    int len = rec_len;
+    int lh, lm, ls;
+    lh = len / 3600;
+    len = len % 3600;
+    lm = len / 60;
+    ls = len % 60;
+
+    // current position
+    int pos = ui->slider->value();
+    int ph, pm, ps;
+    ph = pos / 3600;
+    pos = pos % 3600;
+    pm = pos / 60;
+    ps = pos % 60;
+
+    ui->timeLabel->setText(QString("%1:%2:%3 / %4:%5:%6")
+                           .arg(ph, 2, 10, QChar('0'))
+                           .arg(pm, 2, 10, QChar('0'))
+                           .arg(ps, 2, 10, QChar('0'))
+                           .arg(lh, 2, 10, QChar('0'))
+                           .arg(lm, 2, 10, QChar('0'))
+                           .arg(ls, 2, 10, QChar('0')));
+}
+
+
+/*! \brief Extract sample rate from file name */
+qint64 CIqTool::sampleRateFromFileName(const QString &filename)
+{
+    bool ok;
+    qint64 sr;
+
+    QStringList list = filename.split('_');
+
+    // gqrx_yymmdd_hhmmss_freq_samprate_fc.raw
+    sr = list.at(4).toLongLong(&ok);
+
+    if (ok)
+        return sr;
+    else
+        return sample_rate;  // return current rate
 }

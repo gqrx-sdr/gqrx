@@ -195,8 +195,6 @@ public:
     /* I/Q recording and playback */
     status start_iq_recording(const std::string filename);
     status stop_iq_recording();
-    status start_iq_playback(const std::string filename, float samprate);
-    status stop_iq_playback();
 
     /* sample sniffer */
     status start_sniffer(unsigned int samplrate, int buffsize);
@@ -244,7 +242,7 @@ private:
     gr::blocks::multiply_const_ff::sptr audio_gain0; /*!< Audio gain block. */
     gr::blocks::multiply_const_ff::sptr audio_gain1; /*!< Audio gain block. */
 
-    gr::blocks::file_sink::sptr         iq_sink;    /*!< I/Q file sink. */
+    gr::blocks::file_sink::sptr         iq_sink;     /*!< I/Q file sink. */
 
     gr::blocks::wavfile_sink::sptr      wav_sink;   /*!< WAV file sink for recording. */
     gr::blocks::wavfile_source::sptr    wav_src;    /*!< WAV file source for playback. */

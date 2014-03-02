@@ -197,6 +197,10 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(fftPeakHoldToggled(bool)), this, SLOT(setFftPeakHold(bool)));
     connect(uiDockFft, SIGNAL(peakDetectionToggled(bool)), this, SLOT(setPeakDetection(bool)));
 
+    // I/Q playback
+    connect(iq_tool, SIGNAL(startPlayback(QString,float)), this, SLOT(startIqPlayback(QString,float)));
+    connect(iq_tool, SIGNAL(stopPlayback()), this, SLOT(stopIqPlayback()));
+
     // remote control
     connect(remote, SIGNAL(newFilterOffset(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(remote, SIGNAL(newFilterOffset(qint64)), uiDockRxOpt, SLOT(setFilterOffset(qint64)));
@@ -211,6 +215,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     // restore last session
     if (!loadConfig(cfgfile, true))
     {
+
 		// first time config
         qDebug() << "Launching I/O device editor";
         if (firstTimeConfig() != QDialog::Accepted)
@@ -401,6 +406,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         ui->plotter->setSpanFreq((quint32)actual_rate);
 
         remote->setBandwidth(sr);
+        iq_tool->setSampleRate(sr);
     }
 
     qint64 bw = m_settings->value("input/bandwidth", 0).toInt(&conv_ok);
@@ -1253,43 +1259,56 @@ void MainWindow::stopAudioStreaming()
 }
 
 
-/*! \brief Start/stop I/Q data playback.
- *  \param play True if playback is started, false if it is stopped.
- *  \param filename Full path of the I/Q data file.
- */
-void MainWindow::toggleIqPlayback(bool play, const QString filename)
+void MainWindow::startIqPlayback(const QString filename, float samprate)
 {
-    if (play)
-    {
-        /* starting playback */
-        if (rx->start_iq_playback(filename.toStdString(), 96000.0))
-        {
-            ui->statusBar->showMessage(tr("Error trying to play %1").arg(filename));
-        }
-        else
-        {
-            ui->statusBar->showMessage(tr("Playing %1").arg(filename));
+    storeSession();
 
-            /* disable REC button */
-            ui->actionIqRec->setEnabled(false);
-        }
-    }
-    else
-    {
-        /* stopping playback */
-        if (rx->stop_iq_playback())
-        {
-            /* okay, this one would be weird if it really happened */
-            ui->statusBar->showMessage(tr("Error stopping I/Q playback"));
-        }
-        else
-        {
-            ui->statusBar->showMessage(tr("I/Q playback stopped"), 5000);
-        }
+    int sri = (int)samprate;
+    QString devstr = QString("file=%1,rate=%2,throttle=true,repeat=false")
+            .arg(filename).arg(sri);
 
-        /* enable REC button */
-        ui->actionIqRec->setEnabled(true);
+    qDebug() << __func__ << ":" << devstr;
+
+    rx->set_input_device(devstr.toStdString());
+
+    // sample rate
+    double actual_rate = rx->set_input_rate(samprate);
+    qDebug() << "Requested sample rate:" << samprate;
+    qDebug() << "Actual sample rate   :" << QString("%1").arg(actual_rate, 0, 'f', 6);
+    uiDockRxOpt->setFilterOffsetRange((qint64)(0.9*actual_rate));
+    ui->plotter->setSampleRate(actual_rate);
+    ui->plotter->setSpanFreq((quint32)actual_rate);
+    remote->setBandwidth(actual_rate);
+
+    // FIXME: would be nice with good/back status
+    ui->statusBar->showMessage(tr("Playing %1").arg(filename));
+}
+
+void MainWindow::stopIqPlayback()
+{
+    ui->statusBar->showMessage(tr("I/Q playback stopped"), 5000);
+
+    // restore original input device
+    QString indev = m_settings->value("input/device", "").toString();
+    rx->set_input_device(indev.toStdString());
+
+    // restore sample rate
+    bool conv_ok;
+    int sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
+    if (conv_ok && (sr > 0))
+    {
+        double actual_rate = rx->set_input_rate(sr);
+        qDebug() << "Requested sample rate:" << sr;
+        qDebug() << "Actual sample rate   :" << QString("%1").arg(actual_rate, 0, 'f', 6);
+        uiDockRxOpt->setFilterOffsetRange((qint64)(0.9*actual_rate));
+        ui->plotter->setSampleRate(actual_rate);
+        ui->plotter->setSpanFreq((quint32)actual_rate);
+        remote->setBandwidth(sr);
+        iq_tool->setSampleRate(sr);
     }
+
+    // restore frequency, gain, etc...
+    uiDockInputCtl->readSettings(m_settings);
 }
 
 
@@ -1601,6 +1620,13 @@ void MainWindow::on_actionIqRec_triggered(bool checked)
     }
 
 }
+
+/*! \brief show I/Q player. */
+void MainWindow::on_actionIqPlay_triggered()
+{
+    iq_tool->show();
+}
+
 
 /* CPlotter::NewDemodFreq() is emitted */
 void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)

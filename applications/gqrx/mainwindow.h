@@ -153,7 +153,9 @@ private slots:
     void startAudioStream(const QString udp_host, int udp_port);
     void stopAudioStreaming();
 
-    void toggleIqPlayback(bool play, const QString filename);
+    /* I/Q playback */
+    void startIqPlayback(const QString filename, float samprate);
+    void stopIqPlayback();
 
     /* FFT settings */
     void setIqFftSize(int size);
@@ -177,6 +179,7 @@ private slots:
     void on_actionLoadSettings_triggered();
     void on_actionSaveSettings_triggered();
     void on_actionIqRec_triggered(bool checked);
+    void on_actionIqPlay_triggered();
     void on_actionFullScreen_triggered(bool checked);
     void on_actionRemoteControl_triggered(bool checked);
     void on_actionRemoteConfig_triggered();

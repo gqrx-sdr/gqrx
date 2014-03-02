@@ -165,6 +165,7 @@
     <addaction name="actionRemoteConfig"/>
     <addaction name="separator"/>
     <addaction name="actionIqRec"/>
+    <addaction name="actionIqPlay"/>
     <addaction name="separator"/>
     <addaction name="actionAFSK1200"/>
    </widget>
@@ -397,6 +398,18 @@
    </property>
    <property name="toolTip">
     <string>Configure remote control settings</string>
+   </property>
+  </action>
+  <action name="actionIqPlay">
+   <property name="icon">
+    <iconset resource="../../icons.qrc">
+     <normaloff>:/icons/icons/play.svg</normaloff>:/icons/icons/play.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Replay I/Q recordings</string>
+   </property>
+   <property name="toolTip">
+    <string>Replay I/Q recordings</string>
    </property>
   </action>
  </widget>

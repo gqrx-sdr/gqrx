@@ -25,7 +25,10 @@
 
 #include <QCloseEvent>
 #include <QDialog>
+#include <QDir>
+#include <QShowEvent>
 #include <QString>
+#include <QTimer>
 
 namespace Ui {
     class CIqTool;
@@ -39,29 +42,48 @@ class CIqTool : public QDialog
 public:
     explicit CIqTool(QWidget *parent = 0);
     ~CIqTool();
+
+    void setSampleRate(qint64 sr);
     
     void closeEvent(QCloseEvent *event);
+    void showEvent(QShowEvent * event);
 
 signals:
-    void start_recording(const QString filename);
-    void stop_recording();
+    void startRecording(const QString filename);
+    void stopRecording();
+    void startPlayback(const QString filename, float samprate);
+    void stopPlayback();
+    void seek(qint64 seek_pos);
 
 public slots:
     void cancelRecording();
+    void cancelPlayback();
 
 private slots:
     void on_recButton_clicked(bool checked);
+    void on_playButton_clicked(bool checked);
+    void on_slider_valueChanged(int value);
+    void on_listWidget_currentTextChanged(const QString &currentText);
+    void refreshDir(void);
+
+private:
+    void refreshTimeWidgets(void);
+    qint64 sampleRateFromFileName(const QString &filename);
 
 
 private:
     Ui::CIqTool *ui;
 
-    QString recfile;
+    QDir   *recdir;
+    QTimer *timer;
 
-    bool is_recording;
-    bool is_playing;
-    int  bytes_per_sample;
-    int  sample_rate;
+    QString current_file;
+
+    bool    is_recording;
+    bool    is_playing;
+    qint64  bytes_per_sample;  /*!< Bytes per sample (fc = 4) */
+    qint64  sample_rate;       /*!< Current sample rate. */
+    int     rec_len;           /*!< Length of a recording in seconds */
 };
 
 #endif // IQ_TOOL_H
