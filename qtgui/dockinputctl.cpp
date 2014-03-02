@@ -358,6 +358,35 @@ void DockInputCtl::setGainStages(gain_list_t &gain_list)
 }
 
 
+/*! \brief Load all gains from the settings.
+ *
+ * Can be used for restoring the manual gains after auto-gain has been
+ * disabled.
+ */
+void DockInputCtl::restoreManualGains(QSettings *settings)
+{
+    // gains are stored as a QMap<QString, QVariant(int)>
+    // note that we store the integer values, i.e. dB*10
+    QMap <QString, QVariant> allgains;
+    QString gain_name;
+    double gain_value;
+    if (settings->contains("input/gains"))
+    {
+        allgains = settings->value("input/gains").toMap();
+        QMapIterator <QString, QVariant> gain_iter(allgains);
+
+        while (gain_iter.hasNext())
+        {
+            gain_iter.next();
+
+            gain_name = gain_iter.key();
+            gain_value = 0.1 * (double)(gain_iter.value().toInt());
+            setGain(gain_name, gain_value);
+            emit gainChanged(gain_name, gain_value);
+        }
+    }
+}
+
 /*! \brief LNB LO value has changed. */
 void DockInputCtl::on_lnbSpinBox_valueChanged(double value)
 {
@@ -487,7 +516,7 @@ void DockInputCtl::updateLabel(int idx, double value)
 }
 
 /*! \brief Get all gains.
- *  \param gains Pointer to a map where the gains and thier names are stored.
+ *  \param gains Pointer to a map where the gains and their names are stored.
  *
  * This is a private utility function used when storing the settings.
  */

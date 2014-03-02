@@ -98,6 +98,7 @@ public:
     void setAntenna(const QString &antenna);
 
     void setGainStages(gain_list_t &gain_list);
+    void restoreManualGains(QSettings *settings);
 
 signals:
     void gainChanged(QString name, double value);

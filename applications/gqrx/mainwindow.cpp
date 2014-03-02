@@ -627,6 +627,11 @@ void MainWindow::setGain(QString name, double gain)
 void MainWindow::setAutoGain(bool enabled)
 {
     rx->set_auto_gain(enabled);
+
+    if (!enabled)
+    {
+        uiDockInputCtl->restoreManualGains(m_settings);
+    }
 }
 
 /*! \brief Set new frequency offset value.
