@@ -80,7 +80,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
 
     // create I/Q sink and close it
     iq_sink = gr::blocks::file_sink::make(sizeof(gr_complex), "/dev/null", false);
-    //iq_sink->set_unbuffered(true);
+    iq_sink->set_unbuffered(true);
     iq_sink->close();
 
     rx = make_nbrx(d_input_rate, d_audio_rate);
@@ -989,6 +989,7 @@ receiver::status receiver::stop_udp_streaming()
  */
 receiver::status receiver::start_iq_recording(const std::string filename)
 {
+    receiver::status status = STATUS_OK;
 
     if (d_recording_iq) {
         std::cout << __func__ << ": already recording" << std::endl;
@@ -997,27 +998,24 @@ receiver::status receiver::start_iq_recording(const std::string filename)
 
     // iq_sink was created in the constructor
     if (iq_sink) {
-
         tb->lock();
-
-        if (iq_sink->open(filename.c_str()))
+        if (!iq_sink->open(filename.c_str()))
         {
-            std::cout << __func__ << " FD not 0";
+            status = STATUS_ERROR;
         }
         else
         {
-            std::cout << __func__ << " FD is 0";
+            tb->connect(src, 0, iq_sink, 0);
+            d_recording_iq = true;
         }
-
         tb->unlock();
-        d_recording_iq = true;
     }
     else {
         std::cout << __func__ << ": I/Q file sink does not exist" << std::endl;
         return STATUS_ERROR;
     }
 
-    return STATUS_OK;
+    return status;
 }
 
 
@@ -1031,6 +1029,7 @@ receiver::status receiver::stop_iq_recording()
 
     tb->lock();
     iq_sink->close();
+    tb->disconnect(src, 0, iq_sink, 0);
     tb->unlock();
     d_recording_iq = false;
 
