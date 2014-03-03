@@ -1266,6 +1266,12 @@ void MainWindow::stopAudioStreaming()
 
 void MainWindow::startIqPlayback(const QString filename, float samprate)
 {
+    if (ui->actionDSP->isChecked())
+    {
+        // suspend DSP while we reload settings
+        on_actionDSP_triggered(false);
+    }
+
     storeSession();
 
     int sri = (int)samprate;
@@ -1287,10 +1293,23 @@ void MainWindow::startIqPlayback(const QString filename, float samprate)
 
     // FIXME: would be nice with good/back status
     ui->statusBar->showMessage(tr("Playing %1").arg(filename));
+
+    if (ui->actionDSP->isChecked())
+    {
+        // restsart DSP
+        on_actionDSP_triggered(true);
+    }
+
 }
 
 void MainWindow::stopIqPlayback()
 {
+    if (ui->actionDSP->isChecked())
+    {
+        // suspend DSP while we reload settings
+        on_actionDSP_triggered(false);
+    }
+
     ui->statusBar->showMessage(tr("I/Q playback stopped"), 5000);
 
     // restore original input device
@@ -1314,6 +1333,12 @@ void MainWindow::stopIqPlayback()
 
     // restore frequency, gain, etc...
     uiDockInputCtl->readSettings(m_settings);
+
+    if (ui->actionDSP->isChecked())
+    {
+        // restsart DSP
+        on_actionDSP_triggered(true);
+    }
 }
 
 
