@@ -297,14 +297,14 @@ void CIoConfig::updateInputSampleRates(int rate)
         ui->inSrCombo->addItem("2000000");
         ui->inSrCombo->addItem("2200000");
         ui->inSrCombo->addItem("2400000");
-	ui->inSrCombo->addItem("2560000");
+        ui->inSrCombo->addItem("2560000");
         ui->inSrCombo->addItem("2700000");
-	ui->inSrCombo->addItem("2800000");
+        ui->inSrCombo->addItem("2800000");
         ui->inSrCombo->addItem("3200000");
         if (rate > 0)
         {
             ui->inSrCombo->addItem(QString("%1").arg(rate));
-            ui->inSrCombo->setCurrentIndex(9);
+            ui->inSrCombo->setCurrentIndex(11);
         }
         else
         {
