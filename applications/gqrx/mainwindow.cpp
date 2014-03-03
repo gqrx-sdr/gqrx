@@ -104,7 +104,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(dec_timer, SIGNAL(timeout()), this, SLOT(decoderTimeout()));
 
     // create I/Q tool widget
-    iq_tool = new CIqTool();
+    iq_tool = new CIqTool(this);
 
     /* create dock widgets */
     uiDockRxOpt = new DockRxOpt();
