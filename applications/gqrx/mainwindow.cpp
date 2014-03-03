@@ -1328,7 +1328,9 @@ void MainWindow::stopIqPlayback()
         ui->plotter->setSampleRate(actual_rate);
         ui->plotter->setSpanFreq((quint32)actual_rate);
         remote->setBandwidth(sr);
-        iq_tool->setSampleRate(sr);
+
+        // not needed as long as we are not recording in iq_tool
+        //iq_tool->setSampleRate(sr);
     }
 
     // restore frequency, gain, etc...
