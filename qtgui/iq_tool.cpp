@@ -48,7 +48,7 @@ CIqTool::CIqTool(QWidget *parent) :
     recdir = new QDir("", "*.raw");
 
     timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(refreshDir()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(timeoutFunction()));
 }
 
 CIqTool::~CIqTool()
@@ -120,6 +120,7 @@ void CIqTool::on_playButton_clicked(bool checked)
         else
         {
             ui->listWidget->setEnabled(false);
+            ui->recButton->setEnabled(false);
             emit startPlayback(recdir->absoluteFilePath(current_file), (float)sample_rate);
         }
     }
@@ -127,6 +128,7 @@ void CIqTool::on_playButton_clicked(bool checked)
     {
         emit stopPlayback();
         ui->listWidget->setEnabled(true);
+        ui->recButton->setEnabled(true);
     }
 }
 
@@ -140,6 +142,7 @@ void CIqTool::cancelPlayback()
 {
     ui->playButton->setChecked(false);
     ui->listWidget->setEnabled(true);
+    ui->recButton->setEnabled(true);
     is_playing = false;
 }
 
@@ -157,7 +160,18 @@ void CIqTool::on_slider_valueChanged(int value)
 /*! \brief Start/stop recording */
 void CIqTool::on_recButton_clicked(bool checked)
 {
-    Q_UNUSED(checked);
+    is_recording = checked;
+
+    if (checked)
+    {
+        ui->playButton->setEnabled(false);
+        emit startRecording();
+    }
+    else
+    {
+        ui->playButton->setEnabled(true);
+        emit stopRecording();
+    }
 }
 
 /*! \brief Cancel a recording.
@@ -170,7 +184,9 @@ void CIqTool::on_recButton_clicked(bool checked)
  */
 void CIqTool::cancelRecording()
 {
-
+    ui->recButton->setChecked(false);
+    ui->playButton->setEnabled(true);
+    is_recording = false;
 }
 
 /*! \brief Catch window close events.
@@ -192,9 +208,26 @@ void CIqTool::showEvent(QShowEvent * event)
     Q_UNUSED(event);
     refreshDir();
     refreshTimeWidgets();
-    timer->start(5000);
+    timer->start(1000);
 }
 
+void CIqTool::timeoutFunction(void)
+{
+    refreshDir();
+
+    if (is_playing)
+    {
+        // advance slider with one second
+        int val = ui->slider->value();
+        if (val < ui->slider->maximum())
+        {
+            ui->slider->blockSignals(true);
+            ui->slider->setValue(val+1);
+            ui->slider->blockSignals(false);
+            refreshTimeWidgets();
+        }
+    }
+}
 
 /*! \brief Refresh list of files in current working directory. */
 void CIqTool::refreshDir()
@@ -209,6 +242,14 @@ void CIqTool::refreshDir()
     ui->listWidget->insertItems(0, files);
     ui->listWidget->setCurrentRow(selection);
     ui->listWidget->blockSignals(false);
+
+    if (is_recording)
+    {
+        // update rec_len; if the file being recorded is the one selected
+        // in the list, the length will updte periodically
+        QFileInfo info(*recdir, current_file);
+        rec_len = (int)(info.size() / (sample_rate * bytes_per_sample));
+    }
 }
 
 /*! \brief Refresh time labels and slider position

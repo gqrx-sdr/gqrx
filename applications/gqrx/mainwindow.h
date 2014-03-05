@@ -153,7 +153,9 @@ private slots:
     void startAudioStream(const QString udp_host, int udp_port);
     void stopAudioStreaming();
 
-    /* I/Q playback */
+    /* I/Q playback and recording*/
+    void startIqRecording();
+    void stopIqRecording();
     void startIqPlayback(const QString filename, float samprate);
     void stopIqPlayback();
 
@@ -178,8 +180,7 @@ private slots:
     int  on_actionIoConfig_triggered();
     void on_actionLoadSettings_triggered();
     void on_actionSaveSettings_triggered();
-    void on_actionIqRec_triggered(bool checked);
-    void on_actionIqPlay_triggered();
+    void on_actionIqTool_triggered();
     void on_actionFullScreen_triggered(bool checked);
     void on_actionRemoteControl_triggered(bool checked);
     void on_actionRemoteConfig_triggered();

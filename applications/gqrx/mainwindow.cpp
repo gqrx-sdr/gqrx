@@ -198,6 +198,8 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(peakDetectionToggled(bool)), this, SLOT(setPeakDetection(bool)));
 
     // I/Q playback
+    connect(iq_tool, SIGNAL(startRecording()), this, SLOT(startIqRecording()));
+    connect(iq_tool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
     connect(iq_tool, SIGNAL(startPlayback(QString,float)), this, SLOT(startIqPlayback(QString,float)));
     connect(iq_tool, SIGNAL(stopPlayback()), this, SLOT(stopIqPlayback()));
 
@@ -1263,6 +1265,53 @@ void MainWindow::stopAudioStreaming()
     rx->stop_udp_streaming();
 }
 
+/*! \brief Start I/Q recording. */
+void MainWindow::startIqRecording()
+{
+    qDebug() << __func__;
+    // generate file name using date, time, rf freq in kHz and BW in Hz
+    // gqrx_iq_yyyy.mm.dd_hh:mm:ss_freq_bw_fc.raw
+    qint64 freq = (int)(rx->get_rf_freq());
+    qint64 sr = (int)(rx->get_input_rate());
+    QString lastRec = QDateTime::currentDateTimeUtc().
+            toString("gqrx_yyyyMMdd_hhmmss_%1_%2_fc.'raw'").arg(freq).arg(sr);
+
+    // start recorder; fails if recording already in progress
+    if (rx->start_iq_recording(lastRec.toStdString()))
+    {
+        // reset action status
+        ui->statusBar->showMessage(tr("Error starting I/Q recoder"));
+
+        // show an error message to user
+        QMessageBox msg_box;
+        msg_box.setIcon(QMessageBox::Critical);
+        msg_box.setText(tr("There was an error starting the I/Q recorder.\n"
+                           "Check write permissions for the selected location."));
+        msg_box.exec();
+
+    }
+    else
+    {
+        ui->statusBar->showMessage(tr("Recording I/Q data to: %1").arg(lastRec), 5000);
+    }
+
+}
+
+/*! \brief Stop current I/Q recording. */
+void MainWindow::stopIqRecording()
+{
+    qDebug() << __func__;
+
+    if (rx->stop_iq_recording())
+    {
+        ui->statusBar->showMessage(tr("Error stopping I/Q recoder"));
+    }
+    else
+    {
+        ui->statusBar->showMessage(tr("I/Q data recoding stopped"), 5000);
+    }
+
+}
 
 void MainWindow::startIqPlayback(const QString filename, float samprate)
 {
@@ -1599,62 +1648,8 @@ void MainWindow::on_actionSaveSettings_triggered()
 }
 
 
-/*! \brief Toggle I/Q recording. */
-void MainWindow::on_actionIqRec_triggered(bool checked)
-{
-
-    if (checked)
-    {
-        // generate file name using date, time, rf freq in kHz and BW in Hz
-        // gqrx_iq_yyyy.mm.dd_hh:mm:ss_freq_bw_fc.raw
-        qint64 freq = (int)(rx->get_rf_freq());
-        qint64 sr = (int)(rx->get_input_rate());
-        QString lastRec = QDateTime::currentDateTimeUtc().
-                toString("gqrx_yyyyMMdd_hhmmss_%1_%2_fc.'raw'").arg(freq).arg(sr);
-
-        // start recorder
-        if (rx->start_iq_recording(lastRec.toStdString()))
-        {
-            // reset action status
-            ui->actionIqRec->toggle();
-            ui->statusBar->showMessage(tr("Error starting I/Q recoder"));
-
-            // show an error message to user
-            QMessageBox msg_box;
-            msg_box.setIcon(QMessageBox::Critical);
-            msg_box.setText(tr("There was an error starting the I/Q recorder.\n"
-                               "Check write permissions for the selected location."));
-            msg_box.exec();
-
-        }
-        else
-        {
-            ui->statusBar->showMessage(tr("Recording I/Q data to: %1").arg(lastRec), 5000);
-
-            /* disable I/Q player */
-            //uiDockIqPlay->setEnabled(false);
-        }
-    }
-    else
-    {
-        /* stop current recording */
-        if (rx->stop_iq_recording())
-        {
-            ui->statusBar->showMessage(tr("Error stopping I/Q recoder"));
-        }
-        else
-        {
-            ui->statusBar->showMessage(tr("I/Q data recoding stopped"), 5000);
-        }
-
-        /* enable I/Q player */
-        //uiDockIqPlay->setEnabled(true);
-    }
-
-}
-
 /*! \brief show I/Q player. */
-void MainWindow::on_actionIqPlay_triggered()
+void MainWindow::on_actionIqTool_triggered()
 {
     iq_tool->show();
 }

@@ -49,7 +49,7 @@ public:
     void showEvent(QShowEvent * event);
 
 signals:
-    void startRecording(const QString filename);
+    void startRecording();
     void stopRecording();
     void startPlayback(const QString filename, float samprate);
     void stopPlayback();
@@ -64,9 +64,10 @@ private slots:
     void on_playButton_clicked(bool checked);
     void on_slider_valueChanged(int value);
     void on_listWidget_currentTextChanged(const QString &currentText);
-    void refreshDir(void);
+    void timeoutFunction(void);
 
 private:
+    void refreshDir(void);
     void refreshTimeWidgets(void);
     qint64 sampleRateFromFileName(const QString &filename);
 
