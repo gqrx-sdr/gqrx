@@ -42,6 +42,8 @@ CIqTool::CIqTool(QWidget *parent) :
     is_playing = false;
     bytes_per_sample = 8;
     sample_rate = 192000;
+    rec_len = 0;
+    plot_spp = 1;
 
     ui->locationEntry->setText(QDir::currentPath());
 
@@ -147,6 +149,69 @@ void CIqTool::cancelPlayback()
 }
 
 
+/*! \brief Plot waveform. */
+void CIqTool::on_plotButton_clicked()
+{
+    if (current_file.isEmpty())
+    {
+        QMessageBox msg_box;
+        msg_box.setIcon(QMessageBox::Critical);
+        if (ui->listWidget->count() == 0)
+        {
+            msg_box.setText(tr("There are no I/Q files in the current directory."));
+        }
+        else
+        {
+            msg_box.setText(tr("Please select a file to play."));
+        }
+        msg_box.exec();
+
+        return;
+    }
+
+    QFile *file = new QFile(recdir->filePath(current_file));
+    if (!file->open(QIODevice::ReadOnly))
+    {
+        qDebug() << "Error opening file???";
+
+        return;
+    }
+
+    // number of data points with 1 point / second
+    int num_points = rec_len / plot_spp;
+    int chunk_size = sample_rate / plot_spp * bytes_per_sample;
+
+    char *readbuf = (char*)malloc(chunk_size);
+    struct iqt_cplx *cplxbuf = (iqt_cplx *)readbuf;  // FIXME: We assume gr_complex
+
+    qDebug() << "*** NUM POINTS:" << num_points;
+    qDebug() << "*** CHUNK SIZE:" << chunk_size;
+
+
+    for (int i = 0; i < num_points; i++)
+    {
+        // read data chunk
+        if (!file->seek(i * chunk_size))
+        {
+            continue;
+        }
+
+        qint64 read = file->read(readbuf, chunk_size);
+
+        // calculate average and max
+
+        // store data in plot buffer
+    }
+
+    // plot data
+
+    // clean up
+    file->close();
+    delete file;
+
+    free(readbuf);
+}
+
 /*! \brief Slider value (seek position) has changed. */
 void CIqTool::on_slider_valueChanged(int value)
 {
@@ -165,11 +230,13 @@ void CIqTool::on_recButton_clicked(bool checked)
     if (checked)
     {
         ui->playButton->setEnabled(false);
+        ui->plotButton->setEnabled(false);
         emit startRecording();
     }
     else
     {
         ui->playButton->setEnabled(true);
+        ui->plotButton->setEnabled(true);
         emit stopRecording();
     }
 }

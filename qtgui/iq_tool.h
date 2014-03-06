@@ -34,6 +34,14 @@ namespace Ui {
     class CIqTool;
 }
 
+
+struct iqt_cplx
+{
+    float re;
+    float im;
+};
+
+
 /*! \brief User interface for I/Q recording and playback. */
 class CIqTool : public QDialog
 {
@@ -62,6 +70,7 @@ public slots:
 private slots:
     void on_recButton_clicked(bool checked);
     void on_playButton_clicked(bool checked);
+    void on_plotButton_clicked();
     void on_slider_valueChanged(int value);
     void on_listWidget_currentTextChanged(const QString &currentText);
     void timeoutFunction(void);
@@ -78,13 +87,14 @@ private:
     QDir   *recdir;
     QTimer *timer;
 
-    QString current_file;
+    QString current_file;      /*!< Selected file in file browser. */
 
     bool    is_recording;
     bool    is_playing;
-    qint64  bytes_per_sample;  /*!< Bytes per sample (fc = 4) */
-    qint64  sample_rate;       /*!< Current sample rate. */
+    int     bytes_per_sample;  /*!< Bytes per sample (fc = 4) */
+    int     sample_rate;       /*!< Current sample rate. */
     int     rec_len;           /*!< Length of a recording in seconds */
+    int     plot_spp;          /*!< [seconds / datapoint] */
 };
 
 #endif // IQ_TOOL_H
