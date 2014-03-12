@@ -195,6 +195,7 @@ public:
     /* I/Q recording and playback */
     status start_iq_recording(const std::string filename);
     status stop_iq_recording();
+    status seek_iq_file(long pos);
 
     /* sample sniffer */
     status start_sniffer(unsigned int samplrate, int buffsize);

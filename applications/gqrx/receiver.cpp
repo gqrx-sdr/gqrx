@@ -1036,6 +1036,28 @@ receiver::status receiver::stop_iq_recording()
     return STATUS_OK;
 }
 
+/*! \brief Seek to position in IQ file source.
+ *  \param pos Byte offset from the beginning of the file.
+ */
+receiver::status receiver::seek_iq_file(long pos)
+{
+    receiver::status status = STATUS_OK;
+
+    tb->lock();
+
+    if (src->seek(pos, SEEK_SET))
+    {
+        status = STATUS_OK;
+    }
+    else
+    {
+        status = STATUS_ERROR;
+    }
+
+    tb->unlock();
+
+    return status;
+}
 
 /*! \brief Start data sniffer.
  *  \param buffsize The buffer that should be used in the sniffer.

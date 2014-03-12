@@ -28,6 +28,8 @@
 #include <QStringList>
 #include <QTime>
 
+#include <math.h>
+
 #include "iq_tool.h"
 #include "ui_iq_tool.h"
 
@@ -89,11 +91,6 @@ void CIqTool::on_listWidget_currentTextChanged(const QString &currentText)
 
     refreshTimeWidgets();
 
-    // launch waveform plotter
-    if (ui->plotButton->isChecked())
-    {
-        qDebug() << "plot plot ...";
-    }
 }
 
 /*! \brief Start/stop playback */
@@ -131,6 +128,7 @@ void CIqTool::on_playButton_clicked(bool checked)
         emit stopPlayback();
         ui->listWidget->setEnabled(true);
         ui->recButton->setEnabled(true);
+        ui->slider->setValue(0);
     }
 }
 
@@ -187,7 +185,6 @@ void CIqTool::on_plotButton_clicked()
     qDebug() << "*** NUM POINTS:" << num_points;
     qDebug() << "*** CHUNK SIZE:" << chunk_size;
 
-
     for (int i = 0; i < num_points; i++)
     {
         // read data chunk
@@ -199,6 +196,17 @@ void CIqTool::on_plotButton_clicked()
         qint64 read = file->read(readbuf, chunk_size);
 
         // calculate average and max
+        float val, avg=0.0, max=0.0;
+        for (int j = 0; j < read/bytes_per_sample; j++)
+        {
+            val = fabs(cplxbuf[j].re);
+            avg += val;
+            if (val > max)
+                max = val;
+        }
+        avg /= read/bytes_per_sample;
+
+        qDebug() << i << "   AVG:" << avg << "  MAX:" << max;
 
         // store data in plot buffer
     }
@@ -217,7 +225,7 @@ void CIqTool::on_slider_valueChanged(int value)
 {
     refreshTimeWidgets();
 
-    qint64 seek_pos = (qint64)value * (sample_rate * bytes_per_sample);
+    qint64 seek_pos = (qint64)(value*sample_rate);
     emit seek(seek_pos);
 }
 

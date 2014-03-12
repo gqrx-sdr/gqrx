@@ -158,6 +158,7 @@ private slots:
     void stopIqRecording();
     void startIqPlayback(const QString filename, float samprate);
     void stopIqPlayback();
+    void seekIqFile(qint64 seek_pos);
 
     /* FFT settings */
     void setIqFftSize(int size);

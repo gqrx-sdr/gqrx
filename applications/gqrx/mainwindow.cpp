@@ -202,6 +202,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(iq_tool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
     connect(iq_tool, SIGNAL(startPlayback(QString,float)), this, SLOT(startIqPlayback(QString,float)));
     connect(iq_tool, SIGNAL(stopPlayback()), this, SLOT(stopIqPlayback()));
+    connect(iq_tool, SIGNAL(seek(qint64)), this,SLOT(seekIqFile(qint64)));
 
     // remote control
     connect(remote, SIGNAL(newFilterOffset(qint64)), this, SLOT(setFilterOffset(qint64)));
@@ -1392,6 +1393,14 @@ void MainWindow::stopIqPlayback()
     }
 }
 
+
+/*! \brief Go to a specific offset in the IQ file.
+ *  \param seek_pos The byte offset from the begining of the file.
+ */
+void MainWindow::seekIqFile(qint64 seek_pos)
+{
+    rx->seek_iq_file((long)seek_pos);
+}
 
 /*! \brief FFT size has changed. */
 void MainWindow::setIqFftSize(int size)

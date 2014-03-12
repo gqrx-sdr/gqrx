@@ -84,7 +84,7 @@
      <item>
       <widget class="QPushButton" name="plotButton">
        <property name="enabled">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="minimumSize">
         <size>
@@ -223,6 +223,9 @@
    </item>
    <item>
     <widget class="QSlider" name="slider">
+     <property name="toolTip">
+      <string>Seek forward and backward in I/Q file</string>
+     </property>
      <property name="maximum">
       <number>600</number>
      </property>
