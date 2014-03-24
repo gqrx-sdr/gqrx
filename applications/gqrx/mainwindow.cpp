@@ -730,7 +730,7 @@ void MainWindow::selectDemod(int index)
         rx->set_demod(receiver::RX_DEMOD_AM);
         ui->plotter->setDemodRanges(-20000, -250, 250, 20000, true);
         uiDockAudio->setFftRange(0,15000);
-        click_res = 6250;
+        click_res = 100;
         switch (filter_preset)
         {
         case 0: //wide
@@ -751,7 +751,7 @@ void MainWindow::selectDemod(int index)
         /* Narrow FM */
     case DockRxOpt::MODE_NFM:
         rx->set_demod(receiver::RX_DEMOD_NFM);
-        click_res = 6250;
+        click_res = 100;
         maxdev = uiDockRxOpt->currentMaxdev();
         if (maxdev < 20000.0)
         {   /** FIXME **/
