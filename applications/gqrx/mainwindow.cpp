@@ -700,7 +700,7 @@ void MainWindow::selectDemod(int index)
     double quad_rate;
     float maxdev;
     int filter_preset = uiDockRxOpt->currentFilter();
-    int flo=0, fhi=0, click_res=100;
+    int flo=0, fhi=0, click_res=6250;
 
 
     switch (index) {
@@ -716,7 +716,7 @@ void MainWindow::selectDemod(int index)
         rx->set_demod(receiver::RX_DEMOD_OFF);
         flo = 0;
         fhi = 0;
-        click_res = 6250;
+        click_res = 100;
 
         break;
 
