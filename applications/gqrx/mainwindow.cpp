@@ -716,7 +716,7 @@ void MainWindow::selectDemod(int index)
         rx->set_demod(receiver::RX_DEMOD_OFF);
         flo = 0;
         fhi = 0;
-        click_res = 100;
+        click_res = 6250;
 
         break;
 
