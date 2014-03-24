@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011-2012 Alexandru Csete OZ9AEC.
  * Copyright 2004-2008 by Frank Brickle, AB2KT and Bob McGwier, N4HY
  *
@@ -19,8 +22,8 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <math.h>
-#include <gr_io_signature.h>
-#include <gr_complex.h>
+#include <gnuradio/io_signature.h>
+#include <gnuradio/gr_complex.h>
 #include "dsp/rx_noise_blanker_cc.h"
 
 rx_nb_cc_sptr make_rx_nb_cc(double sample_rate, float thld1, float thld2)
@@ -34,9 +37,9 @@ rx_nb_cc_sptr make_rx_nb_cc(double sample_rate, float thld1, float thld2)
  * Use make_rx_nb_cc() instead.
  */
 rx_nb_cc::rx_nb_cc(double sample_rate, float thld1, float thld2)
-    : gr_sync_block ("rx_nb_cc",
-          gr_make_io_signature(1, 1, sizeof(gr_complex)),
-          gr_make_io_signature(1, 1, sizeof(gr_complex))),
+    : gr::sync_block ("rx_nb_cc",
+          gr::io_signature::make(1, 1, sizeof(gr_complex)),
+          gr::io_signature::make(1, 1, sizeof(gr_complex))),
       d_nb1_on(false),
       d_nb2_on(false),
       d_sample_rate(sample_rate),
@@ -74,8 +77,7 @@ int rx_nb_cc::work(int noutput_items,
     // copy data into output buffer then perform the processing on that buffer
     for (i = 0; i < noutput_items; i++)
     {
-        out[i].imag() = in[i].imag();
-        out[i].real() = in[i].real();
+        out[i] = in[i];
     }
 
     if (d_nb1_on)

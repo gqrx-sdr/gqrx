@@ -1,7 +1,53 @@
-   2.1.xyz
+     2.3.0  TBD...
+
+       NEW: Support for setting analog bandwidth of receivers that support it.
+       NEW: Support for setting gain stages individually.
+       NEW: Remember visibility status of main toolbar.
+       NEW: Restore the geometry of the main window between sessions.
+       NEW: Restore the state and placement of the dock windows.
+       NEW: Nuand BladeRF support.
+       NEW: RF Space SDR-IQ, SDR-IP and Netsdr support.
+       NEW: Airspy support.
+       NEW: Peak detection on the FFT plot.
+       NEW: Max hold on the FFT plot.
+       NEW: Audio streaming over UDP socket.
+       NEW: Remote control through TCP socket.
+       NEW: Set squelch level from current signal/noise level.
+       NEW: Command line option to list existing configurations.
+       NEW: I/Q recording and playback.
+     FIXED: Incorrect handling of decimal values in LNB LO frequency.
+     FIXED: Correctly apply initial LNB LO frequency.
+     FIXED: Audio output device selection on Mac OS X.
+     FIXED: Properly store settings when using Save As function.
+     FIXED: Crash when recording audio whith no rec directory set.
+     FIXED: Only allow audio playback while DSP is running.
+  IMPROVED: Gqrx can fit on small screens (900x600 pixels).
+  IMPROVED: Better color gradient for the waterfall.
+  IMPROVED: FFT presentation at high rates and high sizes.
+
+
+     2.2.0  Released August 8, 2013
+
+       NEW: Official Ubuntu PPA and Mac OS X app bundle.
        NEW: Allow using audio output devices other than the default.
        NEW: Automatic I/Q phase and gain correction (requires gr-iqbal).
+       NEW: Qt 5 support.
+       NEW: GNU Radio 3.7 support.
+       NEW: HackRF Jawbreaker support.
+       NEW: Funcube Dongle Pro+ support.
+       NEW: Option to select antenna connector on e.g. USRP devices.
+       NEW: Configuration option to choose location of WAV recordings.
+       NEW: Uses gr-audio as default on all platform (pulseaudio still possible).
+       NEW: Command line option to remove configuration file.
+       NEW: Command line option to launch I/O device editor before application.
+     FIXED: Frequency control widget with recent Qt was broken.
+     FIXED: Bug that caused audio FFT data to be leaked into the I/Q FFT.
+     FIXED: Audio recording & playback.
+     FIXED: Proper handling of frequencies above 2147483647 Hz. 
   IMPROVED: Y-axis panning (click-and-drag).
+  IMPROVED: Rescale waterfall when resizing the main window.
+  IMPROVED: gr-audio support on Linux.
+  IMPROVED: Audio gain setting no longer has impact on WAV recording.
 
 
    2.1.251  Released on March 1, 2013
@@ -43,11 +89,12 @@
   IMPROVED: Various improvements to the user iterface.
 
 
-   2.0      Released on July 7, 2012
+     2.0.0  Released on July 7, 2012
        
        First stable release of C++ version with Funcube Dongle support.
 
-   1.x
+
+     1.x
 
        Initial experiments using Python and gr-qtgui.
 

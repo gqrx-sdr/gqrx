@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -55,6 +58,8 @@ signals:
     void gotoDemodFreq(void);        /*! Center FFT around demodulator frequency. */
     void fftColorChanged(const QColor &); /*! FFT color has changed. */
     void fftFillToggled(bool fill);  /*! Toggle filling area under FFT plot. */
+    void fftPeakHoldToggled(bool enable); /*! Toggle peak hold in FFT area. */
+    void peakDetectionToggled(bool enabled); /*! Enable peak detection in FFT plot */
 
 private slots:
     void on_fftSizeComboBox_currentIndexChanged(const QString & text);
@@ -66,6 +71,8 @@ private slots:
     void on_demodButton_clicked(void);
     void on_colorPicker_colorChanged(const QColor &);
     void on_fillButton_toggled(bool checked);
+    void on_peakHoldButton_toggled(bool checked);
+    void on_peakDetectionButton_toggled(bool checked);
 
 private:
     Ui::DockFft *ui;

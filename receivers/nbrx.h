@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -20,8 +23,8 @@
 #ifndef NBRX_H
 #define NBRX_H
 
-#include <gr_simple_squelch_cc.h>
-#include <gr_complex_to_xxx.h>
+#include <gnuradio/analog/simple_squelch_cc.h>
+#include <gnuradio/blocks/complex_to_real.h>
 #include "receivers/receiver_base.h"
 #include "dsp/rx_noise_blanker_cc.h"
 #include "dsp/rx_filter.h"
@@ -113,8 +116,8 @@ private:
     rx_nb_cc_sptr             nb;         /*!< Noise blanker. */
     rx_meter_c_sptr           meter;      /*!< Signal strength. */
     rx_agc_cc_sptr            agc;        /*!< Receiver AGC. */
-    gr_simple_squelch_cc_sptr sql;        /*!< Squelch. */
-    gr_complex_to_real_sptr   demod_ssb;  /*!< SSB demodulator. */
+    gr::analog::simple_squelch_cc::sptr sql;        /*!< Squelch. */
+    gr::blocks::complex_to_real::sptr   demod_ssb;  /*!< SSB demodulator. */
     rx_demod_fm_sptr          demod_fm;   /*!< FM demodulator. */
     rx_demod_am_sptr          demod_am;   /*!< AM demodulator. */
     resampler_ff_sptr         audio_rr;   /*!< Audio resampler. */

@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011 Alexandru Csete OZ9AEC.
  * Copyright 2013 Vesa Solonen OH2JCP.
  *
@@ -21,9 +24,9 @@
 #ifndef RX_DEMOD_AM_H
 #define RX_DEMOD_AM_H
 
-#include <gr_hier_block2.h>
-#include <gr_complex_to_xxx.h>
-#include <gr_iir_filter_ffd.h>
+#include <gnuradio/hier_block2.h>
+#include <gnuradio/blocks/complex_to_mag.h>
+#include <gnuradio/filter/iir_filter_ffd.h>
 #include <vector>
 
 
@@ -49,7 +52,7 @@ rx_demod_am_sptr make_rx_demod_am(float quad_rate, float audio_rate, bool dcr=tr
  * This block implements an optional IIR DC-removal filter for the demodulated signal.
  *
  */
-class rx_demod_am : public gr_hier_block2
+class rx_demod_am : public gr::hier_block2
 {
 
 public:
@@ -61,8 +64,8 @@ public:
 
 private:
     /* GR blocks */
-    gr_complex_to_mag_sptr  d_demod;    /*! AM demodulation (complex to magnitude). */
-    gr_iir_filter_ffd_sptr    d_dcr;    /*! DC removal (IIR high pass). */
+    gr::blocks::complex_to_mag::sptr  d_demod;    /*! AM demodulation (complex to magnitude). */
+    gr::filter::iir_filter_ffd::sptr    d_dcr;    /*! DC removal (IIR high pass). */
 
     /* other parameters */
     float  d_quad_rate;     /*! Quadrature rate. */

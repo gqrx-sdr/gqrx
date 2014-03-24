@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -38,6 +41,7 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     ui->filterButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     ui->modeButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     ui->agcButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+    ui->autoSquelchButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
 #endif
 
     ui->filterFreq->setup(7, -filterOffsetRange/2, filterOffsetRange/2, 1, UNITS_KHZ);
@@ -189,9 +193,12 @@ void DockRxOpt::readSettings(QSettings *settings)
         emit filterOffsetChanged(offs);
     }
 
-    intVal = settings->value("receiver/sql_level", 1).toInt(&conv_ok);
-    if (intVal != 1)
-        ui->sqlSlider->setValue(intVal); // signal emitted automatically
+    double dblVal = settings->value("receiver/sql_level", 1.0).toDouble(&conv_ok);
+    if (conv_ok && dblVal < 1.0)
+    {
+        //ui->sqlSlider->setValue(intVal); // signal emitted automatically
+        ui->sqlSpinBox->setValue(dblVal);
+    }
 }
 
 /*! \brief Save receiver configuration to settings. */
@@ -206,8 +213,9 @@ void DockRxOpt::saveSettings(QSettings *settings)
         settings->remove("receiver/offset");
 
     qDebug() << __func__ << "*** FIXME_ SQL on/off";
-    int sql_lvl = double(ui->sqlSlider->value());  // note: dBFS*10 as int
-    if (sql_lvl > -1500)
+    //int sql_lvl = double(ui->sqlSlider->value());  // note: dBFS*10 as int
+    double sql_lvl = ui->sqlSpinBox->value();
+    if (sql_lvl > -150.0)
         settings->setValue("receiver/sql_level", sql_lvl);
     else
         settings->remove("receiver/sql_level");
@@ -294,6 +302,18 @@ void DockRxOpt::on_agcButton_clicked()
     agcOpt->show();
 }
 
+/*! \brief Auto-squelch button clicked.
+ *
+ * This slot is called when the user clicks on the auto-squelch button.
+ *
+ */
+void DockRxOpt::on_autoSquelchButton_clicked()
+{
+    // Emit signal
+    double newval = sqlAutoClicked(); // FIXME: We rely on signal only being connected to one slot
+    ui->sqlSpinBox->setValue(newval);
+}
+
 
 /*! \brief AGC preset has changed. */
 void DockRxOpt::on_agcPresetCombo_activated(int index)
@@ -371,15 +391,11 @@ void DockRxOpt::agcOpt_gainChanged(int gain)
 }
 
 /*! \brief Squelch level change.
- *  \param value The new squelch level in tens of dB (because slider uses int).
+ *  \param value The new squelch level in dB.
  */
-void DockRxOpt::on_sqlSlider_valueChanged(int value)
+void DockRxOpt::on_sqlSpinBox_valueChanged(double value)
 {
-    double level = double(value) / 10.0;
-
-    // update dB label
-    ui->sqlDbLabel->setText(QString("%1 dBFS").arg(level));
-    emit sqlLevelChanged(level);
+    emit sqlLevelChanged(value);
 }
 
 /*! \brief FM deviation changed by user.

@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011-2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -20,9 +23,9 @@
 #ifndef RESAMPLER_XX_H
 #define RESAMPLER_XX_H
 
-#include <gr_hier_block2.h>
-#include <gr_pfb_arb_resampler_ccf.h>
-#include <gr_pfb_arb_resampler_fff.h>
+#include <gnuradio/hier_block2.h>
+#include <gnuradio/filter/pfb_arb_resampler_ccf.h>
+#include <gnuradio/filter/pfb_arb_resampler_fff.h>
 
 
 class resampler_cc;
@@ -46,7 +49,7 @@ resampler_cc_sptr make_resampler_cc(float rate);
  * of generating filter taps that can be used for the filter, as well as calculating
  * the other required parameters.
  */
-class resampler_cc : public gr_hier_block2
+class resampler_cc : public gr::hier_block2
 {
 
 public:
@@ -57,7 +60,7 @@ public:
 
 private:
     std::vector<float>            d_taps;
-    gr_pfb_arb_resampler_ccf_sptr d_filter;
+    gr::filter::pfb_arb_resampler_ccf::sptr d_filter;
 };
 
 
@@ -76,7 +79,7 @@ resampler_ff_sptr make_resampler_ff(float rate);
  * of generating filter taps that can be used for the filter, as well as calculating
  * the other required parameters.
  */
-class resampler_ff : public gr_hier_block2
+class resampler_ff : public gr::hier_block2
 {
 
 public:
@@ -87,7 +90,7 @@ public:
 
 private:
     std::vector<float>            d_taps;
-    gr_pfb_arb_resampler_fff_sptr d_filter;
+    gr::filter::pfb_arb_resampler_fff::sptr d_filter;
 };
 
 #endif // RESAMPLER_XX_H

@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011-2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -18,8 +21,8 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <cstdio>
-#include <gr_io_signature.h>
-#include <gr_firdes.h>
+#include <gnuradio/io_signature.h>
+#include <gnuradio/filter/firdes.h>
 #include "dsp/resampler_xx.h"
 
 
@@ -32,9 +35,9 @@ resampler_cc_sptr make_resampler_cc(float rate)
 }
 
 resampler_cc::resampler_cc(float rate)
-    : gr_hier_block2 ("resampler_cc",
-          gr_make_io_signature (1, 1, sizeof(gr_complex)),
-          gr_make_io_signature (1, 1, sizeof(gr_complex)))
+    : gr::hier_block2 ("resampler_cc",
+          gr::io_signature::make (1, 1, sizeof(gr_complex)),
+          gr::io_signature::make (1, 1, sizeof(gr_complex)))
 {
     /* I ceated this code based on:
        http://gnuradio.squarespace.com/blog/2010/12/6/new-interface-for-pfb_arb_resampler_ccf.html
@@ -50,10 +53,10 @@ resampler_cc::resampler_cc(float rate)
     double trans_width = rate > 1.0 ? 0.2 : 0.2*rate;
     unsigned int flt_size = 32;
 
-    d_taps = gr_firdes::low_pass(flt_size, flt_size, cutoff, trans_width);
+    d_taps = gr::filter::firdes::low_pass(flt_size, flt_size, cutoff, trans_width);
 
     /* create the filter */
-    d_filter = gr_make_pfb_arb_resampler_ccf(rate, d_taps, flt_size);
+    d_filter = gr::filter::pfb_arb_resampler_ccf::make(rate, d_taps, flt_size);
 
     /* connect filter */
     connect(self(), 0, d_filter, 0);
@@ -71,14 +74,14 @@ void resampler_cc::set_rate(float rate)
     double cutoff = rate > 1.0 ? 0.4 : 0.4*rate;
     double trans_width = rate > 1.0 ? 0.2 : 0.2*rate;
     unsigned int flt_size = 32;
-    d_taps = gr_firdes::low_pass(flt_size, flt_size, cutoff, trans_width);
+    d_taps = gr::filter::firdes::low_pass(flt_size, flt_size, cutoff, trans_width);
 
     /* FIXME: Should implement set_taps() in PFB */
     lock();
     disconnect(self(), 0, d_filter, 0);
     disconnect(d_filter, 0, self(), 0);
     d_filter.reset();
-    d_filter = gr_make_pfb_arb_resampler_ccf(rate, d_taps, flt_size);
+    d_filter = gr::filter::pfb_arb_resampler_ccf::make(rate, d_taps, flt_size);
     connect(self(), 0, d_filter, 0);
     connect(d_filter, 0, self(), 0);
     unlock();
@@ -93,9 +96,9 @@ resampler_ff_sptr make_resampler_ff(float rate)
 }
 
 resampler_ff::resampler_ff(float rate)
-    : gr_hier_block2 ("resampler_ff",
-          gr_make_io_signature (1, 1, sizeof(float)),
-          gr_make_io_signature (1, 1, sizeof(float)))
+    : gr::hier_block2 ("resampler_ff",
+          gr::io_signature::make (1, 1, sizeof(float)),
+          gr::io_signature::make (1, 1, sizeof(float)))
 {
     /* I ceated this code based on:
        http://gnuradio.squarespace.com/blog/2010/12/6/new-interface-for-pfb_arb_resampler_ccf.html
@@ -111,10 +114,10 @@ resampler_ff::resampler_ff(float rate)
     double trans_width = rate > 1.0 ? 0.2 : 0.2*rate;
     unsigned int flt_size = 32;
 
-    d_taps = gr_firdes::low_pass(flt_size, flt_size, cutoff, trans_width);
+    d_taps = gr::filter::firdes::low_pass(flt_size, flt_size, cutoff, trans_width);
 
     /* create the filter */
-    d_filter = gr_make_pfb_arb_resampler_fff(rate, d_taps, flt_size);
+    d_filter = gr::filter::pfb_arb_resampler_fff::make(rate, d_taps, flt_size);
 
     /* connect filter */
     connect(self(), 0, d_filter, 0);
@@ -132,14 +135,14 @@ void resampler_ff::set_rate(float rate)
     double cutoff = rate > 1.0 ? 0.4 : 0.4*rate;
     double trans_width = rate > 1.0 ? 0.2 : 0.2*rate;
     unsigned int flt_size = 32;
-    d_taps = gr_firdes::low_pass(flt_size, flt_size, cutoff, trans_width);
+    d_taps = gr::filter::firdes::low_pass(flt_size, flt_size, cutoff, trans_width);
 
     /* FIXME: Should implement set_taps() in PFB */
     lock();
     disconnect(self(), 0, d_filter, 0);
     disconnect(d_filter, 0, self(), 0);
     d_filter.reset();
-    d_filter = gr_make_pfb_arb_resampler_fff(rate, d_taps, flt_size);
+    d_filter = gr::filter::pfb_arb_resampler_fff::make(rate, d_taps, flt_size);
     connect(self(), 0, d_filter, 0);
     connect(d_filter, 0, self(), 0);
     unlock();

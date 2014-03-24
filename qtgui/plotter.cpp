@@ -55,23 +55,31 @@ CPlotter::CPlotter(QWidget *parent) :
     setAttribute(Qt::WA_NoSystemBackground, true);
     setMouseTracking(true);
 
-    //create a default waterfall color scheme
-    // *** Need to read from file ***
+    // default waterfall color scheme
     for (int i = 0; i < 256; i++)
     {
-        if( (i<43) )
-            m_ColorTbl[i].setRgb( 0,0, 255*(i)/43);
-        if( (i>=43) && (i<87) )
-            m_ColorTbl[i].setRgb( 0, 255*(i-43)/43, 255 );
-        if( (i>=87) && (i<120) )
-            m_ColorTbl[i].setRgb( 0,255, 255-(255*(i-87)/32));
-        if( (i>=120) && (i<154) )
-            m_ColorTbl[i].setRgb( (255*(i-120)/33), 255, 0);
-        if( (i>=154) && (i<217) )
-            m_ColorTbl[i].setRgb( 255, 255 - (255*(i-154)/62), 0);
-        if( (i>=217)  )
-            m_ColorTbl[i].setRgb( 255, 0, 128*(i-217)/38);
+		// level 0: black background
+		if (i < 20)
+			m_ColorTbl[i].setRgb(0, 0, 0);
+		// level 1: black -> blue
+        else if ((i >= 20) && (i < 70))
+            m_ColorTbl[i].setRgb(0, 0, 140*(i-20)/50);
+        // level 2: blue -> light-blue / greenish
+        else if ((i >= 70) && (i < 100))
+			m_ColorTbl[i].setRgb(60*(i-70)/30, 125*(i-70)/30, 115*(i-70)/30 + 140);
+        // level 3: light blue -> yellow
+        else if ((i >= 100) && (i < 150))
+            m_ColorTbl[i].setRgb(195*(i-100)/50 + 60, 130*(i-100)/50 + 125, 255-(255*(i-100)/50));
+        // level 4: yellow -> red
+        else if ((i >= 150) && (i < 250))
+            m_ColorTbl[i].setRgb(255, 255-255*(i-150)/100, 0);
+        // level 5: red -> white
+        else if (i >= 250)
+            m_ColorTbl[i].setRgb(255, 255*(i-250)/5, 255*(i-250)/5);
     }
+
+    m_PeakHoldActive=false;
+    m_PeakHoldValid=false;
 
     m_FftCenter = 0;
     m_CenterFreq = 144500000;
@@ -112,13 +120,20 @@ CPlotter::CPlotter(QWidget *parent) :
     m_GrabPosition = 0;
     m_Percent2DScreen = 50;	//percent of screen used for 2D display
 
+#ifdef Q_WS_MAC
+    m_FontSize = 11;
+#else
     m_FontSize = 9;
+#endif
     m_VdivDelta = 40;
     m_HdivDelta = 60;
 
     m_FreqDigits = 3;
 
-    setFftPlotColor(QColor(0x97,0xD0,0x97,0xFF));
+    m_Peaks = QMap<int,int>();
+    setPeakDetection(false, 2);
+
+    setFftPlotColor(QColor(0xFF,0xFF,0xFF,0xFF));
     setFftFill(false);
 }
 
@@ -355,6 +370,32 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
     }
 }
 
+
+int CPlotter::getNearestPeak(QPoint pt)
+{
+    QMap<int, int>::const_iterator i = m_Peaks.lowerBound(pt.x()-PEAK_CLICK_MAX_H_DISTANCE);
+    QMap<int, int>::const_iterator upperBound = m_Peaks.upperBound(pt.x()+PEAK_CLICK_MAX_H_DISTANCE);
+    double dist=1e10;
+    int best=-1;
+    for(;i != upperBound;i++)
+    {
+        int x=i.key();
+        int y=i.value();
+
+        if(abs(y-pt.y())>PEAK_CLICK_MAX_V_DISTANCE)
+            continue;
+
+        double d=pow(y-pt.y(),2)+pow(x-pt.x(),2);
+        if(d<dist)
+        {
+            dist=d;
+            best=x;
+        }
+    }
+
+    return best;
+}
+
 //////////////////////////////////////////////////////////////////////
 // Called when a mouse button is pressed
 //////////////////////////////////////////////////////////////////////
@@ -383,8 +424,16 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
         {
             if (event->buttons() == Qt::LeftButton)
             {
+                int best=-1;
+                if(m_PeakDetection>0)
+                    best = getNearestPeak(pt);
+
+                if(best!=-1)
+                    m_DemodCenterFreq = freqFromX(best);
+                else
+                    m_DemodCenterFreq = roundFreq(freqFromX(pt.x()),m_ClickResolution );
+
                 //if cursor not captured set demod frequency and start demod box capture
-                m_DemodCenterFreq = roundFreq(freqFromX(pt.x()),m_ClickResolution );
                 emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
 
                 //save initial grab postion from m_DemodFreqX
@@ -539,9 +588,19 @@ void CPlotter::resizeEvent(QResizeEvent* )
         m_OverlayPixmap.fill(Qt::black);
         m_2DPixmap = QPixmap(m_Size.width(), m_Percent2DScreen*m_Size.height()/100);
         m_2DPixmap.fill(Qt::black);
-        m_WaterfallPixmap = QPixmap(m_Size.width(), (100-m_Percent2DScreen)*m_Size.height()/100);
+
+        int height = (100-m_Percent2DScreen)*m_Size.height()/100;
+        if (m_WaterfallPixmap.isNull()) {
+            m_WaterfallPixmap = QPixmap(m_Size.width(), height);
+            m_WaterfallPixmap.fill(Qt::black);
+        } else {
+            m_WaterfallPixmap = m_WaterfallPixmap.scaled(m_Size.width(), height,
+                                                         Qt::IgnoreAspectRatio,
+                                                         Qt::SmoothTransformation);
+        }
+
+        m_PeakHoldValid=false;
     }
-    m_WaterfallPixmap.fill(Qt::black);
     drawOverlay();
 }
 
@@ -574,6 +633,9 @@ void CPlotter::draw()
     {
         drawOverlay();
         m_DrawOverlay = false;
+
+        //FIXME: dirty hack to avoid invalidating Peak data througout the code
+        m_PeakHoldValid=false;
     }
 
     QPoint LineBuf[MAX_SCREENSIZE];
@@ -593,9 +655,12 @@ void CPlotter::draw()
 
         QPainter painter1(&m_WaterfallPixmap);
         // get scaled FFT data
-        getScreenIntegerFFTData(255, qMin(w, MAX_SCREENSIZE), m_MaxdB, m_MindB,
-                                m_FftCenter-m_Span/2, m_FftCenter+m_Span/2,
-                                m_wfData, m_fftbuf, &xmin, &xmax);
+        getScreenIntegerFFTData(255, qMin(w, MAX_SCREENSIZE),
+                                m_MaxdB, m_MindB,
+                                m_FftCenter - (qint64)m_Span/2,
+                                m_FftCenter + (qint64)m_Span/2,
+                                m_wfData, m_fftbuf,
+                                &xmin, &xmax);
 
         // draw new line of fft data at top of waterfall bitmap
         painter1.setPen(QColor(0, 0, 0));
@@ -621,10 +686,19 @@ void CPlotter::draw()
 
         QPainter painter2(&m_2DPixmap);
 
+// workaround for "fixed" line drawing since Qt 5
+// see http://stackoverflow.com/questions/16990326 
+#if QT_VERSION >= 0x050000
+        painter2.translate(0.5, 0.5);
+#endif
+
         // get new scaled fft data
-        getScreenIntegerFFTData(h, qMin(w, MAX_SCREENSIZE), m_MaxdB, m_MindB,
-                                m_FftCenter-m_Span/2, m_FftCenter+m_Span/2,
-                                m_fftData, m_fftbuf, &xmin, &xmax);
+        getScreenIntegerFFTData(h, qMin(w, MAX_SCREENSIZE),
+                                m_MaxdB, m_MindB,
+                                m_FftCenter - (qint64)m_Span/2,
+                                m_FftCenter + (qint64)m_Span/2,
+                                m_fftData, m_fftbuf,
+                                &xmin, &xmax);
 
         // draw the pandapter
         painter2.setPen(m_FftColor);
@@ -662,6 +736,59 @@ void CPlotter::draw()
         {
             painter2.drawPolyline(LineBuf, n);
         }
+
+        //Peak detection
+        if(m_PeakDetection>0)
+        {
+            m_Peaks.clear();
+
+            double mean=0;
+            double sum_of_sq=0;
+            for (i = 0; i < n; i++)
+            {
+                mean+=m_fftbuf[i + xmin];
+                sum_of_sq+=m_fftbuf[i + xmin]*m_fftbuf[i + xmin];
+            }
+            mean/=n;
+            double stdev= sqrt( sum_of_sq/n-mean*mean );
+
+            int lastPeak=-1;
+            for (i = 0; i < n; i++)
+            {
+                //m_PeakDetection times the std over the mean or better than current peak
+                double d = (lastPeak==-1)?(mean-m_PeakDetection*stdev):m_fftbuf[lastPeak+xmin];
+
+                if(m_fftbuf[i + xmin] < d)
+                    lastPeak=i;
+
+                if(lastPeak!=-1 && (i-lastPeak>PEAK_H_TOLERANCE || i==n-1))
+                {
+                    m_Peaks.insert(lastPeak+xmin, m_fftbuf[lastPeak + xmin]);
+                    painter2.drawEllipse(lastPeak+xmin-5, m_fftbuf[lastPeak + xmin]-5, 10, 10);
+                    lastPeak=-1;
+                }
+            }
+        }
+
+        //Peak hold
+        if(m_PeakHoldActive)
+        {
+            for (i = 0; i < n; i++)
+            {
+                if(!m_PeakHoldValid || m_fftbuf[i] < m_fftPeakHoldBuf[i])
+                    m_fftPeakHoldBuf[i]=m_fftbuf[i];
+
+                LineBuf[i].setX(i + xmin);
+                LineBuf[i].setY(m_fftPeakHoldBuf[i + xmin]);
+            }
+            painter2.setPen(m_PeakHoldColor);
+            painter2.drawPolyline(LineBuf, n);
+
+            m_PeakHoldValid=true;
+        }
+
+		painter2.end();
+
     }
 
     // trigger a new paintEvent
@@ -714,7 +841,7 @@ void CPlotter::setNewFttData(double *fftData, double *wfData, int size)
 
 void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
                                        double maxdB, double mindB,
-                                       qint32 startFreq, qint32 stopFreq,
+                                       qint64 startFreq, qint64 stopFreq,
                                        double *inBuf, qint32 *outBuf,
                                        int *xmin, int *xmax)
 {
@@ -730,6 +857,7 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
     double  dBGainFactor = ((double)plotHeight)/abs(maxdB-mindB);
     qint32* m_pTranslateTbl = new qint32[qMax(m_FFTSize, plotWidth)];
 
+    /** FIXME: qint64 -> qint32 **/
     m_BinMin = (qint32)((double)startFreq*(double)m_FFTSize/m_SampleFreq);
     m_BinMin += (m_FFTSize/2);
     m_BinMax = (qint32)((double)stopFreq*(double)m_FFTSize/m_SampleFreq);
@@ -1049,7 +1177,7 @@ qint64 CPlotter::freqFromX(int x)
 {
     int w = m_OverlayPixmap.width();
     qint64 StartFreq = m_CenterFreq + m_FftCenter - m_Span/2;
-    qint64 f = (int)(StartFreq + (float)m_Span * (float)x/(float)w );
+    qint64 f = (qint64)(StartFreq + (float)m_Span * (float)x/(float)w );
     return f;
 }
 
@@ -1148,10 +1276,33 @@ void CPlotter::setFftPlotColor(const QColor color)
     m_FftCol0.setAlpha(0x00);
     m_FftCol1 = color;
     m_FftCol1.setAlpha(0xA0);
+    m_PeakHoldColor=color;
+    m_PeakHoldColor.setAlpha(60);
 }
 
 /*! Enable/disable filling the area below the FFT plot. */
 void CPlotter::setFftFill(bool enabled)
 {
     m_FftFill = enabled;
+}
+
+/*! \brief Set peak hold on or off.
+ *  \param enabled The new state of peak hold.
+ */
+void CPlotter::setPeakHold(bool enabled)
+{
+    m_PeakHoldActive=enabled;
+    m_PeakHoldValid=false;
+}
+
+/*! \brief Set peak detection on or off.
+ *  \param enabled The new state of peak detection.
+ *  \param c Minimum distance of peaks from mean, in multiples of standard deviation.
+ */
+void CPlotter::setPeakDetection(bool enabled, double c)
+{
+    if(!enabled || c<=0)
+        m_PeakDetection=-1;
+    else
+        m_PeakDetection=c;
 }

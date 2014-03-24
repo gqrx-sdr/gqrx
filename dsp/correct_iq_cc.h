@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2012-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -20,12 +23,12 @@
 #ifndef CORRECT_IQ_CC_H
 #define CORRECT_IQ_CC_H
 
-#include <gr_complex.h>
-#include <gr_complex_to_xxx.h>
-#include <gr_float_to_complex.h>
-#include <gr_hier_block2.h>
-#include <gr_single_pole_iir_filter_cc.h>
-#include <gr_sub_cc.h>
+#include <gnuradio/gr_complex.h>
+#include <gnuradio/blocks/complex_to_float.h>
+#include <gnuradio/blocks/float_to_complex.h>
+#include <gnuradio/hier_block2.h>
+#include <gnuradio/filter/single_pole_iir_filter_cc.h>
+#include <gnuradio/blocks/sub_cc.h>
 
 class dc_corr_cc;
 class iq_swap_cc;
@@ -45,7 +48,7 @@ dc_corr_cc_sptr make_dc_corr_cc(double sample_rate, double tau=1.0);
  * This block performs automatic DC offset removal using a single pole IIR
  * filter
  */
-class dc_corr_cc : public gr_hier_block2
+class dc_corr_cc : public gr::hier_block2
 {
     friend dc_corr_cc_sptr make_dc_corr_cc(double sample_rate, double tau);
 
@@ -58,8 +61,8 @@ public:
     void set_tau(double tau);
 
 private:
-    gr_single_pole_iir_filter_cc_sptr d_iir;
-    gr_sub_cc_sptr                    d_sub;
+    gr::filter::single_pole_iir_filter_cc::sptr d_iir;
+    gr::blocks::sub_cc::sptr                    d_sub;
 
     double d_sr;     /*!< Sample rate. */
     double d_tau;    /*!< Time constant. */
@@ -74,7 +77,7 @@ iq_swap_cc_sptr make_iq_swap_cc(bool enabled);
 /*! \brief Block to swap I and Q channels.
  *  \ingroup DSP
  */
-class iq_swap_cc : public gr_hier_block2
+class iq_swap_cc : public gr::hier_block2
 {
     friend iq_swap_cc_sptr make_iq_swap_cc(bool enabled);
 
@@ -86,12 +89,9 @@ public:
     void set_enabled(bool enabled);
 
 private:
-    gr_complex_to_float_sptr d_c2f;
-    gr_float_to_complex_sptr d_f2c;
+    gr::blocks::complex_to_float::sptr d_c2f;
+    gr::blocks::float_to_complex::sptr d_f2c;
     bool d_enabled;
 };
-
-
-
 
 #endif /* CORRECT_IQ_CC_H */

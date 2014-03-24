@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011-2012 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -21,8 +24,8 @@
 #define PA_SINK_H
 
 #include <string>
-#include <gr_sync_block.h>
-#include <gruel/high_res_timer.h>
+#include <gnuradio/sync_block.h>
+#include <gnuradio/high_res_timer.h>
 #include <pulse/simple.h>
 
 using namespace std;
@@ -42,7 +45,7 @@ pa_sink_sptr make_pa_sink(const string device_name, int audio_rate,
  * This block implements a two-channel pulseaudio sink using the Pulseaudio simple API.
  *
  */
-class pa_sink : public gr_sync_block
+class pa_sink : public gr::sync_block
 {
     friend pa_sink_sptr make_pa_sink(const string device_name, int audio_rate,
                                      const string app_name, const string stream_name);
@@ -71,7 +74,7 @@ private:
     // FIXME
     // periodic flushing of audio buffer (until we have soundcard calibration)
     int d_auto_flush;  // flush interval in seconds (negative means off)
-    gruel::high_res_timer_type d_last_flush;
+    gr::high_res_timer_type d_last_flush;
 };
 
 #endif /* PA_SINK_H */

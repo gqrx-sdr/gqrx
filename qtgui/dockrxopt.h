@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -48,7 +51,9 @@ class DockRxOpt : public QDockWidget
 
 public:
 
-    /*! \brief Mode selector entries. */
+    /*! \brief Mode selector entries.
+     *  \note If you change this enum, remember to update the TCP interface.
+     */
     enum rxopt_mode_idx {
         MODE_OFF        = 0, /*!< Demodulator completely off. */
         MODE_RAW        = 1, /*!< Raw I/Q passthrough. */
@@ -68,7 +73,6 @@ public:
     void readSettings(QSettings *settings);
     void saveSettings(QSettings *settings);
 
-    void setFilterOffset(qint64 freq_hz);
     void setFilterOffsetRange(qint64 range_hz);
 
     void setFilterParam(int lo, int hi);
@@ -77,10 +81,13 @@ public:
 
     void setHwFreq(qint64 freq_hz);
 
-    void setCurrentDemod(int demod);
     int  currentDemod();
 
     float currentMaxdev();
+
+public slots:
+    void setCurrentDemod(int demod);
+    void setFilterOffset(qint64 freq_hz);
 
 private:
     void updateHwFreq();
@@ -106,6 +113,12 @@ signals:
 
     /*! \brief Signal emitted when squelch level has changed. Level is in dBFS. */
     void sqlLevelChanged(double level);
+
+    /*! \brief Signal emitted when auto squelch level is clicked.
+     *
+     * \note Need current signal/noise level returned
+     */
+    double sqlAutoClicked();
 
     /*! \brief Signal emitted when AGC is togglen ON/OFF. */
     void agcToggled(bool agc_on);
@@ -136,8 +149,9 @@ private slots:
     void on_modeSelector_activated(int index);
     void on_modeButton_clicked();
     void on_agcButton_clicked();
+    void on_autoSquelchButton_clicked();
     void on_agcPresetCombo_activated(int index);
-    void on_sqlSlider_valueChanged(int value);
+    void on_sqlSpinBox_valueChanged(double value);
     void on_nb1Button_toggled(bool checked);
     void on_nb2Button_toggled(bool checked);
     void on_nbOptButton_clicked();

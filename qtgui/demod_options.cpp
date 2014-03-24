@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -36,7 +39,7 @@ CDemodOptions::~CDemodOptions()
 
 /*! \brief Catch window close events.
  *
- * This method is called when the uses closes the demod options dialog
+ * This method is called when the user closes the demod options dialog
  * window using the window close icon. We catch the event and hide the
  * dialog but keep it around for later use.
  */

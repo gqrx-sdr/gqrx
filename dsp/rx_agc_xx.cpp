@@ -1,5 +1,8 @@
 /* -*- c++ -*- */
 /*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
  * Copyright 2011 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -18,8 +21,8 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <math.h>
-#include <gr_io_signature.h>
-#include <gr_complex.h>
+#include <gnuradio/io_signature.h>
+#include <gnuradio/gr_complex.h>
 #include <dsp/rx_agc_xx.h>
 
 rx_agc_cc_sptr make_rx_agc_cc(double sample_rate, bool agc_on, int threshold,
@@ -37,9 +40,9 @@ rx_agc_cc_sptr make_rx_agc_cc(double sample_rate, bool agc_on, int threshold,
  */
 rx_agc_cc::rx_agc_cc(double sample_rate, bool agc_on, int threshold,
                      int manual_gain, int slope, int decay, bool use_hang)
-    : gr_sync_block ("rx_agc_cc",
-          gr_make_io_signature(1, 1, sizeof(gr_complex)),
-          gr_make_io_signature(1, 1, sizeof(gr_complex))),
+    : gr::sync_block ("rx_agc_cc",
+          gr::io_signature::make(1, 1, sizeof(gr_complex)),
+          gr::io_signature::make(1, 1, sizeof(gr_complex))),
       d_agc_on(agc_on),
       d_sample_rate(sample_rate),
       d_threshold(threshold),
@@ -76,6 +79,7 @@ int rx_agc_cc::work(int noutput_items,
     boost::mutex::scoped_lock lock(d_mutex);
 
     for (i = 0; i < noutput_items; i++) {
+        // implicit conversion from float to double
         ib[i].im = in[i].imag();
         ib[i].re = in[i].real();
     }
@@ -83,8 +87,8 @@ int rx_agc_cc::work(int noutput_items,
     d_agc->ProcessData(noutput_items, &ib[0], &ob[0]);
 
     for (i = 0; i < noutput_items; i++) {
-        out[i].real() = ob[i].re;
-        out[i].imag() = ob[i].im;
+        // implicit conversion from double to float
+        out[i] = gr_complex(ob[i].re, ob[i].im);
     }
 
     return noutput_items;
