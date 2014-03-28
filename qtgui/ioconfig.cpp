@@ -3,7 +3,7 @@
  * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
  *           http://gqrx.dk/
  *
- * Copyright 2011-2013 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2014 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,8 +36,8 @@
 
 #ifdef WITH_PULSEAUDIO
 #include "pulseaudio/pa_device_list.h"
-#elif defined(WITH_PORTAUDIO)
-#include "portaudio/device_list.h"
+#elif defined(GQRX_OS_MACX)
+#include "osxaudio/device_list.h"
 #endif
 
 #include "qtgui/ioconfig.h"
@@ -59,9 +59,9 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
     QString indev = settings->value("input/device", "").toString();
 
     // automatic discovery of FCD does not work on Mac
-    // so we do it ourselves if we have portaudio
-#if defined(Q_WS_MAC) && defined(WITH_PORTAUDIO)
-    portaudio_device_list devices;
+    // so we do it ourselves
+#if defined(GQRX_OS_MACX)
+    osxaudio_device_list devices;
     inDevList = devices.get_input_devices();
 
     string this_dev;
@@ -181,9 +181,9 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
             ui->outDevCombo->setCurrentIndex(i+1);
     }
 
-#elif defined(Q_WS_MAC) && defined(WITH_PORTAUDIO)
+#elif defined(GQRX_OS_MACX)
     // get list of output devices
-    // (already defined) portaudio_device_list devices;
+    // (already defined) osxaudio_device_list devices;
     outDevList = devices.get_output_devices();
 
     qDebug() << __FUNCTION__ << ": Available output devices:";
@@ -223,7 +223,7 @@ void CIoConfig::saveConfig()
 
     if (idx > 0)
     {
-#if defined(WITH_PULSEAUDIO) || defined(WITH_PORTAUDIO)
+#if defined(WITH_PULSEAUDIO) || defined(GQRX_OS_MACX)
         qDebug() << "Output device" << idx << ":" << QString(outDevList[idx-1].get_name().c_str());
         m_settings->setValue("output/device", QString(outDevList[idx-1].get_name().c_str()));
 #endif

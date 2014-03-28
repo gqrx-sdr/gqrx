@@ -3,7 +3,7 @@
  * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
  *           http://gqrx.dk/
  *
- * Copyright 2011-2013 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2014 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
 #include "receivers/nbrx.h"
 #include "receivers/wfmrx.h"
 
-#ifdef WITH_PULSEAUDIO //pafix
+#ifdef WITH_PULSEAUDIO
 #include "pulseaudio/pa_sink.h"
 #else
 #include <gnuradio/audio/sink.h>
@@ -97,7 +97,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
 
     audio_udp_sink = make_udp_sink_f();
 
-#ifdef WITH_PULSEAUDIO //pafix
+#ifdef WITH_PULSEAUDIO
     audio_snk = make_pa_sink(audio_device, d_audio_rate, "GQRX", "Audio output");
 #else
     audio_snk = gr::audio::sink::make(d_audio_rate, audio_device, true);
@@ -134,14 +134,8 @@ receiver::~receiver()
 /*! \brief Start the receiver. */
 void receiver::start()
 {
-    /* FIXME: Check that flow graph is not running */
     if (!d_running)
     {
-
-#ifndef WITH_PULSEAUDIO
-        if(d_demod != RX_DEMOD_OFF)
-            set_output_device("");
-#endif
         tb->start();
         d_running = true;
     }
@@ -201,13 +195,14 @@ void receiver::set_output_device(const std::string device)
                   << "  old: " << output_devstr << std::endl
                   << "  new: " << device << std::endl;
 #endif
-
-#ifndef GQRX_OS_MACX
-        // we can return on any platform but OS X becasue of
-        // https://github.com/csete/gqrx/issues/66
         return;
-#endif
     }
+
+#ifndef QT_NO_DEBUG_OUTPUT
+    std::cout << "New audio output device:" << std::endl
+              << "   old: " << output_devstr << std::endl
+              << "   new: " << device << std::endl;
+#endif
 
     output_devstr = device;
 

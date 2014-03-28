@@ -7,7 +7,6 @@
 #    CONFIG+=debug            Enable debug mode
 #    PREFIX=/some/prefix      Installation prefix
 #    BOOST_SUFFIX=-mt         To link against libboost-xyz-mt (needed for pybombs)
-#    AUDIO_BACKEND=portaudio  Use it on Mac OS X to have FCD Pro and Pro+ support
 #--------------------------------------------------------------------------------
 
 QT       += core gui svg network
@@ -25,8 +24,10 @@ macx {
     TARGET = gqrx
 }
 
+# enable pkg-config to find dependencies
+CONFIG += link_pkgconfig
+
 unix:!macx {
-    CONFIG += link_pkgconfig
     packagesExist(libpulse libpulse-simple) {
         # Comment out to use gr-audio (not recommended with ALSA and Funcube Dongle Pro)
         AUDIO_BACKEND = pulse
@@ -184,47 +185,30 @@ contains(AUDIO_BACKEND, pulse): {
     DEFINES += WITH_PULSEAUDIO
 }
 
-# Introduced in 2.2 for FCD support on OS X
-contains(AUDIO_BACKEND, portaudio): {
-    HEADERS += portaudio/device_list.h
-    SOURCES += portaudio/device_list.cpp
-    DEFINES += WITH_PORTAUDIO
+macx {
+    HEADERS += osxaudio/device_list.h
+    SOURCES += osxaudio/device_list.cpp
 }
 
-# dependencies via pkg-config
-# FIXME: check for version?
-unix:!macx {
-    contains(AUDIO_BACKEND, pulse): {
-        PKGCONFIG += libpulse libpulse-simple
-    } else {
-        PKGCONFIG += gnuradio-audio
-    }
-    PKGCONFIG += gnuradio-analog \
-                 gnuradio-blocks \
-                 gnuradio-filter \
-                 gnuradio-fft \
-                 gnuradio-osmosdr
+contains(AUDIO_BACKEND, pulse): {
+    PKGCONFIG += libpulse libpulse-simple
+} else {
+    PKGCONFIG += gnuradio-audio
+}
 
+PKGCONFIG += gnuradio-analog \
+             gnuradio-blocks \
+             gnuradio-filter \
+             gnuradio-fft \
+             gnuradio-osmosdr
+
+unix:!macx {
     LIBS += -lboost_system$$BOOST_SUFFIX -lboost_program_options$$BOOST_SUFFIX
     LIBS += -lrt  # need to include on some distros
 }
 
 macx {
-    # macports
-    INCLUDEPATH += /opt/local/include
-
-    # local stuff
-    INCLUDEPATH += /Users/alexc/gqrx/runtime/include
-    LIBS += -L/opt/local/lib -L/Users/alexc/gqrx/runtime/lib
-
     LIBS += -lboost_system-mt -lboost_program_options-mt
-    LIBS += -lgnuradio-runtime -lgnuradio-pmt -lgnuradio-audio -lgnuradio-analog
-    LIBS += -lgnuradio-blocks -lgnuradio-filter -lgnuradio-fft -lgnuradio-osmosdr
-
-    # portaudio
-    contains(AUDIO_BACKEND, portaudio): {
-        LIBS    += -lportaudio
-    }
 }
 
 OTHER_FILES += \
