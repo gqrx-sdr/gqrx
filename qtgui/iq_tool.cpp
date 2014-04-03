@@ -120,7 +120,8 @@ void CIqTool::on_playButton_clicked(bool checked)
         {
             ui->listWidget->setEnabled(false);
             ui->recButton->setEnabled(false);
-            emit startPlayback(recdir->absoluteFilePath(current_file), (float)sample_rate);
+            emit startPlayback(recdir->absoluteFilePath(current_file),
+                               (float)sample_rate);
         }
     }
     else
@@ -238,13 +239,16 @@ void CIqTool::on_recButton_clicked(bool checked)
     if (checked)
     {
         ui->playButton->setEnabled(false);
-        ui->plotButton->setEnabled(false);
+        //ui->plotButton->setEnabled(false);
         emit startRecording();
+
+        refreshDir();
+        ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
     }
     else
     {
         ui->playButton->setEnabled(true);
-        ui->plotButton->setEnabled(true);
+        //ui->plotButton->setEnabled(true);
         emit stopRecording();
     }
 }
@@ -302,6 +306,8 @@ void CIqTool::timeoutFunction(void)
             refreshTimeWidgets();
         }
     }
+    if (is_recording)
+        refreshTimeWidgets();
 }
 
 /*! \brief Refresh list of files in current working directory. */
@@ -321,7 +327,7 @@ void CIqTool::refreshDir()
     if (is_recording)
     {
         // update rec_len; if the file being recorded is the one selected
-        // in the list, the length will updte periodically
+        // in the list, the length will update periodically
         QFileInfo info(*recdir, current_file);
         rec_len = (int)(info.size() / (sample_rate * bytes_per_sample));
     }
