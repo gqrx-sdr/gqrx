@@ -249,6 +249,8 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    on_actionDSP_triggered(false);
+
     /* stop and delete timers */
     dec_timer->stop();
     delete dec_timer;
