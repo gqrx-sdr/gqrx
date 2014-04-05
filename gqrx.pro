@@ -18,7 +18,7 @@ TEMPLATE = app
 
 macx {
     TARGET = Gqrx
-    ICON = icons/scope.icns
+    ICON = icons/gqrx.icns
     DEFINES += GQRX_OS_MACX
 } else {
     TARGET = gqrx
@@ -215,4 +215,3 @@ OTHER_FILES += \
     README.md \
     COPYING \
     news.txt
-

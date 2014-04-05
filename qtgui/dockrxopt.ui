@@ -28,6 +28,10 @@
     <height>524287</height>
    </size>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../icons.qrc">
+    <normaloff>:/icons/icons/radio.svg</normaloff>:/icons/icons/radio.svg</iconset>
+  </property>
   <property name="allowedAreas">
    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
   </property>

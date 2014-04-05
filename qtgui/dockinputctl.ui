@@ -16,6 +16,10 @@
     <height>150</height>
    </size>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../icons.qrc">
+    <normaloff>:/icons/icons/radio.svg</normaloff>:/icons/icons/radio.svg</iconset>
+  </property>
   <property name="floating">
    <bool>false</bool>
   </property>
@@ -242,6 +246,8 @@
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../icons.qrc"/>
+ </resources>
  <connections/>
 </ui>
