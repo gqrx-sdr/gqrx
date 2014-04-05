@@ -242,22 +242,12 @@ void receiver::set_antenna(const std::string &antenna)
  */
 double receiver::set_input_rate(double rate)
 {
-    // don't bother with sub-hertz changes
-    if (fabs(rate-d_input_rate) < 1.0)
-    {
-#ifndef QT_NO_DEBUG_OUTPUT
-        std::cout << "No siginficant change in input sample rate" << std::endl;
-#endif
-    }
-    else
-    {
-        tb->lock();
-        d_input_rate = src->set_sample_rate(rate);
-        dc_corr->set_sample_rate(d_input_rate);
-        rx->set_quad_rate(d_input_rate);
-        lo->set_sampling_freq(d_input_rate);
-        tb->unlock();
-    }
+    tb->lock();
+    d_input_rate = src->set_sample_rate(rate);
+    dc_corr->set_sample_rate(d_input_rate);
+    rx->set_quad_rate(d_input_rate);
+    lo->set_sampling_freq(d_input_rate);
+    tb->unlock();
 
     return d_input_rate;
 }
