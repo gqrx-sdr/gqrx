@@ -678,11 +678,12 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
 {
     updateFrequencyRange(ignore_limits);
 
+    qint64 filter_offset = (qint64)rx->get_filter_offset();
     qint64 freq = (qint64)rx->get_rf_freq();
-    ui->freqCtrl->setFrequency(d_lnb_lo + freq);
+    ui->freqCtrl->setFrequency(d_lnb_lo + freq + filter_offset);
 
-    // This will ensure that if frequency is clamped, the UI
-    // will be updated with the correct frequwncy.
+    // This will ensure that if frequency is clamped and that
+    // the UI is updated with the correct frequency.
     freq = ui->freqCtrl->getFrequency();
     setNewFrequency(freq);
 }
