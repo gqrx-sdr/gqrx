@@ -1341,7 +1341,7 @@ void MainWindow::startIqPlayback(const QString filename, float samprate)
     ui->plotter->setSpanFreq((quint32)actual_rate);
     remote->setBandwidth(actual_rate);
 
-    // FIXME: would be nice with good/back status
+    // FIXME: would be nice with good/bad status
     ui->statusBar->showMessage(tr("Playing %1").arg(filename));
 
     if (ui->actionDSP->isChecked())
