@@ -212,6 +212,7 @@ macx {
 }
 
 OTHER_FILES += \
+    gqrx.desktop \
     README.md \
     COPYING \
     news.txt
