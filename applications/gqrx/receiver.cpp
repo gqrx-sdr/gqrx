@@ -95,6 +95,10 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     audio_gain0 = gr::blocks::multiply_const_ff::make(0.1);
     audio_gain1 = gr::blocks::multiply_const_ff::make(0.1);
 
+    wav_sink = gr::blocks::wavfile_sink::make("/dev/null", 2,
+                                              (unsigned int) d_audio_rate,
+                                              16);
+
     audio_udp_sink = make_udp_sink_f();
 
 #ifdef WITH_PULSEAUDIO
@@ -818,10 +822,8 @@ receiver::status receiver::start_audio_recording(const std::string filename)
 
     // if this fails, we don't want to go and crash now, do we
     try {
-        wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(),
-                                                  2,
-                                                  (unsigned int) d_audio_rate,
-                                                  16);
+        wav_sink->open(filename.c_str());
+        wav_sink->set_sample_rate((unsigned int) d_audio_rate);
     }
     catch (std::runtime_error &e) {
         std::cout << "Error opening " << filename << ": " << e.what() << std::endl;
@@ -861,7 +863,6 @@ receiver::status receiver::stop_audio_recording()
     wav_sink->close();
     tb->disconnect(rx, 0, wav_sink, 0);
     tb->disconnect(rx, 1, wav_sink, 1);
-    wav_sink.reset(); /** FIXME **/
     tb->unlock();
     d_recording_wav = false;
 
