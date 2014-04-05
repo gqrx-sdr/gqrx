@@ -664,8 +664,6 @@ receiver::status receiver::set_agc_manual_gain(int gain)
 
 receiver::status receiver::set_demod(rx_demod demod)
 {
-    bool needs_restart = d_running;
-    bool wide_fm = (d_demod == RX_DEMOD_WFM_M) || (d_demod == RX_DEMOD_WFM_S);
     status ret = STATUS_OK;
 
     // Allow reconf using same demod to provide a workaround
@@ -674,67 +672,42 @@ receiver::status receiver::set_demod(rx_demod demod)
     //if (demod == d_demod)
     //    return ret;
 
-    if (d_running)
-        stop();
+    tb->lock();
+    tb->disconnect_all();
 
     switch (demod)
     {
     case RX_DEMOD_OFF:
-        tb->disconnect_all();
         connect_all(RX_CHAIN_NONE);
         break;
 
     case RX_DEMOD_NONE:
-        if ((d_demod == RX_DEMOD_OFF) || wide_fm)
-        {
-            tb->disconnect_all();
-            connect_all(RX_CHAIN_NBRX);
-        }
+        connect_all(RX_CHAIN_NBRX);
         rx->set_demod(nbrx::NBRX_DEMOD_NONE);
         break;
 
     case RX_DEMOD_AM:
-        if ((d_demod == RX_DEMOD_OFF) || wide_fm)
-        {
-            tb->disconnect_all();
-            connect_all(RX_CHAIN_NBRX);
-        }
+        connect_all(RX_CHAIN_NBRX);
         rx->set_demod(nbrx::NBRX_DEMOD_AM);
         break;
 
     case RX_DEMOD_NFM:
-        if ((d_demod == RX_DEMOD_OFF) || wide_fm)
-        {
-            tb->disconnect_all();
-            connect_all(RX_CHAIN_NBRX);
-        }
+        connect_all(RX_CHAIN_NBRX);
         rx->set_demod(nbrx::NBRX_DEMOD_FM);
         break;
 
     case RX_DEMOD_WFM_M:
-        if (!wide_fm)
-        {
-            tb->disconnect_all();
-            connect_all(RX_CHAIN_WFMRX);
-        }
+        connect_all(RX_CHAIN_WFMRX);
         rx->set_demod(wfmrx::WFMRX_DEMOD_MONO);
         break;
 
     case RX_DEMOD_WFM_S:
-        if (!wide_fm)
-        {
-            tb->disconnect_all();
-            connect_all(RX_CHAIN_WFMRX);
-        }
+        connect_all(RX_CHAIN_WFMRX);
         rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO);
         break;
 
     case RX_DEMOD_SSB:
-        if ((d_demod == RX_DEMOD_OFF) || wide_fm)
-        {
-            tb->disconnect_all();
-            connect_all(RX_CHAIN_NBRX);
-        }
+        connect_all(RX_CHAIN_NBRX);
         rx->set_demod(nbrx::NBRX_DEMOD_SSB);
         break;
 
@@ -744,9 +717,7 @@ receiver::status receiver::set_demod(rx_demod demod)
     }
 
     d_demod = demod;
-
-    if (needs_restart)
-        start();
+    tb->unlock();
 
     return ret;
 }
