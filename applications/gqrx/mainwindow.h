@@ -187,6 +187,7 @@ private slots:
     void on_actionRemoteConfig_triggered();
     void on_actionAFSK1200_triggered();
     void on_actionUserGroup_triggered();
+    void on_actionNews_triggered();
     void on_actionAbout_triggered();
     void on_actionAboutQt_triggered();
 

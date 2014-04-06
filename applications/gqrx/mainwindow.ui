@@ -153,6 +153,7 @@
      <string>&amp;Help</string>
     </property>
     <addaction name="actionUserGroup"/>
+    <addaction name="actionNews"/>
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
     <addaction name="actionAboutQt"/>
@@ -391,6 +392,18 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actionNews">
+   <property name="icon">
+    <iconset resource="../../icons.qrc">
+     <normaloff>:/icons/icons/info.svg</normaloff>:/icons/icons/info.svg</iconset>
+   </property>
+   <property name="text">
+    <string>News</string>
+   </property>
+   <property name="toolTip">
+    <string>Show news about this release</string>
    </property>
   </action>
  </widget>

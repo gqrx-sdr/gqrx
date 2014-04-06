@@ -29,8 +29,15 @@
 #include <QDateTime>
 #include <QDesktopServices>
 #include <QDebug>
+#include <QFile>
 #include <QMessageBox>
+#include <QResource>
+#include <QString>
+#include <QTextBrowser>
+#include <QTextCursor>
+#include <QTextStream>
 #include <QTimer>
+#include <QVBoxLayout>
 #include "qtgui/ioconfig.h"
 #include "mainwindow.h"
 
@@ -1827,6 +1834,49 @@ void MainWindow::on_actionUserGroup_triggered()
                                 "https://groups.google.com/forum/#!forum/gqrx"),
                              QMessageBox::Close);
     }
+}
+
+/*! \brief Show news.txt in a dialog window. */
+void MainWindow::on_actionNews_triggered()
+{
+    QResource resource(":/textfiles/news.txt");
+    QFile news(resource.absoluteFilePath());
+
+    if (!news.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qDebug() << "Unable to open file: " << news.fileName() <<
+                    " besause of error " << news.errorString();
+
+        return;
+    }
+
+    QTextStream in(&news);
+    QString content = in.readAll();
+    news.close();
+
+    QTextBrowser *browser = new QTextBrowser();
+    browser->setLineWrapMode(QTextEdit::NoWrap);
+    browser->setFontFamily("monospace");
+    browser->append(content);
+    browser->adjustSize();
+
+    // scroll to the beginning
+    QTextCursor cursor = browser->textCursor();
+    cursor.setPosition(0);
+    browser->setTextCursor(cursor);
+
+
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(browser);
+
+    QDialog *dialog = new QDialog(this);
+    dialog->setWindowTitle(tr("Release News"));
+    dialog->setLayout(layout);
+    dialog->resize(700, 400);
+    dialog->exec();
+
+    delete dialog;
+    // browser and layout deleted automatically
 }
 
 /*! \brief Action: About Qthid
