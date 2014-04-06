@@ -1,3 +1,4 @@
+
      2.3.0  TBD...
 
        NEW: Support for setting analog bandwidth of receivers that support it.
@@ -29,6 +30,7 @@
   IMPROVED: Gqrx can fit on small screens (900x600 pixels).
   IMPROVED: Better color gradient for the waterfall.
   IMPROVED: FFT presentation at high rates and high sizes.
+  IMPROVED: Make release news available throug hthe Help menu.
 
 
      2.2.0  Released August 8, 2013
