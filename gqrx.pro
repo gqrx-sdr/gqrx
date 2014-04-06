@@ -35,7 +35,8 @@ unix:!macx {
     }
 }
 
-RESOURCES += icons.qrc
+RESOURCES += icons.qrc \
+    textfiles.qrc
 
 # make clean target
 QMAKE_CLEAN += gqrx
