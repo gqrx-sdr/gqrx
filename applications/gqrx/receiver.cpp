@@ -179,13 +179,20 @@ void receiver::set_input_device(const std::string device)
 
     input_devstr = device;
 
-    tb->lock();
+    // tb->lock() can hang occasionally
+    if (d_running)
+    {
+        tb->stop();
+        tb->wait();
+    }
 
     tb->disconnect(src, 0, iq_swap, 0);
     src.reset();
     src = osmosdr::source::make(device);
     tb->connect(src, 0, iq_swap, 0);
-    tb->unlock();
+
+    if (d_running)
+        tb->start();
 }
 
 
@@ -673,7 +680,13 @@ receiver::status receiver::set_demod(rx_demod demod)
     //if (demod == d_demod)
     //    return ret;
 
-    tb->lock();
+    // tb->lock() seems to hang occasioanlly
+    if (d_running)
+    {
+        tb->stop();
+        tb->wait();
+    }
+
     tb->disconnect_all();
 
     switch (demod)
@@ -718,7 +731,9 @@ receiver::status receiver::set_demod(rx_demod demod)
     }
 
     d_demod = demod;
-    tb->unlock();
+
+    if (d_running)
+        tb->start();
 
     return ret;
 }

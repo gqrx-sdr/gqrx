@@ -833,7 +833,6 @@ void MainWindow::selectDemod(int index)
             rx->set_demod(receiver::RX_DEMOD_WFM_M);
         else
             rx->set_demod(receiver::RX_DEMOD_WFM_S);
-
         break;
 
         /* LSB */
