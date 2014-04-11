@@ -366,8 +366,6 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
     if (skip_loading_cfg)
         return false;
 
-    emit configChanged(m_settings);
-
     // manual reconf (FIXME: check status)
     bool conv_ok = false;
 

@@ -64,9 +64,6 @@ public:
 
     bool configOk; /*!< Main app uses this flag to know whether we should abort or continue. */
 
-signals:
-    void configChanged(QSettings *settings); /*!< New configuration has been loaded. */
-
 public slots:
     void setNewFrequency(qint64 rx_freq);
 
