@@ -247,7 +247,8 @@ void receiver::set_antenna(const std::string &antenna)
 double receiver::set_input_rate(double rate)
 {
     tb->lock();
-    d_input_rate = src->set_sample_rate(rate);
+    src->set_sample_rate(rate);
+    d_input_rate = src->get_sample_rate();
     dc_corr->set_sample_rate(d_input_rate);
     rx->set_quad_rate(d_input_rate);
     lo->set_sampling_freq(d_input_rate);
