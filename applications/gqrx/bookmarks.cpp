@@ -104,7 +104,7 @@ bool Bookmarks::save(QString filename)
         stream << endl;
 
         stream << QString("# Frequency").leftJustified(12)+", "+ QString("Name").leftJustified(25)+ ", " +
-                QString("Modulation").leftJustified(20)+ ", " + QString("Bandwidth").rightJustified(10) +
+                QString("Modulation").leftJustified(20)+ ", " + QString("Bandwidth").rightJustified(10) + ", " +
                 QString("Tags") << endl;
 
         for(int i=0; i<m_BookmarkList.size(); i++)
@@ -184,66 +184,3 @@ int Bookmarks::getTagIndex(QString tagName)
 
     return -1;
 }
-
-/*
-int Bookmarks::lowerBound(qint64 low)
-{
-    if(m_BookmarkList.isEmpty())
-        return 0;
-
-    BookmarkInfo info;
-    info.frequency=low;
-    QList<BookmarkInfo>::iterator lb = qLowerBound(m_BookmarkList.begin(), m_BookmarkList.end(), info);
-    return lb-m_BookmarkList.begin();
-}
-
-int Bookmarks::upperBound(qint64 high)
-{
-    if(m_BookmarkList.isEmpty())
-        return 0;
-
-    BookmarkInfo info;
-    info.frequency=high;
-    QList<BookmarkInfo>::iterator ub = qUpperBound(m_BookmarkList.begin(), m_BookmarkList.end(), info);
-    return ub-m_BookmarkList.begin();
-}
-*/
-
-/*
-void BookmarkInfo::setTags(QString tagString)
-{
-    tags = tagString.split(QRegExp("[,;]"), QString::SkipEmptyParts);
-    for(int i=0; i<tags.count(); i++)
-        tags[i]=tags[i].trimmed().remove(QRegExp("[\\(\\)]"));
-
-    tags.removeAll("");
-    tags.removeDuplicates();
-    tags.sort();
-
-    //FIXME: move?
-    for(int i=0; i<tags.count(); i++)
-        if(!Bookmarks::m_TagList.contains(tags[i]))
-            Bookmarks::m_TagList.append(tags[i]);
-}
-
-QString BookmarkInfo::getTagString()
-{
-    return tags.empty()?"(Untagged)":tags.join(", ");
-}
-
-bool BookmarkInfo::hasTags(QString tag)
-{
-    return tags.contains(tag);
-}
-
-bool BookmarkInfo::hasTags(QStringList _tags)
-{
-    for(int i=0; i<_tags.size(); i++)
-    {
-        if(tags.contains(_tags[i]))
-            return true;
-    }
-
-    return false;
-}
-*/
