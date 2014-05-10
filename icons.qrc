@@ -19,7 +19,8 @@
         <file>icons/close.svg</file>
         <file>icons/info.svg</file>
         <file>icons/help.svg</file>
-        <file>icons/scope.svg</file>
         <file>icons/bookmark-new.svg</file>
+        <file>icons/tangeo-network-idle.svg</file>
+        <file>icons/gqrx.svg</file>
     </qresource>
 </RCC>

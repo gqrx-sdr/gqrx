@@ -22,6 +22,7 @@
  */
 #include <QFileDialog>
 #include <QPalette>
+#include <QDebug>
 
 #include "audio_options.h"
 #include "ui_audio_options.h"
@@ -63,12 +64,29 @@ void CAudioOptions::closeEvent(QCloseEvent *event)
         setRecDir(QDir::homePath());
         emit newRecDirSelected(QDir::homePath());
     }
+
+    if (ui->udpHost->text().isEmpty())
+    {
+        ui->udpHost->setText("localhost");
+    }
 }
 
 /*! \brief Set initial location of WAV files. */
 void CAudioOptions::setRecDir(const QString &dir)
 {
     ui->recDirEdit->setText(dir);
+}
+
+/*! \brief Set new UDP host name or IP. */
+void CAudioOptions::setUdpHost(const QString &host)
+{
+    ui->udpHost->setText(host);
+}
+
+/*! \brief Set new UDP port. */
+void CAudioOptions::setUdpPort(int port)
+{
+    ui->udpPort->setValue(port);
 }
 
 /*! \brief Slot called when the recordings directory has changed either
@@ -99,3 +117,17 @@ void CAudioOptions::on_recDirButton_clicked()
     if (!dir.isNull())
         ui->recDirEdit->setText(dir);
 }
+
+/*! \brief UDP host name has changed. */
+void CAudioOptions::on_udpHost_textChanged(const QString &text)
+{
+    if (!text.isEmpty())
+        emit newUdpHost(text);
+}
+
+/*! \brief UDP port number has changed. */
+void CAudioOptions::on_udpPort_valueChanged(int port)
+{
+    emit newUdpPort(port);
+}
+

@@ -52,7 +52,6 @@ public:
 
     //primary access routines
     void setup(int NumDigits, qint64 Minf, qint64 Maxf,int MinStep, FUNITS UnitsType);
-    void setFrequency(qint64 freq);
     void setUnits(FUNITS units);
     void setDigitColor(QColor cr);
     void setBkColor(QColor cr);
@@ -64,6 +63,7 @@ signals:
     void newFrequency(qint64 freq); //emitted when frequency has changed
 
 public slots:
+    void setFrequency(qint64 freq);
 
 protected:      //overrides for this control
     void paintEvent(QPaintEvent *);

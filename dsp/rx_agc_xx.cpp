@@ -79,6 +79,7 @@ int rx_agc_cc::work(int noutput_items,
     boost::mutex::scoped_lock lock(d_mutex);
 
     for (i = 0; i < noutput_items; i++) {
+        // implicit conversion from float to double
         ib[i].im = in[i].imag();
         ib[i].re = in[i].real();
     }
@@ -86,8 +87,8 @@ int rx_agc_cc::work(int noutput_items,
     d_agc->ProcessData(noutput_items, &ib[0], &ob[0]);
 
     for (i = 0; i < noutput_items; i++) {
-        out[i].real() = ob[i].re;
-        out[i].imag() = ob[i].im;
+        // implicit conversion from double to float
+        out[i] = gr_complex(ob[i].re, ob[i].im);
     }
 
     return noutput_items;

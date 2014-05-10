@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../../icons.qrc">
-    <normaloff>:/icons/icons/scope.svg</normaloff>:/icons/icons/scope.svg</iconset>
+    <normaloff>:/icons/icons/gqrx.svg</normaloff>:/icons/icons/gqrx.svg</iconset>
   </property>
   <property name="dockOptions">
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
@@ -153,18 +153,24 @@
      <string>&amp;Help</string>
     </property>
     <addaction name="actionUserGroup"/>
+    <addaction name="actionNews"/>
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
     <addaction name="actionAboutQt"/>
    </widget>
-   <widget class="QMenu" name="menuTools">
+   <widget class="QMenu" name="menu_Tools">
     <property name="title">
-     <string>&amp;Data</string>
+     <string>&amp;Tools</string>
     </property>
+    <addaction name="actionRemoteControl"/>
+    <addaction name="actionRemoteConfig"/>
+    <addaction name="separator"/>
+    <addaction name="actionIqTool"/>
+    <addaction name="separator"/>
     <addaction name="actionAFSK1200"/>
    </widget>
    <addaction name="menu_File"/>
-   <addaction name="menuTools"/>
+   <addaction name="menu_Tools"/>
    <addaction name="menu_View"/>
    <addaction name="menu_Help"/>
   </widget>
@@ -186,7 +192,13 @@
    <addaction name="separator"/>
    <addaction name="actionAddBookmark"/>
    <addaction name="separator"/>
+   <addaction name="actionIqTool"/>
+   <addaction name="separator"/>
+   <addaction name="actionRemoteControl"/>
+   <addaction name="actionRemoteConfig"/>
+   <addaction name="separator"/>
    <addaction name="actionFullScreen"/>
+   <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="enabled">
@@ -262,38 +274,6 @@
    </property>
    <property name="toolTip">
     <string>Schedule recordings and other actions</string>
-   </property>
-  </action>
-  <action name="actionIqRec">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../../icons.qrc">
-     <normaloff>:/icons/icons/record.svg</normaloff>:/icons/icons/record.svg</iconset>
-   </property>
-   <property name="text">
-    <string>Record I/Q</string>
-   </property>
-   <property name="toolTip">
-    <string>Record the raw I/Q samples to a binary file (will be large)</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+R</string>
-   </property>
-  </action>
-  <action name="actionBPSK1000">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>BPSK1000 Decoder</string>
-   </property>
-   <property name="toolTip">
-    <string>Start BPSK1000 decoder</string>
    </property>
   </action>
   <action name="actionIoConfig">
@@ -384,6 +364,60 @@
    </property>
    <property name="toolTip">
     <string>Bookmark the current frequency and mode</string>
+   </property>
+  </action>
+  <action name="actionRemoteControl">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../icons.qrc">
+     <normaloff>:/icons/icons/tangeo-network-idle.svg</normaloff>:/icons/icons/tangeo-network-idle.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Remote control</string>
+   </property>
+   <property name="toolTip">
+    <string>Remote control via TCP</string>
+   </property>
+  </action>
+  <action name="actionRemoteConfig">
+   <property name="icon">
+    <iconset resource="../../icons.qrc">
+     <normaloff>:/icons/icons/settings.svg</normaloff>:/icons/icons/settings.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Remote &amp;control settings</string>
+   </property>
+   <property name="toolTip">
+    <string>Configure remote control settings</string>
+   </property>
+  </action>
+  <action name="actionIqTool">
+   <property name="icon">
+    <iconset resource="../../icons.qrc">
+     <normaloff>:/icons/icons/signal.svg</normaloff>:/icons/icons/signal.svg</iconset>
+   </property>
+   <property name="text">
+    <string>I/Q recorder</string>
+   </property>
+   <property name="toolTip">
+    <string>Record and play I/Q data</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actionNews">
+   <property name="icon">
+    <iconset resource="../../icons.qrc">
+     <normaloff>:/icons/icons/info.svg</normaloff>:/icons/icons/info.svg</iconset>
+   </property>
+   <property name="text">
+    <string>News</string>
+   </property>
+   <property name="toolTip">
+    <string>Show news about this release</string>
    </property>
   </action>
  </widget>

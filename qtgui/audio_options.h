@@ -44,14 +44,21 @@ public:
     void closeEvent(QCloseEvent *event);
 
     void setRecDir(const QString &dir);
+    void setUdpHost(const QString &host);
+    void setUdpPort(int port);
 
 signals:
     /*! \brief Signal emitted when a new valid directory has been selected. */
     void newRecDirSelected(const QString &dir);
 
+    void newUdpHost(const QString text);
+    void newUdpPort(int port);
+
 private slots:
     void on_recDirEdit_textChanged(const QString &text);
     void on_recDirButton_clicked();
+    void on_udpHost_textChanged(const QString &text);
+    void on_udpPort_valueChanged(int port);
 
 private:
     Ui::CAudioOptions *ui;            /*!< The user interface widget. */

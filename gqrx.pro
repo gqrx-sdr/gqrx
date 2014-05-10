@@ -7,10 +7,9 @@
 #    CONFIG+=debug            Enable debug mode
 #    PREFIX=/some/prefix      Installation prefix
 #    BOOST_SUFFIX=-mt         To link against libboost-xyz-mt (needed for pybombs)
-#    AUDIO_BACKEND=portaudio  Use it on Mac OS X to have FCD Pro and Pro+ support
 #--------------------------------------------------------------------------------
 
-QT       += core gui svg
+QT       += core gui svg network
 contains(QT_MAJOR_VERSION,5) {
     QT += widgets
 }
@@ -19,14 +18,16 @@ TEMPLATE = app
 
 macx {
     TARGET = Gqrx
-    ICON = icons/scope.icns
+    ICON = icons/gqrx.icns
     DEFINES += GQRX_OS_MACX
 } else {
     TARGET = gqrx
 }
 
+# enable pkg-config to find dependencies
+CONFIG += link_pkgconfig
+
 unix:!macx {
-    CONFIG += link_pkgconfig
     packagesExist(libpulse libpulse-simple) {
         # Comment out to use gr-audio (not recommended with ALSA and Funcube Dongle Pro)
         AUDIO_BACKEND = pulse
@@ -34,7 +35,8 @@ unix:!macx {
     }
 }
 
-RESOURCES += icons.qrc
+RESOURCES += icons.qrc \
+    textfiles.qrc
 
 # make clean target
 QMAKE_CLEAN += gqrx
@@ -77,6 +79,8 @@ SOURCES += \
     applications/gqrx/main.cpp \
     applications/gqrx/mainwindow.cpp \
     applications/gqrx/receiver.cpp \
+    applications/gqrx/remote_control.cpp \
+    applications/gqrx/remote_control_settings.cpp \
     dsp/afsk1200/cafsk12.cpp \
     dsp/afsk1200/costabf.c \
     dsp/agc_impl.cpp \
@@ -92,6 +96,7 @@ SOURCES += \
     dsp/rx_noise_blanker_cc.cpp \
     dsp/sniffer_f.cpp \
     dsp/stereo_demod.cpp \
+    interfaces/udp_sink_f.cpp \
     qtgui/afsk1200win.cpp \
     qtgui/agc_options.cpp \
     qtgui/audio_options.cpp \
@@ -99,7 +104,6 @@ SOURCES += \
     qtgui/dockinputctl.cpp \
     qtgui/dockaudio.cpp \
     qtgui/dockfft.cpp \
-    qtgui/dockiqplayer.cpp \
     qtgui/dockrxopt.cpp \
     qtgui/freqctrl.cpp \
     qtgui/ioconfig.cpp \
@@ -112,12 +116,15 @@ SOURCES += \
     receivers/wfmrx.cpp \
     applications/gqrx/bookmarks.cpp \
     qtgui/bookmarkstablemodel.cpp \
-    qtgui/dockbookmarks.cpp
-    
+    qtgui/dockbookmarks.cpp \
+    qtgui/iq_tool.cpp
+
 HEADERS += \
     applications/gqrx/mainwindow.h \
     applications/gqrx/receiver.h \
     applications/gqrx/gqrx.h \
+    applications/gqrx/remote_control.h \
+    applications/gqrx/remote_control_settings.h \
     dsp/afsk1200/cafsk12.h \
     dsp/afsk1200/filter.h \
     dsp/afsk1200/filter-i386.h \
@@ -134,6 +141,7 @@ HEADERS += \
     dsp/rx_noise_blanker_cc.h \
     dsp/sniffer_f.h \
     dsp/stereo_demod.h \
+    interfaces/udp_sink_f.h \
     qtgui/afsk1200win.h \
     qtgui/agc_options.h \
     qtgui/audio_options.h \
@@ -141,7 +149,6 @@ HEADERS += \
     qtgui/dockaudio.h \
     qtgui/dockfft.h \
     qtgui/dockinputctl.h \
-    qtgui/dockiqplayer.h \
     qtgui/dockrxopt.h \
     qtgui/freqctrl.h \
     qtgui/ioconfig.h \
@@ -154,22 +161,24 @@ HEADERS += \
     receivers/wfmrx.h \
     applications/gqrx/bookmarks.h \
     qtgui/dockbookmarks.h \
-    qtgui/bookmarkstablemodel.h
+    qtgui/bookmarkstablemodel.h \
+    qtgui/iq_tool.h
 
 FORMS += \
     applications/gqrx/mainwindow.ui \
+    applications/gqrx/remote_control_settings.ui \
     qtgui/afsk1200win.ui \
     qtgui/agc_options.ui \
     qtgui/audio_options.ui \
     qtgui/demod_options.ui \
     qtgui/dockaudio.ui \
     qtgui/dockfft.ui \
-    qtgui/dockiqplayer.ui \
     qtgui/dockinputctl.ui \
     qtgui/dockrxopt.ui \
     qtgui/ioconfig.ui \
     qtgui/nb_options.ui \
-    qtgui/dockbookmarks.ui
+    qtgui/dockbookmarks.ui \
+    qtgui/iq_tool.ui 
 
 # Use pulseaudio (ps: could use equals? undocumented)
 contains(AUDIO_BACKEND, pulse): {
@@ -184,51 +193,34 @@ contains(AUDIO_BACKEND, pulse): {
     DEFINES += WITH_PULSEAUDIO
 }
 
-# Introduced in 2.2 for FCD support on OS X
-contains(AUDIO_BACKEND, portaudio): {
-    HEADERS += portaudio/device_list.h
-    SOURCES += portaudio/device_list.cpp
-    DEFINES += WITH_PORTAUDIO
+macx {
+    HEADERS += osxaudio/device_list.h
+    SOURCES += osxaudio/device_list.cpp
 }
 
-# dependencies via pkg-config
-# FIXME: check for version?
-unix:!macx {
-    contains(AUDIO_BACKEND, pulse): {
-        PKGCONFIG += libpulse libpulse-simple
-    } else {
-        PKGCONFIG += gnuradio-audio
-    }
-    PKGCONFIG += gnuradio-analog \
-                 gnuradio-blocks \
-                 gnuradio-filter \
-                 gnuradio-fft \
-                 gnuradio-osmosdr
+contains(AUDIO_BACKEND, pulse): {
+    PKGCONFIG += libpulse libpulse-simple
+} else {
+    PKGCONFIG += gnuradio-audio
+}
 
+PKGCONFIG += gnuradio-analog \
+             gnuradio-blocks \
+             gnuradio-filter \
+             gnuradio-fft \
+             gnuradio-osmosdr
+
+unix:!macx {
     LIBS += -lboost_system$$BOOST_SUFFIX -lboost_program_options$$BOOST_SUFFIX
     LIBS += -lrt  # need to include on some distros
 }
 
 macx {
-    # macports
-    INCLUDEPATH += /opt/local/include
-
-    # local stuff
-    INCLUDEPATH += /Users/alexc/gqrx/runtime/include
-    LIBS += -L/opt/local/lib -L/Users/alexc/gqrx/runtime/lib
-
     LIBS += -lboost_system-mt -lboost_program_options-mt
-    LIBS += -lgnuradio-runtime -lgnuradio-pmt -lgnuradio-audio -lgnuradio-analog
-    LIBS += -lgnuradio-blocks -lgnuradio-filter -lgnuradio-fft -lgnuradio-osmosdr
-
-    # portaudio
-    contains(AUDIO_BACKEND, portaudio): {
-        LIBS    += -lportaudio
-    }
 }
 
 OTHER_FILES += \
+    gqrx.desktop \
     README.md \
     COPYING \
     news.txt
-

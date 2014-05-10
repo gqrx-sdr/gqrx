@@ -3,7 +3,7 @@
  * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
  *           http://gqrx.dk/
  *
- * Copyright 2011-2012 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -107,7 +107,7 @@ void rx_fft_c::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
 
     /* perform FFT */
     do_fft(d_cbuf.linearize(), d_cbuf.size());  // FIXME: array_one() and two() may be faster
-    d_cbuf.clear();
+    //d_cbuf.clear();
 
     /* get FFT data */
     memcpy(fftPoints, d_fft->get_outbuf(), sizeof(gr_complex)*d_fftsize);
@@ -277,7 +277,7 @@ void rx_fft_f::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
 
     /* perform FFT */
     do_fft(d_cbuf.linearize(), d_cbuf.size());  // FIXME: array_one() and two() may be faster
-    d_cbuf.clear();
+    //d_cbuf.clear();
 
     /* get FFT data */
     memcpy(fftPoints, d_fft->get_outbuf(), sizeof(gr_complex)*d_fftsize);

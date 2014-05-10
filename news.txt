@@ -1,3 +1,4 @@
+
      2.3.0  TBD...
 
        NEW: Support for setting analog bandwidth of receivers that support it.
@@ -5,16 +6,31 @@
        NEW: Remember visibility status of main toolbar.
        NEW: Restore the geometry of the main window between sessions.
        NEW: Restore the state and placement of the dock windows.
-       NEW: Nuand BladeRF supprot.
-       NEW: RF Space Netsdr support.
+       NEW: Nuand BladeRF support.
+       NEW: RF Space SDR-IQ, SDR-IP and Netsdr support.
+       NEW: Airspy support.
        NEW: Peak detection on the FFT plot.
        NEW: Max hold on the FFT plot.
+       NEW: Audio streaming over UDP socket.
+       NEW: Remote control through TCP socket.
+       NEW: Set squelch level from current signal/noise level.
+       NEW: Command line option to list existing configurations.
+       NEW: I/Q recording and playback.
      FIXED: Incorrect handling of decimal values in LNB LO frequency.
      FIXED: Correctly apply initial LNB LO frequency.
      FIXED: Audio output device selection on Mac OS X.
      FIXED: Properly store settings when using Save As function.
      FIXED: Crash when recording audio whith no rec directory set.
+     FIXED: Only allow audio playback while DSP is running.
+     FIXED: Ensure DSP is stopped when we exit.
+     FIXED: Freeze when switching modes after audio recording.
+     FIXED: Toggling "ignore limits" changes frequency.
+     FIXED: Include gqrx.dekstop file.
+     FIXED: Rename scope.svg to gqrx.svg to avoid name clash with other icons.
   IMPROVED: Gqrx can fit on small screens (900x600 pixels).
+  IMPROVED: Better color gradient for the waterfall.
+  IMPROVED: FFT presentation at high rates and high sizes.
+  IMPROVED: Make release news available throug hthe Help menu.
 
 
      2.2.0  Released August 8, 2013

@@ -3,7 +3,7 @@
  * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
  *           http://gqrx.dk/
  *
- * Copyright 2011-2014 Alexandru Csete OZ9AEC.
+ * Copyright 2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,53 +20,38 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#ifndef IOCONFIG_H
-#define IOCONFIG_H
+#ifndef REMOTE_CONTROL_SETTINGS_H
+#define REMOTE_CONTROL_SETTINGS_H
 
 #include <QDialog>
-#include <QString>
 #include <QSettings>
-
-#ifdef WITH_PULSEAUDIO
-#include "pulseaudio/pa_device_list.h"
-#elif defined(GQRX_OS_MACX)
-#include "osxaudio/device_list.h"
-#endif
-
+#include <QStringList>
 
 namespace Ui {
-    class CIoConfig;
+class RemoteControlSettings;
 }
 
-/*! \brief Inout/output device configurator. */
-class CIoConfig : public QDialog
+/*! \brief Class to configure remote control settiongs. */
+class RemoteControlSettings : public QDialog
 {
     Q_OBJECT
-
+    
 public:
-    explicit CIoConfig(QSettings *settings, QWidget *parent = 0);
-    ~CIoConfig();
+    explicit RemoteControlSettings(QWidget *parent = 0);
+    ~RemoteControlSettings();
 
+    void setPort(int port);
+    int  getPort(void) const;
+
+    void setHosts(QStringList hosts);
+    QStringList getHosts(void) const;
+    
 private slots:
-    void saveConfig();
-    void inputDeviceSelected(int index);
-    void inputDevstrChanged(const QString &text);
+    void on_hostAddButton_clicked(void);
+    void on_hostDelButton_clicked(void);
 
 private:
-    void updateInputSampleRates(int rate);
-
-private:
-    Ui::CIoConfig *ui;
-
-    QSettings *m_settings;
-
-#ifdef WITH_PULSEAUDIO
-    vector<pa_device> outDevList;
-#elif defined(GQRX_OS_MACX)
-    vector<osxaudio_device> outDevList;
-    vector<osxaudio_device> inDevList;
-#endif
-
+    Ui::RemoteControlSettings *ui;
 };
 
-#endif // IOCONFIG_H
+#endif // REMOTE_CONTROL_SETTINGS_H

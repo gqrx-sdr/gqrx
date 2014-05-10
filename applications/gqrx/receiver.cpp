@@ -3,7 +3,7 @@
  * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
  *           http://gqrx.dk/
  *
- * Copyright 2011-2013 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2014 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
 #include "receivers/nbrx.h"
 #include "receivers/wfmrx.h"
 
-#ifdef WITH_PULSEAUDIO //pafix
+#ifdef WITH_PULSEAUDIO
 #include "pulseaudio/pa_sink.h"
 #else
 #include <gnuradio/audio/sink.h>
@@ -56,6 +56,7 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
       d_audio_rate(48000),
       d_rf_freq(144800000.0),
       d_filter_offset(0.0),
+      d_recording_iq(false),
       d_recording_wav(false),
       d_sniffer_active(false),
       d_iq_rev(false),
@@ -77,6 +78,11 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
         src = osmosdr::source::make(input_device);
     }
 
+    // create I/Q sink and close it
+    iq_sink = gr::blocks::file_sink::make(sizeof(gr_complex), "/dev/null", false);
+    iq_sink->set_unbuffered(true);
+    iq_sink->close();
+
     rx = make_nbrx(d_input_rate, d_audio_rate);
     lo = gr::analog::sig_source_c::make(d_input_rate, gr::analog::GR_SIN_WAVE, 0.0, 1.0);
     mixer = gr::blocks::multiply_cc::make();
@@ -85,11 +91,17 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     dc_corr = make_dc_corr_cc(d_input_rate, 1.0);
     iq_fft = make_rx_fft_c(4096u, 0);
 
-    audio_fft = make_rx_fft_f(3072u);
+    audio_fft = make_rx_fft_f(4096u);
     audio_gain0 = gr::blocks::multiply_const_ff::make(0.1);
     audio_gain1 = gr::blocks::multiply_const_ff::make(0.1);
 
-#ifdef WITH_PULSEAUDIO //pafix
+    wav_sink = gr::blocks::wavfile_sink::make("/dev/null", 2,
+                                              (unsigned int) d_audio_rate,
+                                              16);
+
+    audio_udp_sink = make_udp_sink_f();
+
+#ifdef WITH_PULSEAUDIO
     audio_snk = make_pa_sink(audio_device, d_audio_rate, "GQRX", "Audio output");
 #else
     audio_snk = gr::audio::sink::make(d_audio_rate, audio_device, true);
@@ -126,14 +138,8 @@ receiver::~receiver()
 /*! \brief Start the receiver. */
 void receiver::start()
 {
-    /* FIXME: Check that flow graph is not running */
     if (!d_running)
     {
-
-#ifndef WITH_PULSEAUDIO
-        if(d_demod != RX_DEMOD_OFF)
-            set_output_device("");
-#endif
         tb->start();
         d_running = true;
     }
@@ -173,13 +179,20 @@ void receiver::set_input_device(const std::string device)
 
     input_devstr = device;
 
-    tb->lock();
+    // tb->lock() can hang occasionally
+    if (d_running)
+    {
+        tb->stop();
+        tb->wait();
+    }
 
     tb->disconnect(src, 0, iq_swap, 0);
     src.reset();
     src = osmosdr::source::make(device);
     tb->connect(src, 0, iq_swap, 0);
-    tb->unlock();
+
+    if (d_running)
+        tb->start();
 }
 
 
@@ -193,13 +206,14 @@ void receiver::set_output_device(const std::string device)
                   << "  old: " << output_devstr << std::endl
                   << "  new: " << device << std::endl;
 #endif
-
-#ifndef GQRX_OS_MACX
-        // we can return on any platform but OS X becasue of
-        // https://github.com/csete/gqrx/issues/66
         return;
-#endif
     }
+
+#ifndef QT_NO_DEBUG_OUTPUT
+    std::cout << "New audio output device:" << std::endl
+              << "   old: " << output_devstr << std::endl
+              << "   new: " << device << std::endl;
+#endif
 
     output_devstr = device;
 
@@ -239,22 +253,13 @@ void receiver::set_antenna(const std::string &antenna)
  */
 double receiver::set_input_rate(double rate)
 {
-    // don't bother with sub-hertz changes
-    if (fabs(rate-d_input_rate) < 1.0)
-    {
-#ifndef QT_NO_DEBUG_OUTPUT
-        std::cout << "No siginficant change in input sample rate" << std::endl;
-#endif
-    }
-    else
-    {
-        tb->lock();
-        d_input_rate = src->set_sample_rate(rate);
-        dc_corr->set_sample_rate(d_input_rate);
-        rx->set_quad_rate(d_input_rate);
-        lo->set_sampling_freq(d_input_rate);
-        tb->unlock();
-    }
+    tb->lock();
+    src->set_sample_rate(rate);
+    d_input_rate = src->get_sample_rate();
+    dc_corr->set_sample_rate(d_input_rate);
+    rx->set_quad_rate(d_input_rate);
+    lo->set_sampling_freq(d_input_rate);
+    tb->unlock();
 
     return d_input_rate;
 }
@@ -667,8 +672,6 @@ receiver::status receiver::set_agc_manual_gain(int gain)
 
 receiver::status receiver::set_demod(rx_demod demod)
 {
-    bool needs_restart = d_running;
-    bool wide_fm = (d_demod == RX_DEMOD_WFM_M) || (d_demod == RX_DEMOD_WFM_S);
     status ret = STATUS_OK;
 
     // Allow reconf using same demod to provide a workaround
@@ -677,67 +680,48 @@ receiver::status receiver::set_demod(rx_demod demod)
     //if (demod == d_demod)
     //    return ret;
 
+    // tb->lock() seems to hang occasioanlly
     if (d_running)
-        stop();
+    {
+        tb->stop();
+        tb->wait();
+    }
+
+    tb->disconnect_all();
 
     switch (demod)
     {
     case RX_DEMOD_OFF:
-        tb->disconnect_all();
         connect_all(RX_CHAIN_NONE);
         break;
 
     case RX_DEMOD_NONE:
-        if ((d_demod == RX_DEMOD_OFF) || wide_fm)
-        {
-            tb->disconnect_all();
-            connect_all(RX_CHAIN_NBRX);
-        }
+        connect_all(RX_CHAIN_NBRX);
         rx->set_demod(nbrx::NBRX_DEMOD_NONE);
         break;
 
     case RX_DEMOD_AM:
-        if ((d_demod == RX_DEMOD_OFF) || wide_fm)
-        {
-            tb->disconnect_all();
-            connect_all(RX_CHAIN_NBRX);
-        }
+        connect_all(RX_CHAIN_NBRX);
         rx->set_demod(nbrx::NBRX_DEMOD_AM);
         break;
 
     case RX_DEMOD_NFM:
-        if ((d_demod == RX_DEMOD_OFF) || wide_fm)
-        {
-            tb->disconnect_all();
-            connect_all(RX_CHAIN_NBRX);
-        }
+        connect_all(RX_CHAIN_NBRX);
         rx->set_demod(nbrx::NBRX_DEMOD_FM);
         break;
 
     case RX_DEMOD_WFM_M:
-        if (!wide_fm)
-        {
-            tb->disconnect_all();
-            connect_all(RX_CHAIN_WFMRX);
-        }
+        connect_all(RX_CHAIN_WFMRX);
         rx->set_demod(wfmrx::WFMRX_DEMOD_MONO);
         break;
 
     case RX_DEMOD_WFM_S:
-        if (!wide_fm)
-        {
-            tb->disconnect_all();
-            connect_all(RX_CHAIN_WFMRX);
-        }
+        connect_all(RX_CHAIN_WFMRX);
         rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO);
         break;
 
     case RX_DEMOD_SSB:
-        if ((d_demod == RX_DEMOD_OFF) || wide_fm)
-        {
-            tb->disconnect_all();
-            connect_all(RX_CHAIN_NBRX);
-        }
+        connect_all(RX_CHAIN_NBRX);
         rx->set_demod(nbrx::NBRX_DEMOD_SSB);
         break;
 
@@ -748,8 +732,8 @@ receiver::status receiver::set_demod(rx_demod demod)
 
     d_demod = demod;
 
-    if (needs_restart)
-        start();
+    if (d_running)
+        tb->start();
 
     return ret;
 }
@@ -822,10 +806,17 @@ receiver::status receiver::start_audio_recording(const std::string filename)
 
     // not strictly necessary to lock but I think it is safer
     tb->lock();
-    wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(),
-                                              2,
-                                              (unsigned int) d_audio_rate,
-                                              16);
+
+    // if this fails, we don't want to go and crash now, do we
+    try {
+        wav_sink->open(filename.c_str());
+        wav_sink->set_sample_rate((unsigned int) d_audio_rate);
+    }
+    catch (std::runtime_error &e) {
+        std::cout << "Error opening " << filename << ": " << e.what() << std::endl;
+        return STATUS_ERROR;
+    }
+
     tb->connect(rx, 0, wav_sink, 0);
     tb->connect(rx, 1, wav_sink, 1);
     tb->unlock();
@@ -849,7 +840,7 @@ receiver::status receiver::stop_audio_recording()
     if (!d_running)
     {
         /* receiver is not running */
-        std::cout << "Can not start audio recorder (receiver not running)" << std::endl;
+        std::cout << "Can not stop audio recorder (receiver not running)" << std::endl;
 
         return STATUS_ERROR;
     }
@@ -859,7 +850,6 @@ receiver::status receiver::stop_audio_recording()
     wav_sink->close();
     tb->disconnect(rx, 0, wav_sink, 0);
     tb->disconnect(rx, 1, wav_sink, 1);
-    wav_sink.reset(); /** FIXME **/
     tb->unlock();
     d_recording_wav = false;
 
@@ -872,6 +862,14 @@ receiver::status receiver::stop_audio_recording()
 /*! \brief Start audio playback. */
 receiver::status receiver::start_audio_playback(const std::string filename)
 {
+    if (!d_running)
+    {
+        /* receiver is not running */
+        std::cout << "Can not start audio playback (receiver not running)" << std::endl;
+
+        return STATUS_ERROR;
+    }
+
     try {
         // output ports set automatically from file
         wav_src = gr::blocks::wavfile_source::make(filename.c_str(), false);
@@ -905,11 +903,13 @@ receiver::status receiver::start_audio_playback(const std::string filename)
     tb->disconnect(rx, 0, audio_gain0, 0);
     tb->disconnect(rx, 1, audio_gain1, 0);
     tb->disconnect(rx, 0, audio_fft, 0);
+    tb->disconnect(rx, 0, audio_udp_sink, 0);
     tb->connect(rx, 0, audio_null_sink0, 0); /** FIXME: other channel? */
     tb->connect(rx, 1, audio_null_sink1, 0); /** FIXME: other channel? */
     tb->connect(wav_src, 0, audio_gain0, 0);
     tb->connect(wav_src, 1, audio_gain1, 0);
     tb->connect(wav_src, 0, audio_fft, 0);
+    tb->connect(wav_src, 0, audio_udp_sink, 0);
     start();
 
     std::cout << "Playing audio from " << filename << std::endl;
@@ -926,11 +926,13 @@ receiver::status receiver::stop_audio_playback()
     tb->disconnect(wav_src, 0, audio_gain0, 0);
     tb->disconnect(wav_src, 1, audio_gain1, 0);
     tb->disconnect(wav_src, 0, audio_fft, 0);
+    tb->disconnect(wav_src, 0, audio_udp_sink, 0);
     tb->disconnect(rx, 0, audio_null_sink0, 0);
     tb->disconnect(rx, 1, audio_null_sink1, 0);
     tb->connect(rx, 0, audio_gain0, 0);
     tb->connect(rx, 1, audio_gain1, 0);
     tb->connect(rx, 0, audio_fft, 0);  /** FIXME: other channel? */
+    tb->connect(rx, 0, audio_udp_sink, 0);
     start();
 
     /* delete wav_src since we can not change file name */
@@ -940,38 +942,59 @@ receiver::status receiver::stop_audio_playback()
 }
 
 
+/*! \brief Start UDP streaming of audio. */
+receiver::status receiver::start_udp_streaming(const std::string host, int port)
+{
+    audio_udp_sink->start_streaming(host, port);
+    return STATUS_OK;
+}
+
+/*! \brief Stop UDP streaming of audio. */
+receiver::status receiver::stop_udp_streaming()
+{
+    audio_udp_sink->stop_streaming();
+    return STATUS_OK;
+}
+
+
 /*! \brief Start I/Q data recorder.
  *  \param filename The filename where to record.
  */
 receiver::status receiver::start_iq_recording(const std::string filename)
 {
-    (void) filename;
-#if 0
+    receiver::status status = STATUS_OK;
+
     if (d_recording_iq) {
-        /* error - we are already recording */
+        std::cout << __func__ << ": already recording" << std::endl;
         return STATUS_ERROR;
     }
 
-    /* iq_sink was created in the constructor */
+    // iq_sink was created in the constructor
     if (iq_sink) {
-        /* not strictly necessary to lock but I think it is safer */
         tb->lock();
-        iq_sink->open(filename.c_str());
+        if (!iq_sink->open(filename.c_str()))
+        {
+            status = STATUS_ERROR;
+        }
+        else
+        {
+            tb->connect(src, 0, iq_sink, 0);
+            d_recording_iq = true;
+        }
         tb->unlock();
-        d_recording_iq = true;
     }
     else {
-        std::cout << "BUG: I/Q file sink does not exist" << std::endl;
+        std::cout << __func__ << ": I/Q file sink does not exist" << std::endl;
+        return STATUS_ERROR;
     }
-#endif
-    return STATUS_OK;
+
+    return status;
 }
 
 
 /*! \brief Stop I/Q data recorder. */
 receiver::status receiver::stop_iq_recording()
 {
-#if 0
     if (!d_recording_iq) {
         /* error: we are not recording */
         return STATUS_ERROR;
@@ -979,79 +1002,35 @@ receiver::status receiver::stop_iq_recording()
 
     tb->lock();
     iq_sink->close();
+    tb->disconnect(src, 0, iq_sink, 0);
     tb->unlock();
     d_recording_iq = false;
-#endif
+
     return STATUS_OK;
 }
 
-
-/*! \brief Start playback of recorded I/Q data file.
- *  \param filename The file to play from. Must be raw file containing gr_complex samples.
- *  \param samprate The sample rate (currently fixed at 96ksps)
+/*! \brief Seek to position in IQ file source.
+ *  \param pos Byte offset from the beginning of the file.
  */
-receiver::status receiver::start_iq_playback(const std::string filename, float samprate)
+receiver::status receiver::seek_iq_file(long pos)
 {
-    (void) filename;
-    (void) samprate;
-#if 0
-    if (samprate != d_bandwidth) {
-        return STATUS_ERROR;
-    }
-
-    try {
-        iq_src = gr_make_file_source(sizeof(gr_complex), filename.c_str(), false);
-    }
-    catch (std::runtime_error &e) {
-        std::cout << "Error loading " << filename << ": " << e.what() << std::endl;
-        return STATUS_ERROR;
-    }
+    receiver::status status = STATUS_OK;
 
     tb->lock();
 
-    /* disconenct hardware source */
-    tb->disconnect(src, 0, nb, 0);
-    tb->disconnect(src, 0, iq_sink, 0);
-
-    /* connect I/Q source via throttle block */
-    tb->connect(iq_src, 0, nb, 0);
-    tb->connect(iq_src, 0, iq_sink, 0);
-    tb->unlock();
-#endif
-    return STATUS_OK;
-}
-
-
-/*! \brief Stop I/Q data file playback.
- *  \return STATUS_OK
- *
- * This method will stop the I/Q data playback, disconnect the file source and throttle
- * blocks, and reconnect the hardware source.
- *
- * FIXME: will probably crash if we try to stop playback that is not running.
- */
-receiver::status receiver::stop_iq_playback()
-{
-#if 0
-    tb->lock();
-
-    /* disconnect I/Q source and throttle block */
-    tb->disconnect(iq_src, 0, nb, 0);
-    tb->disconnect(iq_src, 0, iq_sink, 0);
-
-    /* reconenct hardware source */
-    tb->connect(src, 0, nb, 0);
-    tb->connect(src, 0, iq_sink, 0);
+    if (src->seek(pos, SEEK_SET))
+    {
+        status = STATUS_OK;
+    }
+    else
+    {
+        status = STATUS_ERROR;
+    }
 
     tb->unlock();
 
-    /* delete iq_src since we can not reuse for other files */
-    iq_src.reset();
-#endif
-    return STATUS_OK;
+    return status;
 }
-
-
 
 /*! \brief Start data sniffer.
  *  \param buffsize The buffer that should be used in the sniffer.
@@ -1102,8 +1081,6 @@ void receiver::get_sniffer_data(float * outbuff, unsigned int &num)
     sniffer->get_samples(outbuff, num);
 }
 
-
-
 /*! \brief Convenience function to connect all blocks. */
 void receiver::connect_all(rx_chain type)
 {
@@ -1143,6 +1120,7 @@ void receiver::connect_all(rx_chain type)
         tb->connect(lo, 0, mixer, 1);
         tb->connect(mixer, 0, rx, 0);
         tb->connect(rx, 0, audio_fft, 0);
+        tb->connect(rx, 0, audio_udp_sink, 0);
         tb->connect(rx, 0, audio_gain0, 0);
         tb->connect(rx, 1, audio_gain1, 0);
         tb->connect(audio_gain0, 0, audio_snk, 0);
@@ -1170,6 +1148,7 @@ void receiver::connect_all(rx_chain type)
         tb->connect(lo, 0, mixer, 1);
         tb->connect(mixer, 0, rx, 0);
         tb->connect(rx, 0, audio_fft, 0);
+        tb->connect(rx, 0, audio_udp_sink, 0);
         tb->connect(rx, 0, audio_gain0, 0);
         tb->connect(rx, 1, audio_gain1, 0);
         tb->connect(audio_gain0, 0, audio_snk, 0);
@@ -1180,7 +1159,18 @@ void receiver::connect_all(rx_chain type)
         break;
     }
 
-    // re-connect audio data sniffer if it is activated
+    // reconnect recorders and sniffers
+    if (d_recording_iq)
+    {
+        tb->connect(src, 0, iq_sink, 0);
+    }
+
+    if (d_recording_wav)
+    {
+        tb->connect(rx, 0, wav_sink, 0);
+        tb->connect(rx, 1, wav_sink, 1);
+    }
+
     if (d_sniffer_active)
     {
         tb->connect(rx, 0, sniffer_rr, 0);

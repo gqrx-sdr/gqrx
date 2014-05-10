@@ -3,7 +3,7 @@
  * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
  *           http://gqrx.dk/
  *
- * Copyright 2011-2013 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2014 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,8 +36,8 @@
 
 #ifdef WITH_PULSEAUDIO
 #include "pulseaudio/pa_device_list.h"
-#elif defined(WITH_PORTAUDIO)
-#include "portaudio/device_list.h"
+#elif defined(GQRX_OS_MACX)
+#include "osxaudio/device_list.h"
 #endif
 
 #include "qtgui/ioconfig.h"
@@ -59,9 +59,9 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
     QString indev = settings->value("input/device", "").toString();
 
     // automatic discovery of FCD does not work on Mac
-    // so we do it ourselves if we have portaudio
-#if defined(Q_WS_MAC) && defined(WITH_PORTAUDIO)
-    portaudio_device_list devices;
+    // so we do it ourselves
+#if defined(GQRX_OS_MACX)
+    osxaudio_device_list devices;
     inDevList = devices.get_input_devices();
 
     string this_dev;
@@ -181,9 +181,9 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
             ui->outDevCombo->setCurrentIndex(i+1);
     }
 
-#elif defined(Q_WS_MAC) && defined(WITH_PORTAUDIO)
+#elif defined(GQRX_OS_MACX)
     // get list of output devices
-    // (already defined) portaudio_device_list devices;
+    // (already defined) osxaudio_device_list devices;
     outDevList = devices.get_output_devices();
 
     qDebug() << __FUNCTION__ << ": Available output devices:";
@@ -223,7 +223,7 @@ void CIoConfig::saveConfig()
 
     if (idx > 0)
     {
-#if defined(WITH_PULSEAUDIO) || defined(WITH_PORTAUDIO)
+#if defined(WITH_PULSEAUDIO) || defined(GQRX_OS_MACX)
         qDebug() << "Output device" << idx << ":" << QString(outDevList[idx-1].get_name().c_str());
         m_settings->setValue("output/device", QString(outDevList[idx-1].get_name().c_str()));
 #endif
@@ -288,7 +288,7 @@ void CIoConfig::updateInputSampleRates(int rate)
             ui->inSrCombo->addItem("96000");
         }
     }
-    else if (ui->inDevEdit->text().contains("rtl"))
+    else if (ui->inDevEdit->text().contains("rtl") || ui->inDevEdit->text().contains("rtl_tcp"))
     {
         ui->inSrCombo->addItem("250000");
         ui->inSrCombo->addItem("1200000");
@@ -297,12 +297,14 @@ void CIoConfig::updateInputSampleRates(int rate)
         ui->inSrCombo->addItem("2000000");
         ui->inSrCombo->addItem("2200000");
         ui->inSrCombo->addItem("2400000");
+        ui->inSrCombo->addItem("2560000");
         ui->inSrCombo->addItem("2700000");
+        ui->inSrCombo->addItem("2800000");
         ui->inSrCombo->addItem("3200000");
         if (rate > 0)
         {
             ui->inSrCombo->addItem(QString("%1").arg(rate));
-            ui->inSrCombo->setCurrentIndex(9);
+            ui->inSrCombo->setCurrentIndex(11);
         }
         else
         {
@@ -348,10 +350,49 @@ void CIoConfig::updateInputSampleRates(int rate)
         ui->inSrCombo->addItem("35000000");
         ui->inSrCombo->addItem("40000000");
     }
+    else if (ui->inDevEdit->text().contains("sdr-iq"))
+    {
+        if (rate > 0)
+            ui->inSrCombo->addItem(QString("%1").arg(rate));
+
+        ui->inSrCombo->addItem("8138");
+        ui->inSrCombo->addItem("16276");
+        ui->inSrCombo->addItem("37793");
+        ui->inSrCombo->addItem("55556");
+        ui->inSrCombo->addItem("111111");
+        ui->inSrCombo->addItem("158730");
+        ui->inSrCombo->addItem("196078");
+    }
+    else if (ui->inDevEdit->text().contains("sdr-ip"))
+    {
+        if (rate > 0)
+            ui->inSrCombo->addItem(QString("%1").arg(rate));
+
+        ui->inSrCombo->addItem("31250");
+        ui->inSrCombo->addItem("32000");
+        ui->inSrCombo->addItem("40000");
+        ui->inSrCombo->addItem("50000");
+        ui->inSrCombo->addItem("62500");
+        ui->inSrCombo->addItem("64000");
+        ui->inSrCombo->addItem("80000");
+        ui->inSrCombo->addItem("100000");
+        ui->inSrCombo->addItem("125000");
+        ui->inSrCombo->addItem("160000");
+        ui->inSrCombo->addItem("200000");
+        ui->inSrCombo->addItem("250000");
+        ui->inSrCombo->addItem("320000");
+        ui->inSrCombo->addItem("400000");
+        ui->inSrCombo->addItem("500000");
+        ui->inSrCombo->addItem("800000");
+        ui->inSrCombo->addItem("1000000");
+        ui->inSrCombo->addItem("1600000");
+        ui->inSrCombo->addItem("2000000");
+    }
     else if (ui->inDevEdit->text().contains("netsdr"))
     {
         if (rate > 0)
             ui->inSrCombo->addItem(QString("%1").arg(rate));
+
         ui->inSrCombo->addItem("32000");
         ui->inSrCombo->addItem("40000");
         ui->inSrCombo->addItem("50000");
@@ -372,6 +413,13 @@ void CIoConfig::updateInputSampleRates(int rate)
         ui->inSrCombo->addItem("1000000");
         ui->inSrCombo->addItem("1250000");
         ui->inSrCombo->addItem("2000000");
+    }
+    else if (ui->inDevEdit->text().contains("airspy"))
+    {
+        if (rate > 0)
+            ui->inSrCombo->addItem(QString("%1").arg(rate));
+
+        ui->inSrCombo->addItem("10000000");
     }
 }
 

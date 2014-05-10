@@ -23,8 +23,10 @@
 #include <QApplication>
 #include <QDebug>
 #include <QDesktopServices>
+#include <QDir>
 #include <QFile>
 #include <QString>
+#include <QStringList>
 #include <QtGlobal>
 
 #include "mainwindow.h"
@@ -35,6 +37,7 @@
 namespace po = boost::program_options;
 
 static void reset_conf(const QString &file_name);
+static void list_conf(void);
 
 int main(int argc, char *argv[])
 {
@@ -57,8 +60,8 @@ int main(int argc, char *argv[])
     else
         qDebug() << "Failed to disable controlport";
 
-//#ifdef GQRX_OS_MACX
-#ifdef WITH_PORTAUDIO
+#if 0
+//#ifdef WITH_PORTAUDIO
     // FIXME: This should be user configurable although for now
     // the audio-osx-source is useless and the only way to use the
     // Funcube Dongle Pro and Pro+ is via portaudio.
@@ -72,6 +75,7 @@ int main(int argc, char *argv[])
     po::options_description desc("Command line options");
     desc.add_options()
         ("help,h", "This help message")
+        ("list,l", "List existing configurations")
         ("conf,c", po::value<std::string>(&conf), "Start with this config file")
         ("edit,e", "Edit the config file before using it")
         ("reset,r", "Reset configuration file")
@@ -98,8 +102,15 @@ int main(int argc, char *argv[])
     // print the help message
     if (vm.count("help") || clierr)
     {
-        std::cout << "Gqrx software defined radio receiver " << VERSION << std::endl << desc << std::endl;
+        std::cout << "Gqrx software defined radio receiver " << VERSION << std::endl;
+        std::cout << desc << std::endl;
         return 1;
+    }
+
+    if (vm.count("list"))
+    {
+        list_conf();
+        return 0;
     }
 
     if (!conf.empty())
@@ -154,6 +165,36 @@ static void reset_conf(const QString &file_name)
     }
     else
     {
-        qDebug() << "Cano not delete" << cfg_file << "- file does not exist!";
+        qDebug() << "Can not delete" << cfg_file << "- file does not exist!";
+    }
+}
+
+/*! \brief List avaialble configurations. */
+static void list_conf(void)
+{
+    QString conf_path;
+    QByteArray xdg_dir = qgetenv("XDG_CONFIG_HOME");
+
+    if (xdg_dir.isEmpty())
+        conf_path = QString("%1/.config/gqrx/").arg(QDir::homePath());
+    else
+        conf_path = QString("%1/gqrx/").arg(xdg_dir.data());
+
+    QDir conf_dir = QDir(conf_path, "*.conf", QDir::Name, QDir::Files);
+    QStringList conf_files = conf_dir.entryList(QStringList("*.conf"));
+
+    std::cout << " Existing configuration files:" << std::endl;
+
+    if (conf_files.isEmpty())
+    {
+        std::cout << "     *** NONE ***" << std::endl;
+    }
+    else
+    {
+        for (int i = 0; i < conf_files.count(); i++)
+        {
+            std::cout << "     ";
+            std::cout << conf_files.at(i).toLocal8Bit().constData() << std::endl;
+        }
     }
 }

@@ -3,7 +3,7 @@
  * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
  *           http://gqrx.dk/
  *
- * Copyright 2011-2013 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2014 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 
 #include <string>
 
+#include <gnuradio/blocks/file_sink.h>
 #include <gnuradio/blocks/multiply_const_ff.h>
 #include <gnuradio/blocks/multiply_cc.h>
 #include <gnuradio/blocks/null_sink.h>
@@ -45,6 +46,7 @@
 #include "dsp/rx_fft.h"
 #include "dsp/sniffer_f.h"
 #include "dsp/resampler_xx.h"
+#include "interfaces/udp_sink_f.h"
 #include "receivers/receiver_base.h"
 
 #ifdef WITH_PULSEAUDIO
@@ -187,16 +189,21 @@ public:
     status start_audio_playback(const std::string filename);
     status stop_audio_playback();
 
+    status start_udp_streaming(const std::string host, int port);
+    status stop_udp_streaming();
+
     /* I/Q recording and playback */
     status start_iq_recording(const std::string filename);
     status stop_iq_recording();
-    status start_iq_playback(const std::string filename, float samprate);
-    status stop_iq_playback();
+    status seek_iq_file(long pos);
 
     /* sample sniffer */
     status start_sniffer(unsigned int samplrate, int buffsize);
     status stop_sniffer();
     void   get_sniffer_data(float * outbuff, unsigned int &num);
+
+    bool is_recording_audio(void) const { return d_recording_wav; }
+    bool is_snifffer_active(void) const { return d_sniffer_active; }
 
 private:
     void connect_all(rx_chain type);
@@ -207,6 +214,7 @@ private:
     double d_audio_rate;       /*!< Audio output rate. */
     double d_rf_freq;          /*!< Current RF frequency. */
     double d_filter_offset;    /*!< Current filter offset (tune within passband). */
+    bool   d_recording_iq;     /*!< Whether we are recording I/Q file. */
     bool   d_recording_wav;    /*!< Whether we are recording WAV file. */
     bool   d_sniffer_active;   /*!< Only one data decoder allowed. */
     bool   d_iq_rev;           /*!< Whether I/Q is reversed or not. */
@@ -221,7 +229,6 @@ private:
     gr::top_block_sptr         tb;        /*!< The GNU Radio top block. */
 
     osmosdr::source::sptr     src;       /*!< Real time I/Q source. */
-    //rx_source_base::sptr       src;       /*!< Real time I/Q source. */
     receiver_base_cf_sptr     rx;        /*!< receiver. */
 
     dc_corr_cc_sptr           dc_corr;   /*!< DC corrector block. */
@@ -231,18 +238,21 @@ private:
     rx_fft_f_sptr             audio_fft;  /*!< Audio FFT block. */
 
     gr::analog::sig_source_c::sptr      lo;  /*!< oscillator used for tuning. */
-    gr::blocks::multiply_cc::sptr mixer;
+    gr::blocks::multiply_cc::sptr       mixer;
 
     gr::blocks::multiply_const_ff::sptr audio_gain0; /*!< Audio gain block. */
     gr::blocks::multiply_const_ff::sptr audio_gain1; /*!< Audio gain block. */
+
+    gr::blocks::file_sink::sptr         iq_sink;     /*!< I/Q file sink. */
 
     gr::blocks::wavfile_sink::sptr      wav_sink;   /*!< WAV file sink for recording. */
     gr::blocks::wavfile_source::sptr    wav_src;    /*!< WAV file source for playback. */
     gr::blocks::null_sink::sptr         audio_null_sink0; /*!< Audio null sink used during playback. */
     gr::blocks::null_sink::sptr         audio_null_sink1; /*!< Audio null sink used during playback. */
 
-    sniffer_f_sptr            sniffer;    /*!< Sample sniffer for data decoders. */
-    resampler_ff_sptr         sniffer_rr; /*!< Sniffer resampler. */
+    udp_sink_f_sptr   audio_udp_sink;  /*!< UDP sink to stream audio over the network. */
+    sniffer_f_sptr    sniffer;    /*!< Sample sniffer for data decoders. */
+    resampler_ff_sptr sniffer_rr; /*!< Sniffer resampler. */
 
 #ifdef WITH_PULSEAUDIO
     pa_sink_sptr              audio_snk;  /*!< Pulse audio sink. */

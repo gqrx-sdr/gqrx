@@ -3,7 +3,7 @@
  * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
  *           http://gqrx.dk/
  *
- * Copyright 2011-2013 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2014 Alexandru Csete OZ9AEC.
  * Copyright (C) 2013 by Elias Oenal <EliasOenal@gmail.com>
  *
  * Gqrx is free software; you can redistribute it and/or modify
@@ -29,7 +29,15 @@
 #include <QDateTime>
 #include <QDesktopServices>
 #include <QDebug>
+#include <QFile>
+#include <QMessageBox>
+#include <QResource>
+#include <QString>
+#include <QTextBrowser>
+#include <QTextCursor>
+#include <QTextStream>
 #include <QTimer>
+#include <QVBoxLayout>
 #include "qtgui/ioconfig.h"
 #include "mainwindow.h"
 
@@ -38,6 +46,7 @@
 
 /* DSP */
 #include "receiver.h"
+#include "remote_control_settings.h"
 
 
 MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
@@ -55,9 +64,14 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     /* Initialise default configuration directory */
     QByteArray xdg_dir = qgetenv("XDG_CONFIG_HOME");
     if (xdg_dir.isEmpty())
-        m_cfg_dir = QString("%1/.config/gqrx").arg(QDir::homePath()); // Qt takes care of conversion to native separators
+    {
+        // Qt takes care of conversion to native separators
+        m_cfg_dir = QString("%1/.config/gqrx").arg(QDir::homePath());
+    }
     else
+    {
         m_cfg_dir = QString("%1/gqrx").arg(xdg_dir.data());
+    }
 
     setWindowTitle(QString("Gqrx %1").arg(VERSION));
 
@@ -70,6 +84,9 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     /* create receiver object */
     rx = new receiver("", "");
     rx->set_rf_freq(144500000.0f);
+
+    // remote controller
+    remote = new RemoteControl();
 
     /* meter timer */
     meter_timer = new QTimer(this);
@@ -92,6 +109,9 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     /* timer for data decoders */
     dec_timer = new QTimer(this);
     connect(dec_timer, SIGNAL(timeout()), this, SLOT(decoderTimeout()));
+
+    // create I/Q tool widget
+    iq_tool = new CIqTool(this);
 
     /* create dock widgets */
     uiDockRxOpt = new DockRxOpt();
@@ -140,7 +160,6 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     ui->menu_View->addAction(uiDockAudio->toggleViewAction());
     ui->menu_View->addAction(uiDockFft->toggleViewAction());
     ui->menu_View->addAction(uiDockBookmarks->toggleViewAction());
-    //ui->menu_View->addAction(uiDockIqPlay->toggleViewAction());
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
     ui->menu_View->addSeparator();
@@ -148,6 +167,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
 
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
+    connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), remote, SLOT(setNewFrequency(qint64)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
     connect(uiDockInputCtl, SIGNAL(gainChanged(QString, double)), this, SLOT(setGain(QString,double)));
     connect(uiDockInputCtl, SIGNAL(autoGainChanged(bool)), this, SLOT(setAutoGain(bool)));
@@ -158,7 +178,9 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockInputCtl, SIGNAL(ignoreLimitsChanged(bool)), this, SLOT(setIgnoreLimits(bool)));
     connect(uiDockInputCtl, SIGNAL(antennaSelected(QString)), this, SLOT(setAntenna(QString)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
+    connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), remote, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
+    connect(uiDockRxOpt, SIGNAL(demodSelected(int)), remote, SLOT(setMode(int)));
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
     connect(uiDockRxOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(setFmEmph(double)));
     connect(uiDockRxOpt, SIGNAL(amDcrToggled(bool)), this, SLOT(setAmDcr(bool)));
@@ -170,7 +192,10 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(agcDecayChanged(int)), this, SLOT(setAgcDecay(int)));
     connect(uiDockRxOpt, SIGNAL(noiseBlankerChanged(int,bool,float)), this, SLOT(setNoiseBlanker(int,bool,float)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
+    connect(uiDockRxOpt, SIGNAL(sqlAutoClicked()), this, SLOT(setSqlLevelAuto()));
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
+    connect(uiDockAudio, SIGNAL(audioStreamingStarted(QString,int)), this, SLOT(startAudioStream(QString,int)));
+    connect(uiDockAudio, SIGNAL(audioStreamingStopped()), this, SLOT(stopAudioStreaming()));
     connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), this, SLOT(startAudioRec(QString)));
     connect(uiDockAudio, SIGNAL(audioRecStopped()), this, SLOT(stopAudioRec()));
     connect(uiDockAudio, SIGNAL(audioPlayStarted(QString)), this, SLOT(startAudioPlayback(QString)));
@@ -189,9 +214,28 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(peakDetectionToggled(bool)), this, SLOT(setPeakDetection(bool)));
     connect(uiDockBookmarks, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
 
+    // I/Q playback
+    connect(iq_tool, SIGNAL(startRecording()), this, SLOT(startIqRecording()));
+    connect(iq_tool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
+    connect(iq_tool, SIGNAL(startPlayback(QString,float)), this, SLOT(startIqPlayback(QString,float)));
+    connect(iq_tool, SIGNAL(stopPlayback()), this, SLOT(stopIqPlayback()));
+    connect(iq_tool, SIGNAL(seek(qint64)), this,SLOT(seekIqFile(qint64)));
+
+    // remote control
+    connect(remote, SIGNAL(newFilterOffset(qint64)), this, SLOT(setFilterOffset(qint64)));
+    connect(remote, SIGNAL(newFilterOffset(qint64)), uiDockRxOpt, SLOT(setFilterOffset(qint64)));
+    connect(remote, SIGNAL(newFrequency(qint64)), ui->freqCtrl, SLOT(setFrequency(qint64)));
+    connect(remote, SIGNAL(newMode(int)), this, SLOT(selectDemod(int)));
+    connect(remote, SIGNAL(newMode(int)), uiDockRxOpt, SLOT(setCurrentDemod(int)));
+
+    // satellite events
+    connect(remote, SIGNAL(satAosEvent()), uiDockAudio, SLOT(startAudioRecorder()));
+    connect(remote, SIGNAL(satLosEvent()), uiDockAudio, SLOT(stopAudioRecorder()));
+
     // restore last session
     if (!loadConfig(cfgfile, true))
     {
+
 		// first time config
         qDebug() << "Launching I/O device editor";
         if (firstTimeConfig() != QDialog::Accepted)
@@ -222,6 +266,8 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    on_actionDSP_triggered(false);
+
     /* stop and delete timers */
     dec_timer->stop();
     delete dec_timer;
@@ -256,13 +302,14 @@ MainWindow::~MainWindow()
         delete m_settings;
     }
 
+    delete iq_tool;
     delete ui;
     delete uiDockRxOpt;
     delete uiDockAudio;
     delete uiDockFft;
-    //delete uiDockIqPlay;
     delete uiDockInputCtl;
     delete rx;
+    delete remote;
     delete [] d_fftData;
     delete [] d_realFftData;
     delete [] d_iirFftData;
@@ -329,8 +376,6 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
     if (skip_loading_cfg)
         return false;
 
-    emit configChanged(m_settings);
-
     // manual reconf (FIXME: check status)
     bool conv_ok = false;
 
@@ -379,6 +424,9 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         uiDockRxOpt->setFilterOffsetRange((qint64)(0.9*actual_rate));
         ui->plotter->setSampleRate(actual_rate);
         ui->plotter->setSpanFreq((quint32)actual_rate);
+
+        remote->setBandwidth(sr);
+        iq_tool->setSampleRate(sr);
     }
 
     qint64 bw = m_settings->value("input/bandwidth", 0).toInt(&conv_ok);
@@ -397,6 +445,8 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
 
     ui->freqCtrl->setFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&conv_ok));
     setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
+
+    remote->readSettings(m_settings);
 
     return conf_ok;
 }
@@ -467,6 +517,8 @@ void MainWindow::storeSession()
         uiDockRxOpt->saveSettings(m_settings);
         uiDockFft->saveSettings(m_settings);
         uiDockAudio->saveSettings(m_settings);
+
+        remote->saveSettings(m_settings);
     }
 }
 
@@ -597,6 +649,11 @@ void MainWindow::setGain(QString name, double gain)
 void MainWindow::setAutoGain(bool enabled)
 {
     rx->set_auto_gain(enabled);
+
+    if (!enabled)
+    {
+        uiDockInputCtl->restoreManualGains(m_settings);
+    }
 }
 
 /*! \brief Set new frequency offset value.
@@ -640,14 +697,16 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
 {
     updateFrequencyRange(ignore_limits);
 
+    qint64 filter_offset = (qint64)rx->get_filter_offset();
     qint64 freq = (qint64)rx->get_rf_freq();
-    ui->freqCtrl->setFrequency(d_lnb_lo + freq);
+    ui->freqCtrl->setFrequency(d_lnb_lo + freq + filter_offset);
 
-    // This will ensure that if frequency is clamped, the UI
-    // will be updated with the correct frequwncy.
+    // This will ensure that if frequency is clamped and that
+    // the UI is updated with the correct frequency.
     freq = ui->freqCtrl->getFrequency();
     setNewFrequency(freq);
 }
+
 
 /*! \brief Select new demodulator.
  *  \param demod New demodulator index.
@@ -668,6 +727,12 @@ void MainWindow::selectDemod(int index)
 
     case DockRxOpt::MODE_OFF:
         /* Spectrum analyzer only */
+        if (rx->is_recording_audio())
+        {
+            stopAudioRec();
+            uiDockAudio->setAudioRecButtonState(false);
+        }
+
         rx->set_demod(receiver::RX_DEMOD_OFF);
         flo = 0;
         fhi = 0;
@@ -780,7 +845,6 @@ void MainWindow::selectDemod(int index)
             rx->set_demod(receiver::RX_DEMOD_WFM_M);
         else
             rx->set_demod(receiver::RX_DEMOD_WFM_S);
-
         break;
 
         /* LSB */
@@ -1017,6 +1081,15 @@ void MainWindow::setSqlLevel(double level_db)
     rx->set_sql_level(level_db);
 }
 
+/*! \brief Squelch level auto clicked
+ *  \return new squeltch value
+ */
+double MainWindow::setSqlLevelAuto()
+{
+    double level = rx->get_signal_pwr(true) + 1.0;
+    setSqlLevel(level);
+    return level;
+}
 
 /*! \brief Signal strength meter timeout */
 void MainWindow::meterTimeout()
@@ -1025,6 +1098,7 @@ void MainWindow::meterTimeout()
 
     level = rx->get_signal_pwr(true);
     ui->sMeter->setLevel(level);
+    remote->setSignalLevel(level);
 }
 
 /*! \brief Baseband FFT plot timeout. */
@@ -1122,13 +1196,21 @@ void MainWindow::audioFftTimeout()
     uiDockAudio->setNewFttData(d_realFftData, fftsize);
 }
 
-
 /*! \brief Start audio recorder.
  *  \param filename The file name into which audio should be recorded.
  */
 void MainWindow::startAudioRec(const QString filename)
 {
-    if (rx->start_audio_recording(filename.toStdString()))
+    if (!d_have_audio)
+    {
+        QMessageBox msg_box;
+        msg_box.setIcon(QMessageBox::Critical);
+        msg_box.setText(tr("Recording audio requires a demodulator.\n"
+                           "Currently, demodulation is switched off (Mode->Demod off)."));
+        msg_box.exec();
+        uiDockAudio->setAudioRecButtonState(false);
+    }
+    else if (rx->start_audio_recording(filename.toStdString()))
     {
         ui->statusBar->showMessage(tr("Error starting audio recorder"));
 
@@ -1191,46 +1273,153 @@ void MainWindow::stopAudioPlayback()
     }
 }
 
-
-/*! \brief Start/stop I/Q data playback.
- *  \param play True if playback is started, false if it is stopped.
- *  \param filename Full path of the I/Q data file.
- */
-void MainWindow::toggleIqPlayback(bool play, const QString filename)
+/*! \brief Start streaming audio over UDP. */
+void MainWindow::startAudioStream(const QString udp_host, int udp_port)
 {
-    if (play)
-    {
-        /* starting playback */
-        if (rx->start_iq_playback(filename.toStdString(), 96000.0))
-        {
-            ui->statusBar->showMessage(tr("Error trying to play %1").arg(filename));
-        }
-        else
-        {
-            ui->statusBar->showMessage(tr("Playing %1").arg(filename));
+    rx->start_udp_streaming(udp_host.toStdString(), udp_port);
+}
 
-            /* disable REC button */
-            ui->actionIqRec->setEnabled(false);
-        }
+/*! \brief Stop streaming audio over UDP. */
+void MainWindow::stopAudioStreaming()
+{
+    rx->stop_udp_streaming();
+}
+
+/*! \brief Start I/Q recording. */
+void MainWindow::startIqRecording()
+{
+    qDebug() << __func__;
+    // generate file name using date, time, rf freq in kHz and BW in Hz
+    // gqrx_iq_yyyy.mm.dd_hh:mm:ss_freq_bw_fc.raw
+    qint64 freq = (int)(rx->get_rf_freq());
+    qint64 sr = (int)(rx->get_input_rate());
+    QString lastRec = QDateTime::currentDateTimeUtc().
+            toString("gqrx_yyyyMMdd_hhmmss_%1_%2_fc.'raw'").arg(freq).arg(sr);
+
+    // start recorder; fails if recording already in progress
+    if (rx->start_iq_recording(lastRec.toStdString()))
+    {
+        // reset action status
+        ui->statusBar->showMessage(tr("Error starting I/Q recoder"));
+
+        // show an error message to user
+        QMessageBox msg_box;
+        msg_box.setIcon(QMessageBox::Critical);
+        msg_box.setText(tr("There was an error starting the I/Q recorder.\n"
+                           "Check write permissions for the selected location."));
+        msg_box.exec();
+
     }
     else
     {
-        /* stopping playback */
-        if (rx->stop_iq_playback())
-        {
-            /* okay, this one would be weird if it really happened */
-            ui->statusBar->showMessage(tr("Error stopping I/Q playback"));
-        }
-        else
-        {
-            ui->statusBar->showMessage(tr("I/Q playback stopped"), 5000);
-        }
+        ui->statusBar->showMessage(tr("Recording I/Q data to: %1").arg(lastRec), 5000);
+    }
 
-        /* enable REC button */
-        ui->actionIqRec->setEnabled(true);
+}
+
+/*! \brief Stop current I/Q recording. */
+void MainWindow::stopIqRecording()
+{
+    qDebug() << __func__;
+
+    if (rx->stop_iq_recording())
+    {
+        ui->statusBar->showMessage(tr("Error stopping I/Q recoder"));
+    }
+    else
+    {
+        ui->statusBar->showMessage(tr("I/Q data recoding stopped"), 5000);
+    }
+
+}
+
+void MainWindow::startIqPlayback(const QString filename, float samprate)
+{
+    if (ui->actionDSP->isChecked())
+    {
+        // suspend DSP while we reload settings
+        on_actionDSP_triggered(false);
+    }
+
+    storeSession();
+
+    int sri = (int)samprate;
+    QString devstr = QString("file=%1,rate=%2,throttle=true,repeat=false")
+            .arg(filename).arg(sri);
+
+    qDebug() << __func__ << ":" << devstr;
+
+    rx->set_input_device(devstr.toStdString());
+
+    // sample rate
+    double actual_rate = rx->set_input_rate(samprate);
+    qDebug() << "Requested sample rate:" << samprate;
+    qDebug() << "Actual sample rate   :" << QString("%1").arg(actual_rate, 0, 'f', 6);
+    uiDockRxOpt->setFilterOffsetRange((qint64)(0.9*actual_rate));
+    ui->plotter->setSampleRate(actual_rate);
+    ui->plotter->setSpanFreq((quint32)actual_rate);
+    remote->setBandwidth(actual_rate);
+
+    // FIXME: would be nice with good/bad status
+    ui->statusBar->showMessage(tr("Playing %1").arg(filename));
+
+    if (ui->actionDSP->isChecked())
+    {
+        // restsart DSP
+        on_actionDSP_triggered(true);
+    }
+
+}
+
+void MainWindow::stopIqPlayback()
+{
+    if (ui->actionDSP->isChecked())
+    {
+        // suspend DSP while we reload settings
+        on_actionDSP_triggered(false);
+    }
+
+    ui->statusBar->showMessage(tr("I/Q playback stopped"), 5000);
+
+    // restore original input device
+    QString indev = m_settings->value("input/device", "").toString();
+    rx->set_input_device(indev.toStdString());
+
+    // restore sample rate
+    bool conv_ok;
+    int sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
+    if (conv_ok && (sr > 0))
+    {
+        double actual_rate = rx->set_input_rate(sr);
+        qDebug() << "Requested sample rate:" << sr;
+        qDebug() << "Actual sample rate   :" << QString("%1").arg(actual_rate, 0, 'f', 6);
+        uiDockRxOpt->setFilterOffsetRange((qint64)(0.9*actual_rate));
+        ui->plotter->setSampleRate(actual_rate);
+        ui->plotter->setSpanFreq((quint32)actual_rate);
+        remote->setBandwidth(sr);
+
+        // not needed as long as we are not recording in iq_tool
+        //iq_tool->setSampleRate(sr);
+    }
+
+    // restore frequency, gain, etc...
+    uiDockInputCtl->readSettings(m_settings);
+
+    if (ui->actionDSP->isChecked())
+    {
+        // restsart DSP
+        on_actionDSP_triggered(true);
     }
 }
 
+
+/*! \brief Go to a specific offset in the IQ file.
+ *  \param seek_pos The byte offset from the begining of the file.
+ */
+void MainWindow::seekIqFile(qint64 seek_pos)
+{
+    rx->seek_iq_file((long)seek_pos);
+}
 
 /*! \brief FFT size has changed. */
 void MainWindow::setIqFftSize(int size)
@@ -1359,7 +1548,7 @@ void MainWindow::on_actionDSP_triggered(bool checked)
             ui->plotter->setRunningState(false);
         }
 
-        audio_fft_timer->start(100);
+        audio_fft_timer->start(40);
 
         /* update menu text and button tooltip */
         ui->actionDSP->setToolTip(tr("Stop DSP processing"));
@@ -1487,51 +1676,12 @@ void MainWindow::on_actionSaveSettings_triggered()
 }
 
 
-/*! \brief Toggle I/Q recording. */
-void MainWindow::on_actionIqRec_triggered(bool checked)
+/*! \brief show I/Q player. */
+void MainWindow::on_actionIqTool_triggered()
 {
-    Q_UNUSED(checked)
-
-#if 0
-    if (checked)
-    {
-        /* generate file name using date, time, rf freq and BW */
-        int freq = (int)rx->get_rf_freq()/1000;
-        // FIXME: option to use local time
-        QString lastRec = QDateTime::currentDateTimeUtc().toString("gqrx-yyyyMMdd-hhmmss-%1-96.'bin'").arg(freq);
-
-        /* start recorder */
-        if (rx->start_iq_recording(lastRec.toStdString()))
-        {
-            /* reset action status */
-            ui->actionIqRec->toggle();
-            ui->statusBar->showMessage(tr("Error starting I/Q recoder"));
-        }
-        else
-        {
-            ui->statusBar->showMessage(tr("Recording I/Q data to: %1").arg(lastRec), 5000);
-
-            /* disable I/Q player */
-            uiDockIqPlay->setEnabled(false);
-        }
-    }
-    else
-    {
-        /* stop current recording */
-        if (rx->stop_iq_recording())
-        {
-            ui->statusBar->showMessage(tr("Error stopping I/Q recoder"));
-        }
-        else
-        {
-            ui->statusBar->showMessage(tr("I/Q data recoding stopped"), 5000);
-        }
-
-        /* enable I/Q player */
-        uiDockIqPlay->setEnabled(true);
-    }
-#endif
+    iq_tool->show();
 }
+
 
 /* CPlotter::NewDemodFreq() is emitted */
 void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
@@ -1575,6 +1725,32 @@ void MainWindow::on_actionFullScreen_triggered(bool checked)
         ui->statusBar->show();
         showNormal();
     }
+}
+
+/*! \brief Remote control button (or menu item) toggled. */
+void MainWindow::on_actionRemoteControl_triggered(bool checked)
+{
+    if (checked)
+        remote->start_server();
+    else
+        remote->stop_server();
+}
+
+/*! \brief Remote control configuration button (or menu item) clicked. */
+void MainWindow::on_actionRemoteConfig_triggered()
+{
+    RemoteControlSettings *rcs = new RemoteControlSettings();
+
+    rcs->setPort(remote->getPort());
+    rcs->setHosts(remote->getHosts());
+
+    if (rcs->exec() == QDialog::Accepted)
+    {
+        remote->setPort(rcs->getPort());
+        remote->setHosts(rcs->getHosts());
+    }
+
+    delete rcs;
 }
 
 
@@ -1667,6 +1843,49 @@ void MainWindow::on_actionUserGroup_triggered()
                                 "https://groups.google.com/forum/#!forum/gqrx"),
                              QMessageBox::Close);
     }
+}
+
+/*! \brief Show news.txt in a dialog window. */
+void MainWindow::on_actionNews_triggered()
+{
+    QResource resource(":/textfiles/news.txt");
+    QFile news(resource.absoluteFilePath());
+
+    if (!news.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qDebug() << "Unable to open file: " << news.fileName() <<
+                    " besause of error " << news.errorString();
+
+        return;
+    }
+
+    QTextStream in(&news);
+    QString content = in.readAll();
+    news.close();
+
+    QTextBrowser *browser = new QTextBrowser();
+    browser->setLineWrapMode(QTextEdit::NoWrap);
+    browser->setFontFamily("monospace");
+    browser->append(content);
+    browser->adjustSize();
+
+    // scroll to the beginning
+    QTextCursor cursor = browser->textCursor();
+    cursor.setPosition(0);
+    browser->setTextCursor(cursor);
+
+
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(browser);
+
+    QDialog *dialog = new QDialog(this);
+    dialog->setWindowTitle(tr("Release News"));
+    dialog->setLayout(layout);
+    dialog->resize(700, 400);
+    dialog->exec();
+
+    delete dialog;
+    // browser and layout deleted automatically
 }
 
 /*! \brief Action: About Qthid

@@ -3,7 +3,7 @@
  * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
  *           http://gqrx.dk/
  *
- * Copyright 2011-2013 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2014 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,10 +35,12 @@
 #include "qtgui/dockrxopt.h"
 #include "qtgui/dockaudio.h"
 #include "qtgui/dockinputctl.h"
-#include "qtgui/dockiqplayer.h"
 #include "qtgui/dockfft.h"
 #include "qtgui/dockbookmarks.h"
 #include "qtgui/afsk1200win.h"
+#include "qtgui/iq_tool.h"
+
+#include "applications/gqrx/remote_control.h"
 
 // see https://bugreports.qt-project.org/browse/QTBUG-22829
 #ifndef Q_MOC_RUN
@@ -62,11 +64,6 @@ public:
     void storeSession();
 
     bool configOk; /*!< Main app uses this flag to know whether we should abort or continue. */
-
-    QString getDemodString(int mode);
-
-signals:
-    void configChanged(QSettings *settings); /*!< New configuration has been loaded. */
 
 public slots:
     void setNewFrequency(qint64 rx_freq);
@@ -95,9 +92,11 @@ private:
     DockRxOpt      *uiDockRxOpt;
     DockAudio      *uiDockAudio;
     DockInputCtl   *uiDockInputCtl;
-    //DockIqPlayer   *uiDockIqPlay;
     DockFft        *uiDockFft;
     DockBookmarks  *uiDockBookmarks;
+
+    CIqTool        *iq_tool;
+
 
     /* data decoders */
     Afsk1200Win    *dec_afsk1200;
@@ -109,9 +108,13 @@ private:
 
     receiver *rx;
 
+    RemoteControl *remote;
+
 private:
     void updateFrequencyRange(bool ignore_limits);
     void updateGainStages();
+    QString getDemodString(int mode);
+
 
 private slots:
     /* rf */
@@ -139,6 +142,7 @@ private slots:
     void setAgcGain(int gain);
     void setNoiseBlanker(int nbid, bool on, float threshold);
     void setSqlLevel(double level_db);
+    double setSqlLevelAuto();
     void setAudioGain(float gain);
 
     /* audio recording and playback */
@@ -147,7 +151,15 @@ private slots:
     void startAudioPlayback(const QString filename);
     void stopAudioPlayback();
 
-    void toggleIqPlayback(bool play, const QString filename);
+    void startAudioStream(const QString udp_host, int udp_port);
+    void stopAudioStreaming();
+
+    /* I/Q playback and recording*/
+    void startIqRecording();
+    void stopIqRecording();
+    void startIqPlayback(const QString filename, float samprate);
+    void stopIqPlayback();
+    void seekIqFile(qint64 seek_pos);
 
     /* FFT settings */
     void setIqFftSize(int size);
@@ -160,6 +172,7 @@ private slots:
     void setPeakDetection(bool enabled);
     void setFftPeakHold(bool enable);
 
+    /* FFT plot */
     void on_plotter_newDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
     void on_plotter_newFilterFreq(int low, int high);    /*! New filter width */
     void on_plotter_newCenterFreq(qint64 f);
@@ -169,10 +182,13 @@ private slots:
     int  on_actionIoConfig_triggered();
     void on_actionLoadSettings_triggered();
     void on_actionSaveSettings_triggered();
-    void on_actionIqRec_triggered(bool checked);
+    void on_actionIqTool_triggered();
     void on_actionFullScreen_triggered(bool checked);
+    void on_actionRemoteControl_triggered(bool checked);
+    void on_actionRemoteConfig_triggered();
     void on_actionAFSK1200_triggered();
     void on_actionUserGroup_triggered();
+    void on_actionNews_triggered();
     void on_actionAbout_triggered();
     void on_actionAboutQt_triggered();
     void on_actionAddBookmark_triggered();

@@ -185,8 +185,9 @@ void nbrx::set_demod(int rx_demod)
         return;
     }
 
-    /* lock graph while we reconfigure */
-    lock();
+    // for now we must depend on top level stop/lock
+    // because of https://github.com/csete/gqrx/issues/120
+    //lock();
 
     /* disconnect current demodulator */
     switch (current_demod) {
@@ -239,7 +240,7 @@ void nbrx::set_demod(int rx_demod)
     }
 
     /* continue processing */
-    unlock();
+    //unlock();
 }
 
 void nbrx::set_fm_maxdev(float maxdev_hz)
