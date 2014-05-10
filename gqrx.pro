@@ -107,12 +107,12 @@ SOURCES += \
     qtgui/nb_options.cpp \
     qtgui/plotter.cpp \
     qtgui/qtcolorpicker.cpp \
-    qtgui/frequencylisttablemodel.cpp \
     receivers/nbrx.cpp \
     receivers/receiver_base.cpp \
     receivers/wfmrx.cpp \
-    qtgui/dockfreqtable.cpp \
-    applications/gqrx/bookmarks.cpp
+    applications/gqrx/bookmarks.cpp \
+    qtgui/bookmarkstablemodel.cpp \
+    qtgui/dockbookmarks.cpp
     
 HEADERS += \
     applications/gqrx/mainwindow.h \
@@ -149,12 +149,12 @@ HEADERS += \
     qtgui/nb_options.h \
     qtgui/plotter.h \
     qtgui/qtcolorpicker.h \
-    qtgui/frequencylisttablemodel.h \
     receivers/nbrx.h \
     receivers/receiver_base.h \
     receivers/wfmrx.h \
-    qtgui/dockfreqtable.h \
-    applications/gqrx/bookmarks.h
+    applications/gqrx/bookmarks.h \
+    qtgui/dockbookmarks.h \
+    qtgui/bookmarkstablemodel.h
 
 FORMS += \
     applications/gqrx/mainwindow.ui \
@@ -169,7 +169,7 @@ FORMS += \
     qtgui/dockrxopt.ui \
     qtgui/ioconfig.ui \
     qtgui/nb_options.ui \
-    qtgui/dockfreqtable.ui
+    qtgui/dockbookmarks.ui
 
 # Use pulseaudio (ps: could use equals? undocumented)
 contains(AUDIO_BACKEND, pulse): {

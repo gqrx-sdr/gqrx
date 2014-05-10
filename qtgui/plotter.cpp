@@ -128,6 +128,7 @@ CPlotter::CPlotter(QWidget *parent) :
 
     m_Peaks = QMap<int,int>();
     setPeakDetection(false, 2);
+    m_PeakHoldValid = false;
 
     setFftPlotColor(QColor(0x97,0xD0,0x97,0xFF));
     setFftFill(false);
@@ -251,6 +252,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             else
                 drawOverlay();
 
+            m_PeakHoldValid = false;
+
             m_Yzero = pt.y();
         }
     }
@@ -277,6 +280,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             else
                 drawOverlay();
 
+            m_PeakHoldValid = false;
+
             m_Xzero = pt.x();
         }
     }
@@ -299,7 +304,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 if (m_Running)
                     m_DrawOverlay = true;  // schedule update of overlay during draw()
                 else
-                    drawOverlay();  // not running so update oiverlay now
+                    drawOverlay();  // not running so update overlay now
             }
             else
             {	//save initial grab postion from m_DemodFreqX
@@ -357,6 +362,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     m_DrawOverlay = true;  // schedule update of overlay during draw()
                 else
                     drawOverlay();  // not running so update oiverlay now
+
+                m_PeakHoldValid = false;
             }
             else
             {	//save initial grab postion from m_DemodFreqX
@@ -541,6 +548,8 @@ void CPlotter::wheelEvent(QWheelEvent * event)
 
         m_MaxdB = fixed_db + ratio*db_range;
         m_MindB = m_MaxdB - db_range;
+
+        m_PeakHoldValid = false;
     }
     else if (m_CursorCaptured == XAXIS)
     {
@@ -564,6 +573,8 @@ void CPlotter::wheelEvent(QWheelEvent * event)
 
         zoom_factor = (float)m_SampleFreq/(float)m_Span;
         qDebug() << QString("Spectrum zoom: %1x").arg(zoom_factor, 0, 'f', 1);
+
+        m_PeakHoldValid = false;
     }
     else if (event->modifiers() & Qt::ControlModifier)
     {
@@ -656,9 +667,6 @@ void CPlotter::draw()
     {
         drawOverlay();
         m_DrawOverlay = false;
-
-        //FIXME: dirty hack to avoid invalidating Peak data througout the code
-        m_PeakHoldValid=false;
     }
 
     QPoint LineBuf[MAX_SCREENSIZE];
@@ -969,9 +977,14 @@ void CPlotter::setMaxDB(double max)
     m_MaxdB = max;
 
     if (m_Running)
+    {
         m_DrawOverlay = true;
+    }
     else
         drawOverlay();
+
+    m_PeakHoldValid = false;
+
 }
 
 /*! \brief Set lower limit of dB scale. */
@@ -983,6 +996,8 @@ void CPlotter::setMinDB(double min)
         m_DrawOverlay = true;
     else
         drawOverlay();
+
+    m_PeakHoldValid = false;
 }
 
 /*! \brief Set limits of dB scale. */
@@ -995,6 +1010,8 @@ void CPlotter::setMinMaxDB(double min, double max)
         m_DrawOverlay = true;
     else
         drawOverlay();
+
+    m_PeakHoldValid = false;
 }
 
 
@@ -1093,10 +1110,13 @@ void CPlotter::drawOverlay()
         tagEnd[level]=x+nameWidth+slant-1;
         m_BookmarkTags.append(qMakePair<QRect, qint64>(QRect(x, level*levelHeight, nameWidth+slant, fontHeight), bookmarks[i].frequency));
 
-        painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0x60), 1, Qt::DashLine));
+        QColor color = QColor(bookmarks[i].tag->color);
+        color.setAlpha(0x60);
+
+        painter.setPen(QPen(color, 1, Qt::DashLine));
         painter.drawLine(x, level*levelHeight+fontHeight+slant, x, y); //Vertical line
 
-        painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0x60), 1, Qt::SolidLine));
+        painter.setPen(QPen(color, 1, Qt::SolidLine));
         painter.drawLine(x+slant, level*levelHeight+fontHeight, x+nameWidth+slant-1, level*levelHeight+fontHeight); //Horizontal line
         painter.drawLine(x+1,level*levelHeight+fontHeight+slant-1, x+slant-1, level*levelHeight+fontHeight+1); //Diagonal line
 /*
@@ -1111,7 +1131,9 @@ void CPlotter::drawOverlay()
         polygon.translate(x, level*18);
         painter.drawPolygon(polygon);
 */
-        painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0xFF), 2, Qt::SolidLine));
+
+        color.setAlpha(0xFF);
+        painter.setPen(QPen(color, 2, Qt::SolidLine));
         painter.drawText(x+slant,level*levelHeight, nameWidth, fontHeight, Qt::AlignVCenter | Qt::AlignHCenter, bookmarks[i].name);
     }
 
@@ -1302,6 +1324,9 @@ void CPlotter::setDemodRanges(int FLowCmin, int FLowCmax, int FHiCmin, int FHiCm
 
 void CPlotter::setCenterFreq(quint64 f)
 {
+    if((quint64)m_CenterFreq==f)
+        return;
+
     qint64 offset = m_CenterFreq - m_DemodCenterFreq;
 
     m_CenterFreq = f;
@@ -1311,6 +1336,8 @@ void CPlotter::setCenterFreq(quint64 f)
         m_DrawOverlay = true;
     else
         drawOverlay();
+
+    m_PeakHoldValid = false;
 }
 
 /*! \brief Reset horizontal zoom to 100% and centered around 0. */
@@ -1328,9 +1355,11 @@ void CPlotter::moveToCenterFreq(void)
         m_DrawOverlay = true;
     else
         drawOverlay();
+
+    m_PeakHoldValid = false;
 }
 
-/*! \brief Center FFT plot around the dmeodulator frequency. */
+/*! \brief Center FFT plot around the demodulator frequency. */
 void CPlotter::moveToDemodFreq(void)
 {
     setFftCenterFreq(m_DemodCenterFreq-m_CenterFreq);
@@ -1338,6 +1367,8 @@ void CPlotter::moveToDemodFreq(void)
         m_DrawOverlay = true;
     else
         drawOverlay();
+
+    m_PeakHoldValid = false;
 }
 
 /*! Set FFT plot color. */

@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2013 Christian Lindner DL2VCL.  
+ * Copyright 2013 Christian Lindner  DL2VCL, Stefano Leucci.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,16 +18,18 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef FREQUENCYLISTTABLEMODEL_H
-#define FREQUENCYLISTTABLEMODEL_H
+#ifndef BOOKMARKSTABLEMODEL_H
+#define BOOKMARKSTABLEMODEL_H
 
 #include <QAbstractTableModel>
+#include <QList>
 
-class FrequencyListTableModel : public QAbstractTableModel
+
+#include "applications/gqrx/bookmarks.h"
+
+class BookmarksTableModel : public QAbstractTableModel
 {
     Q_OBJECT
-
-    QString freqTableDir;
 
 public:
     enum EColumns
@@ -35,22 +37,28 @@ public:
         COL_FREQUENCY,
         COL_NAME,
         COL_MODULATION,
-        COL_BANDWIDTH
+        COL_BANDWIDTH,
+        COL_TAGS
     };
 
-    explicit FrequencyListTableModel(QString dir, QObject *parent = 0);
+    explicit BookmarksTableModel(QObject *parent = 0);
     
     int rowCount ( const QModelIndex & parent = QModelIndex() ) const;
     int columnCount ( const QModelIndex & parent = QModelIndex() ) const;
     QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
     QVariant data ( const QModelIndex & index, int role = Qt::DisplayRole ) const;
+    bool setData ( const QModelIndex & index, const QVariant & value, int role = Qt::EditRole );
     Qt::ItemFlags flags ( const QModelIndex & index ) const;
 
     void update();
+    BookmarkInfo* getBookmarkAtRow(int row);
+
+private:
+    QList<BookmarkInfo*> m_Bookmarks;
 
 signals:
 public slots:
     bool load(QString filename);
 };
 
-#endif // FREQUENCYLISTTABLEMODEL_H
+#endif

@@ -20,5 +20,6 @@
         <file>icons/info.svg</file>
         <file>icons/help.svg</file>
         <file>icons/scope.svg</file>
+        <file>icons/bookmark-new.svg</file>
     </qresource>
 </RCC>

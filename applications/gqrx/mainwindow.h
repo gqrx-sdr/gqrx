@@ -37,7 +37,7 @@
 #include "qtgui/dockinputctl.h"
 #include "qtgui/dockiqplayer.h"
 #include "qtgui/dockfft.h"
-#include "qtgui/dockfreqtable.h"
+#include "qtgui/dockbookmarks.h"
 #include "qtgui/afsk1200win.h"
 
 // see https://bugreports.qt-project.org/browse/QTBUG-22829
@@ -62,6 +62,8 @@ public:
     void storeSession();
 
     bool configOk; /*!< Main app uses this flag to know whether we should abort or continue. */
+
+    QString getDemodString(int mode);
 
 signals:
     void configChanged(QSettings *settings); /*!< New configuration has been loaded. */
@@ -95,7 +97,7 @@ private:
     DockInputCtl   *uiDockInputCtl;
     //DockIqPlayer   *uiDockIqPlay;
     DockFft        *uiDockFft;
-    DockFreqTable  *uiDockFreqTable;
+    DockBookmarks  *uiDockBookmarks;
 
     /* data decoders */
     Afsk1200Win    *dec_afsk1200;
@@ -173,6 +175,8 @@ private slots:
     void on_actionUserGroup_triggered();
     void on_actionAbout_triggered();
     void on_actionAboutQt_triggered();
+    void on_actionAddBookmark_triggered();
+
 
     /* window close signals */
     void afsk1200win_closed();

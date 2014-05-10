@@ -128,7 +128,7 @@
      <x>0</x>
      <y>0</y>
      <width>950</width>
-     <height>29</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -183,6 +183,8 @@
    <addaction name="actionIoConfig"/>
    <addaction name="actionLoadSettings"/>
    <addaction name="actionSaveSettings"/>
+   <addaction name="separator"/>
+   <addaction name="actionAddBookmark"/>
    <addaction name="separator"/>
    <addaction name="actionFullScreen"/>
   </widget>
@@ -370,6 +372,18 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionAddBookmark">
+   <property name="icon">
+    <iconset resource="../../icons.qrc">
+     <normaloff>:/icons/icons/bookmark-new.svg</normaloff>:/icons/icons/bookmark-new.svg</iconset>
+   </property>
+   <property name="text">
+    <string>AddBookmark</string>
+   </property>
+   <property name="toolTip">
+    <string>Bookmark the current frequency and mode</string>
    </property>
   </action>
  </widget>
