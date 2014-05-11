@@ -119,6 +119,12 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     uiDockInputCtl = new DockInputCtl();
     //uiDockIqPlay = new DockIqPlayer();
     uiDockFft = new DockFft();
+    uiDockBookmarks = new DockBookmarks(m_cfg_dir, this);
+
+    setCorner( Qt::TopLeftCorner, Qt::LeftDockWidgetArea );
+    setCorner( Qt::TopRightCorner, Qt::RightDockWidgetArea );
+    setCorner( Qt::BottomLeftCorner, Qt::BottomDockWidgetArea );
+    setCorner( Qt::BottomRightCorner, Qt::RightDockWidgetArea );
 
     /* Add dock widgets to main window. This should be done even for
        dock widgets that are going to be hidden, otherwise they will
@@ -132,6 +138,8 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     addDockWidget(Qt::RightDockWidgetArea, uiDockAudio);
     addDockWidget(Qt::RightDockWidgetArea, uiDockFft);
     tabifyDockWidget(uiDockFft, uiDockAudio);
+
+    addDockWidget(Qt::BottomDockWidgetArea, uiDockBookmarks);
 
     //addDockWidget(Qt::BottomDockWidgetArea, uiDockIqPlay);
 
@@ -151,6 +159,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     ui->menu_View->addAction(uiDockRxOpt->toggleViewAction());
     ui->menu_View->addAction(uiDockAudio->toggleViewAction());
     ui->menu_View->addAction(uiDockFft->toggleViewAction());
+    ui->menu_View->addAction(uiDockBookmarks->toggleViewAction());
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
     ui->menu_View->addSeparator();
@@ -203,6 +212,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
     connect(uiDockFft, SIGNAL(fftPeakHoldToggled(bool)), this, SLOT(setFftPeakHold(bool)));
     connect(uiDockFft, SIGNAL(peakDetectionToggled(bool)), this, SLOT(setPeakDetection(bool)));
+    connect(uiDockBookmarks, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
 
     // I/Q playback
     connect(iq_tool, SIGNAL(startRecording()), this, SLOT(startIqRecording()));
@@ -586,6 +596,8 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
     // update widgets
     ui->plotter->setCenterFreq(center_freq);
     uiDockRxOpt->setHwFreq(d_hw_freq);
+    ui->freqCtrl->setFrequency(rx_freq);
+    uiDockBookmarks->setNewFrequency(rx_freq);
 }
 
 /*! \brief Set new LNB LO frequency.
@@ -1914,4 +1926,66 @@ void MainWindow::on_actionAbout_triggered()
 void MainWindow::on_actionAboutQt_triggered()
 {
     QMessageBox::aboutQt(this, tr("About Qt"));
+}
+
+QString MainWindow::getDemodString(int mode)
+{
+    switch(mode)
+    {
+    case DockRxOpt::MODE_AM:
+        return "AM";
+
+    case DockRxOpt::MODE_NFM:
+       return "Narrow FM";
+
+    case DockRxOpt::MODE_WFM_MONO:
+        return "Wide FM (mono)";
+
+    case DockRxOpt::MODE_WFM_STEREO:
+        return "Wide FM (stereo)";
+
+    case DockRxOpt::MODE_LSB:
+        return "LSB";
+
+    case DockRxOpt::MODE_USB:
+        return "USB";
+
+    case DockRxOpt::MODE_CWL:
+        return "CW-L";
+
+    case DockRxOpt::MODE_CWU:
+        return "CW-U";
+
+    case DockRxOpt::MODE_RAW:
+        return "Raw";
+
+    case DockRxOpt::MODE_OFF:
+        return "Off";
+
+    default:
+        return "Unknown";
+
+    }
+}
+
+void MainWindow::on_actionAddBookmark_triggered()
+{
+    bool ok=false;
+    QString name = QInputDialog::getText(this, "New bookmark", "Bookmark name:", QLineEdit::Normal, "New bookmark", &ok);
+
+    if(ok)
+    {
+        BookmarkInfo info;
+        info.frequency = ui->freqCtrl->getFrequency();
+        info.bandwidth = uiDockRxOpt->currentFilter(); //FIXME
+        info.modulation = getDemodString(uiDockRxOpt->currentDemod());
+        info.name=name;
+        info.tag=&Bookmarks::findOrAddTag("");
+        Bookmarks::add(info);
+        Bookmarks::save( uiDockBookmarks->getBooksmarksFile() );
+        uiDockBookmarks->updateTags();
+        uiDockBookmarks->updateBookmarks();
+        ui->plotter->updateOverlay();
+    }
+
 }

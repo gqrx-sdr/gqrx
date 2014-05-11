@@ -36,6 +36,7 @@
 #include "qtgui/dockaudio.h"
 #include "qtgui/dockinputctl.h"
 #include "qtgui/dockfft.h"
+#include "qtgui/dockbookmarks.h"
 #include "qtgui/afsk1200win.h"
 #include "qtgui/iq_tool.h"
 
@@ -92,6 +93,7 @@ private:
     DockAudio      *uiDockAudio;
     DockInputCtl   *uiDockInputCtl;
     DockFft        *uiDockFft;
+    DockBookmarks  *uiDockBookmarks;
 
     CIqTool        *iq_tool;
 
@@ -111,6 +113,8 @@ private:
 private:
     void updateFrequencyRange(bool ignore_limits);
     void updateGainStages();
+    QString getDemodString(int mode);
+
 
 private slots:
     /* rf */
@@ -187,6 +191,8 @@ private slots:
     void on_actionNews_triggered();
     void on_actionAbout_triggered();
     void on_actionAboutQt_triggered();
+    void on_actionAddBookmark_triggered();
+
 
     /* window close signals */
     void afsk1200win_closed();

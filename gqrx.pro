@@ -114,6 +114,9 @@ SOURCES += \
     receivers/nbrx.cpp \
     receivers/receiver_base.cpp \
     receivers/wfmrx.cpp \
+    applications/gqrx/bookmarks.cpp \
+    qtgui/bookmarkstablemodel.cpp \
+    qtgui/dockbookmarks.cpp \
     qtgui/iq_tool.cpp
 
 HEADERS += \
@@ -156,6 +159,9 @@ HEADERS += \
     receivers/nbrx.h \
     receivers/receiver_base.h \
     receivers/wfmrx.h \
+    applications/gqrx/bookmarks.h \
+    qtgui/dockbookmarks.h \
+    qtgui/bookmarkstablemodel.h \
     qtgui/iq_tool.h
 
 FORMS += \
@@ -171,7 +177,8 @@ FORMS += \
     qtgui/dockrxopt.ui \
     qtgui/ioconfig.ui \
     qtgui/nb_options.ui \
-    qtgui/iq_tool.ui
+    qtgui/dockbookmarks.ui \
+    qtgui/iq_tool.ui 
 
 # Use pulseaudio (ps: could use equals? undocumented)
 contains(AUDIO_BACKEND, pulse): {

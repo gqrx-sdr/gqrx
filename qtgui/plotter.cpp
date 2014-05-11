@@ -28,6 +28,7 @@
  * or implied, of Moe Wheatley.
  */
 #include "plotter.h"
+#include "applications/gqrx/bookmarks.h"
 #include <stdlib.h>
 #include <cmath>
 #include <QDebug>
@@ -132,6 +133,7 @@ CPlotter::CPlotter(QWidget *parent) :
 
     m_Peaks = QMap<int,int>();
     setPeakDetection(false, 2);
+    m_PeakHoldValid = false;
 
     setFftPlotColor(QColor(0xFF,0xFF,0xFF,0xFF));
     setFftFill(false);
@@ -169,8 +171,23 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
     if (m_OverlayPixmap.rect().contains(pt))
     {	//is in Overlay bitmap region
         if (event->buttons() == Qt::NoButton)
-        {	//if no mouse button monitor grab regions and change cursor icon
-            if (isPointCloseTo(pt.x(), m_DemodFreqX, m_CursorCaptureDelta))
+        {
+            bool onTag=false;
+            if(pt.y()<15*3) //FIXME
+            {
+                for(int i=0; i<m_BookmarkTags.size() && !onTag; i++)
+                {
+                    if(m_BookmarkTags[i].first.contains(event->pos()))
+                        onTag=true;
+                }
+            }
+            //if no mouse button monitor grab regions and change cursor icon
+            if(onTag)
+            {
+                setCursor(QCursor(Qt::PointingHandCursor));
+                m_CursorCaptured=BOOKMARK;
+            }
+            else if (isPointCloseTo(pt.x(), m_DemodFreqX, m_CursorCaptureDelta))
             {	//in move demod box center frequency region
                 if (CENTER != m_CursorCaptured)
                     setCursor(QCursor(Qt::SizeHorCursor));
@@ -240,6 +257,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             else
                 drawOverlay();
 
+            m_PeakHoldValid = false;
+
             m_Yzero = pt.y();
         }
     }
@@ -266,6 +285,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             else
                 drawOverlay();
 
+            m_PeakHoldValid = false;
+
             m_Xzero = pt.x();
         }
     }
@@ -288,7 +309,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 if (m_Running)
                     m_DrawOverlay = true;  // schedule update of overlay during draw()
                 else
-                    drawOverlay();  // not running so update oiverlay now
+                    drawOverlay();  // not running so update overlay now
             }
             else
             {	//save initial grab postion from m_DemodFreqX
@@ -346,6 +367,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     m_DrawOverlay = true;  // schedule update of overlay during draw()
                 else
                     drawOverlay();  // not running so update oiverlay now
+
+                m_PeakHoldValid = false;
             }
             else
             {	//save initial grab postion from m_DemodFreqX
@@ -460,6 +483,18 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
             m_Yzero = pt.y();
         else if (m_CursorCaptured == XAXIS)
             m_Xzero = pt.x();
+        else if(m_CursorCaptured==BOOKMARK)
+        {
+            for(int i=0; i<m_BookmarkTags.size(); i++)
+            {
+                if(m_BookmarkTags[i].first.contains(event->pos()))
+                {
+                    m_DemodCenterFreq = m_BookmarkTags[i].second;
+                    emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
+                    break;
+                }
+            }
+        }
     }
 }
 
@@ -518,6 +553,8 @@ void CPlotter::wheelEvent(QWheelEvent * event)
 
         m_MaxdB = fixed_db + ratio*db_range;
         m_MindB = m_MaxdB - db_range;
+
+        m_PeakHoldValid = false;
     }
     else if (m_CursorCaptured == XAXIS)
     {
@@ -541,6 +578,8 @@ void CPlotter::wheelEvent(QWheelEvent * event)
 
         zoom_factor = (float)m_SampleFreq/(float)m_Span;
         qDebug() << QString("Spectrum zoom: %1x").arg(zoom_factor, 0, 'f', 1);
+
+        m_PeakHoldValid = false;
     }
     else if (event->modifiers() & Qt::ControlModifier)
     {
@@ -633,9 +672,6 @@ void CPlotter::draw()
     {
         drawOverlay();
         m_DrawOverlay = false;
-
-        //FIXME: dirty hack to avoid invalidating Peak data througout the code
-        m_PeakHoldValid=false;
     }
 
     QPoint LineBuf[MAX_SCREENSIZE];
@@ -946,9 +982,14 @@ void CPlotter::setMaxDB(double max)
     m_MaxdB = max;
 
     if (m_Running)
+    {
         m_DrawOverlay = true;
+    }
     else
         drawOverlay();
+
+    m_PeakHoldValid = false;
+
 }
 
 /*! \brief Set lower limit of dB scale. */
@@ -960,6 +1001,8 @@ void CPlotter::setMinDB(double min)
         m_DrawOverlay = true;
     else
         drawOverlay();
+
+    m_PeakHoldValid = false;
 }
 
 /*! \brief Set limits of dB scale. */
@@ -972,6 +1015,8 @@ void CPlotter::setMinMaxDB(double min, double max)
         m_DrawOverlay = true;
     else
         drawOverlay();
+
+    m_PeakHoldValid = false;
 }
 
 
@@ -1045,6 +1090,58 @@ void CPlotter::drawOverlay()
         painter.drawLine(x, 0, x, y);
     }
 
+    //Draw Bookmark Tags
+    m_BookmarkTags.clear();
+    static const QFontMetrics fm(painter.font());
+    static const int fontHeight = fm.ascent()+1; // height();
+    static const int slant = 5;
+    static const int levelHeight = fontHeight+5;
+    static const int nLevels = 3;
+    QList<BookmarkInfo> bookmarks = Bookmarks::getBookmarksInRange(m_CenterFreq+m_FftCenter-m_Span/2, m_CenterFreq+m_FftCenter+m_Span/2);
+    int tagEnd[nLevels] = {0};
+    for(int i=0; i<bookmarks.size(); i++)
+    {
+        x=xFromFreq(bookmarks[i].frequency);
+#if defined(_WIN16) || defined(_WIN32) || defined(_WIN64)
+        int nameWidth= fm.width(bookmarks[i].name);
+#else
+        int nameWidth= fm.boundingRect(bookmarks[i].name).width();
+#endif
+
+        int level = 0;
+        for(; level<nLevels && tagEnd[level]>x; level++);
+        level%=nLevels;
+
+        tagEnd[level]=x+nameWidth+slant-1;
+        m_BookmarkTags.append(qMakePair<QRect, qint64>(QRect(x, level*levelHeight, nameWidth+slant, fontHeight), bookmarks[i].frequency));
+
+        QColor color = QColor(bookmarks[i].tag->color);
+        color.setAlpha(0x60);
+
+        painter.setPen(QPen(color, 1, Qt::DashLine));
+        painter.drawLine(x, level*levelHeight+fontHeight+slant, x, y); //Vertical line
+
+        painter.setPen(QPen(color, 1, Qt::SolidLine));
+        painter.drawLine(x+slant, level*levelHeight+fontHeight, x+nameWidth+slant-1, level*levelHeight+fontHeight); //Horizontal line
+        painter.drawLine(x+1,level*levelHeight+fontHeight+slant-1, x+slant-1, level*levelHeight+fontHeight+1); //Diagonal line
+/*
+        painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0xB0), 1, Qt::SolidLine));
+        QPolygon polygon(6);
+        polygon.setPoint(0, 0, 10);
+        polygon.setPoint(1, 5, 15);
+        polygon.setPoint(2, 5+nameWidth, 15);
+        polygon.setPoint(3, 5+nameWidth, 0);
+        polygon.setPoint(4, 5, 0);
+        polygon.setPoint(5, 0, 5);
+        polygon.translate(x, level*18);
+        painter.drawPolygon(polygon);
+*/
+
+        color.setAlpha(0xFF);
+        painter.setPen(QPen(color, 2, Qt::SolidLine));
+        painter.drawText(x+slant,level*levelHeight, nameWidth, fontHeight, Qt::AlignVCenter | Qt::AlignHCenter, bookmarks[i].name);
+    }
+
     if (m_CenterLineEnabled)
     {
         // center line
@@ -1100,6 +1197,8 @@ void CPlotter::drawOverlay()
         // trigger a new paintEvent
         update();
     }
+
+    painter.end();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -1230,6 +1329,9 @@ void CPlotter::setDemodRanges(int FLowCmin, int FLowCmax, int FHiCmin, int FHiCm
 
 void CPlotter::setCenterFreq(quint64 f)
 {
+    if((quint64)m_CenterFreq==f)
+        return;
+
     qint64 offset = m_CenterFreq - m_DemodCenterFreq;
 
     m_CenterFreq = f;
@@ -1239,6 +1341,8 @@ void CPlotter::setCenterFreq(quint64 f)
         m_DrawOverlay = true;
     else
         drawOverlay();
+
+    m_PeakHoldValid = false;
 }
 
 /*! \brief Reset horizontal zoom to 100% and centered around 0. */
@@ -1256,9 +1360,11 @@ void CPlotter::moveToCenterFreq(void)
         m_DrawOverlay = true;
     else
         drawOverlay();
+
+    m_PeakHoldValid = false;
 }
 
-/*! \brief Center FFT plot around the dmeodulator frequency. */
+/*! \brief Center FFT plot around the demodulator frequency. */
 void CPlotter::moveToDemodFreq(void)
 {
     setFftCenterFreq(m_DemodCenterFreq-m_CenterFreq);
@@ -1266,6 +1372,8 @@ void CPlotter::moveToDemodFreq(void)
         m_DrawOverlay = true;
     else
         drawOverlay();
+
+    m_PeakHoldValid = false;
 }
 
 /*! Set FFT plot color. */

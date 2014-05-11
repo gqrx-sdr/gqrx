@@ -145,7 +145,8 @@ private:
         CENTER,
         RIGHT,
         YAXIS,
-        XAXIS
+        XAXIS,
+        BOOKMARK
     };
     void drawOverlay();
     void makeFrequencyStrs();
@@ -228,6 +229,8 @@ private:
 
     double m_PeakDetection;
     QMap<int,int> m_Peaks;
+
+    QList< QPair<QRect, qint64> > m_BookmarkTags;
 };
 
 #endif // PLOTTER_H
