@@ -197,7 +197,7 @@ void DockBookmarks::on_tagList_cellActivated(int row, int column)
 
     info.color=color;
     updateTags();
-
+    Bookmarks::save(m_bookmarksFile);
 }
 
 void DockBookmarks::on_tagList_itemChanged(QTableWidgetItem *item)

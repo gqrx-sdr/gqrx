@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>480</width>
-    <height>207</height>
+    <width>400</width>
+    <height>150</height>
    </size>
   </property>
   <property name="allowedAreas">
