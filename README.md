@@ -103,6 +103,10 @@ Alex Grinkov:
 Anthony Willard:
 - Various fixes and improvements
 
+Christian Lindner DL2VCL:
+Stefano Leucci:
+- Bookmarks implementation.
+
 Elias Önal:
 - Building Gqrx on Mac OS X.
 - Crash recovery dialog.
