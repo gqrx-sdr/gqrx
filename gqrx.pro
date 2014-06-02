@@ -220,6 +220,7 @@ macx {
 }
 
 OTHER_FILES += \
+    bookmarks.csv \
     gqrx.desktop \
     README.md \
     COPYING \
