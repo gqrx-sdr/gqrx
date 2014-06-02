@@ -79,7 +79,7 @@ bool Bookmarks::load(QString filename)
             if(line.isEmpty() || line.startsWith("#"))
                 continue;
 
-            QStringList strings = line.split(",");
+            QStringList strings = line.split(";");
             if(strings.count() == 5)
             {
                 BookmarkInfo info;
@@ -112,30 +112,35 @@ bool Bookmarks::save(QString filename)
     {
         QTextStream stream(&file);
 
-        stream << QString("# Tag name").leftJustified(20)+", " + QString(" color") <<endl;
+        stream << QString("# Tag name").leftJustified(20) + "; " +
+                  QString(" color") << endl;
 
         QSet<TagInfo*> usedTags;
-        for(int i=0; i<m_BookmarkList.size(); i++)
+        for (int i = 0; i < m_BookmarkList.size(); i++)
             usedTags.insert(m_BookmarkList[i].tag);
 
         for (QSet<TagInfo*>::iterator i = usedTags.begin(); i != usedTags.end(); i++)
         {
             TagInfo& info = **i;
-            stream << info.name.leftJustified(20) + ", " + info.color.name() << endl;
+            stream << info.name.leftJustified(20) + "; " + info.color.name() << endl;
         }
 
         stream << endl;
 
-        stream << QString("# Frequency").leftJustified(12)+", "+ QString("Name").leftJustified(25)+ ", " +
-                QString("Modulation").leftJustified(20)+ ", " + QString("Bandwidth").rightJustified(10) + ", " +
-                QString("Tags") << endl;
+        stream << QString("# Frequency").leftJustified(12) + "; " +
+                  QString("Name").leftJustified(25)+ "; " +
+                  QString("Modulation").leftJustified(20) + "; " +
+                  QString("Bandwidth").rightJustified(10) + "; " +
+                  QString("Tags") << endl;
 
-        for(int i=0; i<m_BookmarkList.size(); i++)
+        for (int i = 0; i < m_BookmarkList.size(); i++)
         {
             BookmarkInfo& info = m_BookmarkList[i];
-            QString  line = QString::number(info.frequency).rightJustified(12)+", "+ info.name.leftJustified(25)
-                    + ", " + info.modulation.leftJustified(20)+ ", " + QString::number(info.bandwidth).rightJustified(10)
-                    + ", "+ info.tag->name; //info.tags.join("; ");
+            QString line = QString::number(info.frequency).rightJustified(12) +
+                    "; " + info.name.leftJustified(25) + "; " +
+                    info.modulation.leftJustified(20)+ "; " +
+                    QString::number(info.bandwidth).rightJustified(10) + "; " +
+                    info.tag->name; //info.tags.join("; ");
 
             stream << line << endl;
         }
@@ -156,7 +161,7 @@ QList<BookmarkInfo> Bookmarks::getBookmarksInRange(qint64 low, qint64 high)
 
     QList<BookmarkInfo> found;
 
-    while(lb!=ub)
+    while (lb != ub)
     {
         found.append(*lb);
         lb++;
@@ -170,12 +175,12 @@ TagInfo &Bookmarks::findOrAddTag(QString tagName)
 {
     tagName = tagName.trimmed();
 
-    if(tagName.isEmpty())
+    if (tagName.isEmpty())
         tagName="Untagged";
 
     int idx = getTagIndex(tagName);
 
-    if(idx!=-1)
+    if (idx != -1)
         return m_TagList[idx];
 
     TagInfo info;
@@ -189,7 +194,7 @@ bool Bookmarks::removeTag(QString tagName)
     tagName = tagName.trimmed();
     int idx = getTagIndex(tagName);
 
-    if(idx!=-1)
+    if (idx != -1)
         return false;
 
     m_TagList.removeAt(idx);
@@ -199,9 +204,9 @@ bool Bookmarks::removeTag(QString tagName)
 int Bookmarks::getTagIndex(QString tagName)
 {
     tagName = tagName.trimmed();
-    for(int i=0; i<m_TagList.size(); i++)
+    for (int i = 0; i < m_TagList.size(); i++)
     {
-        if(m_TagList[i].name==tagName)
+        if (m_TagList[i].name == tagName)
             return i;
     }
 
