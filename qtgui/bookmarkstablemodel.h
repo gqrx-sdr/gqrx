@@ -1,6 +1,9 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2013 Christian Lindner  DL2VCL, Stefano Leucci.
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           http://gqrx.dk/
+ *
+ * Copyright 2013 Christian Lindner DL2VCL, Stefano Leucci.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,15 +20,14 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-
 #ifndef BOOKMARKSTABLEMODEL_H
 #define BOOKMARKSTABLEMODEL_H
 
 #include <QAbstractTableModel>
 #include <QList>
 
+#include "bookmarks.h"
 
-#include "applications/gqrx/bookmarks.h"
 
 class BookmarksTableModel : public QAbstractTableModel
 {

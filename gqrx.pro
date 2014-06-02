@@ -4,9 +4,9 @@
 #
 # Common options you may want to passs to qmake:
 #
-#    CONFIG+=debug            Enable debug mode
-#    PREFIX=/some/prefix      Installation prefix
-#    BOOST_SUFFIX=-mt         To link against libboost-xyz-mt (needed for pybombs)
+#    CONFIG+=debug          Enable debug mode
+#    PREFIX=/some/prefix    Installation prefix
+#    BOOST_SUFFIX=-mt       To link against libboost-xyz-mt (needed for pybombs)
 #--------------------------------------------------------------------------------
 
 QT       += core gui svg network
@@ -100,29 +100,29 @@ SOURCES += \
     qtgui/afsk1200win.cpp \
     qtgui/agc_options.cpp \
     qtgui/audio_options.cpp \
+    qtgui/bookmarks.cpp \
+    qtgui/bookmarkstablemodel.cpp \
     qtgui/demod_options.cpp \
-    qtgui/dockinputctl.cpp \
     qtgui/dockaudio.cpp \
+    qtgui/dockbookmarks.cpp \
+    qtgui/dockinputctl.cpp \
     qtgui/dockfft.cpp \
     qtgui/dockrxopt.cpp \
     qtgui/freqctrl.cpp \
     qtgui/ioconfig.cpp \
+    qtgui/iq_tool.cpp \
     qtgui/meter.cpp \
     qtgui/nb_options.cpp \
     qtgui/plotter.cpp \
     qtgui/qtcolorpicker.cpp \
     receivers/nbrx.cpp \
     receivers/receiver_base.cpp \
-    receivers/wfmrx.cpp \
-    applications/gqrx/bookmarks.cpp \
-    qtgui/bookmarkstablemodel.cpp \
-    qtgui/dockbookmarks.cpp \
-    qtgui/iq_tool.cpp
+    receivers/wfmrx.cpp
 
 HEADERS += \
+    applications/gqrx/gqrx.h \
     applications/gqrx/mainwindow.h \
     applications/gqrx/receiver.h \
-    applications/gqrx/gqrx.h \
     applications/gqrx/remote_control.h \
     applications/gqrx/remote_control_settings.h \
     dsp/afsk1200/cafsk12.h \
@@ -145,24 +145,24 @@ HEADERS += \
     qtgui/afsk1200win.h \
     qtgui/agc_options.h \
     qtgui/audio_options.h \
+    qtgui/bookmarks.h \
+    qtgui/bookmarkstablemodel.h \
     qtgui/demod_options.h \
     qtgui/dockaudio.h \
+    qtgui/dockbookmarks.h \
     qtgui/dockfft.h \
     qtgui/dockinputctl.h \
     qtgui/dockrxopt.h \
     qtgui/freqctrl.h \
     qtgui/ioconfig.h \
+    qtgui/iq_tool.h \
     qtgui/meter.h \
     qtgui/nb_options.h \
     qtgui/plotter.h \
     qtgui/qtcolorpicker.h \
     receivers/nbrx.h \
     receivers/receiver_base.h \
-    receivers/wfmrx.h \
-    applications/gqrx/bookmarks.h \
-    qtgui/dockbookmarks.h \
-    qtgui/bookmarkstablemodel.h \
-    qtgui/iq_tool.h
+    receivers/wfmrx.h
 
 FORMS += \
     applications/gqrx/mainwindow.ui \
@@ -172,13 +172,13 @@ FORMS += \
     qtgui/audio_options.ui \
     qtgui/demod_options.ui \
     qtgui/dockaudio.ui \
+    qtgui/dockbookmarks.ui \
     qtgui/dockfft.ui \
     qtgui/dockinputctl.ui \
+    qtgui/iq_tool.ui \
     qtgui/dockrxopt.ui \
     qtgui/ioconfig.ui \
-    qtgui/nb_options.ui \
-    qtgui/dockbookmarks.ui \
-    qtgui/iq_tool.ui 
+    qtgui/nb_options.ui
 
 # Use pulseaudio (ps: could use equals? undocumented)
 contains(AUDIO_BACKEND, pulse): {
