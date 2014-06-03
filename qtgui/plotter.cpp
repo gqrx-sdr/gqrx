@@ -28,7 +28,7 @@
  * or implied, of Moe Wheatley.
  */
 #include "plotter.h"
-#include "applications/gqrx/bookmarks.h"
+#include "bookmarks.h"
 #include <stdlib.h>
 #include <cmath>
 #include <QDebug>
