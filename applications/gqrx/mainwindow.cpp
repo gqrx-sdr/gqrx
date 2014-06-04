@@ -212,8 +212,12 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
     connect(uiDockFft, SIGNAL(fftPeakHoldToggled(bool)), this, SLOT(setFftPeakHold(bool)));
     connect(uiDockFft, SIGNAL(peakDetectionToggled(bool)), this, SLOT(setPeakDetection(bool)));
+    
+    // Bookmarks
     connect(uiDockBookmarks, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
-
+    connect(uiDockBookmarks, SIGNAL(newDemodulation(QString)), this, SLOT(selectDemod(QString)));
+    connect(uiDockBookmarks, SIGNAL(newFilterBandwidth(int, int)), this, SLOT(on_plotter_newFilterFreq(int, int)));
+ 
     // I/Q playback
     connect(iq_tool, SIGNAL(startRecording()), this, SLOT(startIqRecording()));
     connect(iq_tool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
@@ -707,6 +711,14 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
     setNewFrequency(freq);
 }
 
+/*! \brief Select new demodulator.
+ *  \param demod New demodulator.
+ */
+void MainWindow::selectDemod(QString demod)
+{
+    int iDemodIndex = getDemodIndex(demod);
+    return selectDemod(iDemodIndex);
+}
 
 /*! \brief Select new demodulator.
  *  \param demod New demodulator index.
@@ -954,6 +966,8 @@ void MainWindow::selectDemod(int index)
     rx->set_filter((double)flo, (double)fhi, receiver::FILTER_SHAPE_NORMAL);
 
     d_have_audio = ((index != DockRxOpt::MODE_OFF) && (index != DockRxOpt::MODE_RAW));
+
+    uiDockRxOpt->setCurrentDemod(index);
 }
 
 
@@ -1966,6 +1980,41 @@ QString MainWindow::getDemodString(int mode)
         return "Unknown";
 
     }
+}
+
+int MainWindow::getDemodIndex(QString mode)
+{
+    if(mode.compare("AM") == 0)
+    { return DockRxOpt::MODE_AM; }
+
+    if(mode.compare("Narrow FM") == 0)
+    { return DockRxOpt::MODE_NFM; }
+
+    if(mode.compare("Wide FM (mono)") == 0)
+    { return DockRxOpt::MODE_WFM_MONO; }
+
+    if(mode.compare("Wide FM (stereo)") == 0)
+    { return DockRxOpt::MODE_WFM_STEREO; }
+
+    if(mode.compare("LSB") == 0)
+    { return DockRxOpt::MODE_LSB; }
+
+    if(mode.compare("USB") == 0)
+    { return DockRxOpt::MODE_USB; }
+
+    if(mode.compare("CW-L") == 0)
+    { return DockRxOpt::MODE_CWL; }
+
+    if(mode.compare("CW-U") == 0)
+    { return DockRxOpt::MODE_CWU; }
+
+    if(mode.compare("Raw") == 0)
+    { return DockRxOpt::MODE_RAW; }
+
+    if(mode.compare("Off") == 0)
+    { return DockRxOpt::MODE_OFF; }
+
+    return -1;
 }
 
 void MainWindow::on_actionAddBookmark_triggered()

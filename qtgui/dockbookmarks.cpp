@@ -84,6 +84,8 @@ void DockBookmarks::activated(const QModelIndex & index )
 {
     BookmarkInfo *info = bookmarksTableModel->getBookmarkAtRow(index.row());
     emit newFrequency(info->frequency);
+    emit newDemodulation(info->modulation);
+    emit newFilterBandwidth(-1*info->bandwidth/2, info->bandwidth/2);
 }
 
 void DockBookmarks::setNewFrequency(qint64 rx_freq)
@@ -183,12 +185,6 @@ void DockFreqTable::on_delButton_clicked()
         frequencyListTableModel->update();
     }
 }*/
-
-void DockBookmarks::on_comboBoxSelectFreqTable_currentIndexChanged(const QString &text)
-{
-    bookmarksTableModel->load(text);
-    updateTags();
-}
 
 void DockBookmarks::on_tagList_cellActivated(int row, int column)
 {
