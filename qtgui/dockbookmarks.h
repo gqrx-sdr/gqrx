@@ -72,7 +72,8 @@ private slots:
     //void on_delButton_clicked();
     void on_tagList_cellActivated(int row, int column);
     void on_tagList_itemChanged(QTableWidgetItem* item);
-
+    void ShowContextMenu(const QPoint&pos);
+    bool DeleteSelectedBookmark();
 };
 
 #endif // DOCKFREQTABLE_H

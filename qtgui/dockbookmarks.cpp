@@ -24,6 +24,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QColorDialog>
+#include <QMenu>
 
 #include "bookmarks.h"
 #include "dockbookmarks.h"
@@ -41,16 +42,6 @@ DockBookmarks::DockBookmarks(const QString& cfg_dir, QWidget *parent) :
 
     bookmarksTableModel = new BookmarksTableModel();
 
-    /*
-    // Fill ComboBox
-    QDir dir(m_freqTableDir);
-    QStringList filters;
-    filters << "*.csv";
-    dir.setNameFilters(filters);
-    QStringList tables = dir.entryList();
-    ui->comboBoxSelectFreqTable->addItems(tables);
-    */
-
     // Frequency List
     ui->tableViewFrequencyList->setModel(bookmarksTableModel);
     ui->tableViewFrequencyList->setColumnWidth( BookmarksTableModel::COL_NAME,
@@ -62,6 +53,11 @@ DockBookmarks::DockBookmarks(const QString& cfg_dir, QWidget *parent) :
 
     connect(ui->tableViewFrequencyList, SIGNAL(activated(const QModelIndex &)), this, SLOT(activated(const QModelIndex &)));
     connect(bookmarksTableModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(onDataChanged(const QModelIndex &, const QModelIndex &)));
+
+    // right click menu
+    ui->tableViewFrequencyList->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->tableViewFrequencyList, SIGNAL(customContextMenuRequested(const QPoint&)),
+        this, SLOT(ShowContextMenu(const QPoint&)));
 
     // Update GUI
     bookmarksTableModel->load(m_bookmarksFile); //ui->comboBoxSelectFreqTable->currentText());
@@ -188,6 +184,8 @@ void DockFreqTable::on_delButton_clicked()
 
 void DockBookmarks::on_tagList_cellActivated(int row, int column)
 {
+    column = column; // hide "unused parameter" warning.
+
     TagInfo &info = Bookmarks::findOrAddTag(ui->tagList->item(row, 1)->text());
     QColor color = QColorDialog::getColor(info.color, this);
 
@@ -218,20 +216,40 @@ bool DockBookmarks::eventFilter(QObject* object, QEvent* event)
     QKeyEvent* pKeyEvent=static_cast<QKeyEvent*>(event);
     if (pKeyEvent->key() == Qt::Key_Delete && ui->tableViewFrequencyList->hasFocus())
     {
-        QModelIndexList selected = ui->tableViewFrequencyList->selectionModel()->selectedRows();
-
-        if(selected.empty())
-            return true;
-
-        if(QMessageBox::question(this, "Delete bookmark", "Really delete?", QMessageBox::Yes|QMessageBox::No)==QMessageBox::Yes)
-        {
-            Bookmarks::remove(selected.first().row());
-            Bookmarks::save(m_bookmarksFile);
-            bookmarksTableModel->update();
-        }
-
-      return true;
+        return DeleteSelectedBookmark();
     }
   }
   return QWidget::eventFilter(object, event);
+}
+
+bool DockBookmarks::DeleteSelectedBookmark()
+{
+    QModelIndexList selected = ui->tableViewFrequencyList->selectionModel()->selectedRows();
+
+    if(selected.empty())
+    {
+        return true;
+    }
+
+    if(QMessageBox::question(this, "Delete bookmark", "Really delete?", QMessageBox::Yes|QMessageBox::No)==QMessageBox::Yes)
+    {
+        Bookmarks::remove(selected.first().row());
+        Bookmarks::save(m_bookmarksFile);
+        bookmarksTableModel->update();
+    }
+    return true;
+}
+
+// @see example https://qt-project.org/forums/viewthread/31805
+void DockBookmarks::ShowContextMenu(const QPoint& pos)
+{
+    QModelIndex index = ui->tableViewFrequencyList->indexAt(pos);
+
+    printf("Show Context Menu %d\n", index.row());
+
+    QMenu* menu=new QMenu(this);
+    QAction* actionDelete = new QAction("Delete Bookmark", this);
+    menu->addAction(actionDelete);
+    connect(actionDelete, SIGNAL(triggered()), this, SLOT(DeleteSelectedBookmark()));
+    menu->popup(ui->tableViewFrequencyList->viewport()->mapToGlobal(pos));
 }
