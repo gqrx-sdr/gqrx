@@ -78,7 +78,6 @@ public:
         }
         drawOverlay();
     }
-    void updateOverlay() { drawOverlay(); }
 
     void setMaxDB(double max);
     void setMinDB(double min);
@@ -128,6 +127,7 @@ public slots:
     void setFftFill(bool enabled);
     void setPeakHold(bool enabled);
     void setPeakDetection(bool enabled, double c);
+    void updateOverlay();
 
 protected:
     //re-implemented widget event handlers

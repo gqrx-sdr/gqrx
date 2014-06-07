@@ -1337,12 +1337,17 @@ void CPlotter::setCenterFreq(quint64 f)
     m_CenterFreq = f;
     m_DemodCenterFreq = m_CenterFreq - offset;
 
+    updateOverlay();
+
+    m_PeakHoldValid = false;
+}
+
+void CPlotter::updateOverlay()
+{
     if (m_Running)
         m_DrawOverlay = true;
     else
         drawOverlay();
-
-    m_PeakHoldValid = false;
 }
 
 /*! \brief Reset horizontal zoom to 100% and centered around 0. */
