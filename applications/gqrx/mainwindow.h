@@ -113,8 +113,6 @@ private:
 private:
     void updateFrequencyRange(bool ignore_limits);
     void updateGainStages();
-    QString getDemodString(int mode);
-    int getDemodIndex(QString mode);
 
 private slots:
     /* rf */

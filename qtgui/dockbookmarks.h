@@ -26,10 +26,21 @@
 #include <QDockWidget>
 #include <QTableWidgetItem>
 #include "qtgui/bookmarkstablemodel.h"
+#include <QItemDelegate>
 
 namespace Ui {
     class DockBookmarks;
 }
+
+class ComboBoxDelegateModulation : public QItemDelegate
+{
+Q_OBJECT
+public:
+  ComboBoxDelegateModulation(QObject *parent = 0);
+  QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+  void setEditorData(QWidget *editor, const QModelIndex &index) const;
+  void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
+};
 
 class DockBookmarks : public QDockWidget
 {

@@ -27,6 +27,8 @@
 
 #define FILT_SEL_USER_IDX 3
 
+QStringList DockRxOpt::ModulationStrings;
+
 DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockRxOpt),
@@ -34,6 +36,21 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     hw_freq_hz(144500000)
 {
     ui->setupUi(this);
+
+    if(ModulationStrings.size()==0)
+    {   // Keep in sync with rxopt_mode_idx
+        ModulationStrings.append("Demod Off");
+        ModulationStrings.append("Raw I/Q");
+        ModulationStrings.append("AM");
+        ModulationStrings.append("Narrow FM");
+        ModulationStrings.append("WFM (mono)");
+        ModulationStrings.append("WFM (stereo)");
+        ModulationStrings.append("LSB");
+        ModulationStrings.append("USB");
+        ModulationStrings.append("CW-L");
+        ModulationStrings.append("CW-U");
+    }
+    ui->modeSelector->addItems(ModulationStrings);
 
 #ifdef Q_WS_MAC
     // Workaround for Mac, see http://stackoverflow.com/questions/3978889/why-is-qhboxlayout-causing-widgets-to-overlap
@@ -166,6 +183,10 @@ int  DockRxOpt::currentDemod()
     return ui->modeSelector->currentIndex();
 }
 
+QString DockRxOpt::currentDemodAsString()
+{
+    return GetStringForModulationIndex(currentDemod());
+}
 
 float DockRxOpt::currentMaxdev()
 {
@@ -446,4 +467,34 @@ void DockRxOpt::nbOpt_thresholdChanged(int nbid, double value)
 void DockRxOpt::on_nbOptButton_clicked()
 {
     nbOpt->show();
+}
+
+int DockRxOpt::GetEnumForModulationString(QString param)
+{
+    int iModulation = -1;
+    for(int i=0; i<DockRxOpt::ModulationStrings.size(); ++i)
+    {
+        QString& strModulation = DockRxOpt::ModulationStrings[i];
+        if(param.compare(strModulation, Qt::CaseInsensitive)==0)
+        {
+            iModulation = i;
+            break;
+        }
+    }
+    if(iModulation == -1)
+    {
+        printf("Modulation '%s' is unknown.\n", param.toStdString().c_str());
+        iModulation = MODE_OFF;
+    }
+    return iModulation;
+}
+
+bool DockRxOpt::IsModulationValid(QString strModulation)
+{
+    return DockRxOpt::ModulationStrings.contains(strModulation, Qt::CaseInsensitive);
+}
+
+QString DockRxOpt::GetStringForModulationIndex(int iModulationIndex)
+{
+    return ModulationStrings[iModulationIndex];
 }

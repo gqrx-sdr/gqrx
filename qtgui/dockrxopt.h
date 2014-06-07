@@ -53,6 +53,7 @@ public:
 
     /*! \brief Mode selector entries.
      *  \note If you change this enum, remember to update the TCP interface.
+     *  \note Keep in same order as the Strings in ModulationStrings, see DockRxOpt.cpp constructor.
      */
     enum rxopt_mode_idx {
         MODE_OFF        = 0, /*!< Demodulator completely off. */
@@ -82,8 +83,14 @@ public:
     void setHwFreq(qint64 freq_hz);
 
     int  currentDemod();
+    QString currentDemodAsString();
 
     float currentMaxdev();
+
+    static QStringList ModulationStrings;
+    static QString GetStringForModulationIndex(int iModulationIndex);
+    static int GetEnumForModulationString(QString param);
+    static bool IsModulationValid(QString strModulation);
 
 public slots:
     void setCurrentDemod(int demod);

@@ -714,9 +714,10 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
 /*! \brief Select new demodulator.
  *  \param demod New demodulator.
  */
-void MainWindow::selectDemod(QString demod)
+void MainWindow::selectDemod(QString strModulation)
 {
-    int iDemodIndex = getDemodIndex(demod);
+    //printf("SelectDemod: '%s'\n", strModulation.toStdString().c_str());
+    int iDemodIndex = DockRxOpt::GetEnumForModulationString(strModulation);
     return selectDemod(iDemodIndex);
 }
 
@@ -729,6 +730,8 @@ void MainWindow::selectDemod(QString demod)
  */
 void MainWindow::selectDemod(int index)
 {
+    //printf("SelectDemod: '%d'\n", index);
+
     double quad_rate;
     float maxdev;
     int filter_preset = uiDockRxOpt->currentFilter();
@@ -1942,81 +1945,6 @@ void MainWindow::on_actionAboutQt_triggered()
     QMessageBox::aboutQt(this, tr("About Qt"));
 }
 
-QString MainWindow::getDemodString(int mode)
-{
-    switch(mode)
-    {
-    case DockRxOpt::MODE_AM:
-        return "AM";
-
-    case DockRxOpt::MODE_NFM:
-       return "Narrow FM";
-
-    case DockRxOpt::MODE_WFM_MONO:
-        return "Wide FM (mono)";
-
-    case DockRxOpt::MODE_WFM_STEREO:
-        return "Wide FM (stereo)";
-
-    case DockRxOpt::MODE_LSB:
-        return "LSB";
-
-    case DockRxOpt::MODE_USB:
-        return "USB";
-
-    case DockRxOpt::MODE_CWL:
-        return "CW-L";
-
-    case DockRxOpt::MODE_CWU:
-        return "CW-U";
-
-    case DockRxOpt::MODE_RAW:
-        return "Raw";
-
-    case DockRxOpt::MODE_OFF:
-        return "Off";
-
-    default:
-        return "Unknown";
-
-    }
-}
-
-int MainWindow::getDemodIndex(QString mode)
-{
-    if(mode.compare("AM") == 0)
-    { return DockRxOpt::MODE_AM; }
-
-    if(mode.compare("Narrow FM") == 0)
-    { return DockRxOpt::MODE_NFM; }
-
-    if(mode.compare("Wide FM (mono)") == 0)
-    { return DockRxOpt::MODE_WFM_MONO; }
-
-    if(mode.compare("Wide FM (stereo)") == 0)
-    { return DockRxOpt::MODE_WFM_STEREO; }
-
-    if(mode.compare("LSB") == 0)
-    { return DockRxOpt::MODE_LSB; }
-
-    if(mode.compare("USB") == 0)
-    { return DockRxOpt::MODE_USB; }
-
-    if(mode.compare("CW-L") == 0)
-    { return DockRxOpt::MODE_CWL; }
-
-    if(mode.compare("CW-U") == 0)
-    { return DockRxOpt::MODE_CWU; }
-
-    if(mode.compare("Raw") == 0)
-    { return DockRxOpt::MODE_RAW; }
-
-    if(mode.compare("Off") == 0)
-    { return DockRxOpt::MODE_OFF; }
-
-    return -1;
-}
-
 void MainWindow::on_actionAddBookmark_triggered()
 {
     bool ok=false;
@@ -2027,7 +1955,7 @@ void MainWindow::on_actionAddBookmark_triggered()
         BookmarkInfo info;
         info.frequency = ui->freqCtrl->getFrequency();
         info.bandwidth = uiDockRxOpt->currentFilter(); //FIXME
-        info.modulation = getDemodString(uiDockRxOpt->currentDemod());
+        info.modulation = uiDockRxOpt->currentDemodAsString();
         info.name=name;
         info.tag=&Bookmarks::findOrAddTag("");
         Bookmarks::add(info);
