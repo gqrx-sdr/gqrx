@@ -54,9 +54,11 @@ public:
 
     void update();
     BookmarkInfo* getBookmarkAtRow(int row);
+    int GetBookmarksIndexForRow(int iRow);
 
 private:
     QList<BookmarkInfo*> m_Bookmarks;
+    QMap<int,int> m_mapRowToBookmarksIndex;
 
 signals:
 public slots:

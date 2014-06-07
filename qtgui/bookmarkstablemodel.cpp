@@ -182,10 +182,11 @@ Qt::ItemFlags BookmarksTableModel::flags ( const QModelIndex& /*index*/ ) const
 
 void BookmarksTableModel::update()
 {
+    int iRow = 0;
     m_Bookmarks.clear();
-    for(int i=0; i<Bookmarks::size(); i++)
+    for(int iBookmark=0; iBookmark<Bookmarks::size(); iBookmark++)
     {
-        BookmarkInfo& info = Bookmarks::getBookmark(i);
+        BookmarkInfo& info = Bookmarks::getBookmark(iBookmark);
 
         bool bActive = false;
         for(int iTag=0; iTag<info.tags.size(); ++iTag)
@@ -199,7 +200,9 @@ void BookmarksTableModel::update()
         }
         if(bActive)
         {
+            m_mapRowToBookmarksIndex[iRow]=iBookmark;
             m_Bookmarks.append(&info);
+            ++iRow;
         }
     }
 
@@ -210,3 +213,9 @@ BookmarkInfo *BookmarksTableModel::getBookmarkAtRow(int row)
 {
     return m_Bookmarks[row];
 }
+
+int BookmarksTableModel::GetBookmarksIndexForRow(int iRow)
+{
+  return m_mapRowToBookmarksIndex[iRow];
+}
+

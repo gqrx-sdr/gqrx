@@ -237,7 +237,8 @@ bool DockBookmarks::DeleteSelectedBookmark()
 
     if(QMessageBox::question(this, "Delete bookmark", "Really delete?", QMessageBox::Yes|QMessageBox::No)==QMessageBox::Yes)
     {
-        Bookmarks::remove(selected.first().row());
+        int iIndex = bookmarksTableModel->GetBookmarksIndexForRow(selected.first().row());
+        Bookmarks::remove(iIndex);
         Bookmarks::save(m_bookmarksFile);
         bookmarksTableModel->update();
     }
