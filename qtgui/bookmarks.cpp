@@ -51,6 +51,7 @@ bool Bookmarks::load(QString filename)
         m_BookmarkList.clear();
         m_TagList.clear();
 
+        // Read Tags, until first empty line.
         while (!file.atEnd())
         {
             QString line = file.readLine().trimmed();
@@ -58,10 +59,10 @@ bool Bookmarks::load(QString filename)
             if(line.isEmpty())
                 break;
 
-            if(line.isEmpty() || line.startsWith("#"))
+            if(line.startsWith("#"))
                 continue;
 
-            QStringList strings = line.split(",");
+            QStringList strings = line.split(";");
             if(strings.count() == 2)
             {
                 TagInfo &info = findOrAddTag(strings[0]);
@@ -73,6 +74,7 @@ bool Bookmarks::load(QString filename)
             }
         }
 
+        // Read Bookmarks, after first empty line.
         while (!file.atEnd())
         {
             QString line = file.readLine().trimmed();

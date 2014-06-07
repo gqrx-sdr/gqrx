@@ -156,18 +156,3 @@ BookmarkInfo *BookmarksTableModel::getBookmarkAtRow(int row)
 {
     return m_Bookmarks[row];
 }
-
-/*
-bool BookmarksTableModel::removeRows(int row, int count, const QModelIndex &parent)
-{
-    beginRemoveRows ( parent, row, row+count-1 );
-    for(int r = row+count-1; r>=row; --r)
-    {
-      Bookmarks::remove(r);
-    }
-    Bookmarks::save(r);
-    update();
-    endRemoveRows();
-    return true;
-}
-*/

@@ -240,7 +240,6 @@ bool DockBookmarks::DeleteSelectedBookmark()
     return true;
 }
 
-// @see example https://qt-project.org/forums/viewthread/31805
 void DockBookmarks::ShowContextMenu(const QPoint& pos)
 {
     QModelIndex index = ui->tableViewFrequencyList->indexAt(pos);
