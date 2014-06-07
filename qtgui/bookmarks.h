@@ -49,14 +49,12 @@ struct BookmarkInfo
     QString name;
     QString modulation;
     qint64  bandwidth;
-    TagInfo *tag;
-    //QStringList tags;
+    QList<TagInfo*> tags;
 
     BookmarkInfo()
     {
         this->frequency = 0;
         this->bandwidth = 0;
-        this->tag = NULL;
     }
 
 /*    BookmarkInfo( qint64 frequency, QString name, qint64 bandwidth, QString modulation )
@@ -77,6 +75,8 @@ struct BookmarkInfo
     bool hasTags(QString _tags);
     bool hasTags(QStringList _tags);
  */
+
+    const QColor GetColor() const;
 };
 
 class Bookmarks

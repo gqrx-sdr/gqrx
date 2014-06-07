@@ -1957,7 +1957,7 @@ void MainWindow::on_actionAddBookmark_triggered()
         info.bandwidth = uiDockRxOpt->currentFilter(); //FIXME
         info.modulation = uiDockRxOpt->currentDemodAsString();
         info.name=name;
-        info.tag=&Bookmarks::findOrAddTag("");
+        info.tags.append(&Bookmarks::findOrAddTag(""));
         Bookmarks::add(info);
         Bookmarks::save( uiDockBookmarks->getBooksmarksFile() );
         uiDockBookmarks->updateTags();

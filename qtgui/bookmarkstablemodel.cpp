@@ -85,7 +85,7 @@ QVariant BookmarksTableModel::data ( const QModelIndex & index, int role ) const
 
     if(role==Qt::BackgroundColorRole)
     {
-        QColor bg(info.tag->color);
+        QColor bg(info.GetColor());
         bg.setAlpha(0x60);
         return bg;
     }
@@ -102,7 +102,17 @@ QVariant BookmarksTableModel::data ( const QModelIndex & index, int role ) const
         case COL_BANDWIDTH:
             return (info.bandwidth==0)?QVariant(""):QVariant(info.bandwidth);
          case COL_TAGS:
-            return (role==Qt::EditRole)?QString(info.tag->name):info.tag->name;
+            QString strTags;
+            for(int iTag=0; iTag<info.tags.size(); ++iTag)
+            {
+                if(iTag!=0)
+                {
+                    strTags.append(",");
+                }
+                TagInfo& tag = *info.tags[iTag];
+                strTags.append(tag.name);
+            }
+            return strTags;
         }
     }
     return QVariant();
@@ -146,7 +156,14 @@ bool BookmarksTableModel::setData(const QModelIndex &index, const QVariant &valu
             break;
         case COL_TAGS:
             {
-                info.tag = &Bookmarks::findOrAddTag(value.toString().trimmed());
+                info.tags.clear();
+                QString strValue = value.toString();
+                QStringList strList = strValue.split(",");
+                for(int i=0; i<strList.size(); ++i)
+                {
+                    QString strTag = strList[i].trimmed();
+                    info.tags.append( &Bookmarks::findOrAddTag(strTag) );
+                }
                 emit dataChanged(index, index);
                 return true;
             }
@@ -157,7 +174,7 @@ bool BookmarksTableModel::setData(const QModelIndex &index, const QVariant &valu
     return false;
 }
 
-Qt::ItemFlags BookmarksTableModel::flags ( const QModelIndex & index ) const
+Qt::ItemFlags BookmarksTableModel::flags ( const QModelIndex& /*index*/ ) const
 {
     Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
     return flags;
@@ -170,8 +187,20 @@ void BookmarksTableModel::update()
     {
         BookmarkInfo& info = Bookmarks::getBookmark(i);
 
-        if(info.tag->active)
+        bool bActive = false;
+        for(int iTag=0; iTag<info.tags.size(); ++iTag)
+        {
+            TagInfo& tag = *info.tags[iTag];
+            if(tag.active)
+            {
+                bActive = true;
+                break;
+            }
+        }
+        if(bActive)
+        {
             m_Bookmarks.append(&info);
+        }
     }
 
     emit layoutChanged();

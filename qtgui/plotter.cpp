@@ -1115,7 +1115,7 @@ void CPlotter::drawOverlay()
         tagEnd[level]=x+nameWidth+slant-1;
         m_BookmarkTags.append(qMakePair<QRect, qint64>(QRect(x, level*levelHeight, nameWidth+slant, fontHeight), bookmarks[i].frequency));
 
-        QColor color = QColor(bookmarks[i].tag->color);
+        QColor color = QColor(bookmarks[i].GetColor());
         color.setAlpha(0x60);
 
         painter.setPen(QPen(color, 1, Qt::DashLine));
