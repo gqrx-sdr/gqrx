@@ -186,7 +186,11 @@ QList<BookmarkInfo> Bookmarks::getBookmarksInRange(qint64 low, qint64 high)
 
     while (lb != ub)
     {
-        found.append(*lb);
+        const BookmarkInfo& info = *lb;
+        //if(info.IsActive())
+        {
+          found.append(info);
+        }
         lb++;
     }
 
@@ -247,4 +251,19 @@ const QColor BookmarkInfo::GetColor() const
         }
     }
     return TagInfo().color;
+}
+
+bool BookmarkInfo::IsActive() const
+{
+    bool bActive = false;
+    for(int iTag=0; iTag<tags.size(); ++iTag)
+    {
+        TagInfo& tag = *tags[iTag];
+        if(tag.active)
+        {
+            bActive = true;
+            break;
+        }
+    }
+    return bActive;
 }

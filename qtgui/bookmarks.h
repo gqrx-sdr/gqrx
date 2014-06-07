@@ -77,6 +77,7 @@ struct BookmarkInfo
  */
 
     const QColor GetColor() const;
+    bool IsActive() const;
 };
 
 class Bookmarks
