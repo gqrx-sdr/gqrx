@@ -88,9 +88,10 @@ void DockBookmarks::setNewFrequency(qint64 rx_freq)
 {
     //FIXME: Linear search? Can be done in O(log n) with interval trees
     ui->tableViewFrequencyList->clearSelection();
-    for(int row=0; row<Bookmarks::size(); ++row)
+    const int iRowCount = bookmarksTableModel->rowCount();
+    for(int row=0; row<iRowCount; ++row)
     {
-        BookmarkInfo& info = Bookmarks::getBookmark(row);
+        BookmarkInfo& info = *(bookmarksTableModel->getBookmarkAtRow(row));
         if( abs(rx_freq - info.frequency) <= ((info.bandwidth/2)+1) )
         {
             ui->tableViewFrequencyList->selectRow(row);
