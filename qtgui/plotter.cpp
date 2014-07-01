@@ -1115,7 +1115,7 @@ void CPlotter::drawOverlay()
         tagEnd[level]=x+nameWidth+slant-1;
         m_BookmarkTags.append(qMakePair<QRect, qint64>(QRect(x, level*levelHeight, nameWidth+slant, fontHeight), bookmarks[i].frequency));
 
-        QColor color = QColor(bookmarks[i].tag->color);
+        QColor color = QColor(bookmarks[i].GetColor());
         color.setAlpha(0x60);
 
         painter.setPen(QPen(color, 1, Qt::DashLine));
@@ -1337,12 +1337,17 @@ void CPlotter::setCenterFreq(quint64 f)
     m_CenterFreq = f;
     m_DemodCenterFreq = m_CenterFreq - offset;
 
+    updateOverlay();
+
+    m_PeakHoldValid = false;
+}
+
+void CPlotter::updateOverlay()
+{
     if (m_Running)
         m_DrawOverlay = true;
     else
         drawOverlay();
-
-    m_PeakHoldValid = false;
 }
 
 /*! \brief Reset horizontal zoom to 100% and centered around 0. */

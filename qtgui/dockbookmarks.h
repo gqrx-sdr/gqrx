@@ -26,10 +26,21 @@
 #include <QDockWidget>
 #include <QTableWidgetItem>
 #include "qtgui/bookmarkstablemodel.h"
+#include <QItemDelegate>
 
 namespace Ui {
     class DockBookmarks;
 }
+
+class ComboBoxDelegateModulation : public QItemDelegate
+{
+Q_OBJECT
+public:
+  ComboBoxDelegateModulation(QObject *parent = 0);
+  QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+  void setEditorData(QWidget *editor, const QModelIndex &index) const;
+  void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
+};
 
 class DockBookmarks : public QDockWidget
 {
@@ -59,6 +70,8 @@ public:
 
 signals:
     void newFrequency(qint64);
+    void newDemodulation(QString);
+    void newFilterBandwidth(int, int);
 
 public slots:
     void setNewFrequency(qint64 rx_freq);
@@ -68,10 +81,10 @@ private slots:
     void onDataChanged (const QModelIndex & topLeft, const QModelIndex & bottomRight);
     //void on_addButton_clicked();
     //void on_delButton_clicked();
-    void on_comboBoxSelectFreqTable_currentIndexChanged(const QString &text);
     void on_tagList_cellActivated(int row, int column);
     void on_tagList_itemChanged(QTableWidgetItem* item);
-
+    void ShowContextMenu(const QPoint&pos);
+    bool DeleteSelectedBookmark();
 };
 
 #endif // DOCKFREQTABLE_H

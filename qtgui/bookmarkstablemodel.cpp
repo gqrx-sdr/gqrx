@@ -24,6 +24,7 @@
 #include <QStringList>
 #include "bookmarks.h"
 #include "bookmarkstablemodel.h"
+#include "dockrxopt.h"
 
 
 BookmarksTableModel::BookmarksTableModel(QObject *parent) :
@@ -84,7 +85,7 @@ QVariant BookmarksTableModel::data ( const QModelIndex & index, int role ) const
 
     if(role==Qt::BackgroundColorRole)
     {
-        QColor bg(info.tag->color);
+        QColor bg(info.GetColor());
         bg.setAlpha(0x60);
         return bg;
     }
@@ -101,7 +102,17 @@ QVariant BookmarksTableModel::data ( const QModelIndex & index, int role ) const
         case COL_BANDWIDTH:
             return (info.bandwidth==0)?QVariant(""):QVariant(info.bandwidth);
          case COL_TAGS:
-            return (role==Qt::EditRole)?QString(info.tag->name):info.tag->name;
+            QString strTags;
+            for(int iTag=0; iTag<info.tags.size(); ++iTag)
+            {
+                if(iTag!=0)
+                {
+                    strTags.append(",");
+                }
+                TagInfo& tag = *info.tags[iTag];
+                strTags.append(tag.name);
+            }
+            return strTags;
         }
     }
     return QVariant();
@@ -112,41 +123,87 @@ bool BookmarksTableModel::setData(const QModelIndex &index, const QVariant &valu
     if(role==Qt::EditRole)
     {
         BookmarkInfo &info = *m_Bookmarks[index.row()];
-        if(index.column()==COL_NAME)
+        switch(index.column())
         {
-            info.name = value.toString();
-            emit dataChanged(index, index);
-            return true;
+        case COL_FREQUENCY:
+            {
+                info.frequency = value.toInt();
+                emit dataChanged(index, index);
+            }
+            break;
+        case COL_NAME:
+            {
+                info.name = value.toString();
+                emit dataChanged(index, index);
+                return true;
+            }
+            break;
+        case COL_MODULATION:
+            {
+                Q_ASSERT(!value.toString().contains(";")); // may not contain a comma because tablemodel is saved as comma-separated file (csv).
+                if(DockRxOpt::IsModulationValid(value.toString()))
+                {
+                    info.modulation = value.toString();
+                    emit dataChanged(index, index);
+                }
+            }
+            break;
+        case COL_BANDWIDTH:
+            {
+                info.bandwidth = value.toInt();
+                emit dataChanged(index, index);
+            }
+            break;
+        case COL_TAGS:
+            {
+                info.tags.clear();
+                QString strValue = value.toString();
+                QStringList strList = strValue.split(",");
+                for(int i=0; i<strList.size(); ++i)
+                {
+                    QString strTag = strList[i].trimmed();
+                    info.tags.append( &Bookmarks::findOrAddTag(strTag) );
+                }
+                emit dataChanged(index, index);
+                return true;
+            }
+            break;
         }
-        else if(index.column()==COL_TAGS)
-        {
-            info.tag = &Bookmarks::findOrAddTag(value.toString().trimmed());
-            emit dataChanged(index, index);
-            return true;
-        }
+        return true; // return true means success
     }
     return false;
 }
 
-Qt::ItemFlags BookmarksTableModel::flags ( const QModelIndex & index ) const
+Qt::ItemFlags BookmarksTableModel::flags ( const QModelIndex& /*index*/ ) const
 {
-    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-
-    if(index.column()==COL_NAME || index.column()==COL_TAGS)
-        flags|=Qt::ItemIsEditable;
-
+    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
     return flags;
 }
 
 void BookmarksTableModel::update()
 {
+    int iRow = 0;
     m_Bookmarks.clear();
-    for(int i=0; i<Bookmarks::size(); i++)
+    for(int iBookmark=0; iBookmark<Bookmarks::size(); iBookmark++)
     {
-        BookmarkInfo& info = Bookmarks::getBookmark(i);
+        BookmarkInfo& info = Bookmarks::getBookmark(iBookmark);
 
-        if(info.tag->active)
+        bool bActive = false;
+        for(int iTag=0; iTag<info.tags.size(); ++iTag)
+        {
+            TagInfo& tag = *info.tags[iTag];
+            if(tag.active)
+            {
+                bActive = true;
+                break;
+            }
+        }
+        if(bActive)
+        {
+            m_mapRowToBookmarksIndex[iRow]=iBookmark;
             m_Bookmarks.append(&info);
+            ++iRow;
+        }
     }
 
     emit layoutChanged();
@@ -156,3 +213,9 @@ BookmarkInfo *BookmarksTableModel::getBookmarkAtRow(int row)
 {
     return m_Bookmarks[row];
 }
+
+int BookmarksTableModel::GetBookmarksIndexForRow(int iRow)
+{
+  return m_mapRowToBookmarksIndex[iRow];
+}
+

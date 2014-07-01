@@ -212,8 +212,12 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
     connect(uiDockFft, SIGNAL(fftPeakHoldToggled(bool)), this, SLOT(setFftPeakHold(bool)));
     connect(uiDockFft, SIGNAL(peakDetectionToggled(bool)), this, SLOT(setPeakDetection(bool)));
+    
+    // Bookmarks
     connect(uiDockBookmarks, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
-
+    connect(uiDockBookmarks, SIGNAL(newDemodulation(QString)), this, SLOT(selectDemod(QString)));
+    connect(uiDockBookmarks, SIGNAL(newFilterBandwidth(int, int)), this, SLOT(on_plotter_newFilterFreq(int, int)));
+ 
     // I/Q playback
     connect(iq_tool, SIGNAL(startRecording()), this, SLOT(startIqRecording()));
     connect(iq_tool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
@@ -707,6 +711,15 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
     setNewFrequency(freq);
 }
 
+/*! \brief Select new demodulator.
+ *  \param demod New demodulator.
+ */
+void MainWindow::selectDemod(QString strModulation)
+{
+    //printf("SelectDemod: '%s'\n", strModulation.toStdString().c_str());
+    int iDemodIndex = DockRxOpt::GetEnumForModulationString(strModulation);
+    return selectDemod(iDemodIndex);
+}
 
 /*! \brief Select new demodulator.
  *  \param demod New demodulator index.
@@ -717,6 +730,8 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
  */
 void MainWindow::selectDemod(int index)
 {
+    //printf("SelectDemod: '%d'\n", index);
+
     double quad_rate;
     float maxdev;
     int filter_preset = uiDockRxOpt->currentFilter();
@@ -954,6 +969,8 @@ void MainWindow::selectDemod(int index)
     rx->set_filter((double)flo, (double)fhi, receiver::FILTER_SHAPE_NORMAL);
 
     d_have_audio = ((index != DockRxOpt::MODE_OFF) && (index != DockRxOpt::MODE_RAW));
+
+    uiDockRxOpt->setCurrentDemod(index);
 }
 
 
@@ -1928,46 +1945,6 @@ void MainWindow::on_actionAboutQt_triggered()
     QMessageBox::aboutQt(this, tr("About Qt"));
 }
 
-QString MainWindow::getDemodString(int mode)
-{
-    switch(mode)
-    {
-    case DockRxOpt::MODE_AM:
-        return "AM";
-
-    case DockRxOpt::MODE_NFM:
-       return "Narrow FM";
-
-    case DockRxOpt::MODE_WFM_MONO:
-        return "Wide FM (mono)";
-
-    case DockRxOpt::MODE_WFM_STEREO:
-        return "Wide FM (stereo)";
-
-    case DockRxOpt::MODE_LSB:
-        return "LSB";
-
-    case DockRxOpt::MODE_USB:
-        return "USB";
-
-    case DockRxOpt::MODE_CWL:
-        return "CW-L";
-
-    case DockRxOpt::MODE_CWU:
-        return "CW-U";
-
-    case DockRxOpt::MODE_RAW:
-        return "Raw";
-
-    case DockRxOpt::MODE_OFF:
-        return "Off";
-
-    default:
-        return "Unknown";
-
-    }
-}
-
 void MainWindow::on_actionAddBookmark_triggered()
 {
     bool ok=false;
@@ -1978,9 +1955,9 @@ void MainWindow::on_actionAddBookmark_triggered()
         BookmarkInfo info;
         info.frequency = ui->freqCtrl->getFrequency();
         info.bandwidth = uiDockRxOpt->currentFilter(); //FIXME
-        info.modulation = getDemodString(uiDockRxOpt->currentDemod());
+        info.modulation = uiDockRxOpt->currentDemodAsString();
         info.name=name;
-        info.tag=&Bookmarks::findOrAddTag("");
+        info.tags.append(&Bookmarks::findOrAddTag(""));
         Bookmarks::add(info);
         Bookmarks::save( uiDockBookmarks->getBooksmarksFile() );
         uiDockBookmarks->updateTags();

@@ -51,6 +51,7 @@ bool Bookmarks::load(QString filename)
         m_BookmarkList.clear();
         m_TagList.clear();
 
+        // Read Tags, until first empty line.
         while (!file.atEnd())
         {
             QString line = file.readLine().trimmed();
@@ -58,10 +59,10 @@ bool Bookmarks::load(QString filename)
             if(line.isEmpty())
                 break;
 
-            if(line.isEmpty() || line.startsWith("#"))
+            if(line.startsWith("#"))
                 continue;
 
-            QStringList strings = line.split(",");
+            QStringList strings = line.split(";");
             if(strings.count() == 2)
             {
                 TagInfo &info = findOrAddTag(strings[0]);
@@ -73,6 +74,7 @@ bool Bookmarks::load(QString filename)
             }
         }
 
+        // Read Bookmarks, after first empty line.
         while (!file.atEnd())
         {
             QString line = file.readLine().trimmed();
@@ -87,7 +89,13 @@ bool Bookmarks::load(QString filename)
                 info.name       = strings[1].trimmed();
                 info.modulation = strings[2].trimmed();
                 info.bandwidth  = strings[3].toInt();
-                info.tag        = &findOrAddTag(strings[4]);
+                // Multiple Tags may be separated by comma.
+                QString strTags = strings[4];
+                QStringList TagList = strTags.split(",");
+                for(int iTag=0; iTag<TagList.size(); ++iTag)
+                {
+                  info.tags.append(&findOrAddTag(TagList[iTag].trimmed()));
+                }
 
                 m_BookmarkList.append(info);
             }
@@ -116,8 +124,15 @@ bool Bookmarks::save(QString filename)
                   QString(" color") << endl;
 
         QSet<TagInfo*> usedTags;
-        for (int i = 0; i < m_BookmarkList.size(); i++)
-            usedTags.insert(m_BookmarkList[i].tag);
+        for (int iBookmark = 0; iBookmark < m_BookmarkList.size(); iBookmark++)
+        {
+            BookmarkInfo& info = m_BookmarkList[iBookmark];
+            for(int iTag = 0; iTag < info.tags.size(); ++iTag)
+            {
+              TagInfo& tag = *info.tags[iTag];
+              usedTags.insert(&tag);
+            }
+        }
 
         for (QSet<TagInfo*>::iterator i = usedTags.begin(); i != usedTags.end(); i++)
         {
@@ -139,8 +154,16 @@ bool Bookmarks::save(QString filename)
             QString line = QString::number(info.frequency).rightJustified(12) +
                     "; " + info.name.leftJustified(25) + "; " +
                     info.modulation.leftJustified(20)+ "; " +
-                    QString::number(info.bandwidth).rightJustified(10) + "; " +
-                    info.tag->name; //info.tags.join("; ");
+                    QString::number(info.bandwidth).rightJustified(10) + "; ";
+            for(int iTag = 0; iTag<info.tags.size(); ++iTag)
+            {
+                TagInfo& tag = *info.tags[iTag];
+                if(iTag!=0)
+                {
+                    line.append(",");
+                }
+                line.append(tag.name);
+            }
 
             stream << line << endl;
         }
@@ -163,7 +186,11 @@ QList<BookmarkInfo> Bookmarks::getBookmarksInRange(qint64 low, qint64 high)
 
     while (lb != ub)
     {
-        found.append(*lb);
+        const BookmarkInfo& info = *lb;
+        //if(info.IsActive())
+        {
+          found.append(info);
+        }
         lb++;
     }
 
@@ -211,4 +238,32 @@ int Bookmarks::getTagIndex(QString tagName)
     }
 
     return -1;
+}
+
+const QColor BookmarkInfo::GetColor() const
+{
+    for(int iTag=0; iTag<tags.size(); ++iTag)
+    {
+        TagInfo& tag = *tags[iTag];
+        if(tag.active)
+        {
+            return tag.color;
+        }
+    }
+    return TagInfo().color;
+}
+
+bool BookmarkInfo::IsActive() const
+{
+    bool bActive = false;
+    for(int iTag=0; iTag<tags.size(); ++iTag)
+    {
+        TagInfo& tag = *tags[iTag];
+        if(tag.active)
+        {
+            bActive = true;
+            break;
+        }
+    }
+    return bActive;
 }

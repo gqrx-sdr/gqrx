@@ -357,58 +357,8 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
              <string>Demodulator type (mode)</string>
             </property>
             <property name="currentIndex">
-             <number>3</number>
+             <number>-1</number>
             </property>
-            <item>
-             <property name="text">
-              <string>Demod Off</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Raw I/Q</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>AM</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Narrow FM</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>WFM (mono)</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>WFM (stereo)</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>LSB</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>USB</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>CW-L</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>CW-U</string>
-             </property>
-            </item>
            </widget>
           </item>
           <item row="2" column="1">
