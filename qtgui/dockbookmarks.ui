@@ -31,7 +31,7 @@
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="1" rowspan="2">
-     <widget class="QTableWidget" name="tagList">
+     <widget class="BookmarksTagList" name="tableWidgetTagList">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -51,7 +51,7 @@
        </size>
       </property>
       <property name="editTriggers">
-       <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::EditKeyPressed</set>
+       <set>QAbstractItemView::EditKeyPressed</set>
       </property>
       <property name="alternatingRowColors">
        <bool>true</bool>
@@ -100,6 +100,13 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>BookmarksTagList</class>
+   <extends>QTableWidget</extends>
+   <header>qtgui/bookmarkstaglist.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

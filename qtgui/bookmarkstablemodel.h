@@ -52,7 +52,6 @@ public:
     bool setData ( const QModelIndex & index, const QVariant & value, int role = Qt::EditRole );
     Qt::ItemFlags flags ( const QModelIndex & index ) const;
 
-    void update();
     BookmarkInfo* getBookmarkAtRow(int row);
     int GetBookmarksIndexForRow(int iRow);
 
@@ -62,7 +61,8 @@ private:
 
 signals:
 public slots:
-    bool load(QString filename);
+    void update();
+
 };
 
 #endif

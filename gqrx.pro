@@ -102,6 +102,7 @@ SOURCES += \
     qtgui/audio_options.cpp \
     qtgui/bookmarks.cpp \
     qtgui/bookmarkstablemodel.cpp \
+    qtgui/bookmarkstaglist.cpp \
     qtgui/demod_options.cpp \
     qtgui/dockaudio.cpp \
     qtgui/dockbookmarks.cpp \
@@ -147,6 +148,7 @@ HEADERS += \
     qtgui/audio_options.h \
     qtgui/bookmarks.h \
     qtgui/bookmarkstablemodel.h \
+    qtgui/bookmarkstaglist.h \
     qtgui/demod_options.h \
     qtgui/dockaudio.h \
     qtgui/dockbookmarks.h \

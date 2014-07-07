@@ -36,10 +36,19 @@ struct TagInfo
     QColor color;
     bool active;
 
+    static const QColor DefaultColor;
+    static const QString strUntagged;
+
     TagInfo()
     {
         active=true;
-        this->color=Qt::lightGray;
+        this->color=DefaultColor;
+    }
+    TagInfo(QString name)
+    {
+        active=true;
+        this->color=DefaultColor;
+        this->name = name;
     }
 };
 
@@ -80,31 +89,42 @@ struct BookmarkInfo
     bool IsActive() const;
 };
 
-class Bookmarks
+class Bookmarks : public QObject
 {
+    Q_OBJECT
+public:
+    // This is a Singleton Class now because you can not send qt-signals from static functions.
+    static void create();
+    static Bookmarks& Get();
 
-public:    
-    static void add(BookmarkInfo& info);
-    static void remove(int index);
-    static bool load(QString filename);
-    static bool save(QString filename);
-    static int size() { return m_BookmarkList.size(); }
-    static BookmarkInfo& getBookmark(int i) { return m_BookmarkList[i]; }
-    static QList<BookmarkInfo> getBookmarksInRange(qint64 low, qint64 high);
-    //static int lowerBound(qint64 low);
-    //static int upperBound(qint64 high);
+    void add(BookmarkInfo& info);
+    void remove(int index);
+    bool load();
+    bool save();
+    int size() { return m_BookmarkList.size(); }
+    BookmarkInfo& getBookmark(int i) { return m_BookmarkList[i]; }
+    QList<BookmarkInfo> getBookmarksInRange(qint64 low, qint64 high);
+    //int lowerBound(qint64 low);
+    //int upperBound(qint64 high);
 
-    static QList<TagInfo> getTagList() { return  QList<TagInfo>(m_TagList); }
-    static TagInfo& findOrAddTag(QString tagName);
-    static int getTagIndex(QString tagName);
-    static bool removeTag(QString tagName);
+    QList<TagInfo> getTagList() { return  QList<TagInfo>(m_TagList); }
+    TagInfo& findOrAddTag(QString tagName);
+    int getTagIndex(QString tagName);
+    bool removeTag(QString tagName);
+    bool setTagChecked(QString tagName, bool bChecked);
+
+    void setConfigDir(const QString&);
 
 private:
-    static QList<BookmarkInfo> m_BookmarkList;
-    static QList<TagInfo> m_TagList;
+    Bookmarks(); // Singleton Constructor is private.
+    QList<BookmarkInfo> m_BookmarkList;
+    QList<TagInfo> m_TagList;
+    QString        m_bookmarksFile;
+    static Bookmarks* m_pThis;
 
-
-    //friend class BookmarkInfo; //FIXME
+signals:
+    void BookmarksChanged(void);
+    void TagListChanged(void);
 };
 
 #endif // BOOKMARKS_H

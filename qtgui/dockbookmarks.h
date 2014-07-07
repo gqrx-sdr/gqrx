@@ -42,31 +42,42 @@ public:
   void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
 };
 
+#if 0
+class DelegateTags : public QItemDelegate
+{
+Q_OBJECT
+public:
+  DelegateTags(QObject *parent = 0);
+  QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+  void setEditorData(QWidget *editor, const QModelIndex &index) const;
+  void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
+};
+#endif
+
 class DockBookmarks : public QDockWidget
 {
     Q_OBJECT
 
 private:
-    Ui::DockBookmarks *ui; // ui->tableViewFrequencyList
-    QString            m_cfg_dir;   /*!< Default config dir, e.g. XDG_CONFIG_HOME. */
+    Ui::DockBookmarks *ui;
+    QMenu*             contextmenu;
     qint64             m_currentFrequency;
-    QString            m_bookmarksFile;
     bool               m_updating;
 
     bool eventFilter(QObject* object, QEvent* event);
 
 public:
-    explicit DockBookmarks(const QString& cfg_dir, QWidget *parent = 0);
+    explicit DockBookmarks(QWidget *parent = 0);
     ~DockBookmarks();
 
+    // ui->tableViewFrequencyList
+    // ui->tableWidgetTagList
     BookmarksTableModel *bookmarksTableModel;
+    QAction* actionAddBookmark;
 
     void updateTags();
     void updateBookmarks();
-    QString getBooksmarksFile()
-    {
-        return m_bookmarksFile;
-    }
+    void changeBookmarkTags(int row, int /*column*/);
 
 signals:
     void newFrequency(qint64);
@@ -81,10 +92,10 @@ private slots:
     void onDataChanged (const QModelIndex & topLeft, const QModelIndex & bottomRight);
     //void on_addButton_clicked();
     //void on_delButton_clicked();
-    void on_tagList_cellActivated(int row, int column);
-    void on_tagList_itemChanged(QTableWidgetItem* item);
+    void on_tableWidgetTagList_itemChanged(QTableWidgetItem* item);
     void ShowContextMenu(const QPoint&pos);
     bool DeleteSelectedBookmark();
+    void doubleClicked(const QModelIndex & index);
 };
 
 #endif // DOCKFREQTABLE_H
