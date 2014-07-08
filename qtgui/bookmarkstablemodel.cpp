@@ -32,14 +32,6 @@ BookmarksTableModel::BookmarksTableModel(QObject *parent) :
 {
 }
 
-bool BookmarksTableModel::load(QString filename)
-{
-    //FIXME
-    bool result = Bookmarks::load(filename);
-    update();
-    return result;
-}
-
 int BookmarksTableModel::rowCount ( const QModelIndex & /*parent*/ ) const
 {
     return m_Bookmarks.size();
@@ -162,7 +154,7 @@ bool BookmarksTableModel::setData(const QModelIndex &index, const QVariant &valu
                 for(int i=0; i<strList.size(); ++i)
                 {
                     QString strTag = strList[i].trimmed();
-                    info.tags.append( &Bookmarks::findOrAddTag(strTag) );
+                    info.tags.append( &Bookmarks::Get().findOrAddTag(strTag) );
                 }
                 emit dataChanged(index, index);
                 return true;
@@ -174,9 +166,22 @@ bool BookmarksTableModel::setData(const QModelIndex &index, const QVariant &valu
     return false;
 }
 
-Qt::ItemFlags BookmarksTableModel::flags ( const QModelIndex& /*index*/ ) const
+Qt::ItemFlags BookmarksTableModel::flags ( const QModelIndex& index ) const
 {
-    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
+    Qt::ItemFlags flags = 0;
+
+    switch(index.column())
+    {
+    case COL_FREQUENCY:
+    case COL_NAME:
+    case COL_BANDWIDTH:
+    case COL_MODULATION:
+        flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
+        break;
+    case COL_TAGS:
+        flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+        break;
+    }
     return flags;
 }
 
@@ -184,9 +189,9 @@ void BookmarksTableModel::update()
 {
     int iRow = 0;
     m_Bookmarks.clear();
-    for(int iBookmark=0; iBookmark<Bookmarks::size(); iBookmark++)
+    for(int iBookmark=0; iBookmark<Bookmarks::Get().size(); iBookmark++)
     {
-        BookmarkInfo& info = Bookmarks::getBookmark(iBookmark);
+        BookmarkInfo& info = Bookmarks::Get().getBookmark(iBookmark);
 
         bool bActive = false;
         for(int iTag=0; iTag<info.tags.size(); ++iTag)

@@ -60,6 +60,11 @@ public:
         return m_DemodCenterFreq - m_CenterFreq;
     }
 
+    int getFilterBw()
+    {
+        return m_DemodHiCutFreq - m_DemodLowCutFreq;
+    }
+
     void setHiLowCutFrequencies(int LowCut, int HiCut)
     {
         m_DemodLowCutFreq = LowCut;
