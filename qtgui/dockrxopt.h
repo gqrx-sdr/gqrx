@@ -144,9 +144,9 @@ signals:
 
 private slots:
     void on_filterFreq_newFrequency(qint64 freq);
-    void on_filterCombo_activated(int index);
+    void on_filterCombo_currentIndexChanged(int index);
     void on_filterButton_clicked();
-    void on_modeSelector_activated(int index);
+    void on_modeSelector_currentIndexChanged(int index);
     void on_modeButton_clicked();
     void on_agcButton_clicked();
     void on_autoSquelchButton_clicked();
