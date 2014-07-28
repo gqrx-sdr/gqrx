@@ -101,7 +101,7 @@ bool Bookmarks::load()
             }
             else
             {
-                printf("\nBookmarks: Ignoring Line:\n  %s\n", line.toAscii().data());
+                printf("\nBookmarks: Ignoring Line:\n  %s\n", line.toLatin1().data());
             }
         }
 
@@ -132,7 +132,7 @@ bool Bookmarks::load()
             }
             else
             {
-                printf("\nBookmarks: Ignoring Line:\n  %s\n", line.toAscii().data());
+                printf("\nBookmarks: Ignoring Line:\n  %s\n", line.toLatin1().data());
             }
         }
         file.close();

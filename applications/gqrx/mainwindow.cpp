@@ -29,8 +29,12 @@
 #include <QDateTime>
 #include <QDesktopServices>
 #include <QDebug>
+#include <QDialogButtonBox>
 #include <QFile>
+#include <QGroupBox>
+#include <QLineEdit>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QResource>
 #include <QString>
 #include <QTextBrowser>
