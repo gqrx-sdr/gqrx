@@ -69,6 +69,7 @@ public:
 public slots:
     void startAudioRecorder(void);
     void stopAudioRecorder(void);
+    void setRxFrequency(qint64 freq);
 
 signals:
     /*! \brief Signal emitted when audio gain has changed. Gain is in dB. */
@@ -116,6 +117,8 @@ private:
     int            udp_port;     /*! UDP client port number. */
 
     bool           autoSpan;     /*! Whether to allow mode-dependent auto span. */
+
+    qint64         rx_freq;      /*! RX frequency used in filenames. */
 };
 
 #endif // DOCKAUDIO_H

@@ -175,6 +175,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), remote, SLOT(setNewFrequency(qint64)));
+    connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), uiDockAudio, SLOT(setRxFrequency(qint64)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
     connect(uiDockInputCtl, SIGNAL(gainChanged(QString, double)), this, SLOT(setGain(QString,double)));
     connect(uiDockInputCtl, SIGNAL(autoGainChanged(bool)), this, SLOT(setAutoGain(bool)));
@@ -1316,9 +1317,9 @@ void MainWindow::startIqRecording()
 {
     qDebug() << __func__;
     // generate file name using date, time, rf freq in kHz and BW in Hz
-    // gqrx_iq_yyyy.mm.dd_hh:mm:ss_freq_bw_fc.raw
-    qint64 freq = (int)(rx->get_rf_freq());
-    qint64 sr = (int)(rx->get_input_rate());
+    // gqrx_iq_yyyymmdd_hhmmss_freq_bw_fc.raw
+    qint64 freq = ui->freqCtrl->getFrequency();
+    qint64 sr = (qint64)(rx->get_input_rate());
     QString lastRec = QDateTime::currentDateTimeUtc().
             toString("gqrx_yyyyMMdd_hhmmss_%1_%2_fc.'raw'").arg(freq).arg(sr);
 
