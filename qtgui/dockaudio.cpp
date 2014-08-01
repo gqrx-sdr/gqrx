@@ -29,7 +29,8 @@
 DockAudio::DockAudio(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockAudio),
-    autoSpan(true)
+    autoSpan(true),
+    rx_freq(144000000)
 {
     ui->setupUi(this);
 
@@ -143,6 +144,11 @@ void DockAudio::stopAudioRecorder(void)
         qDebug() << __func__ << "No audio recording in progress";
 }
 
+/*! Public slot to set new RX frequency in Hz. */
+void DockAudio::setRxFrequency(qint64 freq)
+{
+    rx_freq = freq;
+}
 
 /*! \brief Audio gain changed.
  *  \param value The new audio gain value in tens of dB (because slider uses int)
@@ -178,8 +184,8 @@ void DockAudio::on_audioRecButton_clicked(bool checked)
     if (checked) {
         // FIXME: option to use local time
         // use toUTC() function compatible with older versions of Qt.
-        QString file_name = QDateTime::currentDateTime().toUTC().toString("gqrx-yyyyMMdd-hhmmss.'wav'");
-        last_audio = QString("%1/%2").arg(rec_dir).arg(file_name);
+        QString file_name = QDateTime::currentDateTime().toUTC().toString("gqrx_yyyyMMdd_hhmmss");
+        last_audio = QString("%1/%2_%3.wav").arg(rec_dir).arg(file_name).arg(rx_freq);
 
         // emit signal and start timer
         emit audioRecStarted(last_audio);
