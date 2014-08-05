@@ -26,6 +26,8 @@
 #include <QCloseEvent>
 #include <QDialog>
 #include <QDir>
+#include <QPalette>
+#include <QSettings>
 #include <QShowEvent>
 #include <QString>
 #include <QTimer>
@@ -56,8 +58,11 @@ public:
     void closeEvent(QCloseEvent *event);
     void showEvent(QShowEvent * event);
 
+    void saveSettings(QSettings *settings);
+    void readSettings(QSettings *settings);
+
 signals:
-    void startRecording();
+    void startRecording(const QString recdir);
     void stopRecording();
     void startPlayback(const QString filename, float samprate);
     void stopPlayback();
@@ -68,6 +73,8 @@ public slots:
     void cancelPlayback();
 
 private slots:
+    void on_recDirEdit_textChanged(const QString &text);
+    void on_recDirButton_clicked();
     void on_recButton_clicked(bool checked);
     void on_playButton_clicked(bool checked);
     void on_plotButton_clicked();
@@ -84,8 +91,9 @@ private:
 private:
     Ui::CIqTool *ui;
 
-    QDir   *recdir;
-    QTimer *timer;
+    QDir        *recdir;
+    QTimer      *timer;
+    QPalette    *error_palette; /*!< Palette used to indicate an error. */
 
     QString current_file;      /*!< Selected file in file browser. */
 

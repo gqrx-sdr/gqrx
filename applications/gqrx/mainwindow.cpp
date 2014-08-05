@@ -229,7 +229,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
 
  
     // I/Q playback
-    connect(iq_tool, SIGNAL(startRecording()), this, SLOT(startIqRecording()));
+    connect(iq_tool, SIGNAL(startRecording(QString)), this, SLOT(startIqRecording(QString)));
     connect(iq_tool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
     connect(iq_tool, SIGNAL(startPlayback(QString,float)), this, SLOT(startIqPlayback(QString,float)));
     connect(iq_tool, SIGNAL(stopPlayback()), this, SLOT(stopIqPlayback()));
@@ -461,6 +461,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
     setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
 
     remote->readSettings(m_settings);
+    iq_tool->readSettings(m_settings);
 
     return conf_ok;
 }
@@ -533,6 +534,7 @@ void MainWindow::storeSession()
         uiDockAudio->saveSettings(m_settings);
 
         remote->saveSettings(m_settings);
+        iq_tool->saveSettings(m_settings);
     }
 }
 
@@ -1313,7 +1315,7 @@ void MainWindow::stopAudioStreaming()
 }
 
 /*! \brief Start I/Q recording. */
-void MainWindow::startIqRecording()
+void MainWindow::startIqRecording(const QString recdir)
 {
     qDebug() << __func__;
     // generate file name using date, time, rf freq in kHz and BW in Hz
@@ -1321,7 +1323,7 @@ void MainWindow::startIqRecording()
     qint64 freq = ui->freqCtrl->getFrequency();
     qint64 sr = (qint64)(rx->get_input_rate());
     QString lastRec = QDateTime::currentDateTimeUtc().
-            toString("gqrx_yyyyMMdd_hhmmss_%1_%2_fc.'raw'").arg(freq).arg(sr);
+            toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.'raw'").arg(recdir).arg(freq).arg(sr);
 
     // start recorder; fails if recording already in progress
     if (rx->start_iq_recording(lastRec.toStdString()))

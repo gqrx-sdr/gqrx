@@ -33,16 +33,16 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLabel" name="locationLabel">
+      <widget class="QLabel" name="recDirLabel">
        <property name="text">
         <string>Location:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="locationEntry">
+      <widget class="QLineEdit" name="recDirEdit">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="toolTip">
         <string>Enter a different location or use the select button</string>
@@ -50,9 +50,9 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="locationButton">
+      <widget class="QPushButton" name="recDirButton">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">

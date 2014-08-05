@@ -22,8 +22,10 @@
  */
 #include <QMessageBox>
 #include <QDebug>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QDir>
+#include <QPalette>
 #include <QString>
 #include <QStringList>
 #include <QTime>
@@ -47,9 +49,12 @@ CIqTool::CIqTool(QWidget *parent) :
     rec_len = 0;
     plot_spp = 1;
 
-    ui->locationEntry->setText(QDir::currentPath());
+    //ui->recDirEdit->setText(QDir::currentPath());
 
-    recdir = new QDir("", "*.raw");
+    recdir = new QDir(QDir::homePath(), "*.raw");
+
+    error_palette = new QPalette();
+    error_palette->setColor(QPalette::Text, Qt::red);
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(timeoutFunction()));
@@ -61,6 +66,7 @@ CIqTool::~CIqTool()
     delete timer;
     delete ui;
     delete recdir;
+    delete error_palette;
 
 }
 
@@ -171,8 +177,6 @@ void CIqTool::on_plotButton_clicked()
     QFile *file = new QFile(recdir->filePath(current_file));
     if (!file->open(QIODevice::ReadOnly))
     {
-        qDebug() << "Error opening file???";
-
         return;
     }
 
@@ -240,7 +244,7 @@ void CIqTool::on_recButton_clicked(bool checked)
     {
         ui->playButton->setEnabled(false);
         //ui->plotButton->setEnabled(false);
-        emit startRecording();
+        emit startRecording(recdir->path());
 
         refreshDir();
         ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
@@ -289,6 +293,64 @@ void CIqTool::showEvent(QShowEvent * event)
     refreshTimeWidgets();
     timer->start(1000);
 }
+
+
+void CIqTool::saveSettings(QSettings *settings)
+{
+    if (!settings)
+        return;
+
+    // Location of baseband recordings
+    QString dir = recdir->path();
+    if (dir != QDir::homePath())
+        settings->setValue("baseband/rec_dir", dir);
+    else
+        settings->remove("baseband/rec_dir");
+
+}
+
+void CIqTool::readSettings(QSettings *settings)
+{
+    if (!settings)
+        return;
+
+    // Location of baseband recordings
+    QString dir = settings->value("baseband/rec_dir", QDir::homePath()).toString();
+    ui->recDirEdit->setText(dir);
+}
+
+
+/*! \brief Slot called when the recordings directory has changed either
+ *         because of user input or programmatically.
+ */
+void CIqTool::on_recDirEdit_textChanged(const QString &dir)
+{
+    if (recdir->exists(dir))
+    {
+        ui->recDirEdit->setPalette(QPalette());  // Clear custom color
+        recdir->setPath(dir);
+        recdir->cd(dir);
+        //emit newRecDirSelected(dir);
+    }
+    else
+    {
+        ui->recDirEdit->setPalette(*error_palette);  // indicate error
+    }
+}
+
+/*! \brief Slot called when the user clicks on the "Select" button. */
+void CIqTool::on_recDirButton_clicked()
+{
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Select a directory"),
+                                                    ui->recDirEdit->text(),
+                                                    QFileDialog::ShowDirsOnly |
+                                                    QFileDialog::DontResolveSymlinks);
+
+    if (!dir.isNull())
+        ui->recDirEdit->setText(dir);
+}
+
+
 
 void CIqTool::timeoutFunction(void)
 {
