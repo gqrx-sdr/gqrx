@@ -1,5 +1,9 @@
+     2.3.1  Released August 8, 2014
 
-     2.3.0  TReleased August 5, 2014
+     FIXED: Use correct categories in .desktop file.
+
+
+     2.3.0  Released August 5, 2014
 
        NEW: Support for setting analog bandwidth.
        NEW: Support for setting gain stages individually.
@@ -30,7 +34,7 @@
   IMPROVED: Gqrx can fit on small screens (900x600 pixels).
   IMPROVED: Better color gradient for the waterfall.
   IMPROVED: FFT presentation at high rates and high sizes.
-  IMPROVED: Make release news available throug hthe Help menu.
+  IMPROVED: Make release news available through the Help menu.
 
 
      2.2.0  Released August 8, 2013
