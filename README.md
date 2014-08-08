@@ -97,6 +97,10 @@ Gqrx is designed and written by Alexandru Csete OZ9AEC, and it is licensed under
 Some of the source files were adopted from Cutesdr by Moe Weatley and these come with a BSD license.
 Following people and organisations have contributed:
 
+
+TODO: Creditcs for bookmarks
+
+
 Alex Grinkov:
 - FM stereo demodulator.
 
