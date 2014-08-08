@@ -63,7 +63,8 @@ CONFIG(debug, debug|release) {
 } else {
     DEFINES += QT_NO_DEBUG
     DEFINES += QT_NO_DEBUG_OUTPUT
-    VER = $$system(git describe --abbrev=1)
+    ## VER = $$system(git describe --abbrev=1)
+    VER = 2.3.1
 
     # Release binaries with gr bundled
     # QMAKE_RPATH & co won't work with origin
