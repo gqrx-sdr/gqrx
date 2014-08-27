@@ -9,7 +9,7 @@
 #    BOOST_SUFFIX=-mt       To link against libboost-xyz-mt (needed for pybombs)
 #--------------------------------------------------------------------------------
 
-QT       += core gui svg network
+QT       += core gui network
 contains(QT_MAJOR_VERSION,5) {
     QT += widgets
 }
