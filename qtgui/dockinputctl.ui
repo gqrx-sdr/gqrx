@@ -186,18 +186,21 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QSpinBox" name="freqCorrSpinBox">
+           <widget class="QDoubleSpinBox" name="freqCorrSpinBox">
             <property name="suffix">
              <string> ppm</string>
             </property>
+            <property name="decimals">
+             <number>1</number>
+            </property>
             <property name="minimum">
-             <number>-1000</number>
+             <float>-200.0</float>
             </property>
             <property name="maximum">
-             <number>1000</number>
+             <float>200.0</float>
             </property>
             <property name="value">
-             <number>0</number>
+             <float>0.0</float>
             </property>
            </widget>
           </item>

@@ -538,7 +538,7 @@ receiver::status receiver::set_filter_shape(filter_shape shape)
 }
 **/
 
-receiver::status receiver::set_freq_corr(int ppm)
+receiver::status receiver::set_freq_corr(double ppm)
 {
     src->set_freq_corr(ppm);
 

@@ -46,7 +46,8 @@ void DockInputCtl::readSettings(QSettings *settings)
 {
     bool conv_ok;
 
-    setFreqCorr(settings->value("input/corr_freq", 0).toInt(&conv_ok));
+    qint64 ppm_corr = settings->value("input/corr_freq", 0).toLongLong(&conv_ok);
+    setFreqCorr(((double)ppm_corr)/1.0e6);
     emit freqCorrChanged(ui->freqCorrSpinBox->value());
 
     setIqSwap(settings->value("input/swap_iq", false).toBool());
@@ -116,7 +117,8 @@ void DockInputCtl::saveSettings(QSettings *settings)
     else
         settings->setValue("input/gains", gains);
 
-    if (freqCorr())
+    qint64 ppm_corr = (qint64)(freqCorr()*1.e6);
+    if (ppm_corr)
         settings->setValue("input/corr_freq", freqCorr());
     else
         settings->remove("input/corr_freq");
@@ -221,14 +223,14 @@ bool DockInputCtl::agc()
 /*! \brief Set new frequency correction.
  *  \param corr The new frequency correction in PPM.
  */
-void DockInputCtl::setFreqCorr(int corr)
+void DockInputCtl::setFreqCorr(double corr)
 {
     ui->freqCorrSpinBox->setValue(corr);
 }
 
 
 /*! \brief Get current frequency correction. */
-int DockInputCtl::freqCorr()
+double DockInputCtl::freqCorr()
 {
     return ui->freqCorrSpinBox->value();
 }
@@ -407,7 +409,7 @@ void DockInputCtl::on_agcButton_toggled(bool checked)
 /*! \brief Frequency correction changed.
  *  \param value The new frequency correction in ppm.
  */
-void DockInputCtl::on_freqCorrSpinBox_valueChanged(int value)
+void DockInputCtl::on_freqCorrSpinBox_valueChanged(double value)
 {
     emit freqCorrChanged(value);
 }

@@ -149,7 +149,7 @@ public:
     //status set_filter_high(double freq_hz);
     //status set_filter_shape(filter_shape shape);
 
-    status set_freq_corr(int ppm);
+    status set_freq_corr(double ppm);
 
     float get_signal_pwr(bool dbfs);
 

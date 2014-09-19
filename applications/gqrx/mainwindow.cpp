@@ -179,7 +179,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
     connect(uiDockInputCtl, SIGNAL(gainChanged(QString, double)), this, SLOT(setGain(QString,double)));
     connect(uiDockInputCtl, SIGNAL(autoGainChanged(bool)), this, SLOT(setAutoGain(bool)));
-    connect(uiDockInputCtl, SIGNAL(freqCorrChanged(int)), this, SLOT(setFreqCorr(int)));
+    connect(uiDockInputCtl, SIGNAL(freqCorrChanged(double)), this, SLOT(setFreqCorr(double)));
     connect(uiDockInputCtl, SIGNAL(iqSwapChanged(bool)), this, SLOT(setIqSwap(bool)));
     connect(uiDockInputCtl, SIGNAL(dcCancelChanged(bool)), this, SLOT(setDcCancel(bool)));
     connect(uiDockInputCtl, SIGNAL(iqBalanceChanged(bool)), this, SLOT(setIqBalance(bool)));
@@ -675,10 +675,15 @@ void MainWindow::setAutoGain(bool enabled)
 /*! \brief Set new frequency offset value.
  *  \param ppm Frequency correction.
  *
- * The valid range is between -200 and 200, though this is not checked.
+ * The valid range is between -200 and 200.
  */
-void MainWindow::setFreqCorr(int ppm)
+void MainWindow::setFreqCorr(double ppm)
 {
+    if (ppm < -200.0)
+	ppm = -200.0;
+    else if (ppm > 200.0)
+	ppm = 200.0;
+
     qDebug() << __FUNCTION__ << ":" << ppm << "ppm";
     rx->set_freq_corr(ppm);
 }
