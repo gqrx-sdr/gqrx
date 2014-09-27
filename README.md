@@ -103,7 +103,7 @@ Some of the source files were adopted from Cutesdr by Moe Weatley and these come
 Following people and organisations have contributed:
 
 
-TODO: Creditcs for bookmarks
+TODO: Credits for bookmarks
 
 
 Alex Grinkov:
@@ -111,6 +111,9 @@ Alex Grinkov:
 
 Anthony Willard:
 - Various fixes and improvements
+
+Chris Kuethe:
+- Fractional PPM correction.
 
 Christian Lindner DL2VCL:
 Stefano Leucci:
