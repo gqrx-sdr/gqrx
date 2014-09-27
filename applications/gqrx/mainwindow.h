@@ -123,7 +123,7 @@ private slots:
     void setFilterOffset(qint64 freq_hz);
     void setGain(QString name, double gain);
     void setAutoGain(bool enabled);
-    void setFreqCorr(int ppm);
+    void setFreqCorr(double ppm);
     void setIqSwap(bool reversed);
     void setDcCancel(bool enabled);
     void setIqBalance(bool enabled);

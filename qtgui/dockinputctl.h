@@ -79,8 +79,8 @@ public:
     void setAgc(bool enabled);
     bool agc();
 
-    void setFreqCorr(int corr);
-    int  freqCorr();
+    void setFreqCorr(double corr);
+    double freqCorr();
 
     void setIqSwap(bool reversed);
     bool iqSwap(void);
@@ -103,7 +103,7 @@ public:
 signals:
     void gainChanged(QString name, double value);
     void autoGainChanged(bool enabled);
-    void freqCorrChanged(int value);
+    void freqCorrChanged(double value);
     void lnbLoChanged(double freq_mhz);
     void iqSwapChanged(bool reverse);
     void dcCancelChanged(bool enabled);
@@ -114,7 +114,7 @@ signals:
 private slots:
     void on_lnbSpinBox_valueChanged(double value);
     void on_agcButton_toggled(bool checked);
-    void on_freqCorrSpinBox_valueChanged(int value);
+    void on_freqCorrSpinBox_valueChanged(double value);
     void on_iqSwapButton_toggled(bool checked);
     void on_dcCancelButton_toggled(bool checked);
     void on_iqBalanceButton_toggled(bool checked);
