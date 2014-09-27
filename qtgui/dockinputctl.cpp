@@ -117,9 +117,9 @@ void DockInputCtl::saveSettings(QSettings *settings)
     else
         settings->setValue("input/gains", gains);
 
-    qint64 ppm_corr = (qint64)(freqCorr()*1.e6);
+    qint64 ppm_corr = (qint64)(ui->freqCorrSpinBox->value()*1.e6);
     if (ppm_corr)
-        settings->setValue("input/corr_freq", freqCorr());
+        settings->setValue("input/corr_freq", ppm_corr);
     else
         settings->remove("input/corr_freq");
 
