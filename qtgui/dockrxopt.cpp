@@ -256,12 +256,12 @@ void DockRxOpt::on_filterFreq_newFrequency(qint64 freq)
     emit filterOffsetChanged(freq);
 }
 
-/*! \brief New filter preset selected.
+/*! \brief New filter preset changed.
  *
  * Instead of implementing a new signal, we simply emit demodSelected() since demodulator
  * and filter preset are tightly coupled.
  */
-void DockRxOpt::on_filterCombo_activated(int index)
+void DockRxOpt::on_filterCombo_currentIndexChanged(int index)
 {
     Q_UNUSED(index);
 
@@ -276,7 +276,7 @@ void DockRxOpt::on_filterButton_clicked()
 
 }
 
-/*! \brief Mode selector activated.
+/*! \brief Mode selector changed.
  *  \param New mode selection.
  *
  * This slot is activated when the user selects a new demodulator (mode change).
@@ -286,7 +286,7 @@ void DockRxOpt::on_filterButton_clicked()
  * Note that the modes listed in the selector are different from those defined by
  * receiver::demod (we want to list LSB/USB separately but they have identical demods).
  */
-void DockRxOpt::on_modeSelector_activated(int index)
+void DockRxOpt::on_modeSelector_currentIndexChanged(int index)
 {
     qDebug() << "New mode: " << index;
 
