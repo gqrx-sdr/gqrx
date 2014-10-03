@@ -35,7 +35,6 @@
 #include "iq_tool.h"
 #include "ui_iq_tool.h"
 
-
 CIqTool::CIqTool(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CIqTool)
@@ -380,10 +379,50 @@ void CIqTool::refreshDir()
     recdir->refresh();
     QStringList files = recdir->entryList();
 
+    //to prevent crashes when an invalid filename is encountered, attempt to
+    // validate names and disabling them in the QListWidget
+    QVector<int> toDisable;
+
+    //                anything_yymmdd_hhmmss_freq_samprate_fc.raw
+    QRegExp fileRE("^[a-zA-Z0-9\\ ]+_\\d+_\\d+_\\d+_\\d+_fc\\.raw");
+
+    for (int i = 0; i < files.size(); ++i)
+    {
+        //if our regex doesn't match, this is a problematic filename
+        if (fileRE.indexIn(files.at(i)) < 0)
+        {
+            toDisable.append(i);
+        }
+    }
+
     ui->listWidget->blockSignals(true);
     ui->listWidget->clear();
     ui->listWidget->insertItems(0, files);
-    ui->listWidget->setCurrentRow(selection);
+
+    if (toDisable.length() > 0)
+    {
+        // if we have something to disable, lets do it
+        for (int i = 0; i < toDisable.size(); ++i)
+        {
+            //get the flags and resave with selectable bit off
+            QListWidgetItem *curItem = ui->listWidget->item(toDisable.at(i));
+
+            //...setFlags(curItem->flags() & ~Qt::ItemIsSelectable); doesn't work
+            //I feel like this shouldn't toggle...but it seems to
+            curItem->setFlags(Qt::ItemIsSelectable);
+
+            if (selection == toDisable.at(i))
+            {
+                selection = -1;
+            }
+        }
+    }
+
+    //make sure we don't accidentally select a bad row
+    if (selection > -1)
+    {
+        ui->listWidget->setCurrentRow(selection);
+    }
     ui->listWidget->blockSignals(false);
 
     if (is_recording)
