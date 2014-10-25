@@ -119,7 +119,7 @@ bool BookmarksTableModel::setData(const QModelIndex &index, const QVariant &valu
         {
         case COL_FREQUENCY:
             {
-                info.frequency = value.toInt();
+                info.frequency = value.toLongLong();
                 emit dataChanged(index, index);
             }
             break;
