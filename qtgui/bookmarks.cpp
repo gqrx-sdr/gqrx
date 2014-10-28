@@ -116,7 +116,7 @@ bool Bookmarks::load()
             if(strings.count() == 5)
             {
                 BookmarkInfo info;
-                info.frequency  = strings[0].toInt();
+                info.frequency  = strings[0].toLongLong();
                 info.name       = strings[1].trimmed();
                 info.modulation = strings[2].trimmed();
                 info.bandwidth  = strings[3].toInt();
