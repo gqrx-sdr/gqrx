@@ -1888,7 +1888,7 @@ void MainWindow::on_actionAbout_triggered()
 {
     QMessageBox::about(this, tr("About Gqrx"),
                        tr("<p>This is Gqrx %1</p>"
-                          "<p>Copyright (C) 2011-2013 Alexandru Csete & contributors.</p>"
+                          "<p>Copyright (C) 2011-2014 Alexandru Csete & contributors.</p>"
                           "<p>Gqrx is a software defined radio receiver powered by "
                           "<a href='http://www.gnuradio.org/'>GNU Radio</a> and the Qt toolkit. "
                           "<p>Gqrx uses the <a href='http://sdr.osmocom.org/trac/wiki/GrOsmoSDR'>GrOsmoSDR</a> "
@@ -1897,9 +1897,11 @@ void MainWindow::on_actionAbout_triggered()
                           "<li><a href='http://funcubedongle.com/'>Funcube Dongle Pro and Pro+</a></li>"
                           "<li><a href='http://sdr.osmocom.org/trac/wiki/rtl-sdr'>RTL2832U-based DVB-T tuners (rtlsdr and rtlsdr-tcp)</a></li>"
                           "<li><a href='http://www.ettus.com/'>Ettus Research USRP devices</a></li>"
-                          "<li><a href='http://sdr.osmocom.org/trac/'>OsmoSDR devices</a></li>"
-                          "<li><a href='https://greatscottgadgets.com/hackrf/'>HackRF Jawbreaker</a></li>"
+                          "<li><a href='http://sdr.osmocom.org/trac/'>OsmoSDR</a></li>"
+                          "<li><a href='https://greatscottgadgets.com/hackrf/'>HackRF One & Jawbreaker</a></li>"
                           "<li><a href='http://nuand.com/bladeRF'>Nuand bladeRF</a></li>"
+                          "<li><a href='http://airspy.com'>Airspy</a></li>"
+                          "<li><a href='http://rfspace.com'>RFspace receivers</a></li>"
                           "</ul></p>"
                           "<p>You can download the latest version from the "
                           "<a href='http://gqrx.dk/'>Gqrx website</a>."
