@@ -1,8 +1,13 @@
+
      2.x.x  TBD
 
        NEW: Bookmarks.
   IMPROVED: Fractional PPM correction.
 
+     2.3.2  Released November 28, 2014
+
+     FIXED: Pandapter and waterfall widths are limited to 4096 pixels.
+  IMPROVED: Add 2.5 Msps preset for Airspy.
 
      2.3.1  Released August 8, 2014
 
