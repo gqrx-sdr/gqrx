@@ -44,6 +44,7 @@
 #include "dsp/rx_demod_fm.h"
 #include "dsp/rx_demod_am.h"
 #include "dsp/rx_fft.h"
+#include "dsp/rx_rds.h"
 #include "dsp/sniffer_f.h"
 #include "dsp/resampler_xx.h"
 #include "interfaces/udp_sink_f.h"
@@ -204,6 +205,11 @@ public:
 
     bool is_recording_audio(void) const { return d_recording_wav; }
     bool is_snifffer_active(void) const { return d_sniffer_active; }
+
+    /* rds functions */
+    void get_rds_data(std::string &outbuff, int &num);
+    void start_rds_decoder();
+    void stop_rds_decoder();
 
 private:
     void connect_all(rx_chain type);

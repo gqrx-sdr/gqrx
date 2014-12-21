@@ -55,7 +55,8 @@ rx_demod_fm::rx_demod_fm(float quad_rate, float audio_rate, float max_dev, doubl
     /* demodulator gain */
     gain = d_quad_rate / (2.0 * M_PI * d_max_dev);
 
-    //std::cout << "G: " << gain << std::endl;
+    std::cout << "G: " << gain << std::endl;
+    std::cout << "d_quad_rate: " << d_quad_rate << std::endl;
 
     /* demodulator */
     d_quad = gr::analog::quadrature_demod_cf::make(gain);

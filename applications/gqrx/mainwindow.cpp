@@ -105,6 +105,13 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     audio_fft_timer = new QTimer(this);
     connect(audio_fft_timer, SIGNAL(timeout()), this, SLOT(audioFftTimeout()));
 
+#ifdef WITH_GR_RDS
+    rds_timer = new QTimer(this);
+    connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
+#else
+    uiDockRDS->showNotSupported();
+#endif
+
     d_fftData = new std::complex<float>[MAX_FFT_SIZE];
     d_realFftData = new double[MAX_FFT_SIZE];
     d_pwrFftData = new double[MAX_FFT_SIZE]();
@@ -121,6 +128,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
 
     /* create dock widgets */
     uiDockRxOpt = new DockRxOpt();
+    uiDockRDS = new DockRDS();
     uiDockAudio = new DockAudio();
     uiDockInputCtl = new DockInputCtl();
     //uiDockIqPlay = new DockIqPlayer();
@@ -144,7 +152,9 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
 
     addDockWidget(Qt::RightDockWidgetArea, uiDockAudio);
     addDockWidget(Qt::RightDockWidgetArea, uiDockFft);
+    addDockWidget(Qt::RightDockWidgetArea, uiDockRDS);
     tabifyDockWidget(uiDockFft, uiDockAudio);
+    tabifyDockWidget(uiDockAudio, uiDockRDS);
 
     addDockWidget(Qt::BottomDockWidgetArea, uiDockBookmarks);
 
@@ -164,6 +174,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     */
     ui->menu_View->addAction(uiDockInputCtl->toggleViewAction());
     ui->menu_View->addAction(uiDockRxOpt->toggleViewAction());
+    ui->menu_View->addAction(uiDockRDS->toggleViewAction());
     ui->menu_View->addAction(uiDockAudio->toggleViewAction());
     ui->menu_View->addAction(uiDockFft->toggleViewAction());
     ui->menu_View->addAction(uiDockBookmarks->toggleViewAction());
@@ -322,6 +333,7 @@ MainWindow::~MainWindow()
     delete uiDockAudio;
     delete uiDockFft;
     delete uiDockInputCtl;
+    delete uiDockRDS;
     delete rx;
     delete remote;
     delete [] d_fftData;
@@ -877,6 +889,7 @@ void MainWindow::selectDemod(int index)
             rx->set_demod(receiver::RX_DEMOD_WFM_M);
         else
             rx->set_demod(receiver::RX_DEMOD_WFM_S);
+
         break;
 
         /* LSB */
@@ -1228,6 +1241,24 @@ void MainWindow::audioFftTimeout()
     }
 
     uiDockAudio->setNewFttData(d_realFftData, fftsize);
+}
+
+/*! \brief Audio FFT plot timeout. */
+void MainWindow::rdsTimeout()
+{
+    std::string buffer;
+    int num;
+
+    //qDebug() << "Process decoder";
+
+    rx->get_rds_data(buffer, num);
+    while(num!=-1) {
+        rx->get_rds_data(buffer, num);
+        uiDockRDS->updateRDS(QString::fromStdString(buffer), num);
+        std::cout << "hahaxxx" << num << "content: "<< buffer << endl;
+    }
+
+    //uiDockRDS->updateRDS("hoho");
 }
 
 /*! \brief Start audio recorder.
@@ -1597,6 +1628,7 @@ void MainWindow::on_actionDSP_triggered(bool checked)
         meter_timer->stop();
         iq_fft_timer->stop();
         audio_fft_timer->stop();
+        rds_timer->stop();
 
         /* stop receiver */
         rx->stop();
@@ -1827,7 +1859,6 @@ void MainWindow::on_actionAFSK1200_triggered()
     }
 }
 
-
 /*! \brief Destroy AFSK1200 decoder window got closed.
  *
  * This slot is connected to the windowClosed() signal of the AFSK1200 decoder
@@ -1864,6 +1895,24 @@ void MainWindow::decoderTimeout()
     /* else stop timeout and sniffer? */
 }
 
+void MainWindow::on_actionRDS_triggered(bool checked)
+{
+
+    if (checked == true)
+    {
+        qDebug() << "Starting RDS decoder.";
+        uiDockRDS->showEnabled();
+        rx->start_rds_decoder();
+        rds_timer->start(250);
+    }
+    else
+    {
+        qDebug() << "Stopping RDS decoder.";
+        uiDockRDS->showDisabled();
+        rx->stop_rds_decoder();
+        rds_timer->stop();
+    }
+}
 
 /*! \brief Launch Gqrx google group website. */
 void MainWindow::on_actionUserGroup_triggered()

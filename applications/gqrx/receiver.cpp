@@ -679,7 +679,6 @@ receiver::status receiver::set_demod(rx_demod demod)
     // dongles (the jerkyness disappears when we run this function)
     //if (demod == d_demod)
     //    return ret;
-
     // tb->lock() seems to hang occasioanlly
     if (d_running)
     {
@@ -1176,4 +1175,23 @@ void receiver::connect_all(rx_chain type)
         tb->connect(rx, 0, sniffer_rr, 0);
         tb->connect(sniffer_rr, 0, sniffer, 0);
     }
+}
+
+void receiver::get_rds_data(std::string &outbuff, int &num)
+{
+    rx->get_rds_data(outbuff, num);
+}
+
+void receiver::start_rds_decoder()
+{
+    stop();
+    rx->start_rds_decoder();
+    start();
+}
+
+void receiver::stop_rds_decoder()
+{
+    stop();
+    rx->stop_rds_decoder();
+    start();
 }

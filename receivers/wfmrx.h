@@ -32,6 +32,9 @@
 #include "dsp/rx_demod_fm.h"
 #include "dsp/stereo_demod.h"
 #include "dsp/resampler_xx.h"
+#include "dsp/rx_rds.h"
+#include <rds/decoder.h>
+#include <rds/parser.h>
 
 class wfmrx;
 
@@ -95,6 +98,10 @@ public:
     void set_fm_maxdev(float maxdev_hz);
     void set_fm_deemph(double tau);
 
+    void get_rds_data(std::string &outbuff, int &num);
+    void start_rds_decoder();
+    void stop_rds_decoder();
+
 private:
     bool   d_running;          /*!< Whether receiver is running or not. */
     float  d_quad_rate;        /*!< Input sample rate. */
@@ -111,6 +118,10 @@ private:
     resampler_ff_sptr         midle_rr;  /*!< Resampler. */
     stereo_demod_sptr         stereo;    /*!< FM stereo demodulator. */
     stereo_demod_sptr         mono;      /*!< FM stereo demodulator OFF. */
+    rx_rds_sptr               rds;       /*!< RDS decoder */
+    rx_rds_store_sptr         rds_store; /*!< RDS decoded messages */
+    gr::rds::decoder::sptr    rds_decoder;
+    gr::rds::parser::sptr     rds_parser;
 };
 
 #endif // WFMRX_H

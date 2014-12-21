@@ -134,3 +134,16 @@ void receiver_base_cf::set_am_dcr(bool enabled)
 {
     (void) enabled;
 }
+
+void receiver_base_cf::get_rds_data(std::string &outbuff, int &num)
+{
+    num=-1; // TODO, start timer only when wfm is used
+}
+
+void receiver_base_cf::start_rds_decoder()
+{
+}
+
+void receiver_base_cf::stop_rds_decoder()
+{
+}

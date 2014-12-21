@@ -90,6 +90,10 @@ public:
     virtual bool has_am();
     virtual void set_am_dcr(bool enabled);
 
+    virtual void get_rds_data(std::string &outbuff, int &num);
+    virtual void start_rds_decoder();
+    virtual void stop_rds_decoder();
+
 };
 
 #endif // RECEIVER_BASE_H

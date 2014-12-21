@@ -97,6 +97,7 @@ SOURCES += \
     dsp/rx_noise_blanker_cc.cpp \
     dsp/sniffer_f.cpp \
     dsp/stereo_demod.cpp \
+    dsp/rx_rds.cpp \
     interfaces/udp_sink_f.cpp \
     qtgui/afsk1200win.cpp \
     qtgui/agc_options.cpp \
@@ -119,7 +120,8 @@ SOURCES += \
     qtgui/qtcolorpicker.cpp \
     receivers/nbrx.cpp \
     receivers/receiver_base.cpp \
-    receivers/wfmrx.cpp
+    receivers/wfmrx.cpp \
+    qtgui/dockrds.cpp
 
 HEADERS += \
     applications/gqrx/gqrx.h \
@@ -143,6 +145,7 @@ HEADERS += \
     dsp/rx_noise_blanker_cc.h \
     dsp/sniffer_f.h \
     dsp/stereo_demod.h \
+    dsp/rx_rds.h \
     interfaces/udp_sink_f.h \
     qtgui/afsk1200win.h \
     qtgui/agc_options.h \
@@ -163,6 +166,7 @@ HEADERS += \
     qtgui/nb_options.h \
     qtgui/plotter.h \
     qtgui/qtcolorpicker.h \
+    qtgui/dockrds.h \
     receivers/nbrx.h \
     receivers/receiver_base.h \
     receivers/wfmrx.h
@@ -181,7 +185,8 @@ FORMS += \
     qtgui/iq_tool.ui \
     qtgui/dockrxopt.ui \
     qtgui/ioconfig.ui \
-    qtgui/nb_options.ui
+    qtgui/nb_options.ui \
+    qtgui/dockrds.ui
 
 # Use pulseaudio (ps: could use equals? undocumented)
 contains(AUDIO_BACKEND, pulse): {
@@ -211,7 +216,23 @@ PKGCONFIG += gnuradio-analog \
              gnuradio-blocks \
              gnuradio-filter \
              gnuradio-fft \
+             gnuradio-digital \
              gnuradio-osmosdr
+
+exists( /usr/include/rds/gnuradio/rds/parser.h ) {
+    RDS_ENABLED=1
+}
+
+exists( /usr/local/include/rds/gnuradio/rds/parser.h ) {
+    RDS_ENABLED=1
+}
+
+contains(RDS_ENABLED,1) {
+    message( "Enabling rds" )
+    INCLUDEPATH += "/usr/include/rds/gnuradio"
+    LIBS += -lgnuradio-rds
+    DEFINES += WITH_GR_RDS
+}
 
 unix:!macx {
     LIBS += -lboost_system$$BOOST_SUFFIX -lboost_program_options$$BOOST_SUFFIX
