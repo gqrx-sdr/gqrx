@@ -436,7 +436,13 @@ receiver::status receiver::get_gain_range(std::string &name, double *start, doub
 
 receiver::status receiver::set_gain(std::string name, double value)
 {
-    src->set_gain(value, name);
+    try {
+	    src->set_gain(value, name);
+    }
+    catch (std::runtime_error &e) {
+      std::cout << "Error changing gain for " << name << " to " << value << ": " << e.what() << std::endl;
+      return STATUS_ERROR;
+    }
 
     return STATUS_OK;
 }
