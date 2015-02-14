@@ -101,6 +101,7 @@ public:
     void get_rds_data(std::string &outbuff, int &num);
     void start_rds_decoder();
     void stop_rds_decoder();
+    void reset_rds_parser();
 
 private:
     bool   d_running;          /*!< Whether receiver is running or not. */

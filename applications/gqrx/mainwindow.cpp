@@ -1255,7 +1255,6 @@ void MainWindow::rdsTimeout()
     while(num!=-1) {
         rx->get_rds_data(buffer, num);
         uiDockRDS->updateRDS(QString::fromStdString(buffer), num);
-        std::cout << "hahaxxx" << num << "content: "<< buffer << endl;
     }
 
     //uiDockRDS->updateRDS("hoho");

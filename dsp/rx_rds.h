@@ -27,7 +27,6 @@
 #include <gnuradio/filter/fir_filter_ccc.h>
 #include <gnuradio/filter/fir_filter_ccf.h>
 #include <gnuradio/filter/fir_filter_fff.h>
-//#include <gnuradio/filter/fir_filter_fcf.h>
 #include <gnuradio/filter/freq_xlating_fir_filter_fcf.h>
 #include <gnuradio/filter/freq_xlating_fir_filter_ccc.h>
 #include <gnuradio/filter/freq_xlating_fir_filter_ccf.h>
@@ -37,13 +36,12 @@
 #include <gnuradio/digital/binary_slicer_fb.h>
 #include <gnuradio/digital/diff_decoder_bb.h>
 #include <gnuradio/blocks/file_sink.h>
+#include <gnuradio/blocks/udp_sink.h>
 #include <gnuradio/blocks/message_debug.h>
 #include <rds/decoder.h>
 #include <rds/parser.h>
 #include <boost/circular_buffer.hpp>
 
-
-#define RX_FILTER_MIN_WIDTH 100  /*! Minimum width of filter */
 
 class rx_rds;
 class rx_rds_store;
@@ -130,8 +128,10 @@ private:
     gr::digital::diff_decoder_bb::sptr d_ddbb;
     gr::rds::decoder::sptr rds_decoder;
     gr::rds::parser::sptr rds_parser;
-    gr::blocks::file_sink::sptr file_sink;
-    gr::blocks::file_sink::sptr file_sink2;
+    gr::blocks::udp_sink::sptr udp_sink1;
+    gr::blocks::udp_sink::sptr udp_sink2;
+    gr::blocks::udp_sink::sptr udp_sink3;
+    gr::blocks::udp_sink::sptr udp_sink4;
 
     //rx_rds_store_sptr rds_store;
 

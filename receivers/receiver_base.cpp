@@ -147,3 +147,7 @@ void receiver_base_cf::start_rds_decoder()
 void receiver_base_cf::stop_rds_decoder()
 {
 }
+
+void receiver_base_cf::reset_rds_parser()
+{
+}

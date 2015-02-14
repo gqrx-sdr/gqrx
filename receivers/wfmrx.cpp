@@ -266,3 +266,8 @@ void wfmrx::stop_rds_decoder()
     msg_disconnect(rds_parser, "out", rds_store, "store");
     unlock();
 }
+
+void wfmrx::reset_rds_parser()
+{
+    rds_parser->reset();
+}
