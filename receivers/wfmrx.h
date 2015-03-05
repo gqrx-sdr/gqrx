@@ -105,6 +105,7 @@ public:
     void start_rds_decoder();
     void stop_rds_decoder();
     void reset_rds_parser();
+    bool is_rds_decoder_active();
 #endif
 
 private:
@@ -128,6 +129,7 @@ private:
     rx_rds_store_sptr         rds_store; /*!< RDS decoded messages */
     gr::rds::decoder::sptr    rds_decoder;
     gr::rds::parser::sptr     rds_parser;
+    bool                      rds_enabled;
 #endif
 };
 

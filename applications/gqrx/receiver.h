@@ -209,6 +209,7 @@ public:
     void get_rds_data(std::string &outbuff, int &num);
     void start_rds_decoder();
     void stop_rds_decoder();
+    bool is_rds_decoder_active();
 
 private:
     void connect_all(rx_chain type);

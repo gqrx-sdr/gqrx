@@ -1197,3 +1197,8 @@ void receiver::stop_rds_decoder()
     rx->stop_rds_decoder();
     start();
 }
+
+bool receiver::is_rds_decoder_active()
+{
+    rx->is_rds_decoder_active();
+}

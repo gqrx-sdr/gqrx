@@ -55,6 +55,7 @@ wfmrx::wfmrx(float quad_rate, float audio_rate)
     rds_decoder = gr::rds::decoder::make(0, 0);
     rds_parser = gr::rds::parser::make(0, 0);
     rds_store = make_rx_rds_store();
+    rds_enabled = false;
 #endif
 
     connect(self(), 0, iq_resamp, 0);
@@ -250,13 +251,11 @@ void wfmrx::get_rds_data(std::string &outbuff, int &num)
 
 void wfmrx::start_rds_decoder()
 {
-//    lock();
-    //connect(self(), 0, demod_fm, 0);
     connect(demod_fm, 0, rds, 0);
     connect(rds, 0, rds_decoder, 0);
     msg_connect(rds_decoder, "out", rds_parser, "in");
     msg_connect(rds_parser, "out", rds_store, "store");
-//    unlock();
+    rds_enabled=true;
 }
 
 void wfmrx::stop_rds_decoder()
@@ -267,10 +266,16 @@ void wfmrx::stop_rds_decoder()
     msg_disconnect(rds_decoder, "out", rds_parser, "in");
     msg_disconnect(rds_parser, "out", rds_store, "store");
     unlock();
+    rds_enabled=false;
 }
 
 void wfmrx::reset_rds_parser()
 {
     rds_parser->reset();
+}
+
+bool wfmrx::is_rds_decoder_active()
+{
+    return rds_enabled;
 }
 #endif

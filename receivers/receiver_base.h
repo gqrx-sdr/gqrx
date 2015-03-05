@@ -94,6 +94,7 @@ public:
     virtual void start_rds_decoder();
     virtual void stop_rds_decoder();
     virtual void reset_rds_parser();
+    virtual bool is_rds_decoder_active();
 
 };
 

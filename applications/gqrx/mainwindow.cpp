@@ -768,7 +768,6 @@ void MainWindow::selectDemod(int index)
     int filter_preset = uiDockRxOpt->currentFilter();
     int flo=0, fhi=0, click_res=100;
 
-
     switch (index) {
 
     case DockRxOpt::MODE_OFF:
