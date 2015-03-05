@@ -129,14 +129,6 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     Bookmarks::Get().setConfigDir(m_cfg_dir);
     uiDockBookmarks = new DockBookmarks(this);
 
-#ifdef WITH_GR_RDS
-    rds_timer = new QTimer(this);
-    connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
-#else
-    uiDockRDS->showNotSupported();
-#endif
-    uiDockRDS->setShown(false);
-
     setCorner( Qt::TopLeftCorner, Qt::LeftDockWidgetArea );
     setCorner( Qt::TopRightCorner, Qt::RightDockWidgetArea );
     setCorner( Qt::BottomLeftCorner, Qt::BottomDockWidgetArea );
@@ -288,6 +280,15 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
         }
 	}
 
+#ifdef WITH_GR_RDS
+    rds_timer = new QTimer(this);
+    connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
+#else
+    uiDockRDS->showNotSupported();
+    ui->actionRDS->setDisabled(true);
+#endif
+    /* do not show RDS tab when it is disabled */
+    uiDockRDS->setShown(false);
 }
 
 MainWindow::~MainWindow()
