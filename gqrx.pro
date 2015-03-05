@@ -97,7 +97,6 @@ SOURCES += \
     dsp/rx_noise_blanker_cc.cpp \
     dsp/sniffer_f.cpp \
     dsp/stereo_demod.cpp \
-    dsp/rx_rds.cpp \
     interfaces/udp_sink_f.cpp \
     qtgui/afsk1200win.cpp \
     qtgui/agc_options.cpp \
@@ -145,7 +144,6 @@ HEADERS += \
     dsp/rx_noise_blanker_cc.h \
     dsp/sniffer_f.h \
     dsp/stereo_demod.h \
-    dsp/rx_rds.h \
     interfaces/udp_sink_f.h \
     qtgui/afsk1200win.h \
     qtgui/agc_options.h \
@@ -230,8 +228,12 @@ exists( /usr/local/include/rds/gnuradio/rds/parser.h ) {
 contains(RDS_ENABLED,1) {
     message( "Enabling rds" )
     INCLUDEPATH += "/usr/include/rds/gnuradio"
+    INCLUDEPATH += "/usr/local/include/rds/gnuradio"
     LIBS += -lgnuradio-rds
     DEFINES += WITH_GR_RDS
+    SOURCES += dsp/rx_rds.cpp
+    HEADERS += dsp/rx_rds.h
+
 }
 
 unix:!macx {

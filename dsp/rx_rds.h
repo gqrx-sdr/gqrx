@@ -38,9 +38,11 @@
 #include <gnuradio/blocks/file_sink.h>
 #include <gnuradio/blocks/udp_sink.h>
 #include <gnuradio/blocks/message_debug.h>
+#include <boost/circular_buffer.hpp>
+#ifdef WITH_GR_RDS
 #include <rds/decoder.h>
 #include <rds/parser.h>
-#include <boost/circular_buffer.hpp>
+#endif
 
 
 class rx_rds;
@@ -132,8 +134,6 @@ private:
     gr::blocks::udp_sink::sptr udp_sink2;
     gr::blocks::udp_sink::sptr udp_sink3;
     gr::blocks::udp_sink::sptr udp_sink4;
-
-    //rx_rds_store_sptr rds_store;
 
     double d_sample_rate;
     double d_midle_rate;

@@ -25,10 +25,6 @@
 #include "dockrds.h"
 #include "ui_dockrds.h"
 
-#define FILT_SEL_USER_IDX 3
-
-//QStringList DockRDS::ModulationStrings;
-
 DockRDS::DockRDS(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockRDS)
@@ -81,12 +77,12 @@ void DockRDS::updateRDS(QString text, int type)
 
 void DockRDS::showEnabled()
 {
-    setWindowTitle("RDS Enabled");
+    ui->rds_status->setText("Enabled");
 }
 
 void DockRDS::showDisabled()
 {
-    setWindowTitle("RDS Disabled");
+    ui->rds_status->setText("Disabled");
     ui->program_information->setText("");
     ui->station_name->setText("");
     ui->program_type->setText("");
@@ -94,4 +90,9 @@ void DockRDS::showDisabled()
     ui->radiotext->setText("");
     ui->clocktime->setText("");
     ui->alt_freq->setText("");
+}
+
+void DockRDS::showNotSupported()
+{
+    ui->rds_status->setText("Not supported");
 }

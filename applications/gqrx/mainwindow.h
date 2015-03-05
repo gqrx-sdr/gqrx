@@ -210,7 +210,9 @@ private slots:
     void meterTimeout();
     void iqFftTimeout();
     void audioFftTimeout();
+#ifdef WITH_GR_RDS
     void rdsTimeout();
+#endif
 
 };
 

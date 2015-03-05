@@ -44,7 +44,6 @@
 #include "dsp/rx_demod_fm.h"
 #include "dsp/rx_demod_am.h"
 #include "dsp/rx_fft.h"
-#include "dsp/rx_rds.h"
 #include "dsp/sniffer_f.h"
 #include "dsp/resampler_xx.h"
 #include "interfaces/udp_sink_f.h"

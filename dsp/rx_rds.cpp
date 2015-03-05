@@ -37,8 +37,6 @@ static const int MAX_IN = 1;  /* Maximum number of input streams. */
 static const int MIN_OUT = 1; /* Minimum number of output streams. */
 static const int MAX_OUT = 1; /* Maximum number of output streams. */
 
-//static const double baseband_rate = 250000;
-//static const double baseband_rate = 250000;
 static const double baseband_rate = 250000;
 
 /*
@@ -77,9 +75,6 @@ rx_rds::rx_rds(double sample_rate, double midle_rate, double low, double high, d
     baseband_rate=sample_rate/audio_decim;
 
 
-    printf("XXX d_sample_rate %f d_low: %f d_high: %f d_trans_width: %f AUDIO_DECIM: %f quad_rate: %f audio_rate: %f baseband_rate: %f\n",d_sample_rate, d_low, d_high, d_trans_width, audio_decim, d_quad_rate, d_audio_rate, baseband_rate);
-
-
     d_taps2 = gr::filter::firdes::low_pass(1.0, d_sample_rate, 57000, 4800);
 
     f_fxff = gr::filter::freq_xlating_fir_filter_fcf::make(1.0, d_taps2, 57000, d_sample_rate);
@@ -101,22 +96,22 @@ rx_rds::rx_rds(double sample_rate, double midle_rate, double low, double high, d
     rds_decoder = gr::rds::decoder::make(0, 0);
     rds_parser = gr::rds::parser::make(1, 0);
 
-    udp_sink1 = gr::blocks::udp_sink::make(4, "127.0.0.1", 4441);
-    udp_sink2 = gr::blocks::udp_sink::make(8, "127.0.0.1", 4442);
-    udp_sink3 = gr::blocks::udp_sink::make(8, "127.0.0.1", 4443);
-    udp_sink4 = gr::blocks::udp_sink::make(8, "127.0.0.1", 4444);
+    //udp_sink1 = gr::blocks::udp_sink::make(4, "127.0.0.1", 4441);
+    //udp_sink2 = gr::blocks::udp_sink::make(8, "127.0.0.1", 4442);
+    //udp_sink3 = gr::blocks::udp_sink::make(8, "127.0.0.1", 4443);
+    //udp_sink4 = gr::blocks::udp_sink::make(8, "127.0.0.1", 4444);
 
     dbg = gr::blocks::message_debug::make();
 
     /* connect filter */
     connect(self(), 0, f_fxff, 0);
-    connect(self(), 0, udp_sink1, 0);
+    //connect(self(), 0, udp_sink1, 0);
     connect(f_fxff, 0, d_bpf2, 0);
-    connect(f_fxff, 0, udp_sink2, 0);
+    //connect(f_fxff, 0, udp_sink2, 0);
     connect(d_bpf2, 0, d_mpsk, 0);
-    connect(d_bpf2, 0, udp_sink3, 0);
+    //connect(d_bpf2, 0, udp_sink3, 0);
     connect(d_mpsk, 0, b_ctr, 0);
-    connect(d_mpsk, 0, udp_sink4, 0);
+    //connect(d_mpsk, 0, udp_sink4, 0);
     connect(b_ctr, 0, d_bs, 0);
     connect(d_bs, 0, b_koin, 0);
     connect(b_koin, 0, d_ddbb, 0);
@@ -126,33 +121,6 @@ rx_rds::rx_rds(double sample_rate, double midle_rate, double low, double high, d
 rx_rds::~rx_rds ()
 {
 
-}
-
-
-void rx_rds::set_param(double low, double high, double trans_width)
-{
-    d_trans_width = trans_width;
-    d_low         = low;
-    d_high        = high;
-
-    printf("XXX2 d_sample_rate %f d_low: %f d_high: %f d_trans_width: %f\n",d_sample_rate, d_low, d_high, d_trans_width);
-
-    if (d_low < -0.95*d_sample_rate/2.0)
-        d_low = -0.95*d_sample_rate/2.0;
-    if (d_high > 0.95*d_sample_rate/2.0)
-        d_high = 0.95*d_sample_rate/2.0;
-
-    /* generate new taps */
-    //d_taps = gr::filter::firdes::complex_band_pass(1.0, d_sample_rate, d_low, d_high, d_trans_width);
-
-    //d_taps2 = gr::filter::firdes::low_pass(2500.0, baseband_rate, 2.4000, 2000, gr::filter::firdes::WIN_HAMMING);
-#ifndef QT_NO_DEBUG_OUTPUT
-    std::cout << "RDS Genrating taps for new filter LO:" << d_low <<
-                 " HI:" << d_high << " TW:" << d_trans_width << std::endl;
-    std::cout << "RDS Required number of taps: " << d_taps.size() << std::endl;
-#endif
-    //f_fxff->set_taps(d_taps2);
-    //d_bpf->set_taps(d_taps);
 }
 
 rx_rds_store::rx_rds_store() : gr::block ("rx_rds_store",
@@ -171,18 +139,7 @@ rx_rds_store::~rx_rds_store ()
 
 void rx_rds_store::store(pmt::pmt_t msg)
 {
-
-    //t = pmt.to_long(pmt.tuple_ref(msg, 0))
-   // m = pmt.symbol_to_string(pmt.tuple_ref(msg, 1))
-
     boost::mutex::scoped_lock lock(d_mutex);
-
-    //std::string text=pmt::symbol_to_string(pmt::tuple_ref(msg,1));
-    //std::cout << "msg: " << text << std::endl;
-
-
-    //std::cout << "d_messages.size(): " << d_messages.size() << std::endl;
-
     d_messages.push_back(msg);
 
 }
@@ -192,12 +149,6 @@ void rx_rds_store::get_message(std::string &out, int &type)
     boost::mutex::scoped_lock lock(d_mutex);
 
     if (d_messages.size()>0) {
-        //std::string *buff = d_messages.linearize();
-
-        //memcpy(out, buff, sizeof(std::string)*num);
-        //type=
-
-        //d_messages.clear();
         pmt::pmt_t msg=d_messages.front();
         type=pmt::to_long(pmt::tuple_ref(msg,0));
         out=pmt::symbol_to_string(pmt::tuple_ref(msg,1));

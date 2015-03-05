@@ -105,13 +105,6 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     audio_fft_timer = new QTimer(this);
     connect(audio_fft_timer, SIGNAL(timeout()), this, SLOT(audioFftTimeout()));
 
-#ifdef WITH_GR_RDS
-    rds_timer = new QTimer(this);
-    connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
-#else
-    uiDockRDS->showNotSupported();
-#endif
-
     d_fftData = new std::complex<float>[MAX_FFT_SIZE];
     d_realFftData = new double[MAX_FFT_SIZE];
     d_pwrFftData = new double[MAX_FFT_SIZE]();
@@ -135,6 +128,14 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     uiDockFft = new DockFft();
     Bookmarks::Get().setConfigDir(m_cfg_dir);
     uiDockBookmarks = new DockBookmarks(this);
+
+#ifdef WITH_GR_RDS
+    rds_timer = new QTimer(this);
+    connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
+#else
+    uiDockRDS->showNotSupported();
+#endif
+    uiDockRDS->setShown(false);
 
     setCorner( Qt::TopLeftCorner, Qt::LeftDockWidgetArea );
     setCorner( Qt::TopRightCorner, Qt::RightDockWidgetArea );
@@ -1243,22 +1244,20 @@ void MainWindow::audioFftTimeout()
     uiDockAudio->setNewFttData(d_realFftData, fftsize);
 }
 
+#ifdef WITH_GR_RDS
 /*! \brief Audio FFT plot timeout. */
 void MainWindow::rdsTimeout()
 {
     std::string buffer;
     int num;
 
-    //qDebug() << "Process decoder";
-
     rx->get_rds_data(buffer, num);
     while(num!=-1) {
         rx->get_rds_data(buffer, num);
         uiDockRDS->updateRDS(QString::fromStdString(buffer), num);
     }
-
-    //uiDockRDS->updateRDS("hoho");
 }
+#endif
 
 /*! \brief Start audio recorder.
  *  \param filename The file name into which audio should be recorded.
@@ -1896,11 +1895,13 @@ void MainWindow::decoderTimeout()
 
 void MainWindow::on_actionRDS_triggered(bool checked)
 {
-
+#ifdef WITH_GR_RDS
     if (checked == true)
     {
         qDebug() << "Starting RDS decoder.";
         uiDockRDS->showEnabled();
+        uiDockRDS->setShown(true);
+        uiDockRDS->raise();
         rx->start_rds_decoder();
         rds_timer->start(250);
     }
@@ -1908,9 +1909,13 @@ void MainWindow::on_actionRDS_triggered(bool checked)
     {
         qDebug() << "Stopping RDS decoder.";
         uiDockRDS->showDisabled();
+        uiDockRDS->setShown(false);
         rx->stop_rds_decoder();
         rds_timer->stop();
     }
+#else
+        uiDockRDS->showNotSupported();
+#endif
 }
 
 /*! \brief Launch Gqrx google group website. */
