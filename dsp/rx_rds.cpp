@@ -37,15 +37,13 @@ static const int MAX_IN = 1;  /* Maximum number of input streams. */
 static const int MIN_OUT = 1; /* Minimum number of output streams. */
 static const int MAX_OUT = 1; /* Maximum number of output streams. */
 
-static const double baseband_rate = 250000;
-
 /*
  * Create a new instance of rx_rds and return
  * a boost shared_ptr. This is effectively the public constructor.
  */
-rx_rds_sptr make_rx_rds(double sample_rate, double midle_rate, double low, double high, double trans_width, float quad_rate, float audio_rate)
+rx_rds_sptr make_rx_rds(double sample_rate)
 {
-    return gnuradio::get_initial_sptr(new rx_rds(sample_rate, midle_rate, low, high, trans_width, quad_rate, audio_rate));
+    return gnuradio::get_initial_sptr(new rx_rds(sample_rate));
 }
 
 rx_rds_store_sptr make_rx_rds_store()
@@ -53,28 +51,12 @@ rx_rds_store_sptr make_rx_rds_store()
     return gnuradio::get_initial_sptr(new rx_rds_store());
 }
 
-rx_rds::rx_rds(double sample_rate, double midle_rate, double low, double high, double trans_width, float quad_rate, float audio_rate)
+rx_rds::rx_rds(double sample_rate)
     : gr::hier_block2 ("rx_rds",
                       gr::io_signature::make (MIN_IN, MAX_IN, sizeof (float)),
                       gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof (char))),
-      d_sample_rate(sample_rate),
-      d_midle_rate(midle_rate),
-      d_low(low),
-      d_high(high),
-      d_trans_width(trans_width),
-      d_quad_rate(quad_rate),
-      d_audio_rate(audio_rate)
+      d_sample_rate(sample_rate)
 {
-    if (low < -0.95*sample_rate/2.0)
-        d_low = -0.95*sample_rate/2.0;
-    if (high > 0.95*sample_rate/2.0)
-        d_high = 0.95*sample_rate/2.0;
-
-    audio_decim = sample_rate/midle_rate;
-    float baseband_rate;
-    baseband_rate=sample_rate/audio_decim;
-
-
     d_taps2 = gr::filter::firdes::low_pass(1.0, d_sample_rate, 57000, 4800);
 
     f_fxff = gr::filter::freq_xlating_fir_filter_fcf::make(1.0, d_taps2, 57000, d_sample_rate);

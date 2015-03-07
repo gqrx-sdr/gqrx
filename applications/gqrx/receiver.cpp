@@ -1200,5 +1200,5 @@ void receiver::stop_rds_decoder()
 
 bool receiver::is_rds_decoder_active()
 {
-    rx->is_rds_decoder_active();
+    return rx->is_rds_decoder_active();
 }

@@ -51,7 +51,7 @@ wfmrx::wfmrx(float quad_rate, float audio_rate)
 
 #ifdef WITH_GR_RDS
     /* create rds blocks but dont connect them */
-    rds = make_rx_rds(PREF_QUAD_RATE, PREF_MIDLE_RATE, -80000.0, 80000.0, 20000.0, d_quad_rate, d_audio_rate);
+    rds = make_rx_rds(PREF_QUAD_RATE);
     rds_decoder = gr::rds::decoder::make(0, 0);
     rds_parser = gr::rds::parser::make(0, 0);
     rds_store = make_rx_rds_store();

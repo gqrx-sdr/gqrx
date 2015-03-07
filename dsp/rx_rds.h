@@ -62,11 +62,7 @@ typedef boost::shared_ptr<rx_rds_store> rx_rds_store_sptr;
  * of raw pointers, rx_filter's constructor is private.
  * make_rxfilter is the public interface for creating new instances.
  */
-rx_rds_sptr make_rx_rds(double sample_rate,
-                              double midle_rate,
-                              double low=-5000.0,
-                              double high=5000.0,
-                              double trans_width=1000.0,float quad_rate=0, float audio_rate=0);
+rx_rds_sptr make_rx_rds(double sample_rate);
 
 rx_rds_store_sptr make_rx_rds_store();
 
@@ -90,9 +86,6 @@ public:
     rx_rds_store();
     ~rx_rds_store();
 
-    //std::string data;
-    //std::vector<std::string> d_messages;
-
     void get_message(std::string &out, int &type);
 
 private:
@@ -107,11 +100,10 @@ class rx_rds : public gr::hier_block2
 {
 
 public:
-    rx_rds(double sample_rate=96000.0, double midle_rate=0.0, double low=-5000.0, double high=5000.0, double trans_width=1000.0, float quad_rate=0, float audio_rate=0);
+    rx_rds(double sample_rate=96000.0);
     ~rx_rds();
 
     void set_param(double low, double high, double trans_width);
-    //void store(pmt::pmt_t msg);
 
     gr::blocks::message_debug::sptr dbg;
 
@@ -136,15 +128,6 @@ private:
     gr::blocks::udp_sink::sptr udp_sink4;
 
     double d_sample_rate;
-    double d_midle_rate;
-    double d_low;
-    double d_high;
-    double d_trans_width;
-
-    double audio_decim;
-
-    double d_quad_rate;
-    double d_audio_rate;
 };
 
 
