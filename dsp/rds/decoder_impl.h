@@ -46,8 +46,8 @@ private:
 	unsigned int   blocks_counter;
 	unsigned int   group_good_blocks_counter;
 	unsigned int   group[4];
-	bool           debug;
 	bool           log;
+	bool           debug;
 	bool           presync;
 	bool           good_block;
 	bool           group_assembly_started;

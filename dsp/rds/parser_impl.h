@@ -69,8 +69,8 @@ private:
 	bool           artificial_head;
 	bool           compressed;
 	bool           static_pty;
-	bool           debug;
 	bool           log;
+	bool           debug;
 	gr::thread::mutex d_mutex;
 };
 

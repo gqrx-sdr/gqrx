@@ -137,6 +137,8 @@ void receiver_base_cf::set_am_dcr(bool enabled)
 
 void receiver_base_cf::get_rds_data(std::string &outbuff, int &num)
 {
+        (void) outbuff;
+        (void) num;
 }
 
 void receiver_base_cf::start_rds_decoder()
