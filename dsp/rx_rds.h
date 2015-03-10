@@ -102,8 +102,6 @@ public:
 
     void set_param(double low, double high, double trans_width);
 
-    gr::blocks::message_debug::sptr dbg;
-
 private:
     std::vector<gr_complex> d_taps;
     std::vector<float> d_taps2;

@@ -763,6 +763,7 @@ void MainWindow::selectDemod(int index)
     int filter_preset = uiDockRxOpt->currentFilter();
     int flo=0, fhi=0, click_res=100;
 
+
     switch (index) {
 
     case DockRxOpt::MODE_OFF:
@@ -885,7 +886,6 @@ void MainWindow::selectDemod(int index)
             rx->set_demod(receiver::RX_DEMOD_WFM_M);
         else
             rx->set_demod(receiver::RX_DEMOD_WFM_S);
-
         break;
 
         /* LSB */
@@ -1239,7 +1239,7 @@ void MainWindow::audioFftTimeout()
     uiDockAudio->setNewFttData(d_realFftData, fftsize);
 }
 
-/*! \brief Audio FFT plot timeout. */
+/*! \brief RDS message display timeout. */
 void MainWindow::rdsTimeout()
 {
     std::string buffer;
@@ -1849,6 +1849,7 @@ void MainWindow::on_actionAFSK1200_triggered()
         }
     }
 }
+
 
 /*! \brief Destroy AFSK1200 decoder window got closed.
  *

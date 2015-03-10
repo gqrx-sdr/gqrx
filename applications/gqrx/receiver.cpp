@@ -681,6 +681,7 @@ receiver::status receiver::set_demod(rx_demod demod)
     // dongles (the jerkyness disappears when we run this function)
     //if (demod == d_demod)
     //    return ret;
+
     // tb->lock() seems to hang occasioanlly
     if (d_running)
     {

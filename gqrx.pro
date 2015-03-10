@@ -227,14 +227,6 @@ PKGCONFIG += gnuradio-analog \
              gnuradio-digital \
              gnuradio-osmosdr
 
-exists( /usr/include/rds/gnuradio/rds/parser.h ) {
-    RDS_ENABLED=1
-}
-
-exists( /usr/local/include/rds/gnuradio/rds/parser.h ) {
-    RDS_ENABLED=1
-}
-
 unix:!macx {
     LIBS += -lboost_system$$BOOST_SUFFIX -lboost_program_options$$BOOST_SUFFIX
     LIBS += -lrt  # need to include on some distros

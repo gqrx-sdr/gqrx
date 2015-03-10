@@ -78,22 +78,11 @@ rx_rds::rx_rds(double sample_rate)
     rds_decoder = gr::rds::decoder::make(0, 0);
     rds_parser = gr::rds::parser::make(1, 0);
 
-    //udp_sink1 = gr::blocks::udp_sink::make(4, "127.0.0.1", 4441);
-    //udp_sink2 = gr::blocks::udp_sink::make(8, "127.0.0.1", 4442);
-    //udp_sink3 = gr::blocks::udp_sink::make(8, "127.0.0.1", 4443);
-    //udp_sink4 = gr::blocks::udp_sink::make(8, "127.0.0.1", 4444);
-
-    dbg = gr::blocks::message_debug::make();
-
     /* connect filter */
     connect(self(), 0, f_fxff, 0);
-    //connect(self(), 0, udp_sink1, 0);
     connect(f_fxff, 0, d_bpf2, 0);
-    //connect(f_fxff, 0, udp_sink2, 0);
     connect(d_bpf2, 0, d_mpsk, 0);
-    //connect(d_bpf2, 0, udp_sink3, 0);
     connect(d_mpsk, 0, b_ctr, 0);
-    //connect(d_mpsk, 0, udp_sink4, 0);
     connect(b_ctr, 0, d_bs, 0);
     connect(d_bs, 0, b_koin, 0);
     connect(b_koin, 0, d_ddbb, 0);
