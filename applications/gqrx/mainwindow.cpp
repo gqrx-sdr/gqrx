@@ -767,6 +767,11 @@ void MainWindow::selectDemod(int index)
     int filter_preset = uiDockRxOpt->currentFilter();
     int flo=0, fhi=0, click_res=100;
 
+    if (rx->is_rds_decoder_active()) {
+        on_actionRDS_triggered(false);
+        ui->actionRDS->setChecked(false);
+    }
+    ui->actionRDS->setDisabled(true);
 
     switch (index) {
 
@@ -890,6 +895,8 @@ void MainWindow::selectDemod(int index)
             rx->set_demod(receiver::RX_DEMOD_WFM_M);
         else
             rx->set_demod(receiver::RX_DEMOD_WFM_S);
+
+        ui->actionRDS->setDisabled(false);
         break;
 
         /* LSB */
@@ -1904,6 +1911,7 @@ void MainWindow::on_actionRDS_triggered(bool checked)
         uiDockRDS->setVisible(true);
         uiDockRDS->raise();
         rx->start_rds_decoder();
+        rx->reset_rds_parser();
         rds_timer->start(250);
     }
     else
