@@ -283,7 +283,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     rds_timer = new QTimer(this);
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
     /* do not show RDS tab when it is disabled */
-    uiDockRDS->setShown(false);
+    uiDockRDS->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -1892,7 +1892,7 @@ void MainWindow::on_actionRDS_triggered(bool checked)
     {
         qDebug() << "Starting RDS decoder.";
         uiDockRDS->showEnabled();
-        uiDockRDS->setShown(true);
+        uiDockRDS->setVisible(true);
         uiDockRDS->raise();
         rx->start_rds_decoder();
         rds_timer->start(250);
@@ -1901,7 +1901,7 @@ void MainWindow::on_actionRDS_triggered(bool checked)
     {
         qDebug() << "Stopping RDS decoder.";
         uiDockRDS->showDisabled();
-        uiDockRDS->setShown(false);
+        uiDockRDS->setVisible(false);
         rx->stop_rds_decoder();
         rds_timer->stop();
     }
