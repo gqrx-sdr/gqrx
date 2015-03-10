@@ -280,13 +280,8 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
         }
 	}
 
-#ifdef WITH_GR_RDS
     rds_timer = new QTimer(this);
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
-#else
-    uiDockRDS->showNotSupported();
-    ui->actionRDS->setDisabled(true);
-#endif
     /* do not show RDS tab when it is disabled */
     uiDockRDS->setShown(false);
 }
@@ -1244,7 +1239,6 @@ void MainWindow::audioFftTimeout()
     uiDockAudio->setNewFttData(d_realFftData, fftsize);
 }
 
-#ifdef WITH_GR_RDS
 /*! \brief Audio FFT plot timeout. */
 void MainWindow::rdsTimeout()
 {
@@ -1257,7 +1251,6 @@ void MainWindow::rdsTimeout()
         uiDockRDS->updateRDS(QString::fromStdString(buffer), num);
     }
 }
-#endif
 
 /*! \brief Start audio recorder.
  *  \param filename The file name into which audio should be recorded.
@@ -1895,7 +1888,6 @@ void MainWindow::decoderTimeout()
 
 void MainWindow::on_actionRDS_triggered(bool checked)
 {
-#ifdef WITH_GR_RDS
     if (checked == true)
     {
         qDebug() << "Starting RDS decoder.";
@@ -1913,9 +1905,6 @@ void MainWindow::on_actionRDS_triggered(bool checked)
         rx->stop_rds_decoder();
         rds_timer->stop();
     }
-#else
-        uiDockRDS->showNotSupported();
-#endif
 }
 
 /*! \brief Launch Gqrx google group website. */

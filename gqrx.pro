@@ -97,6 +97,9 @@ SOURCES += \
     dsp/rx_noise_blanker_cc.cpp \
     dsp/sniffer_f.cpp \
     dsp/stereo_demod.cpp \
+    dsp/rx_rds.cpp \
+    dsp/rds/decoder_impl.cc \
+    dsp/rds/parser_impl.cc \
     interfaces/udp_sink_f.cpp \
     qtgui/afsk1200win.cpp \
     qtgui/agc_options.cpp \
@@ -131,6 +134,13 @@ HEADERS += \
     dsp/afsk1200/cafsk12.h \
     dsp/afsk1200/filter.h \
     dsp/afsk1200/filter-i386.h \
+    dsp/rx_rds.h \
+    dsp/rds/api.h \
+    dsp/rds/parser.h \
+    dsp/rds/decoder.h \
+    dsp/rds/decoder_impl.h \
+    dsp/rds/parser_impl.h \
+    dsp/rds/constants.h \
     dsp/agc_impl.h \
     dsp/correct_iq_cc.h \
     dsp/lpf.h \
@@ -223,17 +233,6 @@ exists( /usr/include/rds/gnuradio/rds/parser.h ) {
 
 exists( /usr/local/include/rds/gnuradio/rds/parser.h ) {
     RDS_ENABLED=1
-}
-
-contains(RDS_ENABLED,1) {
-    message( "Enabling rds" )
-    INCLUDEPATH += "/usr/include/rds/gnuradio"
-    INCLUDEPATH += "/usr/local/include/rds/gnuradio"
-    LIBS += -lgnuradio-rds
-    DEFINES += WITH_GR_RDS
-    SOURCES += dsp/rx_rds.cpp
-    HEADERS += dsp/rx_rds.h
-
 }
 
 unix:!macx {

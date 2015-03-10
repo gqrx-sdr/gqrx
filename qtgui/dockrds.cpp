@@ -91,8 +91,3 @@ void DockRDS::showDisabled()
     ui->clocktime->setText("");
     ui->alt_freq->setText("");
 }
-
-void DockRDS::showNotSupported()
-{
-    ui->rds_status->setText("Not supported");
-}

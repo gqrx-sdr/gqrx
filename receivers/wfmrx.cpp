@@ -49,14 +49,12 @@ wfmrx::wfmrx(float quad_rate, float audio_rate)
     stereo = make_stereo_demod(PREF_MIDLE_RATE, d_audio_rate, true);
     mono   = make_stereo_demod(PREF_MIDLE_RATE, d_audio_rate, false);
 
-#ifdef WITH_GR_RDS
     /* create rds blocks but dont connect them */
     rds = make_rx_rds(PREF_QUAD_RATE);
     rds_decoder = gr::rds::decoder::make(0, 0);
     rds_parser = gr::rds::parser::make(0, 0);
     rds_store = make_rx_rds_store();
     rds_enabled = false;
-#endif
 
     connect(self(), 0, iq_resamp, 0);
     connect(iq_resamp, 0, filter, 0);
@@ -243,7 +241,6 @@ void wfmrx::set_fm_deemph(double tau)
     demod_fm->set_tau(tau);
 }
 
-#ifdef WITH_GR_RDS
 void wfmrx::get_rds_data(std::string &outbuff, int &num)
 {
     rds_store->get_message(outbuff, num);
@@ -278,4 +275,3 @@ bool wfmrx::is_rds_decoder_active()
 {
     return rds_enabled;
 }
-#endif
