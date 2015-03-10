@@ -154,4 +154,5 @@ void receiver_base_cf::reset_rds_parser()
 
 bool receiver_base_cf::is_rds_decoder_active()
 {
+    return false;
 }

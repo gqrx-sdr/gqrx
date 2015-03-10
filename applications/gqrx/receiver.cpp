@@ -477,8 +477,6 @@ receiver::status receiver::set_filter_offset(double offset_hz)
     d_filter_offset = offset_hz;
     lo->set_frequency(-d_filter_offset);
 
-    rx->reset_rds_parser();
-
     return STATUS_OK;
 }
 
@@ -1202,4 +1200,9 @@ void receiver::stop_rds_decoder()
 bool receiver::is_rds_decoder_active()
 {
     return rx->is_rds_decoder_active();
+}
+
+void receiver::reset_rds_parser()
+{
+    rx->reset_rds_parser();
 }

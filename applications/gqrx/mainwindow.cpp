@@ -659,6 +659,10 @@ void MainWindow::setFilterOffset(qint64 freq_hz)
 
     qint64 rx_freq = d_hw_freq + d_lnb_lo + freq_hz;
     ui->freqCtrl->setFrequency(rx_freq);
+
+    if (rx->is_rds_decoder_active()) {
+        rx->reset_rds_parser();
+    }
 }
 
 /*! \brief Set a specific gain.
@@ -1749,6 +1753,10 @@ void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
     // update RF freq label and channel filter offset
     uiDockRxOpt->setFilterOffset(delta);
     ui->freqCtrl->setFrequency(freq);
+
+    if (rx->is_rds_decoder_active()) {
+        rx->reset_rds_parser();
+    }
 }
 
 /* CPlotter::NewfilterFreq() is emitted */

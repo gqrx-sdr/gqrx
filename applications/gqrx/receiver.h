@@ -210,6 +210,7 @@ public:
     void start_rds_decoder();
     void stop_rds_decoder();
     bool is_rds_decoder_active();
+    void reset_rds_parser();
 
 private:
     void connect_all(rx_chain type);
