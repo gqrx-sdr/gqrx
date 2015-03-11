@@ -476,12 +476,6 @@
           </property>
           <item>
            <property name="text">
-            <string>32768</string>
-           </property>
-          </item>
-
-          <item>
-           <property name="text">
             <string>16384</string>
            </property>
           </item>
