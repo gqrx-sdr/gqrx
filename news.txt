@@ -2,6 +2,7 @@
      2.x.x  TBD
 
        NEW: Bookmarks.
+       NEW: FM RDS decoder using gr-rds.
   IMPROVED: Fractional PPM correction.
 
      2.3.2  Released November 28, 2014
