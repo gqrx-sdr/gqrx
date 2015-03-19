@@ -134,3 +134,26 @@ void receiver_base_cf::set_am_dcr(bool enabled)
 {
     (void) enabled;
 }
+
+void receiver_base_cf::get_rds_data(std::string &outbuff, int &num)
+{
+        (void) outbuff;
+        (void) num;
+}
+
+void receiver_base_cf::start_rds_decoder()
+{
+}
+
+void receiver_base_cf::stop_rds_decoder()
+{
+}
+
+void receiver_base_cf::reset_rds_parser()
+{
+}
+
+bool receiver_base_cf::is_rds_decoder_active()
+{
+    return false;
+}

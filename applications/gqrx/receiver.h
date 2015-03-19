@@ -205,6 +205,13 @@ public:
     bool is_recording_audio(void) const { return d_recording_wav; }
     bool is_snifffer_active(void) const { return d_sniffer_active; }
 
+    /* rds functions */
+    void get_rds_data(std::string &outbuff, int &num);
+    void start_rds_decoder();
+    void stop_rds_decoder();
+    bool is_rds_decoder_active();
+    void reset_rds_parser();
+
 private:
     void connect_all(rx_chain type);
 
