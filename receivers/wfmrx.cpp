@@ -49,6 +49,13 @@ wfmrx::wfmrx(float quad_rate, float audio_rate)
     stereo = make_stereo_demod(PREF_MIDLE_RATE, d_audio_rate, true);
     mono   = make_stereo_demod(PREF_MIDLE_RATE, d_audio_rate, false);
 
+    /* create rds blocks but dont connect them */
+    rds = make_rx_rds(PREF_QUAD_RATE);
+    rds_decoder = gr::rds::decoder::make(0, 0);
+    rds_parser = gr::rds::parser::make(0, 0);
+    rds_store = make_rx_rds_store();
+    rds_enabled = false;
+
     connect(self(), 0, iq_resamp, 0);
     connect(iq_resamp, 0, filter, 0);
     connect(filter, 0, meter, 0);
@@ -232,4 +239,39 @@ void wfmrx::set_fm_maxdev(float maxdev_hz)
 void wfmrx::set_fm_deemph(double tau)
 {
     demod_fm->set_tau(tau);
+}
+
+void wfmrx::get_rds_data(std::string &outbuff, int &num)
+{
+    rds_store->get_message(outbuff, num);
+}
+
+void wfmrx::start_rds_decoder()
+{
+    connect(demod_fm, 0, rds, 0);
+    connect(rds, 0, rds_decoder, 0);
+    msg_connect(rds_decoder, "out", rds_parser, "in");
+    msg_connect(rds_parser, "out", rds_store, "store");
+    rds_enabled=true;
+}
+
+void wfmrx::stop_rds_decoder()
+{
+    lock();
+    disconnect(demod_fm, 0, rds, 0);
+    disconnect(rds, 0, rds_decoder, 0);
+    msg_disconnect(rds_decoder, "out", rds_parser, "in");
+    msg_disconnect(rds_parser, "out", rds_store, "store");
+    unlock();
+    rds_enabled=false;
+}
+
+void wfmrx::reset_rds_parser()
+{
+    rds_parser->reset();
+}
+
+bool wfmrx::is_rds_decoder_active()
+{
+    return rds_enabled;
 }

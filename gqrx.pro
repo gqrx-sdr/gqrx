@@ -97,6 +97,9 @@ SOURCES += \
     dsp/rx_noise_blanker_cc.cpp \
     dsp/sniffer_f.cpp \
     dsp/stereo_demod.cpp \
+    dsp/rx_rds.cpp \
+    dsp/rds/decoder_impl.cc \
+    dsp/rds/parser_impl.cc \
     interfaces/udp_sink_f.cpp \
     qtgui/afsk1200win.cpp \
     qtgui/agc_options.cpp \
@@ -119,7 +122,8 @@ SOURCES += \
     qtgui/qtcolorpicker.cpp \
     receivers/nbrx.cpp \
     receivers/receiver_base.cpp \
-    receivers/wfmrx.cpp
+    receivers/wfmrx.cpp \
+    qtgui/dockrds.cpp
 
 HEADERS += \
     applications/gqrx/gqrx.h \
@@ -130,6 +134,13 @@ HEADERS += \
     dsp/afsk1200/cafsk12.h \
     dsp/afsk1200/filter.h \
     dsp/afsk1200/filter-i386.h \
+    dsp/rx_rds.h \
+    dsp/rds/api.h \
+    dsp/rds/parser.h \
+    dsp/rds/decoder.h \
+    dsp/rds/decoder_impl.h \
+    dsp/rds/parser_impl.h \
+    dsp/rds/constants.h \
     dsp/agc_impl.h \
     dsp/correct_iq_cc.h \
     dsp/lpf.h \
@@ -163,6 +174,7 @@ HEADERS += \
     qtgui/nb_options.h \
     qtgui/plotter.h \
     qtgui/qtcolorpicker.h \
+    qtgui/dockrds.h \
     receivers/nbrx.h \
     receivers/receiver_base.h \
     receivers/wfmrx.h
@@ -181,7 +193,8 @@ FORMS += \
     qtgui/iq_tool.ui \
     qtgui/dockrxopt.ui \
     qtgui/ioconfig.ui \
-    qtgui/nb_options.ui
+    qtgui/nb_options.ui \
+    qtgui/dockrds.ui
 
 # Use pulseaudio (ps: could use equals? undocumented)
 contains(AUDIO_BACKEND, pulse): {
@@ -211,6 +224,7 @@ PKGCONFIG += gnuradio-analog \
              gnuradio-blocks \
              gnuradio-filter \
              gnuradio-fft \
+             gnuradio-digital \
              gnuradio-osmosdr
 
 unix:!macx {
