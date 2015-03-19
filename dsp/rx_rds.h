@@ -3,7 +3,7 @@
  * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
  *           http://gqrx.dk/
  *
- * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2015 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,33 +49,9 @@ typedef boost::shared_ptr<rx_rds> rx_rds_sptr;
 typedef boost::shared_ptr<rx_rds_store> rx_rds_store_sptr;
 
 
-/*! \brief Return a shared_ptr to a new instance of rx_filter.
- *  \param sample_rate The sample rate.
- *  \param low The lower limit of the bandpass filter.
- *  \param high The upper limit of the filter.
- *  \param trans_width The width of the transition band from
- *
- * This is effectively the public constructor. To avoid accidental use
- * of raw pointers, rx_filter's constructor is private.
- * make_rxfilter is the public interface for creating new instances.
- */
 rx_rds_sptr make_rx_rds(double sample_rate);
 
 rx_rds_store_sptr make_rx_rds_store();
-
-/*! \brief Complex band-pass filter with complex taps.
- *  \ingroup DSP
- *
- * This class encapsulates a complex FIR filter and the code
- * required to generate complex band pass filter taps. It provides a simple
- * interface to set the filter parameters.
- *
- * The user of this class is expected to provide valid parameters and no checks are
- * performed by the accessors (though the taps generator from gr::filter::firdes does perform
- * some sanity checks and throws std::out_of_range in case of bad parameter).
- *
- * \note In order to have proper LSB/USB, we must exchange low and high and reverse their sign
- */
 
 class rx_rds_store : public gr::block
 {
