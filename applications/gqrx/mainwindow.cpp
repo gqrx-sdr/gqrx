@@ -121,6 +121,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
 
     /* create dock widgets */
     uiDockRxOpt = new DockRxOpt();
+    uiDockRDS = new DockRDS();
     uiDockAudio = new DockAudio();
     uiDockInputCtl = new DockInputCtl();
     //uiDockIqPlay = new DockIqPlayer();
@@ -144,7 +145,9 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
 
     addDockWidget(Qt::RightDockWidgetArea, uiDockAudio);
     addDockWidget(Qt::RightDockWidgetArea, uiDockFft);
+    addDockWidget(Qt::RightDockWidgetArea, uiDockRDS);
     tabifyDockWidget(uiDockFft, uiDockAudio);
+    tabifyDockWidget(uiDockAudio, uiDockRDS);
 
     addDockWidget(Qt::BottomDockWidgetArea, uiDockBookmarks);
 
@@ -164,6 +167,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     */
     ui->menu_View->addAction(uiDockInputCtl->toggleViewAction());
     ui->menu_View->addAction(uiDockRxOpt->toggleViewAction());
+    ui->menu_View->addAction(uiDockRDS->toggleViewAction());
     ui->menu_View->addAction(uiDockAudio->toggleViewAction());
     ui->menu_View->addAction(uiDockFft->toggleViewAction());
     ui->menu_View->addAction(uiDockBookmarks->toggleViewAction());
@@ -276,6 +280,10 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
         }
 	}
 
+    rds_timer = new QTimer(this);
+    connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
+    /* do not show RDS tab when it is disabled */
+    uiDockRDS->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -322,6 +330,7 @@ MainWindow::~MainWindow()
     delete uiDockAudio;
     delete uiDockFft;
     delete uiDockInputCtl;
+    delete uiDockRDS;
     delete rx;
     delete remote;
     delete [] d_fftData;
@@ -650,6 +659,10 @@ void MainWindow::setFilterOffset(qint64 freq_hz)
 
     qint64 rx_freq = d_hw_freq + d_lnb_lo + freq_hz;
     ui->freqCtrl->setFrequency(rx_freq);
+
+    if (rx->is_rds_decoder_active()) {
+        rx->reset_rds_parser();
+    }
 }
 
 /*! \brief Set a specific gain.
@@ -754,6 +767,11 @@ void MainWindow::selectDemod(int index)
     int filter_preset = uiDockRxOpt->currentFilter();
     int flo=0, fhi=0, click_res=100;
 
+    if (rx->is_rds_decoder_active()) {
+        on_actionRDS_triggered(false);
+        ui->actionRDS->setChecked(false);
+    }
+    ui->actionRDS->setDisabled(true);
 
     switch (index) {
 
@@ -877,6 +895,8 @@ void MainWindow::selectDemod(int index)
             rx->set_demod(receiver::RX_DEMOD_WFM_M);
         else
             rx->set_demod(receiver::RX_DEMOD_WFM_S);
+
+        ui->actionRDS->setDisabled(false);
         break;
 
         /* LSB */
@@ -1228,6 +1248,19 @@ void MainWindow::audioFftTimeout()
     }
 
     uiDockAudio->setNewFttData(d_realFftData, fftsize);
+}
+
+/*! \brief RDS message display timeout. */
+void MainWindow::rdsTimeout()
+{
+    std::string buffer;
+    int num;
+
+    rx->get_rds_data(buffer, num);
+    while(num!=-1) {
+        rx->get_rds_data(buffer, num);
+        uiDockRDS->updateRDS(QString::fromStdString(buffer), num);
+    }
 }
 
 /*! \brief Start audio recorder.
@@ -1597,6 +1630,7 @@ void MainWindow::on_actionDSP_triggered(bool checked)
         meter_timer->stop();
         iq_fft_timer->stop();
         audio_fft_timer->stop();
+        rds_timer->stop();
 
         /* stop receiver */
         rx->stop();
@@ -1726,6 +1760,10 @@ void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
     // update RF freq label and channel filter offset
     uiDockRxOpt->setFilterOffset(delta);
     ui->freqCtrl->setFrequency(freq);
+
+    if (rx->is_rds_decoder_active()) {
+        rx->reset_rds_parser();
+    }
 }
 
 /* CPlotter::NewfilterFreq() is emitted */
@@ -1864,6 +1902,27 @@ void MainWindow::decoderTimeout()
     /* else stop timeout and sniffer? */
 }
 
+void MainWindow::on_actionRDS_triggered(bool checked)
+{
+    if (checked == true)
+    {
+        qDebug() << "Starting RDS decoder.";
+        uiDockRDS->showEnabled();
+        uiDockRDS->setVisible(true);
+        uiDockRDS->raise();
+        rx->start_rds_decoder();
+        rx->reset_rds_parser();
+        rds_timer->start(250);
+    }
+    else
+    {
+        qDebug() << "Stopping RDS decoder.";
+        uiDockRDS->showDisabled();
+        uiDockRDS->setVisible(false);
+        rx->stop_rds_decoder();
+        rds_timer->stop();
+    }
+}
 
 /*! \brief Launch Gqrx google group website. */
 void MainWindow::on_actionUserGroup_triggered()
@@ -1931,7 +1990,7 @@ void MainWindow::on_actionAbout_triggered()
 {
     QMessageBox::about(this, tr("About Gqrx"),
                        tr("<p>This is Gqrx %1</p>"
-                          "<p>Copyright (C) 2011-2013 Alexandru Csete & contributors.</p>"
+                          "<p>Copyright (C) 2011-2014 Alexandru Csete & contributors.</p>"
                           "<p>Gqrx is a software defined radio receiver powered by "
                           "<a href='http://www.gnuradio.org/'>GNU Radio</a> and the Qt toolkit. "
                           "<p>Gqrx uses the <a href='http://sdr.osmocom.org/trac/wiki/GrOsmoSDR'>GrOsmoSDR</a> "
@@ -1940,9 +1999,11 @@ void MainWindow::on_actionAbout_triggered()
                           "<li><a href='http://funcubedongle.com/'>Funcube Dongle Pro and Pro+</a></li>"
                           "<li><a href='http://sdr.osmocom.org/trac/wiki/rtl-sdr'>RTL2832U-based DVB-T tuners (rtlsdr and rtlsdr-tcp)</a></li>"
                           "<li><a href='http://www.ettus.com/'>Ettus Research USRP devices</a></li>"
-                          "<li><a href='http://sdr.osmocom.org/trac/'>OsmoSDR devices</a></li>"
-                          "<li><a href='https://greatscottgadgets.com/hackrf/'>HackRF Jawbreaker</a></li>"
+                          "<li><a href='http://sdr.osmocom.org/trac/'>OsmoSDR</a></li>"
+                          "<li><a href='https://greatscottgadgets.com/hackrf/'>HackRF One & Jawbreaker</a></li>"
                           "<li><a href='http://nuand.com/bladeRF'>Nuand bladeRF</a></li>"
+                          "<li><a href='http://airspy.com'>Airspy</a></li>"
+                          "<li><a href='http://rfspace.com'>RFspace receivers</a></li>"
                           "</ul></p>"
                           "<p>You can download the latest version from the "
                           "<a href='http://gqrx.dk/'>Gqrx website</a>."

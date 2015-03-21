@@ -37,6 +37,7 @@
 #include "qtgui/dockinputctl.h"
 #include "qtgui/dockfft.h"
 #include "qtgui/dockbookmarks.h"
+#include "qtgui/dockrds.h"
 #include "qtgui/afsk1200win.h"
 #include "qtgui/iq_tool.h"
 
@@ -94,17 +95,20 @@ private:
     DockInputCtl   *uiDockInputCtl;
     DockFft        *uiDockFft;
     DockBookmarks  *uiDockBookmarks;
+    DockRDS        *uiDockRDS;
 
     CIqTool        *iq_tool;
 
 
     /* data decoders */
     Afsk1200Win    *dec_afsk1200;
+    bool            dec_rds;
 
     QTimer   *dec_timer;
     QTimer   *meter_timer;
     QTimer   *iq_fft_timer;
     QTimer   *audio_fft_timer;
+    QTimer   *rds_timer;
 
     receiver *rx;
 
@@ -186,6 +190,7 @@ private slots:
     void on_actionRemoteControl_triggered(bool checked);
     void on_actionRemoteConfig_triggered();
     void on_actionAFSK1200_triggered();
+    void on_actionRDS_triggered(bool checked);
     void on_actionUserGroup_triggered();
     void on_actionNews_triggered();
     void on_actionAbout_triggered();
@@ -205,7 +210,7 @@ private slots:
     void meterTimeout();
     void iqFftTimeout();
     void audioFftTimeout();
-
+    void rdsTimeout();
 };
 
 #endif // MAINWINDOW_H

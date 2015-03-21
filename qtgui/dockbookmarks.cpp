@@ -45,7 +45,7 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
     // Frequency List
     ui->tableViewFrequencyList->setModel(bookmarksTableModel);
     ui->tableViewFrequencyList->setColumnWidth( BookmarksTableModel::COL_NAME,
-    ui->tableViewFrequencyList->columnWidth(BookmarksTableModel::COL_NAME)*2 );
+        ui->tableViewFrequencyList->columnWidth(BookmarksTableModel::COL_NAME)*2 );
     ui->tableViewFrequencyList->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableViewFrequencyList->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->tableViewFrequencyList->installEventFilter(this);
@@ -53,8 +53,6 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
     // Demod Selection in Frequency List Table.
     ComboBoxDelegateModulation* delegateModulation = new ComboBoxDelegateModulation(this);
     ui->tableViewFrequencyList->setItemDelegateForColumn(2, delegateModulation);
-    //DelegateTags* delegateTags = new DelegateTags(this);
-    //ui->tableViewFrequencyList->setItemDelegateForColumn(4, delegateTags);
 
     // Bookmarks Context menu
     contextmenu = new QMenu(this);
@@ -113,7 +111,6 @@ void DockBookmarks::activated(const QModelIndex & index )
 
 void DockBookmarks::setNewFrequency(qint64 rx_freq)
 {
-    //FIXME: Linear search? Can be done in O(log n) with interval trees
     ui->tableViewFrequencyList->clearSelection();
     const int iRowCount = bookmarksTableModel->rowCount();
     for(int row=0; row<iRowCount; ++row)
@@ -147,41 +144,6 @@ void DockBookmarks::onDataChanged(const QModelIndex&, const QModelIndex &)
     updateTags();
     Bookmarks::Get().save();
 }
-
-/*void DockFreqTable::on_addButton_clicked()
-{
-    bool ok=false;
-    QString name = QInputDialog::getText(this, "New bookmark", "Bookmark name:", QLineEdit::Normal, "New bookmark", &ok);
-
-    if(ok)
-    {
-        BookmarkInfo info;
-        info.frequency=m_currentFrequency;
-        info.bandwidth=0; //FIXME
-        info.modulation="Unknown"; //FIXME
-        info.name=name;
-        info.tag=&Bookmarks::findOrAddTag("");
-        Bookmarks::add(info);
-        Bookmarks::save(m_freqTableDir+ui->comboBoxSelectFreqTable->currentText());
-        frequencyListTableModel->update();
-        //FIXME: Update plotter
-    }
-}
-
-void DockFreqTable::on_delButton_clicked()
-{
-    QModelIndexList selected = ui->tableViewFrequencyList->selectionModel()->selectedRows();
-
-    if(selected.empty())
-        return;
-
-    if(QMessageBox::question(this, "Delete bookmark", "Really delete?", QMessageBox::Yes|QMessageBox::No)==QMessageBox::Yes)
-    {
-        Bookmarks::remove(selected.first().row());
-        Bookmarks::save(m_freqTableDir+ui->comboBoxSelectFreqTable->currentText());
-        frequencyListTableModel->update();
-    }
-}*/
 
 void DockBookmarks::on_tableWidgetTagList_itemChanged(QTableWidgetItem *item)
 {
@@ -238,32 +200,6 @@ void DockBookmarks::doubleClicked(const QModelIndex & index)
         changeBookmarkTags(index.row(), index.column());
     }
 }
-
-#if 0
-DelegateTags::DelegateTags(QObject *parent)
-:QItemDelegate(parent)
-{
-}
-
-QWidget* DelegateTags::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
-    BookmarksTagList* pWidget = new BookmarksTagList(parent);
-    pWidget->updateTags();
-    return pWidget;
-}
-
-void DelegateTags::setEditorData(QWidget *editor, const QModelIndex &index) const
-{
-    BookmarksTagList* pWidget = (BookmarksTagList*)(editor);
-    pWidget->setSelectedTagsAsString(index.data().toString());
-}
-
-void DelegateTags::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
-{
-    BookmarksTagList *pWidget = static_cast<BookmarksTagList*>(editor);
-    model->setData(index, pWidget->getSelectedTagsAsString(), Qt::EditRole);
-}
-#endif
 
 ComboBoxDelegateModulation::ComboBoxDelegateModulation(QObject *parent)
 :QItemDelegate(parent)

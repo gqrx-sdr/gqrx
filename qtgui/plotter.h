@@ -9,7 +9,7 @@
 #include <QMap>
 
 #define HORZ_DIVS_MAX 50 //12
-#define MAX_SCREENSIZE 4096
+#define MAX_SCREENSIZE 16384
 
 #define PEAK_CLICK_MAX_H_DISTANCE 10 //Maximum horizontal distance of clicked point from peak
 #define PEAK_CLICK_MAX_V_DISTANCE 20 //Maximum vertical distance of clicked point from peak

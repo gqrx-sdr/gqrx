@@ -87,14 +87,17 @@ SOURCES += \
     dsp/agc_impl.cpp \
     dsp/correct_iq_cc.cpp \
     dsp/lpf.cpp \
+    dsp/rds/decoder_impl.cc \
+    dsp/rds/parser_impl.cc \
     dsp/resampler_xx.cpp \
+    dsp/rx_agc_xx.cpp \
     dsp/rx_demod_am.cpp \
     dsp/rx_demod_fm.cpp \
     dsp/rx_fft.cpp \
     dsp/rx_filter.cpp \
     dsp/rx_meter.cpp \
-    dsp/rx_agc_xx.cpp \
     dsp/rx_noise_blanker_cc.cpp \
+    dsp/rx_rds.cpp \
     dsp/sniffer_f.cpp \
     dsp/stereo_demod.cpp \
     interfaces/udp_sink_f.cpp \
@@ -108,8 +111,9 @@ SOURCES += \
     qtgui/dockaudio.cpp \
     qtgui/dockbookmarks.cpp \
     qtgui/dockinputctl.cpp \
-    qtgui/dockfft.cpp \
+    qtgui/dockrds.cpp \
     qtgui/dockrxopt.cpp \
+    qtgui/dockfft.cpp \
     qtgui/freqctrl.cpp \
     qtgui/ioconfig.cpp \
     qtgui/iq_tool.cpp \
@@ -133,6 +137,12 @@ HEADERS += \
     dsp/agc_impl.h \
     dsp/correct_iq_cc.h \
     dsp/lpf.h \
+    dsp/rds/api.h \
+    dsp/rds/parser.h \
+    dsp/rds/decoder.h \
+    dsp/rds/decoder_impl.h \
+    dsp/rds/parser_impl.h \
+    dsp/rds/constants.h \
     dsp/resampler_xx.h \
     dsp/rx_agc_xx.h \
     dsp/rx_demod_am.h \
@@ -141,6 +151,7 @@ HEADERS += \
     dsp/rx_filter.h \
     dsp/rx_meter.h \
     dsp/rx_noise_blanker_cc.h \
+    dsp/rx_rds.h \
     dsp/sniffer_f.h \
     dsp/stereo_demod.h \
     interfaces/udp_sink_f.h \
@@ -155,6 +166,7 @@ HEADERS += \
     qtgui/dockbookmarks.h \
     qtgui/dockfft.h \
     qtgui/dockinputctl.h \
+    qtgui/dockrds.h \
     qtgui/dockrxopt.h \
     qtgui/freqctrl.h \
     qtgui/ioconfig.h \
@@ -178,6 +190,7 @@ FORMS += \
     qtgui/dockbookmarks.ui \
     qtgui/dockfft.ui \
     qtgui/dockinputctl.ui \
+    qtgui/dockrds.ui \
     qtgui/iq_tool.ui \
     qtgui/dockrxopt.ui \
     qtgui/ioconfig.ui \
@@ -209,6 +222,7 @@ contains(AUDIO_BACKEND, pulse): {
 
 PKGCONFIG += gnuradio-analog \
              gnuradio-blocks \
+             gnuradio-digital \
              gnuradio-filter \
              gnuradio-fft \
              gnuradio-osmosdr
