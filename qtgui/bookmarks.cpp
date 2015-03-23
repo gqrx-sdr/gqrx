@@ -85,7 +85,7 @@ bool Bookmarks::load()
         // Read Tags, until first empty line.
         while (!file.atEnd())
         {
-            QString line = file.readLine().trimmed();
+            QString line = QString::fromUtf8(file.readLine().trimmed());
 
             if(line.isEmpty())
                 break;
@@ -108,7 +108,7 @@ bool Bookmarks::load()
         // Read Bookmarks, after first empty line.
         while (!file.atEnd())
         {
-            QString line = file.readLine().trimmed();
+            QString line = QString::fromUtf8(file.readLine().trimmed());
             if(line.isEmpty() || line.startsWith("#"))
                 continue;
 
