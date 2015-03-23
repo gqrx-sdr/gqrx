@@ -45,7 +45,8 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 CPlotter::CPlotter(QWidget *parent) :
-    QFrame(parent)
+    QFrame(parent),
+    m_step(1)
 {
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -360,7 +361,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         {   // moving inbetween demod lowcut and highcut region with left button held
             if (m_GrabPosition != 0)
             {
-                m_DemodCenterFreq = roundFreq(freqFromX(pt.x()-m_GrabPosition), m_ClickResolution );
+                m_DemodCenterFreq = roundFreqByStep( roundFreq(freqFromX(pt.x()-m_GrabPosition), m_ClickResolution ), m_step );
                 emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
 
                 if (m_Running)
@@ -457,6 +458,7 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                     m_DemodCenterFreq = roundFreq(freqFromX(pt.x()),m_ClickResolution );
 
                 //if cursor not captured set demod frequency and start demod box capture
+                m_DemodCenterFreq = roundFreqByStep(roundFreq(freqFromX(pt.x()),m_ClickResolution ), m_step);
                 emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
 
                 //save initial grab postion from m_DemodFreqX
@@ -469,7 +471,7 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
             else if (event->buttons() == Qt::MidButton)
             {
                 // set center freq
-                m_CenterFreq = roundFreq(freqFromX(pt.x()), m_ClickResolution);
+                m_CenterFreq = roundFreqByStep(roundFreq(freqFromX(pt.x()), m_ClickResolution), m_step);
                 m_DemodCenterFreq = m_CenterFreq;
                 emit newCenterFreq(m_CenterFreq);
                 emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
@@ -1293,6 +1295,12 @@ qint64 CPlotter::roundFreq(qint64 freq, int resolution)
         return ( freq - (freq+delta_2)%delta - delta_2);
 }
 
+qint64 CPlotter::roundFreqByStep(qint64 freq, qint64 step)
+{
+    return ((freq+step/2)/step)*step;
+}
+
+
 //////////////////////////////////////////////////////////////////////
 // Helper function clamps demod freqeuency limits of
 // m_DemodCenterFreq
@@ -1418,4 +1426,11 @@ void CPlotter::setPeakDetection(bool enabled, double c)
         m_PeakDetection=-1;
     else
         m_PeakDetection=c;
+}
+
+/*! Set demod freq step */
+void CPlotter::setStep(qint64 step)
+{
+    if (step==0) step=1;
+    m_step=step;
 }

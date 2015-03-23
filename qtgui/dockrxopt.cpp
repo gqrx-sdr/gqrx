@@ -33,7 +33,8 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockRxOpt),
     agc_is_on(true),
-    hw_freq_hz(144500000)
+    hw_freq_hz(144500000),
+    step_hz(stepIdxToHz(STEP_1))
 {
     ui->setupUi(this);
 
@@ -130,6 +131,34 @@ void DockRxOpt::updateHwFreq()
     ui->hwFreq->setText(QString("%1 MHz").arg(hw_freq_mhz, 11, 'f', 6, ' '));
 }
 
+qint64 DockRxOpt::stepIdxToHz(DockRxOpt::rxopt_step_idx idx)
+{
+    switch(idx) {
+    case STEP_1:    return 1;
+    case STEP_2:    return 2;
+    case STEP_5:    return 5;
+    case STEP_10:   return 10;
+    case STEP_25:   return 25;
+    case STEP_50:   return 50;
+    case STEP_100:  return 100;
+    case STEP_200:  return 200;
+    case STEP_300:  return 300;
+    case STEP_500:  return 500;
+    case STEP_1K:   return 1000;
+    case STEP_2K:   return 2000;
+    case STEP_3K:   return 3000;
+    case STEP_5K:   return 5000;
+    case STEP_6_25K:return 6250;
+    case STEP_9K:   return 9000;
+    case STEP_10K:  return 10000;
+    case STEP_12_5K:return 12500;
+    case STEP_25K:  return 25000;
+    case STEP_50K:  return 50000;
+    case STEP_100K: return 100000;
+    }
+    return 1;
+}
+
 
 /*! \brief Set filter parameters
  *  \param lo Low cutoff frequency in Hz
@@ -192,6 +221,11 @@ float DockRxOpt::currentMaxdev()
 {
     qDebug() << __FILE__ << __FUNCTION__ << "FIXME";
     return 5000.0;
+}
+
+qint64 DockRxOpt::currentStep()
+{
+    return step_hz;
 }
 
 /*! \brief Read receiver configuration from settings data. */
@@ -467,6 +501,12 @@ void DockRxOpt::nbOpt_thresholdChanged(int nbid, double value)
 void DockRxOpt::on_nbOptButton_clicked()
 {
     nbOpt->show();
+}
+
+void DockRxOpt::on_stepCombo_activated(int index)
+{
+    step_hz=stepIdxToHz(static_cast<rxopt_step_idx>(index));
+    emit stepChanged(step_hz);
 }
 
 int DockRxOpt::GetEnumForModulationString(QString param)
