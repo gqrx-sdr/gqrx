@@ -1177,3 +1177,32 @@ void receiver::connect_all(rx_chain type)
         tb->connect(sniffer_rr, 0, sniffer, 0);
     }
 }
+
+void receiver::get_rds_data(std::string &outbuff, int &num)
+{
+    rx->get_rds_data(outbuff, num);
+}
+
+void receiver::start_rds_decoder()
+{
+    stop();
+    rx->start_rds_decoder();
+    start();
+}
+
+void receiver::stop_rds_decoder()
+{
+    stop();
+    rx->stop_rds_decoder();
+    start();
+}
+
+bool receiver::is_rds_decoder_active()
+{
+    return rx->is_rds_decoder_active();
+}
+
+void receiver::reset_rds_parser()
+{
+    rx->reset_rds_parser();
+}

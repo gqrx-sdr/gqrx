@@ -60,6 +60,7 @@ To compile gqrx from source you need the following dependencies:
 - GNU Radio 3.7 with the following components:
     - gnuradio-runtime
     - gnuradio-analog
+    - gnuradio-digital
     - gnuradio-blocks
     - gnuradio-filter
     - gnuradio-fft
@@ -111,6 +112,10 @@ Alex Grinkov:
 
 Anthony Willard:
 - Various fixes and improvements
+
+Bastian Bloessl:
+Pavel Stano:
+- RDS support via gr-rds.
 
 Chris Kuethe:
 - Fractional PPM correction.
