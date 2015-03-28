@@ -168,7 +168,6 @@
     <addaction name="actionIqTool"/>
     <addaction name="separator"/>
     <addaction name="actionAFSK1200"/>
-    <addaction name="actionRDS"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Tools"/>
@@ -422,14 +421,6 @@
    </property>
    <property name="toolTip">
     <string>Show news about this release</string>
-   </property>
-  </action>
-  <action name="actionRDS">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>RDS Decoder</string>
    </property>
   </action>
  </widget>
