@@ -224,6 +224,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
     connect(uiDockFft, SIGNAL(fftPeakHoldToggled(bool)), this, SLOT(setFftPeakHold(bool)));
     connect(uiDockFft, SIGNAL(peakDetectionToggled(bool)), this, SLOT(setPeakDetection(bool)));
+    connect(uiDockRDS, SIGNAL(rdsDecoderToggled(bool)), this, SLOT(setRdsDecoder(bool)));
     
     // Bookmarks
     connect(uiDockBookmarks, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
@@ -282,8 +283,6 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
 
     rds_timer = new QTimer(this);
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
-    /* do not show RDS tab when it is disabled */
-    uiDockRDS->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -768,10 +767,9 @@ void MainWindow::selectDemod(int index)
     int flo=0, fhi=0, click_res=100;
 
     if (rx->is_rds_decoder_active()) {
-        on_actionRDS_triggered(false);
-        ui->actionRDS->setChecked(false);
+        setRdsDecoder(false);
     }
-    ui->actionRDS->setDisabled(true);
+    uiDockRDS->setDisabled();
 
     switch (index) {
 
@@ -896,7 +894,7 @@ void MainWindow::selectDemod(int index)
         else
             rx->set_demod(receiver::RX_DEMOD_WFM_S);
 
-        ui->actionRDS->setDisabled(false);
+        uiDockRDS->setEnabled();
         break;
 
         /* LSB */
@@ -1902,14 +1900,12 @@ void MainWindow::decoderTimeout()
     /* else stop timeout and sniffer? */
 }
 
-void MainWindow::on_actionRDS_triggered(bool checked)
+void MainWindow::setRdsDecoder(bool checked)
 {
     if (checked == true)
     {
         qDebug() << "Starting RDS decoder.";
         uiDockRDS->showEnabled();
-        uiDockRDS->setVisible(true);
-        uiDockRDS->raise();
         rx->start_rds_decoder();
         rx->reset_rds_parser();
         rds_timer->start(250);
@@ -1918,7 +1914,6 @@ void MainWindow::on_actionRDS_triggered(bool checked)
     {
         qDebug() << "Stopping RDS decoder.";
         uiDockRDS->showDisabled();
-        uiDockRDS->setVisible(false);
         rx->stop_rds_decoder();
         rds_timer->stop();
     }

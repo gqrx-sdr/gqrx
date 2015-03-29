@@ -57,14 +57,14 @@ rx_rds::rx_rds(double sample_rate)
                       gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof (char))),
       d_sample_rate(sample_rate)
 {
-    d_taps2 = gr::filter::firdes::low_pass(1.0, d_sample_rate, 57000, 4800);
+    d_taps2 = gr::filter::firdes::low_pass(2500.0, d_sample_rate, 2400, 2000);
 
-    f_fxff = gr::filter::freq_xlating_fir_filter_fcf::make(1.0, d_taps2, 57000, d_sample_rate);
+    f_fxff = gr::filter::freq_xlating_fir_filter_fcf::make(5.0, d_taps2, 57000, d_sample_rate);
 
-    f_rrcf = gr::filter::firdes::root_raised_cosine(1, sample_rate/1, 2375, 1, 100);
+    f_rrcf = gr::filter::firdes::root_raised_cosine(1, sample_rate/5, 2375, 1, 100);
     d_bpf2 = gr::filter::fir_filter_ccf::make(1, f_rrcf);
 
-    d_mpsk = gr::digital::mpsk_receiver_cc::make(2, 0, 1*M_PI/100.0, -0.06, 0.06, 0.5, 0.05, sample_rate/1/2375.0, 0.001, 0.005);
+    d_mpsk = gr::digital::mpsk_receiver_cc::make(2, 0, 1*M_PI/100.0, -0.06, 0.06, 0.5, 0.05, sample_rate/5/2375.0, 0.001, 0.005);
 
 
     b_ctr = gr::blocks::complex_to_real::make(1);

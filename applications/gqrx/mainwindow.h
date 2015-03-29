@@ -180,6 +180,9 @@ private slots:
     void on_plotter_newFilterFreq(int low, int high);    /*! New filter width */
     void on_plotter_newCenterFreq(qint64 f);
 
+    /* RDS */
+    void setRdsDecoder(bool checked);
+
     /* menu and toolbar actions */
     void on_actionDSP_triggered(bool checked);
     int  on_actionIoConfig_triggered();
@@ -190,7 +193,6 @@ private slots:
     void on_actionRemoteControl_triggered(bool checked);
     void on_actionRemoteConfig_triggered();
     void on_actionAFSK1200_triggered();
-    void on_actionRDS_triggered(bool checked);
     void on_actionUserGroup_triggered();
     void on_actionNews_triggered();
     void on_actionAbout_triggered();
