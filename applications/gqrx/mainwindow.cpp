@@ -1638,7 +1638,7 @@ void MainWindow::on_actionDSP_triggered(bool checked)
         ui->actionDSP->setText(tr("Stop DSP"));
 
         // reconfigure RX after 1s to counteract possible jerky streaming from rtl dongles
-        QTimer::singleShot(1000, this, SLOT(forceRxReconf()));
+        //QTimer::singleShot(1000, this, SLOT(forceRxReconf()));
     }
     else
     {
