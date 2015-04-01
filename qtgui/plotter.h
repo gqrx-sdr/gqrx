@@ -133,6 +133,7 @@ public slots:
     void setPeakHold(bool enabled);
     void setPeakDetection(bool enabled, double c);
     void updateOverlay();
+    void setStep(qint64 step);
 
 protected:
     //re-implemented widget event handlers
@@ -158,6 +159,7 @@ private:
     int xFromFreq(qint64 freq);
     qint64 freqFromX(int x);
     qint64 roundFreq(qint64 freq, int resolution);
+    qint64 roundFreqByStep(qint64 freq, qint64 step);
     bool isPointCloseTo(int x, int xr, int delta){return ((x > (xr-delta) ) && ( x<(xr+delta)) );}
     void clampDemodParameters();
 
@@ -231,6 +233,7 @@ private:
 
     QColor m_FftColor, m_FftCol0, m_FftCol1, m_PeakHoldColor;
     bool m_FftFill;
+    qint64 m_step;
 
     double m_PeakDetection;
     QMap<int,int> m_Peaks;

@@ -68,6 +68,31 @@ public:
         MODE_CWU        = 9  /*!< CW using USB filter. */
     };
 
+    /*! \brief Step selector entries. */
+    enum rxopt_step_idx {
+        STEP_1,
+        STEP_2,
+        STEP_5,
+        STEP_10,
+        STEP_25,
+        STEP_50,
+        STEP_100,
+        STEP_200,
+        STEP_300,
+        STEP_500,
+        STEP_1K,
+        STEP_2K,
+        STEP_3K,
+        STEP_5K,
+        STEP_6_25K,
+        STEP_9K,
+        STEP_10K,
+        STEP_12_5K,
+        STEP_25K,
+        STEP_50K,
+        STEP_100K
+    };
+
     explicit DockRxOpt(qint64 filterOffsetRange = 90000, QWidget *parent = 0);
     ~DockRxOpt();
 
@@ -91,6 +116,7 @@ public:
     static QString GetStringForModulationIndex(int iModulationIndex);
     static int GetEnumForModulationString(QString param);
     static bool IsModulationValid(QString strModulation);
+    qint64 currentStep();
 
 public slots:
     void setCurrentDemod(int demod);
@@ -98,6 +124,7 @@ public slots:
 
 private:
     void updateHwFreq();
+    static qint64 stepIdxToHz(rxopt_step_idx idx);
 
 signals:
     /*! \brief Signal emitted when the channel filter frequency has changed. */
@@ -148,6 +175,8 @@ signals:
     /*! \brief Signal emitted when noise blanker status has changed. */
     void noiseBlankerChanged(int nbid, bool on, float threshold);
 
+    /*! \brief Signal emitted when step has changed. */
+    void stepChanged(qint64 step);
 
 private slots:
     void on_filterFreq_newFrequency(qint64 freq);
@@ -162,6 +191,7 @@ private slots:
     void on_nb1Button_toggled(bool checked);
     void on_nb2Button_toggled(bool checked);
     void on_nbOptButton_clicked();
+    void on_stepCombo_activated(int index);
 
     // Signals coming from noise blanker pop-up
     void nbOpt_thresholdChanged(int nbid, double value);
@@ -187,6 +217,8 @@ private:
     bool agc_is_on;
 
     qint64 hw_freq_hz;   /*! Current PLL frequency in Hz. */
+    qint64 step_hz;      /*! Current step in Hz */
+
 };
 
 #endif // DOCKRXOPT_H

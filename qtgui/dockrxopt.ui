@@ -43,16 +43,7 @@
     <property name="spacing">
      <number>5</number>
     </property>
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
+    <property name="margin">
      <number>0</number>
     </property>
     <item>
@@ -98,23 +89,14 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
          <x>0</x>
          <y>0</y>
          <width>250</width>
-         <height>250</height>
+         <height>253</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <property name="spacing">
          <number>3</number>
         </property>
-        <property name="leftMargin">
-         <number>5</number>
-        </property>
-        <property name="topMargin">
-         <number>5</number>
-        </property>
-        <property name="rightMargin">
-         <number>5</number>
-        </property>
-        <property name="bottomMargin">
+        <property name="margin">
          <number>5</number>
         </property>
         <item>
@@ -529,6 +511,122 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
               <height>16</height>
              </size>
             </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="stepLabel">
+            <property name="text">
+             <string>Step</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QComboBox" name="stepCombo">
+            <item>
+             <property name="text">
+              <string>1Hz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>2Hz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>5Hz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>10Hz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>25Hz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>50Hz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>100Hz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>200Hz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>300Hz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>500Hz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>1kHz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>2kHz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>3kHz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>5kHz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>6.25kHz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>9kHz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>10kHz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>12.5kHz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>25kHz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>50kHz</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>100kHz</string>
+             </property>
+            </item>
            </widget>
           </item>
          </layout>
