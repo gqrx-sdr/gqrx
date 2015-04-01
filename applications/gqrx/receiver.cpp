@@ -189,6 +189,7 @@ void receiver::set_input_device(const std::string device)
     tb->disconnect(src, 0, iq_swap, 0);
     src.reset();
     src = osmosdr::source::make(device);
+
     tb->connect(src, 0, iq_swap, 0);
 
     if (d_running)
@@ -249,19 +250,34 @@ void receiver::set_antenna(const std::string &antenna)
 
 /*! \brief Set new input sample rate.
  *  \param rate The desired input rate
- *  \return The actual sample rate set.
+ *  \return The actual sample rate set or 0 if there was an error with the
+ *          device.
  */
 double receiver::set_input_rate(double rate)
 {
+    double ret = 0;
+
     tb->lock();
-    src->set_sample_rate(rate);
-    d_input_rate = src->get_sample_rate();
+    d_input_rate = src->set_sample_rate(rate);
+
+    if (d_input_rate == 0)
+    {
+        // This can be the case when no device is attached and gr-osmosdr
+        // puts in a null_source with rate 100 ksps
+        std::cerr << "Failed to RX input rate to " << rate << std::endl;
+        d_input_rate = 1.e5;
+    }
+    else
+    {
+        ret = d_input_rate;
+    }
+
     dc_corr->set_sample_rate(d_input_rate);
     rx->set_quad_rate(d_input_rate);
     lo->set_sampling_freq(d_input_rate);
     tb->unlock();
 
-    return d_input_rate;
+    return ret;
 }
 
 

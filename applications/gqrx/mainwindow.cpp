@@ -441,6 +441,24 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
     if (conv_ok && (sr > 0))
     {
         double actual_rate = rx->set_input_rate(sr);
+
+        if (actual_rate == 0)
+        {
+            // There is an error with the device (perhaps not attached)
+            // Warn user and use 100 ksps (rate used by gr-osmocom null_source)
+            QMessageBox *dialog =
+                    new QMessageBox(QMessageBox::Warning, tr("Device Error"),
+                                    tr("There was an error configuring the input device.\n"
+                                       "Please make sure that a supported device is atached "
+                                       "to the computer and restart gqrx."),
+                                    QMessageBox::Ok);
+            dialog->setModal(true);
+            dialog->setAttribute(Qt::WA_DeleteOnClose);
+            dialog->show();
+
+            actual_rate = 1.0e5;
+        }
+
         qDebug() << "Requested sample rate:" << sr;
         qDebug() << "Actual sample rate   :" << QString("%1").arg(actual_rate, 0, 'f', 6);
         uiDockRxOpt->setFilterOffsetRange((qint64)(0.9*actual_rate));
