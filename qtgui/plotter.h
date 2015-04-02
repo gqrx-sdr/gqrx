@@ -122,7 +122,7 @@ signals:
     void newDemodFreq(qint64 freq, qint64 delta); /* delta is the offset from the center */
     void newLowCutFreq(int f);
     void newHighCutFreq(int f);
-    void newFilterFreq(int low, int high);  /* substute for NewLow / NewHigh */
+    void newFilterFreq(int low, int high);  /* substitute for NewLow / NewHigh */
 
 public slots:
     // zoom functions

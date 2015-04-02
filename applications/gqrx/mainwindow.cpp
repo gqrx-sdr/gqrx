@@ -787,6 +787,8 @@ void MainWindow::selectDemod(int index)
     int filter_preset = uiDockRxOpt->currentFilter();
     int flo=0, fhi=0, click_res=100;
 
+    d_filter_shape = (receiver::filter_shape)uiDockRxOpt->currentFilterShape();
+
     if (rx->is_rds_decoder_active()) {
         setRdsDecoder(false);
     }
@@ -1022,7 +1024,7 @@ void MainWindow::selectDemod(int index)
     ui->plotter->setHiLowCutFrequencies(flo, fhi);
     ui->plotter->setClickResolution(click_res);
     ui->plotter->setFilterClickResolution(click_res);
-    rx->set_filter((double)flo, (double)fhi, receiver::FILTER_SHAPE_NORMAL);
+    rx->set_filter((double)flo, (double)fhi, d_filter_shape);
 
     d_have_audio = ((index != DockRxOpt::MODE_OFF) && (index != DockRxOpt::MODE_RAW));
 
@@ -1045,13 +1047,13 @@ void MainWindow::setFmMaxdev(float max_dev)
     {
         ui->plotter->setDemodRanges(-25000, -1000, 1000, 25000, true);
         ui->plotter->setHiLowCutFrequencies(-5000, 5000);
-        rx->set_filter(-5000.0, 5000.0, receiver::FILTER_SHAPE_NORMAL);
+        rx->set_filter(-5000.0, 5000.0, d_filter_shape);
     }
     else
     {
         ui->plotter->setDemodRanges(-45000, -10000, 10000, 45000, true);
         ui->plotter->setHiLowCutFrequencies(-35000, 35000);
-        rx->set_filter(-35000.0, 35000.0, receiver::FILTER_SHAPE_NORMAL);
+        rx->set_filter(-35000.0, 35000.0, d_filter_shape);
     }
 }
 

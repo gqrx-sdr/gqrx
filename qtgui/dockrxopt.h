@@ -80,6 +80,9 @@ public:
     void setCurrentFilter(int index);
     int  currentFilter();
 
+    void setCurrentFilterShape(int index);
+    int  currentFilterShape();
+
     void setHwFreq(qint64 freq_hz);
 
     int  currentDemod();

@@ -64,6 +64,9 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     ui->filterFreq->setup(7, -filterOffsetRange/2, filterOffsetRange/2, 1, UNITS_KHZ);
     ui->filterFreq->setFrequency(0);
 
+    // use same slot for filteCombo and filterShapeCombo
+    connect(ui->filterShapeCombo, SIGNAL(activated(int)), this, SLOT(on_filterCombo_activated(int)));
+
     // demodulator options dialog
     demodOpt = new CDemodOptions(this);
     demodOpt->setCurrentPage(CDemodOptions::PAGE_FM_OPT);
@@ -143,7 +146,7 @@ void DockRxOpt::setFilterParam(int lo, int hi)
     float width_f = fabs((hi-lo)/1000.0);
 
     ui->filterCombo->setCurrentIndex(FILT_SEL_USER_IDX);
-    ui->filterCombo->setItemText(FILT_SEL_USER_IDX, QString("User (%1k)").arg(width_f));
+    ui->filterCombo->setItemText(FILT_SEL_USER_IDX, QString("User (%1 k)").arg(width_f));
 
 }
 
@@ -162,6 +165,17 @@ void DockRxOpt::setCurrentFilter(int index)
 int  DockRxOpt::currentFilter()
 {
     return ui->filterCombo->currentIndex();
+}
+
+/*! \brief Select filter shape */
+void DockRxOpt::setCurrentFilterShape(int index)
+{
+    ui->filterShapeCombo->setCurrentIndex(index);
+}
+
+int  DockRxOpt::currentFilterShape()
+{
+    return ui->filterShapeCombo->currentIndex();
 }
 
 
@@ -266,6 +280,7 @@ void DockRxOpt::on_filterCombo_activated(int index)
     Q_UNUSED(index);
 
     qDebug() << "New filter preset:" << ui->filterCombo->currentText();
+    qDebug() << "            shape:" << ui->filterShapeCombo->currentIndex();
     emit demodSelected(ui->modeSelector->currentIndex());
 }
 

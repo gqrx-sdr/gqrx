@@ -4,6 +4,7 @@
        NEW: Bookmarks.
        NEW: FM RDS decoder using gr-rds.
        NEW: Frequency tooltips on the FFT area.
+       NEW: Filter shape selector (soft, normal, sharp).
      FIXED: Prevent crash due to device errors while starting the application.
   IMPROVED: Fractional PPM correction.
 
