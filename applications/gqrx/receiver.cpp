@@ -516,16 +516,16 @@ receiver::status receiver::set_filter(double low, double high, filter_shape shap
     switch (shape) {
 
     case FILTER_SHAPE_SOFT:
-        trans_width = abs(high-low)*0.2;
+        trans_width = abs(high - low) * 0.4;
         break;
 
     case FILTER_SHAPE_SHARP:
-        trans_width = abs(high-low)*0.01;
+        trans_width = abs(high - low) * 0.05;
         break;
 
     case FILTER_SHAPE_NORMAL:
     default:
-        trans_width = abs(high-low)*0.1;
+        trans_width = abs(high - low) * 0.2;
         break;
 
     }
