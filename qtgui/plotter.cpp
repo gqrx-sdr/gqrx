@@ -33,6 +33,7 @@
 #include <cmath>
 #include <QDebug>
 #include <QtGlobal>
+#include <QToolTip>
 
 
 //////////////////////////////////////////////////////////////////////
@@ -55,6 +56,8 @@ CPlotter::CPlotter(QWidget *parent) :
     setAttribute(Qt::WA_OpaquePaintEvent, false);
     setAttribute(Qt::WA_NoSystemBackground, true);
     setMouseTracking(true);
+
+    setTooltipsEnabled(false);
 
     // default waterfall color scheme
     for (int i = 0; i < 256; i++)
@@ -192,30 +195,49 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 if (CENTER != m_CursorCaptured)
                     setCursor(QCursor(Qt::SizeHorCursor));
                 m_CursorCaptured = CENTER;
+                if (m_TooltipsEnabled)
+                    QToolTip::showText(event->globalPos(),
+                                       QString("Demod: %1 kHz")
+                                       .arg(m_DemodCenterFreq/1.e3f, 0, 'f', 3),
+                                       this, rect());
             }
             else if (isPointCloseTo(pt.x(), m_DemodHiCutFreqX, m_CursorCaptureDelta))
             {	//in move demod hicut region
                 if (RIGHT != m_CursorCaptured)
                     setCursor(QCursor(Qt::SizeFDiagCursor));
                 m_CursorCaptured = RIGHT;
+                if (m_TooltipsEnabled)
+                    QToolTip::showText(event->globalPos(),
+                                       QString("High cut: %1 Hz")
+                                       .arg(m_DemodHiCutFreq),
+                                       this, rect());
             }
             else if (isPointCloseTo(pt.x(), m_DemodLowCutFreqX, m_CursorCaptureDelta))
             {	//in move demod lowcut region
                 if (LEFT != m_CursorCaptured)
                     setCursor(QCursor(Qt::SizeBDiagCursor));
                 m_CursorCaptured = LEFT;
+                if (m_TooltipsEnabled)
+                    QToolTip::showText(event->globalPos(),
+                                       QString("Low cut: %1 Hz")
+                                       .arg(m_DemodLowCutFreq),
+                                       this, rect());
             }
             else if (isPointCloseTo(pt.x(), m_YAxisWidth/2, m_YAxisWidth/2))
             {
                 if (YAXIS != m_CursorCaptured)
                     setCursor(QCursor(Qt::OpenHandCursor));
                 m_CursorCaptured = YAXIS;
+                if (m_TooltipsEnabled)
+                    QToolTip::hideText();
             }
             else if (isPointCloseTo(pt.y(), m_XAxisYCenter, m_CursorCaptureDelta+5))
             {
                 if (XAXIS != m_CursorCaptured)
                     setCursor(QCursor(Qt::OpenHandCursor));
                 m_CursorCaptured = XAXIS;
+                if (m_TooltipsEnabled)
+                    QToolTip::hideText();
             }
             else
             {	//if not near any grab boundaries
@@ -224,6 +246,11 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     setCursor(QCursor(Qt::ArrowCursor));
                     m_CursorCaptured = NONE;
                 }
+                if (m_TooltipsEnabled)
+                    QToolTip::showText(event->globalPos(),
+                                       QString("F: %1 kHz")
+                                       .arg(freqFromX(pt.x())/1.e3f, 0, 'f', 3),
+                                       this, rect());
             }
             m_GrabPosition = 0;
         }
@@ -238,8 +265,12 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             m_CursorCaptured = NONE;
             m_GrabPosition = 0;
         }
+        if (m_TooltipsEnabled)
+            QToolTip::showText(event->globalPos(),
+                               QString("F: %1 kHz")
+                               .arg(freqFromX(pt.x())/1.e3f, 0, 'f', 3),
+                               this, rect());
     }
-
     // process mouse moves while in cursor capture modes
     if (YAXIS == m_CursorCaptured)
     {

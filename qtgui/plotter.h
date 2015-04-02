@@ -34,6 +34,7 @@ public:
     void setFilterClickResolution(int clickres) { m_FilterClickResolution = clickres; }
     void setFilterBoxEnabled(bool enabled) { m_FilterBoxEnabled = enabled; }
     void setCenterLineEnabled(bool enabled) { m_CenterLineEnabled = enabled; }
+    void setTooltipsEnabled(bool enabled) { m_TooltipsEnabled = enabled; }
     void setPercent2DScreen(int percent)
     {
         m_Percent2DScreen = percent;
@@ -193,6 +194,7 @@ private:
     qint64 m_DemodCenterFreq;
     bool m_CenterLineEnabled;  /*!< Distinguish center line. */
     bool m_FilterBoxEnabled;   /*!< Draw filter box. */
+    bool m_TooltipsEnabled;     /*!< Tooltips enabled */
     int m_DemodHiCutFreq;
     int m_DemodLowCutFreq;
     int m_DemodFreqX;		//screen coordinate x position

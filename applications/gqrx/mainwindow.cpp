@@ -251,6 +251,12 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(remote, SIGNAL(satAosEvent()), uiDockAudio, SLOT(startAudioRecorder()));
     connect(remote, SIGNAL(satLosEvent()), uiDockAudio, SLOT(stopAudioRecorder()));
 
+    rds_timer = new QTimer(this);
+    connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
+
+    // enable frequency tooltips on FFT plot
+    ui->plotter->setTooltipsEnabled(true);
+
     // restore last session
     if (!loadConfig(cfgfile, true))
     {
@@ -280,9 +286,6 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
             configOk = true;
         }
 	}
-
-    rds_timer = new QTimer(this);
-    connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
 }
 
 MainWindow::~MainWindow()
