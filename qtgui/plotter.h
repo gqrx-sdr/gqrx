@@ -129,6 +129,9 @@ public slots:
     void resetHorizontalZoom(void);
     void moveToCenterFreq(void);
     void moveToDemodFreq(void);
+    void zoomOnXAxis(float level);
+
+    // other FFT slots
     void setFftPlotColor(const QColor color);
     void setFftFill(bool enabled);
     void setPeakHold(bool enabled);
@@ -154,6 +157,7 @@ private:
         XAXIS,
         BOOKMARK
     };
+
     void drawOverlay();
     void makeFrequencyStrs();
     int xFromFreq(qint64 freq);
@@ -167,6 +171,8 @@ private:
                                  qint64 startFreq, qint64 stopFreq,
                                  double *inBuf, qint32 *outBuf,
                                  qint32 *maxbin, qint32 *minbin);
+
+    void zoomStepX(float factor, int x);
 
     bool m_PeakHoldActive;
     bool m_PeakHoldValid;

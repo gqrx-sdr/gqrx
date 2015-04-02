@@ -261,6 +261,13 @@ void DockFft::on_fftAvgSlider_valueChanged(int value)
     emit fftAvgChanged(avg);
 }
 
+/*! \brief FFT zoom level changed */
+void DockFft::on_fftZoomSlider_valueChanged(int level)
+{
+    ui->zoomLevelLabel->setText(QString("%1x").arg(level));
+    emit fftZoomChanged((float)level);
+}
+
 void DockFft::on_resetButton_clicked(void)
 {
     emit resetFftZoom();

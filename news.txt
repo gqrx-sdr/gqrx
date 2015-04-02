@@ -5,6 +5,7 @@
        NEW: FM RDS decoder using gr-rds.
        NEW: Frequency tooltips on the FFT area.
        NEW: Filter shape selector (soft, normal, sharp).
+       NEW: Zoom slider to aid zooming on the frequency axis.
      FIXED: Prevent crash due to device errors while starting the application.
   IMPROVED: Fractional PPM correction.
 

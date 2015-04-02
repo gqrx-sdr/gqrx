@@ -52,6 +52,7 @@ signals:
     void fftSizeChanged(int size);   /*! FFT size changed. */
     void fftRateChanged(int fps);    /*! FFT rate changed. */
     void fftSplitChanged(int pct);   /*! Split between pandapter and waterfall changed. */
+    void fftZoomChanged(float level); /*! Zoom level slider changed. */
     void fftAvgChanged(double gain); /*! FFT video filter gain has changed. */
     void resetFftZoom(void);         /*! FFT zoom reset. */
     void gotoFftCenter(void);        /*! Go to FFT center. */
@@ -66,6 +67,7 @@ private slots:
     void on_fftRateComboBox_currentIndexChanged(const QString & text);
     void on_fftSplitSlider_valueChanged(int value);
     void on_fftAvgSlider_valueChanged(int value);
+    void on_fftZoomSlider_valueChanged(int level);
     void on_resetButton_clicked(void);
     void on_centerButton_clicked(void);
     void on_demodButton_clicked(void);

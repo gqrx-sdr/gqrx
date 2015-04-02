@@ -27,13 +27,14 @@
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied, of Moe Wheatley.
  */
-#include "plotter.h"
-#include "bookmarks.h"
 #include <stdlib.h>
 #include <cmath>
 #include <QDebug>
 #include <QtGlobal>
 #include <QToolTip>
+
+#include "plotter.h"
+#include "bookmarks.h"
 
 
 //////////////////////////////////////////////////////////////////////
@@ -559,6 +560,40 @@ void CPlotter::mouseReleaseEvent(QMouseEvent * event)
     }
 }
 
+
+// Make a single zoom step on the X axis.
+void CPlotter::zoomStepX(float step, int x)
+{
+    // calculate new range shown on FFT
+    float new_range = qBound(10.0f,
+                             (float)(m_Span) * step,
+                             (float)(m_SampleFreq) * 10.0f);
+
+    // Frequency where event occured is kept fixed under mouse
+    float ratio = (float)x / (float)m_OverlayPixmap.width();
+    float fixed_hz = freqFromX(x);
+    float f_max = fixed_hz + (1.0 - ratio) * new_range;
+    float f_min = f_max - new_range;
+
+    qint64 fc = (qint64)(f_min + (f_max - f_min) / 2.0);
+
+    setFftCenterFreq(fc - m_CenterFreq);
+    setSpanFreq((quint32)new_range);
+
+    float factor = (float)m_SampleFreq / (float)m_Span;
+    qDebug() << QString("Spectrum zoom: %1x").arg(factor, 0, 'f', 1);
+
+    m_PeakHoldValid = false;
+}
+
+// Zoom on X axis (absolute level)
+void CPlotter::zoomOnXAxis(float level)
+{
+    float current_level = (float)m_SampleFreq / (float)m_Span;
+
+    zoomStepX(current_level / level, xFromFreq(m_DemodCenterFreq));
+}
+
 //////////////////////////////////////////////////////////////////////
 // Called when a mouse wheel is turned
 //////////////////////////////////////////////////////////////////////
@@ -589,28 +624,7 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     }
     else if (m_CursorCaptured == XAXIS)
     {
-        // calculate new range shown on FFT
-        float zoom_factor = event->delta() < 0 ? 1.1 : 0.9;
-        float new_range = qBound(10.0f,
-                                 (float)(m_Span) * zoom_factor,
-                                 (float)(m_SampleFreq) * 10.0f);
-
-        // Frequency where event occured is kept fixed under mouse
-        float ratio = (float)pt.x() / (float)m_OverlayPixmap.width();
-
-        float fixed_hz = freqFromX(pt.x());
-
-        float f_max = fixed_hz + (1.0 - ratio) * new_range;
-        float f_min = f_max - new_range;
-        qint64 fc = (qint64)(f_min + (f_max - f_min) / 2.0);
-
-        setFftCenterFreq(fc-m_CenterFreq);
-        setSpanFreq((quint32)new_range);
-
-        zoom_factor = (float)m_SampleFreq/(float)m_Span;
-        qDebug() << QString("Spectrum zoom: %1x").arg(zoom_factor, 0, 'f', 1);
-
-        m_PeakHoldValid = false;
+        zoomStepX(event->delta() < 0 ? 1.1 : 0.9, pt.x());
     }
     else if (event->modifiers() & Qt::ControlModifier)
     {
