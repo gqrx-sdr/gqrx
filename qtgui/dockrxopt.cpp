@@ -55,7 +55,6 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
 #ifdef Q_WS_MAC
     // Workaround for Mac, see http://stackoverflow.com/questions/3978889/why-is-qhboxlayout-causing-widgets-to-overlap
     // Might be fixed in Qt 5?
-    ui->filterButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     ui->modeButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     ui->agcButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     ui->autoSquelchButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
@@ -282,13 +281,6 @@ void DockRxOpt::on_filterCombo_activated(int index)
     qDebug() << "New filter preset:" << ui->filterCombo->currentText();
     qDebug() << "            shape:" << ui->filterShapeCombo->currentIndex();
     emit demodSelected(ui->modeSelector->currentIndex());
-}
-
-/*! \brief Filter shape (TBC).
- */
-void DockRxOpt::on_filterButton_clicked()
-{
-
 }
 
 /*! \brief Mode selector activated.
