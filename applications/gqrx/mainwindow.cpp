@@ -1380,7 +1380,7 @@ void MainWindow::startIqRecording(const QString recdir)
     qDebug() << __func__;
     // generate file name using date, time, rf freq in kHz and BW in Hz
     // gqrx_iq_yyyymmdd_hhmmss_freq_bw_fc.raw
-    qint64 freq = ui->freqCtrl->getFrequency();
+    qint64 freq = (qint64)(rx->get_rf_freq());
     qint64 sr = (qint64)(rx->get_input_rate());
     QString lastRec = QDateTime::currentDateTimeUtc().
             toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.'raw'").arg(recdir).arg(freq).arg(sr);
