@@ -255,21 +255,21 @@ void receiver::set_antenna(const std::string &antenna)
  */
 double receiver::set_input_rate(double rate)
 {
-    double ret = 0;
-
     tb->lock();
     d_input_rate = src->set_sample_rate(rate);
 
     if (d_input_rate == 0)
     {
         // This can be the case when no device is attached and gr-osmosdr
-        // puts in a null_source with rate 100 ksps
-        std::cerr << "Failed to RX input rate to " << rate << std::endl;
-        d_input_rate = 1.e5;
-    }
-    else
-    {
-        ret = d_input_rate;
+        // puts in a null_source with rate 100 ksps.
+        // ...
+        // Or with some over the top fucked up rtl dongles that appear to work
+        // but return an error here. So we just ignore it.
+        std::cerr << std::endl;
+        std::cerr << "Failed to set RX input rate to " << rate << std::endl;
+        std::cerr << "Your device may not be working properly." << std::endl;
+        std::cerr << std::endl;
+        d_input_rate = rate;
     }
 
     dc_corr->set_sample_rate(d_input_rate);
@@ -277,7 +277,7 @@ double receiver::set_input_rate(double rate)
     lo->set_sampling_freq(d_input_rate);
     tb->unlock();
 
-    return ret;
+    return d_input_rate;
 }
 
 

@@ -464,7 +464,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
             dialog->setAttribute(Qt::WA_DeleteOnClose);
             dialog->show();
 
-            actual_rate = 1.0e5;
+            actual_rate = sr;
         }
 
         qDebug() << "Requested sample rate:" << sr;
