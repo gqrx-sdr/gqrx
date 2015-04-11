@@ -256,7 +256,11 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
 
     // enable frequency tooltips on FFT plot
+#ifdef Q_WS_MAC
+    ui->plotter->setTooltipsEnabled(false);
+#else
     ui->plotter->setTooltipsEnabled(true);
+#endif
 
     // restore last session
     if (!loadConfig(cfgfile, true))
