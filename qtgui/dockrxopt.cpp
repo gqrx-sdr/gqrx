@@ -52,7 +52,7 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     }
     ui->modeSelector->addItems(ModulationStrings);
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     // Workaround for Mac, see http://stackoverflow.com/questions/3978889/why-is-qhboxlayout-causing-widgets-to-overlap
     // Might be fixed in Qt 5?
     ui->modeButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
