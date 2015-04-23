@@ -34,6 +34,7 @@ public:
     void setFilterClickResolution(int clickres) { m_FilterClickResolution = clickres; }
     void setFilterBoxEnabled(bool enabled) { m_FilterBoxEnabled = enabled; }
     void setCenterLineEnabled(bool enabled) { m_CenterLineEnabled = enabled; }
+    void setTooltipsEnabled(bool enabled) { m_TooltipsEnabled = enabled; }
     void setPercent2DScreen(int percent)
     {
         m_Percent2DScreen = percent;
@@ -121,13 +122,16 @@ signals:
     void newDemodFreq(qint64 freq, qint64 delta); /* delta is the offset from the center */
     void newLowCutFreq(int f);
     void newHighCutFreq(int f);
-    void newFilterFreq(int low, int high);  /* substute for NewLow / NewHigh */
+    void newFilterFreq(int low, int high);  /* substitute for NewLow / NewHigh */
 
 public slots:
     // zoom functions
     void resetHorizontalZoom(void);
     void moveToCenterFreq(void);
     void moveToDemodFreq(void);
+    void zoomOnXAxis(float level);
+
+    // other FFT slots
     void setFftPlotColor(const QColor color);
     void setFftFill(bool enabled);
     void setPeakHold(bool enabled);
@@ -153,6 +157,7 @@ private:
         XAXIS,
         BOOKMARK
     };
+
     void drawOverlay();
     void makeFrequencyStrs();
     int xFromFreq(qint64 freq);
@@ -166,6 +171,8 @@ private:
                                  qint64 startFreq, qint64 stopFreq,
                                  double *inBuf, qint32 *outBuf,
                                  qint32 *maxbin, qint32 *minbin);
+
+    void zoomStepX(float factor, int x);
 
     bool m_PeakHoldActive;
     bool m_PeakHoldValid;
@@ -193,6 +200,7 @@ private:
     qint64 m_DemodCenterFreq;
     bool m_CenterLineEnabled;  /*!< Distinguish center line. */
     bool m_FilterBoxEnabled;   /*!< Draw filter box. */
+    bool m_TooltipsEnabled;     /*!< Tooltips enabled */
     int m_DemodHiCutFreq;
     int m_DemodLowCutFreq;
     int m_DemodFreqX;		//screen coordinate x position

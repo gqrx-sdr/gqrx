@@ -30,7 +30,7 @@ DockRDS::DockRDS(QWidget *parent) :
     ui(new Ui::DockRDS)
 {
     ui->setupUi(this);
-}
+ }
 
 DockRDS::~DockRDS()
 {
@@ -77,12 +77,12 @@ void DockRDS::updateRDS(QString text, int type)
 
 void DockRDS::showEnabled()
 {
-    ui->rds_status->setText("Enabled");
+    ui->rdsCheckbox->setText("Enabled");
 }
 
 void DockRDS::showDisabled()
 {
-    ui->rds_status->setText("Disabled");
+    ui->rdsCheckbox->setText("Disabled");
     ui->program_information->setText("");
     ui->station_name->setText("");
     ui->program_type->setText("");
@@ -90,4 +90,24 @@ void DockRDS::showDisabled()
     ui->radiotext->setText("");
     ui->clocktime->setText("");
     ui->alt_freq->setText("");
+}
+
+void DockRDS::setDisabled()
+{
+ ui->rdsCheckbox->setDisabled(true);
+
+ ui->rdsCheckbox->blockSignals(true);
+ ui->rdsCheckbox->setChecked(false);
+ ui->rdsCheckbox->blockSignals(false);
+}
+
+void DockRDS::setEnabled()
+{
+ ui->rdsCheckbox->setDisabled(false);
+}
+
+/*! \brief Enable/disable RDS decoder */
+void DockRDS::on_rdsCheckbox_toggled(bool checked)
+{
+    emit rdsDecoderToggled(checked);
 }

@@ -27,12 +27,14 @@
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied, of Moe Wheatley.
  */
-#include "plotter.h"
-#include "bookmarks.h"
 #include <stdlib.h>
 #include <cmath>
 #include <QDebug>
 #include <QtGlobal>
+#include <QToolTip>
+
+#include "plotter.h"
+#include "bookmarks.h"
 
 
 //////////////////////////////////////////////////////////////////////
@@ -55,6 +57,8 @@ CPlotter::CPlotter(QWidget *parent) :
     setAttribute(Qt::WA_OpaquePaintEvent, false);
     setAttribute(Qt::WA_NoSystemBackground, true);
     setMouseTracking(true);
+
+    setTooltipsEnabled(false);
 
     // default waterfall color scheme
     for (int i = 0; i < 256; i++)
@@ -121,7 +125,7 @@ CPlotter::CPlotter(QWidget *parent) :
     m_GrabPosition = 0;
     m_Percent2DScreen = 50;	//percent of screen used for 2D display
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     m_FontSize = 11;
 #else
     m_FontSize = 9;
@@ -192,30 +196,49 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 if (CENTER != m_CursorCaptured)
                     setCursor(QCursor(Qt::SizeHorCursor));
                 m_CursorCaptured = CENTER;
+                if (m_TooltipsEnabled)
+                    QToolTip::showText(event->globalPos(),
+                                       QString("Demod: %1 kHz")
+                                       .arg(m_DemodCenterFreq/1.e3f, 0, 'f', 3),
+                                       this, rect());
             }
             else if (isPointCloseTo(pt.x(), m_DemodHiCutFreqX, m_CursorCaptureDelta))
             {	//in move demod hicut region
                 if (RIGHT != m_CursorCaptured)
                     setCursor(QCursor(Qt::SizeFDiagCursor));
                 m_CursorCaptured = RIGHT;
+                if (m_TooltipsEnabled)
+                    QToolTip::showText(event->globalPos(),
+                                       QString("High cut: %1 Hz")
+                                       .arg(m_DemodHiCutFreq),
+                                       this, rect());
             }
             else if (isPointCloseTo(pt.x(), m_DemodLowCutFreqX, m_CursorCaptureDelta))
             {	//in move demod lowcut region
                 if (LEFT != m_CursorCaptured)
                     setCursor(QCursor(Qt::SizeBDiagCursor));
                 m_CursorCaptured = LEFT;
+                if (m_TooltipsEnabled)
+                    QToolTip::showText(event->globalPos(),
+                                       QString("Low cut: %1 Hz")
+                                       .arg(m_DemodLowCutFreq),
+                                       this, rect());
             }
             else if (isPointCloseTo(pt.x(), m_YAxisWidth/2, m_YAxisWidth/2))
             {
                 if (YAXIS != m_CursorCaptured)
                     setCursor(QCursor(Qt::OpenHandCursor));
                 m_CursorCaptured = YAXIS;
+                if (m_TooltipsEnabled)
+                    QToolTip::hideText();
             }
             else if (isPointCloseTo(pt.y(), m_XAxisYCenter, m_CursorCaptureDelta+5))
             {
                 if (XAXIS != m_CursorCaptured)
                     setCursor(QCursor(Qt::OpenHandCursor));
                 m_CursorCaptured = XAXIS;
+                if (m_TooltipsEnabled)
+                    QToolTip::hideText();
             }
             else
             {	//if not near any grab boundaries
@@ -224,6 +247,11 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     setCursor(QCursor(Qt::ArrowCursor));
                     m_CursorCaptured = NONE;
                 }
+                if (m_TooltipsEnabled)
+                    QToolTip::showText(event->globalPos(),
+                                       QString("F: %1 kHz")
+                                       .arg(freqFromX(pt.x())/1.e3f, 0, 'f', 3),
+                                       this, rect());
             }
             m_GrabPosition = 0;
         }
@@ -238,8 +266,12 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             m_CursorCaptured = NONE;
             m_GrabPosition = 0;
         }
+        if (m_TooltipsEnabled)
+            QToolTip::showText(event->globalPos(),
+                               QString("F: %1 kHz")
+                               .arg(freqFromX(pt.x())/1.e3f, 0, 'f', 3),
+                               this, rect());
     }
-
     // process mouse moves while in cursor capture modes
     if (YAXIS == m_CursorCaptured)
     {
@@ -528,6 +560,40 @@ void CPlotter::mouseReleaseEvent(QMouseEvent * event)
     }
 }
 
+
+// Make a single zoom step on the X axis.
+void CPlotter::zoomStepX(float step, int x)
+{
+    // calculate new range shown on FFT
+    float new_range = qBound(10.0f,
+                             (float)(m_Span) * step,
+                             (float)(m_SampleFreq) * 10.0f);
+
+    // Frequency where event occured is kept fixed under mouse
+    float ratio = (float)x / (float)m_OverlayPixmap.width();
+    float fixed_hz = freqFromX(x);
+    float f_max = fixed_hz + (1.0 - ratio) * new_range;
+    float f_min = f_max - new_range;
+
+    qint64 fc = (qint64)(f_min + (f_max - f_min) / 2.0);
+
+    setFftCenterFreq(fc - m_CenterFreq);
+    setSpanFreq((quint32)new_range);
+
+    float factor = (float)m_SampleFreq / (float)m_Span;
+    qDebug() << QString("Spectrum zoom: %1x").arg(factor, 0, 'f', 1);
+
+    m_PeakHoldValid = false;
+}
+
+// Zoom on X axis (absolute level)
+void CPlotter::zoomOnXAxis(float level)
+{
+    float current_level = (float)m_SampleFreq / (float)m_Span;
+
+    zoomStepX(current_level / level, xFromFreq(m_DemodCenterFreq));
+}
+
 //////////////////////////////////////////////////////////////////////
 // Called when a mouse wheel is turned
 //////////////////////////////////////////////////////////////////////
@@ -558,28 +624,7 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     }
     else if (m_CursorCaptured == XAXIS)
     {
-        // calculate new range shown on FFT
-        float zoom_factor = event->delta() < 0 ? 1.1 : 0.9;
-        float new_range = qBound(10.0f,
-                                 (float)(m_Span) * zoom_factor,
-                                 (float)(m_SampleFreq) * 10.0f);
-
-        // Frequency where event occured is kept fixed under mouse
-        float ratio = (float)pt.x() / (float)m_OverlayPixmap.width();
-
-        float fixed_hz = freqFromX(pt.x());
-
-        float f_max = fixed_hz + (1.0 - ratio) * new_range;
-        float f_min = f_max - new_range;
-        qint64 fc = (qint64)(f_min + (f_max - f_min) / 2.0);
-
-        setFftCenterFreq(fc-m_CenterFreq);
-        setSpanFreq((quint32)new_range);
-
-        zoom_factor = (float)m_SampleFreq/(float)m_Span;
-        qDebug() << QString("Spectrum zoom: %1x").arg(zoom_factor, 0, 'f', 1);
-
-        m_PeakHoldValid = false;
+        zoomStepX(event->delta() < 0 ? 1.1 : 0.9, pt.x());
     }
     else if (event->modifiers() & Qt::ControlModifier)
     {

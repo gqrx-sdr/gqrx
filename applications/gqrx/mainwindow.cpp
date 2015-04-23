@@ -217,6 +217,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(fftRateChanged(int)), this, SLOT(setIqFftRate(int)));
     connect(uiDockFft, SIGNAL(fftSplitChanged(int)), this, SLOT(setIqFftSplit(int)));
     connect(uiDockFft, SIGNAL(fftAvgChanged(double)), this, SLOT(setIqFftAvg(double)));
+    connect(uiDockFft, SIGNAL(fftZoomChanged(float)), ui->plotter, SLOT(zoomOnXAxis(float)));
     connect(uiDockFft, SIGNAL(resetFftZoom()), ui->plotter, SLOT(resetHorizontalZoom()));
     connect(uiDockFft, SIGNAL(gotoFftCenter()), ui->plotter, SLOT(moveToCenterFreq()));
     connect(uiDockFft, SIGNAL(gotoDemodFreq()), ui->plotter, SLOT(moveToDemodFreq()));
@@ -224,6 +225,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
     connect(uiDockFft, SIGNAL(fftPeakHoldToggled(bool)), this, SLOT(setFftPeakHold(bool)));
     connect(uiDockFft, SIGNAL(peakDetectionToggled(bool)), this, SLOT(setPeakDetection(bool)));
+    connect(uiDockRDS, SIGNAL(rdsDecoderToggled(bool)), this, SLOT(setRdsDecoder(bool)));
     
     // Bookmarks
     connect(uiDockBookmarks, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
@@ -249,6 +251,16 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     // satellite events
     connect(remote, SIGNAL(satAosEvent()), uiDockAudio, SLOT(startAudioRecorder()));
     connect(remote, SIGNAL(satLosEvent()), uiDockAudio, SLOT(stopAudioRecorder()));
+
+    rds_timer = new QTimer(this);
+    connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
+
+    // enable frequency tooltips on FFT plot
+#ifdef Q_OS_MAC
+    ui->plotter->setTooltipsEnabled(false);
+#else
+    ui->plotter->setTooltipsEnabled(true);
+#endif
 
     // restore last session
     if (!loadConfig(cfgfile, true))
@@ -279,11 +291,6 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
             configOk = true;
         }
 	}
-
-    rds_timer = new QTimer(this);
-    connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
-    /* do not show RDS tab when it is disabled */
-    uiDockRDS->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -442,6 +449,24 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
     if (conv_ok && (sr > 0))
     {
         double actual_rate = rx->set_input_rate(sr);
+
+        if (actual_rate == 0)
+        {
+            // There is an error with the device (perhaps not attached)
+            // Warn user and use 100 ksps (rate used by gr-osmocom null_source)
+            QMessageBox *dialog =
+                    new QMessageBox(QMessageBox::Warning, tr("Device Error"),
+                                    tr("There was an error configuring the input device.\n"
+                                       "Please make sure that a supported device is atached "
+                                       "to the computer and restart gqrx."),
+                                    QMessageBox::Ok);
+            dialog->setModal(true);
+            dialog->setAttribute(Qt::WA_DeleteOnClose);
+            dialog->show();
+
+            actual_rate = sr;
+        }
+
         qDebug() << "Requested sample rate:" << sr;
         qDebug() << "Actual sample rate   :" << QString("%1").arg(actual_rate, 0, 'f', 6);
         uiDockRxOpt->setFilterOffsetRange((qint64)(0.9*actual_rate));
@@ -767,11 +792,12 @@ void MainWindow::selectDemod(int index)
     int filter_preset = uiDockRxOpt->currentFilter();
     int flo=0, fhi=0, click_res=100;
 
+    d_filter_shape = (receiver::filter_shape)uiDockRxOpt->currentFilterShape();
+
     if (rx->is_rds_decoder_active()) {
-        on_actionRDS_triggered(false);
-        ui->actionRDS->setChecked(false);
+        setRdsDecoder(false);
     }
-    ui->actionRDS->setDisabled(true);
+    uiDockRDS->setDisabled();
 
     switch (index) {
 
@@ -786,7 +812,7 @@ void MainWindow::selectDemod(int index)
         rx->set_demod(receiver::RX_DEMOD_OFF);
         flo = 0;
         fhi = 0;
-        click_res = 100;
+        click_res = 1000;
 
         break;
 
@@ -798,7 +824,7 @@ void MainWindow::selectDemod(int index)
         /* AM */
     case DockRxOpt::MODE_AM:
         rx->set_demod(receiver::RX_DEMOD_AM);
-        ui->plotter->setDemodRanges(-20000, -250, 250, 20000, true);
+        ui->plotter->setDemodRanges(-45000, -200, 200, 45000, true);
         uiDockAudio->setFftRange(0,15000);
         click_res = 100;
         switch (filter_preset)
@@ -825,7 +851,7 @@ void MainWindow::selectDemod(int index)
         maxdev = uiDockRxOpt->currentMaxdev();
         if (maxdev < 20000.0)
         {   /** FIXME **/
-            ui->plotter->setDemodRanges(-25000, -250, 250, 25000, true);
+            ui->plotter->setDemodRanges(-45000, -250, 250, 45000, true);
             uiDockAudio->setFftRange(0,12000);
             switch (filter_preset) {
             case 0: //wide
@@ -844,7 +870,7 @@ void MainWindow::selectDemod(int index)
         }
         else
         {
-            ui->plotter->setDemodRanges(-45000, -10000, 10000, 45000, true);
+            ui->plotter->setDemodRanges(-45000, -1000, 1000, 45000, true);
             uiDockAudio->setFftRange(0,24000);
             switch (filter_preset) {
             /** FIXME: not sure about these **/
@@ -896,28 +922,28 @@ void MainWindow::selectDemod(int index)
         else
             rx->set_demod(receiver::RX_DEMOD_WFM_S);
 
-        ui->actionRDS->setDisabled(false);
+        uiDockRDS->setEnabled();
         break;
 
         /* LSB */
     case DockRxOpt::MODE_LSB:
         rx->set_demod(receiver::RX_DEMOD_SSB);
-        ui->plotter->setDemodRanges(-10000, -100, -5000, 0, false);
+        ui->plotter->setDemodRanges(-40000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,3500);
-        click_res = 10;
+        click_res = 100;
         switch (filter_preset)
         {
         case 0: //wide
-            flo = -4100;
-            fhi = -100;
+            flo = -4000;
+            fhi = 100;
             break;
         case 2: // narrow
             flo = -1600;
             fhi = -200;
             break;
         default: // normal
-            flo = -3000;
-            fhi = -200;
+            flo = -2800;
+            fhi = -100;
             break;
         }
         break;
@@ -925,22 +951,22 @@ void MainWindow::selectDemod(int index)
         /* USB */
     case DockRxOpt::MODE_USB:
         rx->set_demod(receiver::RX_DEMOD_SSB);
-        ui->plotter->setDemodRanges(0, 5000, 100, 10000, false);
+        ui->plotter->setDemodRanges(0, 5000, 100, 40000, false);
         uiDockAudio->setFftRange(0,3500);
-        click_res = 10;
+        click_res = 100;
         switch (filter_preset)
         {
         case 0: //wide
             flo = 100;
-            fhi = 4100;
+            fhi = 4000;
             break;
         case 2: // narrow
             flo = 200;
             fhi = 1600;
             break;
         default: // normal
-            flo = 200;
-            fhi = 3000;
+            flo = 100;
+            fhi = 2800;
             break;
         }
         break;
@@ -954,8 +980,8 @@ void MainWindow::selectDemod(int index)
         switch (filter_preset)
         {
         case 0: //wide
-            flo = -2300;
-            fhi = -200;
+            flo = -2500;
+            fhi = -50;
             break;
         case 2: // narrow
             flo = -900;
@@ -977,8 +1003,8 @@ void MainWindow::selectDemod(int index)
         switch (filter_preset)
         {
         case 0: //wide
-            flo = 200;
-            fhi = 2300;
+            flo = 50;
+            fhi = 2500;
             break;
         case 2: // narrow
             flo = 400;
@@ -1003,7 +1029,7 @@ void MainWindow::selectDemod(int index)
     ui->plotter->setHiLowCutFrequencies(flo, fhi);
     ui->plotter->setClickResolution(click_res);
     ui->plotter->setFilterClickResolution(click_res);
-    rx->set_filter((double)flo, (double)fhi, receiver::FILTER_SHAPE_NORMAL);
+    rx->set_filter((double)flo, (double)fhi, d_filter_shape);
 
     d_have_audio = ((index != DockRxOpt::MODE_OFF) && (index != DockRxOpt::MODE_RAW));
 
@@ -1026,13 +1052,13 @@ void MainWindow::setFmMaxdev(float max_dev)
     {
         ui->plotter->setDemodRanges(-25000, -1000, 1000, 25000, true);
         ui->plotter->setHiLowCutFrequencies(-5000, 5000);
-        rx->set_filter(-5000.0, 5000.0, receiver::FILTER_SHAPE_NORMAL);
+        rx->set_filter(-5000.0, 5000.0, d_filter_shape);
     }
     else
     {
         ui->plotter->setDemodRanges(-45000, -10000, 10000, 45000, true);
         ui->plotter->setHiLowCutFrequencies(-35000, 35000);
-        rx->set_filter(-35000.0, 35000.0, receiver::FILTER_SHAPE_NORMAL);
+        rx->set_filter(-35000.0, 35000.0, d_filter_shape);
     }
 }
 
@@ -1358,7 +1384,7 @@ void MainWindow::startIqRecording(const QString recdir)
     qDebug() << __func__;
     // generate file name using date, time, rf freq in kHz and BW in Hz
     // gqrx_iq_yyyymmdd_hhmmss_freq_bw_fc.raw
-    qint64 freq = ui->freqCtrl->getFrequency();
+    qint64 freq = (qint64)(rx->get_rf_freq());
     qint64 sr = (qint64)(rx->get_input_rate());
     QString lastRec = QDateTime::currentDateTimeUtc().
             toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.'raw'").arg(recdir).arg(freq).arg(sr);
@@ -1622,7 +1648,7 @@ void MainWindow::on_actionDSP_triggered(bool checked)
         ui->actionDSP->setText(tr("Stop DSP"));
 
         // reconfigure RX after 1s to counteract possible jerky streaming from rtl dongles
-        QTimer::singleShot(1000, this, SLOT(forceRxReconf()));
+        //QTimer::singleShot(1000, this, SLOT(forceRxReconf()));
     }
     else
     {
@@ -1902,14 +1928,12 @@ void MainWindow::decoderTimeout()
     /* else stop timeout and sniffer? */
 }
 
-void MainWindow::on_actionRDS_triggered(bool checked)
+void MainWindow::setRdsDecoder(bool checked)
 {
     if (checked == true)
     {
         qDebug() << "Starting RDS decoder.";
         uiDockRDS->showEnabled();
-        uiDockRDS->setVisible(true);
-        uiDockRDS->raise();
         rx->start_rds_decoder();
         rx->reset_rds_parser();
         rds_timer->start(250);
@@ -1918,7 +1942,6 @@ void MainWindow::on_actionRDS_triggered(bool checked)
     {
         qDebug() << "Stopping RDS decoder.";
         uiDockRDS->showDisabled();
-        uiDockRDS->setVisible(false);
         rx->stop_rds_decoder();
         rds_timer->stop();
     }

@@ -189,6 +189,7 @@ void receiver::set_input_device(const std::string device)
     tb->disconnect(src, 0, iq_swap, 0);
     src.reset();
     src = osmosdr::source::make(device);
+
     tb->connect(src, 0, iq_swap, 0);
 
     if (d_running)
@@ -249,13 +250,28 @@ void receiver::set_antenna(const std::string &antenna)
 
 /*! \brief Set new input sample rate.
  *  \param rate The desired input rate
- *  \return The actual sample rate set.
+ *  \return The actual sample rate set or 0 if there was an error with the
+ *          device.
  */
 double receiver::set_input_rate(double rate)
 {
     tb->lock();
-    src->set_sample_rate(rate);
-    d_input_rate = src->get_sample_rate();
+    d_input_rate = src->set_sample_rate(rate);
+
+    if (d_input_rate == 0)
+    {
+        // This can be the case when no device is attached and gr-osmosdr
+        // puts in a null_source with rate 100 ksps.
+        // ...
+        // Or with some over the top fucked up rtl dongles that appear to work
+        // but return an error here. So we just ignore it.
+        std::cerr << std::endl;
+        std::cerr << "Failed to set RX input rate to " << rate << std::endl;
+        std::cerr << "Your device may not be working properly." << std::endl;
+        std::cerr << std::endl;
+        d_input_rate = rate;
+    }
+
     dc_corr->set_sample_rate(d_input_rate);
     rx->set_quad_rate(d_input_rate);
     lo->set_sampling_freq(d_input_rate);
@@ -500,16 +516,16 @@ receiver::status receiver::set_filter(double low, double high, filter_shape shap
     switch (shape) {
 
     case FILTER_SHAPE_SOFT:
-        trans_width = abs(high-low)*0.2;
+        trans_width = abs(high - low) * 0.4;
         break;
 
     case FILTER_SHAPE_SHARP:
-        trans_width = abs(high-low)*0.01;
+        trans_width = abs(high - low) * 0.05;
         break;
 
     case FILTER_SHAPE_NORMAL:
     default:
-        trans_width = abs(high-low)*0.1;
+        trans_width = abs(high - low) * 0.2;
         break;
 
     }
