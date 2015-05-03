@@ -69,9 +69,9 @@
 #define MAX_AMPLITUDE 1.0 //32767.0
 #define MAX_MANUAL_AMPLITUDE 1.0 //32767.0
 
-#define MIN_CONSTANT 3.2767e-4	// const for calc log() so that a value of 0 magnitude == -8
-//corresponding to -160dB.
-//K = 10^( -8 + log(32767) )
+#define MIN_CONSTANT 1e-8   // const for calc log() so that a value of 0 magnitude == -8
+                            // corresponding to -160dB.
+                            // K = 10^(-8 + log(MAX_AMP))
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

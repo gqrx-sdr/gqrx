@@ -84,7 +84,7 @@
       <item row="2" column="2">
        <widget class="QLabel" name="thresholdLabel">
         <property name="text">
-         <string>-100 dB</string>
+         <string>-120 dB</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -253,7 +253,7 @@
          <number>0</number>
         </property>
         <property name="value">
-         <number>-100</number>
+         <number>-120</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>

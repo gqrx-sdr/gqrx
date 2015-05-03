@@ -69,7 +69,7 @@ void CAgcOptions::setPreset(agc_preset_e preset)
         break;
 
     case AGC_MEDIUM:
-        setDecay(800);
+        setDecay(1000);
         enableDecay(false);
         setSlope(2);
         enableSlope(false);
