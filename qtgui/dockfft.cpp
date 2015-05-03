@@ -256,7 +256,7 @@ void DockFft::on_fftSplitSlider_valueChanged(int value)
 /*! \brief FFT filter gain changed. */
 void DockFft::on_fftAvgSlider_valueChanged(int value)
 {
-    double avg = 1.0 - 1.0e-2*((double)value);
+    float avg = 1.0 - 1.0e-2 * ((float)value);
 
     emit fftAvgChanged(avg);
 }

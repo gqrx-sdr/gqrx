@@ -81,11 +81,11 @@ private:
 
     enum receiver::filter_shape d_filter_shape;
     std::complex<float>* d_fftData;
-    double *d_realFftData; /** FIXME: use vector */
-    double *d_iirFftData;  /** FIXME: use vector */
-    double *d_pwrFftData;  /** FIXME: use vector */
+    float          *d_realFftData;
+    float          *d_iirFftData;
+    float          *d_pwrFftData;
     //double *d_audioFttData;
-    double  d_fftAvg;      /*!< FFT averaging parameter set by user (not the true gain). */
+    float           d_fftAvg;      /*!< FFT averaging parameter set by user (not the true gain). */
 
     bool d_have_audio;  /*!< Whether we have audio (i.e. not with demod_off. */
 
@@ -168,7 +168,7 @@ private slots:
     void setIqFftSize(int size);
     void setIqFftRate(int fps);
     void setIqFftSplit(int pct_wf);
-    void setIqFftAvg(double avg);
+    void setIqFftAvg(float avg);
     void setAudioFftRate(int fps);
     void setFftColor(const QColor color);
     void setFftFill(bool enable);

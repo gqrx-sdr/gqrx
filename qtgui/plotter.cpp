@@ -279,8 +279,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         {
             setCursor(QCursor(Qt::ClosedHandCursor));
             // move Y scale up/down
-            double delta_px = m_Yzero - pt.y();
-            double delta_db = delta_px * abs(m_MindB-m_MaxdB)/(double)m_OverlayPixmap.height();
+            float delta_px = m_Yzero - pt.y();
+            float delta_db = delta_px * fabs(m_MindB-m_MaxdB)/(float)m_OverlayPixmap.height();
             m_MindB -= delta_db;
             m_MaxdB -= delta_db;
 
@@ -430,21 +430,21 @@ int CPlotter::getNearestPeak(QPoint pt)
 {
     QMap<int, int>::const_iterator i = m_Peaks.lowerBound(pt.x()-PEAK_CLICK_MAX_H_DISTANCE);
     QMap<int, int>::const_iterator upperBound = m_Peaks.upperBound(pt.x()+PEAK_CLICK_MAX_H_DISTANCE);
-    double dist=1e10;
-    int best=-1;
-    for(;i != upperBound;i++)
+    float   dist = 1.0e10;
+    int     best = -1;
+    for( ; i != upperBound; i++)
     {
-        int x=i.key();
-        int y=i.value();
+        int x = i.key();
+        int y = i.value();
 
-        if(abs(y-pt.y())>PEAK_CLICK_MAX_V_DISTANCE)
+        if (abs(y - pt.y()) > PEAK_CLICK_MAX_V_DISTANCE)
             continue;
 
-        double d=pow(y-pt.y(),2)+pow(x-pt.x(),2);
-        if(d<dist)
+        float d = powf(y - pt.y(), 2) + powf(x - pt.x(), 2);
+        if (d < dist)
         {
-            dist=d;
-            best=x;
+            dist = d;
+            best = x;
         }
     }
 
@@ -819,30 +819,31 @@ void CPlotter::draw()
         }
 
         //Peak detection
-        if(m_PeakDetection>0)
+        if (m_PeakDetection > 0)
         {
             m_Peaks.clear();
 
-            double mean=0;
-            double sum_of_sq=0;
+            float   mean = 0;
+            float   sum_of_sq = 0;
             for (i = 0; i < n; i++)
             {
-                mean+=m_fftbuf[i + xmin];
-                sum_of_sq+=m_fftbuf[i + xmin]*m_fftbuf[i + xmin];
+                mean += m_fftbuf[i + xmin];
+                sum_of_sq += m_fftbuf[i + xmin] * m_fftbuf[i + xmin];
             }
-            mean/=n;
-            double stdev= sqrt( sum_of_sq/n-mean*mean );
+            mean /= n;
+            float stdev= sqrt( sum_of_sq/n-mean*mean );
 
             int lastPeak=-1;
             for (i = 0; i < n; i++)
             {
                 //m_PeakDetection times the std over the mean or better than current peak
-                double d = (lastPeak==-1)?(mean-m_PeakDetection*stdev):m_fftbuf[lastPeak+xmin];
+                float d = (lastPeak==-1) ? (mean - m_PeakDetection * stdev) :
+                                           m_fftbuf[lastPeak+xmin];
 
-                if(m_fftbuf[i + xmin] < d)
+                if (m_fftbuf[i + xmin] < d)
                     lastPeak=i;
 
-                if(lastPeak!=-1 && (i-lastPeak>PEAK_H_TOLERANCE || i==n-1))
+                if (lastPeak != -1 && (i - lastPeak > PEAK_H_TOLERANCE || i == n-1))
                 {
                     m_Peaks.insert(lastPeak+xmin, m_fftbuf[lastPeak + xmin]);
                     painter2.drawEllipse(lastPeak+xmin-5, m_fftbuf[lastPeak + xmin]-5, 10, 10);
@@ -852,12 +853,12 @@ void CPlotter::draw()
         }
 
         //Peak hold
-        if(m_PeakHoldActive)
+        if (m_PeakHoldActive)
         {
             for (i = 0; i < n; i++)
             {
                 if(!m_PeakHoldValid || m_fftbuf[i] < m_fftPeakHoldBuf[i])
-                    m_fftPeakHoldBuf[i]=m_fftbuf[i];
+                    m_fftPeakHoldBuf[i] = m_fftbuf[i];
 
                 LineBuf[i].setX(i + xmin);
                 LineBuf[i].setY(m_fftPeakHoldBuf[i + xmin]);
@@ -883,7 +884,7 @@ void CPlotter::draw()
  * When FFT data is set using this method, the same data will be used for bith the
  * pandapter and the waterfall.
  */
-void CPlotter::setNewFttData(double *fftData, int size)
+void CPlotter::setNewFttData(float *fftData, int size)
 {
 
     /** FIXME **/
@@ -906,7 +907,7 @@ void CPlotter::setNewFttData(double *fftData, int size)
  * waterfall.
  */
 
-void CPlotter::setNewFttData(double *fftData, double *wfData, int size)
+void CPlotter::setNewFttData(float *fftData, float *wfData, int size)
 {
 
     /** FIXME **/
@@ -921,9 +922,9 @@ void CPlotter::setNewFttData(double *fftData, double *wfData, int size)
 }
 
 void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
-                                       double maxdB, double mindB,
+                                       float maxdB, float mindB,
                                        qint64 startFreq, qint64 stopFreq,
-                                       double *inBuf, qint32 *outBuf,
+                                       float *inBuf, qint32 *outBuf,
                                        int *xmin, int *xmax)
 {
     qint32 i;
@@ -934,14 +935,14 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
     qint32 minbin, maxbin;
     qint32 m_BinMin, m_BinMax;
     qint32 m_FFTSize = m_fftDataSize;
-    double *m_pFFTAveBuf = inBuf;
-    double  dBGainFactor = ((double)plotHeight)/abs(maxdB-mindB);
+    float *m_pFFTAveBuf = inBuf;
+    float  dBGainFactor = ((float)plotHeight) / fabs(maxdB - mindB);
     qint32* m_pTranslateTbl = new qint32[qMax(m_FFTSize, plotWidth)];
 
     /** FIXME: qint64 -> qint32 **/
-    m_BinMin = (qint32)((double)startFreq*(double)m_FFTSize/m_SampleFreq);
+    m_BinMin = (qint32)((float)startFreq * (float)m_FFTSize / m_SampleFreq);
     m_BinMin += (m_FFTSize/2);
-    m_BinMax = (qint32)((double)stopFreq*(double)m_FFTSize/m_SampleFreq);
+    m_BinMax = (qint32)((float)stopFreq * (float)m_FFTSize / m_SampleFreq);
     m_BinMax += (m_FFTSize/2);
 
     minbin = m_BinMin < 0 ? 0 : m_BinMin;
@@ -1022,7 +1023,7 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
 
 
 /*! \brief Set upper limit of dB scale. */
-void CPlotter::setMaxDB(double max)
+void CPlotter::setMaxDB(float max)
 {
     m_MaxdB = max;
 
@@ -1038,7 +1039,7 @@ void CPlotter::setMaxDB(double max)
 }
 
 /*! \brief Set lower limit of dB scale. */
-void CPlotter::setMinDB(double min)
+void CPlotter::setMinDB(float min)
 {
     m_MindB = min;
 
@@ -1051,7 +1052,7 @@ void CPlotter::setMinDB(double min)
 }
 
 /*! \brief Set limits of dB scale. */
-void CPlotter::setMinMaxDB(double min, double max)
+void CPlotter::setMinMaxDB(float min, float max)
 {
     m_MaxdB = max;
     m_MindB = min;
@@ -1210,7 +1211,7 @@ void CPlotter::drawOverlay()
         painter.drawText(rect, Qt::AlignHCenter|Qt::AlignBottom, m_HDivText[i]);
     }
 
-    m_dBStepSize = abs(m_MaxdB-m_MindB)/(double)m_VerDivs;
+    m_dBStepSize = fabs(m_MaxdB - m_MindB)/(float)m_VerDivs;
     pixperdiv = (float)h / (float)m_VerDivs;
     painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0x30), 1,Qt::DotLine));
     for (int i = 1; i < m_VerDivs; i++)
@@ -1434,7 +1435,7 @@ void CPlotter::setFftPlotColor(const QColor color)
     m_FftCol0.setAlpha(0x00);
     m_FftCol1 = color;
     m_FftCol1.setAlpha(0xA0);
-    m_PeakHoldColor=color;
+    m_PeakHoldColor = color;
     m_PeakHoldColor.setAlpha(60);
 }
 
@@ -1449,18 +1450,18 @@ void CPlotter::setFftFill(bool enabled)
  */
 void CPlotter::setPeakHold(bool enabled)
 {
-    m_PeakHoldActive=enabled;
-    m_PeakHoldValid=false;
+    m_PeakHoldActive = enabled;
+    m_PeakHoldValid = false;
 }
 
 /*! \brief Set peak detection on or off.
  *  \param enabled The new state of peak detection.
  *  \param c Minimum distance of peaks from mean, in multiples of standard deviation.
  */
-void CPlotter::setPeakDetection(bool enabled, double c)
+void CPlotter::setPeakDetection(bool enabled, float c)
 {
-    if(!enabled || c<=0)
-        m_PeakDetection=-1;
+    if(!enabled || c <= 0)
+        m_PeakDetection = -1;
     else
-        m_PeakDetection=c;
+        m_PeakDetection = c;
 }

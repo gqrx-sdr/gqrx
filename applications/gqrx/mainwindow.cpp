@@ -106,9 +106,9 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(audio_fft_timer, SIGNAL(timeout()), this, SLOT(audioFftTimeout()));
 
     d_fftData = new std::complex<float>[MAX_FFT_SIZE];
-    d_realFftData = new double[MAX_FFT_SIZE];
-    d_pwrFftData = new double[MAX_FFT_SIZE]();
-    d_iirFftData = new double[MAX_FFT_SIZE];
+    d_realFftData = new float[MAX_FFT_SIZE];
+    d_pwrFftData = new float[MAX_FFT_SIZE]();
+    d_iirFftData = new float[MAX_FFT_SIZE];
     for (int i = 0; i < MAX_FFT_SIZE; i++)
         d_iirFftData[i] = -120.0;  // dBFS
 
@@ -216,7 +216,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setIqFftSize(int)));
     connect(uiDockFft, SIGNAL(fftRateChanged(int)), this, SLOT(setIqFftRate(int)));
     connect(uiDockFft, SIGNAL(fftSplitChanged(int)), this, SLOT(setIqFftSplit(int)));
-    connect(uiDockFft, SIGNAL(fftAvgChanged(double)), this, SLOT(setIqFftAvg(double)));
+    connect(uiDockFft, SIGNAL(fftAvgChanged(float)), this, SLOT(setIqFftAvg(float)));
     connect(uiDockFft, SIGNAL(fftZoomChanged(float)), ui->plotter, SLOT(zoomOnXAxis(float)));
     connect(uiDockFft, SIGNAL(resetFftZoom()), ui->plotter, SLOT(resetHorizontalZoom()));
     connect(uiDockFft, SIGNAL(gotoFftCenter()), ui->plotter, SLOT(moveToCenterFreq()));
@@ -1184,14 +1184,14 @@ void MainWindow::meterTimeout()
 /*! \brief Baseband FFT plot timeout. */
 void MainWindow::iqFftTimeout()
 {
-    unsigned int fftsize;
-    unsigned int i;
-    double gain;
-    double pwr;
+    unsigned int    fftsize;
+    unsigned int    i;
+    float           pwr;
+
     std::complex<float> pt;             /* a single FFT point used in calculations */
     std::complex<float> scaleFactor;    /* normalizing factor (fftsize cast to complex) */
 
-
+    // FIXME: fftsize is a reference
     rx->get_iq_fft_data(d_fftData, fftsize);
 
     if (fftsize == 0)
@@ -1202,8 +1202,7 @@ void MainWindow::iqFftTimeout()
 
     scaleFactor = std::complex<float>((float)fftsize);
 
-    /** FIXME: move post processing to rx_fft_c **/
-    /* Normalize, calculcate power and shift the FFT */
+    /* Normalize, calculate power and shift the FFT */
     for (i = 0; i < fftsize; i++)
     {
 
@@ -1219,14 +1218,10 @@ void MainWindow::iqFftTimeout()
         pwr = pt.imag()*pt.imag() + pt.real()*pt.real();
 
         /* calculate power in dBFS */
-        d_realFftData[i] = 10.0 * log10(pwr + 1.0e-20);
+        d_realFftData[i] = 10.0 * log10f(pwr + 1.0e-20);
 
-        /* FFT averaging (aka. video filter) */
-        gain = d_fftAvg * (150.0+d_realFftData[i])/150.0;
-        //gain = 0.1;
-
-        d_iirFftData[i] = (1.0 - gain) * d_iirFftData[i] + gain * d_realFftData[i];
-
+        /* FFT averaging */
+        d_iirFftData[i] = (1.0 - d_fftAvg) * d_iirFftData[i] + d_fftAvg * d_realFftData[i];
     }
 
     ui->plotter->setNewFttData(d_iirFftData, d_realFftData, fftsize);
@@ -1554,7 +1549,7 @@ void MainWindow::setIqFftSplit(int pct_wf)
     }
 }
 
-void MainWindow::setIqFftAvg(double avg)
+void MainWindow::setIqFftAvg(float avg)
 {
     if ((avg >= 0) && (avg <= 1.0))
         d_fftAvg = avg;

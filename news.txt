@@ -8,6 +8,7 @@
        NEW: Zoom slider to aid zooming on the frequency axis.
      FIXED: Prevent crash due to device errors while starting the application.
      FIXED: Use hardware frequency in IQ file names.
+     FIXED: FFT averaging (it can now be disabled).
   IMPROVED: Fractional PPM correction.
 
      2.3.2  Released November 28, 2014

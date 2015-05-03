@@ -158,7 +158,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;FFT averaging speed.&lt;/p&gt;&lt;p&gt;The averaging does not apply to the waterfall, which is always updated with the latest unfiltered samples.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>FFT averaging gain</string>
           </property>
           <property name="maximum">
            <number>100</number>
@@ -362,7 +362,7 @@
         <item row="2" column="0">
          <widget class="QLabel" name="fftAvgLabel">
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;FFT averaging speed.&lt;/p&gt;&lt;p&gt;Also known as video filter on spectrum analyzers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>FFT averaging gain</string>
           </property>
           <property name="text">
            <string>Averaging</string>

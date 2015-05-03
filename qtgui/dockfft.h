@@ -49,16 +49,16 @@ public:
     void readSettings(QSettings *settings);
 
 signals:
-    void fftSizeChanged(int size);   /*! FFT size changed. */
-    void fftRateChanged(int fps);    /*! FFT rate changed. */
-    void fftSplitChanged(int pct);   /*! Split between pandapter and waterfall changed. */
-    void fftZoomChanged(float level); /*! Zoom level slider changed. */
-    void fftAvgChanged(double gain); /*! FFT video filter gain has changed. */
-    void resetFftZoom(void);         /*! FFT zoom reset. */
-    void gotoFftCenter(void);        /*! Go to FFT center. */
-    void gotoDemodFreq(void);        /*! Center FFT around demodulator frequency. */
+    void fftSizeChanged(int size);      /*! FFT size changed. */
+    void fftRateChanged(int fps);       /*! FFT rate changed. */
+    void fftSplitChanged(int pct);      /*! Split between pandapter and waterfall changed. */
+    void fftZoomChanged(float level);   /*! Zoom level slider changed. */
+    void fftAvgChanged(float gain);     /*! FFT video filter gain has changed. */
+    void resetFftZoom(void);            /*! FFT zoom reset. */
+    void gotoFftCenter(void);           /*! Go to FFT center. */
+    void gotoDemodFreq(void);           /*! Center FFT around demodulator frequency. */
     void fftColorChanged(const QColor &); /*! FFT color has changed. */
-    void fftFillToggled(bool fill);  /*! Toggle filling area under FFT plot. */
+    void fftFillToggled(bool fill);     /*! Toggle filling area under FFT plot. */
     void fftPeakHoldToggled(bool enable); /*! Toggle peak hold in FFT area. */
     void peakDetectionToggled(bool enabled); /*! Enable peak detection in FFT plot */
 

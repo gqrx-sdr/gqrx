@@ -82,7 +82,7 @@ void DockAudio::setFftRange(quint64 minf, quint64 maxf)
     }
 }
 
-void DockAudio::setNewFttData(double *fftData, int size)
+void DockAudio::setNewFttData(float *fftData, int size)
 {
     ui->audioSpectrum->setNewFttData(fftData, size);
 }
