@@ -73,23 +73,9 @@ int rx_agc_cc::work(int noutput_items,
 {
     const gr_complex *in = (const gr_complex *) input_items[0];
     gr_complex *out = (gr_complex *) output_items[0];
-    int i;
 
-    // lock mutex
     boost::mutex::scoped_lock lock(d_mutex);
-
-    for (i = 0; i < noutput_items; i++) {
-        // implicit conversion from float to double
-        ib[i].im = in[i].imag();
-        ib[i].re = in[i].real();
-    }
-
-    d_agc->ProcessData(noutput_items, &ib[0], &ob[0]);
-
-    for (i = 0; i < noutput_items; i++) {
-        // implicit conversion from double to float
-        out[i] = gr_complex(ob[i].re, ob[i].im);
-    }
+    d_agc->ProcessData(noutput_items, in, out);
 
     return noutput_items;
 }

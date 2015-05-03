@@ -103,9 +103,6 @@ private:
     int    d_slope;         /*! Current AGC slope (0...10 dB). */
     int    d_decay;         /*! Current AGC decay (20...5000 ms). */
     bool   d_use_hang;      /*! Current AGC hang status (true/false). */
-
-    TYPECPX ib[64000];
-    TYPECPX ob[64000];
 };
 
 
