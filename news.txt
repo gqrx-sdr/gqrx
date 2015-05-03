@@ -10,6 +10,7 @@
      FIXED: Use hardware frequency in IQ file names.
      FIXED: FFT averaging (it can now be disabled).
   IMPROVED: Fractional PPM correction.
+  IMPROVED: AGC peformance.
 
      2.3.2  Released November 28, 2014
 
