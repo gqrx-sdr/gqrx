@@ -1187,9 +1187,8 @@ void MainWindow::iqFftTimeout()
     unsigned int    fftsize;
     unsigned int    i;
     float           pwr;
-
-    std::complex<float> pt;             /* a single FFT point used in calculations */
-    std::complex<float> scaleFactor;    /* normalizing factor (fftsize cast to complex) */
+    float           pwr_scale;
+    std::complex<float> pt;     /* a single FFT point used in calculations */
 
     // FIXME: fftsize is a reference
     rx->get_iq_fft_data(d_fftData, fftsize);
@@ -1200,7 +1199,7 @@ void MainWindow::iqFftTimeout()
         return;
     }
 
-    scaleFactor = std::complex<float>((float)fftsize);
+    pwr_scale = 1.0 / (fftsize * fftsize);
 
     /* Normalize, calculate power and shift the FFT */
     for (i = 0; i < fftsize; i++)
@@ -1209,15 +1208,15 @@ void MainWindow::iqFftTimeout()
         /* normalize and shift */
         if (i < fftsize/2)
         {
-            pt = d_fftData[fftsize/2+i] / scaleFactor;
+            pt = d_fftData[fftsize/2+i];
         }
         else
         {
-            pt = d_fftData[i-fftsize/2] / scaleFactor;
+            pt = d_fftData[i-fftsize/2];
         }
-        pwr = pt.imag()*pt.imag() + pt.real()*pt.real();
 
         /* calculate power in dBFS */
+        pwr = pwr_scale * (pt.imag() * pt.imag() + pt.real() * pt.real());
         d_realFftData[i] = 10.0 * log10f(pwr + 1.0e-20);
 
         /* FFT averaging */
@@ -1225,16 +1224,16 @@ void MainWindow::iqFftTimeout()
     }
 
     ui->plotter->setNewFttData(d_iirFftData, d_realFftData, fftsize);
-
 }
 
 /*! \brief Audio FFT plot timeout. */
 void MainWindow::audioFftTimeout()
 {
-    unsigned int fftsize;
-    unsigned int i;
+    unsigned int    fftsize;
+    unsigned int    i;
+    float           pwr;
+    float           pwr_scale;
     std::complex<float> pt;             /* a single FFT point used in calculations */
-    std::complex<float> scaleFactor;    /* normalizing factor (fftsize cast to complex) */
 
     if (!d_have_audio)
         return;
@@ -1248,7 +1247,7 @@ void MainWindow::audioFftTimeout()
         return;
     }
 
-    scaleFactor = std::complex<float>((float)fftsize);
+    pwr_scale = 1.0 / (fftsize * fftsize);
 
     /** FIXME: move post processing to rx_fft_f **/
     /* Normalize, calculcate power and shift the FFT */
@@ -1257,15 +1256,16 @@ void MainWindow::audioFftTimeout()
         /* normalize and shift */
         if (i < fftsize/2)
         {
-            pt = d_fftData[fftsize/2+i] / scaleFactor;
+            pt = d_fftData[fftsize/2+i];
         }
         else
         {
-            pt = d_fftData[i-fftsize/2] / scaleFactor;
+            pt = d_fftData[i-fftsize/2];
         }
 
         /* calculate power in dBFS */
-        d_realFftData[i] = 10.0 * log10(pt.imag()*pt.imag() + pt.real()*pt.real() + 1.0e-20);
+        pwr = pwr_scale * (pt.imag() * pt.imag() + pt.real() * pt.real());
+        d_realFftData[i] = 10.0 * log10f(pwr + 1.0e-20);
     }
 
     uiDockAudio->setNewFttData(d_realFftData, fftsize);

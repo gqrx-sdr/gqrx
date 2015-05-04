@@ -11,6 +11,7 @@
      FIXED: FFT averaging (it can now be disabled).
   IMPROVED: Fractional PPM correction.
   IMPROVED: AGC peformance.
+  IMPROVED: FFT performance.
 
      2.3.2  Released November 28, 2014
 
