@@ -72,6 +72,8 @@ private:
     int         m_HangTimer;
 
     TYPECPX     m_SigDelayBuf[MAX_DELAY_BUF];
+    float*      m_SigDelayBuf_r;
+
     float       m_MagBuf[MAX_DELAY_BUF];
 };
 
