@@ -40,8 +40,7 @@ rx_meter_c::rx_meter_c(int detector)
       d_level_db(0.0),
       d_sum(0.0),
       d_sumsq(0.0),
-      d_num(0),
-      d_fs(1.0)
+      d_num(0)
 {
 
 }
@@ -133,7 +132,7 @@ int rx_meter_c::work (int noutput_items,
         break;
     }
 
-    d_level_db = (float) 10. * log10(d_level / d_fs + 1.0e-20);
+    d_level_db = (float) 10. * log10f(d_level + 1.0e-20);
 
     return noutput_items;
 }

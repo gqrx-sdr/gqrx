@@ -88,13 +88,6 @@ public:
      */
     int get_detector_type() {return d_detector;}
 
-    /* In case we add a set_fs(), remember that it must be > 0.0 */
-
-    /*! \brief Get full scale value.
-     *  \return The current full scale value.
-     */
-    float get_fs() {return d_fs;}
-
 private:
     int    d_detector;  /*! Detector type. */
     float  d_level;     /*! The current level in the range 0.0 to 1.0 */
@@ -102,7 +95,6 @@ private:
     float  d_sum;       /*! Sum of msamples. */
     float  d_sumsq;     /*! Sum of samples squared. */
     int    d_num;       /*! Number of samples in d_sum and d_sumsq. */
-    float  d_fs;        /*! Full scale value (default = 1.0). */
 
     void reset_stats();
 };
