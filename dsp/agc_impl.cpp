@@ -88,6 +88,7 @@ CAgc::CAgc()
     m_SlopeFactor = 0;
     m_Decay = 0;
     m_SampleRate = 100.0;
+    m_SigDelayBuf_r = (float*)(&m_SigDelayBuf);
 }
 
 CAgc::~CAgc()
@@ -126,8 +127,7 @@ void CAgc::SetParameters(bool AgcOn,  bool UseHang, int Threshold, int ManualGai
         m_SampleRate = SampleRate;
         for (int i = 0; i < MAX_DELAY_BUF; i++)
         {
-            m_SigDelayBuf[i].real() = 0.0;
-            m_SigDelayBuf[i].imag() = 0.0;
+            m_SigDelayBuf[i] = 0.0;
             m_MagBuf[i] = -16.0;
         }
         m_SigDelayPtr = 0;
@@ -292,8 +292,7 @@ void CAgc::ProcessData(int Length, const TYPECPX * pInData, TYPECPX * pOutData)
                 // use variable gain if above knee
                 gain = AGC_OUTSCALE * powf(10.0, mag * (m_GainSlope - 1.0));
 
-            pOutData[i].real() = delayedin.real() * gain;
-            pOutData[i].imag() = delayedin.imag() * gain;
+            pOutData[i] = delayedin * gain;
         }
     }
     else
@@ -301,8 +300,7 @@ void CAgc::ProcessData(int Length, const TYPECPX * pInData, TYPECPX * pOutData)
         // manual gain just multiply by m_ManualGain
         for (int i = 0; i < Length; i++)
         {
-            pOutData[i].real() = m_ManualAgcGain * pInData[i].real();
-            pOutData[i].imag() = m_ManualAgcGain * pInData[i].imag();
+            pOutData[i] = m_ManualAgcGain * pInData[i];
         }
     }
 }
@@ -324,10 +322,10 @@ void CAgc::ProcessData(int Length, const float *pInData, float * pOutData)
             float in = pInData[i];
 
             // Get delayed sample of input signal
-            delayedin = m_SigDelayBuf[m_SigDelayPtr].real();
+            delayedin = m_SigDelayBuf_r[m_SigDelayPtr];
 
             // put new input sample into signal delay buffer
-            m_SigDelayBuf[m_SigDelayPtr++].real() = in;
+            m_SigDelayBuf_r[m_SigDelayPtr++] = in;
             if (m_SigDelayPtr >= m_DelaySamples) //deal with delay buffer wrap around
                 m_SigDelayPtr = 0;
 
