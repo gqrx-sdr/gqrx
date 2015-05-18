@@ -236,10 +236,11 @@ void DockBookmarks::changeBookmarkTags(int row, int /*column*/)
     bool ok=false;
     QString tags; // list of tags separated by comma
 
-    BookmarkInfo& bmi = Bookmarks::Get().getBookmark(row);
+    int iIdx = bookmarksTableModel->GetBookmarksIndexForRow(row);
+    BookmarkInfo& bmi = Bookmarks::Get().getBookmark(iIdx);
 
     // Create and show the Dialog for a new Bookmark.
-    // Write the result into variabe 'name'.
+    // Write the result into variabe 'tags'.
     {
         QDialog dialog(this);
         dialog.setWindowTitle("Change Bookmark Tags");
@@ -262,23 +263,20 @@ void DockBookmarks::changeBookmarkTags(int row, int /*column*/)
         if (ok)
         {
             tags = taglist->getSelectedTagsAsString();
-        }
-        else
-        {
-            tags.clear();
-        }
-    }
-    // list of selected tags is now in string 'tags'.
+            // list of selected tags is now in string 'tags'.
 
-    // Change Tags of Bookmark
-    QStringList listTags = tags.split(",",QString::SkipEmptyParts);
-    bmi.tags.clear();
-    if(listTags.size()==0)
-    {
-        bmi.tags.append(&Bookmarks::Get().findOrAddTag(""));
-    }
-    for(int i=0; i<listTags.size(); ++i)
-    {
-        bmi.tags.append(&Bookmarks::Get().findOrAddTag(listTags[i]));
+            // Change Tags of Bookmark
+            QStringList listTags = tags.split(",",QString::SkipEmptyParts);
+            bmi.tags.clear();
+            if(listTags.size()==0)
+            {
+                bmi.tags.append(&Bookmarks::Get().findOrAddTag("")); // "Untagged"
+            }
+            for(int i=0; i<listTags.size(); ++i)
+            {
+                bmi.tags.append(&Bookmarks::Get().findOrAddTag(listTags[i]));
+            }
+            Bookmarks::Get().save();
+        }
     }
 }
