@@ -1,26 +1,25 @@
 <RCC>
     <qresource prefix="/icons">
-        <file>icons/play.svg</file>
-        <file>icons/record.svg</file>
-        <file>icons/document.svg</file>
-        <file>icons/floppy.svg</file>
-        <file>icons/folder.svg</file>
-        <file>icons/power-off.svg</file>
-        <file>icons/radio.svg</file>
         <file>icons/audio-card.svg</file>
+        <file>icons/bookmark-new.svg</file>
+        <file>icons/clear.svg</file>
+        <file>icons/clock.svg</file>
+        <file>icons/close.svg</file>
+        <file>icons/document.svg</file>
         <file>icons/flash.svg</file>
-        <file>icons/signal.svg</file>
+        <file>icons/folder.svg</file>
         <file>icons/fullscreen.svg</file>
+        <file>icons/floppy.svg</file>
+        <file>icons/gqrx.svg</file>
+        <file>icons/help.svg</file>
+        <file>icons/info.svg</file>
+        <file>icons/play.svg</file>
+        <file>icons/power-off.svg</file>
+        <file>icons/record.svg</file>
         <file>icons/refresh.svg</file>
         <file>icons/settings.svg</file>
-        <file>icons/clock.svg</file>
-        <file>icons/terminal.svg</file>
-        <file>icons/clear.svg</file>
-        <file>icons/close.svg</file>
-        <file>icons/info.svg</file>
-        <file>icons/help.svg</file>
-        <file>icons/bookmark-new.svg</file>
+        <file>icons/signal.svg</file>
         <file>icons/tangeo-network-idle.svg</file>
-        <file>icons/gqrx.svg</file>
+        <file>icons/terminal.svg</file>
     </qresource>
 </RCC>

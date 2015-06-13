@@ -18,7 +18,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../icons.qrc">
-    <normaloff>:/icons/icons/radio.svg</normaloff>:/icons/icons/radio.svg</iconset>
+    <normaloff>:/icons/icons/flash.svg</normaloff>:/icons/icons/flash.svg</iconset>
   </property>
   <property name="floating">
    <bool>false</bool>
@@ -194,13 +194,13 @@
              <number>1</number>
             </property>
             <property name="minimum">
-             <float>-200.0</float>
+             <double>0.000000000000000</double>
             </property>
             <property name="maximum">
-             <float>200.0</float>
+             <double>100.000000000000000</double>
             </property>
             <property name="value">
-             <float>0.0</float>
+             <double>0.000000000000000</double>
             </property>
            </widget>
           </item>

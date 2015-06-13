@@ -9,6 +9,7 @@
      FIXED: Prevent crash due to device errors while starting the application.
      FIXED: Use hardware frequency in IQ file names.
      FIXED: FFT averaging (it can now be disabled).
+     FIXED: "Could not resolve pattern10600" error messages in the terminal.
   IMPROVED: Fractional PPM correction.
   IMPROVED: AGC peformance.
   IMPROVED: FFT performance.
