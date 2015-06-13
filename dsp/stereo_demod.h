@@ -55,7 +55,7 @@ typedef boost::shared_ptr<stereo_demod> stereo_demod_sptr;
  */
 stereo_demod_sptr make_stereo_demod(float quad_rate=120e3,
                                     float audio_rate=48e3,
-                                    bool stereo=true);
+                                    bool stereo=true, bool oirt=false);
 
 
 /*! \brief FM stereo demodulator.
@@ -68,10 +68,11 @@ class stereo_demod : public gr::hier_block2
 {
     friend stereo_demod_sptr make_stereo_demod(float input_rate,
                                                float audio_rate,
-                                               bool stereo);
+                                               bool stereo,
+                                               bool oirt);
 
 protected:
-    stereo_demod(float input_rate, float audio_rate, bool stereo);
+    stereo_demod(float input_rate, float audio_rate, bool stereo, bool oirt);
 
 public:
     ~stereo_demod();
@@ -97,6 +98,7 @@ private:
     float d_input_rate;                  /*! Input rate. */
     float d_audio_rate;                  /*! Audio rate. */
     bool  d_stereo;                      /*! On/off stereo mode. */
+    bool  d_oirt;
     std::vector<gr_complex> d_tone_taps; /*! Tone BPF taps. */
     std::vector<float> d_pll_taps;       /*! Subtone BPF taps. */
 };

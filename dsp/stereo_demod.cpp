@@ -29,10 +29,10 @@
 
 /* Create a new instance of stereo_demod and return a boost shared_ptr. */
 stereo_demod_sptr make_stereo_demod(float quad_rate, float audio_rate,
-                                    bool stereo)
+                                    bool stereo, bool oirt)
 {
     return gnuradio::get_initial_sptr(new stereo_demod(quad_rate,
-                                                       audio_rate, stereo));
+                                                       audio_rate, stereo, oirt));
 }
 
 
@@ -47,35 +47,49 @@ static const int MAX_OUT = 2; /* Maximum number of output streams. */
  *
  * Use make_stereo_demod() instead.
  */
-stereo_demod::stereo_demod(float input_rate, float audio_rate, bool stereo)
+stereo_demod::stereo_demod(float input_rate, float audio_rate, bool stereo, bool oirt)
     : gr::hier_block2("stereo_demod",
                      gr::io_signature::make (MIN_IN,  MAX_IN,  sizeof (float)),
                      gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof (float))),
     d_input_rate(input_rate),
     d_audio_rate(audio_rate),
-    d_stereo(stereo)
+    d_stereo(stereo),
+    d_oirt(oirt)
 {
-  lpf0 = make_lpf_ff(d_input_rate, 17e3, 2e3); // FIXME
+  double cutof_freq = d_oirt ? 15e3 : 17e3;
+  lpf0 = make_lpf_ff(d_input_rate, cutof_freq, 2e3); // FIXME
   audio_rr0 = make_resampler_ff(d_audio_rate/d_input_rate);
 
   if (d_stereo)
   {
-    lpf1 = make_lpf_ff(d_input_rate, 17e3, 2e3); // FIXME
+    lpf1 = make_lpf_ff(d_input_rate, cutof_freq, 2e3); // FIXME
     audio_rr1 = make_resampler_ff(d_audio_rate/d_input_rate);
 
-    d_tone_taps = gr::filter::firdes::complex_band_pass(
+    if (!d_oirt)
+    {
+        d_tone_taps = gr::filter::firdes::complex_band_pass(
                                        1.0,          // gain,
 		                                   d_input_rate, // sampling_freq
                                        18800.,       // low_cutoff_freq
                                        19200.,       // high_cutoff_freq
                                        300.);        // transition_width
-    tone = gr::filter::fir_filter_fcc::make(1, d_tone_taps);
-
-    pll = gr::analog::pll_refout_cc::make(0.001,                        // loop_bw FIXME
+        pll = gr::analog::pll_refout_cc::make(0.001,    // loop_bw FIXME
                                 2*M_PI * 19200 / input_rate,  // max_freq
                                 2*M_PI * 18800 / input_rate); // min_freq
+        subtone = gr::blocks::multiply_cc::make();
+    } else {
+        d_tone_taps = gr::filter::firdes::complex_band_pass(
+                                       1.0,          // gain,
+                                           d_input_rate, // sampling_freq
+                                       31200.,       // low_cutoff_freq
+                                       31300.,       // high_cutoff_freq
+                                       100.);        // transition_width
+        pll = gr::analog::pll_refout_cc::make(0.001,    // loop_bw FIXME
+                                2*M_PI * 31200 / input_rate,  // max_freq
+                                2*M_PI * 31300 / input_rate); // min_freq
+    }
 
-    subtone = gr::blocks::multiply_cc::make();
+    tone = gr::filter::fir_filter_fcc::make(1, d_tone_taps);
 
     lo = gr::blocks::complex_to_imag::make();
 
@@ -98,18 +112,26 @@ stereo_demod::stereo_demod(float input_rate, float audio_rate, bool stereo)
     add1 = gr::blocks::add_ff::make();
 
     /* connect block */
-    connect(self(), 0, tone, 0);
-    connect(tone, 0, pll, 0);
-    connect(pll, 0, subtone, 0);
-    connect(pll, 0, subtone, 1);
-    connect(subtone, 0, lo, 0);
-
+    if (!d_oirt) {
+        connect(self(), 0, tone, 0);
+        connect(tone, 0, pll, 0);
+        connect(pll, 0, subtone, 0);
+        connect(pll, 0, subtone, 1);
+        connect(subtone, 0, lo, 0);
+    
 #ifdef STEREO_DEMOD_PARANOIC
-    connect(lo,  0, lo2, 0);
-    connect(lo2, 0, mixer, 0);
+        connect(lo,  0, lo2, 0);
+        connect(lo2, 0, mixer, 0);
 #else
-    connect(lo, 0, mixer, 0);
+        connect(lo, 0, mixer, 0);
 #endif
+    } else {
+        connect(self(), 0, tone, 0);
+        connect(tone, 0, pll, 0);
+        connect(pll, 0, lo, 0);
+        connect(lo, 0, mixer, 0);
+    } 
+
     connect(self(), 0, mixer, 1);
 
     connect(self(), 0, lpf0, 0);

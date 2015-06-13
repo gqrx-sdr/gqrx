@@ -47,6 +47,7 @@ wfmrx::wfmrx(float quad_rate, float audio_rate)
     demod_fm = make_rx_demod_fm(PREF_QUAD_RATE, PREF_MIDLE_RATE, 75000.0, 50.0e-6);
     midle_rr = make_resampler_ff(PREF_MIDLE_RATE/PREF_QUAD_RATE);
     stereo = make_stereo_demod(PREF_MIDLE_RATE, d_audio_rate, true);
+    stereo_oirt = make_stereo_demod(PREF_MIDLE_RATE, d_audio_rate, true, true);
     mono   = make_stereo_demod(PREF_MIDLE_RATE, d_audio_rate, false);
 
     /* create rds blocks but dont connect them */
@@ -204,10 +205,16 @@ void wfmrx::set_demod(int demod)
         break;
 
     case WFMRX_DEMOD_STEREO:
-    case WFMRX_DEMOD_STEREO_UKW: /** FIXME! **/
         disconnect(midle_rr, 0, stereo, 0);
         disconnect(stereo, 0, self(), 0); // left  channel
         disconnect(stereo, 1, self(), 1); // right channel
+        break;
+
+    case WFMRX_DEMOD_STEREO_UKW:
+        disconnect(midle_rr, 0, stereo_oirt, 0);
+        disconnect(stereo_oirt, 0, self(), 0); // left  channel
+        disconnect(stereo_oirt, 1, self(), 1); // right channel
+        break;
     }
 
     switch (demod) {
@@ -220,10 +227,16 @@ void wfmrx::set_demod(int demod)
         break;
 
     case WFMRX_DEMOD_STEREO:
-    case WFMRX_DEMOD_STEREO_UKW: /** FIXME! **/
         connect(midle_rr, 0, stereo, 0);
         connect(stereo, 0, self(), 0); // left  channel
         connect(stereo, 1, self(), 1); // right channel
+        break;
+
+    case WFMRX_DEMOD_STEREO_UKW:
+        connect(midle_rr, 0, stereo_oirt, 0);
+        connect(stereo_oirt, 0, self(), 0); // left  channel
+        connect(stereo_oirt, 1, self(), 1); // right channel
+        break;
     }
     d_demod = (wfmrx_demod) demod;
 

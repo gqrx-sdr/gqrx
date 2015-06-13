@@ -736,6 +736,11 @@ receiver::status receiver::set_demod(rx_demod demod)
         rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO);
         break;
 
+    case RX_DEMOD_WFM_S_OIRT:
+        connect_all(RX_CHAIN_WFMRX);
+        rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO_UKW);
+        break;
+
     case RX_DEMOD_SSB:
         connect_all(RX_CHAIN_NBRX);
         rx->set_demod(nbrx::NBRX_DEMOD_SSB);

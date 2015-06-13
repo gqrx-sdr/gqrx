@@ -119,6 +119,7 @@ private:
     rx_demod_fm_sptr          demod_fm;  /*!< FM demodulator. */
     resampler_ff_sptr         midle_rr;  /*!< Resampler. */
     stereo_demod_sptr         stereo;    /*!< FM stereo demodulator. */
+    stereo_demod_sptr         stereo_oirt;    /*!< FM stereo oirt demodulator. */
     stereo_demod_sptr         mono;      /*!< FM stereo demodulator OFF. */
 
     rx_rds_sptr               rds;       /*!< RDS decoder */

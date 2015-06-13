@@ -893,6 +893,7 @@ void MainWindow::selectDemod(int index)
         /* Broadcast FM */
     case DockRxOpt::MODE_WFM_MONO:
     case DockRxOpt::MODE_WFM_STEREO:
+    case DockRxOpt::MODE_WFM_STEREO_OIRT:
         quad_rate = rx->get_input_rate();
         if (quad_rate < 200.0e3)
             ui->plotter->setDemodRanges(-0.9*quad_rate/2.0, -10000,
@@ -919,6 +920,8 @@ void MainWindow::selectDemod(int index)
         }
         if (index == DockRxOpt::MODE_WFM_MONO)
             rx->set_demod(receiver::RX_DEMOD_WFM_M);
+        else if (index == DockRxOpt::MODE_WFM_STEREO_OIRT)
+            rx->set_demod(receiver::RX_DEMOD_WFM_S_OIRT);
         else
             rx->set_demod(receiver::RX_DEMOD_WFM_S);
 

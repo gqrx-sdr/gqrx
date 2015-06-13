@@ -49,6 +49,7 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
         ModulationStrings.append("USB");
         ModulationStrings.append("CW-L");
         ModulationStrings.append("CW-U");
+        ModulationStrings.append("WFM (stereo oirt)");
     }
     ui->modeSelector->addItems(ModulationStrings);
 
