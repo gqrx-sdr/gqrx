@@ -825,7 +825,7 @@ void MainWindow::selectDemod(int index)
     case DockRxOpt::MODE_AM:
         rx->set_demod(receiver::RX_DEMOD_AM);
         ui->plotter->setDemodRanges(-45000, -200, 200, 45000, true);
-        uiDockAudio->setFftRange(0,15000);
+        uiDockAudio->setFftRange(0,6000);
         click_res = 100;
         switch (filter_preset)
         {
@@ -852,7 +852,7 @@ void MainWindow::selectDemod(int index)
         if (maxdev < 20000.0)
         {   /** FIXME **/
             ui->plotter->setDemodRanges(-45000, -250, 250, 45000, true);
-            uiDockAudio->setFftRange(0,12000);
+            uiDockAudio->setFftRange(0,6000);
             switch (filter_preset) {
             case 0: //wide
                 flo = -10000;
@@ -929,7 +929,7 @@ void MainWindow::selectDemod(int index)
     case DockRxOpt::MODE_LSB:
         rx->set_demod(receiver::RX_DEMOD_SSB);
         ui->plotter->setDemodRanges(-40000, -100, -5000, 0, false);
-        uiDockAudio->setFftRange(0,3500);
+        uiDockAudio->setFftRange(0,3000);
         click_res = 100;
         switch (filter_preset)
         {
@@ -952,7 +952,7 @@ void MainWindow::selectDemod(int index)
     case DockRxOpt::MODE_USB:
         rx->set_demod(receiver::RX_DEMOD_SSB);
         ui->plotter->setDemodRanges(0, 5000, 100, 40000, false);
-        uiDockAudio->setFftRange(0,3500);
+        uiDockAudio->setFftRange(0,3000);
         click_res = 100;
         switch (filter_preset)
         {
