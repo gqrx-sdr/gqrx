@@ -60,7 +60,6 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     ui(new Ui::MainWindow),
     d_lnb_lo(0),
     d_hw_freq(0),
-    d_fftAvg(0.5),
     d_have_audio(true),
     dec_afsk1200(0)
 {
@@ -124,7 +123,6 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     uiDockRDS = new DockRDS();
     uiDockAudio = new DockAudio();
     uiDockInputCtl = new DockInputCtl();
-    //uiDockIqPlay = new DockIqPlayer();
     uiDockFft = new DockFft();
     Bookmarks::Get().setConfigDir(m_cfg_dir);
     uiDockBookmarks = new DockBookmarks(this);
@@ -141,23 +139,25 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     */
     addDockWidget(Qt::RightDockWidgetArea, uiDockInputCtl);
     addDockWidget(Qt::RightDockWidgetArea, uiDockRxOpt);
+    addDockWidget(Qt::RightDockWidgetArea, uiDockFft);
     tabifyDockWidget(uiDockInputCtl, uiDockRxOpt);
+    tabifyDockWidget(uiDockRxOpt, uiDockFft);
+    uiDockRxOpt->raise();
 
     addDockWidget(Qt::RightDockWidgetArea, uiDockAudio);
-    addDockWidget(Qt::RightDockWidgetArea, uiDockFft);
     addDockWidget(Qt::RightDockWidgetArea, uiDockRDS);
-    tabifyDockWidget(uiDockFft, uiDockAudio);
     tabifyDockWidget(uiDockAudio, uiDockRDS);
+    uiDockAudio->raise();
 
     addDockWidget(Qt::BottomDockWidgetArea, uiDockBookmarks);
-
-    //addDockWidget(Qt::BottomDockWidgetArea, uiDockIqPlay);
 
     /* hide docks that we don't want to show initially */
     /** FIXME: Hide them initially but store layout in config **/
     //    uiDockInputCtl->hide();
     //    uiDockFft->hide();
-    //uiDockIqPlay->hide();
+
+    uiDockBookmarks->hide();
+    uiDockRDS->hide();
 
     /* misc configurations */
     //uiDockAudio->setFftRange(0, 8000); // FM

@@ -9,9 +9,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>314</width>
+    <width>250</width>
     <height>226</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>250</width>
+    <height>226</height>
+   </size>
   </property>
   <property name="allowedAreas">
    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
@@ -21,6 +27,24 @@
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QFormLayout" name="formLayout">
+    <property name="horizontalSpacing">
+     <number>5</number>
+    </property>
+    <property name="verticalSpacing">
+     <number>5</number>
+    </property>
+    <property name="leftMargin">
+     <number>5</number>
+    </property>
+    <property name="topMargin">
+     <number>5</number>
+    </property>
+    <property name="rightMargin">
+     <number>5</number>
+    </property>
+    <property name="bottomMargin">
+     <number>5</number>
+    </property>
     <item row="0" column="0">
      <widget class="QLabel" name="label_8">
       <property name="text">
@@ -38,7 +62,7 @@
     <item row="1" column="1">
      <widget class="QLabel" name="station_name">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -64,7 +88,7 @@
     <item row="2" column="1">
      <widget class="QLabel" name="program_type">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -90,7 +114,7 @@
     <item row="3" column="1">
      <widget class="QLabel" name="program_information">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -116,7 +140,7 @@
     <item row="4" column="1">
      <widget class="QLabel" name="radiotext">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -142,7 +166,7 @@
     <item row="5" column="1">
      <widget class="QLabel" name="clocktime">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -168,7 +192,7 @@
     <item row="6" column="1">
      <widget class="QLabel" name="alt_freq">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -194,7 +218,7 @@
     <item row="7" column="1">
      <widget class="QLabel" name="flags">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -213,7 +237,7 @@
     <item row="0" column="1">
      <widget class="QCheckBox" name="rdsCheckbox">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>

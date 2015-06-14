@@ -111,7 +111,7 @@ CPlotter::CPlotter(QWidget *parent) :
     m_HorDivs = 12;
     m_VerDivs = 6;
     m_MaxdB = 0;
-    m_MindB = -120;
+    m_MindB = -135;
     m_dBStepSize = abs(m_MaxdB-m_MindB)/m_VerDivs;
 
     m_FreqUnits = 1000000;

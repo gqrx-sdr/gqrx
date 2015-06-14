@@ -27,10 +27,10 @@
 #include "ui_dockfft.h"
 
 
-#define DEFAULT_FFT_RATE  15
+#define DEFAULT_FFT_RATE  25
 #define DEFAULT_FFT_SIZE  2048
-#define DEFAULT_FFT_SPLIT 50
-#define DEFAULT_FFT_AVG   50
+#define DEFAULT_FFT_SPLIT 35
+#define DEFAULT_FFT_AVG   75
 
 
 DockFft::DockFft(QWidget *parent) :
