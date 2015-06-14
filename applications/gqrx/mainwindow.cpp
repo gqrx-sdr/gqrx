@@ -362,8 +362,11 @@ MainWindow::~MainWindow()
  */
 bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
 {
-    bool conf_ok = false;
-    bool skip_loading_cfg = false;
+    qint64      int64_val;
+    bool        bool_val;
+    bool        conf_ok = false;
+    bool        conv_ok;
+    bool        skip_loading_cfg = false;
 
     qDebug() << "Loading configuration from:" << cfgfile;
 
@@ -407,10 +410,10 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         return false;
 
     // manual reconf (FIXME: check status)
-    bool conv_ok = false;
+    conv_ok = false;
 
     // hide toolbar
-    bool bool_val = m_settings->value("gui/hide_toolbar", false).toBool();
+    bool_val = m_settings->value("gui/hide_toolbar", false).toBool();
     if (bool_val)
         ui->mainToolBar->hide();
 
@@ -477,22 +480,32 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         iq_tool->setSampleRate(sr);
     }
 
-    qint64 bw = m_settings->value("input/bandwidth", 0).toInt(&conv_ok);
+    int64_val = m_settings->value("input/bandwidth", 0).toInt(&conv_ok);
     if (conv_ok)
     {
         // set analog bw even if 0 since for some devices 0 Hz means "auto"
-        double actual_bw = rx->set_analog_bandwidth((double)bw);
-        qDebug() << "Requested bandwidth:" << bw << "Hz";
+        double actual_bw = rx->set_analog_bandwidth((double) int64_val);
+        qDebug() << "Requested bandwidth:" << int64_val << "Hz";
         qDebug() << "Actual bandwidth   :" << actual_bw << "Hz";
     }
 
-    uiDockInputCtl->readSettings(m_settings);
+    uiDockInputCtl->readSettings(m_settings); // this will also update freq range
     uiDockRxOpt->readSettings(m_settings);
     uiDockFft->readSettings(m_settings);
     uiDockAudio->readSettings(m_settings);
 
-    ui->freqCtrl->setFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&conv_ok));
-    setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
+    {
+        double      f1, f2, step;
+
+        int64_val = m_settings->value("input/frequency", 14236000).toLongLong(&conv_ok);
+
+        if (rx->get_rf_range(&f1, &f2, &step) == receiver::STATUS_OK)
+            if ((double)int64_val > f1 || (double)int64_val < f2)
+                int64_val = (qint64)((f2 - f1) / 2.0);
+
+        ui->freqCtrl->setFrequency(int64_val);
+        setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
+    }
 
     remote->readSettings(m_settings);
     iq_tool->readSettings(m_settings);
