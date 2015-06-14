@@ -213,7 +213,7 @@ void DockRxOpt::readSettings(QSettings *settings)
     bool conv_ok;
     int intVal;
 
-    intVal = settings->value("receiver/demod", -1).toInt(&conv_ok);
+    intVal = settings->value("receiver/demod", 0).toInt(&conv_ok);
     if (intVal >= 0)
     {
         setCurrentDemod(intVal);
