@@ -500,7 +500,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         int64_val = m_settings->value("input/frequency", 14236000).toLongLong(&conv_ok);
 
         if (rx->get_rf_range(&f1, &f2, &step) == receiver::STATUS_OK)
-            if ((double)int64_val > f1 || (double)int64_val < f2)
+            if ((double)int64_val < f1 || (double)int64_val > f2)
                 int64_val = (qint64)((f2 - f1) / 2.0);
 
         ui->freqCtrl->setFrequency(int64_val);
