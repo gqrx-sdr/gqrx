@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>205</width>
+    <width>216</width>
     <height>222</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>205</width>
+    <width>216</width>
     <height>222</height>
    </size>
   </property>
@@ -179,10 +179,10 @@
          <number>1</number>
         </property>
         <property name="minimum">
-         <double>0.000000000000000</double>
+         <double>-500.000000000000000</double>
         </property>
         <property name="maximum">
-         <double>100.000000000000000</double>
+         <double>500.000000000000000</double>
         </property>
         <property name="value">
          <double>0.000000000000000</double>
