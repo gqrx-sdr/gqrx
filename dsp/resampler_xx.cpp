@@ -20,6 +20,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <math.h>
 #include <cstdio>
 #include <gnuradio/io_signature.h>
 #include <gnuradio/filter/firdes.h>
@@ -74,6 +75,9 @@ void resampler_cc::set_rate(float rate)
     double cutoff = rate > 1.0 ? 0.4 : 0.4*rate;
     double trans_width = rate > 1.0 ? 0.2 : 0.2*rate;
     unsigned int flt_size = 32;
+    if (isinf(rate) || isnan(rate))
+	return;
+
     d_taps = gr::filter::firdes::low_pass(flt_size, flt_size, cutoff, trans_width);
 
     /* FIXME: Should implement set_taps() in PFB */
