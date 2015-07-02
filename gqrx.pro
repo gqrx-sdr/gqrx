@@ -225,7 +225,8 @@ PKGCONFIG += gnuradio-analog \
              gnuradio-digital \
              gnuradio-filter \
              gnuradio-fft \
-             gnuradio-osmosdr
+             gnuradio-osmosdr \
+             volk
 
 unix:!macx {
     LIBS += -lboost_system$$BOOST_SUFFIX -lboost_program_options$$BOOST_SUFFIX
