@@ -416,36 +416,23 @@ void CIoConfig::updateInputSampleRates(int rate)
     }
     else if (ui->inDevEdit->text().contains("cloudiq"))
     {
-        ui->inSrCombo->addItem("10000");
-        ui->inSrCombo->addItem("16000");
-        ui->inSrCombo->addItem("20000");
-        ui->inSrCombo->addItem("24000");
-        ui->inSrCombo->addItem("30000");
-        ui->inSrCombo->addItem("32000");
         ui->inSrCombo->addItem("48000");
-        ui->inSrCombo->addItem("60000");
-        ui->inSrCombo->addItem("64000");
-        ui->inSrCombo->addItem("80000");
+        ui->inSrCombo->addItem("61440");
         ui->inSrCombo->addItem("96000");
-        ui->inSrCombo->addItem("120000");
-        ui->inSrCombo->addItem("128000");
-        ui->inSrCombo->addItem("160000");
-        ui->inSrCombo->addItem("192000");
+        ui->inSrCombo->addItem("122880");
         ui->inSrCombo->addItem("240000");
         ui->inSrCombo->addItem("256000");
-        ui->inSrCombo->addItem("320000");
-        ui->inSrCombo->addItem("384000");
-        ui->inSrCombo->addItem("480000");
+        ui->inSrCombo->addItem("370120");
+        ui->inSrCombo->addItem("495483");
         ui->inSrCombo->addItem("512000");
-        ui->inSrCombo->addItem("640000");
-        ui->inSrCombo->addItem("768000");
-        ui->inSrCombo->addItem("960000");
+        ui->inSrCombo->addItem("614400");
         ui->inSrCombo->addItem("1024000");
         ui->inSrCombo->addItem("1228800");
+        ui->inSrCombo->addItem("1807058");
         if (rate > 0)
             ui->inSrCombo->insertItem(0, QString("%1").arg(rate));
         else
-            ui->inSrCombo->setCurrentIndex(15); // select 240 kHz
+            ui->inSrCombo->setCurrentIndex(4); // select 370 kHz
     }
     else if (ui->inDevEdit->text().contains("airspy"))
     {
