@@ -88,6 +88,10 @@ public:
 private:
     unsigned int d_fftsize;   /*! Current FFT size. */
     int          d_wintype;   /*! Current window type. */
+    bool averaging_fft;
+    int fftcounter, averagecount;
+    float *averager;
+    //gr_complex *averager;
 
     boost::mutex d_mutex;  /*! Used to lock FFT output buffer. */
 
