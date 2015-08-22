@@ -167,6 +167,7 @@ private slots:
     /* FFT settings */
     void setIqFftSize(int size);
     void setIqFftRate(int fps);
+    void setIqFftMode(int mode);
     void setIqFftSplit(int pct_wf);
     void setIqFftAvg(float avg);
     void setAudioFftRate(int fps);

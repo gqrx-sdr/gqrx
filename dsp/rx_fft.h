@@ -84,11 +84,13 @@ public:
 
     void set_fft_size(unsigned int fftsize);
     unsigned int get_fft_size();
+    void set_fft_mode(unsigned int fftmode);
+    unsigned int get_fft_mode();
 
 private:
     unsigned int d_fftsize;   /*! Current FFT size. */
+    unsigned int d_fftmode;   /*! Current FFT mode. */
     int          d_wintype;   /*! Current window type. */
-    bool averaging_fft;
     int fftcounter, averagecount;
     float *averager;
     //gr_complex *averager;

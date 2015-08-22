@@ -45,8 +45,7 @@ rx_fft_c::rx_fft_c(unsigned int fftsize, int wintype)
       d_fftsize(fftsize),
       d_wintype(-1)
 {
-    averaging_fft = true; // TODO: GUI option for this
-    
+    d_fftmode = 1;
     fftcounter = averagecount = 0;
     //averager = new gr_complex[d_fftsize];
     averager = new float[d_fftsize];
@@ -94,17 +93,26 @@ int rx_fft_c::work(int noutput_items,
     for (i = 0; i < noutput_items; i++)
     {
         d_cbuf.push_back(in[i]);
-        if(averaging_fft && --fftcounter <= 0 && d_cbuf.size() >= d_fftsize) {
+        if(d_fftmode >= 1 && --fftcounter <= 0 && d_cbuf.size() >= d_fftsize) {
             fftcounter = fftcount;
 
             do_fft(d_cbuf.linearize(), d_fftsize);
             const gr_complex *ob = d_fft->get_outbuf();
 
-            for(unsigned int s=0; s<d_fftsize; s++) {
-                gr_complex c = ob[s];
-                averager[s] += c.real()*c.real() + c.imag()*c.imag();
+            if(d_fftmode == 1) { // average
+                for(unsigned int s=0; s<d_fftsize; s++) {
+                    gr_complex c = ob[s];
+                    averager[s] += c.real()*c.real() + c.imag()*c.imag();
+                }
+                averagecount++;
+            } else { // peak
+                for(unsigned int s=0; s<d_fftsize; s++) {
+                    gr_complex c = ob[s];
+                    float power = c.real()*c.real() + c.imag()*c.imag();
+                    if(power > averager[s]) averager[s] = power;
+                }
+                averagecount = 1;
             }
-            averagecount++;
         }
     }
 
@@ -119,7 +127,7 @@ int rx_fft_c::work(int noutput_items,
 void rx_fft_c::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSize)
 {
     boost::mutex::scoped_lock lock(d_mutex);
-    if(averaging_fft) {
+    if(d_fftmode >= 1) {
         if(averagecount > 0) {
             float normalize = 1.0 / averagecount;
             //printf("%d ", averagecount);
@@ -212,6 +220,18 @@ void rx_fft_c::set_fft_size(unsigned int fftsize)
 unsigned int rx_fft_c::get_fft_size()
 {
     return d_fftsize;
+}
+
+/*! \brief Set new FFT mode. */
+void rx_fft_c::set_fft_mode(unsigned int fftmode)
+{
+    d_fftmode = fftmode;
+}
+
+/*! \brief Get currently used FFT size. */
+unsigned int rx_fft_c::get_fft_mode()
+{
+    return d_fftmode;
 }
 
 /*! \brief Set new window type. */

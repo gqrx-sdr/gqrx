@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>250</width>
-    <height>300</height>
+    <width>262</width>
+    <height>312</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>250</width>
-    <height>300</height>
+    <width>262</width>
+    <height>310</height>
    </size>
   </property>
   <property name="windowIcon">
@@ -281,6 +281,22 @@
         </property>
        </widget>
       </item>
+      <item row="7" column="1" colspan="3">
+       <widget class="QtColorPicker" name="colorPicker">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Color for the FFT plot</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
       <item row="6" column="3">
        <widget class="QPushButton" name="demodButton">
         <property name="sizePolicy">
@@ -319,22 +335,6 @@
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1" colspan="3">
-       <widget class="QtColorPicker" name="colorPicker">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>Color for the FFT plot</string>
-        </property>
-        <property name="text">
-         <string/>
         </property>
        </widget>
       </item>
@@ -395,22 +395,34 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="fftAvgLabel">
+      <item row="3" column="1" colspan="3">
+       <widget class="QSlider" name="fftSplitSlider">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>22</height>
+         </size>
+        </property>
         <property name="toolTip">
-         <string>FFT averaging gain</string>
+         <string>Spatial distribution between pandapter and waterfall</string>
         </property>
-        <property name="text">
-         <string>Averaging</string>
+        <property name="minimum">
+         <number>0</number>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="value">
+         <number>50</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
@@ -448,34 +460,22 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="1" colspan="3">
-       <widget class="QSlider" name="fftSplitSlider">
+      <item row="2" column="0">
+       <widget class="QLabel" name="fftAvgLabel">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>22</height>
-         </size>
-        </property>
         <property name="toolTip">
-         <string>Spatial distribution between pandapter and waterfall</string>
+         <string>FFT averaging gain</string>
         </property>
-        <property name="minimum">
-         <number>0</number>
+        <property name="text">
+         <string>Averaging</string>
         </property>
-        <property name="maximum">
-         <number>100</number>
-        </property>
-        <property name="value">
-         <number>50</number>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -624,6 +624,28 @@
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
+       </widget>
+      </item>
+      <item row="9" column="1" colspan="3">
+       <widget class="QComboBox" name="fftModeComboBox">
+        <property name="currentIndex">
+         <number>1</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>Sample (original)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Average</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Peak</string>
+         </property>
+        </item>
        </widget>
       </item>
      </layout>

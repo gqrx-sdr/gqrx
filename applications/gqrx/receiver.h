@@ -156,6 +156,7 @@ public:
     void set_iq_fft_size(int newsize);
     void get_iq_fft_data(std::complex<float>* fftPoints, unsigned int &fftsize);
     void get_audio_fft_data(std::complex<float>* fftPoints, unsigned int &fftsize);
+    void set_iq_fft_mode(int newmode);
 
     /* Noise blanker */
     status set_nb_on(int nbid, bool on);
