@@ -245,7 +245,10 @@ std::vector<std::string> receiver::get_antennas(void)
 /*! \brief Select antenna conenctor. */
 void receiver::set_antenna(const std::string &antenna)
 {
-    src->set_antenna(antenna);
+    if (!antenna.empty())
+    {
+        src->set_antenna(antenna);
+    }
 }
 
 /*! \brief Set new input sample rate.
