@@ -24,6 +24,7 @@
 #define BOOKMARKS_H
 
 #include <QtGlobal>
+#include <QObject>
 #include <QString>
 #include <QMap>
 #include <QList>
