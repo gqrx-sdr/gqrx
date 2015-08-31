@@ -65,7 +65,9 @@ public:
         MODE_LSB        = 6, /*!< Lower side band. */
         MODE_USB        = 7, /*!< Upper side band. */
         MODE_CWL        = 8, /*!< CW using LSB filter. */
-        MODE_CWU        = 9  /*!< CW using USB filter. */
+        MODE_CWU        = 9, /*!< CW using USB filter. */
+        MODE_WFM_STEREO_OIRT = 10 /*!< Broadcast FM (stereo oirt). */
+
     };
 
     explicit DockRxOpt(qint64 filterOffsetRange = 90000, QWidget *parent = 0);
