@@ -44,6 +44,7 @@ BookmarksTagList::BookmarksTagList(QWidget *parent, bool bShowUntagged )
     verticalHeader()->setVisible(false);
     setColumnCount(2);
     setColumnWidth(0, 20);
+    horizontalHeader()->setStretchLastSection(true);
     setSelectionMode(QAbstractItemView::SingleSelection);
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSortingEnabled(true);
