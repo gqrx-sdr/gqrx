@@ -107,7 +107,7 @@
     <item row="3" column="0">
      <widget class="QLabel" name="label_4">
       <property name="text">
-       <string>Program ident.</string>
+       <string>Program Ident.</string>
       </property>
      </widget>
     </item>
