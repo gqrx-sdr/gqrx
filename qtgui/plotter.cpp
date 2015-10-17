@@ -1142,7 +1142,7 @@ void CPlotter::drawOverlay()
     static const int fontHeight = fm.ascent()+1; // height();
     static const int slant = 5;
     static const int levelHeight = fontHeight+5;
-    static const int nLevels = 3;
+    static const int nLevels = 10;
     QList<BookmarkInfo> bookmarks = Bookmarks::Get().getBookmarksInRange(m_CenterFreq+m_FftCenter-m_Span/2, m_CenterFreq+m_FftCenter+m_Span/2);
     int tagEnd[nLevels] = {0};
     for(int i=0; i<bookmarks.size(); i++)

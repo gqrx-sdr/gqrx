@@ -16,6 +16,7 @@
   IMPROVED: Fractional PPM correction.
   IMPROVED: AGC peformance.
   IMPROVED: FFT performance.
+  IMPROVED: Prevent bookmarks to be drawn over each other (up to 10 now).
 
      2.3.2  Released November 28, 2014
 
