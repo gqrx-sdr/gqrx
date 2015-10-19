@@ -45,12 +45,16 @@ public:
     int fftSize();
     int setFftSize(int fft_size);
 
+    int fftMode();
+    int setFftMode(int fft_mode);
+
     void saveSettings(QSettings *settings);
     void readSettings(QSettings *settings);
 
 signals:
     void fftSizeChanged(int size);      /*! FFT size changed. */
     void fftRateChanged(int fps);       /*! FFT rate changed. */
+    void fftModeChanged(int mode);      /*! FFT mode changed. */
     void fftSplitChanged(int pct);      /*! Split between pandapter and waterfall changed. */
     void fftZoomChanged(float level);   /*! Zoom level slider changed. */
     void fftAvgChanged(float gain);     /*! FFT video filter gain has changed. */
@@ -65,6 +69,7 @@ signals:
 private slots:
     void on_fftSizeComboBox_currentIndexChanged(const QString & text);
     void on_fftRateComboBox_currentIndexChanged(const QString & text);
+    void on_fftModeComboBox_currentIndexChanged(int index);
     void on_fftSplitSlider_valueChanged(int value);
     void on_fftAvgSlider_valueChanged(int value);
     void on_fftZoomSlider_valueChanged(int level);

@@ -215,6 +215,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockAudio, SIGNAL(fftRateChanged(int)), this, SLOT(setAudioFftRate(int)));
     connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setIqFftSize(int)));
     connect(uiDockFft, SIGNAL(fftRateChanged(int)), this, SLOT(setIqFftRate(int)));
+    connect(uiDockFft, SIGNAL(fftModeChanged(int)), this, SLOT(setIqFftMode(int)));
     connect(uiDockFft, SIGNAL(fftSplitChanged(int)), this, SLOT(setIqFftSplit(int)));
     connect(uiDockFft, SIGNAL(fftAvgChanged(float)), this, SLOT(setIqFftAvg(float)));
     connect(uiDockFft, SIGNAL(fftZoomChanged(float)), ui->plotter, SLOT(zoomOnXAxis(float)));
@@ -1534,6 +1535,13 @@ void MainWindow::setIqFftSize(int size)
 {
     qDebug() << "Changing baseband FFT size to" << size;
     rx->set_iq_fft_size(size);
+}
+
+/*! \brief FFT mode has changed. */
+void MainWindow::setIqFftMode(int mode)
+{
+    qDebug() << "Changing baseband FFT mode to" << mode;
+    rx->set_iq_fft_mode(mode);
 }
 
 /*! \brief Baseband FFT rate has changed. */

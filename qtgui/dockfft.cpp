@@ -29,6 +29,7 @@
 
 #define DEFAULT_FFT_RATE  25
 #define DEFAULT_FFT_SIZE  2048
+#define DEFAULT_FFT_MODE  1
 #define DEFAULT_FFT_SPLIT 35
 #define DEFAULT_FFT_AVG   75
 
@@ -120,6 +121,12 @@ int DockFft::setFftSize(int fft_size)
     return fftSize();
 }
 
+int DockFft::setFftMode(int fft_mode)
+{
+    ui->fftSizeComboBox->setCurrentIndex(fft_mode);
+    return fft_mode;
+}
+
 /*! \brief Get current FFT rate setting.
  *  \return The current FFT rate in frames per second (always non-zero)
  */
@@ -145,6 +152,13 @@ int DockFft::fftSize()
     return fft_size;
 }
 
+int DockFft::fftMode()
+{
+    int mode = ui->fftModeComboBox->currentIndex();
+
+    return mode;
+}
+
 /*! \brief Save FFT settings. */
 void DockFft::saveSettings(QSettings *settings)
 {
@@ -166,6 +180,12 @@ void DockFft::saveSettings(QSettings *settings)
         settings->setValue("fft_rate", fftRate());
     else
         settings->remove("fft_rate");
+
+    intval = fftMode();
+    if (intval != DEFAULT_FFT_MODE)
+        settings->setValue("fft_mode", intval);
+    else
+        settings->remove("fft_mode");
 
     if (ui->fftAvgSlider->value() != DEFAULT_FFT_AVG)
         settings->setValue("averaging", ui->fftAvgSlider->value());
@@ -212,6 +232,10 @@ void DockFft::readSettings(QSettings *settings)
     if (conv_ok)
         setFftSize(intval);
 
+    intval = settings->value("fft_mode", DEFAULT_FFT_MODE).toInt(&conv_ok);
+    if (conv_ok)
+        setFftMode(intval);
+
     intval = settings->value("averaging", DEFAULT_FFT_AVG).toInt(&conv_ok);
     if (conv_ok)
         ui->fftAvgSlider->setValue(intval);
@@ -243,6 +267,12 @@ void DockFft::on_fftRateComboBox_currentIndexChanged(const QString & text)
     Q_UNUSED(text);
 
     emit fftRateChanged(fps);
+}
+
+/*! \brief FFT mode changed. */
+void DockFft::on_fftModeComboBox_currentIndexChanged(int index)
+{
+    emit fftModeChanged(index);
 }
 
 /*! \brief Split between waterfall and pandapter changed.

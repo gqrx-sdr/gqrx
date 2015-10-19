@@ -582,6 +582,12 @@ void receiver::set_iq_fft_size(int newsize)
     iq_fft->set_fft_size(newsize);
 }
 
+/*! \brief Set new FFT size. */
+void receiver::set_iq_fft_mode(int newmode)
+{
+    iq_fft->set_fft_mode(newmode);
+}
+
 /*! \brief Get latest baseband FFT data. */
 void receiver::get_iq_fft_data(std::complex<float>* fftPoints, unsigned int &fftsize)
 {
