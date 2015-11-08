@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>253</width>
-    <height>350</height>
+    <width>362</width>
+    <height>473</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,7 +18,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>250</width>
+    <width>362</width>
     <height>350</height>
    </size>
   </property>
@@ -39,7 +39,7 @@
    <string>Receiver Options</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,1">
     <item>
      <widget class="CFreqCtrl" name="filterFreq">
       <property name="sizePolicy">
@@ -100,32 +100,20 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
      </layout>
     </item>
     <item>
-     <layout class="QGridLayout" name="gridLayout">
-      <property name="leftMargin">
-       <number>5</number>
+     <spacer name="verticalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
       </property>
-      <property name="topMargin">
-       <number>5</number>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>13</height>
+       </size>
       </property>
-      <property name="rightMargin">
-       <number>5</number>
-      </property>
-      <property name="bottomMargin">
-       <number>5</number>
-      </property>
-      <property name="spacing">
-       <number>5</number>
-      </property>
-      <item row="3" column="0">
-       <widget class="QLabel" name="agcLabel">
-        <property name="text">
-         <string>AGC</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
+     </spacer>
+    </item>
+    <item>
+     <layout class="QGridLayout" name="gridLayout" columnstretch="1,1,0">
       <item row="0" column="0">
        <widget class="QLabel" name="filterLabel">
         <property name="text">
@@ -136,100 +124,10 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QComboBox" name="filterShapeCombo">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>28</width>
-          <height>28</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Select the filter shape</string>
-        </property>
-        <property name="currentIndex">
-         <number>1</number>
-        </property>
-        <item>
-         <property name="text">
-          <string>Soft</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Normal</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Sharp</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QComboBox" name="modeSelector">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>28</width>
-          <height>28</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Demodulator type (mode)</string>
-        </property>
-        <property name="statusTip">
-         <string>Demodulator type (mode)</string>
-        </property>
-        <property name="currentIndex">
-         <number>-1</number>
-        </property>
-        <property name="maxVisibleItems">
-         <number>30</number>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="sqlLabel">
-        <property name="toolTip">
-         <string>Squelch level in dB below full scale</string>
-        </property>
-        <property name="text">
-         <string>Squelch</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="1">
        <widget class="QComboBox" name="filterCombo">
         <property name="enabled">
          <bool>true</bool>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>28</width>
-          <height>28</height>
-         </size>
         </property>
         <property name="toolTip">
          <string>Apply mode dependent filter preset</string>
@@ -259,6 +157,41 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </item>
        </widget>
       </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="filterShapeLabel">
+        <property name="text">
+         <string>Filter shape</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="filterShapeCombo">
+        <property name="toolTip">
+         <string>Select the filter shape</string>
+        </property>
+        <property name="currentIndex">
+         <number>1</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>Soft</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Normal</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Sharp</string>
+         </property>
+        </item>
+       </widget>
+      </item>
       <item row="2" column="0">
        <widget class="QLabel" name="demodLabel">
         <property name="sizePolicy">
@@ -281,13 +214,29 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </property>
        </widget>
       </item>
-      <item row="3" column="2">
-       <widget class="QPushButton" name="agcButton">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="modeSelector">
+        <property name="toolTip">
+         <string>Demodulator type (mode)</string>
+        </property>
+        <property name="statusTip">
+         <string>Demodulator type (mode)</string>
+        </property>
+        <property name="currentIndex">
+         <number>-1</number>
+        </property>
+        <property name="maxVisibleItems">
+         <number>30</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QPushButton" name="modeButton">
+        <property name="minimumSize">
+         <size>
+          <width>28</width>
+          <height>28</height>
+         </size>
         </property>
         <property name="maximumSize">
          <size>
@@ -295,13 +244,8 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
           <height>28</height>
          </size>
         </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
         <property name="toolTip">
-         <string>AGC options</string>
+         <string>Demodulator options</string>
         </property>
         <property name="text">
          <string/>
@@ -316,83 +260,15 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
           <height>16</height>
          </size>
         </property>
-        <property name="checkable">
-         <bool>false</bool>
-        </property>
         <property name="checked">
          <bool>false</bool>
         </property>
        </widget>
       </item>
-      <item row="4" column="2">
-       <widget class="QPushButton" name="autoSquelchButton">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>28</width>
-          <height>28</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Set squelch to the current signal or noise level</string>
-        </property>
+      <item row="3" column="0">
+       <widget class="QLabel" name="agcLabel">
         <property name="text">
-         <string>A</string>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>16</width>
-          <height>16</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QDoubleSpinBox" name="sqlSpinBox">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>Squelch level in dB below full scale</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="accelerated">
-         <bool>true</bool>
-        </property>
-        <property name="suffix">
-         <string> dBFS</string>
-        </property>
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="minimum">
-         <double>-150.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>0.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>1.000000000000000</double>
-        </property>
-        <property name="value">
-         <double>-150.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="filterShapeLabel">
-        <property name="text">
-         <string>Filter shape</string>
+         <string>AGC</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -403,18 +279,6 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
        <widget class="QComboBox" name="agcPresetCombo">
         <property name="enabled">
          <bool>true</bool>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>28</width>
-          <height>28</height>
-         </size>
         </property>
         <property name="toolTip">
          <string>AGC presets</string>
@@ -446,13 +310,57 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </item>
        </widget>
       </item>
-      <item row="2" column="2">
-       <widget class="QPushButton" name="modeButton">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+      <item row="4" column="0">
+       <widget class="QLabel" name="sqlLabel">
+        <property name="toolTip">
+         <string>Squelch level in dB below full scale</string>
+        </property>
+        <property name="text">
+         <string>Squelch</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QDoubleSpinBox" name="sqlSpinBox">
+        <property name="toolTip">
+         <string>Squelch level in dB below full scale</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="accelerated">
+         <bool>true</bool>
+        </property>
+        <property name="suffix">
+         <string> dBFS</string>
+        </property>
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="minimum">
+         <double>-150.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>-150.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QPushButton" name="autoSquelchButton">
+        <property name="minimumSize">
+         <size>
+          <width>28</width>
+          <height>28</height>
+         </size>
         </property>
         <property name="maximumSize">
          <size>
@@ -460,20 +368,11 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
           <height>28</height>
          </size>
         </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
         <property name="toolTip">
-         <string>Demodulator options</string>
+         <string>Set squelch to the current signal or noise level</string>
         </property>
         <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../icons.qrc">
-          <normaloff>:/icons/icons/settings.svg</normaloff>:/icons/icons/settings.svg</iconset>
+         <string>A</string>
         </property>
         <property name="iconSize">
          <size>
@@ -481,36 +380,12 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
           <height>16</height>
          </size>
         </property>
-        <property name="checkable">
-         <bool>false</bool>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
        </widget>
       </item>
       <item row="5" column="0">
        <widget class="QPushButton" name="nb1Button">
         <property name="enabled">
          <bool>true</bool>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>28</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>28</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
         </property>
         <property name="toolTip">
          <string>Noise blanker for atatic type noise</string>
@@ -528,24 +403,6 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         <property name="enabled">
          <bool>true</bool>
         </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>28</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
-        </property>
         <property name="toolTip">
          <string>Noise blanker for pulse type noise</string>
         </property>
@@ -557,13 +414,13 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </property>
        </widget>
       </item>
-      <item row="5" column="2">
-       <widget class="QPushButton" name="nbOptButton">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+      <item row="3" column="2">
+       <widget class="QPushButton" name="agcButton">
+        <property name="minimumSize">
+         <size>
+          <width>28</width>
+          <height>28</height>
+         </size>
         </property>
         <property name="maximumSize">
          <size>
@@ -571,13 +428,8 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
           <height>28</height>
          </size>
         </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
         <property name="toolTip">
-         <string>Noise blanker options</string>
+         <string>AGC options</string>
         </property>
         <property name="text">
          <string/>
@@ -592,11 +444,31 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
           <height>16</height>
          </size>
         </property>
-        <property name="checkable">
-         <bool>false</bool>
-        </property>
         <property name="checked">
          <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QPushButton" name="nbOptButton">
+        <property name="minimumSize">
+         <size>
+          <width>28</width>
+          <height>28</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>28</width>
+          <height>28</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Noise blanker options</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../icons.qrc">
+          <normaloff>:/icons/icons/settings.svg</normaloff>:/icons/icons/settings.svg</iconset>
         </property>
        </widget>
       </item>
@@ -610,7 +482,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
       <property name="sizeHint" stdset="0">
        <size>
         <width>20</width>
-        <height>40</height>
+        <height>118</height>
        </size>
       </property>
      </spacer>
