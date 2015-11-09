@@ -13,6 +13,7 @@
      FIXED: FFT averaging (it can now be disabled).
      FIXED: "Could not resolve pattern10600" error messages in the terminal.
      FIXED: Antenna selection error with USRP B210 (Ethan Trewhitt).
+  IMPROVED: Support up to 1M point FFT.
   IMPROVED: Fractional PPM correction.
   IMPROVED: AGC peformance.
   IMPROVED: FFT performance.

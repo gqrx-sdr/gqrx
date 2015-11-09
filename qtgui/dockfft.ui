@@ -537,7 +537,7 @@
          <bool>false</bool>
         </property>
         <property name="currentIndex">
-         <number>5</number>
+         <number>7</number>
         </property>
         <property name="maxVisibleItems">
          <number>15</number>
@@ -545,6 +545,31 @@
         <property name="insertPolicy">
          <enum>QComboBox::InsertAlphabetically</enum>
         </property>
+        <item>
+         <property name="text">
+          <string>1048576</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>524288</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>262144</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>131072</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>65536</string>
+         </property>
+        </item>
         <item>
          <property name="text">
           <string>32768</string>

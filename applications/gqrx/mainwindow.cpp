@@ -109,7 +109,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     d_pwrFftData = new float[MAX_FFT_SIZE]();
     d_iirFftData = new float[MAX_FFT_SIZE];
     for (int i = 0; i < MAX_FFT_SIZE; i++)
-        d_iirFftData[i] = -120.0;  // dBFS
+        d_iirFftData[i] = -140.0;  // dBFS
 
     /* timer for data decoders */
     dec_timer = new QTimer(this);
@@ -1219,7 +1219,9 @@ void MainWindow::iqFftTimeout()
         return;
     }
 
-    pwr_scale = 1.0 / (fftsize * fftsize);
+    // NB: without cast to float the multiplication will overflow at 64k
+    // and pwr_scale will be inf
+    pwr_scale = 1.0 / ((float)fftsize * (float)fftsize);
 
     /* Normalize, calculate power and shift the FFT */
     for (i = 0; i < fftsize; i++)
