@@ -13,7 +13,7 @@ add_definitions(-DVERSION="${VERSION}")
 
 ########### Main global variables ###########
 # if(NOT CMAKE_BUILD_TYPE)
-# 	set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: None Debug GProf Valgrind Release RelWithDebInfo MinSizeRel." FORCE)
+# 	set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: Debug GProf Valgrind Release" FORCE)
 # endif()
 #
 # set(BUILDTYPE ${CMAKE_BUILD_TYPE})
