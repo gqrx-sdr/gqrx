@@ -13,7 +13,7 @@ add_definitions(-DVERSION="${VERSION}")
 
 ########### Main global variables ###########
 # if(NOT CMAKE_BUILD_TYPE)
-# 	set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: Debug GProf Valgrind Release" FORCE)
+#     set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: Debug GProf Valgrind Release" FORCE)
 # endif()
 #
 # set(BUILDTYPE ${CMAKE_BUILD_TYPE})
@@ -25,8 +25,8 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMakeModules)
 
 # Add valgrind build options if necessary
 IF(${CMAKE_BUILD_TYPE} MATCHES "Valgrind")
-	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
 ENDIF()
 
 #######################################################################################################################
@@ -35,22 +35,22 @@ ENDIF()
 # function to collect all the sources from sub-directories
 # into a single list
 function(add_source_files list)
-	get_property(is_defined GLOBAL PROPERTY SRCS_LIST DEFINED)
-	if(NOT is_defined)
-		define_property(GLOBAL PROPERTY ${list}
-			BRIEF_DOCS "List of source files"
-			FULL_DOCS "List of source files to be compiled in one library")
-	endif()
-	# make absolute paths
-	set(SRCS)
-	foreach(s IN LISTS ARGN)
-		if(NOT IS_ABSOLUTE "${s}")
-			get_filename_component(s "${s}" ABSOLUTE)
-		endif()
-		list(APPEND SRCS "${s}")
-	endforeach()
-	# append to global list
-	set_property(GLOBAL APPEND PROPERTY ${list} "${SRCS}")
+    get_property(is_defined GLOBAL PROPERTY SRCS_LIST DEFINED)
+    if(NOT is_defined)
+        define_property(GLOBAL PROPERTY ${list}
+            BRIEF_DOCS "List of source files"
+            FULL_DOCS "List of source files to be compiled in one library")
+    endif()
+    # make absolute paths
+    set(SRCS)
+    foreach(s IN LISTS ARGN)
+        if(NOT IS_ABSOLUTE "${s}")
+            get_filename_component(s "${s}" ABSOLUTE)
+        endif()
+        list(APPEND SRCS "${s}")
+    endforeach()
+    # append to global list
+    set_property(GLOBAL APPEND PROPERTY ${list} "${SRCS}")
 endfunction(add_source_files)
 
 
@@ -62,9 +62,9 @@ set(GR_REQUIRED_COMPONENTS ANALOG AUDIO BLOCKS DIGITAL FILTER FFT)
 find_package(Gnuradio REQUIRED)
 find_package(Gnuradio-osmosdr REQUIRED)
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	find_package(PulseAudio REQUIRED)
-        # there is a defect in the pulse audio cmake file that does not include this library.
-        find_library(PULSE-SIMPLE NAMES pulse-simple REQUIRED)
+    find_package(PulseAudio REQUIRED)
+    # there is a defect in the pulse audio cmake file that does not include this library. So we add it here.
+    find_library(PULSE-SIMPLE NAMES pulse-simple REQUIRED)
 ENDIF()
 
 # Tell CMake to run moc when necessary:
