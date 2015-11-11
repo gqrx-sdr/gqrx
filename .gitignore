@@ -1,3 +1,4 @@
+build/
 builds/
 Makefile
 gqrx.pro.user*
