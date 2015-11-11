@@ -61,6 +61,11 @@ find_package(Boost COMPONENTS system program_options REQUIRED)
 set(GR_REQUIRED_COMPONENTS ANALOG AUDIO BLOCKS DIGITAL FILTER FFT)
 find_package(Gnuradio REQUIRED)
 find_package(Gnuradio-osmosdr REQUIRED)
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	find_package(PulseAudio REQUIRED)
+        # there is a defect in the pulse audio cmake file that does not include this library.
+        find_library(PULSE-SIMPLE NAMES pulse-simple REQUIRED)
+ENDIF()
 
 # Tell CMake to run moc when necessary:
 set(CMAKE_AUTOMOC ON)
