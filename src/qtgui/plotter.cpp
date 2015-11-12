@@ -62,15 +62,15 @@ CPlotter::CPlotter(QWidget *parent) :
     // default waterfall color scheme
     for (int i = 0; i < 256; i++)
     {
-		// level 0: black background
-		if (i < 20)
-			m_ColorTbl[i].setRgb(0, 0, 0);
-		// level 1: black -> blue
+      // level 0: black background
+      if (i < 20)
+         m_ColorTbl[i].setRgb(0, 0, 0);
+      // level 1: black -> blue
         else if ((i >= 20) && (i < 70))
             m_ColorTbl[i].setRgb(0, 0, 140*(i-20)/50);
         // level 2: blue -> light-blue / greenish
         else if ((i >= 70) && (i < 100))
-			m_ColorTbl[i].setRgb(60*(i-70)/30, 125*(i-70)/30, 115*(i-70)/30 + 140);
+         m_ColorTbl[i].setRgb(60*(i-70)/30, 125*(i-70)/30, 115*(i-70)/30 + 140);
         // level 3: light blue -> yellow
         else if ((i >= 100) && (i < 150))
             m_ColorTbl[i].setRgb(195*(i-100)/50 + 60, 130*(i-100)/50 + 125, 255-(255*(i-100)/50));
@@ -110,7 +110,7 @@ CPlotter::CPlotter(QWidget *parent) :
     m_HorDivs = 12;
     m_VerDivs = 6;
     m_MaxdB = 0;
-    m_MindB = -135;
+    m_MindB = -115;
     m_dBStepSize = std::abs(m_MaxdB-m_MindB)/m_VerDivs;
 
     m_FreqUnits = 1000000;
@@ -282,6 +282,10 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             float delta_db = delta_px * fabs(m_MindB-m_MaxdB)/(float)m_OverlayPixmap.height();
             m_MindB -= delta_db;
             m_MaxdB -= delta_db;
+            if(m_MaxdB > 0.0) {
+               m_MaxdB = 0.0;
+            }
+            emit fftGraphShifted(delta_db);
 
             if (m_Running)
                 m_DrawOverlay = true;
@@ -767,7 +771,7 @@ void CPlotter::draw()
         QPainter painter2(&m_2DPixmap);
 
 // workaround for "fixed" line drawing since Qt 5
-// see http://stackoverflow.com/questions/16990326 
+// see http://stackoverflow.com/questions/16990326
 #if QT_VERSION >= 0x050000
         painter2.translate(0.5, 0.5);
 #endif
@@ -868,7 +872,7 @@ void CPlotter::draw()
             m_PeakHoldValid=true;
         }
 
-		painter2.end();
+      painter2.end();
 
     }
 
@@ -1022,7 +1026,7 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
 
 
 /*! \brief Set upper limit of dB scale. */
-void CPlotter::setMaxDB(float max)
+void CPlotter::setMaxDB(const float max)
 {
     m_MaxdB = max;
 
@@ -1038,7 +1042,7 @@ void CPlotter::setMaxDB(float max)
 }
 
 /*! \brief Set lower limit of dB scale. */
-void CPlotter::setMinDB(float min)
+void CPlotter::setMinDB(const float min)
 {
     m_MindB = min;
 
