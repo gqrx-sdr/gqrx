@@ -27,7 +27,7 @@
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied, of Moe Wheatley.
  */
-#include <cstdlib>
+#include <cmath>
 #include <QDebug>
 #include "meter.h"
 

@@ -20,14 +20,13 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <cmath>
 #include <QDir>
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QMenu>
 #include <QComboBox>
 #include <QDialogButtonBox>
-
-#include <cstdlib>
 
 #include "bookmarks.h"
 #include "bookmarkstaglist.h"
@@ -153,7 +152,7 @@ void DockBookmarks::on_tableWidgetTagList_itemChanged(QTableWidgetItem *item)
     if(ui->tableWidgetTagList->m_bUpdating) return;
 
     int col = item->column();
-    if(!(col==1)) return;
+    if (col != 1) return;
 
     QString strText = item->text();
     Bookmarks::Get().setTagChecked(strText, (item->checkState() == Qt::Checked));

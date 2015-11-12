@@ -20,8 +20,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <cmath>
 #include <iostream>
-#include <cstdlib>
 #include "receivers/nbrx.h"
 
 #define PREF_QUAD_RATE  48000.0

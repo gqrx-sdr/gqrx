@@ -20,9 +20,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <cmath>
 #include <QString>
-
-#include <cstdlib>
 #include "remote_control.h"
 
 RemoteControl::RemoteControl(QObject *parent) :
