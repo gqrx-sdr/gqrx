@@ -23,14 +23,16 @@
 #include <QString>
 #include <QSettings>
 #include <QDebug>
+#include <QVariant>
 #include "dockfft.h"
 #include "ui_dockfft.h"
 
 
-#define DEFAULT_FFT_RATE  25
-#define DEFAULT_FFT_SIZE  8192
-#define DEFAULT_FFT_SPLIT 35
-#define DEFAULT_FFT_AVG   75
+#define DEFAULT_FFT_MINIMUM_DB   115
+#define DEFAULT_FFT_RATE         25
+#define DEFAULT_FFT_SIZE         8192
+#define DEFAULT_FFT_SPLIT        35
+#define DEFAULT_FFT_AVG          75
 
 
 DockFft::DockFft(QWidget *parent) :
@@ -40,12 +42,15 @@ DockFft::DockFft(QWidget *parent) :
     ui->setupUi(this);
 
 #ifdef Q_OS_MAC
+    // Is this really only needed on Mac to make the color picker button appear square like the other buttons?
+    ui->fillButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+#if QT_VERSION < 0x050000
     // Workaround for Mac, see http://stackoverflow.com/questions/3978889/why-is-qhboxlayout-causing-widgets-to-overlap
-    // Might be fixed in Qt 5?
+    // Fixed in Qt 5?
     ui->resetButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     ui->centerButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     ui->demodButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
-    ui->fillButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+#endif
 #endif
 
     // Add predefined gqrx colors to chooser.
@@ -172,6 +177,7 @@ void DockFft::saveSettings(QSettings *settings)
     else
         settings->remove("averaging");
 
+    settings->setValue("minimumFftDb", ui->minimumFftDbSlider->value());
     if (ui->fftSplitSlider->value() != DEFAULT_FFT_SPLIT)
         settings->setValue("split", ui->fftSplitSlider->value());
     else
@@ -226,6 +232,11 @@ void DockFft::readSettings(QSettings *settings)
     bool_val = settings->value("pandapter_fill", false).toBool();
     ui->fillButton->setChecked(bool_val);
 
+    intval = settings->value("minimumFftDb", DEFAULT_FFT_MINIMUM_DB).toInt(&conv_ok);
+    ui->minimumFftDbSlider->setValue(intval);
+    ui->fftMinimumDbLabel->setText(QVariant(intval).toString());
+    emit minimumFftDbChanged(intval);
+
     settings->endGroup();
 }
 
@@ -266,6 +277,13 @@ void DockFft::on_fftZoomSlider_valueChanged(int level)
 {
     ui->zoomLevelLabel->setText(QString("%1x").arg(level));
     emit fftZoomChanged((float)level);
+}
+
+/*! \brief max dBlevel changed */
+void DockFft::on_minimumFftDbSlider_valueChanged(const int value)
+{
+   ui->fftMinimumDbLabel->setText(QVariant(value).toString());
+   emit minimumFftDbChanged(value);
 }
 
 void DockFft::on_resetButton_clicked(void)

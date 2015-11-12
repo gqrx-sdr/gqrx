@@ -221,19 +221,20 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(resetFftZoom()), ui->plotter, SLOT(resetHorizontalZoom()));
     connect(uiDockFft, SIGNAL(gotoFftCenter()), ui->plotter, SLOT(moveToCenterFreq()));
     connect(uiDockFft, SIGNAL(gotoDemodFreq()), ui->plotter, SLOT(moveToDemodFreq()));
+    connect(uiDockFft, SIGNAL(minimumFftDbChanged(const int)), ui->plotter, SLOT(setFftMinimumDb(const int)));
     connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
     connect(uiDockFft, SIGNAL(fftPeakHoldToggled(bool)), this, SLOT(setFftPeakHold(bool)));
     connect(uiDockFft, SIGNAL(peakDetectionToggled(bool)), this, SLOT(setPeakDetection(bool)));
     connect(uiDockRDS, SIGNAL(rdsDecoderToggled(bool)), this, SLOT(setRdsDecoder(bool)));
-    
+
     // Bookmarks
     connect(uiDockBookmarks, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
     connect(uiDockBookmarks, SIGNAL(newDemodulation(QString)), this, SLOT(selectDemod(QString)));
     connect(uiDockBookmarks, SIGNAL(newFilterBandwidth(int, int)), this, SLOT(on_plotter_newFilterFreq(int, int)));
     connect(uiDockBookmarks->actionAddBookmark, SIGNAL(triggered()), this, SLOT(on_actionAddBookmark_triggered()));
 
- 
+
     // I/Q playback
     connect(iq_tool, SIGNAL(startRecording(QString)), this, SLOT(startIqRecording(QString)));
     connect(iq_tool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
@@ -266,7 +267,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     if (!loadConfig(cfgfile, true))
     {
 
-		// first time config
+      // first time config
         qDebug() << "Launching I/O device editor";
         if (firstTimeConfig() != QDialog::Accepted)
         {
@@ -290,7 +291,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
         {
             configOk = true;
         }
-	}
+   }
 }
 
 MainWindow::~MainWindow()
@@ -735,9 +736,9 @@ void MainWindow::setAutoGain(bool enabled)
 void MainWindow::setFreqCorr(double ppm)
 {
     if (ppm < -200.0)
-	ppm = -200.0;
+   ppm = -200.0;
     else if (ppm > 200.0)
-	ppm = 200.0;
+   ppm = 200.0;
 
     qDebug() << __FUNCTION__ << ":" << ppm << "ppm";
     rx->set_freq_corr(ppm);
@@ -2107,7 +2108,7 @@ void MainWindow::on_actionAddBookmark_triggered()
             name = textfield->text();
             tags = taglist->getSelectedTagsAsString();
             //printf("Tags: %s\n", tags.toStdString().c_str());
-        } 
+        }
         else
         {
             name.clear();

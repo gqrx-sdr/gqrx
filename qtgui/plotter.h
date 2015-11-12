@@ -134,6 +134,7 @@ public slots:
     // other FFT slots
     void setFftPlotColor(const QColor color);
     void setFftFill(bool enabled);
+    void setFftMinimumDb(const int minimumValue);
     void setPeakHold(bool enabled);
     void setPeakDetection(bool enabled, float c);
     void updateOverlay();
