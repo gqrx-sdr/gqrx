@@ -23,7 +23,6 @@
 #include <cmath>
 #include <iostream>
 #include <unistd.h>
-#include <cstdlib>
 
 #include <gnuradio/prefs.h>
 #include <gnuradio/top_block.h>
