@@ -221,7 +221,11 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(resetFftZoom()), ui->plotter, SLOT(resetHorizontalZoom()));
     connect(uiDockFft, SIGNAL(gotoFftCenter()), ui->plotter, SLOT(moveToCenterFreq()));
     connect(uiDockFft, SIGNAL(gotoDemodFreq()), ui->plotter, SLOT(moveToDemodFreq()));
-    connect(uiDockFft, SIGNAL(minimumFftDbChanged(const int)), ui->plotter, SLOT(setFftMinimumDb(const int)));
+
+    connect(uiDockFft, SIGNAL(maximumFftDbChanged(const float)), ui->plotter, SLOT(setMaxDB(const float)));
+    connect(uiDockFft, SIGNAL(minimumFftDbChanged(const float)), ui->plotter, SLOT(setMinDB(const float)));
+    connect(ui->plotter, SIGNAL(fftGraphShifted(const float)), uiDockFft, SLOT(fftDbWasShifted(const float)));
+
     connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
     connect(uiDockFft, SIGNAL(fftPeakHoldToggled(bool)), this, SLOT(setFftPeakHold(bool)));

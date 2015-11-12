@@ -49,24 +49,23 @@ public:
     void readSettings(QSettings *settings);
 
 signals:
-    void fftSizeChanged(int size);              /*! FFT size changed. */
-    void fftRateChanged(int fps);               /*! FFT rate changed. */
-    void fftSplitChanged(int pct);              /*! Split between pandapter and waterfall changed. */
-    void fftZoomChanged(float level);           /*! Zoom level slider changed. */
-    void fftAvgChanged(float gain);             /*! FFT video filter gain has changed. */
-    void maximumFftDbChanged(const int maxDb);  /*! The maximum dB to plot.*/
-    void minimumFftDbChanged(const int minDb);  /*! The minimum dB to plot.*/
-    void resetFftZoom(void);                    /*! FFT zoom reset. */
-    void gotoFftCenter(void);                   /*! Go to FFT center. */
-    void gotoDemodFreq(void);                   /*! Center FFT around demodulator frequency. */
-    void fftColorChanged(const QColor &);       /*! FFT color has changed. */
-    void fftFillToggled(bool fill);             /*! Toggle filling area under FFT plot. */
-    void fftPeakHoldToggled(bool enable);       /*! Toggle peak hold in FFT area. */
-    void peakDetectionToggled(bool enabled);    /*! Enable peak detection in FFT plot */
+    void fftSizeChanged(int size);                 /*! FFT size changed. */
+    void fftRateChanged(int fps);                  /*! FFT rate changed. */
+    void fftSplitChanged(int pct);                 /*! Split between pandapter and waterfall changed. */
+    void fftZoomChanged(float level);              /*! Zoom level slider changed. */
+    void fftAvgChanged(float gain);                /*! FFT video filter gain has changed. */
+    void maximumFftDbChanged(const float maxDb);   /*! The maximum dB to plot.*/
+    void minimumFftDbChanged(const float minDb);   /*! The minimum dB to plot.*/
+    void resetFftZoom(void);                       /*! FFT zoom reset. */
+    void gotoFftCenter(void);                      /*! Go to FFT center. */
+    void gotoDemodFreq(void);                      /*! Center FFT around demodulator frequency. */
+    void fftColorChanged(const QColor &);          /*! FFT color has changed. */
+    void fftFillToggled(bool fill);                /*! Toggle filling area under FFT plot. */
+    void fftPeakHoldToggled(bool enable);          /*! Toggle peak hold in FFT area. */
+    void peakDetectionToggled(bool enabled);       /*! Enable peak detection in FFT plot */
 
 public slots:
-    void maximumFftDbUodated(const int maxDb);
-    void minimumFftDbUodated(const int minDb);
+    void fftDbWasShifted(const float amount);
 
 private slots:
     void on_fftSizeComboBox_currentIndexChanged(const QString & text);
@@ -85,7 +84,9 @@ private slots:
     void on_peakDetectionButton_toggled(bool checked);
 
 private:
-    Ui::DockFft *ui;
+    Ui::DockFft   * ui;
+    float         m_maximumFftDb;
+    float         m_minimumFftDb;
 };
 
 #endif // DOCKFFT_H

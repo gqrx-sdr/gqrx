@@ -85,8 +85,6 @@ public:
         drawOverlay();
     }
 
-    void setMaxDB(float max);
-    void setMinDB(float min);
     void setMinMaxDB(float min, float max);
 
     void setFontSize(int points) { m_FontSize = points; }
@@ -123,6 +121,7 @@ signals:
     void newLowCutFreq(int f);
     void newHighCutFreq(int f);
     void newFilterFreq(int low, int high);  /* substitute for NewLow / NewHigh */
+    void fftGraphShifted(const float amount); /* the FFT graph was shifted by this amount.*/
 
 public slots:
     // zoom functions
@@ -134,7 +133,8 @@ public slots:
     // other FFT slots
     void setFftPlotColor(const QColor color);
     void setFftFill(bool enabled);
-    void setFftMinimumDb(const int minimumValue);
+    void setMaxDB(const float max);
+    void setMinDB(const float min);
     void setPeakHold(bool enabled);
     void setPeakDetection(bool enabled, float c);
     void updateOverlay();

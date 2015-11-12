@@ -283,6 +283,10 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             float delta_db = delta_px * fabs(m_MindB-m_MaxdB)/(float)m_OverlayPixmap.height();
             m_MindB -= delta_db;
             m_MaxdB -= delta_db;
+            if(m_MaxdB > 0.0) {
+               m_MaxdB = 0.0;
+            }
+            emit fftGraphShifted(delta_db);
 
             if (m_Running)
                 m_DrawOverlay = true;
@@ -1023,7 +1027,7 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
 
 
 /*! \brief Set upper limit of dB scale. */
-void CPlotter::setMaxDB(float max)
+void CPlotter::setMaxDB(const float max)
 {
     m_MaxdB = max;
 
@@ -1039,7 +1043,7 @@ void CPlotter::setMaxDB(float max)
 }
 
 /*! \brief Set lower limit of dB scale. */
-void CPlotter::setMinDB(float min)
+void CPlotter::setMinDB(const float min)
 {
     m_MindB = min;
 
@@ -1443,11 +1447,6 @@ void CPlotter::setFftPlotColor(const QColor color)
 void CPlotter::setFftFill(bool enabled)
 {
     m_FftFill = enabled;
-}
-
-void CPlotter::setFftMinimumDb(const int minimumValue)
-{
-   this->setMinDB(minimumValue);
 }
 
 /*! \brief Set peak hold on or off.
