@@ -75,6 +75,7 @@ Installation from source
 The source code is hosted on Github: https://github.com/csete/gqrx
 
 To compile gqrx from source you need the following dependencies:
+- cmake version >= 3.2.0 from https://cmake.org/download/
 - GNU Radio 3.7 with the following components:
     - gnuradio-runtime
     - gnuradio-analog
@@ -100,21 +101,41 @@ To compile gqrx from source you need the following dependencies:
     - Widgets (Qt 5 only)
     - Svg (runtime only)
 
-Gqrx comes with a simple qmake build setup. It can be compiled from within Qt
+Gqrx comes with a simple cmake build setup. It can be compiled from within Qt
 Creator or in a terminal:
 
+For command line builds:
 <pre>
 $ git clone https://github.com/csete/gqrx.git gqrx.git
 $ cd gqrx.git
-$ mkdir build
-$ cd build
-$ qmake ..
-$ make
+$ mkdir -p builds/cl
+$ cd builds/cl
+$ cmake ../..
+$ make -j4
+</pre>
+Replace the '-j4' with the number of CPU cores in your machine.
+
+For Qt Creator builds:
+<pre>
+$ git clone https://github.com/csete/gqrx.git gqrx.git
+$ cd gqrx.git
+$ mkdir -p builds/creator
+Start Qt Creator
+Open gqrx.git/CMakeLists.txt file
+At the dialog asking for build location, select gqrx.git/builds/creator
+click continue
+If asked to choose cmake executable, do so
+click continue
+click the run cmake button
+click done
+optionally, on the Projects page, under Build Steps/Make/Additional arguments,
+	enter -j4 (replacing 4 with the number of cores in your CPU).
+Use Qt Creator as before
 </pre>
 
-To build in debug mode add "CONFIG+=debug" to the qmake step above. There are
-also some other qmake options, see the gqrx.pro file.
-
+To build in various mode, pass -DBUILDTYPE={typeOfBuild} to cmake.
+Supported build types are: Debug GProf Valgrind Release
+(This is currently disabled due to a conflict with log4cpp DEBUG #define)
 
 Credits and License
 -------------------
@@ -185,6 +206,7 @@ Stefano Leucci:
 
 Timothy Reaves:
 - UI layout fixes for Mac.
+- cmake build files
 
 Vesa Solonen:
 - DC removal in AM demodulator.
