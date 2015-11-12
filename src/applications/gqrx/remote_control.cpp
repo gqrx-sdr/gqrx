@@ -20,8 +20,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <cmath>
 #include <QString>
-
 #include "remote_control.h"
 
 RemoteControl::RemoteControl(QObject *parent) :
@@ -285,7 +285,7 @@ void RemoteControl::setNewRemoteFreq(qint64 freq)
 {
     qint64 delta = freq - rc_freq;
 
-    if (abs(rc_filter_offset + delta) < bw_half)
+    if (std::abs(rc_filter_offset + delta) < bw_half)
     {
         // move filter offset
         rc_filter_offset += delta;

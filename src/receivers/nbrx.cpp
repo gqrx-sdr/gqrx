@@ -20,6 +20,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <cmath>
 #include <iostream>
 #include "receivers/nbrx.h"
 
@@ -85,7 +86,7 @@ bool nbrx::stop()
 
 void nbrx::set_quad_rate(float quad_rate)
 {
-    if (abs(d_quad_rate-quad_rate) > 0.5)
+    if (std::abs(d_quad_rate-quad_rate) > 0.5)
     {
 #ifndef QT_NO_DEBUG_OUTPUT
         std::cout << "Changing NB_RX quad rate: "  << d_quad_rate << " -> " << quad_rate << std::endl;

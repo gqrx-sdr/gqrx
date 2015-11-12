@@ -20,6 +20,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <cmath>
 #include <QDir>
 #include <QInputDialog>
 #include <QMessageBox>
@@ -116,7 +117,7 @@ void DockBookmarks::setNewFrequency(qint64 rx_freq)
     for(int row=0; row<iRowCount; ++row)
     {
         BookmarkInfo& info = *(bookmarksTableModel->getBookmarkAtRow(row));
-        if( abs(rx_freq - info.frequency) <= ((info.bandwidth/2)+1) )
+        if( std::abs(rx_freq - info.frequency) <= ((info.bandwidth/2)+1) )
         {
             ui->tableViewFrequencyList->selectRow(row);
             ui->tableViewFrequencyList->scrollTo( ui->tableViewFrequencyList->currentIndex(), QAbstractItemView::EnsureVisible );
@@ -151,7 +152,7 @@ void DockBookmarks::on_tableWidgetTagList_itemChanged(QTableWidgetItem *item)
     if(ui->tableWidgetTagList->m_bUpdating) return;
 
     int col = item->column();
-    if(!col==1) return;
+    if (col != 1) return;
 
     QString strText = item->text();
     Bookmarks::Get().setTagChecked(strText, (item->checkState() == Qt::Checked));
