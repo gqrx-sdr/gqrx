@@ -5,20 +5,28 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8.0)
 project(gqrx)
 set(${PROJECT_NAME}_MAJOR "2")
 set(${PROJECT_NAME}_MINOR "3")
-set(${PROJECT_NAME}_PATCH "0")
+set(${PROJECT_NAME}_PATCH "2")
 set(VERSION "${${PROJECT_NAME}_MAJOR}.${${PROJECT_NAME}_MINOR}.${${PROJECT_NAME}_PATCH}")
 set(PACKAGE ${PROJECT_NAME})
+#add_definitions(-DVERSION="${VERSION}")
 
-add_definitions(-DVERSION="${VERSION}")
+# development version
+execute_process(
+    COMMAND git describe --long --dirty
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GITVERSION
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+add_definitions(-DVERSION="${GITVERSION}")
 
 ########### Main global variables ###########
-# if(NOT CMAKE_BUILD_TYPE)
-#     set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: Debug GProf Valgrind Release" FORCE)
-# endif()
-#
-# set(BUILDTYPE ${CMAKE_BUILD_TYPE})
-# string(TOUPPER ${BUILDTYPE} BUILDTYPE)
-# add_definitions(-D${BUILDTYPE})
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: Debug GProf Valgrind Release" FORCE)
+endif()
+
+set(BUILDTYPE ${CMAKE_BUILD_TYPE})
+string(TOUPPER ${BUILDTYPE} BUILDTYPE)
+add_definitions(-D${BUILDTYPE})
 
 # We have some custom .cmake scripts not in the official distribution.
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMakeModules)
