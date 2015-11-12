@@ -232,12 +232,28 @@ void DockFft::readSettings(QSettings *settings)
     bool_val = settings->value("pandapter_fill", false).toBool();
     ui->fillButton->setChecked(bool_val);
 
+    intval = settings->value("maximumFftDb", DEFAULT_FFT_MINIMUM_DB).toInt(&conv_ok);
+    ui->maximumFftDbSlider->setValue(intval);
+    ui->fftMaximumDbLabel->setText(QVariant(intval).toString());
+    emit maximumFftDbChanged(intval);
     intval = settings->value("minimumFftDb", DEFAULT_FFT_MINIMUM_DB).toInt(&conv_ok);
     ui->minimumFftDbSlider->setValue(intval);
     ui->fftMinimumDbLabel->setText(QVariant(intval).toString());
     emit minimumFftDbChanged(intval);
 
     settings->endGroup();
+}
+
+void DockFft::maximumFftDbUodated(const int maxDb)
+{
+   ui->fftMaximumDbLabel->setText(QVariant(maxDb).toString());
+   ui->maximumFftDbSlider->setValue(maxDb);
+}
+
+void DockFft::minimumFftDbUodated(const int minDb)
+{
+   ui->fftMinimumDbLabel->setText(QVariant(minDb).toString());
+   ui->minimumFftDbSlider->setValue(minDb);
 }
 
 /*! \brief FFT size changed. */
@@ -279,7 +295,14 @@ void DockFft::on_fftZoomSlider_valueChanged(int level)
     emit fftZoomChanged((float)level);
 }
 
-/*! \brief max dBlevel changed */
+/*! \brief maximum dBlevel changed */
+void DockFft::on_maximumFftDbSlider_valueChanged(const int value)
+{
+   ui->fftMaximumDbLabel->setText(QVariant(value).toString());
+   emit maximumFftDbChanged(value);
+}
+
+/*! \brief minimum dBlevel changed */
 void DockFft::on_minimumFftDbSlider_valueChanged(const int value)
 {
    ui->fftMinimumDbLabel->setText(QVariant(value).toString());
