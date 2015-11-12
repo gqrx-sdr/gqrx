@@ -22,6 +22,7 @@
  */
 #include <QString>
 
+#include <cstdlib>
 #include "remote_control.h"
 
 RemoteControl::RemoteControl(QObject *parent) :
@@ -285,7 +286,7 @@ void RemoteControl::setNewRemoteFreq(qint64 freq)
 {
     qint64 delta = freq - rc_freq;
 
-    if (abs(rc_filter_offset + delta) < bw_half)
+    if (std::abs(rc_filter_offset + delta) < bw_half)
     {
         // move filter offset
         rc_filter_offset += delta;
