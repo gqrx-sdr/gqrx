@@ -513,22 +513,22 @@ receiver::status receiver::set_filter(double low, double high, filter_shape shap
 {
     double trans_width;
 
-    if ((low >= high) || (abs(high-low) < RX_FILTER_MIN_WIDTH))
+    if ((low >= high) || (std::abs(high-low) < RX_FILTER_MIN_WIDTH))
         return STATUS_ERROR;
 
     switch (shape) {
 
     case FILTER_SHAPE_SOFT:
-        trans_width = abs(high - low) * 0.4;
+        trans_width = std::abs(high - low) * 0.4;
         break;
 
     case FILTER_SHAPE_SHARP:
-        trans_width = abs(high - low) * 0.05;
+        trans_width = std::abs(high - low) * 0.05;
         break;
 
     case FILTER_SHAPE_NORMAL:
     default:
-        trans_width = abs(high - low) * 0.2;
+        trans_width = std::abs(high - low) * 0.2;
         break;
 
     }

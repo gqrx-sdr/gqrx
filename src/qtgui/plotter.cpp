@@ -27,7 +27,7 @@
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied, of Moe Wheatley.
  */
-#include <stdlib.h>
+#include <cstdlib>
 #include <cmath>
 #include <QDebug>
 #include <QtGlobal>
@@ -112,7 +112,7 @@ CPlotter::CPlotter(QWidget *parent) :
     m_VerDivs = 6;
     m_MaxdB = 0;
     m_MindB = -135;
-    m_dBStepSize = abs(m_MaxdB-m_MindB)/m_VerDivs;
+    m_dBStepSize = std::abs(m_MaxdB-m_MindB)/m_VerDivs;
 
     m_FreqUnits = 1000000;
     m_CursorCaptured = NONE;

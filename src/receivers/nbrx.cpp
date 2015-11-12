@@ -21,6 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <iostream>
+#include <cstdlib>
 #include "receivers/nbrx.h"
 
 #define PREF_QUAD_RATE  48000.0
@@ -85,7 +86,7 @@ bool nbrx::stop()
 
 void nbrx::set_quad_rate(float quad_rate)
 {
-    if (abs(d_quad_rate-quad_rate) > 0.5)
+    if (std::abs(d_quad_rate-quad_rate) > 0.5)
     {
 #ifndef QT_NO_DEBUG_OUTPUT
         std::cout << "Changing NB_RX quad rate: "  << d_quad_rate << " -> " << quad_rate << std::endl;
