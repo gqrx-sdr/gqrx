@@ -22,6 +22,7 @@
  */
 #include <cmath>
 #include <QString>
+#include <cstdlib>
 #include "remote_control.h"
 
 RemoteControl::RemoteControl(QObject *parent) :
