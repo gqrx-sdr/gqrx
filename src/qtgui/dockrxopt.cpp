@@ -26,6 +26,19 @@
 #include "ui_dockrxopt.h"
 
 #define FILT_SEL_USER_IDX 3
+#define FREQUENCY_160M   1800000
+#define FREQUENCY_80M    3500000
+#define FREQUENCY_60M    5300000
+#define FREQUENCY_40M    7000000
+#define FREQUENCY_30M   10100000
+#define FREQUENCY_20M   14000000
+#define FREQUENCY_17M   18000000
+#define FREQUENCY_15M   21000000
+#define FREQUENCY_12M   24000000
+#define FREQUENCY_10M   28000000
+#define FREQUENCY_6M    50000000
+#define FREQUENCY_2M   144000000
+#define FREQUENCY_MAX  450000000
 
 QStringList DockRxOpt::ModulationStrings;
 
@@ -505,4 +518,157 @@ bool DockRxOpt::IsModulationValid(QString strModulation)
 QString DockRxOpt::GetStringForModulationIndex(int iModulationIndex)
 {
     return ModulationStrings[iModulationIndex];
+}
+
+void DockRxOpt::addDigitToFrequency(const QString digit)
+{
+    QString text = ui->labelDirectFrequency->text();
+    if(!(text.length() == 0 && digit == "0")) {
+        // Zero as the first digit makes no sense.
+        text += digit;
+        ui->labelDirectFrequency->setText(text);
+        ui->buttonGo->setEnabled(true);
+    }
+
+}
+
+/* ****************************************************************************************************************** */
+#pragma mark - Direct band slots
+/* ****************************************************************************************************************** */
+void DockRxOpt::on_button160m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_160M);
+}
+
+void DockRxOpt::on_button80m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_80M);
+
+}
+
+void DockRxOpt::on_button60m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_60M);
+}
+
+void DockRxOpt::on_button40m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_40M);
+}
+
+void DockRxOpt::on_button30m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_30M);
+}
+
+void DockRxOpt::on_button20m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_20M);
+}
+
+void DockRxOpt::on_button17m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_17M);
+}
+
+void DockRxOpt::on_button15m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_15M);
+}
+
+void DockRxOpt::on_button12m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_12M);
+}
+
+void DockRxOpt::on_button10m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_10M);
+}
+
+void DockRxOpt::on_button6m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_6M);
+}
+
+void DockRxOpt::on_button2m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_2M);
+}
+
+void DockRxOpt::on_button0_clicked(void)
+{
+    addDigitToFrequency("0");
+}
+
+void DockRxOpt::on_button1_clicked(void)
+{
+    addDigitToFrequency("1");
+}
+
+void DockRxOpt::on_button2_clicked(void)
+{
+    addDigitToFrequency("2");
+}
+
+void DockRxOpt::on_button3_clicked(void)
+{
+    addDigitToFrequency("3");
+}
+
+void DockRxOpt::on_button4_clicked(void)
+{
+    addDigitToFrequency("4");
+}
+
+void DockRxOpt::on_button5_clicked(void)
+{
+    addDigitToFrequency("5");
+}
+
+void DockRxOpt::on_button6_clicked(void)
+{
+    addDigitToFrequency("6");
+}
+
+void DockRxOpt::on_button7_clicked(void)
+{
+    addDigitToFrequency("7");
+}
+
+void DockRxOpt::on_button8_clicked(void)
+{
+    addDigitToFrequency("8");
+}
+
+void DockRxOpt::on_button9_clicked(void)
+{
+    addDigitToFrequency("9");
+}
+
+void DockRxOpt::on_buttonDot_clicked(void)
+{
+    QString text = ui->labelDirectFrequency->text();
+    if(text.length() > 0 && text.indexOf(".") == -1) {
+        addDigitToFrequency(".");
+    }
+}
+
+void DockRxOpt::on_buttonDelete_clicked(void)
+{
+    QString text = ui->labelDirectFrequency->text();
+    if(text.length() > 0) {
+        text.chop(1);
+        ui->labelDirectFrequency->setText(text);
+        if(text.length() == 0) {
+            ui->buttonGo->setEnabled(false);
+        }
+    }
+}
+
+void DockRxOpt::on_buttonGo_clicked(void)
+{
+    QString text = ui->labelDirectFrequency->text();
+    emit frequencySelected(text.toLongLong());
+    ui->labelDirectFrequency->setText("");
 }

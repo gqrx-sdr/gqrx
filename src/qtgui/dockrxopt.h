@@ -4,6 +4,7 @@
  *           http://gqrx.dk/
  *
  * Copyright 2011-2013 Alexandru Csete OZ9AEC.
+ * Copyright 2015 Timothy Reaves
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -103,6 +104,7 @@ public slots:
 
 private:
     void updateHwFreq();
+    void addDigitToFrequency(const QString digit);
 
 signals:
     /*! \brief Signal emitted when the channel filter frequency has changed. */
@@ -153,6 +155,8 @@ signals:
     /*! \brief Signal emitted when noise blanker status has changed. */
     void noiseBlankerChanged(int nbid, bool on, float threshold);
 
+    /*! \brief Signal emitted when a direct frequency - in hertx - has been entered. */
+    void frequencySelected(const qint64 newFrequency);
 
 private slots:
     void on_filterFreq_newFrequency(qint64 freq);
@@ -181,6 +185,33 @@ private slots:
     void agcOpt_thresholdChanged(int value);
     void agcOpt_slopeChanged(int value);
     void agcOpt_decayChanged(int value);
+
+    // The direct band  & numeric buttons for direct frequency tuning.
+    void on_button160m_clicked(void);
+    void on_button80m_clicked(void);
+    void on_button60m_clicked(void);
+    void on_button40m_clicked(void);
+    void on_button30m_clicked(void);
+    void on_button20m_clicked(void);
+    void on_button17m_clicked(void);
+    void on_button15m_clicked(void);
+    void on_button12m_clicked(void);
+    void on_button10m_clicked(void);
+    void on_button6m_clicked(void);
+    void on_button2m_clicked(void);
+    void on_button0_clicked(void);
+    void on_button1_clicked(void);
+    void on_button2_clicked(void);
+    void on_button3_clicked(void);
+    void on_button4_clicked(void);
+    void on_button5_clicked(void);
+    void on_button6_clicked(void);
+    void on_button7_clicked(void);
+    void on_button8_clicked(void);
+    void on_button9_clicked(void);
+    void on_buttonDot_clicked(void);
+    void on_buttonDelete_clicked(void);
+    void on_buttonGo_clicked(void);
 
 private:
     Ui::DockRxOpt *ui;        /*! The Qt designer UI file. */
