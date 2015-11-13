@@ -21,6 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <cmath>
+#include <cstdlib>
 #include <QDir>
 #include <QInputDialog>
 #include <QMessageBox>
