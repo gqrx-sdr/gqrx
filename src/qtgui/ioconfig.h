@@ -45,15 +45,20 @@ class CIoConfig : public QDialog
 
 public:
     explicit CIoConfig(QSettings *settings, QWidget *parent = 0);
-    ~CIoConfig();
+    virtual ~CIoConfig();
 
 private slots:
     void saveConfig();
     void inputDeviceSelected(int index);
     void inputDevstrChanged(const QString &text);
+    void inputRateChanged(const QString &text);
+    void decimationChanged(int index);
 
 private:
     void updateInputSampleRates(int rate);
+    void updateDecimations(void);
+    int  idx2decim(int idx) const;
+    int  decim2idx(int decim) const;
 
 private:
     Ui::CIoConfig *ui;

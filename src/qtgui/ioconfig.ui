@@ -7,21 +7,30 @@
     <x>0</x>
     <y>0</y>
     <width>303</width>
-    <height>371</height>
+    <height>413</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Configure I/O devices</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../icons.qrc">
+   <iconset resource="../../resources/icons.qrc">
     <normaloff>:/icons/icons/flash.svg</normaloff>:/icons/icons/flash.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBoxInput">
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
      <property name="title">
       <string>I/Q input</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
      <property name="flat">
       <bool>false</bool>
@@ -30,10 +39,22 @@
       <property name="fieldGrowthPolicy">
        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
       </property>
+      <property name="labelAlignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
       <item row="0" column="0">
        <widget class="QLabel" name="inDevLabel1">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>Device</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -66,7 +87,7 @@
       <item row="2" column="0">
        <widget class="QLabel" name="inSrLabel">
         <property name="text">
-         <string>Sample rate</string>
+         <string>Input rate</string>
         </property>
        </widget>
       </item>
@@ -80,7 +101,7 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
+      <item row="6" column="0">
        <widget class="QLabel" name="loLabel">
         <property name="toolTip">
          <string>LNB LO frequency. Use negative frequency for upconverters.</string>
@@ -90,7 +111,7 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
+      <item row="6" column="1">
        <widget class="QDoubleSpinBox" name="loSpinBox">
         <property name="toolTip">
          <string>LNB LO frequency. Use negative frequency for upconverters.</string>
@@ -133,7 +154,7 @@ You can test the device strings in gnuradio-companion.&lt;/p&gt;&lt;/body&gt;&lt
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
+      <item row="5" column="1">
        <widget class="QDoubleSpinBox" name="bwSpinBox">
         <property name="toolTip">
          <string>Analog bandwidth (leave at 0 for default)</string>
@@ -152,13 +173,100 @@ You can test the device strings in gnuradio-companion.&lt;/p&gt;&lt;/body&gt;&lt
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
+      <item row="5" column="0">
        <widget class="QLabel" name="bwLabel">
         <property name="toolTip">
          <string>Analog bandwidth (leave at 0 for default)</string>
         </property>
         <property name="text">
          <string>Bandwidth</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Decimation</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QComboBox" name="decimCombo">
+        <property name="toolTip">
+         <string>Input decimation</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>None</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>2</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>4</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>8</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>16</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>32</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>64</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>128</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>256</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>512</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Sample rate</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLabel" name="sampRateLabel">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string>The sample rate after decimation</string>
+        </property>
+        <property name="text">
+         <string> 0 Msps</string>
         </property>
        </widget>
       </item>
@@ -178,6 +286,9 @@ You can test the device strings in gnuradio-companion.&lt;/p&gt;&lt;/body&gt;&lt
       <string>Audio output</string>
      </property>
      <layout class="QFormLayout" name="formLayout_2">
+      <property name="labelAlignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
       <item row="0" column="0">
        <widget class="QLabel" name="outDevLabel">
         <property name="text">
@@ -239,7 +350,7 @@ Leave it at default unless you know what you are doing.</string>
   </layout>
  </widget>
  <resources>
-  <include location="../icons.qrc"/>
+  <include location="../../resources/icons.qrc"/>
  </resources>
  <connections>
   <connection>

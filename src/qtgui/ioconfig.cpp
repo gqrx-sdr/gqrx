@@ -152,7 +152,13 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
         }
     }
 
+    // input rate
     updateInputSampleRates(settings->value("input/sample_rate", 0).toInt());
+
+    // decimation
+    int idx = decim2idx(settings->value("input/decimation", 0).toInt());
+    ui->decimCombo->setCurrentIndex(idx);
+    decimationChanged(idx);
 
     // Analog bandwidth
     ui->bwSpinBox->setValue(1.0e-6*settings->value("input/bandwidth", 0.0).toDouble());
@@ -206,6 +212,8 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
     connect(this, SIGNAL(accepted()), this, SLOT(saveConfig()));
     connect(ui->inDevCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(inputDeviceSelected(int)));
     connect(ui->inDevEdit, SIGNAL(textChanged(QString)), this, SLOT(inputDevstrChanged(QString)));
+    connect(ui->inSrCombo, SIGNAL(currentTextChanged(QString)), this, SLOT(inputRateChanged(QString)));
+    connect(ui->decimCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(decimationChanged(int)));
 }
 
 CIoConfig::~CIoConfig()
@@ -217,9 +225,12 @@ CIoConfig::~CIoConfig()
 /*! \brief Save configuration. */
 void CIoConfig::saveConfig()
 {
+    int         idx;
+    int         int_val;
+
     qDebug() << __FUNCTION__;
 
-    int idx = ui->outDevCombo->currentIndex();
+    idx = ui->outDevCombo->currentIndex();
 
     if (idx > 0)
     {
@@ -247,12 +258,18 @@ void CIoConfig::saveConfig()
         m_settings->setValue("input/lnb_lo", value);
 
     bool ok=false;
-    int sr = ui->inSrCombo->currentText().toInt(&ok);
+    int_val = ui->inSrCombo->currentText().toInt(&ok);
     if (ok)
-        m_settings->setValue("input/sample_rate", sr);
+        m_settings->setValue("input/sample_rate", int_val);
     else
         m_settings->remove("input/sample_rate");
 
+    idx = ui->decimCombo->currentIndex();
+    int_val = idx2decim(idx);
+    if (int_val < 2)
+        m_settings->remove("input/decimation");
+    else
+        m_settings->setValue("input/decimation", int_val);
 }
 
 
@@ -442,8 +459,50 @@ void CIoConfig::updateInputSampleRates(int rate)
         ui->inSrCombo->addItem("2500000");
         ui->inSrCombo->addItem("10000000");
     }
+
+    updateDecimations();
 }
 
+/**
+ * @brief Update available decimations according to the current sample rate.
+ *
+ * This function will repopulate the decimation selector combo box to only
+ * include decimations up to a meaningful maximum value, so that the quadrature
+ * rate doesn't get below 48 ksps.
+ */
+void CIoConfig::updateDecimations(void)
+{
+    bool        ok;
+    int         rate;
+
+    // get current sample rate from combo box
+    rate= ui->inSrCombo->currentText().toInt(&ok);
+    if (!ok || rate < 0)
+        return;
+
+    ui->decimCombo->clear();
+    ui->decimCombo->addItem("None", 0);
+    if (rate >= 96000)
+        ui->decimCombo->addItem("2", 0);
+    if (rate >= 192000)
+        ui->decimCombo->addItem("4", 0);
+    if (rate >= 384000)
+        ui->decimCombo->addItem("8", 0);
+    if (rate >= 768000)
+        ui->decimCombo->addItem("16", 0);
+    if (rate >= 1536000)
+        ui->decimCombo->addItem("32", 0);
+    if (rate >= 3072000)
+        ui->decimCombo->addItem("64", 0);
+    if (rate >= 6144000)
+        ui->decimCombo->addItem("128", 0);
+    if (rate >= 12288000)
+        ui->decimCombo->addItem("256", 0);
+    if (rate >= 24576000)
+        ui->decimCombo->addItem("512", 0);
+
+    decimationChanged(0);
+}
 
 /*! \brief New input device has been selected by the user.
  *  \param index The index of the item that has been selected in the combo box.
@@ -472,4 +531,70 @@ void CIoConfig::inputDevstrChanged(const QString &text)
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     else
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+}
+
+/**
+ * @brief Sample changed, either by selection of direct entry.
+ * @param text The new sample rate.
+ */
+void CIoConfig::inputRateChanged(const QString &text)
+{
+    (void) text;
+    updateDecimations();
+}
+
+/**
+ * @brief New decimation rate selected.
+ * @param index The index of the selected item in the combo box.
+ *
+ * This function calculates the quadrature rate and updates the sample rate
+ * label just below the decimation combo box.
+ */
+void CIoConfig::decimationChanged(int index)
+{
+    float       quad_rate;
+    int         input_rate;
+    int         decim;
+    bool        ok;
+
+    decim = idx2decim(index);
+    input_rate = ui->inSrCombo->currentText().toInt(&ok);
+    if (!ok)
+        return;
+
+    quad_rate = (float)input_rate / (float)decim;
+    if (quad_rate > 1.e6f)
+        ui->sampRateLabel->setText(QString(" %1 Msps").
+                                   arg(quad_rate * 1.e-6, 0, 'f', 3));
+    else
+        ui->sampRateLabel->setText(QString(" %1 ksps").
+                                   arg(quad_rate * 1.e-3, 0, 'f', 3));
+}
+
+/**
+ * @brief Convert a combo box index to decimation.
+ */
+int CIoConfig::idx2decim(int idx) const
+{
+    if (idx < 1)
+        return 1;
+
+    return (1 << idx);
+}
+
+/**
+ * @brief Convert a decimation to a combobox index
+ */
+int CIoConfig::decim2idx(int decim) const
+{
+    int         idx;
+
+    if (decim == 0)
+        return 0;
+
+    idx = 0;
+    while (decim >>= 1)
+        ++idx;
+
+    return idx;
 }
