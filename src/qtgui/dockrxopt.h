@@ -211,7 +211,10 @@ private slots:
     void on_button9_clicked(void);
     void on_buttonDot_clicked(void);
     void on_buttonDelete_clicked(void);
-    void on_buttonGo_clicked(void);
+	void on_buttonGo_clicked(void);
+	void on_buttonHz_clicked(void);
+	void on_buttonKHz_clicked(void);
+	void on_buttonMHz_clicked(void);
 
 private:
     Ui::DockRxOpt *ui;        /*! The Qt designer UI file. */
@@ -222,6 +225,7 @@ private:
     bool agc_is_on;
 
     qint64 hw_freq_hz;   /*! Current PLL frequency in Hz. */
+	qint64 frequencyMultiplier; /*! The multiplier for manually entered frequency values. */
 };
 
 #endif // DOCKRXOPT_H

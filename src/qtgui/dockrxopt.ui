@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>362</width>
-    <height>557</height>
+    <width>409</width>
+    <height>639</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>362</width>
-    <height>516</height>
+    <width>409</width>
+    <height>627</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -113,52 +113,15 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
      </spacer>
     </item>
     <item>
-     <layout class="QGridLayout" name="gridLayout" columnstretch="1,1,0">
-      <item row="0" column="0">
-       <widget class="QLabel" name="filterLabel">
-        <property name="text">
-         <string>Filter width</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="filterCombo">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>Apply mode dependent filter preset</string>
-        </property>
-        <property name="currentIndex">
-         <number>1</number>
-        </property>
-        <item>
-         <property name="text">
-          <string>Wide</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Normal</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Narrow</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>User</string>
-         </property>
-        </item>
-       </widget>
-      </item>
+     <layout class="QGridLayout" name="gridLayout" columnstretch="1,0,0">
       <item row="1" column="0">
        <widget class="QLabel" name="filterShapeLabel">
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="text">
          <string>Filter shape</string>
         </property>
@@ -199,6 +162,12 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>16777215</height>
+         </size>
         </property>
         <property name="text">
          <string>Mode</string>
@@ -267,6 +236,12 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
       </item>
       <item row="3" column="0">
        <widget class="QLabel" name="agcLabel">
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="text">
          <string>AGC</string>
         </property>
@@ -310,50 +285,6 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </item>
        </widget>
       </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="sqlLabel">
-        <property name="toolTip">
-         <string>Squelch level in dB below full scale</string>
-        </property>
-        <property name="text">
-         <string>Squelch</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QDoubleSpinBox" name="sqlSpinBox">
-        <property name="toolTip">
-         <string>Squelch level in dB below full scale</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="accelerated">
-         <bool>true</bool>
-        </property>
-        <property name="suffix">
-         <string> dBFS</string>
-        </property>
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="minimum">
-         <double>-150.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>0.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>1.000000000000000</double>
-        </property>
-        <property name="value">
-         <double>-150.000000000000000</double>
-        </property>
-       </widget>
-      </item>
       <item row="4" column="2">
        <widget class="QPushButton" name="autoSquelchButton">
         <property name="minimumSize">
@@ -382,36 +313,53 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
-       <widget class="QPushButton" name="nb1Button">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>Noise blanker for atatic type noise</string>
+      <item row="0" column="0">
+       <widget class="QLabel" name="filterLabel">
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>16777215</height>
+         </size>
         </property>
         <property name="text">
-         <string>NB1</string>
+         <string>Filter width</string>
         </property>
-        <property name="checkable">
-         <bool>true</bool>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
-       <widget class="QPushButton" name="nb2Button">
+      <item row="0" column="1">
+       <widget class="QComboBox" name="filterCombo">
         <property name="enabled">
          <bool>true</bool>
         </property>
         <property name="toolTip">
-         <string>Noise blanker for pulse type noise</string>
+         <string>Apply mode dependent filter preset</string>
         </property>
-        <property name="text">
-         <string>NB2</string>
+        <property name="currentIndex">
+         <number>1</number>
         </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
+        <item>
+         <property name="text">
+          <string>Wide</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Normal</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Narrow</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>User</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item row="3" column="2">
@@ -472,6 +420,104 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </property>
        </widget>
       </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="sqlLabel">
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Squelch level in dB below full scale</string>
+        </property>
+        <property name="text">
+         <string>Squelch</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QDoubleSpinBox" name="sqlSpinBox">
+        <property name="toolTip">
+         <string>Squelch level in dB below full scale</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="accelerated">
+         <bool>true</bool>
+        </property>
+        <property name="suffix">
+         <string> dBFS</string>
+        </property>
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="minimum">
+         <double>-150.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>-150.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QPushButton" name="nb1Button">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>40</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Noise blanker for atatic type noise</string>
+          </property>
+          <property name="text">
+           <string>NB1</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="nb2Button">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>40</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Noise blanker for pulse type noise</string>
+          </property>
+          <property name="text">
+           <string>NB2</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
      </layout>
     </item>
     <item>
@@ -523,6 +569,27 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
     </item>
     <item>
      <layout class="QGridLayout" name="gridLayout_2">
+      <item row="4" column="5">
+       <widget class="QPushButton" name="buttonKHz">
+        <property name="maximumSize">
+         <size>
+          <width>28</width>
+          <height>28</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>kHz</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0">
        <widget class="QPushButton" name="button160m">
         <property name="maximumSize">
@@ -562,16 +629,107 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </property>
        </widget>
       </item>
-      <item row="0" column="3">
-       <widget class="QLabel" name="label">
+      <item row="2" column="6">
+       <widget class="QPushButton" name="button9">
         <property name="maximumSize">
          <size>
-          <width>10</width>
+          <width>28</width>
           <height>28</height>
          </size>
         </property>
         <property name="text">
-         <string/>
+         <string>9</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QPushButton" name="button10m">
+        <property name="maximumSize">
+         <size>
+          <width>40</width>
+          <height>28</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>10m</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QPushButton" name="button6m">
+        <property name="maximumSize">
+         <size>
+          <width>40</width>
+          <height>28</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>6m</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QPushButton" name="button2m">
+        <property name="maximumSize">
+         <size>
+          <width>40</width>
+          <height>28</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>2m</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="4">
+       <widget class="QPushButton" name="buttonDot">
+        <property name="maximumSize">
+         <size>
+          <width>28</width>
+          <height>28</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="5">
+       <widget class="QPushButton" name="button0">
+        <property name="maximumSize">
+         <size>
+          <width>28</width>
+          <height>28</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="6">
+       <widget class="QPushButton" name="buttonDelete">
+        <property name="maximumSize">
+         <size>
+          <width>28</width>
+          <height>28</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>X</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="button30m">
+        <property name="maximumSize">
+         <size>
+          <width>40</width>
+          <height>28</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>30m</string>
         </property>
        </widget>
       </item>
@@ -633,19 +791,6 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="button30m">
-        <property name="maximumSize">
-         <size>
-          <width>40</width>
-          <height>28</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>30m</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="2">
        <widget class="QPushButton" name="button20m">
         <property name="maximumSize">
@@ -656,19 +801,6 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </property>
         <property name="text">
          <string>20m</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <widget class="QLabel" name="label_2">
-        <property name="maximumSize">
-         <size>
-          <width>10</width>
-          <height>28</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
         </property>
        </widget>
       </item>
@@ -750,19 +882,6 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </property>
        </widget>
       </item>
-      <item row="2" column="3">
-       <widget class="QLabel" name="label_3">
-        <property name="maximumSize">
-         <size>
-          <width>10</width>
-          <height>28</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="4">
        <widget class="QPushButton" name="button7">
         <property name="maximumSize">
@@ -789,107 +908,64 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </property>
        </widget>
       </item>
-      <item row="2" column="6">
-       <widget class="QPushButton" name="button9">
+      <item row="4" column="6">
+       <widget class="QPushButton" name="buttonMHz">
         <property name="maximumSize">
          <size>
           <width>28</width>
           <height>28</height>
          </size>
         </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
         <property name="text">
-         <string>9</string>
+         <string>MHz</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
-       <widget class="QPushButton" name="button10m">
+      <item row="4" column="4">
+       <widget class="QPushButton" name="buttonHz">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="maximumSize">
          <size>
-          <width>40</width>
+          <width>28</width>
           <height>28</height>
          </size>
         </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
         <property name="text">
-         <string>10m</string>
+         <string>Hz</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
-       <widget class="QPushButton" name="button6m">
-        <property name="maximumSize">
-         <size>
-          <width>40</width>
-          <height>28</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>6m</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QPushButton" name="button2m">
-        <property name="maximumSize">
-         <size>
-          <width>40</width>
-          <height>28</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>2m</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="3">
-       <widget class="QLabel" name="label_4">
+      <item row="0" column="3">
+       <widget class="QLabel" name="label">
         <property name="maximumSize">
          <size>
           <width>10</width>
-          <height>28</height>
+          <height>16777215</height>
          </size>
         </property>
         <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="4">
-       <widget class="QPushButton" name="buttonDot">
-        <property name="maximumSize">
-         <size>
-          <width>28</width>
-          <height>28</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>.</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="5">
-       <widget class="QPushButton" name="button0">
-        <property name="maximumSize">
-         <size>
-          <width>28</width>
-          <height>28</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>0</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="6">
-       <widget class="QPushButton" name="buttonDelete">
-        <property name="maximumSize">
-         <size>
-          <width>28</width>
-          <height>28</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>X</string>
+         <string> </string>
         </property>
        </widget>
       </item>

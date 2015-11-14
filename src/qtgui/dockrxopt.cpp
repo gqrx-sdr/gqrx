@@ -20,6 +20,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <QCheckBox>
 #include <QDebug>
 #include <QVariant>
 #include "dockrxopt.h"
@@ -247,6 +248,15 @@ void DockRxOpt::readSettings(QSettings *settings)
         //ui->sqlSlider->setValue(intVal); // signal emitted automatically
         ui->sqlSpinBox->setValue(dblVal);
     }
+
+	frequencyMultiplier = settings->value("receiver/frequencyMultiplier", 0.0).toLongLong(&conv_ok);
+	if (frequencyMultiplier == 0) {
+		ui->buttonHz->setChecked(true);
+	} else if (frequencyMultiplier == 1000) {
+		ui->buttonKHz->setChecked(true);
+	} else if (frequencyMultiplier == 1000000) {
+		ui->buttonMHz->setChecked(true);
+	}
 }
 
 /*! \brief Save receiver configuration to settings. */
@@ -267,6 +277,8 @@ void DockRxOpt::saveSettings(QSettings *settings)
         settings->setValue("receiver/sql_level", sql_lvl);
     else
         settings->remove("receiver/sql_level");
+
+	settings->setValue("receiver/frequencyMultiplier", frequencyMultiplier);
 }
 
 /*! \brief Channel filter offset has changed
@@ -523,13 +535,13 @@ QString DockRxOpt::GetStringForModulationIndex(int iModulationIndex)
 void DockRxOpt::addDigitToFrequency(const QString digit)
 {
     QString text = ui->labelDirectFrequency->text();
-    if(!(text.length() == 0 && digit == "0")) {
-        // Zero as the first digit makes no sense.
-        text += digit;
-        ui->labelDirectFrequency->setText(text);
-        ui->buttonGo->setEnabled(true);
+	if(!(text.length() == 0 && digit == "0")) { // Zero as the first digit makes no sense.
+		if(text.toLongLong() * frequencyMultiplier <= FREQUENCY_MAX) {
+			text += digit;
+			ui->labelDirectFrequency->setText(text);
+			ui->buttonGo->setEnabled(true);
+		}
     }
-
 }
 
 /* ****************************************************************************************************************** */
@@ -669,6 +681,37 @@ void DockRxOpt::on_buttonDelete_clicked(void)
 void DockRxOpt::on_buttonGo_clicked(void)
 {
     QString text = ui->labelDirectFrequency->text();
-    emit frequencySelected(text.toLongLong());
+	emit frequencySelected(text.toDouble() * frequencyMultiplier);
     ui->labelDirectFrequency->setText("");
+}
+
+void DockRxOpt::on_buttonHz_clicked(void)
+{
+	ui->buttonKHz->setChecked(false);
+	ui->buttonMHz->setChecked(false);
+	frequencyMultiplier = 0;
+}
+
+void DockRxOpt::on_buttonKHz_clicked(void)
+{
+	QString text = ui->labelDirectFrequency->text();
+	if(text.toDouble()  * 1000 <= FREQUENCY_MAX) {
+		ui->buttonHz->setChecked(false);
+		ui->buttonMHz->setChecked(false);
+		frequencyMultiplier = 1000;
+	} else {
+		ui->buttonKHz->setChecked(false);
+	}
+}
+
+void DockRxOpt::on_buttonMHz_clicked(void)
+{
+	QString text = ui->labelDirectFrequency->text();
+	if(text.toDouble() * 1000000 <= FREQUENCY_MAX) {
+		ui->buttonHz->setChecked(false);
+		ui->buttonKHz->setChecked(false);
+		frequencyMultiplier = 1000000;
+	} else {
+		ui->buttonMHz->setChecked(false);
+	}
 }
