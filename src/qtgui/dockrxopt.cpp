@@ -4,6 +4,7 @@
  *           http://gqrx.dk/
  *
  * Copyright 2011-2013 Alexandru Csete OZ9AEC.
+ * Copyright 2015 Timothy Reaves
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -249,14 +250,14 @@ void DockRxOpt::readSettings(QSettings *settings)
         ui->sqlSpinBox->setValue(dblVal);
     }
 
-	frequencyMultiplier = settings->value("receiver/frequencyMultiplier", 0.0).toLongLong(&conv_ok);
-	if (frequencyMultiplier == 0) {
-		ui->buttonHz->setChecked(true);
-	} else if (frequencyMultiplier == 1000) {
-		ui->buttonKHz->setChecked(true);
-	} else if (frequencyMultiplier == 1000000) {
-		ui->buttonMHz->setChecked(true);
-	}
+    frequencyMultiplier = settings->value("receiver/frequencyMultiplier", 0.0).toLongLong(&conv_ok);
+    if (frequencyMultiplier == 0) {
+        ui->buttonHz->setChecked(true);
+    } else if (frequencyMultiplier == 1000) {
+        ui->buttonKHz->setChecked(true);
+    } else if (frequencyMultiplier == 1000000) {
+        ui->buttonMHz->setChecked(true);
+    }
 }
 
 /*! \brief Save receiver configuration to settings. */
@@ -278,7 +279,7 @@ void DockRxOpt::saveSettings(QSettings *settings)
     else
         settings->remove("receiver/sql_level");
 
-	settings->setValue("receiver/frequencyMultiplier", frequencyMultiplier);
+    settings->setValue("receiver/frequencyMultiplier", frequencyMultiplier);
 }
 
 /*! \brief Channel filter offset has changed
@@ -535,12 +536,12 @@ QString DockRxOpt::GetStringForModulationIndex(int iModulationIndex)
 void DockRxOpt::addDigitToFrequency(const QString digit)
 {
     QString text = ui->labelDirectFrequency->text();
-	if(!(text.length() == 0 && digit == "0")) { // Zero as the first digit makes no sense.
-		if(text.toLongLong() * frequencyMultiplier <= FREQUENCY_MAX) {
-			text += digit;
-			ui->labelDirectFrequency->setText(text);
-			ui->buttonGo->setEnabled(true);
-		}
+    if(!(text.length() == 0 && digit == "0")) { // Zero as the first digit makes no sense.
+        if(text.toLongLong() * frequencyMultiplier <= FREQUENCY_MAX) {
+            text += digit;
+            ui->labelDirectFrequency->setText(text);
+            ui->buttonGo->setEnabled(true);
+        }
     }
 }
 
@@ -681,37 +682,37 @@ void DockRxOpt::on_buttonDelete_clicked(void)
 void DockRxOpt::on_buttonGo_clicked(void)
 {
     QString text = ui->labelDirectFrequency->text();
-	emit frequencySelected(text.toDouble() * frequencyMultiplier);
+    emit frequencySelected(text.toDouble() * frequencyMultiplier);
     ui->labelDirectFrequency->setText("");
 }
 
 void DockRxOpt::on_buttonHz_clicked(void)
 {
-	ui->buttonKHz->setChecked(false);
-	ui->buttonMHz->setChecked(false);
-	frequencyMultiplier = 0;
+    ui->buttonKHz->setChecked(false);
+    ui->buttonMHz->setChecked(false);
+    frequencyMultiplier = 0;
 }
 
 void DockRxOpt::on_buttonKHz_clicked(void)
 {
-	QString text = ui->labelDirectFrequency->text();
-	if(text.toDouble()  * 1000 <= FREQUENCY_MAX) {
-		ui->buttonHz->setChecked(false);
-		ui->buttonMHz->setChecked(false);
-		frequencyMultiplier = 1000;
-	} else {
-		ui->buttonKHz->setChecked(false);
-	}
+    QString text = ui->labelDirectFrequency->text();
+    if(text.toDouble()  * 1000 <= FREQUENCY_MAX) {
+        ui->buttonHz->setChecked(false);
+        ui->buttonMHz->setChecked(false);
+        frequencyMultiplier = 1000;
+    } else {
+        ui->buttonKHz->setChecked(false);
+    }
 }
 
 void DockRxOpt::on_buttonMHz_clicked(void)
 {
-	QString text = ui->labelDirectFrequency->text();
-	if(text.toDouble() * 1000000 <= FREQUENCY_MAX) {
-		ui->buttonHz->setChecked(false);
-		ui->buttonKHz->setChecked(false);
-		frequencyMultiplier = 1000000;
-	} else {
-		ui->buttonMHz->setChecked(false);
-	}
+    QString text = ui->labelDirectFrequency->text();
+    if(text.toDouble() * 1000000 <= FREQUENCY_MAX) {
+        ui->buttonHz->setChecked(false);
+        ui->buttonKHz->setChecked(false);
+        frequencyMultiplier = 1000000;
+    } else {
+        ui->buttonMHz->setChecked(false);
+    }
 }
