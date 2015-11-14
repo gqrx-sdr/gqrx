@@ -6,6 +6,13 @@ add_source_files(SRCS_LIST
 	afsk1200/costabf.c
 	afsk1200/filter-i386.h
 	afsk1200/filter.h
+    filter/decimator.cpp
+    filter/decimator.h
+    filter/filtercoef_hbf_70.h
+    filter/filtercoef_hbf_100.h
+    filter/filtercoef_hbf_140.h
+    hbf_decim.cpp
+    hbf_decim.h
 	rds/api.h
 	rds/constants.h
 	rds/decoder_impl.cc
