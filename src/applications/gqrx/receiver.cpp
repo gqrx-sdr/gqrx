@@ -24,9 +24,9 @@
 #include <iostream>
 #include <unistd.h>
 
+#include <gnuradio/blocks/multiply_const_ff.h>
 #include <gnuradio/prefs.h>
 #include <gnuradio/top_block.h>
-#include <gnuradio/blocks/multiply_const_ff.h>
 #include <osmosdr/source.h>
 #include <osmosdr/ranges.h>
 
@@ -43,12 +43,11 @@
 #endif
 
 
-/*! \brief Public contructor.
- *  \param input_device Input device specifier.
- *  \param audio_device Audio output device specifier,
- *                      e.g. hw:0 when using ALSA or Portaudio.
- *
- * \todo Option to use UHD device instead of FCD.
+/**
+ * @brief Public contructor.
+ * @param input_device Input device specifier.
+ * @param audio_device Audio output device specifier,
+ *                     e.g. hw:0 when using ALSA or Portaudio.
  */
 receiver::receiver(const std::string input_device, const std::string audio_device)
     : d_running(false),
@@ -84,7 +83,8 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
     iq_sink->close();
 
     rx = make_nbrx(d_input_rate, d_audio_rate);
-    lo = gr::analog::sig_source_c::make(d_input_rate, gr::analog::GR_SIN_WAVE, 0.0, 1.0);
+    lo = gr::analog::sig_source_c::make(d_input_rate, gr::analog::GR_SIN_WAVE,
+                                        0.0, 1.0);
     mixer = gr::blocks::multiply_cc::make();
 
     iq_swap = make_iq_swap_cc(false);
@@ -125,17 +125,13 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
 #endif
 }
 
-
-/*! \brief Public destructor. */
 receiver::~receiver()
 {
     tb->stop();
-
-    /* FIXME: delete blocks? */
 }
 
 
-/*! \brief Start the receiver. */
+/** Start the receiver. */
 void receiver::start()
 {
     if (!d_running)
@@ -145,7 +141,7 @@ void receiver::start()
     }
 }
 
-/*! \brief Stop the receiver. */
+/** Stop the receiver. */
 void receiver::stop()
 {
     if (d_running)
@@ -156,9 +152,10 @@ void receiver::stop()
     }
 }
 
-/*! \brief Select new input device.
+/**
+ * @brief Select new input device.
  *
- * \bug When using ALSA, program will crash if the new device
+ * @bug When using ALSA, program will crash if the new device
  *      is the same as the previously used device:
  *      audio_alsa_source[hw:1]: Device or resource busy
  */
@@ -197,7 +194,7 @@ void receiver::set_input_device(const std::string device)
 }
 
 
-/*! \brief Select new audio output device. */
+/** Select new audio output device. */
 void receiver::set_output_device(const std::string device)
 {
     if (output_devstr.compare(device) == 0)
@@ -236,13 +233,13 @@ void receiver::set_output_device(const std::string device)
     tb->unlock();
 }
 
-/*! \brief Get a list of available antenna connectors. */
-std::vector<std::string> receiver::get_antennas(void)
+/** Get a list of available antenna connectors. */
+std::vector<std::string> receiver::get_antennas(void) const
 {
     return src->get_antennas();
 }
 
-/*! \brief Select antenna conenctor. */
+/** Select antenna conenctor. */
 void receiver::set_antenna(const std::string &antenna)
 {
     if (!antenna.empty())
@@ -251,10 +248,11 @@ void receiver::set_antenna(const std::string &antenna)
     }
 }
 
-/*! \brief Set new input sample rate.
- *  \param rate The desired input rate
- *  \return The actual sample rate set or 0 if there was an error with the
- *          device.
+/**
+ * @brief Set new input sample rate.
+ * @param rate The desired input rate
+ * @return The actual sample rate set or 0 if there was an error with the
+ *         device.
  */
 double receiver::set_input_rate(double rate)
 {
@@ -284,30 +282,29 @@ double receiver::set_input_rate(double rate)
 }
 
 
-/*! \brief Get current input sample rate. */
-double receiver::get_input_rate()
+/** Get current input sample rate. */
+double receiver::get_input_rate(void) const
 {
     return d_input_rate;
 }
 
-/*! \brief Set new analog bandwidth.
- *  \param bw The new bandwidth.
- *  \return The actual bandwidth.
+/**
+ * @brief Set new analog bandwidth.
+ * @param bw The new bandwidth.
+ * @return The actual bandwidth.
  */
 double receiver::set_analog_bandwidth(double bw)
 {
     return src->set_bandwidth(bw);
 }
 
-/*! \brief Get current analog bandwidth. */
-double receiver::get_analog_bandwidth()
+/** Get current analog bandwidth. */
+double receiver::get_analog_bandwidth(void) const
 {
     return src->get_bandwidth();
 }
 
-
-
-/*! \brief Set I/Q reversed. */
+/** Set I/Q reversed. */
 void receiver::set_iq_swap(bool reversed)
 {
     if (reversed == d_iq_rev)
@@ -317,17 +314,19 @@ void receiver::set_iq_swap(bool reversed)
     iq_swap->set_enabled(d_iq_rev);
 }
 
-/*! \brief Get current I/Q reversed setting.
- *  \retval true I/Q swappign is enabled.
- *  \retval false I/Q swapping is disabled.
+/**
+ * @brief Get current I/Q reversed setting.
+ * @retval true I/Q swappign is enabled.
+ * @retval false I/Q swapping is disabled.
  */
-bool receiver::get_iq_swap(void)
+bool receiver::get_iq_swap(void) const
 {
     return d_iq_rev;
 }
 
-/*! \brief Enable/disable automatic DC removal in the I/Q stream.
- *  \param enable Whether DC removal should enabled or not.
+/**
+ * @brief Enable/disable automatic DC removal in the I/Q stream.
+ * @param enable Whether DC removal should enabled or not.
  */
 void receiver::set_dc_cancel(bool enable)
 {
@@ -343,17 +342,19 @@ void receiver::set_dc_cancel(bool enable)
     set_demod(demod);
 }
 
-/*! \brief Get auto DC cancel status.
- *  \retval true  Automatic DC removal is enabled.
- *  \retval false Automatic DC removal is disabled.
+/**
+ * @brief Get auto DC cancel status.
+ * @retval true  Automatic DC removal is enabled.
+ * @retval false Automatic DC removal is disabled.
  */
-bool receiver::get_dc_cancel(void)
+bool receiver::get_dc_cancel(void) const
 {
     return d_dc_cancel;
 }
 
-/*! \brief Enable/disable automatic I/Q balance.
- *  \param enable Whether automatic I/Q balance should be enabled.
+/**
+ * @brief Enable/disable automatic I/Q balance.
+ * @param enable Whether automatic I/Q balance should be enabled.
  */
 void receiver::set_iq_balance(bool enable)
 {
@@ -365,18 +366,21 @@ void receiver::set_iq_balance(bool enable)
     src->set_iq_balance_mode(enable ? 2 : 0);
 }
 
-/*! \brief Get auto I/Q balance status.
- *  \retval true  Automatic I/Q balance is enabled.
- *  \retval false Automatic I/Q balance is disabled.
+/**
+ * @brief Get auto I/Q balance status.
+ * @retval true  Automatic I/Q balance is enabled.
+ * @retval false Automatic I/Q balance is disabled.
  */
-bool receiver::get_iq_balance(void)
+bool receiver::get_iq_balance(void) const
 {
     return d_iq_balance;
 }
-/*! \brief Set RF frequency.
- *  \param freq_hz The desired frequency in Hz.
- *  \return RX_STATUS_ERROR if an error occurs, e.g. the frequency is out of range.
- *  \sa get_rf_freq()
+
+/**
+ * @brief Set RF frequency.
+ * @param freq_hz The desired frequency in Hz.
+ * @return RX_STATUS_ERROR if an error occurs, e.g. the frequency is out of range.
+ * @sa get_rf_freq()
  */
 receiver::status receiver::set_rf_freq(double freq_hz)
 {
@@ -388,22 +392,24 @@ receiver::status receiver::set_rf_freq(double freq_hz)
     return STATUS_OK;
 }
 
-/*! \brief Get RF frequency.
- *  \return The current RF frequency.
- *  \sa set_rf_freq()
+/**
+ * @brief Get RF frequency.
+ * @return The current RF frequency.
+ * @sa set_rf_freq()
  */
-double receiver::get_rf_freq()
+double receiver::get_rf_freq(void)
 {
     d_rf_freq = src->get_center_freq();
 
     return d_rf_freq;
 }
 
-/*! \brief Get the RF frequency range of the current input device.
- *  \param start The lower limit of the range in Hz.
- *  \param stop  The upper limit of the range in Hz.
- *  \param step  The frequency step in Hz.
- *  \returns STATUS_OK if the range could be retrieved, STATUS_ERROR if an error has occurred.
+/**
+ * @brief Get the RF frequency range of the current input device.
+ * @param start The lower limit of the range in Hz.
+ * @param stop  The upper limit of the range in Hz.
+ * @param step  The frequency step in Hz.
+ * @returns STATUS_OK if the range could be retrieved, STATUS_ERROR if an error has occurred.
  */
 receiver::status receiver::get_rf_range(double *start, double *stop, double *step)
 {
@@ -427,21 +433,23 @@ receiver::status receiver::get_rf_range(double *start, double *stop, double *ste
     return STATUS_ERROR;
 }
 
-/*! \brief Get the names of available gain stages. */
+/** Get the names of available gain stages. */
 std::vector<std::string> receiver::get_gain_names()
 {
     return src->get_gain_names();
 }
 
-/*! \brief Get gain range for a specific stage.
- *  \param[in]  name The name of the gain stage.
- *  \param[out] start Lower limit for this gain setting.
- *  \param[out] stop  Upper limit for this gain setting.
- *  \param[out] step  The resolution for this gain setting.
+/**
+ * @brief Get gain range for a specific stage.
+ * @param[in]  name The name of the gain stage.
+ * @param[out] start Lower limit for this gain setting.
+ * @param[out] stop  Upper limit for this gain setting.
+ * @param[out] step  The resolution for this gain setting.
  *
  * This function retunrs the range for the requested gain stage.
  */
-receiver::status receiver::get_gain_range(std::string &name, double *start, double *stop, double *step)
+receiver::status receiver::get_gain_range(std::string &name, double *start,
+                                          double *stop, double *step) const
 {
     osmosdr::gain_range_t range;
 
@@ -460,15 +468,16 @@ receiver::status receiver::set_gain(std::string name, double value)
     return STATUS_OK;
 }
 
-double receiver::get_gain(std::string name)
+double receiver::get_gain(std::string name) const
 {
     return src->get_gain(name);
 }
 
-
-/*! \brief Set RF gain.
- *  \param gain_rel The desired relative gain between 0.0 and 1.0 (use -1 for AGC where supported).
- *  \return RX_STATUS_ERROR if an error occurs, e.g. the gain is out of valid range.
+/**
+ * @brief Set RF gain.
+ * @param gain_rel The desired relative gain between 0.0 and 1.0 (use -1 for
+ *                 AGC where supported).
+ * @return RX_STATUS_ERROR if an error occurs, e.g. the gain is out of valid range.
  */
 receiver::status receiver::set_auto_gain(bool automatic)
 {
@@ -477,10 +486,10 @@ receiver::status receiver::set_auto_gain(bool automatic)
     return STATUS_OK;
 }
 
-
-/*! \brief Set filter offset.
- *  \param offset_hz The desired filter offset in Hz.
- *  \return RX_STATUS_ERROR if the tuning offset is out of range.
+/**
+ * @brief Set filter offset.
+ * @param offset_hz The desired filter offset in Hz.
+ * @return RX_STATUS_ERROR if the tuning offset is out of range.
  *
  * This method sets a new tuning offset for the receiver. The tuning offset is used
  * to tune within the passband, i.e. select a specific channel within the received
@@ -489,7 +498,7 @@ receiver::status receiver::set_auto_gain(bool automatic)
  * The valid range for the tuning is +/- 0.5 * the bandwidth although this is just a
  * logical limit.
  *
- * \sa get_filter_offset()
+ * @sa get_filter_offset()
  */
 receiver::status receiver::set_filter_offset(double offset_hz)
 {
@@ -499,15 +508,15 @@ receiver::status receiver::set_filter_offset(double offset_hz)
     return STATUS_OK;
 }
 
-/*! \brief Get filterm offset.
- *  \return The current filter offset.
- *  \sa set_filter_offset()
+/**
+ * @brief Get filterm offset.
+ * @return The current filter offset.
+ * @sa set_filter_offset()
  */
-double receiver::get_filter_offset()
+double receiver::get_filter_offset(void) const
 {
     return d_filter_offset;
 }
-
 
 receiver::status receiver::set_filter(double low, double high, filter_shape shape)
 {
@@ -538,25 +547,6 @@ receiver::status receiver::set_filter(double low, double high, filter_shape shap
     return STATUS_OK;
 }
 
-/**
-receiver::status receiver::set_filter_low(double freq_hz)
-{
-    return STATUS_OK;
-}
-
-
-receiver::status receiver::set_filter_high(double freq_hz)
-{
-    return STATUS_OK;
-}
-
-
-receiver::status receiver::set_filter_shape(filter_shape shape)
-{
-    return STATUS_OK;
-}
-**/
-
 receiver::status receiver::set_freq_corr(double ppm)
 {
     src->set_freq_corr(ppm);
@@ -564,31 +554,32 @@ receiver::status receiver::set_freq_corr(double ppm)
     return STATUS_OK;
 }
 
-/*! \brief Get current signal power.
- *  \param dbfs Whether to use dbfs or absolute power.
- *  \return The current signal power.
+/**
+ * @brief Get current signal power.
+ * @param dbfs Whether to use dbfs or absolute power.
+ * @return The current signal power.
  *
  * This method returns the current signal power detected by the receiver. The detector
  * is located after the band pass filter. The full scale is 1.0
  */
-float receiver::get_signal_pwr(bool dbfs)
+float receiver::get_signal_pwr(bool dbfs) const
 {
     return rx->get_signal_level(dbfs);
 }
 
-/*! \brief Set new FFT size. */
+/** Set new FFT size. */
 void receiver::set_iq_fft_size(int newsize)
 {
     iq_fft->set_fft_size(newsize);
 }
 
-/*! \brief Get latest baseband FFT data. */
+/** Get latest baseband FFT data. */
 void receiver::get_iq_fft_data(std::complex<float>* fftPoints, unsigned int &fftsize)
 {
     iq_fft->get_fft_data(fftPoints, fftsize);
 }
 
-/*! \brief Get latest audio FFT data. */
+/** Get latest audio FFT data. */
 void receiver::get_audio_fft_data(std::complex<float>* fftPoints, unsigned int &fftsize)
 {
     audio_fft->get_fft_data(fftPoints, fftsize);
@@ -610,9 +601,9 @@ receiver::status receiver::set_nb_threshold(int nbid, float threshold)
     return STATUS_OK; // FIXME
 }
 
-
-/*! \brief Set squelch level.
- *  \param level_db The new level in dBFS.
+/**
+ * @brief Set squelch level.
+ * @param level_db The new level in dBFS.
  */
 receiver::status receiver::set_sql_level(double level_db)
 {
@@ -622,8 +613,7 @@ receiver::status receiver::set_sql_level(double level_db)
     return STATUS_OK; // FIXME
 }
 
-
-/*! \brief Set squelch alpha */
+/** Set squelch alpha */
 receiver::status receiver::set_sql_alpha(double alpha)
 {
     if (rx->has_sql())
@@ -632,7 +622,8 @@ receiver::status receiver::set_sql_alpha(double alpha)
     return STATUS_OK; // FIXME
 }
 
-/*! \brief Enable/disable receiver AGC.
+/**
+ * @brief Enable/disable receiver AGC.
  *
  * When AGC is disabled a fixed manual gain is used, see set_agc_manual_gain().
  */
@@ -644,7 +635,7 @@ receiver::status receiver::set_agc_on(bool agc_on)
     return STATUS_OK; // FIXME
 }
 
-/*! \brief Enable/disable AGC hang. */
+/** Enable/disable AGC hang. */
 receiver::status receiver::set_agc_hang(bool use_hang)
 {
     if (rx->has_agc())
@@ -653,7 +644,7 @@ receiver::status receiver::set_agc_hang(bool use_hang)
     return STATUS_OK; // FIXME
 }
 
-/*! \brief Set AGC threshold. */
+/** Set AGC threshold. */
 receiver::status receiver::set_agc_threshold(int threshold)
 {
     if (rx->has_agc())
@@ -662,7 +653,7 @@ receiver::status receiver::set_agc_threshold(int threshold)
     return STATUS_OK; // FIXME
 }
 
-/*! \brief Set AGC slope. */
+/** Set AGC slope. */
 receiver::status receiver::set_agc_slope(int slope)
 {
     if (rx->has_agc())
@@ -671,7 +662,7 @@ receiver::status receiver::set_agc_slope(int slope)
     return STATUS_OK; // FIXME
 }
 
-/*! \brief Set AGC decay time. */
+/** Set AGC decay time. */
 receiver::status receiver::set_agc_decay(int decay_ms)
 {
     if (rx->has_agc())
@@ -680,7 +671,7 @@ receiver::status receiver::set_agc_decay(int decay_ms)
     return STATUS_OK; // FIXME
 }
 
-/*! \brief Set fixed gain used when AGC is OFF. */
+/** Set fixed gain used when AGC is OFF. */
 receiver::status receiver::set_agc_manual_gain(int gain)
 {
     if (rx->has_agc())
@@ -762,8 +753,9 @@ receiver::status receiver::set_demod(rx_demod demod)
     return ret;
 }
 
-/*! \brief Set maximum deviation of the FM demodulator.
- *  \param maxdev_hz The new maximum deviation in Hz.
+/**
+ * @brief Set maximum deviation of the FM demodulator.
+ * @param maxdev_hz The new maximum deviation in Hz.
  */
 receiver::status receiver::set_fm_maxdev(float maxdev_hz)
 {
@@ -803,8 +795,9 @@ receiver::status receiver::set_af_gain(float gain_db)
 }
 
 
-/*! \brief Start WAV file recorder.
- *  \param filename The filename where to record.
+/**
+ * @brief Start WAV file recorder.
+ * @param filename The filename where to record.
  *
  * A new recorder object is created every time we start recording and deleted every time
  * we stop recording. The idea of creating one object and starting/stopping using different
@@ -851,8 +844,7 @@ receiver::status receiver::start_audio_recording(const std::string filename)
     return STATUS_OK;
 }
 
-
-/*! \brief Stop WAV file recorder. */
+/** Stop WAV file recorder. */
 receiver::status receiver::stop_audio_recording()
 {
     if (!d_recording_wav) {
@@ -882,8 +874,7 @@ receiver::status receiver::stop_audio_recording()
     return STATUS_OK;
 }
 
-
-/*! \brief Start audio playback. */
+/** Start audio playback. */
 receiver::status receiver::start_audio_playback(const std::string filename)
 {
     if (!d_running)
@@ -941,8 +932,7 @@ receiver::status receiver::start_audio_playback(const std::string filename)
     return STATUS_OK;
 }
 
-
-/*! \brief Stop audio playback. */
+/** Stop audio playback. */
 receiver::status receiver::stop_audio_playback()
 {
     /* disconnect wav source and reconnect receiver */
@@ -965,24 +955,23 @@ receiver::status receiver::stop_audio_playback()
     return STATUS_OK;
 }
 
-
-/*! \brief Start UDP streaming of audio. */
+/** Start UDP streaming of audio. */
 receiver::status receiver::start_udp_streaming(const std::string host, int port)
 {
     audio_udp_sink->start_streaming(host, port);
     return STATUS_OK;
 }
 
-/*! \brief Stop UDP streaming of audio. */
+/** Stop UDP streaming of audio. */
 receiver::status receiver::stop_udp_streaming()
 {
     audio_udp_sink->stop_streaming();
     return STATUS_OK;
 }
 
-
-/*! \brief Start I/Q data recorder.
- *  \param filename The filename where to record.
+/**
+ * @brief Start I/Q data recorder.
+ * @param filename The filename where to record.
  */
 receiver::status receiver::start_iq_recording(const std::string filename)
 {
@@ -1015,8 +1004,7 @@ receiver::status receiver::start_iq_recording(const std::string filename)
     return status;
 }
 
-
-/*! \brief Stop I/Q data recorder. */
+/** Stop I/Q data recorder. */
 receiver::status receiver::stop_iq_recording()
 {
     if (!d_recording_iq) {
@@ -1033,8 +1021,9 @@ receiver::status receiver::stop_iq_recording()
     return STATUS_OK;
 }
 
-/*! \brief Seek to position in IQ file source.
- *  \param pos Byte offset from the beginning of the file.
+/**
+ * @brief Seek to position in IQ file source.
+ * @param pos Byte offset from the beginning of the file.
  */
 receiver::status receiver::seek_iq_file(long pos)
 {
@@ -1056,9 +1045,10 @@ receiver::status receiver::seek_iq_file(long pos)
     return status;
 }
 
-/*! \brief Start data sniffer.
- *  \param buffsize The buffer that should be used in the sniffer.
- *  \return STATUS_OK if the sniffer was started, STATUS_ERROR if the sniffer is already in use.
+/**
+ * @brief Start data sniffer.
+ * @param buffsize The buffer that should be used in the sniffer.
+ * @return STATUS_OK if the sniffer was started, STATUS_ERROR if the sniffer is already in use.
  */
 receiver::status receiver::start_sniffer(unsigned int samprate, int buffsize)
 {
@@ -1078,8 +1068,9 @@ receiver::status receiver::start_sniffer(unsigned int samprate, int buffsize)
     return STATUS_OK;
 }
 
-/*! \brief Stop data sniffer.
- *  \return STATUS_ERROR i the sniffer is not currently active.
+/**
+ * @brief Stop data sniffer.
+ * @return STATUS_ERROR i the sniffer is not currently active.
  */
 receiver::status receiver::stop_sniffer()
 {
@@ -1099,13 +1090,13 @@ receiver::status receiver::stop_sniffer()
     return STATUS_OK;
 }
 
-/*! \brief Get sniffer data. */
+/** Get sniffer data. */
 void receiver::get_sniffer_data(float * outbuff, unsigned int &num)
 {
     sniffer->get_samples(outbuff, num);
 }
 
-/*! \brief Convenience function to connect all blocks. */
+/** Convenience function to connect all blocks. */
 void receiver::connect_all(rx_chain type)
 {
     switch (type)
@@ -1207,26 +1198,26 @@ void receiver::get_rds_data(std::string &outbuff, int &num)
     rx->get_rds_data(outbuff, num);
 }
 
-void receiver::start_rds_decoder()
+void receiver::start_rds_decoder(void)
 {
     stop();
     rx->start_rds_decoder();
     start();
 }
 
-void receiver::stop_rds_decoder()
+void receiver::stop_rds_decoder(void)
 {
     stop();
     rx->stop_rds_decoder();
     start();
 }
 
-bool receiver::is_rds_decoder_active()
+bool receiver::is_rds_decoder_active(void) const
 {
     return rx->is_rds_decoder_active();
 }
 
-void receiver::reset_rds_parser()
+void receiver::reset_rds_parser(void)
 {
     rx->reset_rds_parser();
 }

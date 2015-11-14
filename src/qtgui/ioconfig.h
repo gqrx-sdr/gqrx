@@ -24,8 +24,8 @@
 #define IOCONFIG_H
 
 #include <QDialog>
-#include <QString>
 #include <QSettings>
+#include <QString>
 
 #ifdef WITH_PULSEAUDIO
 #include "pulseaudio/pa_device_list.h"
@@ -38,7 +38,7 @@ namespace Ui {
     class CIoConfig;
 }
 
-/*! \brief Inout/output device configurator. */
+/** @brief Inout/output device configurator. */
 class CIoConfig : public QDialog
 {
     Q_OBJECT

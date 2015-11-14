@@ -20,19 +20,19 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include <QtGlobal>
-#include <QSettings>
-#include <QFile>
-#include <QString>
-#include <QRegExp>
-#include <QVariant>
-#include <QPushButton>
 #include <QDebug>
+#include <QFile>
+#include <QPushButton>
+#include <QRegExp>
+#include <QSettings>
+#include <QString>
+#include <QtGlobal>
+#include <QVariant>
 
+#include <boost/foreach.hpp>
 #include <osmosdr/device.h>
 #include <osmosdr/source.h>
 #include <osmosdr/ranges.h>
-#include <boost/foreach.hpp>
 
 #ifdef WITH_PULSEAUDIO
 #include "pulseaudio/pa_device_list.h"
@@ -222,7 +222,7 @@ CIoConfig::~CIoConfig()
 }
 
 
-/*! \brief Save configuration. */
+/** @brief Save configuration. */
 void CIoConfig::saveConfig()
 {
     int         idx;
@@ -273,8 +273,9 @@ void CIoConfig::saveConfig()
 }
 
 
-/*! \brief Update list of sample rates based on selected device.
- *  \param rate The current sample rate from the configuration.
+/**
+ * @brief Update list of sample rates based on selected device.
+ * @param rate The current sample rate from the configuration.
  */
 void CIoConfig::updateInputSampleRates(int rate)
 {
@@ -503,8 +504,9 @@ void CIoConfig::updateDecimations(void)
     decimationChanged(0);
 }
 
-/*! \brief New input device has been selected by the user.
- *  \param index The index of the item that has been selected in the combo box.
+/**
+ * @brief New input device has been selected by the user.
+ * @param index The index of the item that has been selected in the combo box.
  */
 void CIoConfig::inputDeviceSelected(int index)
 {
@@ -517,8 +519,9 @@ void CIoConfig::inputDeviceSelected(int index)
 }
 
 
-/*! \brief Input device string has changed
- *  \param text THe new device string
+/**
+ * @brief Input device string has changed
+ * @param text THe new device string
  *
  * This slot is activated when the device string in the text edit box has changed
  * either by the user or programatically. We use this to enable/disable the OK
