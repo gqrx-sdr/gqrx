@@ -1250,7 +1250,7 @@ void MainWindow::iqFftTimeout()
         d_realFftData[i] = 10.0 * log10f(pwr + 1.0e-20);
 
         /* FFT averaging */
-        d_iirFftData[i] = (1.0 - d_fftAvg) * d_iirFftData[i] + d_fftAvg * d_realFftData[i];
+        d_iirFftData[i] += d_fftAvg * (d_realFftData[i] - d_iirFftData[i]);
     }
 
     ui->plotter->setNewFttData(d_iirFftData, d_realFftData, fftsize);
