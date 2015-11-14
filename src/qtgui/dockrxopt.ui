@@ -716,7 +716,11 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
          </size>
         </property>
         <property name="text">
-         <string>X</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../../resources/icons.qrc">
+          <normaloff>:/icons/icons/backspace.svg</normaloff>:/icons/icons/backspace.svg</iconset>
         </property>
        </widget>
       </item>
@@ -965,7 +969,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
          </size>
         </property>
         <property name="text">
-         <string> </string>
+         <string/>
         </property>
        </widget>
       </item>
