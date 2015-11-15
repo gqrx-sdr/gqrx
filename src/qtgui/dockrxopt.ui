@@ -563,6 +563,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         <property name="text">
          <string>Go</string>
         </property>
+        <property name="shortcut">
+         <string>Return</string>
+        </property>
        </widget>
       </item>
      </layout>
@@ -584,6 +587,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </property>
         <property name="text">
          <string>kHz</string>
+        </property>
+        <property name="shortcut">
+         <string>K</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -640,6 +646,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         <property name="text">
          <string>9</string>
         </property>
+        <property name="shortcut">
+         <string>9</string>
+        </property>
        </widget>
       </item>
       <item row="3" column="0">
@@ -692,6 +701,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         <property name="text">
          <string>.</string>
         </property>
+        <property name="shortcut">
+         <string>.</string>
+        </property>
        </widget>
       </item>
       <item row="3" column="5">
@@ -703,6 +715,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
          </size>
         </property>
         <property name="text">
+         <string>0</string>
+        </property>
+        <property name="shortcut">
          <string>0</string>
         </property>
        </widget>
@@ -721,6 +736,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         <property name="icon">
          <iconset resource="../../resources/icons.qrc">
           <normaloff>:/icons/icons/backspace.svg</normaloff>:/icons/icons/backspace.svg</iconset>
+        </property>
+        <property name="shortcut">
+         <string>Backspace</string>
         </property>
        </widget>
       </item>
@@ -754,6 +772,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         <property name="text">
          <string>1</string>
         </property>
+        <property name="shortcut">
+         <string>1</string>
+        </property>
        </widget>
       </item>
       <item row="0" column="5">
@@ -767,6 +788,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         <property name="text">
          <string>2</string>
         </property>
+        <property name="shortcut">
+         <string>2</string>
+        </property>
        </widget>
       </item>
       <item row="0" column="6">
@@ -778,6 +802,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
          </size>
         </property>
         <property name="text">
+         <string>3</string>
+        </property>
+        <property name="shortcut">
          <string>3</string>
         </property>
        </widget>
@@ -819,6 +846,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         <property name="text">
          <string>4</string>
         </property>
+        <property name="shortcut">
+         <string>4</string>
+        </property>
        </widget>
       </item>
       <item row="1" column="5">
@@ -832,6 +862,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         <property name="text">
          <string>5</string>
         </property>
+        <property name="shortcut">
+         <string>5</string>
+        </property>
        </widget>
       </item>
       <item row="1" column="6">
@@ -843,6 +876,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
          </size>
         </property>
         <property name="text">
+         <string>6</string>
+        </property>
+        <property name="shortcut">
          <string>6</string>
         </property>
        </widget>
@@ -897,6 +933,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         <property name="text">
          <string>7</string>
         </property>
+        <property name="shortcut">
+         <string>7</string>
+        </property>
        </widget>
       </item>
       <item row="2" column="5">
@@ -908,6 +947,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
          </size>
         </property>
         <property name="text">
+         <string>8</string>
+        </property>
+        <property name="shortcut">
          <string>8</string>
         </property>
        </widget>
@@ -927,6 +969,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </property>
         <property name="text">
          <string>MHz</string>
+        </property>
+        <property name="shortcut">
+         <string>M</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -951,6 +996,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </property>
         <property name="text">
          <string>Hz</string>
+        </property>
+        <property name="shortcut">
+         <string>H</string>
         </property>
         <property name="checkable">
          <bool>true</bool>

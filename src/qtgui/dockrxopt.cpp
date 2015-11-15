@@ -100,6 +100,24 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     // Noise blanker options
     nbOpt = new CNbOptions(this);
     connect(nbOpt, SIGNAL(thresholdChanged(int,double)), this, SLOT(nbOpt_thresholdChanged(int,double)));
+
+    // We only want the buttons active when this panel is visible
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->button0, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->button1, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->button2, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->button3, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->button4, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->button5, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->button6, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->button7, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->button8, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->button9, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->buttonDot, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->buttonDelete, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->buttonGo, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->buttonHz, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->buttonKHz, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->buttonMHz, SLOT(setEnabled(bool)));
 }
 
 DockRxOpt::~DockRxOpt()
@@ -682,8 +700,10 @@ void DockRxOpt::on_buttonDelete_clicked(void)
 void DockRxOpt::on_buttonGo_clicked(void)
 {
     QString text = ui->labelDirectFrequency->text();
-    emit frequencySelected(text.toDouble() * frequencyMultiplier);
-    ui->labelDirectFrequency->setText("");
+    if(text.length() > 0) {
+        emit frequencySelected(text.toDouble() * frequencyMultiplier);
+        ui->labelDirectFrequency->setText("");
+    }
 }
 
 void DockRxOpt::on_buttonHz_clicked(void)
