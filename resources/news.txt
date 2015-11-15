@@ -8,6 +8,7 @@
        NEW: Zoom slider to aid zooming on the frequency axis.
        NEW: RFSpace Cloud-IQ support.
        NEW: OIRT stereo decoder (Daniil Cherednik).
+       NEW: Input decimator.
      FIXED: Prevent crash due to device errors while starting the application.
      FIXED: Use hardware frequency in IQ file names.
      FIXED: FFT averaging (it can now be disabled).
@@ -17,7 +18,6 @@
   IMPROVED: Fractional PPM correction.
   IMPROVED: AGC peformance.
   IMPROVED: FFT performance.
-  IMPROVED: Prevent bookmarks to be drawn over each other (up to 10 now).
 
      2.3.2  Released November 28, 2014
 
