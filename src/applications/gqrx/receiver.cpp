@@ -32,6 +32,7 @@
 
 #include "applications/gqrx/receiver.h"
 #include "dsp/correct_iq_cc.h"
+#include "dsp/hbf_decim.h"
 #include "dsp/rx_fft.h"
 #include "receivers/nbrx.h"
 #include "receivers/wfmrx.h"
@@ -49,10 +50,13 @@
  * @param audio_device Audio output device specifier,
  *                     e.g. hw:0 when using ALSA or Portaudio.
  */
-receiver::receiver(const std::string input_device, const std::string audio_device)
+receiver::receiver(const std::string input_device,
+                   const std::string audio_device,
+                   unsigned int decimation)
     : d_running(false),
       d_input_rate(96000.0),
       d_audio_rate(48000),
+      d_decim(decimation),
       d_rf_freq(144800000.0),
       d_filter_offset(0.0),
       d_recording_iq(false),
@@ -77,21 +81,44 @@ receiver::receiver(const std::string input_device, const std::string audio_devic
         src = osmosdr::source::make(input_device);
     }
 
+    // input decimator
+    if (d_decim >= 2)
+    {
+        try
+        {
+            input_decim = make_hbf_decim(d_decim);
+        }
+        catch (std::range_error &e)
+        {
+            std::cout << "Error opening creating input decimator " << d_decim
+                      << ": " << e.what() << std::endl
+                      << "Using decimation 1." << std::endl;
+            d_decim = 1;
+        }
+
+        d_quad_rate = d_input_rate / (double)d_decim;
+    }
+    else
+    {
+        d_quad_rate = d_input_rate;
+    }
+
+
     // create I/Q sink and close it
     iq_sink = gr::blocks::file_sink::make(sizeof(gr_complex), "/dev/null", false);
     iq_sink->set_unbuffered(true);
     iq_sink->close();
 
-    rx = make_nbrx(d_input_rate, d_audio_rate);
-    lo = gr::analog::sig_source_c::make(d_input_rate, gr::analog::GR_SIN_WAVE,
+    rx = make_nbrx(d_quad_rate, d_audio_rate);
+    lo = gr::analog::sig_source_c::make(d_quad_rate, gr::analog::GR_SIN_WAVE,
                                         0.0, 1.0);
     mixer = gr::blocks::multiply_cc::make();
 
     iq_swap = make_iq_swap_cc(false);
-    dc_corr = make_dc_corr_cc(d_input_rate, 1.0);
-    iq_fft = make_rx_fft_c(4096u, 0);
+    dc_corr = make_dc_corr_cc(d_quad_rate, 1.0);
+    iq_fft = make_rx_fft_c(8192u, 0);
 
-    audio_fft = make_rx_fft_f(4096u);
+    audio_fft = make_rx_fft_f(8192u);
     audio_gain0 = gr::blocks::multiply_const_ff::make(0.1);
     audio_gain1 = gr::blocks::multiply_const_ff::make(0.1);
 
@@ -183,11 +210,28 @@ void receiver::set_input_device(const std::string device)
         tb->wait();
     }
 
-    tb->disconnect(src, 0, iq_swap, 0);
+    if (d_decim >= 2)
+    {
+        tb->disconnect(src, 0, input_decim, 0);
+        tb->disconnect(input_decim, 0, iq_swap, 0);
+    }
+    else
+    {
+        tb->disconnect(src, 0, iq_swap, 0);
+    }
+
     src.reset();
     src = osmosdr::source::make(device);
 
-    tb->connect(src, 0, iq_swap, 0);
+    if (d_decim >= 2)
+    {
+        tb->connect(src, 0, input_decim, 0);
+        tb->connect(input_decim, 0, iq_swap, 0);
+    }
+    else
+    {
+        tb->connect(src, 0, iq_swap, 0);
+    }
 
     if (d_running)
         tb->start();
@@ -273,9 +317,10 @@ double receiver::set_input_rate(double rate)
         d_input_rate = rate;
     }
 
-    dc_corr->set_sample_rate(d_input_rate);
-    rx->set_quad_rate(d_input_rate);
-    lo->set_sampling_freq(d_input_rate);
+    d_quad_rate = d_input_rate / (double)d_decim;
+    dc_corr->set_sample_rate(d_quad_rate);
+    rx->set_quad_rate(d_quad_rate);
+    lo->set_sampling_freq(d_quad_rate);
     tb->unlock();
 
     return d_input_rate;
@@ -286,6 +331,72 @@ double receiver::set_input_rate(double rate)
 double receiver::get_input_rate(void) const
 {
     return d_input_rate;
+}
+
+/** Set input decimation */
+unsigned int receiver::set_input_decim(unsigned int decim)
+{
+    if (decim == d_decim)
+        return d_decim;
+
+    if (d_running)
+    {
+        tb->stop();
+        tb->wait();
+    }
+
+    if (d_decim >= 2)
+    {
+        tb->disconnect(src, 0, input_decim, 0);
+        tb->disconnect(input_decim, 0, iq_swap, 0);
+    }
+    else
+    {
+        tb->disconnect(src, 0, iq_swap, 0);
+    }
+
+    input_decim.reset();
+    d_decim = decim;
+    if (d_decim >= 2)
+    {
+        try
+        {
+            input_decim = make_hbf_decim(d_decim);
+        }
+        catch (std::range_error &e)
+        {
+            std::cout << "Error opening creating input decimator " << d_decim
+                      << ": " << e.what() << std::endl
+                      << "Using decimation 1." << std::endl;
+            d_decim = 1;
+        }
+
+        d_quad_rate = d_input_rate / (double)d_decim;
+    }
+    else
+    {
+        d_quad_rate = d_input_rate;
+    }
+
+    // update quadrature rate
+    dc_corr->set_sample_rate(d_quad_rate);
+    rx->set_quad_rate(d_quad_rate);
+    lo->set_sampling_freq(d_quad_rate);
+
+    if (d_decim >= 2)
+    {
+        tb->connect(src, 0, input_decim, 0);
+        tb->connect(input_decim, 0, iq_swap, 0);
+    }
+    else
+    {
+        tb->connect(src, 0, iq_swap, 0);
+    }
+
+    if (d_running)
+        tb->start();
+
+    return d_decim;
 }
 
 /**
@@ -991,7 +1102,11 @@ receiver::status receiver::start_iq_recording(const std::string filename)
         }
         else
         {
-            tb->connect(src, 0, iq_sink, 0);
+            if (d_decim >= 2)
+                tb->connect(input_decim, 0, iq_sink, 0);
+            else
+                tb->connect(src, 0, iq_sink, 0);
+
             d_recording_iq = true;
         }
         tb->unlock();
@@ -1014,7 +1129,12 @@ receiver::status receiver::stop_iq_recording()
 
     tb->lock();
     iq_sink->close();
-    tb->disconnect(src, 0, iq_sink, 0);
+
+    if (d_decim >= 2)
+        tb->disconnect(input_decim, 0, iq_sink, 0);
+    else
+        tb->disconnect(src, 0, iq_sink, 0);
+
     tb->unlock();
     d_recording_iq = false;
 
@@ -1102,7 +1222,15 @@ void receiver::connect_all(rx_chain type)
     switch (type)
     {
     case RX_CHAIN_NONE:
-        tb->connect(src, 0, iq_swap, 0);
+        if (d_decim >= 2)
+        {
+            tb->connect(src, 0, input_decim, 0);
+            tb->connect(input_decim, 0, iq_swap, 0);
+        }
+        else
+        {
+            tb->connect(src, 0, iq_swap, 0);
+        }
         if (d_dc_cancel)
         {
             tb->connect(iq_swap, 0, dc_corr, 0);
@@ -1118,9 +1246,17 @@ void receiver::connect_all(rx_chain type)
         if (rx->name() != "NBRX")
         {
             rx.reset();
-            rx = make_nbrx(d_input_rate, d_audio_rate);
+            rx = make_nbrx(d_quad_rate, d_audio_rate);
         }
-        tb->connect(src, 0, iq_swap, 0);
+        if (d_decim >= 2)
+        {
+            tb->connect(src, 0, input_decim, 0);
+            tb->connect(input_decim, 0, iq_swap, 0);
+        }
+        else
+        {
+            tb->connect(src, 0, iq_swap, 0);
+        }
         if (d_dc_cancel)
         {
             tb->connect(iq_swap, 0, dc_corr, 0);
@@ -1146,9 +1282,17 @@ void receiver::connect_all(rx_chain type)
         if (rx->name() != "WFMRX")
         {
             rx.reset();
-            rx = make_wfmrx(d_input_rate, d_audio_rate);
+            rx = make_wfmrx(d_quad_rate, d_audio_rate);
         }
-        tb->connect(src, 0, iq_swap, 0);
+        if (d_decim >= 2)
+        {
+            tb->connect(src, 0, input_decim, 0);
+            tb->connect(input_decim, 0, iq_swap, 0);
+        }
+        else
+        {
+            tb->connect(src, 0, iq_swap, 0);
+        }
         if (d_dc_cancel)
         {
             tb->connect(iq_swap, 0, dc_corr, 0);
@@ -1177,7 +1321,10 @@ void receiver::connect_all(rx_chain type)
     // reconnect recorders and sniffers
     if (d_recording_iq)
     {
-        tb->connect(src, 0, iq_sink, 0);
+        if (d_decim >= 2)
+            tb->connect(input_decim, 0, iq_sink, 0);
+        else
+            tb->connect(src, 0, iq_sink, 0);
     }
 
     if (d_recording_wav)

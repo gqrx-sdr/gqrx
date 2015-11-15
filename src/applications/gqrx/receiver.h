@@ -35,6 +35,7 @@
 #include <string>
 
 #include "dsp/correct_iq_cc.h"
+#include "dsp/hbf_decim.h"
 #include "dsp/rx_noise_blanker_cc.h"
 #include "dsp/rx_filter.h"
 #include "dsp/rx_meter.h"
@@ -103,7 +104,9 @@ public:
         FILTER_SHAPE_SHARP = 2   /*!< Sharp: Transition band is TBD of width. */
     };
 
-    receiver(const std::string input_device="", const std::string audio_device="");
+    receiver(const std::string input_device="",
+             const std::string audio_device="",
+             unsigned int decimation=1);
     ~receiver();
 
     void        start();
@@ -116,6 +119,9 @@ public:
 
     double      set_input_rate(double rate);
     double      get_input_rate(void) const;
+
+    unsigned int    set_input_decim(unsigned int decim);
+    unsigned int    get_input_decim(void) const { return d_decim; }
 
     double      set_analog_bandwidth(double bw);
     double      get_analog_bandwidth(void) const;
@@ -212,7 +218,9 @@ private:
 private:
     bool        d_running;          /*!< Whether receiver is running or not. */
     double      d_input_rate;       /*!< Input sample rate. */
+    double      d_quad_rate;        /*!< Quadrature rate (input_rate / decim) */
     double      d_audio_rate;       /*!< Audio output rate. */
+    unsigned int    d_decim;        /*!< input decimation. */
     double      d_rf_freq;          /*!< Current RF frequency. */
     double      d_filter_offset;    /*!< Current filter offset */
     bool        d_recording_iq;     /*!< Whether we are recording I/Q file. */
@@ -230,6 +238,7 @@ private:
     gr::top_block_sptr         tb;        /*!< The GNU Radio top block. */
 
     osmosdr::source::sptr     src;       /*!< Real time I/Q source. */
+    hbf_decim_sptr            input_decim;      /*!< Input decimator. */
     receiver_base_cf_sptr     rx;        /*!< receiver. */
 
     dc_corr_cc_sptr           dc_corr;   /*!< DC corrector block. */

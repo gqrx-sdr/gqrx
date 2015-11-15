@@ -87,7 +87,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     d_filter_shape = receiver::FILTER_SHAPE_NORMAL;
 
     /* create receiver object */
-    rx = new receiver("", "");
+    rx = new receiver("", "", 1);
     rx->set_rf_freq(144500000.0f);
 
     // remote controller
@@ -367,7 +367,9 @@ MainWindow::~MainWindow()
  */
 bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
 {
+    double      actual_rate;
     qint64      int64_val;
+    int         int_val;
     bool        bool_val;
     bool        conf_ok = false;
     bool        conv_ok;
@@ -453,10 +455,10 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
     QString outdev = m_settings->value("output/device", "").toString();
     rx->set_output_device(outdev.toStdString());
 
-    int sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
-    if (conv_ok && (sr > 0))
+    int_val = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
+    if (conv_ok && (int_val > 0))
     {
-        double actual_rate = rx->set_input_rate(sr);
+        actual_rate = rx->set_input_rate(int_val);
 
         if (actual_rate == 0)
         {
@@ -472,18 +474,39 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
             dialog->setAttribute(Qt::WA_DeleteOnClose);
             dialog->show();
 
-            actual_rate = sr;
+            actual_rate = int_val;
         }
 
-        qDebug() << "Requested sample rate:" << sr;
+        qDebug() << "Requested sample rate:" << int_val;
         qDebug() << "Actual sample rate   :" << QString("%1").arg(actual_rate, 0, 'f', 6);
-        uiDockRxOpt->setFilterOffsetRange((qint64)(0.9*actual_rate));
-        ui->plotter->setSampleRate(actual_rate);
-        ui->plotter->setSpanFreq((quint32)actual_rate);
-
-        remote->setBandwidth(sr);
-        iq_tool->setSampleRate(sr);
     }
+
+    int_val = m_settings->value("input/decimation", 1).toInt(&conv_ok);
+    if (conv_ok && int_val >= 2)
+    {
+        if (rx->set_input_decim(int_val) != int_val)
+        {
+            qDebug() << "Failed to set decimation" << int_val;
+            qDebug() << "  actual decimation:" << rx->get_input_decim();
+        }
+        else
+        {
+            // update actual rate
+            actual_rate /= (double)int_val;
+            qDebug() << "Input decimation:" << int_val;
+            qDebug() << "Quadrature rate:" << QString("%1").arg(actual_rate, 0, 'f', 6);
+        }
+    }
+    else
+    {
+        rx->set_input_decim(1);
+    }
+    // update various widget that need a sample rate
+    uiDockRxOpt->setFilterOffsetRange((qint64)(0.9*actual_rate));
+    ui->plotter->setSampleRate(actual_rate);
+    ui->plotter->setSpanFreq((quint32)actual_rate);
+    remote->setBandwidth((qint64)actual_rate);
+    iq_tool->setSampleRate((qint64)actual_rate);
 
     int64_val = m_settings->value("input/bandwidth", 0).toInt(&conv_ok);
     if (conv_ok)
