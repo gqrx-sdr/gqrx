@@ -90,7 +90,7 @@ receiver::receiver(const std::string input_device,
         }
         catch (std::range_error &e)
         {
-            std::cout << "Error opening creating input decimator " << d_decim
+            std::cout << "Error creating input decimator " << d_decim
                       << ": " << e.what() << std::endl
                       << "Using decimation 1." << std::endl;
             d_decim = 1;
