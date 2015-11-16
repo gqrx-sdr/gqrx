@@ -12,7 +12,9 @@
 
 //==========================================================================================
 // + + +   This Software is released under the "Simplified BSD License"  + + +
-//Copyright 2010 Moe Wheatley. All rights reserved.
+// Copyright 2010 Moe Wheatley.
+// Copyright 2012 Alexandru Csete
+// All rights reserved.
 //
 //Redistribution and use in source and binary forms, with or without modification, are
 //permitted provided that the following conditions are met:
@@ -501,10 +503,7 @@ void CFreqCtrl::mousePressEvent(QMouseEvent * event)
                 }
                 else
                 {
-                    if (pt.y() < m_DigitInfo[i].dQRect.bottom()/2)   //top half?
-                        incFreq();//IncDigit();
-                    else
-                        decFreq();//DecDigit();         //botom half
+                    clearFreq();
                 }
             }
         }
@@ -806,6 +805,7 @@ void CFreqCtrl::decDigit()
         }
     }
 }
+
 //////////////////////////////////////////////////////////////////////////////
 //  Decrement the frequency by this digit active in edit mode
 //////////////////////////////////////////////////////////////////////////////
@@ -826,6 +826,28 @@ void CFreqCtrl::decFreq()
             m_LastEditDigit = m_ActiveEditDigit;
         }
     }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//  Clear the selected digit and the digits below (i.e. set them to 0)
+//////////////////////////////////////////////////////////////////////////////
+void CFreqCtrl::clearFreq()
+{
+    if (m_ActiveEditDigit >= 0)
+    {
+        if (m_DigitInfo[m_ActiveEditDigit].editmode)
+        {
+            m_freq -= m_DigitInfo[m_ActiveEditDigit].val *
+                    m_DigitInfo[m_ActiveEditDigit].incval;
+
+            /* digits below the active one are reset to 0 */
+            m_freq -= m_freq % m_DigitInfo[m_ActiveEditDigit].weight;
+
+            setFrequency(m_freq);
+            m_LastEditDigit = m_ActiveEditDigit;
+        }
+    }
+
 }
 
 /////////////////////////////////////////////////////////////////////

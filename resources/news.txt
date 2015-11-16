@@ -19,6 +19,7 @@
   IMPROVED: Fractional PPM correction.
   IMPROVED: AGC peformance.
   IMPROVED: FFT performance.
+  IMPROVED: Right click on frequency digit to clear digits.
 
      2.3.2  Released November 28, 2014
 

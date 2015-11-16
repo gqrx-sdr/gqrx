@@ -82,6 +82,7 @@ private:
     void decDigit();
     void incFreq();
     void decFreq();
+    void clearFreq();
     void cursorHome();
     void cursorEnd();
     void moveCursorLeft();
