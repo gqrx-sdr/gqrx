@@ -15,6 +15,7 @@
      FIXED: "Could not resolve pattern10600" error messages in the terminal.
      FIXED: Antenna selection error with USRP B210 (Ethan Trewhitt).
      FIXED: LNB LO value not updated in I/O config dialog.
+     FIXED: Initial gain of rtlsdr devices is no longer 0 dB.
   IMPROVED: Support up to 1M point FFT.
   IMPROVED: Fractional PPM correction.
   IMPROVED: AGC peformance.

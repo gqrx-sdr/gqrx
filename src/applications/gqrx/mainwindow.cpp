@@ -448,8 +448,20 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         std::vector<std::string> antennas = rx->get_antennas();
         uiDockInputCtl->setAntennas(antennas);
 
-        // update gain stages
-        updateGainStages();
+        // Update gain stages.
+        if (indev.contains("rtl", Qt::CaseInsensitive)
+                && !m_settings->contains("input/gains"))
+        {
+            /* rtlsdr gain is 0 by default making users think their device is
+             * deaf. Therefore, we don't read gain from the device, but initialize
+             * it to max_gain.
+             */
+            updateGainStages(false);
+        }
+        else
+        {
+            updateGainStages(true);
+        }
     }
 
     QString outdev = m_settings->value("output/device", "").toString();
@@ -650,12 +662,15 @@ void MainWindow::updateFrequencyRange(bool ignore_limits)
     }
 }
 
-/*! \brief Update gain stages.
+/**
+ * @brief Update gain stages.
+ * @param read_from_device If true, the gain value will be read from the device,
+ *                         otherwise we set gain = max.
  *
  * This function fetches a list of available gain stages with their range
  * and sends them to the input control UI widget.
  */
-void MainWindow::updateGainStages()
+void MainWindow::updateGainStages(bool read_from_device)
 {
     gain_list_t gain_list;
     std::vector<std::string> gain_names = rx->get_gain_names();
@@ -665,7 +680,15 @@ void MainWindow::updateGainStages()
     {
         gain.name = *it;
         rx->get_gain_range(gain.name, &gain.start, &gain.stop, &gain.step);
-        gain.value = rx->get_gain(gain.name);
+        if (read_from_device)
+        {
+            gain.value = rx->get_gain(gain.name);
+        }
+        else
+        {
+            gain.value = gain.stop;
+            rx->set_gain(gain.name, gain.value);
+        }
         gain_list.push_back(gain);
     }
 
