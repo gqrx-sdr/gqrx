@@ -14,6 +14,7 @@
      FIXED: FFT averaging (it can now be disabled).
      FIXED: "Could not resolve pattern10600" error messages in the terminal.
      FIXED: Antenna selection error with USRP B210 (Ethan Trewhitt).
+     FIXED: LNB LO value not updated in I/O config dialog.
   IMPROVED: Support up to 1M point FFT.
   IMPROVED: Fractional PPM correction.
   IMPROVED: AGC peformance.

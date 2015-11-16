@@ -710,6 +710,12 @@ void MainWindow::setLnbLo(double freq_mhz)
     updateFrequencyRange(uiDockInputCtl->ignoreLimits());
     ui->freqCtrl->setFrequency(d_lnb_lo + rf_freq);
     ui->plotter->setCenterFreq(d_lnb_lo + d_hw_freq);
+
+    // update LNB LO in settings
+    if (freq_mhz == 0.f)
+        m_settings->remove("input/lnb_lo");
+    else
+        m_settings->setValue("input/lnb_lo", d_lnb_lo);
 }
 
 /*! \brief Select new antenna connector. */
