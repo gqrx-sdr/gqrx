@@ -66,9 +66,14 @@ endfunction(add_source_files)
 # 3rd Party Dependency Stuff
 find_package(Qt5 COMPONENTS Core Network Widgets REQUIRED)
 find_package(Boost COMPONENTS system program_options REQUIRED)
-set(GR_REQUIRED_COMPONENTS ANALOG AUDIO BLOCKS DIGITAL FILTER FFT)
+set(GR_REQUIRED_COMPONENTS RUNTIME ANALOG AUDIO BLOCKS DIGITAL FILTER FFT)
 find_package(Gnuradio REQUIRED)
 find_package(Gnuradio-osmosdr REQUIRED)
+
+if(NOT GNURADIO_RUNTIME_FOUND)
+    message(FATAL_ERROR "GnuRadio Runtime required to compile gr-air-modes")
+endif()
+
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     find_package(PulseAudio REQUIRED)
     # there is a defect in the pulse audio cmake file that does not include this library. So we add it here.
@@ -82,6 +87,17 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 #######################################################################################################################
 # Finish configuring compiler / linker settings & flags
+include_directories(
+    ${CMAKE_SOURCE_DIR}/include
+    ${Boost_INCLUDE_DIRS}
+    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
+)
+
+link_directories(
+    ${Boost_LIBRARY_DIRS}
+    ${GNURADIO_RUNTIME_LIBRARY_DIRS}
+)
+
 
 
 #######################################################################################################################
