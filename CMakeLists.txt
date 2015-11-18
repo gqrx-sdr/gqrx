@@ -37,6 +37,19 @@ IF(${CMAKE_BUILD_TYPE} MATCHES "Valgrind")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
 ENDIF()
 
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    # using regular Clang or AppleClang
+    SET(CMAKE_COMPILER_IS_CLANGXX 1)
+endif()
+
+IF(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
+    ADD_DEFINITIONS(-Wall)
+    ADD_DEFINITIONS(-Wextra)
+    ADD_DEFINITIONS(-Wno-unused-parameter)
+    ADD_DEFINITIONS(-Wsign-compare)
+ENDIF()
+
 #######################################################################################################################
 # Functions & macros.  These must be defined before including subdirectories.
 
