@@ -37,6 +37,10 @@ IF(${CMAKE_BUILD_TYPE} MATCHES "Valgrind")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
 ENDIF()
 
+# Disable debug outputs in release builds
+IF(${CMAKE_BUILD_TYPE} MATCHES "Release" OR ${CMAKE_BUILD_TYPE} MATCHES "RelWithDebInfo")
+    ADD_DEFINITIONS(-DQT_NO_DEBUG_OUTPUT)
+ENDIF()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     # using regular Clang or AppleClang
