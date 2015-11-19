@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/icons">
         <file>icons/audio-card.svg</file>
+        <file>icons/backspace.svg</file>
         <file>icons/bookmark-new.svg</file>
         <file>icons/clear.svg</file>
         <file>icons/clock.svg</file>

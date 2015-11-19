@@ -189,6 +189,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockInputCtl, SIGNAL(iqBalanceChanged(bool)), this, SLOT(setIqBalance(bool)));
     connect(uiDockInputCtl, SIGNAL(ignoreLimitsChanged(bool)), this, SLOT(setIgnoreLimits(bool)));
     connect(uiDockInputCtl, SIGNAL(antennaSelected(QString)), this, SLOT(setAntenna(QString)));
+
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), remote, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
@@ -205,6 +206,8 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(noiseBlankerChanged(int,bool,float)), this, SLOT(setNoiseBlanker(int,bool,float)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
     connect(uiDockRxOpt, SIGNAL(sqlAutoClicked()), this, SLOT(setSqlLevelAuto()));
+    connect(uiDockRxOpt, SIGNAL(frequencySelected(const qint64)), this, SLOT(setNewFrequency(qint64)));
+
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
     connect(uiDockAudio, SIGNAL(audioStreamingStarted(QString,int)), this, SLOT(startAudioStream(QString,int)));
     connect(uiDockAudio, SIGNAL(audioStreamingStopped()), this, SLOT(stopAudioStreaming()));
@@ -213,6 +216,8 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockAudio, SIGNAL(audioPlayStarted(QString)), this, SLOT(startAudioPlayback(QString)));
     connect(uiDockAudio, SIGNAL(audioPlayStopped()), this, SLOT(stopAudioPlayback()));
     connect(uiDockAudio, SIGNAL(fftRateChanged(int)), this, SLOT(setAudioFftRate(int)));
+
+    // FFT
     connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setIqFftSize(int)));
     connect(uiDockFft, SIGNAL(fftRateChanged(int)), this, SLOT(setIqFftRate(int)));
     connect(uiDockFft, SIGNAL(fftSplitChanged(int)), this, SLOT(setIqFftSplit(int)));
@@ -221,11 +226,9 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(resetFftZoom()), ui->plotter, SLOT(resetHorizontalZoom()));
     connect(uiDockFft, SIGNAL(gotoFftCenter()), ui->plotter, SLOT(moveToCenterFreq()));
     connect(uiDockFft, SIGNAL(gotoDemodFreq()), ui->plotter, SLOT(moveToDemodFreq()));
-
     connect(uiDockFft, SIGNAL(maximumFftDbChanged(const float)), ui->plotter, SLOT(setMaxDB(const float)));
     connect(uiDockFft, SIGNAL(minimumFftDbChanged(const float)), ui->plotter, SLOT(setMinDB(const float)));
     connect(ui->plotter, SIGNAL(fftGraphShifted(const float)), uiDockFft, SLOT(fftDbWasShifted(const float)));
-
     connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
     connect(uiDockFft, SIGNAL(fftPeakHoldToggled(bool)), this, SLOT(setFftPeakHold(bool)));

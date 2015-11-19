@@ -4,6 +4,7 @@
  *           http://gqrx.dk/
  *
  * Copyright 2011-2013 Alexandru Csete OZ9AEC.
+ * Copyright 2015 Timothy Reaves
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,12 +21,26 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <QCheckBox>
 #include <QDebug>
 #include <QVariant>
 #include "dockrxopt.h"
 #include "ui_dockrxopt.h"
 
 #define FILT_SEL_USER_IDX 3
+#define FREQUENCY_160M   1800000
+#define FREQUENCY_80M    3500000
+#define FREQUENCY_60M    5300000
+#define FREQUENCY_40M    7000000
+#define FREQUENCY_30M   10100000
+#define FREQUENCY_20M   14000000
+#define FREQUENCY_17M   18000000
+#define FREQUENCY_15M   21000000
+#define FREQUENCY_12M   24000000
+#define FREQUENCY_10M   28000000
+#define FREQUENCY_6M    50000000
+#define FREQUENCY_2M   144000000
+#define FREQUENCY_MAX  450000000
 
 QStringList DockRxOpt::ModulationStrings;
 
@@ -85,6 +100,24 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     // Noise blanker options
     nbOpt = new CNbOptions(this);
     connect(nbOpt, SIGNAL(thresholdChanged(int,double)), this, SLOT(nbOpt_thresholdChanged(int,double)));
+
+    // We only want the buttons active when this panel is visible
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->button0, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->button1, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->button2, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->button3, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->button4, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->button5, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->button6, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->button7, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->button8, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->button9, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->buttonDot, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->buttonDelete, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->buttonGo, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->buttonHz, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->buttonKHz, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(visibilityChanged(bool)), ui->buttonMHz, SLOT(setEnabled(bool)));
 }
 
 DockRxOpt::~DockRxOpt()
@@ -234,6 +267,15 @@ void DockRxOpt::readSettings(QSettings *settings)
         //ui->sqlSlider->setValue(intVal); // signal emitted automatically
         ui->sqlSpinBox->setValue(dblVal);
     }
+
+    frequencyMultiplier = settings->value("receiver/frequencyMultiplier", 0.0).toLongLong(&conv_ok);
+    if (frequencyMultiplier == 0) {
+        ui->buttonHz->setChecked(true);
+    } else if (frequencyMultiplier == 1000) {
+        ui->buttonKHz->setChecked(true);
+    } else if (frequencyMultiplier == 1000000) {
+        ui->buttonMHz->setChecked(true);
+    }
 }
 
 /*! \brief Save receiver configuration to settings. */
@@ -254,6 +296,8 @@ void DockRxOpt::saveSettings(QSettings *settings)
         settings->setValue("receiver/sql_level", sql_lvl);
     else
         settings->remove("receiver/sql_level");
+
+    settings->setValue("receiver/frequencyMultiplier", frequencyMultiplier);
 }
 
 /*! \brief Channel filter offset has changed
@@ -505,4 +549,190 @@ bool DockRxOpt::IsModulationValid(QString strModulation)
 QString DockRxOpt::GetStringForModulationIndex(int iModulationIndex)
 {
     return ModulationStrings[iModulationIndex];
+}
+
+void DockRxOpt::addDigitToFrequency(const QString digit)
+{
+    QString text = ui->labelDirectFrequency->text();
+    if(!(text.length() == 0 && digit == "0")) { // Zero as the first digit makes no sense.
+        if(text.toLongLong() * frequencyMultiplier <= FREQUENCY_MAX) {
+            text += digit;
+            ui->labelDirectFrequency->setText(text);
+            ui->buttonGo->setEnabled(true);
+        }
+    }
+}
+
+/* ****************************************************************************************************************** */
+#pragma mark - Direct band slots
+/* ****************************************************************************************************************** */
+void DockRxOpt::on_button160m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_160M);
+}
+
+void DockRxOpt::on_button80m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_80M);
+
+}
+
+void DockRxOpt::on_button60m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_60M);
+}
+
+void DockRxOpt::on_button40m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_40M);
+}
+
+void DockRxOpt::on_button30m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_30M);
+}
+
+void DockRxOpt::on_button20m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_20M);
+}
+
+void DockRxOpt::on_button17m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_17M);
+}
+
+void DockRxOpt::on_button15m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_15M);
+}
+
+void DockRxOpt::on_button12m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_12M);
+}
+
+void DockRxOpt::on_button10m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_10M);
+}
+
+void DockRxOpt::on_button6m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_6M);
+}
+
+void DockRxOpt::on_button2m_clicked(void)
+{
+    emit frequencySelected(FREQUENCY_2M);
+}
+
+void DockRxOpt::on_button0_clicked(void)
+{
+    addDigitToFrequency("0");
+}
+
+void DockRxOpt::on_button1_clicked(void)
+{
+    addDigitToFrequency("1");
+}
+
+void DockRxOpt::on_button2_clicked(void)
+{
+    addDigitToFrequency("2");
+}
+
+void DockRxOpt::on_button3_clicked(void)
+{
+    addDigitToFrequency("3");
+}
+
+void DockRxOpt::on_button4_clicked(void)
+{
+    addDigitToFrequency("4");
+}
+
+void DockRxOpt::on_button5_clicked(void)
+{
+    addDigitToFrequency("5");
+}
+
+void DockRxOpt::on_button6_clicked(void)
+{
+    addDigitToFrequency("6");
+}
+
+void DockRxOpt::on_button7_clicked(void)
+{
+    addDigitToFrequency("7");
+}
+
+void DockRxOpt::on_button8_clicked(void)
+{
+    addDigitToFrequency("8");
+}
+
+void DockRxOpt::on_button9_clicked(void)
+{
+    addDigitToFrequency("9");
+}
+
+void DockRxOpt::on_buttonDot_clicked(void)
+{
+    QString text = ui->labelDirectFrequency->text();
+    if(text.length() > 0 && text.indexOf(".") == -1) {
+        addDigitToFrequency(".");
+    }
+}
+
+void DockRxOpt::on_buttonDelete_clicked(void)
+{
+    QString text = ui->labelDirectFrequency->text();
+    if(text.length() > 0) {
+        text.chop(1);
+        ui->labelDirectFrequency->setText(text);
+        if(text.length() == 0) {
+            ui->buttonGo->setEnabled(false);
+        }
+    }
+}
+
+void DockRxOpt::on_buttonGo_clicked(void)
+{
+    QString text = ui->labelDirectFrequency->text();
+    if(text.length() > 0) {
+        emit frequencySelected(text.toDouble() * frequencyMultiplier);
+        ui->labelDirectFrequency->setText("");
+    }
+}
+
+void DockRxOpt::on_buttonHz_clicked(void)
+{
+    ui->buttonKHz->setChecked(false);
+    ui->buttonMHz->setChecked(false);
+    frequencyMultiplier = 0;
+}
+
+void DockRxOpt::on_buttonKHz_clicked(void)
+{
+    QString text = ui->labelDirectFrequency->text();
+    if(text.toDouble()  * 1000 <= FREQUENCY_MAX) {
+        ui->buttonHz->setChecked(false);
+        ui->buttonMHz->setChecked(false);
+        frequencyMultiplier = 1000;
+    } else {
+        ui->buttonKHz->setChecked(false);
+    }
+}
+
+void DockRxOpt::on_buttonMHz_clicked(void)
+{
+    QString text = ui->labelDirectFrequency->text();
+    if(text.toDouble() * 1000000 <= FREQUENCY_MAX) {
+        ui->buttonHz->setChecked(false);
+        ui->buttonKHz->setChecked(false);
+        frequencyMultiplier = 1000000;
+    } else {
+        ui->buttonMHz->setChecked(false);
+    }
 }
