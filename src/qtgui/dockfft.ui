@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowIcon">
-   <iconset resource="../icons.qrc">
+   <iconset resource="../../resources/icons.qrc">
     <normaloff>:/icons/icons/signal.svg</normaloff>:/icons/icons/signal.svg</iconset>
   </property>
   <property name="toolTip">
@@ -228,9 +228,12 @@
        </layout>
       </item>
       <item row="5" column="0">
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="label_1">
+        <property name="toolTip">
+         <string>The reference level is the level at the top of the FFT plot</string>
+        </property>
         <property name="text">
-         <string>Min dB</string>
+         <string>Ref. level</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -353,7 +356,7 @@
        </widget>
       </item>
       <item row="5" column="1">
-       <widget class="QSlider" name="minimumFftDbSlider">
+       <widget class="QSlider" name="reflevelSlider">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -367,19 +370,19 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Minimum FFT db to graph</string>
+         <string>The reference level is the level at the top of the FFT plot</string>
         </property>
         <property name="minimum">
-         <number>-135</number>
+         <number>-100</number>
         </property>
         <property name="maximum">
-         <number>-50</number>
+         <number>0</number>
         </property>
         <property name="value">
-         <number>-115</number>
+         <number>0</number>
         </property>
         <property name="sliderPosition">
-         <number>-115</number>
+         <number>0</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -432,7 +435,7 @@
       <item row="8" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0,0,0,1">
         <property name="spacing">
-         <number>-1</number>
+         <number>6</number>
         </property>
         <item>
          <spacer name="horizontalSpacer_3">
@@ -604,9 +607,15 @@
        </widget>
       </item>
       <item row="5" column="2">
-       <widget class="QLabel" name="fftMinimumDbLabel">
+       <widget class="QLabel" name="reflevelLabel">
+        <property name="toolTip">
+         <string>The reference level is the level at the top of the FFT plot</string>
+        </property>
+        <property name="statusTip">
+         <string/>
+        </property>
         <property name="text">
-         <string>0</string>
+         <string>0 dB</string>
         </property>
        </widget>
       </item>
@@ -764,8 +773,11 @@
       </item>
       <item row="6" column="0">
        <widget class="QLabel" name="label_2">
+        <property name="toolTip">
+         <string>The range of the FFT plot</string>
+        </property>
         <property name="text">
-         <string>Max dB</string>
+         <string>Range</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -773,21 +785,27 @@
        </widget>
       </item>
       <item row="6" column="1">
-       <widget class="QSlider" name="maximumFftDbSlider">
+       <widget class="QSlider" name="rangeSlider">
         <property name="minimumSize">
          <size>
           <width>0</width>
           <height>22</height>
          </size>
         </property>
+        <property name="toolTip">
+         <string>The range of the FFT plot</string>
+        </property>
         <property name="minimum">
-         <number>-50</number>
+         <number>10</number>
         </property>
         <property name="maximum">
-         <number>0</number>
+         <number>200</number>
+        </property>
+        <property name="value">
+         <number>130</number>
         </property>
         <property name="sliderPosition">
-         <number>-5</number>
+         <number>130</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -795,9 +813,12 @@
        </widget>
       </item>
       <item row="6" column="2">
-       <widget class="QLabel" name="fftMaximumDbLabel">
+       <widget class="QLabel" name="rangeLabel">
+        <property name="toolTip">
+         <string>The range of the FFT plot</string>
+        </property>
         <property name="text">
-         <string>0</string>
+         <string>130 dB</string>
         </property>
        </widget>
       </item>
@@ -811,7 +832,7 @@
       <property name="sizeHint" stdset="0">
        <size>
         <width>20</width>
-        <height>24</height>
+        <height>8</height>
        </size>
       </property>
      </spacer>
@@ -827,7 +848,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../icons.qrc"/>
+  <include location="../../resources/icons.qrc"/>
  </resources>
  <connections/>
 </ui>

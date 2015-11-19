@@ -31,16 +31,31 @@
 #include <QDebug>
 #include <QtGlobal>
 #include <QToolTip>
-
 #include "plotter.h"
 #include "bookmarks.h"
-
 
 //////////////////////////////////////////////////////////////////////
 // Local defines
 //////////////////////////////////////////////////////////////////////
 #define CUR_CUT_DELTA 5		//cursor capture delta in pixels
 
+// dB-axis constraints
+#define REF_LEVEL_MAX   0.f
+#define REF_LEVEL_MIN   -100.f
+#define FFT_RANGE_MIN   10.f
+#define FFT_RANGE_MAX   200.f
+
+
+static inline bool val_is_out_of_range(float val, float min, float max)
+{
+    return ((val < min) || (val > max));
+}
+
+static inline bool out_of_range(float ref, float range)
+{
+    return (val_is_out_of_range(ref, REF_LEVEL_MIN, REF_LEVEL_MAX) ||
+            val_is_out_of_range(range, FFT_RANGE_MIN, FFT_RANGE_MAX));
+}
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -282,19 +297,24 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             float delta_db = delta_px * fabs(m_MindB-m_MaxdB)/(float)m_OverlayPixmap.height();
             m_MindB -= delta_db;
             m_MaxdB -= delta_db;
-            if(m_MaxdB > 0.0) {
-               m_MaxdB = 0.0;
+            if (out_of_range(m_MaxdB, m_MaxdB - m_MindB))
+            {
+                m_MindB += delta_db;
+                m_MaxdB += delta_db;
             }
-            emit fftGraphShifted(delta_db);
-
-            if (m_Running)
-                m_DrawOverlay = true;
             else
-                drawOverlay();
+            {
+                emit fftRangeChanged(m_MaxdB, m_MaxdB - m_MindB);
 
-            m_PeakHoldValid = false;
+                if (m_Running)
+                    m_DrawOverlay = true;
+                else
+                    drawOverlay();
 
-            m_Yzero = pt.y();
+                m_PeakHoldValid = false;
+
+                m_Yzero = pt.y();
+            }
         }
     }
     else if (XAXIS == m_CursorCaptured)
@@ -618,12 +638,15 @@ void CPlotter::wheelEvent(QWheelEvent * event)
         float db_per_pix = db_range / y_range;
         float fixed_db = m_MaxdB - pt.y() * db_per_pix;
 
-        db_range = qBound(1.0f, db_range * zoom_fac, 2000.0f);
-
+        db_range = qBound(FFT_RANGE_MIN, db_range * zoom_fac, FFT_RANGE_MAX);
         m_MaxdB = fixed_db + ratio*db_range;
-        m_MindB = m_MaxdB - db_range;
+        if (m_MaxdB > REF_LEVEL_MAX)
+            m_MaxdB = REF_LEVEL_MAX;
 
+        m_MindB = m_MaxdB - db_range;
         m_PeakHoldValid = false;
+
+        emit fftRangeChanged(m_MaxdB, db_range);
     }
     else if (m_CursorCaptured == XAXIS)
     {
@@ -1024,36 +1047,6 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
     delete [] m_pTranslateTbl;
 }
 
-
-/*! \brief Set upper limit of dB scale. */
-void CPlotter::setMaxDB(const float max)
-{
-    m_MaxdB = max;
-
-    if (m_Running)
-    {
-        m_DrawOverlay = true;
-    }
-    else
-        drawOverlay();
-
-    m_PeakHoldValid = false;
-
-}
-
-/*! \brief Set lower limit of dB scale. */
-void CPlotter::setMinDB(const float min)
-{
-    m_MindB = min;
-
-    if (m_Running)
-        m_DrawOverlay = true;
-    else
-        drawOverlay();
-
-    m_PeakHoldValid = false;
-}
-
 /*! \brief Set limits of dB scale. */
 void CPlotter::setMinMaxDB(float min, float max)
 {
@@ -1066,6 +1059,14 @@ void CPlotter::setMinMaxDB(float min, float max)
         drawOverlay();
 
     m_PeakHoldValid = false;
+}
+
+void CPlotter::setFftRange(float reflevel, float range)
+{
+    if (out_of_range(reflevel, range))
+        return;
+
+    setMinMaxDB(reflevel - range, reflevel);
 }
 
 

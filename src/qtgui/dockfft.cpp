@@ -34,7 +34,8 @@
 #define DEFAULT_FFT_SIZE         8192
 #define DEFAULT_FFT_SPLIT        35
 #define DEFAULT_FFT_AVG          75
-
+#define DEFAULT_FFT_REF_LEVEL    0
+#define DEFAULT_FFT_RANGE        130
 
 DockFft::DockFft(QWidget *parent) :
     QDockWidget(parent),
@@ -194,8 +195,15 @@ void DockFft::saveSettings(QSettings *settings)
     else
         settings->remove("pandapter_fill");
 
-    settings->setValue("maximumFftDb", m_maximumFftDb);
-    settings->setValue("minimumFftDb", m_minimumFftDb);
+    if (ui->reflevelSlider->value() != DEFAULT_FFT_REF_LEVEL)
+        settings->setValue("reference_level", ui->reflevelSlider->value());
+    else
+        settings->remove("reference_level");
+
+    if (ui->rangeSlider->value() != DEFAULT_FFT_RANGE)
+        settings->setValue("fft_range", ui->rangeSlider->value());
+    else
+        settings->remove("fft_range");
 
     settings->endGroup();
 }
@@ -235,31 +243,25 @@ void DockFft::readSettings(QSettings *settings)
     bool_val = settings->value("pandapter_fill", false).toBool();
     ui->fillButton->setChecked(bool_val);
 
-    float value = settings->value("maximumFftDb", DEFAULT_FFT_MAXIMUM_DB).toFloat(&conv_ok);
-    ui->maximumFftDbSlider->setValue((qint32)value);
-    ui->fftMaximumDbLabel->setText(QVariant((qint32)value).toString());
-    emit maximumFftDbChanged(value);
-    value = settings->value("minimumFftDb", DEFAULT_FFT_MINIMUM_DB).toFloat(&conv_ok);
-    ui->minimumFftDbSlider->setValue((qint32)value);
-    ui->fftMinimumDbLabel->setText(QVariant((qint32)value).toString());
-    emit minimumFftDbChanged(value);
+    int ref = settings->value("reference_level", DEFAULT_FFT_REF_LEVEL).toInt(&conv_ok);
+    int range = settings->value("fft_range", DEFAULT_FFT_RANGE).toInt(&conv_ok);
+    setFftRange(ref, range);
+    emit fftRangeChanged(ui->reflevelSlider->value(), ui->rangeSlider->value());
 
     settings->endGroup();
 }
 
-void DockFft::fftDbWasShifted(const float amount)
+void DockFft::setFftRange(float reflevel, float range)
 {
+    ui->reflevelSlider->blockSignals(true);
+    ui->reflevelSlider->setValue((int)reflevel);
+    ui->reflevelSlider->blockSignals(false);
+    ui->reflevelLabel->setText(QString("%1 dB").arg((int)reflevel));
 
-   m_maximumFftDb -= amount;
-   if(m_maximumFftDb > 0.0) {
-      m_maximumFftDb = 0.0;
-   }
-   ui->fftMaximumDbLabel->setText(QVariant((qint32)m_maximumFftDb).toString());
-   ui->maximumFftDbSlider->setValue((qint32)m_maximumFftDb);
-
-   m_minimumFftDb -= amount;
-   ui->fftMinimumDbLabel->setText(QVariant((qint32)m_minimumFftDb).toString());
-   ui->minimumFftDbSlider->setValue((qint32)m_minimumFftDb);
+    ui->rangeSlider->blockSignals(true);
+    ui->rangeSlider->setValue((int)range);
+    ui->rangeSlider->blockSignals(false);
+    ui->rangeLabel->setText(QString("%1 dB").arg((int)range));
 }
 
 /*! \brief FFT size changed. */
@@ -301,20 +303,18 @@ void DockFft::on_fftZoomSlider_valueChanged(int level)
     emit fftZoomChanged((float)level);
 }
 
-/*! \brief maximum dBlevel changed */
-void DockFft::on_maximumFftDbSlider_valueChanged(const int value)
+/*! \brief reference level changed */
+void DockFft::on_reflevelSlider_valueChanged(int value)
 {
-   ui->fftMaximumDbLabel->setText(QVariant(value).toString());
-   m_maximumFftDb = value * 1.0;
-   emit maximumFftDbChanged(m_maximumFftDb);
+    ui->reflevelLabel->setText(QString("%1 dB").arg(value));
+    emit fftRangeChanged(value, ui->rangeSlider->value());
 }
 
-/*! \brief minimum dBlevel changed */
-void DockFft::on_minimumFftDbSlider_valueChanged(const int value)
+/*! \brief FFT plot range changed */
+void DockFft::on_rangeSlider_valueChanged(int value)
 {
-   ui->fftMinimumDbLabel->setText(QVariant(value).toString());
-   m_minimumFftDb = value * 1.0;
-   emit minimumFftDbChanged(m_minimumFftDb);
+    ui->rangeLabel->setText(QString("%1 dB").arg(value));
+    emit fftRangeChanged(ui->reflevelSlider->value(), value);
 }
 
 void DockFft::on_resetButton_clicked(void)

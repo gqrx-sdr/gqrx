@@ -121,7 +121,7 @@ signals:
     void newLowCutFreq(int f);
     void newHighCutFreq(int f);
     void newFilterFreq(int low, int high);  /* substitute for NewLow / NewHigh */
-    void fftGraphShifted(const float amount); /* the FFT graph was shifted by this amount.*/
+    void fftRangeChanged(float reflevel, float range);
 
 public slots:
     // zoom functions
@@ -133,9 +133,8 @@ public slots:
     // other FFT slots
     void setFftPlotColor(const QColor color);
     void setFftFill(bool enabled);
-    void setMaxDB(const float max);
-    void setMinDB(const float min);
     void setPeakHold(bool enabled);
+    void setFftRange(float reflevel, float range);
     void setPeakDetection(bool enabled, float c);
     void updateOverlay();
 
