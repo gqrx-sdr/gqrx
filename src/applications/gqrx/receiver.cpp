@@ -300,6 +300,15 @@ void receiver::set_antenna(const std::string &antenna)
  */
 double receiver::set_input_rate(double rate)
 {
+    double current_rate = src->get_sample_rate();
+    if (rate == current_rate ||
+            std::abs(rate - current_rate) < std::abs(std::min(rate, current_rate))
+            * std::numeric_limits<double>::epsilon())
+    {
+        // nothing changed
+        return rate;
+    }
+
     tb->lock();
     d_input_rate = src->set_sample_rate(rate);
 
