@@ -5,7 +5,7 @@
        NEW: FM RDS decoder using gr-rds.
        NEW: Frequency tooltips on the FFT area (disabled on Mac).
        NEW: Filter shape selector (soft, normal, sharp).
-       NEW: Zoom slider to aid zooming on the frequency axis.
+       NEW: Slider to aid zooming on the frequency and dB axes.
        NEW: RFSpace Cloud-IQ support.
        NEW: OIRT stereo decoder (Daniil Cherednik).
        NEW: Input decimator.
