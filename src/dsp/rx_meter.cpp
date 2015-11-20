@@ -65,7 +65,7 @@ int rx_meter_c::work (int noutput_items,
     if (d_num == 0)
     {
         // first sample after a reset
-        d_level = in[0].real()*in[0].real() + in[0].imag()*in[0].imag();
+        d_level = std::norm(in[0]);
         d_sum = d_level;
         d_sumsq = d_level*d_level;
         i = 1;
@@ -78,14 +78,14 @@ int rx_meter_c::work (int noutput_items,
     {
     case DETECTOR_TYPE_SAMPLE:
         // just take the first sample
-        d_level = in[0].real()*in[0].real() + in[0].imag()*in[0].imag();
+        d_level = std::norm(in[0]);
         break;
 
     case DETECTOR_TYPE_MIN:
         // minimum peak
         while (i < noutput_items)
         {
-            pwr = in[i].real()*in[i].real() + in[i].imag()*in[i].imag();
+	    pwr = std::norm(in[i]);
             if (pwr < d_level)
                 d_level = pwr;
             i++;
@@ -96,7 +96,7 @@ int rx_meter_c::work (int noutput_items,
         // maximum peak
         while (i < noutput_items)
         {
-            pwr = in[i].real()*in[i].real() + in[i].imag()*in[i].imag();
+            pwr = std::norm(in[i]);
             if (pwr > d_level)
                 d_level = pwr;
             i++;
@@ -107,7 +107,7 @@ int rx_meter_c::work (int noutput_items,
         // mean value
         while (i < noutput_items)
         {
-            pwr = in[i].real()*in[i].real() + in[i].imag()*in[i].imag();
+            pwr = std::norm(in[i]);
             d_sum += pwr;
             i++;
         }
@@ -118,7 +118,7 @@ int rx_meter_c::work (int noutput_items,
         // root mean square
         while (i < noutput_items)
         {
-            pwr = in[i].real()*in[i].real() + in[i].imag()*in[i].imag();
+            pwr = std::norm(in[i]);
             d_sumsq += pwr*pwr;
             i++;
         }

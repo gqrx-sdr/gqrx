@@ -307,13 +307,9 @@ int Decimator::CHalfBand11TapDecimateBy2::DecBy2(int InLength,
 
     for(i = 0; i < (InLength - 11 - 6) / 2; i++)
 	{
-        (*pOut).real( H0 * pIn[0].real() + H2 * pIn[2].real()
-                + H4 * pIn[4].real() + H5 * pIn[5].real() + H6 * pIn[6].real()
-                + H8 * pIn[8].real() + H10 * pIn[10].real());
-        (*pOut++).imag( H0 * pIn[0].imag() + H2 * pIn[2].imag()
-                + H4 * pIn[4].imag() + H5 * pIn[5].imag() + H6 * pIn[6].imag()
-                + H8 * pIn[8].imag() + H10 * pIn[10].imag());
-		pIn += 2;
+	  *pOut++ = (H0 * pIn[0]) + (H2 * pIn[2]) + (H4 * pIn[4]) +
+	    (H5 * pIn[5]) + (H6 * pIn[6]) + (H8 * pIn[8]) + (H10 * pIn[10]);
+	  pIn += 2;
 	}
 
     // copy first outputs back into output array so outbuf can be same as inbuf
