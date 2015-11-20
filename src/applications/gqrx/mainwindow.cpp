@@ -1305,7 +1305,7 @@ void MainWindow::iqFftTimeout()
         }
 
         /* calculate power in dBFS */
-        pwr = pwr_scale * (pt.imag() * pt.imag() + pt.real() * pt.real());
+        pwr = pwr_scale * std::norm(pt);
         d_realFftData[i] = 10.0 * log10f(pwr + 1.0e-20);
 
         /* FFT averaging */
@@ -1353,7 +1353,7 @@ void MainWindow::audioFftTimeout()
         }
 
         /* calculate power in dBFS */
-        pwr = pwr_scale * (pt.imag() * pt.imag() + pt.real() * pt.real());
+        pwr = pwr_scale * std::norm(pt);
         d_realFftData[i] = 10.0 * log10f(pwr + 1.0e-20);
     }
 
