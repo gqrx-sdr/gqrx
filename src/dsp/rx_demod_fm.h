@@ -25,9 +25,7 @@
 
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/analog/quadrature_demod_cf.h>
-#include <gnuradio/filter/iir_filter_ffd.h>
-#include <gnuradio/filter/pfb_arb_resampler_ccf.h>
-#include <vector>
+#include <gnuradio/filter/single_pole_iir_filter_ff.h>
 
 
 class rx_demod_fm;
@@ -69,22 +67,14 @@ public:
 private:
     /* GR blocks */
     gr::analog::quadrature_demod_cf::sptr   d_quad;      /*! The quadrature demodulator block. */
-    gr::filter::iir_filter_ffd::sptr        d_deemph;    /*! De-emphasis IIR filter. */
-    gr::filter::pfb_arb_resampler_ccf::sptr d_resampler; /*! PFB resampler. */
-    std::vector<float>            d_taps;      /*! Taps for the PFB resampler. */
+    gr::filter::single_pole_iir_filter_ff::sptr     d_deemph;   /*! De-emphasis IIR filter. */
 
     /* other parameters */
     float  d_quad_rate;     /*! Quadrature rate. */
     float  d_audio_rate;    /*! Audio rate. */
     float  d_max_dev;       /*! Max deviation. */
     double d_tau;           /*! De-emphasis time constant. */
-
-    /* De-emph IIR filter taps */
-    std::vector<double> d_fftaps;  /*! Feed forward taps. */
-    std::vector<double> d_fbtaps;  /*! Feed back taps. */
-
-    void calculate_iir_taps(double tau);
-
+    double d_alpha;         /*! De-emphasis alpha. */
 };
 
 
