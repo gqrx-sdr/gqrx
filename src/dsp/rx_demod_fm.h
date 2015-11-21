@@ -27,12 +27,8 @@
 #include <gnuradio/analog/quadrature_demod_cf.h>
 #include <gnuradio/filter/single_pole_iir_filter_ff.h>
 
-
 class rx_demod_fm;
-
-
 typedef boost::shared_ptr<rx_demod_fm> rx_demod_fm_sptr;
-
 
 /*! \brief Return a shared_ptr to a new instance of rx_demod_fm.
  *  \param quad_rate The input sample rate.
@@ -45,7 +41,6 @@ typedef boost::shared_ptr<rx_demod_fm> rx_demod_fm_sptr;
  * make_rx_dmod_fm is the public interface for creating new instances.
  */
 rx_demod_fm_sptr make_rx_demod_fm(float quad_rate, float audio_rate, float max_dev=5000.0, double tau=50.0e-6);
-
 
 /*! \brief FM demodulator.
  *  \ingroup DSP
@@ -76,6 +71,5 @@ private:
     double d_tau;           /*! De-emphasis time constant. */
     double d_alpha;         /*! De-emphasis alpha. */
 };
-
 
 #endif // RX_DEMOD_FM_H

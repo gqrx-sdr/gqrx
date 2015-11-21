@@ -33,13 +33,10 @@ rx_demod_fm_sptr make_rx_demod_fm(float quad_rate, float audio_rate, float max_d
     return gnuradio::get_initial_sptr(new rx_demod_fm(quad_rate, audio_rate, max_dev, tau));
 }
 
-
 static const int MIN_IN = 1;  /* Mininum number of input streams. */
 static const int MAX_IN = 1;  /* Maximum number of input streams. */
 static const int MIN_OUT = 1; /* Minimum number of output streams. */
 static const int MAX_OUT = 1; /* Maximum number of output streams. */
-
-
 
 rx_demod_fm::rx_demod_fm(float quad_rate, float audio_rate, float max_dev, double tau)
     : gr::hier_block2 ("rx_demod_fm",
@@ -71,12 +68,9 @@ rx_demod_fm::rx_demod_fm(float quad_rate, float audio_rate, float max_dev, doubl
     connect(d_deemph, 0, self(), 0);
 }
 
-
 rx_demod_fm::~rx_demod_fm ()
 {
-
 }
-
 
 /*! \brief Set maximum FM deviation.
  *  \param max_dev The new mximum deviation in Hz
@@ -98,9 +92,7 @@ void rx_demod_fm::set_max_dev(float max_dev)
 
     gain = d_quad_rate / (2.0 * M_PI * max_dev);
     d_quad->set_gain(gain);
-
 }
-
 
 /*! \brief Set FM de-emphasis time constant.
  *  \param tau The new time costant.
