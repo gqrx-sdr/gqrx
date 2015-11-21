@@ -17,6 +17,7 @@
      FIXED: LNB LO value not updated in I/O config dialog.
      FIXED: Initial gain of rtlsdr devices is no longer 0 dB.
      FIXED: DSP freeze when setting FM de-emphasis time constant to 0.
+     FIXED: Use correct main category in desktop entry file.
   IMPROVED: Support up to 1M point FFT.
   IMPROVED: Fractional PPM correction.
   IMPROVED: AGC peformance.

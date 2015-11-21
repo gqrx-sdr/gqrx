@@ -9,5 +9,5 @@ Comment[ru]=Приемник для программно-определенно�
 Exec=gqrx
 Terminal=false
 Icon=gqrx
-Categories=Utility;HamRadio;
+Categories=Network;HamRadio;
 Keywords=SDR;Radio;HAM;
