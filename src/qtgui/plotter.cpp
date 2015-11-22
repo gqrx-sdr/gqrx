@@ -1102,8 +1102,8 @@ void CPlotter::drawOverlay()
     //m_OverlayPixmap.fill(Qt::black);
     // fill background with gradient
     QLinearGradient gradient(0, 0, 0 ,h);
-    gradient.setColorAt(0, QColor(0x20,0x20,0x20,0xFF));
-    gradient.setColorAt(1, QColor(0x4F,0x4F,0x4F,0xFF));
+    gradient.setColorAt(0, QColor(0x2F,0x2F,0x2F,0xFF));
+    gradient.setColorAt(1, QColor(0x00,0x00,0x00,0xFF));
     painter.setBrush(gradient);
     painter.drawRect(0, 0, w, h);
 
