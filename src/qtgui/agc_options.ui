@@ -17,7 +17,7 @@
    <string>AGC Settings</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../icons.qrc">
+   <iconset resource="../../resources/icons.qrc">
     <normaloff>:/icons/icons/signal.svg</normaloff>:/icons/icons/signal.svg</iconset>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
@@ -273,7 +273,7 @@
   <tabstop>hangButton</tabstop>
  </tabstops>
  <resources>
-  <include location="../icons.qrc"/>
+  <include location="../../resources/icons.qrc"/>
  </resources>
  <connections/>
 </ui>

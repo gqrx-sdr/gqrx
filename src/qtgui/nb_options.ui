@@ -14,7 +14,7 @@
    <string>Noise blanker options</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../icons.qrc">
+   <iconset resource="../../resources/icons.qrc">
     <normaloff>:/icons/icons/signal.svg</normaloff>:/icons/icons/signal.svg</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -76,7 +76,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../icons.qrc"/>
+  <include location="../../resources/icons.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -26,7 +26,7 @@
    <string>I/Q recording and replay tool</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../icons.qrc">
+   <iconset resource="../../resources/icons.qrc">
     <normaloff>:/icons/icons/signal.svg</normaloff>:/icons/icons/signal.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -109,7 +109,7 @@
         <string> &amp;Plot</string>
        </property>
        <property name="icon">
-        <iconset resource="../icons.qrc">
+        <iconset resource="../../resources/icons.qrc">
          <normaloff>:/icons/icons/signal.svg</normaloff>:/icons/icons/signal.svg</iconset>
        </property>
        <property name="checkable">
@@ -144,7 +144,7 @@
         <string>&amp;Rec</string>
        </property>
        <property name="icon">
-        <iconset resource="../icons.qrc">
+        <iconset resource="../../resources/icons.qrc">
          <normaloff>:/icons/icons/record.svg</normaloff>:/icons/icons/record.svg</iconset>
        </property>
        <property name="checkable">
@@ -176,7 +176,7 @@
         <string>&amp;Play</string>
        </property>
        <property name="icon">
-        <iconset resource="../icons.qrc">
+        <iconset resource="../../resources/icons.qrc">
          <normaloff>:/icons/icons/play.svg</normaloff>:/icons/icons/play.svg</iconset>
        </property>
        <property name="checkable">
@@ -263,7 +263,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../icons.qrc"/>
+  <include location="../../resources/icons.qrc"/>
  </resources>
  <connections/>
 </ui>

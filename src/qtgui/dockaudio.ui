@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowIcon">
-   <iconset resource="../icons.qrc">
+   <iconset resource="../../resources/icons.qrc">
     <normaloff>:/icons/icons/signal.svg</normaloff>:/icons/icons/signal.svg</iconset>
   </property>
   <property name="allowedAreas">
@@ -185,7 +185,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../icons.qrc">
+         <iconset resource="../../resources/icons.qrc">
           <normaloff>:/icons/icons/tangeo-network-idle.svg</normaloff>:/icons/icons/tangeo-network-idle.svg</iconset>
         </property>
         <property name="iconSize">
@@ -220,7 +220,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../icons.qrc">
+         <iconset resource="../../resources/icons.qrc">
           <normaloff>:/icons/icons/record.svg</normaloff>:/icons/icons/record.svg</iconset>
         </property>
         <property name="iconSize">
@@ -264,7 +264,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../icons.qrc">
+         <iconset resource="../../resources/icons.qrc">
           <normaloff>:/icons/icons/play.svg</normaloff>:/icons/icons/play.svg</iconset>
         </property>
         <property name="iconSize">
@@ -321,7 +321,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../icons.qrc">
+         <iconset resource="../../resources/icons.qrc">
           <normaloff>:/icons/icons/settings.svg</normaloff>:/icons/icons/settings.svg</iconset>
         </property>
         <property name="iconSize">
@@ -378,7 +378,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../icons.qrc"/>
+  <include location="../../resources/icons.qrc"/>
  </resources>
  <connections/>
 </ui>

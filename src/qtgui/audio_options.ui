@@ -14,7 +14,7 @@
    <string>Audio options</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../icons.qrc">
+   <iconset resource="../../resources/icons.qrc">
     <normaloff>:/icons/icons/audio-card.svg</normaloff>:/icons/icons/audio-card.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -164,7 +164,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../icons.qrc"/>
+  <include location="../../resources/icons.qrc"/>
  </resources>
  <connections/>
 </ui>

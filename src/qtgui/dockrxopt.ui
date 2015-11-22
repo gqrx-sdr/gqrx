@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>362</width>
-    <height>473</height>
+    <height>350</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -29,7 +29,7 @@
    </size>
   </property>
   <property name="windowIcon">
-   <iconset resource="../icons.qrc">
+   <iconset resource="../../resources/icons.qrc">
     <normaloff>:/icons/icons/signal.svg</normaloff>:/icons/icons/signal.svg</iconset>
   </property>
   <property name="allowedAreas">
@@ -251,7 +251,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../icons.qrc">
+         <iconset resource="../../resources/icons.qrc">
           <normaloff>:/icons/icons/settings.svg</normaloff>:/icons/icons/settings.svg</iconset>
         </property>
         <property name="iconSize">
@@ -435,7 +435,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../icons.qrc">
+         <iconset resource="../../resources/icons.qrc">
           <normaloff>:/icons/icons/settings.svg</normaloff>:/icons/icons/settings.svg</iconset>
         </property>
         <property name="iconSize">
@@ -467,7 +467,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
          <string>Noise blanker options</string>
         </property>
         <property name="icon">
-         <iconset resource="../icons.qrc">
+         <iconset resource="../../resources/icons.qrc">
           <normaloff>:/icons/icons/settings.svg</normaloff>:/icons/icons/settings.svg</iconset>
         </property>
        </widget>
@@ -499,7 +499,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../icons.qrc"/>
+  <include location="../../resources/icons.qrc"/>
  </resources>
  <connections/>
 </ui>

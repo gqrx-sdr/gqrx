@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowIcon">
-   <iconset resource="../icons.qrc">
+   <iconset resource="../../resources/icons.qrc">
     <normaloff>:/icons/icons/flash.svg</normaloff>:/icons/icons/flash.svg</iconset>
   </property>
   <property name="floating">
@@ -231,7 +231,7 @@
   </widget>
  </widget>
  <resources>
-  <include location="../icons.qrc"/>
+  <include location="../../resources/icons.qrc"/>
  </resources>
  <connections/>
 </ui>
