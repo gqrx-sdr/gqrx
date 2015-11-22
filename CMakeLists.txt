@@ -29,7 +29,7 @@ string(TOUPPER ${BUILDTYPE} BUILDTYPE)
 add_definitions(-D${BUILDTYPE})
 
 # We have some custom .cmake scripts not in the official distribution.
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMakeModules)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
 
 # Add valgrind build options if necessary
 IF(${CMAKE_BUILD_TYPE} MATCHES "Valgrind")
@@ -125,3 +125,13 @@ add_subdirectory(src)
 # enable testing - must be in the top level CMakeLists.txt file
 # enable_testing()
 
+
+# uninstall target
+# https://cmake.org/Wiki/CMake_FAQ#Can_I_do_.22make_uninstall.22_with_CMake.3F
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY)
+add_custom_target(uninstall
+    ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
+)
