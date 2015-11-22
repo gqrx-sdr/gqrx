@@ -53,6 +53,10 @@
 #define SEPRATIO_N 100  //separation rectangle size ratio numerator times 100
 #define SEPRATIO_D 3    //separation rectangle size ratio denominator
 
+#define STATUS_TIP \
+    "Scroll or left-click to increase/decrease digit. " \
+    "Right-click to clear digits."
+
 /////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 /////////////////////////////////////////////////////////////////////
@@ -76,6 +80,8 @@ CFreqCtrl::CFreqCtrl(QWidget *parent) :
     m_ResetLowerDigits = false;
     m_UnitsFont = QFont("Arial", 12, QFont::Normal);
     m_DigitFont = QFont("Arial", 12, QFont::Normal);
+
+    setStatusTip(tr(STATUS_TIP));
 }
 
 CFreqCtrl::~CFreqCtrl()

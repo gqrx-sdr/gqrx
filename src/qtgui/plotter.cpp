@@ -57,6 +57,11 @@ static inline bool out_of_range(float ref, float range)
             val_is_out_of_range(range, FFT_RANGE_MIN, FFT_RANGE_MAX));
 }
 
+#define STATUS_TIP \
+    "Click, drag or scroll on spectrum to tune. " \
+    "Drag and scroll X and Y axes for pan and zoom. " \
+    "Drag filter edges to adjust filter."
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -73,6 +78,7 @@ CPlotter::CPlotter(QWidget *parent) :
     setMouseTracking(true);
 
     setTooltipsEnabled(false);
+    setStatusTip(tr(STATUS_TIP));
 
     // default waterfall color scheme
     for (int i = 0; i < 256; i++)
