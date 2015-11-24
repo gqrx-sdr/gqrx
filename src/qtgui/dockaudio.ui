@@ -68,7 +68,7 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="spacing">
-       <number>5</number>
+       <number>-1</number>
       </property>
       <item>
        <widget class="QLabel" name="audioGainLabel">
