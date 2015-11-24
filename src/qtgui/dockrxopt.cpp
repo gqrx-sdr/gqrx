@@ -37,19 +37,20 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    if(ModulationStrings.size()==0)
-    {   // Keep in sync with rxopt_mode_idx
+    if (ModulationStrings.size() == 0)
+    {
+        // Keep in sync with rxopt_mode_idx
         ModulationStrings.append("Demod Off");
         ModulationStrings.append("Raw I/Q");
         ModulationStrings.append("AM");
-        ModulationStrings.append("Narrow FM");
-        ModulationStrings.append("WFM (mono)");
-        ModulationStrings.append("WFM (stereo)");
+        ModulationStrings.append("NFM");
+        ModulationStrings.append("WFM mono");
+        ModulationStrings.append("WFM stereo");
         ModulationStrings.append("LSB");
         ModulationStrings.append("USB");
         ModulationStrings.append("CW-L");
         ModulationStrings.append("CW-U");
-        ModulationStrings.append("WFM (stereo oirt)");
+        ModulationStrings.append("WFM oirt");
     }
     ui->modeSelector->addItems(ModulationStrings);
 
