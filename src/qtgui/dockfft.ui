@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>292</width>
-    <height>388</height>
+    <width>298</width>
+    <height>339</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>292</width>
-    <height>388</height>
+    <width>298</width>
+    <height>339</height>
    </size>
   </property>
   <property name="windowIcon">
@@ -38,11 +38,14 @@
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <layout class="QGridLayout" name="gridLayout">
+     <layout class="QGridLayout" name="gridLayout" columnstretch="0,1,0">
+      <property name="verticalSpacing">
+       <number>5</number>
+      </property>
       <item row="1" column="1">
        <widget class="QComboBox" name="fftRateComboBox">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -119,7 +122,7 @@
       <item row="2" column="0">
        <widget class="QLabel" name="fftAvgLabel">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -136,20 +139,19 @@
        </widget>
       </item>
       <item row="4" column="1">
-       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,0,0,1">
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>5</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0">
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <property name="sizeConstraint">
+         <enum>QLayout::SetDefaultConstraint</enum>
+        </property>
+        <property name="topMargin">
+         <number>1</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QPushButton" name="peakDetectionButton">
           <property name="sizePolicy">
@@ -160,21 +162,21 @@
           </property>
           <property name="minimumSize">
            <size>
-            <width>28</width>
-            <height>28</height>
+            <width>0</width>
+            <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>32</width>
-            <height>32</height>
+            <width>16777215</width>
+            <height>16777215</height>
            </size>
           </property>
           <property name="toolTip">
            <string>Enable peak detection in FFT</string>
           </property>
           <property name="text">
-           <string>D</string>
+           <string>DEL</string>
           </property>
           <property name="checkable">
            <bool>true</bool>
@@ -191,39 +193,26 @@
           </property>
           <property name="minimumSize">
            <size>
-            <width>28</width>
-            <height>28</height>
+            <width>0</width>
+            <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>32</width>
-            <height>32</height>
+            <width>16777215</width>
+            <height>16777215</height>
            </size>
           </property>
           <property name="toolTip">
            <string>Toggle peak hold in FFT</string>
           </property>
           <property name="text">
-           <string>H</string>
+           <string>Hold</string>
           </property>
           <property name="checkable">
            <bool>true</bool>
           </property>
          </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>5</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </item>
@@ -256,7 +245,7 @@
          <bool>true</bool>
         </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -358,7 +347,7 @@
       <item row="5" column="1">
        <widget class="QSlider" name="reflevelSlider">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -395,7 +384,7 @@
       <item row="7" column="1">
        <widget class="QSlider" name="fftZoomSlider">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -433,23 +422,10 @@
        </widget>
       </item>
       <item row="8" column="1">
-       <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0,0,0,1">
+       <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0">
         <property name="spacing">
-         <number>6</number>
+         <number>2</number>
         </property>
-        <item>
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>5</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
         <item>
          <widget class="QPushButton" name="resetButton">
           <property name="sizePolicy">
@@ -460,14 +436,14 @@
           </property>
           <property name="minimumSize">
            <size>
-            <width>28</width>
-            <height>28</height>
+            <width>0</width>
+            <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>32</width>
-            <height>32</height>
+            <width>16777215</width>
+            <height>16777215</height>
            </size>
           </property>
           <property name="toolTip">
@@ -488,14 +464,14 @@
           </property>
           <property name="minimumSize">
            <size>
-            <width>28</width>
-            <height>28</height>
+            <width>0</width>
+            <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>32</width>
-            <height>32</height>
+            <width>16777215</width>
+            <height>16777215</height>
            </size>
           </property>
           <property name="toolTip">
@@ -516,14 +492,14 @@
           </property>
           <property name="minimumSize">
            <size>
-            <width>28</width>
-            <height>28</height>
+            <width>0</width>
+            <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>32</width>
-            <height>32</height>
+            <width>16777215</width>
+            <height>16777215</height>
            </size>
           </property>
           <property name="toolTip">
@@ -533,19 +509,6 @@
            <string>D</string>
           </property>
          </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>5</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </item>
@@ -569,21 +532,21 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>28</width>
-          <height>28</height>
+          <width>0</width>
+          <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>32</width>
-          <height>32</height>
+          <width>16777215</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="toolTip">
          <string>Fill the area below the FFT plot with a gradient</string>
         </property>
         <property name="text">
-         <string>F</string>
+         <string>Fill</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -622,7 +585,7 @@
       <item row="3" column="0">
        <widget class="QLabel" name="pandLabel">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -657,7 +620,7 @@
       <item row="3" column="1">
        <widget class="QSlider" name="fftSplitSlider">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -701,7 +664,7 @@
       <item row="2" column="1">
        <widget class="QSlider" name="fftAvgSlider">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -786,6 +749,12 @@
       </item>
       <item row="6" column="1">
        <widget class="QSlider" name="rangeSlider">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
           <width>0</width>
