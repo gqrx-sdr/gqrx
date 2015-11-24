@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>250</width>
-    <height>215</height>
+    <width>245</width>
+    <height>238</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>250</width>
-    <height>215</height>
+    <width>245</width>
+    <height>238</height>
    </size>
   </property>
   <property name="windowIcon">
@@ -40,21 +40,6 @@
     </sizepolicy>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
-    <property name="spacing">
-     <number>5</number>
-    </property>
-    <property name="leftMargin">
-     <number>5</number>
-    </property>
-    <property name="topMargin">
-     <number>5</number>
-    </property>
-    <property name="rightMargin">
-     <number>5</number>
-    </property>
-    <property name="bottomMargin">
-     <number>5</number>
-    </property>
     <item>
      <widget class="CPlotter" name="audioSpectrum">
       <property name="sizePolicy">
@@ -160,39 +145,20 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="audioRecLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
       <property name="spacing">
-       <number>5</number>
+       <number>0</number>
       </property>
       <item>
        <widget class="QPushButton" name="audioStreamButton">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>28</width>
-          <height>28</height>
-         </size>
-        </property>
         <property name="toolTip">
-         <string>Stream audio over UDP</string>
+         <string>Stream raw audio over UDP</string>
+        </property>
+        <property name="statusTip">
+         <string>Stream raw audio over UDP</string>
         </property>
         <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../../resources/icons.qrc">
-          <normaloff>:/icons/icons/tangeo-network-idle.svg</normaloff>:/icons/icons/tangeo-network-idle.svg</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>16</width>
-          <height>16</height>
-         </size>
+         <string>UDP</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -202,26 +168,25 @@
       <item>
        <widget class="QPushButton" name="audioRecButton">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
         <property name="maximumSize">
          <size>
-          <width>28</width>
-          <height>28</height>
+          <width>16777215</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="toolTip">
          <string>Record audio</string>
         </property>
-        <property name="text">
-         <string/>
+        <property name="statusTip">
+         <string>Record audio</string>
         </property>
-        <property name="icon">
-         <iconset resource="../../resources/icons.qrc">
-          <normaloff>:/icons/icons/record.svg</normaloff>:/icons/icons/record.svg</iconset>
+        <property name="text">
+         <string>Rec</string>
         </property>
         <property name="iconSize">
          <size>
@@ -240,7 +205,7 @@
          <bool>false</bool>
         </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -253,19 +218,18 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>28</width>
-          <height>28</height>
+          <width>16777215</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="toolTip">
          <string>Playback previously recorded audio</string>
         </property>
-        <property name="text">
-         <string/>
+        <property name="statusTip">
+         <string>Playback previously recorded audio</string>
         </property>
-        <property name="icon">
-         <iconset resource="../../resources/icons.qrc">
-          <normaloff>:/icons/icons/play.svg</normaloff>:/icons/icons/play.svg</iconset>
+        <property name="text">
+         <string>Play</string>
         </property>
         <property name="iconSize">
          <size>
@@ -279,27 +243,14 @@
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
        <widget class="QPushButton" name="audioConfButton">
         <property name="enabled">
          <bool>true</bool>
         </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>32</horstretch>
-          <verstretch>32</verstretch>
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
          </sizepolicy>
         </property>
         <property name="minimumSize">
@@ -310,19 +261,18 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>28</width>
-          <height>28</height>
+          <width>16777215</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="toolTip">
          <string>Audio settings</string>
         </property>
-        <property name="text">
-         <string/>
+        <property name="statusTip">
+         <string>Audio settings</string>
         </property>
-        <property name="icon">
-         <iconset resource="../../resources/icons.qrc">
-          <normaloff>:/icons/icons/settings.svg</normaloff>:/icons/icons/settings.svg</iconset>
+        <property name="text">
+         <string>...</string>
         </property>
         <property name="iconSize">
          <size>
