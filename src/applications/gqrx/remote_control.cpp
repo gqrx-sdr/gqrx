@@ -32,7 +32,7 @@ RemoteControl::RemoteControl(QObject *parent) :
     rc_freq = 0;
     rc_filter_offset = 0;
     bw_half = 740e3;
-
+    rc_mode = 0;
     signal_level = -200.0;
 
     rc_port = 7356;
