@@ -53,7 +53,8 @@ pa_sink::pa_sink(const string device_name, int audio_rate,
         gr::io_signature::make (0, 0, 0)),
     d_stream_name(stream_name),
     d_app_name(app_name),
-    d_auto_flush(300)
+    d_auto_flush(300),
+    d_last_flush(0)
 {
     int error;
 
