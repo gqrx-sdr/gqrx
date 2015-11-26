@@ -183,8 +183,6 @@ QString BookmarksTagList::getSelectedTagsAsString()
 
 void BookmarksTagList::ShowContextMenu(const QPoint& pos)
 {
-    QModelIndex index = indexAt(pos);
-    //printf("Show Context Menu %d\n", index.row());
     QMenu* menu=new QMenu(this);
 
     // Rename currently does not work.
