@@ -24,6 +24,8 @@
 #include <iostream>
 #include <unistd.h>
 
+#include <iostream>
+
 #include <gnuradio/blocks/multiply_const_ff.h>
 #include <gnuradio/prefs.h>
 #include <gnuradio/top_block.h>
@@ -300,14 +302,13 @@ void receiver::set_antenna(const std::string &antenna)
  */
 double receiver::set_input_rate(double rate)
 {
-    double current_rate = src->get_sample_rate();
-    if (rate == current_rate ||
+    double  current_rate;
+    bool    rate_has_changed;
+
+    current_rate = src->get_sample_rate();
+    rate_has_changed = !(rate == current_rate ||
             std::abs(rate - current_rate) < std::abs(std::min(rate, current_rate))
-            * std::numeric_limits<double>::epsilon())
-    {
-        // nothing changed
-        return rate;
-    }
+            * std::numeric_limits<double>::epsilon());
 
     tb->lock();
     d_input_rate = src->set_sample_rate(rate);
@@ -315,14 +316,15 @@ double receiver::set_input_rate(double rate)
     if (d_input_rate == 0)
     {
         // This can be the case when no device is attached and gr-osmosdr
-        // puts in a null_source with rate 100 ksps.
-        // ...
-        // Or with some over the top fucked up rtl dongles that appear to work
-        // but return an error here. So we just ignore it.
-        std::cerr << std::endl;
-        std::cerr << "Failed to set RX input rate to " << rate << std::endl;
-        std::cerr << "Your device may not be working properly." << std::endl;
-        std::cerr << std::endl;
+        // puts in a null_source with rate 100 ksps or if the rate has not
+        // changed
+        if (rate_has_changed)
+        {
+            std::cerr << std::endl;
+            std::cerr << "Failed to set RX input rate to " << rate << std::endl;
+            std::cerr << "Your device may not be working properly." << std::endl;
+            std::cerr << std::endl;
+        }
         d_input_rate = rate;
     }
 
