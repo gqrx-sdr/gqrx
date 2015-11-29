@@ -791,6 +791,26 @@
         </item>
        </layout>
       </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="fftOvrLabel">
+        <property name="toolTip">
+         <string>FFT buffer overlap betwen two consecutive FFT calculations.</string>
+        </property>
+        <property name="text">
+         <string>Overlap: 0%</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="fftRbwLabel">
+        <property name="toolTip">
+         <string>Resolution bandwidth</string>
+        </property>
+        <property name="text">
+         <string>RBW: 0 kHz</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>

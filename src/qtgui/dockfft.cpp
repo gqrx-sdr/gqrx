@@ -27,7 +27,6 @@
 #include "dockfft.h"
 #include "ui_dockfft.h"
 
-
 #define DEFAULT_FFT_MAXIMUM_DB   -0.0
 #define DEFAULT_FFT_MINIMUM_DB   -135.0
 #define DEFAULT_FFT_RATE         25
@@ -55,6 +54,8 @@ DockFft::DockFft(QWidget *parent) :
 #endif
 #endif
 
+    m_sample_rate = 0.f;
+
     // Add predefined gqrx colors to chooser.
     ui->colorPicker->insertColor(QColor(0xFF,0xFF,0xFF,0xFF), "White");
     ui->colorPicker->insertColor(QColor(0xFA,0xFA,0x7F,0xFF), "Yellow");
@@ -63,7 +64,6 @@ DockFft::DockFft(QWidget *parent) :
     ui->colorPicker->insertColor(QColor(0xB7,0xE0,0xFF,0xFF), "Blue");
     ui->colorPicker->insertColor(QColor(0x7F,0xFA,0xFA,0xFF), "Cyan");
 }
-
 DockFft::~DockFft()
 {
     delete ui;
@@ -106,6 +106,7 @@ int DockFft::setFftRate(int fft_rate)
     if(idx != -1)
         ui->fftRateComboBox->setCurrentIndex(idx);
 
+    updateInfoLabels();
     return fftRate();
 }
 
@@ -124,7 +125,17 @@ int DockFft::setFftSize(int fft_size)
     if(idx != -1)
         ui->fftSizeComboBox->setCurrentIndex(idx);
 
+    updateInfoLabels();
     return fftSize();
+}
+
+void DockFft::setSampleRate(float sample_rate)
+{
+    if (sample_rate < 0.1f)
+        return;
+
+    m_sample_rate = sample_rate;
+    updateInfoLabels();
 }
 
 /*! \brief Get current FFT rate setting.
@@ -269,6 +280,7 @@ void DockFft::on_fftSizeComboBox_currentIndexChanged(const QString &text)
 {
     int value = text.toInt();
     emit fftSizeChanged(value);
+    updateInfoLabels();
 }
 
 /*! \brief FFT rate changed. */
@@ -278,6 +290,7 @@ void DockFft::on_fftRateComboBox_currentIndexChanged(const QString & text)
     Q_UNUSED(text);
 
     emit fftRateChanged(fps);
+    updateInfoLabels();
 }
 
 /*! \brief Split between waterfall and pandapter changed.
@@ -354,4 +367,37 @@ void DockFft::on_peakHoldButton_toggled(bool checked)
 void DockFft::on_peakDetectionButton_toggled(bool checked)
 {
     emit peakDetectionToggled(checked);
+}
+
+/**
+ * Update RBW and FFT overlab labels
+ */
+void DockFft::updateInfoLabels(void)
+{
+    float   rate;
+    float   size;
+    float   rbw;
+    float   ovr;
+    float   sps;
+
+    if (m_sample_rate == 0.f)
+        return;
+
+    rate = fftRate();
+    size = fftSize();
+
+    rbw = m_sample_rate / size;
+    if (rbw < 1.e3f)
+        ui->fftRbwLabel->setText(QString("RBW: %1 Hz").arg(rbw, 0, 'f', 1));
+    else if (rbw < 1.e6f)
+        ui->fftRbwLabel->setText(QString("RBW: %1 kHz").arg(1.e-3 * rbw, 0, 'f', 1));
+    else
+        ui->fftRbwLabel->setText(QString("RBW: %1 MHz").arg(1.e-6 * rbw, 0, 'f', 1));
+
+    sps = size * rate;
+    if (sps <= m_sample_rate)
+        ovr = 0;
+    else
+        ovr = 100 * (sps / m_sample_rate - 1.f);
+    ui->fftOvrLabel->setText(QString("Overlap: %1%").arg(ovr, 0, 'f', 0));
 }

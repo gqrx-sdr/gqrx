@@ -45,6 +45,8 @@ public:
     int fftSize();
     int setFftSize(int fft_size);
 
+    void setSampleRate(float sample_rate);
+
     void saveSettings(QSettings *settings);
     void readSettings(QSettings *settings);
 
@@ -83,9 +85,13 @@ private slots:
     void on_peakDetectionButton_toggled(bool checked);
 
 private:
+    void updateInfoLabels(void);
+
+private:
     Ui::DockFft   * ui;
     float         m_maximumFftDb;
     float         m_minimumFftDb;
+    float         m_sample_rate;
 };
 
 #endif // DOCKFFT_H

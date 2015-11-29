@@ -518,8 +518,9 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         {
             rx->set_input_decim(1);
         }
-        // update various widget that need a sample rate
+        // update various widgets that need a sample rate
         uiDockRxOpt->setFilterOffsetRange((qint64)(0.9*actual_rate));
+        uiDockFft->setSampleRate(actual_rate);
         ui->plotter->setSampleRate(actual_rate);
         ui->plotter->setSpanFreq((quint32)actual_rate);
         remote->setBandwidth((qint64)actual_rate);
