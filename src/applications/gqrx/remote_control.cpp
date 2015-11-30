@@ -21,8 +21,9 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <cmath>
-#include <QString>
 #include <cstdlib>
+#include <iostream>
+#include <QString>
 #include "remote_control.h"
 
 RemoteControl::RemoteControl(QObject *parent) :
@@ -140,7 +141,8 @@ void RemoteControl::acceptConnection()
     QString address = rc_socket->peerAddress().toString();
     if (rc_allowed_hosts.indexOf(address) == -1)
     {
-        qDebug() << "Connection attempt from" << address << "(not in allowed list)";
+        std::cout << "*** Remote connection attempt from " << address.toStdString()
+                  << " (not in allowed list)" << std::endl;
         rc_socket->close();
     }
     else
