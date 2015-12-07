@@ -233,7 +233,7 @@ PKGCONFIG += gnuradio-analog \
              gnuradio-digital \
              gnuradio-filter \
              gnuradio-fft \
-             gnuradio-pmt \
+             gnuradio-runtime \
              gnuradio-osmosdr
 
 INCPATH += src/
