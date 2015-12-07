@@ -1,0 +1,19 @@
+Remote control protocol.
+
+
+
+Supported command:
+ f - Get frequency [Hz]
+ F - Set frequency [Hz]
+ m - Get demodulator mode
+ M - Set demodulator mode (OFF, RAW, AM, FM, WFM, WFM_ST, WFM_ST_OIRT, LSB, USB, CW, CWL, CWU)
+ l - Get signal strength [dBFS]
+ c - Close connection
+ AOS - Acquisition of signal (AOS) event, start audio recording
+ LOS - Loss of signal (LOS) event, stop audio recording
+
+
+
+Reply:
+ RPRT 0 - Command successful
+ RPRT 1 - Command failed
