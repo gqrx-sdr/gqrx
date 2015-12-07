@@ -35,8 +35,8 @@ class pa_sink;
 typedef boost::shared_ptr<pa_sink> pa_sink_sptr;
 
 pa_sink_sptr make_pa_sink(const string device_name, int audio_rate,
-                          const string app_name="GNU Radio",
-                          const string stream_name="SDR");
+                          const string app_name,
+                          const string stream_name);
 
 
 /*! \brief Pulseaudio sink
@@ -52,7 +52,7 @@ class pa_sink : public gr::sync_block
 
 public:
     pa_sink(const string device_name, int audio_rate,
-            const string app_name="GNU Radio", const string stream_name="SDR");
+            const string app_name, const string stream_name);
     ~pa_sink();
 
     int work (int noutput_items,

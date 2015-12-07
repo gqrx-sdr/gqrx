@@ -268,7 +268,7 @@ void receiver::set_output_device(const std::string device)
     audio_snk.reset();
 
 #ifdef WITH_PULSEAUDIO
-    audio_snk = make_pa_sink(device, d_audio_rate);
+    audio_snk = make_pa_sink(device, d_audio_rate, "GQRX", "Audio output");
 #else
     audio_snk = gr::audio::sink::make(d_audio_rate, device, true);
 #endif

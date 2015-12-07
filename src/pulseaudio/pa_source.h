@@ -35,9 +35,9 @@ typedef boost::shared_ptr<pa_source> pa_source_sptr;
 
 pa_source_sptr make_pa_source(const string device_name,
                               int sample_rate,
-                              int num_chan=1,
-                              const string app_name="GNU Radio",
-                              const string stream_name="SDR");
+                              int num_chan,
+                              const string app_name,
+                              const string stream_name);
 
 
 /*! \brief Pulseaudio source.
@@ -50,8 +50,8 @@ class pa_source : public gr::sync_block
                                          const string app_name, const string stream_name);
 
 public:
-    pa_source(const string device_name="", int sample_rate=96000, int num_chan=1,
-              const string app_name="GNU Radio", const string stream_name="SDR");
+    pa_source(const string device_name, int sample_rate, int num_chan,
+              const string app_name, const string stream_name);
     ~pa_source();
 
     int work (int noutput_items,
