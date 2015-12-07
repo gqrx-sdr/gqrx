@@ -14,7 +14,7 @@
    <string>Gqrx remote control settings</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../icons.qrc">
+   <iconset resource="../../../resources/icons.qrc">
     <normaloff>:/icons/icons/settings.svg</normaloff>:/icons/icons/settings.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -88,7 +88,7 @@
        </property>
        <item>
         <property name="text">
-         <string>127.0.0.1</string>
+         <string>::ffff:127.0.0.1</string>
         </property>
         <property name="flags">
          <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -167,7 +167,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../icons.qrc"/>
+  <include location="../../../resources/icons.qrc"/>
  </resources>
  <connections>
   <connection>

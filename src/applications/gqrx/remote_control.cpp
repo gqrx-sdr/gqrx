@@ -37,7 +37,7 @@ RemoteControl::RemoteControl(QObject *parent) :
     signal_level = -200.0;
 
     rc_port = 7356;
-    rc_allowed_hosts.append("127.0.0.1");
+    rc_allowed_hosts.append("::ffff:127.0.0.1");
 
     rc_socket = 0;
 
@@ -95,7 +95,7 @@ void RemoteControl::saveSettings(QSettings *settings) const
     else
         settings->remove("remote_control/port");
 
-    if ((rc_allowed_hosts.count() != 1) || (rc_allowed_hosts.at(0) != "127.0.0.1"))
+    if ((rc_allowed_hosts.count() != 1) || (rc_allowed_hosts.at(0) != "::ffff:127.0.0.1"))
         settings->setValue("remote_control/allowed_hosts", rc_allowed_hosts);
     else
         settings->remove("remote_control/allowed_hosts");
