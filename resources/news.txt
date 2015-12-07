@@ -23,6 +23,7 @@
   IMPROVED: AGC peformance.
   IMPROVED: FFT performance.
   IMPROVED: Right click on frequency digit to clear digits.
+  IMPROVED: Robustness against maliformed remote control commands.
 
      2.3.2  Released November 28, 2014
 

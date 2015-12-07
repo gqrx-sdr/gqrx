@@ -24,6 +24,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <QString>
+#include <QStringList>
 #include "remote_control.h"
 
 RemoteControl::RemoteControl(QObject *parent) :
@@ -310,14 +311,19 @@ void RemoteControl::setNewRemoteFreq(qint64 freq)
  *  \return An integer corresponding to the mode.
  *
  * Following mode strings are recognized: OFF, RAW, AM, FM, WFM,
- * WFM_ST, LSB, USB, CW, CWL, CWU.
+ * WFM_ST, WFM_ST_OIRT, LSB, USB, CW, CWL, CWU.
  */
 int RemoteControl::modeStrToInt(const char *buffer)
 {
-    int mode_int = 0;
+    QStringList    str_list;
+    QString        mode_str;
+    int            mode_int = 0;
 
-    QString mode_str = QString(buffer).split(' ', QString::SkipEmptyParts).at(1).trimmed();
+    str_list = QString(buffer).split(' ', QString::SkipEmptyParts);
+    if (str_list.size() < 2)
+        return 0;
 
+    mode_str = str_list.at(1).trimmed();
     if (mode_str.compare("OFF", Qt::CaseInsensitive) == 0)
     {
         mode_int = 0;
