@@ -135,7 +135,7 @@ CPlotter::CPlotter(QWidget *parent) :
     m_dBStepSize = std::abs(m_MaxdB-m_MindB)/m_VerDivs;
 
     m_FreqUnits = 1000000;
-    m_CursorCaptured = NONE;
+    m_CursorCaptured = NOCAP;
     m_Running = false;
     m_DrawOverlay = true;
     m_2DPixmap = QPixmap(0,0);
@@ -262,10 +262,10 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             }
             else
             {	//if not near any grab boundaries
-                if (NONE != m_CursorCaptured)
+                if (NOCAP != m_CursorCaptured)
                 {
                     setCursor(QCursor(Qt::ArrowCursor));
-                    m_CursorCaptured = NONE;
+                    m_CursorCaptured = NOCAP;
                 }
                 if (m_TooltipsEnabled)
                     QToolTip::showText(event->globalPos(),
@@ -280,10 +280,10 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
     {	//not in Overlay region
         if (event->buttons() == Qt::NoButton)
         {
-            if (NONE != m_CursorCaptured)
+            if (NOCAP != m_CursorCaptured)
                 setCursor(QCursor(Qt::ArrowCursor));
 
-            m_CursorCaptured = NONE;
+            m_CursorCaptured = NOCAP;
             m_GrabPosition = 0;
         }
         if (m_TooltipsEnabled)
@@ -380,7 +380,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         else if (event->buttons() & ~Qt::NoButton)
         {
             setCursor(QCursor(Qt::ArrowCursor));
-            m_CursorCaptured = NONE;
+            m_CursorCaptured = NOCAP;
         }
     }
     else if (RIGHT == m_CursorCaptured)
@@ -412,7 +412,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         else if (event->buttons() & ~Qt::NoButton)
         {
             setCursor(QCursor(Qt::ArrowCursor));
-            m_CursorCaptured = NONE;
+            m_CursorCaptured = NOCAP;
         }
     }
     else if (CENTER == m_CursorCaptured)
@@ -439,7 +439,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         else if (event->buttons() & ~Qt::NoButton)
         {
             setCursor(QCursor(Qt::ArrowCursor));
-            m_CursorCaptured = NONE;
+            m_CursorCaptured = NOCAP;
         }
     }
     else	//if cursor not captured
@@ -448,9 +448,9 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
     }
     if (!this->rect().contains(pt))
     {
-        if(NONE != m_CursorCaptured)
+        if(NOCAP != m_CursorCaptured)
             setCursor(QCursor(Qt::ArrowCursor));
-        m_CursorCaptured = NONE;
+        m_CursorCaptured = NOCAP;
     }
 }
 
@@ -487,7 +487,7 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
 {
     QPoint pt = event->pos();
 
-    if (NONE == m_CursorCaptured)
+    if (NOCAP == m_CursorCaptured)
     {
         if (isPointCloseTo(pt.x(), m_DemodFreqX, m_CursorCaptureDelta))
         {	//in move demod box center frequency region
@@ -568,10 +568,10 @@ void CPlotter::mouseReleaseEvent(QMouseEvent * event)
 
     if (!m_OverlayPixmap.rect().contains(pt))
     { //not in Overlay region
-        if (NONE != m_CursorCaptured)
+        if (NOCAP != m_CursorCaptured)
             setCursor(QCursor(Qt::ArrowCursor));
 
-        m_CursorCaptured = NONE;
+        m_CursorCaptured = NOCAP;
         m_GrabPosition = 0;
     }
     else

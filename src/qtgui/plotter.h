@@ -149,7 +149,7 @@ protected:
 
 private:
     enum eCapturetype {
-        NONE,
+        NOCAP,
         LEFT,
         CENTER,
         RIGHT,
