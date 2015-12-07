@@ -58,9 +58,13 @@ DockAudio::DockAudio(QWidget *parent) :
     ui->audioSpectrum->setFilterBoxEnabled(false);
     ui->audioSpectrum->setCenterLineEnabled(false);
     ui->audioSpectrum->setMinMaxDB(-80, 0);
-    ui->audioSpectrum->setFontSize(8);
-    ui->audioSpectrum->setVdivDelta(20);
-    ui->audioSpectrum->setHdivDelta(25);
+#ifdef Q_OS_MAC
+    ui->audioSpectrum->setFontSize(11);
+#else
+    ui->audioSpectrum->setFontSize(9);
+#endif
+    ui->audioSpectrum->setVdivDelta(30);
+    ui->audioSpectrum->setHdivDelta(40);
     ui->audioSpectrum->setFreqDigits(1);
 }
 
