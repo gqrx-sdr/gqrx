@@ -84,6 +84,7 @@ To compile gqrx from source you need the following dependencies:
     - gnuradio-filter
     - gnuradio-fft
     - gnuradio-audio
+    - gnuradio-pmt
 - The gr-iqbalance library (optional)
 - At least one of:
     - Funcube Dongle Pro driver via gnuradio-fcd
