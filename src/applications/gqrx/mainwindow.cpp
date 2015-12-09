@@ -2046,10 +2046,30 @@ void MainWindow::on_actionUserGroup_triggered()
     }
 }
 
-/*! \brief Show news.txt in a dialog window. */
+/**
+ * Show news.txt in a dialog window.
+ */
 void MainWindow::on_actionNews_triggered()
 {
-    QResource resource(":/textfiles/news.txt");
+    showSimpleTextFile(":/textfiles/news.txt", tr("Release news"));
+}
+
+/**
+ * Show remote-contol.txt in a dialog window.
+ */
+void MainWindow::on_actionRemoteProtocol_triggered()
+{
+    showSimpleTextFile(":/textfiles/remote-control.txt",
+                       tr("Remote control protocol"));
+}
+
+/**
+ * Show simple text file in a window.
+ */
+void MainWindow::showSimpleTextFile(const QString &resource_path,
+                                    const QString &window_title)
+{
+    QResource resource(resource_path);
     QFile news(resource.absoluteFilePath());
 
     if (!news.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -2080,7 +2100,7 @@ void MainWindow::on_actionNews_triggered()
     layout->addWidget(browser);
 
     QDialog *dialog = new QDialog(this);
-    dialog->setWindowTitle(tr("Release News"));
+    dialog->setWindowTitle(window_title);
     dialog->setLayout(layout);
     dialog->resize(700, 400);
     dialog->exec();

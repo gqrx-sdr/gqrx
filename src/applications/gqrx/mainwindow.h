@@ -117,6 +117,8 @@ private:
 private:
     void updateFrequencyRange(bool ignore_limits);
     void updateGainStages(bool read_from_device);
+    void showSimpleTextFile(const QString &resource_path,
+                            const QString &window_title);
 
 private slots:
     /* rf */
@@ -195,6 +197,7 @@ private slots:
     void on_actionAFSK1200_triggered();
     void on_actionUserGroup_triggered();
     void on_actionNews_triggered();
+    void on_actionRemoteProtocol_triggered();
     void on_actionAbout_triggered();
     void on_actionAboutQt_triggered();
     void on_actionAddBookmark_triggered();

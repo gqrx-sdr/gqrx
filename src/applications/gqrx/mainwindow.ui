@@ -14,7 +14,7 @@
    <string>gqrx</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../icons.qrc">
+   <iconset resource="../../../resources/icons.qrc">
     <normaloff>:/icons/icons/gqrx.svg</normaloff>:/icons/icons/gqrx.svg</iconset>
   </property>
   <property name="dockOptions">
@@ -128,7 +128,7 @@
      <x>0</x>
      <y>0</y>
      <width>950</width>
-     <height>25</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -154,6 +154,8 @@
     </property>
     <addaction name="actionUserGroup"/>
     <addaction name="actionNews"/>
+    <addaction name="separator"/>
+    <addaction name="actionRemoteProtocol"/>
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
     <addaction name="actionAboutQt"/>
@@ -237,7 +239,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../icons.qrc">
+    <iconset resource="../../../resources/icons.qrc">
      <normaloff>:/icons/icons/power-off.svg</normaloff>:/icons/icons/power-off.svg</iconset>
    </property>
    <property name="text">
@@ -266,7 +268,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../icons.qrc">
+    <iconset resource="../../../resources/icons.qrc">
      <normaloff>:/icons/icons/clock.svg</normaloff>:/icons/icons/clock.svg</iconset>
    </property>
    <property name="text">
@@ -281,7 +283,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../icons.qrc">
+    <iconset resource="../../../resources/icons.qrc">
      <normaloff>:/icons/icons/flash.svg</normaloff>:/icons/icons/flash.svg</iconset>
    </property>
    <property name="text">
@@ -296,7 +298,7 @@
   </action>
   <action name="actionUserGroup">
    <property name="icon">
-    <iconset resource="../../icons.qrc">
+    <iconset resource="../../../resources/icons.qrc">
      <normaloff>:/icons/icons/help.svg</normaloff>:/icons/icons/help.svg</iconset>
    </property>
    <property name="text">
@@ -311,7 +313,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../icons.qrc">
+    <iconset resource="../../../resources/icons.qrc">
      <normaloff>:/icons/icons/fullscreen.svg</normaloff>:/icons/icons/fullscreen.svg</iconset>
    </property>
    <property name="text">
@@ -326,7 +328,7 @@
   </action>
   <action name="actionLoadSettings">
    <property name="icon">
-    <iconset resource="../../icons.qrc">
+    <iconset resource="../../../resources/icons.qrc">
      <normaloff>:/icons/icons/folder.svg</normaloff>:/icons/icons/folder.svg</iconset>
    </property>
    <property name="text">
@@ -341,7 +343,7 @@
   </action>
   <action name="actionSaveSettings">
    <property name="icon">
-    <iconset resource="../../icons.qrc">
+    <iconset resource="../../../resources/icons.qrc">
      <normaloff>:/icons/icons/floppy.svg</normaloff>:/icons/icons/floppy.svg</iconset>
    </property>
    <property name="text">
@@ -356,7 +358,7 @@
   </action>
   <action name="actionAddBookmark">
    <property name="icon">
-    <iconset resource="../../icons.qrc">
+    <iconset resource="../../../resources/icons.qrc">
      <normaloff>:/icons/icons/bookmark-new.svg</normaloff>:/icons/icons/bookmark-new.svg</iconset>
    </property>
    <property name="text">
@@ -374,7 +376,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../icons.qrc">
+    <iconset resource="../../../resources/icons.qrc">
      <normaloff>:/icons/icons/tangeo-network-idle.svg</normaloff>:/icons/icons/tangeo-network-idle.svg</iconset>
    </property>
    <property name="text">
@@ -386,7 +388,7 @@
   </action>
   <action name="actionRemoteConfig">
    <property name="icon">
-    <iconset resource="../../icons.qrc">
+    <iconset resource="../../../resources/icons.qrc">
      <normaloff>:/icons/icons/settings.svg</normaloff>:/icons/icons/settings.svg</iconset>
    </property>
    <property name="text">
@@ -398,7 +400,7 @@
   </action>
   <action name="actionIqTool">
    <property name="icon">
-    <iconset resource="../../icons.qrc">
+    <iconset resource="../../../resources/icons.qrc">
      <normaloff>:/icons/icons/signal.svg</normaloff>:/icons/icons/signal.svg</iconset>
    </property>
    <property name="text">
@@ -413,7 +415,7 @@
   </action>
   <action name="actionNews">
    <property name="icon">
-    <iconset resource="../../icons.qrc">
+    <iconset resource="../../../resources/icons.qrc">
      <normaloff>:/icons/icons/info.svg</normaloff>:/icons/icons/info.svg</iconset>
    </property>
    <property name="text">
@@ -421,6 +423,18 @@
    </property>
    <property name="toolTip">
     <string>Show news about this release</string>
+   </property>
+  </action>
+  <action name="actionRemoteProtocol">
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/info.svg</normaloff>:/icons/icons/info.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Remote control</string>
+   </property>
+   <property name="toolTip">
+    <string>Remote control protocol</string>
    </property>
   </action>
  </widget>
@@ -446,7 +460,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../icons.qrc"/>
+  <include location="../../../resources/icons.qrc"/>
  </resources>
  <connections>
   <connection>
