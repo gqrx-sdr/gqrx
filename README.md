@@ -10,12 +10,13 @@ the following devices:
 - USRP
 - HackRF
 - Nuand bladeRF
-- RFspace SDR-IQ, SDR-IP and NetSDR
+- RFspace SDR-IQ, SDR-IP, NetSDR and Cloud-IQ
 - Airspy
 - any other device supported by the gr-osmosdr library
 
 Gqrx can operate as a traditional AM/FM/SSB receiver with audio output or as an
-FFT-only instrument.
+FFT-only instrument. There are also various hooks for interacting with external
+application using nertwork sockets.
 
 
 Download
@@ -29,20 +30,21 @@ official and third party download resources.
 Usage
 -----
 
-It is recommended to run the "volk_profile" gnuradio utility before running gqrx
-in order to enable processor specific optimisations.
+It is strongly recommended to run the "volk_profile" gnuradio utility before
+running gqrx. This will detect and enable processor specific optimisations and
+will in many cases give a significant performance boost.
 
 The first time you start gqrx it will open a device configuration dialog.
 Supported devices that are connected to the computer are discovered
 automatically and you can select any of them in the drop-down list.
 
 If you don't see your device listed in the drop-down list it could be because:
-- The driver has not included in a binary distribution
+- The driver has not been included in a binary distribution
 - The udev rule has not been properly configured
 - Linux kernel driver is blocking access to the device
 
-You can test your device first with rtl_test, qthid, or uhd_usrp_probe that
-come with the respective packages.
+You can test your device using device specific tools, such as rtl_test,
+airspy_rx, hackrf_transfer, qthid, etc.
 
 Gqrx supports multiple configurations and sessions if you have several devices
 or if you want to use the same device under different configurations. You can
@@ -62,20 +64,25 @@ See the bug tracker on Github: https://github.com/csete/gqrx/issues
 Getting help and reporting bugs
 -------------------------------
 
-There is now a Google group for discussing anything related to Gqrx:
+There is a Google group for discussing anything related to Gqrx:
 https://groups.google.com/forum/#!forum/gqrx
 This includes getting help with installation and troubleshooting. Please
 remember to provide detailed description of your problem, your setup, what
 steps you followed, etc.
 
+Please stick around and help others with their problems. Otherwise, if only
+developers provide user support there will be no more time for further
+development.
+
 
 Installation from source
 ------------------------
 
+Gqrx can be compiled using qmake or cmake.
+
 The source code is hosted on Github: https://github.com/csete/gqrx
 
 To compile gqrx from source you need the following dependencies:
-- cmake version >= 3.2.0 from https://cmake.org/download/
 - GNU Radio 3.7 with the following components:
     - gnuradio-runtime
     - gnuradio-analog
@@ -101,29 +108,45 @@ To compile gqrx from source you need the following dependencies:
     - Network
     - Widgets (Qt 5 only)
     - Svg (runtime only)
+- cmake version >= 3.2.0 if you wish to build using cmake.
 
-Gqrx comes with a simple cmake build setup. It can be compiled from within Qt
-Creator or in a terminal:
+To build using qmake, you can either open the gqrx.pro file in Qt Creator and
+build, or on the command line:
+<pre>
+$ git clone https://github.com/csete/gqrx.git gqrx.git
+$ cd gqrx.git
+$ mkdir build
+$ cd build
+$ qmake ..
+$ make
+</pre>
+
+Using cmake, gqrx can be compiled from within Qt Creator or in a terminal:
 
 For command line builds:
 <pre>
 $ git clone https://github.com/csete/gqrx.git gqrx.git
 $ cd gqrx.git
-$ mkdir -p builds/cl
-$ cd builds/cl
-$ cmake ../..
-$ make -j4
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
 </pre>
-Replace the '-j4' with the number of CPU cores in your machine.
+On some systems, the default cmake release builds are "over optimized" and
+perform poorly. In that case try forcing -O2 using
+<pre>
+export CXXFLAGS=-O2
+</pre>
+before the cmake step.
 
 For Qt Creator builds:
 <pre>
 $ git clone https://github.com/csete/gqrx.git gqrx.git
 $ cd gqrx.git
-$ mkdir -p builds/creator
+$ mkdir build
 Start Qt Creator
 Open gqrx.git/CMakeLists.txt file
-At the dialog asking for build location, select gqrx.git/builds/creator
+At the dialog asking for build location, select gqrx.git/build
 click continue
 If asked to choose cmake executable, do so
 click continue
@@ -133,10 +156,6 @@ optionally, on the Projects page, under Build Steps/Make/Additional arguments,
 	enter -j4 (replacing 4 with the number of cores in your CPU).
 Use Qt Creator as before
 </pre>
-
-To build in various mode, pass -DBUILDTYPE={typeOfBuild} to cmake.
-Supported build types are: Debug GProf Valgrind Release
-(This is currently disabled due to a conflict with log4cpp DEBUG #define)
 
 Credits and License
 -------------------
