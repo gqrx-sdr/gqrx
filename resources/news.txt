@@ -1,5 +1,5 @@
 
-     2.x.x  TBD
+     2.4.0  Released December 14, 2015
 
        NEW: Bookmarks.
        NEW: FM RDS decoder using gr-rds.
@@ -23,7 +23,7 @@
   IMPROVED: AGC peformance.
   IMPROVED: FFT performance.
   IMPROVED: Right click on frequency digit to clear digits.
-  IMPROVED: Robustness against maliformed remote control commands.
+  IMPROVED: Robustness against malformed remote control commands.
 
      2.3.2  Released November 28, 2014
 
