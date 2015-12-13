@@ -93,10 +93,26 @@ if(NOT GNURADIO_RUNTIME_FOUND)
 endif()
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    find_package(PulseAudio REQUIRED)
-    # there is a defect in the pulse audio cmake file that does not include this library. So we add it here.
-    find_library(PULSE-SIMPLE NAMES pulse-simple REQUIRED)
-    ADD_DEFINITIONS(-DWITH_PULSEAUDIO)
+    IF(NOT LINUX_AUDIO_BACKEND)
+        set(LINUX_AUDIO_BACKEND Pulseaudio CACHE STRING "Choose the audio backend, options are: Pulseaudio, Gr-audio" FORCE)
+    ENDIF()
+
+    IF(${LINUX_AUDIO_BACKEND} MATCHES "Pulseaudio")
+        find_package(PulseAudio REQUIRED)
+        # there is a defect in the pulse audio cmake file that does not include this library. So we add it here.
+        find_library(PULSE-SIMPLE NAMES pulse-simple REQUIRED)
+        ADD_DEFINITIONS(-DWITH_PULSEAUDIO)
+    ELSEIF(${LINUX_AUDIO_BACKEND} MATCHES "Gr-audio")
+        UNSET(PULSEAUDIO_FOUND CACHE)
+        UNSET(PULSEAUDIO_INCLUDE_DIR CACHE)
+        UNSET(PULSEAUDIO_LIBRARY CACHE)
+        UNSET(PulseAudio_DIR CACHE)
+        UNSET(PULSE-SIMPLE CACHE)
+        UNSET(PULSEAUDIO_INCLUDE_DIR CACHE)
+        UNSET(PULSEAUDIO_MAINLOOP_LIBRARY CACHE)
+    ELSE()
+        message(FATAL_ERROR "Invalid audio backend: should be either Pulseaudio or Gr-audio")
+    ENDIF()
 ENDIF()
 
 # Tell CMake to run moc when necessary:
