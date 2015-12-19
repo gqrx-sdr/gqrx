@@ -59,14 +59,14 @@ CONFIG(debug, debug|release) {
     #QMAKE_CFLAGS_DEBUG += '-g -O0'
 
     # Define version string (see below for releases)
-    ## VER = $$system(git describe --abbrev=8)
-    VER = 2.4
+    VER = $$system(git describe --abbrev=8)
+    ##VER = 2.4
 
 } else {
     DEFINES += QT_NO_DEBUG
     DEFINES += QT_NO_DEBUG_OUTPUT
-    ## VER = $$system(git describe --abbrev=1)
-    VER = 2.4
+    VER = $$system(git describe --abbrev=1)
+    ##VER = 2.4
 
     # Release binaries with gr bundled
     # QMAKE_RPATH & co won't work with origin
