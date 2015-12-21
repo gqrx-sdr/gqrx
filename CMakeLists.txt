@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.0)
+cmake_minimum_required(VERSION 2.8.0)
 
 #######################################################################################################################
 # Project name
@@ -33,27 +33,27 @@ add_definitions(-D${BUILDTYPE})
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
 
 # Add valgrind build options if necessary
-IF(${CMAKE_BUILD_TYPE} MATCHES "Valgrind")
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
-ENDIF()
+if(${CMAKE_BUILD_TYPE} MATCHES "Valgrind")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+endif()
 
 # Disable debug outputs in release builds
-IF(${CMAKE_BUILD_TYPE} MATCHES "Release" OR ${CMAKE_BUILD_TYPE} MATCHES "RelWithDebInfo")
-    ADD_DEFINITIONS(-DQT_NO_DEBUG_OUTPUT)
-ENDIF()
+if(${CMAKE_BUILD_TYPE} MATCHES "Release" OR ${CMAKE_BUILD_TYPE} MATCHES "RelWithDebInfo")
+    add_definitions(-DQT_NO_DEBUG_OUTPUT)
+endif()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     # using regular Clang or AppleClang
-    SET(CMAKE_COMPILER_IS_CLANGXX 1)
+    set(CMAKE_COMPILER_IS_CLANGXX 1)
 endif()
 
-IF(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
-    ADD_DEFINITIONS(-Wall)
-    ADD_DEFINITIONS(-Wextra)
-    ADD_DEFINITIONS(-Wno-unused-parameter)
-    ADD_DEFINITIONS(-Wsign-compare)
-ENDIF()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
+    add_definitions(-Wall)
+    add_definitions(-Wextra)
+    add_definitions(-Wno-unused-parameter)
+    add_definitions(-Wsign-compare)
+endif()
 
 #######################################################################################################################
 # Functions & macros.  These must be defined before including subdirectories.
@@ -92,28 +92,28 @@ if(NOT GNURADIO_RUNTIME_FOUND)
     message(FATAL_ERROR "GnuRadio Runtime required to compile gr-air-modes")
 endif()
 
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    IF(NOT LINUX_AUDIO_BACKEND)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    if(NOT LINUX_AUDIO_BACKEND)
         set(LINUX_AUDIO_BACKEND Pulseaudio CACHE STRING "Choose the audio backend, options are: Pulseaudio, Gr-audio" FORCE)
-    ENDIF()
+    endif()
 
-    IF(${LINUX_AUDIO_BACKEND} MATCHES "Pulseaudio")
+    if(${LINUX_AUDIO_BACKEND} MATCHES "Pulseaudio")
         find_package(PulseAudio REQUIRED)
         # there is a defect in the pulse audio cmake file that does not include this library. So we add it here.
         find_library(PULSE-SIMPLE NAMES pulse-simple REQUIRED)
-        ADD_DEFINITIONS(-DWITH_PULSEAUDIO)
-    ELSEIF(${LINUX_AUDIO_BACKEND} MATCHES "Gr-audio")
-        UNSET(PULSEAUDIO_FOUND CACHE)
-        UNSET(PULSEAUDIO_INCLUDE_DIR CACHE)
-        UNSET(PULSEAUDIO_LIBRARY CACHE)
-        UNSET(PulseAudio_DIR CACHE)
-        UNSET(PULSE-SIMPLE CACHE)
-        UNSET(PULSEAUDIO_INCLUDE_DIR CACHE)
-        UNSET(PULSEAUDIO_MAINLOOP_LIBRARY CACHE)
-    ELSE()
+        add_definitions(-DWITH_PULSEAUDIO)
+    elseif(${LINUX_AUDIO_BACKEND} MATCHES "Gr-audio")
+        unset(PULSEAUDIO_FOUND CACHE)
+        unset(PULSEAUDIO_INCLUDE_DIR CACHE)
+        unset(PULSEAUDIO_LIBRARY CACHE)
+        unset(PulseAudio_DIR CACHE)
+        unset(PULSE-SIMPLE CACHE)
+        unset(PULSEAUDIO_INCLUDE_DIR CACHE)
+        unset(PULSEAUDIO_MAINLOOP_LIBRARY CACHE)
+    else()
         message(FATAL_ERROR "Invalid audio backend: should be either Pulseaudio or Gr-audio")
-    ENDIF()
-ENDIF()
+    endif()
+endif()
 
 # Tell CMake to run moc when necessary:
 set(CMAKE_AUTOMOC ON)

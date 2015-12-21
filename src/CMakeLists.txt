@@ -6,13 +6,13 @@ add_subdirectory(interfaces)
 add_subdirectory(qtgui)
 add_subdirectory(receivers)
 
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     add_subdirectory(osxaudio)
     set(CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
-ELSEIF((${CMAKE_SYSTEM_NAME} MATCHES "Linux") AND (${LINUX_AUDIO_BACKEND} MATCHES "Pulseaudio"))
+elseif((${CMAKE_SYSTEM_NAME} MATCHES "Linux") AND (${LINUX_AUDIO_BACKEND} MATCHES "Pulseaudio"))
     add_subdirectory(pulseaudio)
-ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-ENDIF()
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+endif()
 
 #######################################################################################################################
 # bring in the global properties
