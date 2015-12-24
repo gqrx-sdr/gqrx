@@ -1,8 +1,10 @@
        2.5  Released TBD...
 
+       NEW: Cmake option to build using gr-audio backend (Andrea Merello).
      FIXED: FM stereo (revert to pre-2.4 behavior).
      FIXED: Mode selector not updated when selecting a WFM OIRT bookmark.
      FIXED: Show correct filter preset when filter LO/HI corresponds to one.
+     FIXED: Prevent RDS panel from growing by making it scrollable.
 
 
        2.4  Released December 14, 2015
