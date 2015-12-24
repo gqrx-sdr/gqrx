@@ -871,23 +871,31 @@ void MainWindow::selectDemod(QString strModulation)
  * and configures the default channel filter.
  *
  */
-void MainWindow::selectDemod(int index)
+void MainWindow::selectDemod(int mode_idx)
 {
     double quad_rate;
     float maxdev;
     int filter_preset = uiDockRxOpt->currentFilter();
     int flo=0, fhi=0, click_res=100;
 
-    qDebug() << "selectDemod(idx): " << index;
+    // validate mode_idx
+    if (mode_idx < DockRxOpt::MODE_OFF || mode_idx >= DockRxOpt::MODE_LAST)
+    {
+        qDebug() << "Invalid mode index:" << mode_idx;
+        mode_idx = DockRxOpt::MODE_OFF;
+    }
+    qDebug() << "New mode index:" << mode_idx;
 
+    uiDockRxOpt->getFilterPreset(mode_idx, filter_preset, &flo, &fhi);
     d_filter_shape = (receiver::filter_shape)uiDockRxOpt->currentFilterShape();
 
-    if (rx->is_rds_decoder_active()) {
+    if (rx->is_rds_decoder_active())
+    {
         setRdsDecoder(false);
     }
     uiDockRDS->setDisabled();
 
-    switch (index) {
+    switch (mode_idx) {
 
     case DockRxOpt::MODE_OFF:
         /* Spectrum analyzer only */
@@ -898,10 +906,7 @@ void MainWindow::selectDemod(int index)
         }
 
         rx->set_demod(receiver::RX_DEMOD_OFF);
-        flo = 0;
-        fhi = 0;
         click_res = 1000;
-
         break;
 
     case DockRxOpt::MODE_RAW:
@@ -915,21 +920,6 @@ void MainWindow::selectDemod(int index)
         ui->plotter->setDemodRanges(-45000, -200, 200, 45000, true);
         uiDockAudio->setFftRange(0,6000);
         click_res = 100;
-        switch (filter_preset)
-        {
-        case 0: //wide
-            flo = -10000;
-            fhi = 10000;
-            break;
-        case 2: // narrow
-            flo = -2500;
-            fhi = 2500;
-            break;
-        default: // normal
-            flo = -5000;
-            fhi = 5000;
-            break;
-        }
         break;
 
         /* Narrow FM */
@@ -941,40 +931,11 @@ void MainWindow::selectDemod(int index)
         {   /** FIXME **/
             ui->plotter->setDemodRanges(-45000, -250, 250, 45000, true);
             uiDockAudio->setFftRange(0,6000);
-            switch (filter_preset) {
-            case 0: //wide
-                flo = -10000;
-                fhi = 10000;
-                break;
-            case 2: // narrow
-                flo = -2500;
-                fhi = 2500;
-                break;
-            default: // normal
-                flo = -5000;
-                fhi = 5000;
-                break;
-            }
         }
         else
         {
             ui->plotter->setDemodRanges(-45000, -1000, 1000, 45000, true);
             uiDockAudio->setFftRange(0,24000);
-            switch (filter_preset) {
-            /** FIXME: not sure about these **/
-            case 0: //wide
-                flo = -45000;
-                fhi = 45000;
-                break;
-            case 2: // narrow
-                flo = -10000;
-                fhi = 10000;
-                break;
-            default: // normal
-                flo = -35000;
-                fhi = 35000;
-                break;
-            }
         }
         break;
 
@@ -991,24 +952,9 @@ void MainWindow::selectDemod(int index)
             ui->plotter->setDemodRanges(-250000, -10000, 10000, 250000, true);
         uiDockAudio->setFftRange(0,24000);  /** FIXME: get audio rate from rx **/
         click_res = 1000;
-        switch (filter_preset)
-        {
-        case 0: //wide
-            flo = -100000;
-            fhi = 100000;
-            break;
-        case 2: // narrow
-            flo = -60000;
-            fhi = 60000;
-            break;
-        default: // normal
-            flo = -80000;
-            fhi = 80000;
-            break;
-        }
-        if (index == DockRxOpt::MODE_WFM_MONO)
+        if (mode_idx == DockRxOpt::MODE_WFM_MONO)
             rx->set_demod(receiver::RX_DEMOD_WFM_M);
-        else if (index == DockRxOpt::MODE_WFM_STEREO_OIRT)
+        else if (mode_idx == DockRxOpt::MODE_WFM_STEREO_OIRT)
             rx->set_demod(receiver::RX_DEMOD_WFM_S_OIRT);
         else
             rx->set_demod(receiver::RX_DEMOD_WFM_S);
@@ -1022,22 +968,6 @@ void MainWindow::selectDemod(int index)
         ui->plotter->setDemodRanges(-40000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,3000);
         click_res = 100;
-        switch (filter_preset)
-        {
-        case 0: //wide
-            flo = -4000;
-            fhi = 100;
-            break;
-        case 2: // narrow
-            flo = -1600;
-            fhi = -200;
-            break;
-        default: // normal
-            flo = -2800;
-            fhi = -100;
-            break;
-        }
-        break;
 
         /* USB */
     case DockRxOpt::MODE_USB:
@@ -1045,21 +975,6 @@ void MainWindow::selectDemod(int index)
         ui->plotter->setDemodRanges(0, 5000, 100, 40000, false);
         uiDockAudio->setFftRange(0,3000);
         click_res = 100;
-        switch (filter_preset)
-        {
-        case 0: //wide
-            flo = 100;
-            fhi = 4000;
-            break;
-        case 2: // narrow
-            flo = 200;
-            fhi = 1600;
-            break;
-        default: // normal
-            flo = 100;
-            fhi = 2800;
-            break;
-        }
         break;
 
         /* CW-L */
@@ -1068,21 +983,6 @@ void MainWindow::selectDemod(int index)
         ui->plotter->setDemodRanges(-10000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,1500);
         click_res = 10;
-        switch (filter_preset)
-        {
-        case 0: //wide
-            flo = -2500;
-            fhi = -50;
-            break;
-        case 2: // narrow
-            flo = -900;
-            fhi = -400;
-            break;
-        default: // normal
-            flo = -1200;
-            fhi = -200;
-            break;
-        }
         break;
 
         /* CW-U */
@@ -1091,40 +991,25 @@ void MainWindow::selectDemod(int index)
         ui->plotter->setDemodRanges(0, 5000, 100, 10000, false);
         uiDockAudio->setFftRange(0,1500);
         click_res = 10;
-        switch (filter_preset)
-        {
-        case 0: //wide
-            flo = 50;
-            fhi = 2500;
-            break;
-        case 2: // narrow
-            flo = 400;
-            fhi = 900;
-            break;
-        default: // normal
-            flo = 200;
-            fhi = 1200;
-            break;
-        }
         break;
 
     default:
-        qDebug() << "Unsupported mode selection: " << index;
+        qDebug() << "Unsupported mode selection (can't happen!): " << mode_idx;
         flo = -5000;
         fhi = 5000;
         click_res = 100;
         break;
     }
 
-    qDebug() << "Filter preset for mode" << index << "LO:" << flo << "HI:" << fhi;
+    qDebug() << "Filter preset for mode" << mode_idx << "LO:" << flo << "HI:" << fhi;
     ui->plotter->setHiLowCutFrequencies(flo, fhi);
     ui->plotter->setClickResolution(click_res);
     ui->plotter->setFilterClickResolution(click_res);
     rx->set_filter((double)flo, (double)fhi, d_filter_shape);
 
-    d_have_audio = ((index != DockRxOpt::MODE_OFF) && (index != DockRxOpt::MODE_RAW));
+    d_have_audio = ((mode_idx != DockRxOpt::MODE_OFF) && (mode_idx != DockRxOpt::MODE_RAW));
 
-    uiDockRxOpt->setCurrentDemod(index);
+    uiDockRxOpt->setCurrentDemod(mode_idx);
 }
 
 
@@ -1889,7 +1774,9 @@ void MainWindow::on_plotter_newFilterFreq(int low, int high)
     retcode = rx->set_filter((double) low, (double) high, d_filter_shape);
 
     if (retcode == receiver::STATUS_OK)
+    {
         uiDockRxOpt->setFilterParam(low, high);
+    }
 }
 
 void MainWindow::on_plotter_newCenterFreq(qint64 f)
