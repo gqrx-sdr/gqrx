@@ -149,6 +149,31 @@ void DockRxOpt::updateHwFreq()
     ui->hwFreq->setText(QString("%1 MHz").arg(hw_freq_mhz, 11, 'f', 6, ' '));
 }
 
+/**
+ * Get filter index from filter LO / HI values.
+ * @param lo The filter low cut frequency.
+ * @param hi The filter high cut frequency.
+ *
+ * Given filter low and high cut frequencies, this function checks whether the
+ * filter settings correspond to one of the presets in filter_preset_table and
+ * returns the corresponding index to ui->filterCombo;
+ */
+unsigned int DockRxOpt::filterIdxFromLoHi(int lo, int hi) const
+{
+    int mode_index = ui->modeSelector->currentIndex();
+
+    if (lo == filter_preset_table[mode_index][FILTER_PRESET_WIDE][0] &&
+        hi == filter_preset_table[mode_index][FILTER_PRESET_WIDE][1])
+        return FILTER_PRESET_WIDE;
+    else if (lo == filter_preset_table[mode_index][FILTER_PRESET_NORMAL][0] &&
+             hi == filter_preset_table[mode_index][FILTER_PRESET_NORMAL][1])
+        return FILTER_PRESET_NORMAL;
+    else if (lo == filter_preset_table[mode_index][FILTER_PRESET_NARROW][0] &&
+             hi == filter_preset_table[mode_index][FILTER_PRESET_NARROW][1])
+        return FILTER_PRESET_NARROW;
+
+    return FILTER_PRESET_USER;
+}
 
 /*! \brief Set filter parameters
  *  \param lo Low cutoff frequency in Hz
@@ -159,12 +184,17 @@ void DockRxOpt::updateHwFreq()
  */
 void DockRxOpt::setFilterParam(int lo, int hi)
 {
-    float width_f = fabs((hi-lo)/1000.0);
+    int filter_index = filterIdxFromLoHi(lo, hi);
 
-    ui->filterCombo->setCurrentIndex(FILTER_PRESET_USER);
-    ui->filterCombo->setItemText(FILTER_PRESET_USER, QString("User (%1 k)").arg(width_f));
+    ui->filterCombo->setCurrentIndex(filter_index);
+    if (filter_index == FILTER_PRESET_USER)
+    {
+        float width_f;
+        width_f = fabs((hi-lo)/1000.f);
+        ui->filterCombo->setItemText(FILTER_PRESET_USER, QString("User (%1 k)")
+                                     .arg(width_f));
+    }
 }
-
 
 /*! \brief Select new filter preset.
  *  \param index Index of the new filter preset (0=wide, 1=normal, 2=narrow).

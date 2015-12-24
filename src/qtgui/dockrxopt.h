@@ -110,6 +110,7 @@ public slots:
 
 private:
     void updateHwFreq();
+    unsigned int filterIdxFromLoHi(int lo, int hi) const;
 
 signals:
     /*! \brief Signal emitted when the channel filter frequency has changed. */
