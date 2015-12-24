@@ -6,13 +6,13 @@ add_subdirectory(interfaces)
 add_subdirectory(qtgui)
 add_subdirectory(receivers)
 
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     add_subdirectory(osxaudio)
     set(CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
-ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+elseif((${CMAKE_SYSTEM_NAME} MATCHES "Linux") AND (${LINUX_AUDIO_BACKEND} MATCHES "Pulseaudio"))
     add_subdirectory(pulseaudio)
-ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-ENDIF()
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+endif()
 
 #######################################################################################################################
 # bring in the global properties
@@ -39,14 +39,13 @@ add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCE} ${UIS_HDRS} ${RESOURCES
 qt5_use_modules(${PROJECT_NAME} Core Network Widgets Svg)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
 # The pulse libraries are only needed on Linux. On other platforms they will not be found, so having them here is fine.
-target_link_libraries(${PROJECT_NAME} 
-    ${Boost_LIBRARIES} 
-    ${GNURADIO_ALL_LIBRARIES} 
-    ${GNURADIO_OSMOSDR_LIBRARIES} 
+target_link_libraries(${PROJECT_NAME}
+    ${Boost_LIBRARIES}
+    ${GNURADIO_ALL_LIBRARIES}
+    ${GNURADIO_OSMOSDR_LIBRARIES}
     ${PULSEAUDIO_LIBRARY}
     ${PULSE-SIMPLE}
 )
 
 set(INSTALL_DEFAULT_BINDIR "bin" CACHE STRING "Appended to CMAKE_INSTALL_PREFIX")
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${INSTALL_DEFAULT_BINDIR})
-
