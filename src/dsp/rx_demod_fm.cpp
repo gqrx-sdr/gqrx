@@ -58,14 +58,21 @@ rx_demod_fm::rx_demod_fm(float quad_rate, float audio_rate, float max_dev, doubl
     d_quad = gr::analog::quadrature_demod_cf::make(gain);
 
     /* de-emphasis */
-    d_alpha = 1.0 - exp(-1.0/(d_quad_rate * d_tau));
-    std::cout << " *** alpha: " << d_alpha << std::endl;
-    d_deemph = gr::filter::single_pole_iir_filter_ff::make(d_alpha);
+    d_fftaps.resize(2);
+    d_fbtaps.resize(2);
+    calculate_iir_taps(d_tau);
+    d_deemph = gr::filter::iir_filter_ffd::make(d_fftaps, d_fbtaps);
 
     /* connect block */
     connect(self(), 0, d_quad, 0);
-    connect(d_quad, 0, d_deemph, 0);
-    connect(d_deemph, 0, self(), 0);
+    if (d_tau > 1.0e-9) {
+        connect(d_quad, 0, d_deemph, 0);
+        connect(d_deemph, 0, self(), 0);
+    }
+    else {
+        connect(d_quad, 0, self(), 0);
+    }
+
 }
 
 rx_demod_fm::~rx_demod_fm ()
@@ -103,10 +110,56 @@ void rx_demod_fm::set_max_dev(float max_dev)
 void rx_demod_fm::set_tau(double tau)
 {
     if (fabs(tau - d_tau) < 1.0e-9) {
+        /* no change */
         return;
     }
 
-    d_tau = tau;
-    d_alpha = 1.0 - exp(-1.0/(d_quad_rate * d_tau));
-    d_deemph->set_taps(d_alpha);
+    if (tau > 1.0e-9) {
+        calculate_iir_taps(tau);
+        d_deemph->set_taps(d_fftaps, d_fbtaps);
+
+        /* check to see if we need to rewire flow graph */
+        if (d_tau <= 1.0e-9) {
+            /* need to put deemph into the flowgraph */
+            lock();
+            disconnect(d_quad, 0, self(), 0);
+            connect(d_quad, 0, d_deemph, 0);
+            connect(d_deemph, 0, self(), 0);
+            unlock();
+        }
+
+        d_tau = tau;
+    }
+    else {
+        //std::cout << "TAU is 0: " << tau << std::endl;
+        /* diable de-emph if conencted */
+        if (d_tau > 1.0e-9) {
+            //std::cout << "  Disable deemph" << std::endl;
+            lock();
+            disconnect(d_quad, 0, d_deemph, 0);
+            disconnect(d_deemph, 0, self(), 0);
+            connect(d_quad, 0, self(), 0);
+            unlock();
+        }
+
+        d_tau = 0.0;
+    }
+
+}
+
+
+/*! \brief Calculate taps for FM de-emph IIR filter. */
+void rx_demod_fm::calculate_iir_taps(double tau)
+{
+    /* copied from fm_emph.py in gnuradio-core */
+    double w_p, w_pp;
+
+    w_p = 1.0/tau;
+    w_pp = tan(w_p / (d_quad_rate * 2.0)); /* prewarped analog freq */
+
+    d_fftaps[0] = w_pp/(1 + w_pp);
+    d_fftaps[1] = d_fftaps[0];
+
+    d_fbtaps[0] = 1.0;
+    d_fbtaps[1] = (w_pp - 1)/(w_pp + 1);
 }
