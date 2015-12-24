@@ -350,9 +350,10 @@ MainWindow::~MainWindow()
     delete [] d_pwrFftData;
 }
 
-/*! \brief Load new configuration.
- *  \param cfgfile
- *  \returns True if config is OK, False if not (e.g. no input device specified).
+/**
+ * Load new configuration.
+ * @param cfgfile
+ * @returns True if config is OK, False if not (e.g. no input device specified).
  *
  * If cfgfile is an absolute path it will be used as is, otherwise it is assumed to be the
  * name of a file under m_cfg_dir.
@@ -568,9 +569,10 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
     return conf_ok;
 }
 
-/*! \brief Save current configuration to a file.
- *  \param cfgfile
- *  \returns True if the operation was successful.
+/**
+ * @brief Save current configuration to a file.
+ * @param cfgfile
+ * @returns True if the operation was successful.
  *
  * If cfgfile is an absolute path it will be used as is, otherwise it is assumed to be the
  * name of a file under m_cfg_dir.
@@ -619,7 +621,8 @@ bool MainWindow::saveConfig(const QString cfgfile)
     }
 }
 
-/*! \brief Store session-related parameters (frequency, gain,...)
+/**
+ * Store session-related parameters (frequency, gain,...)
  *
  * This needs to be called when we switch input source, otherwise the
  * new source would use the parameters stored on last exit.
@@ -640,12 +643,14 @@ void MainWindow::storeSession()
     }
 }
 
-/*! \brief Update RF frequency range.
- *  \param ignore_limits Whether ignore the hardware specd and allow DC-to-light range.
+/**
+ * Update RF frequency range.
+ * @param ignore_limits Whether ignore the hardware specd and allow DC-to-light
+ *                      range.
  *
- * Useful when we read a new configuration with a new input device. This function will
- * fetch the frequency range of the receiver and update the frequency control and frequency
- * bar widgets.
+ * Useful when we read a new configuration with a new input device. This
+ * function will fetch the frequency range of the receiver and update the
+ * frequency control and frequency bar widgets.
  *
  * This function must also be called when the LNB LO has changed.
  */
@@ -687,7 +692,8 @@ void MainWindow::updateGainStages(bool read_from_device)
     std::vector<std::string> gain_names = rx->get_gain_names();
     gain_t gain;
 
-    for (std::vector<std::string>::iterator it = gain_names.begin(); it != gain_names.end(); ++it)
+    std::vector<std::string>::iterator it;
+    for (it = gain_names.begin(); it != gain_names.end(); ++it)
     {
         gain.name = *it;
         rx->get_gain_range(gain.name, &gain.start, &gain.stop, &gain.step);
@@ -706,8 +712,9 @@ void MainWindow::updateGainStages(bool read_from_device)
     uiDockInputCtl->setGainStages(gain_list);
 }
 
-/*! \brief Slot for receiving frequency change signals.
- *  \param[in] freq The new frequency.
+/**
+ * @brief Slot for receiving frequency change signals.
+ * @param[in] freq The new frequency.
  *
  * This slot is connected to the CFreqCtrl::newFrequency() signal and is used
  * to set new receive frequency.
@@ -729,8 +736,9 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
     uiDockBookmarks->setNewFrequency(rx_freq);
 }
 
-/*! \brief Set new LNB LO frequency.
- *  \param freq_mhz The new frequency in MHz.
+/**
+ * @brief Set new LNB LO frequency.
+ * @param freq_mhz The new frequency in MHz.
  */
 void MainWindow::setLnbLo(double freq_mhz)
 {
@@ -752,15 +760,16 @@ void MainWindow::setLnbLo(double freq_mhz)
         m_settings->setValue("input/lnb_lo", d_lnb_lo);
 }
 
-/*! \brief Select new antenna connector. */
+/** Select new antenna connector. */
 void MainWindow::setAntenna(const QString antenna)
 {
     qDebug() << "New antenna selected:" << antenna;
     rx->set_antenna(antenna.toStdString());
 }
 
-/*! \brief Set new channel filter offset.
- *  \param freq_hz The new filter offset in Hz.
+/**
+ * @brief Set new channel filter offset.
+ * @param freq_hz The new filter offset in Hz.
  */
 void MainWindow::setFilterOffset(qint64 freq_hz)
 {
@@ -775,16 +784,17 @@ void MainWindow::setFilterOffset(qint64 freq_hz)
     }
 }
 
-/*! \brief Set a specific gain.
- *  \param name The name of the gain stage to adjust.
- *  \param gain The new value.
+/**
+ * @brief Set a specific gain.
+ * @param name The name of the gain stage to adjust.
+ * @param gain The new value.
  */
 void MainWindow::setGain(QString name, double gain)
 {
     rx->set_gain(name.toStdString(), gain);
 }
 
-/*! \brief Enable / disable hardware AGC. */
+/** Enable / disable hardware AGC. */
 void MainWindow::setAutoGain(bool enabled)
 {
     rx->set_auto_gain(enabled);
@@ -795,8 +805,9 @@ void MainWindow::setAutoGain(bool enabled)
     }
 }
 
-/*! \brief Set new frequency offset value.
- *  \param ppm Frequency correction.
+/**
+ * @brief Set new frequency offset value.
+ * @param ppm Frequency correction.
  *
  * The valid range is between -200 and 200.
  */
@@ -812,30 +823,32 @@ void MainWindow::setFreqCorr(double ppm)
 }
 
 
-/*! \brief Enable/disable I/Q reversion. */
+/** Enable/disable I/Q reversion. */
 void MainWindow::setIqSwap(bool reversed)
 {
     rx->set_iq_swap(reversed);
 }
 
-/*! \brief Enable/disable automatic DC removal. */
+/** Enable/disable automatic DC removal. */
 void MainWindow::setDcCancel(bool enabled)
 {
     rx->set_dc_cancel(enabled);
 }
 
-/*! \brief Enable/disable automatic IQ balance. */
+/** Enable/disable automatic IQ balance. */
 void MainWindow::setIqBalance(bool enabled)
 {
     rx->set_iq_balance(enabled);
 }
 
-/*! \brief Ignore hardware limits.
- *  \param ignore_limits Whether harware limits should be ignored or not.
+/**
+ * @brief Ignore hardware limits.
+ * @param ignore_limits Whether harware limits should be ignored or not.
  *
- * This slot is triggered when the user changes the "Ignore hardware limits" option.
- * It will update the allowed frequency range and also update the current RF center
- * frequency, which may change when we swich from ignore to don't ignore.
+ * This slot is triggered when the user changes the "Ignore hardware limits"
+ * option. It will update the allowed frequency range and also update the
+ * current RF center frequency, which may change when we swich from ignore to
+ * don't ignore.
  */
 void MainWindow::setIgnoreLimits(bool ignore_limits)
 {
@@ -851,8 +864,9 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
     setNewFrequency(freq);
 }
 
-/*! \brief Select new demodulator.
- *  \param demod New demodulator.
+/**
+ * @brief Select new demodulator.
+ * @param demod New demodulator.
  */
 void MainWindow::selectDemod(QString strModulation)
 {
@@ -864,8 +878,9 @@ void MainWindow::selectDemod(QString strModulation)
     return selectDemod(iDemodIndex);
 }
 
-/*! \brief Select new demodulator.
- *  \param demod New demodulator index.
+/**
+ * @brief Select new demodulator.
+ * @param demod New demodulator index.
  *
  * This slot basically maps the index of the mode selector to receiver::demod
  * and configures the default channel filter.
@@ -1013,8 +1028,9 @@ void MainWindow::selectDemod(int mode_idx)
 }
 
 
-/*! \brief New FM deviation selected.
- *  \param max_dev The enw FM deviation.
+/**
+ * @brief New FM deviation selected.
+ * @param max_dev The enw FM deviation.
  */
 void MainWindow::setFmMaxdev(float max_dev)
 {
@@ -1039,8 +1055,9 @@ void MainWindow::setFmMaxdev(float max_dev)
 }
 
 
-/*! \brief New FM de-emphasis time consant selected.
- *  \param tau The new time constant
+/**
+ * @brief New FM de-emphasis time consant selected.
+ * @param tau The new time constant
  */
 void MainWindow::setFmEmph(double tau)
 {
@@ -1051,94 +1068,87 @@ void MainWindow::setFmEmph(double tau)
 }
 
 
-/*! \brief AM DCR status changed (slot).
- *  \param enabled Whether DCR is enabled or not.
+/**
+ * @brief AM DCR status changed (slot).
+ * @param enabled Whether DCR is enabled or not.
  */
 void MainWindow::setAmDcr(bool enabled)
 {
     rx->set_am_dcr(enabled);
 }
 
-/*! \brief Audio gain changed.
- *  \param value The new audio gain in dB.
+/**
+ * @brief Audio gain changed.
+ * @param value The new audio gain in dB.
  */
 void MainWindow::setAudioGain(float value)
 {
     rx->set_af_gain(value);
 }
 
-/*! \brief Set AGC ON/OFF.
- *  \param agc_on Whether AGC is ON (true) or OFF (false).
- */
+/** Set AGC ON/OFF. */
 void MainWindow::setAgcOn(bool agc_on)
 {
     rx->set_agc_on(agc_on);
 }
 
-/*! \brief AGC hang ON/OFF.
- *  \param use_hang Whether to use hang.
- */
+/** AGC hang ON/OFF. */
 void MainWindow::setAgcHang(bool use_hang)
 {
     rx->set_agc_hang(use_hang);
 }
 
-/*! \brief AGC threshold changed.
- *  \param threshold The new threshold.
- */
+/** AGC threshold changed. */
 void MainWindow::setAgcThreshold(int threshold)
 {
     rx->set_agc_threshold(threshold);
 }
 
-/*! \brief AGC slope factor changed.
- *  \param factor The new slope factor.
- */
+/** AGC slope factor changed. */
 void MainWindow::setAgcSlope(int factor)
 {
     rx->set_agc_slope(factor);
 }
 
-/*! \brief AGC manual gain changed.
- *  \param gain The new manual gain in dB.
- */
+/** AGC manual gain changed. */
 void MainWindow::setAgcGain(int gain)
 {
     rx->set_agc_manual_gain(gain);
 }
 
-/*! \brief AGC decay changed.
- *  \param factor The new AGC decay.
- */
+/** AGC decay changed. */
 void MainWindow::setAgcDecay(int msec)
 {
     rx->set_agc_decay(msec);
 }
 
-/*! \brief Noide blanker configuration changed.
- *  \param nb1 Noise blanker 1 ON/OFF.
- *  \param nb2 Noise blanker 2 ON/OFF.
- *  \param threshold Noise blanker threshold.
+/**
+ * @brief Noise blanker configuration changed.
+ * @param nb1 Noise blanker 1 ON/OFF.
+ * @param nb2 Noise blanker 2 ON/OFF.
+ * @param threshold Noise blanker threshold.
  */
 void MainWindow::setNoiseBlanker(int nbid, bool on, float threshold)
 {
-    qDebug() << "Noise blanker NB:" << nbid << " ON:" << on << "THLD:" << threshold;
+    qDebug() << "Noise blanker NB:" << nbid << " ON:" << on << "THLD:"
+             << threshold;
 
     rx->set_nb_on(nbid, on);
     rx->set_nb_threshold(nbid, threshold);
 }
 
-
-/*! \brief Squelch level changed.
- *  \param level_db The new squelch level in dBFS.
+/**
+ * @brief Squelch level changed.
+ * @param level_db The new squelch level in dBFS.
  */
 void MainWindow::setSqlLevel(double level_db)
 {
     rx->set_sql_level(level_db);
 }
 
-/*! \brief Squelch level auto clicked
- *  \return new squeltch value
+/**
+ * @brief Squelch level auto clicked.
+ * @return The new squelch level.
  */
 double MainWindow::setSqlLevelAuto()
 {
@@ -1147,7 +1157,7 @@ double MainWindow::setSqlLevelAuto()
     return level;
 }
 
-/*! \brief Signal strength meter timeout */
+/** Signal strength meter timeout. */
 void MainWindow::meterTimeout()
 {
     float level;
@@ -1157,7 +1167,7 @@ void MainWindow::meterTimeout()
     remote->setSignalLevel(level);
 }
 
-/*! \brief Baseband FFT plot timeout. */
+/** Baseband FFT plot timeout. */
 void MainWindow::iqFftTimeout()
 {
     unsigned int    fftsize;
@@ -1204,7 +1214,7 @@ void MainWindow::iqFftTimeout()
     ui->plotter->setNewFttData(d_iirFftData, d_realFftData, fftsize);
 }
 
-/*! \brief Audio FFT plot timeout. */
+/** Audio FFT plot timeout. */
 void MainWindow::audioFftTimeout()
 {
     unsigned int    fftsize;
@@ -1249,7 +1259,7 @@ void MainWindow::audioFftTimeout()
     uiDockAudio->setNewFttData(d_realFftData, fftsize);
 }
 
-/*! \brief RDS message display timeout. */
+/** RDS message display timeout. */
 void MainWindow::rdsTimeout()
 {
     std::string buffer;
@@ -1262,8 +1272,9 @@ void MainWindow::rdsTimeout()
     }
 }
 
-/*! \brief Start audio recorder.
- *  \param filename The file name into which audio should be recorded.
+/**
+ * @brief Start audio recorder.
+ * @param filename The file name into which audio should be recorded.
  */
 void MainWindow::startAudioRec(const QString filename)
 {
@@ -1272,7 +1283,8 @@ void MainWindow::startAudioRec(const QString filename)
         QMessageBox msg_box;
         msg_box.setIcon(QMessageBox::Critical);
         msg_box.setText(tr("Recording audio requires a demodulator.\n"
-                           "Currently, demodulation is switched off (Mode->Demod off)."));
+                           "Currently, demodulation is switched off "
+                           "(Mode->Demod off)."));
         msg_box.exec();
         uiDockAudio->setAudioRecButtonState(false);
     }
@@ -1289,8 +1301,7 @@ void MainWindow::startAudioRec(const QString filename)
     }
 }
 
-
-/*! \brief Stop audio recorder. */
+/** Stop audio recorder. */
 void MainWindow::stopAudioRec()
 {
     if (rx->stop_audio_recording())
@@ -1307,7 +1318,7 @@ void MainWindow::stopAudioRec()
 }
 
 
-/*! \brief Start playback of audio file. */
+/** Start playback of audio file. */
 void MainWindow::startAudioPlayback(const QString filename)
 {
     if (rx->start_audio_playback(filename.toStdString()))
@@ -1323,7 +1334,7 @@ void MainWindow::startAudioPlayback(const QString filename)
     }
 }
 
-/*! \brief Stop playback of audio file. */
+/** Stop playback of audio file. */
 void MainWindow::stopAudioPlayback()
 {
     if (rx->stop_audio_playback())
@@ -1339,19 +1350,19 @@ void MainWindow::stopAudioPlayback()
     }
 }
 
-/*! \brief Start streaming audio over UDP. */
+/** Start streaming audio over UDP. */
 void MainWindow::startAudioStream(const QString udp_host, int udp_port)
 {
     rx->start_udp_streaming(udp_host.toStdString(), udp_port);
 }
 
-/*! \brief Stop streaming audio over UDP. */
+/** Stop streaming audio over UDP. */
 void MainWindow::stopAudioStreaming()
 {
     rx->stop_udp_streaming();
 }
 
-/*! \brief Start I/Q recording. */
+/** Start I/Q recording. */
 void MainWindow::startIqRecording(const QString recdir)
 {
     qDebug() << __func__;
@@ -1360,7 +1371,8 @@ void MainWindow::startIqRecording(const QString recdir)
     qint64 freq = (qint64)(rx->get_rf_freq());
     qint64 sr = (qint64)(rx->get_input_rate());
     QString lastRec = QDateTime::currentDateTimeUtc().
-            toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.'raw'").arg(recdir).arg(freq).arg(sr);
+            toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.'raw'")
+            .arg(recdir).arg(freq).arg(sr);
 
     // start recorder; fails if recording already in progress
     if (rx->start_iq_recording(lastRec.toStdString()))
@@ -1378,25 +1390,20 @@ void MainWindow::startIqRecording(const QString recdir)
     }
     else
     {
-        ui->statusBar->showMessage(tr("Recording I/Q data to: %1").arg(lastRec), 5000);
+        ui->statusBar->showMessage(tr("Recording I/Q data to: %1").arg(lastRec),
+                                   5000);
     }
-
 }
 
-/*! \brief Stop current I/Q recording. */
+/** Stop current I/Q recording. */
 void MainWindow::stopIqRecording()
 {
     qDebug() << __func__;
 
     if (rx->stop_iq_recording())
-    {
         ui->statusBar->showMessage(tr("Error stopping I/Q recoder"));
-    }
     else
-    {
         ui->statusBar->showMessage(tr("I/Q data recoding stopped"), 5000);
-    }
-
 }
 
 void MainWindow::startIqPlayback(const QString filename, float samprate)
@@ -1420,7 +1427,9 @@ void MainWindow::startIqPlayback(const QString filename, float samprate)
     // sample rate
     double actual_rate = rx->set_input_rate(samprate);
     qDebug() << "Requested sample rate:" << samprate;
-    qDebug() << "Actual sample rate   :" << QString("%1").arg(actual_rate, 0, 'f', 6);
+    qDebug() << "Actual sample rate   :" << QString("%1")
+                .arg(actual_rate, 0, 'f', 6);
+
     uiDockRxOpt->setFilterOffsetRange((qint64)(0.9*actual_rate));
     ui->plotter->setSampleRate(actual_rate);
     ui->plotter->setSpanFreq((quint32)actual_rate);
@@ -1434,7 +1443,6 @@ void MainWindow::startIqPlayback(const QString filename, float samprate)
         // restsart DSP
         on_actionDSP_triggered(true);
     }
-
 }
 
 void MainWindow::stopIqPlayback()
@@ -1458,7 +1466,9 @@ void MainWindow::stopIqPlayback()
     {
         double actual_rate = rx->set_input_rate(sr);
         qDebug() << "Requested sample rate:" << sr;
-        qDebug() << "Actual sample rate   :" << QString("%1").arg(actual_rate, 0, 'f', 6);
+        qDebug() << "Actual sample rate   :" << QString("%1")
+                    .arg(actual_rate, 0, 'f', 6);
+
         uiDockRxOpt->setFilterOffsetRange((qint64)(0.9*actual_rate));
         ui->plotter->setSampleRate(actual_rate);
         ui->plotter->setSpanFreq((quint32)actual_rate);
@@ -1479,22 +1489,23 @@ void MainWindow::stopIqPlayback()
 }
 
 
-/*! \brief Go to a specific offset in the IQ file.
- *  \param seek_pos The byte offset from the begining of the file.
+/**
+ * Go to a specific offset in the IQ file.
+ * @param seek_pos The byte offset from the begining of the file.
  */
 void MainWindow::seekIqFile(qint64 seek_pos)
 {
     rx->seek_iq_file((long)seek_pos);
 }
 
-/*! \brief FFT size has changed. */
+/** FFT size has changed. */
 void MainWindow::setIqFftSize(int size)
 {
     qDebug() << "Changing baseband FFT size to" << size;
     rx->set_iq_fft_size(size);
 }
 
-/*! \brief Baseband FFT rate has changed. */
+/** Baseband FFT rate has changed. */
 void MainWindow::setIqFftRate(int fps)
 {
     int interval;
@@ -1516,15 +1527,14 @@ void MainWindow::setIqFftRate(int fps)
         iq_fft_timer->setInterval(interval);
 }
 
-/*! \brief Vertical split between waterfall and pandapter changed.
- *  \param pct_pand The percentage of the waterfall.
+/**
+ * @brief Vertical split between waterfall and pandapter changed.
+ * @param pct_pand The percentage of the waterfall.
  */
 void MainWindow::setIqFftSplit(int pct_wf)
 {
     if ((pct_wf >= 10) && (pct_wf <= 100))
-    {
         ui->plotter->setPercent2DScreen(pct_wf);
-    }
 }
 
 void MainWindow::setIqFftAvg(float avg)
@@ -1533,7 +1543,7 @@ void MainWindow::setIqFftAvg(float avg)
         d_fftAvg = avg;
 }
 
-/*! \brief Audio FFT rate has changed. */
+/** Audio FFT rate has changed. */
 void MainWindow::setAudioFftRate(int fps)
 {
     int interval = 1000 / fps;
@@ -1545,14 +1555,14 @@ void MainWindow::setAudioFftRate(int fps)
         audio_fft_timer->setInterval(interval);
 }
 
-/*! Set FFT plot color. */
+/** Set FFT plot color. */
 void MainWindow::setFftColor(const QColor color)
 {
     ui->plotter->setFftPlotColor(color);
     uiDockAudio->setFftColor(color);
 }
 
-/*! Enalbe/disable filling the aread below the FFT plot. */
+/** Enalbe/disable filling the aread below the FFT plot. */
 void MainWindow::setFftFill(bool enable)
 {
     ui->plotter->setFftFill(enable);
@@ -1569,7 +1579,8 @@ void MainWindow::setPeakDetection(bool enabled)
     ui->plotter->setPeakDetection(enabled ,2);
 }
 
-/*! \brief Force receiver reconfiguration.
+/**
+ * @brief Force receiver reconfiguration.
  *
  * Aka. jerky dongle workaround.
  *
@@ -1587,11 +1598,12 @@ void MainWindow::forceRxReconf()
     selectDemod(uiDockRxOpt->currentDemod());
 }
 
-/*! \brief Start/Stop DSP processing.
- *  \param checked Flag indicating whether DSP processing should be ON or OFF.
+/**
+ * @brief Start/Stop DSP processing.
+ * @param checked Flag indicating whether DSP processing should be ON or OFF.
  *
- * This slot is executed when the actionDSP is toggled by the user. This can either be
- * via the menu bar or the "power on" button in the main toolbar.
+ * This slot is executed when the actionDSP is toggled by the user. This can
+ * either be via the menu bar or the "power on" button in the main toolbar.
  */
 void MainWindow::on_actionDSP_triggered(bool checked)
 {
@@ -1642,7 +1654,8 @@ void MainWindow::on_actionDSP_triggered(bool checked)
     }
 }
 
-/*! \brief Action: I/O device configurator triggered.
+/**
+ * @brief Action: I/O device configurator triggered.
  *
  * This slot is activated when the user selects "I/O Devices" in the
  * menu. It activates the I/O configurator and if the user closes the
@@ -1676,7 +1689,7 @@ int MainWindow::on_actionIoConfig_triggered()
 }
 
 
-/*! \brief Runc first time configurator. */
+/** Run first time configurator. */
 int MainWindow::firstTimeConfig()
 {
     qDebug() << __func__;
@@ -1693,13 +1706,13 @@ int MainWindow::firstTimeConfig()
 }
 
 
-/*! \brief Load configuration activated by user. */
+/** Load configuration activated by user. */
 void MainWindow::on_actionLoadSettings_triggered()
 {
-    QString cfgfile = QFileDialog::getOpenFileName(this,
-                                                   tr("Load settings"),
-                                                   m_last_dir.isEmpty() ? m_cfg_dir : m_last_dir,
-                                                   tr("Settings (*.conf)"));
+    QString cfgfile;
+    cfgfile = QFileDialog::getOpenFileName(this, tr("Load settings"),
+                                           m_last_dir.isEmpty() ? m_cfg_dir : m_last_dir,
+                                           tr("Settings (*.conf)"));
 
     qDebug() << "File to open:" << cfgfile;
 
@@ -1717,13 +1730,13 @@ void MainWindow::on_actionLoadSettings_triggered()
         m_last_dir = fi.absolutePath();
 }
 
-/*! \brief Save configuration activated by user. */
+/** Save configuration activated by user. */
 void MainWindow::on_actionSaveSettings_triggered()
 {
-    QString cfgfile = QFileDialog::getSaveFileName(this,
-                                                   tr("Save settings"),
-                                                   m_last_dir.isEmpty() ? m_cfg_dir : m_last_dir,
-                                                   tr("Settings (*.conf)"));
+    QString cfgfile;
+    cfgfile = QFileDialog::getSaveFileName(this, tr("Save settings"),
+                                           m_last_dir.isEmpty() ? m_cfg_dir : m_last_dir,
+                                           tr("Settings (*.conf)"));
 
     qDebug() << "File to save:" << cfgfile;
 
@@ -1743,7 +1756,7 @@ void MainWindow::on_actionSaveSettings_triggered()
 }
 
 
-/*! \brief show I/Q player. */
+/** Show I/Q player. */
 void MainWindow::on_actionIqTool_triggered()
 {
     iq_tool->show();
@@ -1785,7 +1798,7 @@ void MainWindow::on_plotter_newCenterFreq(qint64 f)
     ui->freqCtrl->setFrequency(f);
 }
 
-/*! \brief Full screen button or menu item toggled. */
+/** Full screen button or menu item toggled. */
 void MainWindow::on_actionFullScreen_triggered(bool checked)
 {
     if (checked)
@@ -1800,7 +1813,7 @@ void MainWindow::on_actionFullScreen_triggered(bool checked)
     }
 }
 
-/*! \brief Remote control button (or menu item) toggled. */
+/** Remote control button (or menu item) toggled. */
 void MainWindow::on_actionRemoteControl_triggered(bool checked)
 {
     if (checked)
@@ -1809,7 +1822,7 @@ void MainWindow::on_actionRemoteControl_triggered(bool checked)
         remote->stop_server();
 }
 
-/*! \brief Remote control configuration button (or menu item) clicked. */
+/** Remote control configuration button (or menu item) clicked. */
 void MainWindow::on_actionRemoteConfig_triggered()
 {
     RemoteControlSettings *rcs = new RemoteControlSettings();
@@ -1829,7 +1842,8 @@ void MainWindow::on_actionRemoteConfig_triggered()
 
 #define DATA_BUFFER_SIZE 48000
 
-/*! \brief AFSK1200 decoder action triggered.
+/**
+ * AFSK1200 decoder action triggered.
  *
  * This slot is called when the user activates the AFSK1200
  * action. It will create an AFSK1200 decoder window and start
@@ -1867,7 +1881,8 @@ void MainWindow::on_actionAFSK1200_triggered()
 }
 
 
-/*! \brief Destroy AFSK1200 decoder window got closed.
+/**
+ * Destroy AFSK1200 decoder window got closed.
  *
  * This slot is connected to the windowClosed() signal of the AFSK1200 decoder
  * object. We need this to properly destroy the object, stop timeout and clean
@@ -1885,8 +1900,9 @@ void MainWindow::afsk1200win_closed()
 }
 
 
-/*! \brief Cyclic processing for acquiring samples from receiver and
- *         processing them with data decoders (see dec_* objects)
+/**
+ * Cyclic processing for acquiring samples from receiver and processing them
+ * with data decoders (see dec_* objects)
  */
 void MainWindow::decoderTimeout()
 {
@@ -1922,7 +1938,7 @@ void MainWindow::setRdsDecoder(bool checked)
     }
 }
 
-/*! \brief Launch Gqrx google group website. */
+/** Launch Gqrx google group website. */
 void MainWindow::on_actionUserGroup_triggered()
 {
     bool res = QDesktopServices::openUrl(QUrl("https://groups.google.com/forum/#!forum/gqrx",
@@ -1999,7 +2015,8 @@ void MainWindow::showSimpleTextFile(const QString &resource_path,
     // browser and layout deleted automatically
 }
 
-/*! \brief Action: About Qthid
+/**
+ * @brief Action: About Qthid
  *
  * This slot is called when the user activates the
  * Help|About menu item (or Gqrx|About on Mac)
@@ -2007,31 +2024,32 @@ void MainWindow::showSimpleTextFile(const QString &resource_path,
 void MainWindow::on_actionAbout_triggered()
 {
     QMessageBox::about(this, tr("About Gqrx"),
-                       tr("<p>This is Gqrx %1</p>"
-                          "<p>Copyright (C) 2011-2015 Alexandru Csete & contributors.</p>"
-                          "<p>Gqrx is a software defined radio receiver powered by "
-                          "<a href='http://www.gnuradio.org/'>GNU Radio</a> and the Qt toolkit. "
-                          "<p>Gqrx uses the <a href='http://sdr.osmocom.org/trac/wiki/GrOsmoSDR'>GrOsmoSDR</a> "
-                          "input source block and and works with any input device supported by it including:"
-                          "<ul>"
-                          "<li><a href='http://funcubedongle.com/'>Funcube Dongle Pro and Pro+</a></li>"
-                          "<li><a href='http://sdr.osmocom.org/trac/wiki/rtl-sdr'>RTL2832U-based DVB-T tuners (rtlsdr and rtlsdr-tcp)</a></li>"
-                          "<li><a href='http://www.ettus.com/'>Ettus Research USRP devices</a></li>"
-                          "<li><a href='http://sdr.osmocom.org/trac/'>OsmoSDR</a></li>"
-                          "<li><a href='https://greatscottgadgets.com/hackrf/'>HackRF One & Jawbreaker</a></li>"
-                          "<li><a href='http://nuand.com/bladeRF'>Nuand bladeRF</a></li>"
-                          "<li><a href='http://airspy.com'>Airspy</a></li>"
-                          "<li><a href='http://rfspace.com'>RFspace receivers</a></li>"
-                          "</ul></p>"
-                          "<p>You can download the latest version from the "
-                          "<a href='http://gqrx.dk/'>Gqrx website</a>."
-                          "</p>"
-                          "<p>"
-                          "Gqrx is licensed under the <a href='http://www.gnu.org/licenses/gpl.html'>GNU General Public License</a>."
-                          "</p>").arg(VERSION));
+        tr("<p>This is Gqrx %1</p>"
+          "<p>Copyright (C) 2011-2015 Alexandru Csete & contributors.</p>"
+          "<p>Gqrx is a software defined radio receiver powered by "
+          "<a href='http://www.gnuradio.org/'>GNU Radio</a> and the Qt toolkit. "
+          "<p>Gqrx uses the <a href='http://sdr.osmocom.org/trac/wiki/GrOsmoSDR'>GrOsmoSDR</a> "
+          "input source block and and works with any input device supported by it including:"
+          "<ul>"
+          "<li><a href='http://funcubedongle.com/'>Funcube Dongle Pro and Pro+</a></li>"
+          "<li><a href='http://sdr.osmocom.org/trac/wiki/rtl-sdr'>RTL2832U-based DVB-T tuners (rtlsdr and rtlsdr-tcp)</a></li>"
+          "<li><a href='http://www.ettus.com/'>Ettus Research USRP devices</a></li>"
+          "<li><a href='http://sdr.osmocom.org/trac/'>OsmoSDR</a></li>"
+          "<li><a href='https://greatscottgadgets.com/hackrf/'>HackRF One & Jawbreaker</a></li>"
+          "<li><a href='http://nuand.com/bladeRF'>Nuand bladeRF</a></li>"
+          "<li><a href='http://airspy.com'>Airspy</a></li>"
+          "<li><a href='http://rfspace.com'>RFspace receivers</a></li>"
+          "</ul></p>"
+          "<p>You can download the latest version from the "
+          "<a href='http://gqrx.dk/'>Gqrx website</a>."
+          "</p>"
+          "<p>"
+          "Gqrx is licensed under the <a href='http://www.gnu.org/licenses/gpl.html'>GNU General Public License</a>."
+          "</p>").arg(VERSION));
 }
 
-/*! \brief Action: About Qt
+/**
+ * @brief Action: About Qt
  *
  * This slot is called when the user activates the
  * Help|About Qt menu item (or Gqrx|About Qt on Mac)
@@ -2096,6 +2114,8 @@ void MainWindow::on_actionAddBookmark_triggered()
     // Add new Bookmark to Bookmarks.
     if(ok)
     {
+        int i;
+
         BookmarkInfo info;
         info.frequency = ui->freqCtrl->getFrequency();
         info.bandwidth = ui->plotter->getFilterBw();
@@ -2103,11 +2123,11 @@ void MainWindow::on_actionAddBookmark_triggered()
         info.name=name;
         QStringList listTags = tags.split(",",QString::SkipEmptyParts);
         info.tags.clear();
-        if(listTags.size()==0)
+        if (listTags.size() == 0)
         {
             info.tags.append(&Bookmarks::Get().findOrAddTag(""));
         }
-        for(int i=0; i<listTags.size(); ++i)
+        for(i = 0; i < listTags.size(); ++i)
         {
             info.tags.append(&Bookmarks::Get().findOrAddTag(listTags[i]));
         }
