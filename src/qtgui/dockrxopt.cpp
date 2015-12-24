@@ -185,7 +185,7 @@ int  DockRxOpt::currentFilterShape()
  */
 void DockRxOpt::setCurrentDemod(int demod)
 {
-    if ((demod >= MODE_OFF) && (demod <= MODE_CWU))
+    if ((demod >= MODE_OFF) && (demod < MODE_LAST))
         ui->modeSelector->setCurrentIndex(demod);
 }
 
