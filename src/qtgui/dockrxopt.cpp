@@ -111,16 +111,18 @@ DockRxOpt::~DockRxOpt()
     delete nbOpt;
 }
 
-/*! \brief Set value of channel filter offset selector.
- *  \param freq_hz The frequency in Hz
+/**
+ * @brief Set value of channel filter offset selector.
+ * @param freq_hz The frequency in Hz
  */
 void DockRxOpt::setFilterOffset(qint64 freq_hz)
 {
     ui->filterFreq->setFrequency(freq_hz);
 }
 
-/*! \brief Set filter offset range.
- *  \param range_hz The new range in Hz.
+/**
+ * @brief Set filter offset range.
+ * @param range_hz The new range in Hz.
  */
 void DockRxOpt::setFilterOffsetRange(qint64 range_hz)
 {
@@ -128,8 +130,9 @@ void DockRxOpt::setFilterOffsetRange(qint64 range_hz)
         ui->filterFreq->setup(7, -range_hz/2, range_hz/2, 1, UNITS_KHZ);
 }
 
-/*! \brief Set new RF frequency
- *  \param freq_hz The frequency in Hz
+/**
+ * @brief Set new RF frequency
+ * @param freq_hz The frequency in Hz
  *
  * RF frequency is the frequency to which the device device is tuned to
  * The actual RX frequency is the sum of the RF frequency and the filter
@@ -141,8 +144,7 @@ void DockRxOpt::setHwFreq(qint64 freq_hz)
     updateHwFreq();
 }
 
-
-/*! \brief Update RX frequency label. */
+/** Update RX frequency label. */
 void DockRxOpt::updateHwFreq()
 {
     double hw_freq_mhz = hw_freq_hz / 1.0e6;
@@ -175,9 +177,10 @@ unsigned int DockRxOpt::filterIdxFromLoHi(int lo, int hi) const
     return FILTER_PRESET_USER;
 }
 
-/*! \brief Set filter parameters
- *  \param lo Low cutoff frequency in Hz
- *  \param hi High cutoff frequency in Hz.
+/**
+ * @brief Set filter parameters
+ * @param lo Low cutoff frequency in Hz
+ * @param hi High cutoff frequency in Hz.
  *
  * This function will automatically select te "User" preset in the
  * combo box.
@@ -196,23 +199,25 @@ void DockRxOpt::setFilterParam(int lo, int hi)
     }
 }
 
-/*! \brief Select new filter preset.
- *  \param index Index of the new filter preset (0=wide, 1=normal, 2=narrow).
+/**
+ * @brief Select new filter preset.
+ * @param index Index of the new filter preset (0=wide, 1=normal, 2=narrow).
  */
 void DockRxOpt::setCurrentFilter(int index)
 {
     ui->filterCombo->setCurrentIndex(index);
 }
 
-/*! \brief Get current filter preset.
- *  \param The current filter preset (0=wide, 1=normal, 2=narrow).
+/**
+ * @brief Get current filter preset.
+ * @param The current filter preset (0=wide, 1=normal, 2=narrow).
  */
 int  DockRxOpt::currentFilter()
 {
     return ui->filterCombo->currentIndex();
 }
 
-/*! \brief Select filter shape */
+/** Select filter shape */
 void DockRxOpt::setCurrentFilterShape(int index)
 {
     ui->filterShapeCombo->setCurrentIndex(index);
@@ -224,8 +229,9 @@ int  DockRxOpt::currentFilterShape()
 }
 
 
-/*! \brief Select new demodulator.
- *  \param demod Demodulator index corresponding to receiver::demod.
+/**
+ * @brief Select new demodulator.
+ * @param demod Demodulator index corresponding to receiver::demod.
  */
 void DockRxOpt::setCurrentDemod(int demod)
 {
@@ -234,8 +240,9 @@ void DockRxOpt::setCurrentDemod(int demod)
 }
 
 
-/*! \brief Get current demodulator selection.
- *  \return The current demodulator corresponding to receiver::demod.
+/**
+ * @brief Get current demodulator selection.
+ * @return The current demodulator corresponding to receiver::demod.
  */
 int  DockRxOpt::currentDemod()
 {
@@ -253,6 +260,7 @@ float DockRxOpt::currentMaxdev()
     return 5000.0;
 }
 
+/** Get filter lo/hi for a given mode and preset */
 void DockRxOpt::getFilterPreset(int mode, int preset, int * lo, int * hi) const
 {
     if (mode < 0 || mode >= MODE_LAST)
@@ -269,7 +277,7 @@ void DockRxOpt::getFilterPreset(int mode, int preset, int * lo, int * hi) const
     *hi = filter_preset_table[mode][preset][1];
 }
 
-/*! \brief Read receiver configuration from settings data. */
+/** Read receiver configuration from settings data. */
 void DockRxOpt::readSettings(QSettings *settings)
 {
     bool conv_ok;
@@ -297,7 +305,7 @@ void DockRxOpt::readSettings(QSettings *settings)
     }
 }
 
-/*! \brief Save receiver configuration to settings. */
+/** Save receiver configuration to settings. */
 void DockRxOpt::saveSettings(QSettings *settings)
 {
     settings->setValue("receiver/demod", ui->modeSelector->currentIndex());
@@ -317,8 +325,9 @@ void DockRxOpt::saveSettings(QSettings *settings)
         settings->remove("receiver/sql_level");
 }
 
-/*! \brief Channel filter offset has changed
- *  \param freq The new filter offset in Hz
+/**
+ * @brief Channel filter offset has changed
+ * @param freq The new filter offset in Hz
  *
  * This slot is activated when a new filter offset has been selected either
  * usig the mouse or using the keyboard.
@@ -331,10 +340,11 @@ void DockRxOpt::on_filterFreq_newFrequency(qint64 freq)
     emit filterOffsetChanged(freq);
 }
 
-/*! \brief New filter preset selected.
+/**
+ * New filter preset selected.
  *
- * Instead of implementing a new signal, we simply emit demodSelected() since demodulator
- * and filter preset are tightly coupled.
+ * Instead of implementing a new signal, we simply emit demodSelected() since
+ * demodulator and filter preset are tightly coupled.
  */
 void DockRxOpt::on_filterCombo_activated(int index)
 {
@@ -345,8 +355,9 @@ void DockRxOpt::on_filterCombo_activated(int index)
     emit demodSelected(ui->modeSelector->currentIndex());
 }
 
-/*! \brief Mode selector activated.
- *  \param New mode selection.
+/**
+ * @brief Mode selector activated.
+ * @param New mode selection.
  *
  * This slot is activated when the user selects a new demodulator (mode change).
  * It is connected automatically by the UI constructor, and it emits the demodSelected()
@@ -378,24 +389,22 @@ void DockRxOpt::on_modeSelector_activated(int index)
     emit demodSelected(index);
 }
 
-/*! \brief Show demodulator options.
- */
+/** Show demodulator options. */
 void DockRxOpt::on_modeButton_clicked()
 {
     demodOpt->show();
 }
 
-/*! \brief Show AGC options.
- */
+/** Show AGC options. */
 void DockRxOpt::on_agcButton_clicked()
 {
     agcOpt->show();
 }
 
-/*! \brief Auto-squelch button clicked.
+/**
+ * @brief Auto-squelch button clicked.
  *
  * This slot is called when the user clicks on the auto-squelch button.
- *
  */
 void DockRxOpt::on_autoSquelchButton_clicked()
 {
@@ -404,8 +413,7 @@ void DockRxOpt::on_autoSquelchButton_clicked()
     ui->sqlSpinBox->setValue(newval);
 }
 
-
-/*! \brief AGC preset has changed. */
+/** AGC preset has changed. */
 void DockRxOpt::on_agcPresetCombo_activated(int index)
 {
     CAgcOptions::agc_preset_e preset = (CAgcOptions::agc_preset_e) index;
@@ -444,8 +452,9 @@ void DockRxOpt::agcOpt_hangToggled(bool checked)
     emit agcHangToggled(checked);
 }
 
-/*! \brief AGC threshold ("knee") changed.
- *  \param value The new AGC threshold in dB.
+/**
+ * @brief AGC threshold ("knee") changed.
+ * @param value The new AGC threshold in dB.
  */
 void DockRxOpt::agcOpt_thresholdChanged(int value)
 {
@@ -453,8 +462,9 @@ void DockRxOpt::agcOpt_thresholdChanged(int value)
     emit agcThresholdChanged(value);
 }
 
-/*! \brief AGC slope factor changed.
- *  \param value The new slope factor in dB.
+/**
+ * @brief AGC slope factor changed.
+ * @param value The new slope factor in dB.
  */
 void DockRxOpt::agcOpt_slopeChanged(int value)
 {
@@ -462,8 +472,9 @@ void DockRxOpt::agcOpt_slopeChanged(int value)
     emit agcSlopeChanged(value);
 }
 
-/*! \brief AGC decay changed.
- *  \param value The new decay rate in ms (tbc).
+/**
+ * @brief AGC decay changed.
+ * @param value The new decay rate in ms (tbc).
  */
 void DockRxOpt::agcOpt_decayChanged(int value)
 {
@@ -471,8 +482,9 @@ void DockRxOpt::agcOpt_decayChanged(int value)
     emit agcDecayChanged(value);
 }
 
-/*! \brief AGC manual gain changed.
- *  \param gain The new gain in dB.
+/**
+ * @brief AGC manual gain changed.
+ * @param gain The new gain in dB.
  */
 void DockRxOpt::agcOpt_gainChanged(int gain)
 {
@@ -480,51 +492,55 @@ void DockRxOpt::agcOpt_gainChanged(int gain)
     emit agcGainChanged(gain);
 }
 
-/*! \brief Squelch level change.
- *  \param value The new squelch level in dB.
+/**
+ * @brief Squelch level change.
+ * @param value The new squelch level in dB.
  */
 void DockRxOpt::on_sqlSpinBox_valueChanged(double value)
 {
     emit sqlLevelChanged(value);
 }
 
-/*! \brief FM deviation changed by user.
- *  \param max_dev The new deviation in Hz.
+/**
+ * @brief FM deviation changed by user.
+ * @param max_dev The new deviation in Hz.
  */
 void DockRxOpt::demodOpt_fmMaxdevSelected(float max_dev)
 {
     emit fmMaxdevSelected(max_dev);
 }
 
-/*! \brief FM de-emphasis changed by user.
- *  \param tau The new time constant in uS.
+/**
+ * @brief FM de-emphasis changed by user.
+ * @param tau The new time constant in uS.
  */
 void DockRxOpt::demodOpt_fmEmphSelected(double tau)
 {
     emit fmEmphSelected(tau);
 }
 
-/*! \brief AM DC removal toggled by user.
- *  \param enabled Whether DCR is enabled or not.
+/**
+ * @brief AM DC removal toggled by user.
+ * @param enabled Whether DCR is enabled or not.
  */
 void DockRxOpt::demodOpt_amDcrToggled(bool enabled)
 {
     emit amDcrToggled(enabled);
 }
 
-/*! \brief Noise blanker 1 button has been toggled. */
+/** Noise blanker 1 button has been toggled. */
 void DockRxOpt::on_nb1Button_toggled(bool checked)
 {
     emit noiseBlankerChanged(1, checked, (float) nbOpt->nbThreshold(1));
 }
 
-/*! \brief Noise blanker 2 button has been toggled. */
+/** Noise blanker 2 button has been toggled. */
 void DockRxOpt::on_nb2Button_toggled(bool checked)
 {
     emit noiseBlankerChanged(2, checked, (float) nbOpt->nbThreshold(2));
 }
 
-/*! \brief Noise blanker threshold has been changed. */
+/** Noise blanker threshold has been changed. */
 void DockRxOpt::nbOpt_thresholdChanged(int nbid, double value)
 {
     if (nbid == 1)

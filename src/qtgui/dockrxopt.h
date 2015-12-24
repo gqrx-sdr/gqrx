@@ -39,8 +39,9 @@ namespace Ui {
 }
 
 
-/*! \brief Dock window with receiver options.
- *  \ingroup UI
+/**
+ * @brief Dock window with receiver options.
+ * @ingroup UI
  *
  * This dock widget encapsulates the receiver options. The controls
  * are grouped in a tool box that allows packing many controls in little space.
@@ -55,9 +56,12 @@ class DockRxOpt : public QDockWidget
 
 public:
 
-    /*! \brief Mode selector entries.
-     *  \note If you change this enum, remember to update the TCP interface.
-     *  \note Keep in same order as the Strings in ModulationStrings, see DockRxOpt.cpp constructor.
+    /**
+     * Mode selector entries.
+     *
+     * @note If you change this enum, remember to update the TCP interface.
+     * @note Keep in same order as the Strings in ModulationStrings, see
+     *       DockRxOpt.cpp constructor.
      */
     enum rxopt_mode_idx {
         MODE_OFF        = 0, /*!< Demodulator completely off. */
@@ -96,7 +100,6 @@ public:
 
     float currentMaxdev();
 
-    /** Get filter lo/hi for a given mode and preset */
     void    getFilterPreset(int mode, int preset, int * lo, int * hi) const;
 
     static QStringList ModulationStrings;
@@ -113,54 +116,54 @@ private:
     unsigned int filterIdxFromLoHi(int lo, int hi) const;
 
 signals:
-    /*! \brief Signal emitted when the channel filter frequency has changed. */
+    /** Signal emitted when the channel filter frequency has changed. */
     void filterOffsetChanged(qint64 freq_hz);
 
-    /*! \brief Signal emitted when new demodulator is selected. */
+    /** Signal emitted when new demodulator is selected. */
     void demodSelected(int demod);
 
-    /*! \brief Signal emitted when new FM deviation is selected. */
+    /** Signal emitted when new FM deviation is selected. */
     void fmMaxdevSelected(float max_dev);
 
-    /*! \brief Signal emitted when new FM de-emphasis constant is selected. */
+    /** Signal emitted when new FM de-emphasis constant is selected. */
     void fmEmphSelected(double tau);
 
-    /*! \brief Signal emitted when AM DCR status is toggled. */
+    /** Signal emitted when AM DCR status is toggled. */
     void amDcrToggled(bool enabled);
 
-    /*! \brief Signal emitted when baseband gain has changed. Gain is in dB. */
+    /** Signal emitted when baseband gain has changed. Gain is in dB. */
     //void bbGainChanged(float gain);
 
-    /*! \brief Signal emitted when squelch level has changed. Level is in dBFS. */
+    /** Signal emitted when squelch level has changed. Level is in dBFS. */
     void sqlLevelChanged(double level);
 
-    /*! \brief Signal emitted when auto squelch level is clicked.
+    /**
+     * Signal emitted when auto squelch level is clicked.
      *
-     * \note Need current signal/noise level returned
+     * @note Need current signal/noise level returned
      */
     double sqlAutoClicked();
 
-    /*! \brief Signal emitted when AGC is togglen ON/OFF. */
+    /** Signal emitted when AGC is togglen ON/OFF. */
     void agcToggled(bool agc_on);
 
-    /*! \brief Signal emitted when AGC hang is toggled. */
+    /** Signal emitted when AGC hang is toggled. */
     void agcHangToggled(bool use_hang);
 
-    /*! \brief Signal emitted when AGC threshold has changed. Threshold in dB. */
+    /** Signal emitted when AGC threshold has changed. Threshold in dB. */
     void agcThresholdChanged(int value);
 
-    /*! \brief Signal emitted when AGC slope has changed. Slope is in dB.*/
+    /** Signal emitted when AGC slope has changed. Slope is in dB.*/
     void agcSlopeChanged(int slope);
 
-    /*! \brief Signal emitted when AGC decay has changed. Decay is in millisec.*/
+    /** Signal emitted when AGC decay has changed. Decay is in millisec.*/
     void agcDecayChanged(int decay);
 
-    /*! \brief Signal emitted when AGC manual gain has changed. Gain is in dB.*/
+    /** Signal emitted when AGC manual gain has changed. Gain is in dB.*/
     void agcGainChanged(int gain);
 
-    /*! \brief Signal emitted when noise blanker status has changed. */
+    /** Signal emitted when noise blanker status has changed. */
     void noiseBlankerChanged(int nbid, bool on, float threshold);
-
 
 private slots:
     void on_filterFreq_newFrequency(qint64 freq);
@@ -191,14 +194,14 @@ private slots:
     void agcOpt_decayChanged(int value);
 
 private:
-    Ui::DockRxOpt *ui;        /*! The Qt designer UI file. */
-    CDemodOptions *demodOpt;  /*! Demodulator options. */
-    CAgcOptions   *agcOpt;    /*! AGC options. */
-    CNbOptions    *nbOpt;     /*! Noise blanker options. */
+    Ui::DockRxOpt *ui;        /** The Qt designer UI file. */
+    CDemodOptions *demodOpt;  /** Demodulator options. */
+    CAgcOptions   *agcOpt;    /** AGC options. */
+    CNbOptions    *nbOpt;     /** Noise blanker options. */
 
     bool agc_is_on;
 
-    qint64 hw_freq_hz;   /*! Current PLL frequency in Hz. */
+    qint64 hw_freq_hz;   /** Current PLL frequency in Hz. */
 };
 
 #endif // DOCKRXOPT_H
