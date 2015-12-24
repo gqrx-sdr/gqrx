@@ -1,5 +1,11 @@
+       2.5  Released TBD...
 
-     2.4.0  Released December 14, 2015
+     FIXED: FM stereo (revert to pre-2.4 behavior).
+     FIXED: Mode selector not updated when selecting a WFM OIRT bookmark.
+     FIXED: Show correct filter preset when filter LO/HI corresponds to one.
+
+
+       2.4  Released December 14, 2015
 
        NEW: Bookmarks.
        NEW: FM RDS decoder using gr-rds.
@@ -25,10 +31,12 @@
   IMPROVED: Right click on frequency digit to clear digits.
   IMPROVED: Robustness against malformed remote control commands.
 
+
      2.3.2  Released November 28, 2014
 
      FIXED: Pandapter and waterfall widths are limited to 4096 pixels.
   IMPROVED: Add 2.5 Msps preset for Airspy.
+
 
      2.3.1  Released August 8, 2014
 
