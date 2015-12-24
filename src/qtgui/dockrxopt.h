@@ -29,6 +29,10 @@
 #include "qtgui/demod_options.h"
 #include "qtgui/nb_options.h"
 
+#define FILTER_PRESET_WIDE      0
+#define FILTER_PRESET_NORMAL    1
+#define FILTER_PRESET_NARROW    2
+#define FILTER_PRESET_USER      3
 
 namespace Ui {
     class DockRxOpt;
@@ -91,6 +95,9 @@ public:
     QString currentDemodAsString();
 
     float currentMaxdev();
+
+    /** Get filter lo/hi for a given mode and preset */
+    void    getFilterPreset(int mode, int preset, int * lo, int * hi) const;
 
     static QStringList ModulationStrings;
     static QString GetStringForModulationIndex(int iModulationIndex);

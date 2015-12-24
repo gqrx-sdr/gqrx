@@ -25,9 +25,24 @@
 #include "dockrxopt.h"
 #include "ui_dockrxopt.h"
 
-#define FILT_SEL_USER_IDX 3
 
 QStringList DockRxOpt::ModulationStrings;
+
+// Filter preset table per mode, preset and lo/hi
+static const int filter_preset_table[DockRxOpt::MODE_LAST][3][2] =
+{   //     WIDE             NORMAL            NARROW
+    {{      0,      0}, {     0,     0}, {     0,     0}},  // MODE_OFF
+    {{ -25000,  25000}, {-10000, 10000}, { -1000,  1000}},  // MODE_RAW
+    {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}},  // MODE_AM
+    {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}},  // MODE_NFM
+    {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}},  // MODE_WFM_MONO
+    {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}},  // MODE_WFM_STEREO
+    {{  -4000,   -100}, { -2800,  -100}, { -1600,  -200}},  // MODE_LSB
+    {{    100,   4000}, {   100,  2800}, {   200,  1600}},  // MODE_USB
+    {{   2500,    -50}, { -1200,  -200}, {  -900,  -400}},  // MODE_CWL
+    {{     50,   2500}, {   200,  1200}, {   400,   900}},  // MODE_CWU
+    {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}}   // MODE_WFM_STEREO_OIRT
+};
 
 DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     QDockWidget(parent),
@@ -146,9 +161,8 @@ void DockRxOpt::setFilterParam(int lo, int hi)
 {
     float width_f = fabs((hi-lo)/1000.0);
 
-    ui->filterCombo->setCurrentIndex(FILT_SEL_USER_IDX);
-    ui->filterCombo->setItemText(FILT_SEL_USER_IDX, QString("User (%1 k)").arg(width_f));
-
+    ui->filterCombo->setCurrentIndex(FILTER_PRESET_USER);
+    ui->filterCombo->setItemText(FILTER_PRESET_USER, QString("User (%1 k)").arg(width_f));
 }
 
 
@@ -207,6 +221,22 @@ float DockRxOpt::currentMaxdev()
 {
     qDebug() << __FILE__ << __FUNCTION__ << "FIXME";
     return 5000.0;
+}
+
+void DockRxOpt::getFilterPreset(int mode, int preset, int * lo, int * hi) const
+{
+    if (mode < 0 || mode >= MODE_LAST)
+    {
+        qDebug() << __func__ << ": Invalid mode:" << mode;
+        mode = MODE_AM;
+    }
+    else if (preset < 0 || preset > 2)
+    {
+        qDebug() << __func__ << ": Invalid preset:" << preset;
+        preset = FILTER_PRESET_NORMAL;
+    }
+    *lo = filter_preset_table[mode][preset][0];
+    *hi = filter_preset_table[mode][preset][1];
 }
 
 /*! \brief Read receiver configuration from settings data. */
