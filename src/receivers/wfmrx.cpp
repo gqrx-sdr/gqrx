@@ -93,7 +93,7 @@ void wfmrx::set_quad_rate(float quad_rate)
     if (std::abs(d_quad_rate-quad_rate) > 0.5)
     {
 #ifndef QT_NO_DEBUG_OUTPUT
-        std::cout << "Changing NB_RX quad rate: "  << d_quad_rate << " -> " << quad_rate << std::endl;
+        std::cerr << "Changing WFM RX quad rate: "  << d_quad_rate << " -> " << quad_rate << std::endl;
 #endif
         d_quad_rate = quad_rate;
         lock();

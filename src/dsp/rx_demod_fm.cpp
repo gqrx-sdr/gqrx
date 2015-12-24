@@ -52,7 +52,9 @@ rx_demod_fm::rx_demod_fm(float quad_rate, float audio_rate, float max_dev, doubl
     /* demodulator gain */
     gain = d_quad_rate / (2.0 * M_PI * d_max_dev);
 
-    //std::cout << "G: " << gain << std::endl;
+#ifndef QT_NO_DEBUG_OUTPUT
+    std::cerr << "FM demod gain: " << gain << std::endl;
+#endif
 
     /* demodulator */
     d_quad = gr::analog::quadrature_demod_cf::make(gain);
@@ -131,10 +133,14 @@ void rx_demod_fm::set_tau(double tau)
         d_tau = tau;
     }
     else {
-        //std::cout << "TAU is 0: " << tau << std::endl;
+#ifndef QT_NO_DEBUG_OUTPUT
+        std::cerr << "FM de-emphasis tau is 0: " << tau << std::endl;
+#endif
         /* diable de-emph if conencted */
         if (d_tau > 1.0e-9) {
-            //std::cout << "  Disable deemph" << std::endl;
+#ifndef QT_NO_DEBUG_OUTPUT
+            std::cout << "  Disable de-emphasis" << std::endl;
+#endif
             lock();
             disconnect(d_quad, 0, d_deemph, 0);
             disconnect(d_deemph, 0, self(), 0);

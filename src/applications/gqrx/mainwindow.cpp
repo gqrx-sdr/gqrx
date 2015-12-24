@@ -856,8 +856,11 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
  */
 void MainWindow::selectDemod(QString strModulation)
 {
-    //printf("SelectDemod: '%s'\n", strModulation.toStdString().c_str());
-    int iDemodIndex = DockRxOpt::GetEnumForModulationString(strModulation);
+    int iDemodIndex;
+
+    iDemodIndex = DockRxOpt::GetEnumForModulationString(strModulation);
+    qDebug() << "selectDemod(str):" << strModulation << "-> IDX:" << iDemodIndex;
+
     return selectDemod(iDemodIndex);
 }
 
@@ -870,12 +873,12 @@ void MainWindow::selectDemod(QString strModulation)
  */
 void MainWindow::selectDemod(int index)
 {
-    //printf("SelectDemod: '%d'\n", index);
-
     double quad_rate;
     float maxdev;
     int filter_preset = uiDockRxOpt->currentFilter();
     int flo=0, fhi=0, click_res=100;
+
+    qDebug() << "selectDemod(idx): " << index;
 
     d_filter_shape = (receiver::filter_shape)uiDockRxOpt->currentFilterShape();
 
@@ -2194,7 +2197,7 @@ void MainWindow::on_actionAddBookmark_triggered()
         {
             name = textfield->text();
             tags = taglist->getSelectedTagsAsString();
-            //printf("Tags: %s\n", tags.toStdString().c_str());
+            qDebug() << "Tags: " << tags;
         }
         else
         {
