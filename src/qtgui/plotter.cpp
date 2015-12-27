@@ -1432,9 +1432,9 @@ quint64 CPlotter::msecFromY(int y)
     int dy = y - m_OverlayPixmap.height();
 
     if (msec_per_wfline > 0)
-        return tlast_wf_ms + dy * msec_per_wfline;
+        return tlast_wf_ms - dy * msec_per_wfline;
     else
-        return tlast_wf_ms + dy * 1000 / fft_rate;
+        return tlast_wf_ms - dy * 1000 / fft_rate;
 }
 
 //////////////////////////////////////////////////////////////////////
