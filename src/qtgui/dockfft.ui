@@ -862,7 +862,17 @@
         </item>
         <item>
          <property name="text">
+          <string>10 min</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>15 min</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>20 min</string>
          </property>
         </item>
         <item>
@@ -877,7 +887,12 @@
         </item>
         <item>
          <property name="text">
-          <string>4 hours</string>
+          <string>2 hours</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>5 hours</string>
          </property>
         </item>
         <item>
@@ -887,7 +902,17 @@
         </item>
         <item>
          <property name="text">
+          <string>16 hours</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>24 hours</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>48 hours</string>
          </property>
         </item>
        </widget>

@@ -302,18 +302,23 @@ static const quint64 wf_span_table[] =
 {
     0,              // Auto
     5*60*1000,      // 5 minutes
+    10*60*1000,     // 10 minutes
     15*60*1000,     // 15 minutes
+    20*60*1000,     // 20 minutes
     30*60*1000,     // 30 minutes
     1*60*60*1000,   // 1 hour
-    4*60*60*1000,   // 4 hours
+    2*60*60*1000,   // 2 hours
+    5*60*60*1000,   // 5 hours
     10*60*60*1000,  // 10 hours
-    24*60*60*1000   // 24 hours
+    16*60*60*1000,  // 16 hours
+    24*60*60*1000,  // 24 hours
+    48*60*60*1000   // 48 hours
 };
 
 /** Waterfall time span changed. */
 void DockFft::on_wfSpanComboBox_currentIndexChanged(int index)
 {
-    if (index < 0 || index > 7)
+    if (index < 0 || index > 12)
         return;
 
     emit wfSpanChanged(wf_span_table[index]);
