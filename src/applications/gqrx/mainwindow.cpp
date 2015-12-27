@@ -1519,6 +1519,7 @@ void MainWindow::setIqFftRate(int fps)
     {
         interval = 1000 / fps;
 
+        ui->plotter->setFftRate(fps);
         if (iq_fft_timer->isActive())
             ui->plotter->setRunningState(true);
     }

@@ -28,6 +28,8 @@
  * or implied, of Moe Wheatley.
  */
 #include <cmath>
+#include <sys/time.h>
+#include <QDateTime>
 #include <QDebug>
 #include <QtGlobal>
 #include <QToolTip>
@@ -55,6 +57,16 @@ static inline bool out_of_range(float ref, float range)
 {
     return (val_is_out_of_range(ref, REF_LEVEL_MIN, REF_LEVEL_MAX) ||
             val_is_out_of_range(range, FFT_RANGE_MIN, FFT_RANGE_MAX));
+}
+
+/** Current time in milliseconds since Epoch */
+static inline quint64 time_ms(void)
+{
+    struct timeval  tval;
+
+    gettimeofday(&tval, NULL);
+
+    return 1e3 * tval.tv_sec + 1e-3 * tval.tv_usec;
 }
 
 #define STATUS_TIP \
@@ -161,6 +173,12 @@ CPlotter::CPlotter(QWidget *parent) :
 
     setFftPlotColor(QColor(0xFF,0xFF,0xFF,0xFF));
     setFftFill(false);
+
+    // always update waterfall
+    tlast_wf_ms = 0;
+    msec_per_wfline = 0;
+    wf_span = 0;
+    fft_rate = 15;
 }
 
 CPlotter::~CPlotter()
@@ -287,10 +305,16 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             m_GrabPosition = 0;
         }
         if (m_TooltipsEnabled)
+        {
+            QDateTime tt;
+            tt.setMSecsSinceEpoch(msecFromY(pt.y()));
+
             QToolTip::showText(event->globalPos(),
-                               QString("F: %1 kHz")
+                               QString("%1\n%2 kHz")
+                               .arg(tt.toString("yyyy.MM.dd hh:mm:ss.zzz"))
                                .arg(freqFromX(pt.x())/1.e3f, 0, 'f', 3),
                                this, rect());
+        }
     }
     // process mouse moves while in cursor capture modes
     if (YAXIS == m_CursorCaptured)
@@ -478,6 +502,19 @@ int CPlotter::getNearestPeak(QPoint pt)
     }
 
     return best;
+}
+
+/** Set waterfall span in milliseconds */
+void CPlotter::setWaterfallSpan(quint64 span_ms)
+{
+    wf_span = span_ms;
+    msec_per_wfline = wf_span / m_WaterfallPixmap.height();
+}
+
+void CPlotter::setFftRate(int rate_hz)
+{
+    fft_rate = rate_hz;
+    m_WaterfallPixmap.fill(Qt::black);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -700,12 +737,12 @@ void CPlotter::resizeEvent(QResizeEvent* )
     if (m_Size != size())
     {	//if changed, resize pixmaps to new screensize
         m_Size = size();
-        m_OverlayPixmap = QPixmap(m_Size.width(), m_Percent2DScreen*m_Size.height()/100);
+        m_OverlayPixmap = QPixmap(m_Size.width(), m_Percent2DScreen * m_Size.height() / 100);
         m_OverlayPixmap.fill(Qt::black);
-        m_2DPixmap = QPixmap(m_Size.width(), m_Percent2DScreen*m_Size.height()/100);
+        m_2DPixmap = QPixmap(m_Size.width(), m_Percent2DScreen * m_Size.height() / 100);
         m_2DPixmap.fill(Qt::black);
 
-        int height = (100-m_Percent2DScreen)*m_Size.height()/100;
+        int height = (100 - m_Percent2DScreen) * m_Size.height() / 100;
         if (m_WaterfallPixmap.isNull()) {
             m_WaterfallPixmap = QPixmap(m_Size.width(), height);
             m_WaterfallPixmap.fill(Qt::black);
@@ -715,8 +752,12 @@ void CPlotter::resizeEvent(QResizeEvent* )
                                                          Qt::SmoothTransformation);
         }
 
-        m_PeakHoldValid=false;
+        m_PeakHoldValid = false;
+
+        if (wf_span > 0)
+            msec_per_wfline = wf_span / height;
     }
+
     drawOverlay();
 }
 
@@ -727,11 +768,9 @@ void CPlotter::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
 
-    painter.drawPixmap(0,0,m_2DPixmap);
-    painter.drawPixmap(0, m_Percent2DScreen*m_Size.height()/100,m_WaterfallPixmap);
-    //tell interface that its ok to signal a new line of fft data
-    //m_pSdrInterface->ScreenUpdateDone();
-    return;
+    painter.drawPixmap(0, 0, m_2DPixmap);
+    painter.drawPixmap(0, m_Percent2DScreen * m_Size.height() / 100,
+                       m_WaterfallPixmap);
 }
 
 
@@ -763,28 +802,40 @@ void CPlotter::draw()
     // no need to draw if pixmap is invisible
     if ((w != 0) || (h != 0))
     {
-        // move current data down one line(must do before attaching a QPainter object)
-        m_WaterfallPixmap.scroll(0,1,0,0, w, h);
+        quint64     tnow_ms = time_ms();
 
-        QPainter painter1(&m_WaterfallPixmap);
-        // get scaled FFT data
-        getScreenIntegerFFTData(255, qMin(w, MAX_SCREENSIZE),
-                                m_MaxdB, m_MindB,
-                                m_FftCenter - (qint64)m_Span/2,
-                                m_FftCenter + (qint64)m_Span/2,
-                                m_wfData, m_fftbuf,
-                                &xmin, &xmax);
-
-        // draw new line of fft data at top of waterfall bitmap
-        painter1.setPen(QColor(0, 0, 0));
-        for (i = 0; i < xmin; i++)
-            painter1.drawPoint(i,0);
-        for (i = xmax; i < w; i++)
-            painter1.drawPoint(i,0);
-        for (i = xmin; i < xmax; i++)
+        // is it time to update waterfall?
+        if (tnow_ms - tlast_wf_ms >= msec_per_wfline)
         {
-            painter1.setPen(m_ColorTbl[ 255-m_fftbuf[i] ]);
-            painter1.drawPoint(i,0);
+            tlast_wf_ms = tnow_ms;
+
+            // move current data down one line(must do before attaching a QPainter object)
+            m_WaterfallPixmap.scroll(0,1,0,0, w, h);
+
+            QPainter painter1(&m_WaterfallPixmap);
+            // get scaled FFT data
+            getScreenIntegerFFTData(255, qMin(w, MAX_SCREENSIZE),
+                                    m_MaxdB, m_MindB,
+                                    m_FftCenter - (qint64)m_Span/2,
+                                    m_FftCenter + (qint64)m_Span/2,
+                                    m_wfData, m_fftbuf,
+                                    &xmin, &xmax);
+
+            // draw new line of fft data at top of waterfall bitmap
+            painter1.setPen(QColor(0, 0, 0));
+            for (i = 0; i < xmin; i++)
+                painter1.drawPoint(i,0);
+            for (i = xmax; i < w; i++)
+                painter1.drawPoint(i,0);
+            for (i = xmin; i < xmax; i++)
+            {
+                painter1.setPen(m_ColorTbl[ 255-m_fftbuf[i] ]);
+                painter1.drawPoint(i,0);
+            }
+        }
+        else
+        {
+            // accumulate waterfall
         }
     }
 
@@ -913,7 +964,7 @@ void CPlotter::draw()
  *  \param fftData Pointer to the new FFT data (same data for pandapter and waterfall).
  *  \param size The FFT size.
  *
- * When FFT data is set using this method, the same data will be used for bith the
+ * When FFT data is set using this method, the same data will be used for both the
  * pandapter and the waterfall.
  */
 void CPlotter::setNewFttData(float *fftData, int size)
@@ -1334,6 +1385,21 @@ qint64 CPlotter::freqFromX(int x)
     qint64 StartFreq = m_CenterFreq + m_FftCenter - m_Span/2;
     qint64 f = (qint64)(StartFreq + (float)m_Span * (float)x/(float)w );
     return f;
+}
+
+/** Calculate time offset of a given line on the waterfall */
+quint64 CPlotter::msecFromY(int y)
+{
+    // ensure we are in the waterfall region
+    if (y < m_OverlayPixmap.height())
+        return 0;
+
+    int dy = y - m_OverlayPixmap.height();
+
+    if (msec_per_wfline > 0)
+        return tlast_wf_ms + dy * msec_per_wfline;
+    else
+        return tlast_wf_ms + dy * 1000 / fft_rate;
 }
 
 //////////////////////////////////////////////////////////////////////

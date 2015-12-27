@@ -113,7 +113,9 @@ public:
         m_FftCenter = qBound(-limit, f, limit);
     }
 
-    int getNearestPeak(QPoint pt);
+    int     getNearestPeak(QPoint pt);
+    void    setWaterfallSpan(quint64 span_ms);
+    void    setFftRate(int rate_hz);
 
 signals:
     void newCenterFreq(qint64 f);
@@ -158,25 +160,23 @@ private:
         BOOKMARK
     };
 
-    void drawOverlay();
-    void makeFrequencyStrs();
-    int xFromFreq(qint64 freq);
-    qint64 freqFromX(int x);
-    qint64 roundFreq(qint64 freq, int resolution);
-    bool isPointCloseTo(int x, int xr, int delta)
+    void        drawOverlay();
+    void        makeFrequencyStrs();
+    int         xFromFreq(qint64 freq);
+    qint64      freqFromX(int x);
+    void        zoomStepX(float factor, int x);
+    qint64      roundFreq(qint64 freq, int resolution);
+    quint64     msecFromY(int y);
+    void        clampDemodParameters();
+    bool        isPointCloseTo(int x, int xr, int delta)
     {
         return ((x > (xr - delta)) && (x < (xr + delta)));
     }
-
-    void clampDemodParameters();
-
     void getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
                                  float maxdB, float mindB,
                                  qint64 startFreq, qint64 stopFreq,
                                  float *inBuf, qint32 *outBuf,
                                  qint32 *maxbin, qint32 *minbin);
-
-    void zoomStepX(float factor, int x);
 
     bool        m_PeakHoldActive;
     bool        m_PeakHoldValid;
@@ -248,6 +248,12 @@ private:
     QMap<int,int>   m_Peaks;
 
     QList< QPair<QRect, qint64> >     m_BookmarkTags;
+
+    // Waterfall averaging
+    quint64     tlast_wf_ms;        // last time waterfall has been updated
+    quint64     msec_per_wfline;    // milliseconds between waterfall updates
+    quint64     wf_span;            // waterfall span in milliseconds (0 = auto)
+    int         fft_rate;           // expected FFT rate (needed when WF span is auto)
 };
 
 #endif // PLOTTER_H
