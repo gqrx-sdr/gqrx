@@ -70,8 +70,9 @@ DockFft::~DockFft()
 }
 
 
-/*! \brief Get current FFT rate setting.
- *  \return The current FFT rate in frames per second (always non-zero)
+/**
+ * @brief Get current FFT rate setting.
+ * @return The current FFT rate in frames per second (always non-zero)
  */
 int DockFft::fftRate()
 {
@@ -91,9 +92,10 @@ int DockFft::fftRate()
     return fps;
 }
 
-/*! \brief Select new FFT rate in the combo box.
- *  \param rate The new rate.
- *  \returns The actual FFT rate selected.
+/**
+ * @brief Select new FFT rate in the combo box.
+ * @param rate The new rate.
+ * @returns The actual FFT rate selected.
  */
 int DockFft::setFftRate(int fft_rate)
 {
@@ -110,9 +112,10 @@ int DockFft::setFftRate(int fft_rate)
     return fftRate();
 }
 
-/*! \brief Select new FFT size in the combo box.
- *  \param rate The new FFT size.
- *  \returns The actual FFT size selected.
+/**
+ * @brief Select new FFT size in the combo box.
+ * @param rate The new FFT size.
+ * @returns The actual FFT size selected.
  */
 int DockFft::setFftSize(int fft_size)
 {
@@ -138,8 +141,9 @@ void DockFft::setSampleRate(float sample_rate)
     updateInfoLabels();
 }
 
-/*! \brief Get current FFT rate setting.
- *  \return The current FFT rate in frames per second (always non-zero)
+/**
+ * @brief Get current FFT rate setting.
+ * @return The current FFT rate in frames per second (always non-zero)
  */
 int DockFft::fftSize()
 {
@@ -163,7 +167,7 @@ int DockFft::fftSize()
     return fft_size;
 }
 
-/*! \brief Save FFT settings. */
+/** Save FFT settings. */
 void DockFft::saveSettings(QSettings *settings)
 {
     int  intval;
@@ -219,7 +223,7 @@ void DockFft::saveSettings(QSettings *settings)
     settings->endGroup();
 }
 
-/*! \brief Read FFT settings. */
+/** Read FFT settings. */
 void DockFft::readSettings(QSettings *settings)
 {
     int intval;
@@ -275,7 +279,7 @@ void DockFft::setFftRange(float reflevel, float range)
     ui->rangeLabel->setText(QString("%1 dB").arg((int)range));
 }
 
-/*! \brief FFT size changed. */
+/** FFT size changed. */
 void DockFft::on_fftSizeComboBox_currentIndexChanged(const QString &text)
 {
     int value = text.toInt();
@@ -283,7 +287,7 @@ void DockFft::on_fftSizeComboBox_currentIndexChanged(const QString &text)
     updateInfoLabels();
 }
 
-/*! \brief FFT rate changed. */
+/** FFT rate changed. */
 void DockFft::on_fftRateComboBox_currentIndexChanged(const QString & text)
 {
     int fps = fftRate();
@@ -323,15 +327,16 @@ void DockFft::setWfResolution(quint64 msec_per_line)
     ui->wfResLabel->setText(QString("Res: %1 s").arg(res, 0, 'f', 2));
 }
 
-/*! \brief Split between waterfall and pandapter changed.
- *  \param value The percentage of the waterfall.
+/**
+ * @brief Split between waterfall and pandapter changed.
+ * @param value The percentage of the waterfall.
  */
 void DockFft::on_fftSplitSlider_valueChanged(int value)
 {
     emit fftSplitChanged(value);
 }
 
-/*! \brief FFT filter gain changed. */
+/** FFT filter gain changed. */
 void DockFft::on_fftAvgSlider_valueChanged(int value)
 {
     float avg = 1.0 - 1.0e-2 * ((float)value);
@@ -339,21 +344,21 @@ void DockFft::on_fftAvgSlider_valueChanged(int value)
     emit fftAvgChanged(avg);
 }
 
-/*! \brief FFT zoom level changed */
+/** FFT zoom level changed */
 void DockFft::on_fftZoomSlider_valueChanged(int level)
 {
     ui->zoomLevelLabel->setText(QString("%1x").arg(level));
     emit fftZoomChanged((float)level);
 }
 
-/*! \brief reference level changed */
+/** Reference level changed */
 void DockFft::on_reflevelSlider_valueChanged(int value)
 {
     ui->reflevelLabel->setText(QString("%1 dB").arg(value));
     emit fftRangeChanged(value, ui->rangeSlider->value());
 }
 
-/*! \brief FFT plot range changed */
+/** FFT plot range changed */
 void DockFft::on_rangeSlider_valueChanged(int value)
 {
     ui->rangeLabel->setText(QString("%1 dB").arg(value));
@@ -375,33 +380,31 @@ void DockFft::on_demodButton_clicked(void)
     emit gotoDemodFreq();
 }
 
-/*! FFT color has changed. */
+/** FFT color has changed. */
 void DockFft::on_colorPicker_colorChanged(const QColor &color)
 {
     emit fftColorChanged(color);
 }
 
-/*! FFT plot fill button toggled. */
+/** FFT plot fill button toggled. */
 void DockFft::on_fillButton_toggled(bool checked)
 {
     emit fftFillToggled(checked);
 }
 
-/*! peakHold button toggled */
+/** peakHold button toggled */
 void DockFft::on_peakHoldButton_toggled(bool checked)
 {
     emit fftPeakHoldToggled(checked);
 }
 
-/*! peakDetection button toggled */
+/** peakDetection button toggled */
 void DockFft::on_peakDetectionButton_toggled(bool checked)
 {
     emit peakDetectionToggled(checked);
 }
 
-/**
- * Update RBW and FFT overlab labels
- */
+/** Update RBW and FFT overlab labels */
 void DockFft::updateInfoLabels(void)
 {
     float   rate;
