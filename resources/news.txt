@@ -1,5 +1,7 @@
        2.5  Released TBD...
 
+       NEW: Read out signal time on the waterfall.
+       NEW: Allow user settable waterfall time span (up to 24 hours).
        NEW: Cmake option to build using gr-audio backend (Andrea Merello).
      FIXED: FM stereo (revert to pre-2.4 behavior).
      FIXED: Mode selector not updated when selecting a WFM OIRT bookmark.
