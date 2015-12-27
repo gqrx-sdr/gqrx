@@ -57,7 +57,7 @@ DockAudio::DockAudio(QWidget *parent) :
     ui->audioSpectrum->setDemodCenterFreq(0);
     ui->audioSpectrum->setFilterBoxEnabled(false);
     ui->audioSpectrum->setCenterLineEnabled(false);
-    ui->audioSpectrum->setMinMaxDB(-80, 0);
+    ui->audioSpectrum->setMinMaxDB(-110, -20);
 #ifdef Q_OS_MAC
     ui->audioSpectrum->setFontSize(11);
 #else
