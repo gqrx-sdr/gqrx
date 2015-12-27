@@ -53,6 +53,7 @@ public:
 signals:
     void fftSizeChanged(int size);                 /*! FFT size changed. */
     void fftRateChanged(int fps);                  /*! FFT rate changed. */
+    void wfSpanChanged(quint64 span_ms);           /*! Waterfall span changed. */
     void fftSplitChanged(int pct);                 /*! Split between pandapter and waterfall changed. */
     void fftZoomChanged(float level);              /*! Zoom level slider changed. */
     void fftAvgChanged(float gain);                /*! FFT video filter gain has changed. */
@@ -67,10 +68,12 @@ signals:
 
 public slots:
     void setFftRange(float reflevel, float range);
+    void setWfResolution(quint64 msec_per_line);
 
 private slots:
     void on_fftSizeComboBox_currentIndexChanged(const QString & text);
     void on_fftRateComboBox_currentIndexChanged(const QString & text);
+    void on_wfSpanComboBox_currentIndexChanged(int index);
     void on_fftSplitSlider_valueChanged(int value);
     void on_fftAvgSlider_valueChanged(int value);
     void on_fftZoomSlider_valueChanged(int level);

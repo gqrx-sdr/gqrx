@@ -95,15 +95,15 @@ CPlotter::CPlotter(QWidget *parent) :
     // default waterfall color scheme
     for (int i = 0; i < 256; i++)
     {
-      // level 0: black background
-      if (i < 20)
-         m_ColorTbl[i].setRgb(0, 0, 0);
-      // level 1: black -> blue
+        // level 0: black background
+        if (i < 20)
+            m_ColorTbl[i].setRgb(0, 0, 0);
+        // level 1: black -> blue
         else if ((i >= 20) && (i < 70))
             m_ColorTbl[i].setRgb(0, 0, 140*(i-20)/50);
         // level 2: blue -> light-blue / greenish
         else if ((i >= 70) && (i < 100))
-         m_ColorTbl[i].setRgb(60*(i-70)/30, 125*(i-70)/30, 115*(i-70)/30 + 140);
+            m_ColorTbl[i].setRgb(60*(i-70)/30, 125*(i-70)/30, 115*(i-70)/30 + 140);
         // level 3: light blue -> yellow
         else if ((i >= 100) && (i < 150))
             m_ColorTbl[i].setRgb(195*(i-100)/50 + 60, 130*(i-100)/50 + 125, 255-(255*(i-100)/50));
@@ -179,6 +179,7 @@ CPlotter::CPlotter(QWidget *parent) :
     msec_per_wfline = 0;
     wf_span = 0;
     fft_rate = 15;
+    memset(m_wfbuf, 0, MAX_SCREENSIZE);
 }
 
 CPlotter::~CPlotter()
@@ -509,12 +510,28 @@ void CPlotter::setWaterfallSpan(quint64 span_ms)
 {
     wf_span = span_ms;
     msec_per_wfline = wf_span / m_WaterfallPixmap.height();
+    clearWaterfall();
+}
+
+void CPlotter::clearWaterfall()
+{
+    m_WaterfallPixmap.fill(Qt::black);
+    memset(m_wfbuf, 0, MAX_SCREENSIZE);
+}
+
+/** Get waterfall time resolution in milleconds / line. */
+quint64 CPlotter::getWfTimeRes(void)
+{
+    if (msec_per_wfline)
+        return msec_per_wfline;
+    else
+        return 1000 * fft_rate / m_WaterfallPixmap.height(); // Auto mode
 }
 
 void CPlotter::setFftRate(int rate_hz)
 {
     fft_rate = rate_hz;
-    m_WaterfallPixmap.fill(Qt::black);
+    clearWaterfall();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -756,6 +773,7 @@ void CPlotter::resizeEvent(QResizeEvent* )
 
         if (wf_span > 0)
             msec_per_wfline = wf_span / height;
+        memset(m_wfbuf, 0, MAX_SCREENSIZE);
     }
 
     drawOverlay();
@@ -779,7 +797,7 @@ void CPlotter::paintEvent(QPaintEvent *)
 //////////////////////////////////////////////////////////////////////
 void CPlotter::draw()
 {
-    int i,n;
+    int i, n;
     int w;
     int h;
     int xmin, xmax;
@@ -804,38 +822,55 @@ void CPlotter::draw()
     {
         quint64     tnow_ms = time_ms();
 
+        // get scaled FFT data
+        n = qMin(w, MAX_SCREENSIZE);
+        getScreenIntegerFFTData(255, n, m_MaxdB, m_MindB,
+                                m_FftCenter - (qint64)m_Span / 2,
+                                m_FftCenter + (qint64)m_Span / 2,
+                                m_wfData, m_fftbuf,
+                                &xmin, &xmax);
+
+        if (msec_per_wfline > 0)
+        {
+            // not in "auto" mode, so accumulate waterfall data
+            for (i = 0; i < n; i++)
+                m_wfbuf[i] = (m_wfbuf[i] + m_fftbuf[i]) / 2;
+        }
+
         // is it time to update waterfall?
         if (tnow_ms - tlast_wf_ms >= msec_per_wfline)
         {
             tlast_wf_ms = tnow_ms;
 
             // move current data down one line(must do before attaching a QPainter object)
-            m_WaterfallPixmap.scroll(0,1,0,0, w, h);
+            m_WaterfallPixmap.scroll(0, 1, 0, 0, w, h);
 
             QPainter painter1(&m_WaterfallPixmap);
-            // get scaled FFT data
-            getScreenIntegerFFTData(255, qMin(w, MAX_SCREENSIZE),
-                                    m_MaxdB, m_MindB,
-                                    m_FftCenter - (qint64)m_Span/2,
-                                    m_FftCenter + (qint64)m_Span/2,
-                                    m_wfData, m_fftbuf,
-                                    &xmin, &xmax);
 
             // draw new line of fft data at top of waterfall bitmap
             painter1.setPen(QColor(0, 0, 0));
             for (i = 0; i < xmin; i++)
-                painter1.drawPoint(i,0);
+                painter1.drawPoint(i, 0);
             for (i = xmax; i < w; i++)
-                painter1.drawPoint(i,0);
-            for (i = xmin; i < xmax; i++)
+                painter1.drawPoint(i, 0);
+
+            if (msec_per_wfline > 0)
             {
-                painter1.setPen(m_ColorTbl[ 255-m_fftbuf[i] ]);
-                painter1.drawPoint(i,0);
+                for (i = xmin; i < xmax; i++)
+                {
+                    painter1.setPen(m_ColorTbl[255 - m_wfbuf[i]]);
+                    painter1.drawPoint(i, 0);
+                    m_wfbuf[i] = 0;
+                }
             }
-        }
-        else
-        {
-            // accumulate waterfall
+            else
+            {
+                for (i = xmin; i < xmax; i++)
+                {
+                    painter1.setPen(m_ColorTbl[255 - m_fftbuf[i]]);
+                    painter1.drawPoint(i, 0);
+                }
+            }
         }
     }
 

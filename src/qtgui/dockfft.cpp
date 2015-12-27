@@ -293,6 +293,36 @@ void DockFft::on_fftRateComboBox_currentIndexChanged(const QString & text)
     updateInfoLabels();
 }
 
+
+static const quint64 wf_span_table[] =
+{
+    0,              // Auto
+    5*60*1000,      // 5 minutes
+    15*60*1000,     // 15 minutes
+    30*60*1000,     // 30 minutes
+    1*60*60*1000,   // 1 hour
+    4*60*60*1000,   // 4 hours
+    10*60*60*1000,  // 10 hours
+    24*60*60*1000   // 24 hours
+};
+
+/** Waterfall time span changed. */
+void DockFft::on_wfSpanComboBox_currentIndexChanged(int index)
+{
+    if (index < 0 || index > 7)
+        return;
+
+    emit wfSpanChanged(wf_span_table[index]);
+}
+
+/** Set waterfall time resolution. */
+void DockFft::setWfResolution(quint64 msec_per_line)
+{
+    float res = 1.0e-3 * (float)msec_per_line;
+
+    ui->wfResLabel->setText(QString("Res: %1 s").arg(res, 0, 'f', 2));
+}
+
 /*! \brief Split between waterfall and pandapter changed.
  *  \param value The percentage of the waterfall.
  */

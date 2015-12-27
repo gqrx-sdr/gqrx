@@ -115,7 +115,9 @@ public:
 
     int     getNearestPeak(QPoint pt);
     void    setWaterfallSpan(quint64 span_ms);
+    quint64 getWfTimeRes(void);
     void    setFftRate(int rate_hz);
+    void    clearWaterfall(void);
 
 signals:
     void newCenterFreq(qint64 f);
@@ -181,6 +183,7 @@ private:
     bool        m_PeakHoldActive;
     bool        m_PeakHoldValid;
     qint32      m_fftbuf[MAX_SCREENSIZE];
+    qint32      m_wfbuf[MAX_SCREENSIZE]; // used for accumulating waterfall data at high time spans
     qint32      m_fftPeakHoldBuf[MAX_SCREENSIZE];
     float      *m_fftData;     /*! pointer to incoming FFT data */
     float      *m_wfData;
