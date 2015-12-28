@@ -30,6 +30,10 @@ DockRDS::DockRDS(QWidget *parent) :
     ui(new Ui::DockRDS)
 {
     ui->setupUi(this);
+
+#if QT_VERSION >= 0x050200
+    ui->scrollArea->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContentsOnFirstShow);
+#endif
  }
 
 DockRDS::~DockRDS()

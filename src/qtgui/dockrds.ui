@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>228</width>
-    <height>231</height>
+    <width>215</width>
+    <height>220</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -50,9 +50,6 @@
       <property name="frameShadow">
        <enum>QFrame::Sunken</enum>
       </property>
-      <property name="sizeAdjustPolicy">
-       <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
-      </property>
       <property name="widgetResizable">
        <bool>true</bool>
       </property>
@@ -61,8 +58,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>218</width>
-         <height>206</height>
+         <width>205</width>
+         <height>195</height>
         </rect>
        </property>
        <layout class="QFormLayout" name="formLayout">
