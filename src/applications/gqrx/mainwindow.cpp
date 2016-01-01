@@ -521,7 +521,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
             rx->set_input_decim(1);
         }
         // update various widgets that need a sample rate
-        uiDockRxOpt->setFilterOffsetRange((qint64)(0.9*actual_rate));
+        uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
         uiDockFft->setSampleRate(actual_rate);
         ui->plotter->setSampleRate(actual_rate);
         ui->plotter->setSpanFreq((quint32)actual_rate);
@@ -960,9 +960,9 @@ void MainWindow::selectDemod(int mode_idx)
     case DockRxOpt::MODE_WFM_STEREO:
     case DockRxOpt::MODE_WFM_STEREO_OIRT:
         quad_rate = rx->get_input_rate();
-        if (quad_rate < 200.0e3)
-            ui->plotter->setDemodRanges(-0.9*quad_rate/2.0, -10000,
-                                        10000, 0.9*quad_rate/2.0,
+        if (quad_rate < 500.0e3)
+            ui->plotter->setDemodRanges(-quad_rate/2.0, -10000,
+                                        10000, quad_rate/2.0,
                                         true);
         else
             ui->plotter->setDemodRanges(-250000, -10000, 10000, 250000, true);
@@ -1431,7 +1431,7 @@ void MainWindow::startIqPlayback(const QString filename, float samprate)
     qDebug() << "Actual sample rate   :" << QString("%1")
                 .arg(actual_rate, 0, 'f', 6);
 
-    uiDockRxOpt->setFilterOffsetRange((qint64)(0.9*actual_rate));
+    uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
     ui->plotter->setSampleRate(actual_rate);
     ui->plotter->setSpanFreq((quint32)actual_rate);
     remote->setBandwidth(actual_rate);
@@ -1470,7 +1470,7 @@ void MainWindow::stopIqPlayback()
         qDebug() << "Actual sample rate   :" << QString("%1")
                     .arg(actual_rate, 0, 'f', 6);
 
-        uiDockRxOpt->setFilterOffsetRange((qint64)(0.9*actual_rate));
+        uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
         ui->plotter->setSampleRate(actual_rate);
         ui->plotter->setSpanFreq((quint32)actual_rate);
         remote->setBandwidth(sr);
