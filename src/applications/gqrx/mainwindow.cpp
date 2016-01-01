@@ -552,12 +552,14 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
 
         int64_val = m_settings->value("input/frequency", 14236000).toLongLong(&conv_ok);
 
-        // check that frequency is within limits, unless ignoreLimits() is TRUE
+        // If frequency is out of range and ignoreLimits() is FALSE, set hardware
+        // frequency to the center of the range.
+        double hw_freq = (double)(int64_val-d_lnb_lo) - rx->get_filter_offset();
         if (!uiDockInputCtl->ignoreLimits() &&
                 (rx->get_rf_range(&f1, &f2, &step) == receiver::STATUS_OK) &&
-                ((double)int64_val < f1 || (double)int64_val > f2))
+                (hw_freq < f1 || hw_freq > f2))
         {
-            int64_val = (qint64)((f2 - f1) / 2.0);
+            int64_val = (qint64)((f2 - f1) / 2.0 + rx->get_filter_offset()) + d_lnb_lo;
         }
 
         ui->freqCtrl->setFrequency(int64_val);
@@ -653,7 +655,8 @@ void MainWindow::storeSession()
  * function will fetch the frequency range of the receiver and update the
  * frequency control and frequency bar widgets.
  *
- * This function must also be called when the LNB LO has changed.
+ * This function must also be called when the LNB LO or the filter offset has
+ * changed.
  */
 void MainWindow::updateFrequencyRange(bool ignore_limits)
 {
@@ -668,8 +671,8 @@ void MainWindow::updateFrequencyRange(bool ignore_limits)
         qDebug() << QString("New frequnecy range: %1 - %2 MHz (step is %3 Hz but we use 1 Hz).").
                     arg(startd*1.0e-6).arg(stopd*1.0e-6).arg(stepd);
 
-        qint64 start = (qint64)startd + d_lnb_lo;
-        qint64 stop  = (qint64)stopd  + d_lnb_lo;
+        qint64 start = (qint64)(startd + rx->get_filter_offset()) + d_lnb_lo;
+        qint64 stop  = (qint64)(stopd + rx->get_filter_offset())  + d_lnb_lo;
 
         ui->freqCtrl->setup(10, start, stop, 1, UNITS_MHZ);
     }
@@ -776,6 +779,8 @@ void MainWindow::setFilterOffset(qint64 freq_hz)
 {
     rx->set_filter_offset((double) freq_hz);
     ui->plotter->setFilterOffset(freq_hz);
+
+    updateFrequencyRange(uiDockInputCtl->ignoreLimits());
 
     qint64 rx_freq = d_hw_freq + d_lnb_lo + freq_hz;
     ui->freqCtrl->setFrequency(rx_freq);
