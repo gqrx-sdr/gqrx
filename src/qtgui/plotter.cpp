@@ -31,6 +31,8 @@
 #include <sys/time.h>
 #include <QDateTime>
 #include <QDebug>
+#include <QFont>
+#include <QPainter>
 #include <QtGlobal>
 #include <QToolTip>
 #include "plotter.h"
@@ -517,6 +519,77 @@ void CPlotter::clearWaterfall()
 {
     m_WaterfallPixmap.fill(Qt::black);
     memset(m_wfbuf, 0, MAX_SCREENSIZE);
+}
+
+/**
+ * @brief Save waterfall to a graphics file
+ * @param filename
+ * @return TRUE if the save successful, FALSE if an erorr occurred.
+ *
+ * We assume that frequency strings are up to date
+ */
+bool CPlotter::saveWaterfall(const QString & filename) const
+{
+    QBrush      axis_brush(QColor(0x00, 0x00, 0x00, 0x70), Qt::SolidPattern);
+    QPixmap     pixmap(m_WaterfallPixmap);
+    QPainter    painter(&pixmap);
+    QRect       rect;
+    QDateTime   tt;
+    QFont       font("sans-serif");
+    QFontMetrics    font_metrics(font);
+    float       pixperdiv;
+    int         x, y, w, h;
+    int         hxa, wya = 85;
+    int         i;
+
+    w = pixmap.width();
+    h = pixmap.height();
+    hxa = font_metrics.height() + 5;    // height of X axis
+    y = h - hxa;
+    pixperdiv = (float) w / (float) m_HorDivs;
+
+    painter.setBrush(axis_brush);
+    painter.setPen(QColor(0x0, 0x0, 0x0, 0x70));
+    painter.drawRect(0, y, w, hxa);
+    painter.drawRect(0, 0, wya, h - hxa - 1);
+    painter.setFont(font);
+    painter.setPen(QColor(0xFF, 0xFF, 0xFF, 0xFF));
+
+    // skip last frequency entry
+    for (i = 2; i < m_HorDivs - 1; i++)
+    {
+        // frequency tick marks
+        x = (int)((float)i * pixperdiv);
+        painter.drawLine(x, y, x, y + 5);
+
+        // frequency strings
+        x = (int)((float)i * pixperdiv - pixperdiv / 2.0);
+        rect.setRect(x, y, (int)pixperdiv, hxa);
+        painter.drawText(rect, Qt::AlignHCenter|Qt::AlignBottom, m_HDivText[i]);
+    }
+    rect.setRect(w - pixperdiv - 10, y, pixperdiv, hxa);
+    painter.drawText(rect, Qt::AlignRight|Qt::AlignBottom, tr("MHz"));
+
+    quint64 msec;
+    int tdivs = h / 70 + 1;
+    pixperdiv = (float) h / (float) tdivs;
+    for (i = 1; i < tdivs; i++)
+    {
+        y = (int)((float)i * pixperdiv);
+        if (msec_per_wfline > 0)
+            msec =  tlast_wf_ms - y * msec_per_wfline;
+        else
+            msec =  tlast_wf_ms - y * 1000 / fft_rate;
+
+        tt.setMSecsSinceEpoch(msec);
+        rect.setRect(0, y - font_metrics.height(), wya - 5, font_metrics.height());
+        painter.drawText(rect, Qt::AlignRight|Qt::AlignVCenter, tt.toString("yyyy.MM.dd"));
+        painter.drawLine(wya - 5, y, wya, y);
+        rect.setRect(0, y, wya - 5, font_metrics.height());
+        painter.drawText(rect, Qt::AlignRight|Qt::AlignVCenter, tt.toString("hh:mm:ss"));
+    }
+
+    return pixmap.save(filename, 0, -1);
 }
 
 /** Get waterfall time resolution in milleconds / line. */

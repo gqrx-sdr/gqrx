@@ -118,6 +118,7 @@ public:
     quint64 getWfTimeRes(void);
     void    setFftRate(int rate_hz);
     void    clearWaterfall(void);
+    bool    saveWaterfall(const QString & filename) const;
 
 signals:
     void newCenterFreq(qint64 f);
