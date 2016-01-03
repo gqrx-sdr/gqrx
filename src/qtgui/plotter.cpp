@@ -181,7 +181,7 @@ CPlotter::CPlotter(QWidget *parent) :
     msec_per_wfline = 0;
     wf_span = 0;
     fft_rate = 15;
-    memset(m_wfbuf, 0, MAX_SCREENSIZE);
+    memset(m_wfbuf, 255, MAX_SCREENSIZE);
 }
 
 CPlotter::~CPlotter()
@@ -518,7 +518,7 @@ void CPlotter::setWaterfallSpan(quint64 span_ms)
 void CPlotter::clearWaterfall()
 {
     m_WaterfallPixmap.fill(Qt::black);
-    memset(m_wfbuf, 0, MAX_SCREENSIZE);
+    memset(m_wfbuf, 255, MAX_SCREENSIZE);
 }
 
 /**
@@ -846,7 +846,7 @@ void CPlotter::resizeEvent(QResizeEvent* )
 
         if (wf_span > 0)
             msec_per_wfline = wf_span / height;
-        memset(m_wfbuf, 0, MAX_SCREENSIZE);
+        memset(m_wfbuf, 255, MAX_SCREENSIZE);
     }
 
     drawOverlay();
@@ -907,7 +907,14 @@ void CPlotter::draw()
         {
             // not in "auto" mode, so accumulate waterfall data
             for (i = 0; i < n; i++)
-                m_wfbuf[i] = (m_wfbuf[i] + m_fftbuf[i]) / 2;
+            {
+                // average
+                //m_wfbuf[i] = (m_wfbuf[i] + m_fftbuf[i]) / 2;
+
+                // peak (0..255 where 255 is min)
+                if (m_fftbuf[i] < m_wfbuf[i])
+                    m_wfbuf[i] = m_fftbuf[i];
+            }
         }
 
         // is it time to update waterfall?
@@ -929,11 +936,12 @@ void CPlotter::draw()
 
             if (msec_per_wfline > 0)
             {
+                // user set time span
                 for (i = xmin; i < xmax; i++)
                 {
                     painter1.setPen(m_ColorTbl[255 - m_wfbuf[i]]);
                     painter1.drawPoint(i, 0);
-                    m_wfbuf[i] = 0;
+                    m_wfbuf[i] = 255;
                 }
             }
             else
