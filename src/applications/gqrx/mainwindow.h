@@ -78,6 +78,8 @@ private:
 
     qint64 d_lnb_lo;  /* LNB LO in Hz. */
     qint64 d_hw_freq;
+    qint64 d_hw_freq_start;
+    qint64 d_hw_freq_stop;
 
     enum receiver::filter_shape d_filter_shape;
     std::complex<float>* d_fftData;
@@ -115,7 +117,8 @@ private:
     RemoteControl *remote;
 
 private:
-    void updateFrequencyRange(bool ignore_limits);
+    void updateHWFrequencyRange(bool ignore_limits);
+    void updateFrequencyRange();
     void updateGainStages(bool read_from_device);
     void showSimpleTextFile(const QString &resource_path,
                             const QString &window_title);

@@ -548,18 +548,14 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
     uiDockAudio->readSettings(m_settings);
 
     {
-        double      f1, f2, step;
-
         int64_val = m_settings->value("input/frequency", 14236000).toLongLong(&conv_ok);
 
-        // If frequency is out of range and ignoreLimits() is FALSE, set hardware
-        // frequency to the center of the range.
-        double hw_freq = (double)(int64_val-d_lnb_lo) - rx->get_filter_offset();
-        if (!uiDockInputCtl->ignoreLimits() &&
-                (rx->get_rf_range(&f1, &f2, &step) == receiver::STATUS_OK) &&
-                (hw_freq < f1 || hw_freq > f2))
+        // If frequency is out of range set frequency to the center of the range.
+        qint64 hw_freq = int64_val - d_lnb_lo - (qint64)(rx->get_filter_offset());
+        if (hw_freq < d_hw_freq_start || hw_freq > d_hw_freq_stop)
         {
-            int64_val = (qint64)((f2 - f1) / 2.0 + rx->get_filter_offset()) + d_lnb_lo;
+            int64_val = (d_hw_freq_stop - d_hw_freq_start) / 2 +
+                        (qint64)(rx->get_filter_offset()) + d_lnb_lo;
         }
 
         ui->freqCtrl->setFrequency(int64_val);
@@ -647,39 +643,53 @@ void MainWindow::storeSession()
 }
 
 /**
- * Update RF frequency range.
+ * @brief Update hardware RF frequency range.
  * @param ignore_limits Whether ignore the hardware specd and allow DC-to-light
  *                      range.
  *
- * Useful when we read a new configuration with a new input device. This
- * function will fetch the frequency range of the receiver and update the
- * frequency control and frequency bar widgets.
- *
- * This function must also be called when the LNB LO or the filter offset has
- * changed.
+ * This function fetches the frequency range of the receiver. Useful when we
+ * read a new configuration with a new input device or when the ignore_limits
+ * setting is changed.
  */
-void MainWindow::updateFrequencyRange(bool ignore_limits)
+void MainWindow::updateHWFrequencyRange(bool ignore_limits)
 {
     double startd, stopd, stepd;
 
     if (ignore_limits)
     {
-        ui->freqCtrl->setup(10, (quint64) 0, (quint64) 9999e6, 1, UNITS_MHZ);
+        d_hw_freq_start = (quint64) 0;
+        d_hw_freq_stop  = (quint64) 9999e6;
     }
     else if (rx->get_rf_range(&startd, &stopd, &stepd) == receiver::STATUS_OK)
     {
-        qDebug() << QString("New frequnecy range: %1 - %2 MHz (step is %3 Hz but we use 1 Hz).").
-                    arg(startd*1.0e-6).arg(stopd*1.0e-6).arg(stepd);
-
-        qint64 start = (qint64)(startd + rx->get_filter_offset()) + d_lnb_lo;
-        qint64 stop  = (qint64)(stopd + rx->get_filter_offset())  + d_lnb_lo;
-
-        ui->freqCtrl->setup(10, start, stop, 1, UNITS_MHZ);
+        d_hw_freq_start = (quint64) startd;
+        d_hw_freq_stop  = (quint64) stopd;
     }
     else
     {
-        qDebug() << __func__ << "failed fetching new frequency range";
+        qDebug() << __func__ << "failed fetching new hardware frequency range";
+        d_hw_freq_start = (quint64) 0;
+        d_hw_freq_stop  = (quint64) 9999e6;
     }
+
+    updateFrequencyRange(); // Also update the available frequency range
+}
+
+/**
+ * @brief Update availble frequency range.
+ *
+ * This function sets the available frequency range based on the hardware
+ * frequency range, the selected filter offset and the LNB LO.
+ *
+ * This function must therefore be called whenever the LNB LO or the filter
+ * offset has changed.
+ */
+void MainWindow::updateFrequencyRange()
+{
+    qint64 start = (qint64)(rx->get_filter_offset()) + d_hw_freq_start + d_lnb_lo;
+    qint64 stop  = (qint64)(rx->get_filter_offset()) + d_hw_freq_stop  + d_lnb_lo;
+
+    ui->freqCtrl->setup(10, start, stop, 1, UNITS_MHZ);
 }
 
 /**
@@ -753,7 +763,7 @@ void MainWindow::setLnbLo(double freq_mhz)
     qDebug() << "New LNB LO:" << d_lnb_lo << "Hz";
 
     // Update ranges and show updated frequency
-    updateFrequencyRange(uiDockInputCtl->ignoreLimits());
+    updateFrequencyRange();
     ui->freqCtrl->setFrequency(d_lnb_lo + rf_freq);
     ui->plotter->setCenterFreq(d_lnb_lo + d_hw_freq);
 
@@ -780,7 +790,7 @@ void MainWindow::setFilterOffset(qint64 freq_hz)
     rx->set_filter_offset((double) freq_hz);
     ui->plotter->setFilterOffset(freq_hz);
 
-    updateFrequencyRange(uiDockInputCtl->ignoreLimits());
+    updateFrequencyRange();
 
     qint64 rx_freq = d_hw_freq + d_lnb_lo + freq_hz;
     ui->freqCtrl->setFrequency(rx_freq);
@@ -858,7 +868,7 @@ void MainWindow::setIqBalance(bool enabled)
  */
 void MainWindow::setIgnoreLimits(bool ignore_limits)
 {
-    updateFrequencyRange(ignore_limits);
+    updateHWFrequencyRange(ignore_limits);
 
     qint64 filter_offset = (qint64)rx->get_filter_offset();
     qint64 freq = (qint64)rx->get_rf_freq();
