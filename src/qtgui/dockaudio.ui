@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>245</width>
-    <height>238</height>
+    <width>256</width>
+    <height>258</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>245</width>
-    <height>238</height>
+    <width>200</width>
+    <height>258</height>
    </size>
   </property>
   <property name="windowIcon">
@@ -43,15 +43,21 @@
     <item>
      <widget class="CPlotter" name="audioSpectrum">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
       <property name="minimumSize">
        <size>
-        <width>48</width>
-        <height>80</height>
+        <width>50</width>
+        <height>100</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>300</height>
        </size>
       </property>
       <property name="toolTip">
@@ -68,7 +74,7 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="spacing">
-       <number>-1</number>
+       <number>6</number>
       </property>
       <item>
        <widget class="QLabel" name="audioGainLabel">
@@ -151,6 +157,18 @@
       </property>
       <item>
        <widget class="QPushButton" name="audioStreamButton">
+        <property name="minimumSize">
+         <size>
+          <width>50</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="toolTip">
          <string>Stream raw audio over UDP</string>
         </property>
@@ -172,6 +190,12 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>50</width>
+          <height>32</height>
+         </size>
         </property>
         <property name="maximumSize">
          <size>
@@ -212,8 +236,8 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>0</width>
-          <height>0</height>
+          <width>50</width>
+          <height>32</height>
          </size>
         </property>
         <property name="maximumSize">
@@ -255,8 +279,8 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>0</width>
-          <height>0</height>
+          <width>50</width>
+          <height>32</height>
          </size>
         </property>
         <property name="maximumSize">
@@ -302,19 +326,6 @@
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-    </item>
-    <item>
-     <spacer name="verticalSpacer">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>0</height>
-       </size>
-      </property>
-     </spacer>
     </item>
    </layout>
   </widget>
