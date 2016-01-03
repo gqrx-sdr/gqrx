@@ -1,12 +1,15 @@
        2.5  Released TBD...
 
-       NEW: Read out signal time on the waterfall.
+       NEW: Read out signal time and on the waterfall (disabled on OS X).
+       NEW: Save waterfall to graphics file.
        NEW: Allow user settable waterfall time span (up to 24 hours).
        NEW: Cmake option to build using gr-audio backend (Andrea Merello).
      FIXED: FM stereo (revert to pre-2.4 behavior).
      FIXED: Mode selector not updated when selecting a WFM OIRT bookmark.
      FIXED: Show correct filter preset when filter LO/HI corresponds to one.
      FIXED: Prevent RDS panel from growing by making it scrollable.
+     FIXED: Use correct audio backend on OS X (app bundle only).
+  IMPROVED: Button layouts (mostly on Mac OS X).
 
 
        2.4  Released December 14, 2015
