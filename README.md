@@ -168,12 +168,11 @@ come with a Simplified BSD license.
 
 Following people and organisations have contributed to gqrx:
 
-
-TODO: Credits for bookmarks
-
-
 Alex Grinkov:
 - FM stereo demodulator.
+
+Andrea Merello:
+- Cmake build option to build using gr-audio.
 
 Anthony Willard:
 - Various fixes and improvements
@@ -186,8 +185,12 @@ Chris Kuethe:
 - Fractional PPM correction.
 
 Christian Lindner DL2VCL:
+charlylima:
 Stefano Leucci:
 - Bookmarks implementation.
+
+Daniil Cherednik:
+- FM OIRT stereo.
 
 Elias Önal:
 - Building Gqrx on Mac OS X.
@@ -200,14 +203,23 @@ Bob McGwier, N4HY:
 Göran Weinholt, SA6CJK:
 - Various GUI improvements.
 
+Grigory Shipunov:
+- Initial .desktop file.
+
 Jiří Pinkava:
 - Port to gnuradio 3.7 API.
 
-Kobra @ Xiatek:
+Kate Adams:
 - Auto squelch.
 
 Michael Dickens:
-- Bugfixes on OSX.
+- Bugfixes and audio on OSX.
+
+Michael Lass:
+- Improved tuning ranges at hardware limits.
+
+Michael Tatarinov:
+- Documentation.
 
 Moe Weatley:
 - FFT plotter and waterfall.
@@ -220,6 +232,9 @@ Nadeem Hasan:
 
 Nokia:
 - QtColorPicker widget.
+
+Rob Frohne:
+- Initial Qt5 support.
 
 Stefano Leucci:
 - Peak detection and hold for the FFT plot.
