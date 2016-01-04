@@ -218,7 +218,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         if (event->buttons() == Qt::NoButton)
         {
             bool onTag=false;
-            if(pt.y()<15*3) //FIXME
+            if(pt.y()<15*10) //FIXME
             {
                 for(int i=0; i<m_BookmarkTags.size() && !onTag; i++)
                 {
