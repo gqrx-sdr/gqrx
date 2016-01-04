@@ -308,15 +308,17 @@ void CIoConfig::updateInputSampleRates(int rate)
     }
     else if (ui->inDevEdit->text().contains("rtl") || ui->inDevEdit->text().contains("rtl_tcp"))
     {
-        ui->inSrCombo->addItem("250000");
-        ui->inSrCombo->addItem("1024000");
+        ui->inSrCombo->addItem("240000");
+        ui->inSrCombo->addItem("300000");
+        ui->inSrCombo->addItem("960000");
+        ui->inSrCombo->addItem("1152000");
         ui->inSrCombo->addItem("1200000");
+        ui->inSrCombo->addItem("1440000");
         ui->inSrCombo->addItem("1600000");
         ui->inSrCombo->addItem("1800000");
-        ui->inSrCombo->addItem("2048000");
+        ui->inSrCombo->addItem("1920000");
         ui->inSrCombo->addItem("2400000");
-        ui->inSrCombo->addItem("2700000");
-        ui->inSrCombo->addItem("2800000");
+        ui->inSrCombo->addItem("2880000");
         ui->inSrCombo->addItem("3200000");
         if (rate > 0)
         {
