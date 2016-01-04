@@ -157,7 +157,7 @@ CPlotter::CPlotter(QWidget *parent) :
     m_WaterfallPixmap = QPixmap(0,0);
     m_Size = QSize(0,0);
     m_GrabPosition = 0;
-    m_Percent2DScreen = 50;	//percent of screen used for 2D display
+    m_Percent2DScreen = 30;	//percent of screen used for 2D display
 
 #ifdef Q_OS_MAC
     m_FontSize = 11;
