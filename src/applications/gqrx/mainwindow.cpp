@@ -1558,7 +1558,7 @@ void MainWindow::setWfTimeSpan(quint64 span_ms)
  */
 void MainWindow::setIqFftSplit(int pct_wf)
 {
-    if ((pct_wf >= 10) && (pct_wf <= 100))
+    if ((pct_wf >= 0) && (pct_wf <= 100))
         ui->plotter->setPercent2DScreen(pct_wf);
 }
 
