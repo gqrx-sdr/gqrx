@@ -323,11 +323,11 @@ void CIoConfig::updateInputSampleRates(int rate)
         if (rate > 0)
         {
             ui->inSrCombo->addItem(QString("%1").arg(rate));
-            ui->inSrCombo->setCurrentIndex(10);
+            ui->inSrCombo->setCurrentIndex(12);
         }
         else
         {
-            ui->inSrCombo->setCurrentIndex(2);
+            ui->inSrCombo->setCurrentIndex(7);
         }
     }
     else if (ui->inDevEdit->text().contains("uhd"))
