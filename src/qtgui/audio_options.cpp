@@ -47,7 +47,8 @@ CAudioOptions::~CAudioOptions()
 }
 
 
-/*! \brief Catch window close events.
+/**
+ * Catch window close events.
  *
  * This method is called when the user closes the audio options dialog
  * window using the window close icon. We catch the event and hide the
@@ -71,26 +72,27 @@ void CAudioOptions::closeEvent(QCloseEvent *event)
     }
 }
 
-/*! \brief Set initial location of WAV files. */
+/** Set initial location of WAV files. */
 void CAudioOptions::setRecDir(const QString &dir)
 {
     ui->recDirEdit->setText(dir);
 }
 
-/*! \brief Set new UDP host name or IP. */
+/** Set new UDP host name or IP. */
 void CAudioOptions::setUdpHost(const QString &host)
 {
     ui->udpHost->setText(host);
 }
 
-/*! \brief Set new UDP port. */
+/** Set new UDP port. */
 void CAudioOptions::setUdpPort(int port)
 {
     ui->udpPort->setValue(port);
 }
 
-/*! \brief Slot called when the recordings directory has changed either
- *         because of user input or programmatically.
+/**
+ * Slot called when the recordings directory has changed either
+ * because of user input or programmatically.
  */
 void CAudioOptions::on_recDirEdit_textChanged(const QString &dir)
 {
@@ -106,7 +108,7 @@ void CAudioOptions::on_recDirEdit_textChanged(const QString &dir)
     }
 }
 
-/*! \brief Slot called when the user clicks on the "Select" button. */
+/** Slot called when the user clicks on the "Select" button. */
 void CAudioOptions::on_recDirButton_clicked()
 {
     QString dir = QFileDialog::getExistingDirectory(this, tr("Select a directory"),
@@ -118,14 +120,14 @@ void CAudioOptions::on_recDirButton_clicked()
         ui->recDirEdit->setText(dir);
 }
 
-/*! \brief UDP host name has changed. */
+/** UDP host name has changed. */
 void CAudioOptions::on_udpHost_textChanged(const QString &text)
 {
     if (!text.isEmpty())
         emit newUdpHost(text);
 }
 
-/*! \brief UDP port number has changed. */
+/** UDP port number has changed. */
 void CAudioOptions::on_udpPort_valueChanged(int port)
 {
     emit newUdpPort(port);
