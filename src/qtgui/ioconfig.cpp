@@ -461,6 +461,19 @@ void CIoConfig::updateInputSampleRates(int rate)
         ui->inSrCombo->addItem("2500000");
         ui->inSrCombo->addItem("10000000");
     }
+    else if (ui->inDevEdit->text().contains("redpitaya"))
+    {
+        ui->inSrCombo->addItem("20000");
+        ui->inSrCombo->addItem("50000");
+        ui->inSrCombo->addItem("100000");
+        ui->inSrCombo->addItem("250000");
+        ui->inSrCombo->addItem("500000");
+        ui->inSrCombo->addItem("1250000");
+        if (rate > 0)
+            ui->inSrCombo->addItem(QString("%1").arg(rate));
+        else
+            ui->inSrCombo->setCurrentIndex(3); // select 250 kHz
+    }
 
     updateDecimations();
 }
