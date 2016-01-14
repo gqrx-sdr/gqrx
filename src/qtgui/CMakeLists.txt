@@ -15,6 +15,8 @@ add_source_files(SRCS_LIST
 	bookmarkstaglist.h
 	demod_options.cpp
 	demod_options.h
+        dockallocationdetails.cpp
+        dockallocationdetails.h
 	dockaudio.cpp
 	dockaudio.h
 	dockbookmarks.cpp
@@ -59,5 +61,6 @@ add_source_files(UI_SRCS_LIST
 	ioconfig.ui
 	iq_tool.ui
 	nb_options.ui
+        dockallocationdetails.ui
 )
 

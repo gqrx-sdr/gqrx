@@ -124,6 +124,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     uiDockAudio = new DockAudio();
     uiDockInputCtl = new DockInputCtl();
     uiDockFft = new DockFft();
+    uiDockAllocationDetails = new DockAllocationDetails();
     Bookmarks::Get().setConfigDir(m_cfg_dir);
     uiDockBookmarks = new DockBookmarks(this);
 
@@ -171,6 +172,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     ui->menu_View->addAction(uiDockAudio->toggleViewAction());
     ui->menu_View->addAction(uiDockFft->toggleViewAction());
     ui->menu_View->addAction(uiDockBookmarks->toggleViewAction());
+    ui->menu_View->addAction(uiDockAllocationDetails->toggleViewAction());
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
     ui->menu_View->addSeparator();
@@ -343,6 +345,7 @@ MainWindow::~MainWindow()
     delete uiDockFft;
     delete uiDockInputCtl;
     delete uiDockRDS;
+    delete uiDockAllocationDetails;
     delete rx;
     delete remote;
     delete [] d_fftData;

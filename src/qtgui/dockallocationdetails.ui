@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DockWidget</class>
- <widget class="QDockWidget" name="DockWidget">
+ <class>DockAllocationDetails</class>
+ <widget class="QDockWidget" name="DockAllocationDetails">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -66,8 +66,11 @@
       <widget class="QWebView" name="detalWebView">
        <property name="url">
         <url>
-         <string>about:blank</string>
+         <string>http://ajmas.github.io/EarthFrequencies/rest/tables/</string>
         </url>
+       </property>
+       <property name="renderHints">
+        <set>QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
        </property>
       </widget>
      </item>
