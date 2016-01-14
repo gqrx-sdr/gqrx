@@ -38,6 +38,7 @@
 #include "qtgui/dockfft.h"
 #include "qtgui/dockbookmarks.h"
 #include "qtgui/dockrds.h"
+#include "qtgui/dockallocationdetails.h"
 #include "qtgui/afsk1200win.h"
 #include "qtgui/iq_tool.h"
 
@@ -98,6 +99,7 @@ private:
     DockFft        *uiDockFft;
     DockBookmarks  *uiDockBookmarks;
     DockRDS        *uiDockRDS;
+    DockAllocationDetails *uiDockAllocationDetails;
 
     CIqTool        *iq_tool;
 
