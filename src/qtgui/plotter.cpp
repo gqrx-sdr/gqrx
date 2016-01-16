@@ -165,7 +165,7 @@ CPlotter::CPlotter(QWidget *parent) :
     m_FontSize = 9;
 #endif
     m_VdivDelta = 40;
-    m_HdivDelta = 60;
+    m_HdivDelta = 80;
 
     m_FreqDigits = 3;
 

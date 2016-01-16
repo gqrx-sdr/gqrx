@@ -1,3 +1,7 @@
+     2.5.2: TBD...
+
+  IMPROVED: Increased spacing between frequency divisions to prevent overlap.
+
        2.5  Released January 7, 2016
 
        NEW: Read out signal time and on the waterfall (disabled on OS X).
