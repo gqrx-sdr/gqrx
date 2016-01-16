@@ -42,7 +42,6 @@ private:
     bool        m_UseHang;
     int         m_Threshold;
     int         m_ManualGain;
-    int         m_Slope;
     int         m_Decay;
 
     float       m_SampleRate;
@@ -65,7 +64,6 @@ private:
 
     int         m_SigDelayPtr;
     int         m_MagBufPos;
-    int         m_DelaySize;
     int         m_DelaySamples;
     int         m_WindowSamples;
     int         m_HangTime;

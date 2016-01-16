@@ -68,8 +68,6 @@ private:
     gr::filter::iir_filter_ffd::sptr    d_dcr;    /*! DC removal (IIR high pass). */
 
     /* other parameters */
-    float  d_quad_rate;     /*! Quadrature rate. */
-    float  d_audio_rate;    /*! Audio rate. */
     bool   d_dcr_enabled;   /*! DC removal flag. */
 
     /* IIR DC-removal filter taps */

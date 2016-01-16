@@ -40,10 +40,10 @@ rx_demod_am::rx_demod_am(float quad_rate, float audio_rate, bool dcr)
     : gr::hier_block2 ("rx_demod_am",
                       gr::io_signature::make (MIN_IN, MAX_IN, sizeof (gr_complex)),
                       gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof (float))),
-    d_quad_rate(quad_rate),
-    d_audio_rate(audio_rate),
     d_dcr_enabled(dcr)
 {
+    (void) quad_rate;
+    (void) audio_rate;
 
     /* demodulator */
     d_demod = gr::blocks::complex_to_mag::make(1);
