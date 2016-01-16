@@ -1,5 +1,6 @@
      2.5.2: TBD...
 
+       NEW: Support for Red Pitaya (RX only).
   IMPROVED: Increased spacing between frequency divisions to prevent overlap.
 
        2.5  Released January 7, 2016
