@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>260</width>
-    <height>246</height>
+    <height>300</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -148,7 +148,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>246</width>
+         <width>256</width>
          <height>196</height>
         </rect>
        </property>
@@ -678,7 +678,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
       <property name="sizeHint" stdset="0">
        <size>
         <width>10</width>
-        <height>10</height>
+        <height>0</height>
        </size>
       </property>
      </spacer>
