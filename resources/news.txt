@@ -2,6 +2,7 @@
 
        NEW: Support for Red Pitaya (RX only).
   IMPROVED: Increased spacing between frequency divisions to prevent overlap.
+  IMPROVED: Reduced minimum window size requirement to around 800x600 pixels.
 
        2.5  Released January 7, 2016
 
