@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>234</width>
-    <height>222</height>
+    <height>224</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>234</width>
-    <height>220</height>
+    <height>224</height>
    </size>
   </property>
   <property name="windowIcon">
@@ -32,7 +32,7 @@
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
-     <number>2</number>
+     <number>6</number>
     </property>
     <property name="leftMargin">
      <number>4</number>
