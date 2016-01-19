@@ -42,6 +42,14 @@ DockAudio::DockAudio(QWidget *parent) :
     ui->audioConfButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
 #endif
 
+#ifdef Q_OS_LINUX
+    // buttons can be smaller than 50x32
+    ui->audioStreamButton->setMinimumSize(48, 24);
+    ui->audioRecButton->setMinimumSize(48, 24);
+    ui->audioPlayButton->setMinimumSize(48, 24);
+    ui->audioConfButton->setMinimumSize(48, 24);
+#endif
+
     audioOptions = new CAudioOptions(this);
 
     connect(audioOptions, SIGNAL(newRecDirSelected(QString)), this, SLOT(setNewRecDir(QString)));
