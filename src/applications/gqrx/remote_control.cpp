@@ -207,7 +207,7 @@ void RemoteControl::startRead()
         {
             rc_socket->write("SQL\n");
         }
-        else if (lvl == "SQL")
+        else if (lvl.compare("SQL", Qt::CaseInsensitive) == 0)
         {
             double squelch = cmdlist.value(2, "ERR").toDouble(&ok);
             if (ok)
@@ -232,9 +232,9 @@ void RemoteControl::startRead()
         QString lvl = cmdlist.value(1, "");
         if (lvl == "?")
             rc_socket->write("SQL METER\n");
-        else if (lvl == "METER")
+        else if (lvl.compare("METER", Qt::CaseInsensitive) == 0)
             rc_socket->write(QString("%1\n").arg(signal_level, 0, 'f', 1).toLatin1());
-        else if (lvl == "SQL")
+        else if (lvl.compare("SQL", Qt::CaseInsensitive) == 0)
             rc_socket->write(QString("%1\n").arg(squelch_level, 0, 'f', 1).toLatin1());
         else
             rc_socket->write("RPRT 1\n");
