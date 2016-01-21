@@ -36,6 +36,7 @@ RemoteControl::RemoteControl(QObject *parent) :
     bw_half = 740e3;
     rc_mode = 0;
     signal_level = -200.0;
+    squelch_level = -200.0;
 
     rc_port = 7356;
     rc_allowed_hosts.append("::ffff:127.0.0.1");
@@ -163,15 +164,19 @@ void RemoteControl::startRead()
     int     bytes_read;
     qint64  freq;
 
-
     bytes_read = rc_socket->readLine(buffer, 1024);
     if (bytes_read < 2)  // command + '\n'
         return;
 
-    if (buffer[0] == 'F')
+    QStringList cmdlist = QString(buffer).trimmed().split(" ", QString::SkipEmptyParts);
+
+    if (cmdlist.size() == 0)
+        return;
+
+    // Set new frequency
+    if (cmdlist[0] == "F")
     {
-        // set frequency
-        if (sscanf(buffer,"F %lld\n", &freq) == 1)
+        if ((freq = cmdlist.value(1, "0").toLongLong()) > 0)
         {
             setNewRemoteFreq(freq);
             rc_socket->write("RPRT 0\n");
@@ -181,28 +186,33 @@ void RemoteControl::startRead()
             rc_socket->write("RPRT 1\n");
         }
     }
-    else if (buffer[0] == 'f')
+    // Get frequency
+    else if (cmdlist[0] == "f")
     {
-        // get frequency
         rc_socket->write(QString("%1\n").arg(rc_freq).toLatin1());
     }
-    else if (buffer[0] == 'c')
+    else if (cmdlist[0] == "c")
     {
         // FIXME: for now we assume 'close' command
         rc_socket->close();
     }
-
     // Get level
-    // FIXME: For now only signal strength is returned
-    else if (buffer[0] == 'l')
+    else if (cmdlist[0] == "l")
     {
-        rc_socket->write(QString("%1\n").arg(signal_level, 0, 'f', 1).toLatin1());
+        QString lvl = cmdlist.value(1, "");
+        if (lvl == "?")
+            rc_socket->write("SQL METER");
+        else if (lvl == "METER")
+            rc_socket->write(QString("%1\n").arg(signal_level, 0, 'f', 1).toLatin1());
+        else if (lvl == "SQL")
+            rc_socket->write(QString("%1\n").arg(squelch_level, 0, 'f', 1).toLatin1());
+        else
+            rc_socket->write("RPRT 1\n");
     }
-
     // Mode and filter
-    else if (buffer[0] == 'M')
+    else if (cmdlist[0] == "M")
     {
-        int mode = modeStrToInt(buffer);
+        int mode = modeStrToInt(cmdlist.value(1, ""));
         if (mode == -1)
         {
             // invalid string
@@ -215,7 +225,7 @@ void RemoteControl::startRead()
             emit newMode(rc_mode);
         }
     }
-    else if (buffer[0] == 'm')
+    else if (cmdlist[0] == "m")
     {
         rc_socket->write(QString("%1\n").arg(intToModeStr(rc_mode)).toLatin1());
     }
@@ -224,24 +234,18 @@ void RemoteControl::startRead()
     // Gpredict / Gqrx specific commands:
     //   AOS  - satellite AOS event
     //   LOS  - satellite LOS event
-    else if (bytes_read >= 4 && buffer[1] == 'O' && buffer[2] == 'S')
+    else if (cmdlist[0] == "AOS")
     {
-        if (buffer[0] == 'A')
-        {
-            emit satAosEvent();
-            rc_socket->write("RPRT 0\n");
-        }
-        else if (buffer[0] == 'L')
-        {
-            emit satLosEvent();
-            rc_socket->write("RPRT 0\n");
-        }
-        else
-        {
-            rc_socket->write("RPRT 1\n");
-        }
-    }
+        emit satAosEvent();
+        rc_socket->write("RPRT 0\n");
 
+    }
+    else if (cmdlist[0] == "LOS")
+    {
+        emit satLosEvent();
+        rc_socket->write("RPRT 0\n");
+
+    }
     else
     {
         // respond with an error
@@ -313,17 +317,10 @@ void RemoteControl::setNewRemoteFreq(qint64 freq)
  * Following mode strings are recognized: OFF, RAW, AM, FM, WFM,
  * WFM_ST, WFM_ST_OIRT, LSB, USB, CW, CWL, CWU.
  */
-int RemoteControl::modeStrToInt(const char *buffer)
+int RemoteControl::modeStrToInt(QString mode_str)
 {
-    QStringList    str_list;
-    QString        mode_str;
-    int            mode_int = 0;
+    int mode_int = -1;
 
-    str_list = QString(buffer).split(' ', QString::SkipEmptyParts);
-    if (str_list.size() < 2)
-        return 0;
-
-    mode_str = str_list.at(1).trimmed();
     if (mode_str.compare("OFF", Qt::CaseInsensitive) == 0)
     {
         mode_int = 0;

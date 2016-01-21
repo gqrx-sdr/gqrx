@@ -90,6 +90,7 @@ signals:
     void newFrequency(qint64 freq);
     void newFilterOffset(qint64 offset);
     void newMode(int mode);
+    void newSquelchLevel(float level);
 
     void satAosEvent(void); /*! Satellite AOS event received through the socket. */
     void satLosEvent(void); /*! Satellite LOS event received through the socket. */
@@ -111,9 +112,10 @@ private:
 
     int         rc_mode;           /*!< Current mode. */
     float       signal_level;      /*!< Signal level in dBFS */
+    float       squelch_level;     /*!< Squelch level in dBFS */
 
     void        setNewRemoteFreq(qint64 freq);
-    int         modeStrToInt(const char *buffer);
+    int         modeStrToInt(QString mode_str);
     QString     intToModeStr(int mode);
 };
 
