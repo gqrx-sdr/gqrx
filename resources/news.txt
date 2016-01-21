@@ -1,6 +1,7 @@
-     2.5.2: TBD...
+     2.5.2: Released Januar 21, 2016.
 
        NEW: Support for Red Pitaya (RX only).
+       NEW: Build with GNU Radio 3.7.9.
   IMPROVED: Increased spacing between frequency divisions to prevent overlap.
   IMPROVED: Reduced minimum window size requirement to around 800x600 pixels.
 
