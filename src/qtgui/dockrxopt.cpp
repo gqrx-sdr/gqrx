@@ -269,6 +269,17 @@ float DockRxOpt::currentMaxdev()
     return 5000.0;
 }
 
+
+/**
+ * @brief Set squelch level.
+ * @param level Squelch level in dBFS
+ */
+void DockRxOpt::setSquelchLevel(double level)
+{
+    ui->sqlSpinBox->setValue(level);
+}
+
+
 /** Get filter lo/hi for a given mode and preset */
 void DockRxOpt::getFilterPreset(int mode, int preset, int * lo, int * hi) const
 {

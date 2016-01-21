@@ -36,7 +36,7 @@ RemoteControl::RemoteControl(QObject *parent) :
     bw_half = 740e3;
     rc_mode = 0;
     signal_level = -200.0;
-    squelch_level = -200.0;
+    squelch_level = -150.0;
 
     rc_port = 7356;
     rc_allowed_hosts.append("::ffff:127.0.0.1");
@@ -164,6 +164,8 @@ void RemoteControl::startRead()
     int     bytes_read;
     qint64  freq;
 
+    bool ok = true;
+
     bytes_read = rc_socket->readLine(buffer, 1024);
     if (bytes_read < 2)  // command + '\n'
         return;
@@ -176,7 +178,8 @@ void RemoteControl::startRead()
     // Set new frequency
     if (cmdlist[0] == "F")
     {
-        if ((freq = cmdlist.value(1, "0").toLongLong()) > 0)
+        freq = cmdlist.value(1, "ERR").toLongLong(&ok);
+        if (ok)
         {
             setNewRemoteFreq(freq);
             rc_socket->write("RPRT 0\n");
@@ -196,12 +199,39 @@ void RemoteControl::startRead()
         // FIXME: for now we assume 'close' command
         rc_socket->close();
     }
+    // Set level
+    else if (cmdlist[0] == "L")
+    {
+        QString lvl = cmdlist.value(1, "");
+        if (lvl == "?")
+        {
+            rc_socket->write("SQL\n");
+        }
+        else if (lvl == "SQL")
+        {
+            double squelch = cmdlist.value(2, "ERR").toDouble(&ok);
+            if (ok)
+            {
+                rc_socket->write("RPRT 0\n");
+                squelch_level = std::max<double>(-150, std::min<double>(0, squelch));
+                emit newSquelchLevel(squelch_level);
+            }
+            else
+            {
+                rc_socket->write("RPRT 1\n");
+            }
+        }
+        else
+        {
+            rc_socket->write("RPRT 1\n");
+        }
+    }
     // Get level
     else if (cmdlist[0] == "l")
     {
         QString lvl = cmdlist.value(1, "");
         if (lvl == "?")
-            rc_socket->write("SQL METER");
+            rc_socket->write("SQL METER\n");
         else if (lvl == "METER")
             rc_socket->write(QString("%1\n").arg(signal_level, 0, 'f', 1).toLatin1());
         else if (lvl == "SQL")
@@ -309,6 +339,11 @@ void RemoteControl::setNewRemoteFreq(qint64 freq)
     rc_freq = freq;
 }
 
+/*! \brief Set squelch level (from mainwindow). */
+void RemoteControl::setSquelchLevel(double level)
+{
+    squelch_level = level;
+}
 
 /*! \brief Convert mode string to enum (DockRxOpt::rxopt_mode_idx)
  *  \param mode The Hamlib rigctld compatible mode string

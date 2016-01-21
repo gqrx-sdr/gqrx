@@ -85,12 +85,13 @@ public slots:
     void setBandwidth(qint64 bw);
     void setSignalLevel(float level);
     void setMode(int mode);
+    void setSquelchLevel(double level);
 
 signals:
     void newFrequency(qint64 freq);
     void newFilterOffset(qint64 offset);
     void newMode(int mode);
-    void newSquelchLevel(float level);
+    void newSquelchLevel(double level);
 
     void satAosEvent(void); /*! Satellite AOS event received through the socket. */
     void satLosEvent(void); /*! Satellite LOS event received through the socket. */
@@ -112,7 +113,7 @@ private:
 
     int         rc_mode;           /*!< Current mode. */
     float       signal_level;      /*!< Signal level in dBFS */
-    float       squelch_level;     /*!< Squelch level in dBFS */
+    double      squelch_level;     /*!< Squelch level in dBFS */
 
     void        setNewRemoteFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);
