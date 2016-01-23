@@ -12,6 +12,7 @@
 QT       += core gui network
 contains(QT_MAJOR_VERSION,5) {
     QT += widgets
+    QT += webkit
 }
 
 TEMPLATE = app
@@ -113,6 +114,7 @@ SOURCES += \
     src/qtgui/bookmarkstablemodel.cpp \
     src/qtgui/bookmarkstaglist.cpp \
     src/qtgui/demod_options.cpp \
+    src/qtgui/dockallocationdetails.cpp \
     src/qtgui/dockaudio.cpp \
     src/qtgui/dockbookmarks.cpp \
     src/qtgui/dockinputctl.cpp \
@@ -172,6 +174,7 @@ HEADERS += \
     src/qtgui/bookmarkstablemodel.h \
     src/qtgui/bookmarkstaglist.h \
     src/qtgui/demod_options.h \
+    src/qtgui/dockallocationdetails.h \
     src/qtgui/dockaudio.h \
     src/qtgui/dockbookmarks.h \
     src/qtgui/dockfft.h \
@@ -196,6 +199,7 @@ FORMS += \
     src/qtgui/agc_options.ui \
     src/qtgui/audio_options.ui \
     src/qtgui/demod_options.ui \
+    src/qtgui/dockallocationdetails.ui \
     src/qtgui/dockaudio.ui \
     src/qtgui/dockbookmarks.ui \
     src/qtgui/dockfft.ui \
