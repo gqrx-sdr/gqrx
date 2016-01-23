@@ -2,6 +2,9 @@
 #define DOCKALLOCATIONDETAILS_H
 #include <QDockWidget>
 #include <QSettings>
+#include <QtWebKitWidgets/QWebView>
+
+
 
 namespace Ui {
     class DockAllocationDetails;

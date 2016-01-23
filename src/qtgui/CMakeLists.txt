@@ -52,6 +52,7 @@ add_source_files(UI_SRCS_LIST
 	agc_options.ui
 	audio_options.ui
 	demod_options.ui
+	dockallocationdetails.ui
 	dockaudio.ui
 	dockbookmarks.ui
 	dockfft.ui
@@ -61,6 +62,5 @@ add_source_files(UI_SRCS_LIST
 	ioconfig.ui
 	iq_tool.ui
 	nb_options.ui
-        dockallocationdetails.ui
 )
 

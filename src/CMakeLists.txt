@@ -37,7 +37,7 @@ QT5_ADD_RESOURCES(RESOURCES_LIST
 #######################################################################################################################
 # Build the program
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCE} ${UIS_HDRS} ${RESOURCES_LIST})
-qt5_use_modules(${PROJECT_NAME} Core Network Widgets Svg)
+qt5_use_modules(${PROJECT_NAME} Core Network Widgets Svg Webkit WebKitWidgets)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
 # The pulse libraries are only needed on Linux. On other platforms they will not be found, so having them here is fine.
 target_link_libraries(${PROJECT_NAME}
