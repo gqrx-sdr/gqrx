@@ -1,5 +1,6 @@
      2.5.3: TBD...
 
+  IMPROVED: Reworked CW reception so that channel is now centered on carrier.
   IMPROVED: Shortcuts for view/hide some of the dock widgets.
 
      2.5.2: Released Januar 21, 2016.
