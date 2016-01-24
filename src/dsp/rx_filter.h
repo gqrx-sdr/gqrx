@@ -73,6 +73,7 @@ public:
     ~rx_filter();
 
     void set_param(double low, double high, double trans_width);
+    void set_cw_offset(double offset);
 
 private:
     std::vector<gr_complex> d_taps;
@@ -82,6 +83,7 @@ private:
     double d_low;
     double d_high;
     double d_trans_width;
+    double d_cw_offset;
 };
 
 

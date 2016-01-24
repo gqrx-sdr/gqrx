@@ -61,6 +61,7 @@ receiver::receiver(const std::string input_device,
       d_decim(decimation),
       d_rf_freq(144800000.0),
       d_filter_offset(0.0),
+      d_cw_offset(0.0),
       d_recording_iq(false),
       d_recording_wav(false),
       d_sniffer_active(false),
@@ -625,19 +626,34 @@ receiver::status receiver::set_auto_gain(bool automatic)
 receiver::status receiver::set_filter_offset(double offset_hz)
 {
     d_filter_offset = offset_hz;
-    lo->set_frequency(-d_filter_offset);
+    lo->set_frequency(-d_filter_offset + d_cw_offset);
 
     return STATUS_OK;
 }
 
 /**
- * @brief Get filterm offset.
+ * @brief Get filter offset.
  * @return The current filter offset.
  * @sa set_filter_offset()
  */
 double receiver::get_filter_offset(void) const
 {
     return d_filter_offset;
+}
+
+/* CW offset can serve as a "BFO" if the GUI needs it */
+receiver::status receiver::set_cw_offset(double offset_hz)
+{
+    d_cw_offset = offset_hz;
+    lo->set_frequency(-d_filter_offset + d_cw_offset);
+    rx->set_cw_offset(d_cw_offset);
+
+    return STATUS_OK;
+}
+
+double receiver::get_cw_offset(void) const
+{
+    return d_cw_offset;
 }
 
 receiver::status receiver::set_filter(double low, double high, filter_shape shape)

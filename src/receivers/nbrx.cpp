@@ -108,6 +108,11 @@ void nbrx::set_filter(double low, double high, double tw)
     filter->set_param(low, high, tw);
 }
 
+void nbrx::set_cw_offset(double offset)
+{
+    filter->set_cw_offset(offset);
+}
+
 float nbrx::get_signal_level(bool dbfs)
 {
     if (dbfs)

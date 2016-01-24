@@ -148,6 +148,8 @@ public:
 
     status      set_filter_offset(double offset_hz);
     double      get_filter_offset(void) const;
+    status      set_cw_offset(double offset_hz);
+    double      get_cw_offset(void) const;
     status      set_filter(double low, double high, filter_shape shape);
     status      set_freq_corr(double ppm);
     float       get_signal_pwr(bool dbfs) const;
@@ -223,6 +225,7 @@ private:
     unsigned int    d_decim;        /*!< input decimation. */
     double      d_rf_freq;          /*!< Current RF frequency. */
     double      d_filter_offset;    /*!< Current filter offset */
+    double      d_cw_offset;        /*!< CW offset */
     bool        d_recording_iq;     /*!< Whether we are recording I/Q file. */
     bool        d_recording_wav;    /*!< Whether we are recording WAV file. */
     bool        d_sniffer_active;   /*!< Only one data decoder allowed. */

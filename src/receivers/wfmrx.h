@@ -69,6 +69,7 @@ public:
     void set_audio_rate(float audio_rate);
 
     void set_filter(double low, double high, double tw);
+    void set_cw_offset(double offset) { (void)offset; }
 
     float get_signal_level(bool dbfs);
 
