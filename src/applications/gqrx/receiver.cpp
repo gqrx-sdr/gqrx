@@ -666,11 +666,11 @@ receiver::status receiver::set_filter(double low, double high, filter_shape shap
     switch (shape) {
 
     case FILTER_SHAPE_SOFT:
-        trans_width = std::abs(high - low) * 0.4;
+        trans_width = std::abs(high - low) * 0.5;
         break;
 
     case FILTER_SHAPE_SHARP:
-        trans_width = std::abs(high - low) * 0.05;
+        trans_width = std::abs(high - low) * 0.1;
         break;
 
     case FILTER_SHAPE_NORMAL:
