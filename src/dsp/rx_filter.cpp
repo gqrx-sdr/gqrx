@@ -74,8 +74,8 @@ rx_filter::~rx_filter ()
 void rx_filter::set_param(double low, double high, double trans_width)
 {
     d_trans_width = trans_width;
-    d_low         = low + d_cw_offset;
-    d_high        = high + d_cw_offset;
+    d_low         = low;
+    d_high        = high;
 
     if (d_low < -0.95*d_sample_rate/2.0)
         d_low = -0.95*d_sample_rate/2.0;
@@ -83,12 +83,15 @@ void rx_filter::set_param(double low, double high, double trans_width)
         d_high = 0.95*d_sample_rate/2.0;
 
     /* generate new taps */
-    d_taps = gr::filter::firdes::complex_band_pass(1.0, d_sample_rate, d_low, d_high, d_trans_width);
+    d_taps = gr::filter::firdes::complex_band_pass(1.0, d_sample_rate,
+                                                   d_low + d_cw_offset,
+                                                   d_high + d_cw_offset,
+                                                   d_trans_width);
 
 #ifndef QT_NO_DEBUG_OUTPUT
-    std::cout << "Genrating taps for new filter LO:" << d_low <<
-                 " HI:" << d_high << " TW:" << d_trans_width << std::endl;
-    std::cout << "Required number of taps: " << d_taps.size() << std::endl;
+    std::cout << "Genrating taps for new filter   LO:" << d_low
+              << "   HI:" << d_high << " TW:" << d_trans_width
+              << "   Taps: " << d_taps.size() << std::endl;
 #endif
 
     d_bpf->set_taps(d_taps);
@@ -97,8 +100,11 @@ void rx_filter::set_param(double low, double high, double trans_width)
 
 void rx_filter::set_cw_offset(double offset)
 {
-    d_cw_offset = offset;
-    set_param(d_low, d_high, d_trans_width);
+    if (offset != d_cw_offset)
+    {
+        d_cw_offset = offset;
+        set_param(d_low, d_high, d_trans_width);
+    }
 }
 
 
