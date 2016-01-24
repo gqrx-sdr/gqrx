@@ -763,6 +763,7 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
     uiDockRxOpt->setHwFreq(d_hw_freq);
     ui->freqCtrl->setFrequency(rx_freq);
     uiDockBookmarks->setNewFrequency(rx_freq);
+    uiDockAllocationDetails->setFrequency(center_freq);
 }
 
 /**

@@ -24,16 +24,17 @@
 #include <QVariant>
 #include "dockallocationdetails.h"
 #include "ui_dockallocationdetails.h"
+#include <iostream>
 
 DockAllocationDetails::DockAllocationDetails(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockAllocationDetails)
 {
     ui->setupUi(this);
+    
+    initRegionsCombo();
 
-//#if QT_VERSION >= 0x050200
-//    ui->scrollArea->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContentsOnFirstShow);
-//#endif
+    connect(ui->regionComboBox, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(switchcall(const QString&)));
  }
 
 DockAllocationDetails::~DockAllocationDetails()
@@ -41,78 +42,71 @@ DockAllocationDetails::~DockAllocationDetails()
     delete ui;
 }
 
-void DockAllocationDetails::updateRDS(QString text, int type)
+void DockAllocationDetails::switchcall(const QString& text)
 {
-    /* type 0 = PI
-     * type 1 = PS
-     * type 2 = PTY
-     * type 3 = flagstring: TP, TA, MuSp, MoSt, AH, CMP, stPTY
-     * type 4 = RadioText
-     * type 5 = ClockTime
-     * type 6 = Alternative Frequencies */
+     //std::cout << "selected value: " << text.toUtf8().constData() << "\n";
+     updateBandView();
+}
 
-//    if (type==0) {
-//        ui->program_information->setText(text);
-//    } else if (type==1) {
-//        ui->station_name->setText(text);
-//    } else if (type==2) {
-//        ui->program_type->setText(text);
-//    } else if (type==3) {
-//        std::string str = text.toStdString();
-//        std::string out="";
-//        if (str.at(0)=='1') out.append("TP ");
-//        if (str.at(1)=='1') out.append("TA ");
-//        if (str.at(2)=='0') out.append("Speech ");
-//        if (str.at(2)=='1') out.append("Music ");
-//        if (str.at(3)=='0') out.append("Stereo ");
-//        if (str.at(3)=='1') out.append("Mono ");
-//        if (str.at(4)=='1') out.append("AH ");
-//        if (str.at(5)=='1') out.append("CMP ");
-//        if (str.at(6)=='1') out.append("stPTY ");
-//        ui->flags->setText(QString::fromStdString(out));
-//    } else if (type==4) {
-//        ui->radiotext->setText(text);
-//    } else if (type==5) {
-//        ui->clocktime->setText(text);
-//    } else if (type==6) {
-//        ui->alt_freq->setText(text);
-//    }
+/**
+ * Load frequency allocations viewer configuration to settings.
+ */
+void DockAllocationDetails::readSettings(QSettings *settings)
+{
+    //std::cout << "AJMAS DockAllocationDetails::readSettings: " << "xxxxx" << "\n";
 
 }
 
-void DockAllocationDetails::showEnabled()
+/** 
+ * Save frequency allocations viewer configuration to settings.
+ */
+void DockAllocationDetails::saveSettings(QSettings *settings)
 {
-//    ui->rdsCheckbox->setText("Enabled");
+    //std::cout << "AJMAS DockAllocationDetails::saveSettings: " << "xxxxx" << "\n";
 }
 
-void DockAllocationDetails::showDisabled()
+/**
+ * Init the regions combo box
+ */
+void DockAllocationDetails::initRegionsCombo()
 {
-//    ui->rdsCheckbox->setText("Disabled");
-//    ui->program_information->setText("");
-//    ui->station_name->setText("");
-//    ui->program_type->setText("");
-//    ui->flags->setText("");
-//    ui->radiotext->setText("");
-//    ui->clocktime->setText("");
-//    ui->alt_freq->setText("");
+    // TODO make this load its values from a URL, via a JSON response
+    
+    ui->regionComboBox->addItem("ITU Region 1", "itu1");
+    ui->regionComboBox->addItem("ITU Region 2", "itu2");
+    ui->regionComboBox->addItem("ITU Region 3", "itu3");
+    ui->regionComboBox->addItem("Canada", "ca");
+    ui->regionComboBox->addItem("United Kingdom", "gb");
+    ui->regionComboBox->addItem("USA", "us");
+    
 }
 
-void DockAllocationDetails::setDisabled()
+/**
+ * Updated the displayed information. Depends on an internet connection
+ */
+void DockAllocationDetails::updateBandView ()
 {
-// ui->rdsCheckbox->setDisabled(true);
-//
-// ui->rdsCheckbox->blockSignals(true);
-// ui->rdsCheckbox->setChecked(false);
-// ui->rdsCheckbox->blockSignals(false);
+    // TODO Move this to somewhere more suitable, also accepting a value from the config file
+    
+    QString url = QString("http://ajmas.github.io/EarthFrequenciesViewer/bandinfo/?lf=%1&uf=%2&region=%3")
+        .arg(QString::number(lf_freq_hz - 20))
+        .arg(QString::number(uf_freq_hz + 20))
+        .arg(ui->regionComboBox->itemData(ui->regionComboBox->currentIndex()).toString());
+    ui->detailWebView->setUrl(QUrl(url));
+    
 }
 
-void DockAllocationDetails::setEnabled()
+/**
+ * @brief Set new RF frequency
+ * @param freq_hz The frequency in Hz
+ *
+ * RF frequency is the frequency to which the device device is tuned to
+ *
+ */
+void DockAllocationDetails::setFrequency(qint64 freq_hz)
 {
-// ui->rdsCheckbox->setDisabled(false);
-}
+    this->lf_freq_hz = freq_hz;
+    this->uf_freq_hz = freq_hz;
 
-/*! \brief Enable/disable RDS decoder */
-void DockAllocationDetails::on_rdsCheckbox_toggled(bool checked)
-{
-//    emit rdsDecoderToggled(checked);
+    updateBandView();
 }

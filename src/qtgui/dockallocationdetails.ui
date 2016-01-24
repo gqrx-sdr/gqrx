@@ -66,9 +66,14 @@
         <property name="autoFillBackground">
          <bool>false</bool>
         </property>
+        <property name="styleSheet">
+         <string notr="true">body {
+    background: none;
+}</string>
+        </property>
         <property name="url">
          <url>
-          <string>http://ajmas.github.io/EarthFrequencies/rest/tables/</string>
+          <string>http://localhost/~ajmas/freq-viewer/bandinfo/</string>
          </url>
         </property>
         <property name="renderHints">
