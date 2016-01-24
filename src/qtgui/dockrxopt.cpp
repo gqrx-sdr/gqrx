@@ -39,8 +39,8 @@ static const int filter_preset_table[DockRxOpt::MODE_LAST][3][2] =
     {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}},  // MODE_WFM_STEREO
     {{  -4000,   -100}, { -2800,  -100}, { -1600,  -200}},  // MODE_LSB
     {{    100,   4000}, {   100,  2800}, {   200,  1600}},  // MODE_USB
-    {{   2500,    -50}, { -1200,  -200}, {  -900,  -400}},  // MODE_CWL
-    {{     50,   2500}, {   200,  1200}, {   400,   900}},  // MODE_CWU
+    {{  -1000,   1000}, {  -250,   250}, {  -100,   100}},  // MODE_CWL
+    {{  -1000,   1000}, {  -250,   250}, {  -100,   100}},  // MODE_CWU
     {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}}   // MODE_WFM_STEREO_OIRT
 };
 
@@ -98,6 +98,7 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     connect(demodOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(demodOpt_fmMaxdevSelected(float)));
     connect(demodOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(demodOpt_fmEmphSelected(double)));
     connect(demodOpt, SIGNAL(amDcrToggled(bool)), this, SLOT(demodOpt_amDcrToggled(bool)));
+    connect(demodOpt, SIGNAL(cwOffsetChanged(int)), this, SLOT(demodOpt_cwOffsetChanged(int)));
 
     // AGC options dialog
     agcOpt = new CAgcOptions(this);
@@ -245,7 +246,10 @@ int  DockRxOpt::currentFilterShape()
 void DockRxOpt::setCurrentDemod(int demod)
 {
     if ((demod >= MODE_OFF) && (demod < MODE_LAST))
+    {
         ui->modeSelector->setCurrentIndex(demod);
+        updateDemodOptPage(demod);
+    }
 }
 
 
@@ -286,6 +290,11 @@ void DockRxOpt::getFilterPreset(int mode, int preset, int * lo, int * hi) const
     *hi = filter_preset_table[mode][preset][1];
 }
 
+int DockRxOpt::getCwOffset() const
+{
+    return demodOpt->getCwOffset();
+}
+
 /** Read receiver configuration from settings data. */
 void DockRxOpt::readSettings(QSettings *settings)
 {
@@ -297,6 +306,13 @@ void DockRxOpt::readSettings(QSettings *settings)
     {
         setCurrentDemod(intVal);
         emit demodSelected(intVal);
+    }
+
+    intVal = settings->value("receiver/cwoffset", 700).toInt(&conv_ok);
+    if (conv_ok)
+    {
+        demodOpt->setCwOffset(intVal);
+        demodOpt->cwOffsetChanged(intVal);
     }
 
     qint64 offs = settings->value("receiver/offset", 0).toInt(&conv_ok);
@@ -318,6 +334,12 @@ void DockRxOpt::readSettings(QSettings *settings)
 void DockRxOpt::saveSettings(QSettings *settings)
 {
     settings->setValue("receiver/demod", ui->modeSelector->currentIndex());
+
+    int cwofs = demodOpt->getCwOffset();
+    if (cwofs == 700)
+        settings->remove("receiver/cwoffset");
+    else
+        settings->setValue("receiver/cwoffset", cwofs);
 
     qint64 offs = ui->filterFreq->getFrequency();
     if (offs)
@@ -387,15 +409,22 @@ void DockRxOpt::on_modeSelector_activated(int index)
         return;
     }
 
-    // update demodulator option widget
-    if (index == MODE_NFM)
-        demodOpt->setCurrentPage(CDemodOptions::PAGE_FM_OPT);
-    else if (index == MODE_AM)
-        demodOpt->setCurrentPage(CDemodOptions::PAGE_AM_OPT);
-    else
-        demodOpt->setCurrentPage(CDemodOptions::PAGE_NO_OPT);
+    updateDemodOptPage(index);
 
     emit demodSelected(index);
+}
+
+void DockRxOpt::updateDemodOptPage(int demod)
+{
+    // update demodulator option widget
+    if (demod == MODE_NFM)
+        demodOpt->setCurrentPage(CDemodOptions::PAGE_FM_OPT);
+    else if (demod == MODE_AM)
+        demodOpt->setCurrentPage(CDemodOptions::PAGE_AM_OPT);
+    else if (demod == MODE_CWL || demod == MODE_CWU)
+        demodOpt->setCurrentPage(CDemodOptions::PAGE_CW_OPT);
+    else
+        demodOpt->setCurrentPage(CDemodOptions::PAGE_NO_OPT);
 }
 
 /** Show demodulator options. */
@@ -535,6 +564,11 @@ void DockRxOpt::demodOpt_fmEmphSelected(double tau)
 void DockRxOpt::demodOpt_amDcrToggled(bool enabled)
 {
     emit amDcrToggled(enabled);
+}
+
+void DockRxOpt::demodOpt_cwOffsetChanged(int offset)
+{
+    emit cwOffsetChanged(offset);
 }
 
 /** Noise blanker 1 button has been toggled. */

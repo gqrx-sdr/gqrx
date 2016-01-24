@@ -45,7 +45,8 @@ public:
         PAGE_NO_OPT = 0,
         PAGE_FM_OPT = 1,
         PAGE_AM_OPT = 2,
-        PAGE_NUM    = 3
+        PAGE_CW_OPT = 3,
+        PAGE_NUM    = 4
     };
 
     explicit CDemodOptions(QWidget *parent = 0);
@@ -54,7 +55,10 @@ public:
     void closeEvent(QCloseEvent *event);
 
     void setCurrentPage(int index);
-    int  currentPage();
+    int  currentPage() const;
+
+    void setCwOffset(int offset);
+    int  getCwOffset(void) const;
 
 signals:
     /*! \brief Signal emitted when new FM deviation is selected. */
@@ -66,10 +70,14 @@ signals:
     /*! \brief Signal emitted when AM DCR is toggled. */
     void amDcrToggled(bool enabled);
 
+    /*! \brief CW offset changed. */
+    void cwOffsetChanged(int offset);
+
 private slots:
     void on_maxdevSelector_activated(int index);
     void on_emphSelector_activated(int index);
     void on_dcrCheckBox_toggled(bool checked);
+    void on_cwOffsetSpin_valueChanged(int value);
 
 private:
     Ui::CDemodOptions *ui;

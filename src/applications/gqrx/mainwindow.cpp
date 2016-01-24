@@ -204,6 +204,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
     connect(uiDockRxOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(setFmEmph(double)));
     connect(uiDockRxOpt, SIGNAL(amDcrToggled(bool)), this, SLOT(setAmDcr(bool)));
+    connect(uiDockRxOpt, SIGNAL(cwOffsetChanged(int)), this, SLOT(setCwOffset(int)));
     connect(uiDockRxOpt, SIGNAL(agcToggled(bool)), this, SLOT(setAgcOn(bool)));
     connect(uiDockRxOpt, SIGNAL(agcHangToggled(bool)), this, SLOT(setAgcHang(bool)));
     connect(uiDockRxOpt, SIGNAL(agcThresholdChanged(int)), this, SLOT(setAgcThreshold(int)));
@@ -913,6 +914,7 @@ void MainWindow::selectDemod(QString strModulation)
 void MainWindow::selectDemod(int mode_idx)
 {
     double quad_rate;
+    double cwofs = 0.0;
     float maxdev;
     int filter_preset = uiDockRxOpt->currentFilter();
     int flo=0, fhi=0, click_res=100;
@@ -1019,7 +1021,8 @@ void MainWindow::selectDemod(int mode_idx)
         /* CW-L */
     case DockRxOpt::MODE_CWL:
         rx->set_demod(receiver::RX_DEMOD_SSB);
-        ui->plotter->setDemodRanges(-10000, -100, -5000, 0, false);
+        cwofs = -uiDockRxOpt->getCwOffset();
+        ui->plotter->setDemodRanges(-5000, -100, 100, 5000, true);
         uiDockAudio->setFftRange(0,1500);
         click_res = 10;
         break;
@@ -1027,7 +1030,8 @@ void MainWindow::selectDemod(int mode_idx)
         /* CW-U */
     case DockRxOpt::MODE_CWU:
         rx->set_demod(receiver::RX_DEMOD_SSB);
-        ui->plotter->setDemodRanges(0, 5000, 100, 10000, false);
+        cwofs = uiDockRxOpt->getCwOffset();
+        ui->plotter->setDemodRanges(-5000, -100, 100, 5000, true);
         uiDockAudio->setFftRange(0,1500);
         click_res = 10;
         break;
@@ -1045,6 +1049,7 @@ void MainWindow::selectDemod(int mode_idx)
     ui->plotter->setClickResolution(click_res);
     ui->plotter->setFilterClickResolution(click_res);
     rx->set_filter((double)flo, (double)fhi, d_filter_shape);
+    rx->set_cw_offset(cwofs);
 
     d_have_audio = ((mode_idx != DockRxOpt::MODE_OFF) && (mode_idx != DockRxOpt::MODE_RAW));
 
@@ -1099,6 +1104,11 @@ void MainWindow::setFmEmph(double tau)
 void MainWindow::setAmDcr(bool enabled)
 {
     rx->set_am_dcr(enabled);
+}
+
+void MainWindow::setCwOffset(int offset)
+{
+    rx->set_cw_offset(offset);
 }
 
 /**

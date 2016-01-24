@@ -101,6 +101,7 @@ public:
     float currentMaxdev();
 
     void    getFilterPreset(int mode, int preset, int * lo, int * hi) const;
+    int     getCwOffset() const;
 
     static QStringList ModulationStrings;
     static QString GetStringForModulationIndex(int iModulationIndex);
@@ -113,6 +114,7 @@ public slots:
 
 private:
     void updateHwFreq();
+    void updateDemodOptPage(int demod);
     unsigned int filterIdxFromLoHi(int lo, int hi) const;
 
 signals:
@@ -165,6 +167,8 @@ signals:
     /** Signal emitted when noise blanker status has changed. */
     void noiseBlankerChanged(int nbid, bool on, float threshold);
 
+    void cwOffsetChanged(int offset);
+
 private slots:
     void on_filterFreq_newFrequency(qint64 freq);
     void on_filterCombo_activated(int index);
@@ -185,6 +189,7 @@ private slots:
     void demodOpt_fmMaxdevSelected(float max_dev);
     void demodOpt_fmEmphSelected(double tau);
     void demodOpt_amDcrToggled(bool enabled);
+    void demodOpt_cwOffsetChanged(int offset);
 
     // Signals coming from AGC options popup
     void agcOpt_hangToggled(bool checked);

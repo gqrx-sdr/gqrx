@@ -55,11 +55,20 @@ void CDemodOptions::setCurrentPage(int index)
         ui->demodOptions->setCurrentIndex(index);
 }
 
-int CDemodOptions::currentPage()
+int CDemodOptions::currentPage() const
 {
     return ui->demodOptions->currentIndex();
 }
 
+void CDemodOptions::setCwOffset(int offset)
+{
+    ui->cwOffsetSpin->setValue(offset);
+}
+
+int  CDemodOptions::getCwOffset(void) const
+{
+    return ui->cwOffsetSpin->value();
+}
 
 void CDemodOptions::on_maxdevSelector_activated(int index)
 {
@@ -110,4 +119,9 @@ void CDemodOptions::on_emphSelector_activated(int index)
 void CDemodOptions::on_dcrCheckBox_toggled(bool checked)
 {
     emit amDcrToggled(checked);
+}
+
+void CDemodOptions::on_cwOffsetSpin_valueChanged(int value)
+{
+    emit cwOffsetChanged(value);
 }
