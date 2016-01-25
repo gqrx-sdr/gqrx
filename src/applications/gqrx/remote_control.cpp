@@ -232,7 +232,7 @@ void RemoteControl::startRead()
         QString lvl = cmdlist.value(1, "");
         if (lvl == "?")
             rc_socket->write("SQL STRENGTH\n");
-        else if (lvl.compare("STRENGTH", Qt::CaseInsensitive) == 0)
+        else if (lvl.compare("STRENGTH", Qt::CaseInsensitive) == 0 || lvl.isEmpty())
             rc_socket->write(QString("%1\n").arg(signal_level, 0, 'f', 1).toLatin1());
         else if (lvl.compare("SQL", Qt::CaseInsensitive) == 0)
             rc_socket->write(QString("%1\n").arg(squelch_level, 0, 'f', 1).toLatin1());
