@@ -56,6 +56,24 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
     add_definitions(-Wsign-compare)
 endif()
 
+if(MSVC)
+    #get math definitions like M_PI
+    add_definitions(-D_USE_MATH_DEFINES)
+
+    #use std::min()/std::max()
+    add_definitions(-DNOMINMAX)
+
+    #needed to dynamically link boost
+    add_definitions(-DBOOST_ALL_DYN_LINK)
+
+    #export gr-rds symbols
+    add_definitions(-Dgnuradio_RDS_EXPORTS)
+
+    if ("${MSVC_VERSION}" VERSION_LESS "1900")
+        add_definitions(-D__func__=__FUNCTION__)
+    endif()
+endif()
+
 #######################################################################################################################
 # Functions & macros.  These must be defined before including subdirectories.
 

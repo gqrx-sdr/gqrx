@@ -30,14 +30,22 @@
 #include "filter-i386.h"
 #endif /* ARCH_I386 */
 
+#ifndef _MSC_VER
+#define DECL_UNUSED __attribute__ ((unused))
+#endif
+
+#ifndef DECL_UNUSED
+#define DECL_UNUSED
+#endif
+
 /* ---------------------------------------------------------------------- */
 
 extern inline unsigned int hweight32(unsigned int w)
-        __attribute__ ((unused));
+        DECL_UNUSED;
 extern inline unsigned int hweight16(unsigned short w)
-        __attribute__ ((unused));
+        DECL_UNUSED;
 extern inline unsigned int hweight8(unsigned char w)
-        __attribute__ ((unused));
+        DECL_UNUSED;
 
 extern inline unsigned int hweight32(unsigned int w) 
 {
@@ -64,9 +72,9 @@ extern inline unsigned int hweight8(unsigned char w)
 }
 
 extern inline unsigned int gcd(unsigned int x, unsigned int y)
-        __attribute__ ((unused));
+        DECL_UNUSED;
 extern inline unsigned int lcm(unsigned int x, unsigned int y)
-        __attribute__ ((unused));
+        DECL_UNUSED;
 
 extern inline unsigned int gcd(unsigned int x, unsigned int y)
 {
