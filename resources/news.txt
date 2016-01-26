@@ -1,5 +1,6 @@
      2.5.3: TBD...
 
+       NEW: Set and read squelch via remote control socket.
   IMPROVED: Reworked CW reception so that channel is now centered on carrier.
   IMPROVED: Shortcuts for view/hide some of the dock widgets.
 
