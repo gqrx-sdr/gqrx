@@ -272,6 +272,12 @@ private:
 #else
     gr::audio::sink::sptr     audio_snk;  /*!< gr audio sink */
 #endif
+
+    //! Get a path to a file containing random bytes
+    static std::string get_random_file(void);
+
+    //! Get a path to a file containing all-zero bytes
+    static std::string get_null_file(void);
 };
 
 #endif // RECEIVER_H
