@@ -82,6 +82,7 @@ SOURCES += \
     src/applications/gqrx/main.cpp \
     src/applications/gqrx/mainwindow.cpp \
     src/applications/gqrx/receiver.cpp \
+    src/applications/gqrx/file_resources.cpp \
     src/applications/gqrx/remote_control.cpp \
     src/applications/gqrx/remote_control_settings.cpp \
     src/dsp/afsk1200/cafsk12.cpp \
