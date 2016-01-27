@@ -212,7 +212,7 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
     connect(this, SIGNAL(accepted()), this, SLOT(saveConfig()));
     connect(ui->inDevCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(inputDeviceSelected(int)));
     connect(ui->inDevEdit, SIGNAL(textChanged(QString)), this, SLOT(inputDevstrChanged(QString)));
-    connect(ui->inSrCombo, SIGNAL(currentTextChanged(QString)), this, SLOT(inputRateChanged(QString)));
+    connect(ui->inSrCombo, SIGNAL(editTextChanged(QString)), this, SLOT(inputRateChanged(QString)));
     connect(ui->decimCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(decimationChanged(int)));
 }
 
