@@ -209,6 +209,9 @@ Grigory Shipunov:
 Jiří Pinkava:
 - Port to gnuradio 3.7 API.
 
+Josh Blum
+- Windows build and MSVC tweaks.
+
 Kate Adams:
 - Auto squelch.
 
