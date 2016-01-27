@@ -77,8 +77,7 @@ receiver::receiver(const std::string input_device,
 
     if (input_device.empty())
     {
-        // FIXME: other OS
-        src = osmosdr::source::make("file=/dev/random,freq=428e6,rate=96000,repeat=true,throttle=true");
+        src = osmosdr::source::make("file="+get_random_file()+",freq=428e6,rate=96000,repeat=true,throttle=true");
     }
     else
     {
@@ -110,7 +109,7 @@ receiver::receiver(const std::string input_device,
 
 
     // create I/Q sink and close it
-    iq_sink = gr::blocks::file_sink::make(sizeof(gr_complex), "/dev/null", false);
+    iq_sink = gr::blocks::file_sink::make(sizeof(gr_complex), get_null_file().c_str(), true);
     iq_sink->set_unbuffered(true);
     iq_sink->close();
 
@@ -127,7 +126,7 @@ receiver::receiver(const std::string input_device,
     audio_gain0 = gr::blocks::multiply_const_ff::make(0.1);
     audio_gain1 = gr::blocks::multiply_const_ff::make(0.1);
 
-    wav_sink = gr::blocks::wavfile_sink::make("/dev/null", 2,
+    wav_sink = gr::blocks::wavfile_sink::make(get_null_file().c_str(), 2,
                                               (unsigned int) d_audio_rate,
                                               16);
 
