@@ -21,7 +21,7 @@ public:
 
     void readSettings(QSettings *settings);
     void saveSettings(QSettings *settings);
-    
+
     void setFrequency(qint64 freq_hz);
     
 public slots:

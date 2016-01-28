@@ -59,7 +59,6 @@ void DockAllocationDetails::readSettings(QSettings *settings)
     {
         this->baseurl = baseurl;
     }
-    std::cout << "AJMAS DockAllocationDetails::readSettings: " << this->baseurl.toUtf8().constData() << "\n";
 
 }
 
@@ -88,7 +87,7 @@ void DockAllocationDetails::initRegionsCombo()
 //    QNetworkReply* currentReply = networkManager.get(request);
 //    
     //ref: http://blog.mathieu-leplatre.info/access-a-json-webservice-with-qt-c.html
-    
+
     ui->regionComboBox->addItem("ITU Region 1", "itu1");
     ui->regionComboBox->addItem("ITU Region 2", "itu2");
     ui->regionComboBox->addItem("ITU Region 3", "itu3");
