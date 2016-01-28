@@ -48,7 +48,8 @@ rx_filter::rx_filter(double sample_rate, double low, double high, double trans_w
       d_sample_rate(sample_rate),
       d_low(low),
       d_high(high),
-      d_trans_width(trans_width)
+      d_trans_width(trans_width),
+      d_cw_offset(0)
 {
     if (low < -0.95*sample_rate/2.0)
         d_low = -0.95*sample_rate/2.0;
