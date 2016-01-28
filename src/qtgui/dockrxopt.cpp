@@ -323,7 +323,7 @@ void DockRxOpt::readSettings(QSettings *settings)
     if (conv_ok)
     {
         demodOpt->setCwOffset(intVal);
-        demodOpt_cwOffsetChanged(intVal);
+        //demodOpt_cwOffsetChanged(intVal);
     }
 
     qint64 offs = settings->value("receiver/offset", 0).toInt(&conv_ok);
