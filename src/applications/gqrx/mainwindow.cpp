@@ -1012,6 +1012,7 @@ void MainWindow::selectDemod(int mode_idx)
         ui->plotter->setDemodRanges(-40000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,3000);
         click_res = 100;
+        break;
 
         /* USB */
     case DockRxOpt::MODE_USB:
