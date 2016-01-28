@@ -561,6 +561,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
     uiDockRxOpt->readSettings(m_settings);
     uiDockFft->readSettings(m_settings);
     uiDockAudio->readSettings(m_settings);
+    uiDockAllocationDetails->readSettings(m_settings);
 
     {
         int64_val = m_settings->value("input/frequency", 14236000).toLongLong(&conv_ok);

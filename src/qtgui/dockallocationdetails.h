@@ -21,7 +21,7 @@ public:
 
     void readSettings(QSettings *settings);
     void saveSettings(QSettings *settings);
-        
+    
     void setFrequency(qint64 freq_hz);
     
 public slots:
@@ -41,6 +41,7 @@ private:
     
     qint64 lf_freq_hz;  /** Lower frequency being displayed */
     qint64 uf_freq_hz;  /** Upper frequency being displayed */
+    QString baseurl = QString("http://ajmas.github.io/EarthFrequenciesViewer");
 };
 
 #endif // DOCKALLOCATIONDETAILS_H

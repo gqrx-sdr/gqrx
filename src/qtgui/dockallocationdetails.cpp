@@ -54,6 +54,12 @@ void DockAllocationDetails::switchcall(const QString& text)
 void DockAllocationDetails::readSettings(QSettings *settings)
 {
     //std::cout << "AJMAS DockAllocationDetails::readSettings: " << "xxxxx" << "\n";
+    QString baseurl = settings->value("allocations/baseurl", "").toString();
+    if (!baseurl.isEmpty())
+    {
+        this->baseurl = baseurl;
+    }
+    std::cout << "AJMAS DockAllocationDetails::readSettings: " << this->baseurl.toUtf8().constData() << "\n";
 
 }
 
@@ -72,6 +78,17 @@ void DockAllocationDetails::initRegionsCombo()
 {
     // TODO make this load its values from a URL, via a JSON response
     
+//    QString urlStr = QString("%1/rest/tables/?type=json")
+//        .arg(this->baseurl);
+//    QUrl url = QUrl(urlStr);
+//    
+//    QNetworkRequest request;
+//    request.setUrl(url);
+//    
+//    QNetworkReply* currentReply = networkManager.get(request);
+//    
+    //ref: http://blog.mathieu-leplatre.info/access-a-json-webservice-with-qt-c.html
+    
     ui->regionComboBox->addItem("ITU Region 1", "itu1");
     ui->regionComboBox->addItem("ITU Region 2", "itu2");
     ui->regionComboBox->addItem("ITU Region 3", "itu3");
@@ -88,7 +105,8 @@ void DockAllocationDetails::updateBandView ()
 {
     // TODO Move this to somewhere more suitable, also accepting a value from the config file
     
-    QString url = QString("http://ajmas.github.io/EarthFrequenciesViewer/bandinfo/?lf=%1&uf=%2&region=%3")
+    QString url = QString("%1/bandinfo/?lf=%2&uf=%3&region=%4")
+        .arg(this->baseurl)
         .arg(QString::number(lf_freq_hz - 20))
         .arg(QString::number(uf_freq_hz + 20))
         .arg(ui->regionComboBox->itemData(ui->regionComboBox->currentIndex()).toString());
