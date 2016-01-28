@@ -276,6 +276,38 @@ void RemoteControl::startRead()
         rc_socket->write("RPRT 0\n");
 
     }
+
+    /* dump_state used by some clients, e.g. xdx
+     * For now just some quick hack that works taken from
+     * https://github.com/hexameron/rtl-sdrangelove/blob/master/plugins/channel/tcpsrc/rigctl.cpp
+     *
+     * More info in tests/rigctl_parse.c
+     */
+    else if (cmdlist[0] == "dump_state")
+    {
+        rc_socket->write("0\n"
+                         "2\n"
+                         "1\n"
+                         "150000.000000 30000000.000000  0x900af -1 -1 0x10000003 0x3\n"
+                         "0 0 0 0 0 0 0\n"
+                         "150000.000000 30000000.000000  0x900af -1 -1 0x10000003 0x3\n"
+                         "0 0 0 0 0 0 0\n"
+                         "0 0\n"
+                         "0 0\n"
+                         "0\n"
+                         "0\n"
+                         "0\n"
+                         "0\n"
+                         "\n"
+                         "\n"
+                         "0x0\n"
+                         "0x0\n"
+                         "0x0\n"
+                         "0x0\n"
+                         "0x0\n"
+                         "0\n");
+    }
+
     else
     {
         // respond with an error
