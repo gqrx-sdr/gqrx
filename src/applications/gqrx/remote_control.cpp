@@ -23,7 +23,6 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
-#include <QDebug>
 #include <QString>
 #include <QStringList>
 #include "remote_control.h"
@@ -311,7 +310,7 @@ void RemoteControl::startRead()
     else
     {
         // print unknown command and respond with an error
-        qInfo() << "Unknown remote command:"
+        qWarning() << "Unknown remote command:"
                 << cmdlist;
         rc_socket->write("RPRT 1\n");
     }
