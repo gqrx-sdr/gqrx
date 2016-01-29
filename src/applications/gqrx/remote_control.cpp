@@ -162,7 +162,6 @@ void RemoteControl::startRead()
 {
     char    buffer[1024] = {0};
     int     bytes_read;
-    qint64  freq;
 
     bool ok = true;
 
@@ -178,10 +177,10 @@ void RemoteControl::startRead()
     // Set new frequency
     if (cmdlist[0] == "F")
     {
-        freq = cmdlist.value(1, "ERR").toLongLong(&ok);
+        double freq = cmdlist.value(1, "ERR").toDouble(&ok);
         if (ok)
         {
-            setNewRemoteFreq(freq);
+            setNewRemoteFreq((qint64)freq);
             rc_socket->write("RPRT 0\n");
         }
         else
