@@ -283,7 +283,7 @@ void RemoteControl::startRead()
      *
      * More info in tests/rigctl_parse.c
      */
-    else if (cmdlist[0] == "dump_state")
+    else if (cmdlist[0] == "\\dump_state")
     {
         rc_socket->write("0\n"
                          "2\n"
