@@ -4,6 +4,7 @@
   IMPROVED: Reworked CW reception so that channel is now centered on carrier.
   IMPROVED: Shortcuts for view/hide some of the dock widgets.
   IMPROVED: Respond to dump_state remote command (needed by some clients).
+  IMPROVED: Read remote frequency as double for rigctl compatibility.
 
      2.5.2: Released Januar 21, 2016.
 
