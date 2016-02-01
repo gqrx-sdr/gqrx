@@ -1,7 +1,5 @@
 Remote control protocol.
 
-
-
 Supported command:
  f - Get frequency [Hz]
  F - Set frequency [Hz]
@@ -13,7 +11,7 @@ Supported command:
  c - Close connection
  AOS - Acquisition of signal (AOS) event, start audio recording
  LOS - Loss of signal (LOS) event, stop audio recording
-
+ \dump_state - Dump state (only usable for compatibility)
 
 
 Reply:

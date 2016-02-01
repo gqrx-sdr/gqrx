@@ -2,11 +2,11 @@
 
        NEW: Set and read squelch via remote control socket.
   IMPROVED: Reworked CW reception so that channel is now centered on carrier.
-  IMPROVED: Shortcuts for view/hide some of the dock widgets.
-  IMPROVED: Respond to dump_state remote command (needed by some clients).
+  IMPROVED: Shortcuts to view/hide some of the dock widgets.
+  IMPROVED: Respond to \dump_state remote command (needed by some clients).
   IMPROVED: Read remote frequency as double for rigctl compatibility.
 
-     2.5.2: Released Januar 21, 2016.
+     2.5.2: Released January 21, 2016.
 
        NEW: Support for Red Pitaya (RX only).
        NEW: Build with GNU Radio 3.7.9.
