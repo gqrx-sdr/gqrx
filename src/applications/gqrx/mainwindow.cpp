@@ -652,7 +652,7 @@ void MainWindow::storeSession()
         uiDockRxOpt->saveSettings(m_settings);
         uiDockFft->saveSettings(m_settings);
         uiDockAudio->saveSettings(m_settings);
-
+        uiDockAllocationDetails->saveSettings(m_settings);
         remote->saveSettings(m_settings);
         iq_tool->saveSettings(m_settings);
     }

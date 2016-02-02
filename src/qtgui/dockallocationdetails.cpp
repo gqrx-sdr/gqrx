@@ -25,6 +25,11 @@
 #include "dockallocationdetails.h"
 #include "ui_dockallocationdetails.h"
 #include <iostream>
+#include <cmath>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QJsonObject>
+#include <QJsonArray>
 
 DockAllocationDetails::DockAllocationDetails(QWidget *parent) :
     QDockWidget(parent),
@@ -32,8 +37,6 @@ DockAllocationDetails::DockAllocationDetails(QWidget *parent) :
 {
     ui->setupUi(this);
     
-    initRegionsCombo();
-
     connect(ui->regionComboBox, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(switchcall(const QString&)));
  }
 
@@ -45,7 +48,36 @@ DockAllocationDetails::~DockAllocationDetails()
 void DockAllocationDetails::switchcall(const QString& text)
 {
      //std::cout << "selected value: " << text.toUtf8().constData() << "\n";
-     updateBandView();
+    
+    clearBandView();
+    this->allocationsTable = QJsonDocument::fromJson(QString("").toUtf8());
+    
+    QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
+    QString urlStr = QString("%1/tables/%2/index.json").arg(this->baseurl).arg(ui->regionComboBox->itemData(ui->regionComboBox->currentIndex()).toString());
+    QNetworkRequest request = QNetworkRequest(QUrl(urlStr));
+    
+    //QNetworkReply* currentReply =
+    networkManager->get(request);
+    
+    connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(onAllocationsTableResult(QNetworkReply*)));
+}
+
+void DockAllocationDetails::onAllocationsTableResult(QNetworkReply* reply)
+{
+    
+    if (reply->error() != QNetworkReply::NoError)
+    {
+        //std::cout << "AJMAS DockAllocationDetails:: Error occurred\n";
+        // TODO handle error
+        return;
+    }
+    
+    QString data = (QString) reply->readAll();
+    
+    QJsonDocument document = QJsonDocument::fromJson(data.toUtf8());
+    this->allocationsTable = document;
+    
+    updateBandView();
 }
 
 /**
@@ -53,12 +85,13 @@ void DockAllocationDetails::switchcall(const QString& text)
  */
 void DockAllocationDetails::readSettings(QSettings *settings)
 {
-    //std::cout << "AJMAS DockAllocationDetails::readSettings: " << "xxxxx" << "\n";
     QString baseurl = settings->value("allocations/baseurl", "").toString();
     if (!baseurl.isEmpty())
     {
         this->baseurl = baseurl;
     }
+
+    initRegionsCombo();
 
 }
 
@@ -75,26 +108,58 @@ void DockAllocationDetails::saveSettings(QSettings *settings)
  */
 void DockAllocationDetails::initRegionsCombo()
 {
-    // TODO make this load its values from a URL, via a JSON response
+    QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
+    QString urlStr = QString("%1/tables/index.json").arg(this->baseurl);
+    QNetworkRequest request = QNetworkRequest(QUrl(urlStr));
     
-//    QString urlStr = QString("%1/rest/tables/?type=json")
-//        .arg(this->baseurl);
-//    QUrl url = QUrl(urlStr);
-//    
-//    QNetworkRequest request;
-//    request.setUrl(url);
-//    
-//    QNetworkReply* currentReply = networkManager.get(request);
-//    
-    //ref: http://blog.mathieu-leplatre.info/access-a-json-webservice-with-qt-c.html
+    //std::cout << "AJMAS DockAllocationDetails::initRegionsCombo: " << urlStr.toUtf8().constData() << "\n";
+    
+    networkManager->get(request);
 
-    ui->regionComboBox->addItem("ITU Region 1", "itu1");
-    ui->regionComboBox->addItem("ITU Region 2", "itu2");
-    ui->regionComboBox->addItem("ITU Region 3", "itu3");
-    ui->regionComboBox->addItem("Canada", "ca");
-    ui->regionComboBox->addItem("United Kingdom", "gb");
-    ui->regionComboBox->addItem("USA", "us");
+    connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(onRegionListResult(QNetworkReply*)));
     
+    ui->regionComboBox->setEnabled(0);
+    
+}
+
+void DockAllocationDetails::onRegionListResult(QNetworkReply* reply)
+{
+    if (reply->error() != QNetworkReply::NoError)
+    {
+        //std::cout << "AJMAS DockAllocationDetails:: Error occurred\n";
+        // TODO handle error
+        return;
+    }
+    
+    QString data = (QString) reply->readAll();
+ 
+    QJsonDocument document = QJsonDocument::fromJson(data.toUtf8());
+    
+    if ( document.isArray() )
+    {
+        QJsonArray regions = document.array();
+        
+        for(auto&& item: regions)
+        {
+            const QJsonObject& region = item.toObject();
+            ui->regionComboBox->addItem(region["region"].toString(), region["path"].toString());
+
+        }
+        
+        ui->regionComboBox->setEnabled(1);
+        
+    }
+    else
+    {
+         // TODO handle error
+    }
+    
+}
+
+
+void DockAllocationDetails::clearBandView ()
+{
+    ui->detailsWidget->clear();
 }
 
 /**
@@ -102,15 +167,70 @@ void DockAllocationDetails::initRegionsCombo()
  */
 void DockAllocationDetails::updateBandView ()
 {
-    // TODO Move this to somewhere more suitable, also accepting a value from the config file
     
-    QString url = QString("%1/bandinfo/?lf=%2&uf=%3&region=%4")
-        .arg(this->baseurl)
-        .arg(QString::number(lf_freq_hz - 20))
-        .arg(QString::number(uf_freq_hz + 20))
-        .arg(ui->regionComboBox->itemData(ui->regionComboBox->currentIndex()).toString());
-    ui->detailWebView->setUrl(QUrl(url));
+    // update the label displaying the current band
     
+    QString lf_freq_human = frequencyToHuman(lf_freq_hz);
+    QString uf_freq_human = frequencyToHuman(uf_freq_hz);
+    
+    QString textLabel = QString("%1 - %2").arg(lf_freq_human).arg(uf_freq_human);
+    ui->bandValueLabel->setText(textLabel);
+    
+    // clear the view, so we don't find ourselves appending to old data
+    clearBandView();
+
+    if (this->allocationsTable.object().contains("tables")) {
+        
+        QTreeWidgetItem *treeRootItem = new QTreeWidgetItem(ui->detailsWidget);
+        treeRootItem->setText(0, "Allocations");
+        
+        QFont font;
+        font.setBold(true);
+        treeRootItem->setFont(0, font);
+        
+        // find the bands allocations in the given range
+        QJsonArray allocations = lookupAllocations(lf_freq_hz, uf_freq_hz);
+        
+        for(auto&& item: allocations)
+        {
+            const QJsonObject& band = item.toObject();
+            
+            // TODO update this when JSON is actually presenting lf/uf as number instead of string
+            
+            QTreeWidgetItem *treeBandItem = new QTreeWidgetItem();
+            treeBandItem->setText(0, QString("%1 - %2")
+                                  .arg( frequencyToHuman(band["lf"].toString().toLong()) )
+                                  .arg( frequencyToHuman(band["uf"].toString().toLong()) )
+                                  );
+            
+            treeRootItem->addChild(treeBandItem);
+            
+            QJsonArray services = band["services"].toArray();
+            
+            
+            for(auto&& item2: services)
+            {
+                const QJsonObject& service = item2.toObject();
+                QTreeWidgetItem *serviceItem = new QTreeWidgetItem();
+                
+                // Add the service description, capitalising the primary allocations
+                if ( service["cat"] == "p" ) {
+                    serviceItem->setText(0, service["desc"].toString().toUpper());
+                } else {
+                    serviceItem->setText(0, service["desc"].toString());
+                }
+                                     
+                treeBandItem->addChild(serviceItem);
+            }
+            
+        }
+        
+    }
+ 
+    // Ensure the tree is expanded by default
+    
+    ui->detailsWidget->expandAll();
+
 }
 
 /**
@@ -126,4 +246,52 @@ void DockAllocationDetails::setFrequency(qint64 freq_hz)
     this->uf_freq_hz = freq_hz;
 
     updateBandView();
+}
+
+/**
+ * Takes a frequency value in Hz and converts it to a 'human readable'
+ * string, such that the unit is value is converted to the closest
+ * magnitude and rounded
+ *
+ * For example, 1000 -> "1 kHz"
+ */
+QString DockAllocationDetails::frequencyToHuman(qint64 freq_hz)
+{
+    QString prefix = QString("");
+    QStringList units;
+    double value = double(freq_hz);
+    units << "" << "k" << "M" << "G" << "T" << "P" << "E" << "Y";
+    
+    for (int i=units.size()-1; i >=0; i--) {
+        if (value >= pow(10, i*3)) {
+            prefix = units.at(i);
+            value = value / pow(10, i*3);
+            break;
+        }
+    }
+    
+    return QString("%1 %2Hz").arg(QString::number(value, 'g', 7)).arg(prefix);
+}
+
+/**
+ * Looks up the allocation bands that cover the lower and upper frequencies that
+ * are passed in as parameter.
+ */
+QJsonArray DockAllocationDetails::lookupAllocations(qint64 lf_freq_hz, qint64 uf_freq_hz)
+{
+    QJsonArray tables = this->allocationsTable.object()["tables"].toArray();
+    QJsonObject table = tables[0].toObject();
+    QJsonArray bands = table["bands"].toArray();
+    
+    QJsonArray filteredBands = QJsonArray();
+    
+    for(auto&& item: bands)
+    {
+        const QJsonObject& band = item.toObject();
+        if ( band["lf"].toString().toLong() <= uf_freq_hz && band["uf"].toString().toLong() >= lf_freq_hz ) {
+            filteredBands.append(band);
+        }
+    }
+    
+    return filteredBands;
 }

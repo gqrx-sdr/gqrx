@@ -6,9 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>443</width>
-    <height>441</height>
+    <width>395</width>
+    <height>506</height>
    </rect>
+  </property>
+  <property name="floating">
+   <bool>true</bool>
   </property>
   <property name="windowTitle">
    <string>Frequency Allocations</string>
@@ -34,6 +37,9 @@
       </property>
       <item>
        <layout class="QFormLayout" name="formLayout">
+        <property name="fieldGrowthPolicy">
+         <enum>QFormLayout::FieldsStayAtSizeHint</enum>
+        </property>
         <property name="formAlignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
         </property>
@@ -47,7 +53,7 @@
          <number>0</number>
         </property>
         <item row="1" column="0">
-         <widget class="QLabel" name="label">
+         <widget class="QLabel" name="regionLabel">
           <property name="text">
            <string>Region:</string>
           </property>
@@ -56,28 +62,43 @@
         <item row="1" column="1">
          <widget class="QComboBox" name="regionComboBox"/>
         </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="bandLabel">
+          <property name="text">
+           <string>Band:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLabel" name="bandValueLabel">
+          <property name="text">
+           <string>undefined</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
       <item>
-       <widget class="QWebView" name="detailWebView">
-        <property name="enabled">
+       <widget class="QTreeWidget" name="detailsWidget">
+        <column>
+         <property name="text">
+          <string/>
+         </property>
+        </column>
+        <item>
+         <property name="text">
+          <string>No Data Available</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Data displayed is a guide and may contain inaccuracies.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="openExternalLinks">
          <bool>true</bool>
-        </property>
-        <property name="autoFillBackground">
-         <bool>false</bool>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">body {
-    background: none;
-}</string>
-        </property>
-        <property name="url">
-         <url>
-          <string>http://localhost/~ajmas/freq-viewer/bandinfo/</string>
-         </url>
-        </property>
-        <property name="renderHints">
-         <set>QPainter::SmoothPixmapTransform</set>
         </property>
        </widget>
       </item>
@@ -86,13 +107,6 @@
    </layout>
   </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header>QtWebKit/QWebView</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

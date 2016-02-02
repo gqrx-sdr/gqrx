@@ -2,7 +2,8 @@
 #define DOCKALLOCATIONDETAILS_H
 #include <QDockWidget>
 #include <QSettings>
-#include <QtWebKitWidgets>
+#include <QNetworkReply>
+#include <QJsonDocument>
 
 
 
@@ -29,19 +30,25 @@ public slots:
 
 private:
     void initRegionsCombo();
+    void clearBandView();
     void updateBandView();
+    QString frequencyToHuman(qint64 freq_hz);
+    QJsonArray lookupAllocations(qint64 lf_freq_hz, qint64 uf_freq_hz);
     
 signals:
 
 private slots:
     void switchcall(const QString& text);
+    void onRegionListResult(QNetworkReply* reply);
+    void onAllocationsTableResult(QNetworkReply* reply);
 
 private:
     Ui::DockAllocationDetails *ui;        /*! The Qt designer UI file. */
     
     qint64 lf_freq_hz;  /** Lower frequency being displayed */
     qint64 uf_freq_hz;  /** Upper frequency being displayed */
-    QString baseurl = QString("http://ajmas.github.io/EarthFrequenciesViewer");
+    QString baseurl = QString("http://ajmas.github.io/EarthFrequenciesViewer/rest");
+    QJsonDocument allocationsTable;
 };
 
 #endif // DOCKALLOCATIONDETAILS_H

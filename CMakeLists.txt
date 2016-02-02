@@ -101,7 +101,7 @@ endfunction(add_source_files)
 
 #######################################################################################################################
 # 3rd Party Dependency Stuff
-find_package(Qt5 COMPONENTS Core Network Widgets Webkit WebKitWidgets REQUIRED)
+find_package(Qt5 COMPONENTS Core Network Widgets REQUIRED)
 find_package(Boost COMPONENTS system program_options REQUIRED)
 set(GR_REQUIRED_COMPONENTS RUNTIME ANALOG AUDIO BLOCKS DIGITAL FILTER FFT PMT)
 find_package(Gnuradio REQUIRED)

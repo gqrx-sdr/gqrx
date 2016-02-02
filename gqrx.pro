@@ -12,7 +12,6 @@
 QT       += core gui network
 contains(QT_MAJOR_VERSION,5) {
     QT += widgets
-    QT += webkit
 }
 
 TEMPLATE = app
