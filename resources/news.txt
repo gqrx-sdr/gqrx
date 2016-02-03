@@ -1,4 +1,4 @@
-     2.5.3: TBD...
+     2.5.3: Released February 3, 2016.
 
        NEW: Set and read squelch via remote control socket.
   IMPROVED: Reworked CW reception so that channel is now centered on carrier.
