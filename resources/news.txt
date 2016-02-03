@@ -1,6 +1,7 @@
      2.5.3: Released February 3, 2016.
 
        NEW: Set and read squelch via remote control socket.
+     FIXED: Toolbar appearance on Mac OS X.
   IMPROVED: Reworked CW reception so that channel is now centered on carrier.
   IMPROVED: Shortcuts to view/hide some of the dock widgets.
   IMPROVED: Respond to \dump_state remote command (needed by some clients).
