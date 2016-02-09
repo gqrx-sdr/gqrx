@@ -86,15 +86,16 @@ public slots:
     void setSignalLevel(float level);
     void setMode(int mode);
     void setSquelchLevel(double level);
+    void startAudioRecorder(QString unused);
+    void stopAudioRecorder();
 
 signals:
     void newFrequency(qint64 freq);
     void newFilterOffset(qint64 offset);
     void newMode(int mode);
     void newSquelchLevel(double level);
-
-    void satAosEvent(void); /*! Satellite AOS event received through the socket. */
-    void satLosEvent(void); /*! Satellite LOS event received through the socket. */
+    void startAudioRecorderEvent();
+    void stopAudioRecorderEvent();
 
 private slots:
     void acceptConnection();
@@ -114,6 +115,7 @@ private:
     int         rc_mode;           /*!< Current mode. */
     float       signal_level;      /*!< Signal level in dBFS */
     double      squelch_level;     /*!< Squelch level in dBFS */
+    bool        audio_recorder_status; /*!< Recording enabled */
 
     void        setNewRemoteFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);

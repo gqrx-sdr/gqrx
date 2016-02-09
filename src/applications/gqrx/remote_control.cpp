@@ -37,6 +37,7 @@ RemoteControl::RemoteControl(QObject *parent) :
     rc_mode = 0;
     signal_level = -200.0;
     squelch_level = -150.0;
+    audio_recorder_status = false;
 
     rc_port = 7356;
     rc_allowed_hosts.append("::ffff:127.0.0.1");
@@ -258,6 +259,52 @@ void RemoteControl::startRead()
     {
         rc_socket->write(QString("%1\n").arg(intToModeStr(rc_mode)).toLatin1());
     }
+    else if (cmdlist[0] == "U")
+    {
+        QString func = cmdlist.value(1, "");
+        bool ok;
+        int status = cmdlist.value(2, "").toInt(&ok);
+
+        if (func == "?")
+        {
+            rc_socket->write("RECORD\n");
+        }
+        else if (func == "" || !ok)
+        {
+            rc_socket->write("RPRT 1\n");
+        }
+        else if (func.compare("RECORD", Qt::CaseInsensitive) == 0)
+        {
+            if (rc_mode < 2)
+            {
+                rc_socket->write("RPRT 1\n");
+            }
+            else
+            {
+                rc_socket->write("RPRT 0\n");
+                audio_recorder_status = status;
+                if (status)
+                    emit startAudioRecorderEvent();
+                else
+                    emit stopAudioRecorderEvent();
+            }
+        }
+        else
+        {
+            rc_socket->write("RPRT 1\n");
+        }
+    }
+    else if (cmdlist[0] == "u")
+    {
+        QString func = cmdlist.value(1, "");
+
+        if (func == "?")
+            rc_socket->write("RECORD\n");
+        else if (func.compare("RECORD", Qt::CaseInsensitive) == 0)
+            rc_socket->write(QString("%1\n").arg(audio_recorder_status).toLatin1());
+        else
+            rc_socket->write("RPRT 1\n");
+    }
 
 
     // Gpredict / Gqrx specific commands:
@@ -265,13 +312,13 @@ void RemoteControl::startRead()
     //   LOS  - satellite LOS event
     else if (cmdlist[0] == "AOS")
     {
-        emit satAosEvent();
+        emit startAudioRecorderEvent();
         rc_socket->write("RPRT 0\n");
 
     }
     else if (cmdlist[0] == "LOS")
     {
-        emit satLosEvent();
+        emit stopAudioRecorderEvent();
         rc_socket->write("RPRT 0\n");
 
     }
@@ -376,6 +423,18 @@ void RemoteControl::setNewRemoteFreq(qint64 freq)
 void RemoteControl::setSquelchLevel(double level)
 {
     squelch_level = level;
+}
+
+/*! \brief Start audio recorder (from mainwindow). */
+void RemoteControl::startAudioRecorder(QString unused)
+{
+    audio_recorder_status = true;
+}
+
+/*! \brief Stop audio recorder (from mainwindow). */
+void RemoteControl::stopAudioRecorder()
+{
+    audio_recorder_status = false;
 }
 
 /*! \brief Convert mode string to enum (DockRxOpt::rxopt_mode_idx)
