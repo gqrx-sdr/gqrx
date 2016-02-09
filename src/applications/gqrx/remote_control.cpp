@@ -252,6 +252,10 @@ void RemoteControl::startRead()
         {
             rc_socket->write("RPRT 0\n");
             rc_mode = mode;
+
+            if (rc_mode < 2)
+                audio_recorder_status = false;
+
             emit newMode(rc_mode);
         }
     }
@@ -396,6 +400,9 @@ void RemoteControl::setSignalLevel(float level)
 void RemoteControl::setMode(int mode)
 {
     rc_mode = mode;
+
+    if (rc_mode < 2)
+        audio_recorder_status = false;
 }
 
 /*! \brief New remote frequency received. */
