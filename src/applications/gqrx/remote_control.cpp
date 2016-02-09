@@ -316,13 +316,18 @@ void RemoteControl::startRead()
     //   LOS  - satellite LOS event
     else if (cmdlist[0] == "AOS")
     {
-        emit startAudioRecorderEvent();
+        if (rc_mode >= 2)
+        {
+            emit startAudioRecorderEvent();
+            audio_recorder_status = true;
+        }
         rc_socket->write("RPRT 0\n");
 
     }
     else if (cmdlist[0] == "LOS")
     {
         emit stopAudioRecorderEvent();
+        audio_recorder_status = false;
         rc_socket->write("RPRT 0\n");
 
     }
@@ -435,7 +440,8 @@ void RemoteControl::setSquelchLevel(double level)
 /*! \brief Start audio recorder (from mainwindow). */
 void RemoteControl::startAudioRecorder(QString unused)
 {
-    audio_recorder_status = true;
+    if (rc_mode >= 2)
+        audio_recorder_status = true;
 }
 
 /*! \brief Stop audio recorder (from mainwindow). */
