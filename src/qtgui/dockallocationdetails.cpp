@@ -53,7 +53,7 @@ void DockAllocationDetails::switchcall(const QString& text)
     this->allocationsTable = QJsonDocument::fromJson(QString("").toUtf8());
     
     QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
-    QString urlStr = QString("%1/tables/%2/index.json").arg(this->baseurl).arg(ui->regionComboBox->itemData(ui->regionComboBox->currentIndex()).toString());
+    QString urlStr = QString("%1/allocations/tables/%2/index.json").arg(this->baseurl).arg(ui->regionComboBox->itemData(ui->regionComboBox->currentIndex()).toString());
     QNetworkRequest request = QNetworkRequest(QUrl(urlStr));
     
     //QNetworkReply* currentReply =
@@ -109,7 +109,7 @@ void DockAllocationDetails::saveSettings(QSettings *settings)
 void DockAllocationDetails::initRegionsCombo()
 {
     QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
-    QString urlStr = QString("%1/tables/index.json").arg(this->baseurl);
+    QString urlStr = QString("%1/allocations/tables/index.json").arg(this->baseurl);
     QNetworkRequest request = QNetworkRequest(QUrl(urlStr));
     
     //std::cout << "AJMAS DockAllocationDetails::initRegionsCombo: " << urlStr.toUtf8().constData() << "\n";
@@ -170,8 +170,8 @@ void DockAllocationDetails::updateBandView ()
     
     // update the label displaying the current band
     
-    QString lf_freq_human = frequencyToHuman(lf_freq_hz);
-    QString uf_freq_human = frequencyToHuman(uf_freq_hz);
+    QString lf_freq_human = frequencyToHuman(double(lf_freq_hz));
+    QString uf_freq_human = frequencyToHuman(double(uf_freq_hz));
     
     QString textLabel = QString("%1 - %2").arg(lf_freq_human).arg(uf_freq_human);
     ui->bandValueLabel->setText(textLabel);
@@ -199,11 +199,13 @@ void DockAllocationDetails::updateBandView ()
             
             QTreeWidgetItem *treeBandItem = new QTreeWidgetItem();
             treeBandItem->setText(0, QString("%1 - %2")
-                                  .arg( frequencyToHuman(band["lf"].toString().toLong()) )
-                                  .arg( frequencyToHuman(band["uf"].toString().toLong()) )
+                                  .arg( frequencyToHuman(band["lf"].toDouble()) )
+                                  .arg( frequencyToHuman(band["uf"].toDouble()) )
                                   );
             
             treeRootItem->addChild(treeBandItem);
+            
+            std::cout << "band: " << band["lf"].toDouble() << "\n";
             
             QJsonArray services = band["services"].toArray();
             
@@ -255,11 +257,11 @@ void DockAllocationDetails::setFrequency(qint64 freq_hz)
  *
  * For example, 1000 -> "1 kHz"
  */
-QString DockAllocationDetails::frequencyToHuman(qint64 freq_hz)
+QString DockAllocationDetails::frequencyToHuman(double freq_hz)
 {
     QString prefix = QString("");
     QStringList units;
-    double value = double(freq_hz);
+    double value = freq_hz;
     units << "" << "k" << "M" << "G" << "T" << "P" << "E" << "Y";
     
     for (int i=units.size()-1; i >=0; i--) {
@@ -288,7 +290,7 @@ QJsonArray DockAllocationDetails::lookupAllocations(qint64 lf_freq_hz, qint64 uf
     for(auto&& item: bands)
     {
         const QJsonObject& band = item.toObject();
-        if ( band["lf"].toString().toLong() <= uf_freq_hz && band["uf"].toString().toLong() >= lf_freq_hz ) {
+        if ( band["lf"].toDouble() <= uf_freq_hz && band["uf"].toDouble() >= lf_freq_hz ) {
             filteredBands.append(band);
         }
     }

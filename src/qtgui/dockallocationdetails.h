@@ -32,7 +32,8 @@ private:
     void initRegionsCombo();
     void clearBandView();
     void updateBandView();
-    QString frequencyToHuman(qint64 freq_hz);
+    QString frequencyToHuman(double freq_hz);
+    
     QJsonArray lookupAllocations(qint64 lf_freq_hz, qint64 uf_freq_hz);
     
 signals:
@@ -47,7 +48,7 @@ private:
     
     qint64 lf_freq_hz;  /** Lower frequency being displayed */
     qint64 uf_freq_hz;  /** Upper frequency being displayed */
-    QString baseurl = QString("http://ajmas.github.io/EarthFrequenciesViewer/rest");
+    QString baseurl = QString("http://www.earthfrequencies.org/rest/v1/");
     QJsonDocument allocationsTable;
 };
 
