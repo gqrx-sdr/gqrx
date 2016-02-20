@@ -38,6 +38,7 @@ RemoteControl::RemoteControl(QObject *parent) :
     signal_level = -200.0;
     squelch_level = -150.0;
     audio_recorder_status = false;
+    receiver_running = false;
 
     rc_port = 7356;
     rc_allowed_hosts.append("::ffff:127.0.0.1");
@@ -279,7 +280,7 @@ void RemoteControl::startRead()
         }
         else if (func.compare("RECORD", Qt::CaseInsensitive) == 0)
         {
-            if (rc_mode < 2)
+            if (rc_mode < 2 || !receiver_running)
             {
                 rc_socket->write("RPRT 1\n");
             }
@@ -316,7 +317,7 @@ void RemoteControl::startRead()
     //   LOS  - satellite LOS event
     else if (cmdlist[0] == "AOS")
     {
-        if (rc_mode >= 2)
+        if (rc_mode >= 2 && receiver_running)
         {
             emit startAudioRecorderEvent();
             audio_recorder_status = true;
@@ -449,6 +450,13 @@ void RemoteControl::stopAudioRecorder()
 {
     audio_recorder_status = false;
 }
+
+/*! \brief Set receiver status (from mainwindow). */
+void RemoteControl::setReceiverStatus(bool enabled)
+{
+    receiver_running = enabled;
+}
+
 
 /*! \brief Convert mode string to enum (DockRxOpt::rxopt_mode_idx)
  *  \param mode The Hamlib rigctld compatible mode string

@@ -78,6 +78,7 @@ public:
     {
         return rc_allowed_hosts;
     }
+    void setReceiverStatus(bool enabled);
 
 public slots:
     void setNewFrequency(qint64 freq);
@@ -116,6 +117,7 @@ private:
     float       signal_level;      /*!< Signal level in dBFS */
     double      squelch_level;     /*!< Squelch level in dBFS */
     bool        audio_recorder_status; /*!< Recording enabled */
+    bool        receiver_running;  /*!< Wether the receiver is running or not */
 
     void        setNewRemoteFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);

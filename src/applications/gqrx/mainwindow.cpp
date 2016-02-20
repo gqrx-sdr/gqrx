@@ -1654,6 +1654,8 @@ void MainWindow::forceRxReconf()
  */
 void MainWindow::on_actionDSP_triggered(bool checked)
 {
+    remote->setReceiverStatus(checked);
+
     if (checked)
     {
         /* start receiver */
