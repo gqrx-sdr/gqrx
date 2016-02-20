@@ -37,6 +37,8 @@ RemoteControl::RemoteControl(QObject *parent) :
     rc_mode = 0;
     signal_level = -200.0;
     squelch_level = -150.0;
+    audio_recorder_status = false;
+    receiver_running = false;
 
     rc_port = 7356;
     rc_allowed_hosts.append("::ffff:127.0.0.1");
@@ -251,12 +253,62 @@ void RemoteControl::startRead()
         {
             rc_socket->write("RPRT 0\n");
             rc_mode = mode;
+
+            if (rc_mode < 2)
+                audio_recorder_status = false;
+
             emit newMode(rc_mode);
         }
     }
     else if (cmdlist[0] == "m")
     {
         rc_socket->write(QString("%1\n").arg(intToModeStr(rc_mode)).toLatin1());
+    }
+    else if (cmdlist[0] == "U")
+    {
+        QString func = cmdlist.value(1, "");
+        bool ok;
+        int status = cmdlist.value(2, "").toInt(&ok);
+
+        if (func == "?")
+        {
+            rc_socket->write("RECORD\n");
+        }
+        else if (func == "" || !ok)
+        {
+            rc_socket->write("RPRT 1\n");
+        }
+        else if (func.compare("RECORD", Qt::CaseInsensitive) == 0)
+        {
+            if (rc_mode < 2 || !receiver_running)
+            {
+                rc_socket->write("RPRT 1\n");
+            }
+            else
+            {
+                rc_socket->write("RPRT 0\n");
+                audio_recorder_status = status;
+                if (status)
+                    emit startAudioRecorderEvent();
+                else
+                    emit stopAudioRecorderEvent();
+            }
+        }
+        else
+        {
+            rc_socket->write("RPRT 1\n");
+        }
+    }
+    else if (cmdlist[0] == "u")
+    {
+        QString func = cmdlist.value(1, "");
+
+        if (func == "?")
+            rc_socket->write("RECORD\n");
+        else if (func.compare("RECORD", Qt::CaseInsensitive) == 0)
+            rc_socket->write(QString("%1\n").arg(audio_recorder_status).toLatin1());
+        else
+            rc_socket->write("RPRT 1\n");
     }
 
 
@@ -265,13 +317,18 @@ void RemoteControl::startRead()
     //   LOS  - satellite LOS event
     else if (cmdlist[0] == "AOS")
     {
-        emit satAosEvent();
+        if (rc_mode >= 2 && receiver_running)
+        {
+            emit startAudioRecorderEvent();
+            audio_recorder_status = true;
+        }
         rc_socket->write("RPRT 0\n");
 
     }
     else if (cmdlist[0] == "LOS")
     {
-        emit satLosEvent();
+        emit stopAudioRecorderEvent();
+        audio_recorder_status = false;
         rc_socket->write("RPRT 0\n");
 
     }
@@ -349,6 +406,9 @@ void RemoteControl::setSignalLevel(float level)
 void RemoteControl::setMode(int mode)
 {
     rc_mode = mode;
+
+    if (rc_mode < 2)
+        audio_recorder_status = false;
 }
 
 /*! \brief New remote frequency received. */
@@ -377,6 +437,26 @@ void RemoteControl::setSquelchLevel(double level)
 {
     squelch_level = level;
 }
+
+/*! \brief Start audio recorder (from mainwindow). */
+void RemoteControl::startAudioRecorder(QString unused)
+{
+    if (rc_mode >= 2)
+        audio_recorder_status = true;
+}
+
+/*! \brief Stop audio recorder (from mainwindow). */
+void RemoteControl::stopAudioRecorder()
+{
+    audio_recorder_status = false;
+}
+
+/*! \brief Set receiver status (from mainwindow). */
+void RemoteControl::setReceiverStatus(bool enabled)
+{
+    receiver_running = enabled;
+}
+
 
 /*! \brief Convert mode string to enum (DockRxOpt::rxopt_mode_idx)
  *  \param mode The Hamlib rigctld compatible mode string
