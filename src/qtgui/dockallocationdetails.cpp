@@ -46,9 +46,7 @@ DockAllocationDetails::~DockAllocationDetails()
 }
 
 void DockAllocationDetails::switchcall(const QString& text)
-{
-     //std::cout << "selected value: " << text.toUtf8().constData() << "\n";
-    
+{    
     clearBandView();
     this->allocationsTable = QJsonDocument::fromJson(QString("").toUtf8());
     
@@ -56,7 +54,6 @@ void DockAllocationDetails::switchcall(const QString& text)
     QString urlStr = QString("%1/allocations/tables/%2/index.json").arg(this->baseurl).arg(ui->regionComboBox->itemData(ui->regionComboBox->currentIndex()).toString());
     QNetworkRequest request = QNetworkRequest(QUrl(urlStr));
     
-    //QNetworkReply* currentReply =
     networkManager->get(request);
     
     connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(onAllocationsTableResult(QNetworkReply*)));
@@ -67,7 +64,6 @@ void DockAllocationDetails::onAllocationsTableResult(QNetworkReply* reply)
     
     if (reply->error() != QNetworkReply::NoError)
     {
-        //std::cout << "AJMAS DockAllocationDetails:: Error occurred\n";
         // TODO handle error
         return;
     }
@@ -100,7 +96,7 @@ void DockAllocationDetails::readSettings(QSettings *settings)
  */
 void DockAllocationDetails::saveSettings(QSettings *settings)
 {
-    //std::cout << "AJMAS DockAllocationDetails::saveSettings: " << "xxxxx" << "\n";
+    // Place holder for now
 }
 
 /**
@@ -126,7 +122,6 @@ void DockAllocationDetails::onRegionListResult(QNetworkReply* reply)
 {
     if (reply->error() != QNetworkReply::NoError)
     {
-        //std::cout << "AJMAS DockAllocationDetails:: Error occurred\n";
         // TODO handle error
         return;
     }
@@ -194,9 +189,7 @@ void DockAllocationDetails::updateBandView ()
         for(auto&& item: allocations)
         {
             const QJsonObject& band = item.toObject();
-            
-            // TODO update this when JSON is actually presenting lf/uf as number instead of string
-            
+                        
             QTreeWidgetItem *treeBandItem = new QTreeWidgetItem();
             treeBandItem->setText(0, QString("%1 - %2")
                                   .arg( frequencyToHuman(band["lf"].toDouble()) )
@@ -205,10 +198,7 @@ void DockAllocationDetails::updateBandView ()
             
             treeRootItem->addChild(treeBandItem);
             
-            std::cout << "band: " << band["lf"].toDouble() << "\n";
-            
             QJsonArray services = band["services"].toArray();
-            
             
             for(auto&& item2: services)
             {
