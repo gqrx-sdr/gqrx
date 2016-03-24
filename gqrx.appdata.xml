@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+  <id>gqrx.desktop</id>
+  <name>Gqrx</name>
+  <summary>Software defined radio receiver implemented using GNU Radio and the Qt GUI toolkit</summary>
+  <summary xml:lang="nl">Software defined radio ontvanger geïmplementeerd met GNU Radio en de Qt GUI toolkit</summary>
+  <summary xml:lang="ru">Приемник для программно-определенного радио (SDR) использующий GNU Radio и библиотеку Qt.</summary>
+  <developer_name>Alexandru Csete</developer_name>
+  <description>
+   <p>
+    <!-- still needs a description -->
+   </p>
+   <p>
+    <!-- moar description -->
+   </p>
+  </description>
+  <metadata_license>CC-BY-3.0</metadata_license>
+  <project_license>GPL-3.0</project_license>
+  <url type="bugtracker">https://github.com/csete/gqrx/issues</url>
+  <!-- <url type="donation"></url> -->
+  <!-- <url type="faq"></url> -->
+  <!-- <url type="help"></url> -->
+  <url type="homepage">http://gqrx.dk/</url>
+  <!-- <project_group>none</project_group> not a project from GNOME, KDE or XFCE -->
+  <screenshots>
+    <screenshot type="default">
+      <!-- <caption></caption> -->
+      <image height="722" width="1024">https://c2.staticflickr.com/2/1567/23593127703_11fc1ac026_b.jpg</image>
+    </screenshot>
+  </screenshots>
+  <update_contact>daveo@fedoraproject.org</update_contact>
+</component>
