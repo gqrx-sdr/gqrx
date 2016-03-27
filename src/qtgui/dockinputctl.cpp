@@ -69,6 +69,7 @@ void DockInputCtl::readSettings(QSettings *settings)
 
     bool_val = settings->value("input/hwagc", false).toBool();
     setAgc(bool_val);
+    emit autoGainChanged(bool_val);
 
     // Ignore antenna selection if there is only one option
     if (ui->antSelector->count() > 1)
