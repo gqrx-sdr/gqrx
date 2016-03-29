@@ -10,6 +10,7 @@
 #include <QMap>
 
 #define HORZ_DIVS_MAX 50 //12
+#define VERT_DIVS_MIN 5
 #define MAX_SCREENSIZE 16384
 
 #define PEAK_CLICK_MAX_H_DISTANCE 10 //Maximum horizontal distance of clicked point from peak
@@ -179,6 +180,7 @@ private:
                                  qint64 startFreq, qint64 stopFreq,
                                  float *inBuf, qint32 *outBuf,
                                  qint32 *maxbin, qint32 *minbin);
+    void calcDivSize (qint64 low, qint64 high, int divswanted, qint64 &adjlow, qint64 &step, int& divs);
 
     bool        m_PeakHoldActive;
     bool        m_PeakHoldValid;
@@ -205,6 +207,8 @@ private:
     qint64      m_CenterFreq;
     qint64      m_FftCenter;
     qint64      m_DemodCenterFreq;
+    qint64      m_StartFreqAdj;
+    qint64      m_FreqPerDiv;
     bool        m_CenterLineEnabled;  /*!< Distinguish center line. */
     bool        m_FilterBoxEnabled;   /*!< Draw filter box. */
     bool        m_TooltipsEnabled;     /*!< Tooltips enabled */
@@ -227,8 +231,7 @@ private:
     int         m_VerDivs;   /*!< Current number of vertical divisions. Calculated from height. */
     float       m_MaxdB;
     float       m_MindB;
-    qint32      m_dBStepSize;
-    qint32      m_Span;
+    qint64      m_Span;
     float       m_SampleFreq;    /*!< Sample rate. */
     qint32      m_FreqUnits;
     int         m_ClickResolution;

@@ -172,7 +172,6 @@ CPlotter::CPlotter(QWidget *parent) :
     m_VerDivs = 6;
     m_MaxdB = 0;
     m_MindB = -115;
-    m_dBStepSize = std::abs(m_MaxdB-m_MindB)/m_VerDivs;
 
     m_FreqUnits = 1000000;
     m_CursorCaptured = NOCAP;
@@ -184,8 +183,8 @@ CPlotter::CPlotter(QWidget *parent) :
     m_Size = QSize(0,0);
     m_GrabPosition = 0;
     m_Percent2DScreen = 30;	//percent of screen used for 2D display
-    m_VdivDelta = 40;
-    m_HdivDelta = 80;
+    m_VdivDelta = 30;
+    m_HdivDelta = 70;
 
     m_FreqDigits = 3;
 
@@ -1277,15 +1276,12 @@ void CPlotter::drawOverlay()
     int h = m_OverlayPixmap.height();
     int x,y;
     float pixperdiv;
+    float adjoffset;
+    float dbstepsize;
+    float mindbadj;
     QRect rect;
     QPainter painter(&m_OverlayPixmap);
     painter.initFrom(this);
-
-    // horizontal grids (size and grid calcs could be moved to resize)
-    m_VerDivs = h/m_VdivDelta+1;
-    m_HorDivs = qMin(w/m_HdivDelta, HORZ_DIVS_MAX);
-    if (m_HorDivs % 2)
-        m_HorDivs++;   // we want an odd number of divs so that we have a center line
 
     //m_OverlayPixmap.fill(Qt::black);
     // fill background with gradient
@@ -1319,15 +1315,11 @@ void CPlotter::drawOverlay()
     QFontMetrics metrics(m_Font);
     painter.setFont(m_Font);
 
-    // draw vertical grids
-    pixperdiv = (float)w / (float)m_HorDivs;
-    y = h - h/m_VerDivs/2;
-    painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0x30), 1, Qt::DotLine));
-    for (int i = 1; i < m_HorDivs; i++)
-    {
-        x = (int)((float)i*pixperdiv);
-        painter.drawLine(x, 0, x, y);
-    }
+    // X and Y axis areas
+    m_YAxisWidth = metrics.width("-120 ");
+    m_XAxisYCenter = h - metrics.height()/2;
+    int xAxisHeight = metrics.height() ;// + metrics.height()/2;
+    int xAxisTop = h - xAxisHeight;
 
     //Draw Bookmark Tags
     m_BookmarkTags.clear();
@@ -1358,7 +1350,7 @@ void CPlotter::drawOverlay()
         color.setAlpha(0x60);
 
         painter.setPen(QPen(color, 1, Qt::DashLine));
-        painter.drawLine(x, level*levelHeight+fontHeight+slant, x, y); //Vertical line
+        painter.drawLine(x, level*levelHeight+fontHeight+slant, x, xAxisTop); //Vertical line
 
         painter.setPen(QPen(color, 1, Qt::SolidLine));
         painter.drawLine(x+slant, level*levelHeight+fontHeight, x+nameWidth+slant-1, level*levelHeight+fontHeight); //Horizontal line
@@ -1388,42 +1380,79 @@ void CPlotter::drawOverlay()
         if (x > 0 && x < w)
         {
             painter.setPen(QPen(QColor(0x78,0x82,0x96,0xFF), 1, Qt::SolidLine));
-            painter.drawLine(x, 0, x, y);
+            painter.drawLine(x, 0, x, xAxisTop);
         }
     }
 
-    // draw frequency values
+    // Frequency grid
+    qint64 StartFreq = m_CenterFreq + m_FftCenter - m_Span/2;
+    QString label;
+    label.setNum(float((StartFreq + m_Span) / m_FreqUnits),'f', m_FreqDigits);
+    calcDivSize (StartFreq, StartFreq + m_Span, qMin(w/(metrics.width(label)+metrics.width("O")), HORZ_DIVS_MAX), m_StartFreqAdj, m_FreqPerDiv, m_HorDivs);
+    pixperdiv = (float)w * (float) m_FreqPerDiv / (float) m_Span;
+    adjoffset = pixperdiv * float (m_StartFreqAdj - StartFreq) / (float) m_FreqPerDiv;
+
+    painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0x30), 1, Qt::DotLine));
+    for (int i = 0; i <= m_HorDivs; i++)
+    {
+        x = (int)((float)i*pixperdiv + adjoffset);
+        if (x > m_YAxisWidth)
+        {
+            painter.drawLine(x, 0, x, xAxisTop);
+        }
+    }
+
+    // draw frequency values (x axis)
     makeFrequencyStrs();
     painter.setPen(QColor(0xD8,0xBA,0xA1,0xFF));
-    y = h - (h/m_VerDivs);
-    m_XAxisYCenter = h - metrics.height()/2;
-    for (int i = 1; i < m_HorDivs; i++)
+
+    for (int i = 0; i <= m_HorDivs; i++)
     {
-        x = (int)((float)i*pixperdiv - pixperdiv/2);
-        rect.setRect(x, y, (int)pixperdiv, h/m_VerDivs);
-        painter.drawText(rect, Qt::AlignHCenter|Qt::AlignBottom, m_HDivText[i]);
+        int tw = metrics.width(m_HDivText[i]);
+        x = (int)((float)i*pixperdiv + adjoffset);
+        if (x > m_YAxisWidth)
+        {
+            rect.setRect(x - tw/2, xAxisTop, tw, metrics.height());
+            painter.drawText(rect, Qt::AlignHCenter|Qt::AlignBottom, m_HDivText[i]);
+        }
     }
 
-    m_dBStepSize = fabs(m_MaxdB - m_MindB)/(float)m_VerDivs;
-    pixperdiv = (float)h / (float)m_VerDivs;
+    // Level grid
+    qint64 mindBAdj64 = 0;
+    qint64 dbDivSize = 0;
+
+    calcDivSize ((qint64) m_MindB, (qint64) m_MaxdB, qMax(h/m_VdivDelta, VERT_DIVS_MIN), mindBAdj64, dbDivSize, m_VerDivs);
+
+    dbstepsize = (float) dbDivSize;
+    mindbadj = mindBAdj64;
+
+    pixperdiv = (float) h * (float) dbstepsize / (m_MaxdB - m_MindB);
+    adjoffset = (float) h * (mindbadj - m_MindB) / (m_MaxdB - m_MindB);
+    qDebug() << "minDb =" << m_MindB << "maxDb =" << m_MaxdB << "mindbadj =" << mindbadj
+            << "dbstepsize =" << dbstepsize
+            << "pixperdiv =" << pixperdiv << "adjoffset =" << adjoffset;
     painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0x30), 1,Qt::DotLine));
-    for (int i = 1; i < m_VerDivs; i++)
+    for (int i = 0; i <= m_VerDivs; i++)
     {
-        y = (int)((float) i*pixperdiv);
-        painter.drawLine(5*metrics.width("0",-1), y, w, y);
+        y = h - (int)((float) i*pixperdiv + adjoffset);
+        if (y < h - xAxisHeight)
+            painter.drawLine(m_YAxisWidth, y, w, y);
     }
 
-    // draw amplitude values
+    // draw amplitude values (y axis)
     painter.setPen(QColor(0xD8,0xBA,0xA1,0xFF));
-
     int dB = m_MaxdB;
     m_YAxisWidth = metrics.width("-120 ");
-    for (int i = 1; i < m_VerDivs; i++)
+    for (int i = 0; i < m_VerDivs; i++)
     {
-        dB -= m_dBStepSize;  // move to end if want to include maxdb
-        y = (int)((float)i*pixperdiv);
-        rect.setRect(0, y-metrics.height()/2, m_YAxisWidth, metrics.height());
-        painter.drawText(rect, Qt::AlignRight|Qt::AlignVCenter, QString::number(dB));
+        y = h - (int)((float) i*pixperdiv + adjoffset);
+        int th = metrics.height();
+        if (y < h -xAxisHeight)
+        {
+            dB = mindbadj + dbstepsize * i;
+            rect.setRect(0, y-th/2, m_YAxisWidth, th);
+            painter.drawText(rect, Qt::AlignRight|Qt::AlignVCenter, QString::number(dB));
+        }
     }
 
     if (!m_Running)
@@ -1447,8 +1476,7 @@ void CPlotter::drawOverlay()
 //////////////////////////////////////////////////////////////////////
 void CPlotter::makeFrequencyStrs()
 {
-    qint64 FreqPerDiv = m_Span/m_HorDivs;
-    qint64 StartFreq = m_CenterFreq + m_FftCenter - m_Span/2;
+    qint64 StartFreq = m_StartFreqAdj;
     float freq;
     int i,j;
 
@@ -1458,7 +1486,7 @@ void CPlotter::makeFrequencyStrs()
         {
             freq = (float)StartFreq/(float)m_FreqUnits;
             m_HDivText[i].setNum((int)freq);
-            StartFreq += FreqPerDiv;
+            StartFreq += m_FreqPerDiv;
         }
         return;
     }
@@ -1468,7 +1496,7 @@ void CPlotter::makeFrequencyStrs()
     {
         freq = (float)StartFreq/(float)m_FreqUnits;
         m_HDivText[i].setNum(freq,'f', m_FreqDigits);
-        StartFreq += FreqPerDiv;
+        StartFreq += m_FreqPerDiv;
     }
     // now find the division text with the longest non-zero digit
     // to the right of the decimal point.
@@ -1486,12 +1514,12 @@ void CPlotter::makeFrequencyStrs()
             max = j-dp;
     }
     // truncate all strings to maximum fractional length
-    StartFreq = m_CenterFreq + m_FftCenter - m_Span/2;
+    StartFreq = m_StartFreqAdj;
     for (i = 0; i <= m_HorDivs; i++)
     {
         freq = (float)StartFreq/(float)m_FreqUnits;
         m_HDivText[i].setNum(freq,'f', max);
-        StartFreq += FreqPerDiv;
+        StartFreq += m_FreqPerDiv;
     }
 }
 
@@ -1671,4 +1699,40 @@ void CPlotter::setPeakDetection(bool enabled, float c)
         m_PeakDetection = -1;
     else
         m_PeakDetection = c;
+}
+
+void CPlotter::calcDivSize (qint64 low, qint64 high, int divswanted, qint64 &adjlow, qint64 &step, int& divs)
+{
+    qDebug() << "low: " << low;
+    qDebug() << "high: " << high;
+    qDebug() << "divswanted: " << divswanted;
+
+    if (divswanted == 0)
+        return;
+
+    static const qint64 stepTable[] = { 1, 2, 5 };
+    static const int stepTableSize = sizeof (stepTable) / sizeof (stepTable[0]);
+    qint64 multiplier = 1;
+    step = 1;
+    divs = high - low;
+    int index = 0;
+
+    while (divs > divswanted)
+    {
+        step = stepTable[index] * multiplier;
+        divs = int ((high - low) / step);
+        adjlow = (low / step) * step;
+        index = index + 1;
+        if (index == stepTableSize)
+        {
+            index = 0;
+            multiplier = multiplier * 10;
+        }
+    }
+    if (adjlow < low)
+        adjlow += step;
+
+    qDebug() << "adjlow: "  << adjlow;
+    qDebug() << "step: " << step;
+    qDebug() << "divs: " << divs;
 }
