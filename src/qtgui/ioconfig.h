@@ -44,8 +44,9 @@ class CIoConfig : public QDialog
     Q_OBJECT
 
 public:
-    explicit CIoConfig(QSettings *settings, QWidget *parent = 0);
+    explicit CIoConfig(QSettings *settings, std::map<QString, QVariant> &devList, QWidget *parent = 0);
     virtual ~CIoConfig();
+    static void getDeviceList(std::map<QString, QVariant> &devList);
 
 private slots:
     void saveConfig();

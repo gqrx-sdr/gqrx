@@ -279,6 +279,10 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     ui->plotter->setTooltipsEnabled(true);
 #endif
 
+    // Create list of input devices. This must be done before the configuration is
+    // restored because device probing might change the device configuration
+    CIoConfig::getDeviceList(devList);
+
     // restore last session
     if (!loadConfig(cfgfile, true))
     {
@@ -1715,7 +1719,7 @@ int MainWindow::on_actionIoConfig_triggered()
 {
     qDebug() << "Configure I/O devices.";
 
-    CIoConfig *ioconf = new CIoConfig(m_settings);
+    CIoConfig *ioconf = new CIoConfig(m_settings, devList);
     int confres = ioconf->exec();
 
     if (confres == QDialog::Accepted)
@@ -1743,7 +1747,7 @@ int MainWindow::firstTimeConfig()
 {
     qDebug() << __func__;
 
-    CIoConfig *ioconf = new CIoConfig(m_settings);
+    CIoConfig *ioconf = new CIoConfig(m_settings, devList);
     int confres = ioconf->exec();
 
     if (confres == QDialog::Accepted)
@@ -2091,6 +2095,7 @@ void MainWindow::showSimpleTextFile(const QString &resource_path,
     delete dialog;
     // browser and layout deleted automatically
 }
+
 
 /**
  * @brief Action: About Qthid

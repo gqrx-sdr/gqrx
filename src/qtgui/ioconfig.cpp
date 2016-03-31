@@ -44,69 +44,26 @@
 #include "ui_ioconfig.h"
 
 
-CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
+CIoConfig::CIoConfig(QSettings *settings, std::map<QString, QVariant> &devList, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CIoConfig),
     m_settings(settings)
 {
     unsigned int i=0;
     QString devstr;
-    QString devlabel;
     bool cfgmatch=false; //flag to indicate that device from config was found
 
     ui->setupUi(this);
 
     QString indev = settings->value("input/device", "").toString();
 
-    // automatic discovery of FCD does not work on Mac
-    // so we do it ourselves
-#if defined(GQRX_OS_MACX)
-    osxaudio_device_list devices;
-    inDevList = devices.get_input_devices();
-
-    string this_dev;
-    for (i = 0; i < inDevList.size(); i++)
+    // insert the device list in device combo box
+    std::map<QString, QVariant>::iterator I = devList.begin();
+    i = 0;
+    while (I != devList.end())
     {
-        this_dev = inDevList[i].get_name();
-        if (this_dev.find("FUNcube Dongle V1.0") != string::npos)
-        {
-            devstr = "fcd,type=1,device='FUNcube Dongle V1.0'";
-            ui->inDevCombo->addItem("FUNcube Dongle V1.0", QVariant(devstr));
-        }
-        else if (this_dev.find("FUNcube Dongle V2.0") != string::npos)
-        {
-            devstr = "fcd,type=2,device='FUNcube Dongle V2.0'";
-            ui->inDevCombo->addItem("FUNcube Dongle V2.0", QVariant(devstr));
-        }
-
-        if (indev == QString(inDevList[i].get_name().c_str()))
-        {
-            ui->inDevCombo->setCurrentIndex(i);
-            ui->inDevEdit->setText(devstr);
-            cfgmatch = true;
-        }
-    }
-#endif
-
-    // Get list of input devices discovered by gr-osmosdr and store them in
-    // the input device selector together with the device descriptor strings
-    osmosdr::devices_t devs = osmosdr::device::find();
-
-    qDebug() << __FUNCTION__ << ": Available input devices:";
-    BOOST_FOREACH(osmosdr::device_t &dev, devs)
-    {
-        if (dev.count("label"))
-        {
-            devlabel = QString(dev["label"].c_str());
-            dev.erase("label");
-        }
-        else
-        {
-            devlabel = "Unknown";
-        }
-
-        devstr = QString(dev.to_string().c_str());
-        ui->inDevCombo->addItem(devlabel, QVariant(devstr));
+        devstr = (*I).second.toString();
+        ui->inDevCombo->addItem((*I).first, devstr);
 
         // is this the device stored in config?
         if (indev == devstr)
@@ -115,19 +72,10 @@ CIoConfig::CIoConfig(QSettings *settings, QWidget *parent) :
             ui->inDevEdit->setText(devstr);
             cfgmatch = true;
         }
-
-        qDebug() << "   " << i << ":"  << devlabel;
+        ++I;
         ++i;
-
-        // Following code could be used for multiple matches
-        /* QStringList list;
-        int pos = 0;
-        while ((pos = rx.indexIn(devstr, pos)) != -1) {
-            list << rx.cap(1);
-            pos += rx.matchedLength();
-        } */
-
     }
+
 
     ui->inDevCombo->addItem(tr("Other..."), QVariant(""));
 
@@ -221,6 +169,70 @@ CIoConfig::~CIoConfig()
     delete ui;
 }
 
+/**
+ * @brief get the list of devices
+ */
+void CIoConfig::getDeviceList(std::map<QString, QVariant> &devList)
+{
+    unsigned int i=0;
+    QString devstr;
+    QString devlabel;
+
+#if defined(GQRX_OS_MACX)
+    // automatic discovery of FCD does not work on Mac
+    // so we do it ourselves
+    osxaudio_device_list devices;
+    inDevList = devices.get_input_devices();
+
+    string this_dev;
+    for (i = 0; i < inDevList.size(); i++)
+    {
+        this_dev = inDevList[i].get_name();
+        if (this_dev.find("FUNcube Dongle V1.0") != string::npos)
+        {
+            devstr = "fcd,type=1,device='FUNcube Dongle V1.0'";
+            devList.insert(std::pair<QString, QVariant>(QString("FUNcube Dongle V1.0"), QVariant(devstr)));
+        }
+        else if (this_dev.find("FUNcube Dongle V2.0") != string::npos)
+        {
+            devstr = "fcd,type=2,device='FUNcube Dongle V2.0'";
+            devList.insert(std::pair<QString, QVariant>(QString("FUNcube Dongle V2.0"), QVariant(devstr)));
+        }
+    }
+#endif
+
+    // Get list of input devices discovered by gr-osmosdr and store them in
+    // the device list together with the device descriptor strings
+    osmosdr::devices_t devs = osmosdr::device::find();
+
+    qDebug() << __FUNCTION__ << ": Available input devices:";
+    BOOST_FOREACH(osmosdr::device_t &dev, devs)
+    {
+        if (dev.count("label"))
+        {
+            devlabel = QString(dev["label"].c_str());
+            dev.erase("label");
+        }
+        else
+        {
+            devlabel = "Unknown";
+        }
+
+        devstr = QString(dev.to_string().c_str());
+        devList.insert(std::pair<QString, QVariant>(devlabel, devstr));
+
+        qDebug() << "   " << i << ":"  << devlabel;
+        ++i;
+
+        // Following code could be used for multiple matches
+        /* QStringList list;
+        int pos = 0;
+        while ((pos = rx.indexIn(devstr, pos)) != -1) {
+            list << rx.cap(1);
+            pos += rx.matchedLength();
+        } */
+    }
+}
 
 /** @brief Save configuration. */
 void CIoConfig::saveConfig()

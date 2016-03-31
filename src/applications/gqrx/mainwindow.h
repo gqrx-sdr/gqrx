@@ -116,6 +116,8 @@ private:
 
     RemoteControl *remote;
 
+    std::map<QString, QVariant> devList;
+
 private:
     void updateHWFrequencyRange(bool ignore_limits);
     void updateFrequencyRange();
