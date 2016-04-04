@@ -193,10 +193,20 @@ void CIoConfig::getDeviceList(std::map<QString, QVariant> &devList)
             devstr = "fcd,type=1,device='FUNcube Dongle V1.0'";
             devList.insert(std::pair<QString, QVariant>(QString("FUNcube Dongle V1.0"), QVariant(devstr)));
         }
+        else if (this_dev.find("FUNcube Dongle V1_0") != string::npos)      // since OS X 10.11.4
+        {
+            devstr = "fcd,type=1,device='FUNcube Dongle V1_0'";
+            ui->inDevCombo->addItem("FUNcube Dongle V1_0", QVariant(devstr));
+        }
         else if (this_dev.find("FUNcube Dongle V2.0") != string::npos)
         {
             devstr = "fcd,type=2,device='FUNcube Dongle V2.0'";
             devList.insert(std::pair<QString, QVariant>(QString("FUNcube Dongle V2.0"), QVariant(devstr)));
+        }
+        else if (this_dev.find("FUNcube Dongle V2_0") != string::npos)      // since OS X 10.11.4
+        {
+            devstr = "fcd,type=2,device='FUNcube Dongle V2_0'";
+            ui->inDevCombo->addItem("FUNcube Dongle V2_0", QVariant(devstr));
         }
     }
 #endif
@@ -309,7 +319,7 @@ void CIoConfig::updateInputSampleRates(int rate)
 
     if (ui->inDevEdit->text().contains("fcd"))
     {
-        if (ui->inDevCombo->currentText().contains("V2.0"))
+        if (ui->inDevCombo->currentText().contains("V2"))   // V2.0 or V2_0
         {
             ui->inSrCombo->addItem("192000");
         }
