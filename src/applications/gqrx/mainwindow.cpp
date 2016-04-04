@@ -2096,9 +2096,8 @@ void MainWindow::showSimpleTextFile(const QString &resource_path,
     // browser and layout deleted automatically
 }
 
-
 /**
- * @brief Action: About Qthid
+ * @brief Action: About gqrx.
  *
  * This slot is called when the user activates the
  * Help|About menu item (or Gqrx|About on Mac)
