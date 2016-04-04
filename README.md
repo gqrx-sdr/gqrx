@@ -255,6 +255,11 @@ Vincent Pelletier
 Will Scales
 - Bug fixes.
 
+Wolfgang Fritz DK7OB
+- SDRPlay integration.
+- Various UI improvements.
+
+
 Also thanks to Volker Schroer and Alexey Bazhin for bringing Funcube Dongle
 Pro+ support to GNU Radio and Gqrx.
 

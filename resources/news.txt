@@ -1,3 +1,9 @@
+       2.6: Released TBD
+
+     FIXED: Broken FUNcube Dongle Pro+ support on Mac OS X 10.11.4.
+  IMPROVED: SDRPlay integration.
+  IMPROVED: Only probe for devices when the program is satarted.
+       
      2.5.3: Released February 3, 2016.
 
        NEW: Set and read squelch via remote control socket.
