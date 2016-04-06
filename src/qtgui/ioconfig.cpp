@@ -196,7 +196,7 @@ void CIoConfig::getDeviceList(std::map<QString, QVariant> &devList)
         else if (this_dev.find("FUNcube Dongle V1_0") != string::npos)      // since OS X 10.11.4
         {
             devstr = "fcd,type=1,device='FUNcube Dongle V1_0'";
-            ui->inDevCombo->addItem("FUNcube Dongle V1_0", QVariant(devstr));
+            devList.insert(std::pair<QString, QVariant>(QString("FUNcube Dongle V1_0"), QVariant(devstr)));
         }
         else if (this_dev.find("FUNcube Dongle V2.0") != string::npos)
         {
@@ -206,7 +206,7 @@ void CIoConfig::getDeviceList(std::map<QString, QVariant> &devList)
         else if (this_dev.find("FUNcube Dongle V2_0") != string::npos)      // since OS X 10.11.4
         {
             devstr = "fcd,type=2,device='FUNcube Dongle V2_0'";
-            ui->inDevCombo->addItem("FUNcube Dongle V2_0", QVariant(devstr));
+            devList.insert(std::pair<QString, QVariant>(QString("FUNcube Dongle V2_0"), QVariant(devstr)));
         }
     }
 #endif
