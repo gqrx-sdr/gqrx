@@ -3,6 +3,7 @@
 #define PLOTTER_H
 
 #include <QtGui>
+#include <QFont>
 #include <QFrame>
 #include <QImage>
 #include <vector>
@@ -86,8 +87,6 @@ public:
     }
 
     void setMinMaxDB(float min, float max);
-
-    void setFontSize(int points) { m_FontSize = points; }
     void setHdivDelta(int delta) { m_HdivDelta = delta; }
     void setVdivDelta(int delta) { m_VdivDelta = delta; }
 
@@ -239,7 +238,7 @@ private:
     int         m_Yzero;  /*!< Used to measure mouse drag direction. */
     int         m_FreqDigits;  /*!< Number of decimal digits in frequency strings. */
 
-    int         m_FontSize;  /*!< Font size in points. */
+    QFont       m_Font;         /*!< Font used for plotter (system font) */
     int         m_HdivDelta; /*!< Minimum distance in pixels between two horizontal grid lines (vertical division). */
     int         m_VdivDelta; /*!< Minimum distance in pixels between two vertical grid lines (horizontal division). */
 

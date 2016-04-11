@@ -184,12 +184,6 @@ CPlotter::CPlotter(QWidget *parent) :
     m_Size = QSize(0,0);
     m_GrabPosition = 0;
     m_Percent2DScreen = 30;	//percent of screen used for 2D display
-
-#ifdef Q_OS_MAC
-    m_FontSize = 11;
-#else
-    m_FontSize = 9;
-#endif
     m_VdivDelta = 40;
     m_HdivDelta = 80;
 
@@ -1321,13 +1315,8 @@ void CPlotter::drawOverlay()
         painter.drawLine(m_DemodFreqX, 0, m_DemodFreqX, h);
     }
 
-    // create Font to use for scales
-    QFont Font("Arial");
-    Font.setPointSize(m_FontSize);
-    QFontMetrics metrics(Font);
-
-    Font.setWeight(QFont::Normal);
-    painter.setFont(Font);
+    QFontMetrics metrics(m_Font);
+    painter.setFont(m_Font);
 
     // draw vertical grids
     pixperdiv = (float)w / (float)m_HorDivs;
@@ -1425,8 +1414,7 @@ void CPlotter::drawOverlay()
 
     // draw amplitude values
     painter.setPen(QColor(0xD8,0xBA,0xA1,0xFF));
-    //Font.setWeight(QFont::Light);
-    painter.setFont(Font);
+
     int dB = m_MaxdB;
     m_YAxisWidth = metrics.width("-120 ");
     for (int i = 1; i < m_VerDivs; i++)
