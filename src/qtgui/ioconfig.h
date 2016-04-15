@@ -70,7 +70,6 @@ private:
     vector<pa_device> outDevList;
 #elif defined(GQRX_OS_MACX)
     vector<osxaudio_device> outDevList;
-    vector<osxaudio_device> inDevList;
 #endif
 
 };

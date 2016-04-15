@@ -137,7 +137,7 @@ CIoConfig::CIoConfig(QSettings *settings, std::map<QString, QVariant> &devList, 
 
 #elif defined(GQRX_OS_MACX)
     // get list of output devices
-    // (already defined) osxaudio_device_list devices;
+    osxaudio_device_list devices;
     outDevList = devices.get_output_devices();
 
     qDebug() << __FUNCTION__ << ": Available output devices:";
@@ -182,7 +182,7 @@ void CIoConfig::getDeviceList(std::map<QString, QVariant> &devList)
     // automatic discovery of FCD does not work on Mac
     // so we do it ourselves
     osxaudio_device_list devices;
-    inDevList = devices.get_input_devices();
+    vector<osxaudio_device> inDevList = devices.get_input_devices();
 
     string this_dev;
     for (i = 0; i < inDevList.size(); i++)
