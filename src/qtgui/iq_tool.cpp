@@ -437,6 +437,9 @@ qint64 CIqTool::sampleRateFromFileName(const QString &filename)
 
     QStringList list = filename.split('_');
 
+    if (list.size() < 5)
+        return sample_rate;
+
     // gqrx_yymmdd_hhmmss_freq_samprate_fc.raw
     sr = list.at(4).toLongLong(&ok);
 
