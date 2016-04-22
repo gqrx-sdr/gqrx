@@ -50,7 +50,13 @@ udp_sink_f::udp_sink_f()
 {
 
     d_f2s = gr::blocks::float_to_short::make(1, 32767);
+#ifdef GQRX_OS_MACX
+    // There seems to be excessive packet loss (even to localhost) on OS X
+    // unless the buffer size is limited.
+    d_sink = gr::blocks::udp_sink::make(sizeof(short), "localhost", 7355, 512);
+#else
     d_sink = gr::blocks::udp_sink::make(sizeof(short), "localhost", 7355);
+#endif
     d_sink->disconnect();
 
     connect(self(), 0, d_f2s, 0);
