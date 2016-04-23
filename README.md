@@ -171,6 +171,9 @@ Following people and organisations have contributed to gqrx:
 Alex Grinkov:
 - FM stereo demodulator.
 
+Andy Sloane:
+- Bug fixes and improvements.
+
 Andrea Merello:
 - Cmake build option to build using gr-audio.
 
