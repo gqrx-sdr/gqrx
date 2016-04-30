@@ -1810,7 +1810,7 @@ void MainWindow::on_actionSaveSettings_triggered()
 
 void MainWindow::on_actionSaveWaterfall_triggered()
 {
-    QDateTime   dt(QDateTime::currentDateTime());
+    QDateTime   dt(QDateTime::currentDateTimeUtc());
     QString     wffile;
     QString     save_path;
 
