@@ -593,7 +593,7 @@ bool CPlotter::saveWaterfall(const QString & filename) const
     quint64 msec;
     int tdivs = h / 70 + 1;
     pixperdiv = (float) h / (float) tdivs;
-    tt.setOffsetFromUtc(0); // ensure time is in UTC
+    tt.setTimeSpec(Qt::OffsetFromUTC);
     for (i = 1; i < tdivs; i++)
     {
         y = (int)((float)i * pixperdiv);
