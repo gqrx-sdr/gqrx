@@ -139,6 +139,11 @@ export CXXFLAGS=-O2
 </pre>
 before the cmake step.
 
+On some non-Debian based system the CMAKE prefix path for gnuradio will be different so replace the cmake step as follows:
+<pre>
+cmake -DCMAKE_PREFIX_PATH=/usr/lib64/cmake/gnuradio/gnuradio/ ..
+</pre>
+
 For Qt Creator builds:
 <pre>
 $ git clone https://github.com/csete/gqrx.git gqrx.git
