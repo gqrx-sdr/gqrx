@@ -100,26 +100,26 @@ this demodulator</string>
             <string>Maximum FM deviation</string>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <item>
             <property name="text">
-             <string>Voice (2.5k)</string>
+             <string>Voice (2.5 kHz)</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>Voice (5k)</string>
+             <string>Voice (5 kHz)</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>APT (17k)</string>
+             <string>APT (25 kHz)</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>BC (75k)</string>
+             <string>BC (75 kHz)</string>
             </property>
            </item>
           </widget>
@@ -227,7 +227,7 @@ For digital modes it is best to switch it off.</string>
       </layout>
      </widget>
      <widget class="QWidget" name="page">
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>20</x>

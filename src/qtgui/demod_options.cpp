@@ -85,8 +85,8 @@ void CDemodOptions::on_maxdevSelector_activated(int index)
         max_dev = 5000.0;
         break;
     case 2:
-        /* APT 17k */
-        max_dev = 17000.0;
+        /* APT 25k (17k but need some margin for Doppler and freq error) */
+        max_dev = 25000.0;
         break;
     case 3:
         /* Broadcast FM 75k */
