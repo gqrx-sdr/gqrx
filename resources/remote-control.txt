@@ -1,6 +1,6 @@
 Remote control protocol.
 
-Supported command:
+Supported commands:
  f - Get frequency [Hz]
  F - Set frequency [Hz]
  m - Get demodulator mode
