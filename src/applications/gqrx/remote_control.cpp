@@ -426,6 +426,9 @@ void RemoteControl::setNewRemoteFreq(qint64 freq)
     {
         // move rx freqeucy and let MainWindow deal with it
         // (will usually change hardware PLL)
+        // reset the filter_offset, otherwise the MainWindo will preserve it
+        rc_filter_offset = 0;
+        emit newFilterOffset(rc_filter_offset);
         emit newFrequency(freq);
     }
 
