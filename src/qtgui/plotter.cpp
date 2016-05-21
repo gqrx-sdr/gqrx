@@ -1177,7 +1177,7 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
     {
         // more FFT points than plot points
         for (i = minbin; i < maxbin; i++)
-            m_pTranslateTbl[i] = ((i-m_BinMin)*plotWidth) / (m_BinMax - m_BinMin);
+            m_pTranslateTbl[i] = ((qint64)(i-m_BinMin)*plotWidth) / (m_BinMax - m_BinMin);
         *xmin = m_pTranslateTbl[minbin];
         *xmax = m_pTranslateTbl[maxbin - 1];
     }
