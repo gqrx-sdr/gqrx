@@ -1412,9 +1412,10 @@ void MainWindow::startIqRecording(const QString recdir)
     // gqrx_iq_yyyymmdd_hhmmss_freq_bw_fc.raw
     qint64 freq = (qint64)(rx->get_rf_freq());
     qint64 sr = (qint64)(rx->get_input_rate());
+    qint32 dec = (quint32)(rx->get_input_decim());
     QString lastRec = QDateTime::currentDateTimeUtc().
             toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.'raw'")
-            .arg(recdir).arg(freq).arg(sr);
+            .arg(recdir).arg(freq).arg(sr/dec);
 
     // start recorder; fails if recording already in progress
     if (rx->start_iq_recording(lastRec.toStdString()))
