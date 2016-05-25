@@ -171,6 +171,9 @@ Following people and organisations have contributed to gqrx:
 Alex Grinkov:
 - FM stereo demodulator.
 
+Alexander Fasching:
+- Bug fixes.
+
 Andy Sloane:
 - Bug fixes and improvements.
 
