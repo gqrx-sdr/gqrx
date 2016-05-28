@@ -285,7 +285,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                                        .arg(m_DemodLowCutFreq),
                                        this, rect());
             }
-            else if (isPointCloseTo(pt.x(), m_YAxisWidth/2, m_YAxisWidth/2))
+            else if (isPointCloseTo(pt.x(), m_YAxisWidth/2, m_YAxisWidth * 0.8))
             {
                 if (YAXIS != m_CursorCaptured)
                     setCursor(QCursor(Qt::OpenHandCursor));
@@ -1393,6 +1393,10 @@ void CPlotter::drawOverlay()
     }
 
     // draw frequency values
+    // first, draw the line that seperates the dragable dB area
+    painter.setPen(QColor(0xD8,0xBA,0xA1,0x32));
+    painter.drawLine(0, h - 18, w,  h - 18);
+    // Now, the rest
     makeFrequencyStrs();
     painter.setPen(QColor(0xD8,0xBA,0xA1,0xFF));
     y = h - (h/m_VerDivs);
@@ -1414,6 +1418,10 @@ void CPlotter::drawOverlay()
     }
 
     // draw amplitude values
+    // first, draw the line that seperates the dragable dB area
+    painter.setPen(QColor(0xD8,0xBA,0xA1,0x32));
+    painter.drawLine(m_YAxisWidth * 1.2, 0, m_YAxisWidth * 1.2, h);
+    // Now, the rest
     painter.setPen(QColor(0xD8,0xBA,0xA1,0xFF));
 
     int dB = m_MaxdB;
