@@ -263,6 +263,7 @@ Will Scales
 
 Wolfgang Fritz DK7OB
 - SDRPlay integration.
+- 1-2-5 scaling on FFT plot.
 - Various UI improvements.
 
 

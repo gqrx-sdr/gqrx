@@ -3,7 +3,8 @@
      FIXED: Use system font on FFT plot (too small font on high res displays).
      FIXED: Broken FUNcube Dongle Pro+ support on Mac OS X 10.11.4.
   IMPROVED: SDRPlay integration.
-  IMPROVED: Only probe for devices when the program is satarted.
+  IMPROVED: Only probe for devices when the program is started.
+  IMPROVED: 1-2-5 scaling on FFT axis.
        
      2.5.3: Released February 3, 2016.
 
