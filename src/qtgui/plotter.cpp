@@ -64,6 +64,9 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp)
 #include "plotter.h"
 #include "bookmarks.h"
 
+// Comment out to enable plotter debug messages
+//#define PLOTTER_DEBUG
+
 //////////////////////////////////////////////////////////////////////
 // Local defines
 //////////////////////////////////////////////////////////////////////
@@ -1428,9 +1431,11 @@ void CPlotter::drawOverlay()
 
     pixperdiv = (float) h * (float) dbstepsize / (m_MaxdB - m_MindB);
     adjoffset = (float) h * (mindbadj - m_MindB) / (m_MaxdB - m_MindB);
+#ifdef PLOTTER_DEBUG
     qDebug() << "minDb =" << m_MindB << "maxDb =" << m_MaxdB << "mindbadj =" << mindbadj
             << "dbstepsize =" << dbstepsize
             << "pixperdiv =" << pixperdiv << "adjoffset =" << adjoffset;
+#endif
     painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0x30), 1,Qt::DotLine));
     for (int i = 0; i <= m_VerDivs; i++)
     {
@@ -1703,9 +1708,11 @@ void CPlotter::setPeakDetection(bool enabled, float c)
 
 void CPlotter::calcDivSize (qint64 low, qint64 high, int divswanted, qint64 &adjlow, qint64 &step, int& divs)
 {
+#ifdef PLOTTER_DEBUG
     qDebug() << "low: " << low;
     qDebug() << "high: " << high;
     qDebug() << "divswanted: " << divswanted;
+#endif
 
     if (divswanted == 0)
         return;
@@ -1732,7 +1739,9 @@ void CPlotter::calcDivSize (qint64 low, qint64 high, int divswanted, qint64 &adj
     if (adjlow < low)
         adjlow += step;
 
+#ifdef PLOTTER_DEBUG
     qDebug() << "adjlow: "  << adjlow;
     qDebug() << "step: " << step;
     qDebug() << "divs: " << divs;
+#endif
 }
