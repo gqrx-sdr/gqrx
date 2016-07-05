@@ -153,6 +153,8 @@ CIoConfig::CIoConfig(QSettings *settings, std::map<QString, QVariant> &devList, 
     }
 
 #else
+    ui->outDevCombo->addItem(settings->value("output/device", "Default").toString(),
+                             settings->value("output/device", "Default").toString());
     ui->outDevCombo->setEditable(true);
 #endif // WITH_PULSEAUDIO
 
@@ -254,13 +256,19 @@ void CIoConfig::saveConfig()
 
     idx = ui->outDevCombo->currentIndex();
 
+#if defined(WITH_PULSEAUDIO) || defined(GQRX_OS_MACX)
     if (idx > 0)
     {
-#if defined(WITH_PULSEAUDIO) || defined(GQRX_OS_MACX)
-        qDebug() << "Output device" << idx << ":" << QString(outDevList[idx-1].get_name().c_str());
-        m_settings->setValue("output/device", QString(outDevList[idx-1].get_name().c_str()));
-#endif
+          qDebug() << "Output device" << idx << ":" << QString(outDevList[idx-1].get_name().c_str());
+          m_settings->setValue("output/device", QString(outDevList[idx-1].get_name().c_str()));
     }
+#else
+    if (idx > 0 || ui->outDevCombo->currentText() != "Default")
+    {
+        qDebug() << "Output device:" << ui->outDevCombo->currentText();
+        m_settings->setValue("output/device", ui->outDevCombo->currentText());
+    }
+#endif
     else
     {
         m_settings->remove("output/device");
