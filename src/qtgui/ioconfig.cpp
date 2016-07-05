@@ -256,21 +256,19 @@ void CIoConfig::saveConfig()
 
     idx = ui->outDevCombo->currentIndex();
 
-    if (idx > 0
-        #if !defined(WITH_PULSEAUDIO) && !defined(GQRX_OS_MACX)
-            || ui->outDevCombo->currentText() != "Default"
-        #endif
-            )
-    {
 #if defined(WITH_PULSEAUDIO) || defined(GQRX_OS_MACX)
-        qDebug() << "Output device" << idx << ":" << QString(outDevList[idx-1].get_name().c_str());
-        m_settings->setValue("output/device", QString(outDevList[idx-1].get_name().c_str()));
+    if (idx > 0)
+    {
+          qDebug() << "Output device" << idx << ":" << QString(outDevList[idx-1].get_name().c_str());
+          m_settings->setValue("output/device", QString(outDevList[idx-1].get_name().c_str()));
+    }
 #else
+    if (idx > 0 || ui->outDevCombo->currentText() != "Default")
+    {
         qDebug() << "Output device:" << ui->outDevCombo->currentText();
         m_settings->setValue("output/device", ui->outDevCombo->currentText());
-#endif
-
     }
+#endif
     else
     {
         m_settings->remove("output/device");
