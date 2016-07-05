@@ -489,6 +489,8 @@ void CIoConfig::updateInputSampleRates(int rate)
             ui->inSrCombo->addItem(QString("%1").arg(rate));
 
         ui->inSrCombo->addItem("2500000");
+        ui->inSrCombo->addItem("3000000");
+        ui->inSrCombo->addItem("6000000");
         ui->inSrCombo->addItem("10000000");
     }
     else if (ui->inDevEdit->text().contains("redpitaya"))
