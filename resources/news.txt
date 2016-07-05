@@ -5,6 +5,7 @@
   IMPROVED: SDRPlay integration.
   IMPROVED: Only probe for devices when the program is started.
   IMPROVED: 1-2-5 scaling on FFT axis.
+  IMPROVED: Allow user to enter ALSA device name.
        
      2.5.3: Released February 3, 2016.
 

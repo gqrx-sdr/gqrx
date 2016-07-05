@@ -252,6 +252,9 @@ Timothy Reaves:
 - UI layout fixes for Mac.
 - cmake build files
 
+Valentin Ochs:
+- ALSA support improvement.
+
 Vesa Solonen:
 - DC removal in AM demodulator.
 
