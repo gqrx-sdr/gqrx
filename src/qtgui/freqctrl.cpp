@@ -710,7 +710,7 @@ void CFreqCtrl::drawDigits(QPainter &Painter)
 
             if (m_freq < 0 && i == m_LeadZeroPos - 1 && m_DigitInfo[i].val == 0)
                 Painter.drawText(m_DigitInfo[i].dQRect, Qt::AlignHCenter|Qt::AlignVCenter,
-                                 QString("-%1").arg(m_DigitInfo[i].val));
+                                 QString("-0"));
             else
                 Painter.drawText(m_DigitInfo[i].dQRect, Qt::AlignHCenter|Qt::AlignVCenter,
                                  QString().number(m_DigitInfo[i].val));
