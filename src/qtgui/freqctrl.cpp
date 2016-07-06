@@ -264,7 +264,8 @@ void CFreqCtrl::setFrequency(qint64 freq)
     // When frequency is negative all non-zero digits that
     // have changed will have a negative sign. This loop will
     // change all digits back to positive, except the one at
-    // position m_leadZeroPos-1
+    // position m_leadZeroPos-1. If that position is zero,
+    // it will be checked in the drawing method, drawDigits().
     /** TBC if this works for all configurations */
     if (m_freq < 0)
     {
