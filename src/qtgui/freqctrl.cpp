@@ -261,6 +261,12 @@ void CFreqCtrl::setFrequency(qint64 freq)
             m_LeadZeroPos = i;
         }
     }
+
+    // If the sign changed and the frequency is less than 1 unit,
+    // redraw the leading zero to get the correct sign.
+    if(m_Oldfreq ^ m_freq < 0 && m_DigitInfo[m_LeadZeroPos-1].val == 0)
+      m_DigitInfo[m_LeadZeroPos-1].modified = true;
+
     // When frequency is negative all non-zero digits that
     // have changed will have a negative sign. This loop will
     // change all digits back to positive, except the one at
