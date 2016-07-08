@@ -254,6 +254,7 @@ Timothy Reaves:
 
 Valentin Ochs:
 - ALSA support improvement.
+- Various bugfixes.
 
 Vesa Solonen:
 - DC removal in AM demodulator.
