@@ -226,6 +226,7 @@ void receiver::set_input_device(const std::string device)
 
     src.reset();
     src = osmosdr::source::make(device);
+    set_input_rate(src->get_sample_rate());
 
     if (d_decim >= 2)
     {
