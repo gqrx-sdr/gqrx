@@ -73,7 +73,7 @@ int Decimator::process(int samples, gr_complex * pin, gr_complex * pout)
     while (filter_table[i])
         n = filter_table[i++]->DecBy2(n, pin, pin);
 
-	for(i = 0; i < n; i++)
+    for(i = 0; i < n; i++)
         pout[i] = pin[i];
 
     return n;
@@ -84,13 +84,13 @@ void Decimator::delete_filters()
     int         i;
 
     for(i = 0; i < MAX_STAGES; i++)
-	{
-		if (filter_table[i])
-		{
-			delete filter_table[i];
-			filter_table[i] = 0;
-		}
-	}
+    {
+        if (filter_table[i])
+        {
+            delete filter_table[i];
+            filter_table[i] = 0;
+        }
+    }
 }
 
 int Decimator::init_filters_70(unsigned int decimation)
@@ -178,14 +178,14 @@ int Decimator::init_filters_140(unsigned int decimation)
 }
 
 Decimator::CHalfBandDecimateBy2::CHalfBandDecimateBy2(int len, const float * pCoef)
-	: m_FirLength(len), m_pCoef(pCoef)
+    : m_FirLength(len), m_pCoef(pCoef)
 {
     gr_complex  CPXZERO(0.0,0.0);
 
     // create buffer for FIR implementation
     m_pHBFirBuf = new gr_complex[MAX_HALF_BAND_BUFSIZE];
     for (int i = 0; i < MAX_HALF_BAND_BUFSIZE; i++)
-		m_pHBFirBuf[i] = CPXZERO;
+        m_pHBFirBuf[i] = CPXZERO;
 }
 
 /*
@@ -306,11 +306,11 @@ int Decimator::CHalfBand11TapDecimateBy2::DecBy2(int InLength,
     int         i;
 
     for(i = 0; i < (InLength - 11 - 6) / 2; i++)
-	{
-	  *pOut++ = (H0 * pIn[0]) + (H2 * pIn[2]) + (H4 * pIn[4]) +
-	    (H5 * pIn[5]) + (H6 * pIn[6]) + (H8 * pIn[8]) + (H10 * pIn[10]);
-	  pIn += 2;
-	}
+    {
+      *pOut++ = (H0 * pIn[0]) + (H2 * pIn[2]) + (H4 * pIn[4]) +
+        (H5 * pIn[5]) + (H6 * pIn[6]) + (H8 * pIn[8]) + (H10 * pIn[10]);
+      pIn += 2;
+    }
 
     // copy first outputs back into output array so outbuf can be same as inbuf
     pOutData[0] = tmpout[0];
@@ -321,7 +321,7 @@ int Decimator::CHalfBand11TapDecimateBy2::DecBy2(int InLength,
     pOutData[5] = tmpout[5];
     pOutData[6] = tmpout[6];
     pOutData[7] = tmpout[7];
-	pOutData[8] = tmpout[8];
+    pOutData[8] = tmpout[8];
 
     // copy last 10 input samples into delay buffer for next time
     pIn = &pInData[InLength-1];
