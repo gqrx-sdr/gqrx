@@ -128,8 +128,11 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
     </item>
     <item>
      <layout class="QGridLayout" name="gridLayout">
+      <property name="topMargin">
+       <number>10</number>
+      </property>
       <property name="spacing">
-       <number>4</number>
+       <number>5</number>
       </property>
       <item row="0" column="0">
        <widget class="QLabel" name="filterLabel">
