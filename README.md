@@ -102,13 +102,13 @@ To compile gqrx from source you need the following dependencies:
     - HackRF Jawbreaker driver from http://greatscottgadgets.com/hackrf/
 - gnuradio-osmosdr from http://cgit.osmocom.org/cgit/gr-osmosdr/
 - pulseaudio (Linux only and optional)
-- Qt 4.7 or later with the following components:
+- Qt 4.8 or later with the following components:
     - Core
     - GUI
     - Network
     - Widgets (Qt 5 only)
     - Svg (runtime only)
-- cmake version >= 3.2.0 if you wish to build using cmake.
+- cmake version >= 3.2.0 if you wish to build using cmake. Note that cmake builds require Qt 5.
 
 To build using qmake, you can either open the gqrx.pro file in Qt Creator and
 build, or on the command line:
