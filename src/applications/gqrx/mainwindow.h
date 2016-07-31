@@ -60,7 +60,7 @@ public:
     explicit MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent = 0);
     ~MainWindow();
 
-    bool loadConfig(const QString cfgfile, bool check_crash);
+    bool loadConfig(const QString cfgfile, bool check_crash, bool restore_mainwindow);
     bool saveConfig(const QString cfgfile);
     void storeSession();
 

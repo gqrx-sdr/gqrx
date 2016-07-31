@@ -284,7 +284,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     CIoConfig::getDeviceList(devList);
 
     // restore last session
-    if (!loadConfig(cfgfile, true))
+    if (!loadConfig(cfgfile, true, true))
     {
 
       // first time config
@@ -382,7 +382,7 @@ MainWindow::~MainWindow()
  *
  * FIXME: Refactor.
  */
-bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
+bool MainWindow::loadConfig(const QString cfgfile, bool check_crash, bool restore_mainwindow)
 {
     double      actual_rate;
     qint64      int64_val;
@@ -442,8 +442,11 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         ui->mainToolBar->hide();
 
     // main window settings
-    restoreGeometry(m_settings->value("gui/geometry", saveGeometry()).toByteArray());
-    restoreState(m_settings->value("gui/state", saveState()).toByteArray());
+    if (restore_mainwindow)
+    {
+        restoreGeometry(m_settings->value("gui/geometry", saveGeometry()).toByteArray());
+        restoreState(m_settings->value("gui/state", saveState()).toByteArray());
+    }
 
     QString indev = m_settings->value("input/device", "").toString();
     if (!indev.isEmpty())
@@ -626,7 +629,7 @@ bool MainWindow::saveConfig(const QString cfgfile)
         m_settings->setValue("crashed", false);
         m_settings->sync();
 
-        loadConfig(cfgfile, false);
+        loadConfig(cfgfile, false, false);
         return true;
     }
     else
@@ -1730,7 +1733,7 @@ int MainWindow::on_actionIoConfig_triggered()
             on_actionDSP_triggered(false);
 
         storeSession();
-        loadConfig(m_settings->fileName(), false);
+        loadConfig(m_settings->fileName(), false, false);
 
         if (ui->actionDSP->isChecked())
             // restsart DSP
@@ -1752,7 +1755,7 @@ int MainWindow::firstTimeConfig()
     int confres = ioconf->exec();
 
     if (confres == QDialog::Accepted)
-        loadConfig(m_settings->fileName(), false);
+        loadConfig(m_settings->fileName(), false, false);
 
     delete ioconf;
 
@@ -1776,7 +1779,7 @@ void MainWindow::on_actionLoadSettings_triggered()
     if (!cfgfile.endsWith(".conf", Qt::CaseSensitive))
         cfgfile.append(".conf");
 
-    loadConfig(cfgfile, cfgfile != m_settings->fileName());
+    loadConfig(cfgfile, cfgfile != m_settings->fileName(), cfgfile != m_settings->fileName());
 
     // store last dir
     QFileInfo fi(cfgfile);
