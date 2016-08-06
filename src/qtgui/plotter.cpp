@@ -167,6 +167,7 @@ CPlotter::CPlotter(QWidget *parent) :
 
     m_FilterBoxEnabled = true;
     m_CenterLineEnabled = true;
+    m_BookmarksEnabled = true;
 
     m_Span = 96000;
     m_SampleFreq = 96000;
@@ -1324,58 +1325,54 @@ void CPlotter::drawOverlay()
     int xAxisHeight = metrics.height() ;// + metrics.height()/2;
     int xAxisTop = h - xAxisHeight;
 
-    //Draw Bookmark Tags
-    m_BookmarkTags.clear();
-    static const QFontMetrics fm(painter.font());
-    static const int fontHeight = fm.ascent()+1; // height();
-    static const int slant = 5;
-    static const int levelHeight = fontHeight+5;
-    static const int nLevels = 10;
-    QList<BookmarkInfo> bookmarks = Bookmarks::Get().getBookmarksInRange(m_CenterFreq+m_FftCenter-m_Span/2, m_CenterFreq+m_FftCenter+m_Span/2);
-    int tagEnd[nLevels] = {0};
-    for(int i=0; i<bookmarks.size(); i++)
+    if (m_BookmarksEnabled)
     {
-        x=xFromFreq(bookmarks[i].frequency);
+        // Draw Bookmark Tags
+        m_BookmarkTags.clear();
+        static const QFontMetrics fm(painter.font());
+        static const int fontHeight = fm.ascent() + 1;
+        static const int slant = 5;
+        static const int levelHeight = fontHeight + 5;
+        static const int nLevels = 10;
+        QList<BookmarkInfo> bookmarks = Bookmarks::Get().getBookmarksInRange(m_CenterFreq+m_FftCenter-m_Span/2, m_CenterFreq+m_FftCenter+m_Span/2);
+        int tagEnd[nLevels] = {0};
+        for(int i = 0; i < bookmarks.size(); i++)
+        {
+            x=xFromFreq(bookmarks[i].frequency);
 #if defined(_WIN16) || defined(_WIN32) || defined(_WIN64)
-        int nameWidth= fm.width(bookmarks[i].name);
+            int nameWidth = fm.width(bookmarks[i].name);
 #else
-        int nameWidth= fm.boundingRect(bookmarks[i].name).width();
+            int nameWidth = fm.boundingRect(bookmarks[i].name).width();
 #endif
+            int level = 0;
+            for (; level < nLevels && tagEnd[level] > x; level++);
+                level %= nLevels;
 
-        int level = 0;
-        for(; level<nLevels && tagEnd[level]>x; level++);
-        level%=nLevels;
+            tagEnd[level] = x + nameWidth + slant - 1;
+            m_BookmarkTags.append(qMakePair<QRect, qint64>(QRect(x, level*levelHeight, nameWidth+slant, fontHeight), bookmarks[i].frequency));
 
-        tagEnd[level]=x+nameWidth+slant-1;
-        m_BookmarkTags.append(qMakePair<QRect, qint64>(QRect(x, level*levelHeight, nameWidth+slant, fontHeight), bookmarks[i].frequency));
+            QColor color = QColor(bookmarks[i].GetColor());
+            color.setAlpha(0x60);
+            // Vertical line
+            painter.setPen(QPen(color, 1, Qt::DashLine));
+            painter.drawLine(x, level*levelHeight+fontHeight+slant, x, xAxisTop);
 
-        QColor color = QColor(bookmarks[i].GetColor());
-        color.setAlpha(0x60);
+            // Horizontal line
+            painter.setPen(QPen(color, 1, Qt::SolidLine));
+            painter.drawLine(x + slant, level * levelHeight + fontHeight,
+                             x + nameWidth + slant - 1,
+                             level * levelHeight + fontHeight);
+            // Diagonal line
+            painter.drawLine(x + 1, level * levelHeight + fontHeight + slant - 1,
+                             x + slant - 1, level * levelHeight + fontHeight + 1);
 
-        painter.setPen(QPen(color, 1, Qt::DashLine));
-        painter.drawLine(x, level*levelHeight+fontHeight+slant, x, xAxisTop); //Vertical line
-
-        painter.setPen(QPen(color, 1, Qt::SolidLine));
-        painter.drawLine(x+slant, level*levelHeight+fontHeight, x+nameWidth+slant-1, level*levelHeight+fontHeight); //Horizontal line
-        painter.drawLine(x+1,level*levelHeight+fontHeight+slant-1, x+slant-1, level*levelHeight+fontHeight+1); //Diagonal line
-/*
-        painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0xB0), 1, Qt::SolidLine));
-        QPolygon polygon(6);
-        polygon.setPoint(0, 0, 10);
-        polygon.setPoint(1, 5, 15);
-        polygon.setPoint(2, 5+nameWidth, 15);
-        polygon.setPoint(3, 5+nameWidth, 0);
-        polygon.setPoint(4, 5, 0);
-        polygon.setPoint(5, 0, 5);
-        polygon.translate(x, level*18);
-        painter.drawPolygon(polygon);
-*/
-
-        color.setAlpha(0xFF);
-        painter.setPen(QPen(color, 2, Qt::SolidLine));
-        painter.drawText(x+slant,level*levelHeight, nameWidth, fontHeight, Qt::AlignVCenter | Qt::AlignHCenter, bookmarks[i].name);
+            color.setAlpha(0xFF);
+            painter.setPen(QPen(color, 2, Qt::SolidLine));
+            painter.drawText(x + slant, level * levelHeight, nameWidth,
+                             fontHeight, Qt::AlignVCenter | Qt::AlignHCenter,
+                             bookmarks[i].name);
+        }
     }
-
     if (m_CenterLineEnabled)
     {
         // center line
