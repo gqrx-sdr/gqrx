@@ -47,7 +47,16 @@ public:
     void setUdpHost(const QString &host);
     void setUdpPort(int port);
 
+    void setFftSplit(int pct_2d);
+    int  getFftSplit(void) const;
+
+    void setFftMin(int min_db);
+    int  getFftMin(void) const;
+
 signals:
+    void newFftSplit(int pct_2d);
+    void newFftMin(int min_db);
+
     /*! \brief Signal emitted when a new valid directory has been selected. */
     void newRecDirSelected(const QString &dir);
 
@@ -55,6 +64,8 @@ signals:
     void newUdpPort(int port);
 
 private slots:
+    void on_splitSpinBox_valueChanged(int value);
+    void on_scaleSpinBox_valueChanged(int value);
     void on_recDirEdit_textChanged(const QString &text);
     void on_recDirButton_clicked();
     void on_udpHost_textChanged(const QString &text);

@@ -102,6 +102,7 @@ private slots:
     void on_audioRecButton_clicked(bool checked);
     void on_audioPlayButton_clicked(bool checked);
     void on_audioConfButton_clicked();
+    void setNewFftMin(int min_db);
     void setNewRecDir(const QString &dir);
     void setNewUdpHost(const QString &host);
     void setNewUdpPort(int port);

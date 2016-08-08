@@ -52,11 +52,12 @@ DockAudio::DockAudio(QWidget *parent) :
 
     audioOptions = new CAudioOptions(this);
 
+    connect(audioOptions, SIGNAL(newFftSplit(int)), ui->audioSpectrum, SLOT(setPercent2DScreen(int)));
+    connect(audioOptions, SIGNAL(newFftMin(int)), this, SLOT(setNewFftMin(int)));
     connect(audioOptions, SIGNAL(newRecDirSelected(QString)), this, SLOT(setNewRecDir(QString)));
     connect(audioOptions, SIGNAL(newUdpHost(QString)), this, SLOT(setNewUdpHost(QString)));
     connect(audioOptions, SIGNAL(newUdpPort(int)), this, SLOT(setNewUdpPort(int)));
 
-    ui->audioSpectrum->setPercent2DScreen(100);
     ui->audioSpectrum->setFreqUnits(1000);
     ui->audioSpectrum->setSampleRate(48000);  // Full bandwidth
     ui->audioSpectrum->setSpanFreq(12000);
@@ -276,10 +277,24 @@ void DockAudio::setAudioPlayButtonState(bool checked)
 
 void DockAudio::saveSettings(QSettings *settings)
 {
+    int     ival;
+
     if (!settings)
         return;
 
     settings->setValue("audio/gain", audioGain());
+
+    ival = audioOptions->getFftSplit();
+    if (ival >= 0 && ival < 100)
+        settings->setValue("audio/fft_split", ival);
+    else
+        settings->remove("audio/fft_split");
+
+    ival = audioOptions->getFftMin();
+    if (ival != -70)
+        settings->setValue("audio/fft_min_db", ival);
+    else
+        settings->remove("audio/fft_min_db");
 
     if (rec_dir != QDir::homePath())
         settings->setValue("audio/rec_dir", rec_dir);
@@ -299,14 +314,23 @@ void DockAudio::saveSettings(QSettings *settings)
 
 void DockAudio::readSettings(QSettings *settings)
 {
+    int     ival;
+    bool    conv_ok = false;
+
     if (!settings)
         return;
 
-    bool conv_ok = false;
-
-    int gain = settings->value("audio/gain", QVariant(-200)).toInt(&conv_ok);
+    ival = settings->value("audio/gain", QVariant(-200)).toInt(&conv_ok);
     if (conv_ok)
-        setAudioGain(gain);
+        setAudioGain(ival);
+
+    ival = settings->value("audio/fft_split", QVariant(100)).toInt(&conv_ok);
+    if (conv_ok)
+        audioOptions->setFftSplit(ival);
+
+    ival = settings->value("audio/fft_min_db", QVariant(-70)).toInt(&conv_ok);
+    if (conv_ok)
+        audioOptions->setFftMin(ival);
 
     // Location of audio recordings
     rec_dir = settings->value("audio/rec_dir", QDir::homePath()).toString();
@@ -320,6 +344,11 @@ void DockAudio::readSettings(QSettings *settings)
 
     audioOptions->setUdpHost(udp_host);
     audioOptions->setUdpPort(udp_port);
+}
+
+void DockAudio::setNewFftMin(int min_db)
+{
+    ui->audioSpectrum->setMinMaxDB(min_db, 0.f);
 }
 
 /*! \brief Slot called when a new valid recording directory has been selected

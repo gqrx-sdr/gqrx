@@ -1,5 +1,7 @@
        2.6: Released TBD
 
+       NEW: 1-2-5 scaling on FFT axis.
+       NEW: Audio waterfall.
      FIXED: Use system font on FFT plot (too small font on high res displays).
      FIXED: Broken FUNcube Dongle Pro+ support on Mac OS X 10.11.4.
      FIXED: Correct display of negative offsets between -1 and 0 kHz.
@@ -9,6 +11,7 @@
   IMPROVED: 1-2-5 scaling on FFT axis.
   IMPROVED: Allow user to enter ALSA device name.
   IMPROVED: Set default audio FFT range to -70...0 dB.
+  IMPROVED: Restore audio FFT dB scaling between sessions.
 
      2.5.3: Released February 3, 2016.
 

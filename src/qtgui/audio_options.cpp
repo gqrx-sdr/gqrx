@@ -90,6 +90,37 @@ void CAudioOptions::setUdpPort(int port)
     ui->udpPort->setValue(port);
 }
 
+
+void CAudioOptions::setFftSplit(int pct_2d)
+{
+    ui->splitSpinBox->setValue(100 - pct_2d);
+}
+
+int  CAudioOptions::getFftSplit(void) const
+{
+    return 100 - ui->splitSpinBox->value();
+}
+
+void CAudioOptions::on_splitSpinBox_valueChanged(int value)
+{
+    emit newFftSplit(100 - value);
+}
+
+void CAudioOptions::setFftMin(int min_db)
+{
+    ui->scaleSpinBox->setValue(min_db);
+}
+
+int  CAudioOptions::getFftMin(void) const
+{
+    return ui->scaleSpinBox->value();
+}
+
+void CAudioOptions::on_scaleSpinBox_valueChanged(int value)
+{
+    emit newFftMin(value);
+}
+
 /**
  * Slot called when the recordings directory has changed either
  * because of user input or programmatically.
