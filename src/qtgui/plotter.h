@@ -187,7 +187,7 @@ private:
     bool        m_PeakHoldActive;
     bool        m_PeakHoldValid;
     qint32      m_fftbuf[MAX_SCREENSIZE];
-    qint32      m_wfbuf[MAX_SCREENSIZE]; // used for accumulating waterfall data at high time spans
+    quint8      m_wfbuf[MAX_SCREENSIZE]; // used for accumulating waterfall data at high time spans
     qint32      m_fftPeakHoldBuf[MAX_SCREENSIZE];
     float      *m_fftData;     /*! pointer to incoming FFT data */
     float      *m_wfData;
