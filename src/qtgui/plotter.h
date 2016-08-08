@@ -38,12 +38,6 @@ public:
     void setCenterLineEnabled(bool enabled) { m_CenterLineEnabled = enabled; }
     void setTooltipsEnabled(bool enabled) { m_TooltipsEnabled = enabled; }
     void setBookmarksEnabled(bool enabled) { m_BookmarksEnabled = enabled; }
-    void setPercent2DScreen(int percent)
-    {
-        m_Percent2DScreen = percent;
-        m_Size = QSize(0,0);
-        resizeEvent(NULL);
-    }
 
     void setNewFttData(float *fftData, int size);
     void setNewFttData(float *fftData, float *wfData, int size);
@@ -143,6 +137,13 @@ public slots:
     void setFftRange(float reflevel, float range);
     void setPeakDetection(bool enabled, float c);
     void updateOverlay();
+
+    void setPercent2DScreen(int percent)
+    {
+        m_Percent2DScreen = percent;
+        m_Size = QSize(0,0);
+        resizeEvent(NULL);
+    }
 
 protected:
     //re-implemented widget event handlers
