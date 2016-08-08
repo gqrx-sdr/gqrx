@@ -8,7 +8,8 @@
   IMPROVED: Only probe for devices when the program is started.
   IMPROVED: 1-2-5 scaling on FFT axis.
   IMPROVED: Allow user to enter ALSA device name.
-       
+  IMPROVED: Set default audio FFT range to -70...0 dB.
+
      2.5.3: Released February 3, 2016.
 
        NEW: Set and read squelch via remote control socket.
