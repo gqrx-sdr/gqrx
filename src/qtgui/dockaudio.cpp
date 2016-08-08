@@ -62,6 +62,7 @@ DockAudio::DockAudio(QWidget *parent) :
     ui->audioSpectrum->setSampleRate(48000);  // Full bandwidth
     ui->audioSpectrum->setSpanFreq(12000);
     ui->audioSpectrum->setCenterFreq(0);
+    ui->audioSpectrum->setPercent2DScreen(100);
     ui->audioSpectrum->setFftCenterFreq(6000);
     ui->audioSpectrum->setDemodCenterFreq(0);
     ui->audioSpectrum->setFilterBoxEnabled(false);
