@@ -72,11 +72,6 @@ pa_source::pa_source (const string device_name, int sample_rate, int num_chan,
     d_ss.rate = sample_rate;
     d_ss.channels = num_chan;
 
-    /* Buffer attributes. Inspired by ghpsdr2-alex/softrockio */
-    d_attr.maxlength = d_attr.minreq = d_attr.prebuf = (uint32_t)-1;
-    d_attr.fragsize  = SAMPLES_PER_BUFFER*2 * sizeof(float);
-    d_attr.tlength   = SAMPLES_PER_BUFFER*2 * sizeof(float);
-
     d_pasrc = pa_simple_new(NULL,
                             d_app_name.c_str(),
                             PA_STREAM_RECORD,
@@ -84,7 +79,7 @@ pa_source::pa_source (const string device_name, int sample_rate, int num_chan,
                             d_stream_name.c_str(),
                             &d_ss,
                             NULL,
-                            &d_attr,
+                            NULL,
                             &error);
 
     if (!d_pasrc) {
@@ -118,7 +113,7 @@ void pa_source::select_device(string device_name)
                             d_stream_name.c_str(),
                             &d_ss,
                             NULL,
-                            &d_attr,
+                            NULL,
                             &error);
 
     if (!d_pasrc) {

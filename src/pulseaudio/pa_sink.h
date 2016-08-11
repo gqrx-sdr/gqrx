@@ -69,7 +69,6 @@ private:
     string d_stream_name;   /*! Descriptive name of the stream. */
     string d_app_name;      /*! Descriptive name of the applcation. */
     pa_sample_spec d_ss;    /*! pulseaudio sample specification. */
-    pa_buffer_attr d_attr;  /*! Buffer attributes. */
 
     // FIXME
     // periodic flushing of audio buffer (until we have soundcard calibration)

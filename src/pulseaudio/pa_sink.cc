@@ -62,13 +62,6 @@ pa_sink::pa_sink(const string device_name, int audio_rate,
     d_ss.format = PA_SAMPLE_FLOAT32LE;
     d_ss.rate = audio_rate;
     d_ss.channels = 2;
-
-    /* Buffer attributes tuned for low latency, see Documentation/Developer/Clients/LactencyControl */
-    size_t latency = pa_usec_to_bytes(10000, &d_ss);
-    d_attr.maxlength = d_attr.minreq = d_attr.prebuf = (uint32_t)-1;
-    d_attr.fragsize  = latency;
-    d_attr.tlength   = latency;
-
     d_pasink = pa_simple_new(NULL,
                              d_app_name.c_str(),
                              PA_STREAM_PLAYBACK,
@@ -76,7 +69,7 @@ pa_sink::pa_sink(const string device_name, int audio_rate,
                              d_stream_name.c_str(),
                              &d_ss,
                              NULL,
-                             &d_attr,
+                             NULL,
                              &error);
 
     if (!d_pasink) {
