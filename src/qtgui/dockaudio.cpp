@@ -69,7 +69,7 @@ DockAudio::DockAudio(QWidget *parent) :
     ui->audioSpectrum->setCenterLineEnabled(false);
     ui->audioSpectrum->setBookmarksEnabled(false);
     ui->audioSpectrum->setMinMaxDB(-80, 0);
-    ui->audioSpectrum->setVdivDelta(20);
+    ui->audioSpectrum->setVdivDelta(40);
     ui->audioSpectrum->setHdivDelta(40);
     ui->audioSpectrum->setFreqDigits(1);
 }

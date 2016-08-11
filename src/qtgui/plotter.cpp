@@ -28,10 +28,10 @@
  * or implied, of Moe Wheatley.
  */
 #include <cmath>
+
 #ifndef _MSC_VER
 #include <sys/time.h>
 #else
-
 #include <Windows.h>
 #include <cstdint>
 
@@ -55,6 +55,8 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp)
 }
 
 #endif
+
+#include <QColor>
 #include <QDateTime>
 #include <QDebug>
 #include <QFont>
@@ -78,6 +80,14 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp)
 #define FFT_RANGE_MIN   10.f
 #define FFT_RANGE_MAX   200.f
 
+// Colors of type QRgb in 0xAARRGGBB format (unsigned int)
+#define PLOTTER_BGD_COLOR           0xFF1F1D1D
+#define PLOTTER_GRID_COLOR          0xFF444242
+#define PLOTTER_TEXT_COLOR          0xFFDADADA
+#define PLOTTER_CENTER_LINE_COLOR   0xFF788296
+#define PLOTTER_FILTER_LINE_COLOR   0xFFFF7171
+#define PLOTTER_FILTER_BOX_COLOR    0xFFA0A0A4
+// FIXME: Should cache the QColors also
 
 static inline bool val_is_out_of_range(float val, float min, float max)
 {
@@ -1284,50 +1294,23 @@ void CPlotter::drawOverlay()
     float dbstepsize;
     float mindbadj;
     QRect rect;
+    QFontMetrics metrics(m_Font);
     QPainter painter(&m_OverlayPixmap);
     painter.initFrom(this);
-
-    //m_OverlayPixmap.fill(Qt::black);
-    // fill background with gradient
-    QLinearGradient gradient(0, 0, 0 ,h);
-    gradient.setColorAt(0, QColor(0x2F,0x2F,0x2F,0xFF));
-    gradient.setColorAt(1, QColor(0x00,0x00,0x00,0xFF));
-    painter.setBrush(gradient);
-    painter.drawRect(0, 0, w, h);
-
-    // Draw demod filter box
-    if (m_FilterBoxEnabled)
-    {
-        // Clamping no longer necessary as we do it in mouseMove()
-        //ClampDemodParameters();
-
-        m_DemodFreqX = xFromFreq(m_DemodCenterFreq);
-        m_DemodLowCutFreqX = xFromFreq(m_DemodCenterFreq + m_DemodLowCutFreq);
-        m_DemodHiCutFreqX = xFromFreq(m_DemodCenterFreq + m_DemodHiCutFreq);
-
-        int dw = m_DemodHiCutFreqX - m_DemodLowCutFreqX;
-
-        painter.setBrush(Qt::SolidPattern);
-        painter.setOpacity(0.3);
-        painter.fillRect(m_DemodLowCutFreqX, 0, dw, h, Qt::gray);
-
-        painter.setOpacity(1.0);
-        painter.setPen(QPen(QColor(0xFF,0x71,0x71,0xFF), 1, Qt::SolidLine));
-        painter.drawLine(m_DemodFreqX, 0, m_DemodFreqX, h);
-    }
-
-    QFontMetrics metrics(m_Font);
     painter.setFont(m_Font);
+
+    // solid background
+    painter.setBrush(Qt::SolidPattern);
+    painter.fillRect(0, 0, w, h, QColor(PLOTTER_BGD_COLOR));
 
     // X and Y axis areas
     m_YAxisWidth = metrics.width("-120 ");
     m_XAxisYCenter = h - metrics.height()/2;
-    int xAxisHeight = metrics.height() ;// + metrics.height()/2;
+    int xAxisHeight = metrics.height();
     int xAxisTop = h - xAxisHeight;
 
     if (m_BookmarksEnabled)
     {
-        // Draw Bookmark Tags
         m_BookmarkTags.clear();
         static const QFontMetrics fm(painter.font());
         static const int fontHeight = fm.ascent() + 1;
@@ -1373,39 +1356,38 @@ void CPlotter::drawOverlay()
                              bookmarks[i].name);
         }
     }
+
     if (m_CenterLineEnabled)
     {
-        // center line
         x = xFromFreq(m_CenterFreq);
         if (x > 0 && x < w)
         {
-            painter.setPen(QPen(QColor(0x78,0x82,0x96,0xFF), 1, Qt::SolidLine));
+            painter.setPen(QColor(PLOTTER_CENTER_LINE_COLOR));
             painter.drawLine(x, 0, x, xAxisTop);
         }
     }
 
     // Frequency grid
-    qint64 StartFreq = m_CenterFreq + m_FftCenter - m_Span/2;
+    qint64  StartFreq = m_CenterFreq + m_FftCenter - m_Span / 2;
     QString label;
-    label.setNum(float((StartFreq + m_Span) / m_FreqUnits),'f', m_FreqDigits);
-    calcDivSize (StartFreq, StartFreq + m_Span, qMin(w/(metrics.width(label)+metrics.width("O")), HORZ_DIVS_MAX), m_StartFreqAdj, m_FreqPerDiv, m_HorDivs);
+    label.setNum(float((StartFreq + m_Span) / m_FreqUnits), 'f', m_FreqDigits);
+    calcDivSize(StartFreq, StartFreq + m_Span,
+                qMin(w/(metrics.width(label) + metrics.width("O")), HORZ_DIVS_MAX),
+                m_StartFreqAdj, m_FreqPerDiv, m_HorDivs);
     pixperdiv = (float)w * (float) m_FreqPerDiv / (float) m_Span;
     adjoffset = pixperdiv * float (m_StartFreqAdj - StartFreq) / (float) m_FreqPerDiv;
 
-    painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0x30), 1, Qt::DotLine));
+    painter.setPen(QColor(PLOTTER_GRID_COLOR));
     for (int i = 0; i <= m_HorDivs; i++)
     {
-        x = (int)((float)i*pixperdiv + adjoffset);
+        x = (int)((float)i * pixperdiv + adjoffset);
         if (x > m_YAxisWidth)
-        {
             painter.drawLine(x, 0, x, xAxisTop);
-        }
     }
 
     // draw frequency values (x axis)
     makeFrequencyStrs();
-    painter.setPen(QColor(0xD8,0xBA,0xA1,0xFF));
-
+    painter.setPen(QColor(PLOTTER_TEXT_COLOR));
     for (int i = 0; i <= m_HorDivs; i++)
     {
         int tw = metrics.width(m_HDivText[i]);
@@ -1428,12 +1410,14 @@ void CPlotter::drawOverlay()
 
     pixperdiv = (float) h * (float) dbstepsize / (m_MaxdB - m_MindB);
     adjoffset = (float) h * (mindbadj - m_MindB) / (m_MaxdB - m_MindB);
+
 #ifdef PLOTTER_DEBUG
     qDebug() << "minDb =" << m_MindB << "maxDb =" << m_MaxdB << "mindbadj =" << mindbadj
             << "dbstepsize =" << dbstepsize
             << "pixperdiv =" << pixperdiv << "adjoffset =" << adjoffset;
 #endif
-    painter.setPen(QPen(QColor(0xF0,0xF0,0xF0,0x30), 1,Qt::DotLine));
+
+    painter.setPen(QColor(PLOTTER_GRID_COLOR));
     for (int i = 0; i <= m_VerDivs; i++)
     {
         y = h - (int)((float) i*pixperdiv + adjoffset);
@@ -1442,19 +1426,37 @@ void CPlotter::drawOverlay()
     }
 
     // draw amplitude values (y axis)
-    painter.setPen(QColor(0xD8,0xBA,0xA1,0xFF));
     int dB = m_MaxdB;
     m_YAxisWidth = metrics.width("-120 ");
+    painter.setPen(QColor(PLOTTER_TEXT_COLOR));
     for (int i = 0; i < m_VerDivs; i++)
     {
-        y = h - (int)((float) i*pixperdiv + adjoffset);
+        y = h - (int)((float) i * pixperdiv + adjoffset);
         int th = metrics.height();
         if (y < h -xAxisHeight)
         {
             dB = mindbadj + dbstepsize * i;
-            rect.setRect(0, y-th/2, m_YAxisWidth, th);
+            rect.setRect(0, y - th / 2, m_YAxisWidth, th);
             painter.drawText(rect, Qt::AlignRight|Qt::AlignVCenter, QString::number(dB));
         }
+    }
+
+    // Draw demod filter box
+    if (m_FilterBoxEnabled)
+    {
+        m_DemodFreqX = xFromFreq(m_DemodCenterFreq);
+        m_DemodLowCutFreqX = xFromFreq(m_DemodCenterFreq + m_DemodLowCutFreq);
+        m_DemodHiCutFreqX = xFromFreq(m_DemodCenterFreq + m_DemodHiCutFreq);
+
+        int dw = m_DemodHiCutFreqX - m_DemodLowCutFreqX;
+
+        painter.setOpacity(0.3);
+        painter.fillRect(m_DemodLowCutFreqX, 0, dw, h,
+                         QColor(PLOTTER_FILTER_BOX_COLOR));
+
+        painter.setOpacity(1.0);
+        painter.setPen(QColor(PLOTTER_FILTER_LINE_COLOR));
+        painter.drawLine(m_DemodFreqX, 0, m_DemodFreqX, h);
     }
 
     if (!m_Running)

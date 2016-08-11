@@ -9,7 +9,7 @@
 #include <vector>
 #include <QMap>
 
-#define HORZ_DIVS_MAX 50 //12
+#define HORZ_DIVS_MAX 12    //50
 #define VERT_DIVS_MIN 5
 #define MAX_SCREENSIZE 16384
 
