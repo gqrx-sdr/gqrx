@@ -23,10 +23,9 @@
 #ifndef PA_SINK_H
 #define PA_SINK_H
 
-#include <string>
 #include <gnuradio/sync_block.h>
-#include <gnuradio/high_res_timer.h>
 #include <pulse/simple.h>
+#include <string>
 
 using namespace std;
 
@@ -69,11 +68,6 @@ private:
     string d_stream_name;   /*! Descriptive name of the stream. */
     string d_app_name;      /*! Descriptive name of the applcation. */
     pa_sample_spec d_ss;    /*! pulseaudio sample specification. */
-
-    // FIXME
-    // periodic flushing of audio buffer (until we have soundcard calibration)
-    int d_auto_flush;  // flush interval in seconds (negative means off)
-    gr::high_res_timer_type d_last_flush;
 };
 
 #endif /* PA_SINK_H */

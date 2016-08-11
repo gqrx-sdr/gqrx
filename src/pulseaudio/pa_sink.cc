@@ -20,15 +20,13 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include "pa_sink.h"
 #include <gnuradio/io_signature.h>
-#include <gnuradio/high_res_timer.h>
-#include <stdio.h>
-//#include <iostream>
-
 #include <pulse/simple.h>
 #include <pulse/error.h>
 #include <pulse/gccmacro.h>
+#include <stdio.h>
+
+#include "pa_sink.h"
 
 
 /*! \brief Create a new pulseaudio sink object.
@@ -52,9 +50,7 @@ pa_sink::pa_sink(const string device_name, int audio_rate,
         gr::io_signature::make (1, 2, sizeof(float)),
         gr::io_signature::make (0, 0, 0)),
     d_stream_name(stream_name),
-    d_app_name(app_name),
-    d_auto_flush(300),
-    d_last_flush(0)
+    d_app_name(app_name)
 {
     int error;
 
@@ -89,8 +85,6 @@ pa_sink::~pa_sink()
 
 bool pa_sink::start()
 {
-    d_last_flush = gr::high_res_timer_now();
-
     return true;
 }
 
@@ -140,20 +134,6 @@ int pa_sink::work (int noutput_items,
 
     if (noutput_items > BUFFER_SIZE/2)
         noutput_items = BUFFER_SIZE/2;
-
-    if (d_auto_flush > 0)
-    {
-        gr::high_res_timer_type tnow = gr::high_res_timer_now();
-        if ((tnow-d_last_flush)/gr::high_res_timer_tps() > d_auto_flush)
-        {
-            pa_simple_flush(d_pasink, 0);
-            d_last_flush = tnow;
-
-#ifndef QT_NO_DEBUG_OUTPUT
-            fprintf(stderr, "Flushing pa_sink\n");
-#endif
-        }
-    }
 
     if (input_items.size() == 2)
     {
