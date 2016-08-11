@@ -2,6 +2,7 @@
 
        NEW: 1-2-5 scaling on FFT axis.
        NEW: Audio waterfall.
+     FIXED: Stuttering audio with Pulseaudio backend.
      FIXED: Use system font on FFT plot (too small font on high res displays).
      FIXED: Broken FUNcube Dongle Pro+ support on Mac OS X 10.11.4.
      FIXED: Correct display of negative offsets between -1 and 0 kHz.
