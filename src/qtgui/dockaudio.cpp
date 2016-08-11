@@ -68,7 +68,7 @@ DockAudio::DockAudio(QWidget *parent) :
     ui->audioSpectrum->setFilterBoxEnabled(false);
     ui->audioSpectrum->setCenterLineEnabled(false);
     ui->audioSpectrum->setBookmarksEnabled(false);
-    ui->audioSpectrum->setMinMaxDB(-70, 0);
+    ui->audioSpectrum->setMinMaxDB(-80, 0);
     ui->audioSpectrum->setVdivDelta(20);
     ui->audioSpectrum->setHdivDelta(40);
     ui->audioSpectrum->setFreqDigits(1);
@@ -292,7 +292,7 @@ void DockAudio::saveSettings(QSettings *settings)
         settings->remove("audio/fft_split");
 
     ival = audioOptions->getFftMin();
-    if (ival != -70)
+    if (ival != -80)
         settings->setValue("audio/fft_min_db", ival);
     else
         settings->remove("audio/fft_min_db");
@@ -329,7 +329,7 @@ void DockAudio::readSettings(QSettings *settings)
     if (conv_ok)
         audioOptions->setFftSplit(ival);
 
-    ival = settings->value("audio/fft_min_db", QVariant(-70)).toInt(&conv_ok);
+    ival = settings->value("audio/fft_min_db", QVariant(-80)).toInt(&conv_ok);
     if (conv_ok)
         audioOptions->setFftMin(ival);
 
