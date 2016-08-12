@@ -1377,7 +1377,7 @@ void CPlotter::drawOverlay()
     pixperdiv = (float)w * (float) m_FreqPerDiv / (float) m_Span;
     adjoffset = pixperdiv * float (m_StartFreqAdj - StartFreq) / (float) m_FreqPerDiv;
 
-    painter.setPen(QColor(PLOTTER_GRID_COLOR));
+    painter.setPen(QPen(QColor(PLOTTER_GRID_COLOR), 1, Qt::DotLine));
     for (int i = 0; i <= m_HorDivs; i++)
     {
         x = (int)((float)i * pixperdiv + adjoffset);
@@ -1417,7 +1417,7 @@ void CPlotter::drawOverlay()
             << "pixperdiv =" << pixperdiv << "adjoffset =" << adjoffset;
 #endif
 
-    painter.setPen(QColor(PLOTTER_GRID_COLOR));
+    painter.setPen(QPen(QColor(PLOTTER_GRID_COLOR), 1, Qt::DotLine));
     for (int i = 0; i <= m_VerDivs; i++)
     {
         y = h - (int)((float) i*pixperdiv + adjoffset);
