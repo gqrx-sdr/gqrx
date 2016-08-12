@@ -1025,10 +1025,7 @@ void CPlotter::draw()
 
         if (m_FftFill)
         {
-            QLinearGradient linGrad(QPointF(xmin, h), QPointF(xmin, 0));
-            linGrad.setColorAt(0.0, m_FftCol0);
-            linGrad.setColorAt(1.0, m_FftCol1);
-            painter2.setBrush(QBrush(QGradient(linGrad)));
+            painter2.setBrush(QBrush(m_FftFillCol, Qt::SolidPattern));
             if (n < MAX_SCREENSIZE-2)
             {
                 LineBuf[n].setX(xmax-1);
@@ -1670,10 +1667,8 @@ void CPlotter::moveToDemodFreq(void)
 void CPlotter::setFftPlotColor(const QColor color)
 {
     m_FftColor = color;
-    m_FftCol0 = color;
-    m_FftCol0.setAlpha(0x00);
-    m_FftCol1 = color;
-    m_FftCol1.setAlpha(0xA0);
+    m_FftFillCol = color;
+    m_FftFillCol.setAlpha(0x1A);
     m_PeakHoldColor = color;
     m_PeakHoldColor.setAlpha(60);
 }

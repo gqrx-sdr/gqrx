@@ -250,7 +250,7 @@ private:
 
     quint32     m_LastSampleRate;
 
-    QColor      m_FftColor, m_FftCol0, m_FftCol1, m_PeakHoldColor;
+    QColor      m_FftColor, m_FftFillCol, m_PeakHoldColor;
     bool        m_FftFill;
 
     float       m_PeakDetection;
