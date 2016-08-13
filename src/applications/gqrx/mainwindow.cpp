@@ -134,6 +134,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     uiDockFft->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F));
     uiDockAudio->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_A));
     uiDockBookmarks->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_B));
+    ui->mainToolBar->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
 
     setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
