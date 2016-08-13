@@ -180,7 +180,7 @@ void CMeter::draw()
     Font.setWeight(QFont::Normal);
     painter.setFont(Font);
 
-    painter.setPen(QColor(0xEF, 0xEF, 0xEF, 0xFF));
+    painter.setPen(QColor(0xDA, 0xDA, 0xDA, 0xFF));
     painter.setOpacity(1.0);
     m_Str.setNum(m_dBm);
     painter.drawText(marg, h - 2, m_Str + " dBFS" );
@@ -201,7 +201,7 @@ void CMeter::DrawOverlay()
     QRect rect;
     QPainter painter(&m_OverlayPixmap);
 
-    m_OverlayPixmap.fill(QColor(0x20, 0x20, 0x20, 0xFF));
+    m_OverlayPixmap.fill(QColor(0x1F, 0x1D, 0x1D, 0xFF));
 
     // Draw scale lines
     qreal marg = (qreal) w * CTRL_MARGIN;
