@@ -135,10 +135,10 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     uiDockAudio->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_A));
     uiDockBookmarks->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_B));
 
-    setCorner( Qt::TopLeftCorner, Qt::LeftDockWidgetArea );
-    setCorner( Qt::TopRightCorner, Qt::RightDockWidgetArea );
-    setCorner( Qt::BottomLeftCorner, Qt::BottomDockWidgetArea );
-    setCorner( Qt::BottomRightCorner, Qt::RightDockWidgetArea );
+    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+    setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+    setCorner(Qt::BottomLeftCorner, Qt::BottomDockWidgetArea);
+    setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
     /* Add dock widgets to main window. This should be done even for
        dock widgets that are going to be hidden, otherwise they will
@@ -160,15 +160,8 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     addDockWidget(Qt::BottomDockWidgetArea, uiDockBookmarks);
 
     /* hide docks that we don't want to show initially */
-    /** FIXME: Hide them initially but store layout in config **/
-    //    uiDockInputCtl->hide();
-    //    uiDockFft->hide();
-
     uiDockBookmarks->hide();
     uiDockRDS->hide();
-
-    /* misc configurations */
-    //uiDockAudio->setFftRange(0, 8000); // FM
 
     /* Add dock widget actions to View menu. By doing it this way all signal/slot
        connections will be established automagially.
@@ -372,17 +365,18 @@ MainWindow::~MainWindow()
  * @param cfgfile
  * @returns True if config is OK, False if not (e.g. no input device specified).
  *
- * If cfgfile is an absolute path it will be used as is, otherwise it is assumed to be the
- * name of a file under m_cfg_dir.
+ * If cfgfile is an absolute path it will be used as is, otherwise it is assumed
+ * to be the name of a file under m_cfg_dir.
  *
  * If cfgfile does not exist it will be created.
  *
- * If no input device is specified, we return false to signal that the I/O configuration
- * dialog should be run.
+ * If no input device is specified, we return false to signal that the I/O
+ * configuration dialog should be run.
  *
  * FIXME: Refactor.
  */
-bool MainWindow::loadConfig(const QString cfgfile, bool check_crash, bool restore_mainwindow)
+bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
+                            bool restore_mainwindow)
 {
     double      actual_rate;
     qint64      int64_val;
@@ -400,7 +394,8 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash, bool restor
     if (QDir::isAbsolutePath(cfgfile))
         m_settings = new QSettings(cfgfile, QSettings::IniFormat);
     else
-        m_settings = new QSettings(QString("%1/%2").arg(m_cfg_dir).arg(cfgfile), QSettings::IniFormat);
+        m_settings = new QSettings(QString("%1/%2").arg(m_cfg_dir).arg(cfgfile),
+                                   QSettings::IniFormat);
 
     qDebug() << "Configuration file:" << m_settings->fileName();
 
@@ -444,7 +439,8 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash, bool restor
     // main window settings
     if (restore_mainwindow)
     {
-        restoreGeometry(m_settings->value("gui/geometry", saveGeometry()).toByteArray());
+        restoreGeometry(m_settings->value("gui/geometry",
+                                          saveGeometry()).toByteArray());
         restoreState(m_settings->value("gui/state", saveState()).toByteArray());
     }
 
@@ -479,9 +475,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash, bool restor
             updateGainStages(false);
         }
         else
-        {
             updateGainStages(true);
-        }
     }
 
     QString outdev = m_settings->value("output/device", "").toString();
@@ -513,9 +507,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash, bool restor
         qDebug() << "Actual sample rate   :" << QString("%1").arg(actual_rate, 0, 'f', 6);
     }
     else
-    {
         actual_rate = rx->get_input_rate();
-    }
 
     if (actual_rate > 0.)
     {
@@ -536,9 +528,8 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash, bool restor
             }
         }
         else
-        {
             rx->set_input_decim(1);
-        }
+
         // update various widgets that need a sample rate
         uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
         uiDockFft->setSampleRate(actual_rate);
@@ -548,9 +539,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash, bool restor
         iq_tool->setSampleRate((qint64)actual_rate);
     }
     else
-    {
         qDebug() << "Error: Actual sample rate is" << actual_rate;
-    }
 
     int64_val = m_settings->value("input/bandwidth", 0).toInt(&conv_ok);
     if (conv_ok)
@@ -592,11 +581,11 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash, bool restor
  * @param cfgfile
  * @returns True if the operation was successful.
  *
- * If cfgfile is an absolute path it will be used as is, otherwise it is assumed to be the
- * name of a file under m_cfg_dir.
+ * If cfgfile is an absolute path it will be used as is, otherwise it is
+ * assumed to be the name of a file under m_cfg_dir.
  *
- * If cfgfile already exists it will be overwritten (we assume that a file selection dialog
- * has already asked for confirmation of overwrite.
+ * If cfgfile already exists it will be overwritten (we assume that a file
+ * selection dialog has already asked for confirmation of overwrite.
  *
  * Since QSettings does not support "save as" we do this by copying the current
  * settings to a new file.
@@ -754,7 +743,7 @@ void MainWindow::updateGainStages(bool read_from_device)
  */
 void MainWindow::setNewFrequency(qint64 rx_freq)
 {
-    double hw_freq = (double)(rx_freq-d_lnb_lo) - rx->get_filter_offset();
+    double hw_freq = (double)(rx_freq - d_lnb_lo) - rx->get_filter_offset();
     qint64 center_freq = rx_freq - (qint64)rx->get_filter_offset();
 
     d_hw_freq = (qint64)hw_freq;
@@ -849,9 +838,9 @@ void MainWindow::setAutoGain(bool enabled)
 void MainWindow::setFreqCorr(double ppm)
 {
     if (ppm < -200.0)
-   ppm = -200.0;
+        ppm = -200.0;
     else if (ppm > 200.0)
-   ppm = 200.0;
+        ppm = 200.0;
 
     qDebug() << __FUNCTION__ << ":" << ppm << "ppm";
     rx->set_freq_corr(ppm);
@@ -941,9 +930,8 @@ void MainWindow::selectDemod(int mode_idx)
     d_filter_shape = (receiver::filter_shape)uiDockRxOpt->currentFilterShape();
 
     if (rx->is_rds_decoder_active())
-    {
         setRdsDecoder(false);
-    }
+
     uiDockRDS->setDisabled();
 
     switch (mode_idx) {
@@ -1062,7 +1050,8 @@ void MainWindow::selectDemod(int mode_idx)
     rx->set_filter((double)flo, (double)fhi, d_filter_shape);
     rx->set_cw_offset(cwofs);
 
-    d_have_audio = ((mode_idx != DockRxOpt::MODE_OFF) && (mode_idx != DockRxOpt::MODE_RAW));
+    d_have_audio = ((mode_idx != DockRxOpt::MODE_OFF) &&
+                    (mode_idx != DockRxOpt::MODE_RAW));
 
     uiDockRxOpt->setCurrentDemod(mode_idx);
 }
@@ -1647,11 +1636,11 @@ void MainWindow::setPeakDetection(bool enabled)
  * started. The jerkyness disappears when trhe receiver is reconfigured
  * by selecting a new demodulator.
  */
-void MainWindow::forceRxReconf()
+/*void MainWindow::forceRxReconf()
 {
     qDebug() << "Force RX reconf (jerky dongle workarond)...";
     selectDemod(uiDockRxOpt->currentDemod());
-}
+}*/
 
 /**
  * @brief Start/Stop DSP processing.
@@ -1858,9 +1847,8 @@ void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
     uiDockRxOpt->setFilterOffset(delta);
     ui->freqCtrl->setFrequency(freq);
 
-    if (rx->is_rds_decoder_active()) {
+    if (rx->is_rds_decoder_active())
         rx->reset_rds_parser();
-    }
 }
 
 /* CPlotter::NewfilterFreq() is emitted */
@@ -1872,9 +1860,7 @@ void MainWindow::on_plotter_newFilterFreq(int low, int high)
     retcode = rx->set_filter((double) low, (double) high, d_filter_shape);
 
     if (retcode == receiver::STATUS_OK)
-    {
         uiDockRxOpt->setFilterParam(low, high);
-    }
 }
 
 void MainWindow::on_plotter_newCenterFreq(qint64 f)
@@ -1956,12 +1942,10 @@ void MainWindow::on_actionAFSK1200_triggered()
             dec_timer->start(100);
         }
         else
-        {
             QMessageBox::warning(this, tr("Gqrx error"),
                                  tr("Error starting sample sniffer.\n"
                                     "Close all data decoders and try again."),
                                  QMessageBox::Ok, QMessageBox::Ok);
-        }
     }
 }
 
@@ -1994,14 +1978,9 @@ void MainWindow::decoderTimeout()
     float buffer[DATA_BUFFER_SIZE];
     unsigned int num;
 
-    //qDebug() << "Process decoder";
-
     rx->get_sniffer_data(&buffer[0], num);
     if (dec_afsk1200)
-    {
         dec_afsk1200->process_samples(&buffer[0], num);
-    }
-    /* else stop timeout and sniffer? */
 }
 
 void MainWindow::setRdsDecoder(bool checked)
@@ -2029,12 +2008,10 @@ void MainWindow::on_actionUserGroup_triggered()
     bool res = QDesktopServices::openUrl(QUrl("https://groups.google.com/forum/#!forum/gqrx",
                                               QUrl::TolerantMode));
     if (!res)
-    {
         QMessageBox::warning(this, tr("Error"),
                              tr("Failed to open website:\n"
                                 "https://groups.google.com/forum/#!forum/gqrx"),
                              QMessageBox::Close);
-    }
 }
 
 /**
@@ -2209,17 +2186,15 @@ void MainWindow::on_actionAddBookmark_triggered()
         QStringList listTags = tags.split(",",QString::SkipEmptyParts);
         info.tags.clear();
         if (listTags.size() == 0)
-        {
             info.tags.append(&Bookmarks::Get().findOrAddTag(""));
-        }
-        for(i = 0; i < listTags.size(); ++i)
-        {
+
+
+        for (i = 0; i < listTags.size(); ++i)
             info.tags.append(&Bookmarks::Get().findOrAddTag(listTags[i]));
-        }
+
         Bookmarks::Get().add(info);
         uiDockBookmarks->updateTags();
         uiDockBookmarks->updateBookmarks();
         ui->plotter->updateOverlay();
     }
-
 }
