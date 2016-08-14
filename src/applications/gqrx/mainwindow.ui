@@ -131,7 +131,7 @@
      <x>0</x>
      <y>0</y>
      <width>950</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -172,9 +172,12 @@
     <addaction name="actionRemoteControl"/>
     <addaction name="actionRemoteConfig"/>
     <addaction name="separator"/>
+    <addaction name="actionAddBookmark"/>
+    <addaction name="separator"/>
     <addaction name="actionIqTool"/>
     <addaction name="separator"/>
     <addaction name="actionAFSK1200"/>
+    <addaction name="separator"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Tools"/>
@@ -379,10 +382,13 @@
      <normaloff>:/icons/icons/bookmark-new.svg</normaloff>:/icons/icons/bookmark-new.svg</iconset>
    </property>
    <property name="text">
-    <string>AddBookmark</string>
+    <string>Add bookmark</string>
    </property>
    <property name="toolTip">
-    <string>Bookmark the current frequency and mode</string>
+    <string>Bookmark the current frequency and mode (Ctrl+Shift+B)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+B</string>
    </property>
   </action>
   <action name="actionRemoteControl">
