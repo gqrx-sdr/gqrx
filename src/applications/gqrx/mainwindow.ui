@@ -286,7 +286,7 @@
    </property>
    <property name="icon">
     <iconset resource="../../../resources/icons.qrc">
-     <normaloff>:/icons/icons/power-off.svg</normaloff>:/icons/icons/power-off.svg</iconset>
+     <normaloff>:/icons/icons/play.svg</normaloff>:/icons/icons/play.svg</iconset>
    </property>
    <property name="text">
     <string>Start DSP</string>
