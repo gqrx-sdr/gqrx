@@ -270,13 +270,13 @@ Wolfgang Fritz DK7OB
 - 1-2-5 scaling on FFT plot.
 - Various UI improvements.
 
+Some of the icons are from:
+- The GNOME icon theme CC-SA 3.0 by GNOME icon artists 
+- Tango icon theme, Public Domain by The people from the Tango! project
+- Mint-X icon theme, GPL by Clement Lefebvre
 
 Also thanks to Volker Schroer and Alexey Bazhin for bringing Funcube Dongle
 Pro+ support to GNU Radio and Gqrx.
-
-Some of the icons are from the GNOME and Tango icon themes. The scope.svg icon
-is based on the utilities-system-monitor.svg icon from the Mint-X icon theme
-licensed under GNU GPL.
 
 Let me know if somebody or someting is missing from the list!
 
