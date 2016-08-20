@@ -64,41 +64,42 @@ class DockInputCtl : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit DockInputCtl(QWidget *parent = 0);
+    explicit DockInputCtl(QWidget * parent = 0);
     ~DockInputCtl();
 
-    void readSettings(QSettings *settings);
-    void saveSettings(QSettings *settings);
+    void    readSettings(QSettings * settings);
+    void    saveSettings(QSettings * settings);
 
-    void  setLnbLo(double freq_mhz);
-    double lnbLo();
+    void    setLnbLo(double freq_mhz);
+    double  lnbLo();
+    void    readLnbLoFromSettings(QSettings * settings);
 
-    void setGain(QString &name, double value);
-    double gain(QString &name);
+    void    setGain(QString &name, double value);
+    double  gain(QString &name);
 
-    void setAgc(bool enabled);
-    bool agc();
+    void    setAgc(bool enabled);
+    bool    agc();
 
-    void setFreqCorr(double corr);
-    double freqCorr();
+    void    setFreqCorr(double corr);
+    double  freqCorr();
 
-    void setIqSwap(bool reversed);
-    bool iqSwap(void);
+    void    setIqSwap(bool reversed);
+    bool    iqSwap(void);
 
-    void setDcCancel(bool enabled);
-    bool dcCancel(void);
+    void    setDcCancel(bool enabled);
+    bool    dcCancel(void);
 
-    void setIqBalance(bool enabled);
-    bool iqBalance(void);
+    void    setIqBalance(bool enabled);
+    bool    iqBalance(void);
 
-    void setIgnoreLimits(bool reversed);
-    bool ignoreLimits(void);
+    void    setIgnoreLimits(bool reversed);
+    bool    ignoreLimits(void);
 
-    void setAntennas(std::vector<std::string> &antennas);
-    void setAntenna(const QString &antenna);
+    void    setAntennas(std::vector<std::string> &antennas);
+    void    setAntenna(const QString &antenna);
 
-    void setGainStages(gain_list_t &gain_list);
-    void restoreManualGains(QSettings *settings);
+    void    setGainStages(gain_list_t &gain_list);
+    void    restoreManualGains(QSettings *settings);
 
 signals:
     void gainChanged(QString name, double value);
@@ -126,8 +127,8 @@ private slots:
 private:
     void clearWidgets();
     void updateLabel(int idx, double value);
-    void getGains(QMap<QString, QVariant> *gains);
-    void setGains(QMap<QString, QVariant> *gains);
+    void getGains(QMap<QString, QVariant> * gains);
+    void setGains(QMap<QString, QVariant> * gains);
 
 private:
     QList<QSlider *>  gain_sliders; /*!< A list containing the gain sliders. */

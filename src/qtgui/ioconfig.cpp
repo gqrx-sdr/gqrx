@@ -44,7 +44,9 @@
 #include "ui_ioconfig.h"
 
 
-CIoConfig::CIoConfig(QSettings *settings, std::map<QString, QVariant> &devList, QWidget *parent) :
+CIoConfig::CIoConfig(QSettings * settings,
+                     std::map<QString, QVariant> &devList,
+                     QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CIoConfig),
     m_settings(settings)
@@ -112,7 +114,7 @@ CIoConfig::CIoConfig(QSettings *settings, std::map<QString, QVariant> &devList, 
     ui->bwSpinBox->setValue(1.0e-6*settings->value("input/bandwidth", 0.0).toDouble());
 
     // LNB LO
-    ui->loSpinBox->setValue(1.0e-6*settings->value("input/lnb_lo", 0.0).toDouble());
+    ui->loSpinBox->setValue(1.0e-6 * settings->value("input/lnb_lo", 0.0).toDouble());
 
     // Output device
     QString outdev = settings->value("output/device", "").toString();
@@ -251,6 +253,7 @@ void CIoConfig::saveConfig()
 {
     int         idx;
     int         int_val;
+    bool        conv_ok;
 
     qDebug() << __FUNCTION__;
 
@@ -286,10 +289,11 @@ void CIoConfig::saveConfig()
     value = (qint64)(ui->loSpinBox->value()*1.e6);
     if (value)
         m_settings->setValue("input/lnb_lo", value);
+    else
+        m_settings->remove("input/lnb_lo");
 
-    bool ok=false;
-    int_val = ui->inSrCombo->currentText().toInt(&ok);
-    if (ok)
+    int_val = ui->inSrCombo->currentText().toInt(&conv_ok);
+    if (conv_ok)
         m_settings->setValue("input/sample_rate", int_val);
     else
         m_settings->remove("input/sample_rate");

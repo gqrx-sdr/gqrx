@@ -8,6 +8,7 @@
      FIXED: Broken FUNcube Dongle Pro+ support on Mac OS X 10.11.4.
      FIXED: Correct display of negative offsets between -1 and 0 kHz.
      FIXED: Reset frequency digits below the one that is being changed.
+     FIXED: LNB LO could not be set from I/O confugration dialog.
   IMPROVED: SDRPlay integration.
   IMPROVED: Only probe for devices when the program is started.
   IMPROVED: 1-2-5 scaling on FFT axis.

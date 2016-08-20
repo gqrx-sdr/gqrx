@@ -1722,6 +1722,8 @@ int MainWindow::on_actionIoConfig_triggered()
             // suspend DSP while we reload settings
             on_actionDSP_triggered(false);
 
+        // Refresh LNB LO in dock widget, otherwise changes will be lost
+        uiDockInputCtl->readLnbLoFromSettings(m_settings);
         storeSession();
         loadConfig(m_settings->fileName(), false, false);
 

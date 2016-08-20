@@ -24,7 +24,7 @@
 #include "dockinputctl.h"
 #include "ui_dockinputctl.h"
 
-DockInputCtl::DockInputCtl(QWidget *parent) :
+DockInputCtl::DockInputCtl(QWidget * parent) :
     QDockWidget(parent),
     ui(new Ui::DockInputCtl)
 {
@@ -42,9 +42,11 @@ DockInputCtl::~DockInputCtl()
     delete gainLayout;
 }
 
-void DockInputCtl::readSettings(QSettings *settings)
+void DockInputCtl::readSettings(QSettings * settings)
 {
-    bool conv_ok;
+    qint64  lnb_lo;
+    bool    conv_ok;
+    bool    bool_val;
 
     qint64 ppm_corr = settings->value("input/corr_freq", 0).toLongLong(&conv_ok);
     setFreqCorr(((double)ppm_corr)/1.0e6);
@@ -59,11 +61,14 @@ void DockInputCtl::readSettings(QSettings *settings)
     setIqBalance(settings->value("input/iq_balance", false).toBool());
     emit iqBalanceChanged(ui->iqBalanceButton->isChecked());
 
-    qint64 lnb_lo = settings->value("input/lnb_lo", 0).toLongLong(&conv_ok);
-    setLnbLo(((double)lnb_lo)/1.0e6);
-    emit lnbLoChanged(ui->lnbSpinBox->value());
+    lnb_lo = settings->value("input/lnb_lo", 0).toLongLong(&conv_ok);
+    if (conv_ok)
+    {
+        setLnbLo(((double)lnb_lo)/1.0e6);
+        emit lnbLoChanged(ui->lnbSpinBox->value());
+    }
 
-    bool bool_val = settings->value("input/ignore_limits", false).toBool();
+    bool_val = settings->value("input/ignore_limits", false).toBool();
     setIgnoreLimits(bool_val);
     emit ignoreLimitsChanged(bool_val);
 
@@ -101,7 +106,7 @@ void DockInputCtl::readSettings(QSettings *settings)
 
 }
 
-void DockInputCtl::saveSettings(QSettings *settings)
+void DockInputCtl::saveSettings(QSettings * settings)
 {
     qint64 lnb_lo = (qint64)(ui->lnbSpinBox->value()*1.e6);
     if (lnb_lo)
@@ -156,6 +161,19 @@ void DockInputCtl::saveSettings(QSettings *settings)
         settings->remove("input/antenna");
 }
 
+void DockInputCtl::readLnbLoFromSettings(QSettings * settings)
+{
+    qint64  lnb_lo;
+    bool    conv_ok;
+
+    lnb_lo = settings->value("input/lnb_lo", 0).toLongLong(&conv_ok);
+    if (conv_ok)
+    {
+        setLnbLo(((double)lnb_lo) / 1.0e6);
+        emit lnbLoChanged(ui->lnbSpinBox->value());
+    }
+}
+
 void DockInputCtl::setLnbLo(double freq_mhz)
 {
     ui->lnbSpinBox->setValue(freq_mhz);
@@ -166,9 +184,10 @@ double DockInputCtl::lnbLo()
     return ui->lnbSpinBox->value();
 }
 
-/*! \brief Set new value of a specific gain.
- *  \param name The name of the gain to change.
- *  \param value The new value.
+/**
+ * @brief Set new value of a specific gain.
+ * @param name The name of the gain to change.
+ * @param value The new value.
  */
 void DockInputCtl::setGain(QString &name, double value)
 {
@@ -185,8 +204,9 @@ void DockInputCtl::setGain(QString &name, double value)
     }
 }
 
-/*! \brief Get current gain.
- *  \returns The relative gain between 0.0 and 1.0 or -1 if HW AGC is enabled.
+/**
+ * @brief Get current gain.
+ * @returns The relative gain between 0.0 and 1.0 or -1 if HW AGC is enabled.
  */
 double DockInputCtl::gain(QString &name)
 {
@@ -204,16 +224,18 @@ double DockInputCtl::gain(QString &name)
     return gain;
 }
 
-/*! \brief Set status of hardware AGC button.
- *  \param enabled Whether hardware AGC is enabled or not.
+/**
+ * Set status of hardware AGC button.
+ * @param enabled Whether hardware AGC is enabled or not.
  */
 void DockInputCtl::setAgc(bool enabled)
 {
     ui->agcButton->setChecked(enabled);
 }
 
-/*! \brief Get status of hardware AGC button.
- *  \return Whether hardware AGC is enabled or not.
+/**
+ * @brief Get status of hardware AGC button.
+ * @return Whether hardware AGC is enabled or not.
  */
 bool DockInputCtl::agc()
 {
@@ -221,8 +243,9 @@ bool DockInputCtl::agc()
 }
 
 
-/*! \brief Set new frequency correction.
- *  \param corr The new frequency correction in PPM.
+/**
+ * Set new frequency correction.
+ * @param corr The new frequency correction in PPM.
  */
 void DockInputCtl::setFreqCorr(double corr)
 {
@@ -230,61 +253,61 @@ void DockInputCtl::setFreqCorr(double corr)
 }
 
 
-/*! \brief Get current frequency correction. */
+/** Get current frequency correction. */
 double DockInputCtl::freqCorr()
 {
     return ui->freqCorrSpinBox->value();
 }
 
-/*! \brief Enasble/disable I/Q swapping. */
+/** Enasble/disable I/Q swapping. */
 void DockInputCtl::setIqSwap(bool reversed)
 {
     ui->iqSwapButton->setChecked(reversed);
 }
 
-/*! \brief Get current I/Q swapping. */
+/** Get current I/Q swapping. */
 bool DockInputCtl::iqSwap(void)
 {
     return ui->iqSwapButton->isChecked();
 }
 
-/*! \brief Enable automatic DC removal. */
+/** Enable automatic DC removal. */
 void DockInputCtl::setDcCancel(bool enabled)
 {
     ui->dcCancelButton->setChecked(enabled);
 }
 
-/*! \brief Get current DC remove status. */
+/** Get current DC remove status. */
 bool DockInputCtl::dcCancel(void)
 {
     return ui->dcCancelButton->isChecked();
 }
 
-/*! \brief Enable automatic IQ balance. */
+/** Enable automatic IQ balance. */
 void DockInputCtl::setIqBalance(bool enabled)
 {
     ui->iqBalanceButton->setChecked(enabled);
 }
 
-/*! \brief Get current IQ balance status. */
+/** Get current IQ balance status. */
 bool DockInputCtl::iqBalance(void)
 {
     return ui->iqBalanceButton->isChecked();
 }
 
-/*! \brief Enasble/disable ignoring hardware limits. */
+/** Enasble/disable ignoring hardware limits. */
 void DockInputCtl::setIgnoreLimits(bool reversed)
 {
     ui->ignoreButton->setChecked(reversed);
 }
 
-/*! \brief Get current status of whether limits should be ignored or not. */
+/** Get current status of whether limits should be ignored or not. */
 bool DockInputCtl::ignoreLimits(void)
 {
     return ui->ignoreButton->isChecked();
 }
 
-/*! \brief Populate antenna selector combo box with strings. */
+/** Populate antenna selector combo box with strings. */
 void DockInputCtl::setAntennas(std::vector<std::string> &antennas)
 {
     ui->antSelector->clear();
@@ -294,7 +317,7 @@ void DockInputCtl::setAntennas(std::vector<std::string> &antennas)
     }
 }
 
-/*! \brief Select antenna. */
+/** Select antenna. */
 void DockInputCtl::setAntenna(const QString &antenna)
 {
     int index = ui->antSelector->findText(antenna, Qt::MatchExactly);
@@ -302,8 +325,9 @@ void DockInputCtl::setAntenna(const QString &antenna)
         ui->antSelector->setCurrentIndex(index);
 }
 
-/*! \brief Set gain stages.
- *  \param gain_list A list containing the gain stages for this device.
+/**
+ * Set gain stages.
+ * @param gain_list A list containing the gain stages for this device.
  */
 void DockInputCtl::setGainStages(gain_list_t &gain_list)
 {
@@ -361,7 +385,8 @@ void DockInputCtl::setGainStages(gain_list_t &gain_list)
 }
 
 
-/*! \brief Load all gains from the settings.
+/**
+ * Load all gains from the settings.
  *
  * Can be used for restoring the manual gains after auto-gain has been
  * disabled.
@@ -390,13 +415,13 @@ void DockInputCtl::restoreManualGains(QSettings *settings)
     }
 }
 
-/*! \brief LNB LO value has changed. */
+/** LNB LO value has changed. */
 void DockInputCtl::on_lnbSpinBox_valueChanged(double value)
 {
     emit lnbLoChanged(value);
 }
 
-/*! \brief Automatic gain control button has been toggled. */
+/** Automatic gain control button has been toggled. */
 void DockInputCtl::on_agcButton_toggled(bool checked)
 {
     for (int i = 0; i < gain_sliders.length(); ++i)
@@ -407,32 +432,36 @@ void DockInputCtl::on_agcButton_toggled(bool checked)
     emit autoGainChanged(checked);
 }
 
-/*! \brief Frequency correction changed.
- *  \param value The new frequency correction in ppm.
+/**
+ * Frequency correction changed.
+ * @param value The new frequency correction in ppm.
  */
 void DockInputCtl::on_freqCorrSpinBox_valueChanged(double value)
 {
     emit freqCorrChanged(value);
 }
 
-/*! \brief I/Q swapping checkbox changed.
- *  \param checked True if I/Q swapping is enabled, false otherwise
+/**
+ * I/Q swapping checkbox changed.
+ * @param checked True if I/Q swapping is enabled, false otherwise
  */
 void DockInputCtl::on_iqSwapButton_toggled(bool checked)
 {
     emit iqSwapChanged(checked);
 }
 
-/*! \brief DC removal checkbox changed.
- *  \param checked True if DC removal is enabled, false otherwise
+/**
+ * DC removal checkbox changed.
+ * @param checked True if DC removal is enabled, false otherwise
  */
 void DockInputCtl::on_dcCancelButton_toggled(bool checked)
 {
     emit dcCancelChanged(checked);
 }
 
-/*! \brief IQ balance checkbox changed.
- *  \param checked True if automatic IQ balance is enabled, false otherwise
+/**
+ * IQ balance checkbox changed.
+ * @param checked True if automatic IQ balance is enabled, false otherwise
  */
 void DockInputCtl::on_iqBalanceButton_toggled(bool checked)
 {
@@ -449,13 +478,13 @@ void DockInputCtl::on_ignoreButton_toggled(bool checked)
     emit ignoreLimitsChanged(checked);
 }
 
-/*! \brief Antenna selection has changed. */
+/** Antenna selection has changed. */
 void DockInputCtl::on_antSelector_currentIndexChanged(const QString &antenna)
 {
     emit antennaSelected(antenna);
 }
 
-/*! \brief Remove all widgets from the lists. */
+/** Remove all widgets from the lists. */
 void DockInputCtl::clearWidgets()
 {
     QWidget *widget;
@@ -485,8 +514,9 @@ void DockInputCtl::clearWidgets()
     }
 }
 
-/*! \brief Slot for managing slider value changed signals.
- *  \param value The value of the slider.
+/**
+ * Slot for managing slider value changed signals.
+ * @param value The value of the slider.
  *
  * Note. We use the sender() function to find out which slider has emitted the signal.
  */
@@ -507,9 +537,10 @@ void DockInputCtl::sliderValueChanged(int value)
     emit gainChanged(slider->property("name").toString(), gain);
 }
 
-/*! \brief Update value label
- *  \param idx The index of the gain
- *  \param value The new value
+/**
+ * Update value label
+ * @param idx The index of the gain
+ * @param value The new value
  */
 void DockInputCtl::updateLabel(int idx, double value)
 {
@@ -518,8 +549,9 @@ void DockInputCtl::updateLabel(int idx, double value)
     label->setText(QString("%1 dB").arg(value, 0, 'f', 1));
 }
 
-/*! \brief Get all gains.
- *  \param gains Pointer to a map where the gains and their names are stored.
+/**
+ * Get all gains.
+ * @param gains Pointer to a map where the gains and their names are stored.
  *
  * This is a private utility function used when storing the settings.
  */
