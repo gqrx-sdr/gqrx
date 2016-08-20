@@ -2,6 +2,7 @@
 
        NEW: 1-2-5 scaling on FFT axis.
        NEW: Audio waterfall.
+       NEW: Remember AGC settings between sessions.
      FIXED: Stuttering audio with Pulseaudio backend.
      FIXED: Use system font on FFT plot (too small font on high res displays).
      FIXED: Broken FUNcube Dongle Pro+ support on Mac OS X 10.11.4.
