@@ -33,39 +33,32 @@ class rx_agc_cc;
 typedef boost::shared_ptr<rx_agc_cc> rx_agc_cc_sptr;
 
 
-/*! \brief Return a shared_ptr to a new instance of rx_agc_cc.
- *  \param sample_rate The samle rate (default = 96000).
- *  \param agc_on      Whether AGC should be ON (default = true).
- *  \param threshold   AGC Knee in dB if AGC is active. Range -160 to 0dB
- *                     (default = -100dB).
- *  \param manual_gain Manual gain when AGC is OFF. Range 0 to 100dB
- *                     (default = 0dB).
- *  \param slope       AGC slope factor. Specifies dB reduction in output at
- *                     knee from maximum output level. Range 0 to 10dB
- *                     (default = 2dB TBC).
- *  \param decay       AGC decay time in milliseconds. Range 20 to 5000. This
- *                     parameter determines whether AGC is fast/slow/medium.
- *                     The default value is 100ms (fast AGC).
- *  \param use_hang    Whether AGC should "hang" before starting to decay.
- *                     The default is false.
+/**
+ * \brief Return a shared_ptr to a new instance of rx_agc_cc.
+ * \param sample_rate The samle rate (default = 96000).
+ * \param agc_on      Whether AGC should be ON (default = true).
+ * \param threshold   AGC Knee in dB if AGC is active. Range -160 to 0 dB.
+ * \param manual_gain Manual gain when AGC is OFF. Range 0 to 100 dB.
+ * \param slope       AGC slope factor. Specifies dB reduction in output at
+ *                    knee from maximum output level. Range 0 to 10 dB
+ * \param decay       AGC decay time in milliseconds. Range 20 to 5000. This
+ *                    parameter determines whether AGC is fast, slow or medium.
+ * \param use_hang    Whether AGC should "hang" before starting to decay.
  *
  * This is effectively the public constructor for a new AGC block.
  * To avoid accidental use of raw pointers, the rx_agc_cc constructor is private.
  * make_rx_agc_cc is the public interface for creating new instances.
  */
-rx_agc_cc_sptr make_rx_agc_cc(double sample_rate = 96000.0, bool agc_on = true,
-                              int threshold = -100, int manual_gain = 0,
-                              int slope = 2, int decay = 100,
-                              bool use_hang = false);
+rx_agc_cc_sptr make_rx_agc_cc(double sample_rate, bool agc_on, int threshold,
+                              int manual_gain, int slope, int decay,
+                              bool use_hang);
 
-
-/*! \brief Experimental AGC block for analog voice modes (AM, SSB, CW).
- *  \ingroup DSP
+/**
+ * \brief Experimental AGC block for analog voice modes (AM, SSB, CW).
+ * \ingroup DSP
  *
  * This block performs automatic gain control.
  * To be written...
- *
- * \todo rx_agc_ff
  */
 class rx_agc_cc : public gr::sync_block
 {
@@ -93,17 +86,16 @@ public:
     void set_use_hang(bool use_hang);
 
 private:
-    CAgc         *d_agc;
-    boost::mutex  d_mutex;  /*! Used to lock internal data while processing or setting parameters. */
+    CAgc           *d_agc;
+    boost::mutex    d_mutex;  /*! Used to lock internal data while processing or setting parameters. */
 
-    bool   d_agc_on;        /*! Current AGC status (true/false). */
-    double d_sample_rate;   /*! Current sample rate. */
-    int    d_threshold;     /*! Current AGC threshold (-160...0 dB). */
-    int    d_manual_gain;   /*! Current gain when AGC is OFF. */
-    int    d_slope;         /*! Current AGC slope (0...10 dB). */
-    int    d_decay;         /*! Current AGC decay (20...5000 ms). */
-    bool   d_use_hang;      /*! Current AGC hang status (true/false). */
+    bool            d_agc_on;        /*! Current AGC status (true/false). */
+    double          d_sample_rate;   /*! Current sample rate. */
+    int             d_threshold;     /*! Current AGC threshold (-160...0 dB). */
+    int             d_manual_gain;   /*! Current gain when AGC is OFF. */
+    int             d_slope;         /*! Current AGC slope (0...10 dB). */
+    int             d_decay;         /*! Current AGC decay (20...5000 ms). */
+    bool            d_use_hang;      /*! Current AGC hang status (true/false). */
 };
-
 
 #endif /* RX_AGC_XX_H */

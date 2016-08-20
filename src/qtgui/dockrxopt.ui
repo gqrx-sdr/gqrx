@@ -347,6 +347,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         <property name="toolTip">
          <string>AGC presets</string>
         </property>
+        <property name="currentIndex">
+         <number>1</number>
+        </property>
         <item>
          <property name="text">
           <string>Fast</string>

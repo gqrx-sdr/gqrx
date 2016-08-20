@@ -74,7 +74,7 @@
          <number>1</number>
         </property>
         <property name="value">
-         <number>2</number>
+         <number>0</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -84,7 +84,7 @@
       <item row="2" column="2">
        <widget class="QLabel" name="thresholdLabel">
         <property name="text">
-         <string>-120 dB</string>
+         <string>-100 dB</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -163,7 +163,10 @@
          <number>50</number>
         </property>
         <property name="value">
-         <number>100</number>
+         <number>500</number>
+        </property>
+        <property name="sliderPosition">
+         <number>500</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -176,7 +179,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>100 ms</string>
+         <string>500 ms</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -221,7 +224,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>2 dB</string>
+         <string>0 dB</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -253,7 +256,7 @@
          <number>0</number>
         </property>
         <property name="value">
-         <number>-120</number>
+         <number>-100</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>

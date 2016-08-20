@@ -33,8 +33,8 @@ rx_agc_cc_sptr make_rx_agc_cc(double sample_rate, bool agc_on, int threshold,
                                                     use_hang));
 }
 
-
-/*! \brief Create receiver AGC object.
+/**
+ * \brief Create receiver AGC object.
  *
  * Use make_rx_agc_cc() instead.
  */
@@ -61,11 +61,11 @@ rx_agc_cc::~rx_agc_cc()
     delete d_agc;
 }
 
-
-/*! \brief Receiver AGC work method.
- *  \param mooutput_items
- *  \param input_items
- *  \param output_items
+/**
+ * \brief Receiver AGC work method.
+ * \param mooutput_items
+ * \param input_items
+ * \param output_items
  */
 int rx_agc_cc::work(int noutput_items,
                     gr_vector_const_void_star &input_items,
@@ -80,9 +80,9 @@ int rx_agc_cc::work(int noutput_items,
     return noutput_items;
 }
 
-
-/*! \brief Enable or disable AGC.
- *  \param agc_on Whether AGC should be endabled.
+/**
+ * \brief Enable or disable AGC.
+ * \param agc_on Whether AGC should be endabled.
  *
  * When AGC is disabled a fixed gain is used.
  *
@@ -98,8 +98,9 @@ void rx_agc_cc::set_agc_on(bool agc_on)
     }
 }
 
-/*! \brief Set AGC sample rate.
- *  \param sample_rate The sample rate.
+/**
+ * \brief Set AGC sample rate.
+ * \param sample_rate The sample rate.
  *
  * The AGC uses knowledge about the sample rate to calculate various delays and
  * time constants.
@@ -114,8 +115,9 @@ void rx_agc_cc::set_sample_rate(double sample_rate)
     }
 }
 
-/*! \brief Set new AGC threshold.
- *  \param threshold The new threshold between -160 and 0dB.
+/**
+ * \brief Set new AGC threshold.
+ * \param threshold The new threshold between -160 and 0dB.
  *
  * The threshold specifies AGC "knee" in dB when the AGC is active.
  */
@@ -129,8 +131,9 @@ void rx_agc_cc::set_threshold(int threshold)
     }
 }
 
-/*! \brief Set new manual gain.
- *  \param gain The new manual gain between 0 and 100dB.
+/**
+ * \brief Set new manual gain.
+ * \param gain The new manual gain between 0 and 100dB.
  *
  * The manual gain is used when AGC is switched off.
  *
@@ -146,8 +149,9 @@ void rx_agc_cc::set_manual_gain(int gain)
     }
 }
 
-/*! \brief Set AGC slope factor.
- *  \param slope The new slope factor between 0 and 10dB.
+/**
+ * \brief Set AGC slope factor.
+ * \param slope The new slope factor between 0 and 10dB.
  *
  * The slope factor specifies dB reduction in output at knee from maximum output level
  */
@@ -161,8 +165,9 @@ void rx_agc_cc::set_slope(int slope)
     }
 }
 
-/*! \brief Set AGC decay time.
- *  \param decay The new AGC decay time between 20 to 5000 ms.
+/**
+ * \brief Set AGC decay time.
+ * \param decay The new AGC decay time between 20 to 5000 ms.
  */
 void rx_agc_cc::set_decay(int decay)
 {
@@ -174,8 +179,9 @@ void rx_agc_cc::set_decay(int decay)
     }
 }
 
-/*! \brief Enable/disable AGC hang.
- *  \param use_hang Whether to use hang or not.
+/**
+ * \brief Enable/disable AGC hang.
+ * \param use_hang Whether to use hang or not.
  */
 void rx_agc_cc::set_use_hang(bool use_hang)
 {
