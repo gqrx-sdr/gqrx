@@ -43,7 +43,7 @@ hbf_decim::hbf_decim(unsigned int decim)
 {
     decimation = decim;
     dec = new Decimator();
-    if (dec->init(decim, 120) != decim)
+    if (dec->init(decim, 100) != decim)
         throw std::range_error("Decimation not supported");
 
     std::cout << "New decimator: " << decimation << std::endl;
