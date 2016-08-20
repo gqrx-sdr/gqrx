@@ -269,7 +269,7 @@ QString DockRxOpt::currentDemodAsString()
 
 float DockRxOpt::currentMaxdev()
 {
-    qDebug() << __FILE__ << __FUNCTION__ << "FIXME";
+    qInfo() << __FILE__ << __FUNCTION__ << "FIXME";
     return 5000.0;
 }
 
@@ -289,12 +289,12 @@ void DockRxOpt::getFilterPreset(int mode, int preset, int * lo, int * hi) const
 {
     if (mode < 0 || mode >= MODE_LAST)
     {
-        qDebug() << __func__ << ": Invalid mode:" << mode;
+        qInfo() << __func__ << ": Invalid mode:" << mode;
         mode = MODE_AM;
     }
     else if (preset < 0 || preset > 2)
     {
-        qDebug() << __func__ << ": Invalid preset:" << preset;
+        qInfo() << __func__ << ": Invalid preset:" << preset;
         preset = FILTER_PRESET_NORMAL;
     }
     *lo = filter_preset_table[mode][preset][0];
@@ -309,22 +309,20 @@ int DockRxOpt::getCwOffset() const
 /** Read receiver configuration from settings data. */
 void DockRxOpt::readSettings(QSettings *settings)
 {
-    bool conv_ok;
-    int intVal;
+    bool    conv_ok;
+    int     int_val;
+    double  dbl_val;
 
-    intVal = settings->value("receiver/demod", 0).toInt(&conv_ok);
-    if (intVal >= 0)
+    int_val = settings->value("receiver/demod", 0).toInt(&conv_ok);
+    if (int_val >= 0)
     {
-        setCurrentDemod(intVal);
-        emit demodSelected(intVal);
+        setCurrentDemod(int_val);
+        emit demodSelected(int_val);
     }
 
-    intVal = settings->value("receiver/cwoffset", 700).toInt(&conv_ok);
+    int_val = settings->value("receiver/cwoffset", 700).toInt(&conv_ok);
     if (conv_ok)
-    {
-        demodOpt->setCwOffset(intVal);
-        //demodOpt_cwOffsetChanged(intVal);
-    }
+        demodOpt->setCwOffset(int_val);
 
     qint64 offs = settings->value("receiver/offset", 0).toInt(&conv_ok);
     if (offs)
@@ -333,17 +331,48 @@ void DockRxOpt::readSettings(QSettings *settings)
         emit filterOffsetChanged(offs);
     }
 
-    double dblVal = settings->value("receiver/sql_level", 1.0).toDouble(&conv_ok);
-    if (conv_ok && dblVal < 1.0)
+    dbl_val = settings->value("receiver/sql_level", 1.0).toDouble(&conv_ok);
+    if (conv_ok && dbl_val < 1.0)
+        ui->sqlSpinBox->setValue(dbl_val);
+
+    // AGC settings
+    int_val = settings->value("receiver/agc_threshold", -100).toInt(&conv_ok);
+    if (conv_ok)
+        agcOpt->setThreshold(int_val);
+
+    int_val = settings->value("receiver/agc_decay", 500).toInt(&conv_ok);
+    if (conv_ok)
     {
-        //ui->sqlSlider->setValue(intVal); // signal emitted automatically
-        ui->sqlSpinBox->setValue(dblVal);
+        agcOpt->setDecay(int_val);
+        if (int_val == 100)
+            ui->agcPresetCombo->setCurrentIndex(0);
+        else if (int_val == 500)
+            ui->agcPresetCombo->setCurrentIndex(1);
+        else if (int_val == 2000)
+            ui->agcPresetCombo->setCurrentIndex(2);
+        else
+            ui->agcPresetCombo->setCurrentIndex(3);
     }
+
+    int_val = settings->value("receiver/agc_slope", 0).toInt(&conv_ok);
+    if (conv_ok)
+        agcOpt->setSlope(int_val);
+
+    int_val = settings->value("receiver/agc_gain", 0).toInt(&conv_ok);
+    if (conv_ok)
+        agcOpt->setGain(int_val);
+
+    agcOpt->setHang(settings->value("receiver/agc_usehang", false).toBool());
+
+    if (settings->value("receiver/agc_off", false).toBool())
+        ui->agcPresetCombo->setCurrentIndex(4);
 }
 
 /** Save receiver configuration to settings. */
 void DockRxOpt::saveSettings(QSettings *settings)
 {
+    int     int_val;
+
     settings->setValue("receiver/demod", ui->modeSelector->currentIndex());
 
     int cwofs = demodOpt->getCwOffset();
@@ -365,6 +394,40 @@ void DockRxOpt::saveSettings(QSettings *settings)
         settings->setValue("receiver/sql_level", sql_lvl);
     else
         settings->remove("receiver/sql_level");
+
+    // AGC settings
+    int_val = agcOpt->threshold();
+    if (int_val != -100)
+        settings->setValue("receiver/agc_threshold", int_val);
+    else
+        settings->remove("receiver/agc_threshold");
+
+    int_val = agcOpt->decay();
+    if (int_val != 500)
+        settings->setValue("receiver/agc_decay", int_val);
+    else
+        settings->remove("receiver/agc_decay");
+
+    int_val = agcOpt->slope();
+    if (int_val != 0)
+        settings->setValue("receiver/agc_slope", int_val);
+    else
+        settings->remove("receiver/agc_slope");
+
+    int_val = agcOpt->gain();
+    if (int_val != 0)
+        settings->setValue("receiver/agc_gain", int_val);
+    else
+        settings->remove("receiver/agc_gain");
+
+    if (agcOpt->hang())
+        settings->setValue("receiver/agc_usehang", true);
+    else
+        settings->remove("receiver/agc_usehang");
+
+    // AGC Off
+    if (ui->agcPresetCombo->currentIndex() == 4)
+        settings->setValue("receiver/agc_off", true);
 }
 
 /**
@@ -376,7 +439,6 @@ void DockRxOpt::saveSettings(QSettings *settings)
  */
 void DockRxOpt::on_filterFreq_newFrequency(qint64 freq)
 {
-    qDebug() << "New filter offset:" << freq << "Hz";
     updateHwFreq();
 
     emit filterOffsetChanged(freq);
@@ -410,8 +472,6 @@ void DockRxOpt::on_filterCombo_activated(int index)
  */
 void DockRxOpt::on_modeSelector_activated(int index)
 {
-    qDebug() << "New mode: " << index;
-
     if (index == MODE_RAW)
     {
         qDebug() << "Raw I/Q not implemented (fallback to FM-N)";
@@ -457,13 +517,12 @@ void DockRxOpt::on_agcButton_clicked()
  */
 void DockRxOpt::on_autoSquelchButton_clicked()
 {
-    // Emit signal
     double newval = sqlAutoClicked(); // FIXME: We rely on signal only being connected to one slot
     ui->sqlSpinBox->setValue(newval);
 }
 
 /** AGC preset has changed. */
-void DockRxOpt::on_agcPresetCombo_activated(int index)
+void DockRxOpt::on_agcPresetCombo_currentIndexChanged(int index)
 {
     CAgcOptions::agc_preset_e preset = (CAgcOptions::agc_preset_e) index;
 
@@ -497,7 +556,6 @@ void DockRxOpt::on_agcPresetCombo_activated(int index)
 
 void DockRxOpt::agcOpt_hangToggled(bool checked)
 {
-    qDebug() << "AGC hang" << (checked ? "ON" : "OFF");
     emit agcHangToggled(checked);
 }
 
@@ -507,7 +565,6 @@ void DockRxOpt::agcOpt_hangToggled(bool checked)
  */
 void DockRxOpt::agcOpt_thresholdChanged(int value)
 {
-    qDebug() << "AGC threshold:" << value;
     emit agcThresholdChanged(value);
 }
 
@@ -517,7 +574,6 @@ void DockRxOpt::agcOpt_thresholdChanged(int value)
  */
 void DockRxOpt::agcOpt_slopeChanged(int value)
 {
-    qDebug() << "AGC slope:" << value;
     emit agcSlopeChanged(value);
 }
 
@@ -527,7 +583,6 @@ void DockRxOpt::agcOpt_slopeChanged(int value)
  */
 void DockRxOpt::agcOpt_decayChanged(int value)
 {
-    qDebug() << "AGC decay:" << value;
     emit agcDecayChanged(value);
 }
 
@@ -537,7 +592,6 @@ void DockRxOpt::agcOpt_decayChanged(int value)
  */
 void DockRxOpt::agcOpt_gainChanged(int gain)
 {
-    qDebug() << "AGC manual gain:" << gain;
     emit agcGainChanged(gain);
 }
 

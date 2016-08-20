@@ -63,15 +63,15 @@ void CAgcOptions::setPreset(agc_preset_e preset)
     case AGC_FAST:
         setDecay(100);
         enableDecay(false);
-        setSlope(2);
+        setSlope(0);
         enableSlope(false);
         enableGain(false);
         break;
 
     case AGC_MEDIUM:
-        setDecay(1000);
+        setDecay(500);
         enableDecay(false);
-        setSlope(2);
+        setSlope(0);
         enableSlope(false);
         enableGain(false);
         break;
@@ -79,7 +79,7 @@ void CAgcOptions::setPreset(agc_preset_e preset)
     case AGC_SLOW:
         setDecay(2000);
         enableDecay(false);
-        setSlope(2);
+        setSlope(0);
         enableSlope(false);
         enableGain(false);
         break;

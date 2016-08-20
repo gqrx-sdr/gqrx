@@ -177,7 +177,8 @@ private slots:
     void on_modeButton_clicked();
     void on_agcButton_clicked();
     void on_autoSquelchButton_clicked();
-    void on_agcPresetCombo_activated(int index);
+    //void on_agcPresetCombo_activated(int index);
+    void on_agcPresetCombo_currentIndexChanged(int index);
     void on_sqlSpinBox_valueChanged(double value);
     void on_nb1Button_toggled(bool checked);
     void on_nb2Button_toggled(bool checked);
