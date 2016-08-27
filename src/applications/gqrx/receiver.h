@@ -35,7 +35,7 @@
 #include <string>
 
 #include "dsp/correct_iq_cc.h"
-#include "dsp/hbf_decim.h"
+#include "dsp/filter/fir_decim.h"
 #include "dsp/rx_noise_blanker_cc.h"
 #include "dsp/rx_filter.h"
 #include "dsp/rx_meter.h"
@@ -241,7 +241,7 @@ private:
     gr::top_block_sptr         tb;        /*!< The GNU Radio top block. */
 
     osmosdr::source::sptr     src;       /*!< Real time I/Q source. */
-    hbf_decim_sptr            input_decim;      /*!< Input decimator. */
+    fir_decim_cc_sptr         input_decim;      /*!< Input decimator. */
     receiver_base_cf_sptr     rx;        /*!< receiver. */
 
     dc_corr_cc_sptr           dc_corr;   /*!< DC corrector block. */

@@ -270,6 +270,9 @@ Wolfgang Fritz DK7OB
 - 1-2-5 scaling on FFT plot.
 - Various UI improvements.
 
+Youssef Touil
+- FIRCalc design tool for optimizing input decimator.
+
 Some of the icons are from:
 - The GNOME icon theme CC-SA 3.0 by GNOME icon artists 
 - Tango icon theme, Public Domain by The people from the Tango! project

@@ -36,7 +36,8 @@
 
 #include "applications/gqrx/receiver.h"
 #include "dsp/correct_iq_cc.h"
-#include "dsp/hbf_decim.h"
+//#include "dsp/hbf_decim.h"
+#include "dsp/filter/fir_decim.h"
 #include "dsp/rx_fft.h"
 #include "receivers/nbrx.h"
 #include "receivers/wfmrx.h"
@@ -90,7 +91,7 @@ receiver::receiver(const std::string input_device,
     {
         try
         {
-            input_decim = make_hbf_decim(d_decim);
+            input_decim = make_fir_decim_cc(d_decim);
         }
         catch (std::range_error &e)
         {
@@ -376,7 +377,7 @@ unsigned int receiver::set_input_decim(unsigned int decim)
     {
         try
         {
-            input_decim = make_hbf_decim(d_decim);
+            input_decim = make_fir_decim_cc(d_decim);
         }
         catch (std::range_error &e)
         {

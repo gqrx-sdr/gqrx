@@ -89,8 +89,7 @@ SOURCES += \
     src/dsp/afsk1200/costabf.c \
     src/dsp/agc_impl.cpp \
     src/dsp/correct_iq_cc.cpp \
-    src/dsp/filter/decimator.cpp \
-    src/dsp/hbf_decim.cpp \
+    src/dsp/filter/fir_decim.cpp \
     src/dsp/lpf.cpp \
     src/dsp/rds/decoder_impl.cc \
     src/dsp/rds/parser_impl.cc \
@@ -141,11 +140,8 @@ HEADERS += \
     src/dsp/afsk1200/filter-i386.h \
     src/dsp/agc_impl.h \
     src/dsp/correct_iq_cc.h \
-    src/dsp/filter/decimator.h \
-    src/dsp/filter/filtercoef_hbf_70.h \
-    src/dsp/filter/filtercoef_hbf_100.h \
-    src/dsp/filter/filtercoef_hbf_140.h \
-    src/dsp/hbf_decim.h \
+    src/dsp/filter/fir_decim.h \
+    src/dsp/filter/fir_decim_coef.h \
     src/dsp/lpf.h \
     src/dsp/rds/api.h \
     src/dsp/rds/parser.h \

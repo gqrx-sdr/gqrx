@@ -577,10 +577,10 @@ void CIoConfig::updateDecimations(void)
         ui->decimCombo->addItem("64", 0);
     if (rate >= 6144000)
         ui->decimCombo->addItem("128", 0);
-    if (rate >= 12288000)
-        ui->decimCombo->addItem("256", 0);
-    if (rate >= 24576000)
-        ui->decimCombo->addItem("512", 0);
+//    if (rate >= 12288000)
+//        ui->decimCombo->addItem("256", 0);
+//    if (rate >= 24576000)
+//        ui->decimCombo->addItem("512", 0);
 
     decimationChanged(0);
 }
