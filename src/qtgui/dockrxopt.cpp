@@ -269,7 +269,7 @@ QString DockRxOpt::currentDemodAsString()
 
 float DockRxOpt::currentMaxdev()
 {
-    qInfo() << __FILE__ << __FUNCTION__ << "FIXME";
+    qDebug() << __FILE__ << __FUNCTION__ << "FIXME";
     return 5000.0;
 }
 
@@ -289,12 +289,12 @@ void DockRxOpt::getFilterPreset(int mode, int preset, int * lo, int * hi) const
 {
     if (mode < 0 || mode >= MODE_LAST)
     {
-        qInfo() << __func__ << ": Invalid mode:" << mode;
+        qDebug() << __func__ << ": Invalid mode:" << mode;
         mode = MODE_AM;
     }
     else if (preset < 0 || preset > 2)
     {
-        qInfo() << __func__ << ": Invalid preset:" << preset;
+        qDebug() << __func__ << ": Invalid preset:" << preset;
         preset = FILTER_PRESET_NORMAL;
     }
     *lo = filter_preset_table[mode][preset][0];
