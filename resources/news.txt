@@ -3,12 +3,13 @@
        NEW: 1-2-5 scaling on FFT axis.
        NEW: Audio waterfall.
        NEW: Remember AGC settings between sessions.
+       NEW: Right-click on FFT resets frequency zoom.
      FIXED: Stuttering audio with Pulseaudio backend.
      FIXED: Use system font on FFT plot (too small font on high res displays).
      FIXED: Broken FUNcube Dongle Pro+ support on Mac OS X 10.11.4.
      FIXED: Correct display of negative offsets between -1 and 0 kHz.
      FIXED: Reset frequency digits below the one that is being changed.
-     FIXED: LNB LO could not be set from I/O confugration dialog.
+     FIXED: LNB LO could not be set from I/O configuration dialog.
   IMPROVED: Input decimator performance.
   IMPROVED: SDRPlay integration.
   IMPROVED: Only probe for devices when the program is started.

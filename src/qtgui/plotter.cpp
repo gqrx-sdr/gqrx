@@ -696,6 +696,11 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                 emit newCenterFreq(m_CenterFreq);
                 emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
             }
+            else if (event->buttons() == Qt::RightButton)
+            {
+                // reset frequency zoom
+                resetHorizontalZoom();
+            }
         }
     }
     else
@@ -704,7 +709,14 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
             // get ready for moving Y axis
             m_Yzero = pt.y();
         else if (m_CursorCaptured == XAXIS)
+        {
             m_Xzero = pt.x();
+            if (event->buttons() == Qt::RightButton)
+            {
+                // reset frequency zoom
+                resetHorizontalZoom();
+            }
+        }
         else if(m_CursorCaptured == BOOKMARK)
         {
             int i;
