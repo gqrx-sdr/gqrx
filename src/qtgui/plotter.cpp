@@ -641,9 +641,7 @@ void CPlotter::setFftRate(int rate_hz)
     clearWaterfall();
 }
 
-//////////////////////////////////////////////////////////////////////
 // Called when a mouse button is pressed
-//////////////////////////////////////////////////////////////////////
 void CPlotter::mousePressEvent(QMouseEvent * event)
 {
     QPoint pt = event->pos();
@@ -651,41 +649,43 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
     if (NOCAP == m_CursorCaptured)
     {
         if (isPointCloseTo(pt.x(), m_DemodFreqX, m_CursorCaptureDelta))
-        {	//in move demod box center frequency region
+        {
+            // move demod box center frequency region
             m_CursorCaptured = CENTER;
-            m_GrabPosition = pt.x()-m_DemodFreqX;
+            m_GrabPosition = pt.x() - m_DemodFreqX;
         }
         else if (isPointCloseTo(pt.x(), m_DemodLowCutFreqX, m_CursorCaptureDelta))
-        {   // filter low cut
+        {
+            // filter low cut
             m_CursorCaptured = LEFT;
-            m_GrabPosition = pt.x()-m_DemodLowCutFreqX;
+            m_GrabPosition = pt.x() - m_DemodLowCutFreqX;
         }
         else if (isPointCloseTo(pt.x(), m_DemodHiCutFreqX, m_CursorCaptureDelta))
-        {   // filter high cut
+        {
+            // filter high cut
             m_CursorCaptured = RIGHT;
-            m_GrabPosition = pt.x()-m_DemodHiCutFreqX;
+            m_GrabPosition = pt.x() - m_DemodHiCutFreqX;
         }
         else
         {
             if (event->buttons() == Qt::LeftButton)
             {
-                int best=-1;
-                if(m_PeakDetection>0)
-                    best = getNearestPeak(pt);
+                int     best = -1;
 
-                if(best!=-1)
+                if (m_PeakDetection > 0)
+                    best = getNearestPeak(pt);
+                if (best != -1)
                     m_DemodCenterFreq = freqFromX(best);
                 else
-                    m_DemodCenterFreq = roundFreq(freqFromX(pt.x()),m_ClickResolution );
+                    m_DemodCenterFreq = roundFreq(freqFromX(pt.x()), m_ClickResolution);
 
-                //if cursor not captured set demod frequency and start demod box capture
-                emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
+                // if cursor not captured set demod frequency and start demod box capture
+                emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
 
-                //save initial grab postion from m_DemodFreqX
-                //setCursor(QCursor(Qt::CrossCursor));
+                // save initial grab postion from m_DemodFreqX
+                // setCursor(QCursor(Qt::CrossCursor));
                 m_CursorCaptured = CENTER;
                 m_GrabPosition = 1;
-                //m_GrabPosition = pt.x()-m_DemodFreqX;
                 drawOverlay();
             }
             else if (event->buttons() == Qt::MidButton)
@@ -694,7 +694,7 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                 m_CenterFreq = roundFreq(freqFromX(pt.x()), m_ClickResolution);
                 m_DemodCenterFreq = m_CenterFreq;
                 emit newCenterFreq(m_CenterFreq);
-                emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
+                emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
             }
         }
     }
@@ -705,14 +705,15 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
             m_Yzero = pt.y();
         else if (m_CursorCaptured == XAXIS)
             m_Xzero = pt.x();
-        else if(m_CursorCaptured==BOOKMARK)
+        else if(m_CursorCaptured == BOOKMARK)
         {
-            for(int i=0; i<m_BookmarkTags.size(); i++)
+            int i;
+            for (i = 0; i < m_BookmarkTags.size(); i++)
             {
-                if(m_BookmarkTags[i].first.contains(event->pos()))
+                if (m_BookmarkTags[i].first.contains(event->pos()))
                 {
                     m_DemodCenterFreq = m_BookmarkTags[i].second;
-                    emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
+                    emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
                     break;
                 }
             }
@@ -720,15 +721,14 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
     }
 }
 
-//////////////////////////////////////////////////////////////////////
 // Called when a mouse button is released
-//////////////////////////////////////////////////////////////////////
 void CPlotter::mouseReleaseEvent(QMouseEvent * event)
 {
     QPoint pt = event->pos();
 
     if (!m_OverlayPixmap.rect().contains(pt))
-    { //not in Overlay region
+    {
+        // not in Overlay region
         if (NOCAP != m_CursorCaptured)
             setCursor(QCursor(Qt::ArrowCursor));
 
@@ -784,9 +784,7 @@ void CPlotter::zoomOnXAxis(float level)
     zoomStepX(current_level / level, xFromFreq(m_DemodCenterFreq));
 }
 
-//////////////////////////////////////////////////////////////////////
 // Called when a mouse wheel is turned
-//////////////////////////////////////////////////////////////////////
 void CPlotter::wheelEvent(QWheelEvent * event)
 {
     QPoint pt = event->pos();
@@ -822,8 +820,8 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     else if (event->modifiers() & Qt::ControlModifier)
     {
         // filter width
-        m_DemodLowCutFreq -= numSteps*m_ClickResolution;
-        m_DemodHiCutFreq += numSteps*m_ClickResolution;
+        m_DemodLowCutFreq -= numSteps * m_ClickResolution;
+        m_DemodHiCutFreq += numSteps * m_ClickResolution;
         clampDemodParameters();
         emit newFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
     }
@@ -831,15 +829,15 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     else if (event->modifiers() & Qt::ShiftModifier)
     {
         // filter shift
-        m_DemodLowCutFreq += numSteps*m_ClickResolution;
-        m_DemodHiCutFreq += numSteps*m_ClickResolution;
+        m_DemodLowCutFreq += numSteps * m_ClickResolution;
+        m_DemodHiCutFreq += numSteps * m_ClickResolution;
         clampDemodParameters();
         emit newFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
     }
     else
     {
         // inc/dec demod frequency
-        m_DemodCenterFreq += (numSteps*m_ClickResolution);
+        m_DemodCenterFreq += (numSteps * m_ClickResolution);
         m_DemodCenterFreq = roundFreq(m_DemodCenterFreq, m_ClickResolution );
         emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
     }
@@ -850,27 +848,32 @@ void CPlotter::wheelEvent(QWheelEvent * event)
         drawOverlay();
 }
 
-//////////////////////////////////////////////////////////////////////
 // Called when screen size changes so must recalculate bitmaps
-//////////////////////////////////////////////////////////////////////
 void CPlotter::resizeEvent(QResizeEvent* )
 {
     if (!size().isValid())
         return;
 
     if (m_Size != size())
-    {	//if changed, resize pixmaps to new screensize
+    {
+        // if changed, resize pixmaps to new screensize
+        int     fft_plot_height;
+
         m_Size = size();
-        m_OverlayPixmap = QPixmap(m_Size.width(), m_Percent2DScreen * m_Size.height() / 100);
+        fft_plot_height = m_Percent2DScreen * m_Size.height() / 100;
+        m_OverlayPixmap = QPixmap(m_Size.width(), fft_plot_height);
         m_OverlayPixmap.fill(Qt::black);
-        m_2DPixmap = QPixmap(m_Size.width(), m_Percent2DScreen * m_Size.height() / 100);
+        m_2DPixmap = QPixmap(m_Size.width(), fft_plot_height);
         m_2DPixmap.fill(Qt::black);
 
         int height = (100 - m_Percent2DScreen) * m_Size.height() / 100;
-        if (m_WaterfallPixmap.isNull()) {
+        if (m_WaterfallPixmap.isNull())
+        {
             m_WaterfallPixmap = QPixmap(m_Size.width(), height);
             m_WaterfallPixmap.fill(Qt::black);
-        } else {
+        }
+        else
+        {
             m_WaterfallPixmap = m_WaterfallPixmap.scaled(m_Size.width(), height,
                                                          Qt::IgnoreAspectRatio,
                                                          Qt::SmoothTransformation);
@@ -886,9 +889,7 @@ void CPlotter::resizeEvent(QResizeEvent* )
     drawOverlay();
 }
 
-//////////////////////////////////////////////////////////////////////
 // Called by QT when screen needs to be redrawn
-//////////////////////////////////////////////////////////////////////
 void CPlotter::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
@@ -898,16 +899,13 @@ void CPlotter::paintEvent(QPaintEvent *)
                        m_WaterfallPixmap);
 }
 
-
-//////////////////////////////////////////////////////////////////////
 // Called to update spectrum data for displaying on the screen
-//////////////////////////////////////////////////////////////////////
 void CPlotter::draw()
 {
-    int i, n;
-    int w;
-    int h;
-    int xmin, xmax;
+    int     i, n;
+    int     w;
+    int     h;
+    int     xmin, xmax;
 
     if (m_DrawOverlay)
     {
@@ -1048,7 +1046,7 @@ void CPlotter::draw()
             painter2.drawPolyline(LineBuf, n);
         }
 
-        //Peak detection
+        // Peak detection
         if (m_PeakDetection > 0)
         {
             m_Peaks.clear();
@@ -1061,28 +1059,30 @@ void CPlotter::draw()
                 sum_of_sq += m_fftbuf[i + xmin] * m_fftbuf[i + xmin];
             }
             mean /= n;
-            float stdev= sqrt( sum_of_sq/n-mean*mean );
+            float stdev= sqrt(sum_of_sq / n - mean * mean );
 
-            int lastPeak=-1;
+            int lastPeak = -1;
             for (i = 0; i < n; i++)
             {
                 //m_PeakDetection times the std over the mean or better than current peak
-                float d = (lastPeak==-1) ? (mean - m_PeakDetection * stdev) :
-                                           m_fftbuf[lastPeak+xmin];
+                float d = (lastPeak == -1) ? (mean - m_PeakDetection * stdev) :
+                                           m_fftbuf[lastPeak + xmin];
 
                 if (m_fftbuf[i + xmin] < d)
                     lastPeak=i;
 
-                if (lastPeak != -1 && (i - lastPeak > PEAK_H_TOLERANCE || i == n-1))
+                if (lastPeak != -1 &&
+                        (i - lastPeak > PEAK_H_TOLERANCE || i == n-1))
                 {
-                    m_Peaks.insert(lastPeak+xmin, m_fftbuf[lastPeak + xmin]);
-                    painter2.drawEllipse(lastPeak+xmin-5, m_fftbuf[lastPeak + xmin]-5, 10, 10);
-                    lastPeak=-1;
+                    m_Peaks.insert(lastPeak + xmin, m_fftbuf[lastPeak + xmin]);
+                    painter2.drawEllipse(lastPeak + xmin - 5,
+                                         m_fftbuf[lastPeak + xmin] - 5, 10, 10);
+                    lastPeak = -1;
                 }
             }
         }
 
-        //Peak hold
+        // Peak hold
         if (m_PeakHoldActive)
         {
             for (i = 0; i < n; i++)
@@ -1096,7 +1096,7 @@ void CPlotter::draw()
             painter2.setPen(m_PeakHoldColor);
             painter2.drawPolyline(LineBuf, n);
 
-            m_PeakHoldValid=true;
+            m_PeakHoldValid = true;
         }
 
       painter2.end();
@@ -1116,7 +1116,6 @@ void CPlotter::draw()
  */
 void CPlotter::setNewFttData(float *fftData, int size)
 {
-
     /** FIXME **/
     if (!m_Running)
         m_Running = true;
@@ -1139,7 +1138,6 @@ void CPlotter::setNewFttData(float *fftData, int size)
 
 void CPlotter::setNewFttData(float *fftData, float *wfData, int size)
 {
-
     /** FIXME **/
     if (!m_Running)
         m_Running = true;
@@ -1274,10 +1272,8 @@ void CPlotter::setFftRange(float reflevel, float range)
 }
 
 
-//////////////////////////////////////////////////////////////////////
 // Called to draw an overlay bitmap containing grid and text that
 // does not need to be recreated every fft data update.
-//////////////////////////////////////////////////////////////////////
 void CPlotter::drawOverlay()
 {
     if (m_OverlayPixmap.isNull())
