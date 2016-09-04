@@ -29,6 +29,10 @@
 #include <QStringList>
 #include <QtGlobal>
 
+#ifdef WITH_PORTAUDIO
+#include <portaudio.h>
+#endif
+
 #include "mainwindow.h"
 #include "gqrx.h"
 
@@ -41,10 +45,11 @@ static void list_conf(void);
 
 int main(int argc, char *argv[])
 {
-    QString cfg_file;
-    std::string conf;
-    bool clierr=false;
-    bool edit_conf = false;
+    QString     cfg_file;
+    std::string     conf;
+    bool        clierr = false;
+    bool        edit_conf = false;
+    int         return_code;
 
     QApplication a(argc, argv);
     QCoreApplication::setOrganizationName(GQRX_ORG_NAME);
@@ -60,15 +65,11 @@ int main(int argc, char *argv[])
     else
         qDebug() << "Failed to disable controlport";
 
-#if 0
-//#ifdef WITH_PORTAUDIO
-    // FIXME: This should be user configurable although for now
-    // the audio-osx-source is useless and the only way to use the
-    // Funcube Dongle Pro and Pro+ is via portaudio.
-    if (qputenv("GR_CONF_AUDIO_AUDIO_MODULE", "portaudio"))
-        qDebug() << "GR_CONF_AUDIO_AUDIO_MODULE set to portaudio";
-    else
-        qDebug() << "Failed to set GR_CONF_AUDIO_AUDIO_MODULE=portaudio";
+#ifdef WITH_PORTAUDIO
+    PaError     err = Pa_Initialize();
+    if (err != paNoError)
+        qCritical() << "Failed to initialize Portaudio backend:"
+                    << Pa_GetErrorText(err);
 #endif
 
     // setup the program options
@@ -137,12 +138,18 @@ int main(int argc, char *argv[])
     if (w.configOk)
     {
         w.show();
-        return a.exec();
+        return_code = a.exec();
     }
     else
     {
-        return 1;
+        return_code = 1;
     }
+
+#ifdef WITH_PORTAUDIO
+    Pa_Terminate();
+#endif
+
+    return  return_code;
 }
 
 /*! \brief Reset configuration file specified by file_name. */

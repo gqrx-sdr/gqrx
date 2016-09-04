@@ -58,8 +58,6 @@ int portaudio_device_list::populate_device_list()
     const   PaDeviceInfo *dev_info;
     PaError err;
 
-    Pa_Initialize();
-
     std::cout << Pa_GetVersionText() << " (version " << Pa_GetVersion() << ")" << std::endl;
             
     num_dev = Pa_GetDeviceCount();
@@ -92,16 +90,13 @@ int portaudio_device_list::populate_device_list()
         }
     }
 
-    Pa_Terminate();
     return 0;
 
 error:
-    Pa_Terminate();
     std::cerr << "An error occured while using the portaudio stream" << std::endl;
     std::cerr << "Error number: " << err << std::endl;
     std::cerr << "Error message: " << Pa_GetErrorText(err) << std::endl;
     return err;
-
 }
 
 

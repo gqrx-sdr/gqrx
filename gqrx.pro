@@ -28,10 +28,16 @@ macx {
 CONFIG += link_pkgconfig
 
 unix:!macx {
-    packagesExist(libpulse libpulse-simple) {
-        # Comment out to use gr-audio (not recommended with ALSA and Funcube Dongle Pro)
-        AUDIO_BACKEND = pulse
-        message("Gqrx configured with pulseaudio backend")
+    equals(AUDIO_BACKEND, "portaudio") {
+        !packagesExist(portaudio-2.0) {
+            error(Portaudio backend requires portaudio19-dev package.)
+        }
+    }
+    isEmpty(AUDIO_BACKEND) {
+        packagesExist(libpulse libpulse-simple) {
+            # Comment out to use gr-audio
+            AUDIO_BACKEND = pulseaudio
+        }
     }
 }
 
@@ -203,7 +209,10 @@ FORMS += \
     src/qtgui/nb_options.ui
 
 # Use pulseaudio (ps: could use equals? undocumented)
-contains(AUDIO_BACKEND, pulse): {
+equals(AUDIO_BACKEND, "pulseaudio"): {
+    message("Gqrx configured with pulseaudio backend.")
+    PKGCONFIG += libpulse libpulse-simple
+    DEFINES += WITH_PULSEAUDIO
     HEADERS += \
         src/pulseaudio/pa_device_list.h \
         src/pulseaudio/pa_sink.h \
@@ -212,18 +221,27 @@ contains(AUDIO_BACKEND, pulse): {
         src/pulseaudio/pa_device_list.cc \
         src/pulseaudio/pa_sink.cc \
         src/pulseaudio/pa_source.cc
-    DEFINES += WITH_PULSEAUDIO
+} else {
+    equals(AUDIO_BACKEND, "portaudio"): {
+        message("Gqrx configured with portaudio backend.")
+        PKGCONFIG += portaudio-2.0
+        DEFINES += WITH_PORTAUDIO
+        HEADERS += \
+            src/portaudio/device_list.h \
+            src/portaudio/portaudio_sink.h
+        SOURCES += \
+            src/portaudio/device_list.cpp \
+            src/portaudio/portaudio_sink.cpp
+    } else {
+        message("Gqrx configured with gnuradio-audio backend.")
+        PKGCONFIG += gnuradio-audio
+    }
 }
 
 macx {
+    # FIXME: Merge into previous one
     HEADERS += src/osxaudio/device_list.h
     SOURCES += src/osxaudio/device_list.cpp
-}
-
-contains(AUDIO_BACKEND, pulse): {
-    PKGCONFIG += libpulse libpulse-simple
-} else {
-    PKGCONFIG += gnuradio-audio
 }
 
 PKGCONFIG += gnuradio-analog \

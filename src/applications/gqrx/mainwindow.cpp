@@ -41,6 +41,7 @@
 #include <QTextBrowser>
 #include <QTextCursor>
 #include <QTextStream>
+#include <QtGlobal>
 #include <QTimer>
 #include <QVBoxLayout>
 #include "qtgui/ioconfig.h"

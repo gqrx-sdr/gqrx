@@ -10,8 +10,12 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     add_subdirectory(osxaudio)
     add_definitions(-DGQRX_OS_MACX)
     set(CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
-elseif((${CMAKE_SYSTEM_NAME} MATCHES "Linux") AND (${LINUX_AUDIO_BACKEND} MATCHES "Pulseaudio"))
-    add_subdirectory(pulseaudio)
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    if(${LINUX_AUDIO_BACKEND} MATCHES "Pulseaudio")
+        add_subdirectory(pulseaudio)
+    elseif(${LINUX_AUDIO_BACKEND} MATCHES "Portaudio")
+        add_subdirectory(portaudio)
+    endif()
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 endif()
 
@@ -59,6 +63,7 @@ target_link_libraries(${PROJECT_NAME}
     ${GNURADIO_OSMOSDR_LIBRARIES}
     ${PULSEAUDIO_LIBRARY}
     ${PULSE-SIMPLE}
+    ${PORTAUDIO_LIBRARIES}
 )
 
 #build a win32 app, not a console app

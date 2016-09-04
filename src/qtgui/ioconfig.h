@@ -29,6 +29,8 @@
 
 #ifdef WITH_PULSEAUDIO
 #include "pulseaudio/pa_device_list.h"
+#elif WITH_PORTAUDIO
+#include "portaudio/device_list.h"
 #elif defined(GQRX_OS_MACX)
 #include "osxaudio/device_list.h"
 #endif
@@ -62,14 +64,15 @@ private:
     int  decim2idx(int decim) const;
 
 private:
-    Ui::CIoConfig *ui;
-
-    QSettings *m_settings;
+    Ui::CIoConfig  *ui;
+    QSettings      *m_settings;
 
 #ifdef WITH_PULSEAUDIO
-    vector<pa_device> outDevList;
+    vector<pa_device>           outDevList;
+#elif WITH_PORTAUDIO
+    vector<portaudio_device>    outDevList;
 #elif defined(GQRX_OS_MACX)
-    vector<osxaudio_device> outDevList;
+    vector<osxaudio_device>     outDevList;
 #endif
 
 };

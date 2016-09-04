@@ -49,7 +49,9 @@
 #include "receivers/receiver_base.h"
 
 #ifdef WITH_PULSEAUDIO
-#include <pulseaudio/pa_sink.h>
+#include "pulseaudio/pa_sink.h"
+#elif WITH_PORTAUDIO
+#include "portaudio/portaudio_sink.h"
 #else
 #include <gnuradio/audio/sink.h>
 #endif
@@ -57,7 +59,6 @@
 /**
  * @defgroup DSP Digital signal processing library based on GNU Radio
  */
-
 
 /**
  * @brief Top-level receiver class.
@@ -269,6 +270,8 @@ private:
 
 #ifdef WITH_PULSEAUDIO
     pa_sink_sptr              audio_snk;  /*!< Pulse audio sink. */
+#elif WITH_PORTAUDIO
+    portaudio_sink_sptr       audio_snk;  /*!< portaudio sink */
 #else
     gr::audio::sink::sptr     audio_snk;  /*!< gr audio sink */
 #endif

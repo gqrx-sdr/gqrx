@@ -20,8 +20,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#ifndef PORTAUDIO_DEVICE_LIST_H
-#define PORTAUDIO_DEVICE_LIST_H
+#pragma once
 #include <string>
 #include <vector>
 #include <portaudio.h>
@@ -72,5 +71,3 @@ private:
     void add_sink(unsigned int idx, string name, string desc);
     void add_source(unsigned int idx, string name, string desc);
 };
-
-#endif // PORTAUDIO_DEVICE_LIST_H

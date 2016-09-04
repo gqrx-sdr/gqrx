@@ -36,6 +36,8 @@
 
 #ifdef WITH_PULSEAUDIO
 #include "pulseaudio/pa_device_list.h"
+#elif WITH_PORTAUDIO
+#include "portaudio/device_list.h"
 #elif defined(GQRX_OS_MACX)
 #include "osxaudio/device_list.h"
 #endif
@@ -119,8 +121,8 @@ CIoConfig::CIoConfig(QSettings * settings,
     // Output device
     QString outdev = settings->value("output/device", "").toString();
 
+     // get list of audio output devices
 #ifdef WITH_PULSEAUDIO
-    // get list of output devices
     pa_device_list devices;
     outDevList = devices.get_output_devices();
 
@@ -136,9 +138,22 @@ CIoConfig::CIoConfig(QSettings * settings,
         if (outdev == QString(outDevList[i].get_name().c_str()))
             ui->outDevCombo->setCurrentIndex(i+1);
     }
+#elif WITH_PORTAUDIO
+    portaudio_device_list   devices;
+
+    outDevList = devices.get_output_devices();
+    for (i = 0; i < outDevList.size(); i++)
+    {
+        ui->outDevCombo->addItem(QString(outDevList[i].get_description().c_str()));
+
+        // note that item #i in devlist will be item #(i+1)
+        // in combo box due to "default"
+        if (outdev == QString(outDevList[i].get_name().c_str()))
+            ui->outDevCombo->setCurrentIndex(i+1);
+    }
+    //ui->outDevCombo->setEditable(true);
 
 #elif defined(GQRX_OS_MACX)
-    // get list of output devices
     osxaudio_device_list devices;
     outDevList = devices.get_output_devices();
 
