@@ -34,7 +34,7 @@ DockRDS::DockRDS(QWidget *parent) :
 #if QT_VERSION >= 0x050200
     ui->scrollArea->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContentsOnFirstShow);
 #endif
- }
+}
 
 DockRDS::~DockRDS()
 {
@@ -43,39 +43,53 @@ DockRDS::~DockRDS()
 
 void DockRDS::updateRDS(QString text, int type)
 {
+    std::string     str, out;
+
     /* type 0 = PI
      * type 1 = PS
      * type 2 = PTY
      * type 3 = flagstring: TP, TA, MuSp, MoSt, AH, CMP, stPTY
      * type 4 = RadioText
      * type 5 = ClockTime
-     * type 6 = Alternative Frequencies */
-
-    if (type==0) {
+     * type 6 = Alternative Frequencies
+     */
+    switch (type)
+    {
+    case 0:
         ui->program_information->setText(text);
-    } else if (type==1) {
+        break;
+    case 1:
         ui->station_name->setText(text);
-    } else if (type==2) {
+        break;
+    case 2:
         ui->program_type->setText(text);
-    } else if (type==3) {
-        std::string str = text.toStdString();
-        std::string out="";
-        if (str.at(0)=='1') out.append("TP ");
-        if (str.at(1)=='1') out.append("TA ");
-        if (str.at(2)=='0') out.append("Speech ");
-        if (str.at(2)=='1') out.append("Music ");
-        if (str.at(3)=='0') out.append("Stereo ");
-        if (str.at(3)=='1') out.append("Mono ");
-        if (str.at(4)=='1') out.append("AH ");
-        if (str.at(5)=='1') out.append("CMP ");
-        if (str.at(6)=='1') out.append("stPTY ");
+        break;
+    case 3:
+        str = text.toStdString();
+        out = "";
+        if (str.at(0) == '1') out.append("TP ");
+        if (str.at(1) == '1') out.append("TA ");
+        if (str.at(2) == '0') out.append("Speech ");
+        if (str.at(2) == '1') out.append("Music ");
+        if (str.at(3) == '0') out.append("Stereo ");
+        if (str.at(3) == '1') out.append("Mono ");
+        if (str.at(4) == '1') out.append("AH ");
+        if (str.at(5) == '1') out.append("CMP ");
+        if (str.at(6) == '1') out.append("stPTY ");
         ui->flags->setText(QString::fromStdString(out));
-    } else if (type==4) {
+        break;
+    case 4:
         ui->radiotext->setText(text);
-    } else if (type==5) {
+        break;
+    case 5:
         ui->clocktime->setText(text);
-    } else if (type==6) {
+        break;
+    case 6:
         ui->alt_freq->setText(text);
+        break;
+    default:
+        // nothing to do
+        break;
     }
 }
 
@@ -96,19 +110,18 @@ void DockRDS::showDisabled()
 
 void DockRDS::setDisabled()
 {
- ui->rdsCheckbox->setDisabled(true);
-
- ui->rdsCheckbox->blockSignals(true);
- ui->rdsCheckbox->setChecked(false);
- ui->rdsCheckbox->blockSignals(false);
+    ui->rdsCheckbox->setDisabled(true);
+    ui->rdsCheckbox->blockSignals(true);
+    ui->rdsCheckbox->setChecked(false);
+    ui->rdsCheckbox->blockSignals(false);
 }
 
 void DockRDS::setEnabled()
 {
- ui->rdsCheckbox->setDisabled(false);
+    ui->rdsCheckbox->setDisabled(false);
 }
 
-/*! \brief Enable/disable RDS decoder */
+/** Enable/disable RDS decoder */
 void DockRDS::on_rdsCheckbox_toggled(bool checked)
 {
     emit rdsDecoderToggled(checked);
