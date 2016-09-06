@@ -695,6 +695,7 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                 m_DemodCenterFreq = m_CenterFreq;
                 emit newCenterFreq(m_CenterFreq);
                 emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
+                drawOverlay();
             }
             else if (event->buttons() == Qt::RightButton)
             {
