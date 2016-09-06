@@ -401,10 +401,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             {
                 setFftCenterFreq(m_FftCenter + delta_hz);
             }
-            if (m_Running)
-                m_DrawOverlay = true;
-            else
-                drawOverlay();
+            updateOverlay();
 
             m_PeakHoldValid = false;
 
@@ -459,10 +456,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 clampDemodParameters();
 
                 emit newFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
-                if (m_Running)
-                    m_DrawOverlay = true;  // schedule update of overlay during draw()
-                else
-                    drawOverlay();  // not running so update oiverlay now
+                updateOverlay();
             }
             else
             {	//save initial grab postion from m_DemodFreqX
@@ -483,12 +477,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             {
                 m_DemodCenterFreq = roundFreq(freqFromX(pt.x()-m_GrabPosition), m_ClickResolution );
                 emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
-
-                if (m_Running)
-                    m_DrawOverlay = true;  // schedule update of overlay during draw()
-                else
-                    drawOverlay();  // not running so update oiverlay now
-
+                updateOverlay();
                 m_PeakHoldValid = false;
             }
             else
@@ -855,10 +844,7 @@ void CPlotter::wheelEvent(QWheelEvent * event)
         emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
     }
 
-    if (m_Running)
-        m_DrawOverlay = true;
-    else
-        drawOverlay();
+    updateOverlay();
 }
 
 // Called when screen size changes so must recalculate bitmaps
@@ -1267,12 +1253,7 @@ void CPlotter::setMinMaxDB(float min, float max)
 {
     m_MaxdB = max;
     m_MindB = min;
-
-    if (m_Running)
-        m_DrawOverlay = true;
-    else
-        drawOverlay();
-
+    updateOverlay();
     m_PeakHoldValid = false;
 }
 
@@ -1283,7 +1264,6 @@ void CPlotter::setFftRange(float reflevel, float range)
 
     setMinMaxDB(reflevel - range, reflevel);
 }
-
 
 // Called to draw an overlay bitmap containing grid and text that
 // does not need to be recreated every fft data update.
@@ -1611,11 +1591,7 @@ void CPlotter::setDemodRanges(int FLowCmin, int FLowCmax, int FHiCmin, int FHiCm
     m_FHiCmax=FHiCmax;
     m_symetric=symetric;
     clampDemodParameters();
-
-    if (m_Running)
-        m_DrawOverlay = true;
-    else
-        drawOverlay();
+    updateOverlay();
 }
 
 void CPlotter::setCenterFreq(quint64 f)
@@ -1633,6 +1609,7 @@ void CPlotter::setCenterFreq(quint64 f)
     m_PeakHoldValid = false;
 }
 
+// Ensure overlay is updated by either scheduling or forcing a redraw
 void CPlotter::updateOverlay()
 {
     if (m_Running)
@@ -1664,10 +1641,7 @@ void CPlotter::moveToCenterFreq(void)
 void CPlotter::moveToDemodFreq(void)
 {
     setFftCenterFreq(m_DemodCenterFreq-m_CenterFreq);
-    if (m_Running)
-        m_DrawOverlay = true;
-    else
-        drawOverlay();
+    updateOverlay();
 
     m_PeakHoldValid = false;
 }
