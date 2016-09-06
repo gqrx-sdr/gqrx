@@ -81,12 +81,10 @@ void DockRDS::updateRDS(QString text, int type)
 
 void DockRDS::showEnabled()
 {
-    ui->rdsCheckbox->setText("Enabled");
 }
 
 void DockRDS::showDisabled()
 {
-    ui->rdsCheckbox->setText("Disabled");
     ui->program_information->setText("");
     ui->station_name->setText("");
     ui->program_type->setText("");
