@@ -32,12 +32,15 @@
  * @param app_name Application name.
  * @param stream_name The audio stream name.
  */
-portaudio_sink_sptr make_portaudio_sink(const string device_name, int audio_rate,
-                                 const string app_name,
-                                 const string stream_name)
+portaudio_sink_sptr make_portaudio_sink(const string device_name,
+                                        int audio_rate,
+                                        const string app_name,
+                                        const string stream_name)
 {
-    return gnuradio::get_initial_sptr(new portaudio_sink(device_name, audio_rate,
-                                                         app_name, stream_name));
+    return gnuradio::get_initial_sptr(new portaudio_sink(device_name,
+                                                         audio_rate,
+                                                         app_name,
+                                                         stream_name));
 }
 
 portaudio_sink::portaudio_sink(const string device_name, int audio_rate,
@@ -153,6 +156,23 @@ int portaudio_sink::work(int noutput_items,
     if (noutput_items > BUFFER_SIZE/2)
         noutput_items = BUFFER_SIZE/2;
 
+    // two channels (stereo)
+    const float *data_l = (const float*) input_items[0];
+    const float *data_r = (const float*) input_items[1];
+    for (i = noutput_items; i > 0; i--)
+    {
+        *ptr++ = *data_l++;
+        *ptr++ = *data_r++;
+    }
+
+    err = Pa_WriteStream(d_stream, audio_buffer, noutput_items);
+    if (err)
+        fprintf(stderr, "Error writing to audio device: %s\n", Pa_GetErrorText(err));
+
+    return noutput_items;
+
+// code below supports 1 or 2 channels
+#if 0
     if (input_items.size() == 2)
     {
         // two channels (stereo)
@@ -175,10 +195,6 @@ int portaudio_sink::work(int noutput_items,
             *ptr++ = a;
         }
     }
+#endif
 
-    err = Pa_WriteStream(d_stream, audio_buffer, noutput_items);
-    if (err)
-        fprintf(stderr, "Error writing to audio device: %s\n", Pa_GetErrorText(err));
-
-    return noutput_items;
 }
