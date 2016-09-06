@@ -4,9 +4,10 @@
 #
 # Common options you may want to passs to qmake:
 #
-#    CONFIG+=debug          Enable debug mode
-#    PREFIX=/some/prefix    Installation prefix
-#    BOOST_SUFFIX=-mt       To link against libboost-xyz-mt (needed for pybombs)
+#   AUDIO_BACKEND=portaudio     Use portaudio backend
+#   CONFIG+=debug          Enable debug mode
+#   PREFIX=/some/prefix    Installation prefix
+#   BOOST_SUFFIX=-mt       To link against libboost-xyz-mt (needed for pybombs)
 #--------------------------------------------------------------------------------
 
 QT       += core gui network
