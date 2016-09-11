@@ -415,6 +415,11 @@ unsigned int receiver::set_input_decim(unsigned int decim)
         tb->connect(src, 0, iq_swap, 0);
     }
 
+#ifdef CUSTOM_AIRSPY_KERNELS
+    if (input_devstr.find("airspy") != string::npos)
+        src->set_bandwidth(d_quad_rate);
+#endif
+
     if (d_running)
         tb->start();
 

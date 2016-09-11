@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 2.8.0)
 
-#######################################################################################################################
 # Project name
 project(gqrx)
 set(${PROJECT_NAME}_MAJOR "2")
@@ -74,7 +73,6 @@ if(MSVC)
     endif()
 endif()
 
-#######################################################################################################################
 # Functions & macros.  These must be defined before including subdirectories.
 
 # function to collect all the sources from sub-directories
@@ -99,7 +97,6 @@ function(add_source_files list)
 endfunction(add_source_files)
 
 
-#######################################################################################################################
 # 3rd Party Dependency Stuff
 find_package(Qt5 COMPONENTS Core Network Widgets REQUIRED)
 find_package(Boost COMPONENTS system program_options REQUIRED)
@@ -148,12 +145,19 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     endif()
 endif()
 
+
+# Airspy optimizations that require modified gr-osmosdr
+option(CUSTOM_AIRSPY_KERNELS "Enable non-standard Airspy optimizations" OFF)
+if(CUSTOM_AIRSPY_KERNELS)
+    add_definitions(-DCUSTOM_AIRSPY_KERNELS)
+endif(CUSTOM_AIRSPY_KERNELS)
+
+
 # Tell CMake to run moc when necessary:
 set(CMAKE_AUTOMOC ON)
 # As moc files are generated in the binary dir, tell CMake to always look for includes there:
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-#######################################################################################################################
 # Finish configuring compiler / linker settings & flags
 include_directories(
     ${CMAKE_SOURCE_DIR}/include
@@ -167,15 +171,8 @@ link_directories(
 )
 
 
-
-#######################################################################################################################
 # Add subdirectories
 add_subdirectory(src)
-
-#######################################################################################################################
-# enable testing - must be in the top level CMakeLists.txt file
-# enable_testing()
-
 
 # uninstall target
 # https://cmake.org/Wiki/CMake_FAQ#Can_I_do_.22make_uninstall.22_with_CMake.3F
