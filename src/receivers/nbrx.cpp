@@ -24,8 +24,8 @@
 #include <iostream>
 #include "receivers/nbrx.h"
 
-#define PREF_QUAD_RATE  48000.0
-#define PREF_AUDIO_RATE 48000.0
+#define PREF_QUAD_RATE  48000.f
+#define PREF_AUDIO_RATE 48000.f
 
 nbrx_sptr make_nbrx(float quad_rate, float audio_rate)
 {
@@ -49,24 +49,35 @@ nbrx::nbrx(float quad_rate, float audio_rate)
     demod_ssb = gr::blocks::complex_to_real::make(1);
     demod_fm = make_rx_demod_fm(PREF_QUAD_RATE, PREF_AUDIO_RATE, 5000.0, 75.0e-6);
     demod_am = make_rx_demod_am(PREF_QUAD_RATE, PREF_AUDIO_RATE, true);
-    audio_rr = make_resampler_ff(d_audio_rate/PREF_AUDIO_RATE);
 
+    audio_rr = 0;
+    if (d_audio_rate != PREF_AUDIO_RATE)
+    {
+        std::cout << "Resampling audio " << PREF_AUDIO_RATE << " -> "
+                  << d_audio_rate << std::endl;
+        audio_rr = make_resampler_ff(d_audio_rate/PREF_AUDIO_RATE);
+    }
+
+    demod = demod_fm;
     connect(self(), 0, iq_resamp, 0);
     connect(iq_resamp, 0, nb, 0);
     connect(nb, 0, filter, 0);
     connect(filter, 0, meter, 0);
     connect(filter, 0, sql, 0);
     connect(sql, 0, agc, 0);
-    connect(agc, 0, demod_fm, 0);
-    connect(demod_fm, 0, audio_rr, 0);
-    connect(audio_rr, 0, self(), 0); // left  channel
-    connect(audio_rr, 0, self(), 1); // right channel
-    // FIXME: we only need audio_rr when audio_rate != PREF_AUDIO_RATE
+    connect(agc, 0, demod, 0);
 
-}
-
-nbrx::~nbrx()
-{
+    if (audio_rr)
+    {
+        connect(demod, 0, audio_rr, 0);
+        connect(audio_rr, 0, self(), 0); // left  channel
+        connect(audio_rr, 0, self(), 1); // right channel
+    }
+    else
+    {
+        connect(demod, 0, self(), 0);
+        connect(demod, 0, self(), 1);
+    }
 
 }
 
@@ -194,7 +205,7 @@ void nbrx::set_demod(int rx_demod)
     // for now we must depend on top level stop/lock
     // because of https://github.com/csete/gqrx/issues/120
     //lock();
-
+#if 0
     /* disconnect current demodulator */
     switch (current_demod) {
 
@@ -243,6 +254,45 @@ void nbrx::set_demod(int rx_demod)
         connect(agc, 0, demod_fm, 0);
         connect(demod_fm, 0, audio_rr, 0);
         break;
+    }
+#endif
+
+    disconnect(agc, 0, demod, 0);
+    if (audio_rr)
+        disconnect(demod, 0, audio_rr, 0);
+    else
+    {
+        disconnect(demod, 0, self(), 0);
+        disconnect(demod, 0, self(), 1);
+    }
+
+    switch (rx_demod) {
+
+    case NBRX_DEMOD_NONE: /** FIXME! **/
+    case NBRX_DEMOD_SSB:
+        d_demod = NBRX_DEMOD_SSB;
+        demod = demod_ssb;
+        break;
+
+    case NBRX_DEMOD_AM:
+        d_demod = NBRX_DEMOD_AM;
+        demod = demod_am;
+        break;
+
+    case NBRX_DEMOD_FM:
+    default:
+        d_demod = NBRX_DEMOD_FM;
+        demod = demod_fm;
+        break;
+    }
+
+    connect(agc, 0, demod, 0);
+    if (audio_rr)
+        connect(demod, 0, audio_rr, 0);
+    else
+    {
+        connect(demod, 0, self(), 0);
+        connect(demod, 0, self(), 1);
     }
 
     /* continue processing */

@@ -24,6 +24,7 @@
 #define NBRX_H
 
 #include <gnuradio/analog/simple_squelch_cc.h>
+#include <gnuradio/basic_block.h>
 #include <gnuradio/blocks/complex_to_real.h>
 #include "receivers/receiver_base.h"
 #include "dsp/rx_noise_blanker_cc.h"
@@ -61,7 +62,7 @@ public:
 
 public:
     nbrx(float quad_rate, float audio_rate);
-    ~nbrx();
+    virtual ~nbrx() { };
 
     bool start();
     bool stop();
@@ -123,6 +124,7 @@ private:
     rx_demod_am_sptr          demod_am;   /*!< AM demodulator. */
     resampler_ff_sptr         audio_rr;   /*!< Audio resampler. */
 
+    gr::basic_block_sptr      demod;    // dummy pointer used for simplifying reconf
 };
 
 #endif // NBRX_H

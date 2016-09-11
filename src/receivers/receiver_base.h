@@ -46,7 +46,7 @@ public:
      *  \param src_name Descriptive name used in the contructor of gr::hier_block2
      */
     receiver_base_cf(std::string src_name);
-    ~receiver_base_cf();
+    virtual ~receiver_base_cf();
 
     virtual bool start() = 0;
     virtual bool stop() = 0;

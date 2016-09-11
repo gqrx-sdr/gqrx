@@ -42,7 +42,6 @@ receiver_base_cf::~receiver_base_cf()
 
 }
 
-
 bool receiver_base_cf::has_nb()
 {
     return false;
