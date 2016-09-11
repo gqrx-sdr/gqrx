@@ -79,7 +79,7 @@
       <item>
        <widget class="QLabel" name="audioGainLabel">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -95,7 +95,7 @@
       <item>
        <widget class="QSlider" name="audioGainSlider">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -135,7 +135,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string> -20 dB</string>
+         <string> -20.0 dB</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>

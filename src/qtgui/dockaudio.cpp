@@ -168,7 +168,7 @@ void DockAudio::on_audioGainSlider_valueChanged(int value)
     float gain = float(value) / 10.0;
 
     // update dB label
-    ui->audioGainDbLabel->setText(QString("%1 dB").arg(gain));
+    ui->audioGainDbLabel->setText(QString("%1 dB").arg(gain, 5, 'f', 1));
     emit audioGainChanged(gain);
 }
 
