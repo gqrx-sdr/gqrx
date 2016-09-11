@@ -69,8 +69,6 @@ portaudio_sink::portaudio_sink(const string device_name, int audio_rate,
         fprintf(stderr,
                 "%s: Audio output device does not support requested format.\n",
                 __func__);
-    else
-        fprintf(stderr, "HELLO WORKLD\n");
 }
 
 portaudio_sink::~portaudio_sink()
