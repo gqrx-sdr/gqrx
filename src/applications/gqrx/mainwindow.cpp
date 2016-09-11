@@ -1259,7 +1259,7 @@ void MainWindow::audioFftTimeout()
     float           pwr_scale;
     std::complex<float> pt;             /* a single FFT point used in calculations */
 
-    if (!d_have_audio)
+    if (!d_have_audio || !uiDockAudio->isVisible())
         return;
 
     rx->get_audio_fft_data(d_fftData, fftsize);
