@@ -922,7 +922,7 @@ void CPlotter::draw()
     h = m_WaterfallPixmap.height();
 
     // no need to draw if pixmap is invisible
-    if ((w != 0) || (h != 0))
+    if (w != 0 && h != 0)
     {
         quint64     tnow_ms = time_ms();
 
@@ -990,7 +990,7 @@ void CPlotter::draw()
     w = m_2DPixmap.width();
     h = m_2DPixmap.height();
 
-    if ((w != 0) || (h != 0))
+    if (w != 0 && h != 0)
     {
         // first copy into 2Dbitmap the overlay bitmap.
         m_2DPixmap = m_OverlayPixmap.copy(0,0,w,h);
