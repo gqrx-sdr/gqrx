@@ -54,8 +54,8 @@ portaudio_sink::portaudio_sink(const string device_name, int audio_rate,
 {
     // FIXME: find device index based on device_name
     fprintf(stderr,
-            "*** FIXME: %s: Requested audio device is %s but we are using default\n",
-            __func__, device_name.data());
+            "*** FIXME: portaudio_sink(): Requested audio device is %s but we are using default\n",
+            device_name.data());
 
     // Initialize stream parmaeters
     d_out_params.device = Pa_GetDefaultOutputDevice();
@@ -66,9 +66,7 @@ portaudio_sink::portaudio_sink(const string device_name, int audio_rate,
     d_out_params.hostApiSpecificStreamInfo = NULL;
 
     if (Pa_IsFormatSupported(NULL, &d_out_params, d_audio_rate) != paFormatIsSupported)
-        fprintf(stderr,
-                "%s: Audio output device does not support requested format.\n",
-                __func__);
+        fprintf(stderr, "portaudio_sink(): Audio output device does not support requested format.\n");
 }
 
 portaudio_sink::~portaudio_sink()
@@ -92,7 +90,8 @@ bool portaudio_sink::start()
 
     if (err != paNoError)
     {
-        fprintf(stderr, "%s: Failed to open audio stream: %s\n", __FILE__,
+        fprintf(stderr,
+                "portaudio_sink::start(): Failed to open audio stream: %s\n",
                 Pa_GetErrorText(err));
         return false;
     }
@@ -100,7 +99,8 @@ bool portaudio_sink::start()
     err = Pa_StartStream(d_stream);
     if (err != paNoError)
     {
-        fprintf(stderr, "%s: Failed to start audio stream: %s\n", __FILE__,
+        fprintf(stderr,
+                "portaudio_sink::start(): Failed to start audio stream: %s\n",
                 Pa_GetErrorText(err));
         return false;
     }
@@ -118,7 +118,8 @@ bool portaudio_sink::stop()
     if (err != paNoError)
     {
         retval = false;
-        fprintf(stderr, "%s: Error stopping audio stream: %s\n", __FILE__,
+        fprintf(stderr,
+                "portaudio_sink::stop(): Error stopping audio stream: %s\n",
                 Pa_GetErrorText(err));
     }
 
@@ -126,7 +127,8 @@ bool portaudio_sink::stop()
     if (err != paNoError)
     {
         retval = false;
-        fprintf(stderr, "%s: Error closing audio stream: %s\n", __FILE__,
+        fprintf(stderr,
+                "portaudio_sink::stop(): Error closing audio stream: %s\n",
                 Pa_GetErrorText(err));
     }
 
@@ -165,7 +167,9 @@ int portaudio_sink::work(int noutput_items,
 
     err = Pa_WriteStream(d_stream, audio_buffer, noutput_items);
     if (err)
-        fprintf(stderr, "Error writing to audio device: %s\n", Pa_GetErrorText(err));
+        fprintf(stderr,
+                "portaudio_sink::work(): Error writing to audio device: %s\n",
+                Pa_GetErrorText(err));
 
     return noutput_items;
 
