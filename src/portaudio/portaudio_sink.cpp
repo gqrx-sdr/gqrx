@@ -23,6 +23,7 @@
 #include <gnuradio/io_signature.h>
 #include <stdio.h>
 
+#include "device_list.h"
 #include "portaudio_sink.h"
 
 /**
@@ -52,13 +53,25 @@ portaudio_sink::portaudio_sink(const string device_name, int audio_rate,
     d_app_name(app_name),
     d_audio_rate(audio_rate)
 {
-    // FIXME: find device index based on device_name
-    fprintf(stderr,
-            "*** FIXME: portaudio_sink(): Requested audio device is %s but we are using default\n",
-            device_name.data());
+
+    // find device index
+    PaDeviceIndex           idx;
+    portaudio_device_list   devices;
+
+    idx = devices.get_output_device_index(device_name);
+    if (idx == -1)
+    {
+        fprintf(stderr, "Using default audio device\n");
+        idx = Pa_GetDefaultOutputDevice();
+    }
+    else
+    {
+        fprintf(stderr, "Audio device '%s' has index %d\n",
+                device_name.data(), idx);
+    }
 
     // Initialize stream parmaeters
-    d_out_params.device = Pa_GetDefaultOutputDevice();
+    d_out_params.device = idx;
     d_out_params.channelCount = 2;
     d_out_params.sampleFormat = paFloat32;
     d_out_params.suggestedLatency =
