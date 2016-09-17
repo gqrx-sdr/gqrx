@@ -416,7 +416,7 @@ unsigned int receiver::set_input_decim(unsigned int decim)
     }
 
 #ifdef CUSTOM_AIRSPY_KERNELS
-    if (input_devstr.find("airspy") != string::npos)
+    if (input_devstr.find("airspy") != std::string::npos)
         src->set_bandwidth(d_quad_rate);
 #endif
 
