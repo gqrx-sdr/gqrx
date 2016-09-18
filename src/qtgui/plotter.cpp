@@ -1289,11 +1289,15 @@ void CPlotter::drawOverlay()
     painter.setBrush(Qt::SolidPattern);
     painter.fillRect(0, 0, w, h, QColor(PLOTTER_BGD_COLOR));
 
+#define HOR_MARGIN 5
+#define VER_MARGIN 5
+
     // X and Y axis areas
-    m_YAxisWidth = metrics.width("-120 ");
+    m_YAxisWidth = metrics.width("XXXX") + 2 * HOR_MARGIN;
     m_XAxisYCenter = h - metrics.height()/2;
-    int xAxisHeight = metrics.height();
+    int xAxisHeight = metrics.height() + 2 * VER_MARGIN;
     int xAxisTop = h - xAxisHeight;
+    int fLabelTop = xAxisTop + VER_MARGIN;
 
     if (m_BookmarksEnabled)
     {
@@ -1380,7 +1384,7 @@ void CPlotter::drawOverlay()
         x = (int)((float)i*pixperdiv + adjoffset);
         if (x > m_YAxisWidth)
         {
-            rect.setRect(x - tw/2, xAxisTop, tw, metrics.height());
+            rect.setRect(x - tw/2, fLabelTop, tw, metrics.height());
             painter.drawText(rect, Qt::AlignHCenter|Qt::AlignBottom, m_HDivText[i]);
         }
     }
@@ -1422,7 +1426,7 @@ void CPlotter::drawOverlay()
         if (y < h -xAxisHeight)
         {
             dB = mindbadj + dbstepsize * i;
-            rect.setRect(0, y - th / 2, m_YAxisWidth, th);
+            rect.setRect(HOR_MARGIN, y - th / 2, m_YAxisWidth, th);
             painter.drawText(rect, Qt::AlignRight|Qt::AlignVCenter, QString::number(dB));
         }
     }
