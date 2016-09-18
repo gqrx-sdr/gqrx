@@ -351,6 +351,7 @@ MainWindow::~MainWindow()
     delete ui;
     delete uiDockRxOpt;
     delete uiDockAudio;
+    delete uiDockBookmarks;
     delete uiDockFft;
     delete uiDockInputCtl;
     delete uiDockRDS;
