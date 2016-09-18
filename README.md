@@ -198,6 +198,9 @@ Stefano Leucci:
 Daniil Cherednik:
 - FM OIRT stereo.
 
+Dominic Chen:
+- Bug fixes.
+
 Elias Önal:
 - Building Gqrx on Mac OS X.
 - Crash recovery dialog.
@@ -241,6 +244,9 @@ Nadeem Hasan:
 
 Nokia:
 - QtColorPicker widget.
+
+Phil Vachon:
+- Bug fixes.
 
 Rob Frohne:
 - Initial Qt5 support.
