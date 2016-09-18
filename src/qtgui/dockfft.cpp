@@ -383,6 +383,8 @@ void DockFft::on_rangeSlider_valueChanged(int value)
 
 void DockFft::on_resetButton_clicked(void)
 {
+    ui->zoomLevelLabel->setText(QString("1x"));
+    ui->fftZoomSlider->setValue(0);
     emit resetFftZoom();
 }
 
