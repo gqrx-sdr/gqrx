@@ -118,6 +118,7 @@ SOURCES += \
     src/qtgui/bookmarks.cpp \
     src/qtgui/bookmarkstablemodel.cpp \
     src/qtgui/bookmarkstaglist.cpp \
+    src/qtgui/ctk/ctkRangeSlider.cpp \
     src/qtgui/demod_options.cpp \
     src/qtgui/dockaudio.cpp \
     src/qtgui/dockbookmarks.cpp \
@@ -174,6 +175,8 @@ HEADERS += \
     src/qtgui/bookmarks.h \
     src/qtgui/bookmarkstablemodel.h \
     src/qtgui/bookmarkstaglist.h \
+    src/qtgui/ctk/ctkPimpl.h \
+    src/qtgui/ctk/ctkRangeSlider.h \
     src/qtgui/demod_options.h \
     src/qtgui/dockaudio.h \
     src/qtgui/dockbookmarks.h \

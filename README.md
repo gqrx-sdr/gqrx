@@ -224,6 +224,9 @@ Josh Blum
 Kate Adams:
 - Auto squelch.
 
+Kitware Inc.:
+- Widgets from the CTK library (http://commontk.org/).
+
 Michael Dickens:
 - Bugfixes and audio on OSX.
 
