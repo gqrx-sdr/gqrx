@@ -46,13 +46,13 @@ static void list_conf(void);
 
 int main(int argc, char *argv[])
 {
-    QString     cfg_file;
+    QString         cfg_file;
     std::string     conf;
-    bool        clierr = false;
-    bool        edit_conf = false;
-    int         return_code;
+    bool            clierr = false;
+    bool            edit_conf = false;
+    int             return_code;
 
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
     QApplication::setStyle(QStyleFactory::create("Fusion"));
     QCoreApplication::setOrganizationName(GQRX_ORG_NAME);
     QCoreApplication::setOrganizationDomain(GQRX_ORG_DOMAIN);
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
     if (w.configOk)
     {
         w.show();
-        return_code = a.exec();
+        return_code = app.exec();
     }
     else
     {
@@ -154,11 +154,11 @@ int main(int argc, char *argv[])
     return  return_code;
 }
 
-/*! \brief Reset configuration file specified by file_name. */
+/** Reset configuration file specified by file_name. */
 static void reset_conf(const QString &file_name)
 {
-    QString cfg_file;
-    QByteArray xdg_dir = qgetenv("XDG_CONFIG_HOME");
+    QString     cfg_file;
+    QByteArray  xdg_dir = qgetenv("XDG_CONFIG_HOME");
 
     if (xdg_dir.isEmpty())
         cfg_file = QString("%1/.config/gqrx/%2").arg(QDir::homePath()).arg(file_name);
@@ -178,11 +178,11 @@ static void reset_conf(const QString &file_name)
     }
 }
 
-/*! \brief List avaialble configurations. */
+/** List available configurations. */
 static void list_conf(void)
 {
-    QString conf_path;
-    QByteArray xdg_dir = qgetenv("XDG_CONFIG_HOME");
+    QString     conf_path;
+    QByteArray  xdg_dir = qgetenv("XDG_CONFIG_HOME");
 
     if (xdg_dir.isEmpty())
         conf_path = QString("%1/.config/gqrx/").arg(QDir::homePath());
