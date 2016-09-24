@@ -229,8 +229,12 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(gotoFftCenter()), ui->plotter, SLOT(moveToCenterFreq()));
     connect(uiDockFft, SIGNAL(gotoDemodFreq()), ui->plotter, SLOT(moveToDemodFreq()));
 
-    connect(uiDockFft, SIGNAL(fftRangeChanged(float,float)), ui->plotter, SLOT(setFftRange(float,float)));
-    connect(ui->plotter, SIGNAL(fftRangeChanged(float,float)), uiDockFft, SLOT(setFftRange(float,float)));
+    connect(uiDockFft, SIGNAL(pandapterRangeChanged(float,float)),
+            ui->plotter, SLOT(setPandapterRange(float,float)));
+    connect(uiDockFft, SIGNAL(waterfallRangeChanged(float,float)),
+            ui->plotter, SLOT(setWaterfallRange(float,float)));
+    connect(ui->plotter, SIGNAL(pandapterRangeChanged(float,float)),
+            uiDockFft, SLOT(setPandapterRange(float,float)));
 
     connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));

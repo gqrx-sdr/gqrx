@@ -4,6 +4,7 @@
        NEW: Audio waterfall.
        NEW: Remember AGC settings between sessions.
        NEW: Right-click on FFT resets frequency zoom.
+       NEW: Separate dB ranges for pandapter and waterfall.
      FIXED: Stuttering audio with Pulseaudio backend.
      FIXED: Use system font on FFT plot (too small font on high res displays).
      FIXED: Broken FUNcube Dongle Pro+ support on Mac OS X 10.11.4.

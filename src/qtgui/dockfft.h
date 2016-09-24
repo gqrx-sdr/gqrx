@@ -57,7 +57,8 @@ signals:
     void fftSplitChanged(int pct);                 /*! Split between pandapter and waterfall changed. */
     void fftZoomChanged(float level);              /*! Zoom level slider changed. */
     void fftAvgChanged(float gain);                /*! FFT video filter gain has changed. */
-    void fftRangeChanged(float reflevel, float range);
+    void pandapterRangeChanged(float min, float max);
+    void waterfallRangeChanged(float min, float max);
     void resetFftZoom(void);                       /*! FFT zoom reset. */
     void gotoFftCenter(void);                      /*! Go to FFT center. */
     void gotoDemodFreq(void);                      /*! Center FFT around demodulator frequency. */
@@ -67,7 +68,8 @@ signals:
     void peakDetectionToggled(bool enabled);       /*! Enable peak detection in FFT plot */
 
 public slots:
-    void setFftRange(float reflevel, float range);
+    void setPandapterRange(float min, float max);
+    void setWaterfallRange(float min, float max);
     void setWfResolution(quint64 msec_per_line);
 
 private slots:
@@ -77,8 +79,8 @@ private slots:
     void on_fftSplitSlider_valueChanged(int value);
     void on_fftAvgSlider_valueChanged(int value);
     void on_fftZoomSlider_valueChanged(int level);
-    void on_reflevelSlider_valueChanged(int value);
-    void on_rangeSlider_valueChanged(int value);
+    void on_pandRangeSlider_valuesChanged(int min, int max);
+    void on_wfRangeSlider_valuesChanged(int min, int max);
     void on_resetButton_clicked(void);
     void on_centerButton_clicked(void);
     void on_demodButton_clicked(void);
@@ -92,8 +94,8 @@ private:
 
 private:
     Ui::DockFft   * ui;
-    float         m_maximumFftDb;
-    float         m_minimumFftDb;
+//    float         m_maximumFftDb;
+//    float         m_minimumFftDb;
     float         m_sample_rate;
 };
 

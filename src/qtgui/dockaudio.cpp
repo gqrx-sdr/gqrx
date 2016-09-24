@@ -68,7 +68,7 @@ DockAudio::DockAudio(QWidget *parent) :
     ui->audioSpectrum->setFilterBoxEnabled(false);
     ui->audioSpectrum->setCenterLineEnabled(false);
     ui->audioSpectrum->setBookmarksEnabled(false);
-    ui->audioSpectrum->setMinMaxDB(-80, 0);
+    ui->audioSpectrum->setFftRange(-80., 0.);
     ui->audioSpectrum->setVdivDelta(40);
     ui->audioSpectrum->setHdivDelta(40);
     ui->audioSpectrum->setFreqDigits(1);
@@ -349,7 +349,7 @@ void DockAudio::readSettings(QSettings *settings)
 
 void DockAudio::setNewFftMin(int min_db)
 {
-    ui->audioSpectrum->setMinMaxDB(min_db, 0.f);
+    ui->audioSpectrum->setFftRange(min_db, 0.f);
 }
 
 /*! \brief Slot called when a new valid recording directory has been selected

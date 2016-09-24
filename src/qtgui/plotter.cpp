@@ -72,11 +72,8 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp)
 
 #define CUR_CUT_DELTA 5		//cursor capture delta in pixels
 
-// dB-axis constraints
-#define REF_LEVEL_MAX   0.f
-#define REF_LEVEL_MIN   -100.f
-#define FFT_RANGE_MIN   10.f
-#define FFT_RANGE_MAX   200.f
+#define FFT_MIN_DB     -160.f
+#define FFT_MAX_DB      0.f
 
 // Colors of type QRgb in 0xAARRGGBB format (unsigned int)
 #define PLOTTER_BGD_COLOR           0xFF1F1D1D
@@ -89,13 +86,14 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp)
 
 static inline bool val_is_out_of_range(float val, float min, float max)
 {
-    return ((val < min) || (val > max));
+    return (val < min || val > max);
 }
 
-static inline bool out_of_range(float ref, float range)
+static inline bool out_of_range(float min, float max)
 {
-    return (val_is_out_of_range(ref, REF_LEVEL_MIN, REF_LEVEL_MAX) ||
-            val_is_out_of_range(range, FFT_RANGE_MIN, FFT_RANGE_MAX));
+    return (val_is_out_of_range(min, FFT_MIN_DB, FFT_MAX_DB) ||
+            val_is_out_of_range(max, FFT_MIN_DB, FFT_MAX_DB) ||
+            max < min + 10.f);
 }
 
 /** Current time in milliseconds since Epoch */
@@ -177,8 +175,8 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
 
     m_HorDivs = 12;
     m_VerDivs = 6;
-    m_MaxdB = 0;
-    m_MindB = -115;
+    m_PandMaxdB = m_WfMaxdB = 0.f;
+    m_PandMindB = m_WfMindB = -150.f;
 
     m_FreqUnits = 1000000;
     m_CursorCaptured = NOCAP;
@@ -349,17 +347,18 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             setCursor(QCursor(Qt::ClosedHandCursor));
             // move Y scale up/down
             float delta_px = m_Yzero - pt.y();
-            float delta_db = delta_px * fabs(m_MindB-m_MaxdB) / (float)m_OverlayPixmap.height();
-            m_MindB -= delta_db;
-            m_MaxdB -= delta_db;
-            if (out_of_range(m_MaxdB, m_MaxdB - m_MindB))
+            float delta_db = delta_px * fabs(m_PandMindB - m_PandMaxdB) /
+                    (float)m_OverlayPixmap.height();
+            m_PandMindB -= delta_db;
+            m_PandMaxdB -= delta_db;
+            if (out_of_range(m_PandMindB, m_PandMaxdB))
             {
-                m_MindB += delta_db;
-                m_MaxdB += delta_db;
+                m_PandMindB += delta_db;
+                m_PandMaxdB += delta_db;
             }
             else
             {
-                emit fftRangeChanged(m_MaxdB, m_MaxdB - m_MindB);
+                emit pandapterRangeChanged(m_PandMindB, m_PandMaxdB);
 
                 if (m_Running)
                     m_DrawOverlay = true;
@@ -799,20 +798,20 @@ void CPlotter::wheelEvent(QWheelEvent * event)
         // During zoom we try to keep the point (dB or kHz) under the cursor fixed
         float zoom_fac = event->delta() < 0 ? 1.1 : 0.9;
         float ratio = (float)pt.y() / (float)m_OverlayPixmap.height();
-        float db_range = (float)(m_MaxdB - m_MindB);
+        float db_range = m_PandMaxdB - m_PandMindB;
         float y_range = (float)m_OverlayPixmap.height();
         float db_per_pix = db_range / y_range;
-        float fixed_db = m_MaxdB - pt.y() * db_per_pix;
+        float fixed_db = m_PandMaxdB - pt.y() * db_per_pix;
 
-        db_range = qBound(FFT_RANGE_MIN, db_range * zoom_fac, FFT_RANGE_MAX);
-        m_MaxdB = fixed_db + ratio*db_range;
-        if (m_MaxdB > REF_LEVEL_MAX)
-            m_MaxdB = REF_LEVEL_MAX;
+        db_range = qBound(10.f, db_range * zoom_fac, FFT_MAX_DB - FFT_MIN_DB);
+        m_PandMaxdB = fixed_db + ratio * db_range;
+        if (m_PandMaxdB > FFT_MAX_DB)
+            m_PandMaxdB = FFT_MAX_DB;
 
-        m_MindB = m_MaxdB - db_range;
+        m_PandMindB = m_PandMaxdB - db_range;
         m_PeakHoldValid = false;
 
-        emit fftRangeChanged(m_MaxdB, db_range);
+        emit pandapterRangeChanged(m_PandMindB, m_PandMaxdB);
     }
     else if (m_CursorCaptured == XAXIS)
     {
@@ -927,7 +926,7 @@ void CPlotter::draw()
 
         // get scaled FFT data
         n = qMin(w, MAX_SCREENSIZE);
-        getScreenIntegerFFTData(255, n, m_MaxdB, m_MindB,
+        getScreenIntegerFFTData(255, n, m_WfMaxdB, m_WfMindB,
                                 m_FftCenter - (qint64)m_Span / 2,
                                 m_FftCenter + (qint64)m_Span / 2,
                                 m_wfData, m_fftbuf,
@@ -1004,7 +1003,7 @@ void CPlotter::draw()
 
         // get new scaled fft data
         getScreenIntegerFFTData(h, qMin(w, MAX_SCREENSIZE),
-                                m_MaxdB, m_MindB,
+                                m_PandMaxdB, m_PandMindB,
                                 m_FftCenter - (qint64)m_Span/2,
                                 m_FftCenter + (qint64)m_Span/2,
                                 m_fftData, m_fftbuf,
@@ -1249,21 +1248,31 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
     delete [] m_pTranslateTbl;
 }
 
-/** Set limits of dB scale. */
-void CPlotter::setMinMaxDB(float min, float max)
+void CPlotter::setFftRange(float min, float max)
 {
-    m_MaxdB = max;
-    m_MindB = min;
+    setWaterfallRange(min, max);
+    setPandapterRange(min, max);
+}
+
+void CPlotter::setPandapterRange(float min, float max)
+{
+    if (out_of_range(min, max))
+        return;
+
+    m_PandMindB = min;
+    m_PandMaxdB = max;
     updateOverlay();
     m_PeakHoldValid = false;
 }
 
-void CPlotter::setFftRange(float reflevel, float range)
+void CPlotter::setWaterfallRange(float min, float max)
 {
-    if (out_of_range(reflevel, range))
+    if (out_of_range(min, max))
         return;
 
-    setMinMaxDB(reflevel - range, reflevel);
+    m_WfMindB = min;
+    m_WfMaxdB = max;
+    // no overlay change is necessary
 }
 
 // Called to draw an overlay bitmap containing grid and text that
@@ -1398,30 +1407,32 @@ void CPlotter::drawOverlay()
     qint64 mindBAdj64 = 0;
     qint64 dbDivSize = 0;
 
-    calcDivSize ((qint64) m_MindB, (qint64) m_MaxdB, qMax(h/m_VdivDelta, VERT_DIVS_MIN), mindBAdj64, dbDivSize, m_VerDivs);
+    calcDivSize((qint64) m_PandMindB, (qint64) m_PandMaxdB,
+                qMax(h/m_VdivDelta, VERT_DIVS_MIN), mindBAdj64, dbDivSize,
+                m_VerDivs);
 
     dbstepsize = (float) dbDivSize;
     mindbadj = mindBAdj64;
 
-    pixperdiv = (float) h * (float) dbstepsize / (m_MaxdB - m_MindB);
-    adjoffset = (float) h * (mindbadj - m_MindB) / (m_MaxdB - m_MindB);
+    pixperdiv = (float) h * (float) dbstepsize / (m_PandMaxdB - m_PandMindB);
+    adjoffset = (float) h * (mindbadj - m_PandMindB) / (m_PandMaxdB - m_PandMindB);
 
 #ifdef PLOTTER_DEBUG
-    qDebug() << "minDb =" << m_MindB << "maxDb =" << m_MaxdB << "mindbadj =" << mindbadj
-            << "dbstepsize =" << dbstepsize
-            << "pixperdiv =" << pixperdiv << "adjoffset =" << adjoffset;
+    qDebug() << "minDb =" << m_PandMindB << "maxDb =" << m_PandMaxdB
+             << "mindbadj =" << mindbadj << "dbstepsize =" << dbstepsize
+             << "pixperdiv =" << pixperdiv << "adjoffset =" << adjoffset;
 #endif
 
     painter.setPen(QPen(QColor(PLOTTER_GRID_COLOR), 1, Qt::DotLine));
     for (int i = 0; i <= m_VerDivs; i++)
     {
-        y = h - (int)((float) i*pixperdiv + adjoffset);
+        y = h - (int)((float) i * pixperdiv + adjoffset);
         if (y < h - xAxisHeight)
             painter.drawLine(m_YAxisWidth, y, w, y);
     }
 
     // draw amplitude values (y axis)
-    int dB = m_MaxdB;
+    int dB = m_PandMaxdB;
     m_YAxisWidth = metrics.width("-120 ");
     painter.setPen(QColor(PLOTTER_TEXT_COLOR));
     for (int i = 0; i < m_VerDivs; i++)
