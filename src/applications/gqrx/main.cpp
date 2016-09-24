@@ -27,6 +27,7 @@
 #include <QFile>
 #include <QString>
 #include <QStringList>
+#include <QStyleFactory>
 #include <QtGlobal>
 
 #ifdef WITH_PORTAUDIO
@@ -52,6 +53,7 @@ int main(int argc, char *argv[])
     int         return_code;
 
     QApplication a(argc, argv);
+    QApplication::setStyle(QStyleFactory::create("Fusion"));
     QCoreApplication::setOrganizationName(GQRX_ORG_NAME);
     QCoreApplication::setOrganizationDomain(GQRX_ORG_DOMAIN);
     QCoreApplication::setApplicationName(GQRX_APP_NAME);
