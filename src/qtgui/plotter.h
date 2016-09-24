@@ -206,8 +206,8 @@ private:
     QString     m_HDivText[HORZ_DIVS_MAX+1];
     bool        m_Running;
     bool        m_DrawOverlay;
-    qint64      m_CenterFreq;
-    qint64      m_FftCenter;
+    qint64      m_CenterFreq;       // The HW frequency
+    qint64      m_FftCenter;        // Center freq in the -span ... +span range
     qint64      m_DemodCenterFreq;
     qint64      m_StartFreqAdj;
     qint64      m_FreqPerDiv;
