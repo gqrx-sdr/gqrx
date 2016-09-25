@@ -957,10 +957,12 @@ void MainWindow::selectDemod(int mode_idx)
 
     case DockRxOpt::MODE_RAW:
         /* Raw I/Q */
-        qDebug() << "RAW I/Q mode not implemented!";
+        rx->set_demod(receiver::RX_DEMOD_NONE);
+        ui->plotter->setDemodRanges(-45000, -200, 200, 45000, true);
+        uiDockAudio->setFftRange(0,24000);
+        click_res = 100;
         break;
 
-        /* AM */
     case DockRxOpt::MODE_AM:
         rx->set_demod(receiver::RX_DEMOD_AM);
         ui->plotter->setDemodRanges(-45000, -200, 200, 45000, true);
@@ -968,7 +970,6 @@ void MainWindow::selectDemod(int mode_idx)
         click_res = 100;
         break;
 
-        /* Narrow FM */
     case DockRxOpt::MODE_NFM:
         rx->set_demod(receiver::RX_DEMOD_NFM);
         click_res = 100;
@@ -985,10 +986,10 @@ void MainWindow::selectDemod(int mode_idx)
         }
         break;
 
-        /* Broadcast FM */
     case DockRxOpt::MODE_WFM_MONO:
     case DockRxOpt::MODE_WFM_STEREO:
     case DockRxOpt::MODE_WFM_STEREO_OIRT:
+        /* Broadcast FM */
         quad_rate = rx->get_input_rate();
         if (quad_rate < 500.0e3)
             ui->plotter->setDemodRanges(-quad_rate/2.0, -10000,
@@ -1008,24 +1009,24 @@ void MainWindow::selectDemod(int mode_idx)
         uiDockRDS->setEnabled();
         break;
 
-        /* LSB */
     case DockRxOpt::MODE_LSB:
+        /* LSB */
         rx->set_demod(receiver::RX_DEMOD_SSB);
         ui->plotter->setDemodRanges(-40000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,3000);
         click_res = 100;
         break;
 
-        /* USB */
     case DockRxOpt::MODE_USB:
+        /* USB */
         rx->set_demod(receiver::RX_DEMOD_SSB);
         ui->plotter->setDemodRanges(0, 5000, 100, 40000, false);
         uiDockAudio->setFftRange(0,3000);
         click_res = 100;
         break;
 
-        /* CW-L */
     case DockRxOpt::MODE_CWL:
+        /* CW-L */
         rx->set_demod(receiver::RX_DEMOD_SSB);
         cwofs = -uiDockRxOpt->getCwOffset();
         ui->plotter->setDemodRanges(-5000, -100, 100, 5000, true);
@@ -1033,8 +1034,8 @@ void MainWindow::selectDemod(int mode_idx)
         click_res = 10;
         break;
 
-        /* CW-U */
     case DockRxOpt::MODE_CWU:
+        /* CW-U */
         rx->set_demod(receiver::RX_DEMOD_SSB);
         cwofs = uiDockRxOpt->getCwOffset();
         ui->plotter->setDemodRanges(-5000, -100, 100, 5000, true);
