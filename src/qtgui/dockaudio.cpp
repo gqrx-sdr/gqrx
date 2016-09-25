@@ -3,7 +3,7 @@
  * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
  *           http://gqrx.dk/
  *
- * Copyright 2011-2013 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2016 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +53,8 @@ DockAudio::DockAudio(QWidget *parent) :
     audioOptions = new CAudioOptions(this);
 
     connect(audioOptions, SIGNAL(newFftSplit(int)), ui->audioSpectrum, SLOT(setPercent2DScreen(int)));
-    connect(audioOptions, SIGNAL(newFftMin(int)), this, SLOT(setNewFftMin(int)));
+    connect(audioOptions, SIGNAL(newPandapterRange(int,int)), this, SLOT(setNewPandapterRange(int,int)));
+    connect(audioOptions, SIGNAL(newWaterfallRange(int,int)), this, SLOT(setNewWaterfallRange(int,int)));
     connect(audioOptions, SIGNAL(newRecDirSelected(QString)), this, SLOT(setNewRecDir(QString)));
     connect(audioOptions, SIGNAL(newUdpHost(QString)), this, SLOT(setNewUdpHost(QString)));
     connect(audioOptions, SIGNAL(newUdpPort(int)), this, SLOT(setNewUdpPort(int)));
@@ -278,78 +279,117 @@ void DockAudio::setAudioPlayButtonState(bool checked)
 
 void DockAudio::saveSettings(QSettings *settings)
 {
-    int     ival;
+    int     ival, fft_min, fft_max;
 
     if (!settings)
         return;
 
-    settings->setValue("audio/gain", audioGain());
+    settings->beginGroup("audio");
+
+    settings->setValue("gain", audioGain());
 
     ival = audioOptions->getFftSplit();
     if (ival >= 0 && ival < 100)
-        settings->setValue("audio/fft_split", ival);
+        settings->setValue("fft_split", ival);
     else
-        settings->remove("audio/fft_split");
+        settings->remove("fft_split");
 
-    ival = audioOptions->getFftMin();
-    if (ival != -80)
-        settings->setValue("audio/fft_min_db", ival);
+    audioOptions->getPandapterRange(&fft_min, &fft_max);
+    if (fft_min != -80)
+        settings->setValue("pandapter_min_db", fft_min);
     else
-        settings->remove("audio/fft_min_db");
+        settings->remove("pandapter_min_db");
+    if (fft_max != 0)
+        settings->setValue("pandapter_max_db", fft_max);
+    else
+        settings->remove("pandapter_max_db");
+
+    audioOptions->getWaterfallRange(&fft_min, &fft_max);
+    if (fft_min != -80)
+        settings->setValue("waterfall_min_db", fft_min);
+    else
+        settings->remove("waterfall_min_db");
+    if (fft_max != 0)
+        settings->setValue("waterfall_max_db", fft_max);
+    else
+        settings->remove("waterfall_max_db");
 
     if (rec_dir != QDir::homePath())
-        settings->setValue("audio/rec_dir", rec_dir);
+        settings->setValue("rec_dir", rec_dir);
     else
-        settings->remove("audio/rec_dir");
+        settings->remove("rec_dir");
 
     if ((udp_host != "localhost") && (udp_host != "127.0.0.1"))
-        settings->setValue("audio/udp_host", udp_host);
+        settings->setValue("udp_host", udp_host);
     else
-        settings->remove("audio/udp_host");
+        settings->remove("udp_host");
 
     if (udp_port != 7355)
-        settings->setValue("audio/udp_port", udp_port);
+        settings->setValue("udp_port", udp_port);
     else
-        settings->remove("audio/udp_port");
+        settings->remove("udp_port");
+
+    settings->endGroup();
 }
 
 void DockAudio::readSettings(QSettings *settings)
 {
-    int     ival;
+    int     ival, fft_min, fft_max;
     bool    conv_ok = false;
 
     if (!settings)
         return;
 
-    ival = settings->value("audio/gain", QVariant(-200)).toInt(&conv_ok);
+    settings->beginGroup("audio");
+
+    ival = settings->value("gain", QVariant(-200)).toInt(&conv_ok);
     if (conv_ok)
         setAudioGain(ival);
 
-    ival = settings->value("audio/fft_split", QVariant(100)).toInt(&conv_ok);
+    ival = settings->value("fft_split", QVariant(100)).toInt(&conv_ok);
     if (conv_ok)
         audioOptions->setFftSplit(ival);
 
-    ival = settings->value("audio/fft_min_db", QVariant(-80)).toInt(&conv_ok);
-    if (conv_ok)
-        audioOptions->setFftMin(ival);
+    fft_min = settings->value("pandapter_min_db", QVariant(-80)).toInt(&conv_ok);
+    if (!conv_ok)
+        fft_min = -80;
+    fft_max = settings->value("pandapter_max_db", QVariant(0)).toInt(&conv_ok);
+    if (!conv_ok)
+        fft_max = 0;
+    audioOptions->setPandapterRange(fft_min, fft_max);
+
+    fft_min = settings->value("waterfall_min_db", QVariant(-80)).toInt(&conv_ok);
+    if (!conv_ok)
+        fft_min = -80;
+    fft_max = settings->value("waterfall_max_db", QVariant(0)).toInt(&conv_ok);
+    if (!conv_ok)
+        fft_max = 0;
+    audioOptions->setWaterfallRange(fft_min, fft_max);
 
     // Location of audio recordings
-    rec_dir = settings->value("audio/rec_dir", QDir::homePath()).toString();
+    rec_dir = settings->value("rec_dir", QDir::homePath()).toString();
     audioOptions->setRecDir(rec_dir);
 
     // Audio streaming host and port
-    udp_host = settings->value("audio/udp_host", "localhost").toString();
-    udp_port = settings->value("audio/udp_port", 7355).toInt(&conv_ok);
+    udp_host = settings->value("udp_host", "localhost").toString();
+    udp_port = settings->value("udp_port", 7355).toInt(&conv_ok);
     if (!conv_ok)
         udp_port = 7355;
 
     audioOptions->setUdpHost(udp_host);
     audioOptions->setUdpPort(udp_port);
+
+    settings->endGroup();
 }
 
-void DockAudio::setNewFftMin(int min_db)
+void DockAudio::setNewPandapterRange(int min, int max)
 {
-    ui->audioSpectrum->setFftRange(min_db, 0.f);
+    ui->audioSpectrum->setPandapterRange(min, max);
+}
+
+void DockAudio::setNewWaterfallRange(int min, int max)
+{
+    ui->audioSpectrum->setWaterfallRange(min, max);
 }
 
 /*! \brief Slot called when a new valid recording directory has been selected

@@ -3,7 +3,7 @@
  * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
  *           http://gqrx.dk/
  *
- * Copyright 2011-2013 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2016 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,7 +102,8 @@ private slots:
     void on_audioRecButton_clicked(bool checked);
     void on_audioPlayButton_clicked(bool checked);
     void on_audioConfButton_clicked();
-    void setNewFftMin(int min_db);
+    void setNewPandapterRange(int min, int max);
+    void setNewWaterfallRange(int min, int max);
     void setNewRecDir(const QString &dir);
     void setNewUdpHost(const QString &host);
     void setNewUdpPort(int port);
