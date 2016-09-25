@@ -46,6 +46,7 @@ nbrx::nbrx(float quad_rate, float audio_rate)
     agc = make_rx_agc_cc(PREF_QUAD_RATE, true, -100, 0, 0, 500, false);
     sql = gr::analog::simple_squelch_cc::make(-150.0, 0.001);
     meter = make_rx_meter_c(DETECTOR_TYPE_RMS);
+    demod_raw = gr::blocks::complex_to_float::make(1);
     demod_ssb = gr::blocks::complex_to_real::make(1);
     demod_fm = make_rx_demod_fm(PREF_QUAD_RATE, PREF_AUDIO_RATE, 5000.0, 75.0e-6);
     demod_am = make_rx_demod_am(PREF_QUAD_RATE, PREF_AUDIO_RATE, true);
@@ -268,7 +269,11 @@ void nbrx::set_demod(int rx_demod)
 
     switch (rx_demod) {
 
-    case NBRX_DEMOD_NONE: /** FIXME! **/
+    case NBRX_DEMOD_NONE:
+        d_demod = NBRX_DEMOD_NONE;
+        demod = demod_raw;
+        break;
+
     case NBRX_DEMOD_SSB:
         d_demod = NBRX_DEMOD_SSB;
         demod = demod_ssb;
@@ -288,7 +293,15 @@ void nbrx::set_demod(int rx_demod)
 
     connect(agc, 0, demod, 0);
     if (audio_rr)
+    {
+        // FIXME: DEMOD_NONE has two outputs.
         connect(demod, 0, audio_rr, 0);
+    }
+    else if (d_demod == NBRX_DEMOD_NONE)
+    {
+        connect(demod, 0, self(), 0);
+        connect(demod, 1, self(), 1);
+    }
     else
     {
         connect(demod, 0, self(), 0);

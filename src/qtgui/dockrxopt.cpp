@@ -32,7 +32,7 @@ QStringList DockRxOpt::ModulationStrings;
 static const int filter_preset_table[DockRxOpt::MODE_LAST][3][2] =
 {   //     WIDE             NORMAL            NARROW
     {{      0,      0}, {     0,     0}, {     0,     0}},  // MODE_OFF
-    {{ -25000,  25000}, {-10000, 10000}, { -1000,  1000}},  // MODE_RAW
+    {{ -15000,  15000}, { -5000,  5000}, { -1000,  1000}},  // MODE_RAW
     {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}},  // MODE_AM
     {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}},  // MODE_NFM
     {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}},  // MODE_WFM_MONO
@@ -472,16 +472,7 @@ void DockRxOpt::on_filterCombo_activated(int index)
  */
 void DockRxOpt::on_modeSelector_activated(int index)
 {
-    if (index == MODE_RAW)
-    {
-        qDebug() << "Raw I/Q not implemented (fallback to FM-N)";
-        ui->modeSelector->setCurrentIndex(MODE_NFM);
-        emit demodSelected(MODE_NFM);
-        return;
-    }
-
     updateDemodOptPage(index);
-
     emit demodSelected(index);
 }
 
