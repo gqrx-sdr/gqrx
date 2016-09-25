@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>275</width>
-    <height>245</height>
+    <height>218</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -44,19 +44,19 @@
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <property name="spacing">
-     <number>5</number>
+     <number>0</number>
     </property>
     <property name="leftMargin">
-     <number>5</number>
+     <number>0</number>
     </property>
     <property name="topMargin">
-     <number>5</number>
+     <number>0</number>
     </property>
     <property name="rightMargin">
-     <number>5</number>
+     <number>0</number>
     </property>
     <property name="bottomMargin">
-     <number>5</number>
+     <number>0</number>
     </property>
     <item>
      <widget class="QScrollArea" name="scrollArea">
@@ -77,8 +77,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>251</width>
-         <height>319</height>
+         <width>261</width>
+         <height>327</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -99,6 +99,18 @@
         </property>
         <item>
          <layout class="QGridLayout" name="gridLayout">
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="topMargin">
+           <number>5</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
+          <property name="bottomMargin">
+           <number>5</number>
+          </property>
           <property name="spacing">
            <number>5</number>
           </property>
@@ -970,14 +982,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QtColorPicker</class>
-   <extends>QPushButton</extends>
-   <header>qtgui/qtcolorpicker.h</header>
-  </customwidget>
-  <customwidget>
    <class>ctkRangeSlider</class>
    <extends>QSlider</extends>
    <header>qtgui/ctk/ctkRangeSlider.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QtColorPicker</class>
+   <extends>QPushButton</extends>
+   <header>qtgui/qtcolorpicker.h</header>
   </customwidget>
  </customwidgets>
  <resources>
