@@ -3,7 +3,7 @@
  * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
  *           http://gqrx.dk/
  *
- * Copyright 2011-2013 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2016 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -203,61 +203,6 @@ void nbrx::set_demod(int rx_demod)
         return;
     }
 
-    // for now we must depend on top level stop/lock
-    // because of https://github.com/csete/gqrx/issues/120
-    //lock();
-#if 0
-    /* disconnect current demodulator */
-    switch (current_demod) {
-
-    default:
-    case NBRX_DEMOD_NONE: /** FIXME! **/
-    case NBRX_DEMOD_SSB:
-        disconnect(agc, 0, demod_ssb, 0);
-        disconnect(demod_ssb, 0, audio_rr, 0);
-        break;
-
-    case NBRX_DEMOD_AM:
-        disconnect(agc, 0, demod_am, 0);
-        disconnect(demod_am, 0, audio_rr, 0);
-        break;
-
-    case NBRX_DEMOD_FM:
-        disconnect(agc, 0, demod_fm, 0);
-        disconnect(demod_fm, 0, audio_rr, 0);
-        break;
-    }
-
-    switch (rx_demod) {
-
-    case NBRX_DEMOD_NONE: /** FIXME! **/
-    case NBRX_DEMOD_SSB:
-        d_demod = NBRX_DEMOD_SSB;
-        connect(agc, 0, demod_ssb, 0);
-        connect(demod_ssb, 0, audio_rr, 0);
-        break;
-
-    case NBRX_DEMOD_AM:
-        d_demod = NBRX_DEMOD_AM;
-        connect(agc, 0, demod_am, 0);
-        connect(demod_am, 0, audio_rr, 0);
-        break;
-
-    case NBRX_DEMOD_FM:
-        d_demod = NBRX_DEMOD_FM;
-        connect(agc, 0, demod_fm, 0);
-        connect(demod_fm, 0, audio_rr, 0);
-        break;
-
-    default:
-        /* use FMN */
-        d_demod = NBRX_DEMOD_FM;
-        connect(agc, 0, demod_fm, 0);
-        connect(demod_fm, 0, audio_rr, 0);
-        break;
-    }
-#endif
-
     disconnect(agc, 0, demod, 0);
     if (audio_rr)
         disconnect(demod, 0, audio_rr, 0);
@@ -308,8 +253,6 @@ void nbrx::set_demod(int rx_demod)
         connect(demod, 0, self(), 1);
     }
 
-    /* continue processing */
-    //unlock();
 }
 
 void nbrx::set_fm_maxdev(float maxdev_hz)
