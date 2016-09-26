@@ -283,6 +283,15 @@ void DockRxOpt::setSquelchLevel(double level)
     ui->sqlSpinBox->setValue(level);
 }
 
+/**
+ * @brief Get the current squelch level
+ * @returns The current squelch setting in dBFS
+ */
+double DockRxOpt::currentSquelchLevel()
+{
+    return ui->sqlSpinBox->value();
+}
+
 
 /** Get filter lo/hi for a given mode and preset */
 void DockRxOpt::getFilterPreset(int mode, int preset, int * lo, int * hi) const

@@ -100,6 +100,8 @@ public:
 
     float currentMaxdev();
 
+    double currentSquelchLevel();
+
     void    getFilterPreset(int mode, int preset, int * lo, int * hi) const;
     int     getCwOffset() const;
 
