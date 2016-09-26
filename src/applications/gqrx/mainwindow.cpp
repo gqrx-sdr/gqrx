@@ -243,9 +243,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockRDS, SIGNAL(rdsDecoderToggled(bool)), this, SLOT(setRdsDecoder(bool)));
 
     // Bookmarks
-    connect(uiDockBookmarks, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
-    connect(uiDockBookmarks, SIGNAL(newDemodulation(QString)), this, SLOT(selectDemod(QString)));
-    connect(uiDockBookmarks, SIGNAL(newFilterBandwidth(int, int)), this, SLOT(on_plotter_newFilterFreq(int, int)));
+    connect(uiDockBookmarks, SIGNAL(newBookmarkActivated(qint64, QString, int)), this, SLOT(onBookmarkActivated(qint64, QString, int)));
     connect(uiDockBookmarks->actionAddBookmark, SIGNAL(triggered()), this, SLOT(on_actionAddBookmark_triggered()));
 
 
@@ -1869,6 +1867,10 @@ void MainWindow::on_plotter_newFilterFreq(int low, int high)
     /* parameter correctness will be checked in receiver class */
     retcode = rx->set_filter((double) low, (double) high, d_filter_shape);
 
+    /* Update filter range of plotter, in case this slot is triggered by
+     * switching to a bookmark */
+    ui->plotter->setHiLowCutFrequencies(low, high);
+
     if (retcode == receiver::STATUS_OK)
         uiDockRxOpt->setFilterParam(low, high);
 }
@@ -2010,6 +2012,36 @@ void MainWindow::setRdsDecoder(bool checked)
         rx->stop_rds_decoder();
         rds_timer->stop();
     }
+}
+
+void MainWindow::onBookmarkActivated(qint64 freq, QString demod, int bandwidth)
+{
+    setNewFrequency(freq);
+    selectDemod(demod);
+
+    /* Check if filter is symmetric or not by checking the presets */
+    int mode = uiDockRxOpt->currentDemod();
+    int preset = uiDockRxOpt->currentFilterShape();
+
+    int lo, hi;
+    uiDockRxOpt->getFilterPreset(mode, preset, &lo, &hi);
+
+    if(lo + hi == 0)
+    {
+        lo = -bandwidth / 2;
+        hi =  bandwidth / 2;
+    }
+    else if(lo >= 0 && hi >= 0)
+    {
+        hi = lo + bandwidth;
+    }
+    else if(lo <= 0 && hi <= 0)
+    {
+        lo = hi - bandwidth;
+    }
+
+    on_plotter_newFilterFreq(lo, hi);
+    ui->plotter->setHiLowCutFrequencies(lo, hi);
 }
 
 /** Launch Gqrx google group website. */

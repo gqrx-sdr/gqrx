@@ -80,9 +80,7 @@ public:
     void changeBookmarkTags(int row, int /*column*/);
 
 signals:
-    void newFrequency(qint64);
-    void newDemodulation(QString);
-    void newFilterBandwidth(int, int);
+    void newBookmarkActivated(qint64, QString, int);
 
 public slots:
     void setNewFrequency(qint64 rx_freq);
