@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>234</width>
-    <height>224</height>
+    <width>240</width>
+    <height>240</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>234</width>
-    <height>224</height>
+    <width>240</width>
+    <height>240</height>
    </size>
   </property>
   <property name="windowIcon">
@@ -35,16 +35,16 @@
      <number>6</number>
     </property>
     <property name="leftMargin">
-     <number>4</number>
+     <number>5</number>
     </property>
     <property name="topMargin">
-     <number>4</number>
+     <number>5</number>
     </property>
     <property name="rightMargin">
-     <number>4</number>
+     <number>5</number>
     </property>
     <property name="bottomMargin">
-     <number>4</number>
+     <number>5</number>
     </property>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
@@ -221,7 +221,7 @@
       </property>
       <property name="sizeHint" stdset="0">
        <size>
-        <width>20</width>
+        <width>5</width>
         <height>0</height>
        </size>
       </property>
