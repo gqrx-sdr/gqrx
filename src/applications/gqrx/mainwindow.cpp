@@ -1057,6 +1057,7 @@ void MainWindow::selectDemod(int mode_idx)
     ui->plotter->setFilterClickResolution(click_res);
     rx->set_filter((double)flo, (double)fhi, d_filter_shape);
     rx->set_cw_offset(cwofs);
+    rx->set_sql_level(uiDockRxOpt->currentSquelchLevel());
 
     d_have_audio = ((mode_idx != DockRxOpt::MODE_OFF) &&
                     (mode_idx != DockRxOpt::MODE_RAW));
