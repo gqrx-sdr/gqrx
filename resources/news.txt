@@ -12,6 +12,7 @@
      FIXED: Correct display of negative offsets between -1 and 0 kHz.
      FIXED: Reset frequency digits below the one that is being changed.
      FIXED: LNB LO could not be set from I/O configuration dialog.
+     FIXED: Update squelch level when switching between demodulators.
   IMPROVED: Input decimator performance.
   IMPROVED: SDRPlay integration.
   IMPROVED: Only probe for devices when the program is started.
