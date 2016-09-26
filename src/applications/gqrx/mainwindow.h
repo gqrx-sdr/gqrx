@@ -192,6 +192,9 @@ private slots:
     /* RDS */
     void setRdsDecoder(bool checked);
 
+    /* Bookmarks */
+    void onBookmarkActivated(qint64 freq, QString demod, int bandwidth);
+
     /* menu and toolbar actions */
     void on_actionDSP_triggered(bool checked);
     int  on_actionIoConfig_triggered();
