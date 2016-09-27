@@ -88,6 +88,7 @@ private slots:
     void on_fillButton_toggled(bool checked);
     void on_peakHoldButton_toggled(bool checked);
     void on_peakDetectionButton_toggled(bool checked);
+    void on_lockButton_toggled(bool checked);
 
 private:
     void updateInfoLabels(void);

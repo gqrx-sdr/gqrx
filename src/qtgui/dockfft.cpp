@@ -396,11 +396,17 @@ void DockFft::on_fftZoomSlider_valueChanged(int level)
 
 void DockFft::on_pandRangeSlider_valuesChanged(int min, int max)
 {
+    if (ui->lockButton->isChecked())
+        ui->wfRangeSlider->setValues(min, max);
+
     emit pandapterRangeChanged((float) min, (float) max);
 }
 
 void DockFft::on_wfRangeSlider_valuesChanged(int min, int max)
 {
+    if (ui->lockButton->isChecked())
+        ui->pandRangeSlider->setValues(min, max);
+
     emit waterfallRangeChanged((float) min, (float) max);
 }
 
@@ -443,6 +449,18 @@ void DockFft::on_peakHoldButton_toggled(bool checked)
 void DockFft::on_peakDetectionButton_toggled(bool checked)
 {
     emit peakDetectionToggled(checked);
+}
+
+/** lock button toggled */
+void DockFft::on_lockButton_toggled(bool checked)
+{
+    if (checked)
+    {
+        int min = ui->pandRangeSlider->minimumValue();
+        int max = ui->pandRangeSlider->maximumValue();
+
+        ui->wfRangeSlider->setPositions(min, max);
+    }
 }
 
 /** Update RBW and FFT overlab labels */
