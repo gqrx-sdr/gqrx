@@ -98,6 +98,7 @@ private:
 //    float         m_maximumFftDb;
 //    float         m_minimumFftDb;
     float         m_sample_rate;
+    bool          m_pand_last_modified; /* Flag to indicate which slider was changed last */
 };
 
 #endif // DOCKFFT_H

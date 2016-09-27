@@ -64,6 +64,7 @@ DockFft::DockFft(QWidget *parent) :
 #endif
 
     m_sample_rate = 0.f;
+    m_pand_last_modified = false;
 
     // Add predefined gqrx colors to chooser.
     ui->colorPicker->insertColor(QColor(0xFF,0xFF,0xFF,0xFF), "White");
@@ -307,6 +308,9 @@ void DockFft::setPandapterRange(float min, float max)
 {
     ui->pandRangeSlider->blockSignals(true);
     ui->pandRangeSlider->setValues((int) min, (int) max);
+    if (ui->lockButton->isChecked())
+        ui->wfRangeSlider->setValues((int) min, (int) max);
+    m_pand_last_modified = true;
     ui->pandRangeSlider->blockSignals(false);
 }
 
@@ -314,6 +318,9 @@ void DockFft::setWaterfallRange(float min, float max)
 {
     ui->wfRangeSlider->blockSignals(true);
     ui->wfRangeSlider->setValues((int) min, (int) max);
+    if (ui->lockButton->isChecked())
+        ui->pandRangeSlider->setValues((int) min, (int) max);
+    m_pand_last_modified = false;
     ui->wfRangeSlider->blockSignals(false);
 }
 
@@ -399,6 +406,7 @@ void DockFft::on_pandRangeSlider_valuesChanged(int min, int max)
     if (ui->lockButton->isChecked())
         ui->wfRangeSlider->setValues(min, max);
 
+    m_pand_last_modified = true;
     emit pandapterRangeChanged((float) min, (float) max);
 }
 
@@ -407,6 +415,7 @@ void DockFft::on_wfRangeSlider_valuesChanged(int min, int max)
     if (ui->lockButton->isChecked())
         ui->pandRangeSlider->setValues(min, max);
 
+    m_pand_last_modified = false;
     emit waterfallRangeChanged((float) min, (float) max);
 }
 
@@ -456,10 +465,18 @@ void DockFft::on_lockButton_toggled(bool checked)
 {
     if (checked)
     {
-        int min = ui->pandRangeSlider->minimumValue();
-        int max = ui->pandRangeSlider->maximumValue();
-
-        ui->wfRangeSlider->setPositions(min, max);
+        if (m_pand_last_modified)
+        {
+            int min = ui->pandRangeSlider->minimumValue();
+            int max = ui->pandRangeSlider->maximumValue();
+            ui->wfRangeSlider->setPositions(min, max);
+        }
+        else
+        {
+            int min = ui->wfRangeSlider->minimumValue();
+            int max = ui->wfRangeSlider->maximumValue();
+            ui->pandRangeSlider->setPositions(min, max);
+        }
     }
 }
 
