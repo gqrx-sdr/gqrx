@@ -245,6 +245,12 @@ void DockFft::saveSettings(QSettings *settings)
     else
         settings->setValue("waterfall_max_db", intval);
 
+    // pandapter and waterfall locked together
+    if (ui->lockButton->isChecked())
+        settings->setValue("pand_wf_locked", true);
+    else
+        settings->remove("pand_wf_locked");
+
     settings->endGroup();
 }
 
@@ -300,6 +306,9 @@ void DockFft::readSettings(QSettings *settings)
     fft_min = settings->value("waterfall_min_db", DEFAULT_FFT_MIN_DB).toInt();
     setWaterfallRange(fft_min, fft_max);
     emit waterfallRangeChanged((float) fft_min, (float) fft_max);
+
+    bool_val = settings->value("pand_wf_locked", false).toBool();
+    ui->lockButton->setChecked(bool_val);
 
     settings->endGroup();
 }
