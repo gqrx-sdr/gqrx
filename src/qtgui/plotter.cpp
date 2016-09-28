@@ -1234,7 +1234,10 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
         for (x = 0; x < plotWidth; x++ )
         {
             i = m_pTranslateTbl[x]; // get plot to fft bin coordinate transform
-            y = (qint32)(dBGainFactor*(maxdB-m_pFFTAveBuf[i]));
+            if(i < 0 || i >= m_FFTSize)
+                y = plotHeight;
+            else
+                y = (qint32)(dBGainFactor*(maxdB-m_pFFTAveBuf[i]));
 
             if (y > plotHeight)
                 y = plotHeight;
