@@ -26,6 +26,7 @@
 #include <QTextStream>
 #include <QString>
 #include <QSet>
+#include <algorithm>
 #include "bookmarks.h"
 #include <stdio.h>
 #include <wchar.h>
@@ -59,7 +60,7 @@ void Bookmarks::setConfigDir(const QString& cfg_dir)
 void Bookmarks::add(BookmarkInfo &info)
 {
     m_BookmarkList.append(info);
-    qSort(m_BookmarkList);
+    std::stable_sort(m_BookmarkList.begin(),m_BookmarkList.end());
     save();
     emit( BookmarksChanged() );
 }
@@ -136,7 +137,7 @@ bool Bookmarks::load()
             }
         }
         file.close();
-        qSort(m_BookmarkList);
+        std::stable_sort(m_BookmarkList.begin(),m_BookmarkList.end());
 
         emit BookmarksChanged();
         return true;
