@@ -234,7 +234,7 @@ Michael Lass:
 - Improved tuning ranges at hardware limits.
 
 Michael Tatarinov:
-- Documentation.
+- Documentation and bugfixes.
 
 Moe Weatley:
 - FFT plotter and waterfall.
