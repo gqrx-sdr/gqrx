@@ -7,6 +7,7 @@
        NEW: Separate dB ranges for pandapter and waterfall.
        NEW: Raw I/Q mode.
        NEW: Portaudio support.
+       NEW: Command line option to set Qt style (fusion, windows, ...)
      FIXED: Stuttering audio with Pulseaudio backend.
      FIXED: Use system font on FFT plot (too small font on high res displays).
      FIXED: Broken FUNcube Dongle Pro+ support on Mac OS X 10.11.4.
