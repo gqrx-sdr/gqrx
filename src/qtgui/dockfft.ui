@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>312</width>
-    <height>368</height>
+    <width>320</width>
+    <height>386</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -83,8 +83,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>302</width>
-         <height>339</height>
+         <width>310</width>
+         <height>357</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -957,37 +957,6 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="3" rowspan="2">
-           <widget class="QPushButton" name="lockButton">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>32</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Lock panadapter and waterfall sliders together</string>
-            </property>
-            <property name="statusTip">
-             <string>Lock panadapter and waterfall sliders together</string>
-            </property>
-            <property name="text">
-             <string>Lock</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
           <item row="4" column="1" colspan="2">
            <widget class="QSlider" name="fftSplitSlider">
             <property name="sizePolicy">
@@ -1031,6 +1000,37 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item row="6" column="3">
+           <widget class="QPushButton" name="lockButton">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>32</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Lock panadapter and waterfall sliders together</string>
+            </property>
+            <property name="statusTip">
+             <string>Lock panadapter and waterfall sliders together</string>
+            </property>
+            <property name="text">
+             <string>Lock</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
