@@ -258,7 +258,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     QToolTip::showText(event->globalPos(),
                                        QString("Demod: %1 kHz")
                                        .arg(m_DemodCenterFreq/1.e3f, 0, 'f', 3),
-                                       this, rect());
+                                       this);
             }
             else if (isPointCloseTo(pt.x(), m_DemodHiCutFreqX, m_CursorCaptureDelta))
             {
@@ -270,7 +270,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     QToolTip::showText(event->globalPos(),
                                        QString("High cut: %1 Hz")
                                        .arg(m_DemodHiCutFreq),
-                                       this, rect());
+                                       this);
             }
             else if (isPointCloseTo(pt.x(), m_DemodLowCutFreqX, m_CursorCaptureDelta))
             {
@@ -282,7 +282,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     QToolTip::showText(event->globalPos(),
                                        QString("Low cut: %1 Hz")
                                        .arg(m_DemodLowCutFreq),
-                                       this, rect());
+                                       this);
             }
             else if (isPointCloseTo(pt.x(), m_YAxisWidth/2, m_YAxisWidth/2))
             {
@@ -311,7 +311,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     QToolTip::showText(event->globalPos(),
                                        QString("F: %1 kHz")
                                        .arg(freqFromX(pt.x())/1.e3f, 0, 'f', 3),
-                                       this, rect());
+                                       this);
             }
             m_GrabPosition = 0;
         }
@@ -336,7 +336,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                                QString("%1\n%2 kHz")
                                .arg(tt.toString("yyyy.MM.dd hh:mm:ss.zzz"))
                                .arg(freqFromX(pt.x())/1.e3f, 0, 'f', 3),
-                               this, rect());
+                               this);
         }
     }
     // process mouse moves while in cursor capture modes
