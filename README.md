@@ -2,17 +2,9 @@ Gqrx
 ====
 
 Gqrx is an experimental software defined radio receiver implemented using GNU
-Radio and the Qt GUI toolkit. Currently it works on Linux and Mac and supports
-the following devices:
-- Funcube Dongle Pro and Pro+
-- RTL2832U-based DVB-T dongles (rtlsdr via USB and TCP)
-- OsmoSDR
-- USRP
-- HackRF
-- Nuand bladeRF
-- RFspace SDR-IQ, SDR-IP, NetSDR and Cloud-IQ
-- Airspy
-- any other device supported by the gr-osmosdr library
+Radio and the Qt GUI toolkit. Currently it works on Linux and Mac with hardware
+supported by gr-osmosdr, including Funcube Dongle, RTL-SDR, Airspy, HackRF,
+BladeRF, RFSpace, USRP and even SoapySDR.
 
 Gqrx can operate as a traditional AM/FM/SSB receiver with audio output or as an
 FFT-only instrument. There are also various hooks for interacting with external
@@ -22,9 +14,10 @@ application using nertwork sockets.
 Download
 --------
 
-Gqrx is distributed as source code package and binaries for Linux. Mac support
-is avaialble through macports. Please see http://gqrx.dk/download for a list of
-official and third party download resources.
+Gqrx is distributed as source code package and binaries for Linux and Mac.
+Alternate Mac support is available through macports and homebrew.
+
+Please see http://gqrx.dk/download for a list of official download resources.
 
 
 Usage
@@ -93,22 +86,27 @@ To compile gqrx from source you need the following dependencies:
     - gnuradio-audio
     - gnuradio-pmt
 - The gr-iqbalance library (optional)
-- At least one of:
-    - Funcube Dongle Pro driver via gnuradio-fcd
-    - UHD driver via gnuradio-uhd
+- Drivers for the hardware you want to have support for:
+    - Funcube Dongle Pro driver via gr-fcd
+    - UHD driver via gr-uhd
     - Funcube Dongle Pro+ driver from https://github.com/dl1ksv/gr-fcdproplus
     - RTL-SDR driver from http://cgit.osmocom.org/cgit/rtl-sdr/
     - OsmoSDR driver from http://cgit.osmocom.org/cgit/osmo-sdr/
     - HackRF Jawbreaker driver from http://greatscottgadgets.com/hackrf/
+    - Airspy driver from https://github.com/airspy/host
+    - SoapySDR from https://github.com/pothosware/SoapySDR
+    - RFSpace driver is bult in
 - gnuradio-osmosdr from http://cgit.osmocom.org/cgit/gr-osmosdr/
-- pulseaudio (Linux only and optional)
-- Qt 4.8 or later with the following components:
+- pulseaudio or portaudio (Linux only and optional)
+- Qt 5 with the following components:
     - Core
     - GUI
     - Network
-    - Widgets (Qt 5 only)
+    - Widgets
     - Svg (runtime only)
 - cmake version >= 3.2.0 if you wish to build using cmake. Note that cmake builds require Qt 5.
+
+Qt 4.8 may also work but no longer guaranteed.
 
 To build using qmake, you can either open the gqrx.pro file in Qt Creator and
 build, or on the command line:
