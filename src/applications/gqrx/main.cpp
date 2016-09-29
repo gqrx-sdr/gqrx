@@ -77,12 +77,12 @@ int main(int argc, char *argv[])
     // setup the program options
     po::options_description desc("Command line options");
     desc.add_options()
-        ("help,h", "This help message")
-        ("style,s", po::value<std::string>(&style), "Use the give style (fusion, windows)")
-        ("list,l", "List existing configurations")
-        ("conf,c", po::value<std::string>(&conf), "Start with this config file")
-        ("edit,e", "Edit the config file before using it")
-        ("reset,r", "Reset configuration file")
+            ("help,h", "This help message")
+            ("style,s", po::value<std::string>(&style), "Use the give style (fusion, windows)")
+            ("list,l", "List existing configurations")
+            ("conf,c", po::value<std::string>(&conf), "Start with this config file")
+            ("edit,e", "Edit the config file before using it")
+            ("reset,r", "Reset configuration file")
     ;
 
     po::variables_map vm;
