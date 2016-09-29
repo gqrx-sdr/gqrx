@@ -137,6 +137,7 @@ bool Bookmarks::load()
             }
         }
         file.close();
+        std::sort(m_TagList.begin(),m_TagList.end());
         std::stable_sort(m_BookmarkList.begin(),m_BookmarkList.end());
 
         emit BookmarksChanged();
@@ -246,6 +247,7 @@ TagInfo &Bookmarks::findOrAddTag(QString tagName)
     TagInfo info;
     info.name=tagName;
     m_TagList.append(info);
+    std::sort(m_TagList.begin(),m_TagList.end());
     emit TagListChanged();
     return m_TagList.last();
 }
