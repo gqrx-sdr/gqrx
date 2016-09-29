@@ -48,12 +48,12 @@ int main(int argc, char *argv[])
 {
     QString         cfg_file;
     std::string     conf;
+    std::string     style;
     bool            clierr = false;
     bool            edit_conf = false;
     int             return_code;
 
     QApplication app(argc, argv);
-    QApplication::setStyle(QStyleFactory::create("Fusion"));
     QCoreApplication::setOrganizationName(GQRX_ORG_NAME);
     QCoreApplication::setOrganizationDomain(GQRX_ORG_DOMAIN);
     QCoreApplication::setApplicationName(GQRX_APP_NAME);
@@ -78,6 +78,7 @@ int main(int argc, char *argv[])
     po::options_description desc("Command line options");
     desc.add_options()
         ("help,h", "This help message")
+        ("style,s", po::value<std::string>(&style), "Use the give style (fusion, windows)")
         ("list,l", "List existing configurations")
         ("conf,c", po::value<std::string>(&conf), "Start with this config file")
         ("edit,e", "Edit the config file before using it")
@@ -109,6 +110,9 @@ int main(int argc, char *argv[])
         std::cout << desc << std::endl;
         return 1;
     }
+
+    if (vm.count("style"))
+        QApplication::setStyle(QString::fromStdString(style));
 
     if (vm.count("list"))
     {
