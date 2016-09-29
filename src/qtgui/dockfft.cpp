@@ -56,6 +56,7 @@ DockFft::DockFft(QWidget *parent) :
     // buttons can be smaller than 50x32
     ui->peakDetectionButton->setMinimumSize(48, 24);
     ui->peakHoldButton->setMinimumSize(48, 24);
+    ui->lockButton->setMinimumSize(48, 24);
     ui->resetButton->setMinimumSize(48, 24);
     ui->centerButton->setMinimumSize(48, 24);
     ui->demodButton->setMinimumSize(48, 24);
