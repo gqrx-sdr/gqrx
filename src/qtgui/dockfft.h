@@ -88,6 +88,7 @@ private slots:
     void on_fillButton_toggled(bool checked);
     void on_peakHoldButton_toggled(bool checked);
     void on_peakDetectionButton_toggled(bool checked);
+    void on_lockButton_toggled(bool checked);
 
 private:
     void updateInfoLabels(void);
@@ -97,6 +98,7 @@ private:
 //    float         m_maximumFftDb;
 //    float         m_minimumFftDb;
     float         m_sample_rate;
+    bool          m_pand_last_modified; /* Flag to indicate which slider was changed last */
 };
 
 #endif // DOCKFFT_H

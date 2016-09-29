@@ -78,7 +78,7 @@
          <x>0</x>
          <y>0</y>
          <width>252</width>
-         <height>340</height>
+         <height>339</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -114,73 +114,6 @@
           <property name="spacing">
            <number>5</number>
           </property>
-          <item row="6" column="1" colspan="2">
-           <widget class="ctkRangeSlider" name="pandRangeSlider">
-            <property name="toolTip">
-             <string>Set pandapter dB range</string>
-            </property>
-            <property name="statusTip">
-             <string>Set pandapter dB range</string>
-            </property>
-            <property name="minimum">
-             <number>-160</number>
-            </property>
-            <property name="maximum">
-             <number>0</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="2">
-           <widget class="QLabel" name="zoomLevelLabel">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Current zoom level on the frequency axis</string>
-            </property>
-            <property name="statusTip">
-             <string>Current zoom level on the frequency axis</string>
-            </property>
-            <property name="text">
-             <string>1x</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="peakLabel">
-            <property name="text">
-             <string>Peak</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="0">
-           <widget class="QLabel" name="zoomLAbel">
-            <property name="toolTip">
-             <string>Set zoom level on the frequency axis</string>
-            </property>
-            <property name="statusTip">
-             <string>Set zoom level on the frequency axis</string>
-            </property>
-            <property name="text">
-             <string>Freq zoom</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
           <item row="7" column="0">
            <widget class="QLabel" name="wfRangeLabel">
             <property name="toolTip">
@@ -194,305 +127,6 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QSlider" name="fftSplitSlider">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>22</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Spatial distribution between pandapter and waterfall</string>
-            </property>
-            <property name="minimum">
-             <number>0</number>
-            </property>
-            <property name="maximum">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>50</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label">
-            <property name="toolTip">
-             <string>The vertical time span on the waterfall.</string>
-            </property>
-            <property name="statusTip">
-             <string/>
-            </property>
-            <property name="text">
-             <string>Time span</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="fftRateLabel">
-            <property name="text">
-             <string>Rate</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="1" colspan="2">
-           <widget class="ctkRangeSlider" name="wfRangeSlider">
-            <property name="toolTip">
-             <string>Set waterfall dB range</string>
-            </property>
-            <property name="statusTip">
-             <string>Set waterfall dB range</string>
-            </property>
-            <property name="minimum">
-             <number>-160</number>
-            </property>
-            <property name="maximum">
-             <number>0</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="0">
-           <widget class="QLabel" name="pandRangeLabel">
-            <property name="toolTip">
-             <string>Set pandapter dB range</string>
-            </property>
-            <property name="statusTip">
-             <string>Set pandapter dB range</string>
-            </property>
-            <property name="text">
-             <string>Pand. dB</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="fftAvgLabel">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>FFT averaging gain</string>
-            </property>
-            <property name="text">
-             <string>Averaging</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QLabel" name="fftRbwLabel">
-            <property name="toolTip">
-             <string>Resolution bandwidth</string>
-            </property>
-            <property name="text">
-             <string>RBW: 0 kHz</string>
-            </property>
-           </widget>
-          </item>
-          <item row="10" column="0">
-           <widget class="QLabel" name="colorLabel">
-            <property name="toolTip">
-             <string>Color for the FFT plot</string>
-            </property>
-            <property name="text">
-             <string>Color</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="fftSizeComboBox">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>&lt;html&gt;Number of FFT points to calculate. Higher values will require more CPU time. This will not influence the number of points on the display since that parameter is adjusted automatically according to the display size.
-&lt;/html&gt;</string>
-            </property>
-            <property name="editable">
-             <bool>false</bool>
-            </property>
-            <property name="currentIndex">
-             <number>7</number>
-            </property>
-            <property name="maxVisibleItems">
-             <number>15</number>
-            </property>
-            <property name="insertPolicy">
-             <enum>QComboBox::InsertAlphabetically</enum>
-            </property>
-            <item>
-             <property name="text">
-              <string>1048576</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>524288</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>262144</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>131072</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>65536</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>32768</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>16384</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>8192</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>4096</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>3840</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>2048</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>1024</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>768</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>512</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="4" column="2">
-           <widget class="QLabel" name="wfLabel">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Waterfall</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="pandLabel">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Pandapter</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="10" column="1">
-           <widget class="QtColorPicker" name="colorPicker">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>32</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Click to select color for the FFT plot</string>
-            </property>
-            <property name="statusTip">
-             <string>Click to select color for the FFT plot</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="flat">
-             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -693,7 +327,7 @@
             </property>
            </widget>
           </item>
-          <item row="9" column="0" colspan="3">
+          <item row="10" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0">
             <property name="spacing">
              <number>2</number>
@@ -784,7 +418,7 @@
             </item>
            </layout>
           </item>
-          <item row="8" column="1">
+          <item row="9" column="1">
            <widget class="QSlider" name="fftZoomSlider">
             <property name="sizePolicy">
              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
@@ -827,6 +461,270 @@
             </property>
            </widget>
           </item>
+          <item row="4" column="1">
+           <widget class="QSlider" name="fftSplitSlider">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>22</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Spatial distribution between pandapter and waterfall</string>
+            </property>
+            <property name="minimum">
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="value">
+             <number>50</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label">
+            <property name="toolTip">
+             <string>The vertical time span on the waterfall.</string>
+            </property>
+            <property name="statusTip">
+             <string/>
+            </property>
+            <property name="text">
+             <string>Time span</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="fftRateLabel">
+            <property name="text">
+             <string>Rate</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="fftAvgLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>FFT averaging gain</string>
+            </property>
+            <property name="text">
+             <string>Averaging</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="fftRbwLabel">
+            <property name="toolTip">
+             <string>Resolution bandwidth</string>
+            </property>
+            <property name="text">
+             <string>RBW: 0 kHz</string>
+            </property>
+           </widget>
+          </item>
+          <item row="11" column="0">
+           <widget class="QLabel" name="colorLabel">
+            <property name="toolTip">
+             <string>Color for the FFT plot</string>
+            </property>
+            <property name="text">
+             <string>Color</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="fftSizeComboBox">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;Number of FFT points to calculate. Higher values will require more CPU time. This will not influence the number of points on the display since that parameter is adjusted automatically according to the display size.
+&lt;/html&gt;</string>
+            </property>
+            <property name="editable">
+             <bool>false</bool>
+            </property>
+            <property name="currentIndex">
+             <number>7</number>
+            </property>
+            <property name="maxVisibleItems">
+             <number>15</number>
+            </property>
+            <property name="insertPolicy">
+             <enum>QComboBox::InsertAlphabetically</enum>
+            </property>
+            <item>
+             <property name="text">
+              <string>1048576</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>524288</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>262144</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>131072</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>65536</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>32768</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>16384</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>8192</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>4096</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>3840</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>2048</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>1024</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>768</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>512</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="4" column="2">
+           <widget class="QLabel" name="wfLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Waterfall</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="pandLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Pandapter</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="11" column="1">
+           <widget class="QtColorPicker" name="colorPicker">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>32</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Click to select color for the FFT plot</string>
+            </property>
+            <property name="statusTip">
+             <string>Click to select color for the FFT plot</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="flat">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="2">
            <widget class="QLabel" name="fftOvrLabel">
             <property name="toolTip">
@@ -837,7 +735,7 @@
             </property>
            </widget>
           </item>
-          <item row="10" column="2">
+          <item row="11" column="2">
            <widget class="QPushButton" name="fillButton">
             <property name="sizePolicy">
              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
@@ -957,6 +855,164 @@
              </property>
             </item>
            </widget>
+          </item>
+          <item row="9" column="2">
+           <widget class="QLabel" name="zoomLevelLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Current zoom level on the frequency axis</string>
+            </property>
+            <property name="statusTip">
+             <string>Current zoom level on the frequency axis</string>
+            </property>
+            <property name="text">
+             <string>1x</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="peakLabel">
+            <property name="text">
+             <string>Peak</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0">
+           <widget class="QLabel" name="zoomLAbel">
+            <property name="toolTip">
+             <string>Set zoom level on the frequency axis</string>
+            </property>
+            <property name="statusTip">
+             <string>Set zoom level on the frequency axis</string>
+            </property>
+            <property name="text">
+             <string>Freq zoom</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QLabel" name="pandRangeLabel">
+            <property name="toolTip">
+             <string>Set pandapter dB range</string>
+            </property>
+            <property name="statusTip">
+             <string>Set pandapter dB range</string>
+            </property>
+            <property name="text">
+             <string>Pand. dB</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1" rowspan="2" colspan="2">
+           <layout class="QGridLayout" name="gridLayout_3">
+            <property name="spacing">
+             <number>5</number>
+            </property>
+            <item row="0" column="0">
+             <widget class="ctkRangeSlider" name="pandRangeSlider">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Set pandapter dB range</string>
+              </property>
+              <property name="statusTip">
+               <string>Set pandapter dB range</string>
+              </property>
+              <property name="minimum">
+               <number>-160</number>
+              </property>
+              <property name="maximum">
+               <number>0</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="ctkRangeSlider" name="wfRangeSlider">
+              <property name="toolTip">
+               <string>Set waterfall dB range</string>
+              </property>
+              <property name="statusTip">
+               <string>Set waterfall dB range</string>
+              </property>
+              <property name="minimum">
+               <number>-160</number>
+              </property>
+              <property name="maximum">
+               <number>0</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1" rowspan="2">
+             <widget class="QPushButton" name="lockButton">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>40</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Lock panadapter and waterfall sliders together</string>
+              </property>
+              <property name="statusTip">
+               <string>Lock panadapter and waterfall sliders together</string>
+              </property>
+              <property name="text">
+               <string>Lock</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>
