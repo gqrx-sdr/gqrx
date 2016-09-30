@@ -51,10 +51,6 @@ struct TagInfo
         this->color=DefaultColor;
         this->name = name;
     }
-    bool operator<(const TagInfo &other) const
-    {
-        return name < other.name;
-    }
 };
 
 struct BookmarkInfo
