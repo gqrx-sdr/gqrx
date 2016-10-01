@@ -254,7 +254,7 @@ void RemoteControl::startRead()
             rc_socket->write("RPRT 0\n");
             rc_mode = mode;
 
-            if (rc_mode < 2)
+            if (rc_mode == 0)
                 audio_recorder_status = false;
 
             emit newMode(rc_mode);
@@ -280,7 +280,7 @@ void RemoteControl::startRead()
         }
         else if (func.compare("RECORD", Qt::CaseInsensitive) == 0)
         {
-            if (rc_mode < 2 || !receiver_running)
+            if (rc_mode == 0 || !receiver_running)
             {
                 rc_socket->write("RPRT 1\n");
             }
@@ -317,7 +317,7 @@ void RemoteControl::startRead()
     //   LOS  - satellite LOS event
     else if (cmdlist[0] == "AOS")
     {
-        if (rc_mode >= 2 && receiver_running)
+        if (rc_mode > 0 && receiver_running)
         {
             emit startAudioRecorderEvent();
             audio_recorder_status = true;
@@ -407,7 +407,7 @@ void RemoteControl::setMode(int mode)
 {
     rc_mode = mode;
 
-    if (rc_mode < 2)
+    if (rc_mode == 0)
         audio_recorder_status = false;
 }
 
