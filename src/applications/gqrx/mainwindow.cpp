@@ -1057,8 +1057,7 @@ void MainWindow::selectDemod(int mode_idx)
     rx->set_cw_offset(cwofs);
     rx->set_sql_level(uiDockRxOpt->currentSquelchLevel());
 
-    d_have_audio = ((mode_idx != DockRxOpt::MODE_OFF) &&
-                    (mode_idx != DockRxOpt::MODE_RAW));
+    d_have_audio = (mode_idx != DockRxOpt::MODE_OFF);
 
     uiDockRxOpt->setCurrentDemod(mode_idx);
 }

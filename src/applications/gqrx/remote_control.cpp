@@ -444,7 +444,7 @@ void RemoteControl::setSquelchLevel(double level)
 /*! \brief Start audio recorder (from mainwindow). */
 void RemoteControl::startAudioRecorder(QString unused)
 {
-    if (rc_mode >= 2)
+    if (rc_mode > 0)
         audio_recorder_status = true;
 }
 
