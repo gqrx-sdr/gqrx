@@ -1,4 +1,4 @@
-       2.6: Released TBD
+       2.6: Released October 3, 2016
 
        NEW: 1-2-5 scaling on FFT axis.
        NEW: Audio waterfall.
@@ -17,6 +17,7 @@
      FIXED: Update squelch level when switching between demodulators.
      FIXED: Set correct filter range when loading bookmark.
      FIXED: White area on waterfall.
+     FIXED: RFSpace Cloud-IQ support on Mac OS X and in PPA
   IMPROVED: Input decimator performance.
   IMPROVED: SDRPlay integration.
   IMPROVED: Only probe for devices when the program is started.
