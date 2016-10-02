@@ -10,9 +10,10 @@
 #   BOOST_SUFFIX=-mt       To link against libboost-xyz-mt (needed for pybombs)
 #--------------------------------------------------------------------------------
 
-QT       += core gui network
-contains(QT_MAJOR_VERSION,5) {
-    QT += widgets
+QT       += core gui network widgets
+
+lessThan(QT_MAJOR_VERSION,5) {
+    error("Gqrx requires Qt 5.")
 }
 
 TEMPLATE = app
