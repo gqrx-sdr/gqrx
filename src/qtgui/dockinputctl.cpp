@@ -85,11 +85,12 @@ void DockInputCtl::readSettings(QSettings * settings)
 
     // gains are stored as a QMap<QString, QVariant(int)>
     // note that we store the integer values, i.e. dB*10
-    QMap <QString, QVariant> allgains;
-    QString gain_name;
-    double gain_value;
     if (settings->contains("input/gains"))
     {
+        QMap <QString, QVariant>    allgains;
+        QString     gain_name;
+        double      gain_value;
+
         allgains = settings->value("input/gains").toMap();
         QMapIterator <QString, QVariant> gain_iter(allgains);
 
@@ -103,7 +104,6 @@ void DockInputCtl::readSettings(QSettings * settings)
             emit gainChanged(gain_name, gain_value);
         }
     }
-
 }
 
 void DockInputCtl::saveSettings(QSettings * settings)
