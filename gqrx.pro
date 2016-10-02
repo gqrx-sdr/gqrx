@@ -32,7 +32,7 @@ CONFIG += link_pkgconfig
 unix:!macx {
     equals(AUDIO_BACKEND, "portaudio") {
         !packagesExist(portaudio-2.0) {
-            error(Portaudio backend requires portaudio19-dev package.)
+            error("Portaudio backend requires portaudio19-dev package.")
         }
     }
     isEmpty(AUDIO_BACKEND) {
@@ -52,7 +52,7 @@ QMAKE_CLEAN += gqrx
 
 # make install target
 isEmpty(PREFIX) {
-    message(No prefix given. Using /usr/local)
+    message("No prefix given. Using /usr/local")
     PREFIX=/usr/local
 }
 
