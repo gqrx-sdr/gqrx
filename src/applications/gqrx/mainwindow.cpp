@@ -575,8 +575,19 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
         setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
     }
 
-    remote->readSettings(m_settings);
     iq_tool->readSettings(m_settings);
+
+    /*
+     * Initialization the remote control at the end.
+     * We must be sure that all variables initialized before starting RC server.
+     */
+    remote->readSettings(m_settings);
+    bool_val = m_settings->value("remote_control/enabled", false).toBool();
+    if (bool_val)
+    {
+       remote->start_server();
+       ui->actionRemoteControl->setChecked(true);
+    }
 
     return conf_ok;
 }

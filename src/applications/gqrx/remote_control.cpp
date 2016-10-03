@@ -57,7 +57,8 @@ RemoteControl::~RemoteControl()
 /*! \brief Start the server. */
 void RemoteControl::start_server()
 {
-    rc_server.listen(QHostAddress::Any, rc_port);
+    if (!rc_server.isListening())
+        rc_server.listen(QHostAddress::Any, rc_port);
 }
 
 /*! \brief Stop the server. */
@@ -100,6 +101,11 @@ void RemoteControl::saveSettings(QSettings *settings) const
         return;
 
     settings->beginGroup("remote_control");
+
+    if (rc_server.isListening())
+        settings->setValue("enabled", true);
+    else
+        settings->remove("enabled");
 
     if (rc_port != 7356)
         settings->setValue("port", rc_port);
