@@ -235,6 +235,8 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
             ui->plotter, SLOT(setWaterfallRange(float,float)));
     connect(ui->plotter, SIGNAL(pandapterRangeChanged(float,float)),
             uiDockFft, SLOT(setPandapterRange(float,float)));
+    connect(ui->plotter, SIGNAL(newZoomLevel(float)),
+            uiDockFft, SLOT(setZoomLevel(float)));
 
     connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
