@@ -139,18 +139,21 @@ void RemoteControl::setHosts(QStringList hosts)
  */
 void RemoteControl::acceptConnection()
 {
-    rc_socket = rc_server.nextPendingConnection();
+    QTcpSocket* new_socket = rc_server.nextPendingConnection();
 
     // check if host is allowed
-    QString address = rc_socket->peerAddress().toString();
+    QString address = new_socket->peerAddress().toString();
     if (rc_allowed_hosts.indexOf(address) == -1)
     {
         std::cout << "*** Remote connection attempt from " << address.toStdString()
                   << " (not in allowed list)" << std::endl;
-        rc_socket->close();
+        new_socket->close();
     }
     else
     {
+        if (rc_socket != 0)
+            rc_socket->close();
+        rc_socket = new_socket;
         connect(rc_socket, SIGNAL(readyRead()), this, SLOT(startRead()));
     }
 }
