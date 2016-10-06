@@ -27,6 +27,9 @@
 #include <QStringList>
 #include "remote_control.h"
 
+#define DEFAULT_RC_PORT            7356
+#define DEFAULT_RC_ALLOWED_HOSTS   "::ffff:127.0.0.1"
+
 RemoteControl::RemoteControl(QObject *parent) :
     QObject(parent)
 {
@@ -40,8 +43,8 @@ RemoteControl::RemoteControl(QObject *parent) :
     audio_recorder_status = false;
     receiver_running = false;
 
-    rc_port = 7356;
-    rc_allowed_hosts.append("::ffff:127.0.0.1");
+    rc_port = DEFAULT_RC_PORT;
+    rc_allowed_hosts.append(DEFAULT_RC_ALLOWED_HOSTS);
 
     rc_socket = 0;
 
@@ -81,16 +84,12 @@ void RemoteControl::readSettings(QSettings *settings)
     settings->beginGroup("remote_control");
 
     // Get port number; restart server if running
-    rc_port = settings->value("port", 7356).toInt();
-    if (rc_server.isListening())
-    {
-        rc_server.close();
-        rc_server.listen(QHostAddress::Any, rc_port);
-    }
+    if (settings->contains("port"))
+        setPort(settings->value("port").toInt());
 
     // Get list of allowed hosts
     if (settings->contains("allowed_hosts"))
-        rc_allowed_hosts = settings->value("allowed_hosts").toStringList();
+        setHosts(settings->value("allowed_hosts").toStringList());
 
     settings->endGroup();
 }
@@ -107,12 +106,12 @@ void RemoteControl::saveSettings(QSettings *settings) const
     else
         settings->remove("enabled");
 
-    if (rc_port != 7356)
+    if (rc_port != DEFAULT_RC_PORT)
         settings->setValue("port", rc_port);
     else
         settings->remove("port");
 
-    if ((rc_allowed_hosts.count() != 1) || (rc_allowed_hosts.at(0) != "::ffff:127.0.0.1"))
+    if ((rc_allowed_hosts.count() != 1) || (rc_allowed_hosts.at(0) != DEFAULT_RC_ALLOWED_HOSTS))
         settings->setValue("allowed_hosts", rc_allowed_hosts);
     else
         settings->remove("allowed_hosts");
@@ -141,10 +140,7 @@ void RemoteControl::setPort(int port)
 
 void RemoteControl::setHosts(QStringList hosts)
 {
-    rc_allowed_hosts.clear();
-
-    for (int i = 0; i < hosts.count(); i++)
-        rc_allowed_hosts << hosts.at(i);
+    rc_allowed_hosts = hosts;
 }
 
 

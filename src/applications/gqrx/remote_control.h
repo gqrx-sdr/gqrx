@@ -31,7 +31,6 @@
 #include <QTcpSocket>
 #include <QtNetwork>
 
-
 /*! \brief Simple TCP server for remote control.
  *
  * The TCP interface is compatible with the hamlib rigtctld so that applications
