@@ -1,3 +1,9 @@
+       2.7: TBD...
+
+       NEW: Save remote control state between sessions.
+     FIXED: Keep waterfall zoom level and zoom slider synchronised.
+
+
        2.6: Released October 3, 2016
 
        NEW: 1-2-5 scaling on FFT axis.
