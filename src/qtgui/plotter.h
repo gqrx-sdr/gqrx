@@ -121,6 +121,7 @@ signals:
     void newHighCutFreq(int f);
     void newFilterFreq(int low, int high);  /* substitute for NewLow / NewHigh */
     void pandapterRangeChanged(float min, float max);
+    void newZoomLevel(float level);
 
 public slots:
     // zoom functions

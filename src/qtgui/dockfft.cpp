@@ -334,6 +334,14 @@ void DockFft::setWaterfallRange(float min, float max)
     ui->wfRangeSlider->blockSignals(false);
 }
 
+void DockFft::setZoomLevel(float level)
+{
+    ui->fftZoomSlider->blockSignals(true);
+    ui->fftZoomSlider->setValue((int) level);
+    ui->zoomLevelLabel->setText(QString("%1x").arg((int) level));
+    ui->fftZoomSlider->blockSignals(false);
+}
+
 /** FFT size changed. */
 void DockFft::on_fftSizeComboBox_currentIndexChanged(const QString &text)
 {
