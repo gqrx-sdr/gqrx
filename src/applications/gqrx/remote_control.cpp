@@ -57,7 +57,8 @@ RemoteControl::~RemoteControl()
 /*! \brief Start the server. */
 void RemoteControl::start_server()
 {
-    rc_server.listen(QHostAddress::Any, rc_port);
+    if (!rc_server.isListening())
+        rc_server.listen(QHostAddress::Any, rc_port);
 }
 
 /*! \brief Stop the server. */
@@ -74,35 +75,49 @@ void RemoteControl::stop_server()
 /*! \brief Read settings. */
 void RemoteControl::readSettings(QSettings *settings)
 {
-    bool conv_ok;
+    if (!settings)
+        return;
 
-    rc_freq = settings->value("input/frequency", 144500000).toLongLong(&conv_ok);
-    rc_filter_offset = settings->value("receiver/offset", 0).toInt(&conv_ok);
+    settings->beginGroup("remote_control");
 
     // Get port number; restart server if running
-    rc_port = settings->value("remote_control/port", 7356).toInt(&conv_ok);
+    rc_port = settings->value("port", 7356).toInt();
     if (rc_server.isListening())
     {
         rc_server.close();
         rc_server.listen(QHostAddress::Any, rc_port);
     }
 
-    // get list of allowed hosts
-    if (settings->contains("remote_control/allowed_hosts"))
-        rc_allowed_hosts = settings->value("remote_control/allowed_hosts").toStringList();
+    // Get list of allowed hosts
+    if (settings->contains("allowed_hosts"))
+        rc_allowed_hosts = settings->value("allowed_hosts").toStringList();
+
+    settings->endGroup();
 }
 
 void RemoteControl::saveSettings(QSettings *settings) const
 {
-    if (rc_port != 7356)
-        settings->setValue("remote_control/port", rc_port);
+    if (!settings)
+        return;
+
+    settings->beginGroup("remote_control");
+
+    if (rc_server.isListening())
+        settings->setValue("enabled", true);
     else
-        settings->remove("remote_control/port");
+        settings->remove("enabled");
+
+    if (rc_port != 7356)
+        settings->setValue("port", rc_port);
+    else
+        settings->remove("port");
 
     if ((rc_allowed_hosts.count() != 1) || (rc_allowed_hosts.at(0) != "::ffff:127.0.0.1"))
-        settings->setValue("remote_control/allowed_hosts", rc_allowed_hosts);
+        settings->setValue("allowed_hosts", rc_allowed_hosts);
     else
-        settings->remove("remote_control/allowed_hosts");
+        settings->remove("allowed_hosts");
+
+    settings->endGroup();
 }
 
 /*! \brief Set new network port.
