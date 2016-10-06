@@ -251,21 +251,27 @@ void RemoteControl::startRead()
     // Mode and filter
     else if (cmdlist[0] == "M")
     {
-        int mode = modeStrToInt(cmdlist.value(1, ""));
-        if (mode == -1)
-        {
-            // invalid string
-            rc_socket->write("RPRT 1\n");
-        }
+        QString cmd_arg = cmdlist.value(1, "");
+        if (cmd_arg == "?")
+            rc_socket->write("OFF RAW AM FM WFM WFM_ST WFM_ST_OIRT LSB USB CW CWL CWU\n");
         else
         {
-            rc_socket->write("RPRT 0\n");
-            rc_mode = mode;
+            int mode = modeStrToInt(cmd_arg);
+            if (mode == -1)
+            {
+                // invalid string
+                rc_socket->write("RPRT 1\n");
+            }
+            else
+            {
+                rc_socket->write("RPRT 0\n");
+                rc_mode = mode;
 
-            if (rc_mode == 0)
-                audio_recorder_status = false;
+                if (rc_mode == 0)
+                    audio_recorder_status = false;
 
-            emit newMode(rc_mode);
+                emit newMode(rc_mode);
+            }
         }
     }
     else if (cmdlist[0] == "m")
