@@ -31,6 +31,8 @@
 #include <QTcpSocket>
 #include <QtNetwork>
 
+#define DEFAULT_RC_PORT            7356
+#define DEFAULT_RC_ALLOWED_HOSTS   "::ffff:127.0.0.1"
 
 /*! \brief Simple TCP server for remote control.
  *
