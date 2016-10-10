@@ -1,22 +1,38 @@
 Remote control protocol.
 
 Supported commands:
- f - Get frequency [Hz]
- F - Set frequency [Hz]
- m - Get demodulator mode
- M - Set demodulator mode. Passing a '?' as the first argument instead of 'mode'
-     will return a space separated list of radio backend supported modes.
- l STRENGTH - Get signal strength [dBFS]
- l SQL   - Get squelch threshold [dBFS]
- L SQL <sql> - Set squelch threshold to <sql> [dBFS]
- u RECORD - Get status of audio recorder
- U RECORD <status> - Set status of audio recorder to <status>
- c - Close connection
- AOS - Acquisition of signal (AOS) event, start audio recording
- LOS - Loss of signal (LOS) event, stop audio recording
- \dump_state - Dump state (only usable for compatibility)
+ f
+    Get frequency [Hz]
+ F <frequency>
+    Set frequency [Hz]
+ m
+    Get demodulator mode
+ M <mode>
+    Set demodulator mode
+    Passing a '?' as the first argument instead of 'mode' will return
+    a space separated list of radio backend supported modes.
+ l STRENGTH
+    Get signal strength [dBFS]
+ l SQL
+    Get squelch threshold [dBFS]
+ L SQL <sql>
+    Set squelch threshold to <sql> [dBFS]
+ u RECORD
+    Get status of audio recorder
+ U RECORD <status>
+    Set status of audio recorder to <status>
+ c
+    Close connection
+ AOS
+    Acquisition of signal (AOS) event, start audio recording
+ LOS
+    Loss of signal (LOS) event, stop audio recording
+ \dump_state
+    Dump state (only usable for compatibility)
 
 
 Reply:
- RPRT 0 - Command successful
- RPRT 1 - Command failed
+ RPRT 0
+    Command successful
+ RPRT 1
+    Command failed
