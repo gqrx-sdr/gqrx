@@ -6,9 +6,9 @@ Supported commands:
  F <frequency>
     Set frequency [Hz]
  m
-    Get demodulator mode
- M <mode>
-    Set demodulator mode
+    Get demodulator mode and passband
+ M <mode> [passband]
+    Set demodulator mode and passband [Hz]
     Passing a '?' as the first argument instead of 'mode' will return
     a space separated list of radio backend supported modes.
  l STRENGTH

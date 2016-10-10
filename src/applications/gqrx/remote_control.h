@@ -88,6 +88,7 @@ public slots:
     void setBandwidth(qint64 bw);
     void setSignalLevel(float level);
     void setMode(int mode);
+    void setPassband(int passband_lo, int passband_hi);
     void setSquelchLevel(double level);
     void startAudioRecorder(QString unused);
     void stopAudioRecorder();
@@ -96,6 +97,7 @@ signals:
     void newFrequency(qint64 freq);
     void newFilterOffset(qint64 offset);
     void newMode(int mode);
+    void newPassband(int passband);
     void newSquelchLevel(double level);
     void startAudioRecorderEvent();
     void stopAudioRecorderEvent();
@@ -116,6 +118,8 @@ private:
     qint64      bw_half;
 
     int         rc_mode;           /*!< Current mode. */
+    int         rc_passband_lo;    /*!< Current low cutoff. */
+    int         rc_passband_hi;    /*!< Current high cutoff. */
     float       signal_level;      /*!< Signal level in dBFS */
     double      squelch_level;     /*!< Squelch level in dBFS */
     bool        audio_recorder_status; /*!< Recording enabled */

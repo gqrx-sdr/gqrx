@@ -264,19 +264,26 @@ void RemoteControl::startRead()
             }
             else
             {
-                rc_socket->write("RPRT 0\n");
                 rc_mode = mode;
+                emit newMode(rc_mode);
+
+                int passband = cmdlist.value(2, "0").toInt();
+                if ( passband != 0 )
+                    emit newPassband(passband);
 
                 if (rc_mode == 0)
                     audio_recorder_status = false;
 
-                emit newMode(rc_mode);
+                rc_socket->write("RPRT 0\n");
             }
         }
     }
     else if (cmdlist[0] == "m")
     {
-        rc_socket->write(QString("%1\n").arg(intToModeStr(rc_mode)).toLatin1());
+        QString msg = QString("%1 %2\n")
+                              .arg(intToModeStr(rc_mode))
+                              .arg(rc_passband_hi - rc_passband_lo);
+        rc_socket->write(msg.toLatin1());
     }
     else if (cmdlist[0] == "U")
     {
@@ -423,6 +430,13 @@ void RemoteControl::setMode(int mode)
 
     if (rc_mode == 0)
         audio_recorder_status = false;
+}
+
+/*! \brief Set passband (from mainwindow). */
+void RemoteControl::setPassband(int passband_lo, int passband_hi)
+{
+    rc_passband_lo = passband_lo;
+    rc_passband_hi = passband_hi;
 }
 
 /*! \brief New remote frequency received. */
