@@ -2059,7 +2059,6 @@ void MainWindow::onBookmarkActivated(qint64 freq, QString demod, int bandwidth)
     }
 
     on_plotter_newFilterFreq(lo, hi);
-    ui->plotter->setHiLowCutFrequencies(lo, hi);
 }
 
 void MainWindow::setPassband(int bandwidth)
