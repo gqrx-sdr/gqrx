@@ -1072,6 +1072,7 @@ void MainWindow::selectDemod(int mode_idx)
     rx->set_cw_offset(cwofs);
     rx->set_sql_level(uiDockRxOpt->currentSquelchLevel());
 
+    remote->setMode(mode_idx);
     remote->setPassband(flo, fhi);
 
     d_have_audio = (mode_idx != DockRxOpt::MODE_OFF);
