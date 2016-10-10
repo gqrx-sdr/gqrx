@@ -448,18 +448,22 @@ void RemoteControl::setNewRemoteFreq(qint64 freq)
 {
     qint64 delta = freq - rc_freq;
 
-    if (std::abs(rc_filter_offset + delta) < bw_half)
+    rc_filter_offset += delta;
+    if (((rc_filter_offset > 0) && ((rc_filter_offset + rc_passband_hi) < bw_half))
+        || ((rc_filter_offset < 0) && ((rc_filter_offset + rc_passband_lo) > -bw_half)))
     {
         // move filter offset
-        rc_filter_offset += delta;
         emit newFilterOffset(rc_filter_offset);
     }
     else
     {
         // move rx freqeucy and let MainWindow deal with it
         // (will usually change hardware PLL)
-        // reset the filter_offset, otherwise the MainWindo will preserve it
-        rc_filter_offset = 0;
+        // reset the filter_offset, otherwise the MainWindow will preserve it
+        if (rc_filter_offset < 0)
+            rc_filter_offset = bw_half - rc_passband_hi;
+        else
+            rc_filter_offset = -bw_half - rc_passband_lo;
         emit newFilterOffset(rc_filter_offset);
         emit newFrequency(freq);
     }
