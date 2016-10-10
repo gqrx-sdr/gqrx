@@ -2036,29 +2036,7 @@ void MainWindow::onBookmarkActivated(qint64 freq, QString demod, int bandwidth)
 {
     setNewFrequency(freq);
     selectDemod(demod);
-
-    /* Check if filter is symmetric or not by checking the presets */
-    int mode = uiDockRxOpt->currentDemod();
-    int preset = uiDockRxOpt->currentFilterShape();
-
-    int lo, hi;
-    uiDockRxOpt->getFilterPreset(mode, preset, &lo, &hi);
-
-    if(lo + hi == 0)
-    {
-        lo = -bandwidth / 2;
-        hi =  bandwidth / 2;
-    }
-    else if(lo >= 0 && hi >= 0)
-    {
-        hi = lo + bandwidth;
-    }
-    else if(lo <= 0 && hi <= 0)
-    {
-        lo = hi - bandwidth;
-    }
-
-    on_plotter_newFilterFreq(lo, hi);
+    setPassband(bandwidth);
 }
 
 void MainWindow::setPassband(int bandwidth)
