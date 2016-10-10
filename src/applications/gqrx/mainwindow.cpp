@@ -267,6 +267,8 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), remote, SLOT(setSquelchLevel(double)));
     connect(remote, SIGNAL(startAudioRecorderEvent()), uiDockAudio, SLOT(startAudioRecorder()));
     connect(remote, SIGNAL(stopAudioRecorderEvent()), uiDockAudio, SLOT(stopAudioRecorder()));
+    connect(ui->plotter, SIGNAL(newFilterFreq(int, int)), remote, SLOT(setPassband(int, int)));
+    connect(remote, SIGNAL(newPassband(int)), this, SLOT(setPassband(int)));
 
     rds_timer = new QTimer(this);
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
@@ -1069,6 +1071,8 @@ void MainWindow::selectDemod(int mode_idx)
     rx->set_filter((double)flo, (double)fhi, d_filter_shape);
     rx->set_cw_offset(cwofs);
     rx->set_sql_level(uiDockRxOpt->currentSquelchLevel());
+
+    remote->setPassband(flo, fhi);
 
     d_have_audio = (mode_idx != DockRxOpt::MODE_OFF);
 
@@ -2052,6 +2056,34 @@ void MainWindow::onBookmarkActivated(qint64 freq, QString demod, int bandwidth)
     {
         lo = hi - bandwidth;
     }
+
+    on_plotter_newFilterFreq(lo, hi);
+}
+
+void MainWindow::setPassband(int bandwidth)
+{
+    /* Check if filter is symmetric or not by checking the presets */
+    int mode = uiDockRxOpt->currentDemod();
+    int preset = uiDockRxOpt->currentFilterShape();
+
+    int lo, hi;
+    uiDockRxOpt->getFilterPreset(mode, preset, &lo, &hi);
+
+    if(lo + hi == 0)
+    {
+        lo = -bandwidth / 2;
+        hi =  bandwidth / 2;
+    }
+    else if(lo >= 0 && hi >= 0)
+    {
+        hi = lo + bandwidth;
+    }
+    else if(lo <= 0 && hi <= 0)
+    {
+        lo = hi - bandwidth;
+    }
+
+    remote->setPassband(lo, hi);
 
     on_plotter_newFilterFreq(lo, hi);
 }
