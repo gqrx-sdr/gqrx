@@ -2054,7 +2054,6 @@ void MainWindow::onBookmarkActivated(qint64 freq, QString demod, int bandwidth)
     }
 
     on_plotter_newFilterFreq(lo, hi);
-    ui->plotter->setHiLowCutFrequencies(lo, hi);
 }
 
 /** Launch Gqrx google group website. */
