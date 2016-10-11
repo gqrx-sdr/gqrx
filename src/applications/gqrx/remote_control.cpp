@@ -203,7 +203,7 @@ void RemoteControl::startRead()
     {
         rc_socket->write(QString("%1\n").arg(rc_freq).toLatin1());
     }
-    else if (cmdlist[0] == "c")
+    else if (cmdlist[0] == "q" || cmdlist[0] == "Q")
     {
         // FIXME: for now we assume 'close' command
         rc_socket->close();
