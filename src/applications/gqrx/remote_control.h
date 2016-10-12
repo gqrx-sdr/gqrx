@@ -121,6 +121,8 @@ private:
     void        setNewRemoteFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);
     QString     intToModeStr(int mode);
+
+    bool        hamlib_compatible;
 };
 
 #endif // REMOTE_CONTROL_H
