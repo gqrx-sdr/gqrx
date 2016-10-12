@@ -603,11 +603,11 @@ QString RemoteControl::intToModeStr(int mode)
         break;
 
     case 8:
-        mode_str = "CWL";
+        mode_str = "CW";
         break;
 
     case 9:
-        mode_str = "CWU";
+        mode_str = "CWR";
         break;
 
     case 10:
