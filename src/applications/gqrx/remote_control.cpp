@@ -253,7 +253,7 @@ void RemoteControl::startRead()
     {
         QString cmd_arg = cmdlist.value(1, "");
         if (cmd_arg == "?")
-            rc_socket->write("OFF RAW AM FM WFM WFM_ST WFM_ST_OIRT LSB USB CW CWL CWU\n");
+            rc_socket->write("OFF RAW AM FM WFM WFM_ST WFM_ST_OIRT LSB USB CW CWL CWR CWU\n");
         else
         {
             int mode = modeStrToInt(cmd_arg);
@@ -543,6 +543,10 @@ int RemoteControl::modeStrToInt(QString mode_str)
     else if (mode_str.compare("CWL", Qt::CaseInsensitive) == 0)
     {
         mode_int = 8;
+    }
+    else if (mode_str.compare("CWR", Qt::CaseInsensitive) == 0)
+    {
+        mode_int = 9;
     }
     else if (mode_str.compare("CWU", Qt::CaseInsensitive) == 0)
     {
