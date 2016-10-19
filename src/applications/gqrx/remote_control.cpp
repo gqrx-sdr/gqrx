@@ -42,6 +42,7 @@ RemoteControl::RemoteControl(QObject *parent) :
     squelch_level = -150.0;
     audio_recorder_status = false;
     receiver_running = false;
+    hamlib_compatible = false;
 
     rc_port = DEFAULT_RC_PORT;
     rc_allowed_hosts.append(DEFAULT_RC_ALLOWED_HOSTS);
@@ -206,7 +207,7 @@ void RemoteControl::startRead()
     {
         rc_socket->write(QString("%1\n").arg(rc_freq).toLatin1());
     }
-    else if (cmdlist[0] == "c")
+    else if (cmdlist[0] == "q" || cmdlist[0] == "Q")
     {
         // FIXME: for now we assume 'close' command
         rc_socket->close();
@@ -256,7 +257,7 @@ void RemoteControl::startRead()
     {
         QString cmd_arg = cmdlist.value(1, "");
         if (cmd_arg == "?")
-            rc_socket->write("OFF RAW AM FM WFM WFM_ST WFM_ST_OIRT LSB USB CW CWL CWU\n");
+            rc_socket->write("OFF RAW AM FM WFM WFM_ST WFM_ST_OIRT LSB USB CW CWL CWR CWU\n");
         else
         {
             int mode = modeStrToInt(cmd_arg);
@@ -524,14 +525,22 @@ int RemoteControl::modeStrToInt(QString mode_str)
     else if (mode_str.compare("CW", Qt::CaseInsensitive) == 0)
     {
         mode_int = 8;
+        hamlib_compatible = true;
     }
     else if (mode_str.compare("CWL", Qt::CaseInsensitive) == 0)
     {
         mode_int = 8;
+        hamlib_compatible = false;
+    }
+    else if (mode_str.compare("CWR", Qt::CaseInsensitive) == 0)
+    {
+        mode_int = 9;
+        hamlib_compatible = true;
     }
     else if (mode_str.compare("CWU", Qt::CaseInsensitive) == 0)
     {
         mode_int = 9;
+        hamlib_compatible = false;
     }
     else if (mode_str.compare("WFM_ST_OIRT", Qt::CaseInsensitive) == 0)
     {
@@ -584,11 +593,11 @@ QString RemoteControl::intToModeStr(int mode)
         break;
 
     case 8:
-        mode_str = "CWL";
+        mode_str = (hamlib_compatible) ? "CW" : "CWL";
         break;
 
     case 9:
-        mode_str = "CWU";
+        mode_str = (hamlib_compatible) ? "CWR" : "CWU";
         break;
 
     case 10:

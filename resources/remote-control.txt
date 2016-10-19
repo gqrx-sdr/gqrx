@@ -21,7 +21,7 @@ Supported commands:
     Get status of audio recorder
  U RECORD <status>
     Set status of audio recorder to <status>
- c
+ q|Q
     Close connection
  AOS
     Acquisition of signal (AOS) event, start audio recording
