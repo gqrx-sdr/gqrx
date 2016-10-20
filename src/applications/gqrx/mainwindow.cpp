@@ -937,6 +937,7 @@ void MainWindow::selectDemod(int mode_idx)
     float maxdev;
     int filter_preset = uiDockRxOpt->currentFilter();
     int flo=0, fhi=0, click_res=100;
+    bool rds_enabled;
 
     // validate mode_idx
     if (mode_idx < DockRxOpt::MODE_OFF || mode_idx >= DockRxOpt::MODE_LAST)
@@ -949,9 +950,9 @@ void MainWindow::selectDemod(int mode_idx)
     uiDockRxOpt->getFilterPreset(mode_idx, filter_preset, &flo, &fhi);
     d_filter_shape = (receiver::filter_shape)uiDockRxOpt->currentFilterShape();
 
-    if (rx->is_rds_decoder_active())
+    rds_enabled = rx->is_rds_decoder_active();
+    if (rds_enabled)
         setRdsDecoder(false);
-
     uiDockRDS->setDisabled();
 
     switch (mode_idx) {
@@ -1020,6 +1021,8 @@ void MainWindow::selectDemod(int mode_idx)
             rx->set_demod(receiver::RX_DEMOD_WFM_S);
 
         uiDockRDS->setEnabled();
+        if (rds_enabled)
+            setRdsDecoder(true);
         break;
 
     case DockRxOpt::MODE_LSB:
