@@ -93,7 +93,7 @@ void DockRDS::updateRDS(QString text, int type)
     }
 }
 
-void DockRDS::showEnabled()
+void DockRDS::ClearTextFields()
 {
     ui->program_information->setText("");
     ui->station_name->setText("");
@@ -102,7 +102,11 @@ void DockRDS::showEnabled()
     ui->radiotext->setText("");
     ui->clocktime->setText("");
     ui->alt_freq->setText("");
+}
 
+void DockRDS::showEnabled()
+{
+    ClearTextFields();
     if (!ui->rdsCheckbox->isChecked())
     {
         ui->rdsCheckbox->blockSignals(true);
@@ -113,13 +117,7 @@ void DockRDS::showEnabled()
 
 void DockRDS::showDisabled()
 {
-    ui->program_information->setText("");
-    ui->station_name->setText("");
-    ui->program_type->setText("");
-    ui->flags->setText("");
-    ui->radiotext->setText("");
-    ui->clocktime->setText("");
-    ui->alt_freq->setText("");
+    ClearTextFields();
 }
 
 void DockRDS::setDisabled()
