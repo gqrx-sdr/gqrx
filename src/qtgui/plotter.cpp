@@ -1336,8 +1336,11 @@ void CPlotter::drawOverlay()
 #endif
 
             int level = 0;
-            for (; level < nLevels && tagEnd[level] > x; level++);
-                level %= nLevels;
+            while(level < nLevels && tagEnd[level] > x)
+                level++;
+            
+            if(level == nLevels)
+                level = 0;
 
             tagEnd[level] = x + nameWidth + slant - 1;
             m_BookmarkTags.append(qMakePair<QRect, qint64>(QRect(x, level * levelHeight, nameWidth + slant, fontHeight), bookmarks[i].frequency));
