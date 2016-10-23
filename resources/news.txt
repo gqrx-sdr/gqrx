@@ -3,6 +3,7 @@
        NEW: Save remote control state between sessions.
        NEW: Support for passband when setting mode through remote.
      FIXED: Keep waterfall zoom level and zoom slider synchronised.
+     FIXED: RDS status is not kept while jumping through bookmark,
   IMPROVED: Tuning through the remote control interface.
 
 
