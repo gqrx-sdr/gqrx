@@ -24,6 +24,7 @@ public slots:
     void setDisabled();
 
 private:
+    void ClearTextFields();
 
 signals:
     void rdsDecoderToggled(bool);
