@@ -284,7 +284,7 @@ void RemoteControl::startRead()
     }
     else if (cmdlist[0] == "m")
     {
-        QString msg = QString("%1 %2\n")
+        QString msg = QString("%1\n%2\n")
                               .arg(intToModeStr(rc_mode))
                               .arg(rc_passband_hi - rc_passband_lo);
         rc_socket->write(msg.toLatin1());
