@@ -163,6 +163,8 @@ void RemoteControl::acceptConnection()
     }
     else
     {
+        /* new connction in non hamlib compatible mode */
+        hamlib_compatible = false;
         connect(rc_socket, SIGNAL(readyRead()), this, SLOT(startRead()));
     }
 }
@@ -257,7 +259,12 @@ void RemoteControl::startRead()
     {
         QString cmd_arg = cmdlist.value(1, "");
         if (cmd_arg == "?")
-            rc_socket->write("OFF RAW AM FM WFM WFM_ST WFM_ST_OIRT LSB USB CW CWL CWR CWU\n");
+        {
+            QString modes = (hamlib_compatible)
+                             ? "OFF RAW AM FM WFM WFM_ST WFM_ST_OIRT LSB USB CW CWR\n"
+                             : "OFF RAW AM FM WFM WFM_ST WFM_ST_OIRT LSB USB CWL CWU\n";
+            rc_socket->write(modes.toLatin1());
+        }
         else
         {
             int mode = modeStrToInt(cmd_arg);
@@ -284,9 +291,11 @@ void RemoteControl::startRead()
     }
     else if (cmdlist[0] == "m")
     {
-        QString msg = QString("%1 %2\n")
-                              .arg(intToModeStr(rc_mode))
-                              .arg(rc_passband_hi - rc_passband_lo);
+        QString msg = (hamlib_compatible)
+                       ? QString("%1\n%2\n")
+                         .arg(intToModeStr(rc_mode)).arg(rc_passband_hi - rc_passband_lo)
+                       : QString("%1 %2\n")
+                         .arg(intToModeStr(rc_mode)).arg(rc_passband_hi - rc_passband_lo);
         rc_socket->write(msg.toLatin1());
     }
     else if (cmdlist[0] == "U")
@@ -366,6 +375,7 @@ void RemoteControl::startRead()
      */
     else if (cmdlist[0] == "\\dump_state")
     {
+        hamlib_compatible = true;
         rc_socket->write("0\n"
                          "2\n"
                          "1\n"
@@ -543,22 +553,18 @@ int RemoteControl::modeStrToInt(QString mode_str)
     else if (mode_str.compare("CW", Qt::CaseInsensitive) == 0)
     {
         mode_int = 8;
-        hamlib_compatible = true;
     }
     else if (mode_str.compare("CWL", Qt::CaseInsensitive) == 0)
     {
         mode_int = 8;
-        hamlib_compatible = false;
     }
     else if (mode_str.compare("CWR", Qt::CaseInsensitive) == 0)
     {
         mode_int = 9;
-        hamlib_compatible = true;
     }
     else if (mode_str.compare("CWU", Qt::CaseInsensitive) == 0)
     {
         mode_int = 9;
-        hamlib_compatible = false;
     }
     else if (mode_str.compare("WFM_ST_OIRT", Qt::CaseInsensitive) == 0)
     {

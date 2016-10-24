@@ -29,6 +29,7 @@ Supported commands:
     Loss of signal (LOS) event, stop audio recording
  \dump_state
     Dump state (only usable for compatibility)
+    This command also switch the Gqrx to hamlib compatible mode.
 
 
 Reply:
