@@ -121,12 +121,14 @@ private:
     double      squelch_level;     /*!< Squelch level in dBFS */
     bool        audio_recorder_status; /*!< Recording enabled */
     bool        receiver_running;  /*!< Wether the receiver is running or not */
+    bool        hamlib_compatible;
 
     void        setNewRemoteFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);
     QString     intToModeStr(int mode);
 
-    bool        hamlib_compatible;
+    /* RC commands */
+    QString     cmd_dump_state();
 };
 
 #endif // REMOTE_CONTROL_H
