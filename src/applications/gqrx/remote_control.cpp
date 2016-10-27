@@ -357,36 +357,10 @@ void RemoteControl::startRead()
         rc_socket->write("RPRT 0\n");
 
     }
-
-    /* dump_state used by some clients, e.g. xdx
-     * For now just some quick hack that works taken from
-     * https://github.com/hexameron/rtl-sdrangelove/blob/master/plugins/channel/tcpsrc/rigctl.cpp
-     *
-     * More info in tests/rigctl_parse.c
-     */
     else if (cmdlist[0] == "\\dump_state")
     {
-        rc_socket->write("0\n"
-                         "2\n"
-                         "1\n"
-                         "150000.000000 30000000.000000  0x900af -1 -1 0x10000003 0x3\n"
-                         "0 0 0 0 0 0 0\n"
-                         "150000.000000 30000000.000000  0x900af -1 -1 0x10000003 0x3\n"
-                         "0 0 0 0 0 0 0\n"
-                         "0 0\n"
-                         "0 0\n"
-                         "0\n"
-                         "0\n"
-                         "0\n"
-                         "0\n"
-                         "\n"
-                         "\n"
-                         "0x0\n"
-                         "0x0\n"
-                         "0x0\n"
-                         "0x0\n"
-                         "0x0\n"
-                         "0\n");
+        QString answer = cmd_dump_state();
+        rc_socket->write(answer.toLatin1());
     }
 
     else
@@ -628,4 +602,82 @@ QString RemoteControl::intToModeStr(int mode)
     }
 
     return mode_str;
+}
+
+/*
+ * '\dump_state' used by hamlib clients, e.g. xdx, fldigi, rigctl and etc
+ * More info:
+ *  https://github.com/N0NB/hamlib/blob/master/include/hamlib/rig.h (bit fields)
+ *  https://github.com/N0NB/hamlib/blob/master/dummy/netrigctl.c
+ */
+QString RemoteControl::cmd_dump_state()
+{
+    return QString(
+        /* rigctl protocol version */
+        "0\n"
+        /* rigctl model */
+        "2\n"
+        /* ITU region */
+        "1\n"
+        /* RX/TX frequency ranges
+         * start, end, modes, low_power, high_power, vfo, ant
+         *  start/end - Start/End frequency [Hz]
+         *  modes - Bit field of RIG_MODE's (AM|CW|CWR|USB|LSB|FM|WFM)
+         *  low_power/high_power - Lower/Higher RF power in mW,
+         *                         -1 for no power (ie. rx list)
+         *  vfo - VFO list equipped with this range (RIG_VFO_A)
+         *  ant - Antenna list equipped with this range, 0 means all
+         *  FIXME: limits can be gets from receiver::get_rf_range()
+         */
+        "0.000000 10000000000.000000 0xef -1 -1 0x1 0x0\n"
+        /* End of RX frequency ranges. */
+        "0 0 0 0 0 0 0\n"
+        /* End of TX frequency ranges. The Gqrx is reciver only. */
+        "0 0 0 0 0 0 0\n"
+        /* Tuning steps: modes, tuning_step */
+        "0xef 1\n"
+        "0xef 0\n"
+        /* End of tuning steps */
+        "0 0\n"
+        /* Filter sizes: modes, width
+         * FIXME: filter can be gets from filter_preset_table
+         */
+        "0x82 500\n"    /* CW | CWR normal */
+        "0x82 200\n"    /* CW | CWR narrow */
+        "0x82 2000\n"   /* CW | CWR wide */
+        "0x21 10000\n"  /* AM | FM normal */
+        "0x21 5000\n"   /* AM | FM narrow */
+        "0x21 20000\n"  /* AM | FM wide */
+        "0x0c 2700\n"   /* SSB normal */
+        "0x0c 1400\n"   /* SSB narrow */
+        "0x0c 3900\n"   /* SSB wide */
+        "0x40 160000\n" /* WFM normal */
+        "0x40 120000\n" /* WFM narrow */
+        "0x40 200000\n" /* WFM wide */
+        /* End of filter sizes  */
+        "0 0\n"
+        /* max_rit  */
+        "0\n"
+        /* max_xit */
+        "0\n"
+        /* max_ifshift */
+        "0\n"
+        /* Announces (bit field list) */
+        "0\n" /* RIG_ANN_NONE */
+        /* Preamp list in dB, 0 terminated */
+        "0\n"
+        /* Attenuator list in dB, 0 terminated */
+        "0\n"
+        /* Bit field list of get functions */
+        "0\n" /* RIG_FUNC_NONE */
+        /* Bit field list of set functions */
+        "0\n" /* RIG_FUNC_NONE */
+        /* Bit field list of get level */
+        "0x40000020\n" /* RIG_LEVEL_SQL | RIG_LEVEL_STRENGTH */
+        /* Bit field list of set level */
+        "0x20\n"       /* RIG_LEVEL_SQL */
+        /* Bit field list of get parm */
+        "0\n" /* RIG_PARM_NONE */
+        /* Bit field list of set parm */
+        "0\n" /* RIG_PARM_NONE */);
 }
