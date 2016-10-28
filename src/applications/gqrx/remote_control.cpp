@@ -176,8 +176,7 @@ void RemoteControl::startRead()
 {
     char    buffer[1024] = {0};
     int     bytes_read;
-
-    bool ok = true;
+    QString answer = "";
 
     bytes_read = rc_socket->readLine(buffer, 1024);
     if (bytes_read < 2)  // command + '\n'
@@ -188,188 +187,43 @@ void RemoteControl::startRead()
     if (cmdlist.size() == 0)
         return;
 
-    // Set new frequency
-    if (cmdlist[0] == "F")
-    {
-        double freq = cmdlist.value(1, "ERR").toDouble(&ok);
-        if (ok)
-        {
-            setNewRemoteFreq((qint64)freq);
-            rc_socket->write("RPRT 0\n");
-        }
-        else
-        {
-            rc_socket->write("RPRT 1\n");
-        }
-    }
-    // Get frequency
-    else if (cmdlist[0] == "f")
-    {
-        rc_socket->write(QString("%1\n").arg(rc_freq).toLatin1());
-    }
-    else if (cmdlist[0] == "q" || cmdlist[0] == "Q")
+    QString cmd = cmdlist[0];
+    if (cmd == "f")
+        answer = cmd_get_freq();
+    else if (cmd == "F")
+        answer = cmd_set_freq(cmdlist);
+    else if (cmd == "m")
+        answer = cmd_get_mode();
+    else if (cmd == "M")
+        answer = cmd_set_mode(cmdlist);
+    else if (cmd == "l")
+        answer = cmd_get_level(cmdlist);
+    else if (cmd == "L")
+        answer = cmd_set_level(cmdlist);
+    else if (cmd == "u")
+        answer = cmd_get_func(cmdlist);
+    else if (cmd == "U")
+        answer = cmd_set_func(cmdlist);
+    else if (cmd == "AOS")
+        answer = cmd_AOS();
+    else if (cmd == "LOS")
+        answer = cmd_LOS();
+    else if (cmd == "\\dump_state")
+        answer = cmd_dump_state();
+    else if (cmd == "q" || cmd == "Q")
     {
         // FIXME: for now we assume 'close' command
         rc_socket->close();
+        return;
     }
-    // Set level
-    else if (cmdlist[0] == "L")
-    {
-        QString lvl = cmdlist.value(1, "");
-        if (lvl == "?")
-        {
-            rc_socket->write("SQL\n");
-        }
-        else if (lvl.compare("SQL", Qt::CaseInsensitive) == 0)
-        {
-            double squelch = cmdlist.value(2, "ERR").toDouble(&ok);
-            if (ok)
-            {
-                rc_socket->write("RPRT 0\n");
-                squelch_level = std::max<double>(-150, std::min<double>(0, squelch));
-                emit newSquelchLevel(squelch_level);
-            }
-            else
-            {
-                rc_socket->write("RPRT 1\n");
-            }
-        }
-        else
-        {
-            rc_socket->write("RPRT 1\n");
-        }
-    }
-    // Get level
-    else if (cmdlist[0] == "l")
-    {
-        QString lvl = cmdlist.value(1, "");
-        if (lvl == "?")
-            rc_socket->write("SQL STRENGTH\n");
-        else if (lvl.compare("STRENGTH", Qt::CaseInsensitive) == 0 || lvl.isEmpty())
-            rc_socket->write(QString("%1\n").arg(signal_level, 0, 'f', 1).toLatin1());
-        else if (lvl.compare("SQL", Qt::CaseInsensitive) == 0)
-            rc_socket->write(QString("%1\n").arg(squelch_level, 0, 'f', 1).toLatin1());
-        else
-            rc_socket->write("RPRT 1\n");
-    }
-    // Mode and filter
-    else if (cmdlist[0] == "M")
-    {
-        QString cmd_arg = cmdlist.value(1, "");
-        if (cmd_arg == "?")
-            rc_socket->write("OFF RAW AM FM WFM WFM_ST WFM_ST_OIRT LSB USB CW CWL CWR CWU\n");
-        else
-        {
-            int mode = modeStrToInt(cmd_arg);
-            if (mode == -1)
-            {
-                // invalid string
-                rc_socket->write("RPRT 1\n");
-            }
-            else
-            {
-                rc_mode = mode;
-                emit newMode(rc_mode);
-
-                int passband = cmdlist.value(2, "0").toInt();
-                if ( passband != 0 )
-                    emit newPassband(passband);
-
-                if (rc_mode == 0)
-                    audio_recorder_status = false;
-
-                rc_socket->write("RPRT 0\n");
-            }
-        }
-    }
-    else if (cmdlist[0] == "m")
-    {
-        QString msg = QString("%1\n%2\n")
-                              .arg(intToModeStr(rc_mode))
-                              .arg(rc_passband_hi - rc_passband_lo);
-        rc_socket->write(msg.toLatin1());
-    }
-    else if (cmdlist[0] == "U")
-    {
-        QString func = cmdlist.value(1, "");
-        bool ok;
-        int status = cmdlist.value(2, "").toInt(&ok);
-
-        if (func == "?")
-        {
-            rc_socket->write("RECORD\n");
-        }
-        else if (func == "" || !ok)
-        {
-            rc_socket->write("RPRT 1\n");
-        }
-        else if (func.compare("RECORD", Qt::CaseInsensitive) == 0)
-        {
-            if (rc_mode == 0 || !receiver_running)
-            {
-                rc_socket->write("RPRT 1\n");
-            }
-            else
-            {
-                rc_socket->write("RPRT 0\n");
-                audio_recorder_status = status;
-                if (status)
-                    emit startAudioRecorderEvent();
-                else
-                    emit stopAudioRecorderEvent();
-            }
-        }
-        else
-        {
-            rc_socket->write("RPRT 1\n");
-        }
-    }
-    else if (cmdlist[0] == "u")
-    {
-        QString func = cmdlist.value(1, "");
-
-        if (func == "?")
-            rc_socket->write("RECORD\n");
-        else if (func.compare("RECORD", Qt::CaseInsensitive) == 0)
-            rc_socket->write(QString("%1\n").arg(audio_recorder_status).toLatin1());
-        else
-            rc_socket->write("RPRT 1\n");
-    }
-
-
-    // Gpredict / Gqrx specific commands:
-    //   AOS  - satellite AOS event
-    //   LOS  - satellite LOS event
-    else if (cmdlist[0] == "AOS")
-    {
-        if (rc_mode > 0 && receiver_running)
-        {
-            emit startAudioRecorderEvent();
-            audio_recorder_status = true;
-        }
-        rc_socket->write("RPRT 0\n");
-
-    }
-    else if (cmdlist[0] == "LOS")
-    {
-        emit stopAudioRecorderEvent();
-        audio_recorder_status = false;
-        rc_socket->write("RPRT 0\n");
-
-    }
-    else if (cmdlist[0] == "\\dump_state")
-    {
-        QString answer = cmd_dump_state();
-        rc_socket->write(answer.toLatin1());
-    }
-
     else
     {
         // print unknown command and respond with an error
-        qWarning() << "Unknown remote command:"
-                << cmdlist;
-        rc_socket->write("RPRT 1\n");
+        qWarning() << "Unknown remote command:" << cmdlist;
+        answer = QString("RPRT 1\n");
     }
+
+    rc_socket->write(answer.toLatin1());
 }
 
 /*! \brief Slot called when the receiver is tuned to a new frequency.
@@ -602,6 +456,189 @@ QString RemoteControl::intToModeStr(int mode)
     }
 
     return mode_str;
+}
+
+/* Get frequency */
+QString RemoteControl::cmd_get_freq()
+{
+    return QString("%1\n").arg(rc_freq);
+}
+
+/* Set new frequency */
+QString RemoteControl::cmd_set_freq(QStringList cmdlist)
+{
+    bool ok;
+    double freq = cmdlist.value(1, "ERR").toDouble(&ok);
+
+    if (ok)
+    {
+        setNewRemoteFreq((qint64)freq);
+        return QString("RPRT 0\n");
+    }
+
+    return QString("RPRT 1\n");
+}
+
+/* Get mode and passband */
+QString RemoteControl::cmd_get_mode()
+{
+    return QString("%1\n%2\n")
+                   .arg(intToModeStr(rc_mode))
+                   .arg(rc_passband_hi - rc_passband_lo);
+}
+
+/* Set mode and passband */
+QString RemoteControl::cmd_set_mode(QStringList cmdlist)
+{
+    QString answer;
+    QString cmd_arg = cmdlist.value(1, "");
+
+    if (cmd_arg == "?")
+        answer = QString("OFF RAW AM FM WFM WFM_ST WFM_ST_OIRT LSB USB CW CWL CWR CWU\n");
+    else
+    {
+        int mode = modeStrToInt(cmd_arg);
+        if (mode == -1)
+        {
+            // invalid mode string
+            answer = QString("RPRT 1\n");
+        }
+        else
+        {
+            rc_mode = mode;
+            emit newMode(rc_mode);
+
+            int passband = cmdlist.value(2, "0").toInt();
+            if ( passband != 0 )
+                emit newPassband(passband);
+
+            if (rc_mode == 0)
+                audio_recorder_status = false;
+
+            answer = QString("RPRT 0\n");
+        }
+    }
+    return answer;
+}
+
+/* Get level */
+QString RemoteControl::cmd_get_level(QStringList cmdlist)
+{
+    QString answer;
+    QString lvl = cmdlist.value(1, "");
+
+    if (lvl == "?")
+       answer = QString("SQL STRENGTH\n");
+    else if (lvl.compare("STRENGTH", Qt::CaseInsensitive) == 0 || lvl.isEmpty())
+       answer = QString("%1\n").arg(signal_level, 0, 'f', 1);
+    else if (lvl.compare("SQL", Qt::CaseInsensitive) == 0)
+       answer = QString("%1\n").arg(squelch_level, 0, 'f', 1);
+    else
+       answer = QString("RPRT 1\n");
+
+    return answer;
+}
+
+/* Set level */
+QString RemoteControl::cmd_set_level(QStringList cmdlist)
+{
+    QString answer;
+    QString lvl = cmdlist.value(1, "");
+
+    if (lvl == "?")
+        answer = QString("SQL\n");
+    else if (lvl.compare("SQL", Qt::CaseInsensitive) == 0)
+    {
+        bool ok;
+        double squelch = cmdlist.value(2, "ERR").toDouble(&ok);
+        if (ok)
+        {
+            answer = QString("RPRT 0\n");
+            squelch_level = std::max<double>(-150, std::min<double>(0, squelch));
+            emit newSquelchLevel(squelch_level);
+        }
+        else
+        {
+            answer = QString("RPRT 1\n");
+        }
+    }
+    else
+    {
+        answer = QString("RPRT 1\n");
+    }
+
+    return answer;
+}
+
+/* Get function */
+QString RemoteControl::cmd_get_func(QStringList cmdlist)
+{
+    QString answer;
+    QString func = cmdlist.value(1, "");
+
+    if (func == "?")
+        answer = QString("RECORD\n");
+    else if (func.compare("RECORD", Qt::CaseInsensitive) == 0)
+        answer = QString("%1\n").arg(audio_recorder_status);
+    else
+        answer = QString("RPRT 1\n");
+
+    return answer;
+}
+
+/* Set function */
+QString RemoteControl::cmd_set_func(QStringList cmdlist)
+{
+    bool ok;
+    QString answer;
+    QString func = cmdlist.value(1, "");
+    int     status = cmdlist.value(2, "ERR").toInt(&ok);
+
+    if (func == "?")
+    {
+        answer = QString("RECORD\n");
+    }
+    else if ((func.compare("RECORD", Qt::CaseInsensitive) == 0) && ok)
+    {
+        if (rc_mode == 0 || !receiver_running)
+        {
+            answer = QString("RPRT 1\n");
+        }
+        else
+        {
+            answer = QString("RPRT 0\n");
+            audio_recorder_status = status;
+            if (status)
+                emit startAudioRecorderEvent();
+            else
+                emit stopAudioRecorderEvent();
+        }
+    }
+    else
+    {
+        answer = QString("RPRT 1\n");
+    }
+
+    return answer;
+}
+
+/* Gpredict / Gqrx specific command: AOS - satellite AOS event */
+QString RemoteControl::cmd_AOS()
+{
+    if (rc_mode > 0 && receiver_running)
+    {
+        emit startAudioRecorderEvent();
+        audio_recorder_status = true;
+    }
+    return QString("RPRT 0\n");
+}
+
+/* Gpredict / Gqrx specific command: LOS - satellite LOS event */
+QString RemoteControl::cmd_LOS()
+{
+    emit stopAudioRecorderEvent();
+    audio_recorder_status = false;
+    return QString("RPRT 0\n");
 }
 
 /*

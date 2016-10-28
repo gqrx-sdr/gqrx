@@ -128,6 +128,16 @@ private:
     QString     intToModeStr(int mode);
 
     /* RC commands */
+    QString     cmd_get_freq();
+    QString     cmd_set_freq(QStringList cmdlist);
+    QString     cmd_get_mode();
+    QString     cmd_set_mode(QStringList cmdlist);
+    QString     cmd_get_level(QStringList cmdlist);
+    QString     cmd_set_level(QStringList cmdlist);
+    QString     cmd_get_func(QStringList cmdlist);
+    QString     cmd_set_func(QStringList cmdlist);
+    QString     cmd_AOS();
+    QString     cmd_LOS();
     QString     cmd_dump_state();
 };
 
