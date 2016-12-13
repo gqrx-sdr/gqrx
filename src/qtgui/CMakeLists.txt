@@ -30,6 +30,8 @@ add_source_files(SRCS_LIST
 	dockrds.h
 	dockrxopt.cpp
 	dockrxopt.h
+	fftbuffer.cpp
+	fftbuffer.h
 	freqctrl.cpp
 	freqctrl.h
 	ioconfig.cpp
