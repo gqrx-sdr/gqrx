@@ -30,6 +30,9 @@ void FftBuffer::addData(float *fftData, size_t size, qint64 minFreq, qint64 maxF
         }
     }
 
+    if(_index < _size) {
+        free(_data[_index].data);
+    }
     _data[_index].data = (quint8*) malloc(size);
     _data[_index].minDB = min;
     _data[_index].maxDB = max;
@@ -63,45 +66,68 @@ bool FftBuffer::getLine(int line,
         line += _max_size;
     }
 
-    *xmin = 0;
-    *xmax = width;
+    Row *row = _data + line;
 
     float freqscale = (maxHz - minHz) / (float) width;
-    float indexscale = (float) _data[line].size / (_data[line].maxFreq - _data[line].minFreq);
-    float gain1 = (_data[line].maxDB - _data[line].minDB) / 255;
+    float indexscale = (float)row->size / (row->maxFreq - row->minFreq);
+    float gain1 = (row->maxDB - row->minDB) / 255;
     float gain2 = 1. / (maxdB - mindB);
 
-    *xmin = (qint32) ceil((_data[line].minFreq - minHz) / freqscale);
-    *xmax = width;
+    *xmin = (qint32) ceil((row->minFreq - minHz) / freqscale);
+    *xmax = (qint32) floor((row->maxFreq - minHz) / freqscale);
 
     if(*xmin < 0) {
         *xmin = 0;
     }
-
-    int i = *xmin;
-    for( ; i < width; i++) {
-        float f = minHz + i * freqscale;
-        float j = (f - _data[line].minFreq) * indexscale;
-
-        if(j > _data[line].size) {
-            *xmax = i;
-            break;
-        }
-        float v = _data[line].data[(int)(j + 0.5)];
-
-
-        // v is now in [0..255]. Rescale to real dB values.
-        v = _data[line].minDB + v * gain1;
-
-        if(v < mindB) {
-            v = 0;
-        } else if(v > maxdB) {
-            v = 1;
-        } else {
-            v = (v - mindB) * gain2;
-        }
-        out[i] = (qint32) (height * (1-v));
+    if(*xmax > width) {
+        *xmax = width;
     }
+
+    qint64 source_start = (minHz - row->minFreq) * indexscale,
+           source_end   = (maxHz - row->minFreq) * indexscale;
+
+    if(source_start - source_end > width) {
+        int xprev = -1;
+        int x = 0;
+
+        while(source_start < source_end) {
+            x = (source_start - (minHz - row->minFreq) * indexscale) / indexscale / freqscale;
+            float v = row->minDB + row->data[source_start] * gain1;
+            if(v < mindB) {
+                v = 0;
+            } else if(v > maxdB) {
+                v = 1;
+            } else {
+                v = (v - mindB) * gain2;
+            }
+            qint32 vi = (qint32) (height * (1-v));
+
+            if(xprev != x || vi > out[x]) {
+                xprev = x;
+                out[x] = vi;
+            }
+            source_start++;
+        }
+    } else {
+        int i = *xmin;
+        for( ; i < *xmax; i++) {
+            float f = minHz + i * freqscale;
+            float j = (f - row->minFreq) * indexscale;
+            float v = row->data[(int)(j + 0.5)];
+
+            v = row->minDB + v * gain1;
+
+            if(v < mindB) {
+                v = 0;
+            } else if(v > maxdB) {
+                v = 1;
+            } else {
+                v = (v - mindB) * gain2;
+            }
+            out[i] = (qint32) (height * (1-v));
+        }
+    }
+
     return true;
 }
 
