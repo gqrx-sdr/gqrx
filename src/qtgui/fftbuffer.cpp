@@ -86,7 +86,7 @@ bool FftBuffer::getLine(int line,
     qint64 source_start = (minHz - row->minFreq) * indexscale,
            source_end   = (maxHz - row->minFreq) * indexscale;
 
-    if(source_start - source_end > width) {
+    if(source_start - source_end > *xmax - *xmin) {
         int xprev = -1;
         int x = 0;
 
