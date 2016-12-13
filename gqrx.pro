@@ -202,7 +202,7 @@ HEADERS += \
     src/receivers/nbrx.h \
     src/receivers/receiver_base.h \
     src/receivers/wfmrx.h \
-    src/qtgui/fftbuffer.hpp
+    src/qtgui/fftbuffer.h
 
 FORMS += \
     src/applications/gqrx/mainwindow.ui \
