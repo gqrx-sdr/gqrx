@@ -1,4 +1,4 @@
-#include "fftbuffer.hpp"
+#include "fftbuffer.h"
 #include <math.h>
 
 FftBuffer::FftBuffer()

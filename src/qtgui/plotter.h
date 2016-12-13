@@ -9,7 +9,7 @@
 #include <vector>
 #include <QMap>
 
-#include "fftbuffer.hpp"
+#include "fftbuffer.h"
 
 #define HORZ_DIVS_MAX 12    //50
 #define VERT_DIVS_MIN 5
