@@ -951,6 +951,7 @@ void CPlotter::drawWaterfallLine(int line) {
     int w = m_WaterfallPixmap.width();
     int n = qMin(w, MAX_SCREENSIZE);
     int xmin, xmax;
+    QRgb linebuffer[n];
 
     QPainter painter1(&m_WaterfallPixmap);
 
@@ -973,17 +974,16 @@ void CPlotter::drawWaterfallLine(int line) {
         }
     }
 
-    painter1.setPen(QColor(0, 0, 0));
-    for (i = 0; i < xmin; i++)
-        painter1.drawPoint(i, 0);
-    for (i = xmax; i < w; i++)
-        painter1.drawPoint(i, 0);
-
-    for (i = xmin; i < xmax; i++)
-    {
-        painter1.setPen(m_ColorTbl[255 - m_fftbuf[i]]);
-        painter1.drawPoint(i, line);
+    for(int i = 0; i < xmin; i++) {
+        linebuffer[i] = m_ColorTbl[0].rgb();
     }
+    for(int i = xmin; i < xmax; i++) {
+        linebuffer[i] = m_ColorTbl[255 - m_fftbuf[i]].rgb();
+    }
+    for(int i = xmax; i < n; i++) {
+        linebuffer[i] = m_ColorTbl[0].rgb();
+    }
+    painter1.drawImage(QPointF(0, line), QImage((uchar*)linebuffer, n, 1, QImage::Format_RGB32));
 }
 
 void CPlotter::redrawWaterfall() {
