@@ -97,17 +97,20 @@ bool FftBuffer::getLine(int line,
             source_end = row->size;
         }
 
+        float x_add = -(minHz - row->minFreq) / freqscale;
+        float x_mul = 1. / indexscale / freqscale;
+        float v_add = height + gain2 * height * (mindB - row->minDB);
+        float v_mul = -gain1 * gain2 * height;
+
         while(source_start < source_end) {
-            x = (source_start - (minHz - row->minFreq) * indexscale) / indexscale / freqscale;
-            float v = row->minDB + row->data[source_start] * gain1;
-            if(v < mindB) {
+            x = x_add + x_mul * source_start;
+            float v = v_add + v_mul * row->data[source_start];
+            if(v < 0) {
                 v = 0;
-            } else if(v > maxdB) {
-                v = 1;
-            } else {
-                v = (v - mindB) * gain2;
+            } else if(v > height) {
+                v = height;
             }
-            qint32 vi = (qint32) (height * (1-v));
+            qint32 vi = (qint32) v;
 
             if(xprev != x || vi < out[x]) {
                 xprev = x;
@@ -117,21 +120,21 @@ bool FftBuffer::getLine(int line,
         }
     } else {
         int i = *xmin;
+        float x_add = (minHz - row->minFreq) * indexscale;
+        float x_mul = freqscale * indexscale;
+        float v_add = height + gain2 * height * (mindB - row->minDB);
+        float v_mul = -gain1 * gain2 * height;
         for( ; i < *xmax; i++) {
-            float f = minHz + i * freqscale;
-            float j = (f - row->minFreq) * indexscale;
-            float v = row->data[(int)(j + 0.5)];
+            float v = row->data[(int)(x_add + x_mul * i)];
 
-            v = row->minDB + v * gain1;
+            v = v_add + v_mul * v;
 
-            if(v < mindB) {
+            if(v < 0) {
                 v = 0;
-            } else if(v > maxdB) {
-                v = 1;
-            } else {
-                v = (v - mindB) * gain2;
+            } else if(v > height) {
+                v = height;
             }
-            out[i] = (qint32) (height * (1-v));
+            out[i] = (qint32) v;
         }
     }
 
