@@ -199,6 +199,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
     connect(uiDockRxOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(setFmEmph(double)));
     connect(uiDockRxOpt, SIGNAL(amDcrToggled(bool)), this, SLOT(setAmDcr(bool)));
+    connect(uiDockRxOpt, SIGNAL(amSyncDcrToggled(bool)), this, SLOT(setAmSyncDcr(bool)));
     connect(uiDockRxOpt, SIGNAL(cwOffsetChanged(int)), this, SLOT(setCwOffset(int)));
     connect(uiDockRxOpt, SIGNAL(agcToggled(bool)), this, SLOT(setAgcOn(bool)));
     connect(uiDockRxOpt, SIGNAL(agcHangToggled(bool)), this, SLOT(setAgcHang(bool)));
@@ -984,6 +985,14 @@ void MainWindow::selectDemod(int mode_idx)
         click_res = 100;
         break;
 
+    case DockRxOpt::MODE_AM_SYNC:
+        rx->set_demod(receiver::RX_DEMOD_AMSYNC);
+        ui->plotter->setDemodRanges(-45000, -200, 200, 45000, true);
+        uiDockAudio->setFftRange(0,6000);
+        click_res = 100;
+        break;
+
+
     case DockRxOpt::MODE_NFM:
         rx->set_demod(receiver::RX_DEMOD_NFM);
         click_res = 100;
@@ -1132,6 +1141,17 @@ void MainWindow::setAmDcr(bool enabled)
 {
     rx->set_am_dcr(enabled);
 }
+
+/**
+ * @brief AM-Sync DCR status changed (slot).
+ * @param enabled Whether DCR is enabled or not.
+ */
+void MainWindow::setAmSyncDcr(bool enabled)
+{
+    rx->set_amsync_dcr(enabled);
+}
+
+
 
 void MainWindow::setCwOffset(int offset)
 {

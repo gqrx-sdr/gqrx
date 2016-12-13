@@ -56,9 +56,10 @@ public:
     enum nbrx_demod {
         NBRX_DEMOD_NONE = 0,  /*!< No demod. Raw I/Q to audio. */
         NBRX_DEMOD_AM   = 1,  /*!< Amplitude modulation. */
-        NBRX_DEMOD_FM   = 2,  /*!< Frequency modulation. */
-        NBRX_DEMOD_SSB  = 3,  /*!< Single Side Band. */
-        NBRX_DEMOD_NUM  = 4   /*!< Included for convenience. */
+        NBRX_DEMOD_AMSYNC   = 2,  /*!< Amplitude modulation. */
+        NBRX_DEMOD_FM   = 3,  /*!< Frequency modulation. */
+        NBRX_DEMOD_SSB  = 4,  /*!< Single Side Band. */
+        NBRX_DEMOD_NUM  = 5,   /*!< Included for convenience. */
     };
 
 public:
@@ -105,6 +106,9 @@ public:
     /* AM parameters */
     bool has_am() { return true; }
     void set_am_dcr(bool enabled);
+    /* AMSYNC parameters */
+    void set_amsync_dcr(bool enabled);
+    bool has_amsync() { return true; }
 
 private:
     bool   d_running;          /*!< Whether receiver is running or not. */
@@ -124,6 +128,7 @@ private:
     gr::blocks::complex_to_real::sptr   demod_ssb;  /*!< SSB demodulator. */
     rx_demod_fm_sptr          demod_fm;   /*!< FM demodulator. */
     rx_demod_am_sptr          demod_am;   /*!< AM demodulator. */
+    rx_demod_amsync_sptr      demod_amsync;   /*!< AM-SYNC demodulator. */
     resampler_ff_sptr         audio_rr;   /*!< Audio resampler. */
 
     gr::basic_block_sptr      demod;    // dummy pointer used for simplifying reconf

@@ -34,6 +34,7 @@ static const int filter_preset_table[DockRxOpt::MODE_LAST][3][2] =
     {{      0,      0}, {     0,     0}, {     0,     0}},  // MODE_OFF
     {{ -15000,  15000}, { -5000,  5000}, { -1000,  1000}},  // MODE_RAW
     {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}},  // MODE_AM
+    {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}},  // MODE_AMSYNC
     {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}},  // MODE_NFM
     {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}},  // MODE_WFM_MONO
     {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}},  // MODE_WFM_STEREO
@@ -58,6 +59,7 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
         ModulationStrings.append("Demod Off");
         ModulationStrings.append("Raw I/Q");
         ModulationStrings.append("AM");
+        ModulationStrings.append("AM-Sync");
         ModulationStrings.append("Narrow FM");
         ModulationStrings.append("WFM (mono)");
         ModulationStrings.append("WFM (stereo)");
@@ -98,6 +100,7 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     connect(demodOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(demodOpt_fmMaxdevSelected(float)));
     connect(demodOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(demodOpt_fmEmphSelected(double)));
     connect(demodOpt, SIGNAL(amDcrToggled(bool)), this, SLOT(demodOpt_amDcrToggled(bool)));
+    connect(demodOpt, SIGNAL(amSyncDcrToggled(bool)), this, SLOT(demodOpt_amSyncDcrToggled(bool)));
     connect(demodOpt, SIGNAL(cwOffsetChanged(int)), this, SLOT(demodOpt_cwOffsetChanged(int)));
 
     // AGC options dialog
@@ -492,6 +495,8 @@ void DockRxOpt::updateDemodOptPage(int demod)
         demodOpt->setCurrentPage(CDemodOptions::PAGE_FM_OPT);
     else if (demod == MODE_AM)
         demodOpt->setCurrentPage(CDemodOptions::PAGE_AM_OPT);
+    else if (demod == MODE_AM_SYNC)
+        demodOpt->setCurrentPage(CDemodOptions::PAGE_AMSYNC_OPT);
     else if (demod == MODE_CWL || demod == MODE_CWU)
         demodOpt->setCurrentPage(CDemodOptions::PAGE_CW_OPT);
     else
@@ -630,6 +635,17 @@ void DockRxOpt::demodOpt_amDcrToggled(bool enabled)
 {
     emit amDcrToggled(enabled);
 }
+
+/**
+ * @brief AM-Sync DC removal toggled by user.
+ * @param enabled Whether DCR is enabled or not.
+ */
+void DockRxOpt::demodOpt_amSyncDcrToggled(bool enabled)
+{
+    emit amSyncDcrToggled(enabled);
+}
+
+
 
 void DockRxOpt::demodOpt_cwOffsetChanged(int offset)
 {

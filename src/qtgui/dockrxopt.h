@@ -67,15 +67,16 @@ public:
         MODE_OFF        = 0, /*!< Demodulator completely off. */
         MODE_RAW        = 1, /*!< Raw I/Q passthrough. */
         MODE_AM         = 2, /*!< Amplitude modulation. */
-        MODE_NFM        = 3, /*!< Narrow band FM. */
-        MODE_WFM_MONO   = 4, /*!< Broadcast FM (mono). */
-        MODE_WFM_STEREO = 5, /*!< Broadcast FM (stereo). */
-        MODE_LSB        = 6, /*!< Lower side band. */
-        MODE_USB        = 7, /*!< Upper side band. */
-        MODE_CWL        = 8, /*!< CW using LSB filter. */
-        MODE_CWU        = 9, /*!< CW using USB filter. */
-        MODE_WFM_STEREO_OIRT = 10, /*!< Broadcast FM (stereo oirt). */
-        MODE_LAST       = 11
+        MODE_AM_SYNC    = 3, /*!< Broadcast FM (stereo oirt). */
+        MODE_NFM        = 4, /*!< Narrow band FM. */
+        MODE_WFM_MONO   = 5, /*!< Broadcast FM (mono). */
+        MODE_WFM_STEREO = 6, /*!< Broadcast FM (stereo). */
+        MODE_LSB        = 7, /*!< Lower side band. */
+        MODE_USB        = 8, /*!< Upper side band. */
+        MODE_CWL        = 9, /*!< CW using LSB filter. */
+        MODE_CWU        = 10, /*!< CW using USB filter. */
+        MODE_WFM_STEREO_OIRT = 11, /*!< Broadcast FM (stereo oirt). */
+        MODE_LAST       = 12
     };
 
     explicit DockRxOpt(qint64 filterOffsetRange = 90000, QWidget *parent = 0);
@@ -136,6 +137,9 @@ signals:
     /** Signal emitted when AM DCR status is toggled. */
     void amDcrToggled(bool enabled);
 
+    /** Signal emitted when AM-Sync DCR status is toggled. */
+    void amSyncDcrToggled(bool enabled);
+
     /** Signal emitted when baseband gain has changed. Gain is in dB. */
     //void bbGainChanged(float gain);
 
@@ -193,6 +197,7 @@ private slots:
     void demodOpt_fmMaxdevSelected(float max_dev);
     void demodOpt_fmEmphSelected(double tau);
     void demodOpt_amDcrToggled(bool enabled);
+    void demodOpt_amSyncDcrToggled(bool enabled);
     void demodOpt_cwOffsetChanged(int offset);
 
     // Signals coming from AGC options popup
