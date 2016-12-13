@@ -86,9 +86,16 @@ bool FftBuffer::getLine(int line,
     qint64 source_start = (minHz - row->minFreq) * indexscale,
            source_end   = (maxHz - row->minFreq) * indexscale;
 
-    if(source_start - source_end > *xmax - *xmin) {
+    if(source_end - source_start > *xmax - *xmin) {
         int xprev = -1;
         int x = 0;
+
+        if(source_start < 0) {
+            source_start = 0;
+        }
+        if(source_end > row->size) {
+            source_end = row->size;
+        }
 
         while(source_start < source_end) {
             x = (source_start - (minHz - row->minFreq) * indexscale) / indexscale / freqscale;
@@ -102,7 +109,7 @@ bool FftBuffer::getLine(int line,
             }
             qint32 vi = (qint32) (height * (1-v));
 
-            if(xprev != x || vi > out[x]) {
+            if(xprev != x || vi < out[x]) {
                 xprev = x;
                 out[x] = vi;
             }
