@@ -146,6 +146,9 @@ void FftBuffer::setSize(size_t s) {
     _index = 0;
     _size = 0;
     if(_data) {
+        for(int i = 0; i < _size; i++) {
+            free(_data[i].data);
+        }
         free(_data);
     }
     _data = (Row*) malloc(s * sizeof(Row));
