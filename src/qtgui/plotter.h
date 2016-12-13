@@ -9,6 +9,8 @@
 #include <vector>
 #include <QMap>
 
+#include "fftbuffer.hpp"
+
 #define HORZ_DIVS_MAX 12    //50
 #define VERT_DIVS_MIN 5
 #define MAX_SCREENSIZE 16384
@@ -173,7 +175,12 @@ private:
         BOOKMARK
     };
 
+    bool        accumulateWaterfallData();
     void        drawOverlay();
+    void        drawWaterfall();
+    void        drawWaterfallLine(int line);
+    void        redrawWaterfall();
+    void        draw2DSpectrum();
     void        makeFrequencyStrs();
     int         xFromFreq(qint64 freq);
     qint64      freqFromX(int x);
@@ -195,11 +202,11 @@ private:
     bool        m_PeakHoldActive;
     bool        m_PeakHoldValid;
     qint32      m_fftbuf[MAX_SCREENSIZE];
-    quint8      m_wfbuf[MAX_SCREENSIZE]; // used for accumulating waterfall data at high time spans
     qint32      m_fftPeakHoldBuf[MAX_SCREENSIZE];
+    int         m_fftDataSize; /*! Size of FFT data array */
     float      *m_fftData;     /*! pointer to incoming FFT data */
-    float      *m_wfData;
-    int         m_fftDataSize;
+    float      *m_wfData;      /*! */
+    float      *m_wfAccum;     /*! Accumulated FFT data for non-zero time spans */
 
     int         m_XAxisYCenter;
     int         m_YAxisWidth;
@@ -275,6 +282,8 @@ private:
     quint64     msec_per_wfline;    // milliseconds between waterfall updates
     quint64     wf_span;            // waterfall span in milliseconds (0 = auto)
     int         fft_rate;           // expected FFT rate (needed when WF span is auto)
+
+    FftBuffer buffer;
 };
 
 #endif // PLOTTER_H
