@@ -24,6 +24,12 @@
 #ifndef RX_DEMOD_AM_H
 #define RX_DEMOD_AM_H
 
+#include <gnuradio/analog/pll_refout_cc.h>
+#include <gnuradio/blocks/multiply_cc.h>
+#include <gnuradio/blocks/multiply_const_cc.h>
+#include <gnuradio/blocks/multiply_conjugate_cc.h>
+#include <gnuradio/blocks/complex_to_real.h>
+#include <gnuradio/filter/fir_filter_ccc.h>
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/blocks/complex_to_mag.h>
 #include <gnuradio/filter/iir_filter_ffd.h>
@@ -41,7 +47,7 @@ typedef boost::shared_ptr<rx_demod_am> rx_demod_am_sptr;
  *
  * This is effectively the public constructor.
  */
-rx_demod_am_sptr make_rx_demod_am(float quad_rate, float audio_rate, bool dcr=true);
+rx_demod_am_sptr make_rx_demod_am(float quad_rate, float audio_rate, bool dcr=true, bool sync=false);
 
 
 /*! \brief AM demodulator.
@@ -56,23 +62,35 @@ class rx_demod_am : public gr::hier_block2
 {
 
 public:
-    rx_demod_am(float quad_rate=48000.0, float audio_rate=48000.0, bool dcr=true); // FIXME: could be private
+    rx_demod_am(float quad_rate=48000.0, float audio_rate=48000.0, bool dcr=true, bool sync=false); // FIXME: could be private
     ~rx_demod_am();
 
     void set_dcr(bool dcr);
+    void set_sync(bool sync);
     bool dcr();
+    bool sync();
 
 private:
     /* GR blocks */
+    gr::analog::pll_refout_cc::sptr     d_demod1;
+    gr::filter::fir_filter_ccc::sptr    d_demod2;
+    gr::blocks::multiply_const_cc::sptr d_demod3;
+    gr::blocks::multiply_conjugate_cc::sptr       d_demod4;
+    gr::blocks::complex_to_real::sptr   d_demod5;
+
     gr::blocks::complex_to_mag::sptr  d_demod;    /*! AM demodulation (complex to magnitude). */
     gr::filter::iir_filter_ffd::sptr    d_dcr;    /*! DC removal (IIR high pass). */
 
     /* other parameters */
     bool   d_dcr_enabled;   /*! DC removal flag. */
+    bool   d_sync_enabled;   /*! AM-Sync flag. */
 
     /* IIR DC-removal filter taps */
     std::vector<double> d_fftaps;   /*! Feed forward taps. */
     std::vector<double> d_fbtaps;   /*! Feed back taps. */
+
+    /* PLL filter taps */
+    std::vector<gr_complex> d_taps;
 
 };
 

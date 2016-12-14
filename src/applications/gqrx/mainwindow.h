@@ -144,6 +144,7 @@ private slots:
     void setFmMaxdev(float max_dev);
     void setFmEmph(double tau);
     void setAmDcr(bool enabled);
+    void setAmSync(bool enabled);
     void setCwOffset(int offset);
     void setAgcOn(bool agc_on);
     void setAgcHang(bool use_hang);

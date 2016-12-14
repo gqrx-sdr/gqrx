@@ -70,6 +70,9 @@ signals:
     /*! \brief Signal emitted when AM DCR is toggled. */
     void amDcrToggled(bool enabled);
 
+    /*! \brief Signal emitted when AM Sync is toggled. */
+    void amSyncToggled(bool enabled);
+
     /*! \brief CW offset changed. */
     void cwOffsetChanged(int offset);
 
@@ -77,6 +80,7 @@ private slots:
     void on_maxdevSelector_activated(int index);
     void on_emphSelector_activated(int index);
     void on_dcrCheckBox_toggled(bool checked);
+    void on_syncCheckBox_toggled(bool checked);
     void on_cwOffsetSpin_valueChanged(int value);
 
 private:

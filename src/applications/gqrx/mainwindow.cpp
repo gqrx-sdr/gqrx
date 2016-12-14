@@ -199,6 +199,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
     connect(uiDockRxOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(setFmEmph(double)));
     connect(uiDockRxOpt, SIGNAL(amDcrToggled(bool)), this, SLOT(setAmDcr(bool)));
+    connect(uiDockRxOpt, SIGNAL(amSyncToggled(bool)), this, SLOT(setAmSync(bool)));
     connect(uiDockRxOpt, SIGNAL(cwOffsetChanged(int)), this, SLOT(setCwOffset(int)));
     connect(uiDockRxOpt, SIGNAL(agcToggled(bool)), this, SLOT(setAgcOn(bool)));
     connect(uiDockRxOpt, SIGNAL(agcHangToggled(bool)), this, SLOT(setAgcHang(bool)));
@@ -1132,6 +1133,16 @@ void MainWindow::setAmDcr(bool enabled)
 {
     rx->set_am_dcr(enabled);
 }
+
+/**
+ * @brief AM Sync status changed (slot).
+ * @param enabled Whether Sync is enabled or not.
+ */
+void MainWindow::setAmSync(bool enabled)
+{
+    rx->set_am_sync(enabled);
+}
+
 
 void MainWindow::setCwOffset(int offset)
 {

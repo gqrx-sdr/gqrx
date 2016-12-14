@@ -105,6 +105,7 @@ public:
     /* AM parameters */
     bool has_am() { return true; }
     void set_am_dcr(bool enabled);
+    void set_am_sync(bool enabled);
 
 private:
     bool   d_running;          /*!< Whether receiver is running or not. */

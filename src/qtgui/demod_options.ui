@@ -224,6 +224,19 @@ For digital modes it is best to switch it off.</string>
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QCheckBox" name="syncCheckBox">
+         <property name="toolTip">
+          <string>Enable/disable AM-Sync.</string>
+         </property>
+         <property name="text">
+          <string>AM-Sync</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="page">

@@ -184,6 +184,7 @@ public:
 
     /* AM parameters */
     status      set_am_dcr(bool enabled);
+    status      set_am_sync(bool enabled);
 
     /* Audio parameters */
     status      set_af_gain(float gain_db);

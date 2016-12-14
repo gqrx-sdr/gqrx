@@ -934,6 +934,17 @@ receiver::status receiver::set_am_dcr(bool enabled)
     return STATUS_OK;
 }
 
+
+receiver::status receiver::set_am_sync(bool enabled)
+{
+    if (rx->has_am())
+        rx->set_am_sync(enabled);
+
+    return STATUS_OK;
+}
+
+
+
 receiver::status receiver::set_af_gain(float gain_db)
 {
     float k;

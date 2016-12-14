@@ -121,6 +121,12 @@ void CDemodOptions::on_dcrCheckBox_toggled(bool checked)
     emit amDcrToggled(checked);
 }
 
+void CDemodOptions::on_syncCheckBox_toggled(bool checked)
+{
+    emit amSyncToggled(checked);
+}
+
+
 void CDemodOptions::on_cwOffsetSpin_valueChanged(int value)
 {
     emit cwOffsetChanged(value);

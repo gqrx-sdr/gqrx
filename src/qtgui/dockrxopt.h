@@ -136,6 +136,9 @@ signals:
     /** Signal emitted when AM DCR status is toggled. */
     void amDcrToggled(bool enabled);
 
+    /** Signal emitted when AM Sync status is toggled. */
+    void amSyncToggled(bool enabled);
+
     /** Signal emitted when baseband gain has changed. Gain is in dB. */
     //void bbGainChanged(float gain);
 
@@ -193,6 +196,7 @@ private slots:
     void demodOpt_fmMaxdevSelected(float max_dev);
     void demodOpt_fmEmphSelected(double tau);
     void demodOpt_amDcrToggled(bool enabled);
+    void demodOpt_amSyncToggled(bool enabled);
     void demodOpt_cwOffsetChanged(int offset);
 
     // Signals coming from AGC options popup

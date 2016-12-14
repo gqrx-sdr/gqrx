@@ -134,6 +134,11 @@ void receiver_base_cf::set_am_dcr(bool enabled)
     (void) enabled;
 }
 
+void receiver_base_cf::set_am_sync(bool enabled)
+{
+    (void) enabled;
+}
+
 void receiver_base_cf::get_rds_data(std::string &outbuff, int &num)
 {
         (void) outbuff;

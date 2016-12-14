@@ -269,3 +269,8 @@ void nbrx::set_am_dcr(bool enabled)
 {
     demod_am->set_dcr(enabled);
 }
+
+void nbrx::set_am_sync(bool enabled)
+{
+    demod_am->set_sync(enabled);
+}
