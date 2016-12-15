@@ -68,6 +68,11 @@ bool FftBuffer::getLine(int line,
 
     Row *row = _data + line;
 
+    if(minHz > row->maxFreq || maxHz < row->minFreq) {
+        *xmin = *xmax = 0;
+        return true;
+    }
+
     float freqscale = (maxHz - minHz) / (float) width;
     float indexscale = (float)row->size / (row->maxFreq - row->minFreq);
     float gain1 = (row->maxDB - row->minDB) / 255;
@@ -78,8 +83,6 @@ bool FftBuffer::getLine(int line,
 
     if(*xmin < 0) {
         *xmin = 0;
-    } else if(*xmin > width) {
-        *xmin = width;
     }
     if(*xmax > width) {
         *xmax = width;
@@ -87,6 +90,12 @@ bool FftBuffer::getLine(int line,
 
     qint64 source_start = (minHz - row->minFreq) * indexscale,
            source_end   = (maxHz - row->minFreq) * indexscale;
+    if(source_start < 0) {
+        source_start = 0;
+    }
+    if(source_end > row->size) {
+        source_end = row->size;
+    }
 
     if(source_end - source_start > *xmax - *xmin) {
         int xprev = -1;
