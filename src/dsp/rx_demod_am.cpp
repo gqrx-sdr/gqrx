@@ -50,10 +50,11 @@ rx_demod_am::rx_demod_am(float quad_rate, float audio_rate, bool dcr, bool sync)
     /* demodulator */
     d_demod = gr::blocks::complex_to_mag::make(1);
 
-    d_taps = gr::filter::firdes::complex_band_pass(1.0, quad_rate, -300, 300, 500);
-    d_demod1 = gr::analog::pll_refout_cc::make(0.01, (2*3.1416*1000/quad_rate), (2*3.1416*(-1000)/quad_rate));
-    d_demod2 = gr::filter::fir_filter_ccc::make(1, d_taps);
-    d_demod3 = gr::blocks::multiply_const_cc::make(gr_complex(0.85,0.85),1);
+    //d_taps = gr::filter::firdes::complex_band_pass(1.0, quad_rate, -300, 300, 500);
+    d_taps = gr::filter::firdes::low_pass(1.0, quad_rate, 180, 1000);
+    d_demod1 = gr::filter::fir_filter_ccf::make(1, d_taps);
+    d_demod2 = gr::analog::pll_refout_cc::make(0.01, (2*3.1416*600/quad_rate), (2*3.1416*(-600)/quad_rate));
+    d_demod3 = gr::blocks::multiply_const_cc::make(gr_complex(0.95,0.95),1);
     d_demod4 = gr::blocks::multiply_conjugate_cc::make(1);
     d_demod5 = gr::blocks::complex_to_real::make(1);
 

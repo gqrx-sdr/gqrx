@@ -30,6 +30,7 @@
 #include <gnuradio/blocks/multiply_conjugate_cc.h>
 #include <gnuradio/blocks/complex_to_real.h>
 #include <gnuradio/filter/fir_filter_ccc.h>
+#include <gnuradio/filter/fir_filter_ccf.h>
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/blocks/complex_to_mag.h>
 #include <gnuradio/filter/iir_filter_ffd.h>
@@ -72,8 +73,8 @@ public:
 
 private:
     /* GR blocks */
-    gr::analog::pll_refout_cc::sptr     d_demod1;
-    gr::filter::fir_filter_ccc::sptr    d_demod2;
+    gr::filter::fir_filter_ccf::sptr    d_demod1;
+    gr::analog::pll_refout_cc::sptr     d_demod2;
     gr::blocks::multiply_const_cc::sptr d_demod3;
     gr::blocks::multiply_conjugate_cc::sptr       d_demod4;
     gr::blocks::complex_to_real::sptr   d_demod5;
@@ -90,7 +91,7 @@ private:
     std::vector<double> d_fbtaps;   /*! Feed back taps. */
 
     /* PLL filter taps */
-    std::vector<gr_complex> d_taps;
+    std::vector<float> d_taps;
 
 };
 
