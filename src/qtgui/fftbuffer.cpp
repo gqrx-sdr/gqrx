@@ -78,6 +78,8 @@ bool FftBuffer::getLine(int line,
 
     if(*xmin < 0) {
         *xmin = 0;
+    } else if(*xmin > width) {
+        *xmin = width;
     }
     if(*xmax > width) {
         *xmax = width;
