@@ -943,6 +943,10 @@ void CPlotter::drawWaterfall()
         m_WaterfallPixmap.scroll(0, 1, 0, 0, w, h);
         drawWaterfallLine(0);
         tlast_wf_ms = tnow_ms;
+
+        if(msec_per_wfline != 0) {
+            memset(m_wfAccum, 0, m_fftDataSize * sizeof(float));
+        }
     }
 }
 
