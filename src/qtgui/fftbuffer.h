@@ -13,7 +13,7 @@ public:
 
     void addData(float *fftData, size_t size, qint64 minFreq, qint64 maxFreq);
     void clear();
-    bool getLine(unsigned int index,
+    bool getLine(unsigned int age,
                  int height, int width,
                  float mindB, float maxdB,
                  qint64 minHz, qint64 maxHz,

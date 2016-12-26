@@ -50,24 +50,24 @@ void FftBuffer::addData(float *fftData, size_t size, qint64 minFreq, qint64 maxF
     }
 }
 
-bool FftBuffer::getLine(unsigned int line,
+bool FftBuffer::getLine(unsigned int age,
                         int height, int width,
                         float mindB, float maxdB,
                         qint64 minHz, qint64 maxHz,
                         int *xmin, int *xmax,
                         qint32 *out) const
 {
-    if(line > _size) {
+    if(age > _size) {
         *xmin = *xmax = 0;
         return false;
     }
-    if(line <= _index) {
-        line = _index - line;
+    if(age <= _index) {
+        age = _index - age;
     } else {
-        line = _index - line + _max_size;
+        age = _index - age + _max_size;
     }
 
-    Row *row = _data + line;
+    Row *row = _data + age;
 
     if(minHz > row->maxFreq || maxHz < row->minFreq) {
         *xmin = *xmax = 0;
