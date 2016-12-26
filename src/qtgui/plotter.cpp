@@ -947,7 +947,6 @@ void CPlotter::drawWaterfall()
 }
 
 void CPlotter::drawWaterfallLine(int line) {
-    int i;
     int w = m_WaterfallPixmap.width();
     int n = qMin(w, MAX_SCREENSIZE);
     int xmin, xmax;
