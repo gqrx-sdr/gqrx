@@ -50,7 +50,7 @@ void FftBuffer::addData(float *fftData, size_t size, qint64 minFreq, qint64 maxF
     }
 }
 
-bool FftBuffer::getLine(int line,
+bool FftBuffer::getLine(unsigned int line,
                         int height, int width,
                         float mindB, float maxdB,
                         qint64 minHz, qint64 maxHz,
@@ -61,9 +61,10 @@ bool FftBuffer::getLine(int line,
         *xmin = *xmax = 0;
         return false;
     }
-    line = _index - line;
-    if(line < 0) {
-        line += _max_size;
+    if(line <= _index) {
+        line = _index - line;
+    } else {
+        line = _index - line + _max_size;
     }
 
     Row *row = _data + line;
@@ -93,7 +94,7 @@ bool FftBuffer::getLine(int line,
     if(source_start < 0) {
         source_start = 0;
     }
-    if(source_end > row->size) {
+    if((quint64) source_end > row->size) {
         source_end = row->size;
     }
 
@@ -104,7 +105,7 @@ bool FftBuffer::getLine(int line,
         if(source_start < 0) {
             source_start = 0;
         }
-        if(source_end > row->size) {
+        if((quint64) source_end > row->size) {
             source_end = row->size;
         }
 
@@ -157,7 +158,7 @@ void FftBuffer::setSize(size_t s) {
     _index = 0;
     _size = 0;
     if(_data) {
-        for(int i = 0; i < _size; i++) {
+        for(size_t i = 0; i < _size; i++) {
             free(_data[i].data);
         }
         free(_data);
