@@ -28,12 +28,9 @@
 #include <gnuradio/filter/fir_filter_ccf.h>
 #include <gnuradio/filter/fir_filter_fff.h>
 #include <gnuradio/filter/freq_xlating_fir_filter_fcf.h>
-#include <gnuradio/filter/freq_xlating_fir_filter_ccc.h>
 #include <gnuradio/filter/freq_xlating_fir_filter_ccf.h>
-#include <gnuradio/digital/mpsk_receiver_cc.h>
-#include <gnuradio/blocks/complex_to_real.h>
+#include <gnuradio/digital/constellation_receiver_cb.h>
 #include <gnuradio/blocks/keep_one_in_n.h>
-#include <gnuradio/digital/binary_slicer_fb.h>
 #include <gnuradio/digital/diff_decoder_bb.h>
 #include <gnuradio/blocks/file_sink.h>
 #include <gnuradio/blocks/udp_sink.h>
@@ -86,9 +83,7 @@ private:
     gr::filter::freq_xlating_fir_filter_fcf::sptr f_fxff;
     gr::filter::freq_xlating_fir_filter_ccf::sptr f_fxff_ccf;
     std::vector<float> f_rrcf;
-    gr::digital::mpsk_receiver_cc::sptr d_mpsk;
-    gr::blocks::complex_to_real::sptr b_ctr;
-    gr::digital::binary_slicer_fb::sptr d_bs;
+    gr::digital::constellation_receiver_cb::sptr d_mpsk;
     gr::blocks::keep_one_in_n::sptr b_koin;
     gr::digital::diff_decoder_bb::sptr d_ddbb;
     gr::rds::decoder::sptr rds_decoder;
