@@ -270,6 +270,11 @@ float DockRxOpt::currentMaxdev() const
     return demodOpt->getMaxDev();
 }
 
+double DockRxOpt::currentEmph() const
+{
+    return demodOpt->getEmph();
+}
+
 /**
  * @brief Set squelch level.
  * @param level Squelch level in dBFS
@@ -325,6 +330,10 @@ void DockRxOpt::readSettings(QSettings *settings)
     int_val = settings->value("receiver/fm_maxdev", 2500).toInt(&conv_ok);
     if (conv_ok)
         demodOpt->setMaxDev(int_val);
+
+    dbl_val = settings->value("receiver/fm_deemph", 75).toDouble(&conv_ok);
+    if (conv_ok && dbl_val >= 0)
+        demodOpt->setEmph(1.0e-6 * dbl_val); // was stored as usec
 
     qint64 offs = settings->value("receiver/offset", 0).toInt(&conv_ok);
     if (offs)
@@ -396,6 +405,13 @@ void DockRxOpt::saveSettings(QSettings *settings)
         settings->remove("receiver/fm_maxdev");
     else
         settings->setValue("receiver/fm_maxdev", int_val);
+
+    // save as usec
+    int_val = (int)(1.0e6 * demodOpt->getEmph());
+    if (int_val == 75)
+        settings->remove("receiver/fm_deemph");
+    else
+        settings->setValue("receiver/fm_deemph", int_val);
 
     qint64 offs = ui->filterFreq->getFrequency();
     if (offs)

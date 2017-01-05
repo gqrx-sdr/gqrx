@@ -25,6 +25,32 @@
 #include "ui_demod_options.h"
 
 
+/* convert between deemphasis time constant and combo-index */
+const double tau_tbl[] = {
+    0.0, 25.0e-6, 50.0e-6, 75.0e-6, 100.0e-6, 250.0e-6, 530.0e-6, 1.0e-3
+};
+const int tau_tbl_maxidx = 7;
+
+double tau_from_index(int index)
+{
+    if (index < 0 or index > tau_tbl_maxidx)
+        return 0.0;
+
+    return tau_tbl[index];
+}
+
+int tau_to_index(double tau)
+{
+    int i;
+    for (i = 0; i < tau_tbl_maxidx; i++)
+    {
+        if (tau < (tau_tbl[i] + 0.5 * (tau_tbl[i+1] - tau_tbl[i])))
+            return i;
+    }
+    return 0;
+}
+
+/* convert betweenFM max dev and combo index */
 float maxdev_from_index(int index)
 {
     switch(index)
@@ -120,6 +146,16 @@ float CDemodOptions::getMaxDev(void) const
     return maxdev_from_index(ui->maxdevSelector->currentIndex());
 }
 
+void CDemodOptions::setEmph(double tau)
+{
+    ui->emphSelector->setCurrentIndex((tau_to_index(tau)));
+}
+
+double CDemodOptions::getEmph(void) const
+{
+    return tau_from_index(ui->emphSelector->currentIndex());
+}
+
 void CDemodOptions::on_maxdevSelector_activated(int index)
 {
     emit fmMaxdevSelected(maxdev_from_index(index));
@@ -127,16 +163,7 @@ void CDemodOptions::on_maxdevSelector_activated(int index)
 
 void CDemodOptions::on_emphSelector_activated(int index)
 {
-    double tau_tbl[] = {0.0, 25.0, 50.0, 75.0, 100.0, 250.0, 530.0, 1000.0};
-    double tau;
-
-    if ((index < 0) || (index > 7)) {
-        qDebug() << "Invalid tau selection index: " << index;
-        return;
-    }
-
-    tau = tau_tbl[index] * 1.0e-6;
-    emit fmEmphSelected(tau);
+    emit fmEmphSelected(tau_from_index(index));
 }
 
 void CDemodOptions::on_dcrCheckBox_toggled(bool checked)

@@ -99,7 +99,7 @@ public:
     QString currentDemodAsString();
 
     float currentMaxdev() const;
-
+    double currentEmph() const;
     double currentSquelchLevel() const;
 
     void    getFilterPreset(int mode, int preset, int * lo, int * hi) const;
