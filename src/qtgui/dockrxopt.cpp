@@ -318,13 +318,6 @@ void DockRxOpt::readSettings(QSettings *settings)
     int     int_val;
     double  dbl_val;
 
-    int_val = settings->value("receiver/demod", 0).toInt(&conv_ok);
-    if (int_val >= 0)
-    {
-        setCurrentDemod(int_val);
-        emit demodSelected(int_val);
-    }
-
     int_val = settings->value("receiver/cwoffset", 700).toInt(&conv_ok);
     if (conv_ok)
         demodOpt->setCwOffset(int_val);
@@ -375,6 +368,13 @@ void DockRxOpt::readSettings(QSettings *settings)
 
     if (settings->value("receiver/agc_off", false).toBool())
         ui->agcPresetCombo->setCurrentIndex(4);
+
+    int_val = settings->value("receiver/demod", 0).toInt(&conv_ok);
+    if (int_val >= 0)
+    {
+        setCurrentDemod(int_val);
+        emit demodSelected(int_val);
+    }
 }
 
 /** Save receiver configuration to settings. */
