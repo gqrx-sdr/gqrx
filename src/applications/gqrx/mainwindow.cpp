@@ -999,6 +999,7 @@ void MainWindow::selectDemod(int mode_idx)
             uiDockAudio->setFftRange(0,24000);
         }
         rx->set_fm_maxdev(maxdev);
+        rx->set_fm_deemph(uiDockRxOpt->currentEmph());
         break;
 
     case DockRxOpt::MODE_WFM_MONO:
