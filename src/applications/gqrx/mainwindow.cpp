@@ -998,6 +998,7 @@ void MainWindow::selectDemod(int mode_idx)
             ui->plotter->setDemodRanges(-45000, -1000, 1000, 45000, true);
             uiDockAudio->setFftRange(0,24000);
         }
+        rx->set_fm_maxdev(maxdev);
         break;
 
     case DockRxOpt::MODE_WFM_MONO:
