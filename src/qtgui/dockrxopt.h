@@ -88,19 +88,19 @@ public:
 
     void setFilterParam(int lo, int hi);
     void setCurrentFilter(int index);
-    int  currentFilter();
+    int  currentFilter() const;
 
     void setCurrentFilterShape(int index);
-    int  currentFilterShape();
+    int  currentFilterShape() const;
 
     void setHwFreq(qint64 freq_hz);
 
-    int  currentDemod();
+    int  currentDemod() const;
     QString currentDemodAsString();
 
-    float currentMaxdev();
+    float currentMaxdev() const;
 
-    double currentSquelchLevel();
+    double currentSquelchLevel() const;
 
     void    getFilterPreset(int mode, int preset, int * lo, int * hi) const;
     int     getCwOffset() const;

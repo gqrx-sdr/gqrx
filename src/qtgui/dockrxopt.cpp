@@ -222,7 +222,7 @@ void DockRxOpt::setCurrentFilter(int index)
  * @brief Get current filter preset.
  * @param The current filter preset (0=wide, 1=normal, 2=narrow).
  */
-int  DockRxOpt::currentFilter()
+int  DockRxOpt::currentFilter() const
 {
     return ui->filterCombo->currentIndex();
 }
@@ -233,7 +233,7 @@ void DockRxOpt::setCurrentFilterShape(int index)
     ui->filterShapeCombo->setCurrentIndex(index);
 }
 
-int  DockRxOpt::currentFilterShape()
+int  DockRxOpt::currentFilterShape() const
 {
     return ui->filterShapeCombo->currentIndex();
 }
@@ -255,7 +255,7 @@ void DockRxOpt::setCurrentDemod(int demod)
  * @brief Get current demodulator selection.
  * @return The current demodulator corresponding to receiver::demod.
  */
-int  DockRxOpt::currentDemod()
+int  DockRxOpt::currentDemod() const
 {
     return ui->modeSelector->currentIndex();
 }
@@ -265,7 +265,7 @@ QString DockRxOpt::currentDemodAsString()
     return GetStringForModulationIndex(currentDemod());
 }
 
-float DockRxOpt::currentMaxdev()
+float DockRxOpt::currentMaxdev() const
 {
     return demodOpt->getMaxDev();
 }
@@ -283,7 +283,7 @@ void DockRxOpt::setSquelchLevel(double level)
  * @brief Get the current squelch level
  * @returns The current squelch setting in dBFS
  */
-double DockRxOpt::currentSquelchLevel()
+double DockRxOpt::currentSquelchLevel() const
 {
     return ui->sqlSpinBox->value();
 }
