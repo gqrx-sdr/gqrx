@@ -24,6 +24,46 @@
 #include "demod_options.h"
 #include "ui_demod_options.h"
 
+
+float maxdev_from_index(int index)
+{
+    switch(index)
+    {
+    case 0:
+        /* Voice 2.5k */
+        return 2500.0;
+    case 1:
+        /* Voice 5k */
+        return 5000.0;
+    case 2:
+        /* APT 25k (17k but need some margin for Doppler and freq error) */
+        return 25000.0;
+    case 3:
+        /* Broadcast FM 75k */
+        return 75000.0;
+    default:
+        /* Voice 5k */
+        qDebug() << "Invalid max_dev index: " << index;
+        return 5000.0;
+    }
+}
+
+int maxdev_to_index(float max_dev)
+{
+    if (max_dev < 3000.0)
+        /* Voice 2.5k */
+        return 0;
+    else if (max_dev < 10000.0)
+        /* Voice 5k */
+        return 1;
+    else if (max_dev < 40000.0)
+        /* APT 25k (17k nominally) */
+        return 2;
+    else
+        /* Broadcast FM 75k */
+        return 3;
+}
+
 CDemodOptions::CDemodOptions(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CDemodOptions)
@@ -70,36 +110,19 @@ int  CDemodOptions::getCwOffset(void) const
     return ui->cwOffsetSpin->value();
 }
 
+void CDemodOptions::setMaxDev(float max_dev)
+{
+    ui->maxdevSelector->setCurrentIndex(maxdev_to_index(max_dev));
+}
+
+float CDemodOptions::getMaxDev(void) const
+{
+    return maxdev_from_index(ui->maxdevSelector->currentIndex());
+}
+
 void CDemodOptions::on_maxdevSelector_activated(int index)
 {
-    float max_dev;
-
-    switch(index)
-    {
-    case 0:
-        /* Voice 2.5k */
-        max_dev = 2500.0;
-        break;
-    case 1:
-        /* Voice 5k */
-        max_dev = 5000.0;
-        break;
-    case 2:
-        /* APT 25k (17k but need some margin for Doppler and freq error) */
-        max_dev = 25000.0;
-        break;
-    case 3:
-        /* Broadcast FM 75k */
-        max_dev = 75000.0;
-        break;
-    default:
-        /* Voice 5k */
-        qDebug() << "Invalid max_dev index: " << index;
-        max_dev = 5000.0;
-        break;
-    }
-
-    emit fmMaxdevSelected(max_dev);
+    emit fmMaxdevSelected(maxdev_from_index(index));
 }
 
 void CDemodOptions::on_emphSelector_activated(int index)

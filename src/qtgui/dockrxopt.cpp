@@ -238,7 +238,6 @@ int  DockRxOpt::currentFilterShape()
     return ui->filterShapeCombo->currentIndex();
 }
 
-
 /**
  * @brief Select new demodulator.
  * @param demod Demodulator index corresponding to receiver::demod.
@@ -251,7 +250,6 @@ void DockRxOpt::setCurrentDemod(int demod)
         updateDemodOptPage(demod);
     }
 }
-
 
 /**
  * @brief Get current demodulator selection.
@@ -269,10 +267,8 @@ QString DockRxOpt::currentDemodAsString()
 
 float DockRxOpt::currentMaxdev()
 {
-    qDebug() << __FILE__ << __FUNCTION__ << "FIXME";
-    return 5000.0;
+    return demodOpt->getMaxDev();
 }
-
 
 /**
  * @brief Set squelch level.
@@ -333,6 +329,10 @@ void DockRxOpt::readSettings(QSettings *settings)
     if (conv_ok)
         demodOpt->setCwOffset(int_val);
 
+    int_val = settings->value("receiver/fm_maxdev", 2500).toInt(&conv_ok);
+    if (conv_ok)
+        demodOpt->setMaxDev(int_val);
+
     qint64 offs = settings->value("receiver/offset", 0).toInt(&conv_ok);
     if (offs)
     {
@@ -389,6 +389,13 @@ void DockRxOpt::saveSettings(QSettings *settings)
         settings->remove("receiver/cwoffset");
     else
         settings->setValue("receiver/cwoffset", cwofs);
+
+    // currently we do not need the decimal
+    int_val = (int)demodOpt->getMaxDev();
+    if (int_val == 2500)
+        settings->remove("receiver/fm_maxdev");
+    else
+        settings->setValue("receiver/fm_maxdev", int_val);
 
     qint64 offs = ui->filterFreq->getFrequency();
     if (offs)
