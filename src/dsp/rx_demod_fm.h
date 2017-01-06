@@ -26,7 +26,6 @@
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/analog/quadrature_demod_cf.h>
 #include <gnuradio/filter/iir_filter_ffd.h>
-#include <gnuradio/filter/pfb_arb_resampler_ccf.h>
 #include <vector>
 
 class rx_demod_fm;
@@ -65,7 +64,6 @@ private:
     /* GR blocks */
     gr::analog::quadrature_demod_cf::sptr   d_quad;      /*! The quadrature demodulator block. */
     gr::filter::iir_filter_ffd::sptr        d_deemph;    /*! De-emphasis IIR filter. */
-    gr::filter::pfb_arb_resampler_ccf::sptr d_resampler; /*! PFB resampler. */
     std::vector<float>            d_taps;      /*! Taps for the PFB resampler. */
 
     /* other parameters */
