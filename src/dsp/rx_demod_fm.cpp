@@ -20,11 +20,12 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include <gnuradio/io_signature.h>
 #include <gnuradio/filter/firdes.h>
-#include <dsp/rx_demod_fm.h>
-#include <math.h>
+#include <gnuradio/io_signature.h>
 #include <iostream>
+#include <math.h>
+
+#include "dsp/rx_demod_fm.h"
 
 
 /* Create a new instance of rx_demod_fm and return a boost shared_ptr. */
@@ -67,11 +68,13 @@ rx_demod_fm::rx_demod_fm(float quad_rate, float audio_rate, float max_dev, doubl
 
     /* connect block */
     connect(self(), 0, d_quad, 0);
-    if (d_tau > 1.0e-9) {
+    if (d_tau > 1.0e-9)
+    {
         connect(d_quad, 0, d_deemph, 0);
         connect(d_deemph, 0, self(), 0);
     }
-    else {
+    else
+    {
         connect(d_quad, 0, self(), 0);
     }
 
@@ -93,7 +96,8 @@ void rx_demod_fm::set_max_dev(float max_dev)
 {
     float gain;
 
-    if ((max_dev < 500.0) || (max_dev > d_quad_rate/2.0)) {
+    if ((max_dev < 500.0) || (max_dev > d_quad_rate/2.0))
+    {
         return;
     }
 
@@ -111,17 +115,20 @@ void rx_demod_fm::set_max_dev(float max_dev)
  */
 void rx_demod_fm::set_tau(double tau)
 {
-    if (fabs(tau - d_tau) < 1.0e-9) {
+    if (fabs(tau - d_tau) < 1.0e-9)
+    {
         /* no change */
         return;
     }
 
-    if (tau > 1.0e-9) {
+    if (tau > 1.0e-9)
+    {
         calculate_iir_taps(tau);
         d_deemph->set_taps(d_fftaps, d_fbtaps);
 
         /* check to see if we need to rewire flow graph */
-        if (d_tau <= 1.0e-9) {
+        if (d_tau <= 1.0e-9)
+        {
             /* need to put deemph into the flowgraph */
             lock();
             disconnect(d_quad, 0, self(), 0);
@@ -132,12 +139,14 @@ void rx_demod_fm::set_tau(double tau)
 
         d_tau = tau;
     }
-    else {
+    else
+    {
 #ifndef QT_NO_DEBUG_OUTPUT
         std::cerr << "FM de-emphasis tau is 0: " << tau << std::endl;
 #endif
         /* diable de-emph if conencted */
-        if (d_tau > 1.0e-9) {
+        if (d_tau > 1.0e-9)
+        {
 #ifndef QT_NO_DEBUG_OUTPUT
             std::cout << "  Disable de-emphasis" << std::endl;
 #endif
@@ -150,9 +159,7 @@ void rx_demod_fm::set_tau(double tau)
 
         d_tau = 0.0;
     }
-
 }
-
 
 /*! \brief Calculate taps for FM de-emph IIR filter. */
 void rx_demod_fm::calculate_iir_taps(double tau)

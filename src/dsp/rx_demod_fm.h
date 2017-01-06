@@ -20,12 +20,11 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#ifndef RX_DEMOD_FM_H
-#define RX_DEMOD_FM_H
+#pragma once
 
-#include <gnuradio/hier_block2.h>
 #include <gnuradio/analog/quadrature_demod_cf.h>
 #include <gnuradio/filter/iir_filter_ffd.h>
+#include <gnuradio/hier_block2.h>
 #include <vector>
 
 class rx_demod_fm;
@@ -67,10 +66,10 @@ private:
     std::vector<float>            d_taps;      /*! Taps for the PFB resampler. */
 
     /* other parameters */
-    float  d_quad_rate;     /*! Quadrature rate. */
-    float  d_audio_rate;    /*! Audio rate. */
-    float  d_max_dev;       /*! Max deviation. */
-    double d_tau;           /*! De-emphasis time constant. */
+    float       d_quad_rate;     /*! Quadrature rate. */
+    float       d_audio_rate;    /*! Audio rate. */
+    float       d_max_dev;       /*! Max deviation. */
+    double      d_tau;           /*! De-emphasis time constant. */
 
     /* De-emph IIR filter taps */
     std::vector<double> d_fftaps;  /*! Feed forward taps. */
@@ -79,5 +78,3 @@ private:
     void calculate_iir_taps(double tau);
 
 };
-
-#endif // RX_DEMOD_FM_H
