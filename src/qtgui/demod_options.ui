@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>223</width>
+    <width>228</width>
     <height>110</height>
    </rect>
   </property>
@@ -110,6 +110,11 @@ this demodulator</string>
            <item>
             <property name="text">
              <string>Voice (5 kHz)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>APT (17 kHz)</string>
             </property>
            </item>
            <item>

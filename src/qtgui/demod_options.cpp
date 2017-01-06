@@ -62,9 +62,12 @@ float maxdev_from_index(int index)
         /* Voice 5k */
         return 5000.0;
     case 2:
+        /* APT 17k */
+        return 17000.0;
+    case 3:
         /* APT 25k (17k but need some margin for Doppler and freq error) */
         return 25000.0;
-    case 3:
+    case 4:
         /* Broadcast FM 75k */
         return 75000.0;
     default:
@@ -82,12 +85,15 @@ int maxdev_to_index(float max_dev)
     else if (max_dev < 10000.0)
         /* Voice 5k */
         return 1;
-    else if (max_dev < 40000.0)
-        /* APT 25k (17k nominally) */
+    else if (max_dev < 20000.0)
+        /* APT 17k */
         return 2;
+    else if (max_dev < 40000.0)
+        /* APT 25k */
+        return 3;
     else
         /* Broadcast FM 75k */
-        return 3;
+        return 4;
 }
 
 CDemodOptions::CDemodOptions(QWidget *parent) :
