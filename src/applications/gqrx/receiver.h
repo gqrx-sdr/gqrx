@@ -119,10 +119,14 @@ public:
     void        set_antenna(const std::string &antenna);
 
     double      set_input_rate(double rate);
-    double      get_input_rate(void) const;
+    double      get_input_rate(void) const { return d_input_rate; }
 
     unsigned int    set_input_decim(unsigned int decim);
     unsigned int    get_input_decim(void) const { return d_decim; }
+
+    double      get_quad_rate(void) const {
+        return d_input_rate / (double)d_decim;
+    }
 
     double      set_analog_bandwidth(double bw);
     double      get_analog_bandwidth(void) const;

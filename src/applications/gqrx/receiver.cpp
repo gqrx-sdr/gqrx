@@ -348,13 +348,6 @@ double receiver::set_input_rate(double rate)
     return d_input_rate;
 }
 
-
-/** Get current input sample rate. */
-double receiver::get_input_rate(void) const
-{
-    return d_input_rate;
-}
-
 /** Set input decimation */
 unsigned int receiver::set_input_decim(unsigned int decim)
 {
