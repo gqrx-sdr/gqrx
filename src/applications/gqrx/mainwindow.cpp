@@ -932,12 +932,11 @@ void MainWindow::selectDemod(QString strModulation)
  */
 void MainWindow::selectDemod(int mode_idx)
 {
-    double quad_rate;
-    double cwofs = 0.0;
-    float maxdev;
-    int filter_preset = uiDockRxOpt->currentFilter();
-    int flo=0, fhi=0, click_res=100;
-    bool rds_enabled;
+    double  cwofs = 0.0;
+    double  fw_half = 0.45 * rx->get_quad_rate(); // max filter width half (90% BW)
+    int     filter_preset = uiDockRxOpt->currentFilter();
+    int     flo=0, fhi=0, click_res=100;
+    bool    rds_enabled;
 
     // validate mode_idx
     if (mode_idx < DockRxOpt::MODE_OFF || mode_idx >= DockRxOpt::MODE_LAST)
@@ -964,7 +963,6 @@ void MainWindow::selectDemod(int mode_idx)
             stopAudioRec();
             uiDockAudio->setAudioRecButtonState(false);
         }
-
         rx->set_demod(receiver::RX_DEMOD_OFF);
         click_res = 1000;
         break;
@@ -972,7 +970,7 @@ void MainWindow::selectDemod(int mode_idx)
     case DockRxOpt::MODE_RAW:
         /* Raw I/Q */
         rx->set_demod(receiver::RX_DEMOD_NONE);
-        ui->plotter->setDemodRanges(-45000, -200, 200, 45000, true);
+        ui->plotter->setDemodRanges(-fw_half, -200, 200, fw_half, true);
         uiDockAudio->setFftRange(0,24000);
         click_res = 100;
         break;
@@ -985,34 +983,19 @@ void MainWindow::selectDemod(int mode_idx)
         break;
 
     case DockRxOpt::MODE_NFM:
+        ui->plotter->setDemodRanges(-fw_half, -1000, 1000, fw_half, true);
+        uiDockAudio->setFftRange(0, 5000);
         rx->set_demod(receiver::RX_DEMOD_NFM);
-        click_res = 100;
-        maxdev = uiDockRxOpt->currentMaxdev();
-        if (maxdev < 20000.0)
-        {   /** FIXME **/
-            ui->plotter->setDemodRanges(-45000, -250, 250, 45000, true);
-            uiDockAudio->setFftRange(0,6000);
-        }
-        else
-        {
-            ui->plotter->setDemodRanges(-45000, -1000, 1000, 45000, true);
-            uiDockAudio->setFftRange(0,24000);
-        }
-        rx->set_fm_maxdev(maxdev);
+        rx->set_fm_maxdev(uiDockRxOpt->currentMaxdev());
         rx->set_fm_deemph(uiDockRxOpt->currentEmph());
+        click_res = 100;
         break;
 
     case DockRxOpt::MODE_WFM_MONO:
     case DockRxOpt::MODE_WFM_STEREO:
     case DockRxOpt::MODE_WFM_STEREO_OIRT:
         /* Broadcast FM */
-        quad_rate = rx->get_input_rate();
-        if (quad_rate < 500.0e3)
-            ui->plotter->setDemodRanges(-quad_rate/2.0, -10000,
-                                        10000, quad_rate/2.0,
-                                        true);
-        else
-            ui->plotter->setDemodRanges(-250000, -10000, 10000, 250000, true);
+        ui->plotter->setDemodRanges(-fw_half, -10000, 10000, fw_half, true);
         uiDockAudio->setFftRange(0,24000);  /** FIXME: get audio rate from rx **/
         click_res = 1000;
         if (mode_idx == DockRxOpt::MODE_WFM_MONO)
@@ -1096,20 +1079,6 @@ void MainWindow::setFmMaxdev(float max_dev)
 
     /* receiver will check range */
     rx->set_fm_maxdev(max_dev);
-
-    /* update filter */
-    if (max_dev < 20000.0)
-    {
-        ui->plotter->setDemodRanges(-25000, -1000, 1000, 25000, true);
-        ui->plotter->setHiLowCutFrequencies(-5000, 5000);
-        rx->set_filter(-5000.0, 5000.0, d_filter_shape);
-    }
-    else
-    {
-        ui->plotter->setDemodRanges(-45000, -10000, 10000, 45000, true);
-        ui->plotter->setHiLowCutFrequencies(-35000, 35000);
-        rx->set_filter(-35000.0, 35000.0, d_filter_shape);
-    }
 }
 
 
