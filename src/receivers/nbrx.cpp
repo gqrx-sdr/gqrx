@@ -48,8 +48,8 @@ nbrx::nbrx(float quad_rate, float audio_rate)
     meter = make_rx_meter_c(DETECTOR_TYPE_RMS);
     demod_raw = gr::blocks::complex_to_float::make(1);
     demod_ssb = gr::blocks::complex_to_real::make(1);
-    demod_fm = make_rx_demod_fm(PREF_QUAD_RATE, PREF_AUDIO_RATE, 5000.0, 75.0e-6);
-    demod_am = make_rx_demod_am(PREF_QUAD_RATE, PREF_AUDIO_RATE, true);
+    demod_fm = make_rx_demod_fm(PREF_QUAD_RATE, 5000.0, 75.0e-6);
+    demod_am = make_rx_demod_am(PREF_QUAD_RATE, true);
 
     audio_rr.reset();
     if (d_audio_rate != PREF_AUDIO_RATE)

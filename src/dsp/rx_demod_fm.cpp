@@ -29,9 +29,9 @@
 
 
 /* Create a new instance of rx_demod_fm and return a boost shared_ptr. */
-rx_demod_fm_sptr make_rx_demod_fm(float quad_rate, float audio_rate, float max_dev, double tau)
+rx_demod_fm_sptr make_rx_demod_fm(float quad_rate, float max_dev, double tau)
 {
-    return gnuradio::get_initial_sptr(new rx_demod_fm(quad_rate, audio_rate, max_dev, tau));
+    return gnuradio::get_initial_sptr(new rx_demod_fm(quad_rate, max_dev, tau));
 }
 
 static const int MIN_IN = 1;  /* Mininum number of input streams. */
@@ -39,12 +39,11 @@ static const int MAX_IN = 1;  /* Maximum number of input streams. */
 static const int MIN_OUT = 1; /* Minimum number of output streams. */
 static const int MAX_OUT = 1; /* Maximum number of output streams. */
 
-rx_demod_fm::rx_demod_fm(float quad_rate, float audio_rate, float max_dev, double tau)
+rx_demod_fm::rx_demod_fm(float quad_rate, float max_dev, double tau)
     : gr::hier_block2 ("rx_demod_fm",
                       gr::io_signature::make (MIN_IN, MAX_IN, sizeof (gr_complex)),
                       gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof (float))),
     d_quad_rate(quad_rate),
-    d_audio_rate(audio_rate),
     d_max_dev(max_dev),
     d_tau(tau)
 {

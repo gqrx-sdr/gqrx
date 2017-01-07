@@ -32,7 +32,6 @@ typedef boost::shared_ptr<rx_demod_fm> rx_demod_fm_sptr;
 
 /*! \brief Return a shared_ptr to a new instance of rx_demod_fm.
  *  \param quad_rate The input sample rate.
- *  \param audio_rate The audio rate.
  *  \param max_dev Maximum deviation in Hz
  *  \param tau De-emphasis time constant in seconds (75us in US, 50us in EUR, 0.0 disables).
  *
@@ -40,7 +39,7 @@ typedef boost::shared_ptr<rx_demod_fm> rx_demod_fm_sptr;
  * of raw pointers, rx_demod_fm's constructor is private.
  * make_rx_dmod_fm is the public interface for creating new instances.
  */
-rx_demod_fm_sptr make_rx_demod_fm(float quad_rate, float audio_rate, float max_dev=5000.0, double tau=50.0e-6);
+rx_demod_fm_sptr make_rx_demod_fm(float quad_rate, float max_dev=5000.0, double tau=50.0e-6);
 
 /*! \brief FM demodulator.
  *  \ingroup DSP
@@ -53,7 +52,7 @@ class rx_demod_fm : public gr::hier_block2
 {
 
 public:
-    rx_demod_fm(float quad_rate=48000.0, float audio_rate=48000.0, float max_dev=5000.0, double tau=50.0e-6); // FIXME: should be private
+    rx_demod_fm(float quad_rate, float max_dev, double tau); // FIXME: should be private
     ~rx_demod_fm();
 
     void set_max_dev(float max_dev);
@@ -67,7 +66,6 @@ private:
 
     /* other parameters */
     float       d_quad_rate;     /*! Quadrature rate. */
-    float       d_audio_rate;    /*! Audio rate. */
     float       d_max_dev;       /*! Max deviation. */
     double      d_tau;           /*! De-emphasis time constant. */
 

@@ -36,13 +36,11 @@ typedef boost::shared_ptr<rx_demod_am> rx_demod_am_sptr;
 
 /*! \brief Return a shared_ptr to a new instance of rx_demod_am.
  *  \param quad_rate The input sample rate.
- *  \param audio_rate The audio rate.
  *  \param dcr Enable DCR
  *
  * This is effectively the public constructor.
  */
-rx_demod_am_sptr make_rx_demod_am(float quad_rate, float audio_rate, bool dcr=true);
-
+rx_demod_am_sptr make_rx_demod_am(float quad_rate, bool dcr=true);
 
 /*! \brief AM demodulator.
  *  \ingroup DSP
@@ -56,7 +54,7 @@ class rx_demod_am : public gr::hier_block2
 {
 
 public:
-    rx_demod_am(float quad_rate=48000.0, float audio_rate=48000.0, bool dcr=true); // FIXME: could be private
+    rx_demod_am(float quad_rate, bool dcr=true); // FIXME: could be private
     ~rx_demod_am();
 
     void set_dcr(bool dcr);
@@ -64,7 +62,7 @@ public:
 
 private:
     /* GR blocks */
-    gr::blocks::complex_to_mag::sptr  d_demod;    /*! AM demodulation (complex to magnitude). */
+    gr::blocks::complex_to_mag::sptr    d_demod;  /*! AM demodulation (complex to magnitude). */
     gr::filter::iir_filter_ffd::sptr    d_dcr;    /*! DC removal (IIR high pass). */
 
     /* other parameters */
