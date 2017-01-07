@@ -24,8 +24,8 @@
 #include <iostream>
 #include "receivers/nbrx.h"
 
-#define PREF_QUAD_RATE  48000.f
-#define PREF_AUDIO_RATE 48000.f
+// NB: Remeber to adjust filter ranges in MainWindow
+#define PREF_QUAD_RATE  96000.f
 
 nbrx_sptr make_nbrx(float quad_rate, float audio_rate)
 {
@@ -52,11 +52,11 @@ nbrx::nbrx(float quad_rate, float audio_rate)
     demod_am = make_rx_demod_am(PREF_QUAD_RATE, true);
 
     audio_rr.reset();
-    if (d_audio_rate != PREF_AUDIO_RATE)
+    if (d_audio_rate != PREF_QUAD_RATE)
     {
-        std::cout << "Resampling audio " << PREF_AUDIO_RATE << " -> "
+        std::cout << "Resampling audio " << PREF_QUAD_RATE << " -> "
                   << d_audio_rate << std::endl;
-        audio_rr = make_resampler_ff(d_audio_rate/PREF_AUDIO_RATE);
+        audio_rr = make_resampler_ff(d_audio_rate/PREF_QUAD_RATE);
     }
 
     demod = demod_fm;
@@ -113,6 +113,7 @@ void nbrx::set_quad_rate(float quad_rate)
 void nbrx::set_audio_rate(float audio_rate)
 {
     (void) audio_rate;
+    std::cout << "**** FIXME: nbrx::set_audio_rate() not implemented" << std::endl;
 }
 
 void nbrx::set_filter(double low, double high, double tw)
