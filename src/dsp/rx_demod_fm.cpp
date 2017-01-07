@@ -163,15 +163,25 @@ void rx_demod_fm::set_tau(double tau)
 /*! \brief Calculate taps for FM de-emph IIR filter. */
 void rx_demod_fm::calculate_iir_taps(double tau)
 {
-    /* copied from fm_emph.py in gnuradio-core */
-    double w_p, w_pp;
+    // copied from fm_emph.py in gr-analog
+    double  w_c;    // Digital corner frequency
+    double  w_ca;   // Prewarped analog corner frequency
+    double  k, z1, p1, b0;
+    double  fs = d_quad_rate;
 
-    w_p = 1.0/tau;
-    w_pp = tan(w_p / (d_quad_rate * 2.0)); /* prewarped analog freq */
+    w_c = 1.0 / tau;
+    w_ca = 2.0 * fs * tan(w_c / (2.0 * fs));
 
-    d_fftaps[0] = w_pp/(1 + w_pp);
-    d_fftaps[1] = d_fftaps[0];
+    // Resulting digital pole, zero, and gain term from the bilinear
+    // transformation of H(s) = w_ca / (s + w_ca) to
+    // H(z) = b0 (1 - z1 z^-1)/(1 - p1 z^-1)
+    k = -w_ca / (2.0 * fs);
+    z1 = -1.0;
+    p1 = (1.0 + k) / (1.0 - k);
+    b0 = -k / (1.0 - k);
 
+    d_fftaps[0] = b0;
+    d_fftaps[1] = -z1 * b0;
     d_fbtaps[0] = 1.0;
-    d_fbtaps[1] = (w_pp - 1)/(w_pp + 1);
+    d_fbtaps[1] = -p1;
 }
