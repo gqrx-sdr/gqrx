@@ -129,10 +129,22 @@ bool receiver_base_cf::has_am()
     return false;
 }
 
+bool receiver_base_cf::has_amsync()
+{
+    return false;
+}
+
+
 void receiver_base_cf::set_am_dcr(bool enabled)
 {
     (void) enabled;
 }
+
+void receiver_base_cf::set_amsync_dcr(bool enabled)
+{
+    (void) enabled;
+}
+
 
 void receiver_base_cf::get_rds_data(std::string &outbuff, int &num)
 {

@@ -868,6 +868,12 @@ receiver::status receiver::set_demod(rx_demod demod)
         rx->set_demod(nbrx::NBRX_DEMOD_AM);
         break;
 
+    case RX_DEMOD_AMSYNC:
+        connect_all(RX_CHAIN_NBRX);
+        rx->set_demod(nbrx::NBRX_DEMOD_AMSYNC);
+        break;
+
+
     case RX_DEMOD_NFM:
         connect_all(RX_CHAIN_NBRX);
         rx->set_demod(nbrx::NBRX_DEMOD_FM);
@@ -933,6 +939,17 @@ receiver::status receiver::set_am_dcr(bool enabled)
 
     return STATUS_OK;
 }
+
+
+receiver::status receiver::set_amsync_dcr(bool enabled)
+{
+    if (rx->has_amsync())
+        rx->set_amsync_dcr(enabled);
+
+    return STATUS_OK;
+}
+
+
 
 receiver::status receiver::set_af_gain(float gain_db)
 {

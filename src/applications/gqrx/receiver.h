@@ -84,11 +84,12 @@ public:
         RX_DEMOD_OFF   = 0,  /*!< No receiver. */
         RX_DEMOD_NONE  = 1,  /*!< No demod. Raw I/Q to audio. */
         RX_DEMOD_AM    = 2,  /*!< Amplitude modulation. */
-        RX_DEMOD_NFM   = 3,  /*!< Frequency modulation. */
-        RX_DEMOD_WFM_M = 4,  /*!< Frequency modulation (wide, mono). */
-        RX_DEMOD_WFM_S = 5,  /*!< Frequency modulation (wide, stereo). */
-        RX_DEMOD_WFM_S_OIRT = 6,  /*!< Frequency modulation (wide, stereo oirt). */
-        RX_DEMOD_SSB   = 7   /*!< Single Side Band. */
+        RX_DEMOD_AMSYNC    = 3,  /*!< Amplitude modulation. */
+        RX_DEMOD_NFM   = 4,  /*!< Frequency modulation. */
+        RX_DEMOD_WFM_M = 5,  /*!< Frequency modulation (wide, mono). */
+        RX_DEMOD_WFM_S = 6,  /*!< Frequency modulation (wide, stereo). */
+        RX_DEMOD_WFM_S_OIRT = 7,  /*!< Frequency modulation (wide, stereo oirt). */
+        RX_DEMOD_SSB   = 8   /*!< Single Side Band. */
     };
 
     /** Supported receiver types. */
@@ -184,6 +185,9 @@ public:
 
     /* AM parameters */
     status      set_am_dcr(bool enabled);
+
+    /* AM-Sync parameters */
+    status      set_amsync_dcr(bool enabled);
 
     /* Audio parameters */
     status      set_af_gain(float gain_db);
