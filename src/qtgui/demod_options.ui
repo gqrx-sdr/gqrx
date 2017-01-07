@@ -122,11 +122,6 @@ this demodulator</string>
              <string>APT (25 kHz)</string>
             </property>
            </item>
-           <item>
-            <property name="text">
-             <string>BC (75 kHz)</string>
-            </property>
-           </item>
           </widget>
          </item>
          <item row="1" column="0">
