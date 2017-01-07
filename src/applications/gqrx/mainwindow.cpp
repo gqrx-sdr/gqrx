@@ -579,6 +579,16 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
         setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
     }
 
+    {
+        int flo = m_settings->value("receiver/filter_low_cut", 0).toInt(&conv_ok);
+        int fhi = m_settings->value("receiver/filter_high_cut", 0).toInt(&conv_ok);
+
+        if (conv_ok && flo != fhi)
+        {
+            on_plotter_newFilterFreq(flo, fhi);
+        }
+    }
+
     iq_tool->readSettings(m_settings);
 
     /*
@@ -667,6 +677,16 @@ void MainWindow::storeSession()
 
         remote->saveSettings(m_settings);
         iq_tool->saveSettings(m_settings);
+
+        {
+            int     flo, fhi;
+            ui->plotter->getHiLowCutFrequencies(&flo, &fhi);
+            if (flo != fhi)
+            {
+                m_settings->setValue("receiver/filter_low_cut", flo);
+                m_settings->setValue("receiver/filter_high_cut", fhi);
+            }
+        }
     }
 }
 
@@ -1850,7 +1870,7 @@ void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
         rx->reset_rds_parser();
 }
 
-/* CPlotter::NewfilterFreq() is emitted */
+/* CPlotter::NewfilterFreq() is emitted or bookmark activated */
 void MainWindow::on_plotter_newFilterFreq(int low, int high)
 {
     receiver::status retcode;
