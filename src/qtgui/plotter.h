@@ -70,6 +70,12 @@ public:
         drawOverlay();
     }
 
+    void getHiLowCutFrequencies(int *LowCut, int *HiCut)
+    {
+        *LowCut = m_DemodLowCutFreq;
+        *HiCut = m_DemodHiCutFreq;
+    }
+
     void setDemodRanges(int FLowCmin, int FLowCmax, int FHiCmin, int FHiCmax, bool symetric);
 
     /* Shown bandwidth around SetCenterFreq() */
