@@ -1,10 +1,13 @@
        2.7: TBD...
 
-       NEW: Save remote control state between sessions.
+       NEW: Restore filter low cut and high cut between sessions.
+       NEW: Restore FM parameters between sessions.
+       NEW: Restore remote control state between sessions.
        NEW: Support for passband when setting mode through remote.
      FIXED: Keep waterfall zoom level and zoom slider synchronised.
      FIXED: RDS status is not kept while jumping through bookmark.
   IMPROVED: Tuning through the remote control interface.
+  IMPROVED: Increase narrow band receiver rate to 96 ksps (for APT).
 
 
        2.6: Released October 3, 2016
