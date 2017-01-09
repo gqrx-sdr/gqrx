@@ -588,6 +588,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
             on_plotter_newFilterFreq(flo, fhi);
         }
     }
+    ui->freqCtrl->m_ResetLowerDigits = m_settings->value("gui/ResetLowerDigits", true).toBool();
 
     iq_tool->readSettings(m_settings);
 

@@ -77,7 +77,6 @@ CFreqCtrl::CFreqCtrl(QWidget *parent) :
     m_LastLeadZeroPos = 0;
     m_LRMouseFreqSel = false;
     m_ActiveEditDigit = -1;
-    m_ResetLowerDigits = true;
     m_UnitsFont = QFont("Arial", 12, QFont::Normal);
     m_DigitFont = QFont("Arial", 12, QFont::Normal);
 
