@@ -8,6 +8,7 @@
      FIXED: RDS status is not kept while jumping through bookmark.
   IMPROVED: Tuning through the remote control interface.
   IMPROVED: Increase narrow band receiver rate to 96 ksps (for APT).
+  IMPROVED: Config record for reverting the behavior of the freq. controller
 
 
        2.6: Released October 3, 2016

@@ -323,6 +323,9 @@ void DockRxOpt::readSettings(QSettings *settings)
     int     int_val;
     double  dbl_val;
 
+    bool bool_val = settings->value("gui/fctl_reset_digits", true).toBool();
+    ui->filterFreq->setResetLowerDigits(bool_val);
+
     int_val = settings->value("receiver/cwoffset", 700).toInt(&conv_ok);
     if (conv_ok)
         demodOpt->setCwOffset(int_val);

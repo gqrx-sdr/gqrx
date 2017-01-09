@@ -453,6 +453,10 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
         restoreState(m_settings->value("gui/state", saveState()).toByteArray());
     }
 
+    // misc GUI settings
+    bool_val = m_settings->value("gui/fctl_reset_digits", true).toBool();
+    ui->freqCtrl->setResetLowerDigits(bool_val);
+
     QString indev = m_settings->value("input/device", "").toString();
     if (!indev.isEmpty())
     {

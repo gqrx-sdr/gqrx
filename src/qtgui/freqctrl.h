@@ -59,6 +59,10 @@ public:
     void setHighlightColor(QColor cr);
     qint64 getFrequency() { return m_freq; }
 
+    void setResetLowerDigits(bool reset) {
+        m_ResetLowerDigits = reset;
+    }
+
 signals:
     void newFrequency(qint64 freq); //emitted when frequency has changed
 
