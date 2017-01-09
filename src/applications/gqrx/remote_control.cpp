@@ -29,6 +29,7 @@
 
 #define DEFAULT_RC_PORT            7356
 #define DEFAULT_RC_ALLOWED_HOSTS   "::ffff:127.0.0.1"
+#define DEFAULT_RC_BW_WIN_RATIO    90
 
 RemoteControl::RemoteControl(QObject *parent) :
     QObject(parent)
@@ -36,13 +37,13 @@ RemoteControl::RemoteControl(QObject *parent) :
 
     rc_freq = 0;
     rc_filter_offset = 0;
-    bw_half = 740e3;
     rc_mode = 0;
     signal_level = -200.0;
     squelch_level = -150.0;
     audio_recorder_status = false;
     receiver_running = false;
     hamlib_compatible = false;
+    bw_win_ratio = DEFAULT_RC_BW_WIN_RATIO;
 
     rc_port = DEFAULT_RC_PORT;
     rc_allowed_hosts.append(DEFAULT_RC_ALLOWED_HOSTS);
@@ -92,6 +93,9 @@ void RemoteControl::readSettings(QSettings *settings)
     if (settings->contains("allowed_hosts"))
         setHosts(settings->value("allowed_hosts").toStringList());
 
+    if (settings->contains("bw_win_ratio"))
+        bw_win_ratio = settings->value("bw_win_ratio").toInt();
+
     settings->endGroup();
 }
 
@@ -116,6 +120,12 @@ void RemoteControl::saveSettings(QSettings *settings) const
         settings->setValue("allowed_hosts", rc_allowed_hosts);
     else
         settings->remove("allowed_hosts");
+
+    if (bw_win_ratio != DEFAULT_RC_BW_WIN_RATIO)
+        settings->setValue("bw_win_ratio", bw_win_ratio);
+    else
+        settings->remove("bw_win_ratio");
+
 
     settings->endGroup();
 }
@@ -245,8 +255,7 @@ void RemoteControl::setFilterOffset(qint64 freq)
 
 void RemoteControl::setBandwidth(qint64 bw)
 {
-    // we want to leave some margin
-    bw_half = 0.9 * (bw / 2);
+    bw_full = bw;
 }
 
 /*! \brief Set signal level in dBFS. */
@@ -275,6 +284,8 @@ void RemoteControl::setPassband(int passband_lo, int passband_hi)
 void RemoteControl::setNewRemoteFreq(qint64 freq)
 {
     qint64 delta = freq - rc_freq;
+    // we want to leave some margin
+    qint64 bw_half = (double)bw_win_ratio / 100 * bw_full / 2;
 
     rc_filter_offset += delta;
     if (((rc_filter_offset > 0) && ((rc_filter_offset + rc_passband_hi) < bw_half))
