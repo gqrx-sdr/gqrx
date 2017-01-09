@@ -112,7 +112,8 @@ private:
     
     qint64      rc_freq;
     qint64      rc_filter_offset;
-    qint64      bw_half;
+    qint64      bw_full;
+    int         bw_win_ratio;
 
     int         rc_mode;           /*!< Current mode. */
     int         rc_passband_lo;    /*!< Current low cutoff. */
