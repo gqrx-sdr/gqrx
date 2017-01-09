@@ -59,6 +59,9 @@ public:
     void setHighlightColor(QColor cr);
     qint64 getFrequency() { return m_freq; }
 
+    bool m_ResetLowerDigits;  /*! If TRUE digits below the active one will be reset to 0
+                                  when the active digit is incremented or decremented. */
+
 signals:
     void newFrequency(qint64 freq); //emitted when frequency has changed
 
@@ -92,9 +95,6 @@ private:
     bool m_UpdateAll;
     bool m_ExternalKeyActive;
     bool m_LRMouseFreqSel;    /*! Use left/right mouse buttons. If FALSE click area determines up/down. */
-
-    bool m_ResetLowerDigits;  /*! If TRUE digits below the active one will be reset to 0
-                                  when the active digit is incremented or decremented. */
 
     int m_FirstEditableDigit;
     int m_LastLeadZeroPos;
