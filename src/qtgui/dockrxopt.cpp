@@ -321,6 +321,10 @@ void DockRxOpt::readSettings(QSettings *settings)
     bool    conv_ok;
     int     int_val;
     double  dbl_val;
+    bool    bool_val;
+
+    bool_val = settings->value("gui/fctl_reset_digits", true).toBool();
+    ui->filterFreq->setResetLowerDigits(bool_val);
 
     int_val = settings->value("receiver/demod", 0).toInt(&conv_ok);
     if (int_val >= 0)

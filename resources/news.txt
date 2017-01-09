@@ -1,3 +1,9 @@
+
+     2.6.1: Released TBD...
+
+  IMPROVED: Option for reverting the behavior of the frequency controller.
+
+
        2.6: Released October 3, 2016
 
        NEW: 1-2-5 scaling on FFT axis.
