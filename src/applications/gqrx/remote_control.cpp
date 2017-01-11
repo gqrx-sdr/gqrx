@@ -469,7 +469,7 @@ QString RemoteControl::intToModeStr(int mode)
 }
 
 /* Get frequency */
-QString RemoteControl::cmd_get_freq()
+QString RemoteControl::cmd_get_freq() const
 {
     return QString("%1\n").arg(rc_freq);
 }
@@ -633,7 +633,7 @@ QString RemoteControl::cmd_set_func(QStringList cmdlist)
 }
 
 /* Get current 'VFO' (fake, only for hamlib) */
-QString RemoteControl::cmd_get_vfo()
+QString RemoteControl::cmd_get_vfo() const
 {
     return QString("VFOA\n");
 };
@@ -655,7 +655,7 @@ QString RemoteControl::cmd_set_vfo(QStringList cmdlist)
 };
 
 /* Get 'Split' mode (fake, only for hamlib) */
-QString RemoteControl::cmd_get_split_vfo()
+QString RemoteControl::cmd_get_split_vfo() const
 {
     return QString("0\nVFOA\n");
 };
@@ -667,7 +667,7 @@ QString RemoteControl::cmd_set_split_vfo()
 }
 
 /* Get info */
-QString RemoteControl::cmd_get_info()
+QString RemoteControl::cmd_get_info() const
 {
     return QString("Gqrx %1\n").arg(VERSION);
 };
@@ -697,7 +697,7 @@ QString RemoteControl::cmd_LOS()
  *  https://github.com/N0NB/hamlib/blob/master/include/hamlib/rig.h (bit fields)
  *  https://github.com/N0NB/hamlib/blob/master/dummy/netrigctl.c
  */
-QString RemoteControl::cmd_dump_state()
+QString RemoteControl::cmd_dump_state() const
 {
     return QString(
         /* rigctl protocol version */

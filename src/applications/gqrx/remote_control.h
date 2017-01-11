@@ -128,7 +128,7 @@ private:
     QString     intToModeStr(int mode);
 
     /* RC commands */
-    QString     cmd_get_freq();
+    QString     cmd_get_freq() const;
     QString     cmd_set_freq(QStringList cmdlist);
     QString     cmd_get_mode();
     QString     cmd_set_mode(QStringList cmdlist);
@@ -136,14 +136,14 @@ private:
     QString     cmd_set_level(QStringList cmdlist);
     QString     cmd_get_func(QStringList cmdlist);
     QString     cmd_set_func(QStringList cmdlist);
-    QString     cmd_get_vfo();
+    QString     cmd_get_vfo() const;
     QString     cmd_set_vfo(QStringList cmdlist);
-    QString     cmd_get_split_vfo();
+    QString     cmd_get_split_vfo() const;
     QString     cmd_set_split_vfo();
-    QString     cmd_get_info();
+    QString     cmd_get_info() const;
     QString     cmd_AOS();
     QString     cmd_LOS();
-    QString     cmd_dump_state();
+    QString     cmd_dump_state() const;
 };
 
 #endif // REMOTE_CONTROL_H
