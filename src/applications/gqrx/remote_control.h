@@ -136,6 +136,11 @@ private:
     QString     cmd_set_level(QStringList cmdlist);
     QString     cmd_get_func(QStringList cmdlist);
     QString     cmd_set_func(QStringList cmdlist);
+    QString     cmd_get_vfo();
+    QString     cmd_set_vfo(QStringList cmdlist);
+    QString     cmd_get_split_vfo();
+    QString     cmd_set_split_vfo();
+    QString     cmd_get_info();
     QString     cmd_AOS();
     QString     cmd_LOS();
     QString     cmd_dump_state();

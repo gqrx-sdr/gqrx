@@ -204,6 +204,16 @@ void RemoteControl::startRead()
         answer = cmd_get_func(cmdlist);
     else if (cmd == "U")
         answer = cmd_set_func(cmdlist);
+    else if (cmd == "v")
+        answer = cmd_get_vfo();
+    else if (cmd == "V")
+        answer = cmd_set_vfo(cmdlist);
+    else if (cmd == "s")
+        answer = cmd_get_split_vfo();
+    else if (cmd == "S")
+        answer = cmd_set_split_vfo();
+    else if (cmd == "_")
+        answer = cmd_get_info();
     else if (cmd == "AOS")
         answer = cmd_AOS();
     else if (cmd == "LOS")
@@ -621,6 +631,46 @@ QString RemoteControl::cmd_set_func(QStringList cmdlist)
 
     return answer;
 }
+
+/* Get current 'VFO' (fake, only for hamlib) */
+QString RemoteControl::cmd_get_vfo()
+{
+    return QString("VFOA\n");
+};
+
+/* Set 'VFO' (fake, only for hamlib) */
+QString RemoteControl::cmd_set_vfo(QStringList cmdlist)
+{
+    QString cmd_arg = cmdlist.value(1, "");
+    QString answer;
+
+    if (cmd_arg == "?")
+        answer = QString("VFOA\n");
+    else if (cmd_arg == "VFOA")
+        answer = QString("RPRT 0\n");
+    else
+        answer = QString("RPRT 1\n");
+
+    return answer;
+};
+
+/* Get 'Split' mode (fake, only for hamlib) */
+QString RemoteControl::cmd_get_split_vfo()
+{
+    return QString("0\nVFOA\n");
+};
+
+/* Set 'Split' mode (fake, only for hamlib) */
+QString RemoteControl::cmd_set_split_vfo()
+{
+    return QString("RPRT 1\n");
+}
+
+/* Get info */
+QString RemoteControl::cmd_get_info()
+{
+    return QString("Gqrx %1\n").arg(VERSION);
+};
 
 /* Gpredict / Gqrx specific command: AOS - satellite AOS event */
 QString RemoteControl::cmd_AOS()

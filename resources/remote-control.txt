@@ -28,7 +28,17 @@ Supported commands:
  LOS
     Loss of signal (LOS) event, stop audio recording
  \dump_state
-    Dump state (only usable for compatibility)
+    Dump state (only usable for hamlib compatibility)
+ v
+    Get 'VFO' (only usable for hamlib compatibility)
+ V
+    Set 'VFO' (only usable for hamlib compatibility)
+ s
+    Get 'Split' mode (only usable for hamlib compatibility)
+ S
+    Set 'Split' mode (only usable for hamlib compatibility)
+ _
+    Get version
 
 
 Reply:
