@@ -33,7 +33,7 @@ const int tau_tbl_maxidx = 7;
 
 double tau_from_index(int index)
 {
-    if (index < 0 or index > tau_tbl_maxidx)
+    if (index < 0 || index > tau_tbl_maxidx)
         return 0.0;
 
     return tau_tbl[index];
