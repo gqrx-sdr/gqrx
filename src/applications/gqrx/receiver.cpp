@@ -272,8 +272,11 @@ void receiver::set_output_device(const std::string device)
 
     tb->lock();
 
-    tb->disconnect(audio_gain0, 0, audio_snk, 0);
-    tb->disconnect(audio_gain1, 0, audio_snk, 1);
+    if (d_demod != RX_DEMOD_OFF)
+    {
+        tb->disconnect(audio_gain0, 0, audio_snk, 0);
+        tb->disconnect(audio_gain1, 0, audio_snk, 1);
+    }
     audio_snk.reset();
 
 #ifdef WITH_PULSEAUDIO
@@ -284,8 +287,11 @@ void receiver::set_output_device(const std::string device)
     audio_snk = gr::audio::sink::make(d_audio_rate, device, true);
 #endif
 
-    tb->connect(audio_gain0, 0, audio_snk, 0);
-    tb->connect(audio_gain1, 0, audio_snk, 1);
+    if (d_demod != RX_DEMOD_OFF)
+    {
+        tb->connect(audio_gain0, 0, audio_snk, 0);
+        tb->connect(audio_gain1, 0, audio_snk, 1);
+    }
 
     tb->unlock();
 }
