@@ -463,6 +463,8 @@ void DockRxOpt::saveSettings(QSettings *settings)
     // AGC Off
     if (ui->agcPresetCombo->currentIndex() == 4)
         settings->setValue("receiver/agc_off", true);
+    else
+        settings->remove("receiver/agc_off");
 }
 
 /**
