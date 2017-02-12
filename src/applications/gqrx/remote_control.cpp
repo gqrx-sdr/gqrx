@@ -380,7 +380,7 @@ int RemoteControl::modeStrToInt(QString mode_str)
     }
     else if (mode_str.compare("CW", Qt::CaseInsensitive) == 0)
     {
-        mode_int = 8;
+        mode_int = 9;
         hamlib_compatible = true;
     }
     else if (mode_str.compare("CWL", Qt::CaseInsensitive) == 0)
@@ -390,7 +390,7 @@ int RemoteControl::modeStrToInt(QString mode_str)
     }
     else if (mode_str.compare("CWR", Qt::CaseInsensitive) == 0)
     {
-        mode_int = 9;
+        mode_int = 8;
         hamlib_compatible = true;
     }
     else if (mode_str.compare("CWU", Qt::CaseInsensitive) == 0)
@@ -449,11 +449,11 @@ QString RemoteControl::intToModeStr(int mode)
         break;
 
     case 8:
-        mode_str = (hamlib_compatible) ? "CW" : "CWL";
+        mode_str = (hamlib_compatible) ? "CWR" : "CWL";
         break;
 
     case 9:
-        mode_str = (hamlib_compatible) ? "CWR" : "CWU";
+        mode_str = (hamlib_compatible) ? "CW" : "CWU";
         break;
 
     case 10:
@@ -504,7 +504,7 @@ QString RemoteControl::cmd_set_mode(QStringList cmdlist)
     QString cmd_arg = cmdlist.value(1, "");
 
     if (cmd_arg == "?")
-        answer = QString("OFF RAW AM FM WFM WFM_ST WFM_ST_OIRT LSB USB CW CWL CWR CWU\n");
+        answer = QString("OFF RAW AM FM WFM WFM_ST WFM_ST_OIRT LSB USB CW CWU CWR CWL\n");
     else
     {
         int mode = modeStrToInt(cmd_arg);
