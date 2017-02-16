@@ -215,12 +215,19 @@
      </layout>
     </item>
     <item>
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QCheckBox" name="freqCtrlResetButton">
       <property name="toolTip">
-       <string>Reset lower digits of main frequency control widget</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset subordinate digits in main frequency control widget&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
-       <string>Reset frequency control</string>
+       <string>Reset frequency controller digits</string>
       </property>
      </widget>
     </item>
