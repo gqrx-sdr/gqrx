@@ -101,6 +101,8 @@ public:
     void    setGainStages(gain_list_t &gain_list);
     void    restoreManualGains(QSettings *settings);
 
+    void    setFreqCtrlReset(bool enabled);
+
 signals:
     void gainChanged(QString name, double value);
     void autoGainChanged(bool enabled);
@@ -111,6 +113,7 @@ signals:
     void iqBalanceChanged(bool enabled);
     void ignoreLimitsChanged(bool ignore);
     void antennaSelected(QString antenna);
+    void freqCtrlResetChanged(bool enabled);
 
 private slots:
     void on_lnbSpinBox_valueChanged(double value);
@@ -121,6 +124,7 @@ private slots:
     void on_iqBalanceButton_toggled(bool checked);
     void on_ignoreButton_toggled(bool checked);
     void on_antSelector_currentIndexChanged(const QString &antenna);
+    void on_freqCtrlResetButton_toggled(bool checked);
 
     void sliderValueChanged(int value);
 

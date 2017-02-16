@@ -192,6 +192,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockInputCtl, SIGNAL(iqBalanceChanged(bool)), this, SLOT(setIqBalance(bool)));
     connect(uiDockInputCtl, SIGNAL(ignoreLimitsChanged(bool)), this, SLOT(setIgnoreLimits(bool)));
     connect(uiDockInputCtl, SIGNAL(antennaSelected(QString)), this, SLOT(setAntenna(QString)));
+    connect(uiDockInputCtl, SIGNAL(freqCtrlResetChanged(bool)), this, SLOT(setFreqCtrlReset(bool)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), remote, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
@@ -452,10 +453,6 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
                                           saveGeometry()).toByteArray());
         restoreState(m_settings->value("gui/state", saveState()).toByteArray());
     }
-
-    // misc GUI settings
-    bool_val = m_settings->value("gui/fctl_reset_digits", true).toBool();
-    ui->freqCtrl->setResetLowerDigits(bool_val);
 
     QString indev = m_settings->value("input/device", "").toString();
     if (!indev.isEmpty())
@@ -930,6 +927,13 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
     // the UI is updated with the correct frequency.
     freq = ui->freqCtrl->getFrequency();
     setNewFrequency(freq);
+}
+
+
+/** Reset lower digits of main frequency control widget */
+void MainWindow::setFreqCtrlReset(bool enabled)
+{
+    ui->freqCtrl->setResetLowerDigits(enabled);
 }
 
 /**
