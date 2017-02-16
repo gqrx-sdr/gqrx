@@ -215,6 +215,16 @@
      </layout>
     </item>
     <item>
+     <widget class="QCheckBox" name="freqCtrlResetButton">
+      <property name="toolTip">
+       <string>Reset lower digits of main frequency control widget</string>
+      </property>
+      <property name="text">
+       <string>Reset frequency control</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
