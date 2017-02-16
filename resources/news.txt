@@ -1,5 +1,5 @@
 
-     2.6.1: Released TBD...
+     2.6.1: Released February 16, 2017
 
   IMPROVED: Option for reverting the behavior of the frequency controller.
 
