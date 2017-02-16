@@ -104,6 +104,11 @@ void DockInputCtl::readSettings(QSettings * settings)
             emit gainChanged(gain_name, gain_value);
         }
     }
+
+    // misc GUI settings
+    bool_val = settings->value("gui/fctl_reset_digits", true).toBool();
+    emit freqCtrlResetChanged(bool_val);
+    ui->freqCtrlResetButton->setChecked(bool_val);
 }
 
 void DockInputCtl::saveSettings(QSettings * settings)
@@ -159,6 +164,12 @@ void DockInputCtl::saveSettings(QSettings * settings)
         settings->setValue("input/antenna", ui->antSelector->currentText());
     else
         settings->remove("input/antenna");
+
+    // Remember state of freqReset button. Default is checked.
+    if (!ui->freqCtrlResetButton->isChecked())
+        settings->setValue("gui/fctl_reset_digits", false);
+    else
+        settings->remove("gui/fctl_reset_digits");
 }
 
 void DockInputCtl::readLnbLoFromSettings(QSettings * settings)
@@ -325,6 +336,12 @@ void DockInputCtl::setAntenna(const QString &antenna)
         ui->antSelector->setCurrentIndex(index);
 }
 
+/** Enable/disable resetting lower digits on freqCtrl widgets */
+void DockInputCtl::setFreqCtrlReset(bool enabled)
+{
+    ui->freqCtrlResetButton->setChecked(enabled);
+}
+
 /**
  * Set gain stages.
  * @param gain_list A list containing the gain stages for this device.
@@ -482,6 +499,12 @@ void DockInputCtl::on_ignoreButton_toggled(bool checked)
 void DockInputCtl::on_antSelector_currentIndexChanged(const QString &antenna)
 {
     emit antennaSelected(antenna);
+}
+
+/** Reset box has changed */
+void DockInputCtl::on_freqCtrlResetButton_toggled(bool checked)
+{
+    emit freqCtrlResetChanged(checked);
 }
 
 /** Remove all widgets from the lists. */
