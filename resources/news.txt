@@ -8,6 +8,7 @@
      FIXED: RDS status is not kept while jumping through bookmark.
   IMPROVED: Tuning through the remote control interface.
   IMPROVED: Increase narrow band receiver rate to 96 ksps (for APT).
+  IMPROVED: LimeSDR integration.
 
 
      2.6.1: Released February 16, 2017
