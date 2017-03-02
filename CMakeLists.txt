@@ -105,7 +105,7 @@ find_package(Gnuradio REQUIRED)
 find_package(Gnuradio-osmosdr REQUIRED)
 
 if(NOT GNURADIO_RUNTIME_FOUND)
-    message(FATAL_ERROR "GnuRadio Runtime required to compile gr-air-modes")
+    message(FATAL_ERROR "GnuRadio Runtime required to compile gqrx")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -147,7 +147,7 @@ endif()
 
 
 # Airspy optimizations that require modified gr-osmosdr
-option(CUSTOM_AIRSPY_KERNELS "Enable non-standard Airspy optimizations" OFF)
+option(CUSTOM_AIRSPY_KERNELS "Enable non-standard Airspy optimizations" ON)
 if(CUSTOM_AIRSPY_KERNELS)
     add_definitions(-DCUSTOM_AIRSPY_KERNELS)
 endif(CUSTOM_AIRSPY_KERNELS)
