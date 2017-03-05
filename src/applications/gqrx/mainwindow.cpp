@@ -635,6 +635,11 @@ bool MainWindow::saveConfig(const QString cfgfile)
     else
         newfile = QString("%1/%2").arg(m_cfg_dir).arg(cfgfile);
 
+    if (newfile == oldfile) {
+        qDebug() << "New file is equal to old file => SYNCING...";
+        return true;
+    }
+
     if (QFile::exists(newfile))
     {
         qDebug() << "File" << newfile << "already exists => DELETING...";
