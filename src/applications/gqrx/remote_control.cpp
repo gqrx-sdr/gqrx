@@ -49,6 +49,9 @@ RemoteControl::RemoteControl(QObject *parent) :
 
     rc_socket = 0;
 
+    // Disable proxy setting detected by Qt
+    rc_server.setProxy(QNetworkProxy::NoProxy);
+
     connect(&rc_server, SIGNAL(newConnection()), this, SLOT(acceptConnection()));
 
 }
