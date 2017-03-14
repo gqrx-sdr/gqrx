@@ -25,6 +25,7 @@
 #include <iostream>
 #include <QString>
 #include <QStringList>
+#include <QtGlobal>
 #include "remote_control.h"
 
 #define DEFAULT_RC_PORT            7356
@@ -49,8 +50,12 @@ RemoteControl::RemoteControl(QObject *parent) :
 
     rc_socket = 0;
 
+#if QT_VERSION < 0x050900
     // Disable proxy setting detected by Qt
+    // Workaround for https://bugreports.qt.io/browse/QTBUG-58374
+    // Fix: https://codereview.qt-project.org/#/c/186124/
     rc_server.setProxy(QNetworkProxy::NoProxy);
+#endif
 
     connect(&rc_server, SIGNAL(newConnection()), this, SLOT(acceptConnection()));
 
