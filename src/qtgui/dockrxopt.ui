@@ -157,6 +157,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         <property name="toolTip">
          <string>Set squelch to the current signal or noise level</string>
         </property>
+        <property name="accessibleName">
+         <string>Auto squelch</string>
+        </property>
         <property name="text">
          <string>A</string>
         </property>
@@ -210,6 +213,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         <property name="toolTip">
          <string>AGC options</string>
         </property>
+        <property name="accessibleName">
+         <string>AGC options</string>
+        </property>
         <property name="text">
          <string>...</string>
         </property>
@@ -237,6 +243,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </property>
         <property name="statusTip">
          <string>Demodulator type (mode)</string>
+        </property>
+        <property name="accessibleName">
+         <string>Mode</string>
         </property>
         <property name="currentIndex">
          <number>-1</number>
@@ -272,6 +281,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         <property name="whatsThis">
          <string>Noise blanker options</string>
         </property>
+        <property name="accessibleName">
+         <string>Noise blanker options</string>
+        </property>
         <property name="text">
          <string>...</string>
         </property>
@@ -290,6 +302,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </property>
         <property name="toolTip">
          <string>Apply mode dependent filter preset</string>
+        </property>
+        <property name="accessibleName">
+         <string>Filter width</string>
         </property>
         <property name="currentIndex">
          <number>1</number>
@@ -326,6 +341,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </property>
         <property name="toolTip">
          <string>Squelch level in dB below full scale</string>
+        </property>
+        <property name="accessibleName">
+         <string>Squelch</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -433,6 +451,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         <property name="toolTip">
          <string>Demodulator options</string>
         </property>
+        <property name="accessibleName">
+         <string>Mode options</string>
+        </property>
         <property name="text">
          <string>...</string>
         </property>
@@ -493,6 +514,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         <property name="toolTip">
          <string>AGC presets</string>
         </property>
+        <property name="accessibleName">
+         <string>AGC</string>
+        </property>
         <property name="currentIndex">
          <number>1</number>
         </property>
@@ -533,6 +557,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
         </property>
         <property name="toolTip">
          <string>Select the filter shape</string>
+        </property>
+        <property name="accessibleName">
+         <string>Filter shape</string>
         </property>
         <property name="currentIndex">
          <number>1</number>
@@ -588,6 +615,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
           <property name="whatsThis">
            <string/>
           </property>
+          <property name="accessibleName">
+           <string>Noise blanker 1</string>
+          </property>
           <property name="text">
            <string>NB1</string>
           </property>
@@ -625,6 +655,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
           <property name="whatsThis">
            <string/>
           </property>
+          <property name="accessibleName">
+           <string>Noise blanker 2</string>
+          </property>
           <property name="text">
            <string>NB2</string>
           </property>
@@ -647,6 +680,12 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
       </item>
       <item row="0" column="1">
        <widget class="QDoubleSpinBox" name="freqSpinBox">
+        <property name="toolTip">
+         <string>Receiver frequency</string>
+        </property>
+        <property name="accessibleName">
+         <string>Frequency</string>
+        </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
@@ -698,8 +737,18 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
   </customwidget>
  </customwidgets>
  <tabstops>
+  <tabstop>freqSpinBox</tabstop>
+  <tabstop>filterCombo</tabstop>
+  <tabstop>filterShapeCombo</tabstop>
+  <tabstop>modeSelector</tabstop>
+  <tabstop>modeButton</tabstop>
+  <tabstop>agcPresetCombo</tabstop>
+  <tabstop>agcButton</tabstop>
+  <tabstop>sqlSpinBox</tabstop>
+  <tabstop>autoSquelchButton</tabstop>
   <tabstop>nb1Button</tabstop>
   <tabstop>nb2Button</tabstop>
+  <tabstop>nbOptButton</tabstop>
  </tabstops>
  <resources>
   <include location="../../resources/icons.qrc"/>
