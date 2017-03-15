@@ -467,6 +467,24 @@ void DockRxOpt::saveSettings(QSettings *settings)
         settings->remove("receiver/agc_off");
 }
 
+/** RX frequency changed through spin box */
+void DockRxOpt::on_freqSpinBox_valueChanged(double freq)
+{
+    emit rxFreqChanged(1.e3 * freq);
+}
+
+void DockRxOpt::setRxFreq(qint64 freq_hz)
+{
+    ui->freqSpinBox->blockSignals(true);
+    ui->freqSpinBox->setValue(1.e-3 * (double)freq_hz);
+    ui->freqSpinBox->blockSignals(false);
+}
+
+void DockRxOpt::setRxFreqRange(qint64 min_hz, qint64 max_hz)
+{
+    ui->freqSpinBox->setRange(1.e-3 * (double)min_hz, 1.e-3 * (double)max_hz);
+}
+
 /**
  * @brief Channel filter offset has changed
  * @param freq The new filter offset in Hz

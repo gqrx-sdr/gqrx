@@ -94,6 +94,7 @@ public:
     int  currentFilterShape() const;
 
     void setHwFreq(qint64 freq_hz);
+    void setRxFreqRange(qint64 min_hz, qint64 max_hz);
 
     int  currentDemod() const;
     QString currentDemodAsString();
@@ -111,6 +112,7 @@ public:
     static bool IsModulationValid(QString strModulation);
 
 public slots:
+    void setRxFreq(qint64 freq_hz);
     void setCurrentDemod(int demod);
     void setFilterOffset(qint64 freq_hz);
     void setSquelchLevel(double level);
@@ -121,6 +123,9 @@ private:
     unsigned int filterIdxFromLoHi(int lo, int hi) const;
 
 signals:
+    /** Signal emitted when receiver frequency has changed */
+    void rxFreqChanged(qint64 freq_hz);
+
     /** Signal emitted when the channel filter frequency has changed. */
     void filterOffsetChanged(qint64 freq_hz);
 
@@ -173,6 +178,7 @@ signals:
     void cwOffsetChanged(int offset);
 
 private slots:
+    void on_freqSpinBox_valueChanged(double freq);
     void on_filterFreq_newFrequency(qint64 freq);
     void on_filterCombo_activated(int index);
     void on_modeSelector_activated(int index);
