@@ -4,6 +4,7 @@
        NEW: Restore FM parameters between sessions.
        NEW: Restore remote control state between sessions.
        NEW: Support for passband when setting mode through remote.
+       NEW: Widget to enter receiver frequency.
      FIXED: Keep waterfall zoom level and zoom slider synchronised.
      FIXED: RDS status is not kept while jumping through bookmark.
      FIXED: .conf files are deleted when changes are saved.
@@ -11,6 +12,7 @@
   IMPROVED: Tuning through the remote control interface.
   IMPROVED: Increase narrow band receiver rate to 96 ksps (for APT).
   IMPROVED: LimeSDR integration.
+  IMPROVED: Voiceover interface.
 
 
      2.6.1: Released February 16, 2017
