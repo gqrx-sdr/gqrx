@@ -277,7 +277,8 @@ Wolfgang Fritz DK7OB
 - Various UI improvements.
 
 Youssef Touil
-- FIRCalc design tool for optimizing input decimator.
+- Two-stage FIR decimator design.
+- FIRCalc design tool for optimizing previous input decimator.
 
 Some of the icons are from:
 - The GNOME icon theme CC-SA 3.0 by GNOME icon artists 
