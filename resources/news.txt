@@ -13,6 +13,7 @@
   IMPROVED: Increase narrow band receiver rate to 96 ksps (for APT).
   IMPROVED: LimeSDR integration.
   IMPROVED: Voiceover interface.
+  IMPROVED: Input decimator performance.
 
 
      2.6.1: Released February 16, 2017
