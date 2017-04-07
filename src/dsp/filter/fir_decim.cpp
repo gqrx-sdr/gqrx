@@ -113,7 +113,7 @@ fir_decim_cc::fir_decim_cc(unsigned int decim)
     std::cout << "Decimation: " << decim << std::endl;
     while (decim > 1 && index >= 0)
     {
-        auto stage = &decimation_stages[index];
+        const decimation_stage  *stage = &decimation_stages[index];
 
         if (decim % stage->decimation == 0)
         {
