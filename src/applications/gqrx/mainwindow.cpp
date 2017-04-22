@@ -83,7 +83,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     setWindowTitle(QString("Gqrx %1").arg(VERSION));
 
     /* frequency control widget */
-    ui->freqCtrl->setup(0, (quint64) 0, (quint64) 9999e6, 1, UNITS_MHZ);
+    ui->freqCtrl->setup(0, 0, 9999e6, 1, UNITS_MHZ);
     ui->freqCtrl->setFrequency(144500000);
 
     d_filter_shape = receiver::FILTER_SHAPE_NORMAL;
