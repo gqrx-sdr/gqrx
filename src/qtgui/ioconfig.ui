@@ -126,10 +126,10 @@
          <number>6</number>
         </property>
         <property name="minimum">
-         <double>-15000.000000000000000</double>
+         <double>-500000.000000000000000</double>
         </property>
         <property name="maximum">
-         <double>15000.000000000000000</double>
+         <double>500000.000000000000000</double>
         </property>
        </widget>
       </item>
