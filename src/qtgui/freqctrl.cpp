@@ -72,7 +72,7 @@ CFreqCtrl::CFreqCtrl(QWidget *parent) :
     m_HighlightColor = QColor(0x5A, 0x5A, 0x5A, 0xFF);
     m_UnitsColor = Qt::gray;
     m_freq = 146123456;
-    setup(10, 1, 4000000000U, 1, UNITS_MHZ);
+    setup(0, 1, 4000000000U, 1, UNITS_MHZ);
     m_Oldfreq = 0;
     m_LastLeadZeroPos = 0;
     m_LRMouseFreqSel = false;
@@ -113,6 +113,18 @@ bool CFreqCtrl::inRect(QRect &rect, QPoint &point)
         return false;
 }
 
+static int fmax_to_numdigits(qint64 fmax)
+{
+    if (fmax < 1e9)
+        return 9;
+    else if (fmax < 10e9)
+        return 10;
+    else if (fmax < 100e9)
+        return 11;
+
+    return 12;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //  Setup various parameters for the control
 //////////////////////////////////////////////////////////////////////////////
@@ -122,7 +134,8 @@ void CFreqCtrl::setup(int NumDigits, qint64 Minf, qint64 Maxf,int MinStep, FUNIT
     qint64 pwr = 1;
     m_LastEditDigit = 0;
     m_Oldfreq = -1;
-    m_NumDigits = NumDigits;
+
+    m_NumDigits = NumDigits ? NumDigits : fmax_to_numdigits(Maxf);
 
     if (m_NumDigits > MAX_DIGITS)
         m_NumDigits = MAX_DIGITS;

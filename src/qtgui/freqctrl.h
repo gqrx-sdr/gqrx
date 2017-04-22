@@ -50,7 +50,7 @@ public:
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
 
-    //primary access routines
+    // Use NumDigits=0 for auto
     void setup(int NumDigits, qint64 Minf, qint64 Maxf,int MinStep, FUNITS UnitsType);
     void setUnits(FUNITS units);
     void setDigitColor(QColor cr);
