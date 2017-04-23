@@ -115,7 +115,11 @@ bool CFreqCtrl::inRect(QRect &rect, QPoint &point)
 
 static int fmax_to_numdigits(qint64 fmax)
 {
-    if (fmax < 1e9)
+    if (fmax < 10e6)
+        return 7;
+    else if (fmax < 100e6)
+        return 8;
+    else if (fmax < 1e9)
         return 9;
     else if (fmax < 10e9)
         return 10;
