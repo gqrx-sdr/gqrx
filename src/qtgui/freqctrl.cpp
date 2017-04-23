@@ -684,14 +684,13 @@ void CFreqCtrl::drawBkGround(QPainter &Painter)
                                    rect.bottom());
             Painter.fillRect(m_SepRect[i], m_BkColor);
             digpos -= sepwidth;
-            if (i==m_DecPos)
+            if (i == m_DecPos)
                 Painter.drawText(m_SepRect[i], Qt::AlignHCenter|Qt::AlignVCenter, ".");
-            else
-                if (i>m_DecPos && i<m_LeadZeroPos)
-                    Painter.drawText(m_SepRect[i], Qt::AlignHCenter|Qt::AlignVCenter, ",");
-                else
-                    if (i<m_LeadZeroPos)
-                        Painter.drawText(m_SepRect[i], Qt::AlignHCenter|Qt::AlignVCenter, " ");
+// disable digit group separators
+//            else if (i > m_DecPos && i < m_LeadZeroPos)
+//                Painter.drawText(m_SepRect[i], Qt::AlignHCenter|Qt::AlignVCenter, ",");
+            else if (i < m_LeadZeroPos)
+                Painter.drawText(m_SepRect[i], Qt::AlignHCenter|Qt::AlignVCenter, " ");
         }
         else
         {
