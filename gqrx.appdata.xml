@@ -8,10 +8,10 @@
   <developer_name>Alexandru Csete</developer_name>
   <description>
    <p>
-    <!-- still needs a description -->
+    Gqrx is an open source software defined radio receiver (SDR) powered by the GNU Radio and the Qt graphical toolkit.
    </p>
    <p>
-    <!-- moar description -->
+    Gqrx supports many of the SDR hardware available, including Airspy, Funcube Dongles, rtl-sdr, HackRF and USRP devices.
    </p>
   </description>
   <metadata_license>CC-BY-3.0</metadata_license>
