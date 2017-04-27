@@ -630,6 +630,16 @@
             </item>
             <item>
              <property name="text">
+              <string>1 min</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>2 min</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
               <string>5 min</string>
              </property>
             </item>
