@@ -364,6 +364,8 @@ void DockFft::on_fftRateComboBox_currentIndexChanged(const QString & text)
 static const quint64 wf_span_table[] =
 {
     0,              // Auto
+    1*60*1000,      // 1 minute
+    2*60*1000,      // 2 minutes
     5*60*1000,      // 5 minutes
     10*60*1000,     // 10 minutes
     15*60*1000,     // 15 minutes
@@ -381,7 +383,7 @@ static const quint64 wf_span_table[] =
 /** Waterfall time span changed. */
 void DockFft::on_wfSpanComboBox_currentIndexChanged(int index)
 {
-    if (index < 0 || index > 12)
+    if (index < 0 || index > 14)
         return;
 
     emit wfSpanChanged(wf_span_table[index]);
