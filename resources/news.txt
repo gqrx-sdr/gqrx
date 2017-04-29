@@ -15,6 +15,7 @@
   IMPROVED: Voiceover interface.
   IMPROVED: Input decimator performance.
   IMPROVED: Increased frequency limit to 999 GHz (500 GHz LO).
+  IMPROVED: More short waterfall time spans.
 
 
      2.6.1: Released February 16, 2017
