@@ -352,7 +352,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
          <bool>true</bool>
         </property>
         <property name="suffix">
-         <string> dBFS</string>
+         <string> dB</string>
         </property>
         <property name="decimals">
          <number>1</number>
