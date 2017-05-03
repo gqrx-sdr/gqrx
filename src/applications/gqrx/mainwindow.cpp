@@ -83,7 +83,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     setWindowTitle(QString("Gqrx %1").arg(VERSION));
 
     /* frequency control widget */
-    ui->freqCtrl->setup(0, 0, 9999e6, 1, UNITS_MHZ);
+    ui->freqCtrl->setup(0, 0, 9999e6, 1, FCTL_UNIT_MHZ);
     ui->freqCtrl->setFrequency(144500000);
 
     d_filter_shape = receiver::FILTER_SHAPE_NORMAL;
@@ -745,7 +745,7 @@ void MainWindow::updateFrequencyRange()
     qint64 start = (qint64)(rx->get_filter_offset()) + d_hw_freq_start + d_lnb_lo;
     qint64 stop  = (qint64)(rx->get_filter_offset()) + d_hw_freq_stop  + d_lnb_lo;
 
-    ui->freqCtrl->setup(0, start, stop, 1, UNITS_MHZ);
+    ui->freqCtrl->setup(0, start, stop, 1, FCTL_UNIT_MHZ);
     uiDockRxOpt->setRxFreqRange(start, stop);
 }
 

@@ -88,7 +88,8 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     ui->nb1Button->setMinimumSize(32, 24);
 #endif
 
-    ui->filterFreq->setup(7, -filterOffsetRange/2, filterOffsetRange/2, 1, UNITS_KHZ);
+    ui->filterFreq->setup(7, -filterOffsetRange/2, filterOffsetRange/2, 1,
+                          FCTL_UNIT_KHZ);
     ui->filterFreq->setFrequency(0);
 
     // use same slot for filteCombo and filterShapeCombo
@@ -139,7 +140,7 @@ void DockRxOpt::setFilterOffset(qint64 freq_hz)
 void DockRxOpt::setFilterOffsetRange(qint64 range_hz)
 {
     if (range_hz > 0)
-        ui->filterFreq->setup(7, -range_hz/2, range_hz/2, 1, UNITS_KHZ);
+        ui->filterFreq->setup(7, -range_hz/2, range_hz/2, 1, FCTL_UNIT_KHZ);
 }
 
 /**
