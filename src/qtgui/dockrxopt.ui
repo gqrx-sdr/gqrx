@@ -770,6 +770,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
   <tabstop>modeButton</tabstop>
   <tabstop>agcPresetCombo</tabstop>
   <tabstop>agcButton</tabstop>
+  <tabstop>sqlSpinBox</tabstop>
+  <tabstop>autoSquelchButton</tabstop>
+  <tabstop>resetSquelchButton</tabstop>
   <tabstop>nb1Button</tabstop>
   <tabstop>nb2Button</tabstop>
   <tabstop>nbOptButton</tabstop>
