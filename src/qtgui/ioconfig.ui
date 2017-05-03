@@ -349,6 +349,16 @@ Leave it at default unless you know what you are doing.</string>
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>inDevCombo</tabstop>
+  <tabstop>inDevEdit</tabstop>
+  <tabstop>inSrCombo</tabstop>
+  <tabstop>decimCombo</tabstop>
+  <tabstop>bwSpinBox</tabstop>
+  <tabstop>loSpinBox</tabstop>
+  <tabstop>outDevCombo</tabstop>
+  <tabstop>outSrCombo</tabstop>
+ </tabstops>
  <resources>
   <include location="../../resources/icons.qrc"/>
  </resources>
