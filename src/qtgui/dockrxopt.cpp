@@ -75,12 +75,14 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     ui->modeButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     ui->agcButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     ui->autoSquelchButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+    ui->resetSquelchButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
 #endif
 
 #ifdef Q_OS_LINUX
     ui->modeButton->setMinimumSize(32, 24);
     ui->agcButton->setMinimumSize(32, 24);
     ui->autoSquelchButton->setMinimumSize(32, 24);
+    ui->resetSquelchButton->setMinimumSize(32, 24);
     ui->nbOptButton->setMinimumSize(32, 24);
     ui->nb2Button->setMinimumSize(32, 24);
     ui->nb1Button->setMinimumSize(32, 24);
@@ -565,6 +567,11 @@ void DockRxOpt::on_autoSquelchButton_clicked()
 {
     double newval = sqlAutoClicked(); // FIXME: We rely on signal only being connected to one slot
     ui->sqlSpinBox->setValue(newval);
+}
+
+void DockRxOpt::on_resetSquelchButton_clicked()
+{
+    ui->sqlSpinBox->setValue(-150.0);
 }
 
 /** AGC preset has changed. */

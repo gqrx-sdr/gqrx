@@ -5,6 +5,7 @@
        NEW: Restore remote control state between sessions.
        NEW: Support for passband when setting mode through remote.
        NEW: Widget to enter receiver frequency.
+       NEW: Button to reset squelch to its default (-150 dB) value.
      FIXED: Keep waterfall zoom level and zoom slider synchronised.
      FIXED: RDS status is not kept while jumping through bookmark.
      FIXED: .conf files are deleted when changes are saved.
