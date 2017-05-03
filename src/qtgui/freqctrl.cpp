@@ -606,7 +606,7 @@ void CFreqCtrl::drawBkGround(QPainter &Painter)
             {
                 if (i == m_DecPos)
                     dgsep = '.';
-                else if (i < m_LeadZeroPos)
+                else
                     dgsep = ' ';
             }
             Painter.drawText(m_SepRect[i], Qt::AlignHCenter | Qt::AlignVCenter,
