@@ -16,6 +16,7 @@
   IMPROVED: Voiceover interface.
   IMPROVED: Input decimator performance.
   IMPROVED: Increased frequency limit to 999 GHz (500 GHz LO).
+  IMPROVED: Hamradio style frequency display.
   IMPROVED: More short waterfall time spans.
 
 
