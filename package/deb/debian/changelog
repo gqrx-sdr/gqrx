@@ -1,0 +1,5536 @@
+gqrx (2.2.0-93+git5be5f95) unstable; urgency=low
+
+  * Merge remote-tracking branch 'freedesktop/master' into debian-package
+
+ -- Kate Adams <self@kateadams.eu>  Fri, 28 Feb 2014 23:18:18 +0000
+
+gqrx (2.2.0-89+gitb5762c4) unstable; urgency=low
+
+  * Package builder for Debian
+
+ -- Kate Adams <self@kateadams.eu>  Fri, 28 Feb 2014 23:18:11 +0000
+
+gqrx (2.2.0-91+git785491c) unstable; urgency=low
+
+  * Fix typo
+
+ -- Greg <mail@oxapentane.com>  Thu, 27 Feb 2014 17:52:00 +0300
+
+gqrx (2.2.0-90+git2b39b14) unstable; urgency=low
+
+  * Set Icon value
+  *  
+  * Set icon value since gqrx.svg is to be installed by deb package.
+
+ -- Greg <mail@oxapentane.com>  Wed, 26 Feb 2014 23:17:02 +0300
+
+gqrx (2.2.0-89+git817adc6) unstable; urgency=low
+
+  * Add .desktop file for better linux user expirence
+
+ -- Grigory Shipunov <mail@oxapentane.com>  Wed, 26 Feb 2014 23:40:58 +0400
+
+gqrx (2.2.0-88+git75aa570) unstable; urgency=low
+
+  * Add command line option to list existing configurations.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 9 Feb 2014 22:31:36 +0100
+
+gqrx (2.2.0-87+git35d9f57) unstable; urgency=low
+
+  * Update callsign for Göran Weinholt.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 9 Feb 2014 21:09:16 +0100
+
+gqrx (2.2.0-86+gita10c40a) unstable; urgency=low
+
+  * Add support for Airspy sample rates.
+  *  
+  * Patch received from Dimitri Stolnikov.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 9 Feb 2014 19:48:15 +0100
+
+gqrx (2.2.0-85+git9b83654) unstable; urgency=low
+
+  * Merge pull request #149 from benburkhart1/master
+  *  
+  * Do not crash if there is an error creating the wave sink (e.g. permissions).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 2 Feb 2014 13:32:09 -0800
+
+gqrx (2.2.0-84+gitd26107a) unstable; urgency=low
+
+  * Do not crash if you don't have permissions to write to a file
+
+ -- Benjamin Burkhart <benburkhart1@gmail.com>  Sun, 2 Feb 2014 13:24:36 -0800
+
+gqrx (2.2.0-83+git84966cf) unstable; urgency=low
+
+  * Add mode selection to TCP interface.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 22 Jan 2014 01:12:26 +0100
+
+gqrx (2.2.0-82+gitec84324) unstable; urgency=low
+
+  * Add support for reading signal strength through TCP.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 21 Jan 2014 23:19:46 +0100
+
+gqrx (2.2.0-81+gitd97bd72) unstable; urgency=low
+
+  * Merge pull request #142 from 4ZM/master
+  *  
+  * Replaced deprecated string function
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 30 Dec 2013 13:38:33 -0800
+
+gqrx (2.2.0-80+git73ca158) unstable; urgency=low
+
+  * Replaced deprecated string function
+  *  
+  * .toAscii() is deprecated (and broke my build). See Qt docs.
+
+ -- Anders Sundman <anders@4zm.org>  Sun, 29 Dec 2013 00:51:56 +0100
+
+gqrx (2.2.0-79+git6884bb0) unstable; urgency=low
+
+  * Updated news and readme files.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 22 Dec 2013 20:11:18 +0100
+
+gqrx (2.2.0-78+git3a6871b) unstable; urgency=low
+
+  * Add sample rates for RF Space SDR-IQ and SDR-IP.
+  *  
+  * Patch from Dimitri Stolnikov.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 22 Dec 2013 20:08:32 +0100
+
+gqrx (2.2.0-77+git57356c5) unstable; urgency=low
+
+  * Fix spelling.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 7 Dec 2013 19:50:53 +0100
+
+gqrx (2.2.0-76+git3289861) unstable; urgency=low
+
+  * Use correct widget name on OSX
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 5 Dec 2013 15:25:55 +0100
+
+gqrx (2.2.0-75+git5f2ebe7) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 4 Dec 2013 23:44:44 +0100
+
+gqrx (2.2.0-74+git3703bfb) unstable; urgency=low
+
+  * Use clearer names and documentation.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 4 Dec 2013 23:33:59 +0100
+
+gqrx (2.2.0-73+git486d9ed) unstable; urgency=low
+
+  * Use existing rx->get_signal_pwr() instead of adding a new getter.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 4 Dec 2013 22:29:35 +0100
+
+gqrx (2.2.0-72+git31bef44) unstable; urgency=low
+
+  * Implement auto-squelch.
+  *  
+  * Pressing the auto-squelch button sets the squelch level to the current
+  * signal/noise level.
+  *  
+  * Closes csete/gqrx/#72
+
+ -- Kobra <c0bra@xiatek.org>  Tue, 3 Dec 2013 21:24:47 +0000
+
+gqrx (2.2.0-71+git2cd256e) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 26 Nov 2013 23:50:26 +0100
+
+gqrx (2.2.0-70+git3025bb8) unstable; urgency=low
+
+  * Make use of std::complex compatible with libc++.
+  *  
+  * Patch from Michael Dickens fixing compilation issues on OSX 10.9.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 26 Nov 2013 23:40:06 +0100
+
+gqrx (2.2.0-69+git6da5be1) unstable; urgency=low
+
+  * Allow 60 fps FFT.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 25 Nov 2013 17:40:11 +0100
+
+gqrx (2.2.0-68+git8c8351e) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 21 Nov 2013 22:39:14 +0100
+
+gqrx (2.2.0-67+gitd58891d) unstable; urgency=low
+
+  * Increase audio FFT sized and rate.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 21 Nov 2013 22:17:49 +0100
+
+gqrx (2.2.0-66+gitbae43f5) unstable; urgency=low
+
+  * Don't clear FFT buffer.
+  *  
+  * By leaving the already used samples in the buffer we ensure that there
+  * is always enough data to perform an FFT of any size at any rate. While
+  * this may give a scientifically less accurate FFT, it gives a much better
+  * user experience.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 21 Nov 2013 21:59:41 +0100
+
+gqrx (2.2.0-65+git2bbf420) unstable; urgency=low
+
+  * Implement satellite event triggers through remote control.
+  *  
+  * This commit adds two new gqrx specific commands to the TCP control
+  * interface and connects them to audio recording triggers.
+  *  
+  * The AOS command means acquistion of signal and will start the audio
+  * recorder (unless it's already running).
+  *  
+  * The LOS command means loss of signals and will stop an ongoing audio
+  * recording. It will do nothing if no audio recording is in progress.
+  *  
+  * These two event triggers are being added to gpredict and should be
+  * available shortly.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 20 Nov 2013 01:47:43 +0100
+
+gqrx (2.2.0-64+gitbb382f6) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 19 Nov 2013 17:28:46 +0100
+
+gqrx (2.2.0-63+gitb7efbb1) unstable; urgency=low
+
+  * Merge pull request #129 from dtmf/patch-1
+  *  
+  * Fix for division by zero error
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 19 Nov 2013 08:17:12 -0800
+
+gqrx (2.2.0-62+git07453c3) unstable; urgency=low
+
+  * Fix for division by zero error
+  *  
+  * Changing the gain on a TVRX connected to USRP1 was causing a floating point exception.
+  * This fix prevents a division by zero error.
+
+ -- Will Scales <will.scales@yahoo.com>  Tue, 19 Nov 2013 05:02:36 -0600
+
+gqrx (2.2.0-61+gitc195f11) unstable; urgency=low
+
+  * Update devices and docs.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 18 Nov 2013 13:55:40 +0100
+
+gqrx (2.2.0-60+git97782b7) unstable; urgency=low
+
+  * Updated credits.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 18 Nov 2013 13:45:14 +0100
+
+gqrx (2.2.0-59+git0752426) unstable; urgency=low
+
+  * Clean up leftover debug code.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 18 Nov 2013 00:25:49 +0100
+
+gqrx (2.2.0-58+git2996f78) unstable; urgency=low
+
+  * Fix segfault on exit with unintialized TCP socket.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 17 Nov 2013 18:30:50 +0100
+
+gqrx (2.2.0-57+git0ec2a79) unstable; urgency=low
+
+  * Added remote control configurator.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 17 Nov 2013 17:51:06 +0100
+
+gqrx (2.2.0-56+git5de6c39) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 17 Nov 2013 01:03:08 +0100
+
+gqrx (2.2.0-55+git60b7404) unstable; urgency=low
+
+  * Connect remote control activation to menubar/toolbar action.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 17 Nov 2013 01:02:06 +0100
+
+gqrx (2.2.0-54+gitbafe4aa) unstable; urgency=low
+
+  * Move AFSK decoder to Tools menu.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 17 Nov 2013 00:42:04 +0100
+
+gqrx (2.2.0-53+git54b018a) unstable; urgency=low
+
+  * Implement remote control interface.
+  *  
+  * This change set implements a hamlib/rigtctld compatible control interface
+  * that allows setting and reading the current frequency. This is a simple TCP
+  * socket using plain text commands and can be tested using telnet. For the
+  * time being only connections from localhost and on port 7356 are accepted.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 17 Nov 2013 00:26:39 +0100
+
+gqrx (2.2.0-52+git5d5ad71) unstable; urgency=low
+
+  * Small adjustment of default FFT colors.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 11 Nov 2013 23:43:27 +0100
+
+gqrx (2.2.0-51+git6e30181) unstable; urgency=low
+
+  * Add icon for network button.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 10 Nov 2013 21:30:04 +0100
+
+gqrx (2.2.0-50+git5505087) unstable; urgency=low
+
+  * Better color gradient for the waterfall.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 10 Nov 2013 19:48:12 +0100
+
+gqrx (2.2.0-49+gitaedb894) unstable; urgency=low
+
+  * Add basic network streaming of audio over UDP.
+  *  
+  * The audio output of the receiver can now be streamed to a spefied host and
+  * port using UDP. Currently only one channel is streamed using 48 kHz sample
+  * rate. The audio is converted to short (S16LE) and a client side command
+  * line could be:
+  *  
+  * nc -l -u 7355 | aplay -r 48k -f S16_LE -t raw -c 1
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 10 Nov 2013 01:44:59 +0100
+
+gqrx (2.2.0-48+git111ffba) unstable; urgency=low
+
+  * Do not allow audio playback unless DSP is running.
+  *  
+  * Closes #122.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 9 Nov 2013 10:31:23 +0100
+
+gqrx (2.2.0-47+gitdff1580) unstable; urgency=low
+
+  * Update news and readme.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 27 Oct 2013 20:45:28 +0100
+
+gqrx (2.2.0-46+git9bdecf6) unstable; urgency=low
+
+  * Merge pull request #124 from Steven--/peak-hold
+  *  
+  * Adds peak hold to the FFT plot.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 27 Oct 2013 12:27:39 -0700
+
+gqrx (2.2.0-45+git694db76) unstable; urgency=low
+
+  * Merge branch 'master' into peak-hold
+  *  
+  * Conflicts:
+  * applications/gqrx/mainwindow.cpp
+  * applications/gqrx/mainwindow.h
+  * qtgui/dockfft.cpp
+  * qtgui/dockfft.h
+  * qtgui/dockfft.ui
+  * qtgui/plotter.cpp
+  * qtgui/plotter.h
+
+ -- Steven <steven@ghost.(none)>  Sun, 27 Oct 2013 18:22:28 +0100
+
+gqrx (2.2.0-43+git4498539) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 27 Oct 2013 17:09:34 +0100
+
+gqrx (2.2.0-42+gitcd0bc8e) unstable; urgency=low
+
+  * Merge pull request #121 from Steven--/peak-detection
+  *  
+  * Adds peak detection to FFT plot.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 27 Oct 2013 08:51:00 -0700
+
+gqrx (2.2.0-37+git786a7aa) unstable; urgency=low
+
+  * Add sample rates for BladeRF and Netsdr.
+  *  
+  * Patch from Dimitri Stolnikov.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 27 Oct 2013 16:00:04 +0100
+
+gqrx (2.2.0-37+git087cd31) unstable; urgency=low
+
+  * Added stub of peak-hold
+
+ -- Steven <steven@ghost.(none)>  Fri, 25 Oct 2013 00:36:14 +0200
+
+gqrx (2.2.0-40+gitb578f84) unstable; urgency=low
+
+  * Fixes, cleanup and peak snapping
+
+ -- Steven <steven@ghost.(none)>  Sat, 19 Oct 2013 23:28:23 +0200
+
+gqrx (2.2.0-39+gitc8beb81) unstable; urgency=low
+
+  * Documentation
+
+ -- Steven <steven@ghost.(none)>  Sat, 19 Oct 2013 18:45:08 +0200
+
+gqrx (2.2.0-38+git86cdaa4) unstable; urgency=low
+
+  * Added UI for peak detection
+
+ -- Steven <steven@ghost.(none)>  Sat, 19 Oct 2013 18:38:16 +0200
+
+gqrx (2.2.0-37+gitbcafc26) unstable; urgency=low
+
+  * Added stub of peak-detection feature
+
+ -- Steven <steven@ghost.(none)>  Sat, 19 Oct 2013 17:31:48 +0200
+
+gqrx (2.2.0-36+gitac9c329) unstable; urgency=low
+
+  * Merge pull request #119 from pinkavaj/fix_layout_00
+  *  
+  * fix ownership of gain control layout. The ownership of the layout is taken by parent layout at insertLayout(...)
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 11 Oct 2013 11:40:18 -0700
+
+gqrx (2.2.0-35+git434351c) unstable; urgency=low
+
+  * fix ownership of gain control layout
+
+ -- Jiri Pinkava <j-pi@seznam.cz>  Thu, 10 Oct 2013 18:11:18 +0200
+
+gqrx (2.2.0-34+git35e9bcf) unstable; urgency=low
+
+  * Fixed crash when recording audio whith no rec directory set.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 9 Oct 2013 21:27:43 +0200
+
+gqrx (2.2.0-33+gitb15ecbe) unstable; urgency=low
+
+  * Merge pull request #118 from pinkavaj/rm_depr_qt3_00
+  *  
+  * Fix close on pure Qt4 system (with no qt3support)
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 8 Oct 2013 15:26:10 -0700
+
+gqrx (2.2.0-32+git6eaea10) unstable; urgency=low
+
+  * Fix close on pure Qt4 system (with no qt3support)
+
+ -- Jiri Pinkava <j-pi@seznam.cz>  Tue, 8 Oct 2013 17:33:17 +0200
+
+gqrx (2.2.0-31+git43c35be) unstable; urgency=low
+
+  * Minor tweaks to FFT options.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 7 Oct 2013 11:14:55 +0200
+
+gqrx (2.2.0-30+git9f521bc) unstable; urgency=low
+
+  * Save and restore gain settings between sessions.
+  *  
+  * Closes issue #90.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 6 Oct 2013 23:25:10 +0200
+
+gqrx (2.2.0-29+git69cd120) unstable; urgency=low
+
+  * Restore main window size and dock½ state between sessions.
+  *  
+  * Closes issues #113.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 5 Oct 2013 23:19:01 +0200
+
+gqrx (2.2.0-28+git47b6020) unstable; urgency=low
+
+  * Enable setting specific gain in input controller (issue #90).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 29 Sep 2013 00:09:16 +0200
+
+gqrx (2.2.0-27+git2264897) unstable; urgency=low
+
+  * Re-enable hardware AGC (issue #90).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 29 Sep 2013 00:04:36 +0200
+
+gqrx (2.2.0-26+git6a45189) unstable; urgency=low
+
+  * Use correct gain names.
+  *  
+  * Fixes a bug that prevented gain settings. Issue #90.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 28 Sep 2013 12:27:53 +0200
+
+gqrx (2.2.0-25+git5d6be87) unstable; urgency=low
+
+  * Updated news file.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 26 Sep 2013 01:07:41 +0200
+
+gqrx (2.2.0-24+git264c35e) unstable; urgency=low
+
+  * Fixed management of crashed flag.
+  *  
+  * When saving configuration into a new file, ensure that the old file will have
+  * crashed=false and the new one crashed=true.
+  *  
+  * Issue #114.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 26 Sep 2013 01:05:29 +0200
+
+gqrx (2.2.0-23+git953d46a) unstable; urgency=low
+
+  * Allow overwriting existing config file is user says OK.
+  *  
+  * Issue #114.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 26 Sep 2013 00:53:18 +0200
+
+gqrx (2.2.0-22+git4519959) unstable; urgency=low
+
+  * Store session variables when using "Save As" function.
+  *  
+  * Fixes issue #114.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 26 Sep 2013 00:43:29 +0200
+
+gqrx (2.2.0-21+git493878f) unstable; urgency=low
+
+  * Remove obsolete gain controls.
+  *  
+  * Issue #90.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 23 Sep 2013 22:55:31 +0200
+
+gqrx (2.2.0-20+gitbe2de44) unstable; urgency=low
+
+  * Move gain sliders to input control dock window.
+  *  
+  * Issue #90.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 23 Sep 2013 22:10:29 +0200
+
+gqrx (2.2.0-19+git09714ed) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 23 Sep 2013 12:49:04 +0200
+
+gqrx (2.2.0-18+gitac84471) unstable; urgency=low
+
+  * Add vertical scroll bar to allow shrinking the window.
+  *  
+  * Issue #68.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 23 Sep 2013 12:46:52 +0200
+
+gqrx (2.2.0-17+git4d7efd8) unstable; urgency=low
+
+  * Implement setting individual gain stages (issue #90).
+  *  
+  * Dynamic reconfiguration and reading initial values from input device is
+  * functional, but there is still some work to be done wrt. synchronizing the
+  * named gain sliders with the generic gain slider.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 22 Sep 2013 00:33:46 +0200
+
+gqrx (2.2.0-16+git51e579c) unstable; urgency=low
+
+  * Switch back to defaul window icon (the other had SVG errors).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 21 Sep 2013 12:15:28 +0200
+
+gqrx (2.2.0-15+gita1a1378) unstable; urgency=low
+
+  * Get gain info from receiver object (issue #90).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 21 Sep 2013 01:15:24 +0200
+
+gqrx (2.2.0-14+git5c65370) unstable; urgency=low
+
+  * Prepare for adding named gain stages.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 20 Sep 2013 16:42:28 +0200
+
+gqrx (2.2.0-13+git6103e3e) unstable; urgency=low
+
+  * Reconnect sniffer when switching demod chain.
+  *  
+  * This prevents the application from aborting when the AFSK decoder window
+  * is closed after changing modes while the decoder window is open.
+
+ -- Jay Arndt <jayarndt@github>  Fri, 20 Sep 2013 13:50:23 +0200
+
+gqrx (2.2.0-12+giteba4221) unstable; urgency=low
+
+  * Remember visibility status of main toolbar.
+  *  
+  * This allows keeping the toolbar hidden and contributes to reducing the
+  * window height (issue #68).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 20 Sep 2013 12:26:20 +0200
+
+gqrx (2.2.0-11+gita7b377b) unstable; urgency=low
+
+  * Don't camel-case variables.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 20 Sep 2013 11:22:13 +0200
+
+gqrx (2.2.0-10+gitc2a7d44) unstable; urgency=low
+
+  * Re-arrange input control widgets.
+  *  
+  * Reduces required vertical size (issue #68).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 20 Sep 2013 10:40:16 +0200
+
+gqrx (2.2.0-9+git48f1025) unstable; urgency=low
+
+  * Don't let noise blanker buttons expand vertically.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 20 Sep 2013 10:40:02 +0200
+
+gqrx (2.2.0-8+git56d674c) unstable; urgency=low
+
+  * Re-arrange receiver squelch control.
+  *  
+  * This reduces vertical size of the dock widget by a few pixels (issue #68).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 17 Sep 2013 17:31:35 +0200
+
+gqrx (2.2.0-7+gitb516659) unstable; urgency=low
+
+  * Set sample rate before bandwidth.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 16 Sep 2013 21:55:30 +0200
+
+gqrx (2.2.0-6+gitca71aab) unstable; urgency=low
+
+  * Minor tweaks to bandwidth setting.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 14 Sep 2013 00:52:43 +0200
+
+gqrx (2.2.0-5+gitfee6a5d) unstable; urgency=low
+
+  * Add support for setting analog bandwidth.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 14 Sep 2013 00:40:35 +0200
+
+gqrx (2.2.0-4+git12c0f55) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 25 Aug 2013 22:56:45 +0200
+
+gqrx (2.2.0-3+git6ea67f5) unstable; urgency=low
+
+  * LNB LO configuration fixes.
+  *  
+  * Fixed bug that prevented intial LNB LO to be stored.
+  * Fixed incorrect handling of decimal values in LNB LO frequency (closes #104).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 25 Aug 2013 22:51:30 +0200
+
+gqrx (2.2.0-2+git778885c) unstable; urgency=low
+
+  * Save selected audio output device when using portaudio.
+  *  
+  * Hopefully fixes issue #101.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 25 Aug 2013 21:20:51 +0200
+
+gqrx (2.2.0-1+gitd2c92a2) unstable; urgency=low
+
+  * Remove fixed version number from project file.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 9 Aug 2013 11:15:50 +0200
+
+gqrx (2.2.0) unstable; urgency=low
+
+  * Fix unused variable warnings.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 8 Aug 2013 21:52:05 +0200
+
+gqrx (2.1+gitit-353+git2f95f07) unstable; urgency=low
+
+  * Add Mac-specific readme.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 8 Aug 2013 21:41:19 +0200
+
+gqrx (2.1+gitit-352+git591c6ac) unstable; urgency=low
+
+  * Update for release.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 8 Aug 2013 21:39:14 +0200
+
+gqrx (2.1+gitit-351+gitc15b85a) unstable; urgency=low
+
+  * Update noise blanker tooltips and try to fix button size on Mac OS X.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 8 Aug 2013 21:31:49 +0200
+
+gqrx (2.1+gitit-350+gitb4f2013) unstable; urgency=low
+
+  * Fix icon text on Mac OS X.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 8 Aug 2013 21:02:13 +0200
+
+gqrx (2.1+gitit-349+git543a435) unstable; urgency=low
+
+  * Reduce size of about dialog.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 7 Aug 2013 21:53:17 +0200
+
+gqrx (2.1+gitit-348+git1c8f9ac) unstable; urgency=low
+
+  * Increase FFT plot font size on Mac OS X.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 7 Aug 2013 21:13:37 +0200
+
+gqrx (2.1+gitit-347+gitaa80a44) unstable; urgency=low
+
+  * Implement FCD Pro and Pro+ discovery on Mac OS X using portaudio.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 7 Aug 2013 21:04:36 +0200
+
+gqrx (2.1+gitit-346+git6086c54) unstable; urgency=low
+
+  * Make portaudio a compiled time option.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 7 Aug 2013 11:13:41 +0200
+
+gqrx (2.1+gitit-345+git0d90fc1) unstable; urgency=low
+
+  * Force using portaudio backend on Mac OS X.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 7 Aug 2013 00:48:52 +0200
+
+gqrx (2.1+gitit-344+git3b823da) unstable; urgency=low
+
+  * Update button name (only visible on OS X).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 6 Aug 2013 23:07:31 +0200
+
+gqrx (2.1+gitit-343+giteeaed4c) unstable; urgency=low
+
+  * Build fixes for Mac OS X (specific configuration).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 6 Aug 2013 23:06:49 +0200
+
+gqrx (2.1+gitit-342+gite7d2225) unstable; urgency=low
+
+  * Improve tooltip info for hardware AGC.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 6 Aug 2013 17:13:25 +0200
+
+gqrx (2.1+gitit-341+git1ee3d78) unstable; urgency=low
+
+  * Also catch boost::program_options::unknown_option exception.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 4 Aug 2013 10:00:03 +0200
+
+gqrx (2.1+gitit-340+gitb4e8103) unstable; urgency=low
+
+  * Add qmake option to support libboost-xyz-mt suffix (needed for pybombs).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 4 Aug 2013 03:00:14 +0200
+
+gqrx (2.1+gitit-339+git7d0775b) unstable; urgency=low
+
+  * Update file headers with basic info about gqrx.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 3 Aug 2013 22:08:02 +0200
+
+gqrx (2.1+gitit-338+gitddf5655) unstable; urgency=low
+
+  * Update readme file. Closes #94.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 2 Aug 2013 13:41:22 +0200
+
+gqrx (2.1+gitit-337+gitbc51978) unstable; urgency=low
+
+  * Change release version string to 2.2rc.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 2 Aug 2013 13:20:27 +0200
+
+gqrx (2.1+gitit-336+git3d1f844) unstable; urgency=low
+
+  * Update about gqrx info. Closes issue #95.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 2 Aug 2013 13:20:07 +0200
+
+gqrx (2.1+gitit-335+git220e162) unstable; urgency=low
+
+  * Revert "Always link to libboost_xyz-mt"
+  *  
+  * This reverts commit 71f37286d63a892062495332baadcd580ee4f345.
+  *  
+  * The reason for the change was that the pybombs recipe builds using
+  * the --layout=tagged option and only generates libs with -mt suffix,
+  * but there is probably no reason for doing that.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 1 Aug 2013 20:07:04 +0200
+
+gqrx (2.1+gitit-334+git25934f2) unstable; urgency=low
+
+  * Add 'make install' target (required for packaging).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 31 Jul 2013 22:26:13 +0200
+
+gqrx (2.1+gitit-333+git777a91b) unstable; urgency=low
+
+  * Don't include boost headers when running MOC.
+  *  
+  * Fixes issue #93.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 31 Jul 2013 01:05:08 +0200
+
+gqrx (2.1+gitit-332+git71f3728) unstable; urgency=low
+
+  * Always link to libboost_xyz-mt
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 31 Jul 2013 01:04:53 +0200
+
+gqrx (2.1+gitit-331+git3d26e63) unstable; urgency=low
+
+  * Disable controlport using environment setting.
+  *  
+  * Closes #86.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 21 Jul 2013 21:08:03 +0200
+
+gqrx (2.1+gitit-330+git6f9c85e) unstable; urgency=low
+
+  * Use correct widget name for antenna selector.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 21 Jul 2013 13:55:04 +0200
+
+gqrx (2.1+gitit-329+gitd5aa066) unstable; urgency=low
+
+  * Command line option to launch I/O device editor.
+  *  
+  * Closes issue #84.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 21 Jul 2013 13:51:08 +0200
+
+gqrx (2.1+gitit-328+git674ed85) unstable; urgency=low
+
+  * Command line optin to remove selected configuration file.
+  *  
+  * Issue #84.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 21 Jul 2013 00:03:20 +0200
+
+gqrx (2.1+gitit-327+git55c111f) unstable; urgency=low
+
+  * Use correct package names when trying to detect pulseaudio.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 20 Jul 2013 23:28:13 +0200
+
+gqrx (2.1+gitit-326+gitf129d43) unstable; urgency=low
+
+  * Merge pull request #85 from dl1ksv/master
+  *  
+  * Autodetect pulseaudio
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 20 Jul 2013 13:59:13 -0700
+
+gqrx (2.1+gitit-324+git58ebf05) unstable; urgency=low
+
+  * Revert "Make gr-audio the default."
+  *  
+  * This reverts commit 4fbb720702ecbb6ad6a48d49e9711142b8e81cbe.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 20 Jul 2013 22:51:16 +0200
+
+gqrx (2.1+gitit-323+git68d1304) unstable; urgency=low
+
+  * Proper support for frequencies above 2147483647 Hz (closes issue #67).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 19 Jul 2013 19:30:53 +0200
+
+gqrx (2.1+gitit-322+gitc9aa9e6) unstable; urgency=low
+
+  * Updated readme and news files.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 19 Jul 2013 00:22:01 +0200
+
+gqrx (2.1+gitit-321+git4fbb720) unstable; urgency=low
+
+  * Make gr-audio the default.
+  *  
+  * Pulseaudio can still be selected using the AUDIOSYS flag, i.e.:
+  * qmake AUDIOSYS=pulse
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 19 Jul 2013 00:07:34 +0200
+
+gqrx (2.1+gitit-320+gitcb1ef94) unstable; urgency=low
+
+  * One pixel offset is also required with Qt 5.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 18 Jul 2013 23:52:35 +0200
+
+gqrx (2.1+gitit-319+git5b1d5e0) unstable; urgency=low
+
+  * Translate pandapter painter with 0.5.
+  *  
+  * This provides a workaround for the "fixed" line drawing routines introduced in
+  * Qt 4.8 / 5.0
+  *  
+  * From http://stackoverflow.com/questions/16990326:
+  *  
+  * It is correct that the rasterisation rules were improved and made consistent
+  * in Qt 5. They are now consistent with how we render antialiased graphics (which
+  * was always the correct way). Aliased graphics was always off-by-0.5 in a broken
+  * way in Qt 4 which caused all sort of issues. The docs should be updated
+  * accordingly. All the bottom-right-shifting logic applies to the Qt4 compat mode
+  * only.
+  *  
+  * The default cap style (how we draw end points) for QPen is Qt::SquareCap. This
+  * means that the line becomes half a pixel longer in each direction, totalling to
+  * one pixel which lands at the bottom. Set the cap style to FlatCap and the extra
+  * pixel goes away as it should.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 18 Jul 2013 23:49:14 +0200
+
+gqrx (2.1+gitit-318+git31420fd) unstable; urgency=low
+
+  * Merge pull request #88 from bazuchan/master
+  *  
+  * Add support for Funcube Dongle Pro+
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 16 Jul 2013 07:09:14 -0700
+
+gqrx (2.1+gitit-317+git9b30874) unstable; urgency=low
+
+  * Add support for FCDPro+ through gr-osmosdr
+  * http://cgit.osmocom.org/gr-osmosdr/commit/?id=3ce7c3398102e49f5fe7411a8e0fb5700236a3c7
+
+ -- Alexey Bazhin <baz@irc.msk.ru>  Tue, 16 Jul 2013 11:04:34 +0400
+
+gqrx (2.1+gitit-316+git2c38110) unstable; urgency=low
+
+  * Use consistent button and icon sizes.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 15 Jul 2013 17:03:26 +0200
+
+gqrx (2.1+gitit-316+gitf2349fd) unstable; urgency=low
+
+  * Autodetect pulseaudio
+
+ -- dl1ksv <dl1ksv@gmx.de>  Sun, 14 Jul 2013 11:42:39 +0200
+
+gqrx (2.1+gitit-315+git5f75d3e) unstable; urgency=low
+
+  * Updated news file.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 14 Jul 2013 10:47:33 +0200
+
+gqrx (2.1+gitit-314+gitc6c0a39) unstable; urgency=low
+
+  * Removed obsolete files.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 14 Jul 2013 10:40:00 +0200
+
+gqrx (2.1+gitit-313+gita716d15) unstable; urgency=low
+
+  * Use selected dirctory for recording and playback (issue #81).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 13 Jul 2013 14:15:30 +0200
+
+gqrx (2.1+gitit-312+gitd8b6044) unstable; urgency=low
+
+  * Use const ref in signal.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 13 Jul 2013 14:14:28 +0200
+
+gqrx (2.1+gitit-311+git1fcf29d) unstable; urgency=low
+
+  * Fixed spelling error.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 13 Jul 2013 00:29:22 +0200
+
+gqrx (2.1+gitit-310+gitb5cd13a) unstable; urgency=low
+
+  * Implemented selector widget for audio recordings (issue #81).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 13 Jul 2013 00:23:40 +0200
+
+gqrx (2.1+gitit-309+git0573234) unstable; urgency=low
+
+  * Add dialog window for audio options (issue #81).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 10 Jul 2013 23:22:58 +0200
+
+gqrx (2.1+gitit-308+git4a47124) unstable; urgency=low
+
+  * Use full namespace.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 10 Jul 2013 00:47:04 +0200
+
+gqrx (2.1+gitit-307+git3a67104) unstable; urgency=low
+
+  * Fix audio playback to work with stereo audio (issue #81).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 10 Jul 2013 00:00:05 +0200
+
+gqrx (2.1+gitit-306+gitf408427) unstable; urgency=low
+
+  * Move WAV sink in front of audio gain block (issue #81).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 9 Jul 2013 23:16:26 +0200
+
+gqrx (2.1+gitit-305+git49250c6) unstable; urgency=low
+
+  * Rearrange audio control buttons (issue #81).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 9 Jul 2013 23:05:15 +0200
+
+gqrx (2.1+gitit-304+git9e20f65) unstable; urgency=low
+
+  * Add option to select antenna connector.
+  *  
+  * This is an alternate implementation of issue #74.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 9 Jul 2013 15:10:00 +0200
+
+gqrx (2.1+gitit-303+gitaec293f) unstable; urgency=low
+
+  * Updated news file.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 9 Jul 2013 15:07:04 +0200
+
+gqrx (2.1+gitit-302+gitaf2e6bd) unstable; urgency=low
+
+  * Updated readme.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 8 Jul 2013 21:51:18 +0200
+
+gqrx (2.1+gitit-301+git8b264c0) unstable; urgency=low
+
+  * Include gnuradio-fft as dependency.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 8 Jul 2013 21:51:01 +0200
+
+gqrx (2.1+gitit-300+gitd5550f5) unstable; urgency=low
+
+  * Merge pull request #80 from pinkavaj/gnuradio_3.7_02
+  *  
+  * Switch to gnuradio 3.7 API (use gr3.6 branch for legacy).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 8 Jul 2013 12:34:32 -0700
+
+gqrx (2.1+gitit-298+git0e784e5) unstable; urgency=low
+
+  * Updated readme.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 5 Jul 2013 16:40:15 +0200
+
+gqrx (2.1+gitit-297+gitf08bc86) unstable; urgency=low
+
+  * Ensure that FFT window is reset when FFT size changes.
+  *  
+  * Closes issue #70.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 5 Jul 2013 14:21:42 +0200
+
+gqrx (2.1+gitit-296+gitc04704f) unstable; urgency=low
+
+  * Updated news file.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 5 Jul 2013 01:51:15 +0200
+
+gqrx (2.1+gitit-295+gitd1d18e7) unstable; urgency=low
+
+  * Add define for identifying OSX in non-Qt code.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 4 Jul 2013 21:06:54 +0200
+
+gqrx (2.1+gitit-294+gitfd40e97) unstable; urgency=low
+
+  * Always reset audio output device on Mac OS X.
+  *  
+  * This hopefully fixes issue #66 and issue #78.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 4 Jul 2013 17:11:22 +0200
+
+gqrx (2.1+gitit-293+gitaf35c2e) unstable; urgency=low
+
+  * Make output device selector editable with when using gr-audio.
+  *  
+  * Related to issue #50.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 4 Jul 2013 16:42:59 +0200
+
+gqrx (2.1+gitit-292+gitfd1560f) unstable; urgency=low
+
+  * Recommend gnuradio 3.6.5.1 when using gr-audio.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 4 Jul 2013 16:35:49 +0200
+
+gqrx (2.1+gitit-291+gitd7d8f97) unstable; urgency=low
+
+  * Add usable version string for release builds.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 4 Jul 2013 16:29:21 +0200
+
+gqrx (2.1+gitit-291+gitc69cd6c) unstable; urgency=low
+
+  * port to gnuradio 3.7 API
+
+ -- Jiri Pinkava <j-pi@seznam.cz>  Sun, 2 Jun 2013 21:03:23 +0200
+
+gqrx (2.1+gitit-290+git90ea4cf) unstable; urgency=low
+
+  * Add HackRF sample rates.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 4 Jul 2013 01:13:57 +0200
+
+gqrx (2.1+gitit-289+gitdd437ab) unstable; urgency=low
+
+  * Add HackRF Jawbreaker to æist of supported devices.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 1 Jul 2013 14:15:07 +0200
+
+gqrx (2.1+gitit-288+git263f79b) unstable; urgency=low
+
+  * Fix mouse input with latest Qt 4.8
+
+ -- Elias Oenal <EliasOenal@gmail.com>  Mon, 1 Jul 2013 13:44:15 +0200
+
+gqrx (2.1+gitit-287+git23efa70) unstable; urgency=low
+
+  * Updated readme.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 29 Jun 2013 16:46:56 +0200
+
+gqrx (2.1+gitit-286+git06ae4ea) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 29 Jun 2013 16:41:54 +0200
+
+gqrx (2.1+gitit-285+gitc61c115) unstable; urgency=low
+
+  * Merge pull request #76 from weinholt/master
+  *  
+  * Rescale the waterfall when resizing
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 29 Jun 2013 07:37:53 -0700
+
+gqrx (2.1+gitit-283+git9cd51b8) unstable; urgency=low
+
+  * Only include Qt widgets if we are using Qt 5.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 28 Jun 2013 23:49:58 +0200
+
+gqrx (2.1+gitit-282+git28429fb) unstable; urgency=low
+
+  * Add Qt 5 support.
+
+ -- Rob Frohne <rob.frohne@wallawalla.edu>  Fri, 28 Jun 2013 23:30:46 +0200
+
+gqrx (2.1+gitit-282+git7598557) unstable; urgency=low
+
+  * Rescale the waterfall pixmap when the GUI is resized
+  *  
+  * Previously the waterfall would be blacked out when the GUI was resized.
+
+ -- Göran Weinholt <goran@weinholt.se>  Sun, 5 May 2013 11:30:20 +0200
+
+gqrx (2.1+gitit-281+git0806850) unstable; urgency=low
+
+  * Restore correct receiver frequency.
+  *  
+  * Wait with updating the GUI until last to prevent applying frequency
+  * offset multiple times.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 4 May 2013 13:02:28 +0200
+
+gqrx (2.1+gitit-280+gitd639a0c) unstable; urgency=low
+
+  * Merge pull request #65 from weinholt/master
+  *  
+  * Various fixes for a UI problems.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 4 May 2013 03:46:17 -0700
+
+gqrx (2.1+gitit-279+gite643fae) unstable; urgency=low
+
+  * Place limits on the fft plot dB range zoom
+  *  
+  * The fft plot dB range would get stuck if zoomed in or out too far. Put
+  * limits on the range to prevent this from happening.
+
+ -- Göran Weinholt <goran@weinholt.se>  Fri, 3 May 2013 19:38:31 +0200
+
+gqrx (2.1+gitit-278+git3c338c3) unstable; urgency=low
+
+  * Limit the max zoom-out to fix a crash
+  *  
+  * If the fft plot is zoomed out too far then there is an integer
+  * overflow when computing m_pTranslateTbl, which results in memory
+  * corruption when writing to outBuf.
+
+ -- Göran Weinholt <goran@weinholt.se>  Fri, 3 May 2013 19:26:10 +0200
+
+gqrx (2.1+gitit-277+gitce8ac89) unstable; urgency=low
+
+  * Fix hangs and segfaults when the FFT is moved around and zoomed
+  *  
+  * Moving the FFT plot off the screen caused a hang or a segfault. Making
+  * the window too large caused segfaults because MAX_SCREENSIZE and
+  * HORZ_DIVS_MAX were not taken into account. The zoom could also become
+  * negative or get stuck on max.
+
+ -- Göran Weinholt <goran@weinholt.se>  Wed, 1 May 2013 16:37:52 +0200
+
+gqrx (2.1+gitit-276+git29d6c18) unstable; urgency=low
+
+  * Update tooltips.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 28 Apr 2013 13:00:59 +0200
+
+gqrx (2.1+gitit-275+gitb336e1c) unstable; urgency=low
+
+  * Fix incorrect tuning when using LNB LO.
+  *  
+  * Fixes the wrong behaviour introduced by commit 58b527320cabe19c15d84373e750747681dd29ce
+  * and later.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 28 Apr 2013 12:23:48 +0200
+
+gqrx (2.1+gitit-274+git1673204) unstable; urgency=low
+
+  * Update center frequency when LNB LO is changed.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 21 Apr 2013 21:35:24 +0200
+
+gqrx (2.1+gitit-273+gitf8f24f9) unstable; urgency=low
+
+  * Allow FFT plot to fill 100%.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 21 Apr 2013 01:15:27 +0200
+
+gqrx (2.1+gitit-272+git58b5273) unstable; urgency=low
+
+  * Change frequency display concept.
+  *  
+  * Due to user demand the main frequency control and display widget now displays
+  * the receiver frequency and not the hardware frequency. Changes to the shown
+  * frequewncy will still lead to hardware tuning though, but now taking the filter
+  * offset into account.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 21 Apr 2013 00:36:58 +0200
+
+gqrx (2.1+gitit-271+gite7325fa) unstable; urgency=low
+
+  * Use functions to set initial plot settings.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 20 Apr 2013 13:26:07 +0200
+
+gqrx (2.1+gitit-270+git000dd2e) unstable; urgency=low
+
+  * Update info.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 20 Apr 2013 13:17:31 +0200
+
+gqrx (2.1+gitit-269+git1b46041) unstable; urgency=low
+
+  * Update audio FFT color and fill when changing FFT settings.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 20 Apr 2013 13:07:15 +0200
+
+gqrx (2.1+gitit-268+git7978f46) unstable; urgency=low
+
+  * Updated predefined colors.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 20 Apr 2013 02:35:01 +0200
+
+gqrx (2.1+gitit-267+git77a069a) unstable; urgency=low
+
+  * Connect FFT color signals to plotter.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 20 Apr 2013 02:01:04 +0200
+
+gqrx (2.1+gitit-266+gita110e3a) unstable; urgency=low
+
+  * Add support for changing FFT plot colors.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 20 Apr 2013 01:21:53 +0200
+
+gqrx (2.1+gitit-265+git5176931) unstable; urgency=low
+
+  * Widgets for selecting FFT color and fill.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 20 Apr 2013 00:50:19 +0200
+
+gqrx (2.1+gitit-264+git8671027) unstable; urgency=low
+
+  * Add color picker widget.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 19 Apr 2013 22:01:22 +0200
+
+gqrx (2.1+gitit-263+git4124d18) unstable; urgency=low
+
+  * Fill area under FFT plot with gradient.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 13 Apr 2013 15:40:36 +0200
+
+gqrx (2.1+gitit-262+gitd0cc74a) unstable; urgency=low
+
+  * Update to new gr-osmosdr header structure.
+
+ -- Dimitri Stolnikov <horiz0n@gmx.net>  Thu, 11 Apr 2013 17:53:07 +0200
+
+gqrx (2.1+gitit-261+gitc4ee4a3) unstable; urgency=low
+
+  * Updated news file.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 18 Mar 2013 13:37:28 +0100
+
+gqrx (2.1+gitit-260+git7ccf396) unstable; urgency=low
+
+  * Improved Y-axis panning.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 18 Mar 2013 13:37:10 +0100
+
+gqrx (2.1+gitit-259+gitfb2fd8f) unstable; urgency=low
+
+  * Add info about gr-iqbal component.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 17 Mar 2013 21:14:06 +0100
+
+gqrx (2.1+gitit-258+git18ff319) unstable; urgency=low
+
+  * Add support for automatic I/Q balancing.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 5 Mar 2013 00:47:25 +0100
+
+gqrx (2.1+gitit-257+git264fb3a) unstable; urgency=low
+
+  * Merge pull request #63 from nhasan/master
+  *  
+  * Save and restore audio gain setting.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 4 Mar 2013 14:08:33 -0800
+
+gqrx (2.1+gitit-252+gitbc5b43a) unstable; urgency=low
+
+  * Save and restore audio gain settings.
+
+ -- Nadeem Hasan <nhasan@nadmm.com>  Sun, 3 Mar 2013 15:48:27 -0500
+
+gqrx (2.1+gitit-255+gitbb0b5ce) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 3 Mar 2013 20:33:06 +0100
+
+gqrx (2.1+gitit-254+gitaf5a470) unstable; urgency=low
+
+  * Merge pull request #62 from nhasan/master
+  *  
+  * Allow using audio output device other than the default one.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 3 Mar 2013 11:29:02 -0800
+
+gqrx (2.1+gitit-251+gitfdb0a53) unstable; urgency=low
+
+  * Fix the "back to default" case.
+
+ -- Nadeem Hasan <nhasan@nadmm.com>  Sat, 2 Mar 2013 19:40:49 -0500
+
+gqrx (2.1+gitit-250+git6f30f9a) unstable; urgency=low
+
+  * Fixed audio output device (PA) selection.
+
+ -- Nadeem Hasan <nhasan@nadmm.com>  Sat, 2 Mar 2013 14:51:29 -0500
+
+gqrx (2.1+gitit-251+git8a90d89) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 1 Mar 2013 21:58:27 +0100
+
+gqrx (2.1+gitit-250+git6c4f58d) unstable; urgency=low
+
+  * Merge pull request #60 from nhasan/master
+  *  
+  * Fix current device population in config dialog
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 1 Mar 2013 12:46:39 -0800
+
+gqrx (2.1+gitit-249+git587fdd3) unstable; urgency=low
+
+  * Fixed current device selection in config dialog.
+
+ -- Nadeem Hasan <nhasan@nadmm.com>  Fri, 1 Mar 2013 00:06:13 -0500
+
+gqrx (2.1+gitit-248+git0562449) unstable; urgency=low
+
+  * Fix spelling error.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 28 Feb 2013 23:48:03 +0100
+
+gqrx (2.1+gitit-247+gitf1dfbe5) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 28 Feb 2013 23:44:58 +0100
+
+gqrx (2.1+gitit-246+git5f17ecc) unstable; urgency=low
+
+  * Update news.txt for new snapshot release.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 28 Feb 2013 18:30:23 +0100
+
+gqrx (2.1+gitit-245+git0cb3cf0) unstable; urgency=low
+
+  * No need to calculate sample period for DC correction.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 27 Feb 2013 00:46:23 +0100
+
+gqrx (2.1+gitit-244+git350458f) unstable; urgency=low
+
+  * Use 1 second time constant for DC correcftion.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 27 Feb 2013 00:36:21 +0100
+
+gqrx (2.1+gitit-243+git0ec9f98) unstable; urgency=low
+
+  * Update news.txt
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 24 Feb 2013 22:50:45 +0100
+
+gqrx (2.1+gitit-242+gitaa1a9ee) unstable; urgency=low
+
+  * Store receiver settings (issue #58).
+  *  
+  * Following settings are saved:
+  * - Demodulator (mode)
+  * - Filter offset
+  * - Squelch level
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 24 Feb 2013 22:45:07 +0100
+
+gqrx (2.1+gitit-241+gitc6b043a) unstable; urgency=low
+
+  * Move input device settings I/O to DockInputCtl.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 24 Feb 2013 20:53:01 +0100
+
+gqrx (2.1+gitit-240+git84814dd) unstable; urgency=low
+
+  * Add on/off switch for automatic DC cancelling.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 24 Feb 2013 02:19:53 +0100
+
+gqrx (2.1+gitit-239+gitcbf674d) unstable; urgency=low
+
+  * New I/Q DC cancelling and swapping implementation.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 22 Feb 2013 01:07:40 +0100
+
+gqrx (2.1+gitit-238+git8aba805) unstable; urgency=low
+
+  * Merge branch 'master' of github.com:csete/gqrx
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 20 Feb 2013 23:50:57 +0100
+
+gqrx (2.1+gitit-236+git6955010) unstable; urgency=low
+
+  * Reduce default FFT size to allow higher rates.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 20 Feb 2013 23:00:26 +0100
+
+gqrx (2.1+gitit-235+git1a7eed8) unstable; urgency=low
+
+  * Update with new file name.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 20 Feb 2013 23:00:05 +0100
+
+gqrx (2.1+gitit-235+gitc327e8b) unstable; urgency=low
+
+  * Add some basic markup
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 20 Feb 2013 22:05:30 +0100
+
+gqrx (2.1+gitit-234+gitf135f1b) unstable; urgency=low
+
+  * Updated readme.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 20 Feb 2013 22:02:32 +0100
+
+gqrx (2.1+gitit-233+git4af7d11) unstable; urgency=low
+
+  * Add a 'make clean' target (issue #54).
+
+ -- Anthony Willard <awillard69@yahoo.com>  Thu, 14 Feb 2013 21:01:11 +0100
+
+gqrx (2.1+gitit-232+git534bd60) unstable; urgency=low
+
+  * Updated news file.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 14 Feb 2013 00:31:09 +0100
+
+gqrx (2.1+gitit-231+gite40e7cb) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 11 Feb 2013 21:14:03 +0100
+
+gqrx (2.1+gitit-230+gitdbc5adc) unstable; urgency=low
+
+  * Update suggested sample rates for rtlsdr devices.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 10 Feb 2013 23:05:17 +0100
+
+gqrx (2.1+gitit-229+git6c24c94) unstable; urgency=low
+
+  * Enable automatic tuner gain by default.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 10 Feb 2013 22:49:57 +0100
+
+gqrx (2.1+gitit-228+gitf82029e) unstable; urgency=low
+
+  * Suspend DSP during reconfiguration.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 9 Feb 2013 22:05:11 +0100
+
+gqrx (2.1+gitit-227+git927e84f) unstable; urgency=low
+
+  * Introduce some input/output pasrameter checks.
+  *  
+  * When setting device strings or sample rate, check if the new settings
+  * asre different from the old ones and do nothing if the settings haven't
+  * changed. The reduces the number of 'i/o device errors' since we don't
+  * try to re-open the same device.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 9 Feb 2013 21:49:26 +0100
+
+gqrx (2.1+gitit-226+gitb1466fe) unstable; urgency=low
+
+  * Try to organize include files alphabetically.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 9 Feb 2013 12:49:45 +0100
+
+gqrx (2.1+gitit-225+git83db24e) unstable; urgency=low
+
+  * Set lower limit on AM and FM filter width to 500 kHz. Prevents application freeze.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 9 Feb 2013 00:57:53 +0100
+
+gqrx (2.1+gitit-224+git435c860) unstable; urgency=low
+
+  * We always require gnuradio-core.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 8 Feb 2013 23:05:12 +0100
+
+gqrx (2.1+gitit-223+gitfe3a53e) unstable; urgency=low
+
+  * Rename regxp to regexp.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 8 Feb 2013 22:19:02 +0100
+
+gqrx (2.1+gitit-222+git04ceb76) unstable; urgency=low
+
+  * Revert "Add git version to make VERSTR"
+  *  
+  * It is intentional that we display version 0.0 when people build
+  * from git in release mode.
+  * This reverts commit 4bb00b39042c271bfedafdbd23b6a02e846ee6cc.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 8 Feb 2013 22:16:56 +0100
+
+gqrx (2.1+gitit-221+gite899282) unstable; urgency=low
+
+  * Rename variable to clarify code
+  *  
+  * Rename the variable 'rx' to 'regxp' to prevent
+  * masking of a member variable of same name.
+  *  
+  * Show the name of the device if regexp not match
+  * instead of 'Unknown'.  Rtlsdr device shows as
+  * "rtl=0".
+
+ -- Anthony Willard <awillard69@yahoo.com>  Thu, 7 Feb 2013 19:36:28 -0600
+
+gqrx (2.1+gitit-220+git4bb00b3) unstable; urgency=low
+
+  * Add git version to make VERSTR
+  *  
+  * Add git version descriptor to the VERSTR
+  * make variable.
+
+ -- Anthony Willard <awillard69@yahoo.com>  Thu, 7 Feb 2013 19:34:49 -0600
+
+gqrx (2.1+gitit-219+git34f7c06) unstable; urgency=low
+
+  * Disable audio FFT when we don't use demodulator.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 8 Feb 2013 00:54:55 +0100
+
+gqrx (2.1+gitit-218+git900aaa7) unstable; urgency=low
+
+  * Add support for 0 and 50 fps FFT rates (0 disabled IQ FFT).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 8 Feb 2013 00:07:52 +0100
+
+gqrx (2.1+gitit-217+git2cdaf11) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 7 Feb 2013 00:27:01 +0100
+
+gqrx (2.1+gitit-216+git848b5be) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 7 Feb 2013 00:15:48 +0100
+
+gqrx (2.1+gitit-215+gitb818208) unstable; urgency=low
+
+  * Workaround for the 'jerky dongle' behavior.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 7 Feb 2013 00:12:53 +0100
+
+gqrx (2.1+gitit-214+gitba6c280) unstable; urgency=low
+
+  * Show correct filter preset in combo box.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 7 Feb 2013 00:10:42 +0100
+
+gqrx (2.1+gitit-213+gita0fb044) unstable; urgency=low
+
+  * Add some filter debug.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 4 Feb 2013 17:01:31 +0100
+
+gqrx (2.1+gitit-212+git7fe0436) unstable; urgency=low
+
+  * Include news.txt in project file.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 4 Feb 2013 02:01:52 +0100
+
+gqrx (2.1+gitit-211+git5fcab1e) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 4 Feb 2013 02:01:21 +0100
+
+gqrx (2.1+gitit-210+git92c7ad9) unstable; urgency=low
+
+  * Make crash recovery work with reconf.
+  *  
+  * Various minor changes.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 4 Feb 2013 00:17:06 +0100
+
+gqrx (2.1+gitit-209+gitfc0c834) unstable; urgency=low
+
+  * Merge pull request #52 from EliasOenal/master
+  *  
+  * Allow recovery from invalid settings.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 3 Feb 2013 14:01:53 -0800
+
+gqrx (2.1+gitit-208+git4b6b7df) unstable; urgency=low
+
+  * Deadlock Guard for invalid config files
+
+ -- Elias Oenal <EliasOenal@gmail.com>  Sun, 3 Feb 2013 05:51:53 +0100
+
+gqrx (2.1+gitit-207+gitf0a5fba) unstable; urgency=low
+
+  * Merge branch 'master' of github.com:csete/gqrx
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 2 Feb 2013 12:36:33 +0100
+
+gqrx (2.1+gitit-204+git87d67f6) unstable; urgency=low
+
+  * Always include -lrt and update gr-audio comment.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 2 Feb 2013 12:36:23 +0100
+
+gqrx (2.1+gitit-205+git71689d9) unstable; urgency=low
+
+  * Remove 32k FFt option until we figure out why we get NaN.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 1 Feb 2013 17:58:43 +0100
+
+gqrx (2.1+gitit-204+git3a0eb8f) unstable; urgency=low
+
+  * Fixed crash when FFT size is smaller than plot width.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 1 Feb 2013 13:39:10 +0100
+
+gqrx (2.1+gitit-203+git2d6dea2) unstable; urgency=low
+
+  * Trivial fix to allow building with Qt 4.6
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 17 Jan 2013 16:39:03 +0100
+
+gqrx (2.1+gitit-202+git4d3cfcc) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 15 Jan 2013 00:30:17 +0100
+
+gqrx (2.1+gitit-201+git62fb728) unstable; urgency=low
+
+  * Use correct button name.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 15 Jan 2013 00:26:21 +0100
+
+gqrx (2.1+gitit-200+git2934b29) unstable; urgency=low
+
+  * Connect FFT shortcuts to new plotter API calls.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 15 Jan 2013 00:00:56 +0100
+
+gqrx (2.1+gitit-199+git33a83ac) unstable; urgency=low
+
+  * Add API for zoom shortcuts (reset and center).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 15 Jan 2013 00:00:07 +0100
+
+gqrx (2.1+gitit-198+git6d6c170) unstable; urgency=low
+
+  * Zoom shortcuts.
+  *  
+  * Add shortcut buttons for:
+  * - Resetting FFT zoom ro original view.
+  * - Centering FFT around demodulator frequency.
+  * - Centering FFT around hardware oscillator frequency.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 14 Jan 2013 22:53:55 +0100
+
+gqrx (2.1+gitit-197+gitc9a3867) unstable; urgency=low
+
+  * Add option to switch AM DCR on and off.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 13 Jan 2013 22:53:06 +0100
+
+gqrx (2.1+gitit-196+gitcb8667f) unstable; urgency=low
+
+  * Revert commit 5dfc32d0.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 13 Jan 2013 21:21:00 +0100
+
+gqrx (2.1+gitit-195+gitb349d4d) unstable; urgency=low
+
+  * Improved tooltips.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 13 Jan 2013 21:17:45 +0100
+
+gqrx (2.1+gitit-194+git6d4a1bb) unstable; urgency=low
+
+  * Use device labels returned by osmo_sdr_source.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 13 Jan 2013 18:48:54 +0100
+
+gqrx (2.1+gitit-193+git5486d44) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 13 Jan 2013 01:14:12 +0100
+
+gqrx (2.1+gitit-192+gitc42bd60) unstable; urgency=low
+
+  * Workaround for pixel error introduced in Qt 4.8.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 12 Jan 2013 22:48:26 +0100
+
+gqrx (2.1+gitit-191+git96140fa) unstable; urgency=low
+
+  * Update year. Uncrustify.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 12 Jan 2013 22:26:23 +0100
+
+gqrx (2.1+gitit-190+git1b81cb8) unstable; urgency=low
+
+  * Move noise blanker threshold settings to setparate options dialog.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 12 Jan 2013 22:20:05 +0100
+
+gqrx (2.1+gitit-189+gitbb2864b) unstable; urgency=low
+
+  * User interface tweaks for Mac OS X.
+  *  
+  * Apply workaround for overlapping buttons.
+  * Modify minimum size and vertical policy for some sliders. These should
+  * fix most if not all overlapping and partially hidden widget issues
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 11 Jan 2013 01:00:26 +0100
+
+gqrx (2.1+gitit-188+git5b7890a) unstable; urgency=low
+
+  * Update with files generated on Mac OS X.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 11 Jan 2013 01:00:17 +0100
+
+gqrx (2.1+gitit-187+git7dcd285) unstable; urgency=low
+
+  * Remove trivial debug message.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 10 Jan 2013 00:03:57 +0100
+
+gqrx (2.1+gitit-186+gitdb64e99) unstable; urgency=low
+
+  * Save and restore FFT averaging setting.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 10 Jan 2013 00:03:03 +0100
+
+gqrx (2.1+gitit-185+gite3bb9a4) unstable; urgency=low
+
+  * Minor clean-up and parameter name changes.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 9 Jan 2013 23:54:04 +0100
+
+gqrx (2.1+gitit-184+git3af62c1) unstable; urgency=low
+
+  * Backend for AM DCR on/off switching.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 7 Jan 2013 23:14:47 +0100
+
+gqrx (2.1+gitit-183+gita8ffe04) unstable; urgency=low
+
+  * Cleanup whitespace.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 7 Jan 2013 22:55:16 +0100
+
+gqrx (2.1+gitit-182+gitb03e35f) unstable; urgency=low
+
+  * Fixing the AM demodulator DC-removal
+
+ -- Vesa Solonen <vesa.solonen@aalto.fi>  Sun, 6 Jan 2013 23:32:17 +0200
+
+gqrx (2.1+gitit-181+gitff8f5bd) unstable; urgency=low
+
+  * Remove multiple FFT filtering options.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 7 Jan 2013 22:31:05 +0100
+
+gqrx (2.1+gitit-180+git0492ec6) unstable; urgency=low
+
+  * Use correct spelling for kilohertz.
+
+ -- Vesa Solonen <vesa.solonen@aalto.fi>  Mon, 7 Jan 2013 02:05:52 +0200
+
+gqrx (2.1+gitit-179+git8ba360a) unstable; urgency=low
+
+  * Experimental FFT averaging.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 7 Jan 2013 00:13:31 +0100
+
+gqrx (2.1+gitit-178+gitab34cd3) unstable; urgency=low
+
+  * Allow separate FFT data sets for pandapter and waterfall.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 7 Jan 2013 00:13:09 +0100
+
+gqrx (2.1+gitit-177+git2013ee0) unstable; urgency=low
+
+  * Adjust max FFT size to be consistent with GUI.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 4 Jan 2013 22:42:38 +0100
+
+gqrx (2.1+gitit-176+gita731c6c) unstable; urgency=low
+
+  * Use consistent function naming.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 4 Jan 2013 21:05:23 +0100
+
+gqrx (2.1+gitit-175+git03ed42d) unstable; urgency=low
+
+  * Use consistent function naming.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 4 Jan 2013 20:48:14 +0100
+
+gqrx (2.1+gitit-174+git57a2806) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 4 Jan 2013 00:05:21 +0100
+
+gqrx (2.1+gitit-173+git5dfc32d) unstable; urgency=low
+
+  * Correctly show the negative sign for filter offsets between -1 and 0 kHz.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 3 Jan 2013 23:56:11 +0100
+
+gqrx (2.1+gitit-172+gitfb8235e) unstable; urgency=low
+
+  * Use unix LF.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 3 Jan 2013 23:01:08 +0100
+
+gqrx (2.1+gitit-171+gitaa174ab) unstable; urgency=low
+
+  * Remaining implementation of 'ignore hardware limits'.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 3 Jan 2013 00:33:55 +0100
+
+gqrx (2.1+gitit-170+git2ac257f) unstable; urgency=low
+
+  * Add UI option to ignore hardware limits.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 2 Jan 2013 23:28:55 +0100
+
+gqrx (2.1+gitit-169+gitca1add1) unstable; urgency=low
+
+  * Ignore step (it means step between two ranges).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 2 Jan 2013 21:40:23 +0100
+
+gqrx (2.1+gitit-168+git710e0f6) unstable; urgency=low
+
+  * Ensure we don't access empty frequency range returned by driver.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 1 Jan 2013 20:01:37 +0100
+
+gqrx (2.1+gitit-167+git8b69323) unstable; urgency=low
+
+  * Respect frequency range of input device. Closes issue #44.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 1 Jan 2013 13:42:53 +0100
+
+gqrx (2.1+gitit-166+gitd821d98) unstable; urgency=low
+
+  * On Mac make outdev combo editable. Limit number of sample rate options for rtlsdr.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 1 Jan 2013 10:53:47 +0100
+
+gqrx (2.1+gitit-165+git5882c01) unstable; urgency=low
+
+  * More compiler warnings.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 31 Dec 2012 21:11:16 +0100
+
+gqrx (2.1+gitit-164+git5d67071) unstable; urgency=low
+
+  * Fix compiler warnings.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 31 Dec 2012 17:53:13 +0100
+
+gqrx (2.1+gitit-163+git7c233f9) unstable; urgency=low
+
+  * List files in alphabetic order.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 31 Dec 2012 13:41:29 +0100
+
+gqrx (2.1+gitit-162+gita2d61a4) unstable; urgency=low
+
+  * Eliminate obsolete Arissat telemetry decoder.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 31 Dec 2012 13:34:04 +0100
+
+gqrx (2.1+gitit-161+git5e77e0f) unstable; urgency=low
+
+  * Try new cursor shapes on channel filter.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 31 Dec 2012 00:51:55 +0100
+
+gqrx (2.1+gitit-160+git1573d6a) unstable; urgency=low
+
+  * Use consistent file naming.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 29 Dec 2012 23:09:37 +0100
+
+gqrx (2.1+gitit-159+git76ef1e7) unstable; urgency=low
+
+  * Increase LO resolution to 1 Hz.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 29 Dec 2012 22:59:31 +0100
+
+gqrx (2.1+gitit-158+git11e6ecc) unstable; urgency=low
+
+  * Switch to new AGC control widgets.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 29 Dec 2012 22:51:02 +0100
+
+gqrx (2.1+gitit-157+git4e69ad6) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 27 Dec 2012 00:48:44 +0100
+
+gqrx (2.1+gitit-156+git96020c2) unstable; urgency=low
+
+  * Always skip background and overlay redraw if plotter is running.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 27 Dec 2012 00:48:23 +0100
+
+gqrx (2.1+gitit-155+git79600b1) unstable; urgency=low
+
+  * New dialog window with advanced AGC controls (not used yet).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 26 Dec 2012 01:01:12 +0100
+
+gqrx (2.1+gitit-154+git9fbc334) unstable; urgency=low
+
+  * Use static method for converting integer to string.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 26 Dec 2012 01:00:13 +0100
+
+gqrx (2.1+gitit-153+git53adb0f) unstable; urgency=low
+
+  * News file.
+
+ -- Alexandru Csete <alc@thrane.com>  Tue, 25 Dec 2012 21:34:03 +0100
+
+gqrx (2.1+gitit-152+git4e7d90c) unstable; urgency=low
+
+  * Save and restore FFT settings.
+
+ -- Alexandru Csete <alc@thrane.com>  Tue, 25 Dec 2012 21:33:47 +0100
+
+gqrx (2.1+gitit-151+git6095241) unstable; urgency=low
+
+  * Include build directory.
+
+ -- Alexandru Csete <alc@thrane.com>  Tue, 25 Dec 2012 16:55:02 +0100
+
+gqrx (2.1+gitit-150+git7a44941) unstable; urgency=low
+
+  * Add info about compiling in debug mode.
+
+ -- Alexandru Csete <alc@thrane.com>  Tue, 25 Dec 2012 16:54:33 +0100
+
+gqrx (2.1+gitit-149+gite743d06) unstable; urgency=low
+
+  * Implement I/Q swapping option.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 22 Dec 2012 02:08:34 +0100
+
+gqrx (2.1+gitit-148+git3d46c82) unstable; urgency=low
+
+  * Decrease audio spectrum lower limit to -120 dB.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 9 Dec 2012 00:27:08 +0100
+
+gqrx (2.1+gitit-147+gitee1d0a4) unstable; urgency=low
+
+  * Uncrustify.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 9 Dec 2012 00:26:29 +0100
+
+gqrx (2.1+gitit-146+gite9ce357) unstable; urgency=low
+
+  * Update program info.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 9 Dec 2012 00:16:45 +0100
+
+gqrx (2.1+gitit-145+gitfc2d39c) unstable; urgency=low
+
+  * Merge branch 'master' of github.com:csete/gqrx
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 8 Dec 2012 21:01:36 +0100
+
+gqrx (2.1+gitit-143+git04e642b) unstable; urgency=low
+
+  * Tweaks to the audio FFT plotter.
+  *  
+  * - Show correct frequency range (closes bug #46).
+  * - Increase text size to 8 pt.
+  * - Leave (unused) dmod center frequency at 0 Hz.
+  * - Increase dynamic range by 10 dB.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 8 Dec 2012 20:57:09 +0100
+
+gqrx (2.1+gitit-143+gitf7e7eb5) unstable; urgency=low
+
+  * Tweaks to the audio FFT plotter.
+  *  
+  * - Show correct frequency range (closes issue 46).
+  * - Increase text size to 8 pt.
+  * - Leave (unused) dmod center frequency at 0 Hz.
+  * - Increase dynamic range by 10 dB.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 8 Dec 2012 20:57:09 +0100
+
+gqrx (2.1+gitit-142+gitca16ad7) unstable; urgency=low
+
+  * First stab at some useful command line options.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 3 Dec 2012 23:54:01 +0100
+
+gqrx (2.1+gitit-141+git76c9042) unstable; urgency=low
+
+  * Proper credit for FM demodulator.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 1 Dec 2012 21:24:03 +0100
+
+gqrx (2.1+gitit-140+git92b290e) unstable; urgency=low
+
+  * Print debug info about new zoom factor.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 26 Nov 2012 21:02:28 +0100
+
+gqrx (2.1+gitit-139+git7ab8174) unstable; urgency=low
+
+  * Layout tweaks.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 25 Nov 2012 23:49:38 +0100
+
+gqrx (2.1+gitit-138+git76cf64f) unstable; urgency=low
+
+  * Swap the order of FFT and audio controls.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 25 Nov 2012 23:26:12 +0100
+
+gqrx (2.1+gitit-137+git9beb5cf) unstable; urgency=low
+
+  * Remove obsolete zooming code.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 25 Nov 2012 23:22:14 +0100
+
+gqrx (2.1+gitit-136+git383f6da) unstable; urgency=low
+
+  * Allow 5 pixels extra margin when grabbing cursor on X axis.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 25 Nov 2012 23:21:43 +0100
+
+gqrx (2.1+gitit-135+git656075f) unstable; urgency=low
+
+  * Merge branch 'gr-audio' of github.com:csete/gqrx into gr-audio
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 25 Nov 2012 22:54:59 +0100
+
+gqrx (2.1+gitit-133+gitd27faa2) unstable; urgency=low
+
+  * Make zooming on the frequency axis consistent with dB axis.
+  *  
+  * Use the mouse wheel for zooming in and out. Keep the frequency under
+  * the mouse pointer fixed at the position of the pointer.
+  * (Previous implementation used external control and kept the demodulator
+  * offset at the center of the FFT graph).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 25 Nov 2012 22:49:53 +0100
+
+gqrx (2.1+gitit-133+git8fc3966) unstable; urgency=low
+
+  * Make zooming on the frequency axis consistent with dB axis.
+  *  
+  * Use the mouse wheel for zooming in and out. Keep the frequency under
+  * the mouse pointer fixed at the position of the pointer.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 25 Nov 2012 22:49:53 +0100
+
+gqrx (2.1+gitit-132+gitc13555b) unstable; urgency=low
+
+  * Add note about potential optimisation.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 23 Nov 2012 17:02:00 +0100
+
+gqrx (2.1+gitit-131+git16562eb) unstable; urgency=low
+
+  * Keep the dB under the cursor fixed while zooming.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 23 Nov 2012 16:55:04 +0100
+
+gqrx (2.1+gitit-130+gitf9a176d) unstable; urgency=low
+
+  * Print I/Q correction stats periodically regardless of sample rate.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 23 Nov 2012 15:31:06 +0100
+
+gqrx (2.1+gitit-129+git4817b4d) unstable; urgency=low
+
+  * Fix qmake file for OS X.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 14 Nov 2012 15:47:09 +0100
+
+gqrx (2.1+gitit-128+gita6cbf9d) unstable; urgency=low
+
+  * Updated README
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 12 Nov 2012 23:57:52 +0100
+
+gqrx (2.1+gitit-127+git61f9265) unstable; urgency=low
+
+  * Automatic selection of pulseaudio.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 12 Nov 2012 23:12:08 +0100
+
+gqrx (2.1+gitit-126+gitfbf3f13) unstable; urgency=low
+
+  * Attempt to fix noise blanker button weirdness on Mac OS X.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 12 Nov 2012 17:18:36 +0100
+
+gqrx (2.1+gitit-125+git90993f7) unstable; urgency=low
+
+  * Enable changing FFT size (note: crashes if size < screen res.).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 12 Nov 2012 16:05:28 +0100
+
+gqrx (2.1+gitit-124+gitce7cd44) unstable; urgency=low
+
+  * Reset default FFT size to 4096.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 12 Nov 2012 15:58:48 +0100
+
+gqrx (2.1+gitit-123+git947a85d) unstable; urgency=low
+
+  * Fix gr-audio branch to work on Linux again.
+  *  
+  * Use the AUDIO_BACKEND define in gqrx.pro to select whether to use pulseaudio or gnuradio-audio.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 12 Nov 2012 15:41:41 +0100
+
+gqrx (2.1+gitit-122+git3ec6707) unstable; urgency=low
+
+  * Merge pull request #39 from EliasOenal/master
+  *  
+  * Restored GNU Radio audio sink support. (compile option)
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 6 Nov 2012 07:15:28 -0800
+
+gqrx (2.1+gitit-114+git3ae665e) unstable; urgency=low
+
+  * Merge pull request #38 from vpelletier/master
+  *  
+  * Merge the horizontal zooming code; clean up later.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 6 Nov 2012 07:14:51 -0800
+
+gqrx (2.1+gitit-108+git7be3117) unstable; urgency=low
+
+  * rebased to zoom branch
+
+ -- Elias Oenal <EliasOenal@gmail.com>  Thu, 4 Oct 2012 00:36:06 +0200
+
+gqrx (2.1+gitit-107+git3f4188d) unstable; urgency=low
+
+  * re-enabled pkgconfig
+
+ -- Elias Oenal <EliasOenal@gmail.com>  Sun, 30 Sep 2012 18:32:58 +0200
+
+gqrx (2.1+gitit-106+git9144d67) unstable; urgency=low
+
+  * no more crashing when turning demod off
+
+ -- Elias Oenal <EliasOenal@gmail.com>  Sun, 30 Sep 2012 17:40:41 +0200
+
+gqrx (2.1+gitit-105+gitc6de1b8) unstable; urgency=low
+
+  * osx icon and minor fixes
+
+ -- Elias Oenal <EliasOenal@gmail.com>  Sun, 30 Sep 2012 16:56:37 +0200
+
+gqrx (2.1+gitit-104+git29eebeb) unstable; urgency=low
+
+  * fixed sound bug
+
+ -- Elias Oenal <EliasOenal@gmail.com>  Sun, 30 Sep 2012 07:04:12 +0200
+
+gqrx (2.1+gitit-103+gitffa43c9) unstable; urgency=low
+
+  * updated readme
+
+ -- Elias Oenal <EliasOenal@gmail.com>  Sun, 30 Sep 2012 04:24:51 +0200
+
+gqrx (2.1+gitit-102+git3de5225) unstable; urgency=low
+
+  * Re-Enabled GNU Radio audio sink. Define 'PULSEAUDIO' to use the pulseaudio sink instead.
+
+ -- Elias Oenal <EliasOenal@gmail.com>  Sun, 30 Sep 2012 04:21:31 +0200
+
+gqrx (2.1+gitit-101+git9eb278c) unstable; urgency=low
+
+  * Deleted file.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 8 Sep 2012 12:38:02 +0200
+
+gqrx (2.1+gitit-100+gitd9baa21) unstable; urgency=low
+
+  * Clean-up and updates to pa_sink.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 2 Sep 2012 16:05:36 +0200
+
+gqrx (2.1+gitit-99+git2a6650b) unstable; urgency=low
+
+  * Files should be listed in alphatic order.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 1 Sep 2012 14:06:23 +0200
+
+gqrx (2.1+gitit-98+git6b1515c) unstable; urgency=low
+
+  * Use correct copyright year.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 1 Sep 2012 14:01:25 +0200
+
+gqrx (2.1+gitit-97+git12e5a33) unstable; urgency=low
+
+  * Use two channel audio recorder.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 1 Sep 2012 13:59:51 +0200
+
+gqrx (2.1+gitit-96+gitbc3dcf2) unstable; urgency=low
+
+  * Removed unused d_channels.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 1 Sep 2012 13:54:19 +0200
+
+gqrx (2.1+gitit-95+git8ce4e6f) unstable; urgency=low
+
+  * Ignoring gqrx is a bad idea.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 1 Sep 2012 13:51:47 +0200
+
+gqrx (2.1+gitit-94+gita8afb21) unstable; urgency=low
+
+  * Fix FM-related enums and namings.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 1 Sep 2012 13:28:15 +0200
+
+gqrx (2.1+gitit-93+gite373dd1) unstable; urgency=low
+
+  * Merge branch 'master' into stereo
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 1 Aug 2012 11:09:44 +0200
+
+gqrx (2.1+gitit-85+gitacd38da) unstable; urgency=low
+
+  * Explicitly link to libboost_system (req. with Boost 1.50).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 30 Jul 2012 15:22:20 +0200
+
+gqrx (2.1+gitit-96+git1044d1c) unstable; urgency=low
+
+  * Silence -Wreorder warnings.
+
+ -- Vincent Pelletier <plr.vincent@gmail.com>  Sun, 29 Jul 2012 12:00:37 +0200
+
+gqrx (2.1+gitit-95+gitb2f6acb) unstable; urgency=low
+
+  * Use parameter value instead of looking it up from widget.
+
+ -- Vincent Pelletier <plr.vincent@gmail.com>  Sun, 29 Jul 2012 12:00:13 +0200
+
+gqrx (2.1+gitit-94+gitcc3bddb) unstable; urgency=low
+
+  * Fix d_detector type (fixes unreachable cases).
+  *  
+  * The only reached case here was DETECTOR_TYPE_SAMPLE.
+
+ -- Vincent Pelletier <plr.vincent@gmail.com>  Sun, 29 Jul 2012 11:59:42 +0200
+
+gqrx (2.1+gitit-93+git6f8b96b) unstable; urgency=low
+
+  * Drop write-only variables.
+
+ -- Vincent Pelletier <plr.vincent@gmail.com>  Sun, 29 Jul 2012 12:00:51 +0200
+
+gqrx (2.1+gitit-92+git8b2fc69) unstable; urgency=low
+
+  * Drop unused variables.
+
+ -- Vincent Pelletier <plr.vincent@gmail.com>  Sun, 29 Jul 2012 11:58:58 +0200
+
+gqrx (2.1+gitit-91+git15ee9f6) unstable; urgency=low
+
+  * Use retcode.
+
+ -- Vincent Pelletier <plr.vincent@gmail.com>  Sun, 29 Jul 2012 11:59:13 +0200
+
+gqrx (2.1+gitit-90+git19b656a) unstable; urgency=low
+
+  * Support horizontal dragging
+
+ -- Vincent Pelletier <plr.vincent@gmail.com>  Sat, 28 Jul 2012 08:45:20 +0200
+
+gqrx (2.1+gitit-89+git7d1bc21) unstable; urgency=low
+
+  * Make CENTER cursor capture consistent between move and press events.
+
+ -- Vincent Pelletier <plr.vincent@gmail.com>  Sat, 28 Jul 2012 08:55:32 +0200
+
+gqrx (2.1+gitit-88+git0740b83) unstable; urgency=low
+
+  * Implement centering on demodulator when zooming.
+
+ -- Vincent Pelletier <plr.vincent@gmail.com>  Tue, 24 Jul 2012 23:07:01 +0200
+
+gqrx (2.1+gitit-87+giteffa20e) unstable; urgency=low
+
+  * Add zoom support.
+
+ -- Vincent Pelletier <plr.vincent@gmail.com>  Sun, 22 Jul 2012 23:00:08 +0200
+
+gqrx (2.1+gitit-86+git5b96c80) unstable; urgency=low
+
+  * Add a label for squelsh slider.
+
+ -- Vincent Pelletier <plr.vincent@gmail.com>  Sun, 22 Jul 2012 23:36:08 +0200
+
+gqrx (2.1+gitit-85+git4d6d7b1) unstable; urgency=low
+
+  * Take m_FftCenter into account when drawing overlay.
+
+ -- Vincent Pelletier <plr.vincent@gmail.com>  Mon, 23 Jul 2012 00:26:47 +0200
+
+gqrx (2.1+gitit-84+gita613fed) unstable; urgency=low
+
+  * Remove explicit UHD and FCD dependencies.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 18 Jul 2012 16:49:30 +0200
+
+gqrx (2.1+gitit-90+gitc51f192) unstable; urgency=low
+
+  * Merge remote-tracking branch 'azorg/master' into stereo
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 15 Jul 2012 00:51:05 +0200
+
+gqrx (2.1+gitit-83+gitdeac546) unstable; urgency=low
+
+  * Send user filter settings to rxopt dock widget.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 13 Jul 2012 23:54:30 +0200
+
+gqrx (2.1+gitit-82+gitc7e1ba2) unstable; urgency=low
+
+  * Add 'User' entry to filter combo.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 13 Jul 2012 23:53:49 +0200
+
+gqrx (2.1+gitit-81+git4ab5ed8) unstable; urgency=low
+
+  * Fix filter shift direction.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 13 Jul 2012 23:20:09 +0200
+
+gqrx (2.1+gitit-80+gitf2fa5a3) unstable; urgency=low
+
+  * Fix compiler warnings.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 13 Jul 2012 22:52:48 +0200
+
+gqrx (2.1+gitit-79+git9c7fbf6) unstable; urgency=low
+
+  * Update comment.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 13 Jul 2012 22:51:33 +0200
+
+gqrx (2.1+gitit-78+git543197f) unstable; urgency=low
+
+  * Use modifier keys to adjust filter parameters.
+  *  
+  * CTRL+wheel adjusts filter width.
+  * ALT+wheel adjusts filter shift (useful for SSB/CW).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 13 Jul 2012 22:39:03 +0200
+
+gqrx (2.1+gitit-83+git5ac8131) unstable; urgency=low
+
+  * Fix my bug in 'dockrxopt.ui' (set modeSelector to 'FM-N' by default)
+
+ -- Alex Grinkov <a.grinkov@gmail.com>  Sat, 16 Jun 2012 02:21:33 +0400
+
+gqrx (2.1+gitit-82+git03c31d1) unstable; urgency=low
+
+  * Step #5: First FM stereo implementation works!
+
+ -- Alex Grinkov <a.grinkov@gmail.com>  Sat, 16 Jun 2012 02:09:01 +0400
+
+gqrx (2.1+gitit-81+gitf175c3b) unstable; urgency=low
+
+  * Step #4: add 'stereo_demod' block (empty yet) to 'wfmrx'
+
+ -- Alex Grinkov <a.grinkov@gmail.com>  Fri, 15 Jun 2012 18:36:33 +0400
+
+gqrx (2.1+gitit-80+gitd54e84e) unstable; urgency=low
+
+  * Step #3: add 'FM-Stereo' option to GUI
+
+ -- Alex Grinkov <a.grinkov@gmail.com>  Fri, 15 Jun 2012 00:37:29 +0400
+
+gqrx (2.1+gitit-79+gitc53a4f1) unstable; urgency=low
+
+  * Step #2: add 'd_channels' to 'receiver' class
+
+ -- Alex Grinkov <a.grinkov@gmail.com>  Thu, 14 Jun 2012 21:50:32 +0400
+
+gqrx (2.1+gitit-78+git5eab870) unstable; urgency=low
+
+  * Step #1: try stereo output in pulseaudio
+
+ -- Alex Grinkov <a.grinkov@gmail.com>  Thu, 14 Jun 2012 19:54:36 +0400
+
+gqrx (2.1+gitit-77+git3ba366d) unstable; urgency=low
+
+  * Update device string tooltip now that we know what works for USRPs.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 11 Jun 2012 23:36:15 +0200
+
+gqrx (2.1+gitit-76+git781b444) unstable; urgency=low
+
+  * Remove udev dependency.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 9 Jun 2012 21:01:01 +0200
+
+gqrx (2.1+gitit-75+git73bd37b) unstable; urgency=low
+
+  * Explicitly link to librt to avoid linking error on some systems.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 9 Jun 2012 20:54:08 +0200
+
+gqrx (2.1+gitit-74+gita72891b) unstable; urgency=low
+
+  * Use mode dependent click resolution on FFT graph.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 9 Jun 2012 00:52:05 +0200
+
+gqrx (2.1+gitit-73+git65ea261) unstable; urgency=low
+
+  * Add more info.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 8 Jun 2012 20:19:25 +0200
+
+gqrx (2.1+gitit-72+gite575309) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 8 Jun 2012 18:36:04 +0200
+
+gqrx (2.1+gitit-71+gitaee734b) unstable; urgency=low
+
+  * Fix comment.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 7 Jun 2012 00:21:59 +0200
+
+gqrx (2.1+gitit-70+git9e467ec) unstable; urgency=low
+
+  * Fix typo.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 6 Jun 2012 23:04:15 +0200
+
+gqrx (2.1+gitit-69+git99192d8) unstable; urgency=low
+
+  * Ensure RF frequency is set when hot-switching devices.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 6 Jun 2012 23:00:31 +0200
+
+gqrx (2.1+gitit-68+git5ea9aa2) unstable; urgency=low
+
+  * Store session parameters after reconf.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 6 Jun 2012 22:48:35 +0200
+
+gqrx (2.1+gitit-67+git846466c) unstable; urgency=low
+
+  * Add method to store session related parameters.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 6 Jun 2012 22:37:12 +0200
+
+gqrx (2.1+gitit-66+git2a4db7f) unstable; urgency=low
+
+  * Increase max audio gain to 50 dB.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 6 Jun 2012 22:18:01 +0200
+
+gqrx (2.1+gitit-65+git81512e7) unstable; urgency=low
+
+  * Increase preferred sample rate to 240k.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 6 Jun 2012 22:17:31 +0200
+
+gqrx (2.1+gitit-64+git6a056f6) unstable; urgency=low
+
+  * PFB resampler tweaks.
+  *  
+  * When resampling rate is less than 1, calculate cutoff and transition width
+  * according to resampling rate.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 6 Jun 2012 22:14:02 +0200
+
+gqrx (2.1+gitit-63+gitafd02e2) unstable; urgency=low
+
+  * Check that device gain meta range is not empty before using limits.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 5 Jun 2012 16:33:02 +0200
+
+gqrx (2.1+gitit-62+gita748db0) unstable; urgency=low
+
+  * Enable OK button if we have a valid device attached.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 5 Jun 2012 16:27:04 +0200
+
+gqrx (2.1+gitit-61+git7bf22e9) unstable; urgency=low
+
+  * Implement basic FM broadcasting support.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 5 Jun 2012 14:05:56 +0200
+
+gqrx (2.1+gitit-60+git02083ac) unstable; urgency=low
+
+  * Basic WFM receiver.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 5 Jun 2012 14:05:17 +0200
+
+gqrx (2.1+gitit-59+gitc77c393) unstable; urgency=low
+
+  * Correct audio resampling factror.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 5 Jun 2012 14:03:14 +0200
+
+gqrx (2.1+gitit-58+gitb26cd15) unstable; urgency=low
+
+  * Clean up includes.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 5 Jun 2012 13:15:10 +0200
+
+gqrx (2.1+gitit-57+git6c5090e) unstable; urgency=low
+
+  * Remove obsolete comment.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 5 Jun 2012 13:05:03 +0200
+
+gqrx (2.1+gitit-56+git9ba66e2) unstable; urgency=low
+
+  * Fix typos.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 5 Jun 2012 12:06:53 +0200
+
+gqrx (2.1+gitit-55+git198421f) unstable; urgency=low
+
+  * Basic support for spectrum analyzer mode where no DSP processing is done.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 5 Jun 2012 11:59:39 +0200
+
+gqrx (2.1+gitit-54+git9f1d7f3) unstable; urgency=low
+
+  * Adjust receiver backend for new operating mode mapping.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 5 Jun 2012 11:25:14 +0200
+
+gqrx (2.1+gitit-53+git6e8d773) unstable; urgency=low
+
+  * Enumerate mode selector options in GUI and prepare for RX off mode.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 5 Jun 2012 09:49:49 +0200
+
+gqrx (2.1+gitit-52+gita5d0a2b) unstable; urgency=low
+
+  * Switch to relative RF gain and add support for auto gain mode.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 3 Jun 2012 17:41:18 +0200
+
+gqrx (2.1+gitit-51+git633af61) unstable; urgency=low
+
+  * Update gain controls to generic input.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 3 Jun 2012 16:59:02 +0200
+
+gqrx (2.1+gitit-50+git63ebb7e) unstable; urgency=low
+
+  * Rename DockFcdCtl -> DockInputCtl.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 3 Jun 2012 15:46:44 +0200
+
+gqrx (2.1+gitit-49+gitd0f3ee2) unstable; urgency=low
+
+  * Allow other sample rates even when configuration specifies one.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 3 Jun 2012 15:26:42 +0200
+
+gqrx (2.1+gitit-48+git22f538e) unstable; urgency=low
+
+  * Use 0 as frequency correction default.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 3 Jun 2012 15:07:44 +0200
+
+gqrx (2.1+gitit-47+gitbd54d27) unstable; urgency=low
+
+  * Set initial frequency correction nad add some debug code.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 3 Jun 2012 15:05:29 +0200
+
+gqrx (2.1+gitit-46+gitf3b9a27) unstable; urgency=low
+
+  * Clamp filter limits while dragging mouse. Code cleanup.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 3 Jun 2012 00:19:38 +0200
+
+gqrx (2.1+gitit-45+git5d4fd91) unstable; urgency=low
+
+  * Fix some compiler warnings.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 2 Jun 2012 23:51:27 +0200
+
+gqrx (2.1+gitit-44+gitbd3e4af) unstable; urgency=low
+
+  * Update window title with current device label.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 2 Jun 2012 23:45:26 +0200
+
+gqrx (2.1+gitit-43+git035d6e4) unstable; urgency=low
+
+  * Fix a few compiler warnings.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 2 Jun 2012 15:08:56 +0200
+
+gqrx (2.1+gitit-42+gitad106f6) unstable; urgency=low
+
+  * Allow more sample rate options.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 2 Jun 2012 15:01:30 +0200
+
+gqrx (2.1+gitit-41+git3a4bc7a) unstable; urgency=low
+
+  * Fix the dumbest mistake of the year and add some debug.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 2 Jun 2012 14:35:00 +0200
+
+gqrx (2.1+gitit-40+gited23e96) unstable; urgency=low
+
+  * Select the first available device during first time config.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 2 Jun 2012 01:12:44 +0200
+
+gqrx (2.1+gitit-39+gitfddfc6b) unstable; urgency=low
+
+  * Minor debug formatting tweaks.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 2 Jun 2012 01:07:16 +0200
+
+gqrx (2.1+gitit-38+git9631298) unstable; urgency=low
+
+  * Update FFT plot and waterfall when sample rate changes.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 2 Jun 2012 00:55:27 +0200
+
+gqrx (2.1+gitit-37+gita5bd9b5) unstable; urgency=low
+
+  * Redraw overlay when smaple rate changes.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 2 Jun 2012 00:55:02 +0200
+
+gqrx (2.1+gitit-36+gite01af05) unstable; urgency=low
+
+  * Implement variable filter offset range.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 1 Jun 2012 22:43:14 +0200
+
+gqrx (2.1+gitit-35+git6317aff) unstable; urgency=low
+
+  * Fix compiler warnings.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 1 Jun 2012 22:24:58 +0200
+
+gqrx (2.1+gitit-34+gitd004a1b) unstable; urgency=low
+
+  * Use doubles for sample rates and rename d_bandwidth to d_input_rate.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 1 Jun 2012 22:22:18 +0200
+
+gqrx (2.1+gitit-33+git2def185) unstable; urgency=low
+
+  * Enable variable quadrature rate in receiver chain (GUI still TBD).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 1 Jun 2012 22:16:07 +0200
+
+gqrx (2.1+gitit-32+git5ca4124) unstable; urgency=low
+
+  * Replace built-in FCD source with gr-osmosdr source.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 1 Jun 2012 20:58:14 +0200
+
+gqrx (2.1+gitit-31+git8d1e175) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 1 Jun 2012 17:55:20 +0200
+
+gqrx (2.1+gitit-30+gitdcd3450) unstable; urgency=low
+
+  * Work on initial configuration mechanism.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 1 Jun 2012 17:55:01 +0200
+
+gqrx (2.1+gitit-29+git2982a85) unstable; urgency=low
+
+  * Store input device settings.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 1 Jun 2012 14:24:58 +0200
+
+gqrx (2.1+gitit-28+git85b05cd) unstable; urgency=low
+
+  * List avaialble devices in combo box plus some work on sample rates.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 31 May 2012 00:32:31 +0200
+
+gqrx (2.1+gitit-27+git23f581a) unstable; urgency=low
+
+  * Update input device configuration widgets to fit with autodetection API.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 31 May 2012 00:29:47 +0200
+
+gqrx (2.1+gitit-26+git983b57a) unstable; urgency=low
+
+  * Fetch list of available input devices.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 29 May 2012 00:35:49 +0200
+
+gqrx (2.1+gitit-25+gitc28473c) unstable; urgency=low
+
+  * Update HID API and switch to using the hidraw driver.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 28 May 2012 13:55:26 +0200
+
+gqrx (2.1+gitit-24+git76dfd73) unstable; urgency=low
+
+  * Updated to ignore build files during in-tree builds.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 28 May 2012 13:41:54 +0200
+
+gqrx (2.1+gitit-23+gitad0abd0) unstable; urgency=low
+
+  * Include qmake generated Makefile.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 28 May 2012 13:44:32 +0200
+
+gqrx (2.1+gitit-22+git200cbd9) unstable; urgency=low
+
+  * FIXME: Store and use output device settings.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 20 May 2012 00:29:43 +0200
+
+gqrx (2.1+gitit-21+git460863c) unstable; urgency=low
+
+  * Remove obsolete PNG files.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 20 May 2012 00:26:30 +0200
+
+gqrx (2.1+gitit-20+giteaad74d) unstable; urgency=low
+
+  * New application icon.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 20 May 2012 00:25:26 +0200
+
+gqrx (2.1+gitit-19+git5be10b6) unstable; urgency=low
+
+  * Re-enable I/O device configurator.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 19 May 2012 00:01:07 +0200
+
+gqrx (2.1+gitit-18+git6e6f6be) unstable; urgency=low
+
+  * Updates for gr-osmosdr (incomplete).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 19 May 2012 00:00:39 +0200
+
+gqrx (2.1+gitit-17+gitdd7a66b) unstable; urgency=low
+
+  * Pull in gnuradio-osmosdr as dependency.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 18 May 2012 13:27:00 +0200
+
+gqrx (2.1+gitit-16+git41768b8) unstable; urgency=low
+
+  * Move application specific files into their own directory.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 17 May 2012 22:22:54 +0200
+
+gqrx (2.1+gitit-15+gitb3af721) unstable; urgency=low
+
+  * Move input sources out of DSP module.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 12 May 2012 15:47:27 +0200
+
+gqrx (2.1+gitit-14+gitacbae9f) unstable; urgency=low
+
+  * Rearrange files according to which module they belong.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 14 May 2012 23:05:17 +0200
+
+gqrx (2.1+gitit-13+gita4fc20f) unstable; urgency=low
+
+  * Correct resampling rate for sniffer.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 13 May 2012 16:39:15 +0200
+
+gqrx (2.1+gitit-12+git1697088) unstable; urgency=low
+
+  * Use correct (?) Fs when generating taps.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 13 May 2012 16:22:45 +0200
+
+gqrx (2.1+gitit-11+git2d17779) unstable; urgency=low
+
+  * Check filter parameters according to sample rate.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 13 May 2012 12:45:21 +0200
+
+gqrx (2.1+gitit-10+gitcb89e90) unstable; urgency=low
+
+  * Switch to new nbrx hier block.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 13 May 2012 10:14:53 +0200
+
+gqrx (2.1+gitit-9+git1452438) unstable; urgency=low
+
+  * Narrow band analog receiver hier block.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 13 May 2012 10:14:19 +0200
+
+gqrx (2.1+gitit-8+git2303106) unstable; urgency=low
+
+  * Avoid name conflict with new resampler_ff.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 13 May 2012 10:08:15 +0200
+
+gqrx (2.1+gitit-7+git5135c74) unstable; urgency=low
+
+  * Correct sideband handling when not using translation.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 13 May 2012 10:03:04 +0200
+
+gqrx (2.1+gitit-6+gitad21a22) unstable; urgency=low
+
+  * New complex to complex polyphase resampler.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 13 May 2012 02:01:09 +0200
+
+gqrx (2.1+gitit-5+git7db3698) unstable; urgency=low
+
+  * Some methods should be optional.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 13 May 2012 01:59:21 +0200
+
+gqrx (2.1+gitit-4+git9504a87) unstable; urgency=low
+
+  * Remove functions that we may not need.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 12 May 2012 23:59:37 +0200
+
+gqrx (2.1+gitit-3+git9243fa5) unstable; urgency=low
+
+  * Add complex bandpass filter without frequency translation.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 12 May 2012 22:13:17 +0200
+
+gqrx (2.1+gitit-2+gitbb3d707) unstable; urgency=low
+
+  * Base class for receivers.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 12 May 2012 21:31:45 +0200
+
+gqrx (2.1+gitit-1+git9101630) unstable; urgency=low
+
+  * Patch from superkuh fixing compatibility with Qt 4.6
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 12 May 2012 16:09:23 +0200
+
+gqrx (2.1+gitit) unstable; urgency=low
+
+  * Continue with 2.1
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 12 May 2012 00:05:31 +0200
+
+gqrx (1.9-354+gita6d6e2a) unstable; urgency=low
+
+  * Merge branch 'multiconf'
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 11 May 2012 23:42:52 +0200
+
+gqrx (1.9-352+git7ff78fe) unstable; urgency=low
+
+  * Getting ready for branching.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 11 May 2012 23:42:38 +0200
+
+gqrx (1.9-352+git48e6408) unstable; urgency=low
+
+  * Impplement saving and loading configuration.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 11 May 2012 23:22:53 +0200
+
+gqrx (1.9-351+gitcb6cf11) unstable; urgency=low
+
+  * Basic session management.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 11 May 2012 22:19:41 +0200
+
+gqrx (1.9-350+git4d5127c) unstable; urgency=low
+
+  * Accessors for LNB LO.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 11 May 2012 20:48:16 +0200
+
+gqrx (1.9-349+git068795e) unstable; urgency=low
+
+  * Basic configuration infrastructure.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 11 May 2012 19:50:39 +0200
+
+gqrx (1.9-348+git20ef7ba) unstable; urgency=low
+
+  * Flush audio output buffer every 5 minutes until we implement soundcard calibration.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 9 May 2012 22:15:26 +0200
+
+gqrx (1.9-347+gitddac48f) unstable; urgency=low
+
+  * Change default FM de-emphasis time constant to 75us.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 6 May 2012 23:21:31 +0200
+
+gqrx (1.9-346+gitd2be49a) unstable; urgency=low
+
+  * Apply I/Q phase and gain correction.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 6 May 2012 22:17:09 +0200
+
+gqrx (1.9-345+gita20c6c3) unstable; urgency=low
+
+  * Apply frequency correction.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 6 May 2012 15:59:48 +0200
+
+gqrx (1.9-344+git1947529) unstable; urgency=low
+
+  * Fine tune audio FFT.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 5 May 2012 16:17:30 +0200
+
+gqrx (1.9-343+git76c0e45) unstable; urgency=low
+
+  * Adjust latency for pa_sink.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 5 May 2012 01:01:22 +0200
+
+gqrx (1.9-342+git505a97c) unstable; urgency=low
+
+  * Remove unused widgets from FCD control.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 5 May 2012 00:12:48 +0200
+
+gqrx (1.9-341+git9d3bd52) unstable; urgency=low
+
+  * Reduce audio FFT rate to 8 fps.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 4 May 2012 23:30:02 +0200
+
+gqrx (1.9-340+gita402b01) unstable; urgency=low
+
+  * Collect all on_action slots in one place.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 4 May 2012 23:29:40 +0200
+
+gqrx (1.9-339+git12602e6) unstable; urgency=low
+
+  * Reduce spacings in main window and hide status bar whihile in full screen mode.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 4 May 2012 23:20:35 +0200
+
+gqrx (1.9-338+git85abcb1) unstable; urgency=low
+
+  * Full screen mode for the main window.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 4 May 2012 23:10:12 +0200
+
+gqrx (1.9-337+gitdfddde8) unstable; urgency=low
+
+  * Leave more room for audio FFT plot.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 4 May 2012 22:35:08 +0200
+
+gqrx (1.9-336+git13c4a3a) unstable; urgency=low
+
+  * Decrease lower squelch boundary.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 4 May 2012 21:55:48 +0200
+
+gqrx (1.9-335+gitc2e8d73) unstable; urgency=low
+
+  * Set audio FFT span according to demodulator mode.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 4 May 2012 21:47:19 +0200
+
+gqrx (1.9-334+git5ad926b) unstable; urgency=low
+
+  * Increase FFT size to 4096.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 4 May 2012 21:46:29 +0200
+
+gqrx (1.9-333+gitf7acf65) unstable; urgency=low
+
+  * Remove obsolete sideband selection code.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 4 May 2012 21:16:39 +0200
+
+gqrx (1.9-332+git1566b77) unstable; urgency=low
+
+  * Updated parameters.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 4 May 2012 21:03:09 +0200
+
+gqrx (1.9-331+git21480e5) unstable; urgency=low
+
+  * Increase audio FFT size to double (using complex FFT now).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 4 May 2012 21:02:16 +0200
+
+gqrx (1.9-330+git7b76a1e) unstable; urgency=low
+
+  * Remove dead code.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 4 May 2012 21:01:20 +0200
+
+gqrx (1.9-329+git0ae8712) unstable; urgency=low
+
+  * Check that pixmaps have on-zero sizes before attempting to create a QPainter.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 4 May 2012 20:40:44 +0200
+
+gqrx (1.9-328+git3eb395f) unstable; urgency=low
+
+  * Implement shifting of FFT center.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 4 May 2012 19:38:37 +0200
+
+gqrx (1.9-327+git1205489) unstable; urgency=low
+
+  * First functional audio FFT (including complex mirror).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 4 May 2012 16:06:55 +0200
+
+gqrx (1.9-326+git173881e) unstable; urgency=low
+
+  * Switch to use complex FFT even for audio FFT.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 4 May 2012 00:34:30 +0200
+
+gqrx (1.9-325+git8a6b343) unstable; urgency=low
+
+  * Rename fft to iq_fft to help distinguish it from audio fft.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 2 May 2012 23:28:37 +0200
+
+gqrx (1.9-324+gitfca688c) unstable; urgency=low
+
+  * Add audio FFT block to receiver chain.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 2 May 2012 23:25:12 +0200
+
+gqrx (1.9-323+git89a9505) unstable; urgency=low
+
+  * Misc fixes.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 1 May 2012 23:39:55 +0200
+
+gqrx (1.9-322+git38f422c) unstable; urgency=low
+
+  * Implement real forward FFT for audio spectrum (untested).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 1 May 2012 20:57:00 +0200
+
+gqrx (1.9-321+gitb6c3113) unstable; urgency=low
+
+  * Eliminate unused parameter.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 1 May 2012 20:09:32 +0200
+
+gqrx (1.9-320+git8acb7b7) unstable; urgency=low
+
+  * Customize audio FFT using newly available handles.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 1 May 2012 00:15:12 +0200
+
+gqrx (1.9-319+git4c239de) unstable; urgency=low
+
+  * Add handle foir setting sample rate.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 1 May 2012 00:05:08 +0200
+
+gqrx (1.9-318+git33a830d) unstable; urgency=low
+
+  * Add handle for setting number of decimal digits in frequency strings.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 30 Apr 2012 22:58:49 +0200
+
+gqrx (1.9-317+gitcb7d0b5) unstable; urgency=low
+
+  * Add more handles for customizing FFT plot.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 30 Apr 2012 22:51:34 +0200
+
+gqrx (1.9-316+git040d773) unstable; urgency=low
+
+  * Insert audio spectrum plot (non-functional and needs a lot of work).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 29 Apr 2012 17:51:37 +0200
+
+gqrx (1.9-315+git958aa28) unstable; urgency=low
+
+  * Complete integration of noise blanker.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 28 Apr 2012 17:58:39 +0200
+
+gqrx (1.9-314+git2e76f26) unstable; urgency=low
+
+  * Insert noise blanker block and move I/Q recorder ahead of any correction or filtering.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 28 Apr 2012 17:58:09 +0200
+
+gqrx (1.9-313+gitfca0a99) unstable; urgency=low
+
+  * Separate thresholds for NB1 and NB2.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 28 Apr 2012 17:56:49 +0200
+
+gqrx (1.9-312+git4c14735) unstable; urgency=low
+
+  * Add getters for NB status.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 28 Apr 2012 17:55:18 +0200
+
+gqrx (1.9-311+gitfeb0c74) unstable; urgency=low
+
+  * Fix doxygen tags.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 28 Apr 2012 15:23:49 +0200
+
+gqrx (1.9-310+gitb740e14) unstable; urgency=low
+
+  * Use correct include convention.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 28 Apr 2012 15:20:41 +0200
+
+gqrx (1.9-309+gitc630210) unstable; urgency=low
+
+  * First functional port of DTTSP noise blanker.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 28 Apr 2012 15:18:33 +0200
+
+gqrx (1.9-308+gitaea5636) unstable; urgency=low
+
+  * Noise blanker block skeleton.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 28 Apr 2012 00:37:38 +0200
+
+gqrx (1.9-307+git044aa6f) unstable; urgency=low
+
+  * GUI interface and functions for noise blanker.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 27 Apr 2012 00:59:30 +0200
+
+gqrx (1.9-306+git96711d6) unstable; urgency=low
+
+  * Update README with info about GNU Radio packages for Debian.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 26 Apr 2012 01:08:36 +0200
+
+gqrx (1.9-305+git3a1f7c3) unstable; urgency=low
+
+  * Revert FFT/WF distribution labels (again).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 26 Apr 2012 00:23:53 +0200
+
+gqrx (1.9-304+gitbdd231f) unstable; urgency=low
+
+  * Include Funcube Dongle in window title.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 25 Apr 2012 22:20:54 +0200
+
+gqrx (1.9-303+git4ff6a53) unstable; urgency=low
+
+  * Check that Funcube Dongle is present when application is started.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 25 Apr 2012 22:16:32 +0200
+
+gqrx (1.9-302+git2794e91) unstable; urgency=low
+
+  * Work shouldn't be virtual here.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 25 Apr 2012 21:52:01 +0200
+
+gqrx (1.9-301+gite6e385f) unstable; urgency=low
+
+  * Updated application icon.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 24 Apr 2012 23:44:03 +0200
+
+gqrx (1.9-300+gitbc56c03) unstable; urgency=low
+
+  * Update about box and link to group page.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 24 Apr 2012 23:27:12 +0200
+
+gqrx (1.9-299+gitc51daf6) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 24 Apr 2012 22:08:12 +0200
+
+gqrx (1.9-298+git194274d) unstable; urgency=low
+
+  * Add new icon.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 23 Apr 2012 23:53:40 +0200
+
+gqrx (1.9-297+git04a3949) unstable; urgency=low
+
+  * Implement LNB LO.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 23 Apr 2012 23:05:21 +0200
+
+gqrx (1.9-296+gitc57c6fa) unstable; urgency=low
+
+  * Use moving average on rising signal too, but with lower time constant.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 22 Apr 2012 16:29:17 +0200
+
+gqrx (1.9-295+git156be2d) unstable; urgency=low
+
+  * Use the same FFT size in UI as in code.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 22 Apr 2012 16:20:52 +0200
+
+gqrx (1.9-294+git942b0b9) unstable; urgency=low
+
+  * Remove obsolete code.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 22 Apr 2012 16:17:45 +0200
+
+gqrx (1.9-293+git54a453d) unstable; urgency=low
+
+  * Add support to MIN, MAX, SAMPLE, RMS and AVG type detectors.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 22 Apr 2012 16:16:16 +0200
+
+gqrx (1.9-292+git0788e6c) unstable; urgency=low
+
+  * Remove obsolete FFT-scaling widgets.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 22 Apr 2012 13:57:11 +0200
+
+gqrx (1.9-291+gitcd310a9) unstable; urgency=low
+
+  * Remove Ymin and Ymax from FFT settings window.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 21 Apr 2012 23:59:38 +0200
+
+gqrx (1.9-290+gitd45b044) unstable; urgency=low
+
+  * Merge branch 'zoom'
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 21 Apr 2012 23:42:44 +0200
+
+gqrx (1.9-273+gite9eeaf8) unstable; urgency=low
+
+  * Don't start audio recording unless receiver is running.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 21 Apr 2012 23:38:47 +0200
+
+gqrx (1.9-272+git352c214) unstable; urgency=low
+
+  * Stop flow graph while reconfiguring for audio playback.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 21 Apr 2012 22:17:37 +0200
+
+gqrx (1.9-271+git1224f4c) unstable; urgency=low
+
+  * Re-enable FM deemphasis and deviation settings.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 19 Apr 2012 23:21:51 +0200
+
+gqrx (1.9-285+git3cc7c92) unstable; urgency=low
+
+  * Update drag-cursor when mouse is released.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 16 Apr 2012 00:12:33 +0200
+
+gqrx (1.9-284+git0b9656a) unstable; urgency=low
+
+  * Distribute zoom values uniformly since we now can drag the Y axis.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 16 Apr 2012 00:04:14 +0200
+
+gqrx (1.9-283+git58669a3) unstable; urgency=low
+
+  * Implement dragging the Y-axis.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 16 Apr 2012 00:01:41 +0200
+
+gqrx (1.9-282+gitedafcb2) unstable; urgency=low
+
+  * First functional zoom on the Y axis.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 15 Apr 2012 23:15:02 +0200
+
+gqrx (1.9-281+git2a592de) unstable; urgency=low
+
+  * Remove unnecessary calculations.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 15 Apr 2012 22:23:07 +0200
+
+gqrx (1.9-280+git7937040) unstable; urgency=low
+
+  * Add methods for setting min/max of the dB scale.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 15 Apr 2012 22:17:19 +0200
+
+gqrx (1.9-279+git43528ce) unstable; urgency=low
+
+  * non-functional zoom (need to sync computers).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 14 Apr 2012 14:58:24 +0200
+
+gqrx (1.9-278+gitf704368) unstable; urgency=low
+
+  * Get rid of frequency inversion.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 14 Apr 2012 13:51:27 +0200
+
+gqrx (1.9-277+git46f4f14) unstable; urgency=low
+
+  * m_VertDivs -> m_VerDivs
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 13 Apr 2012 03:27:52 +0200
+
+gqrx (1.9-276+git041329b) unstable; urgency=low
+
+  * Use Unix EOL.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 13 Apr 2012 03:23:07 +0200
+
+gqrx (1.9-275+git050a5bc) unstable; urgency=low
+
+  * Fix missing X-axis labels and clean up some unused code.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 13 Apr 2012 03:21:56 +0200
+
+gqrx (1.9-274+git7d5bf94) unstable; urgency=low
+
+  * More efficient logic.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 12 Apr 2012 23:47:25 +0200
+
+gqrx (1.9-273+git5f755bb) unstable; urgency=low
+
+  * Also fix FFT scaling for the three other cases.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 12 Apr 2012 23:45:49 +0200
+
+gqrx (1.9-272+git96418ac) unstable; urgency=low
+
+  * Automatically adjust number of vertical divisions according to window size (seems to break HDIVS).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 12 Apr 2012 23:37:01 +0200
+
+gqrx (1.9-270+git97e2ffc) unstable; urgency=low
+
+  * Cleanup.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 12 Apr 2012 18:48:47 +0200
+
+gqrx (1.9-271+git07fd3ee) unstable; urgency=low
+
+  * Cleanup.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 12 Apr 2012 18:48:47 +0200
+
+gqrx (1.9-270+git8c68ffd) unstable; urgency=low
+
+  * Implement mouse wheel event for Y-axis.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 12 Apr 2012 18:27:34 +0200
+
+gqrx (1.9-269+git79dfa97) unstable; urgency=low
+
+  * Move demodulator options to sepearate dialog window.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 8 Apr 2012 16:28:56 +0200
+
+gqrx (1.9-268+git014b4c1) unstable; urgency=low
+
+  * Implement new filter and demodulator presets.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 8 Apr 2012 14:47:45 +0200
+
+gqrx (1.9-267+gitbd52c03) unstable; urgency=low
+
+  * Add placeholder for DEMOD_NONE (raw i/q).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 8 Apr 2012 14:45:39 +0200
+
+gqrx (1.9-266+git26a43cc) unstable; urgency=low
+
+  * Start rearranging basic receiver controls (not final).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 8 Apr 2012 01:05:08 +0200
+
+gqrx (1.9-265+git5d51ef1) unstable; urgency=low
+
+  * Only allow symetric adjustment in AM and FM modes.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 8 Apr 2012 00:58:05 +0200
+
+gqrx (1.9-264+git69c4429) unstable; urgency=low
+
+  * Speed improvements in overlay redraw. Use right mouse button for asymetric filter tuning.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 8 Apr 2012 00:29:25 +0200
+
+gqrx (1.9-263+git54debd1) unstable; urgency=low
+
+  * Remove superfluous dBFS label.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 4 Apr 2012 13:22:48 +0200
+
+gqrx (1.9-262+gite39e072) unstable; urgency=low
+
+  * Move receive frequency label to RxOpt dock window.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 4 Apr 2012 13:17:00 +0200
+
+gqrx (1.9-261+git96a9963) unstable; urgency=low
+
+  * Temporarely disable configuration.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 4 Apr 2012 12:02:14 +0200
+
+gqrx (1.9-260+git37d788c) unstable; urgency=low
+
+  * Better tooltips.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 2 Apr 2012 22:03:18 +0200
+
+gqrx (1.9-259+git79d971b) unstable; urgency=low
+
+  * Include a default device in the output list.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 31 Mar 2012 23:16:35 +0200
+
+gqrx (1.9-258+git19a1c37) unstable; urgency=low
+
+  * Updated readme file.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 31 Mar 2012 23:14:30 +0200
+
+gqrx (1.9-257+git0c2c4c7) unstable; urgency=low
+
+  * New layout for I/O device selector.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 31 Mar 2012 23:11:14 +0200
+
+gqrx (1.9-256+git1abb8a3) unstable; urgency=low
+
+  * Don't use float for RF frequency.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 3 Mar 2012 15:21:05 +0100
+
+gqrx (1.9-255+git99d2b9c) unstable; urgency=low
+
+  * Update README to be in line with pulseadio branch.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 2 Mar 2012 00:17:06 +0100
+
+gqrx (1.9-254+git7fd63de) unstable; urgency=low
+
+  * Disable and remove functions that will not be available for the first release.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 1 Mar 2012 22:32:35 +0100
+
+gqrx (1.9-253+gitbc57a4f) unstable; urgency=low
+
+  * Re-implement and use FCD device detection for pulseaudio source.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 26 Feb 2012 01:14:23 +0100
+
+gqrx (1.9-252+git0a783ff) unstable; urgency=low
+
+  * Embedded funcube dongle control interface. Eliminates gr-fcd dependency.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 25 Feb 2012 00:00:00 +0100
+
+gqrx (1.9-251+git8414dbe) unstable; urgency=low
+
+  * Modify gqrx fcd source to use pulseaudio.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 23 Feb 2012 21:55:43 +0100
+
+gqrx (1.9-250+git3c78e94) unstable; urgency=low
+
+  * Configure buffer attributes for low latency and smooth streaming.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 20 Feb 2012 21:41:42 +0100
+
+gqrx (1.9-249+gitc6d375a) unstable; urgency=low
+
+  * Integrate pa_source into receiver.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 19 Feb 2012 18:25:30 +0100
+
+gqrx (1.9-248+git2e00199) unstable; urgency=low
+
+  * Complete pa_source::work (preliminary).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 19 Feb 2012 18:25:01 +0100
+
+gqrx (1.9-247+git6fbb421) unstable; urgency=low
+
+  * Indent.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 18 Feb 2012 23:37:08 +0100
+
+gqrx (1.9-246+git21d4809) unstable; urgency=low
+
+  * Only support 2 channels for now.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 13 Feb 2012 22:24:10 +0100
+
+gqrx (1.9-245+git4d0a346) unstable; urgency=low
+
+  * Enable pulseaudio sink.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 11 Feb 2012 01:00:40 +0100
+
+gqrx (1.9-244+gitaa343fe) unstable; urgency=low
+
+  * Merge branch 'master' into pulseaudio
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 8 Feb 2012 22:45:09 +0100
+
+gqrx (1.9-237+git763ed12) unstable; urgency=low
+
+  * Remove debug code that is no longer needed.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 8 Feb 2012 22:03:18 +0100
+
+gqrx (1.9-236+git5838f05) unstable; urgency=low
+
+  * Merge branch 'master' of github.com:csete/gqrx
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 8 Feb 2012 20:45:56 +0100
+
+gqrx (1.9-234+git8677f4f) unstable; urgency=low
+
+  * Issue #37: Initialise local floats to avoid NaN cases.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 8 Feb 2012 20:43:38 +0100
+
+gqrx (1.9-234+git00e171b) unstable; urgency=low
+
+  * Issue 37: Initialise local floats to avoid NaN cases.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 8 Feb 2012 20:43:38 +0100
+
+gqrx (1.9-233+git31cb610) unstable; urgency=low
+
+  * Use lower time constant for I/Q auto-correction.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 7 Feb 2012 22:18:55 +0100
+
+gqrx (1.9-232+git8c5fa2b) unstable; urgency=low
+
+  * Add debug code to catch NaN issues in I/Q balancing code.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 7 Feb 2012 22:14:07 +0100
+
+gqrx (1.9-237+git7761e66) unstable; urgency=low
+
+  * Merge branch 'master' into pulseaudio
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 6 Feb 2012 21:32:08 +0100
+
+gqrx (1.9-231+git5152e47) unstable; urgency=low
+
+  * Issue #36: Do not record I/Q and audio data to /tmp
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 6 Feb 2012 21:30:56 +0100
+
+gqrx (1.9-235+git7ce3d41) unstable; urgency=low
+
+  * Merge branch 'master' into pulseaudio
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 1 Feb 2012 22:08:22 +0100
+
+gqrx (1.9-230+git80ed78c) unstable; urgency=low
+
+  * Merge pull request #35 from jrcutler/master
+  *  
+  * Implemented FCD frequency correction
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 1 Feb 2012 13:01:21 -0800
+
+gqrx (1.9-229+git6180f8b) unstable; urgency=low
+
+  * Implemented FCD frequency offset functionality (with re-tune on change).
+
+ -- Justin R. Cutler <justin.r.cutler@gmail.com>  Wed, 1 Feb 2012 14:54:10 -0500
+
+gqrx (1.9-232+git9f26388) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 29 Jan 2012 16:06:30 +0100
+
+gqrx (1.9-231+git5cb3649) unstable; urgency=low
+
+  * Re-add pulseaudio source.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 29 Jan 2012 16:06:17 +0100
+
+gqrx (1.9-230+git41589ee) unstable; urgency=low
+
+  * Re-add pulseaudio sink.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 29 Jan 2012 16:06:01 +0100
+
+gqrx (1.9-229+git63722a1) unstable; urgency=low
+
+  * Support classes for selecting pulseaudio devices.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 29 Jan 2012 14:02:51 +0100
+
+gqrx (1.9-228+gitcfad8ec) unstable; urgency=low
+
+  * Only use .cpp suffix.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 13 Jan 2012 21:56:01 +0100
+
+gqrx (1.9-227+gitec7ad90) unstable; urgency=low
+
+  * Add interaction between filter offset selector, FFT plot and receiver.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 12 Jan 2012 23:28:15 +0100
+
+gqrx (1.9-226+git0d4bfac) unstable; urgency=low
+
+  * Add API function for setting channel filter offset without knowing the RF frequency.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 12 Jan 2012 22:52:23 +0100
+
+gqrx (1.9-225+git8ca9c94) unstable; urgency=low
+
+  * Remove unnecessary debug code.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 11 Jan 2012 22:47:59 +0100
+
+gqrx (1.9-224+git2ede8f6) unstable; urgency=low
+
+  * Extend filter range to +/- 45 kHz.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 11 Jan 2012 22:44:08 +0100
+
+gqrx (1.9-223+git880340d) unstable; urgency=low
+
+  * Fix problems with negative frequencies.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 11 Jan 2012 22:43:18 +0100
+
+gqrx (1.9-222+git041f0a9) unstable; urgency=low
+
+  * Coding style clean-up.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 11 Jan 2012 21:09:00 +0100
+
+gqrx (1.9-221+gitfb03ed6) unstable; urgency=low
+
+  * version
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 11 Jan 2012 20:46:18 +0100
+
+gqrx (1.9-220+git42cec6b) unstable; urgency=low
+
+  * Add widget for controlling filter offset (tuning within bw).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 9 Jan 2012 23:21:15 +0100
+
+gqrx (1.9-219+git0066b17) unstable; urgency=low
+
+  * Automatic DC error correction.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 8 Jan 2012 01:08:11 +0100
+
+gqrx (1.9-218+gitea25be9) unstable; urgency=low
+
+  * -rpath should only be used when building release binaries.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 7 Jan 2012 16:18:52 +0100
+
+gqrx (1.9-217+git37b19e6) unstable; urgency=low
+
+  * Disable BPSK1000 menu entry.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 29 Dec 2011 20:17:04 +0100
+
+gqrx (1.9-216+git71ffa11) unstable; urgency=low
+
+  * Add error checking and fix comment.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 26 Nov 2011 11:28:44 +0100
+
+gqrx (1.9-215+git0e6c453) unstable; urgency=low
+
+  * Automatic detection of FCD device name from /proc/asound/cards
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 20 Nov 2011 23:58:54 +0100
+
+gqrx (1.9-214+git2f81522) unstable; urgency=low
+
+  * Use unix instead of linux-g++ (the latter no longer seems to work).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 7 Nov 2011 23:28:32 +0100
+
+gqrx (1.9-213+gite0926bb) unstable; urgency=low
+
+  * Ignore all .pro.user files.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 7 Nov 2011 23:27:38 +0100
+
+gqrx (1.9-212+git18c4091) unstable; urgency=low
+
+  * Nicer graphics and better dynamics for SSI. Closes issue #9 and #10.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 25 Sep 2011 00:51:13 +0200
+
+gqrx (1.9-211+gitbe6021e) unstable; urgency=low
+
+  * Indent.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 25 Sep 2011 00:00:26 +0200
+
+gqrx (1.9-210+git31a65a4) unstable; urgency=low
+
+  * Issue #27: Implement AGC controls in the GUI.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 24 Sep 2011 23:44:19 +0200
+
+gqrx (1.9-209+git4404a9b) unstable; urgency=low
+
+  * Minor cosmetic fixes.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 24 Sep 2011 23:43:36 +0200
+
+gqrx (1.9-208+git4ba19fb) unstable; urgency=low
+
+  * Issue #27: Fix error in calculation of fixed gain.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 24 Sep 2011 22:48:26 +0200
+
+gqrx (1.9-207+git0bfc988) unstable; urgency=low
+
+  * Issue #27: Adjust default AGC values.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 24 Sep 2011 22:06:12 +0200
+
+gqrx (1.9-206+git0261ec3) unstable; urgency=low
+
+  * Issue #27: Add AGC API to receiver. Remove baseband gain since it is now included in the AGC block.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 24 Sep 2011 19:06:50 +0200
+
+gqrx (1.9-205+gitf0580ea) unstable; urgency=low
+
+  * Issue #27: Check for correct range when setting new slope and hang.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 24 Sep 2011 18:42:33 +0200
+
+gqrx (1.9-204+git74ba274) unstable; urgency=low
+
+  * Issue #27: Implement new (and awesome) AGC block.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 24 Sep 2011 18:06:43 +0200
+
+gqrx (1.9-203+git64ac00d) unstable; urgency=low
+
+  * Updated GNU Radio version to 3.4.0
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 24 Sep 2011 14:31:20 +0200
+
+gqrx (1.9-202+git8891d68) unstable; urgency=low
+
+  * Implement device selection in FCD source.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 24 Sep 2011 14:12:51 +0200
+
+gqrx (1.9-201+gitca63476) unstable; urgency=low
+
+  * Merge branch 'master' of github.com:csete/gqrx
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 24 Sep 2011 14:02:31 +0200
+
+gqrx (1.9-199+gitf4566f8) unstable; urgency=low
+
+  * Issue #32: Created base class for input sources. Changed FCD source to use new API.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 24 Sep 2011 14:01:05 +0200
+
+gqrx (1.9-199+gitec82869) unstable; urgency=low
+
+  * Issue #32: Created base class for input sources. Changed FCD source tro use new API.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 24 Sep 2011 14:01:05 +0200
+
+gqrx (1.9-198+git8249ba5) unstable; urgency=low
+
+  * Use 4096 point FFT by default.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 22 Sep 2011 22:03:47 +0200
+
+gqrx (1.9-197+gitea4a067) unstable; urgency=low
+
+  * Patches to make the MacPorts qmake go smoother.
+
+ -- Michael Zappe <zapman@gmail.com>  Sat, 3 Sep 2011 13:11:55 +0200
+
+gqrx (1.9-196+gitc36a2df) unstable; urgency=low
+
+  * Add more de-emphasis time constants.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 1 Sep 2011 22:57:58 +0200
+
+gqrx (1.9-195+gite744a53) unstable; urgency=low
+
+  * Issue #20: Show received frames statistics.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 23 Aug 2011 20:51:56 +0200
+
+gqrx (1.9-194+gitf0cd8e5) unstable; urgency=low
+
+  * Issue #20: Work on BPSK1000 demodulator and ARISSat-1 decoder.
+  *  
+  * Explicitly set carrier search center and range for demod2.
+  * Strip first two bytes (data length) of all received frames.
+  * Read stderr output of demod2.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 23 Aug 2011 19:43:20 +0200
+
+gqrx (1.9-193+git5bf9509) unstable; urgency=low
+
+  * Issue #20: All high level telemetry fields are now extracted and shown. PSU and IHU debug data still TBD.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 21 Aug 2011 16:53:35 +0200
+
+gqrx (1.9-192+git819ac80) unstable; urgency=low
+
+  * Issue #20: Battery and power consumption telemetry.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 21 Aug 2011 03:34:07 +0200
+
+gqrx (1.9-191+git57d0459) unstable; urgency=low
+
+  * Issue #20: More fixes to Arisat headers.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 21 Aug 2011 03:33:07 +0200
+
+gqrx (1.9-190+git0f6965c) unstable; urgency=low
+
+  * Issue #20: ARISSat telemetry decoder concept.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 20 Aug 2011 19:08:33 +0200
+
+gqrx (1.9-189+gitbaec301) unstable; urgency=low
+
+  * Issue #20: Fix Arissat TLM headers so that they work on Linux too.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 20 Aug 2011 19:07:17 +0200
+
+gqrx (1.9-188+gitc3b9e35) unstable; urgency=low
+
+  * Issue #20: Add headers with arissat telemetry structures.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 20 Aug 2011 15:55:07 +0200
+
+gqrx (1.9-187+git00d96f2) unstable; urgency=low
+
+  * Issue #20: Add combo box for selecting telemetry profile.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 20 Aug 2011 01:53:41 +0200
+
+gqrx (1.9-186+git963d7ad) unstable; urgency=low
+
+  * Issue #20: Replace text view with a list view and add support for offline data analysis.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 20 Aug 2011 01:02:30 +0200
+
+gqrx (1.9-185+git15cda60) unstable; urgency=low
+
+  * Issue #20: Functional interface to BPSK1000 demodulator.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 19 Aug 2011 01:13:05 +0200
+
+gqrx (1.9-184+git9ff7641) unstable; urgency=low
+
+  * Basic BPSK1000 GUI. Issue #20.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 13 Aug 2011 00:46:34 +0200
+
+gqrx (1.9-183+gite8c285e) unstable; urgency=low
+
+  * Fix nasty memory leak.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 11 Aug 2011 23:30:56 +0200
+
+gqrx (1.9-182+git3dfebc2) unstable; urgency=low
+
+  * Finished integration of AFSK1200 decoder. Closes #11.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 11 Aug 2011 00:10:56 +0200
+
+gqrx (1.9-181+git8c67ec3) unstable; urgency=low
+
+  * New icons.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 11 Aug 2011 00:10:12 +0200
+
+gqrx (1.9-180+git1c1dc84) unstable; urgency=low
+
+  * Allow setting output sample rate from data sniffer.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 11 Aug 2011 00:09:50 +0200
+
+gqrx (1.9-179+gitb86c466) unstable; urgency=low
+
+  * Work on AFSK1200 integration. Issue #11.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 10 Aug 2011 00:40:41 +0200
+
+gqrx (1.9-178+gitf773ac6) unstable; urgency=low
+
+  * New icons.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 10 Aug 2011 00:39:48 +0200
+
+gqrx (1.9-177+git4b949f7) unstable; urgency=low
+
+  * Don't create iq_throttle if we don't use it.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 7 Aug 2011 18:21:53 +0200
+
+gqrx (1.9-176+gita2e1f86) unstable; urgency=low
+
+  * Functional I/Q player. Issue #19.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 7 Aug 2011 12:57:10 +0200
+
+gqrx (1.9-175+git486a063) unstable; urgency=low
+
+  * Debug code to print number of items.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 7 Aug 2011 12:51:42 +0200
+
+gqrx (1.9-174+git7b6e2e6) unstable; urgency=low
+
+  * Work on I/Q player UI. Issue #19.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 6 Aug 2011 23:51:48 +0200
+
+gqrx (1.9-173+git03e95a9) unstable; urgency=low
+
+  * Wide band broadcast FM (as good as it can get with FCD). Closes #30.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 6 Aug 2011 14:01:25 +0200
+
+gqrx (1.9-172+git28aa3f7) unstable; urgency=low
+
+  * Connect audio playback functions across GUI and DSP objects. Closes #17.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 6 Aug 2011 00:39:59 +0200
+
+gqrx (1.9-171+gitdcaff3e) unstable; urgency=low
+
+  * status -> state
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 6 Aug 2011 00:30:12 +0200
+
+gqrx (1.9-170+git2dcdffb) unstable; urgency=low
+
+  * Signals and callback for audio playback. Add API for setting button states programatically. Issue #17.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 6 Aug 2011 00:27:10 +0200
+
+gqrx (1.9-169+git18b8dd0) unstable; urgency=low
+
+  * Implement audio playback at receiver level (GUI still TBD). Issue #17.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 5 Aug 2011 00:46:02 +0200
+
+gqrx (1.9-168+git0b98bfd) unstable; urgency=low
+
+  * Include frequency and bandwith in I/Q data file names. Issue #19.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 4 Aug 2011 23:18:09 +0200
+
+gqrx (1.9-167+giteb6c24f) unstable; urgency=low
+
+  * Transition from I/Q recorder to player. Issue #19.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 4 Aug 2011 18:03:36 +0200
+
+gqrx (1.9-166+git5b5b10f) unstable; urgency=low
+
+  * Rename I/Q recorder to player, since we now use separate recorder. Issue #19.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 4 Aug 2011 16:15:54 +0200
+
+gqrx (1.9-165+git7afb365) unstable; urgency=low
+
+  * Fuctional I/Q recorder. Playback still TBD. Issue #19.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 4 Aug 2011 16:13:18 +0200
+
+gqrx (1.9-164+gite24e5b6) unstable; urgency=low
+
+  * Connect audio recorder after the audio gain. Issue #17.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 4 Aug 2011 12:41:12 +0200
+
+gqrx (1.9-163+gitd44b278) unstable; urgency=low
+
+  * Add scheduler action. Issue #29.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 3 Aug 2011 23:53:36 +0200
+
+gqrx (1.9-162+gita60a3e2) unstable; urgency=low
+
+  * Add scheduler action. Issue #29.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 3 Aug 2011 23:52:29 +0200
+
+gqrx (1.9-161+gite3b16c8) unstable; urgency=low
+
+  * Add AFSK1200 decoder.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 2 Aug 2011 00:32:13 +0200
+
+gqrx (1.9-160+gitde50b63) unstable; urgency=low
+
+  * API calls for data sniffer.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 1 Aug 2011 21:54:41 +0200
+
+gqrx (1.9-159+gitcda4928) unstable; urgency=low
+
+  * Add sniffer block that will allow accessing samples from the outside.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 31 Jul 2011 14:30:59 +0200
+
+gqrx (1.9-158+git423c422) unstable; urgency=low
+
+  * Update website.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 30 Jul 2011 18:41:18 +0200
+
+gqrx (1.9-157+git68c89db) unstable; urgency=low
+
+  * Add license and update README.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 30 Jul 2011 18:28:44 +0200
+
+gqrx (1.9-156+git1ff7df799) unstable; urgency=low
+
+  * Hide IQ recorder dock widget since nothing is implemented.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 30 Jul 2011 18:05:35 +0200
+
+gqrx (1.9-155+gitbfd4924) unstable; urgency=low
+
+  * Use 10fps as default FFT rate just to be on the safe side.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 30 Jul 2011 18:05:13 +0200
+
+gqrx (1.9-154+gitfed8953) unstable; urgency=low
+
+  * Allow adjusting FFT rate at run time. Issue #16.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 30 Jul 2011 17:58:46 +0200
+
+gqrx (1.9-153+git05a43f4) unstable; urgency=low
+
+  * Increase FFT rate a little.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 30 Jul 2011 14:02:32 +0200
+
+gqrx (1.9-152+git3c6f8a6) unstable; urgency=low
+
+  * Used fixed rectangle width for dB labels.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 29 Jul 2011 23:47:17 +0200
+
+gqrx (1.9-151+git5d47912) unstable; urgency=low
+
+  * Fix filter ranges.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 29 Jul 2011 21:56:57 +0200
+
+gqrx (1.9-150+git71a0567) unstable; urgency=low
+
+  * New layout for receiver controls.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 29 Jul 2011 21:43:12 +0200
+
+gqrx (1.9-149+gitc848cf8) unstable; urgency=low
+
+  * Use new dock widgets for I/Q recoder and FFT plot settings.
+  * Fix dock widgets so that we now can start with docks that are intially closed.
+  * Issues #16 and #19.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 29 Jul 2011 17:04:33 +0200
+
+gqrx (1.9-148+gitbd6317d) unstable; urgency=low
+
+  * Add new files to build file.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 29 Jul 2011 17:04:15 +0200
+
+gqrx (1.9-147+git91f53ee) unstable; urgency=low
+
+  * Dock widget for FFT options (issue #16).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 29 Jul 2011 17:03:57 +0200
+
+gqrx (1.9-146+gitd37612e) unstable; urgency=low
+
+  * I/Q data recorder skeleton (issue #19).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 29 Jul 2011 17:03:21 +0200
+
+gqrx (1.9-145+gitd0dd6f9) unstable; urgency=low
+
+  * Add missing include.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 29 Jul 2011 00:47:46 +0200
+
+gqrx (1.9-144+git381c9d2) unstable; urgency=low
+
+  * Skip FFT post processing and drawing if DSP returns 0 FFT samples. Might fix issue #26.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 29 Jul 2011 00:46:37 +0200
+
+gqrx (1.9-143+git534faef) unstable; urgency=low
+
+  * Dummy commit to test auto-closing issue. Closes #23.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 28 Jul 2011 18:15:13 +0200
+
+gqrx (1.9-142+gitef36aa5) unstable; urgency=low
+
+  * Accumulate samples in circular buffer and execute FFT only when GUI asks for new data. Closes issue #23.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 28 Jul 2011 16:27:27 +0200
+
+gqrx (1.9-141+git26a16f0) unstable; urgency=low
+
+  * fix layout names.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 28 Jul 2011 15:24:44 +0200
+
+gqrx (1.9-140+gitfe2fc64) unstable; urgency=low
+
+  * Update README.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 28 Jul 2011 12:08:39 +0200
+
+gqrx (1.9-139+git3a444f4) unstable; urgency=low
+
+  * Add qmake flag for -rpath.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 28 Jul 2011 11:45:34 +0200
+
+gqrx (1.9-138+gitd4152d1) unstable; urgency=low
+
+  * Use exponential filter across all samples for estimating signal strength. Related to issue #9.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 27 Jul 2011 22:08:03 +0200
+
+gqrx (1.9-137+git4e3192e) unstable; urgency=low
+
+  * Minor clarifications to text in About box.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 27 Jul 2011 21:17:05 +0200
+
+gqrx (1.9-136+git4ed06ce) unstable; urgency=low
+
+  * Implement reset button.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 27 Jul 2011 21:14:48 +0200
+
+gqrx (1.9-135+gitf91e76d) unstable; urgency=low
+
+  * Set window icons.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 27 Jul 2011 20:58:15 +0200
+
+gqrx (1.9-134+gita2d7b47) unstable; urgency=low
+
+  * Switch to post-demod resampler. Closes bug #24.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 27 Jul 2011 20:47:09 +0200
+
+gqrx (1.9-133+git93a928d) unstable; urgency=low
+
+  * Switch to long long to prevent overflow in lcm().
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 27 Jul 2011 20:44:52 +0200
+
+gqrx (1.9-132+gitf6573c8) unstable; urgency=low
+
+  * First cut at a simple to use resampler block.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 27 Jul 2011 16:07:40 +0200
+
+gqrx (1.9-131+git0a84cc1) unstable; urgency=low
+
+  * Finish implementation of FCD LNA gain. Closes #18.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 26 Jul 2011 21:01:59 +0200
+
+gqrx (1.9-130+gitffe4d60) unstable; urgency=low
+
+  * Move start/stop button to toolbar (issue #22).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 26 Jul 2011 20:14:13 +0200
+
+gqrx (1.9-129+gitede9be2) unstable; urgency=low
+
+  * Use new icons.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 26 Jul 2011 15:45:07 +0200
+
+gqrx (1.9-128+gitcf5a820) unstable; urgency=low
+
+  * Add some icons from GNOME and Tango icon themes.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 26 Jul 2011 15:44:43 +0200
+
+gqrx (1.9-127+git43ba677) unstable; urgency=low
+
+  * Updated.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 25 Jul 2011 16:32:30 +0200
+
+gqrx (1.9-126+gita4ef5ba) unstable; urgency=low
+
+  * Include README in project files.
+
+ -- Alexandru Csete <alc@thrane.com>  Mon, 25 Jul 2011 16:13:00 +0200
+
+gqrx (1.9-125+gitbce504f) unstable; urgency=low
+
+  * Add sepearator between main toolbar and dock actions in the menu bar.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 24 Jul 2011 23:59:21 +0200
+
+gqrx (1.9-124+git1b4824a) unstable; urgency=low
+
+  * Enable WAV file recording.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 24 Jul 2011 23:35:29 +0200
+
+gqrx (1.9-123+git0d705c1) unstable; urgency=low
+
+  * Add WAV file sink.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 24 Jul 2011 23:34:23 +0200
+
+gqrx (1.9-122+git76ee204) unstable; urgency=low
+
+  * Add audio recording slots and signals.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 24 Jul 2011 22:12:30 +0200
+
+gqrx (1.9-121+git55a7af3) unstable; urgency=low
+
+  * Fix spelling.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 24 Jul 2011 21:31:56 +0200
+
+gqrx (1.9-120+git76f6df9) unstable; urgency=low
+
+  * Disable controls we are not going to be implemented in first version.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 24 Jul 2011 21:24:39 +0200
+
+gqrx (1.9-119+git49cd1b2) unstable; urgency=low
+
+  * Connect I/Q correction signals.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 24 Jul 2011 21:14:49 +0200
+
+gqrx (1.9-118+git0228cd5) unstable; urgency=low
+
+  * Move audio functions to DockAudio.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 24 Jul 2011 20:34:43 +0200
+
+gqrx (1.9-117+gitbc3211b) unstable; urgency=low
+
+  * New dock widget for audio settings.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 24 Jul 2011 17:41:48 +0200
+
+gqrx (1.9-116+gitc8e53e6) unstable; urgency=low
+
+  * Add signals, slots and accessord to FCD CTL. Bug #18.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 24 Jul 2011 01:27:03 +0200
+
+gqrx (1.9-115+git44158f8) unstable; urgency=low
+
+  * Remove obsolete files.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 24 Jul 2011 01:26:06 +0200
+
+gqrx (1.9-114+gitb79990d) unstable; urgency=low
+
+  * Remove references to obsolete objects.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 23 Jul 2011 22:38:27 +0200
+
+gqrx (1.9-113+git5a96ecf) unstable; urgency=low
+
+  * Remove references to obsolete objects.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 23 Jul 2011 22:37:35 +0200
+
+gqrx (1.9-112+git4d98837) unstable; urgency=low
+
+  * Rmove obsolete files.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 23 Jul 2011 21:26:44 +0200
+
+gqrx (1.9-111+git78fbbad) unstable; urgency=low
+
+  * Add dock widget woth FCD controls (Bug #18).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 23 Jul 2011 16:26:15 +0200
+
+gqrx (1.9-110+git547fc54) unstable; urgency=low
+
+  * Remove obsolete panel.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 23 Jul 2011 01:25:55 +0200
+
+gqrx (1.9-109+git55b6b3e) unstable; urgency=low
+
+  * Allow user to reconfigure I/O devices while receiver is running.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 23 Jul 2011 01:24:29 +0200
+
+gqrx (1.9-108+gitf801e12) unstable; urgency=low
+
+  * Input/output device configurator.
+  * Device selection is stored in configuration file and at least an input device is required.
+  * If configuration does not exist, the suer is requested to create one.
+  * Closes bug #14.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 23 Jul 2011 00:40:42 +0200
+
+gqrx (1.9-107+gita7fc049) unstable; urgency=low
+
+  * Move API docs to souce file.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 22 Jul 2011 23:01:35 +0200
+
+gqrx (1.9-106+gita8e9ca2) unstable; urgency=low
+
+  * Set application parameters.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 22 Jul 2011 22:57:24 +0200
+
+gqrx (1.9-105+git28b5155) unstable; urgency=low
+
+  * Rearrange widgets.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 18 Jul 2011 00:06:48 +0200
+
+gqrx (1.9-104+git2663981) unstable; urgency=low
+
+  * New default window size and filter ranges.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 17 Jul 2011 23:39:52 +0200
+
+gqrx (1.9-103+git2c60f42) unstable; urgency=low
+
+  * Baseband gain and better AGC values.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 17 Jul 2011 18:21:33 +0200
+
+gqrx (1.9-102+git0a11d2f) unstable; urgency=low
+
+  * Add toggleViewAction of the toolbar to the View menu. Both the toolbar and the receiver options dock can now be enabled/disabled via the View menu or via te pop-up menu that appears when right clikcing on any of these items.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 17 Jul 2011 00:06:43 +0200
+
+gqrx (1.9-101+git85439d0) unstable; urgency=low
+
+  * Convert raw slilder value to gain as early as possible.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 16 Jul 2011 22:00:06 +0200
+
+gqrx (1.9-100+gitfb52789) unstable; urgency=low
+
+  * GUI controls for setting squelch level. Closes #7.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 16 Jul 2011 21:51:41 +0200
+
+gqrx (1.9-99+gitb09c204) unstable; urgency=low
+
+  * Add simple squelch block.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 16 Jul 2011 20:51:33 +0200
+
+gqrx (1.9-98+gitf230466) unstable; urgency=low
+
+  * Add default fallback values to public constructor.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 16 Jul 2011 20:05:19 +0200
+
+gqrx (1.9-97+gita4b57dc) unstable; urgency=low
+
+  * Connect GUI signals for AM demodulator.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 16 Jul 2011 19:06:25 +0200
+
+gqrx (1.9-96+gitaf25b59) unstable; urgency=low
+
+  * Include new AM demodulator block.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 16 Jul 2011 19:05:36 +0200
+
+gqrx (1.9-95+gite8fd33e) unstable; urgency=low
+
+  * Use new AM demodulator.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 16 Jul 2011 18:12:34 +0200
+
+gqrx (1.9-94+gitd16508a) unstable; urgency=low
+
+  * Add basic AM demodulator block.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 16 Jul 2011 17:31:32 +0200
+
+gqrx (1.9-93+git38582d0) unstable; urgency=low
+
+  * Update documentation after implementing de-emphasis.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 16 Jul 2011 16:57:08 +0200
+
+gqrx (1.9-92+gitee66a3c) unstable; urgency=low
+
+  * Fix signal strength indicator scale and level. Closes #8.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 16 Jul 2011 14:49:28 +0200
+
+gqrx (1.9-91+git9d46d39) unstable; urgency=low
+
+  * Remove misplaced break statement.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 14 Jul 2011 23:22:27 +0200
+
+gqrx (1.9-90+git8acdf80) unstable; urgency=low
+
+  * Finished implementation of SSB sideband selection via control panel. Closes #6.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 14 Jul 2011 23:21:24 +0200
+
+gqrx (1.9-89+git2bcf6ca) unstable; urgency=low
+
+  * Implement variable FM de-emphasis.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 13 Jul 2011 23:32:32 +0200
+
+gqrx (1.9-88+gitaaab055) unstable; urgency=low
+
+  * Forgot squelch label.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 13 Jul 2011 00:09:46 +0200
+
+gqrx (1.9-87+git2a85aa8) unstable; urgency=low
+
+  * Implemented variable FM deviation using fixed choices.
+  * Prepare for implementing variable de-emphasis later.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 12 Jul 2011 23:58:37 +0200
+
+gqrx (1.9-86+gitea63136) unstable; urgency=low
+
+  * Disable debug output when audio gain is changed.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 12 Jul 2011 22:50:02 +0200
+
+gqrx (1.9-85+git602b468) unstable; urgency=low
+
+  * Fix audio controls layout. Show current audio gain setting.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 12 Jul 2011 22:48:16 +0200
+
+gqrx (1.9-84+gitcc650de) unstable; urgency=low
+
+  * Fix minimum size for dockRxOpt.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 12 Jul 2011 00:18:15 +0200
+
+gqrx (1.9-83+gitd6f440d) unstable; urgency=low
+
+  * Transition to single dock window for RX options.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 12 Jul 2011 00:03:16 +0200
+
+gqrx (1.9-82+gitd5f403e) unstable; urgency=low
+
+  * Transition to single dock window for RX options.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 12 Jul 2011 00:02:57 +0200
+
+gqrx (1.9-81+git89e1df5) unstable; urgency=low
+
+  * We should keep hw:1 as default audio input device.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 11 Jul 2011 00:02:19 +0200
+
+gqrx (1.9-80+git540283a) unstable; urgency=low
+
+  * Lock FFT output buffer using boost::mutex. Eliminates artifacts observed on FFT plot.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 26 Jun 2011 16:00:34 +0200
+
+gqrx (1.9-79+git254cf48) unstable; urgency=low
+
+  * Include new input device dock widget.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 26 Jun 2011 15:22:05 +0200
+
+gqrx (1.9-78+git8e3861c) unstable; urgency=low
+
+  * Add API for DC offset and IQ corrections.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 26 Jun 2011 15:21:39 +0200
+
+gqrx (1.9-77+gita38600f) unstable; urgency=low
+
+  * Add dock widget for input device settings.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 26 Jun 2011 15:21:00 +0200
+
+gqrx (1.9-76+git37be11c) unstable; urgency=low
+
+  * Add menubar and basic framework to show/hide dock widgets.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 26 Jun 2011 13:08:26 +0200
+
+gqrx (1.9-75+git111dc12) unstable; urgency=low
+
+  * Remove obsolete headers.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 26 Jun 2011 09:47:07 +0200
+
+gqrx (1.9-74+git8b7118e) unstable; urgency=low
+
+  * Remove obsolete audio gain slider.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 26 Jun 2011 00:46:11 +0200
+
+gqrx (1.9-73+git4fe0604) unstable; urgency=low
+
+  * Use new audio dock widget.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 26 Jun 2011 00:45:41 +0200
+
+gqrx (1.9-72+git1194616) unstable; urgency=low
+
+  * Dock widget for audio controls.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 26 Jun 2011 00:45:10 +0200
+
+gqrx (1.9-71+git81793fa) unstable; urgency=low
+
+  * Remove obsolete mode selector.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 25 Jun 2011 22:49:27 +0200
+
+gqrx (1.9-70+git3095fa1) unstable; urgency=low
+
+  * Use new demodulator dock widget for mode selection.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 25 Jun 2011 22:49:03 +0200
+
+gqrx (1.9-69+gita8b533e) unstable; urgency=low
+
+  * Change mode listing to only distinguish between different demodulator types. Sub-modes (e.g. wide FM) will be controlled via demod parameters.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 25 Jun 2011 22:45:23 +0200
+
+gqrx (1.9-68+gitc4f7a86) unstable; urgency=low
+
+  * Dock widget for demodulator controls.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 25 Jun 2011 22:42:57 +0200
+
+gqrx (1.9-67+git07c5b0b) unstable; urgency=low
+
+  * Make initial filter ranges compatible with those we use during mode setting.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 21 Jun 2011 00:25:00 +0200
+
+gqrx (1.9-66+git27d73ef) unstable; urgency=low
+
+  * Increase mouse filter change and tuning resolution to 10 Hz and decrease mouse capture area.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 21 Jun 2011 00:21:59 +0200
+
+gqrx (1.9-65+git0b0cc63) unstable; urgency=low
+
+  * Properly redraw filter overlay during mouse wheel events.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 21 Jun 2011 00:17:21 +0200
+
+gqrx (1.9-64+gita8ae5c7) unstable; urgency=low
+
+  * Add temporary AGC running at fixed rate.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 21 Jun 2011 00:14:25 +0200
+
+gqrx (1.9-63+git14aeef2) unstable; urgency=low
+
+  * Exchange low/high and reverse their sign. Necessary for proper LSB/USB.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 20 Jun 2011 23:00:22 +0200
+
+gqrx (1.9-62+gita4428ad) unstable; urgency=low
+
+  * Reconfigure filter whne mode changes.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 20 Jun 2011 22:32:51 +0200
+
+gqrx (1.9-61+git472da3f) unstable; urgency=low
+
+  * Ensure filter overlay is redrawn when ranges are changed.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 20 Jun 2011 22:30:24 +0200
+
+gqrx (1.9-60+git1a57ae6) unstable; urgency=low
+
+  * Set default index to FMN.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 20 Jun 2011 22:27:51 +0200
+
+gqrx (1.9-59+git35098be) unstable; urgency=low
+
+  * Add mode selector combo and mode switching slot.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 20 Jun 2011 00:09:46 +0200
+
+gqrx (1.9-58+git06008be) unstable; urgency=low
+
+  * Split SSB into upper and lower side bands.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 19 Jun 2011 23:52:35 +0200
+
+gqrx (1.9-57+git2f3343b) unstable; urgency=low
+
+  * Initialize d_demod to prevent crash on first mode selection.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 19 Jun 2011 23:29:04 +0200
+
+gqrx (1.9-56+git32b7564) unstable; urgency=low
+
+  * Add SSB demodulator.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 19 Jun 2011 22:52:53 +0200
+
+gqrx (1.9-55+gitd272b6d) unstable; urgency=low
+
+  * Add explicit includes.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 19 Jun 2011 22:03:29 +0200
+
+gqrx (1.9-54+git6b1283f) unstable; urgency=low
+
+  * Move rx_meter to DSP directory.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 19 Jun 2011 22:01:38 +0200
+
+gqrx (1.9-53+git58145fc) unstable; urgency=low
+
+  * Move rx_demod_fm to DSP directory.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 19 Jun 2011 21:58:29 +0200
+
+gqrx (1.9-52+gitb89aa15) unstable; urgency=low
+
+  * Move rx_filter to DSP directory.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 19 Jun 2011 21:55:04 +0200
+
+gqrx (1.9-51+gitb485285) unstable; urgency=low
+
+  * Cleaning.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 18 Jun 2011 22:12:12 +0200
+
+gqrx (1.9-50+git2168cb2) unstable; urgency=low
+
+  * Limit number of decimal digits in FFT frequency to 3 and increase horizontal grid to 12.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 18 Jun 2011 21:39:57 +0200
+
+gqrx (1.9-49+gitadab7f0) unstable; urgency=low
+
+  * No more need for offset with normalised FFT.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 18 Jun 2011 21:34:20 +0200
+
+gqrx (1.9-48+gite9a88db) unstable; urgency=low
+
+  * Normalize FFT.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 18 Jun 2011 21:33:24 +0200
+
+gqrx (1.9-47+gitbbe3b97) unstable; urgency=low
+
+  * Define version string in qmake file and use it in the window title.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 18 Jun 2011 00:36:06 +0200
+
+gqrx (1.9-46+git17b59eb) unstable; urgency=low
+
+  * Add window title.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 18 Jun 2011 00:13:03 +0200
+
+gqrx (1.9-45+git86b74cb) unstable; urgency=low
+
+  * Minor visual tweaks to FFT plot.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 17 Jun 2011 23:52:18 +0200
+
+gqrx (1.9-44+gite4c5e8b) unstable; urgency=low
+
+  * More or less working FFT plot parameter, but level is still incorrect.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 17 Jun 2011 22:23:13 +0200
+
+gqrx (1.9-43+git2650722) unstable; urgency=low
+
+  * Added some debug code.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 17 Jun 2011 22:21:57 +0200
+
+gqrx (1.9-42+gita99cfec) unstable; urgency=low
+
+  * Add FFT timer and functions.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 16 Jun 2011 00:32:52 +0200
+
+gqrx (1.9-41+git6d7d364) unstable; urgency=low
+
+  * Working version of the FFT pandapter+waterfall. Still needs a lot of work.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 16 Jun 2011 00:31:53 +0200
+
+gqrx (1.9-40+git95002a3) unstable; urgency=low
+
+  * Add receiver API call for retrieving FFT data.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 16 Jun 2011 00:31:11 +0200
+
+gqrx (1.9-39+gitbfe206a) unstable; urgency=low
+
+  * Define max FFT size.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 16 Jun 2011 00:30:15 +0200
+
+gqrx (1.9-38+git726087c) unstable; urgency=low
+
+  * Include new FFT block in the flowgraph.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 13 Jun 2011 23:58:11 +0200
+
+gqrx (1.9-37+git5e36583) unstable; urgency=low
+
+  * Protect log against 0.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 13 Jun 2011 22:06:54 +0200
+
+gqrx (1.9-36+git4249394) unstable; urgency=low
+
+  * First implementation of receiver FFT using gri_fft.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 13 Jun 2011 14:54:16 +0200
+
+gqrx (1.9-35+gita103ec8) unstable; urgency=low
+
+  * Initial template for receiver FFT.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 13 Jun 2011 12:00:05 +0200
+
+gqrx (1.9-34+gitc319663) unstable; urgency=low
+
+  * Implement basic filter reconfiguration.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 12 Jun 2011 22:46:42 +0200
+
+gqrx (1.9-33+gita9d32ad) unstable; urgency=low
+
+  * Add new signal for filter changes so that low and high are emitted together.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 12 Jun 2011 22:46:08 +0200
+
+gqrx (1.9-32+git4f83510) unstable; urgency=low
+
+  * Reimplement SetCenterFreq() to also update filter offset and to redraw background overlay.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 12 Jun 2011 17:37:00 +0200
+
+gqrx (1.9-31+gitbe32bf1) unstable; urgency=low
+
+  * Send RF frequency updates to pandapter.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 12 Jun 2011 17:36:06 +0200
+
+gqrx (1.9-30+gitb823192) unstable; urgency=low
+
+  * Remove tuning slider since we can now use pandapter.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 12 Jun 2011 12:14:57 +0200
+
+gqrx (1.9-29+gitb4680a9) unstable; urgency=low
+
+  * Auto-indent.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 12 Jun 2011 12:07:51 +0200
+
+gqrx (1.9-28+git199aec7) unstable; urgency=low
+
+  * Include filter offset from center in NewDemodFreq signal.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 12 Jun 2011 12:02:31 +0200
+
+gqrx (1.9-27+gita4fd194) unstable; urgency=low
+
+  * Connect filter change signals from pandapter widget.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 12 Jun 2011 08:30:05 +0200
+
+gqrx (1.9-26+gitf695142) unstable; urgency=low
+
+  * Use symmetric filter by default (consistent with initial 10kHz wide filter).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 12 Jun 2011 00:28:16 +0200
+
+gqrx (1.9-25+git665a542) unstable; urgency=low
+
+  * Femporary pandapter and waterfall widget imported from Cutesdr.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 12 Jun 2011 00:18:28 +0200
+
+gqrx (1.9-24+gitdf1fd4e) unstable; urgency=low
+
+  * First hack of an S-meter based on the Cutesdr widget.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 9 Jun 2011 23:39:43 +0200
+
+gqrx (1.9-23+git4d6ebc7) unstable; urgency=low
+
+  * Update dBFS lavel periodically.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 5 Jun 2011 23:17:36 +0200
+
+gqrx (1.9-22+gitbc84599) unstable; urgency=low
+
+  * Give dBFS label more space.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 5 Jun 2011 23:16:21 +0200
+
+gqrx (1.9-21+git2ef580b) unstable; urgency=low
+
+  * Calculate power as amplitude squared.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 5 Jun 2011 23:15:38 +0200
+
+gqrx (1.9-20+git4cef387) unstable; urgency=low
+
+  * Include signal power meter in receiver flow graph.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 4 Jun 2011 18:43:10 +0200
+
+gqrx (1.9-19+git7d28db6) unstable; urgency=low
+
+  * Add block for measuring signal power.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 4 Jun 2011 18:32:39 +0200
+
+gqrx (1.9-18+git23a4e73) unstable; urgency=low
+
+  * Add label for signal strength (no implementation yet).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 31 May 2011 17:34:16 +0200
+
+gqrx (1.9-17+git66578d2) unstable; urgency=low
+
+  * Added label to display receiving frequency.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 31 May 2011 00:17:24 +0200
+
+gqrx (1.9-16+git475c09d) unstable; urgency=low
+
+  * Added methods to get rf frequency and filter offset.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 30 May 2011 23:47:03 +0200
+
+gqrx (1.9-15+git721c5a1) unstable; urgency=low
+
+  * Lighter background and highlight colors.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 29 May 2011 23:14:33 +0200
+
+gqrx (1.9-14+git47fae41) unstable; urgency=low
+
+  * Minor tweaks to size of the frequency control widget.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 29 May 2011 22:59:30 +0200
+
+gqrx (1.9-13+git13759ed) unstable; urgency=low
+
+  * Disable L/R button mode so that click area determines tuning direction.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 29 May 2011 22:19:58 +0200
+
+gqrx (1.9-12+gitf4e3a6b) unstable; urgency=low
+
+  * Don't reset digits below the active one to 0 when active digit is incremented/decremented.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 29 May 2011 22:14:52 +0200
+
+gqrx (1.9-11+git951df6b) unstable; urgency=low
+
+  * Added audio gain control.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 29 May 2011 21:57:13 +0200
+
+gqrx (1.9-10+gitea877aa) unstable; urgency=low
+
+  * Minor tweaks with font size.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 29 May 2011 21:56:49 +0200
+
+gqrx (1.9-9+git2c8bcae) unstable; urgency=low
+
+  * Added temporary slot for receiving slider signals (tune within passband).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 29 May 2011 00:21:17 +0200
+
+gqrx (1.9-8+gitd13eb87) unstable; urgency=low
+
+  * Add a slider for tning within passband.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 29 May 2011 00:17:55 +0200
+
+gqrx (1.9-7+gitc0523bb) unstable; urgency=low
+
+  * Reverse sign of center frequency since it is actually a frequency shift with opposite sign. Set intial offset to 0.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 29 May 2011 00:16:56 +0200
+
+gqrx (1.9-6+git6b60ee2) unstable; urgency=low
+
+  * Typo.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 29 May 2011 00:11:48 +0200
+
+gqrx (1.9-5+gitd2d264a) unstable; urgency=low
+
+  * Implement filter offset.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 29 May 2011 00:11:28 +0200
+
+gqrx (1.9-4+git0667237) unstable; urgency=low
+
+  * Nicer colors for digits and highlight background.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 28 May 2011 22:11:47 +0200
+
+gqrx (1.9-3+git545ff3d) unstable; urgency=low
+
+  * Connect new frequency control widget to receiver.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 28 May 2011 21:55:53 +0200
+
+gqrx (1.9-2+gited6bf51) unstable; urgency=low
+
+  * Use the new CFreqCtl widget.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 28 May 2011 21:03:27 +0200
+
+gqrx (1.9-1+git65abe70) unstable; urgency=low
+
+  * Added frequency control widget from cutesdr.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 28 May 2011 20:51:06 +0200
+
+gqrx (1.9) unstable; urgency=low
+
+  * Basic receiver that can actually receive NFM.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 22 May 2011 15:04:30 +0200
+
+gqrx (0.10-17+gitaea19fe) unstable; urgency=low
+
+  * Decimate by 2 until we figure out resampler. Set center to 20k.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 22 May 2011 15:03:46 +0200
+
+gqrx (0.10-16+git629c373) unstable; urgency=low
+
+  * Use quad_rate=48k until we figure out resampler.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 22 May 2011 15:02:53 +0200
+
+gqrx (0.10-15+git1239c20) unstable; urgency=low
+
+  * Include FM demodulator files in project.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 22 May 2011 01:12:36 +0200
+
+gqrx (0.10-14+gitbd52f0a) unstable; urgency=low
+
+  * Preliminary implementation of FM demodulator block.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 22 May 2011 00:46:30 +0200
+
+gqrx (0.10-13+git1645953) unstable; urgency=low
+
+  * Move enums inside class declaration.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 18 May 2011 00:26:21 +0200
+
+gqrx (0.10-12+git7e3f4f0) unstable; urgency=low
+
+  * First implementation of a functional filter.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 17 May 2011 23:56:52 +0200
+
+gqrx (0.10-11+gite19f5ad) unstable; urgency=low
+
+  * Add method to select filter shape.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 17 May 2011 20:54:59 +0200
+
+gqrx (0.10-10+gite330757) unstable; urgency=low
+
+  * Use double instead of float for filter params to be consistent with GNU Radio.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 17 May 2011 00:54:04 +0200
+
+gqrx (0.10-9+gite554d11) unstable; urgency=low
+
+  * Filter class template.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 17 May 2011 00:34:35 +0200
+
+gqrx (0.10-8+git4d8c204) unstable; urgency=low
+
+  * Correct application name.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 15 May 2011 22:15:40 +0200
+
+gqrx (0.10-7+gitf7a7470) unstable; urgency=low
+
+  * Add copyright header.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 15 May 2011 22:07:31 +0200
+
+gqrx (0.10-6+git2c89294) unstable; urgency=low
+
+  * Basic interface defined.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 15 May 2011 21:39:22 +0200
+
+gqrx (0.10-5+git780deee) unstable; urgency=low
+
+  * Fixed FCD package name.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 15 May 2011 13:11:16 +0200
+
+gqrx (0.10-4+git8a167db) unstable; urgency=low
+
+  * Added initial project template.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 15 May 2011 00:42:35 +0200
+
+gqrx (0.10-3+git1d46790) unstable; urgency=low
+
+  * New branch for a C++ version of gqrx.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 14 May 2011 16:59:56 +0200
+
+gqrx (0.10-2+gitf3c8326) unstable; urgency=low
+
+  * Update qtgui sink constructor.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 22 Apr 2011 22:01:25 +0200
+
+gqrx (0.10-1+git0f475e1) unstable; urgency=low
+
+  * Fixed spelling.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 14 Jan 2011 00:52:18 +0100
+
+gqrx (0.10) unstable; urgency=low
+
+  * Test commit.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 13 Jan 2011 22:30:13 +0100
+
+gqrx (0.9) unstable; urgency=low
+
+  * Dummy commit to check git from behind firewall.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 13 Jan 2011 12:49:20 +0100
+
+gqrx (0.0-0+gita93119) unstable; urgency=low
+
+  * Added recommendation to use UHD branch.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 12 Jan 2011 22:44:04 +0100
+
+gqrx (0.0-0+git0cd4f1) unstable; urgency=low
+
+  * Added command line option for audio output device name.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 12 Jan 2011 22:14:18 +0100
+
+gqrx (0.0-0+git355bc3) unstable; urgency=low
+
+  * Minor fixes and comment improvments.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 6 Jan 2011 00:11:51 +0100
+
+gqrx (0.0-0+gitb65c22) unstable; urgency=low
+
+  * Added info about UHD branch and audio fixes.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 5 Jan 2011 22:56:10 +0100
+
+gqrx (0.0-0+git378606) unstable; urgency=low
+
+  * Fixed AM input rate.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 26 Nov 2010 00:03:20 +0100
+
+gqrx (0.0-0+git607e26) unstable; urgency=low
+
+  * Implemented squelch.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 25 Nov 2010 00:22:33 +0100
+
+gqrx (0.0-0+git515db9) unstable; urgency=low
+
+  * Set squelch slider level 0..100
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 25 Nov 2010 00:22:13 +0100
+
+gqrx (0.0-0+gitdc580e) unstable; urgency=low
+
+  * Updated README to be in sync with Wiki description.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 24 Nov 2010 00:48:29 +0100
+
+gqrx (0.0-0+gitc3e446) unstable; urgency=low
+
+  * Removed --no-hb option because it is not useful here, e.g. it would disallow using 250kHz bandwidth, which is very useful for a narrow band receiver.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 24 Nov 2010 00:36:44 +0100
+
+gqrx (0.0-0+git09f0b8) unstable; urgency=low
+
+  * Removed 8-bit option since it is not useful for this application.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 23 Nov 2010 23:59:06 +0100
+
+gqrx (0.0-0+git63c267) unstable; urgency=low
+
+  * Implemented antenna selector option.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 23 Nov 2010 23:51:47 +0100
+
+gqrx (0.0-0+gita981c4) unstable; urgency=low
+
+  * Disabled command line options that are not possible wit the current implementation of gr-qtgui.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 23 Nov 2010 23:36:01 +0100
+
+gqrx (0.0-0+git979f2c) unstable; urgency=low
+
+  * Re-enable executable flag.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 23 Nov 2010 19:38:31 +0100
+
+gqrx (0.0-0+git47a095) unstable; urgency=low
+
+  * Implemented audio playback.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 23 Nov 2010 19:37:47 +0100
+
+gqrx (0.0-0+git58876a) unstable; urgency=low
+
+  * Center align audio recording label.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 23 Nov 2010 19:37:28 +0100
+
+gqrx (0.0-0+git5d436c) unstable; urgency=low
+
+  * Fixed a few typos.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 19 Nov 2010 00:22:20 +0100
+
+gqrx (0.0-0+git333ade) unstable; urgency=low
+
+  * Remove unused command line option.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 17 Nov 2010 22:00:47 +0100
+
+gqrx (0.0-0+gita4a320) unstable; urgency=low
+
+  * Updated README.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 14 Nov 2010 17:57:47 +0100
+
+gqrx (0.0-0+git32e28d) unstable; urgency=low
+
+  * Added parameter names to AGC constructor.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 14 Nov 2010 17:42:52 +0100
+
+gqrx (0.0-0+git81ba6e) unstable; urgency=low
+
+  * Fix executable status.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 9 Nov 2010 18:51:17 +0100
+
+gqrx (0.0-0+git0b36c5) unstable; urgency=low
+
+  * Implemented audio recorder.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 9 Nov 2010 18:49:27 +0100
+
+gqrx (0.0-0+gite0d2f8) unstable; urgency=low
+
+  * Make main window smaller to fit on laptop screens.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 9 Nov 2010 00:14:52 +0100
+
+gqrx (0.0-0+gitfbabfe) unstable; urgency=low
+
+  * Disable waterfall.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 9 Nov 2010 00:14:14 +0100
+
+gqrx (0.0-0+git4cc987) unstable; urgency=low
+
+  * Fix comment.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 5 Nov 2010 00:27:02 +0100
+
+gqrx (0.0-0+git069d07) unstable; urgency=low
+
+  * Added command line option to set soundcard sample rate.
+
+ -- Alexandru Csete <alexc@sirius-lin.(none)>  Fri, 5 Nov 2010 00:19:24 +0100
+
+gqrx (0.0-0+gitaaa824) unstable; urgency=low
+
+  * Disable AGC and SQL controls (not implemented).
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 3 Nov 2010 23:46:31 +0100
+
+gqrx (0.0-0+git2ec1ab) unstable; urgency=low
+
+  * Set filter ranges when changing modes. Update transition width every time filter width is changed.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 3 Nov 2010 23:34:16 +0100
+
+gqrx (0.0-0+git39611b) unstable; urgency=low
+
+  * Use 100Hz step for AM and FMN filter.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 3 Nov 2010 22:55:37 +0100
+
+gqrx (0.0-0+git18a277) unstable; urgency=low
+
+  * Disable buttons that have no implementation.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 3 Nov 2010 22:38:18 +0100
+
+gqrx (0.0-0+git3670e4) unstable; urgency=low
+
+  * Rename spectrum recording buttin to recSpectrumButton.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 3 Nov 2010 22:37:32 +0100
+
+gqrx (0.0-0+git69856c) unstable; urgency=low
+
+  * Removed obsolete functions.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 3 Nov 2010 22:31:05 +0100
+
+gqrx (0.0-0+gitb80ff3) unstable; urgency=low
+
+  * Remove obsolete bandwidth editor widget.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 3 Nov 2010 22:27:28 +0100
+
+gqrx (0.0-0+git0dd785) unstable; urgency=low
+
+  * Reverted back to use 50ksps demod rate for better performance. WFM still runs at 250ksps.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Wed, 3 Nov 2010 22:11:10 +0100
+
+gqrx (0.0-0+gita52b92) unstable; urgency=low
+
+  * Reworked to only use one filter and 250kHz 'IF rate'. Implemented FM-W. AGC only used in AM and SSB. Performance has decreased significantly.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Tue, 2 Nov 2010 02:26:54 +0100
+
+gqrx (0.0-0+gitbcd057) unstable; urgency=low
+
+  * Comitting working vesion before major rework.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Mon, 1 Nov 2010 20:55:22 +0100
+
+gqrx (0.0-0+git76f823) unstable; urgency=low
+
+  * Delete old XLF object before creating a new one.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 31 Oct 2010 23:54:45 +0100
+
+gqrx (0.0-0+git700f44) unstable; urgency=low
+
+  * Implemented 500k, 1M, 2M and 4M bandwidth.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 31 Oct 2010 22:59:18 +0100
+
+gqrx (0.0-0+git6fe2a7) unstable; urgency=low
+
+  * Better AGC values.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 31 Oct 2010 16:40:38 +0100
+
+gqrx (0.0-0+git427a25) unstable; urgency=low
+
+  * Change Pause, Rec and Play buttons to toggle buttons.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 31 Oct 2010 15:43:02 +0100
+
+gqrx (0.0-0+git26a35b) unstable; urgency=low
+
+  * Replaced stop/wait/start in mode change code with lock/unlock.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 31 Oct 2010 15:41:34 +0100
+
+gqrx (0.0-0+git782678) unstable; urgency=low
+
+  * Implemented AF gain.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 31 Oct 2010 15:30:05 +0100
+
+gqrx (0.0-0+git82a2ee) unstable; urgency=low
+
+  * Increase AF gain range to 5.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 31 Oct 2010 15:29:50 +0100
+
+gqrx (0.0-0+git97131f) unstable; urgency=low
+
+  * AM-only limitation no longer applicable.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 31 Oct 2010 13:19:49 +0100
+
+gqrx (0.0-0+git7c2ee3) unstable; urgency=low
+
+  * Added audio gain, record and playback controls to UI.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 31 Oct 2010 13:13:04 +0100
+
+gqrx (0.0-0+gitfcb625) unstable; urgency=low
+
+  * Added a few separator lines for nicer look.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sun, 31 Oct 2010 12:49:50 +0100
+
+gqrx (0.0-0+git2a7718) unstable; urgency=low
+
+  * Added basic AGC. Details to be worked out later.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 30 Oct 2010 21:54:50 +0200
+
+gqrx (0.0-0+git9f7161) unstable; urgency=low
+
+  * Implemented SSB/CW modes.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 30 Oct 2010 21:38:15 +0200
+
+gqrx (0.0-0+gitbcce51) unstable; urgency=low
+
+  * Reset filter sliders when mode is changed.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 30 Oct 2010 20:30:09 +0200
+
+gqrx (0.0-0+gite63065) unstable; urgency=low
+
+  * Implemented narrow FM. Reworked resampling between BPF/DEMOD/RR.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 30 Oct 2010 17:47:58 +0200
+
+gqrx (0.0-0+git8a5268) unstable; urgency=low
+
+  * A little more consistency in the naming style.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 30 Oct 2010 15:07:16 +0200
+
+gqrx (0.0-0+git8a6aa8) unstable; urgency=low
+
+  * Added templates for mode, agc and squelch.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 30 Oct 2010 01:58:11 +0200
+
+gqrx (0.0-0+git6eef9c) unstable; urgency=low
+
+  * Implemented tuning buttons.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Sat, 30 Oct 2010 00:45:56 +0200
+
+gqrx (0.0-0+git3cb6d1) unstable; urgency=low
+
+  * Fix subdev detector and include daughterboard info in window title.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Fri, 29 Oct 2010 22:01:35 +0200
+
+gqrx (0.0-0+git22b55d) unstable; urgency=low
+
+  * Initial commit of first working prototype.
+
+ -- Alexandru Csete <oz9aec@gmail.com>  Thu, 28 Oct 2010 23:47:47 +0200
