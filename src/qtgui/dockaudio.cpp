@@ -221,12 +221,20 @@ void DockAudio::on_audioRecButton_clicked(bool checked)
 void DockAudio::on_audioPlayButton_clicked(bool checked)
 {
     if (checked) {
-        // emit signal and start timer
-        emit audioPlayStarted(last_audio);
+        QFileInfo info(last_audio);
 
-        ui->audioRecLabel->setText(QFileInfo(last_audio).fileName());
-        ui->audioPlayButton->setToolTip(tr("Stop audio playback"));
-        ui->audioRecButton->setEnabled(false); // prevent recording while we play
+        if(info.exists()) {
+            // emit signal and start timer
+            emit audioPlayStarted(last_audio);
+
+            ui->audioRecLabel->setText(info.fileName());
+            ui->audioPlayButton->setToolTip(tr("Stop audio playback"));
+            ui->audioRecButton->setEnabled(false); // prevent recording while we play
+        }
+        else {
+            ui->audioPlayButton->setChecked(false);
+            ui->audioPlayButton->setEnabled(false);
+        }
     }
     else {
         ui->audioRecLabel->setText("<i>DSP</i>");
