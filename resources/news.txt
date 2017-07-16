@@ -11,6 +11,7 @@
      FIXED: .conf files are deleted when changes are saved.
      FIXED: Remote control not working if $http_proxy is set.
      FIXED: Audio rec does not work after trying to play deleted file.
+     FIXED: QtSvg dependency.
   IMPROVED: Tuning through the remote control interface.
   IMPROVED: Increase narrow band receiver rate to 96 ksps (for APT).
   IMPROVED: LimeSDR integration.

@@ -44,6 +44,7 @@
 #include <QtGlobal>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QSvgWidget>
 #include "qtgui/ioconfig.h"
 #include "mainwindow.h"
 
@@ -315,7 +316,9 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
         {
             configOk = true;
         }
-   }
+    }
+
+    qsvg_dummy = new QSvgWidget(this);
 }
 
 MainWindow::~MainWindow()
@@ -370,6 +373,7 @@ MainWindow::~MainWindow()
     delete [] d_realFftData;
     delete [] d_iirFftData;
     delete [] d_pwrFftData;
+    delete qsvg_dummy;
 }
 
 /**

@@ -31,6 +31,7 @@
 #include <QTimer>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QSvgWidget>
 
 #include "qtgui/dockrxopt.h"
 #include "qtgui/dockaudio.h"
@@ -117,6 +118,9 @@ private:
     RemoteControl *remote;
 
     std::map<QString, QVariant> devList;
+
+    // dummy widget to enforce linking to QtSvg
+    QSvgWidget      *qsvg_dummy;
 
 private:
     void updateHWFrequencyRange(bool ignore_limits);
