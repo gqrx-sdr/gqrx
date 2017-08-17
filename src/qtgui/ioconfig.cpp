@@ -570,6 +570,25 @@ void CIoConfig::updateInputSampleRates(int rate)
         else
             ui->inSrCombo->setCurrentIndex(4); // select 5 MHz
     }
+    else if (ui->inDevEdit->text().contains("plutosdr"))
+    {
+        ui->inSrCombo->addItem("600000");
+        ui->inSrCombo->addItem("1000000");
+        ui->inSrCombo->addItem("1500000");
+        ui->inSrCombo->addItem("2000000");
+        ui->inSrCombo->addItem("3000000");
+        ui->inSrCombo->addItem("6000000");
+        ui->inSrCombo->addItem("16000000");
+        ui->inSrCombo->addItem("20000000");
+        ui->inSrCombo->addItem("56000000");
+        if (rate > 0)
+        {
+            ui->inSrCombo->insertItem(0, QString("%1").arg(rate));
+            ui->inSrCombo->setCurrentIndex(0);
+        }
+        else
+            ui->inSrCombo->setCurrentIndex(2); // select 2 MHz
+    }
     else
     {
         if (rate > 0)

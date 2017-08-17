@@ -1,5 +1,6 @@
        2.7: TBD...
 
+       NEW: PlutoSDR integration.
        NEW: Restore filter low cut and high cut between sessions.
        NEW: Restore FM parameters between sessions.
        NEW: Restore remote control state between sessions.
