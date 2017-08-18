@@ -508,6 +508,10 @@ void CIoConfig::updateInputSampleRates(int rate)
         ui->inSrCombo->addItem("6000000");
         ui->inSrCombo->addItem("10000000");
     }
+    else if (ui->inDevEdit->text().contains("airspyhf"))
+    {
+        ui->inSrCombo->addItem("768000");
+    }
     else if (ui->inDevEdit->text().contains("redpitaya"))
     {
         ui->inSrCombo->addItem("20000");
