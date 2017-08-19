@@ -230,7 +230,7 @@ void CIqTool::on_slider_valueChanged(int value)
 {
     refreshTimeWidgets();
 
-    qint64 seek_pos = (qint64)(value*sample_rate);
+    qint64 seek_pos = (qint64)(value)*sample_rate;
     emit seek(seek_pos);
 }
 
