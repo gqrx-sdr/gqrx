@@ -31,6 +31,9 @@
 #include <QTcpSocket>
 #include <QtNetwork>
 
+/* For gain_t and gain_list_t */
+#include "qtgui/dockinputctl.h"
+
 /*! \brief Simple TCP server for remote control.
  *
  * The TCP interface is compatible with the hamlib rigtctld so that applications
@@ -78,6 +81,7 @@ public:
         return rc_allowed_hosts;
     }
     void setReceiverStatus(bool enabled);
+    void setGainStages(gain_list_t &gain_list);
 
 public slots:
     void setNewFrequency(qint64 freq);
@@ -90,6 +94,7 @@ public slots:
     void setSquelchLevel(double level);
     void startAudioRecorder(QString unused);
     void stopAudioRecorder();
+    bool setGain(QString name, double gain);
 
 signals:
     void newFrequency(qint64 freq);
@@ -125,6 +130,7 @@ private:
     bool        audio_recorder_status; /*!< Recording enabled */
     bool        receiver_running;  /*!< Wether the receiver is running or not */
     bool        hamlib_compatible;
+    gain_list_t gains;             /*!< Possible and current gain settings */
 
     void        setNewRemoteFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);
