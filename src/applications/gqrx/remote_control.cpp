@@ -376,12 +376,14 @@ void RemoteControl::setGainStages(gain_list_t &gain_list)
 /*! \brief Set value for a specific gain setting (from DockInputCtl). */
 bool RemoteControl::setGain(QString name, double gain)
 {
-    qDebug() << name << " = " << gain;
     for(auto &g : gains)
     {
         if(name == QString::fromStdString(g.name))
         {
-            g.value = gain;
+            if(gain != g.value) {
+                g.value = gain;
+                emit gainChanged(name, gain);
+            }
             return true;
         }
     }
@@ -634,7 +636,12 @@ QString RemoteControl::cmd_set_level(QStringList cmdlist)
     QString lvl = cmdlist.value(1, "");
 
     if (lvl == "?")
-        answer = QString("SQL\n");
+    {
+        QStringList names;
+        for(auto &g : gains)
+            names.push_back(QString("%1_GAIN").arg(QString::fromStdString(g.name)));
+        answer = QString("SQL %1\n").arg(names.join(" "));
+    }
     else if (lvl.compare("SQL", Qt::CaseInsensitive) == 0)
     {
         bool ok;
@@ -649,6 +656,17 @@ QString RemoteControl::cmd_set_level(QStringList cmdlist)
         {
             answer = QString("RPRT 1\n");
         }
+    }
+    else if (lvl.contains(QRegExp("_GAIN$")))
+    {
+        QString name = lvl.remove(QRegExp("_GAIN$"));
+
+        bool ok;
+        double gain = cmdlist.value(2, "ERR").toDouble(&ok);
+        if (ok && setGain(name, gain))
+            answer = QString("RPRT 0\n");
+        else
+            answer = QString("RPRT 1\n");
     }
     else
     {

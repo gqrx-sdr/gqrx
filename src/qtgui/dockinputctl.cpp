@@ -200,7 +200,7 @@ double DockInputCtl::lnbLo()
  * @param name The name of the gain to change.
  * @param value The new value.
  */
-void DockInputCtl::setGain(QString &name, double value)
+void DockInputCtl::setGain(QString name, double value)
 {
     int gain = -1;
 
