@@ -21,6 +21,10 @@ Supported commands:
     Get status of audio recorder
  U RECORD <status>
     Set status of audio recorder to <status>
+ u BW_WIN_RATIO
+    Get ratio when gqrx changes hardware frequency on next step [%]
+ U BW_WIN_RATIO <percent>
+    Set ratio [%]
  q|Q
     Close connection
  AOS
