@@ -70,7 +70,6 @@ public:
     void    readSettings(QSettings * settings);
     void    saveSettings(QSettings * settings);
 
-    void    setLnbLo(double freq_mhz);
     double  lnbLo();
     void    readLnbLoFromSettings(QSettings * settings);
 
@@ -114,6 +113,9 @@ signals:
     void ignoreLimitsChanged(bool ignore);
     void antennaSelected(QString antenna);
     void freqCtrlResetChanged(bool enabled);
+
+public slots:
+    void setLnbLo(double freq_mhz);
 
 private slots:
     void on_lnbSpinBox_valueChanged(double value);

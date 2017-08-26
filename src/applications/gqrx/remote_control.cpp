@@ -226,6 +226,8 @@ void RemoteControl::startRead()
         answer = cmd_AOS();
     else if (cmd == "LOS")
         answer = cmd_LOS();
+    else if (cmd == "LNB_LO")
+        answer = cmd_lnb_lo(cmdlist);
     else if (cmd == "\\dump_state")
         answer = cmd_dump_state();
     else if (cmd == "q" || cmd == "Q")
@@ -259,6 +261,14 @@ void RemoteControl::setNewFrequency(qint64 freq)
 void RemoteControl::setFilterOffset(qint64 freq)
 {
     rc_filter_offset = freq;
+}
+
+/*! \brief Slot called when the LNB LO frequency has changed
+ *  \param freq_mhz new LNB LO frequency in MHz
+ */
+void RemoteControl::setLnbLo(double freq_mhz)
+{
+    rc_lnb_lo_mhz = freq_mhz;
 }
 
 void RemoteControl::setBandwidth(qint64 bw)
@@ -697,6 +707,29 @@ QString RemoteControl::cmd_LOS()
     emit stopAudioRecorderEvent();
     audio_recorder_status = false;
     return QString("RPRT 0\n");
+}
+
+/* Set the LNB LO value */
+QString RemoteControl::cmd_lnb_lo(QStringList cmdlist)
+{
+    if(cmdlist.size() == 2)
+    {
+        bool ok;
+        qint64 freq = cmdlist[1].toLongLong(&ok);
+
+        if (ok)
+        {
+            rc_lnb_lo_mhz = freq / 1e6;
+            emit newLnbLo(rc_lnb_lo_mhz);
+            return QString("RPRT 0\n");
+        }
+
+        return QString("RPRT 1\n");
+    }
+    else
+    {
+        return QString("%1\n").arg((qint64)(rc_lnb_lo_mhz * 1e6));
+    }
 }
 
 /*
