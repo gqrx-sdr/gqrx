@@ -1,3 +1,8 @@
+       2.8: Released TBD...
+
+       NEW: Remote control command to set LNB LO (LNB_LO).
+
+
        2.7: Released August 19, 2017
 
        NEW: Airspy HF+ integration.
