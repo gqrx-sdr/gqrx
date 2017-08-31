@@ -163,6 +163,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/include
     ${Boost_INCLUDE_DIRS}
     ${GNURADIO_RUNTIME_INCLUDE_DIRS}
+    ${GNURADIO_OSMOSDR_INCLUDE_DIRS}
 )
 
 link_directories(
