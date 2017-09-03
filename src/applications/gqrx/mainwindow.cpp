@@ -321,7 +321,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
         }
     }
 
-    qsvg_dummy = new QSvgWidget(this);
+    qsvg_dummy = new QSvgWidget();
 }
 
 MainWindow::~MainWindow()
