@@ -1,6 +1,8 @@
        2.8: Released TBD...
 
        NEW: Remote control command to set LNB LO (LNB_LO).
+     FIXED: Inactive Start DSP and Config buttins in toolbar.
+  IMPROVED: Detection of gr-osmosdr when installed in custom directory.
 
 
        2.7: Released August 19, 2017
