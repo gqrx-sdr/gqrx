@@ -1,7 +1,7 @@
        2.8: Released TBD...
 
        NEW: Remote control command to set LNB LO (LNB_LO).
-     FIXED: Inactive Start DSP and Config buttins in toolbar.
+     FIXED: Inactive Start DSP and Config buttons in toolbar.
   IMPROVED: Detection of gr-osmosdr when installed in custom directory.
 
 
