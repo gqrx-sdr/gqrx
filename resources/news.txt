@@ -2,6 +2,7 @@
 
        NEW: Remote control command to set LNB LO (LNB_LO).
      FIXED: Inactive Start DSP and Config buttons in toolbar.
+     FIXED: Frequency controller digit not redrawn after a resize.
   IMPROVED: Detection of gr-osmosdr when installed in custom directory.
 
 
