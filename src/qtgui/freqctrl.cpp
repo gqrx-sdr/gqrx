@@ -348,6 +348,7 @@ void CFreqCtrl::resizeEvent(QResizeEvent *)
     m_Pixmap = QPixmap(size()); // resize pixmap to current control size
     m_Pixmap.fill(m_BkColor);
     m_UpdateAll = true;
+    updateCtrl(true);
 }
 
 void CFreqCtrl::leaveEvent(QEvent *)
