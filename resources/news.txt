@@ -1,8 +1,9 @@
-       2.8: Released TBD...
+       2.8: Released September 16, 2017
 
        NEW: Remote control command to set LNB LO (LNB_LO).
      FIXED: Inactive Start DSP and Config buttons in toolbar.
      FIXED: Frequency controller digit not redrawn after a resize.
+     FIXED: Set default mode to AM instead of none.
   IMPROVED: Detection of gr-osmosdr when installed in custom directory.
   IMPROVED: Remote frequency handling.
 
