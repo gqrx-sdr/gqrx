@@ -4,7 +4,7 @@
      FIXED: Inactive Start DSP and Config buttons in toolbar.
      FIXED: Frequency controller digit not redrawn after a resize.
   IMPROVED: Detection of gr-osmosdr when installed in custom directory.
-
+  IMPROVED: Remote frequency handling.
 
        2.7: Released August 19, 2017
 
