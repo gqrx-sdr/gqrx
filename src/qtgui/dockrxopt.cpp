@@ -384,12 +384,13 @@ void DockRxOpt::readSettings(QSettings *settings)
     if (settings->value("receiver/agc_off", false).toBool())
         ui->agcPresetCombo->setCurrentIndex(4);
 
-    int_val = settings->value("receiver/demod", 0).toInt(&conv_ok);
-    if (int_val >= 0)
-    {
-        setCurrentDemod(int_val);
-        emit demodSelected(int_val);
-    }
+    int_val = MODE_AM;
+    if (settings->contains("receiver/demod"))
+        int_val = settings->value("receiver/demod").toInt(&conv_ok);
+
+    setCurrentDemod(int_val);
+    emit demodSelected(int_val);
+
 }
 
 /** Save receiver configuration to settings. */
