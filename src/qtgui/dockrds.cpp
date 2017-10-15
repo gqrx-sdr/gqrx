@@ -20,6 +20,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <QComboBox>
 #include <QDebug>
 #include <QVariant>
 #include "dockrds.h"
@@ -31,6 +32,8 @@ DockRDS::DockRDS(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    initCodecs();
+
 #if QT_VERSION >= 0x050200
     ui->scrollArea->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContentsOnFirstShow);
 #endif
@@ -41,10 +44,9 @@ DockRDS::~DockRDS()
     delete ui;
 }
 
-void DockRDS::updateRDS(QString text, int type)
+void DockRDS::updateRDS(std::string str, int type)
 {
-    std::string     str, out;
-
+    QString text = decoder.data()->toUnicode(str.c_str(),str.size()), out;
     /* type 0 = PI
      * type 1 = PS
      * type 2 = PTY
@@ -65,7 +67,6 @@ void DockRDS::updateRDS(QString text, int type)
         ui->program_type->setText(text);
         break;
     case 3:
-        str = text.toStdString();
         out = "";
         if (str.at(0) == '1') out.append("TP ");
         if (str.at(1) == '1') out.append("TA ");
@@ -76,10 +77,10 @@ void DockRDS::updateRDS(QString text, int type)
         if (str.at(4) == '1') out.append("AH ");
         if (str.at(5) == '1') out.append("CMP ");
         if (str.at(6) == '1') out.append("stPTY ");
-        ui->flags->setText(QString::fromStdString(out));
+        ui->flags->setText(out);
         break;
     case 4:
-        ui->radiotext->setText(text);
+        ui->radiotext->setText(text.simplified());
         break;
     case 5:
         ui->clocktime->setText(text);
@@ -128,6 +129,20 @@ void DockRDS::setDisabled()
     ui->rdsCheckbox->blockSignals(false);
 }
 
+void DockRDS::initCodecs()
+{
+    QStringList codeclist;
+    for(auto v:QTextCodec::availableMibs()){
+        QTextCodec *codec = QTextCodec::codecForMib(v);
+        QStringList aliases ;
+        for(auto a:codec->aliases()) aliases<<QString(a);
+//        codeclist<<QString("%1 %2").arg(QString(codec->name())).arg(aliases.join(","));
+        codeclist<<QString(codec->name());
+        allCodecs.insert(QString(codec->name()),aliases.join(","));
+    }
+    ui->textCodecComboBox->addItems(codeclist);
+}
+
 void DockRDS::setEnabled()
 {
     ui->rdsCheckbox->setDisabled(false);
@@ -137,4 +152,14 @@ void DockRDS::setEnabled()
 void DockRDS::on_rdsCheckbox_toggled(bool checked)
 {
     emit rdsDecoderToggled(checked);
+}
+
+void DockRDS::on_textCodecComboBox_currentIndexChanged(const QString &name)
+{
+    QTextCodec *codec = QTextCodec::codecForName(name.toUtf8());
+    if(codec){
+        decoder.reset(codec->makeDecoder());
+        setToolTip(allCodecs.value(name));
+        ui->codecAliasesLineEdit->setText(allCodecs.value(name));
+    }
 }
