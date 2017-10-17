@@ -498,6 +498,11 @@ void CIoConfig::updateInputSampleRates(int rate)
         else
             ui->inSrCombo->setCurrentIndex(4); // select 240 kHz
     }
+    else if (ui->inDevEdit->text().contains("airspyhf"))
+    {
+        ui->inSrCombo->addItem("768000");
+    }
+    // NB: must list airspyhf first
     else if (ui->inDevEdit->text().contains("airspy"))
     {
         if (rate > 0)
@@ -507,10 +512,6 @@ void CIoConfig::updateInputSampleRates(int rate)
         ui->inSrCombo->addItem("3000000");
         ui->inSrCombo->addItem("6000000");
         ui->inSrCombo->addItem("10000000");
-    }
-    else if (ui->inDevEdit->text().contains("airspyhf"))
-    {
-        ui->inSrCombo->addItem("768000");
     }
     else if (ui->inDevEdit->text().contains("redpitaya"))
     {
