@@ -26,6 +26,8 @@
 #include "dockrds.h"
 #include "ui_dockrds.h"
 
+#include "aux/codecselector.h"
+
 DockRDS::DockRDS(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockRDS)
@@ -156,6 +158,18 @@ void DockRDS::on_rdsCheckbox_toggled(bool checked)
 
 void DockRDS::on_textCodecComboBox_currentIndexChanged(const QString &name)
 {
+//    TextEditor::Internal::CodecSelector codecSelector(this);
+//    switch (codecSelector.exec()) {
+//    case TextEditor::Internal::CodecSelector::Reload:
+//    case TextEditor::Internal::CodecSelector::Save: {
+//        QString errorString;
+//        decoder.reset(codecSelector.selectedCodec()->makeDecoder());
+//        break;
+//    }
+//    case TextEditor::Internal::CodecSelector::Cancel:
+//        break;
+//    }
+
     QTextCodec *codec = QTextCodec::codecForName(name.toUtf8());
     if(codec){
         decoder.reset(codec->makeDecoder());
