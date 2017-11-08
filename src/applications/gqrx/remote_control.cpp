@@ -120,7 +120,7 @@ void RemoteControl::saveSettings(QSettings *settings) const
     else
         settings->remove("port");
 
-    if ((rc_allowed_hosts.count() != 1) || (rc_allowed_hosts.at(0) != DEFAULT_RC_ALLOWED_HOSTS))
+    if (rc_allowed_hosts.count() > 0)
         settings->setValue("allowed_hosts", rc_allowed_hosts);
     else
         settings->remove("allowed_hosts");
