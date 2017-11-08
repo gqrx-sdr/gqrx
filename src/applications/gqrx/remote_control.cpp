@@ -274,7 +274,7 @@ void RemoteControl::setLnbLo(double freq_mhz)
 void RemoteControl::setBandwidth(qint64 bw)
 {
     // we want to leave some margin
-    bw_half = 0.9 * (bw / 2);
+    bw_half = (qint64)(0.9f * (bw / 2.f));
 }
 
 /*! \brief Set signal level in dBFS. */
