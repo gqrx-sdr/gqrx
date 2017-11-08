@@ -1,3 +1,8 @@
+       2.9: Released November XX, 2017
+
+       NEW: Airspy HF+ support.
+     FIXED: Always save TCP and UDP host settings.
+
        2.8: Released September 16, 2017
 
        NEW: Remote control command to set LNB LO (LNB_LO).
