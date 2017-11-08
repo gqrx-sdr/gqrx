@@ -89,6 +89,23 @@ CAgc::CAgc()
     m_Decay = 0;
     m_SampleRate = 100.0;
     m_SigDelayBuf_r = (float*)(&m_SigDelayBuf);
+    m_ManualAgcGain = 0.f;
+    m_DecayAve = 0.f;
+    m_AttackAve = 0.f;
+    m_AttackRiseAlpha = 0.f;
+    m_AttackFallAlpha = 0.f;
+    m_DecayRiseAlpha = 0.f;
+    m_DecayFallAlpha = 0.f;
+    m_FixedGain = 0.f;
+    m_Knee = 0.f;
+    m_GainSlope = 0.f;
+    m_Peak = 0.f;
+    m_SigDelayPtr = 0;
+    m_MagBufPos = 0;
+    m_DelaySamples = 0;
+    m_WindowSamples = 0;
+    m_HangTime = 0;
+    m_HangTimer = 0;
 }
 
 CAgc::~CAgc()
