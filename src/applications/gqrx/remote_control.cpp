@@ -38,7 +38,10 @@ RemoteControl::RemoteControl(QObject *parent) :
     rc_freq = 0;
     rc_filter_offset = 0;
     bw_half = 740e3;
+    rc_lnb_lo_mhz = 0.0;
     rc_mode = 0;
+    rc_passband_lo = 0;
+    rc_passband_hi = 0;
     signal_level = -200.0;
     squelch_level = -150.0;
     audio_recorder_status = false;
