@@ -1,7 +1,10 @@
-       2.9: Released November XX, 2017
+
+       2.9: Released November 11, 2017
 
        NEW: Airspy HF+ support.
      FIXED: Always save TCP and UDP host settings.
+     FIXED: Application hangs when pulseaudio server is not running.
+
 
        2.8: Released September 16, 2017
 
@@ -11,6 +14,7 @@
      FIXED: Set default mode to AM instead of none.
   IMPROVED: Detection of gr-osmosdr when installed in custom directory.
   IMPROVED: Remote frequency handling.
+
 
        2.7: Released August 19, 2017
 
