@@ -25,6 +25,7 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QFile>
+#include <QMessageBox>
 #include <QString>
 #include <QStringList>
 #include <QStyleFactory>
@@ -32,6 +33,10 @@
 
 #ifdef WITH_PORTAUDIO
 #include <portaudio.h>
+#endif
+#ifdef WITH_PULSEAUDIO
+#include <pulse/error.h>
+#include <pulse/simple.h>
 #endif
 
 #include "mainwindow.h"
@@ -66,13 +71,6 @@ int main(int argc, char *argv[])
         qDebug() << "Controlport disabled";
     else
         qDebug() << "Failed to disable controlport";
-
-#ifdef WITH_PORTAUDIO
-    PaError     err = Pa_Initialize();
-    if (err != paNoError)
-        qCritical() << "Failed to initialize Portaudio backend:"
-                    << Pa_GetErrorText(err);
-#endif
 
     // setup the program options
     po::options_description desc("Command line options");
@@ -119,6 +117,41 @@ int main(int argc, char *argv[])
         list_conf();
         return 0;
     }
+
+    // check whether audio backend is functional
+#ifdef WITH_PORTAUDIO
+    PaError     err = Pa_Initialize();
+    if (err != paNoError)
+    {
+        QString message = QString("Portaudio error: %1").arg(Pa_GetErrorText(err));
+        qCritical() << message;
+        QMessageBox::critical(0, "Audio Error", message,
+                              QMessageBox::Abort, QMessageBox::NoButton);
+        return 1;
+    }
+#endif
+
+#ifdef WITH_PULSEAUDIO
+    int         error = 0;
+    pa_simple  *test_sink;
+    pa_sample_spec ss;
+
+    ss.format = PA_SAMPLE_FLOAT32LE;
+    ss.rate = 48000;
+    ss.channels = 2;
+    test_sink =  pa_simple_new(NULL, "Gqrx Test", PA_STREAM_PLAYBACK, NULL,
+                               "Test stream", &ss, NULL, NULL, &error);
+    if (!test_sink)
+    {
+        QString message = QString("Pulseaudio error: %1").arg(pa_strerror(error));
+        qCritical() << message;
+        QMessageBox::critical(0, "Audio Error", message,
+                              QMessageBox::Abort, QMessageBox::NoButton);
+        return 1;
+    }
+    pa_simple_free(test_sink);
+#endif
+
 
     if (!conf.empty())
     {
