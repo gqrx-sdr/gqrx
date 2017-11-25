@@ -169,9 +169,6 @@ private:
     //fftw_plan Rrev;
     struct _g
     {
-        int gain_method;
-        int npe_method;
-        int ae_run;
         double msize;
         double* mask;
         double* y;
@@ -185,10 +182,6 @@ private:
         double gamma_max;
         double q;
         double gmax;
-        //
-        double* GG;
-        double* GGS;
-        FILE* fileb;
     } d_nb2_g;
     struct _npest
     {

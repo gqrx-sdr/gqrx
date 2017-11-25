@@ -88,19 +88,14 @@ rx_nb_cc::rx_nb_cc(double sample_rate, float thld1, float thld2)
     d_nb2_rate = (int)96000;
     d_nb2_wintype = 0;
     d_nb2_ogain = 1.0;
-    d_nb2_g.gain_method = 2;
-    d_nb2_g.npe_method = 0;
-    d_nb2_g.ae_run = 1;
 
 
-    // calc_emnr
+    // nb2 - initial setup
     int i;
     double Dvals[18] = { 1.0, 2.0, 5.0, 8.0, 10.0, 15.0, 20.0, 30.0, 40.0,
         60.0, 80.0, 120.0, 140.0, 160.0, 180.0, 220.0, 260.0, 300.0 };
     double Mvals[18] = { 0.000, 0.260, 0.480, 0.580, 0.610, 0.668, 0.705, 0.762, 0.800,
         0.841, 0.865, 0.890, 0.900, 0.910, 0.920, 0.930, 0.935, 0.940 };
-    //double Hvals[18] = { 0.000, 0.150, 0.480, 0.780, 0.980, 1.550, 2.000, 2.300, 2.520,
-    //    3.100, 3.380, 4.150, 4.350, 4.250, 3.900, 4.100, 4.700, 5.000 };
     double arg, sum, inv_coherent_gain;
 
 
@@ -136,16 +131,10 @@ rx_nb_cc::rx_nb_cc(double sample_rate, float thld1, float thld2)
     d_nb2_nsamps = 0;
     d_nb2_saveidx = 0;
 
-
-
-    // FFT plan ?!?
-    //d_nb2_Rfor = fftw_plan_dft_r2c_1d(d_nb2_fsize, d_nb2_forfftin, (fftw_complex *)d_nb2_forfftout, FFTW_ESTIMATE);
-    //d_nb2_Rrev = fftw_plan_dft_c2r_1d(d_nb2_fsize, (fftw_complex *)d_nb2_revfftin, d_nb2_revfftout, FFTW_ESTIMATE);
     d_nb2_fft1 = new gr::fft::fft_real_fwd(d_nb2_fsize);
     d_nb2_fft2 = new gr::fft::fft_real_rev(d_nb2_fsize);
 
 
-    // calc_window
     arg = 2.0 * 3.1415926 / (double)d_nb2_fsize;
     sum = 0.0;
     for (i = 0; i < d_nb2_fsize; i++)
@@ -157,7 +146,6 @@ rx_nb_cc::rx_nb_cc(double sample_rate, float thld1, float thld2)
     for (i = 0; i < d_nb2_fsize; i++)
         d_nb2_window[i] *= inv_coherent_gain;
 
-    //calc_emnr continues
     d_nb2_g.msize = d_nb2_msize;
     d_nb2_g.mask = d_nb2_mask;
     d_nb2_g.lambda_y = (double *)malloc(d_nb2_msize * sizeof(double));
@@ -180,14 +168,6 @@ rx_nb_cc::rx_nb_cc(double sample_rate, float thld1, float thld2)
         d_nb2_g.prev_gamma[i] = 1.0;
     }
     d_nb2_g.gmax = 10000.0;
-    //
-    d_nb2_g.GG = (double *)malloc(241 * 241 * sizeof(double));
-    d_nb2_g.GGS = (double *)malloc(241 * 241 * sizeof(double));
-    d_nb2_g.fileb = fopen("calculus", "rb");
-    fread(d_nb2_g.GG, sizeof(double), 241 * 241, d_nb2_g.fileb);
-    fread(d_nb2_g.GGS, sizeof(double), 241 * 241, d_nb2_g.fileb);
-    fclose(d_nb2_g.fileb);
-    //
 
     d_nb2_np.incr = d_nb2_incr;
     d_nb2_np.rate = d_nb2_rate;
@@ -311,14 +291,10 @@ rx_nb_cc::rx_nb_cc(double sample_rate, float thld1, float thld2)
 
     d_nb2_ae.msize = d_nb2_msize;
     d_nb2_ae.lambda_y = d_nb2_g.lambda_y;
-
     d_nb2_ae.zetaThresh = 0.75;
     d_nb2_ae.psi = 10.0;
-
     d_nb2_ae.nmask = (double *)malloc(d_nb2_ae.msize * sizeof(double));
 
-
-    // flush_emnr
     memset (d_nb2_inaccum, 0, d_nb2_iasize * sizeof (double));
     for (i = 0; i < d_nb2_ovrlp; i++)
         memset (d_nb2_save[i], 0, d_nb2_fsize * sizeof (double));
@@ -329,9 +305,6 @@ rx_nb_cc::rx_nb_cc(double sample_rate, float thld1, float thld2)
     d_nb2_oainidx  = d_nb2_init_oainidx;
     d_nb2_oaoutidx = 0;
     d_nb2_saveidx  = 0;
-
-
-
 }
 
 rx_nb_cc::~rx_nb_cc()
@@ -364,8 +337,6 @@ rx_nb_cc::~rx_nb_cc()
     free(d_nb2_np.alphaOptHat);
     free(d_nb2_np.p);
 
-    free(d_nb2_g.GGS);
-    free(d_nb2_g.GG);
     free(d_nb2_g.prev_mask);
     free(d_nb2_g.prev_gamma);
     free(d_nb2_g.lambda_d);
@@ -413,6 +384,7 @@ int rx_nb_cc::work(int noutput_items,
     return noutput_items;
 }
 
+
 /*! \brief Perform noise blanker 1 processing.
  *  \param buf The data buffer holding gr_complex samples.
  *  \param num The number of samples in the buffer.
@@ -424,33 +396,7 @@ int rx_nb_cc::work(int noutput_items,
  */
 void rx_nb_cc::process_nb1(gr_complex *buf, int num)
 {
-/*
-    float cmag;
-    gr_complex zero(0.0, 0.0);
 
-    for (int i = 0; i < num; i++)
-    {
-        cmag = abs(buf[i]);
-        d_delay[d_sigidx] = buf[i];
-        d_avgmag_nb1 = 0.999*d_avgmag_nb1 + 0.001*cmag;
-
-        if ((d_hangtime == 0) && (cmag > (d_thld_nb1*d_avgmag_nb1)))
-            d_hangtime = 7;
-
-        if (d_hangtime > 0)
-        {
-            buf[i] = zero;
-            d_hangtime--;
-        }
-        else
-        {
-            buf[i] = d_delay[d_delidx];
-        }
-
-        d_sigidx = (d_sigidx + 7) & 7;
-        d_delidx = (d_delidx + 7) & 7;
-    }
-*/
     int i, j, idx;
     double c0, c1;
     double y, error, sigma, inv_sigp;
@@ -494,12 +440,7 @@ void rx_nb_cc::process_nb1(gr_complex *buf, int num)
         }
         d_nb1_in_idx = (d_nb1_in_idx + d_nb1_mask) & d_nb1_mask;
     }
-
-
-
 }
-
-
 
 
 
@@ -545,7 +486,6 @@ double bessI0 (double x)
 
 double bessI1 (double x)
 {
-    
     double res, p;
     if (x == 0.0)
         res = 0.0;
@@ -583,46 +523,6 @@ double bessI1 (double x)
     return res;
 }
 
-// EXPONENTIAL INTEGRAL, E1(x)
-// M. Abramowitz and I. Stegun, Eds., "Handbook of Mathematical Functions."  Washington, DC:  National
-//      Bureau of Standards, 1964.
-// Shanjie Zhang and Jianming Jin, "Computation of Special Functions."  New York, NY, John Wiley and Sons,
-//      Inc., 1996.  [Sample code given in FORTRAN]
-
-double e1xb (double x)
-{
-    double e1, ga, r, t, t0;
-    int k, m;
-    if (x == 0.0) 
-        e1 = 1.0e300;
-    else if (x <= 1.0)
-    {
-        e1 = 1.0;
-        r = 1.0;
-
-        for (k = 1; k <= 25; k++)
-        {
-            r = -r * k * x / ((k + 1.0)*(k + 1.0));
-            e1 = e1 + r;
-            if ( fabs (r) <= fabs (e1) * 1.0e-15 )
-                break;
-        }
-
-        ga = 0.5772156649015328;
-        e1 = - ga - log (x) + x * e1;
-    }
-      else
-    {
-        m = 20 + (int)(80.0 / x);
-        t0 = 0.0;
-        for (k = m; k >= 1; k--)
-            t0 = (double)k / (1.0 + k / (x + t0));
-        t = 1.0 / (x + t0);
-        e1 = exp (- x) * t;
-    }
-    return e1;
-}
-
 
 void rx_nb_cc::interpM (double* res, double x, int nvals, double* xvals, double* yvals)
 {
@@ -644,61 +544,6 @@ void rx_nb_cc::interpM (double* res, double x, int nvals, double* xvals, double*
 
 
 
-
-
-double getKey(double* type, double gamma, double xi)
-{
-    int ngamma1, ngamma2, nxi1, nxi2;
-    double tg, tx, dg, dx;
-    const double dmin = 0.001;
-    const double dmax = 1000.0;
-    if (gamma <= dmin)
-    {
-        ngamma1 = ngamma2 = 0;
-        tg = 0.0;
-    }
-    else if (gamma >= dmax)
-    {
-        ngamma1 = ngamma2 = 240;
-        tg = 60.0;
-    }
-    else
-    {
-        tg = 10.0 * log10(gamma / dmin);
-        ngamma1 = (int)(4.0 * tg);
-        ngamma2 = ngamma1 + 1;
-    }
-    if (xi <= dmin)
-    {
-        nxi1 = nxi2 = 0;
-        tx = 0.0;
-    }
-    else if (xi >= dmax)
-    {
-        nxi1 = nxi2 = 240;
-        tx = 60.0;
-    }
-    else
-    {
-        tx = 10.0 * log10(xi / dmin);
-        nxi1 = (int)(4.0 * tx);
-        nxi2 = nxi1 + 1;
-    }
-    dg = (tg - 0.25 * ngamma1) / 0.25;
-    dx = (tx - 0.25 * nxi1) / 0.25;
-    return (1.0 - dg)  * (1.0 - dx) * type[241 * nxi1 + ngamma1]
-        +  (1.0 - dg)  *        dx  * type[241 * nxi2 + ngamma1]
-        +         dg   * (1.0 - dx) * type[241 * nxi1 + ngamma2]
-        +         dg   *        dx  * type[241 * nxi2 + ngamma2];
-}
-
-
-
-
-
-
-
-
 /*! \brief Perform noise blanker 2 processing.
  *  \param buf The data buffer holding gr_complex samples.
  *  \param num The number of samples in the buffer.
@@ -710,21 +555,6 @@ double getKey(double* type, double gamma, double xi)
  */
 void rx_nb_cc::process_nb2(gr_complex *buf, int num)
 {
-/*
-    float cmag;
-    gr_complex c1(0.75);
-    gr_complex c2(0.25);
-
-    for (int i = 0; i < num; i++)
-    {
-        cmag = abs(buf[i]);
-        d_avgsig = c1*d_avgsig + c2*buf[i];
-        d_avgmag_nb2 = 0.999*d_avgmag_nb2 + 0.001*cmag;
-
-        if (cmag > d_thld_nb2*d_avgmag_nb2)
-            buf[i] = d_avgsig;
-    }
-*/
         int i, j, k, sbuff, sbegin;
         double g1;
         double f0, f1, f2, f3;
@@ -876,24 +706,32 @@ void rx_nb_cc::process_nb2(gr_complex *buf, int num)
                 ++d_nb2_np.subwc;
             }
             memcpy (d_nb2_np.lambda_d, d_nb2_np.sigma2N, d_nb2_np.msize * sizeof (double));
-            // end lambdaD
 
 
-            // gain mode 2
-            double gamma, eps_hat, eps_p;
+            // gain mode 0 (not 2)
+            double gamma, eps_hat, v;
             for (k = 0; k < d_nb2_msize; k++)
             {
-                gamma = std::min(d_nb2_g.lambda_y[k] / d_nb2_g.lambda_d[k], d_nb2_g.gamma_max);
+                gamma = std::min (d_nb2_g.lambda_y[k] / d_nb2_g.lambda_d[k], d_nb2_g.gamma_max);
                 eps_hat = d_nb2_g.alpha * d_nb2_g.prev_mask[k] * d_nb2_g.prev_mask[k] * d_nb2_g.prev_gamma[k]
-                    + (1.0 - d_nb2_g.alpha) * std::max(gamma - 1.0, d_nb2_g.eps_floor);
-                eps_p = eps_hat / (1.0 - d_nb2_g.q);
-                d_nb2_g.mask[k] = getKey(d_nb2_g.GG, gamma, eps_hat) * getKey(d_nb2_g.GGS, gamma, eps_p);
+                    + (1.0 - d_nb2_g.alpha) * std::max (gamma - 1.0, d_nb2_g.eps_floor);
+                v = (eps_hat / (1.0 + eps_hat)) * gamma;
+                d_nb2_g.mask[k] = d_nb2_g.gf1p5 * sqrt (v) / gamma * exp (- 0.5 * v)
+                    * ((1.0 + v) * bessI0 (0.5 * v) + v * bessI1 (0.5 * v));
+                {
+                    double v2 = std::min (v, 700.0);
+                    double eta = d_nb2_g.mask[k] * d_nb2_g.mask[k] * d_nb2_g.lambda_y[k] / d_nb2_g.lambda_d[k];
+                    double eps = eta / (1.0 - d_nb2_g.q);
+                    double witchHat = (1.0 - d_nb2_g.q) / d_nb2_g.q * exp (v2) / (1.0 + eps);
+                    d_nb2_g.mask[k] *= witchHat / (1.0 + witchHat);
+                }
+                if (d_nb2_g.mask[k] > d_nb2_g.gmax) d_nb2_g.mask[k] = d_nb2_g.gmax;
+                if (d_nb2_g.mask[k] != d_nb2_g.mask[k]) d_nb2_g.mask[k] = 0.01;
                 d_nb2_g.prev_gamma[k] = gamma;
                 d_nb2_g.prev_mask[k] = d_nb2_g.mask[k];
             }
 
 
-            // aepf
             sumPre = 0.0;
             sumPost = 0.0;
             for (k = 0; k < d_nb2_ae.msize; k++)
