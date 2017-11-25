@@ -124,10 +124,6 @@ private:
     gr::blocks::complex_to_float::sptr  demod_raw;  /*!< Raw I/Q passthrough. */
     gr::blocks::complex_to_real::sptr   demod_ssb;  /*!< SSB demodulator. */
 
-    gr::blocks::float_to_complex::sptr   f2c;
-    gr::blocks::complex_to_float::sptr   c2f;
-
-
     rx_demod_fm_sptr          demod_fm;   /*!< FM demodulator. */
     rx_demod_am_sptr          demod_am;   /*!< AM demodulator. */
     resampler_ff_sptr         audio_rr;   /*!< Audio resampler. */

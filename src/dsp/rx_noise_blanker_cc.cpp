@@ -30,7 +30,7 @@
 
 void rx_nb_cc::forecast (int noutput_items, gr_vector_int &ninput_items_required)
 {
-    ninput_items_required[0] = 4096;
+    ninput_items_required[0] = d_nb2_bsize;
 }
 
 
@@ -46,8 +46,8 @@ rx_nb_cc_sptr make_rx_nb_cc(double sample_rate, float thld1, float thld2)
  */
 rx_nb_cc::rx_nb_cc(double sample_rate, float thld1, float thld2)
     : gr::sync_block ("rx_nb_cc",
-          gr::io_signature::make(1, 1, sizeof(gr_complex)),
-          gr::io_signature::make(1, 1, sizeof(gr_complex))),
+          gr::io_signature::make(1, 1, sizeof(float)),
+          gr::io_signature::make(1, 1, sizeof(float))),
       d_nb1_on(false),
       d_nb2_on(false),
       d_sample_rate(sample_rate),
@@ -67,7 +67,7 @@ rx_nb_cc::rx_nb_cc(double sample_rate, float thld1, float thld2)
     d_nb1_mask = 2048 - 1;
     d_nb1_n_taps = 64;
     d_nb1_delay = 16;
-    d_nb1_two_mu = 1.0e-3;
+    d_nb1_two_mu = 1.0e-4;
     d_nb1_gamma = 0.1;
     d_nb1_in_idx = 0;
     d_nb1_lidx = 120.0;
@@ -82,12 +82,11 @@ rx_nb_cc::rx_nb_cc(double sample_rate, float thld1, float thld2)
 
     // Init nb2 params
 
-    d_nb2_bsize = (int)4096;
+    d_nb2_bsize = (int)1024;
     d_nb2_fsize = (int)4096;
-    d_nb2_ovrlp = 4;
+    d_nb2_ovrlp = 32;
     d_nb2_rate = (int)96000;
-    d_nb2_wintype = 0;
-    d_nb2_ogain = 1.0;
+    d_nb2_ogain = 0.99;
 
 
     // nb2 - initial setup
@@ -360,25 +359,32 @@ int rx_nb_cc::work(int noutput_items,
                    gr_vector_const_void_star &input_items,
                    gr_vector_void_star &output_items)
 {
-    const gr_complex *in = (const gr_complex *) input_items[0];
-    gr_complex *out = (gr_complex *) output_items[0];
+    const float *in = (const float *) input_items[0];
+    float *out = (float *) output_items[0];
     int i;
 
     boost::mutex::scoped_lock lock(d_mutex);
 
     // copy data into output buffer then perform the processing on that buffer
-    for (i = 0; i < noutput_items; i++)
+    if (noutput_items < d_nb2_bsize)
+        return 0;
+    else
     {
-        out[i] = in[i];
-    }
+        for (i = 0; i < d_nb2_bsize; i++)
+        {
+            out[i] = in[i];
+        }
 
-    if (d_nb2_on)
-    {
-        process_nb2(out, noutput_items);
-    }
-    if (d_nb1_on)
-    {
-        process_nb1(out, noutput_items);
+        if (d_nb2_on)
+        {
+            process_nb2(out, d_nb2_bsize);
+        }
+
+        if (d_nb1_on)
+        {
+            process_nb1(out, d_nb2_bsize);
+        }
+        return d_nb2_bsize;
     }
 
     return noutput_items;
@@ -394,7 +400,7 @@ int rx_nb_cc::work(int noutput_items,
  *
  * FIXME: Needs different constants for higher sample rates?
  */
-void rx_nb_cc::process_nb1(gr_complex *buf, int num)
+void rx_nb_cc::process_nb1(float *buf, int num)
 {
 
     int i, j, idx;
@@ -403,7 +409,7 @@ void rx_nb_cc::process_nb1(gr_complex *buf, int num)
     double nel, nev;
     for (i = 0; i < num; i++)
     {
-        d_nb1_d[d_nb1_in_idx] = buf[i].real();
+        d_nb1_d[d_nb1_in_idx] = buf[i];
 
         y = 0;
         sigma = 0;
@@ -417,7 +423,7 @@ void rx_nb_cc::process_nb1(gr_complex *buf, int num)
         inv_sigp = 1.0 / (sigma + 1e-10);
         error = d_nb1_d[d_nb1_in_idx] - y;
 
-        buf[i] = gr_complex(y,0.0);
+        buf[i] = y;
 
         if((nel = error * (1.0 - d_nb1_two_mu * sigma * inv_sigp)) < 0.0) nel = -nel;
         if((nev = d_nb1_d[d_nb1_in_idx] - (1.0 - d_nb1_two_mu * d_nb1_ngamma) * y - d_nb1_two_mu * error * sigma * inv_sigp) < 0.0) 
@@ -553,7 +559,7 @@ void rx_nb_cc::interpM (double* res, double x, int nvals, double* xvals, double*
  *
  * FIXME: Needs different constants for higher sample rates?
  */
-void rx_nb_cc::process_nb2(gr_complex *buf, int num)
+void rx_nb_cc::process_nb2(float *buf, int num)
 {
         int i, j, k, sbuff, sbegin;
         double g1;
@@ -575,7 +581,7 @@ void rx_nb_cc::process_nb2(gr_complex *buf, int num)
 
         for (i = 0; i < num; i ++)
         {
-            d_nb2_inaccum[d_nb2_iainidx] = buf[i].real();
+            d_nb2_inaccum[d_nb2_iainidx] = (double)buf[i];
             d_nb2_iainidx = (d_nb2_iainidx + 1) % d_nb2_iasize;
         }
         d_nb2_nsamps += num;
@@ -788,7 +794,7 @@ void rx_nb_cc::process_nb2(gr_complex *buf, int num)
         }
         for (i = 0; i < num; i++)
         {
-            buf[i] = gr_complex(d_nb2_outaccum[d_nb2_oaoutidx], 0.0);
+            buf[i] = (float)d_nb2_outaccum[d_nb2_oaoutidx];
             d_nb2_oaoutidx = (d_nb2_oaoutidx + 1) % d_nb2_oasize;
         }
 

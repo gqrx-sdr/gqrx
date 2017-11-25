@@ -96,8 +96,8 @@ public:
     void set_threshold2(float threshold);
 
 private:
-    void process_nb1(gr_complex *buf, int num);
-    void process_nb2(gr_complex *buf, int num);
+    void process_nb1(float *buf, int num);
+    void process_nb2(float *buf, int num);
     void interpM (double* res, double x, int nvals, double* xvals, double* yvals);
 
 
@@ -155,7 +155,6 @@ private:
     int d_nb2_oasize;
     double* d_nb2_outaccum;
     double d_nb2_rate;
-    int d_nb2_wintype;
     double d_nb2_ogain;
     double d_nb2_gain;
     int d_nb2_nsamps;
@@ -165,8 +164,6 @@ private:
     int d_nb2_oainidx;
     int d_nb2_oaoutidx;
     int d_nb2_saveidx;
-    //fftw_plan Rfor;
-    //fftw_plan Rrev;
     struct _g
     {
         double msize;
