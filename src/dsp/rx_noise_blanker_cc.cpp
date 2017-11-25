@@ -423,7 +423,7 @@ void rx_nb_cc::process_nb1(float *buf, int num)
         inv_sigp = 1.0 / (sigma + 1e-10);
         error = d_nb1_d[d_nb1_in_idx] - y;
 
-        buf[i] = y;
+        buf[i] = (float)(y * 1.5f); // gain
 
         if((nel = error * (1.0 - d_nb1_two_mu * sigma * inv_sigp)) < 0.0) nel = -nel;
         if((nev = d_nb1_d[d_nb1_in_idx] - (1.0 - d_nb1_two_mu * d_nb1_ngamma) * y - d_nb1_two_mu * error * sigma * inv_sigp) < 0.0) 
@@ -794,7 +794,7 @@ void rx_nb_cc::process_nb2(float *buf, int num)
         }
         for (i = 0; i < num; i++)
         {
-            buf[i] = (float)d_nb2_outaccum[d_nb2_oaoutidx];
+            buf[i] = (float)d_nb2_outaccum[d_nb2_oaoutidx] * 1.5f;
             d_nb2_oaoutidx = (d_nb2_oaoutidx + 1) % d_nb2_oasize;
         }
 
