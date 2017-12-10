@@ -158,6 +158,7 @@ HEADERS += \
     src/dsp/rds/decoder_impl.h \
     src/dsp/rds/parser_impl.h \
     src/dsp/rds/constants.h \
+    src/dsp/rds/tmc_events.h \
     src/dsp/resampler_xx.h \
     src/dsp/rx_agc_xx.h \
     src/dsp/rx_demod_am.h \
