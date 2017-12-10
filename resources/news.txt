@@ -126,7 +126,7 @@
      FIXED: Use correct main category in desktop entry file.
   IMPROVED: Support up to 1M point FFT.
   IMPROVED: Fractional PPM correction.
-  IMPROVED: AGC peformance.
+  IMPROVED: AGC performance.
   IMPROVED: FFT performance.
   IMPROVED: Right click on frequency digit to clear digits.
   IMPROVED: Robustness against malformed remote control commands.
