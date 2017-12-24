@@ -12,5 +12,5 @@ Comment[de]=Software defined Radio auf Basis von GNU Radio und dem Qt GUI Toolki
 Exec=gqrx
 Terminal=false
 Icon=gqrx
-Categories=Network;HamRadio;Accessories;
+Categories=Network;HamRadio;
 Keywords=SDR;Radio;HAM;

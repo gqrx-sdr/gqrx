@@ -90,7 +90,7 @@ void rx_filter::set_param(double low, double high, double trans_width)
                                                    d_trans_width);
 
 #ifndef QT_NO_DEBUG_OUTPUT
-    std::cout << "Genrating taps for new filter   LO:" << d_low
+    std::cout << "Generating taps for new filter   LO:" << d_low
               << "   HI:" << d_high << " TW:" << d_trans_width
               << "   Taps: " << d_taps.size() << std::endl;
 #endif

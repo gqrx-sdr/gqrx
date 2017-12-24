@@ -53,6 +53,7 @@ void parser_impl::reset() {
 	memset(radiotext, ' ', sizeof(radiotext));
 	memset(program_service_name, '.', sizeof(program_service_name));
 
+    program_identification         = 0;
 	radiotext_AB_flag              = 0;
 	traffic_program                = false;
 	traffic_announcement           = false;

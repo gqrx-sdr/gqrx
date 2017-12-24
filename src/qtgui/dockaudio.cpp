@@ -327,10 +327,10 @@ void DockAudio::saveSettings(QSettings *settings)
     else
         settings->remove("rec_dir");
 
-    if ((udp_host != "localhost") && (udp_host != "127.0.0.1"))
-        settings->setValue("udp_host", udp_host);
-    else
+    if (udp_host.isEmpty())
         settings->remove("udp_host");
+    else
+        settings->setValue("udp_host", udp_host);
 
     if (udp_port != 7355)
         settings->setValue("udp_port", udp_port);

@@ -36,7 +36,19 @@ decoder_impl::decoder_impl(bool log, bool debug)
 	log(log),
 	debug(debug)
 {
-	set_output_multiple(104);  // 1 RDS datagroup = 104 bits
+    bit_counter = 0;
+    lastseen_offset_counter = 0;
+    reg = 0;
+    block_bit_counter = 0;
+    wrong_blocks_counter = 0;
+    blocks_counter = 0;
+    group_good_blocks_counter = 0;
+    good_block = false;
+    group_assembly_started = false;
+    lastseen_offset = 0;
+    block_number = 0;
+
+    set_output_multiple(104);  // 1 RDS datagroup = 104 bits
 	message_port_register_out(pmt::mp("out"));
 	enter_no_sync();
 }
