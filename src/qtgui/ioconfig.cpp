@@ -531,31 +531,23 @@ void CIoConfig::updateInputSampleRates(int rate)
     }
     else if (ui->inDevEdit->text().contains("sdrplay"))
     {
-        ui->inSrCombo->addItem("222222");
-        ui->inSrCombo->addItem("333333");
-        ui->inSrCombo->addItem("428571");
-        ui->inSrCombo->addItem("500000");
-        ui->inSrCombo->addItem("571429");
-        ui->inSrCombo->addItem("750000");
-        ui->inSrCombo->addItem("875000");
-        ui->inSrCombo->addItem("1000000");
-        ui->inSrCombo->addItem("1536000");
+        ui->inSrCombo->addItem("2000000");
         ui->inSrCombo->addItem("2048000");
+        ui->inSrCombo->addItem("3000000");
+        ui->inSrCombo->addItem("4000000");
         ui->inSrCombo->addItem("5000000");
         ui->inSrCombo->addItem("6000000");
         ui->inSrCombo->addItem("7000000");
         ui->inSrCombo->addItem("8000000");
         ui->inSrCombo->addItem("9000000");
         ui->inSrCombo->addItem("10000000");
-        ui->inSrCombo->addItem("11000000");
-        ui->inSrCombo->addItem("12000000");
         if (rate > 0)
         {
             ui->inSrCombo->insertItem(0, QString("%1").arg(rate));
             ui->inSrCombo->setCurrentIndex(0);
         }
         else
-            ui->inSrCombo->setCurrentIndex(9); // select 2048 kHz
+            ui->inSrCombo->setCurrentIndex(1); // select 2048 kHz
     }
     else if (ui->inDevEdit->text().contains("lime"))
     {
