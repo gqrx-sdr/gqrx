@@ -543,6 +543,10 @@ void CIoConfig::updateInputSampleRates(int rate)
         ui->inSrCombo->addItem("10000000");
         if (rate > 0)
         {
+            if (rate < 2000000)
+                rate = 2000000;
+            if (rate > 10000000)
+                rate = 10000000;
             ui->inSrCombo->insertItem(0, QString("%1").arg(rate));
             ui->inSrCombo->setCurrentIndex(0);
         }
