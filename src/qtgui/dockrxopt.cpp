@@ -486,7 +486,9 @@ void DockRxOpt::setRxFreq(qint64 freq_hz)
 
 void DockRxOpt::setRxFreqRange(qint64 min_hz, qint64 max_hz)
 {
+    ui->freqSpinBox->blockSignals(true);
     ui->freqSpinBox->setRange(1.e-3 * (double)min_hz, 1.e-3 * (double)max_hz);
+    ui->freqSpinBox->blockSignals(false);
 }
 
 /**
