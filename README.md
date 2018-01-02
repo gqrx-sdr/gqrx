@@ -165,120 +165,45 @@ come with a Simplified BSD license.
 
 Following people and organisations have contributed to gqrx:
 
-Alex Grinkov:
-- FM stereo demodulator.
-
-Alexander Fasching:
-- Bug fixes.
-
-Andy Sloane:
-- Bug fixes and improvements.
-
-Andrea Merello:
-- Cmake build option to build using gr-audio.
-
-Anthony Willard:
-- Various fixes and improvements
-
-Bastian Bloessl:
-Pavel Stano:
-- RDS support via gr-rds.
-
-Chris Kuethe:
-- Fractional PPM correction.
-
-Christian Lindner DL2VCL:
-charlylima:
-Stefano Leucci:
-- Bookmarks implementation.
-
-Daniil Cherednik:
-- FM OIRT stereo.
-
-Dominic Chen:
-- Bug fixes.
-
-Elias Önal:
-- Building Gqrx on Mac OS X.
-- Crash recovery dialog.
-
-Frank Brickle, AB2KT:
-Bob McGwier, N4HY:
-- Noise blanker (from dttsp).
-
-Göran Weinholt, SA6CJK:
-- Various GUI improvements.
-
-Grigory Shipunov:
-- Initial .desktop file.
-
-Jiří Pinkava:
-- Port to gnuradio 3.7 API.
-
+Alex Grinkov
+Alexander Fasching
+Andy Sloane
+Andrea Merello
+Anthony Willard
+Bastian Bloessl
+Pavel Stano
+Chris Kuethe
+Christian Lindner DL2VCL
+charlylima
+Stefano Leucci
+Daniil Cherednik
+Dominic Chen
+Elias Önal
+Frank Brickle, AB2KT
+Bob McGwier, N4HY
+Göran Weinholt, SA6CJK
+Grigory Shipunov
+Jiří Pinkava
+Jeff Long
 Josh Blum
-- Windows build and MSVC tweaks.
-
-Kate Adams:
-- Auto squelch.
-
-Kitware Inc.:
-- Widgets from the CTK library (http://commontk.org/).
-
-Michael Dickens:
-- Bugfixes and audio on OSX.
-
-Michael Lass:
-- Improved tuning ranges at hardware limits.
-
-Michael Tatarinov:
-- Documentation and bugfixes.
-
-Moe Weatley:
-- FFT plotter and waterfall.
-- Frequency selector.
-- Signal strength indicator.
-- AGC
-
-Nadeem Hasan:
-- Bug fixes.
-
-Nokia:
-- QtColorPicker widget.
-
-Phil Vachon:
-- Bug fixes.
-
-Rob Frohne:
-- Initial Qt5 support.
-
-Stefano Leucci:
-- Peak detection and hold for the FFT plot.
-
-Timothy Reaves:
-- UI layout fixes for Mac.
-- cmake build files
-
-Valentin Ochs:
-- ALSA support improvement.
-- Various bugfixes.
-
-Vesa Solonen:
-- DC removal in AM demodulator.
-
+Kate Adams
+Kitware Inc.
+Michael Dickens
+Michael Lass
+Michael Tatarinov
+Moe Weatley
+Nadeem Hasan
+Nokia
+Phil Vachon
+Rob Frohne
+Stefano Leucci
+Timothy Reaves
+Valentin Ochs
+Vesa Solonen
 Vincent Pelletier
-- Initial work on the horizontal zooming / scrolling.
-
 Will Scales
-- Bug fixes.
-
 Wolfgang Fritz DK7OB
-- SDRPlay integration.
-- 1-2-5 scaling on FFT plot.
-- Various UI improvements.
-
 Youssef Touil
-- Two-stage FIR decimator design.
-- FIRCalc design tool for optimizing previous input decimator.
 
 Some of the icons are from:
 - The GNOME icon theme CC-SA 3.0 by GNOME icon artists 
@@ -288,6 +213,6 @@ Some of the icons are from:
 Also thanks to Volker Schroer and Alexey Bazhin for bringing Funcube Dongle
 Pro+ support to GNU Radio and Gqrx.
 
-Let me know if somebody or someting is missing from the list!
+Let me know if somebody is missing from the list.
 
 Alex OZ9AEC

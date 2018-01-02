@@ -1,4 +1,11 @@
 
+      2.10: Released TBC...
+
+     FIXED: Crash when starting gqrx using hackrf.
+     FIXED: Spelling errors.
+  IMPROVED: Predefined list of sample rates for SDRPlay.
+
+
        2.9: Released November 11, 2017
 
        NEW: Airspy HF+ support.
