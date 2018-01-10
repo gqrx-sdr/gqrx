@@ -531,6 +531,11 @@ void CIoConfig::updateInputSampleRates(int rate)
     }
     else if (ui->inDevEdit->text().contains("sdrplay"))
     {
+        ui->inSrCombo->addItem("62500");
+        ui->inSrCombo->addItem("125000");
+        ui->inSrCombo->addItem("250000");
+        ui->inSrCombo->addItem("500000");
+        ui->inSrCombo->addItem("1000000");
         ui->inSrCombo->addItem("2000000");
         ui->inSrCombo->addItem("2048000");
         ui->inSrCombo->addItem("3000000");
@@ -543,8 +548,8 @@ void CIoConfig::updateInputSampleRates(int rate)
         ui->inSrCombo->addItem("10000000");
         if (rate > 0)
         {
-            if (rate < 2000000)
-                rate = 2000000;
+            if (rate < 62500)
+                rate = 62500;
             if (rate > 10000000)
                 rate = 10000000;
             ui->inSrCombo->insertItem(0, QString("%1").arg(rate));
