@@ -537,7 +537,6 @@ void CIoConfig::updateInputSampleRates(int rate)
         ui->inSrCombo->addItem("500000");
         ui->inSrCombo->addItem("1000000");
         ui->inSrCombo->addItem("2000000");
-        ui->inSrCombo->addItem("2048000");
         ui->inSrCombo->addItem("3000000");
         ui->inSrCombo->addItem("4000000");
         ui->inSrCombo->addItem("5000000");
@@ -556,7 +555,7 @@ void CIoConfig::updateInputSampleRates(int rate)
             ui->inSrCombo->setCurrentIndex(0);
         }
         else
-            ui->inSrCombo->setCurrentIndex(1); // select 2048 kHz
+            ui->inSrCombo->setCurrentIndex(5); // select 2 MHz
     }
     else if (ui->inDevEdit->text().contains("lime"))
     {
