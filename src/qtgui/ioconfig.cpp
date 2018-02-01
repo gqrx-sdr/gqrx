@@ -594,6 +594,26 @@ void CIoConfig::updateInputSampleRates(int rate)
         else
             ui->inSrCombo->setCurrentIndex(2); // select 2 MHz
     }
+    else if (ui->inDevEdit->text().contains("perseus"))
+    {
+        ui->inSrCombo->addItem("48000");
+        ui->inSrCombo->addItem("95000");
+        ui->inSrCombo->addItem("96000");
+        ui->inSrCombo->addItem("125000");
+        ui->inSrCombo->addItem("192000");
+        ui->inSrCombo->addItem("250000");
+        ui->inSrCombo->addItem("500000");
+        ui->inSrCombo->addItem("1000000");
+        ui->inSrCombo->addItem("1600000");
+        ui->inSrCombo->addItem("2000000");
+        if (rate > 0)
+        {
+            ui->inSrCombo->insertItem(0, QString("%1").arg(rate));
+            ui->inSrCombo->setCurrentIndex(0);
+        }
+        else
+            ui->inSrCombo->setCurrentIndex(4); // select 192 kHz
+    }
     else
     {
         if (rate > 0)
