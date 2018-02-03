@@ -169,6 +169,7 @@ Alex Grinkov
 Alexander Fasching
 Andy Sloane
 Andrea Merello
+Andrea Montefusco IW0HDV 
 Anthony Willard
 Bastian Bloessl
 Pavel Stano
