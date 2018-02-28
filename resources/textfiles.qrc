@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/textfiles">
+        <file>news.txt</file>
+        <file>remote-control.txt</file>
+    </qresource>
+</RCC>

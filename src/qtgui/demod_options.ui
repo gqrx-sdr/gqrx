@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CDemodOptions</class>
+ <widget class="QDialog" name="CDemodOptions">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>228</width>
+    <height>110</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Mode options</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../resources/icons.qrc">
+    <normaloff>:/icons/icons/signal.svg</normaloff>:/icons/icons/signal.svg</iconset>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QStackedWidget" name="demodOptions">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>72</height>
+      </size>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="demodNoOpt">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>No options for
+this demodulator</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="demodFmOpt">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <layout class="QFormLayout" name="pagedemodFormLayout2">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+         </property>
+         <property name="labelAlignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="horizontalSpacing">
+          <number>10</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>5</number>
+         </property>
+         <property name="leftMargin">
+          <number>5</number>
+         </property>
+         <property name="rightMargin">
+          <number>5</number>
+         </property>
+         <property name="bottomMargin">
+          <number>5</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="maxdevLabel">
+           <property name="text">
+            <string>Max dev</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="maxdevSelector">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>24</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Maximum FM deviation</string>
+           </property>
+           <property name="statusTip">
+            <string>Maximum FM deviation</string>
+           </property>
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <item>
+            <property name="text">
+             <string>Voice (2.5 kHz)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Voice (5 kHz)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>APT (17 kHz)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>APT (25 kHz)</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="emphLabel">
+           <property name="text">
+            <string>Tau</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="emphSelector">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>24</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Time constant for the FM de-emphasis IIR filter.
+For narrow band FM use 530 μs.
+50 μs and 75 μs are used for broadcast FM depending on region.
+For digital modes it is best to switch it off.</string>
+           </property>
+           <property name="statusTip">
+            <string/>
+           </property>
+           <property name="editable">
+            <bool>false</bool>
+           </property>
+           <property name="currentIndex">
+            <number>3</number>
+           </property>
+           <item>
+            <property name="text">
+             <string>Off</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>25 μs</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>50 μs</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>75 μs</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>100 μs</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>250 μs</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>530 μs</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>1 ms</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="demodAmOpt">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QCheckBox" name="dcrCheckBox">
+         <property name="toolTip">
+          <string>Enable/disable DC removal.</string>
+         </property>
+         <property name="text">
+          <string>DCR</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page">
+      <widget class="QWidget" name="layoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>30</y>
+         <width>161</width>
+         <height>29</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>CW offset</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="cwOffsetSpin">
+          <property name="suffix">
+           <string> Hz</string>
+          </property>
+          <property name="maximum">
+           <number>2000</number>
+          </property>
+          <property name="value">
+           <number>700</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../resources/icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>

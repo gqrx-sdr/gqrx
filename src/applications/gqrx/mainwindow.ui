@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>950</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>gqrx</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../../resources/icons.qrc">
+    <normaloff>:/icons/icons/gqrx.svg</normaloff>:/icons/icons/gqrx.svg</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <property name="dockOptions">
+   <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>true</bool>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(31, 29, 29);</string>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <property name="spacing">
+     <number>10</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>10</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>10</number>
+      </property>
+      <property name="leftMargin">
+       <number>20</number>
+      </property>
+      <property name="rightMargin">
+       <number>10</number>
+      </property>
+      <item>
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="CFreqCtrl" name="freqCtrl">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>371</width>
+          <height>41</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string/>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="CMeter" name="sMeter">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>171</width>
+          <height>41</height>
+         </size>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="CPlotter" name="plotter">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>950</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionDSP"/>
+    <addaction name="separator"/>
+    <addaction name="actionIoConfig"/>
+    <addaction name="actionLoadSettings"/>
+    <addaction name="actionSaveSettings"/>
+    <addaction name="separator"/>
+    <addaction name="actionSaveWaterfall"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menu_View">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionUserGroup"/>
+    <addaction name="actionNews"/>
+    <addaction name="separator"/>
+    <addaction name="actionRemoteProtocol"/>
+    <addaction name="separator"/>
+    <addaction name="actionAbout"/>
+    <addaction name="actionAboutQt"/>
+   </widget>
+   <widget class="QMenu" name="menu_Tools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="actionRemoteControl"/>
+    <addaction name="actionRemoteConfig"/>
+    <addaction name="separator"/>
+    <addaction name="actionAddBookmark"/>
+    <addaction name="separator"/>
+    <addaction name="actionIqTool"/>
+    <addaction name="separator"/>
+    <addaction name="actionAFSK1200"/>
+    <addaction name="separator"/>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menu_Tools"/>
+   <addaction name="menu_View"/>
+   <addaction name="menu_Help"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <property name="windowTitle">
+    <string>Main toolbar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionDSP"/>
+   <addaction name="separator"/>
+   <addaction name="actionIoConfig"/>
+   <addaction name="actionLoadSettings"/>
+   <addaction name="actionSaveSettings"/>
+   <addaction name="separator"/>
+   <addaction name="actionAddBookmark"/>
+   <addaction name="separator"/>
+   <addaction name="actionIqTool"/>
+   <addaction name="separator"/>
+   <addaction name="actionRemoteControl"/>
+   <addaction name="actionRemoteConfig"/>
+   <addaction name="separator"/>
+   <addaction name="actionFullScreen"/>
+   <addaction name="separator"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+   <property name="toolTip">
+    <string>Quit application</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About Gqrx</string>
+   </property>
+   <property name="toolTip">
+    <string>Information about Gqrx</string>
+   </property>
+  </action>
+  <action name="actionAboutQt">
+   <property name="text">
+    <string>About Qt</string>
+   </property>
+   <property name="toolTip">
+    <string>About the Qt toolkit</string>
+   </property>
+  </action>
+  <action name="actionDSP">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/play.svg</normaloff>:/icons/icons/play.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Start DSP</string>
+   </property>
+   <property name="toolTip">
+    <string>Start DSP</string>
+   </property>
+   <property name="statusTip">
+    <string>Start/stop DSP processing</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionAFSK1200">
+   <property name="text">
+    <string>AFSK1200 Decoder</string>
+   </property>
+   <property name="toolTip">
+    <string>Start AFSK1200 decoder</string>
+   </property>
+  </action>
+  <action name="actionSched">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/clock.svg</normaloff>:/icons/icons/clock.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Scheduler</string>
+   </property>
+   <property name="toolTip">
+    <string>Schedule recordings and other actions</string>
+   </property>
+  </action>
+  <action name="actionIoConfig">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/flash.svg</normaloff>:/icons/icons/flash.svg</iconset>
+   </property>
+   <property name="text">
+    <string>I/O Devices</string>
+   </property>
+   <property name="toolTip">
+    <string>Configure I/O devices</string>
+   </property>
+   <property name="statusTip">
+    <string>Opens the hardware configuration dialog</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionUserGroup">
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/help.svg</normaloff>:/icons/icons/help.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Gqrx user group</string>
+   </property>
+   <property name="toolTip">
+    <string>Discussion group for Gqrx users</string>
+   </property>
+  </action>
+  <action name="actionFullScreen">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/fullscreen.svg</normaloff>:/icons/icons/fullscreen.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Full screen</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle full screen mode</string>
+   </property>
+   <property name="shortcut">
+    <string>F11</string>
+   </property>
+  </action>
+  <action name="actionLoadSettings">
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/folder.svg</normaloff>:/icons/icons/folder.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Load settings</string>
+   </property>
+   <property name="toolTip">
+    <string>Load previously stored configuration</string>
+   </property>
+   <property name="statusTip">
+    <string>Load previously stored settings from a file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionSaveSettings">
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/floppy.svg</normaloff>:/icons/icons/floppy.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Save settings</string>
+   </property>
+   <property name="toolTip">
+    <string>Save current configuration</string>
+   </property>
+   <property name="statusTip">
+    <string>Save current configuration to a file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionAddBookmark">
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/bookmark-new.svg</normaloff>:/icons/icons/bookmark-new.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Add bookmark</string>
+   </property>
+   <property name="toolTip">
+    <string>Bookmark the current frequency and mode (Ctrl+Shift+B)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+B</string>
+   </property>
+  </action>
+  <action name="actionRemoteControl">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/tangeo-network-idle.svg</normaloff>:/icons/icons/tangeo-network-idle.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Remote control</string>
+   </property>
+   <property name="toolTip">
+    <string>Remote control via TCP</string>
+   </property>
+   <property name="statusTip">
+    <string>Activate the TCP interface</string>
+   </property>
+  </action>
+  <action name="actionRemoteConfig">
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/settings.svg</normaloff>:/icons/icons/settings.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Remote &amp;control settings</string>
+   </property>
+   <property name="toolTip">
+    <string>Configure remote control settings</string>
+   </property>
+  </action>
+  <action name="actionIqTool">
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/signal.svg</normaloff>:/icons/icons/signal.svg</iconset>
+   </property>
+   <property name="text">
+    <string>I/Q recorder</string>
+   </property>
+   <property name="toolTip">
+    <string>Record and play I/Q data</string>
+   </property>
+   <property name="statusTip">
+    <string>Open I/Q recorder dialog</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actionNews">
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/info.svg</normaloff>:/icons/icons/info.svg</iconset>
+   </property>
+   <property name="text">
+    <string>News</string>
+   </property>
+   <property name="toolTip">
+    <string>Show news about this release</string>
+   </property>
+  </action>
+  <action name="actionRemoteProtocol">
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/info.svg</normaloff>:/icons/icons/info.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Remote control</string>
+   </property>
+   <property name="toolTip">
+    <string>Remote control protocol</string>
+   </property>
+  </action>
+  <action name="actionSaveWaterfall">
+   <property name="text">
+    <string>Save waterfall</string>
+   </property>
+   <property name="statusTip">
+    <string>Save the current waterfall to a graphics file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>CFreqCtrl</class>
+   <extends>QFrame</extends>
+   <header>qtgui/freqctrl.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CPlotter</class>
+   <extends>QFrame</extends>
+   <header>qtgui/plotter.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CMeter</class>
+   <extends>QFrame</extends>
+   <header>qtgui/meter.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../../resources/icons.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionQuit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>450</x>
+     <y>257</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

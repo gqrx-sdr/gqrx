@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CAgcOptions</class>
+ <widget class="QDialog" name="CAgcOptions">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>263</width>
+    <height>197</height>
+   </rect>
+  </property>
+  <property name="focusPolicy">
+   <enum>Qt::StrongFocus</enum>
+  </property>
+  <property name="windowTitle">
+   <string>AGC Settings</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../resources/icons.qrc">
+    <normaloff>:/icons/icons/signal.svg</normaloff>:/icons/icons/signal.svg</iconset>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>AGC settings</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <property name="horizontalSpacing">
+       <number>10</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>5</number>
+      </property>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label3">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Slope</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label2">
+        <property name="text">
+         <string>Threshold</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QSlider" name="slopeSlider">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::StrongFocus</enum>
+        </property>
+        <property name="toolTip">
+         <string>AGC slope</string>
+        </property>
+        <property name="maximum">
+         <number>10</number>
+        </property>
+        <property name="pageStep">
+         <number>1</number>
+        </property>
+        <property name="value">
+         <number>0</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="thresholdLabel">
+        <property name="text">
+         <string>-100 dB</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label4">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Decay</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QPushButton" name="hangButton">
+        <property name="toolTip">
+         <string>Enable / disable AGC hang</string>
+        </property>
+        <property name="text">
+         <string>Disabled</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="gainLabel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Manual gain. Used when AGC is switched off</string>
+        </property>
+        <property name="text">
+         <string>0 dB</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QSlider" name="decaySlider">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::StrongFocus</enum>
+        </property>
+        <property name="toolTip">
+         <string>AGC decay time</string>
+        </property>
+        <property name="minimum">
+         <number>50</number>
+        </property>
+        <property name="maximum">
+         <number>5000</number>
+        </property>
+        <property name="singleStep">
+         <number>10</number>
+        </property>
+        <property name="pageStep">
+         <number>50</number>
+        </property>
+        <property name="value">
+         <number>500</number>
+        </property>
+        <property name="sliderPosition">
+         <number>500</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QLabel" name="decayLabel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>500 ms</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSlider" name="gainSlider">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::StrongFocus</enum>
+        </property>
+        <property name="toolTip">
+         <string>Manual gain. Used when AGC is switched off</string>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label1">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Gain</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QLabel" name="slopeLabel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>0 dB</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="label5">
+        <property name="text">
+         <string>Hang</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QSlider" name="thresholdSlider">
+        <property name="focusPolicy">
+         <enum>Qt::StrongFocus</enum>
+        </property>
+        <property name="toolTip">
+         <string>AGC threshold (aka. knee)</string>
+        </property>
+        <property name="minimum">
+         <number>-160</number>
+        </property>
+        <property name="maximum">
+         <number>0</number>
+        </property>
+        <property name="value">
+         <number>-100</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>gainSlider</tabstop>
+  <tabstop>thresholdSlider</tabstop>
+  <tabstop>slopeSlider</tabstop>
+  <tabstop>decaySlider</tabstop>
+  <tabstop>hangButton</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../../resources/icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>

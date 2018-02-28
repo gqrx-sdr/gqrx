@@ -1,0 +1,51 @@
+Remote control protocol.
+
+Supported commands:
+ f
+    Get frequency [Hz]
+ F <frequency>
+    Set frequency [Hz]
+ m
+    Get demodulator mode and passband
+ M <mode> [passband]
+    Set demodulator mode and passband [Hz]
+    Passing a '?' as the first argument instead of 'mode' will return
+    a space separated list of radio backend supported modes.
+ l STRENGTH
+    Get signal strength [dBFS]
+ l SQL
+    Get squelch threshold [dBFS]
+ L SQL <sql>
+    Set squelch threshold to <sql> [dBFS]
+ u RECORD
+    Get status of audio recorder
+ U RECORD <status>
+    Set status of audio recorder to <status>
+ q|Q
+    Close connection
+ AOS
+    Acquisition of signal (AOS) event, start audio recording
+ LOS
+    Loss of signal (LOS) event, stop audio recording
+ LNB_LO [frequency]
+    If frequency [Hz] is specified set the LNB LO frequency used for
+    display. Otherwise print the current LNB LO frequency [Hz].
+ \dump_state
+    Dump state (only usable for hamlib compatibility)
+ v
+    Get 'VFO' (only usable for hamlib compatibility)
+ V
+    Set 'VFO' (only usable for hamlib compatibility)
+ s
+    Get 'Split' mode (only usable for hamlib compatibility)
+ S
+    Set 'Split' mode (only usable for hamlib compatibility)
+ _
+    Get version
+
+
+Reply:
+ RPRT 0
+    Command successful
+ RPRT 1
+    Command failed
