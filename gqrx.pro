@@ -16,6 +16,11 @@ lessThan(QT_MAJOR_VERSION,5) {
     error("Gqrx requires Qt 5.")
 }
 
+PKGCONFIG_EXISTS = $$system(pkg-config --version)
+isEmpty(PKGCONFIG_EXISTS) {
+    error("Gqrx requires pkg-config to build.")
+}
+
 TEMPLATE = app
 
 macx {
