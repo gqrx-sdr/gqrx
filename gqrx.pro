@@ -32,6 +32,12 @@ macx {
 }
 
 # enable pkg-config to find dependencies
+exists("/usr/bin/pkg-config") {
+    message(pkg-config detected in /usr/bin)
+} else {
+    error(pkg-config is missing from /usr/bin/)
+}
+
 CONFIG += link_pkgconfig
 
 unix:!macx {
