@@ -181,7 +181,7 @@ void rx_fft_c::set_window_type(int wintype)
 
     d_wintype = wintype;
 
-    if ((d_wintype < gr::filter::firdes::WIN_HAMMING) || (d_wintype > gr::filter::firdes::WIN_BLACKMAN_hARRIS))
+    if ((d_wintype < gr::filter::firdes::WIN_HAMMING) || (d_wintype > gr::filter::firdes::WIN_FLATTOP))
     {
         d_wintype = gr::filter::firdes::WIN_HAMMING;
     }
@@ -354,7 +354,7 @@ void rx_fft_f::set_window_type(int wintype)
 
     d_wintype = wintype;
 
-    if ((d_wintype < gr::filter::firdes::WIN_HAMMING) || (d_wintype > gr::filter::firdes::WIN_BLACKMAN_hARRIS))
+    if ((d_wintype < gr::filter::firdes::WIN_HAMMING) || (d_wintype > gr::filter::firdes::WIN_FLATTOP))
     {
         d_wintype = gr::filter::firdes::WIN_HAMMING;
     }
