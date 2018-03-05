@@ -123,9 +123,9 @@ receiver::receiver(const std::string input_device,
 
     iq_swap = make_iq_swap_cc(false);
     dc_corr = make_dc_corr_cc(d_quad_rate, 1.0);
-    iq_fft = make_rx_fft_c(8192u, 0);
+    iq_fft = make_rx_fft_c(8192u, gr::filter::firdes::WIN_HANN);
 
-    audio_fft = make_rx_fft_f(8192u);
+    audio_fft = make_rx_fft_f(8192u, gr::filter::firdes::WIN_HANN);
     audio_gain0 = gr::blocks::multiply_const_ff::make(0.1);
     audio_gain1 = gr::blocks::multiply_const_ff::make(0.1);
 
@@ -723,6 +723,11 @@ float receiver::get_signal_pwr(bool dbfs) const
 void receiver::set_iq_fft_size(int newsize)
 {
     iq_fft->set_fft_size(newsize);
+}
+
+void receiver::set_iq_fft_window(int window_type)
+{
+    iq_fft->set_window_type(window_type);
 }
 
 /** Get latest baseband FFT data. */

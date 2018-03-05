@@ -1,6 +1,8 @@
 
       2.11: Released TBD...
 
+       NEW: Selectable IQ FFT window type.
+  IMPROVED: Default FFT window for reduced spectral leakage.
   IMPROVED: Microtelecom Perseus integration.
 
 

@@ -159,6 +159,7 @@ public:
     status      set_freq_corr(double ppm);
     float       get_signal_pwr(bool dbfs) const;
     void        set_iq_fft_size(int newsize);
+    void        set_iq_fft_window(int window_type);
     void        get_iq_fft_data(std::complex<float>* fftPoints,
                                 unsigned int &fftsize);
     void        get_audio_fft_data(std::complex<float>* fftPoints,
