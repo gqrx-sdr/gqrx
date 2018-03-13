@@ -197,7 +197,8 @@ void CIoConfig::getDeviceList(std::map<QString, QVariant> &devList)
     QString devstr;
     QString devlabel;
 
-#if defined(GQRX_OS_MACX)
+#if 0
+//#if defined(GQRX_OS_MACX)
     // automatic discovery of FCD does not work on Mac
     // so we do it ourselves
     osxaudio_device_list devices;
@@ -266,7 +267,7 @@ void CIoConfig::saveConfig()
 
     idx = ui->outDevCombo->currentIndex();
 
-#if defined(WITH_PULSEAUDIO) || defined(GQRX_OS_MACX)
+#if defined(WITH_PULSEAUDIO) || defined(WITH_PORTAUDIO) || defined(GQRX_OS_MACX)
     if (idx > 0)
     {
           qDebug() << "Output device" << idx << ":" << QString(outDevList[idx-1].get_name().c_str());
