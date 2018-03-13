@@ -110,7 +110,7 @@ endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     if(NOT LINUX_AUDIO_BACKEND)
-        set(LINUX_AUDIO_BACKEND Pulseaudio CACHE STRING "Choose the audio backend, options are: Pulseaudio, Gr-audio" FORCE)
+        set(LINUX_AUDIO_BACKEND Pulseaudio CACHE STRING "Choose the audio backend, options are: Pulseaudio, Portaudio, Gr-audio" FORCE)
     endif()
 
     if(${LINUX_AUDIO_BACKEND} MATCHES "Pulseaudio")
