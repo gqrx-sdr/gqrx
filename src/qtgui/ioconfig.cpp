@@ -193,17 +193,20 @@ CIoConfig::~CIoConfig()
  */
 void CIoConfig::getDeviceList(std::map<QString, QVariant> &devList)
 {
-    unsigned int i=0;
-    QString devstr;
-    QString devlabel;
+    unsigned int    i;
+    QString         devstr;
+    QString         devlabel;
 
-#if 0
-//#if defined(GQRX_OS_MACX)
     // automatic discovery of FCD does not work on Mac
     // so we do it ourselves
-    osxaudio_device_list devices;
-    vector<osxaudio_device> inDevList = devices.get_input_devices();
-
+#if defined(GQRX_OS_MACX)
+#ifdef WITH_PORTAUDIO
+    portaudio_device_list       devices;
+    vector<portaudio_device>    inDevList = devices.get_input_devices();
+#else
+    osxaudio_device_list        devices;
+    vector<osxaudio_device>     inDevList = devices.get_input_devices();
+#endif
     string this_dev;
     for (i = 0; i < inDevList.size(); i++)
     {
