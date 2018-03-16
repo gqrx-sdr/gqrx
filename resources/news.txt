@@ -2,6 +2,7 @@
       2.11: Released TBD...
 
        NEW: Selectable IQ FFT window type.
+     FIXED: Problems on Mac Pro computers without built-in audio
   IMPROVED: Default FFT window for reduced spectral leakage.
   IMPROVED: Microtelecom Perseus integration.
 
