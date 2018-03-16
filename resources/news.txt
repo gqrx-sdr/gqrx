@@ -2,9 +2,13 @@
       2.11: Released TBD...
 
        NEW: Selectable IQ FFT window type.
-     FIXED: Problems on Mac Pro computers without built-in audio
+     FIXED: Problems on Mac Pro computers without built-in audio.
+     FIXED: Black on black tooltips in the main window.
   IMPROVED: Default FFT window for reduced spectral leakage.
   IMPROVED: Microtelecom Perseus integration.
+  IMPROVED: Implemented PPM correction for RF Space Cloud IQ (gr-osmosdr-gqrx)
+  IMPORVED: Implemented PPM correction for PlutoSDR (gr-osmosdr-gqrx)
+  IMPROVED: Show configuration file path when listing config files using -l
 
 
       2.10: Released January 21, 2018
