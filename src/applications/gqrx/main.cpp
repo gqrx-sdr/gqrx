@@ -229,7 +229,10 @@ static void list_conf(void)
     QDir conf_dir = QDir(conf_path, "*.conf", QDir::Name, QDir::Files);
     QStringList conf_files = conf_dir.entryList(QStringList("*.conf"));
 
-    std::cout << " Existing configuration files:" << std::endl;
+    std::cout << std::endl
+              << " Existing configuration files in "
+              << conf_path.toStdString()
+              << std::endl;
 
     if (conf_files.isEmpty())
     {
