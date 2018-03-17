@@ -6,6 +6,7 @@
      FIXED: Black on black tooltips in the main window.
      FIXED: Auto-squelch sets 0 dBFS too often.
      FIXED: Can not play I/Q files if path contains a space.
+     FIXED: Restore gains to slider states when hardware AGC is disabled
   IMPROVED: Default FFT window for reduced spectral leakage.
   IMPROVED: Microtelecom Perseus integration.
   IMPROVED: Implemented PPM correction for RF Space Cloud IQ (gr-osmosdr-gqrx)

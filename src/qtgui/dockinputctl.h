@@ -98,7 +98,7 @@ public:
     void    setAntenna(const QString &antenna);
 
     void    setGainStages(gain_list_t &gain_list);
-    void    restoreManualGains(QSettings *settings);
+    void    restoreManualGains(void);
 
     void    setFreqCtrlReset(bool enabled);
 
