@@ -20,8 +20,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#ifndef DOCKBOOKMARKS_H
-#define DOCKBOOKMARKS_H
+#pragma once
 
 #include <QDockWidget>
 #include <QTableWidgetItem>
@@ -41,18 +40,6 @@ public:
   void setEditorData(QWidget *editor, const QModelIndex &index) const;
   void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
 };
-
-#if 0
-class DelegateTags : public QItemDelegate
-{
-Q_OBJECT
-public:
-  DelegateTags(QObject *parent = 0);
-  QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-  void setEditorData(QWidget *editor, const QModelIndex &index) const;
-  void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
-};
-#endif
 
 class DockBookmarks : public QDockWidget
 {
@@ -95,5 +82,3 @@ private slots:
     bool DeleteSelectedBookmark();
     void doubleClicked(const QModelIndex & index);
 };
-
-#endif // DOCKFREQTABLE_H
