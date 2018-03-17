@@ -1216,6 +1216,7 @@ void MainWindow::setNoiseBlanker(int nbid, bool on, float threshold)
 void MainWindow::setSqlLevel(double level_db)
 {
     rx->set_sql_level(level_db);
+    ui->sMeter->setSqlLevel(level_db);
 }
 
 /**

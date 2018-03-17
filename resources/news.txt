@@ -8,10 +8,11 @@
      FIXED: Can not play I/Q files if path contains a space.
      FIXED: Restore gains to slider states when hardware AGC is disabled
   IMPROVED: Default FFT window for reduced spectral leakage.
+  IMPROVED: Visual indicator of squelch level in the signal meter.
+  IMPROVED: Show configuration file path when listing config files using -l
   IMPROVED: Microtelecom Perseus integration.
   IMPROVED: Implemented PPM correction for RF Space Cloud IQ (gr-osmosdr-gqrx)
   IMPORVED: Implemented PPM correction for PlutoSDR (gr-osmosdr-gqrx)
-  IMPROVED: Show configuration file path when listing config files using -l
 
 
       2.10: Released January 21, 2018

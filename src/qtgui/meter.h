@@ -29,8 +29,7 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Moe Wheatley.
  */
-#ifndef METER_H
-#define METER_H
+#pragma once
 
 #include <QtGui>
 #include <QFrame>
@@ -58,6 +57,7 @@ public:
 
 public slots:
     void setLevel(float dbfs);
+    void setSqlLevel(float dbfs);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -65,15 +65,15 @@ protected:
 
 private:
     void DrawOverlay();
+
+    QFont   m_Font;
     QPixmap m_2DPixmap;
     QPixmap m_OverlayPixmap;
-    QSize m_Size;
+    QSize   m_Size;
     QString m_Str;
-    int m_Slevel;
-    int m_dBm;
-
-    float d_alpha_decay;
-    float d_alpha_rise;
+    qreal   m_pixperdb;     // pixels / dB
+    int     m_Siglevel;
+    int     m_dBFS;
+    qreal   m_Sql;
+    qreal   m_SqlLevel;
 };
-
-#endif // METER_H

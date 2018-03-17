@@ -41,8 +41,11 @@
 #define CTRL_XAXIS_HEGHT 0.4	// vertical position of horizontal axis
 #define CTRL_NEEDLE_TOP 0.4		// vertical position of top of needle triangle
 
-#define MIN_DB -100.0
-#define MAX_DB +0.0
+#define MIN_DB -100.0f
+#define MAX_DB +0.0f
+
+#define ALPHA_DECAY     0.25f
+#define ALPHA_RISE      0.70f
 
 CMeter::CMeter(QWidget *parent) : QFrame(parent)
 {
@@ -54,13 +57,14 @@ CMeter::CMeter(QWidget *parent) : QFrame(parent)
     setAttribute(Qt::WA_NoSystemBackground, true);
     setMouseTracking(true);
 
+    m_Font = QFont("Arial");
+    m_Font.setWeight(QFont::Normal);
     m_2DPixmap = QPixmap(0,0);
     m_OverlayPixmap = QPixmap(0,0);
     m_Size = QSize(0,0);
-    m_Slevel = 0;
-    m_dBm = -120;
-    d_alpha_decay = 0.25; // FIXME: Should set delta-t and Fs instead
-    d_alpha_rise = 0.7;   // FIXME: Should set delta-t and Fs instead
+    m_Siglevel = 0;
+    m_dBFS = MIN_DB;
+    m_SqlLevel = 0.0f;
 }
 
 CMeter::~CMeter()
@@ -77,7 +81,7 @@ QSize CMeter::sizeHint() const
     return QSize(100, 30);
 }
 
-void CMeter::resizeEvent(QResizeEvent* )
+void CMeter::resizeEvent(QResizeEvent *)
 {
     if (!size().isValid())
         return;
@@ -90,6 +94,10 @@ void CMeter::resizeEvent(QResizeEvent* )
         m_OverlayPixmap.fill(Qt::black);
         m_2DPixmap = QPixmap(m_Size.width(), m_Size.height());
         m_2DPixmap.fill(Qt::black);
+
+        qreal w = m_2DPixmap.width() - 2 * CTRL_MARGIN * m_2DPixmap.width();
+        m_pixperdb = w / fabs(MAX_DB - MIN_DB);
+        setSqlLevel(m_Sql);
     }
 
     DrawOverlay();
@@ -98,29 +106,30 @@ void CMeter::resizeEvent(QResizeEvent* )
 
 void CMeter::setLevel(float dbfs)
 {
-    if(dbfs < MIN_DB)
+    if (dbfs < MIN_DB)
         dbfs = MIN_DB;
-
-    if(dbfs > MAX_DB)
+    else if (dbfs > MAX_DB)
         dbfs = MAX_DB;
 
-    // decay delay
-    float level = (float)m_dBm;
-    if (dbfs < level)
-        level = level * (1.f - d_alpha_decay) + dbfs * d_alpha_decay;
-    else
-        level = level * (1.f - d_alpha_rise) + dbfs * d_alpha_rise;
-
-    m_dBm = (int)level;
-
-    qreal w = (qreal)m_2DPixmap.width();
-    w -= 2 * CTRL_MARGIN * w;	// width of meter scale in pixels
-
-    // pixels / dB
-    qreal pixperdb = w / fabs(MAX_DB - MIN_DB);
-    m_Slevel = (int)(-(MIN_DB - level) * pixperdb);
+    float level = m_dBFS;
+    float alpha  = dbfs < level ? ALPHA_DECAY : ALPHA_RISE;
+    m_dBFS -= alpha * (level - dbfs);
+    m_Siglevel = (int)((level - MIN_DB) * m_pixperdb);
 
     draw();
+}
+
+void CMeter::setSqlLevel(float dbfs)
+{
+    if (dbfs >= 0.f)
+        m_SqlLevel = 0.0f;
+    else
+        m_SqlLevel = (dbfs - MIN_DB) * m_pixperdb;
+
+    if (m_SqlLevel < 0.0f)
+        m_SqlLevel = 0.0f;
+
+    m_Sql = dbfs;
 }
 
 // Called by QT when screen needs to be redrawn
@@ -138,7 +147,7 @@ void CMeter::draw()
     int w;
     int h;
 
-    if(m_2DPixmap.isNull())
+    if (m_2DPixmap.isNull())
         return;
 
     // get/draw the 2D spectrum
@@ -153,7 +162,7 @@ void CMeter::draw()
     qreal hline = (qreal) h * CTRL_XAXIS_HEGHT;
     qreal marg = (qreal) w * CTRL_MARGIN;
     qreal ht = (qreal) h * CTRL_NEEDLE_TOP;
-    qreal x = marg + m_Slevel;
+    qreal x = marg + m_Siglevel;
     QPoint pts[3];
     pts[0].setX(x);
     pts[0].setY(ht + 2);
@@ -173,16 +182,20 @@ void CMeter::draw()
     painter.drawRect(marg, ht + 2, x - marg, 6);
 #endif
 
-    // create Font to use for scales
-    QFont Font("Arial");
+    if (m_SqlLevel > 0.0f)
+    {
+        x = marg + m_SqlLevel;
+        painter.setPen(QPen(Qt::yellow, 1, Qt::SolidLine));
+        painter.drawLine(QLineF(x, hline, x, hline + 8));
+    }
+
     int y = (h) / 4;
-    Font.setPixelSize(y);
-    Font.setWeight(QFont::Normal);
-    painter.setFont(Font);
+    m_Font.setPixelSize(y);
+    painter.setFont(m_Font);
 
     painter.setPen(QColor(0xDA, 0xDA, 0xDA, 0xFF));
     painter.setOpacity(1.0);
-    m_Str.setNum(m_dBm);
+    m_Str.setNum(m_dBFS);
     painter.drawText(marg, h - 2, m_Str + " dBFS" );
 
     update();
@@ -192,7 +205,7 @@ void CMeter::draw()
 // does not need to be recreated every fft data update.
 void CMeter::DrawOverlay()
 {
-    if(m_OverlayPixmap.isNull())
+    if (m_OverlayPixmap.isNull())
         return;
 
     int w = m_OverlayPixmap.width();
@@ -223,12 +236,9 @@ void CMeter::DrawOverlay()
     }
 
     // draw scale text
-    // create Font to use for scales
-    QFont Font("Arial");
     y = h / 4;
-    Font.setPixelSize(y);
-    Font.setWeight(QFont::Normal);
-    painter.setFont(Font);
+    m_Font.setPixelSize(y);
+    painter.setFont(m_Font);
     int rwidth = (int)((hstop - marg) / 5.0);
     m_Str = "-100";
     rect.setRect(marg / 2 - 5, 0, rwidth, magstart);
