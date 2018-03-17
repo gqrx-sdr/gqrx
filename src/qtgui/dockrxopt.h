@@ -106,6 +106,8 @@ public:
     void    getFilterPreset(int mode, int preset, int * lo, int * hi) const;
     int     getCwOffset() const;
 
+    double  getSqlLevel(void) const;
+
     static QStringList ModulationStrings;
     static QString GetStringForModulationIndex(int iModulationIndex);
     static int GetEnumForModulationString(QString param);

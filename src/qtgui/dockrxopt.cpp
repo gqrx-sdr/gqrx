@@ -287,6 +287,11 @@ void DockRxOpt::setSquelchLevel(double level)
     ui->sqlSpinBox->setValue(level);
 }
 
+double DockRxOpt::getSqlLevel(void) const
+{
+    return ui->sqlSpinBox->value();
+}
+
 /**
  * @brief Get the current squelch level
  * @returns The current squelch setting in dBFS
