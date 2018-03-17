@@ -8,6 +8,7 @@
      FIXED: Can not play I/Q files if path contains a space.
      FIXED: Restore gains to slider states when hardware AGC is disabled.
      FIXED: Crash on startup when audio output device is gone (Mac OS X).
+     FIXED: Filter offset no longer limited to +/- 9.999999 MHz.
   IMPROVED: Default FFT window for reduced spectral leakage.
   IMPROVED: Visual indicator of squelch level in the signal meter.
   IMPROVED: Show configuration file path when listing config files using -l
