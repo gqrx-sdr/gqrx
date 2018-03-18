@@ -1,5 +1,5 @@
 
-      2.11: Released TBD...
+      2.11: Released MArch 18, 2018
 
        NEW: Selectable IQ FFT window type.
      FIXED: Problems on Mac Pro computers without built-in audio.
