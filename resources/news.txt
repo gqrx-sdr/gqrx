@@ -1,5 +1,9 @@
+    2.11.1: Released March 18, 2018
 
-      2.11: Released MArch 18, 2018
+     FIXED: Removed visible border around frequency and meter widgets.
+
+
+      2.11: Released March 18, 2018
 
        NEW: Selectable IQ FFT window type.
      FIXED: Problems on Mac Pro computers without built-in audio.
