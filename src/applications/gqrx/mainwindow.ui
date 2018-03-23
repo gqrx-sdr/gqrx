@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>950</width>
+    <width>946</width>
     <height>702</height>
    </rect>
   </property>
@@ -68,13 +68,13 @@
         <number>10</number>
        </property>
        <property name="leftMargin">
-        <number>20</number>
+        <number>0</number>
        </property>
        <property name="topMargin">
         <number>10</number>
        </property>
        <property name="rightMargin">
-        <number>10</number>
+        <number>0</number>
        </property>
        <property name="bottomMargin">
         <number>10</number>
@@ -86,8 +86,8 @@
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>109</width>
-           <height>17</height>
+           <width>5</width>
+           <height>15</height>
           </size>
          </property>
         </spacer>
@@ -102,8 +102,8 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>371</width>
-           <height>41</height>
+           <width>350</width>
+           <height>40</height>
           </size>
          </property>
          <property name="toolTip">
@@ -124,8 +124,8 @@
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>109</width>
-           <height>17</height>
+           <width>5</width>
+           <height>15</height>
           </size>
          </property>
         </spacer>
@@ -159,8 +159,8 @@
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>109</width>
-           <height>17</height>
+           <width>5</width>
+           <height>15</height>
           </size>
          </property>
         </spacer>
@@ -194,7 +194,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>950</width>
+     <width>946</width>
      <height>19</height>
     </rect>
    </property>
