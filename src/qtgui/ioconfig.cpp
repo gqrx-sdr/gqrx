@@ -193,7 +193,6 @@ CIoConfig::~CIoConfig()
  */
 void CIoConfig::getDeviceList(std::map<QString, QVariant> &devList)
 {
-    unsigned int    i;
     QString         devstr;
     QString         devlabel;
 
@@ -208,6 +207,7 @@ void CIoConfig::getDeviceList(std::map<QString, QVariant> &devList)
     vector<osxaudio_device>     inDevList = devices.get_input_devices();
 #endif
     string this_dev;
+    int i;
     for (i = 0; i < inDevList.size(); i++)
     {
         this_dev = inDevList[i].get_name();
@@ -253,9 +253,7 @@ void CIoConfig::getDeviceList(std::map<QString, QVariant> &devList)
 
         devstr = QString(dev.to_string().c_str());
         devList.insert(std::pair<QString, QVariant>(devlabel, devstr));
-
-        qDebug() << "   " << i << ":"  << devlabel;
-        ++i;
+        qDebug() << "  " << devlabel;
     }
 }
 
