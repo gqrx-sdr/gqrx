@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>946</width>
-    <height>702</height>
+    <width>521</width>
+    <height>350</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -65,7 +65,7 @@
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,0,0">
        <property name="spacing">
-        <number>10</number>
+        <number>0</number>
        </property>
        <property name="leftMargin">
         <number>0</number>
@@ -102,7 +102,7 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>350</width>
+           <width>280</width>
            <height>40</height>
           </size>
          </property>
@@ -140,8 +140,8 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>171</width>
-           <height>41</height>
+           <width>150</width>
+           <height>40</height>
           </size>
          </property>
          <property name="frameShape">
@@ -153,7 +153,7 @@
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer">
+        <spacer name="horizontalSpacer_1">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -194,7 +194,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>946</width>
+     <width>521</width>
      <height>19</height>
     </rect>
    </property>
