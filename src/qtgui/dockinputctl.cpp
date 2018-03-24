@@ -363,16 +363,16 @@ void DockInputCtl::setGainStages(gain_list_t &gain_list)
         step  = (int)(10.0 * gain_list[i].step);
         gain  = (int)(10.0 * gain_list[i].value);
 
-        label = new QLabel(QString("%1 gain").arg(gain_list[i].name.c_str()), this);
-        label->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum));
+        label = new QLabel(QString("%1 ").arg(gain_list[i].name.c_str()), this);
+        label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
 
-        value = new QLabel(QString("%1 dB").arg(gain_list[i].value, 0, 'f', 1), this);
-        value->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum));
+        value = new QLabel(QString(" %1 dB").arg(gain_list[i].value, 0, 'f', 1), this);
+        value->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
 
         slider = new QSlider(Qt::Horizontal, this);
         slider->setProperty("idx", i);
         slider->setProperty("name", QString(gain_list[i].name.c_str()));
-        slider->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
+        slider->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
         slider->setRange(start, stop);
         slider->setSingleStep(step);
         slider->setValue(gain);
@@ -380,7 +380,7 @@ void DockInputCtl::setGainStages(gain_list_t &gain_list)
             slider->setPageStep(10 * step);
 
         gainLayout->addWidget(label, i, 0, Qt::AlignLeft);
-        gainLayout->addWidget(slider, i, 1, Qt::AlignCenter);
+        gainLayout->addWidget(slider, i, 1);        // setting alignment would force minimum size
         gainLayout->addWidget(value, i, 2, Qt::AlignLeft);
 
         gain_labels.push_back(label);
