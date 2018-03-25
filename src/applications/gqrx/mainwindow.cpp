@@ -1344,7 +1344,7 @@ void MainWindow::rdsTimeout()
     rx->get_rds_data(buffer, num);
     while(num!=-1) {
         rx->get_rds_data(buffer, num);
-        uiDockRDS->updateRDS(QString::fromStdString(buffer), num);
+        uiDockRDS->updateRDS(buffer, num);
     }
 }
 
