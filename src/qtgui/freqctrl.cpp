@@ -512,6 +512,7 @@ void CFreqCtrl::keyPressEvent(QKeyEvent *event)
         moveCursorRight();
         fSkipMsg = true;
         break;
+    case Qt::Key_Backspace:
     case Qt::Key_Left:
         if (m_ActiveEditDigit != -1)
         {
