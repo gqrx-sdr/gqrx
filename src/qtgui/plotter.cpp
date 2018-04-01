@@ -256,8 +256,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 m_CursorCaptured = CENTER;
                 if (m_TooltipsEnabled)
                     QToolTip::showText(event->globalPos(),
-                                       QString("Demod: %1 kHz")
-                                       .arg(m_DemodCenterFreq/1.e3f, 0, 'f', 3),
+                                       QString("Demod: %1")
+                                       .arg(freqToString(m_DemodCenterFreq)),
                                        this);
             }
             else if (isPointCloseTo(pt.x(), m_DemodHiCutFreqX, m_CursorCaptureDelta))
@@ -268,8 +268,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 m_CursorCaptured = RIGHT;
                 if (m_TooltipsEnabled)
                     QToolTip::showText(event->globalPos(),
-                                       QString("High cut: %1 Hz")
-                                       .arg(m_DemodHiCutFreq),
+                                       QString("High cut: %1")
+                                       .arg(freqToString(m_DemodHiCutFreq)),
                                        this);
             }
             else if (isPointCloseTo(pt.x(), m_DemodLowCutFreqX, m_CursorCaptureDelta))
@@ -280,8 +280,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 m_CursorCaptured = LEFT;
                 if (m_TooltipsEnabled)
                     QToolTip::showText(event->globalPos(),
-                                       QString("Low cut: %1 Hz")
-                                       .arg(m_DemodLowCutFreq),
+                                       QString("Low cut: %1")
+                                       .arg(freqToString(m_DemodLowCutFreq)),
                                        this);
             }
             else if (isPointCloseTo(pt.x(), m_YAxisWidth/2, m_YAxisWidth/2))
@@ -309,8 +309,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 }
                 if (m_TooltipsEnabled)
                     QToolTip::showText(event->globalPos(),
-                                       QString("F: %1 kHz")
-                                       .arg(freqFromX(pt.x())/1.e3f, 0, 'f', 3),
+                                       QString("F: %1")
+                                       .arg(freqToString(freqFromX(pt.x()))),
                                        this);
             }
             m_GrabPosition = 0;
@@ -333,9 +333,9 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             tt.setMSecsSinceEpoch(msecFromY(pt.y()));
 
             QToolTip::showText(event->globalPos(),
-                               QString("%1\n%2 kHz")
+                               QString("%1\n%2")
                                .arg(tt.toString("yyyy.MM.dd hh:mm:ss.zzz"))
-                               .arg(freqFromX(pt.x())/1.e3f, 0, 'f', 3),
+                               .arg(freqToString(freqFromX(pt.x()))),
                                this);
         }
     }
@@ -1559,6 +1559,30 @@ qint64 CPlotter::freqFromX(int x)
     qint64 StartFreq = m_CenterFreq + m_FftCenter - m_Span / 2;
     qint64 f = (qint64)(StartFreq + (float)m_Span * (float)x / (float)w);
     return f;
+}
+
+/**
+ * @brief CPlotter::freqToString
+ * @param freqInHz
+ * @return a textual representation of the frequiency passed in the freqInHz argument
+ * suffixed with the proper unit (Hz, kHz, MHz, GHz)
+ */
+QString CPlotter::freqToString(qint64 freqInHz)
+{
+    qint64 freqAbs = abs(freqInHz);
+    if (freqAbs < 1000) {
+        // 0 - 1kHz -> suffix with Hz
+        return QString("%1 Hz").arg(freqInHz);
+    } else if (1000 <= freqAbs  && freqAbs < 1.e6f) {
+        // 1 kHz - 1MHz -> suffix with kHz
+        return QString("%1 kHz").arg(freqInHz/1.e3f, 0, 'f', 3);
+    } else if (1.e6f <= freqAbs  && freqAbs < 1.e9f) {
+        // 1 MHz - 1GHz -> suffix with MHz
+        return QString("%1 MHz").arg(freqInHz/1.e6f, 0, 'f', 3);
+    } else {
+        // over 1 GHz -> suffix with GHz
+        return QString("%1 MHz").arg(freqInHz/1.e9f, 0, 'f', 3);
+    }
 }
 
 /** Calculate time offset of a given line on the waterfall */
