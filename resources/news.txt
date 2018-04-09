@@ -1,3 +1,10 @@
+
+    2.xx.y: Released TBD
+
+     FIXED: Memory leak in remote control interface.
+  IMPROVED: Add backspace key to frequency controller.
+
+
     2.11.2: Released March 24, 2018
 
      FIXED: Layout on low resolution monitors.
