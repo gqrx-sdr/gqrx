@@ -1,5 +1,5 @@
 
-    2.xx.y: Released TBD
+    2.11.3: Released April 13, 2018
 
      FIXED: Memory leak in remote control interface.
   IMPROVED: Add backspace key to frequency controller.
