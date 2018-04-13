@@ -2197,12 +2197,12 @@ void MainWindow::on_actionAbout_triggered()
 {
     QMessageBox::about(this, tr("About Gqrx"),
         tr("<p>This is Gqrx %1</p>"
-           "<p>Copyright (C) 2011-2017 Alexandru Csete & contributors.</p>"
+           "<p>Copyright (C) 2011-2018 Alexandru Csete & contributors.</p>"
            "<p>Gqrx is a software defined radio (SDR) receiver powered by "
            "<a href='http://www.gnuradio.org/'>GNU Radio</a> and the Qt toolkit. "
-           "<p>Gqrx uses the <a href='http://sdr.osmocom.org/trac/wiki/GrOsmoSDR'>GrOsmoSDR</a> "
+           "<p>Gqrx uses the <a href='https://osmocom.org/projects/sdr/wiki/GrOsmoSDR'>GrOsmoSDR</a> "
            "input source block and and works with any input device supported by it, including "
-           "Funcube Dongles, RTL-SDR, Airspy, HackRF, RFSpace, BladeRF and USRP receivers."
+           "Funcube Dongle, RTL-SDR, Airspy, HackRF, RFSpace, BladeRF and USRP receivers."
            "</p>"
            "<p>You can download the latest version from the "
            "<a href='http://gqrx.dk/'>Gqrx website</a>."
