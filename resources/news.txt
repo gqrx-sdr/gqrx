@@ -1,4 +1,9 @@
 
+    2.11.4: Released April 17, 2018
+
+     FIXED: Reduced size of color selector button in bookmarks tag list.
+
+
     2.11.3: Released April 13, 2018
 
      FIXED: Memory leak in remote control interface.
