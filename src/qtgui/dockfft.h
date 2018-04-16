@@ -51,6 +51,7 @@ public:
     void readSettings(QSettings *settings);
 
 signals:
+    void bandfinfoChanged(bool enabled);            /*! Signal emitted when receiver enableBandfinfo has changed */
     void fftSizeChanged(int size);                 /*! FFT size changed. */
     void fftRateChanged(int fps);                  /*! FFT rate changed. */
     void fftWindowChanged(int window);             /*! FFT window type changed */
@@ -92,6 +93,7 @@ private slots:
     void on_peakHoldButton_toggled(bool checked);
     void on_peakDetectionButton_toggled(bool checked);
     void on_lockButton_toggled(bool checked);
+    void on_bandinfoCheckbox_stateChanged(int state);
 
 private:
     void updateInfoLabels(void);

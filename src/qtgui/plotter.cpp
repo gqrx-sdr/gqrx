@@ -1433,7 +1433,7 @@ void CPlotter::drawOverlay()
                 QStringList strings = line.split(",");
 
                 // minFrequency,maxFrequency,mode,step,color,name
-                if (strings.count() == 6) {
+                if (strings.count() >= 6) {
 
                     qint64 BandInfo_Min    = strings[0].toLongLong();   // minFrequency
                     qint64 BandInfo_Max    = strings[1].toLongLong();   // maxFrequency
@@ -1442,23 +1442,29 @@ void CPlotter::drawOverlay()
                     QString BandInfo_Color = strings[4].trimmed();      // color
                     QString BandInfo_Name  = strings[5].trimmed();      // name
 
-                    int min = xFromFreq(BandInfo_Min);
-                    int max = xFromFreq(BandInfo_Max);
+                    int min_pos = xFromFreq(BandInfo_Min);
+                    int max_pos = xFromFreq(BandInfo_Max);
+                    int del_pos = max_pos - min_pos;
 
                     // draw to frequency band
 
                     // set rectangle
-                    rect.setRect(min, h - 45, max, h);
-
+                    rect.setRect(min_pos, h - 45, del_pos, h);
                     // set opacity
                     painter.setOpacity(0.2);
                     // x, y, w, h, color
                     painter.fillRect(rect, QColor(BandInfo_Color));
 
-                    // set opacity
-                    painter.setOpacity(0.8);
-                    // set text
-                    painter.drawText(rect, Qt::AlignHCenter, BandInfo_Name);
+                    int textWith = metrics.width(BandInfo_Name);
+
+                    if (min_pos < w && del_pos > textWith + 10 * 2) {
+                        // set opacity
+                        painter.setOpacity(0.8);
+                        // set rectangle
+                        rect.setRect(min_pos + 10, h - 40, textWith + 10, metrics.height());
+                        // set text
+                        painter.drawText(rect, Qt::AlignHCenter, BandInfo_Name);
+                    }
 
                     // set opacity
                     painter.setOpacity(1.0);
@@ -1758,6 +1764,11 @@ void CPlotter::setPeakDetection(bool enabled, float c)
         m_PeakDetection = -1;
     else
         m_PeakDetection = c;
+}
+
+void CPlotter::enableBandInfo(bool enabled)
+{
+    m_BandInfoEnabled = enabled;
 }
 
 void CPlotter::calcDivSize (qint64 low, qint64 high, int divswanted, qint64 &adjlow, qint64 &step, int& divs)

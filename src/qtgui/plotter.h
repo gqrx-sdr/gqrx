@@ -145,6 +145,7 @@ public slots:
     void setPandapterRange(float min, float max);
     void setWaterfallRange(float min, float max);
     void setPeakDetection(bool enabled, float c);
+    void enableBandInfo(bool enabled);
     void updateOverlay();
 
     void setPercent2DScreen(int percent)
