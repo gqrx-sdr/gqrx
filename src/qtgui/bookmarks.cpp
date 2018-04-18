@@ -88,14 +88,14 @@ bool Bookmarks::load()
         {
             QString line = QString::fromUtf8(file.readLine().trimmed());
 
-            if(line.isEmpty())
+            if (line.isEmpty())
                 break;
 
-            if(line.startsWith("#"))
+            if (line.startsWith("#"))
                 continue;
 
             QStringList strings = line.split(";");
-            if(strings.count() == 2)
+            if (strings.count() == 2)
             {
                 TagInfo &info = findOrAddTag(strings[0]);
                 info.color = QColor(strings[1].trimmed());
@@ -111,7 +111,7 @@ bool Bookmarks::load()
         while (!file.atEnd())
         {
             QString line = QString::fromUtf8(file.readLine().trimmed());
-            if(line.isEmpty() || line.startsWith("#"))
+            if (line.isEmpty() || line.startsWith("#"))
                 continue;
 
             QStringList strings = line.split(";");
@@ -125,7 +125,7 @@ bool Bookmarks::load()
                 // Multiple Tags may be separated by comma.
                 QString strTags = strings[4];
                 QStringList TagList = strTags.split(",");
-                for(int iTag=0; iTag<TagList.size(); ++iTag)
+                for (int iTag = 0; iTag < TagList.size(); ++iTag)
                 {
                   info.tags.append(&findOrAddTag(TagList[iTag].trimmed()));
                 }
@@ -154,8 +154,7 @@ bool Bookmarks::save()
     {
         QTextStream stream(&file);
 
-        stream << QString("# Tag name").leftJustified(20) + "; " +
-                  QString(" color") << endl;
+        stream << QString("# Tag name") + ";" + QString(" color") << endl;
 
         QSet<TagInfo*> usedTags;
         for (int iBookmark = 0; iBookmark < m_BookmarkList.size(); iBookmark++)
@@ -171,28 +170,21 @@ bool Bookmarks::save()
         for (QSet<TagInfo*>::iterator i = usedTags.begin(); i != usedTags.end(); i++)
         {
             TagInfo& info = **i;
-            stream << info.name.leftJustified(20) + "; " + info.color.name() << endl;
+            stream << info.name + ";" + info.color.name() << endl;
         }
 
         stream << endl;
 
-        stream << QString("# Frequency").leftJustified(12) + "; " +
-                  QString("Name").leftJustified(25)+ "; " +
-                  QString("Modulation").leftJustified(20) + "; " +
-                  QString("Bandwidth").rightJustified(10) + "; " +
-                  QString("Tags") << endl;
+        stream << QString("# Frequency") + ";" + QString("Name") + "; " + QString("Modulation") + ";" + QString("Bandwidth") + ";" + QString("Tags") << endl;
 
         for (int i = 0; i < m_BookmarkList.size(); i++)
         {
             BookmarkInfo& info = m_BookmarkList[i];
-            QString line = QString::number(info.frequency).rightJustified(12) +
-                    "; " + info.name.leftJustified(25) + "; " +
-                    info.modulation.leftJustified(20)+ "; " +
-                    QString::number(info.bandwidth).rightJustified(10) + "; ";
-            for(int iTag = 0; iTag<info.tags.size(); ++iTag)
+            QString line = QString::number(info.frequency) + ";" + info.name + ";" + info.modulation + ";" + QString::number(info.bandwidth) + ";";
+            for (int iTag = 0; iTag < info.tags.size(); ++iTag)
             {
                 TagInfo& tag = *info.tags[iTag];
-                if(iTag!=0)
+                if (iTag != 0)
                 {
                     line.append(",");
                 }

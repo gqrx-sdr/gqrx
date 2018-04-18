@@ -36,18 +36,21 @@
 #include "qtcolorpicker.h"
 #include "ui_dockbookmarks.h"
 
-DockBookmarks::DockBookmarks(QWidget *parent) :
-    QDockWidget(parent),
-    ui(new Ui::DockBookmarks)
+DockBookmarks::DockBookmarks(QWidget *parent) : QDockWidget(parent), ui(new Ui::DockBookmarks)
 {
     ui->setupUi(this);
 
     bookmarksTableModel = new BookmarksTableModel();
 
+    // Tag List
+
+    ui->tableWidgetTagList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
     // Frequency List
+
+    ui->tableViewFrequencyList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableViewFrequencyList->setModel(bookmarksTableModel);
-    ui->tableViewFrequencyList->setColumnWidth(BookmarksTableModel::COL_NAME,
-        ui->tableViewFrequencyList->columnWidth(BookmarksTableModel::COL_NAME) * 2);
+    ui->tableViewFrequencyList->setColumnWidth(BookmarksTableModel::COL_NAME, ui->tableViewFrequencyList->columnWidth(BookmarksTableModel::COL_NAME) * 2);
     ui->tableViewFrequencyList->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableViewFrequencyList->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->tableViewFrequencyList->installEventFilter(this);
@@ -69,9 +72,10 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
         actionAddBookmark = new QAction("Add Bookmark", this);
         contextmenu->addAction(actionAddBookmark);
     }
+
     ui->tableViewFrequencyList->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->tableViewFrequencyList, SIGNAL(customContextMenuRequested(const QPoint&)),
-        this, SLOT(ShowContextMenu(const QPoint&)));
+
+    connect(ui->tableViewFrequencyList, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(ShowContextMenu(const QPoint&)));
 
     // Update GUI
     Bookmarks::Get().load();
@@ -83,16 +87,11 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
     // TagList
     updateTags();
 
-    connect(ui->tableViewFrequencyList, SIGNAL(activated(const QModelIndex &)),
-            this, SLOT(activated(const QModelIndex &)));
-    connect(ui->tableViewFrequencyList, SIGNAL(doubleClicked(const QModelIndex &)),
-            this, SLOT(doubleClicked(const QModelIndex &)));
-    connect(bookmarksTableModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
-            this, SLOT(onDataChanged(const QModelIndex &, const QModelIndex &)));
-    connect(&Bookmarks::Get(), SIGNAL(TagListChanged()),
-            ui->tableWidgetTagList, SLOT(updateTags()));
-    connect(&Bookmarks::Get(), SIGNAL(BookmarksChanged()),
-            bookmarksTableModel, SLOT(update()));
+    connect(ui->tableViewFrequencyList, SIGNAL(activated(const QModelIndex &)), this, SLOT(activated(const QModelIndex &)));
+    connect(ui->tableViewFrequencyList, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(doubleClicked(const QModelIndex &)));
+    connect(bookmarksTableModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(onDataChanged(const QModelIndex &, const QModelIndex &)));
+    connect(&Bookmarks::Get(), SIGNAL(TagListChanged()), ui->tableWidgetTagList, SLOT(updateTags()));
+    connect(&Bookmarks::Get(), SIGNAL(BookmarksChanged()), bookmarksTableModel, SLOT(update()));
 }
 
 DockBookmarks::~DockBookmarks()
@@ -146,9 +145,11 @@ void DockBookmarks::onDataChanged(const QModelIndex&, const QModelIndex &)
 void DockBookmarks::on_tableWidgetTagList_itemChanged(QTableWidgetItem *item)
 {
     // we only want to react on changed by the user, not changes by the program itself.
-    if(ui->tableWidgetTagList->m_bUpdating) return;
+    if (ui->tableWidgetTagList->m_bUpdating)
+        return;
 
     int col = item->column();
+
     if (col != 1)
         return;
 
@@ -184,6 +185,7 @@ bool DockBookmarks::DeleteSelectedBookmark()
         Bookmarks::Get().remove(iIndex);
         bookmarksTableModel->update();
     }
+
     return true;
 }
 
@@ -194,15 +196,15 @@ void DockBookmarks::ShowContextMenu(const QPoint& pos)
 
 void DockBookmarks::doubleClicked(const QModelIndex & index)
 {
-    if(index.column() == BookmarksTableModel::COL_TAGS)
+    if (index.column() == BookmarksTableModel::COL_TAGS)
     {
         changeBookmarkTags(index.row(), index.column());
     }
 }
 
-ComboBoxDelegateModulation::ComboBoxDelegateModulation(QObject *parent)
-:QItemDelegate(parent)
+ComboBoxDelegateModulation::ComboBoxDelegateModulation(QObject *parent) : QItemDelegate(parent)
 {
+    // ...
 }
 
 QWidget *ComboBoxDelegateModulation::createEditor(QWidget *parent, const QStyleOptionViewItem &/* option */, const QModelIndex &index) const

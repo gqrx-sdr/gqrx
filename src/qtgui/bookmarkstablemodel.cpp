@@ -27,15 +27,16 @@
 #include "dockrxopt.h"
 
 
-BookmarksTableModel::BookmarksTableModel(QObject *parent) :
-    QAbstractTableModel(parent)
+BookmarksTableModel::BookmarksTableModel(QObject *parent) : QAbstractTableModel(parent)
 {
+    // ...
 }
 
 int BookmarksTableModel::rowCount ( const QModelIndex & /*parent*/ ) const
 {
     return m_Bookmarks.size();
 }
+
 int BookmarksTableModel::columnCount ( const QModelIndex & /*parent*/ ) const
 {
     return 5;
@@ -43,31 +44,37 @@ int BookmarksTableModel::columnCount ( const QModelIndex & /*parent*/ ) const
 
 QVariant BookmarksTableModel::headerData ( int section, Qt::Orientation orientation, int role ) const
 {
-    if(orientation == Qt::Horizontal && role == Qt::DisplayRole)
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
     {
-        switch(section)
+        switch (section)
         {
-        case COL_FREQUENCY:
-            return QString("Frequency");
-            break;
-        case COL_NAME:
-            return QString("Name");
-            break;
-        case COL_MODULATION:
-            return QString("Modulation");
-            break;
-        case COL_BANDWIDTH:
-            return QString("Bandwidth");
-            break;
-        case COL_TAGS:
-            return QString("Tag");
-            break;
+            case COL_FREQUENCY:
+                return QString("Frequency");
+                break;
+
+            case COL_NAME:
+                return QString("Name");
+                break;
+
+            case COL_MODULATION:
+                return QString("Modulation");
+                break;
+
+            case COL_BANDWIDTH:
+                return QString("Bandwidth");
+                break;
+
+            case COL_TAGS:
+                return QString("Tag");
+                break;
         }
     }
-    if(orientation == Qt::Vertical && role == Qt::DisplayRole)
+
+    if (orientation == Qt::Vertical && role == Qt::DisplayRole)
     {
         return section;
     }
+
     return QVariant();
 }
 
