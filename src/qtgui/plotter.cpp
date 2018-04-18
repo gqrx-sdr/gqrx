@@ -1315,6 +1315,69 @@ void CPlotter::drawOverlay()
     int xAxisTop = h - xAxisHeight;
     int fLabelTop = xAxisTop + VER_MARGIN;
 
+    // draw bandinfo
+    if (m_BandInfoEnabled)
+    {
+        // get data from file
+        const QString &resource_path = ":/textfiles/bandplan.csv";
+        QResource resource(resource_path);
+        QFile file(resource.absoluteFilePath());
+
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+
+            // lines
+            while (!file.atEnd()) {
+
+                QString line = QString::fromUtf8(file.readLine().trimmed());
+
+                if (line.isEmpty() || line.startsWith("#") || line.startsWith("//")) {
+                    continue;
+                }
+
+                QStringList strings = line.split(",");
+
+                // minFrequency,maxFrequency,mode,step,color,name
+                if (strings.count() >= 6) {
+
+                    qint64 BandInfo_Min    = strings[0].toLongLong();   // minFrequency
+                    qint64 BandInfo_Max    = strings[1].toLongLong();   // maxFrequency
+                    QString BandInfo_Mode  = strings[2].trimmed();      // mode
+                    //int BandInfo_Step      = strings[3].toInt();        // step
+                    QString BandInfo_Color = strings[4].trimmed();      // color
+                    QString BandInfo_Name  = strings[5].trimmed();      // name
+
+                    int min_pos = xFromFreq(BandInfo_Min);
+                    int max_pos = xFromFreq(BandInfo_Max);
+                    int del_pos = max_pos - min_pos;
+
+                    // draw to frequency band
+
+                    // set rectangle
+                    rect.setRect(min_pos, h - 45, del_pos, h);
+                    painter.setOpacity(0.8);
+                    painter.fillRect(rect, QColor(BandInfo_Color));
+
+                    int textWith = metrics.width(BandInfo_Name + " (" + BandInfo_Mode + ")");
+
+                    if (min_pos < w && del_pos > textWith + 20) {
+                        painter.setOpacity(1.0);
+                        rect.setRect(min_pos + 10, h - 40, textWith + 10, metrics.height());
+                        painter.setPen(QColor(PLOTTER_TEXT_COLOR));
+                        painter.drawText(rect, Qt::AlignHCenter, BandInfo_Name + " (" + BandInfo_Mode + ")");
+                    }
+
+                    // set opacity
+                    painter.setOpacity(1.0);
+
+                } else {
+                    printf("BandInfo: Ignoring Line:\n  %s\n", line.toLatin1().data());
+                }
+            }
+
+            file.close();
+        }
+    }
+
     if (m_BookmarksEnabled)
     {
         m_BookmarkTags.clear();
@@ -1408,79 +1471,6 @@ void CPlotter::drawOverlay()
         {
             rect.setRect(x - tw/2, fLabelTop, tw, metrics.height());
             painter.drawText(rect, Qt::AlignHCenter|Qt::AlignBottom, m_HDivText[i]);
-        }
-    }
-
-    // draw bandinfo
-    if (m_BandInfoEnabled)
-    {
-        // get data from file
-        const QString &resource_path = ":/textfiles/bandplan.csv";
-        QResource resource(resource_path);
-        QFile file(resource.absoluteFilePath());
-
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-
-            // lines
-            while (!file.atEnd()) {
-
-                QString line = QString::fromUtf8(file.readLine().trimmed());
-
-                if (line.isEmpty() || line.startsWith("#") || line.startsWith("//")) {
-                    continue;
-                }
-
-                QStringList strings = line.split(",");
-
-                // minFrequency,maxFrequency,mode,step,color,name
-                if (strings.count() >= 6) {
-
-                    qint64 BandInfo_Min    = strings[0].toLongLong();   // minFrequency
-                    qint64 BandInfo_Max    = strings[1].toLongLong();   // maxFrequency
-                    //QString BandInfo_Mode  = strings[2].trimmed();      // mode
-                    //int BandInfo_Step      = strings[3].toInt();        // step
-                    QString BandInfo_Color = strings[4].trimmed();      // color
-                    QString BandInfo_Name  = strings[5].trimmed();      // name
-
-                    int min_pos = xFromFreq(BandInfo_Min);
-                    int max_pos = xFromFreq(BandInfo_Max);
-                    int del_pos = max_pos - min_pos;
-
-                    // draw to frequency band
-
-                    // set rectangle
-                    rect.setRect(min_pos, h - 45, del_pos, h);
-                    /*
-                    // set opacity
-                    painter.setOpacity(0.2);
-                    // x, y, w, h, color
-                    painter.fillRect(rect, QColor("#FFFFFF"));
-                    */
-                    // set opacity
-                    painter.setOpacity(0.2);
-                    // x, y, w, h, color
-                    painter.fillRect(rect, QColor(BandInfo_Color));
-
-                    int textWith = metrics.width(BandInfo_Name);
-
-                    if (min_pos < w && del_pos > textWith + 10 * 2) {
-                        // set opacity
-                        painter.setOpacity(0.8);
-                        // set rectangle
-                        rect.setRect(min_pos + 10, h - 40, textWith + 10, metrics.height());
-                        // set text
-                        painter.drawText(rect, Qt::AlignHCenter, BandInfo_Name);
-                    }
-
-                    // set opacity
-                    painter.setOpacity(1.0);
-
-                } else {
-                    printf("BandInfo: Ignoring Line:\n  %s\n", line.toLatin1().data());
-                }
-            }
-
-            file.close();
         }
     }
 
