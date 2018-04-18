@@ -260,8 +260,8 @@ void DockFft::saveSettings(QSettings *settings)
         settings->remove("db_ranges_locked");
 
     // Band Info.
-    if (!ui->bandinfoCheckbox->isChecked())
-        settings->setValue("bandinfo", false);
+    if (ui->bandinfoCheckbox->isChecked())
+        settings->setValue("bandinfo", true);
     else
         settings->remove("bandinfo");
 
@@ -510,7 +510,7 @@ void DockFft::on_bandinfoCheckbox_stateChanged(int state)
 {
     bool checked = true;
 
-    if (state == 1) {
+    if (state == 2) {
         checked = true;
     } else {
         checked = false;
@@ -569,4 +569,3 @@ void DockFft::updateInfoLabels(void)
         ovr = 100 * (sps / m_sample_rate - 1.f);
     ui->fftOvrLabel->setText(QString("Overlap: %1%").arg(ovr, 0, 'f', 0));
 }
-

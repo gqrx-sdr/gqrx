@@ -1450,6 +1450,12 @@ void CPlotter::drawOverlay()
 
                     // set rectangle
                     rect.setRect(min_pos, h - 45, del_pos, h);
+                    /*
+                    // set opacity
+                    painter.setOpacity(0.2);
+                    // x, y, w, h, color
+                    painter.fillRect(rect, QColor("#FFFFFF"));
+                    */
                     // set opacity
                     painter.setOpacity(0.2);
                     // x, y, w, h, color
@@ -1766,9 +1772,23 @@ void CPlotter::setPeakDetection(bool enabled, float c)
         m_PeakDetection = c;
 }
 
-void CPlotter::enableBandInfo(bool enabled)
+/**
+ * enable/disable band informations
+ *
+ * @brief CPlotter::toggleBandInfo
+ * @param state
+ */
+void CPlotter::toggleBandInfo(bool state)
 {
-    m_BandInfoEnabled = enabled;
+    printf("%s", state ? "true\n" : "false\n");
+
+    if (state) {
+        m_BandInfoEnabled = true;
+    } else {
+        m_BandInfoEnabled = false;
+    }
+
+    updateOverlay();
 }
 
 void CPlotter::calcDivSize (qint64 low, qint64 high, int divswanted, qint64 &adjlow, qint64 &step, int& divs)
