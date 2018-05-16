@@ -1,4 +1,9 @@
 
+    2.11.5: Released May 17, 2018
+
+     FIXED: Crash in remote control 'q' command.
+
+
     2.11.4: Released April 17, 2018
 
      FIXED: Reduced size of color selector button in bookmarks tag list.

@@ -177,6 +177,7 @@ Pavel Stano
 Chris Kuethe
 Christian Lindner DL2VCL
 charlylima
+Darin Franklin
 Stefano Leucci
 Daniil Cherednik
 Dominic Chen
