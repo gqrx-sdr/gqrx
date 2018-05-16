@@ -73,13 +73,13 @@ CONFIG(debug, debug|release) {
 
     # Define version string (see below for releases)
     ##VER = $$system(git describe --abbrev=8)
-    VER = 2.11.4
+    VER = 2.11.5
 
 } else {
     DEFINES += QT_NO_DEBUG
     DEFINES += QT_NO_DEBUG_OUTPUT
     VER = $$system(git describe --abbrev=1)
-    VER = 2.11.4
+    VER = 2.11.5
 
     # Release binaries with gr bundled
     # QMAKE_RPATH & co won't work with origin
