@@ -1715,6 +1715,7 @@ void CPlotter::calcDivSize (qint64 low, qint64 high, int divswanted, qint64 &adj
     step = 1;
     divs = high - low;
     int index = 0;
+    adjlow = (low / step) * step;
 
     while (divs > divswanted)
     {
