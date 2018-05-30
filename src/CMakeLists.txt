@@ -58,10 +58,13 @@ endif(WIN32)
 #######################################################################################################################
 # Build the program
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCE} ${UIS_HDRS} ${RESOURCES_LIST})
-qt5_use_modules(${PROJECT_NAME} Core Network Widgets Svg)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
 # The pulse libraries are only needed on Linux. On other platforms they will not be found, so having them here is fine.
 target_link_libraries(${PROJECT_NAME}
+    Qt5::Core
+    Qt5::Network
+    Qt5::Widgets
+    Qt5::Svg
     ${Boost_LIBRARIES}
     ${GNURADIO_ALL_LIBRARIES}
     ${GNURADIO_OSMOSDR_LIBRARIES}
