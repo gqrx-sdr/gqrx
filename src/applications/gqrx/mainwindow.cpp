@@ -2201,7 +2201,7 @@ void MainWindow::on_actionAbout_triggered()
            "<p>Gqrx is a software defined radio (SDR) receiver powered by "
            "<a href='http://www.gnuradio.org/'>GNU Radio</a> and the Qt toolkit. "
            "<p>Gqrx uses the <a href='https://osmocom.org/projects/sdr/wiki/GrOsmoSDR'>GrOsmoSDR</a> "
-           "input source block and and works with any input device supported by it, including "
+           "input source block and works with any input device supported by it, including "
            "Funcube Dongle, RTL-SDR, Airspy, HackRF, RFSpace, BladeRF and USRP receivers."
            "</p>"
            "<p>You can download the latest version from the "
