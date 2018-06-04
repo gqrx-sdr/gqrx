@@ -2125,7 +2125,7 @@ void MainWindow::on_actionUserGroup_triggered()
 }
 
 /**
- * Show news.txt in a dialog window.
+ * Show ftxt in a dialog window.
  */
 void MainWindow::on_actionNews_triggered()
 {
@@ -2153,7 +2153,7 @@ void MainWindow::showSimpleTextFile(const QString &resource_path,
     if (!news.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         qDebug() << "Unable to open file: " << news.fileName() <<
-                    " besause of error " << news.errorString();
+                    " because of error " << news.errorString();
 
         return;
     }
