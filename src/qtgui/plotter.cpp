@@ -1113,7 +1113,7 @@ void CPlotter::draw()
  * When FFT data is set using this method, the same data will be used for both the
  * pandapter and the waterfall.
  */
-void CPlotter::setNewFttData(float *fftData, int size)
+void CPlotter::setNewFftData(float *fftData, int size)
 {
     /** FIXME **/
     if (!m_Running)
@@ -1136,7 +1136,7 @@ void CPlotter::setNewFttData(float *fftData, int size)
  * waterfall.
  */
 
-void CPlotter::setNewFttData(float *fftData, float *wfData, int size)
+void CPlotter::setNewFftData(float *fftData, float *wfData, int size)
 {
     /** FIXME **/
     if (!m_Running)

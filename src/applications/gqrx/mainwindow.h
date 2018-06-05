@@ -87,7 +87,6 @@ private:
     float          *d_realFftData;
     float          *d_iirFftData;
     float          *d_pwrFftData;
-    //double *d_audioFttData;
     float           d_fftAvg;      /*!< FFT averaging parameter set by user (not the true gain). */
 
     bool d_have_audio;  /*!< Whether we have audio (i.e. not with demod_off. */

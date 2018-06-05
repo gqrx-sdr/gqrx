@@ -51,7 +51,7 @@ public:
     ~DockAudio();
 
     void setFftRange(quint64 minf, quint64 maxf);
-    void setNewFttData(float *fftData, int size);
+    void setNewFftData(float *fftData, int size);
     int  fftRate() const { return 10; }
 
     void setAudioGain(int gain);

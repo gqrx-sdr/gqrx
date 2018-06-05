@@ -1287,7 +1287,7 @@ void MainWindow::iqFftTimeout()
         d_iirFftData[i] += d_fftAvg * (d_realFftData[i] - d_iirFftData[i]);
     }
 
-    ui->plotter->setNewFttData(d_iirFftData, d_realFftData, fftsize);
+    ui->plotter->setNewFftData(d_iirFftData, d_realFftData, fftsize);
 }
 
 /** Audio FFT plot timeout. */
@@ -1332,7 +1332,7 @@ void MainWindow::audioFftTimeout()
         d_realFftData[i] = 10.0 * log10f(pwr + 1.0e-20);
     }
 
-    uiDockAudio->setNewFttData(d_realFftData, fftsize);
+    uiDockAudio->setNewFftData(d_realFftData, fftsize);
 }
 
 /** RDS message display timeout. */

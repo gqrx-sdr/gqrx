@@ -39,8 +39,8 @@ public:
     void setTooltipsEnabled(bool enabled) { m_TooltipsEnabled = enabled; }
     void setBookmarksEnabled(bool enabled) { m_BookmarksEnabled = enabled; }
 
-    void setNewFttData(float *fftData, int size);
-    void setNewFttData(float *fftData, float *wfData, int size);
+    void setNewFftData(float *fftData, int size);
+    void setNewFftData(float *fftData, float *wfData, int size);
 
     void setCenterFreq(quint64 f);
     void setFreqUnits(qint32 unit) { m_FreqUnits = unit; }
