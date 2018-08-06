@@ -251,6 +251,7 @@
     <addaction name="separator"/>
     <addaction name="actionAFSK1200"/>
     <addaction name="separator"/>
+    <addaction name="actionDX_Cluster"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Tools"/>
@@ -548,6 +549,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="actionDX_Cluster">
+   <property name="text">
+    <string>DX Cluster</string>
+   </property>
+   <property name="toolTip">
+    <string>Open DX Cluster Dialog</string>
    </property>
   </action>
  </widget>

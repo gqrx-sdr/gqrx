@@ -48,6 +48,7 @@
 #include <QSvgWidget>
 #include "qtgui/ioconfig.h"
 #include "mainwindow.h"
+#include "qtgui/dxc_spots.h"
 
 /* Qt Designer files */
 #include "ui_mainwindow.h"
@@ -72,6 +73,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     ui->setupUi(this);
     BandPlan::create();
     Bookmarks::create();
+    DXCSpots::create();
 
     /* Initialise default configuration directory */
     QByteArray xdg_dir = qgetenv("XDG_CONFIG_HOME");
@@ -123,6 +125,11 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
 
     // create I/Q tool widget
     iq_tool = new CIqTool(this);
+
+    // create DXC Objects
+    dxc_options = new DXC_Options(this);
+    dxc_timer = new QTimer(this);
+    dxc_timer->start(1000);
 
     /* create dock widgets */
     uiDockRxOpt = new DockRxOpt();
@@ -267,6 +274,9 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockBookmarks, SIGNAL(newBookmarkActivated(qint64, QString, int)), this, SLOT(onBookmarkActivated(qint64, QString, int)));
     connect(uiDockBookmarks->actionAddBookmark, SIGNAL(triggered()), this, SLOT(on_actionAddBookmark_triggered()));
 
+    //DXC Spots
+    connect(&DXCSpots::Get(), SIGNAL(DXCSpotsChanged()),this , SLOT(addClusterSpot()));
+    connect(dxc_timer, SIGNAL(timeout()), this, SLOT(checkDXCSpotTimeout()));
 
     // I/Q playback
     connect(iq_tool, SIGNAL(startRecording(QString)), this, SLOT(startIqRecording(QString)));
@@ -360,6 +370,9 @@ MainWindow::~MainWindow()
     audio_fft_timer->stop();
     delete audio_fft_timer;
 
+    dxc_timer->stop();
+    delete dxc_timer;
+
     if (m_settings)
     {
         m_settings->setValue("configversion", 2);
@@ -384,6 +397,7 @@ MainWindow::~MainWindow()
     delete m_recent_config;
 
     delete iq_tool;
+    delete dxc_options;
     delete ui;
     delete uiDockRxOpt;
     delete uiDockAudio;
@@ -620,6 +634,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
     uiDockRxOpt->readSettings(m_settings);
     uiDockFft->readSettings(m_settings);
     uiDockAudio->readSettings(m_settings);
+    dxc_options->readSettings(m_settings);
 
     {
         int64_val = m_settings->value("input/frequency", 14236000).toLongLong(&conv_ok);
@@ -738,6 +753,7 @@ void MainWindow::storeSession()
 
         remote->saveSettings(m_settings);
         iq_tool->saveSettings(m_settings);
+        dxc_options->saveSettings(m_settings);
 
         {
             int     flo, fhi;
@@ -2123,6 +2139,11 @@ void MainWindow::afsk1200win_closed()
     dec_afsk1200 = 0;
 }
 
+/** Show DXC Options. */
+void MainWindow::on_actionDX_Cluster_triggered()
+{
+    dxc_options->show();
+}
 
 /**
  * Cyclic processing for acquiring samples from receiver and processing them
@@ -2410,4 +2431,15 @@ void MainWindow::on_actionAddBookmark_triggered()
         uiDockBookmarks->updateBookmarks();
         ui->plotter->updateOverlay();
     }
+}
+
+void MainWindow::addClusterSpot()
+{
+    ui->plotter->updateOverlay();
+}
+
+void MainWindow::checkDXCSpotTimeout()
+{
+    DXCSpots::Get().checkSpotTimeout();
+    ui->plotter->updateOverlay();
 }
