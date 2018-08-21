@@ -6,6 +6,7 @@ FftBuffer::FftBuffer()
     , _size(0)
     , _index(0)
     , _max_mem(1024*1024*256)
+    , _data(0)
 {
 }
 
