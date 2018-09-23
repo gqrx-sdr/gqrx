@@ -107,7 +107,9 @@ private slots:
     void setNewRecDir(const QString &dir);
     void setNewUdpHost(const QString &host);
     void setNewUdpPort(int port);
-
+    void on_zerodB_clicked();
+    void on_minus10dB_clicked();
+    void on_plus10dB_clicked();
 
 private:
     Ui::DockAudio *ui;

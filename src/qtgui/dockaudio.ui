@@ -151,6 +151,67 @@
      </layout>
     </item>
     <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0">
+      <item>
+       <widget class="QPushButton" name="minus10dB">
+        <property name="minimumSize">
+         <size>
+          <width>50</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Lower audio gain by 10dB</string>
+        </property>
+        <property name="statusTip">
+         <string>Lower audio gain by 10dB</string>
+        </property>
+        <property name="text">
+         <string>-10dB</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="zerodB">
+        <property name="minimumSize">
+         <size>
+          <width>50</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Reset audio gain to 0dB</string>
+        </property>
+        <property name="statusTip">
+         <string>Reset audio gain to 0dB</string>
+        </property>
+        <property name="text">
+         <string>0dB</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="plus10dB">
+        <property name="minimumSize">
+         <size>
+          <width>50</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Increase audio gain by 10dB</string>
+        </property>
+        <property name="statusTip">
+         <string>Increase audio gain by 10dB</string>
+        </property>
+        <property name="text">
+         <string>+10dB</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <property name="spacing">
        <number>0</number>

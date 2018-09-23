@@ -115,6 +115,7 @@ int  DockAudio::audioGain()
     return ui->audioGainSlider->value();
 }
 
+
 /*! Set FFT plot color. */
 void DockAudio::setFftColor(QColor color)
 {
@@ -421,4 +422,20 @@ void DockAudio::setNewUdpHost(const QString &host)
 void DockAudio::setNewUdpPort(int port)
 {
     udp_port = port;
+}
+
+void DockAudio::on_zerodB_clicked()
+{
+    setAudioGain(0);
+}
+
+void DockAudio::on_minus10dB_clicked()
+{
+    setAudioGain(audioGain()-100);
+}
+
+void DockAudio::on_plus10dB_clicked()
+{
+    setAudioGain(audioGain()+100);
+
 }
