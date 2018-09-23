@@ -115,7 +115,6 @@ int  DockAudio::audioGain()
     return ui->audioGainSlider->value();
 }
 
-
 /*! Set FFT plot color. */
 void DockAudio::setFftColor(QColor color)
 {
