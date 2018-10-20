@@ -96,6 +96,12 @@ function(add_source_files list)
     set_property(GLOBAL APPEND PROPERTY ${list} "${SRCS}")
 endfunction(add_source_files)
 
+if(APPLE AND EXISTS /usr/local/opt/qt5)
+    # Homebrew installs Qt5 (up to at least 5.9.1) in
+    # /usr/local/qt5, ensure it can be found by CMake since
+    # it is not in the default /usr/local prefix.
+    list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/qt5")
+endif()
 
 # 3rd Party Dependency Stuff
 find_package(Qt5 COMPONENTS Core Network Widgets Svg REQUIRED)
@@ -103,6 +109,7 @@ find_package(Boost COMPONENTS system program_options REQUIRED)
 set(GR_REQUIRED_COMPONENTS RUNTIME ANALOG AUDIO BLOCKS DIGITAL FILTER FFT PMT)
 find_package(Gnuradio REQUIRED)
 find_package(Gnuradio-osmosdr REQUIRED)
+
 
 if(NOT GNURADIO_RUNTIME_FOUND)
     message(FATAL_ERROR "GnuRadio Runtime required to compile gqrx")
