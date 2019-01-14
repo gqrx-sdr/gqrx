@@ -384,11 +384,8 @@ void CIoConfig::updateInputSampleRates(int rate)
     }
     else if (ui->inDevEdit->text().contains("bladerf"))
     {
-        ui->inSrCombo->addItem("160000");
-        ui->inSrCombo->addItem("250000");
-        ui->inSrCombo->addItem("500000");
-        ui->inSrCombo->addItem("1000000");
-        ui->inSrCombo->addItem("2000000");
+        if (rate > 0)
+            ui->inSrCombo->addItem(QString("%1").arg(rate));
         ui->inSrCombo->addItem("5000000");
         ui->inSrCombo->addItem("8000000");
         ui->inSrCombo->addItem("10000000");
@@ -398,17 +395,6 @@ void CIoConfig::updateInputSampleRates(int rate)
         ui->inSrCombo->addItem("30000000");
         ui->inSrCombo->addItem("35000000");
         ui->inSrCombo->addItem("40000000");
-        ui->inSrCombo->addItem("45000000");
-        ui->inSrCombo->addItem("50000000");
-        ui->inSrCombo->addItem("55000000");
-        ui->inSrCombo->addItem("60000000");
-        if (rate > 0)
-        {
-            ui->inSrCombo->insertItem(0, QString("%1").arg(rate));
-            ui->inSrCombo->setCurrentIndex(0);
-        }
-        else
-            ui->inSrCombo->setCurrentIndex(5); // select 5 MHz
     }
     else if (ui->inDevEdit->text().contains("sdr-iq"))
     {
