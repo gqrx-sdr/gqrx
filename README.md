@@ -119,6 +119,16 @@ $ qmake ..
 $ make
 </pre>
 
+
+MACOS Installation from source
+------------------------
+
+
+brew install gr-osmosdr
+brew install gnuradio
+brew install cmake
+brew install qt
+
 Using cmake, gqrx can be compiled from within Qt Creator or in a terminal:
 
 For command line builds:
