@@ -2300,3 +2300,13 @@ void MainWindow::on_actionAddBookmark_triggered()
         ui->plotter->updateOverlay();
     }
 }
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    switch (event->key())
+    {
+    case Qt::Key_F:
+        ui->freqCtrl->setFrequencyFocus();
+        break;
+    }
+}

@@ -32,6 +32,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QSvgWidget>
+#include <QKeyEvent>
 
 #include "qtgui/dockrxopt.h"
 #include "qtgui/dockaudio.h"
@@ -120,6 +121,9 @@ private:
 
     // dummy widget to enforce linking to QtSvg
     QSvgWidget      *qsvg_dummy;
+
+protected:
+    void    keyPressEvent(QKeyEvent *);
 
 private:
     void updateHWFrequencyRange(bool ignore_limits);
@@ -229,7 +233,6 @@ private slots:
     void meterTimeout();
     void iqFftTimeout();
     void audioFftTimeout();
-    void rdsTimeout();
-};
+    void rdsTimeout();};
 
 #endif // MAINWINDOW_H

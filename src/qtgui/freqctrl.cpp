@@ -483,6 +483,7 @@ void CFreqCtrl::keyPressEvent(QKeyEvent *event)
     // call base class if dont over ride key
     bool      fSkipMsg = false;
     qint64    tmp;
+    uint8_t position = 0;
 
     // qDebug() <<event->key();
 
@@ -847,4 +848,17 @@ void CFreqCtrl::cursorEnd()
         cursor().setPos(mapToGlobal(m_DigitInfo[m_FirstEditableDigit].dQRect.
                                     center()));
     }
+}
+
+void CFreqCtrl::cursorTo(uint8_t position)
+{
+    cursor().setPos(mapToGlobal(m_DigitInfo[position].dQRect.center()));
+}
+
+void CFreqCtrl::setFrequencyFocus()
+{
+    uint8_t position = floor(log10(m_freq));
+    position = (uint8_t)fmax(position, 4);      // restrict min to 100s of kHz
+
+    cursorTo(position);
 }

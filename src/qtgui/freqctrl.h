@@ -56,6 +56,7 @@ signals:
 
 public slots:
     void    setFrequency(qint64 freq);
+    void    setFrequencyFocus();
 
 protected:
     void    paintEvent(QPaintEvent *);
@@ -77,6 +78,7 @@ private:
     void    clearFreq();
     void    cursorHome();
     void    cursorEnd();
+    void    cursorTo(uint8_t position);
     void    moveCursorLeft();
     void    moveCursorRight();
     bool    inRect(QRect &rect, QPoint &point);
