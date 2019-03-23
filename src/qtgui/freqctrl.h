@@ -107,6 +107,7 @@ private:
 
     QColor      m_DigitColor;
     QColor      m_BkColor;
+    QColor      m_InactiveColor;
     QColor      m_UnitsColor;
     QColor      m_HighlightColor;
 

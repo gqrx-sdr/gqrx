@@ -54,6 +54,7 @@ CFreqCtrl::CFreqCtrl(QWidget *parent) :
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
     m_BkColor = QColor(0x1F, 0x1D, 0x1D, 0xFF);
+    m_InactiveColor = QColor(0x60, 0x60, 0x60, 0xFF);
     m_DigitColor = QColor(0xFF, 0xFF, 0xFF, 0xFF);
     m_HighlightColor = QColor(0x5A, 0x5A, 0x5A, 0xFF);
     m_UnitsColor = Qt::gray;
@@ -645,7 +646,7 @@ void CFreqCtrl::drawDigits(QPainter &Painter)
                 Painter.fillRect(m_DigitInfo[i].dQRect, m_BkColor);
 
             if (i >= m_LeadZeroPos)
-                Painter.setPen(m_BkColor);
+                Painter.setPen(m_InactiveColor);
             else
                 Painter.setPen(m_DigitColor);
 
