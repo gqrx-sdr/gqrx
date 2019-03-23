@@ -86,8 +86,8 @@
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>5</width>
-           <height>15</height>
+           <width>27</width>
+           <height>37</height>
           </size>
          </property>
         </spacer>
@@ -195,7 +195,7 @@
      <x>0</x>
      <y>0</y>
      <width>521</width>
-     <height>19</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -273,6 +273,7 @@
    <addaction name="separator"/>
    <addaction name="actionFullScreen"/>
    <addaction name="separator"/>
+   <addaction name="actionShowRightDock"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="enabled">
@@ -539,6 +540,25 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="actionShowRightDock">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/info.svg</normaloff>
+     <normalon>:/icons/icons/info.svg</normalon>:/icons/icons/info.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Show Menus</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/Hide settings menu</string>
    </property>
   </action>
  </widget>

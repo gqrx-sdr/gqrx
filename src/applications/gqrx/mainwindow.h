@@ -121,6 +121,8 @@ private:
     // dummy widget to enforce linking to QtSvg
     QSvgWidget      *qsvg_dummy;
 
+    QByteArray stateBeforeMinimize;
+
 private:
     void updateHWFrequencyRange(bool ignore_limits);
     void updateFrequencyRange();
@@ -230,6 +232,7 @@ private slots:
     void iqFftTimeout();
     void audioFftTimeout();
     void rdsTimeout();
+    void on_actionShowRightDock_toggled(bool state);
 };
 
 #endif // MAINWINDOW_H

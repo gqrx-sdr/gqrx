@@ -353,8 +353,11 @@ MainWindow::~MainWindow()
         else
             m_settings->remove("gui/hide_toolbar");
 
+        if(stateBeforeMinimize != Q_NULLPTR)
+            restoreState(stateBeforeMinimize);
         m_settings->setValue("gui/geometry", saveGeometry());
         m_settings->setValue("gui/state", saveState());
+        m_settings->setValue("gui/showmenu", ui->actionShowRightDock->isChecked());
 
         // save session
         storeSession();
@@ -463,6 +466,10 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
                                           saveGeometry()).toByteArray());
         restoreState(m_settings->value("gui/state", saveState()).toByteArray());
     }
+
+    // Restore settings menu hide/show state
+    bool_val = m_settings->value("gui/showmenu", false).toBool();
+    ui->actionShowRightDock->setChecked(bool_val);
 
     QString indev = m_settings->value("input/device", "").toString();
     if (!indev.isEmpty())
@@ -2298,5 +2305,22 @@ void MainWindow::on_actionAddBookmark_triggered()
         uiDockBookmarks->updateTags();
         uiDockBookmarks->updateBookmarks();
         ui->plotter->updateOverlay();
+    }
+}
+
+// Hide/show the right-hand settings menu, to give a larger FFT viewing area
+void MainWindow::on_actionShowRightDock_toggled(bool state)
+{
+    if(state){
+        if(stateBeforeMinimize != Q_NULLPTR)
+            restoreState(stateBeforeMinimize);
+    }
+    else{
+        //Save what the dock area looks like, then hide all dock widgets
+        stateBeforeMinimize = saveState();
+        for(QDockWidget* dw: findChildren<QDockWidget *>()){
+            if(dockWidgetArea(dw) == Qt::RightDockWidgetArea)
+                dw->hide();
+        }
     }
 }
