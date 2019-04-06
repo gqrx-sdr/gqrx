@@ -276,7 +276,10 @@ macx {
 
 OTHER_FILES += \
     bookmarks.csv \
-    gqrx.desktop \
-    README.md \
     COPYING \
-    news.txt
+    gqrx.appdata.xml \
+    gqrx.desktop \
+    LICENSE-CTK \
+    MANIFEST.md \
+    news.txt \
+    README.md
