@@ -169,19 +169,31 @@ int main(int argc, char *argv[])
     else if (vm.count("edit"))
         edit_conf = true;
 
-    // Mainwindow will check whether we have a configuration
-    // and open the config dialog if there is none or the specified
-    // file does not exist.
-    MainWindow w(cfg_file, edit_conf);
+    try {
+        // Mainwindow will check whether we have a configuration
+        // and open the config dialog if there is none or the specified
+        // file does not exist.
+        MainWindow w(cfg_file, edit_conf);
 
-    if (w.configOk)
-    {
-        w.show();
-        return_code = app.exec();
+        if (w.configOk)
+        {
+            w.show();
+            return_code = app.exec();
+        }
+        else
+            {
+            return_code = 1;
+        }
     }
-    else
+    catch (std::exception &x)
     {
-        return_code = 1;
+        QMessageBox::warning(nullptr,
+                         QObject::tr("Crash detected"),
+                         QObject::tr("<p>gqrx exited with an exception:</p>"
+                                     "<p><b>%1</b></p>"
+                                     "<p>More information can be found by launching it from the console.</p>")
+                                 .arg(x.what()),
+                         QMessageBox::Close);
     }
 
 #ifdef WITH_PORTAUDIO
