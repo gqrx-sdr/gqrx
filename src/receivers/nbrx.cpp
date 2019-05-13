@@ -51,12 +51,14 @@ nbrx::nbrx(float quad_rate, float audio_rate)
     demod_fm = make_rx_demod_fm(PREF_QUAD_RATE, 5000.0, 75.0e-6);
     demod_am = make_rx_demod_am(PREF_QUAD_RATE, true);
 
-    audio_rr.reset();
+    audio_rr0.reset();
+    audio_rr1.reset();
     if (d_audio_rate != PREF_QUAD_RATE)
     {
         std::cout << "Resampling audio " << PREF_QUAD_RATE << " -> "
                   << d_audio_rate << std::endl;
-        audio_rr = make_resampler_ff(d_audio_rate/PREF_QUAD_RATE);
+        audio_rr0 = make_resampler_ff(d_audio_rate/PREF_QUAD_RATE);
+        audio_rr1 = make_resampler_ff(d_audio_rate/PREF_QUAD_RATE);
     }
 
     demod = demod_fm;
@@ -68,18 +70,18 @@ nbrx::nbrx(float quad_rate, float audio_rate)
     connect(sql, 0, agc, 0);
     connect(agc, 0, demod, 0);
 
-    if (audio_rr)
+    if (audio_rr0)
     {
-        connect(demod, 0, audio_rr, 0);
-        connect(audio_rr, 0, self(), 0); // left  channel
-        connect(audio_rr, 0, self(), 1); // right channel
+        connect(demod, 0, audio_rr0, 0);
+
+        connect(audio_rr0, 0, self(), 0); // left  channel
+        connect(audio_rr0, 0, self(), 1); // right channel
     }
     else
     {
         connect(demod, 0, self(), 0);
         connect(demod, 0, self(), 1);
     }
-
 }
 
 bool nbrx::start()
@@ -205,12 +207,36 @@ void nbrx::set_demod(int rx_demod)
     }
 
     disconnect(agc, 0, demod, 0);
-    if (audio_rr)
-        disconnect(demod, 0, audio_rr, 0);
+    if (audio_rr0)
+    {
+        if (current_demod == NBRX_DEMOD_NONE)
+        {
+            disconnect(demod, 0, audio_rr0, 0);
+            disconnect(demod, 1, audio_rr1, 0);
+
+            disconnect(audio_rr0, 0, self(), 0);
+            disconnect(audio_rr1, 0, self(), 1);
+        }
+        else
+        {
+            disconnect(demod, 0, audio_rr0, 0);
+
+            disconnect(audio_rr0, 0, self(), 0);
+            disconnect(audio_rr0, 0, self(), 1);
+        }
+    }
     else
     {
-        disconnect(demod, 0, self(), 0);
-        disconnect(demod, 0, self(), 1);
+        if (current_demod == NBRX_DEMOD_NONE)
+        {
+            disconnect(demod, 0, self(), 0);
+            disconnect(demod, 1, self(), 1);
+        }
+        else
+        {
+            disconnect(demod, 0, self(), 0);
+            disconnect(demod, 0, self(), 1);
+        }
     }
 
     switch (rx_demod) {
@@ -238,22 +264,37 @@ void nbrx::set_demod(int rx_demod)
     }
 
     connect(agc, 0, demod, 0);
-    if (audio_rr)
+    if (audio_rr0)
     {
-        // FIXME: DEMOD_NONE has two outputs.
-        connect(demod, 0, audio_rr, 0);
-    }
-    else if (d_demod == NBRX_DEMOD_NONE)
-    {
-        connect(demod, 0, self(), 0);
-        connect(demod, 1, self(), 1);
+        if (d_demod == NBRX_DEMOD_NONE)
+        {
+            connect(demod, 0, audio_rr0, 0);
+            connect(demod, 1, audio_rr1, 0);
+
+            connect(audio_rr0, 0, self(), 0);
+            connect(audio_rr1, 0, self(), 1);
+        }
+        else
+        {
+            connect(demod, 0, audio_rr0, 0);
+
+            connect(audio_rr0, 0, self(), 0);
+            connect(audio_rr0, 0, self(), 1);
+        }
     }
     else
     {
-        connect(demod, 0, self(), 0);
-        connect(demod, 0, self(), 1);
+        if (d_demod == NBRX_DEMOD_NONE)
+        {
+            connect(demod, 0, self(), 0);
+            connect(demod, 1, self(), 1);
+        }
+        else
+        {
+            connect(demod, 0, self(), 0);
+            connect(demod, 0, self(), 1);
+        }
     }
-
 }
 
 void nbrx::set_fm_maxdev(float maxdev_hz)
