@@ -1113,7 +1113,7 @@ receiver::status receiver::stop_audio_playback()
 }
 
 /** Start UDP streaming of audio. */
-receiver::status receiver::start_udp_streaming(const std::string host, int port)
+receiver::status receiver::start_udp_streaming(const std::string host, int port, bool stereo)
 {
     audio_udp_sink->start_streaming(host, port);
     return STATUS_OK;

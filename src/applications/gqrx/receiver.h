@@ -197,7 +197,7 @@ public:
     status      start_audio_playback(const std::string filename);
     status      stop_audio_playback();
 
-    status      start_udp_streaming(const std::string host, int port);
+    status      start_udp_streaming(const std::string host, int port, bool stereo);
     status      stop_udp_streaming();
 
     /* I/Q recording and playback */

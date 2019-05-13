@@ -167,7 +167,7 @@ private slots:
     void startAudioPlayback(const QString filename);
     void stopAudioPlayback();
 
-    void startAudioStream(const QString udp_host, int udp_port);
+    void startAudioStream(const QString udp_host, int udp_port, bool stereo);
     void stopAudioStreaming();
 
     /* I/Q playback and recording*/
