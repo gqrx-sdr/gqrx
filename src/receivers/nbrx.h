@@ -124,7 +124,8 @@ private:
     gr::blocks::complex_to_real::sptr   demod_ssb;  /*!< SSB demodulator. */
     rx_demod_fm_sptr          demod_fm;   /*!< FM demodulator. */
     rx_demod_am_sptr          demod_am;   /*!< AM demodulator. */
-    resampler_ff_sptr         audio_rr;   /*!< Audio resampler. */
+    resampler_ff_sptr         audio_rr0;  /*!< Audio resampler. */
+    resampler_ff_sptr         audio_rr1;  /*!< Audio resampler. */
 
     gr::basic_block_sptr      demod;    // dummy pointer used for simplifying reconf
 };
