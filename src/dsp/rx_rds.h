@@ -24,11 +24,9 @@
 #define RX_RDS_H
 
 #include <gnuradio/hier_block2.h>
-#include <gnuradio/filter/fir_filter_ccc.h>
-#include <gnuradio/filter/fir_filter_ccf.h>
-#include <gnuradio/filter/fir_filter_fff.h>
-#include <gnuradio/filter/freq_xlating_fir_filter_fcf.h>
-#include <gnuradio/filter/freq_xlating_fir_filter_ccf.h>
+#include <gnuradio/filter/fir_filter.h>
+#include <gnuradio/filter/fir_filter_blk.h>
+#include <gnuradio/filter/freq_xlating_fir_filter.h>
 #include <gnuradio/digital/constellation_receiver_cb.h>
 #include <gnuradio/blocks/keep_one_in_n.h>
 #include <gnuradio/digital/diff_decoder_bb.h>

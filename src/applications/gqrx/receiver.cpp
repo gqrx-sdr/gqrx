@@ -28,7 +28,7 @@
 
 #include <iostream>
 
-#include <gnuradio/blocks/multiply_const_ff.h>
+#include <gnuradio/blocks/multiply_const.h>
 #include <gnuradio/prefs.h>
 #include <gnuradio/top_block.h>
 #include <osmosdr/source.h>
