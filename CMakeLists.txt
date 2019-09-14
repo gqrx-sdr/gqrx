@@ -183,6 +183,13 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif()
 
 
+# Google Turbo Colormap
+option(GOOGLE_TURBO_COLORMAP "Enable Google Turbo Colormaps" ON)
+if(GOOGLE_TURBO_COLORMAP)
+    add_definitions(-DGOOGLE_TURBO_COLORMAP)
+endif(GOOGLE_TURBO_COLORMAP)
+
+
 # Airspy optimizations that require modified gr-osmosdr
 option(CUSTOM_AIRSPY_KERNELS "Enable non-standard Airspy optimizations" ON)
 if(CUSTOM_AIRSPY_KERNELS)
