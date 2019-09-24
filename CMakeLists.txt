@@ -99,14 +99,8 @@ endfunction(add_source_files)
 
 # 3rd Party Dependency Stuff
 find_package(Qt5 COMPONENTS Core Network Widgets Svg REQUIRED)
-find_package(Boost COMPONENTS system program_options REQUIRED)
-set(GR_REQUIRED_COMPONENTS RUNTIME ANALOG AUDIO BLOCKS DIGITAL FILTER FFT PMT)
-find_package(Gnuradio REQUIRED)
+find_package(Gnuradio "3.8" REQUIRED COMPONENTS analog audio blocks digital filter fft)
 find_package(Gnuradio-osmosdr REQUIRED)
-
-if(NOT GNURADIO_RUNTIME_FOUND)
-    message(FATAL_ERROR "GnuRadio Runtime required to compile gqrx")
-endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     if(NOT LINUX_AUDIO_BACKEND)

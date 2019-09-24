@@ -23,10 +23,10 @@
 #ifndef RECEIVER_H
 #define RECEIVER_H
 
-#include <gnuradio/analog/sig_source_c.h>
+#include <gnuradio/analog/sig_source.h>
 #include <gnuradio/blocks/file_sink.h>
-#include <gnuradio/blocks/multiply_const_ff.h>
-#include <gnuradio/blocks/multiply_cc.h>
+#include <gnuradio/blocks/multiply_const.h>
+#include <gnuradio/blocks/multiply.h>
 #include <gnuradio/blocks/null_sink.h>
 #include <gnuradio/blocks/wavfile_sink.h>
 #include <gnuradio/blocks/wavfile_source.h>

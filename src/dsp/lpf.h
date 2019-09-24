@@ -25,7 +25,7 @@
 
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/filter/firdes.h>
-#include <gnuradio/filter/fir_filter_fff.h>
+#include <gnuradio/filter/fir_filter_blk.h>
 
 
 class lpf_ff;

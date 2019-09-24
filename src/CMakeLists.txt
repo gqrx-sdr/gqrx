@@ -65,8 +65,10 @@ target_link_libraries(${PROJECT_NAME}
     Qt5::Network
     Qt5::Widgets
     Qt5::Svg
-    ${Boost_LIBRARIES}
-    ${GNURADIO_ALL_LIBRARIES}
+    gnuradio::gnuradio-analog
+    gnuradio::gnuradio-blocks
+    gnuradio::gnuradio-digital
+    gnuradio::gnuradio-filter
     ${GNURADIO_OSMOSDR_LIBRARIES}
     ${PULSEAUDIO_LIBRARY}
     ${PULSE-SIMPLE}
