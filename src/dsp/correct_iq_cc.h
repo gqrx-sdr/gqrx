@@ -28,7 +28,12 @@
 #include <gnuradio/blocks/float_to_complex.h>
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/filter/single_pole_iir_filter_cc.h>
+
+#ifdef GNURADIO_37
 #include <gnuradio/blocks/sub_cc.h>
+#else
+#include <gnuradio/blocks/sub.h>
+#endif
 
 class dc_corr_cc;
 class iq_swap_cc;

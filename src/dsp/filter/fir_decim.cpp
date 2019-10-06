@@ -24,7 +24,10 @@
 #include <cstdio>
 #include <vector>
 
+#ifdef GNURADIO_37
 #include <gnuradio/filter/fir_filter_ccf.h>
+#endif
+
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/io_signature.h>
 
