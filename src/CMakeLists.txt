@@ -73,6 +73,15 @@ target_link_libraries(${PROJECT_NAME}
     ${PORTAUDIO_LIBRARIES}
 )
 
+if(NOT Gnuradio_VERSION VERSION_LESS "3.8")
+    target_link_libraries(${PROJECT_NAME}
+        gnuradio::gnuradio-analog
+        gnuradio::gnuradio-blocks
+        gnuradio::gnuradio-digital
+        gnuradio::gnuradio-filter
+    )
+endif()
+
 #build a win32 app, not a console app
 if (WIN32)
     set(CMAKE_EXE_LINKER_FLAGS "/entry:mainCRTStartup ${CMAKE_EXE_LINKER_FLAGS}")
