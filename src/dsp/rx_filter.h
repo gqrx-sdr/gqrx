@@ -25,7 +25,7 @@
 
 #include <gnuradio/hier_block2.h>
 
-#ifdef GNURADIO_37
+#if GNURADIO_VERSION < 0x030800
 #include <gnuradio/filter/fir_filter_ccc.h>
 #include <gnuradio/filter/freq_xlating_fir_filter_ccc.h>
 #else

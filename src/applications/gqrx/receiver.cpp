@@ -28,7 +28,7 @@
 
 #include <iostream>
 
-#ifdef GNURADIO_37
+#if GNURADIO_VERSION < 0x030800
 #include <gnuradio/blocks/multiply_const_ff.h>
 #endif
 

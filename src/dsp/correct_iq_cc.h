@@ -29,7 +29,7 @@
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/filter/single_pole_iir_filter_cc.h>
 
-#ifdef GNURADIO_37
+#if GNURADIO_VERSION < 0x030800
 #include <gnuradio/blocks/sub_cc.h>
 #else
 #include <gnuradio/blocks/sub.h>

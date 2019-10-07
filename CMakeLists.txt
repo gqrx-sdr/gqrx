@@ -114,8 +114,20 @@ if(NOT Gnuradio_FOUND)
     message(FATAL_ERROR "GnuRadio Runtime required to compile gqrx")
 endif()
 
+
+# Pass the GNU Radio version as 0xMMNNPP BCD.
+math(EXPR GNURADIO_BCD_VERSION
+    "(${Gnuradio_VERSION_MAJOR} / 10) << 20 |
+     (${Gnuradio_VERSION_MAJOR} % 10) << 16 |
+     (${Gnuradio_VERSION_MINOR} / 10) << 12 |
+     (${Gnuradio_VERSION_MINOR} % 10) <<  8 |
+     (${Gnuradio_VERSION_PATCH} / 10) <<  4 |
+     (${Gnuradio_VERSION_PATCH} % 10) <<  0
+    "
+)
+add_definitions(-DGNURADIO_VERSION=${GNURADIO_BCD_VERSION})
+
 if(Gnuradio_VERSION VERSION_LESS "3.8")
-    add_definitions(-DGNURADIO_37)
     find_package(Boost COMPONENTS system program_options REQUIRED)
 endif()
 
