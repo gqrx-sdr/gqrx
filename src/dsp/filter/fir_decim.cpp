@@ -24,7 +24,7 @@
 #include <cstdio>
 #include <vector>
 
-#ifdef GNURADIO_37
+#if GNURADIO_VERSION < 0x030800
 #include <gnuradio/filter/fir_filter_ccf.h>
 #endif
 

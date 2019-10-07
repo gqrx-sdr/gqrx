@@ -26,7 +26,7 @@
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/filter/firdes.h>
 
-#ifdef GNURADIO_37
+#if GNURADIO_VERSION < 0x030800
 #include <gnuradio/filter/fir_filter_fff.h>
 #else
 #include <gnuradio/filter/fir_filter_blk.h>

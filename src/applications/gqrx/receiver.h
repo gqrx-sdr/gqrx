@@ -23,7 +23,7 @@
 #ifndef RECEIVER_H
 #define RECEIVER_H
 
-#ifdef GNURADIO_37
+#if GNURADIO_VERSION < 0x030800
 #include <gnuradio/analog/sig_source_c.h>
 #include <gnuradio/blocks/multiply_const_ff.h>
 #include <gnuradio/blocks/multiply_cc.h>
