@@ -266,9 +266,9 @@ PKGCONFIG += gnuradio-analog \
 # Detect GNU Radio version and link against log4cpp for 3.8
 GNURADIO_VERSION = $$system(pkg-config --modversion gnuradio-runtime)
 
-GNURADIO_VERSION_MAJOR = $$system(cut -d '.' -f1 <<< $$GNURADIO_VERSION)
-GNURADIO_VERSION_MINOR = $$system(cut -d '.' -f2 <<< $$GNURADIO_VERSION)
-GNURADIO_VERSION_PATCH = $$system(cut -d '.' -f3 <<< $$GNURADIO_VERSION)
+GNURADIO_VERSION_MAJOR = $$system(echo $$GNURADIO_VERSION | cut -d '.' -f1 -)
+GNURADIO_VERSION_MINOR = $$system(echo $$GNURADIO_VERSION | cut -d '.' -f2 -)
+GNURADIO_VERSION_PATCH = $$system(echo $$GNURADIO_VERSION | cut -d '.' -f3 -)
 
 GNURADIO_HEX_VERSION = $$system(            \
   "echo $((                                 \
