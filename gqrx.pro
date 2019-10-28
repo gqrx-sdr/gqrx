@@ -62,7 +62,7 @@ isEmpty(PREFIX) {
 }
 
 target.path  = $$PREFIX/bin
-INSTALLS    += target 
+INSTALLS    += target
 
 #CONFIG += debug
 
@@ -262,6 +262,29 @@ PKGCONFIG += gnuradio-analog \
              gnuradio-fft \
              gnuradio-runtime \
              gnuradio-osmosdr
+
+# Detect GNU Radio version and link against log4cpp for 3.8
+GNURADIO_VERSION = $$system(pkg-config --modversion gnuradio-runtime)
+
+GNURADIO_VERSION_MAJOR = $$system(cut -d '.' -f1 <<< $$GNURADIO_VERSION)
+GNURADIO_VERSION_MINOR = $$system(cut -d '.' -f2 <<< $$GNURADIO_VERSION)
+GNURADIO_VERSION_PATCH = $$system(cut -d '.' -f3 <<< $$GNURADIO_VERSION)
+
+GNURADIO_HEX_VERSION = $$system(            \
+  "echo $((                                 \
+    ($$GNURADIO_VERSION_MAJOR / 10) << 20 | \
+    ($$GNURADIO_VERSION_MAJOR % 10) << 16 | \
+    ($$GNURADIO_VERSION_MINOR / 10) << 12 | \
+    ($$GNURADIO_VERSION_MINOR % 10) <<  8 | \
+    ($$GNURADIO_VERSION_PATCH / 10) <<  4 | \
+    ($$GNURADIO_VERSION_PATCH % 10) <<  0   \
+  ))"                                       \
+)
+DEFINES += GNURADIO_VERSION=$$GNURADIO_HEX_VERSION
+
+greaterThan(GNURADIO_VERSION_MINOR, 7) {
+    PKGCONFIG += log4cpp
+}
 
 INCPATH += src/
 
