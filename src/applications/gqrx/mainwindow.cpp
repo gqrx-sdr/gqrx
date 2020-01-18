@@ -63,6 +63,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     ui(new Ui::MainWindow),
     d_lnb_lo(0),
     d_hw_freq(0),
+    d_fftAvg(0.25),
     d_have_audio(true),
     dec_afsk1200(0)
 {
