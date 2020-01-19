@@ -62,8 +62,10 @@ CMeter::CMeter(QWidget *parent) : QFrame(parent)
     m_2DPixmap = QPixmap(0,0);
     m_OverlayPixmap = QPixmap(0,0);
     m_Size = QSize(0,0);
+    m_pixperdb = 0.0f;
     m_Siglevel = 0;
     m_dBFS = MIN_DB;
+    m_Sql = -150.0f;
     m_SqlLevel = 0.0f;
 }
 
@@ -250,4 +252,3 @@ void CMeter::DrawOverlay()
         rect.translate(rwidth, 0);
     }
 }
-
