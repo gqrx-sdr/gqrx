@@ -1,4 +1,18 @@
 
+      2.12: Released January 22, 2020
+
+       NEW: GNU Radio 3.8 support.
+       NEW: Mute button in audio panel.
+     FIXED: FFT display sometimes disappears.
+     FIXED: Crash on startup when using HackRF.
+     FIXED: dB scale disappears when zooming to 1 dB per grid line.
+     FIXED: Raw I/Q output missing one channel.
+     FIXED: Trap exceptions and show a message instead of crashing.
+  IMPROVED: Prevent zooming out too far.
+  IMPROVED: Make unlit digits slightly visible.
+  IMPROVED: Only show sample rates supported by both models of BladeRF.
+
+
     2.11.5: Released May 17, 2018
 
      FIXED: Crash in remote control 'q' command.
