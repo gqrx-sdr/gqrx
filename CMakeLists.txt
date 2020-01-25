@@ -5,9 +5,9 @@ project(gqrx)
 set(${PROJECT_NAME}_MAJOR "2")
 set(${PROJECT_NAME}_MINOR "12")
 set(${PROJECT_NAME}_PATCH "0")
-set(VERSION "${${PROJECT_NAME}_MAJOR}.${${PROJECT_NAME}_MINOR}.${${PROJECT_NAME}_PATCH}")
-##set(VERSION "${${PROJECT_NAME}_MAJOR}.${${PROJECT_NAME}_MINOR}")
-##add_definitions(-DVERSION="${VERSION}")
+##set(VERSION "${${PROJECT_NAME}_MAJOR}.${${PROJECT_NAME}_MINOR}.${${PROJECT_NAME}_PATCH}")
+set(VERSION "${${PROJECT_NAME}_MAJOR}.${${PROJECT_NAME}_MINOR}")
+add_definitions(-DVERSION="${VERSION}")
 
 # development version
 execute_process(
@@ -16,7 +16,7 @@ execute_process(
     OUTPUT_VARIABLE GITVERSION
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-add_definitions(-DVERSION="${GITVERSION}")
+#add_definitions(-DVERSION="${GITVERSION}")
 
 set(PACKAGE ${PROJECT_NAME})
 
