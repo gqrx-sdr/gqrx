@@ -229,9 +229,9 @@ void DockFft::saveSettings(QSettings *settings)
         settings->remove("pandapter_color");
 
     if (ui->fillButton->isChecked())
-        settings->setValue("pandapter_fill", true);
-    else
         settings->remove("pandapter_fill");
+    else
+        settings->setValue("pandapter_fill", false);
 
     // dB ranges
     intval = ui->pandRangeSlider->minimumValue();
@@ -309,7 +309,7 @@ void DockFft::readSettings(QSettings *settings)
     color = settings->value("pandapter_color", QColor(0xFF,0xFF,0xFF,0xFF)).value<QColor>();
     ui->colorPicker->setCurrentColor(color);
 
-    bool_val = settings->value("pandapter_fill", false).toBool();
+    bool_val = settings->value("pandapter_fill", true).toBool();
     ui->fillButton->setChecked(bool_val);
 
     // delete old dB settings from config
