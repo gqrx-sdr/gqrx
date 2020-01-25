@@ -34,6 +34,7 @@
 #define DEFAULT_FFT_WINDOW      1       // Hann
 #define DEFAULT_FFT_SPLIT       35
 #define DEFAULT_FFT_AVG         75
+#define DEFAULT_COLORMAP        "gqrx"
 
 DockFft::DockFft(QWidget *parent) :
     QDockWidget(parent),
@@ -75,6 +76,10 @@ DockFft::DockFft(QWidget *parent) :
     ui->colorPicker->insertColor(QColor(0xFF,0xC8,0xC8,0xFF), "Pink");
     ui->colorPicker->insertColor(QColor(0xB7,0xE0,0xFF,0xFF), "Blue");
     ui->colorPicker->insertColor(QColor(0x7F,0xFA,0xFA,0xFF), "Cyan");
+
+    ui->cmapComboBox->addItem(tr("Gqrx"), "gqrx");
+    ui->cmapComboBox->addItem(tr("Google Turbo"), "turbo");
+    ui->cmapComboBox->addItem(tr("Plasma"), "plasma");
 }
 DockFft::~DockFft()
 {
@@ -259,6 +264,11 @@ void DockFft::saveSettings(QSettings *settings)
     else
         settings->remove("db_ranges_locked");
 
+    if (QString::compare(ui->cmapComboBox->currentData().toString(), DEFAULT_COLORMAP))
+        settings->setValue("waterfall_colormap", ui->cmapComboBox->currentData().toString());
+    else
+        settings->remove("waterfall_colormap");
+
     settings->endGroup();
 }
 
@@ -321,6 +331,9 @@ void DockFft::readSettings(QSettings *settings)
 
     bool_val = settings->value("db_ranges_locked", false).toBool();
     ui->lockButton->setChecked(bool_val);
+
+    QString cmap = settings->value("waterfall_colormap", "gqrx").toString();
+    ui->cmapComboBox->setCurrentIndex(ui->cmapComboBox->findData(cmap));
 
     settings->endGroup();
 }
@@ -513,6 +526,12 @@ void DockFft::on_lockButton_toggled(bool checked)
             ui->pandRangeSlider->setPositions(min, max);
         }
     }
+}
+
+void DockFft::on_cmapComboBox_currentIndexChanged(int index)
+{
+    Q_UNUSED(index);
+    emit wfColormapChanged(ui->cmapComboBox->currentData().toString());
 }
 
 /** Update RBW and FFT overlab labels */
