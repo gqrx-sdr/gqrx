@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     std::string     style;
     bool            clierr = false;
     bool            edit_conf = false;
-    int             return_code;
+    int             return_code = 0;
 
     QApplication app(argc, argv);
     QCoreApplication::setOrganizationName(GQRX_ORG_NAME);
