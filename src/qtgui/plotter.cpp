@@ -1839,7 +1839,6 @@ unsigned char plasma[256][3] = {
 void CPlotter::setWfColormap(const QString &cmap)
 {
     int i;
-    qDebug() << "*** New colormap:" << cmap;
 
     if (cmap.compare("gqrx", Qt::CaseInsensitive) == 0)
     {
