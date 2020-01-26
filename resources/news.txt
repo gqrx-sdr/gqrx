@@ -4,6 +4,7 @@
        NEW: GNU Radio 3.8 support.
        NEW: Mute button in audio panel.
        NEW: Google Turbo and Plasma color maps.
+       NEW: Set/get device gains via remote control.
      FIXED: FFT display sometimes disappears.
      FIXED: Crash on startup when using HackRF.
      FIXED: dB scale disappears when zooming to 1 dB per grid line.
