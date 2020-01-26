@@ -11,12 +11,18 @@ Supported commands:
     Set demodulator mode and passband [Hz]
     Passing a '?' as the first argument instead of 'mode' will return
     a space separated list of radio backend supported modes.
+ l|L ?
+    Get a space separated list of settings available for reading (l) or writing (L).
  l STRENGTH
     Get signal strength [dBFS]
  l SQL
     Get squelch threshold [dBFS]
  L SQL <sql>
     Set squelch threshold to <sql> [dBFS]
+ l <gain_name>_GAIN
+    Get the value of the gain setting with the name <gain_name>
+ L <gain_name>_GAIN <value>
+    Set the value of the gain setting with the name <gain_name> to <value>
  u RECORD
     Get status of audio recorder
  U RECORD <status>
