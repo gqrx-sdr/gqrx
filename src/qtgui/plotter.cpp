@@ -1874,4 +1874,31 @@ void CPlotter::setWfColormap(const QString &cmap)
         for (i = 0; i < 256; i++)
             m_ColorTbl[i].setRgb(plasma[i][0], plasma[i][1], plasma[i][2]);
     }
+    else if (cmap.compare("whitehotcompressed",Qt::CaseInsensitive) == 0)
+    {
+        // contributed by @drmpeg @devnulling
+        // for use with high quality spectrum paining
+        // see https://gist.github.com/drmpeg/31a9a7dd6918856aeb60
+        for (int i = 0; i < 256; i++)
+        {
+            if (i < 64)
+            {
+                m_ColorTbl[i].setRgb(i*4, i*4, i*4);
+            }
+            else
+            {
+                m_ColorTbl[i].setRgb(255, 255, 255);
+            }
+        }
+    }
+    else if (cmap.compare("whitehot",Qt::CaseInsensitive) == 0)
+    {
+        for (i = 0; i < 256; i++)
+            m_ColorTbl[i].setRgb(i, i, i);
+    }
+    else if (cmap.compare("blackhot",Qt::CaseInsensitive) == 0)
+    {
+        for (i = 0; i < 256; i++)
+            m_ColorTbl[i].setRgb(255-i, 255-i, 255-i);
+    }
 }
