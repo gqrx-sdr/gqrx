@@ -1,3 +1,7 @@
+    2.12.1: Released JAnuary 27, 2020
+
+       NEW: White Hot, Black Hot and White Hot compressed colormaps.
+
 
       2.12: Released January 26, 2020
 
