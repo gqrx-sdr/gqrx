@@ -80,6 +80,9 @@ DockFft::DockFft(QWidget *parent) :
     ui->cmapComboBox->addItem(tr("Gqrx"), "gqrx");
     ui->cmapComboBox->addItem(tr("Google Turbo"), "turbo");
     ui->cmapComboBox->addItem(tr("Plasma"), "plasma");
+    ui->cmapComboBox->addItem(tr("White Hot Compressed"), "whitehotcompressed");
+    ui->cmapComboBox->addItem(tr("White Hot"), "whitehot");
+    ui->cmapComboBox->addItem(tr("Black Hot"), "blackhot");
 }
 DockFft::~DockFft()
 {
