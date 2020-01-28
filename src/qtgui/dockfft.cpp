@@ -551,16 +551,17 @@ void DockFft::on_cmapComboBox_currentIndexChanged(int index)
 /** Update RBW and FFT overlab labels */
 void DockFft::updateInfoLabels(void)
 {
-    float   rate;
+    float   interval_ms;
+    float   interval_samples;
     float   size;
     float   rbw;
     float   ovr;
-    float   sps;
 
     if (m_sample_rate == 0.f)
         return;
 
-    rate = fftRate();
+    interval_ms = 1000 / fftRate();
+    interval_samples = m_sample_rate * (interval_ms / 1000.0);
     size = fftSize();
 
     rbw = m_sample_rate / size;
@@ -571,10 +572,9 @@ void DockFft::updateInfoLabels(void)
     else
         ui->fftRbwLabel->setText(QString("RBW: %1 MHz").arg(1.e-6 * rbw, 0, 'f', 1));
 
-    sps = size * rate;
-    if (sps <= m_sample_rate)
+    if (interval_samples >= size)
         ovr = 0;
     else
-        ovr = 100 * (sps / m_sample_rate - 1.f);
+        ovr = 100 * (1.f - interval_samples / size);
     ui->fftOvrLabel->setText(QString("Overlap: %1%").arg(ovr, 0, 'f', 0));
 }
