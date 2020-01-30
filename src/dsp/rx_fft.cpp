@@ -26,11 +26,12 @@
 #include <gnuradio/gr_complex.h>
 #include <gnuradio/fft/fft.h>
 #include "dsp/rx_fft.h"
+#include <algorithm>
 
 
-rx_fft_c_sptr make_rx_fft_c (unsigned int fftsize, int wintype)
+rx_fft_c_sptr make_rx_fft_c (unsigned int fftsize, double quad_rate, int wintype)
 {
-    return gnuradio::get_initial_sptr(new rx_fft_c (fftsize, wintype));
+    return gnuradio::get_initial_sptr(new rx_fft_c (fftsize, quad_rate, wintype));
 }
 
 /*! \brief Create receiver FFT object.
@@ -38,11 +39,12 @@ rx_fft_c_sptr make_rx_fft_c (unsigned int fftsize, int wintype)
  *  \param wintype The window type (see gr::filter::firdes::win_type).
  *
  */
-rx_fft_c::rx_fft_c(unsigned int fftsize, int wintype)
+rx_fft_c::rx_fft_c(unsigned int fftsize, double quad_rate, int wintype)
     : gr::sync_block ("rx_fft_c",
           gr::io_signature::make(1, 1, sizeof(gr_complex)),
           gr::io_signature::make(0, 0, 0)),
       d_fftsize(fftsize),
+      d_quadrate(quad_rate),
       d_wintype(-1)
 {
 
@@ -50,10 +52,12 @@ rx_fft_c::rx_fft_c(unsigned int fftsize, int wintype)
     d_fft = new gr::fft::fft_complex(d_fftsize, true);
 
     /* allocate circular buffer */
-    d_cbuf.set_capacity(d_fftsize);
+    d_cbuf.set_capacity(d_fftsize + d_quadrate);
 
     /* create FFT window */
     set_window_type(wintype);
+
+    d_lasttime = std::chrono::steady_clock::now();
 }
 
 rx_fft_c::~rx_fft_c()
@@ -105,8 +109,13 @@ void rx_fft_c::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
         return;
     }
 
+    std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
+    std::chrono::duration<double> diff = now - d_lasttime;
+    d_lasttime = now;
+
     /* perform FFT */
-    do_fft(d_cbuf.linearize(), d_cbuf.size());  // FIXME: array_one() and two() may be faster
+    d_cbuf.erase_begin(std::min((unsigned int)(diff.count() * d_quadrate * 1.001), (unsigned int)d_cbuf.size() - d_fftsize));
+    do_fft(d_cbuf.linearize(), d_fftsize);  // FIXME: array_one() and two() may be faster
     //d_cbuf.clear();
 
     /* get FFT data */
@@ -139,29 +148,43 @@ void rx_fft_c::do_fft(const gr_complex *data_in, unsigned int size)
     d_fft->execute();
 }
 
+/*! \brief Update circular buffer and FFT object. */
+void rx_fft_c::set_params()
+{
+    boost::mutex::scoped_lock lock(d_mutex);
+
+    /* clear and resize circular buffer */
+    d_cbuf.clear();
+    d_cbuf.set_capacity(d_fftsize + d_quadrate);
+
+    /* reset window */
+    int wintype = d_wintype; // FIXME: would be nicer with a window_reset()
+    d_wintype = -1;
+    set_window_type(wintype);
+
+    /* reset FFT object (also reset FFTW plan) */
+    delete d_fft;
+    d_fft = new gr::fft::fft_complex (d_fftsize, true);
+}
+
 /*! \brief Set new FFT size. */
 void rx_fft_c::set_fft_size(unsigned int fftsize)
 {
     if (fftsize != d_fftsize)
     {
-        boost::mutex::scoped_lock lock(d_mutex);
-
         d_fftsize = fftsize;
-
-        /* clear and resize circular buffer */
-        d_cbuf.clear();
-        d_cbuf.set_capacity(d_fftsize);
-
-        /* reset window */
-        int wintype = d_wintype; // FIXME: would be nicer with a window_reset()
-        d_wintype = -1;
-        set_window_type(wintype);
-
-        /* reset FFT object (also reset FFTW plan) */
-        delete d_fft;
-        d_fft = new gr::fft::fft_complex (d_fftsize, true);
+        set_params();
     }
 
+}
+
+/*! \brief Set new quadrature rate. */
+void rx_fft_c::set_quad_rate(double quad_rate)
+{
+    if (quad_rate != d_quadrate) {
+        d_quadrate = quad_rate;
+        set_params();
+    }
 }
 
 /*! \brief Get currently used FFT size. */
@@ -199,9 +222,9 @@ int rx_fft_c::get_window_type() const
 
 /**   rx_fft_f     **/
 
-rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize, int wintype)
+rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize, double audio_rate, int wintype)
 {
-    return gnuradio::get_initial_sptr(new rx_fft_f (fftsize, wintype));
+    return gnuradio::get_initial_sptr(new rx_fft_f (fftsize, audio_rate, wintype));
 }
 
 /*! \brief Create receiver FFT object.
@@ -209,11 +232,12 @@ rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize, int wintype)
  *  \param wintype The window type (see gr::filter::firdes::win_type).
  *
  */
-rx_fft_f::rx_fft_f(unsigned int fftsize, int wintype)
+rx_fft_f::rx_fft_f(unsigned int fftsize, double audio_rate, int wintype)
     : gr::sync_block ("rx_fft_f",
           gr::io_signature::make(1, 1, sizeof(float)),
           gr::io_signature::make(0, 0, 0)),
       d_fftsize(fftsize),
+      d_audiorate(audio_rate),
       d_wintype(-1)
 {
 
@@ -221,7 +245,7 @@ rx_fft_f::rx_fft_f(unsigned int fftsize, int wintype)
     d_fft = new gr::fft::fft_complex(d_fftsize, true);
 
     /* allocate circular buffer */
-    d_cbuf.set_capacity(d_fftsize);
+    d_cbuf.set_capacity(d_fftsize + d_audiorate);
 
     /* create FFT window */
     set_window_type(wintype);
@@ -275,8 +299,13 @@ void rx_fft_f::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
         return;
     }
 
+    std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
+    std::chrono::duration<double> diff = now - d_lasttime;
+    d_lasttime = now;
+
     /* perform FFT */
-    do_fft(d_cbuf.linearize(), d_cbuf.size());  // FIXME: array_one() and two() may be faster
+    d_cbuf.erase_begin(std::min((unsigned int)(diff.count() * d_audiorate * 1.001), (unsigned int)d_cbuf.size() - d_fftsize));
+    do_fft(d_cbuf.linearize(), d_fftsize);  // FIXME: array_one() and two() may be faster
     //d_cbuf.clear();
 
     /* get FFT data */
