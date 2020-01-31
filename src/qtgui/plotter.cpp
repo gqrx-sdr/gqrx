@@ -511,7 +511,9 @@ int CPlotter::getNearestPeak(QPoint pt)
 void CPlotter::setWaterfallSpan(quint64 span_ms)
 {
     wf_span = span_ms;
-    msec_per_wfline = wf_span / m_WaterfallPixmap.height();
+    if (m_WaterfallPixmap.height() > 0) {
+        msec_per_wfline = wf_span / m_WaterfallPixmap.height();
+    }
     clearWaterfall();
 }
 
@@ -599,7 +601,7 @@ quint64 CPlotter::getWfTimeRes(void)
     if (msec_per_wfline)
         return msec_per_wfline;
     else
-        return 1000 * fft_rate / m_WaterfallPixmap.height(); // Auto mode
+        return 1000 / fft_rate; // Auto mode
 }
 
 void CPlotter::setFftRate(int rate_hz)
@@ -869,6 +871,7 @@ void CPlotter::resizeEvent(QResizeEvent* )
     }
 
     drawOverlay();
+    emit newSize();
 }
 
 // Called by QT when screen needs to be redrawn
@@ -1322,7 +1325,7 @@ void CPlotter::drawOverlay()
             int level = 0;
             while(level < nLevels && tagEnd[level] > x)
                 level++;
-            
+
             if(level == nLevels)
                 level = 0;
 
