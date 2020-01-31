@@ -1268,63 +1268,45 @@ void receiver::get_sniffer_data(float * outbuff, unsigned int &num)
 /** Convenience function to connect all blocks. */
 void receiver::connect_all(rx_chain type)
 {
+    gr::basic_block_sptr b;
+
+    // Setup source
+    b = src;
+
+    // Pre-processing
+    if (d_decim >= 2)
+    {
+        tb->connect(b, 0, input_decim, 0);
+        b = input_decim;
+    }
+
+    if (d_recording_iq)
+    {
+        // We record IQ with minimal pre-processing
+        tb->connect(b, 0, iq_sink, 0);
+    }
+
+    tb->connect(b, 0, iq_swap, 0);
+    b = iq_swap;
+
+    if (d_dc_cancel)
+    {
+        tb->connect(b, 0, dc_corr, 0);
+        b = dc_corr;
+    }
+
+    // Visualization
+    tb->connect(b, 0, iq_fft, 0);
+
+    // RX demod chain
     switch (type)
     {
-    case RX_CHAIN_NONE:
-        if (d_decim >= 2)
-        {
-            tb->connect(src, 0, input_decim, 0);
-            tb->connect(input_decim, 0, iq_swap, 0);
-        }
-        else
-        {
-            tb->connect(src, 0, iq_swap, 0);
-        }
-        if (d_dc_cancel)
-        {
-            tb->connect(iq_swap, 0, dc_corr, 0);
-            tb->connect(dc_corr, 0, iq_fft, 0);
-        }
-        else
-        {
-            tb->connect(iq_swap, 0, iq_fft, 0);
-        }
-        break;
-
     case RX_CHAIN_NBRX:
         if (rx->name() != "NBRX")
         {
             rx.reset();
             rx = make_nbrx(d_quad_rate, d_audio_rate);
         }
-        if (d_decim >= 2)
-        {
-            tb->connect(src, 0, input_decim, 0);
-            tb->connect(input_decim, 0, iq_swap, 0);
-        }
-        else
-        {
-            tb->connect(src, 0, iq_swap, 0);
-        }
-        if (d_dc_cancel)
-        {
-            tb->connect(iq_swap, 0, dc_corr, 0);
-            tb->connect(dc_corr, 0, iq_fft, 0);
-            tb->connect(dc_corr, 0, mixer, 0);
-        }
-        else
-        {
-            tb->connect(iq_swap, 0, iq_fft, 0);
-            tb->connect(iq_swap, 0, mixer, 0);
-        }
-        tb->connect(lo, 0, mixer, 1);
-        tb->connect(mixer, 0, rx, 0);
-        tb->connect(rx, 0, audio_fft, 0);
-        tb->connect(rx, 0, audio_udp_sink, 0);
-        tb->connect(rx, 0, audio_gain0, 0);
-        tb->connect(rx, 1, audio_gain1, 0);
-        tb->connect(audio_gain0, 0, audio_snk, 0);
-        tb->connect(audio_gain1, 0, audio_snk, 1);
         break;
 
     case RX_CHAIN_WFMRX:
@@ -1333,26 +1315,16 @@ void receiver::connect_all(rx_chain type)
             rx.reset();
             rx = make_wfmrx(d_quad_rate, d_audio_rate);
         }
-        if (d_decim >= 2)
-        {
-            tb->connect(src, 0, input_decim, 0);
-            tb->connect(input_decim, 0, iq_swap, 0);
-        }
-        else
-        {
-            tb->connect(src, 0, iq_swap, 0);
-        }
-        if (d_dc_cancel)
-        {
-            tb->connect(iq_swap, 0, dc_corr, 0);
-            tb->connect(dc_corr, 0, iq_fft, 0);
-            tb->connect(dc_corr, 0, mixer, 0);
-        }
-        else
-        {
-            tb->connect(iq_swap, 0, iq_fft, 0);
-            tb->connect(iq_swap, 0, mixer, 0);
-        }
+        break;
+
+    default:
+        break;
+    }
+
+    // Audio path (if there is a receiver)
+    if (type != RX_CHAIN_NONE)
+    {
+        tb->connect(b, 0, mixer, 0);
         tb->connect(lo, 0, mixer, 1);
         tb->connect(mixer, 0, rx, 0);
         tb->connect(rx, 0, audio_fft, 0);
@@ -1361,21 +1333,9 @@ void receiver::connect_all(rx_chain type)
         tb->connect(rx, 1, audio_gain1, 0);
         tb->connect(audio_gain0, 0, audio_snk, 0);
         tb->connect(audio_gain1, 0, audio_snk, 1);
-        break;
-
-    default:
-        break;
     }
 
-    // reconnect recorders and sniffers
-    if (d_recording_iq)
-    {
-        if (d_decim >= 2)
-            tb->connect(input_decim, 0, iq_sink, 0);
-        else
-            tb->connect(src, 0, iq_sink, 0);
-    }
-
+    // Recorders and sniffers
     if (d_recording_wav)
     {
         tb->connect(rx, 0, wav_sink, 0);
