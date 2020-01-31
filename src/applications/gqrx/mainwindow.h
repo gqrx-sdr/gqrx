@@ -189,6 +189,7 @@ private slots:
     void setPeakDetection(bool enabled);
     void setFftPeakHold(bool enable);
     void setWfTimeSpan(quint64 span_ms);
+    void setWfSize();
 
     /* FFT plot */
     void on_plotter_newDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */

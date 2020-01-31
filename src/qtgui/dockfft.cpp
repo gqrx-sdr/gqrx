@@ -32,6 +32,7 @@
 #define DEFAULT_FFT_RATE        25
 #define DEFAULT_FFT_SIZE        8192
 #define DEFAULT_FFT_WINDOW      1       // Hann
+#define DEFAULT_WATERFALL_SPAN  0       // Auto
 #define DEFAULT_FFT_SPLIT       35
 #define DEFAULT_FFT_AVG         75
 #define DEFAULT_COLORMAP        "gqrx"
@@ -215,6 +216,12 @@ void DockFft::saveSettings(QSettings *settings)
     else
         settings->remove("fft_window");
 
+    intval = ui->wfSpanComboBox->currentIndex();
+    if (intval != DEFAULT_WATERFALL_SPAN)
+        settings->setValue("waterfall_span", intval);
+    else
+        settings->remove("waterfall_span");
+
     if (ui->fftAvgSlider->value() != DEFAULT_FFT_AVG)
         settings->setValue("averaging", ui->fftAvgSlider->value());
     else
@@ -300,6 +307,10 @@ void DockFft::readSettings(QSettings *settings)
     intval = settings->value("fft_window", DEFAULT_FFT_WINDOW).toInt(&conv_ok);
     if (conv_ok)
         ui->fftWinComboBox->setCurrentIndex(intval);
+
+    intval = settings->value("waterfall_span", DEFAULT_WATERFALL_SPAN).toInt(&conv_ok);
+    if (conv_ok)
+        ui->wfSpanComboBox->setCurrentIndex(intval);
 
     intval = settings->value("averaging", DEFAULT_FFT_AVG).toInt(&conv_ok);
     if (conv_ok)
