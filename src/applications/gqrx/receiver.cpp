@@ -49,6 +49,7 @@
 #include <gnuradio/audio/sink.h>
 #endif
 
+#define DEFAULT_AUDIO_GAIN -6.0
 
 /**
  * @brief Public contructor.
@@ -117,8 +118,9 @@ receiver::receiver(const std::string input_device,
     iq_fft = make_rx_fft_c(8192u, gr::filter::firdes::WIN_HANN);
 
     audio_fft = make_rx_fft_f(8192u, gr::filter::firdes::WIN_HANN);
-    audio_gain0 = gr::blocks::multiply_const_ff::make(0.1);
-    audio_gain1 = gr::blocks::multiply_const_ff::make(0.1);
+    audio_gain0 = gr::blocks::multiply_const_ff::make(0);
+    audio_gain1 = gr::blocks::multiply_const_ff::make(0);
+    set_af_gain(DEFAULT_AUDIO_GAIN);
 
     audio_udp_sink = make_udp_sink_f();
 
