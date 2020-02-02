@@ -110,10 +110,9 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
 
     d_fftData = new std::complex<float>[MAX_FFT_SIZE];
     d_realFftData = new float[MAX_FFT_SIZE];
-    d_pwrFftData = new float[MAX_FFT_SIZE]();
     d_iirFftData = new float[MAX_FFT_SIZE];
     for (int i = 0; i < MAX_FFT_SIZE; i++)
-        d_iirFftData[i] = -140.0;  // dBFS
+        d_iirFftData[i] = 0;
 
     /* timer for data decoders */
     dec_timer = new QTimer(this);
@@ -381,7 +380,6 @@ MainWindow::~MainWindow()
     delete [] d_fftData;
     delete [] d_realFftData;
     delete [] d_iirFftData;
-    delete [] d_pwrFftData;
     delete qsvg_dummy;
 }
 
@@ -1287,7 +1285,7 @@ void MainWindow::iqFftTimeout()
 
         /* calculate power in dBFS */
         pwr = pwr_scale * (pt.imag() * pt.imag() + pt.real() * pt.real());
-        d_realFftData[i] = 10.0 * log10f(pwr + 1.0e-20);
+        d_realFftData[i] = pwr;
 
         /* FFT averaging */
         d_iirFftData[i] += d_fftAvg * (d_realFftData[i] - d_iirFftData[i]);
@@ -1335,7 +1333,7 @@ void MainWindow::audioFftTimeout()
 
         /* calculate power in dBFS */
         pwr = pwr_scale * (pt.imag() * pt.imag() + pt.real() * pt.real());
-        d_realFftData[i] = 10.0 * log10f(pwr + 1.0e-20);
+        d_realFftData[i] = pwr;
     }
 
     uiDockAudio->setNewFftData(d_realFftData, fftsize);
@@ -1586,6 +1584,8 @@ void MainWindow::setIqFftSize(int size)
 {
     qDebug() << "Changing baseband FFT size to" << size;
     rx->set_iq_fft_size(size);
+    for (int i = 0; i < size; i++)
+        d_iirFftData[i] = 0;
 }
 
 /** Baseband FFT rate has changed. */
