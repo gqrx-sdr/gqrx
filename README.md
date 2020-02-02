@@ -77,14 +77,14 @@ Gqrx can be compiled using qmake or cmake.
 The source code is hosted on Github: https://github.com/csete/gqrx
 
 To compile gqrx from source you need the following dependencies:
-- GNU Radio 3.7 with the following components:
+- GNU Radio 3.8 with the following components:
     - gnuradio-runtime
     - gnuradio-analog
-    - gnuradio-digital
-    - gnuradio-blocks
-    - gnuradio-filter
-    - gnuradio-fft
     - gnuradio-audio
+    - gnuradio-blocks
+    - gnuradio-digital
+    - gnuradio-fft
+    - gnuradio-filter
     - gnuradio-pmt
 - The gr-iqbalance library (optional)
 - Drivers for the hardware you want to have support for:
@@ -204,6 +204,7 @@ Nokia
 Phil Vachon
 Rob Frohne
 Stefano Leucci
+Sylvain Munaut
 Timothy Reaves
 Valentin Ochs
 Vesa Solonen

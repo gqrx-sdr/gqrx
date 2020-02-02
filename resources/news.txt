@@ -4,6 +4,8 @@
      FIXED: Update waterfall time resolution when FFT settings are changed.
      FIXED: Update waterfall time resolution when window is resized.
      FIXED: Restore waterfall time span between sessions.
+     FIXED: FFT buffer overlap calculation.
+  IMPROVED: Software tuning.
 
 
     2.12.1: Released January 27, 2020
