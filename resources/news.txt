@@ -1,4 +1,12 @@
-    2.12.1: Released JAnuary 27, 2020
+    2.12.2: In progress...
+
+     FIXED: FM de-emphasis causing audio to be 20 dB quieter than should be.
+     FIXED: Update waterfall time resolution when FFT settings are changed.
+     FIXED: Update waterfall time resolution when window is resized.
+     FIXED: Restore waterfall time span between sessions.
+
+
+    2.12.1: Released January 27, 2020
 
        NEW: White Hot, Black Hot and White Hot compressed colormaps.
 
