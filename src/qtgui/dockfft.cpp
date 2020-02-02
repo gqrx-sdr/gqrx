@@ -270,9 +270,9 @@ void DockFft::saveSettings(QSettings *settings)
 
     // pandapter and waterfall ranges locked together
     if (ui->lockButton->isChecked())
-        settings->setValue("db_ranges_locked", true);
-    else
         settings->remove("db_ranges_locked");
+    else
+        settings->setValue("db_ranges_locked", false);
 
     if (QString::compare(ui->cmapComboBox->currentData().toString(), DEFAULT_COLORMAP))
         settings->setValue("waterfall_colormap", ui->cmapComboBox->currentData().toString());
@@ -343,7 +343,7 @@ void DockFft::readSettings(QSettings *settings)
     setWaterfallRange(fft_min, fft_max);
     emit waterfallRangeChanged((float) fft_min, (float) fft_max);
 
-    bool_val = settings->value("db_ranges_locked", false).toBool();
+    bool_val = settings->value("db_ranges_locked", true).toBool();
     ui->lockButton->setChecked(bool_val);
 
     QString cmap = settings->value("waterfall_colormap", "gqrx").toString();
