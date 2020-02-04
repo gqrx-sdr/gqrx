@@ -115,7 +115,7 @@ void rx_fft_c::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
 
     /* perform FFT */
     d_cbuf.erase_begin(std::min((unsigned int)(diff.count() * d_quadrate * 1.001), (unsigned int)d_cbuf.size() - d_fftsize));
-    do_fft(d_cbuf.linearize(), d_fftsize);  // FIXME: array_one() and two() may be faster
+    do_fft(d_fftsize);
     //d_cbuf.clear();
 
     /* get FFT data */
@@ -130,18 +130,18 @@ void rx_fft_c::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
  * Note that this function does not lock the mutex since the caller, get_fft_data()
  * has alrady locked it.
  */
-void rx_fft_c::do_fft(const gr_complex *data_in, unsigned int size)
+void rx_fft_c::do_fft(unsigned int size)
 {
     /* apply window, if any */
     if (d_window.size())
     {
         gr_complex *dst = d_fft->get_inbuf();
         for (unsigned int i = 0; i < size; i++)
-            dst[i] = data_in[i] * d_window[i];
+            dst[i] = d_cbuf[i] * d_window[i];
     }
     else
     {
-        memcpy(d_fft->get_inbuf(), data_in, sizeof(gr_complex)*size);
+        memcpy(d_fft->get_inbuf(), d_cbuf.linearize(), sizeof(gr_complex)*size);
     }
 
     /* compute FFT */
@@ -305,7 +305,7 @@ void rx_fft_f::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
 
     /* perform FFT */
     d_cbuf.erase_begin(std::min((unsigned int)(diff.count() * d_audiorate * 1.001), (unsigned int)d_cbuf.size() - d_fftsize));
-    do_fft(d_cbuf.linearize(), d_fftsize);  // FIXME: array_one() and two() may be faster
+    do_fft(d_fftsize);
     //d_cbuf.clear();
 
     /* get FFT data */
@@ -320,7 +320,7 @@ void rx_fft_f::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
  * Note that this function does not lock the mutex since the caller, get_fft_data()
  * has alrady locked it.
  */
-void rx_fft_f::do_fft(const float *data_in, unsigned int size)
+void rx_fft_f::do_fft(unsigned int size)
 {
     gr_complex *dst = d_fft->get_inbuf();
     unsigned int i;
@@ -329,12 +329,12 @@ void rx_fft_f::do_fft(const float *data_in, unsigned int size)
     if (d_window.size())
     {
         for (i = 0; i < size; i++)
-            dst[i] = data_in[i] * d_window[i];
+            dst[i] = d_cbuf[i] * d_window[i];
     }
     else
     {
         for (i = 0; i < size; i++)
-            dst[i] = data_in[i];
+            dst[i] = d_cbuf[i];
     }
 
     /* compute FFT */

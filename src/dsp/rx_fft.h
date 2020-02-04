@@ -100,7 +100,7 @@ private:
     boost::circular_buffer<gr_complex> d_cbuf; /*! buffer to accumulate samples. */
     std::chrono::time_point<std::chrono::steady_clock> d_lasttime;
 
-    void do_fft(const gr_complex *data_in, unsigned int size);
+    void do_fft(unsigned int size);
     void set_params();
 
 };
@@ -165,7 +165,7 @@ private:
     boost::circular_buffer<float> d_cbuf; /*! buffer to accumulate samples. */
     std::chrono::time_point<std::chrono::steady_clock> d_lasttime;
 
-    void do_fft(const float *data_in, unsigned int size);
+    void do_fft(unsigned int size);
 
 };
 
