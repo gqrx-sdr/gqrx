@@ -70,6 +70,7 @@ public slots:
     void startAudioRecorder(void);
     void stopAudioRecorder(void);
     void setRxFrequency(qint64 freq);
+    void setWfColormap(const QString &cmap);
 
 signals:
     /*! \brief Signal emitted when audio gain has changed. Gain is in dB. */
