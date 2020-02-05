@@ -102,7 +102,7 @@ public:
     void    setFreqCtrlReset(bool enabled);
 
 public slots:
-    void    setGain(QString name, double value);
+    bool    setGain(QString name, double value);
 
 signals:
     void gainChanged(QString name, double value);
