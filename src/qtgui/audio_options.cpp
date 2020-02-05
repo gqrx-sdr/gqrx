@@ -93,17 +93,17 @@ void CAudioOptions::setUdpPort(int port)
 
 void CAudioOptions::setFftSplit(int pct_2d)
 {
-    ui->fftSplitSlider->setValue(100 - pct_2d);
+    ui->fftSplitSlider->setValue(pct_2d);
 }
 
 int  CAudioOptions::getFftSplit(void) const
 {
-    return 100 - ui->fftSplitSlider->value();
+    return ui->fftSplitSlider->value();
 }
 
 void CAudioOptions::on_fftSplitSlider_valueChanged(int value)
 {
-    emit newFftSplit(100 - value);
+    emit newFftSplit(value);
 }
 
 void CAudioOptions::setPandapterRange(int min, int max)
@@ -183,4 +183,3 @@ void CAudioOptions::on_udpPort_valueChanged(int port)
 {
     emit newUdpPort(port);
 }
-
