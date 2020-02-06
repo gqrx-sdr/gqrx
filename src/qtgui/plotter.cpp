@@ -850,7 +850,7 @@ void CPlotter::resizeEvent(QResizeEvent* )
         m_2DPixmap = QPixmap(m_Size.width(), fft_plot_height);
         m_2DPixmap.fill(Qt::black);
 
-        int height = (100 - m_Percent2DScreen) * m_Size.height() / 100;
+        int height = m_Size.height() - fft_plot_height;
         if (m_WaterfallPixmap.isNull())
         {
             m_WaterfallPixmap = QPixmap(m_Size.width(), height);
@@ -1174,7 +1174,7 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
         for (i = minbin; i < maxbin; i++)
             m_pTranslateTbl[i] = ((qint64)(i-m_BinMin)*plotWidth) / (m_BinMax - m_BinMin);
         *xmin = m_pTranslateTbl[minbin];
-        *xmax = m_pTranslateTbl[maxbin - 1];
+        *xmax = m_pTranslateTbl[maxbin - 1] + 1;
     }
     else
     {
