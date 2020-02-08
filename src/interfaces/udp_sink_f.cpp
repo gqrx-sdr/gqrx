@@ -78,6 +78,7 @@ udp_sink_f::~udp_sink_f()
  */
 void udp_sink_f::start_streaming(const std::string host, int port, bool stereo)
 {
+    lock();
     disconnect_all();
 
     if (stereo)
@@ -93,15 +94,19 @@ void udp_sink_f::start_streaming(const std::string host, int port, bool stereo)
         connect(d_f2s, 0, d_sink, 0);
         connect(self(), 1, d_null0, 0);
     }
+    unlock();
+
     d_sink->connect(host, port);
 }
 
 
 void udp_sink_f::stop_streaming(void)
 {
+    lock();
     disconnect_all();
     connect(self(), 0, d_null0, 0);
     connect(self(), 1, d_null1, 0);
+    unlock();
 
     d_sink->disconnect();
 }
