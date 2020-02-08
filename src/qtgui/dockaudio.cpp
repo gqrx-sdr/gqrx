@@ -20,6 +20,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <cmath>
 #include <QDebug>
 #include <QDateTime>
 #include <QDir>
@@ -44,6 +45,7 @@ DockAudio::DockAudio(QWidget *parent) :
 
 #ifdef Q_OS_LINUX
     // buttons can be smaller than 50x32
+    ui->audioMuteButton->setMinimumSize(48, 24);
     ui->audioStreamButton->setMinimumSize(48, 24);
     ui->audioRecButton->setMinimumSize(48, 24);
     ui->audioPlayButton->setMinimumSize(48, 24);
@@ -171,7 +173,8 @@ void DockAudio::on_audioGainSlider_valueChanged(int value)
 
     // update dB label
     ui->audioGainDbLabel->setText(QString("%1 dB").arg(gain, 5, 'f', 1));
-    emit audioGainChanged(gain);
+    if (!ui->audioMuteButton->isChecked())
+        emit audioGainChanged(gain);
 }
 
 /*! \brief Streaming button clicked.
@@ -250,6 +253,21 @@ void DockAudio::on_audioPlayButton_clicked(bool checked)
 void DockAudio::on_audioConfButton_clicked()
 {
     audioOptions->show();
+}
+
+/*! \brief Mute audio. */
+void DockAudio::on_audioMuteButton_clicked(bool checked)
+{
+    if (checked)
+    {
+        emit audioGainChanged(-INFINITY);
+    }
+    else
+    {
+        int value = ui->audioGainSlider->value();
+        float gain = float(value) / 10.0;
+        emit audioGainChanged(gain);
+    }
 }
 
 /*! \brief Set status of audio record button. */

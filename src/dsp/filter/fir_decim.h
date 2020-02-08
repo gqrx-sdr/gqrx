@@ -22,7 +22,12 @@
  */
 #pragma once
 
+#if GNURADIO_VERSION < 0x030800
 #include <gnuradio/filter/fir_filter_ccf.h>
+#else
+#include <gnuradio/filter/fir_filter_blk.h>
+#endif
+
 #include <gnuradio/hier_block2.h>
 
 class fir_decim_cc;

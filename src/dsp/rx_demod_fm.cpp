@@ -63,7 +63,7 @@ rx_demod_fm::rx_demod_fm(float quad_rate, float max_dev, double tau)
     d_fftaps.resize(2);
     d_fbtaps.resize(2);
     calculate_iir_taps(d_tau);
-    d_deemph = gr::filter::iir_filter_ffd::make(d_fftaps, d_fbtaps);
+    d_deemph = gr::filter::iir_filter_ffd::make(d_fftaps, d_fbtaps, false);
 
     /* connect block */
     connect(self(), 0, d_quad, 0);

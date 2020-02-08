@@ -73,7 +73,6 @@ public:
     double  lnbLo();
     void    readLnbLoFromSettings(QSettings * settings);
 
-    void    setGain(QString &name, double value);
     double  gain(QString &name);
 
     void    setAgc(bool enabled);
@@ -101,6 +100,9 @@ public:
     void    restoreManualGains(void);
 
     void    setFreqCtrlReset(bool enabled);
+
+public slots:
+    void    setGain(QString name, double value);
 
 signals:
     void gainChanged(QString name, double value);

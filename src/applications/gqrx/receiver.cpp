@@ -28,7 +28,6 @@
 
 #include <iostream>
 
-#include <gnuradio/blocks/multiply_const_ff.h>
 #include <gnuradio/prefs.h>
 #include <gnuradio/top_block.h>
 #include <osmosdr/source.h>
@@ -116,10 +115,8 @@ receiver::receiver(const std::string input_device,
     iq_sink->set_unbuffered(true);
     iq_sink->close();
 
-    rx = make_nbrx(d_quad_rate, d_audio_rate);
-    lo = gr::analog::sig_source_c::make(d_quad_rate, gr::analog::GR_SIN_WAVE,
-                                        0.0, 1.0);
-    mixer = gr::blocks::multiply_cc::make();
+    rx  = make_nbrx(d_quad_rate, d_audio_rate);
+    rot = gr::blocks::rotator_cc::make(0.0);
 
     iq_swap = make_iq_swap_cc(false);
     dc_corr = make_dc_corr_cc(d_quad_rate, 1.0);
@@ -348,7 +345,7 @@ double receiver::set_input_rate(double rate)
     d_quad_rate = d_input_rate / (double)d_decim;
     dc_corr->set_sample_rate(d_quad_rate);
     rx->set_quad_rate(d_quad_rate);
-    lo->set_sampling_freq(d_quad_rate);
+    update_ddc();
     tb->unlock();
 
     return d_input_rate;
@@ -402,7 +399,7 @@ unsigned int receiver::set_input_decim(unsigned int decim)
     // update quadrature rate
     dc_corr->set_sample_rate(d_quad_rate);
     rx->set_quad_rate(d_quad_rate);
-    lo->set_sampling_freq(d_quad_rate);
+    update_ddc();
 
     if (d_decim >= 2)
     {
@@ -640,7 +637,7 @@ receiver::status receiver::set_auto_gain(bool automatic)
 receiver::status receiver::set_filter_offset(double offset_hz)
 {
     d_filter_offset = offset_hz;
-    lo->set_frequency(-d_filter_offset + d_cw_offset);
+    update_ddc();
 
     return STATUS_OK;
 }
@@ -659,7 +656,7 @@ double receiver::get_filter_offset(void) const
 receiver::status receiver::set_cw_offset(double offset_hz)
 {
     d_cw_offset = offset_hz;
-    lo->set_frequency(-d_filter_offset + d_cw_offset);
+    update_ddc();
     rx->set_cw_offset(d_cw_offset);
 
     return STATUS_OK;
@@ -1273,64 +1270,45 @@ void receiver::get_sniffer_data(float * outbuff, unsigned int &num)
 /** Convenience function to connect all blocks. */
 void receiver::connect_all(rx_chain type)
 {
+    gr::basic_block_sptr b;
+
+    // Setup source
+    b = src;
+
+    // Pre-processing
+    if (d_decim >= 2)
+    {
+        tb->connect(b, 0, input_decim, 0);
+        b = input_decim;
+    }
+
+    if (d_recording_iq)
+    {
+        // We record IQ with minimal pre-processing
+        tb->connect(b, 0, iq_sink, 0);
+    }
+
+    tb->connect(b, 0, iq_swap, 0);
+    b = iq_swap;
+
+    if (d_dc_cancel)
+    {
+        tb->connect(b, 0, dc_corr, 0);
+        b = dc_corr;
+    }
+
+    // Visualization
+    tb->connect(b, 0, iq_fft, 0);
+
+    // RX demod chain
     switch (type)
     {
-    case RX_CHAIN_NONE:
-        if (d_decim >= 2)
-        {
-            tb->connect(src, 0, input_decim, 0);
-            tb->connect(input_decim, 0, iq_swap, 0);
-        }
-        else
-        {
-            tb->connect(src, 0, iq_swap, 0);
-        }
-        if (d_dc_cancel)
-        {
-            tb->connect(iq_swap, 0, dc_corr, 0);
-            tb->connect(dc_corr, 0, iq_fft, 0);
-        }
-        else
-        {
-            tb->connect(iq_swap, 0, iq_fft, 0);
-        }
-        break;
-
     case RX_CHAIN_NBRX:
         if (rx->name() != "NBRX")
         {
             rx.reset();
             rx = make_nbrx(d_quad_rate, d_audio_rate);
         }
-        if (d_decim >= 2)
-        {
-            tb->connect(src, 0, input_decim, 0);
-            tb->connect(input_decim, 0, iq_swap, 0);
-        }
-        else
-        {
-            tb->connect(src, 0, iq_swap, 0);
-        }
-        if (d_dc_cancel)
-        {
-            tb->connect(iq_swap, 0, dc_corr, 0);
-            tb->connect(dc_corr, 0, iq_fft, 0);
-            tb->connect(dc_corr, 0, mixer, 0);
-        }
-        else
-        {
-            tb->connect(iq_swap, 0, iq_fft, 0);
-            tb->connect(iq_swap, 0, mixer, 0);
-        }
-        tb->connect(lo, 0, mixer, 1);
-        tb->connect(mixer, 0, rx, 0);
-        tb->connect(rx, 0, audio_fft, 0);
-        tb->connect(rx, 0, audio_udp_sink, 0);
-        tb->connect(rx, 1, audio_udp_sink, 1);
-        tb->connect(rx, 0, audio_gain0, 0);
-        tb->connect(rx, 1, audio_gain1, 0);
-        tb->connect(audio_gain0, 0, audio_snk, 0);
-        tb->connect(audio_gain1, 0, audio_snk, 1);
         break;
 
     case RX_CHAIN_WFMRX:
@@ -1339,50 +1317,26 @@ void receiver::connect_all(rx_chain type)
             rx.reset();
             rx = make_wfmrx(d_quad_rate, d_audio_rate);
         }
-        if (d_decim >= 2)
-        {
-            tb->connect(src, 0, input_decim, 0);
-            tb->connect(input_decim, 0, iq_swap, 0);
-        }
-        else
-        {
-            tb->connect(src, 0, iq_swap, 0);
-        }
-        if (d_dc_cancel)
-        {
-            tb->connect(iq_swap, 0, dc_corr, 0);
-            tb->connect(dc_corr, 0, iq_fft, 0);
-            tb->connect(dc_corr, 0, mixer, 0);
-        }
-        else
-        {
-            tb->connect(iq_swap, 0, iq_fft, 0);
-            tb->connect(iq_swap, 0, mixer, 0);
-        }
-        tb->connect(lo, 0, mixer, 1);
-        tb->connect(mixer, 0, rx, 0);
-        tb->connect(rx, 0, audio_fft, 0);
-        tb->connect(rx, 0, audio_udp_sink, 0);
-        tb->connect(rx, 1, audio_udp_sink, 1);
-        tb->connect(rx, 0, audio_gain0, 0);
-        tb->connect(rx, 1, audio_gain1, 0);
-        tb->connect(audio_gain0, 0, audio_snk, 0);
-        tb->connect(audio_gain1, 0, audio_snk, 1);
         break;
 
     default:
         break;
     }
 
-    // reconnect recorders and sniffers
-    if (d_recording_iq)
+    // Audio path (if there is a receiver)
+    if (type != RX_CHAIN_NONE)
     {
-        if (d_decim >= 2)
-            tb->connect(input_decim, 0, iq_sink, 0);
-        else
-            tb->connect(src, 0, iq_sink, 0);
+        tb->connect(b, 0, rot, 0);
+        tb->connect(rot, 0, rx, 0);
+        tb->connect(rx, 0, audio_fft, 0);
+        tb->connect(rx, 0, audio_udp_sink, 0);
+        tb->connect(rx, 0, audio_gain0, 0);
+        tb->connect(rx, 1, audio_gain1, 0);
+        tb->connect(audio_gain0, 0, audio_snk, 0);
+        tb->connect(audio_gain1, 0, audio_snk, 1);
     }
 
+    // Recorders and sniffers
     if (d_recording_wav)
     {
         tb->connect(rx, 0, wav_sink, 0);
@@ -1394,6 +1348,12 @@ void receiver::connect_all(rx_chain type)
         tb->connect(rx, 0, sniffer_rr, 0);
         tb->connect(sniffer_rr, 0, sniffer, 0);
     }
+}
+
+/** Convenience function to update all DDC related components. */
+void receiver::update_ddc()
+{
+    rot->set_phase_inc(2.0 * M_PI * (-d_filter_offset + d_cw_offset) / d_quad_rate);
 }
 
 void receiver::get_rds_data(std::string &outbuff, int &num)

@@ -62,7 +62,7 @@ isEmpty(PREFIX) {
 }
 
 target.path  = $$PREFIX/bin
-INSTALLS    += target 
+INSTALLS    += target
 
 #CONFIG += debug
 
@@ -73,13 +73,13 @@ CONFIG(debug, debug|release) {
 
     # Define version string (see below for releases)
     VER = $$system(git describe --abbrev=8)
-    ##VER = 2.11.5
+    ##VER = 2.12
 
 } else {
     DEFINES += QT_NO_DEBUG
     DEFINES += QT_NO_DEBUG_OUTPUT
     VER = $$system(git describe --abbrev=1)
-    ##VER = 2.11.5
+    ##VER = 2.12
 
     # Release binaries with gr bundled
     # QMAKE_RPATH & co won't work with origin
@@ -262,6 +262,29 @@ PKGCONFIG += gnuradio-analog \
              gnuradio-fft \
              gnuradio-runtime \
              gnuradio-osmosdr
+
+# Detect GNU Radio version and link against log4cpp for 3.8
+GNURADIO_VERSION = $$system(pkg-config --modversion gnuradio-runtime)
+
+GNURADIO_VERSION_MAJOR = $$system(echo $$GNURADIO_VERSION | cut -d '.' -f1 -)
+GNURADIO_VERSION_MINOR = $$system(echo $$GNURADIO_VERSION | cut -d '.' -f2 -)
+GNURADIO_VERSION_PATCH = $$system(echo $$GNURADIO_VERSION | cut -d '.' -f3 -)
+
+GNURADIO_HEX_VERSION = $$system(            \
+  "echo $((                                 \
+    ($$GNURADIO_VERSION_MAJOR / 10) << 20 | \
+    ($$GNURADIO_VERSION_MAJOR % 10) << 16 | \
+    ($$GNURADIO_VERSION_MINOR / 10) << 12 | \
+    ($$GNURADIO_VERSION_MINOR % 10) <<  8 | \
+    ($$GNURADIO_VERSION_PATCH / 10) <<  4 | \
+    ($$GNURADIO_VERSION_PATCH % 10) <<  0   \
+  ))"                                       \
+)
+DEFINES += GNURADIO_VERSION=$$GNURADIO_HEX_VERSION
+
+greaterThan(GNURADIO_VERSION_MINOR, 7) {
+    PKGCONFIG += log4cpp
+}
 
 INCPATH += src/
 

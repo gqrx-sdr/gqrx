@@ -367,6 +367,29 @@ void RemoteControl::setReceiverStatus(bool enabled)
     receiver_running = enabled;
 }
 
+/*! \brief Set available gain settings (from mainwindow). */
+void RemoteControl::setGainStages(gain_list_t &gain_list)
+{
+    gains = gain_list;
+}
+
+/*! \brief Set value for a specific gain setting (from DockInputCtl). */
+bool RemoteControl::setGain(QString name, double gain)
+{
+    for(auto &g : gains)
+    {
+        if(name == QString::fromStdString(g.name))
+        {
+            if(gain != g.value) {
+                g.value = gain;
+                emit gainChanged(name, gain);
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
 
 /*! \brief Convert mode string to enum (DockRxOpt::rxopt_mode_idx)
  *  \param mode The Hamlib rigctld compatible mode string
@@ -571,13 +594,37 @@ QString RemoteControl::cmd_get_level(QStringList cmdlist)
     QString lvl = cmdlist.value(1, "");
 
     if (lvl == "?")
-       answer = QString("SQL STRENGTH\n");
+    {
+        QStringList names;
+        for(auto &g : gains)
+            names.push_back(QString("%1_GAIN").arg(QString::fromStdString(g.name)));
+        answer = QString("SQL STRENGTH %1\n").arg(names.join(" "));
+    }
     else if (lvl.compare("STRENGTH", Qt::CaseInsensitive) == 0 || lvl.isEmpty())
-       answer = QString("%1\n").arg(signal_level, 0, 'f', 1);
+    {
+        answer = QString("%1\n").arg(signal_level, 0, 'f', 1);
+    }
     else if (lvl.compare("SQL", Qt::CaseInsensitive) == 0)
-       answer = QString("%1\n").arg(squelch_level, 0, 'f', 1);
+    {
+        answer = QString("%1\n").arg(squelch_level, 0, 'f', 1);
+    }
+    else if (lvl.contains(QRegExp("_GAIN$")))
+    {
+        QString name = lvl.remove(QRegExp("_GAIN$"));
+        answer = QString("RPRT 1\n");
+        for(auto &g : gains)
+        {
+            if(name == QString::fromStdString(g.name))
+            {
+                answer = QString("%1\n").arg(g.value);
+                break;
+            }
+        }
+    }
     else
-       answer = QString("RPRT 1\n");
+    {
+        answer = QString("RPRT 1\n");
+    }
 
     return answer;
 }
@@ -589,7 +636,12 @@ QString RemoteControl::cmd_set_level(QStringList cmdlist)
     QString lvl = cmdlist.value(1, "");
 
     if (lvl == "?")
-        answer = QString("SQL\n");
+    {
+        QStringList names;
+        for(auto &g : gains)
+            names.push_back(QString("%1_GAIN").arg(QString::fromStdString(g.name)));
+        answer = QString("SQL %1\n").arg(names.join(" "));
+    }
     else if (lvl.compare("SQL", Qt::CaseInsensitive) == 0)
     {
         bool ok;
@@ -604,6 +656,17 @@ QString RemoteControl::cmd_set_level(QStringList cmdlist)
         {
             answer = QString("RPRT 1\n");
         }
+    }
+    else if (lvl.contains(QRegExp("_GAIN$")))
+    {
+        QString name = lvl.remove(QRegExp("_GAIN$"));
+
+        bool ok;
+        double gain = cmdlist.value(2, "ERR").toDouble(&ok);
+        if (ok && setGain(name, gain))
+            answer = QString("RPRT 0\n");
+        else
+            answer = QString("RPRT 1\n");
     }
     else
     {

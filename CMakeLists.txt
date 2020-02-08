@@ -1,11 +1,11 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.2)
 
 # Project name
 project(gqrx)
 set(${PROJECT_NAME}_MAJOR "2")
-set(${PROJECT_NAME}_MINOR "11")
-set(${PROJECT_NAME}_PATCH "5")
-set(VERSION "${${PROJECT_NAME}_MAJOR}.${${PROJECT_NAME}_MINOR}.${${PROJECT_NAME}_PATCH}")
+set(${PROJECT_NAME}_MINOR "12")
+set(${PROJECT_NAME}_PATCH "1")
+##set(VERSION "${${PROJECT_NAME}_MAJOR}.${${PROJECT_NAME}_MINOR}.${${PROJECT_NAME}_PATCH}")
 ##set(VERSION "${${PROJECT_NAME}_MAJOR}.${${PROJECT_NAME}_MINOR}")
 ##add_definitions(-DVERSION="${VERSION}")
 
@@ -37,6 +37,9 @@ if(${CMAKE_BUILD_TYPE} MATCHES "Valgrind")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
 endif()
+
+# Workaround for naming collision with log4cpp for Debug builds
+add_definitions(-DLOG4CPP_FIX_ERROR_COLLISION=1)
 
 # Disable debug outputs in release builds
 if(${CMAKE_BUILD_TYPE} MATCHES "Release" OR ${CMAKE_BUILD_TYPE} MATCHES "RelWithDebInfo")
@@ -105,14 +108,30 @@ endif()
 
 # 3rd Party Dependency Stuff
 find_package(Qt5 COMPONENTS Core Network Widgets Svg REQUIRED)
-find_package(Boost COMPONENTS system program_options REQUIRED)
-set(GR_REQUIRED_COMPONENTS RUNTIME ANALOG AUDIO BLOCKS DIGITAL FILTER FFT PMT)
-find_package(Gnuradio REQUIRED)
 find_package(Gnuradio-osmosdr REQUIRED)
 
+set(GR_REQUIRED_COMPONENTS RUNTIME ANALOG AUDIO BLOCKS DIGITAL FILTER FFT PMT)
+find_package(Gnuradio REQUIRED COMPONENTS analog audio blocks digital filter fft)
 
-if(NOT GNURADIO_RUNTIME_FOUND)
+if(NOT Gnuradio_FOUND)
     message(FATAL_ERROR "GnuRadio Runtime required to compile gqrx")
+endif()
+
+
+# Pass the GNU Radio version as 0xMMNNPP BCD.
+math(EXPR GNURADIO_BCD_VERSION
+    "(${Gnuradio_VERSION_MAJOR} / 10) << 20 |
+     (${Gnuradio_VERSION_MAJOR} % 10) << 16 |
+     (${Gnuradio_VERSION_MINOR} / 10) << 12 |
+     (${Gnuradio_VERSION_MINOR} % 10) <<  8 |
+     (${Gnuradio_VERSION_PATCH} / 10) <<  4 |
+     (${Gnuradio_VERSION_PATCH} % 10) <<  0
+    "
+)
+add_definitions(-DGNURADIO_VERSION=${GNURADIO_BCD_VERSION})
+
+if(Gnuradio_VERSION VERSION_LESS "3.8")
+    find_package(Boost COMPONENTS system program_options REQUIRED)
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")

@@ -61,16 +61,16 @@ void DockInputCtl::readSettings(QSettings * settings)
     setIqBalance(settings->value("input/iq_balance", false).toBool());
     emit iqBalanceChanged(ui->iqBalanceButton->isChecked());
 
+    bool_val = settings->value("input/ignore_limits", false).toBool();
+    setIgnoreLimits(bool_val);
+    emit ignoreLimitsChanged(bool_val);
+
     lnb_lo = settings->value("input/lnb_lo", 0).toLongLong(&conv_ok);
     if (conv_ok)
     {
         setLnbLo(((double)lnb_lo)/1.0e6);
         emit lnbLoChanged(ui->lnbSpinBox->value());
     }
-
-    bool_val = settings->value("input/ignore_limits", false).toBool();
-    setIgnoreLimits(bool_val);
-    emit ignoreLimitsChanged(bool_val);
 
     // Ignore antenna selection if there is only one option
     if (ui->antSelector->count() > 1)
@@ -200,7 +200,7 @@ double DockInputCtl::lnbLo()
  * @param name The name of the gain to change.
  * @param value The new value.
  */
-void DockInputCtl::setGain(QString &name, double value)
+void DockInputCtl::setGain(QString name, double value)
 {
     int gain = -1;
 

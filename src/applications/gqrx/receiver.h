@@ -23,11 +23,15 @@
 #ifndef RECEIVER_H
 #define RECEIVER_H
 
-#include <gnuradio/analog/sig_source_c.h>
-#include <gnuradio/blocks/file_sink.h>
+#if GNURADIO_VERSION < 0x030800
 #include <gnuradio/blocks/multiply_const_ff.h>
-#include <gnuradio/blocks/multiply_cc.h>
+#else
+#include <gnuradio/blocks/multiply_const.h>
+#endif
+
+#include <gnuradio/blocks/file_sink.h>
 #include <gnuradio/blocks/null_sink.h>
+#include <gnuradio/blocks/rotator_cc.h>
 #include <gnuradio/blocks/wavfile_sink.h>
 #include <gnuradio/blocks/wavfile_source.h>
 #include <gnuradio/top_block.h>
@@ -222,6 +226,7 @@ public:
 
 private:
     void        connect_all(rx_chain type);
+    void        update_ddc();
 
 private:
     bool        d_running;          /*!< Whether receiver is running or not. */
@@ -256,8 +261,7 @@ private:
     rx_fft_c_sptr             iq_fft;     /*!< Baseband FFT block. */
     rx_fft_f_sptr             audio_fft;  /*!< Audio FFT block. */
 
-    gr::analog::sig_source_c::sptr      lo;  /*!< oscillator used for tuning. */
-    gr::blocks::multiply_cc::sptr       mixer;
+    gr::blocks::rotator_cc::sptr rot;     /*!< Rotator used when only shifting frequency */
 
     gr::blocks::multiply_const_ff::sptr audio_gain0; /*!< Audio gain block. */
     gr::blocks::multiply_const_ff::sptr audio_gain1; /*!< Audio gain block. */
