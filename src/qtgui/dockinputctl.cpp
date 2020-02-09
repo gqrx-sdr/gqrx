@@ -77,6 +77,7 @@ void DockInputCtl::readSettings(QSettings * settings)
     {
         QString ant = settings->value("input/antenna", "").toString();
         setAntenna(ant);
+        emit antennaSelected(ant);
     }
 
     // gains are stored as a QMap<QString, QVariant(int)>
