@@ -473,8 +473,20 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
     QString indev = m_settings->value("input/device", "").toString();
     if (!indev.isEmpty())
     {
-        conf_ok = true;
-        rx->set_input_device(indev.toStdString());
+        try
+        {
+            rx->set_input_device(indev.toStdString());
+            conf_ok = true;
+        }
+        catch (std::runtime_error &x)
+        {
+            QMessageBox::warning(nullptr,
+                             QObject::tr("Failed to set input device"),
+                             QObject::tr("<p><b>%1</b></p>"
+                                         "Please select another device.")
+                                     .arg(x.what()),
+                             QMessageBox::Ok);
+        }
 
         // Update window title
         QRegExp regexp("'([a-zA-Z0-9 \\-\\_\\/\\.\\,\\(\\)]+)'");
