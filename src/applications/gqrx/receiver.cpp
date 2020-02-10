@@ -49,6 +49,7 @@
 #include <gnuradio/audio/sink.h>
 #endif
 
+#define TARGET_QUAD_RATE 1e6
 
 /**
  * @brief Public contructor.
@@ -102,11 +103,11 @@ receiver::receiver(const std::string input_device,
             d_decim = 1;
         }
 
-        d_quad_rate = d_input_rate / (double)d_decim;
+        d_decim_rate = d_input_rate / (double)d_decim;
     }
     else
     {
-        d_quad_rate = d_input_rate;
+        d_decim_rate = d_input_rate;
     }
 
 
@@ -115,11 +116,13 @@ receiver::receiver(const std::string input_device,
     iq_sink->set_unbuffered(true);
     iq_sink->close();
 
+    d_ddc_decim = std::max(1, (int)(d_decim_rate / TARGET_QUAD_RATE));
+    d_quad_rate = d_decim_rate / d_ddc_decim;
+    ddc = make_downconverter_cc(d_ddc_decim, 0.0, d_decim_rate);
     rx  = make_nbrx(d_quad_rate, d_audio_rate);
-    rot = gr::blocks::rotator_cc::make(0.0);
 
     iq_swap = make_iq_swap_cc(false);
-    dc_corr = make_dc_corr_cc(d_quad_rate, 1.0);
+    dc_corr = make_dc_corr_cc(d_decim_rate, 1.0);
     iq_fft = make_rx_fft_c(8192u, gr::filter::firdes::WIN_HANN);
 
     audio_fft = make_rx_fft_f(8192u, gr::filter::firdes::WIN_HANN);
@@ -342,10 +345,12 @@ double receiver::set_input_rate(double rate)
         d_input_rate = rate;
     }
 
-    d_quad_rate = d_input_rate / (double)d_decim;
-    dc_corr->set_sample_rate(d_quad_rate);
+    d_decim_rate = d_input_rate / (double)d_decim;
+    d_ddc_decim = std::max(1, (int)(d_decim_rate / TARGET_QUAD_RATE));
+    d_quad_rate = d_decim_rate / d_ddc_decim;
+    dc_corr->set_sample_rate(d_decim_rate);
+    ddc->set_decim_and_samp_rate(d_ddc_decim, d_decim_rate);
     rx->set_quad_rate(d_quad_rate);
-    update_ddc();
     tb->unlock();
 
     return d_input_rate;
@@ -389,17 +394,19 @@ unsigned int receiver::set_input_decim(unsigned int decim)
             d_decim = 1;
         }
 
-        d_quad_rate = d_input_rate / (double)d_decim;
+        d_decim_rate = d_input_rate / (double)d_decim;
     }
     else
     {
-        d_quad_rate = d_input_rate;
+        d_decim_rate = d_input_rate;
     }
 
     // update quadrature rate
-    dc_corr->set_sample_rate(d_quad_rate);
+    d_ddc_decim = std::max(1, (int)(d_decim_rate / TARGET_QUAD_RATE));
+    d_quad_rate = d_decim_rate / d_ddc_decim;
+    dc_corr->set_sample_rate(d_decim_rate);
+    ddc->set_decim_and_samp_rate(d_ddc_decim, d_decim_rate);
     rx->set_quad_rate(d_quad_rate);
-    update_ddc();
 
     if (d_decim >= 2)
     {
@@ -413,7 +420,7 @@ unsigned int receiver::set_input_decim(unsigned int decim)
 
 #ifdef CUSTOM_AIRSPY_KERNELS
     if (input_devstr.find("airspy") != std::string::npos)
-        src->set_bandwidth(d_quad_rate);
+        src->set_bandwidth(d_decim_rate);
 #endif
 
     if (d_running)
@@ -637,7 +644,7 @@ receiver::status receiver::set_auto_gain(bool automatic)
 receiver::status receiver::set_filter_offset(double offset_hz)
 {
     d_filter_offset = offset_hz;
-    update_ddc();
+    ddc->set_center_freq(d_filter_offset - d_cw_offset);
 
     return STATUS_OK;
 }
@@ -656,7 +663,7 @@ double receiver::get_filter_offset(void) const
 receiver::status receiver::set_cw_offset(double offset_hz)
 {
     d_cw_offset = offset_hz;
-    update_ddc();
+    ddc->set_center_freq(d_filter_offset - d_cw_offset);
     rx->set_cw_offset(d_cw_offset);
 
     return STATUS_OK;
@@ -1318,8 +1325,8 @@ void receiver::connect_all(rx_chain type)
     // Audio path (if there is a receiver)
     if (type != RX_CHAIN_NONE)
     {
-        tb->connect(b, 0, rot, 0);
-        tb->connect(rot, 0, rx, 0);
+        tb->connect(b, 0, ddc, 0);
+        tb->connect(ddc, 0, rx, 0);
         tb->connect(rx, 0, audio_fft, 0);
         tb->connect(rx, 0, audio_udp_sink, 0);
         tb->connect(rx, 0, audio_gain0, 0);
@@ -1340,12 +1347,6 @@ void receiver::connect_all(rx_chain type)
         tb->connect(rx, 0, sniffer_rr, 0);
         tb->connect(sniffer_rr, 0, sniffer, 0);
     }
-}
-
-/** Convenience function to update all DDC related components. */
-void receiver::update_ddc()
-{
-    rot->set_phase_inc(2.0 * M_PI * (-d_filter_offset + d_cw_offset) / d_quad_rate);
 }
 
 void receiver::get_rds_data(std::string &outbuff, int &num)
