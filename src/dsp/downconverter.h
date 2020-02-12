@@ -22,8 +22,13 @@
  */
 #pragma once
 
+#if GNURADIO_VERSION < 0x030800
+#include <gnuradio/filter/freq_xlating_fir_filter_ccf.h>
+#else
+#include <gnuradio/filter/freq_xlating_fir_filter.h>
+#endif
+
 #include <gnuradio/blocks/rotator_cc.h>
-#include <gnuradio/filter/fft_filter_ccc.h>
 #include <gnuradio/hier_block2.h>
 
 class downconverter_cc;
@@ -49,9 +54,8 @@ private:
 
     void connect_all();
     void update_proto_taps();
-    void update_fft_taps();
     void update_phase_inc();
 
-    gr::filter::fft_filter_ccc::sptr fft_filt;
+    gr::filter::freq_xlating_fir_filter_ccf::sptr filt;
     gr::blocks::rotator_cc::sptr rot;
 };

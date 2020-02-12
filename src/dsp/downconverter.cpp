@@ -41,12 +41,8 @@ downconverter_cc::downconverter_cc(unsigned int decim, double center_freq, doubl
       d_center_freq(center_freq),
       d_samp_rate(samp_rate)
 {
-    if (d_decim > 1)
-        fft_filt = gr::filter::fft_filter_ccc::make(d_decim, {1});
-    rot = gr::blocks::rotator_cc::make(0.0);
     connect_all();
     update_proto_taps();
-    update_fft_taps();
     update_phase_inc();
 }
 
@@ -63,21 +59,16 @@ void downconverter_cc::set_decim_and_samp_rate(unsigned int decim, double samp_r
         d_decim = decim;
         lock();
         disconnect_all();
-        fft_filt.reset();
-        if (d_decim > 1)
-            fft_filt = gr::filter::fft_filter_ccc::make(d_decim, {1});
         connect_all();
         unlock();
     }
     update_proto_taps();
-    update_fft_taps();
     update_phase_inc();
 }
 
 void downconverter_cc::set_center_freq(double center_freq)
 {
     d_center_freq = center_freq;
-    update_fft_taps();
     update_phase_inc();
 }
 
@@ -85,14 +76,16 @@ void downconverter_cc::connect_all()
 {
     if (d_decim > 1)
     {
-        connect(self(), 0, fft_filt, 0);
-        connect(fft_filt, 0, rot, 0);
+        filt = gr::filter::freq_xlating_fir_filter_ccf::make(d_decim, {1}, 0.0, d_samp_rate);
+        connect(self(), 0, filt, 0);
+        connect(filt, 0, self(), 0);
     }
     else
     {
+        rot = gr::blocks::rotator_cc::make(0.0);
         connect(self(), 0, rot, 0);
+        connect(rot, 0, self(), 0);
     }
-    connect(rot, 0, self(), 0);
 }
 
 void downconverter_cc::update_proto_taps()
@@ -100,24 +93,14 @@ void downconverter_cc::update_proto_taps()
     if (d_decim > 1)
     {
         double out_rate = d_samp_rate / d_decim;
-        d_proto_taps = gr::filter::firdes::low_pass(1.0, d_samp_rate, LPF_CUTOFF, out_rate - 2*LPF_CUTOFF);
-    }
-}
-
-void downconverter_cc::update_fft_taps()
-{
-    if (d_decim > 1)
-    {
-        std::vector<gr_complex> ctaps(d_proto_taps.size());
-        float fwT0 = 2 * M_PI * d_center_freq / d_samp_rate;
-        for (unsigned int i = 0; i < d_proto_taps.size(); i++) {
-            ctaps[i] = d_proto_taps[i] * exp(gr_complex(0, i * fwT0));
-        }
-        fft_filt->set_taps(ctaps);
+        filt->set_taps(gr::filter::firdes::low_pass(1.0, d_samp_rate, LPF_CUTOFF, out_rate - 2*LPF_CUTOFF));
     }
 }
 
 void downconverter_cc::update_phase_inc()
 {
-    rot->set_phase_inc(-2.0 * M_PI * d_decim * d_center_freq / d_samp_rate);
+    if (d_decim > 1)
+        filt->set_center_freq(d_center_freq);
+    else
+        rot->set_phase_inc(-2.0 * M_PI * d_center_freq / d_samp_rate);
 }
