@@ -217,7 +217,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
     connect(uiDockRxOpt, SIGNAL(sqlAutoClicked()), this, SLOT(setSqlLevelAuto()));
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
-    connect(uiDockAudio, SIGNAL(audioStreamingStarted(QString,int)), this, SLOT(startAudioStream(QString,int)));
+    connect(uiDockAudio, SIGNAL(audioStreamingStarted(QString,int,bool)), this, SLOT(startAudioStream(QString,int,bool)));
     connect(uiDockAudio, SIGNAL(audioStreamingStopped()), this, SLOT(stopAudioStreaming()));
     connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), this, SLOT(startAudioRec(QString)));
     connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), remote, SLOT(startAudioRecorder(QString)));
@@ -1445,9 +1445,9 @@ void MainWindow::stopAudioPlayback()
 }
 
 /** Start streaming audio over UDP. */
-void MainWindow::startAudioStream(const QString udp_host, int udp_port)
+void MainWindow::startAudioStream(const QString udp_host, int udp_port, bool stereo)
 {
-    rx->start_udp_streaming(udp_host.toStdString(), udp_port);
+    rx->start_udp_streaming(udp_host.toStdString(), udp_port, stereo);
 }
 
 /** Stop streaming audio over UDP. */
