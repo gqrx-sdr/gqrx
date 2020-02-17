@@ -374,7 +374,7 @@ void DockAudio::readSettings(QSettings *settings)
 
     settings->beginGroup("audio");
 
-    ival = settings->value("gain", QVariant(-200)).toInt(&conv_ok);
+    ival = settings->value("gain", QVariant(-60)).toInt(&conv_ok);
     if (conv_ok)
         setAudioGain(ival);
 
