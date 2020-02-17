@@ -117,9 +117,9 @@ receiver::receiver(const std::string input_device,
 
     iq_swap = make_iq_swap_cc(false);
     dc_corr = make_dc_corr_cc(d_decim_rate, 1.0);
-    iq_fft = make_rx_fft_c(8192u, gr::filter::firdes::WIN_HANN);
+    iq_fft = make_rx_fft_c(8192u, d_decim_rate, gr::filter::firdes::WIN_HANN);
 
-    audio_fft = make_rx_fft_f(8192u, gr::filter::firdes::WIN_HANN);
+    audio_fft = make_rx_fft_f(8192u, d_audio_rate, gr::filter::firdes::WIN_HANN);
     audio_gain0 = gr::blocks::multiply_const_ff::make(0.1);
     audio_gain1 = gr::blocks::multiply_const_ff::make(0.1);
 
@@ -358,6 +358,7 @@ double receiver::set_input_rate(double rate)
     dc_corr->set_sample_rate(d_decim_rate);
     ddc->set_decim_and_samp_rate(d_ddc_decim, d_decim_rate);
     rx->set_quad_rate(d_quad_rate);
+    iq_fft->set_quad_rate(d_decim_rate);
     tb->unlock();
 
     return d_input_rate;
@@ -414,6 +415,7 @@ unsigned int receiver::set_input_decim(unsigned int decim)
     dc_corr->set_sample_rate(d_decim_rate);
     ddc->set_decim_and_samp_rate(d_ddc_decim, d_decim_rate);
     rx->set_quad_rate(d_quad_rate);
+    iq_fft->set_quad_rate(d_decim_rate);
 
     if (d_decim >= 2)
     {
