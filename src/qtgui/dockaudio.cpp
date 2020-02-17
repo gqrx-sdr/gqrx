@@ -166,6 +166,11 @@ void DockAudio::setRxFrequency(qint64 freq)
     rx_freq = freq;
 }
 
+void DockAudio::setWfColormap(const QString &cmap)
+{
+    ui->audioSpectrum->setWfColormap(cmap);
+}
+
 /*! \brief Audio gain changed.
  *  \param value The new audio gain value in tens of dB (because slider uses int)
  */
