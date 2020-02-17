@@ -27,8 +27,8 @@
 #include "dockfft.h"
 #include "ui_dockfft.h"
 
-#define DEFAULT_FFT_MAX_DB     -0
-#define DEFAULT_FFT_MIN_DB     -135
+#define DEFAULT_FFT_MAX_DB     -20
+#define DEFAULT_FFT_MIN_DB     -120
 #define DEFAULT_FFT_RATE        25
 #define DEFAULT_FFT_SIZE        8192
 #define DEFAULT_FFT_WINDOW      1       // Hann
