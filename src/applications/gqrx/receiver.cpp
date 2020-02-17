@@ -187,6 +187,8 @@ void receiver::stop()
  */
 void receiver::set_input_device(const std::string device)
 {
+    std::string error = "";
+
     if (device.empty())
         return;
 
@@ -220,7 +222,17 @@ void receiver::set_input_device(const std::string device)
     }
 
     src.reset();
-    src = osmosdr::source::make(device);
+
+    try
+    {
+        src = osmosdr::source::make(device);
+    }
+    catch (std::runtime_error &x)
+    {
+        error = x.what();
+        src = osmosdr::source::make("file="+get_random_file()+",freq=428e6,rate=96000,repeat=true,throttle=true");
+    }
+
     if(src->get_sample_rate() != 0)
         set_input_rate(src->get_sample_rate());
 
@@ -236,6 +248,11 @@ void receiver::set_input_device(const std::string device)
 
     if (d_running)
         tb->start();
+
+    if (error != "")
+    {
+        throw std::runtime_error(error);
+    }
 }
 
 
