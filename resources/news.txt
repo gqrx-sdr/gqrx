@@ -1,11 +1,21 @@
-    2.12.2: In progress...
 
-     FIXED: FM de-emphasis causing audio to be 20 dB quieter than should be.
+      2.13: Released February 17, 2020
+
+       NEW: Stereo option for UDP streaming.
+     FIXED: FM de-emphasis causing audio to be 20 dB quieter than it should be.
      FIXED: Update waterfall time resolution when FFT settings are changed.
      FIXED: Update waterfall time resolution when window is resized.
      FIXED: Restore waterfall time span between sessions.
      FIXED: FFT buffer overlap calculation.
-  IMPROVED: Software tuning.
+     FIXED: Crash when launching without device connected.
+     FIXED: Crash when setting invalid RF gains.
+     FIXED: Audio panadapter / waterfall slider direction.
+  IMPROVED: DSP performance.
+  IMPROVED: Panadapter & waterfall performance.
+  IMPROVED: Smooth panadapter & waterfall redrawing.
+  IMPROVED: Better default values for various settings.
+  IMPROVED: Audio waterfall colormap matches I/Q waterfall.
+  IMPROVED: Use all available display space for panadapter & waterfall.
 
 
     2.12.1: Released January 27, 2020
