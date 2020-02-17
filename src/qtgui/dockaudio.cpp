@@ -27,6 +27,8 @@
 #include "dockaudio.h"
 #include "ui_dockaudio.h"
 
+#define DEFAULT_FFT_SPLIT 65
+
 DockAudio::DockAudio(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockAudio),
@@ -66,7 +68,7 @@ DockAudio::DockAudio(QWidget *parent) :
     ui->audioSpectrum->setSampleRate(48000);  // Full bandwidth
     ui->audioSpectrum->setSpanFreq(12000);
     ui->audioSpectrum->setCenterFreq(0);
-    ui->audioSpectrum->setPercent2DScreen(100);
+    ui->audioSpectrum->setPercent2DScreen(DEFAULT_FFT_SPLIT);
     ui->audioSpectrum->setFftCenterFreq(6000);
     ui->audioSpectrum->setDemodCenterFreq(0);
     ui->audioSpectrum->setFilterBoxEnabled(false);
@@ -316,7 +318,7 @@ void DockAudio::saveSettings(QSettings *settings)
     settings->setValue("gain", audioGain());
 
     ival = audioOptions->getFftSplit();
-    if (ival >= 0 && ival < 100)
+    if (ival != DEFAULT_FFT_SPLIT)
         settings->setValue("fft_split", ival);
     else
         settings->remove("fft_split");
@@ -378,7 +380,7 @@ void DockAudio::readSettings(QSettings *settings)
     if (conv_ok)
         setAudioGain(ival);
 
-    ival = settings->value("fft_split", QVariant(100)).toInt(&conv_ok);
+    ival = settings->value("fft_split", DEFAULT_FFT_SPLIT).toInt(&conv_ok);
     if (conv_ok)
         audioOptions->setFftSplit(ival);
 
