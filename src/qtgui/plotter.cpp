@@ -998,38 +998,18 @@ void CPlotter::draw()
                                 &xmin, &xmax);
 
         // draw the pandapter
-        painter2.setPen(m_FftColor);
+        QBrush fillBrush = QBrush(m_FftFillCol);
         n = xmax - xmin;
         for (i = 0; i < n; i++)
         {
             LineBuf[i].setX(i + xmin);
             LineBuf[i].setY(m_fftbuf[i + xmin]);
+            if (m_FftFill)
+                painter2.fillRect(i + xmin, m_fftbuf[i + xmin], 1, h, fillBrush);
         }
 
-        if (m_FftFill)
-        {
-            painter2.setBrush(QBrush(m_FftFillCol, Qt::SolidPattern));
-            if (n < MAX_SCREENSIZE-2)
-            {
-                LineBuf[n].setX(xmax-1);
-                LineBuf[n].setY(h);
-                LineBuf[n+1].setX(xmin);
-                LineBuf[n+1].setY(h);
-                painter2.drawPolygon(LineBuf, n+2);
-            }
-            else
-            {
-                LineBuf[MAX_SCREENSIZE-2].setX(xmax-1);
-                LineBuf[MAX_SCREENSIZE-2].setY(h);
-                LineBuf[MAX_SCREENSIZE-1].setX(xmin);
-                LineBuf[MAX_SCREENSIZE-1].setY(h);
-                painter2.drawPolygon(LineBuf, n);
-            }
-        }
-        else
-        {
-            painter2.drawPolyline(LineBuf, n);
-        }
+        painter2.setPen(m_FftColor);
+        painter2.drawPolyline(LineBuf, n);
 
         // Peak detection
         if (m_PeakDetection > 0)
