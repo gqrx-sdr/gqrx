@@ -998,14 +998,14 @@ void CPlotter::draw()
                                 &xmin, &xmax);
 
         // draw the pandapter
-        painter2.setPen(m_FftFillCol);
+        QBrush fillBrush = QBrush(m_FftFillCol);
         n = xmax - xmin;
         for (i = 0; i < n; i++)
         {
             LineBuf[i].setX(i + xmin);
             LineBuf[i].setY(m_fftbuf[i + xmin]);
             if (m_FftFill)
-                painter2.drawLine(i + xmin, h, i + xmin, m_fftbuf[i + xmin]);
+                painter2.fillRect(i + xmin, m_fftbuf[i + xmin], 1, h, fillBrush);
         }
 
         painter2.setPen(m_FftColor);
