@@ -23,6 +23,9 @@
 #ifndef RECEIVER_H
 #define RECEIVER_H
 
+#include <string>
+#include <vector>
+
 #if GNURADIO_VERSION < 0x030800
 #include <gnuradio/blocks/multiply_const_ff.h>
 #else
@@ -36,7 +39,6 @@
 #include <gnuradio/blocks/wavfile_source.h>
 #include <gnuradio/top_block.h>
 #include <osmosdr/source.h>
-#include <string>
 
 #include "dsp/correct_iq_cc.h"
 #include "dsp/filter/fir_decim.h"
@@ -251,7 +253,8 @@ private:
 
     gr::top_block_sptr         tb;        /*!< The GNU Radio top block. */
 
-    osmosdr::source::sptr     src;       /*!< Real time I/Q source. */
+    std::vector<osmosdr::source::sptr> src_vec; /*!< Real time I/Q source. */
+
     fir_decim_cc_sptr         input_decim;      /*!< Input decimator. */
     receiver_base_cf_sptr     rx;        /*!< receiver. */
 

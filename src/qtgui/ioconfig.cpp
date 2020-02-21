@@ -253,6 +253,11 @@ void CIoConfig::getDeviceList(std::map<QString, QVariant> &devList)
 
         devstr = QString(dev.to_string().c_str());
         devList.insert(std::pair<QString, QVariant>(devlabel, devstr));
+        if (devstr.contains("rtl="))
+        {
+            // provide device with direct sampling set to 2
+            devList.insert(std::pair<QString, QVariant>(devlabel + " DS2", devstr + ",direct_samp=2"));
+        }
         qDebug() << "  " << devlabel;
     }
 }

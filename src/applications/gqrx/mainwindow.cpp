@@ -293,10 +293,6 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     ui->plotter->setTooltipsEnabled(true);
 #endif
 
-    // Create list of input devices. This must be done before the configuration is
-    // restored because device probing might change the device configuration
-    CIoConfig::getDeviceList(devList);
-
     // restore last session
     if (!loadConfig(cfgfile, true, true))
     {
@@ -472,8 +468,8 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
     QString indev = m_settings->value("input/device", "").toString();
     if (!indev.isEmpty())
     {
-        conf_ok = true;
         rx->set_input_device(indev.toStdString());
+        conf_ok = true;
 
         // Update window title
         QRegExp regexp("'([a-zA-Z0-9 \\-\\_\\/\\.\\,\\(\\)]+)'");
@@ -519,7 +515,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
                     new QMessageBox(QMessageBox::Warning, tr("Device Error"),
                                     tr("There was an error configuring the input device.\n"
                                        "Please make sure that a supported device is atached "
-                                       "to the computer and restart gqrx."),
+                                       "to the computer and reconfigure this device."),
                                     QMessageBox::Ok);
             dialog->setModal(true);
             dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -1772,6 +1768,10 @@ int MainWindow::on_actionIoConfig_triggered()
 {
     qDebug() << "Configure I/O devices.";
 
+    // Create list of input devices. 
+    // This must be done before config dialog class creation.
+    CIoConfig::getDeviceList(devList);
+
     CIoConfig *ioconf = new CIoConfig(m_settings, devList);
     int confres = ioconf->exec();
 
@@ -1801,6 +1801,10 @@ int MainWindow::on_actionIoConfig_triggered()
 int MainWindow::firstTimeConfig()
 {
     qDebug() << __func__;
+
+    // Create list of input devices. 
+    // This must be done before config dialog class creation.
+    CIoConfig::getDeviceList(devList);
 
     CIoConfig *ioconf = new CIoConfig(m_settings, devList);
     int confres = ioconf->exec();
