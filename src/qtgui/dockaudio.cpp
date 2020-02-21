@@ -27,7 +27,7 @@
 #include "dockaudio.h"
 #include "ui_dockaudio.h"
 
-#define DEFAULT_FFT_SPLIT 65
+#define DEFAULT_FFT_SPLIT 100
 
 DockAudio::DockAudio(QWidget *parent) :
     QDockWidget(parent),
