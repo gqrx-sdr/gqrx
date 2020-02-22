@@ -90,6 +90,12 @@ void CAudioOptions::setUdpPort(int port)
     ui->udpPort->setValue(port);
 }
 
+/** Set new UDP stereo setting. */
+void CAudioOptions::setUdpStereo(bool stereo)
+{
+    ui->udpStereo->setChecked(stereo);
+}
+
 
 void CAudioOptions::setFftSplit(int pct_2d)
 {
@@ -182,4 +188,10 @@ void CAudioOptions::on_udpHost_textChanged(const QString &text)
 void CAudioOptions::on_udpPort_valueChanged(int port)
 {
     emit newUdpPort(port);
+}
+
+/** UDP stereo setting has changed. */
+void CAudioOptions::on_udpStereo_stateChanged(int state)
+{
+    emit newUdpStereo(state);
 }

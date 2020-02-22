@@ -46,6 +46,7 @@ public:
     void setRecDir(const QString &dir);
     void setUdpHost(const QString &host);
     void setUdpPort(int port);
+    void setUdpStereo(bool stereo);
 
     void setFftSplit(int pct_2d);
     int  getFftSplit(void) const;
@@ -66,6 +67,7 @@ signals:
 
     void newUdpHost(const QString text);
     void newUdpPort(int port);
+    void newUdpStereo(bool enabled);
 
 private slots:
     void on_fftSplitSlider_valueChanged(int value);
@@ -75,6 +77,7 @@ private slots:
     void on_recDirButton_clicked();
     void on_udpHost_textChanged(const QString &text);
     void on_udpPort_valueChanged(int port);
+    void on_udpStereo_stateChanged(int state);
 
 private:
     Ui::CAudioOptions *ui;            /*!< The user interface widget. */
