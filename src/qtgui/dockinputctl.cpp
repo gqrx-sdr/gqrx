@@ -77,6 +77,7 @@ void DockInputCtl::readSettings(QSettings * settings)
     {
         QString ant = settings->value("input/antenna", "").toString();
         setAntenna(ant);
+        emit antennaSelected(ant);
     }
 
     // gains are stored as a QMap<QString, QVariant(int)>
@@ -96,8 +97,8 @@ void DockInputCtl::readSettings(QSettings * settings)
 
             gain_name = gain_iter.key();
             gain_value = 0.1 * (double)(gain_iter.value().toInt());
-            setGain(gain_name, gain_value);
-            emit gainChanged(gain_name, gain_value);
+            if (setGain(gain_name, gain_value))
+                emit gainChanged(gain_name, gain_value);
         }
     }
 
@@ -200,9 +201,10 @@ double DockInputCtl::lnbLo()
  * @param name The name of the gain to change.
  * @param value The new value.
  */
-void DockInputCtl::setGain(QString name, double value)
+bool DockInputCtl::setGain(QString name, double value)
 {
     int gain = -1;
+    bool success = false;
 
     for (int idx = 0; idx < gain_labels.length(); idx++)
     {
@@ -210,9 +212,12 @@ void DockInputCtl::setGain(QString name, double value)
         {
             gain = (int)(10 * value);
             gain_sliders.at(idx)->setValue(gain);
+            success = true;
             break;
         }
     }
+
+    return success;
 }
 
 /**

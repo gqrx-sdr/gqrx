@@ -237,6 +237,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(gotoFftCenter()), ui->plotter, SLOT(moveToCenterFreq()));
     connect(uiDockFft, SIGNAL(gotoDemodFreq()), ui->plotter, SLOT(moveToDemodFreq()));
     connect(uiDockFft, SIGNAL(wfColormapChanged(const QString)), ui->plotter, SLOT(setWfColormap(const QString)));
+    connect(uiDockFft, SIGNAL(wfColormapChanged(const QString)), uiDockAudio, SLOT(setWfColormap(const QString)));
 
     connect(uiDockFft, SIGNAL(pandapterRangeChanged(float,float)),
             ui->plotter, SLOT(setPandapterRange(float,float)));
@@ -472,8 +473,20 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
     QString indev = m_settings->value("input/device", "").toString();
     if (!indev.isEmpty())
     {
-        conf_ok = true;
-        rx->set_input_device(indev.toStdString());
+        try
+        {
+            rx->set_input_device(indev.toStdString());
+            conf_ok = true;
+        }
+        catch (std::runtime_error &x)
+        {
+            QMessageBox::warning(nullptr,
+                             QObject::tr("Failed to set input device"),
+                             QObject::tr("<p><b>%1</b></p>"
+                                         "Please select another device.")
+                                     .arg(x.what()),
+                             QMessageBox::Ok);
+        }
 
         // Update window title
         QRegExp regexp("'([a-zA-Z0-9 \\-\\_\\/\\.\\,\\(\\)]+)'");
@@ -495,7 +508,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
         {
             /* rtlsdr gain is 0 by default making users think their device is
              * deaf. Therefore, we don't read gain from the device, but initialize
-             * it to max_gain.
+             * it to the midpoint.
              */
             updateGainStages(false);
         }
@@ -765,7 +778,7 @@ void MainWindow::updateFrequencyRange()
 /**
  * @brief Update gain stages.
  * @param read_from_device If true, the gain value will be read from the device,
- *                         otherwise we set gain = max.
+ *                         otherwise we set gain to the midpoint.
  *
  * This function fetches a list of available gain stages with their range
  * and sends them to the input control UI widget.
@@ -787,7 +800,7 @@ void MainWindow::updateGainStages(bool read_from_device)
         }
         else
         {
-            gain.value = gain.stop;
+            gain.value = (gain.start + gain.stop) / 2;
             rx->set_gain(gain.name, gain.value);
         }
         gain_list.push_back(gain);

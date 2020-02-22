@@ -49,6 +49,7 @@
 #include <gnuradio/audio/sink.h>
 #endif
 
+#define DEFAULT_AUDIO_GAIN -6.0
 
 /**
  * @brief Public contructor.
@@ -109,26 +110,17 @@ receiver::receiver(const std::string input_device,
         d_quad_rate = d_input_rate;
     }
 
-
-    // create I/Q sink and close it
-    iq_sink = gr::blocks::file_sink::make(sizeof(gr_complex), get_null_file().c_str(), true);
-    iq_sink->set_unbuffered(true);
-    iq_sink->close();
-
     rx  = make_nbrx(d_quad_rate, d_audio_rate);
     rot = gr::blocks::rotator_cc::make(0.0);
 
     iq_swap = make_iq_swap_cc(false);
     dc_corr = make_dc_corr_cc(d_quad_rate, 1.0);
-    iq_fft = make_rx_fft_c(8192u, gr::filter::firdes::WIN_HANN);
+    iq_fft = make_rx_fft_c(8192u, d_quad_rate, gr::filter::firdes::WIN_HANN);
 
     audio_fft = make_rx_fft_f(8192u, gr::filter::firdes::WIN_HANN);
-    audio_gain0 = gr::blocks::multiply_const_ff::make(0.1);
-    audio_gain1 = gr::blocks::multiply_const_ff::make(0.1);
-
-    wav_sink = gr::blocks::wavfile_sink::make(get_null_file().c_str(), 2,
-                                              (unsigned int) d_audio_rate,
-                                              16);
+    audio_gain0 = gr::blocks::multiply_const_ff::make(0);
+    audio_gain1 = gr::blocks::multiply_const_ff::make(0);
+    set_af_gain(DEFAULT_AUDIO_GAIN);
 
     audio_udp_sink = make_udp_sink_f();
 
@@ -194,6 +186,8 @@ void receiver::stop()
  */
 void receiver::set_input_device(const std::string device)
 {
+    std::string error = "";
+
     if (device.empty())
         return;
 
@@ -227,7 +221,17 @@ void receiver::set_input_device(const std::string device)
     }
 
     src.reset();
-    src = osmosdr::source::make(device);
+
+    try
+    {
+        src = osmosdr::source::make(device);
+    }
+    catch (std::runtime_error &x)
+    {
+        error = x.what();
+        src = osmosdr::source::make("file="+get_random_file()+",freq=428e6,rate=96000,repeat=true,throttle=true");
+    }
+
     if(src->get_sample_rate() != 0)
         set_input_rate(src->get_sample_rate());
 
@@ -243,6 +247,11 @@ void receiver::set_input_device(const std::string device)
 
     if (d_running)
         tb->start();
+
+    if (error != "")
+    {
+        throw std::runtime_error(error);
+    }
 }
 
 
@@ -345,6 +354,7 @@ double receiver::set_input_rate(double rate)
     d_quad_rate = d_input_rate / (double)d_decim;
     dc_corr->set_sample_rate(d_quad_rate);
     rx->set_quad_rate(d_quad_rate);
+    iq_fft->set_quad_rate(d_quad_rate);
     update_ddc();
     tb->unlock();
 
@@ -399,6 +409,7 @@ unsigned int receiver::set_input_decim(unsigned int decim)
     // update quadrature rate
     dc_corr->set_sample_rate(d_quad_rate);
     rx->set_quad_rate(d_quad_rate);
+    iq_fft->set_quad_rate(d_quad_rate);
     update_ddc();
 
     if (d_decim >= 2)
@@ -975,19 +986,18 @@ receiver::status receiver::start_audio_recording(const std::string filename)
         return STATUS_ERROR;
     }
 
-    // not strictly necessary to lock but I think it is safer
-    tb->lock();
-
     // if this fails, we don't want to go and crash now, do we
     try {
-        wav_sink->open(filename.c_str());
-        wav_sink->set_sample_rate((unsigned int) d_audio_rate);
+        wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(), 2,
+                                                  (unsigned int) d_audio_rate,
+                                                  16);
     }
     catch (std::runtime_error &e) {
         std::cout << "Error opening " << filename << ": " << e.what() << std::endl;
         return STATUS_ERROR;
     }
 
+    tb->lock();
     tb->connect(rx, 0, wav_sink, 0);
     tb->connect(rx, 1, wav_sink, 1);
     tb->unlock();
@@ -1021,6 +1031,7 @@ receiver::status receiver::stop_audio_recording()
     tb->disconnect(rx, 0, wav_sink, 0);
     tb->disconnect(rx, 1, wav_sink, 1);
     tb->unlock();
+    wav_sink.reset();
     d_recording_wav = false;
 
     std::cout << "Audio recorder stopped" << std::endl;
@@ -1140,28 +1151,23 @@ receiver::status receiver::start_iq_recording(const std::string filename)
         return STATUS_ERROR;
     }
 
-    // iq_sink was created in the constructor
-    if (iq_sink) {
-        tb->lock();
-        if (!iq_sink->open(filename.c_str()))
-        {
-            status = STATUS_ERROR;
-        }
-        else
-        {
-            if (d_decim >= 2)
-                tb->connect(input_decim, 0, iq_sink, 0);
-            else
-                tb->connect(src, 0, iq_sink, 0);
-
-            d_recording_iq = true;
-        }
-        tb->unlock();
+    try
+    {
+        iq_sink = gr::blocks::file_sink::make(sizeof(gr_complex), filename.c_str(), true);
     }
-    else {
-        std::cout << __func__ << ": I/Q file sink does not exist" << std::endl;
+    catch (std::runtime_error &e)
+    {
+        std::cout << __func__ << ": couldn't open I/Q file" << std::endl;
         return STATUS_ERROR;
     }
+
+    tb->lock();
+    if (d_decim >= 2)
+        tb->connect(input_decim, 0, iq_sink, 0);
+    else
+        tb->connect(src, 0, iq_sink, 0);
+    d_recording_iq = true;
+    tb->unlock();
 
     return status;
 }
@@ -1183,6 +1189,7 @@ receiver::status receiver::stop_iq_recording()
         tb->disconnect(src, 0, iq_sink, 0);
 
     tb->unlock();
+    iq_sink.reset();
     d_recording_iq = false;
 
     return STATUS_OK;

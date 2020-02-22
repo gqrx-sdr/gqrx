@@ -165,7 +165,7 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     m_WaterfallPixmap = QPixmap(0,0);
     m_Size = QSize(0,0);
     m_GrabPosition = 0;
-    m_Percent2DScreen = 30;	//percent of screen used for 2D display
+    m_Percent2DScreen = 35;	//percent of screen used for 2D display
     m_VdivDelta = 30;
     m_HdivDelta = 70;
 
@@ -850,7 +850,7 @@ void CPlotter::resizeEvent(QResizeEvent* )
         m_2DPixmap = QPixmap(m_Size.width(), fft_plot_height);
         m_2DPixmap.fill(Qt::black);
 
-        int height = (100 - m_Percent2DScreen) * m_Size.height() / 100;
+        int height = m_Size.height() - fft_plot_height;
         if (m_WaterfallPixmap.isNull())
         {
             m_WaterfallPixmap = QPixmap(m_Size.width(), height);
@@ -998,38 +998,18 @@ void CPlotter::draw()
                                 &xmin, &xmax);
 
         // draw the pandapter
-        painter2.setPen(m_FftColor);
+        QBrush fillBrush = QBrush(m_FftFillCol);
         n = xmax - xmin;
         for (i = 0; i < n; i++)
         {
             LineBuf[i].setX(i + xmin);
             LineBuf[i].setY(m_fftbuf[i + xmin]);
+            if (m_FftFill)
+                painter2.fillRect(i + xmin, m_fftbuf[i + xmin], 1, h, fillBrush);
         }
 
-        if (m_FftFill)
-        {
-            painter2.setBrush(QBrush(m_FftFillCol, Qt::SolidPattern));
-            if (n < MAX_SCREENSIZE-2)
-            {
-                LineBuf[n].setX(xmax-1);
-                LineBuf[n].setY(h);
-                LineBuf[n+1].setX(xmin);
-                LineBuf[n+1].setY(h);
-                painter2.drawPolygon(LineBuf, n+2);
-            }
-            else
-            {
-                LineBuf[MAX_SCREENSIZE-2].setX(xmax-1);
-                LineBuf[MAX_SCREENSIZE-2].setY(h);
-                LineBuf[MAX_SCREENSIZE-1].setX(xmin);
-                LineBuf[MAX_SCREENSIZE-1].setY(h);
-                painter2.drawPolygon(LineBuf, n);
-            }
-        }
-        else
-        {
-            painter2.drawPolyline(LineBuf, n);
-        }
+        painter2.setPen(m_FftColor);
+        painter2.drawPolyline(LineBuf, n);
 
         // Peak detection
         if (m_PeakDetection > 0)
@@ -1174,7 +1154,7 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
         for (i = minbin; i < maxbin; i++)
             m_pTranslateTbl[i] = ((qint64)(i-m_BinMin)*plotWidth) / (m_BinMax - m_BinMin);
         *xmin = m_pTranslateTbl[minbin];
-        *xmax = m_pTranslateTbl[maxbin - 1];
+        *xmax = m_pTranslateTbl[maxbin - 1] + 1;
     }
     else
     {
