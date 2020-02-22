@@ -110,7 +110,6 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
 
     d_fftData = new std::complex<float>[MAX_FFT_SIZE];
     d_realFftData = new float[MAX_FFT_SIZE];
-    d_pwrFftData = new float[MAX_FFT_SIZE]();
     d_iirFftData = new float[MAX_FFT_SIZE];
     for (int i = 0; i < MAX_FFT_SIZE; i++)
         d_iirFftData[i] = -140.0;  // dBFS
@@ -382,7 +381,6 @@ MainWindow::~MainWindow()
     delete [] d_fftData;
     delete [] d_realFftData;
     delete [] d_iirFftData;
-    delete [] d_pwrFftData;
     delete qsvg_dummy;
 }
 
