@@ -1597,6 +1597,8 @@ void MainWindow::setIqFftSize(int size)
 {
     qDebug() << "Changing baseband FFT size to" << size;
     rx->set_iq_fft_size(size);
+    for (int i = 0; i < size; i++)
+        d_iirFftData[i] = -140.0;  // dBFS
 }
 
 /** Baseband FFT rate has changed. */
