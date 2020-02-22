@@ -10,6 +10,7 @@
      FIXED: Crash when launching without device connected.
      FIXED: Crash when setting invalid RF gains.
      FIXED: Audio panadapter / waterfall slider direction.
+     FIXED: Clear FFT averages when changing FFT size.
   IMPROVED: DSP performance.
   IMPROVED: Panadapter & waterfall performance.
   IMPROVED: Smooth panadapter & waterfall redrawing.
