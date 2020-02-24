@@ -54,7 +54,7 @@ wfmrx::wfmrx(float quad_rate, float audio_rate)
     /* create rds blocks but dont connect them */
     rds = make_rx_rds(PREF_QUAD_RATE);
     rds_decoder = gr::rds::decoder::make(0, 0);
-    rds_parser = gr::rds::parser::make(0, 0);
+    rds_parser = gr::rds::parser::make(0, 0, 0);
     rds_store = make_rx_rds_store();
     rds_enabled = false;
 

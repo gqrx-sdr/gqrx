@@ -27,7 +27,7 @@ class RDS_API parser : virtual public gr::block
 {
 public:
 	typedef boost::shared_ptr<parser> sptr;
-	static sptr make(bool log, bool debug);
+	static sptr make(bool log, bool debug, unsigned char pty_locale);
 
 	virtual void reset() = 0;
 };
@@ -36,4 +36,3 @@ public:
 } // namespace gr
 
 #endif /* INCLUDED_RDS_PARSER_H */
-

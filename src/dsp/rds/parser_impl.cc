@@ -27,16 +27,17 @@
 using namespace gr::rds;
 
 parser::sptr
-parser::make(bool log, bool debug) {
-  return gnuradio::get_initial_sptr(new parser_impl(log, debug));
+parser::make(bool log, bool debug, unsigned char pty_locale) {
+  return gnuradio::get_initial_sptr(new parser_impl(log, debug, pty_locale));
 }
 
-parser_impl::parser_impl(bool log, bool debug)
+parser_impl::parser_impl(bool log, bool debug, unsigned char pty_locale)
 	: gr::block ("gr_rds_parser",
 			gr::io_signature::make (0, 0, 0),
 			gr::io_signature::make (0, 0, 0)),
 	log(log),
-	debug(debug)
+	debug(debug),
+	pty_locale(pty_locale)
 {
 	message_port_register_in(pmt::mp("in"));
 	set_msg_handler(pmt::mp("in"), boost::bind(&parser_impl::parse, this, _1));
@@ -53,7 +54,6 @@ void parser_impl::reset() {
 	memset(radiotext, ' ', sizeof(radiotext));
 	memset(program_service_name, '.', sizeof(program_service_name));
 
-    program_identification         = 0;
 	radiotext_AB_flag              = 0;
 	traffic_program                = false;
 	traffic_announcement           = false;
@@ -72,7 +72,7 @@ void parser_impl::reset() {
  * type 1 = PS
  * type 2 = PTY
  * type 3 = flagstring: TP, TA, MuSp, MoSt, AH, CMP, stPTY
- * type 4 = RadioText 
+ * type 4 = RadioText
  * type 5 = ClockTime
  * type 6 = Alternative Frequencies */
 void parser_impl::send_message(long msgtype, std::string msgtext) {
@@ -89,7 +89,7 @@ void parser_impl::decode_type0(unsigned int *group, bool B) {
 	double af_1            = 0;
 	double af_2            = 0;
 	char flagstring[8]     = "0000000";
-	
+
 	traffic_program        = (group[1] >> 10) & 0x01;       // "TP"
 	traffic_announcement   = (group[1] >>  4) & 0x01;       // "TA"
 	music_speech           = (group[1] >>  3) & 0x01;       // "MuSp"
@@ -299,7 +299,7 @@ void parser_impl::decode_type3(unsigned int *group, bool B){
 	int group_type        =  group[1] & 0x1;
 	int message           =  group[2];
 	int aid               =  group[3];
-	
+
 	lout << "aid group: " << application_group
 		<< " " << (group_type ? 'B' : 'A');
 	if((application_group == 8) && (group_type == false)) { // 8A
@@ -441,15 +441,15 @@ void parser_impl::decode_optional_content(int no_groups, unsigned long int *free
 	int content        = 0;
 	int content_length = 0;
 	int ff_pointer     = 0;
-	
+
 	for (int i = no_groups; i == 0; i--){
 		ff_pointer = 12 + 16;
 		while(ff_pointer > 0){
 			ff_pointer -= 4;
-			label = (free_format[i] && (0xf << ff_pointer));
+			label = (free_format[i] >> ff_pointer) & 0xf;
 			content_length = optional_content_lengths[label];
 			ff_pointer -= content_length;
-			content = (free_format[i] && (int(pow(2, content_length) - 1) << ff_pointer));
+			content = (free_format[i] >> ff_pointer) & ((1 << content_length) - 1);
 			lout << "TMC optional content (" << label_descriptions[label]
 				<< "):" << content << std::endl;
 		}
@@ -538,7 +538,7 @@ void parser_impl::decode_type14(unsigned int *group, bool B){
 			case 13: // PTY(ON), TA(ON)
 				ta_on = information & 0x01;
 				pty_on = (information >> 11) & 0x1f;
-				lout << "PTY(ON):" << pty_table[int(pty_on)];
+				lout << "PTY(ON):" << pty_table[int(pty_on)][pty_locale];
 				if(ta_on) {
 					lout << " - TA";
 				}
@@ -569,15 +569,33 @@ void parser_impl::decode_type15(unsigned int *group, bool B){
 	dout << "type 15 not implemented yet" << std::endl;
 }
 
-void parser_impl::parse(pmt::pmt_t msg) {
-	if(!pmt::is_blob(msg)) {
-		dout << "wrong input message (no blob)" << std::endl;
+void parser_impl::parse(pmt::pmt_t pdu) {
+	if(!pmt::is_pair(pdu)) {
+		dout << "wrong input message (not a PDU)" << std::endl;
+		return;
 	}
-	if(pmt::blob_length(msg) != 4 * sizeof(unsigned long)) {
-		dout << "input message has wrong size ("
-			<< pmt::blob_length(msg) << ")" << std::endl;
+
+	//pmt::pmt_t meta = pmt::car(pdu);  // meta is currently not in use
+	pmt::pmt_t vec = pmt::cdr(pdu);
+
+	if(!pmt::is_blob(vec)) {
+		dout << "input PDU message has wrong type (not u8)" << std::endl;
+		return;
 	}
-	unsigned int *group = (unsigned int*)pmt::blob_data(msg);
+	if(pmt::blob_length(vec) != 12) {  // 8 data + 4 offset chars (ABCD)
+		dout << "input PDU message has wrong size ("
+			<< pmt::blob_length(vec) << ")" << std::endl;
+		return;
+	}
+
+	unsigned char *bytes = (unsigned char *)pmt::blob_data(vec);
+	unsigned int group[4];
+	group[0] = bytes[1] | (((unsigned int)(bytes[0])) << 8U);
+	group[1] = bytes[3] | (((unsigned int)(bytes[2])) << 8U);
+	group[2] = bytes[5] | (((unsigned int)(bytes[4])) << 8U);
+	group[3] = bytes[7] | (((unsigned int)(bytes[6])) << 8U);
+
+	// TODO: verify offset chars are one of: "ABCD", "ABcD", "EEEE" (in US)
 
 	unsigned int group_type = (unsigned int)((group[1] >> 12) & 0xf);
 	bool ab = (group[1] >> 11 ) & 0x1;
@@ -592,9 +610,9 @@ void parser_impl::parse(pmt::pmt_t msg) {
 	unsigned char pi_program_reference_number = program_identification & 0xff;
 	std::string pistring = str(boost::format("%04X") % program_identification);
 	send_message(0, pistring);
-	send_message(2, pty_table[program_type]);
+	send_message(2, pty_table[program_type][pty_locale]);
 
-	lout << " - PI:" << pistring << " - " << "PTY:" << pty_table[program_type];
+	lout << " - PI:" << pistring << " - " << "PTY:" << pty_table[program_type][pty_locale];
 	lout << " (country:" << pi_country_codes[pi_country_identification - 1][0];
 	lout << "/" << pi_country_codes[pi_country_identification - 1][1];
 	lout << "/" << pi_country_codes[pi_country_identification - 1][2];
@@ -660,4 +678,3 @@ void parser_impl::parse(pmt::pmt_t msg) {
 	}
 	dout << std::endl;
 }
-

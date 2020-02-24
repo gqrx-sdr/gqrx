@@ -73,7 +73,7 @@ rx_rds::rx_rds(double sample_rate)
     d_ddbb = gr::digital::diff_decoder_bb::make(2);
 
     rds_decoder = gr::rds::decoder::make(0, 0);
-    rds_parser = gr::rds::parser::make(1, 0);
+    rds_parser = gr::rds::parser::make(1, 0, 0);
 
     /* connect filter */
     connect(self(), 0, f_fxff, 0);
