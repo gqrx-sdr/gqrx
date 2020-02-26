@@ -27,6 +27,8 @@
 #include "dockaudio.h"
 #include "ui_dockaudio.h"
 
+#define DEFAULT_FFT_SPLIT 100
+
 DockAudio::DockAudio(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockAudio),
@@ -60,12 +62,13 @@ DockAudio::DockAudio(QWidget *parent) :
     connect(audioOptions, SIGNAL(newRecDirSelected(QString)), this, SLOT(setNewRecDir(QString)));
     connect(audioOptions, SIGNAL(newUdpHost(QString)), this, SLOT(setNewUdpHost(QString)));
     connect(audioOptions, SIGNAL(newUdpPort(int)), this, SLOT(setNewUdpPort(int)));
+    connect(audioOptions, SIGNAL(newUdpStereo(bool)), this, SLOT(setNewUdpStereo(bool)));
 
     ui->audioSpectrum->setFreqUnits(1000);
     ui->audioSpectrum->setSampleRate(48000);  // Full bandwidth
     ui->audioSpectrum->setSpanFreq(12000);
     ui->audioSpectrum->setCenterFreq(0);
-    ui->audioSpectrum->setPercent2DScreen(100);
+    ui->audioSpectrum->setPercent2DScreen(DEFAULT_FFT_SPLIT);
     ui->audioSpectrum->setFftCenterFreq(6000);
     ui->audioSpectrum->setDemodCenterFreq(0);
     ui->audioSpectrum->setFilterBoxEnabled(false);
@@ -163,6 +166,11 @@ void DockAudio::setRxFrequency(qint64 freq)
     rx_freq = freq;
 }
 
+void DockAudio::setWfColormap(const QString &cmap)
+{
+    ui->audioSpectrum->setWfColormap(cmap);
+}
+
 /*! \brief Audio gain changed.
  *  \param value The new audio gain value in tens of dB (because slider uses int)
  */
@@ -182,7 +190,7 @@ void DockAudio::on_audioGainSlider_valueChanged(int value)
 void DockAudio::on_audioStreamButton_clicked(bool checked)
 {
     if (checked)
-        emit audioStreamingStarted(udp_host, udp_port);
+        emit audioStreamingStarted(udp_host, udp_port, udp_stereo);
     else
         emit audioStreamingStopped();
 }
@@ -315,7 +323,7 @@ void DockAudio::saveSettings(QSettings *settings)
     settings->setValue("gain", audioGain());
 
     ival = audioOptions->getFftSplit();
-    if (ival >= 0 && ival < 100)
+    if (ival != DEFAULT_FFT_SPLIT)
         settings->setValue("fft_split", ival);
     else
         settings->remove("fft_split");
@@ -355,6 +363,11 @@ void DockAudio::saveSettings(QSettings *settings)
     else
         settings->remove("udp_port");
 
+    if (udp_stereo != false)
+        settings->setValue("udp_stereo", udp_stereo);
+    else
+        settings->remove("udp_stereo");
+
     settings->endGroup();
 }
 
@@ -368,11 +381,11 @@ void DockAudio::readSettings(QSettings *settings)
 
     settings->beginGroup("audio");
 
-    ival = settings->value("gain", QVariant(-200)).toInt(&conv_ok);
+    ival = settings->value("gain", QVariant(-60)).toInt(&conv_ok);
     if (conv_ok)
         setAudioGain(ival);
 
-    ival = settings->value("fft_split", QVariant(100)).toInt(&conv_ok);
+    ival = settings->value("fft_split", DEFAULT_FFT_SPLIT).toInt(&conv_ok);
     if (conv_ok)
         audioOptions->setFftSplit(ival);
 
@@ -396,14 +409,16 @@ void DockAudio::readSettings(QSettings *settings)
     rec_dir = settings->value("rec_dir", QDir::homePath()).toString();
     audioOptions->setRecDir(rec_dir);
 
-    // Audio streaming host and port
+    // Audio streaming host, port and stereo setting
     udp_host = settings->value("udp_host", "localhost").toString();
     udp_port = settings->value("udp_port", 7355).toInt(&conv_ok);
     if (!conv_ok)
         udp_port = 7355;
+    udp_stereo = settings->value("udp_stereo", false).toBool();
 
     audioOptions->setUdpHost(udp_host);
     audioOptions->setUdpPort(udp_port);
+    audioOptions->setUdpStereo(udp_stereo);
 
     settings->endGroup();
 }
@@ -439,4 +454,10 @@ void DockAudio::setNewUdpHost(const QString &host)
 void DockAudio::setNewUdpPort(int port)
 {
     udp_port = port;
+}
+
+/*! \brief Slot called when the mono/stereo streaming setting changes. */
+void DockAudio::setNewUdpStereo(bool enabled)
+{
+    udp_stereo = enabled;
 }

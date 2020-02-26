@@ -70,13 +70,14 @@ public slots:
     void startAudioRecorder(void);
     void stopAudioRecorder(void);
     void setRxFrequency(qint64 freq);
+    void setWfColormap(const QString &cmap);
 
 signals:
     /*! \brief Signal emitted when audio gain has changed. Gain is in dB. */
     void audioGainChanged(float gain);
 
     /*! \brief Audio streaming over UDP has started. */
-    void audioStreamingStarted(const QString host, int port);
+    void audioStreamingStarted(const QString host, int port, bool stereo);
 
     /*! \brief Audio streaming stopped. */
     void audioStreamingStopped();
@@ -108,6 +109,7 @@ private slots:
     void setNewRecDir(const QString &dir);
     void setNewUdpHost(const QString &host);
     void setNewUdpPort(int port);
+    void setNewUdpStereo(bool enabled);
 
 
 private:
@@ -118,6 +120,7 @@ private:
 
     QString        udp_host;     /*! UDP client host name. */
     int            udp_port;     /*! UDP client port number. */
+    bool           udp_stereo;   /*! Enable stereo streaming for UDP. */
 
     bool           autoSpan;     /*! Whether to allow mode-dependent auto span. */
 

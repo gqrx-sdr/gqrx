@@ -86,7 +86,6 @@ private:
     std::complex<float>* d_fftData;
     float          *d_realFftData;
     float          *d_iirFftData;
-    float          *d_pwrFftData;
     float           d_fftAvg;      /*!< FFT averaging parameter set by user (not the true gain). */
 
     bool d_have_audio;  /*!< Whether we have audio (i.e. not with demod_off. */
@@ -167,7 +166,7 @@ private slots:
     void startAudioPlayback(const QString filename);
     void stopAudioPlayback();
 
-    void startAudioStream(const QString udp_host, int udp_port);
+    void startAudioStream(const QString udp_host, int udp_port, bool stereo);
     void stopAudioStreaming();
 
     /* I/Q playback and recording*/

@@ -201,7 +201,7 @@ public:
     status      start_audio_playback(const std::string filename);
     status      stop_audio_playback();
 
-    status      start_udp_streaming(const std::string host, int port);
+    status      start_udp_streaming(const std::string host, int port, bool stereo);
     status      stop_udp_streaming();
 
     /* I/Q recording and playback */
@@ -287,9 +287,6 @@ private:
 
     //! Get a path to a file containing random bytes
     static std::string get_random_file(void);
-
-    //! Get a path to a file containing all-zero bytes
-    static std::string get_null_file(void);
 };
 
 #endif // RECEIVER_H

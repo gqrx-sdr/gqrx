@@ -110,7 +110,6 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
 
     d_fftData = new std::complex<float>[MAX_FFT_SIZE];
     d_realFftData = new float[MAX_FFT_SIZE];
-    d_pwrFftData = new float[MAX_FFT_SIZE]();
     d_iirFftData = new float[MAX_FFT_SIZE];
     for (int i = 0; i < MAX_FFT_SIZE; i++)
         d_iirFftData[i] = -140.0;  // dBFS
@@ -217,7 +216,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
     connect(uiDockRxOpt, SIGNAL(sqlAutoClicked()), this, SLOT(setSqlLevelAuto()));
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
-    connect(uiDockAudio, SIGNAL(audioStreamingStarted(QString,int)), this, SLOT(startAudioStream(QString,int)));
+    connect(uiDockAudio, SIGNAL(audioStreamingStarted(QString,int,bool)), this, SLOT(startAudioStream(QString,int,bool)));
     connect(uiDockAudio, SIGNAL(audioStreamingStopped()), this, SLOT(stopAudioStreaming()));
     connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), this, SLOT(startAudioRec(QString)));
     connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), remote, SLOT(startAudioRecorder(QString)));
@@ -237,6 +236,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockFft, SIGNAL(gotoFftCenter()), ui->plotter, SLOT(moveToCenterFreq()));
     connect(uiDockFft, SIGNAL(gotoDemodFreq()), ui->plotter, SLOT(moveToDemodFreq()));
     connect(uiDockFft, SIGNAL(wfColormapChanged(const QString)), ui->plotter, SLOT(setWfColormap(const QString)));
+    connect(uiDockFft, SIGNAL(wfColormapChanged(const QString)), uiDockAudio, SLOT(setWfColormap(const QString)));
 
     connect(uiDockFft, SIGNAL(pandapterRangeChanged(float,float)),
             ui->plotter, SLOT(setPandapterRange(float,float)));
@@ -381,7 +381,6 @@ MainWindow::~MainWindow()
     delete [] d_fftData;
     delete [] d_realFftData;
     delete [] d_iirFftData;
-    delete [] d_pwrFftData;
     delete qsvg_dummy;
 }
 
@@ -472,8 +471,20 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
     QString indev = m_settings->value("input/device", "").toString();
     if (!indev.isEmpty())
     {
-        conf_ok = true;
-        rx->set_input_device(indev.toStdString());
+        try
+        {
+            rx->set_input_device(indev.toStdString());
+            conf_ok = true;
+        }
+        catch (std::runtime_error &x)
+        {
+            QMessageBox::warning(nullptr,
+                             QObject::tr("Failed to set input device"),
+                             QObject::tr("<p><b>%1</b></p>"
+                                         "Please select another device.")
+                                     .arg(x.what()),
+                             QMessageBox::Ok);
+        }
 
         // Update window title
         QRegExp regexp("'([a-zA-Z0-9 \\-\\_\\/\\.\\,\\(\\)]+)'");
@@ -495,7 +506,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
         {
             /* rtlsdr gain is 0 by default making users think their device is
              * deaf. Therefore, we don't read gain from the device, but initialize
-             * it to max_gain.
+             * it to the midpoint.
              */
             updateGainStages(false);
         }
@@ -765,7 +776,7 @@ void MainWindow::updateFrequencyRange()
 /**
  * @brief Update gain stages.
  * @param read_from_device If true, the gain value will be read from the device,
- *                         otherwise we set gain = max.
+ *                         otherwise we set gain to the midpoint.
  *
  * This function fetches a list of available gain stages with their range
  * and sends them to the input control UI widget.
@@ -787,7 +798,7 @@ void MainWindow::updateGainStages(bool read_from_device)
         }
         else
         {
-            gain.value = gain.stop;
+            gain.value = (gain.start + gain.stop) / 2;
             rx->set_gain(gain.name, gain.value);
         }
         gain_list.push_back(gain);
@@ -1433,9 +1444,9 @@ void MainWindow::stopAudioPlayback()
 }
 
 /** Start streaming audio over UDP. */
-void MainWindow::startAudioStream(const QString udp_host, int udp_port)
+void MainWindow::startAudioStream(const QString udp_host, int udp_port, bool stereo)
 {
-    rx->start_udp_streaming(udp_host.toStdString(), udp_port);
+    rx->start_udp_streaming(udp_host.toStdString(), udp_port, stereo);
 }
 
 /** Stop streaming audio over UDP. */
@@ -1586,6 +1597,8 @@ void MainWindow::setIqFftSize(int size)
 {
     qDebug() << "Changing baseband FFT size to" << size;
     rx->set_iq_fft_size(size);
+    for (int i = 0; i < size; i++)
+        d_iirFftData[i] = -140.0;  // dBFS
 }
 
 /** Baseband FFT rate has changed. */
