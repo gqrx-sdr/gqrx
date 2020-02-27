@@ -21,7 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "freqhistoryentry.h"
+#include "applications/gqrx/freqhistoryentry.h"
 
 FreqHistoryEntry::FreqHistoryEntry()
 {

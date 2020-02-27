@@ -21,7 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "freqhistory.h"
+#include "applications/gqrx/freqhistory.h"
 
 FreqHistory::FreqHistory() :
     cache(new FHCache()),

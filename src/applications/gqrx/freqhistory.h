@@ -28,7 +28,7 @@
 #include <QSharedPointer>
 #include <QVector>
 
-#include "freqhistoryentry.h"
+#include "applications/gqrx/freqhistoryentry.h"
 
 #define FH_DEFAULT_SIZE 20              /* the max. number of entries cached by default */
 #define FH_DEFAULT_TIMEOUT_MS 2000      /* timeout in ms need to elapse for history */
