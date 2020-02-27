@@ -92,6 +92,8 @@ VERSTR = '\\"$${VER}\\"'          # place quotes around the version string
 DEFINES += VERSION=\"$${VERSTR}\" # create a VERSION macro containing the version string
 
 SOURCES += \
+    src/applications/gqrx/freqhistory.cpp \
+    src/applications/gqrx/freqhistoryentry.cpp \
     src/applications/gqrx/main.cpp \
     src/applications/gqrx/mainwindow.cpp \
     src/applications/gqrx/receiver.cpp \
@@ -147,6 +149,8 @@ SOURCES += \
     src/receivers/wfmrx.cpp
 
 HEADERS += \
+    src/applications/gqrx/freqhistory.h \
+    src/applications/gqrx/freqhistoryentry.h \
     src/applications/gqrx/gqrx.h \
     src/applications/gqrx/mainwindow.h \
     src/applications/gqrx/receiver.h \
