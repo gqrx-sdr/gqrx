@@ -246,6 +246,8 @@
     <addaction name="actionRemoteConfig"/>
     <addaction name="separator"/>
     <addaction name="actionAddBookmark"/>
+    <addaction name="actionFrequencyBack"/>
+    <addaction name="actionFrequencyForward"/>
     <addaction name="separator"/>
     <addaction name="actionIqTool"/>
     <addaction name="separator"/>
@@ -274,6 +276,8 @@
    <addaction name="actionSaveSettings"/>
    <addaction name="separator"/>
    <addaction name="actionAddBookmark"/>
+   <addaction name="actionFrequencyBack"/>
+   <addaction name="actionFrequencyForward"/>
    <addaction name="separator"/>
    <addaction name="actionIqTool"/>
    <addaction name="separator"/>
@@ -548,6 +552,36 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="actionFrequencyBack">
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/backward.svg</normaloff>:/icons/icons/backward.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Frequency History Backwards</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to previous frequency (Ctrl+Shift+Left)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Left</string>
+   </property>
+  </action>
+  <action name="actionFrequencyForward">
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/forward.svg</normaloff>:/icons/icons/forward.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Frequency History Forwards</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to next frequency (Ctrl+Shift+Right)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Right</string>
    </property>
   </action>
  </widget>

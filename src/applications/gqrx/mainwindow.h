@@ -50,6 +50,8 @@
 #include "applications/gqrx/receiver.h"
 #endif
 
+#include "freqhistory.h"
+
 namespace Ui {
     class MainWindow;  /*! The main window UI */
 }
@@ -70,6 +72,7 @@ public:
 
 public slots:
     void setNewFrequency(qint64 rx_freq);
+    void makeFreqHistory(qint64 rx_freq);
 
 private:
     Ui::MainWindow *ui;
@@ -118,6 +121,8 @@ private:
     RemoteControl *remote;
 
     std::map<QString, QVariant> devList;
+
+    FreqHistory freq_history;
 
     // dummy widget to enforce linking to QtSvg
     QSvgWidget      *qsvg_dummy;
@@ -238,6 +243,11 @@ private slots:
     void iqFftTimeout();
     void audioFftTimeout();
     void rdsTimeout();
+
+    /* frequency history */
+    void on_actionFrequencyBack_triggered();
+    void on_actionFrequencyForward_triggered();
+    void on_fqHistoryTimeout();
 };
 
 #endif // MAINWINDOW_H

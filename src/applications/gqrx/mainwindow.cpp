@@ -183,6 +183,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
 
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
+    connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), this, SLOT(makeFreqHistory(qint64)));
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), remote, SLOT(setNewFrequency(qint64)));
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), uiDockAudio, SLOT(setRxFrequency(qint64)));
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), uiDockRxOpt, SLOT(setRxFreq(qint64)));
@@ -334,6 +335,8 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
             configOk = true;
         }
     }
+
+    on_fqHistoryTimeout();  // init actions of freqhistory
 
     qsvg_dummy = new QSvgWidget();
 }
@@ -854,6 +857,19 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
     uiDockRxOpt->setHwFreq(d_hw_freq);
     ui->freqCtrl->setFrequency(rx_freq);
     uiDockBookmarks->setNewFrequency(rx_freq);
+}
+
+/**
+ * @brief Slot for handling FreqHistory on frequency change
+ * @param rx_freq
+ */
+void MainWindow::makeFreqHistory(qint64 rx_freq)
+{
+    FreqHistoryEntry fq_entry;
+    fq_entry.freq_hz = rx_freq;
+    // TODO
+    freq_history.try_make_entry(fq_entry);
+    QTimer::singleShot(freq_history.timeout_ms(), this, SLOT(on_fqHistoryTimeout()));
 }
 
 /**
@@ -2405,5 +2421,60 @@ void MainWindow::on_actionAddBookmark_triggered()
         uiDockBookmarks->updateTags();
         uiDockBookmarks->updateBookmarks();
         ui->plotter->updateOverlay();
+    }
+}
+
+/**
+ * @brief Called by Frequency History back action
+ */
+void MainWindow::on_actionFrequencyBack_triggered()
+{
+    FreqHistoryEntry fq_entry;
+    if (freq_history.back(fq_entry))
+    {
+        setNewFrequency(fq_entry.freq_hz);
+    }
+    /* make sure actions are correctly en/disabled with sync */
+    freq_history.sync();
+    on_fqHistoryTimeout();
+    // TODO
+}
+
+/**
+ * @brief Called by Frequency History forward action
+ */
+void MainWindow::on_actionFrequencyForward_triggered()
+{
+    FreqHistoryEntry fq_entry;
+    if (freq_history.forward(fq_entry))
+    {
+        setNewFrequency(fq_entry.freq_hz);
+    }
+    /* make sure actions are correctly en/disabled with sync */
+    freq_history.sync();
+    on_fqHistoryTimeout();
+    // TODO
+}
+
+/**
+ * @brief Timer handler for Frequency History
+ */
+void MainWindow::on_fqHistoryTimeout()
+{
+    if (freq_history.is_first())
+    {
+        ui->actionFrequencyBack->setEnabled(false);
+    }
+    else {
+        ui->actionFrequencyBack->setEnabled(true);
+    }
+
+    if (freq_history.is_last())
+    {
+        ui->actionFrequencyForward->setEnabled(false);
+    }
+    else
+    {
+        ui->actionFrequencyForward->setEnabled(true);
     }
 }
