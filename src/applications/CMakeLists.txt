@@ -1,6 +1,10 @@
 #######################################################################################################################
 # Add the source files to SRCS_LIST
 add_source_files(SRCS_LIST
+	gqrx/freqhistory.cpp
+	gqrx/freqhistory.h
+	gqrx/freqhistoryentry.cpp
+	gqrx/freqhistoryentry.h
 	gqrx/gqrx.h
 	gqrx/main.cpp
 	gqrx/mainwindow.cpp
