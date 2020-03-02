@@ -246,8 +246,8 @@
     <addaction name="actionRemoteConfig"/>
     <addaction name="separator"/>
     <addaction name="actionAddBookmark"/>
-    <addaction name="actionFrequencyBack"/>
-    <addaction name="actionFrequencyForward"/>
+    <addaction name="actionFHBack"/>
+    <addaction name="actionFHForward"/>
     <addaction name="separator"/>
     <addaction name="actionIqTool"/>
     <addaction name="separator"/>
@@ -276,8 +276,8 @@
    <addaction name="actionSaveSettings"/>
    <addaction name="separator"/>
    <addaction name="actionAddBookmark"/>
-   <addaction name="actionFrequencyBack"/>
-   <addaction name="actionFrequencyForward"/>
+   <addaction name="actionFHBack"/>
+   <addaction name="actionFHForward"/>
    <addaction name="separator"/>
    <addaction name="actionIqTool"/>
    <addaction name="separator"/>
@@ -554,7 +554,7 @@
     <string>Ctrl+W</string>
    </property>
   </action>
-  <action name="actionFrequencyBack">
+  <action name="actionFHBack">
    <property name="icon">
     <iconset resource="../../../resources/icons.qrc">
      <normaloff>:/icons/icons/backward.svg</normaloff>:/icons/icons/backward.svg</iconset>
@@ -569,7 +569,7 @@
     <string>Ctrl+Shift+Left</string>
    </property>
   </action>
-  <action name="actionFrequencyForward">
+  <action name="actionFHForward">
    <property name="icon">
     <iconset resource="../../../resources/icons.qrc">
      <normaloff>:/icons/icons/forward.svg</normaloff>:/icons/icons/forward.svg</iconset>

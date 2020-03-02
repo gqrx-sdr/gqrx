@@ -72,7 +72,6 @@ public:
 
 public slots:
     void setNewFrequency(qint64 rx_freq);
-    void makeFreqHistory(qint64 rx_freq);
 
 private:
     Ui::MainWindow *ui;
@@ -133,6 +132,7 @@ private:
     void updateGainStages(bool read_from_device);
     void showSimpleTextFile(const QString &resource_path,
                             const QString &window_title);
+    inline void getBandwidthLimits(int bandwidth, int *lo, int *hi);
 
 private slots:
     /* RecentConfig */
@@ -231,7 +231,8 @@ private slots:
     void on_actionAbout_triggered();
     void on_actionAboutQt_triggered();
     void on_actionAddBookmark_triggered();
-
+    void on_actionFHBack_triggered();
+    void on_actionFHForward_triggered();
 
     /* window close signals */
     void afsk1200win_closed();
@@ -245,9 +246,14 @@ private slots:
     void rdsTimeout();
 
     /* frequency history */
-    void on_actionFrequencyBack_triggered();
-    void on_actionFrequencyForward_triggered();
-    void on_fqHistoryTimeout();
+    void setFHFrequency(qint64 freq_hz);
+    void setFHFreqOffset(qint64 freq_hz);
+    void setFHDemod(int index);
+    void setFHSquelch(double db_level);
+    void setFHFilterFreq(int low, int high);
+    void setFHFilterBand(int bandwidth);
+    void on_FHFirst(bool is_first);
+    void on_FHLast(bool is_last);
 };
 
 #endif // MAINWINDOW_H
