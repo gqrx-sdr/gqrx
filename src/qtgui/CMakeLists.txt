@@ -7,6 +7,8 @@ add_source_files(SRCS_LIST
 	agc_options.h
 	audio_options.cpp
 	audio_options.h
+	bandplan.cpp
+	bandplan.h
 	bookmarks.cpp
 	bookmarks.h
 	bookmarkstablemodel.cpp

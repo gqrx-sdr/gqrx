@@ -124,6 +124,7 @@ SOURCES += \
     src/qtgui/afsk1200win.cpp \
     src/qtgui/agc_options.cpp \
     src/qtgui/audio_options.cpp \
+    src/qtgui/bandplan.cpp \
     src/qtgui/bookmarks.cpp \
     src/qtgui/bookmarkstablemodel.cpp \
     src/qtgui/bookmarkstaglist.cpp \
@@ -185,6 +186,7 @@ HEADERS += \
     src/qtgui/afsk1200win.h \
     src/qtgui/agc_options.h \
     src/qtgui/audio_options.h \
+    src/qtgui/bandplan.h \
     src/qtgui/bookmarks.h \
     src/qtgui/bookmarkstablemodel.h \
     src/qtgui/bookmarkstaglist.h \

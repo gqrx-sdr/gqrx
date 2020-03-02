@@ -851,7 +851,7 @@
             </property>
            </widget>
           </item>
-          <item row="14" column="0" colspan="4">
+          <item row="15" column="0" colspan="4">
            <spacer name="verticalSpacer">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -939,8 +939,7 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>&lt;html&gt;Number of FFT points to calculate. Higher values will require more CPU time. This will not influence the number of points on the display since that parameter is adjusted automatically according to the display size.
-&lt;/html&gt;</string>
+             <string>&lt;html&gt;Number of FFT points to calculate. Higher values will require more CPU time. This will not influence the number of points on the display since that parameter is adjusted automatically according to the display size.&lt;/html&gt;</string>
             </property>
             <property name="editable">
              <bool>false</bool>
@@ -1106,6 +1105,16 @@
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
+          </item>
+          <item row="14" column="0" colspan="4">
+            <widget class="QCheckBox" name="bandPlanCheckbox">
+              <property name="toolTip">
+                <string>Enable Band Plan on bottom of spectrum</string>
+              </property>
+              <property name="text">
+                <string>Enable Band Plan</string>
+              </property>
+            </widget>
           </item>
          </layout>
         </item>
