@@ -36,14 +36,58 @@ public:
     FreqHistoryEntry();
     FreqHistoryEntry(const FreqHistoryEntry &entry);
     FreqHistoryEntry &operator=(const FreqHistoryEntry &entry);
-    bool operator==(const FreqHistoryEntry &entry);
-    bool operator!=(const FreqHistoryEntry &entry);
+    bool operator==(const FreqHistoryEntry &entry) const;
+    bool operator!=(const FreqHistoryEntry &entry) const;
+    bool equals(const FreqHistoryEntry &entry, bool only_freq) const;
+
+    enum class Varname {
+        demod, max_hz, min_hz, freq_hz, squelch, filter,
+        filter_bw, filter_shape, offset_freq_hz
+    };
+
+    template<typename T>
+    void set(const Varname varname, T value)
+    {
+        switch (varname) {
+        case Varname::demod:
+            demod = static_cast<DockRxOpt::rxopt_mode_idx>(value);
+            break;
+        case Varname::max_hz:
+            max_hz = value;
+            break;
+        case Varname::min_hz:
+            min_hz = value;
+            break;
+        case Varname::freq_hz:
+            freq_hz = value;
+            break;
+        case Varname::squelch:
+            squelch = value;
+            break;
+        case Varname::filter:
+            filter = value;
+            break;
+        case Varname::filter_bw:
+            filter_bw = value;
+            break;
+        case Varname::filter_shape:
+            filter_shape = value;
+            break;
+        case Varname::offset_freq_hz:
+            offset_freq_hz = value;
+            break;
+        default:
+            throw "FreqHistoryEntry::set(...) varname not implemented";
+            break;
+        }
+    }
 
     DockRxOpt::rxopt_mode_idx demod;
+    int filter;
     qint64 filter_bw;
     int filter_shape;
     qint64 freq_hz;
-    qint64 min_hz, max_hz;
+    int min_hz, max_hz;
     qint64 offset_freq_hz;
     double squelch;
 

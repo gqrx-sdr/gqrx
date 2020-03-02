@@ -42,10 +42,13 @@ typedef QVector<FHCacheEntry> FHCache;
  * The newest FH_DEFAULT_SIZE entries are cached in history.
  * Storing values in history happens after delay of FH_DEFAULT_TIMEOUT_MS ms.
  */
-class FreqHistory
+class FreqHistory : public QObject
 {
+    Q_OBJECT
+
 public:
     FreqHistory();
+
     /**
      * @brief Go back in history and retrieve the entry
      * @param entry
@@ -64,13 +67,13 @@ public:
      * @brief currently on first position
      * @return
      */
-    bool is_first();
+    bool is_first() const;
 
     /**
      * @brief currently on last position
      * @return
      */
-    bool is_last();
+    bool is_last() const;
 
     /**
      * @brief Get current position in history
@@ -90,11 +93,16 @@ public:
     void sync();
 
     /**
-     * @brief Get timeout in ms when frequencies without change are added
+     * @brief Get timeout in ms when frequencies without change are added/updated
      * @return
      */
     int timeout_ms() const;
 
+#ifndef QT_NO_DEBUG_OUTPUT
+    friend QDebug operator<<(QDebug dbg, const FreqHistory &history);
+#endif
+
+public slots:
     /**
      * @brief Make a new entry in history. This will become the current and also newest entry in history.
      * But not before time FH_DEFAULT_TIMEOUT_MS after this call has finished.
@@ -102,18 +110,68 @@ public:
      */
     void try_make_entry(const FreqHistoryEntry &entry);
 
-#ifndef QT_NO_DEBUG_OUTPUT
-    friend QDebug operator<<(QDebug dbg, const FreqHistory &history);
-#endif
+    /**
+     * @brief Modifies offset frequency on current history requirement freq_hz
+     * @param freq_hz
+     * @param offset_hz
+     */
+    void set_offset_freq(qint64 freq_hz, qint64 offset_hz);
+
+    /**
+     * @brief Modifies demod on current history requirement freq_hz
+     * @param freq_hz
+     * @param demod
+     */
+    void set_demod(qint64 freq_hz, DockRxOpt::rxopt_mode_idx demod);
+
+    /**
+     * @brief Modifies squelch db level on current history requirement freq_hz
+     * @param freq_hz
+     * @param db_level
+     */
+    void set_squelch(qint64 freq_hz, double db_level);
+
+    /**
+     * @brief Modifies filter index on current history requirement freq_hz
+     * @param freq_hz
+     * @param filter
+     */
+    void set_filter(qint64 freq_hz, int filter);
+
+    /**
+     * @brief Modifies filter frequency min and max on current history requirement freq_hz
+     * @param freq_hz
+     * @param min_hz
+     * @param max_hz
+     */
+    void set_filter_freq(qint64 freq_hz, int min_hz, int max_hz);
+
+    /**
+     * @brief Modifies filter bandwidth on current history requirement freq_hz
+     * @param freq_hz
+     * @param bandwidth
+     */
+    void set_filter_bw(qint64 freq_hz, int bandwidth);
+
+    /**
+     * @brief Modifies filter shape on current history requirement freq_hz
+     * @param freq_hz
+     * @param shape
+     */
+    void set_filter_shape(qint64 freq_hz, int shape);
 
 protected:
-    int cache_size();
+    /**
+     * @brief The maximum size of history cache
+     * @return
+     */
+    int cache_size() const;
 
 private:
     /**
      * @brief cleanup the cache up to one entry back in history
      */
-    void cleanup();
+    inline void cleanup();
 
     /**
      * @brief Handles adding entries
@@ -127,6 +185,18 @@ private:
     void store_tmp_entry();
 
     /**
+     * @brief emits signales related to history size changes
+     */
+    inline void emit_history_size_changed();
+
+    template<typename T>
+    inline void set_member(qint64 freq_hz, const FreqHistoryEntry::Varname varname, T value);
+
+    template<typename T1, typename T2>
+    inline void set_member(qint64 freq_hz, const FreqHistoryEntry::Varname varname1,
+                           T1 value1, const FreqHistoryEntry::Varname varname2, T2 value2);
+
+    /**
      * @brief storage for history caching
      */
     const QScopedPointer<FHCache> cache;
@@ -138,6 +208,35 @@ private:
     QDateTime tmp_entry_tstamp;
 
     int cur_index;
+
+signals:
+    /**
+     * @brief history_updated emits after history cache modifications
+     * @param index
+     * @param history_size
+     * @param entry
+     */
+    void history_updated(const int index, const int history_size, const FreqHistoryEntry &entry);
+
+    /**
+     * @brief history_size_changed emits when history size changes
+     * @param index
+     * @param history_size
+     */
+    void history_size_changed(const int index, const int history_size);
+
+    /**
+     * @brief history_first emits when first entry of history reached
+     * @param is_first is true when first index, else false
+     */
+    void history_first(bool is_first);
+
+    /**
+     * @brief history_last emits when last entry of history reached
+     * @param is_last is true when last index, else false
+     */
+    void history_last(bool is_last);
+
 };
 
 

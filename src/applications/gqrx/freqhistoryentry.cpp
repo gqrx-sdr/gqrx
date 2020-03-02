@@ -38,14 +38,30 @@ FreqHistoryEntry &FreqHistoryEntry::operator=(const FreqHistoryEntry &entry)
     return *this;
 }
 
-bool FreqHistoryEntry::operator==(const FreqHistoryEntry &entry)
+bool FreqHistoryEntry::operator==(const FreqHistoryEntry &entry) const
 {
-    return (freq_hz == entry.freq_hz);
+    return (freq_hz == entry.freq_hz && demod == entry.demod &&
+            max_hz == entry.max_hz && min_hz == entry.min_hz &&
+            squelch == entry.squelch && offset_freq_hz == entry.offset_freq_hz &&
+            filter == entry.filter &&
+            filter_bw == entry.filter_bw && filter_shape == entry.filter_shape);
 }
 
-bool FreqHistoryEntry::operator!=(const FreqHistoryEntry &entry)
+bool FreqHistoryEntry::operator!=(const FreqHistoryEntry &entry) const
 {
     return !(*this == entry);
+}
+
+bool FreqHistoryEntry::equals(const FreqHistoryEntry &entry, bool only_freq) const
+{
+    if (only_freq)
+    {
+        return freq_hz == entry.freq_hz;
+    }
+    else
+    {
+        return *this == entry;
+    }
 }
 
 void FreqHistoryEntry::assign(const FreqHistoryEntry &entry)
@@ -55,6 +71,7 @@ void FreqHistoryEntry::assign(const FreqHistoryEntry &entry)
     min_hz = entry.min_hz;
     freq_hz = entry.freq_hz;
     squelch = entry.squelch;
+    filter = entry.filter;
     filter_bw = entry.filter_bw;
     filter_shape = entry.filter_shape;
     offset_freq_hz = entry.offset_freq_hz;
