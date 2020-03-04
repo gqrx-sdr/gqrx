@@ -65,6 +65,16 @@ bool FreqHistory::forward(FreqHistoryEntry &entry)
     return false;
 }
 
+bool FreqHistory::get_entry(int position, FreqHistoryEntry &entry)
+{
+    if (position >= 0)
+    {
+        entry = *cache->at(position);
+        return true;
+    }
+    return false;
+}
+
 bool FreqHistory::is_first() const
 {
     return cur_index <= 0;

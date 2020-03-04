@@ -64,6 +64,14 @@ public:
     bool forward(FreqHistoryEntry &entry);
 
     /**
+     * @brief Retrieves entry at cache position
+     * @param position
+     * @param entry
+     * @return true if entry found and filled
+     */
+    bool get_entry(int position, FreqHistoryEntry &entry);
+
+    /**
      * @brief currently on first position
      * @return
      */
