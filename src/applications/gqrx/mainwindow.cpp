@@ -880,16 +880,21 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
 void MainWindow::setFHFrequency(qint64 freq_hz)
 {
     FreqHistoryEntry fq_entry;
-    fq_entry.demod = static_cast<DockRxOpt::rxopt_mode_idx>(uiDockRxOpt->currentDemod());
-    fq_entry.freq_hz = freq_hz;
-    fq_entry.offset_freq_hz = rx->get_filter_offset();
-    fq_entry.squelch = uiDockRxOpt->currentSquelchLevel();
-    fq_entry.filter = uiDockRxOpt->currentFilter();
-    fq_entry.filter_bw = ui->plotter->getFilterBw();
-    fq_entry.filter_shape = uiDockRxOpt->currentFilterShape();
-    ui->plotter->getHiLowCutFrequencies(&fq_entry.min_hz, &fq_entry.max_hz);
-    // TODO
-    freq_history.try_make_entry(fq_entry);
+    freq_history.get_entry(freq_history.position(), fq_entry);
+
+    if (fq_entry.freq_hz != freq_hz)
+    {
+        /* no overwrite of cache with current ui values */
+        fq_entry.freq_hz = freq_hz;
+        fq_entry.demod = static_cast<DockRxOpt::rxopt_mode_idx>(uiDockRxOpt->currentDemod());
+        fq_entry.offset_freq_hz = rx->get_filter_offset();
+        fq_entry.squelch = uiDockRxOpt->currentSquelchLevel();
+        fq_entry.filter = uiDockRxOpt->currentFilter();
+        fq_entry.filter_bw = ui->plotter->getFilterBw();
+        fq_entry.filter_shape = uiDockRxOpt->currentFilterShape();
+        ui->plotter->getHiLowCutFrequencies(&fq_entry.min_hz, &fq_entry.max_hz);
+        freq_history.try_make_entry(fq_entry);
+    }
 }
 
 /**
@@ -907,10 +912,16 @@ void MainWindow::setFHFreqOffset(qint64 freq_hz)
  */
 void MainWindow::setFHDemod(int index)
 {
+    int lo, hi;
+    auto bandwidth = ui->plotter->getFilterBw();
+
+    getBandwidthLimits(bandwidth, &lo, &hi);
+
     const auto freq = ui->freqCtrl->getFrequency();
     freq_history.set_demod(freq, static_cast<DockRxOpt::rxopt_mode_idx>(index));
     freq_history.set_filter(freq, uiDockRxOpt->currentFilter());
-    freq_history.set_filter_bw(freq, ui->plotter->getFilterBw());
+    freq_history.set_filter_bw(freq, bandwidth);
+    freq_history.set_filter_freq(freq, lo, hi);
     freq_history.set_filter_shape(freq, uiDockRxOpt->currentFilterShape());
 }
 
@@ -2365,7 +2376,7 @@ inline void MainWindow::getBandwidthLimits(int bandwidth, int *lo, int *hi)
 {
     /* Check if filter is symmetric or not by checking the presets */
     int mode = uiDockRxOpt->currentDemod();
-    int preset = uiDockRxOpt->currentFilterShape();
+    int preset = uiDockRxOpt->currentFilter();
 
     uiDockRxOpt->getFilterPreset(mode, preset, lo, hi);
 
@@ -2382,6 +2393,55 @@ inline void MainWindow::getBandwidthLimits(int bandwidth, int *lo, int *hi)
     {
         *lo = *hi - bandwidth;
     }
+}
+
+/**
+ * @brief activates FrequencyHistory entry
+ * @param fq_entry
+ */
+inline void MainWindow::activateFHFreq(const FreqHistoryEntry &fq_entry)
+{
+    bool need_demod = false;
+
+    if (uiDockRxOpt->currentFilterShape() != fq_entry.filter_shape)
+    {
+        uiDockRxOpt->setCurrentFilterShape(fq_entry.filter_shape);
+        need_demod = true;
+    }
+
+    if (uiDockRxOpt->currentFilter() != fq_entry.filter)
+    {
+        uiDockRxOpt->setCurrentFilter(fq_entry.filter);
+        need_demod = true;
+    }
+
+    if (uiDockRxOpt->currentSquelchLevel() != fq_entry.squelch)
+    {
+        uiDockRxOpt->setSquelchLevel(fq_entry.squelch);
+        setSqlLevel(fq_entry.squelch);
+    }
+
+    if (need_demod || static_cast<DockRxOpt::rxopt_mode_idx>(uiDockRxOpt->currentDemod()) != fq_entry.demod)
+    {
+        // set shape to normal to stay on center freq
+        uiDockRxOpt->setCurrentFilterShape(receiver::filter_shape::FILTER_SHAPE_NORMAL);
+        selectDemod(fq_entry.demod); // needs squelch, sets hi/low based on filtershape
+        uiDockRxOpt->setCurrentFilterShape(fq_entry.filter_shape);
+    }
+
+    int lo, hi;
+    ui->plotter->getHiLowCutFrequencies(&lo, &hi);
+    if (lo != fq_entry.min_hz || hi != fq_entry.max_hz)
+    {
+        uiDockRxOpt->setFilterParam(fq_entry.min_hz, fq_entry.max_hz); // needs mode
+    }
+
+    if (rx->get_filter_offset() != fq_entry.offset_freq_hz)
+    {
+        setFilterOffset(fq_entry.offset_freq_hz); // sets freq based on hw freq, lnb and offset
+    }
+
+     setNewFrequency(fq_entry.freq_hz);
 }
 
 /**
@@ -2504,50 +2564,10 @@ void MainWindow::on_actionAddBookmark_triggered()
 void MainWindow::on_actionFHBack_triggered()
 {
     FreqHistoryEntry fq_entry;
-    bool need_demod = false;
 
     if (freq_history.back(fq_entry))
     {
-        // same in MainWindow::on_actionFHForward_triggered()
-        setNewFrequency(fq_entry.freq_hz);
-
-        if (uiDockRxOpt->currentFilter() != fq_entry.filter)
-        {
-            uiDockRxOpt->setCurrentFilter(fq_entry.filter);
-            need_demod = true;
-        }
-
-        int lo, hi;
-        ui->plotter->getHiLowCutFrequencies(&lo, &hi);
-        if (lo != fq_entry.min_hz || hi != fq_entry.max_hz)
-        {
-            uiDockRxOpt->setFilterParam(fq_entry.min_hz, fq_entry.max_hz);
-            need_demod = true;
-        }
-
-        if (uiDockRxOpt->currentFilterShape() != fq_entry.filter_shape)
-        {
-            uiDockRxOpt->setCurrentFilterShape(fq_entry.filter_shape);
-            need_demod = true;
-        }
-
-        const double sql = uiDockRxOpt->currentSquelchLevel();
-        if (sql != fq_entry.squelch)
-            uiDockRxOpt->setSquelchLevel(fq_entry.squelch);
-
-        if (rx->get_filter_offset() != fq_entry.offset_freq_hz)
-        {
-            setFilterOffset(fq_entry.offset_freq_hz);
-            need_demod = true;
-        }
-
-        if (sql != fq_entry.squelch)
-            setSqlLevel(fq_entry.squelch);
-
-        if (need_demod || static_cast<DockRxOpt::rxopt_mode_idx>(uiDockRxOpt->currentDemod()) != fq_entry.demod)
-            selectDemod(fq_entry.demod);
-
-        setNewFrequency(fq_entry.freq_hz);
+        activateFHFreq(fq_entry);
     }
 }
 
@@ -2557,50 +2577,10 @@ void MainWindow::on_actionFHBack_triggered()
 void MainWindow::on_actionFHForward_triggered()
 {
     FreqHistoryEntry fq_entry;
-    bool need_demod = false;
 
     if (freq_history.forward(fq_entry))
     {
-        // same in MainWindow::on_actionFHBack_triggered()
-        setNewFrequency(fq_entry.freq_hz);
-
-        if (uiDockRxOpt->currentFilter() != fq_entry.filter)
-        {
-            uiDockRxOpt->setCurrentFilter(fq_entry.filter);
-            need_demod = true;
-        }
-
-        int lo, hi;
-        ui->plotter->getHiLowCutFrequencies(&lo, &hi);
-        if (lo != fq_entry.min_hz || hi != fq_entry.max_hz)
-        {
-            uiDockRxOpt->setFilterParam(fq_entry.min_hz, fq_entry.max_hz);
-            need_demod = true;
-        }
-
-        if (uiDockRxOpt->currentFilterShape() != fq_entry.filter_shape)
-        {
-            uiDockRxOpt->setCurrentFilterShape(fq_entry.filter_shape);
-            need_demod = true;
-        }
-
-        const double sql = uiDockRxOpt->currentSquelchLevel();
-        if (sql != fq_entry.squelch)
-            uiDockRxOpt->setSquelchLevel(fq_entry.squelch);
-
-        if (rx->get_filter_offset() != fq_entry.offset_freq_hz)
-        {
-            setFilterOffset(fq_entry.offset_freq_hz);
-            need_demod = true;
-        }
-
-        if (sql != fq_entry.squelch)
-            setSqlLevel(fq_entry.squelch);
-
-        if (need_demod || static_cast<DockRxOpt::rxopt_mode_idx>(uiDockRxOpt->currentDemod()) != fq_entry.demod)
-            selectDemod(fq_entry.demod);
-
-        setNewFrequency(fq_entry.freq_hz);
+        activateFHFreq(fq_entry);
     }
 }
 

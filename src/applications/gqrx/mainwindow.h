@@ -133,6 +133,7 @@ private:
     void showSimpleTextFile(const QString &resource_path,
                             const QString &window_title);
     inline void getBandwidthLimits(int bandwidth, int *lo, int *hi);
+    inline void activateFHFreq(const FreqHistoryEntry &fq_entry);
 
 private slots:
     /* RecentConfig */
