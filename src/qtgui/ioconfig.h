@@ -56,6 +56,7 @@ private slots:
     void inputDevstrChanged(const QString &text);
     void inputRateChanged(const QString &text);
     void decimationChanged(int index);
+    void onScanButtonClicked();
 
 private:
     void updateInputSampleRates(int rate);

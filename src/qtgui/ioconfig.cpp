@@ -84,12 +84,7 @@ CIoConfig::CIoConfig(QSettings * settings,
     connect(ui->inDevEdit, SIGNAL(textChanged(QString)), this, SLOT(inputDevstrChanged(QString)));
     connect(ui->inSrCombo, SIGNAL(editTextChanged(QString)), this, SLOT(inputRateChanged(QString)));
     connect(ui->decimCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(decimationChanged(int)));
-    connect(m_scanButton, &QPushButton::clicked, this, [=](bool) {
-        m_devList->clear();
-        CIoConfig::getDeviceList(*m_devList);
-        updateInDev(m_settings, *m_devList);
-        updateOutDev();
-    });
+    connect(m_scanButton, SIGNAL(clicked(bool)), this, SLOT(onScanButtonClicked()));
 }
 
 CIoConfig::~CIoConfig()
@@ -758,6 +753,17 @@ void CIoConfig::decimationChanged(int index)
     else
         ui->sampRateLabel->setText(QString(" %1 ksps").
                                    arg(quad_rate * 1.e-3, 0, 'f', 3));
+}
+
+/**
+ * @brief Slot to handle device list updates on m_scanButton clicks
+ */
+void CIoConfig::onScanButtonClicked()
+{
+    m_devList->clear();
+    CIoConfig::getDeviceList(*m_devList);
+    updateInDev(m_settings, *m_devList);
+    updateOutDev();
 }
 
 /** Convert a combo box index to decimation. */
