@@ -131,9 +131,7 @@ void FreqHistory::try_make_entry(const FreqHistoryEntry &entry)
     }
 
     // try to sync after the timeout (+ 20 to be sure after tmp_entry_tstamp)
-    QTimer::singleShot(timeout_ms() + 20, this, [=]() {
-        store_tmp_entry();
-    });
+    QTimer::singleShot(timeout_ms() + 20, this, SLOT(store_tmp_entry()));
 }
 
 void FreqHistory::set_offset_freq(qint64 freq_hz, qint64 offset_hz)
