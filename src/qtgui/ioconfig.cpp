@@ -73,61 +73,7 @@ CIoConfig::CIoConfig(QSettings * settings,
     ui->loSpinBox->setValue(1.0e-6 * settings->value("input/lnb_lo", 0.0).toDouble());
 
     // Output device
-    QString outdev = settings->value("output/device", "").toString();
-
-     // get list of audio output devices
-#ifdef WITH_PULSEAUDIO
-    pa_device_list devices;
-    outDevList = devices.get_output_devices();
-
-    qDebug() << __FUNCTION__ << ": Available output devices:";
-    for (size_t i = 0; i < outDevList.size(); i++)
-    {
-        qDebug() << "   " << i << ":" << QString(outDevList[i].get_description().c_str());
-        //qDebug() << "     " << QString(outDevList[i].get_name().c_str());
-        ui->outDevCombo->addItem(QString(outDevList[i].get_description().c_str()));
-
-        // note that item #i in devlist will be item #(i+1)
-        // in combo box due to "default"
-        if (outdev == QString(outDevList[i].get_name().c_str()))
-            ui->outDevCombo->setCurrentIndex(i+1);
-    }
-#elif WITH_PORTAUDIO
-    portaudio_device_list   devices;
-
-    outDevList = devices.get_output_devices();
-    for (size_t i = 0; i < outDevList.size(); i++)
-    {
-        ui->outDevCombo->addItem(QString(outDevList[i].get_description().c_str()));
-
-        // note that item #i in devlist will be item #(i+1)
-        // in combo box due to "default"
-        if (outdev == QString(outDevList[i].get_name().c_str()))
-            ui->outDevCombo->setCurrentIndex(i+1);
-    }
-    //ui->outDevCombo->setEditable(true);
-
-#elif defined(GQRX_OS_MACX)
-    osxaudio_device_list devices;
-    outDevList = devices.get_output_devices();
-
-    qDebug() << __FUNCTION__ << ": Available output devices:";
-    for (size_t i = 0; i < outDevList.size(); i++)
-    {
-        qDebug() << "   " << i << ":" << QString(outDevList[i].get_name().c_str());
-        ui->outDevCombo->addItem(QString(outDevList[i].get_name().c_str()));
-
-        // note that item #i in devlist will be item #(i+1)
-        // in combo box due to "default"
-        if (outdev == QString(outDevList[i].get_name().c_str()))
-            ui->outDevCombo->setCurrentIndex(i+1);
-    }
-
-#else
-    ui->outDevCombo->addItem(settings->value("output/device", "Default").toString(),
-                             settings->value("output/device", "Default").toString());
-    ui->outDevCombo->setEditable(true);
-#endif // WITH_PULSEAUDIO
+    updateOutDev();
 
     m_scanButton = new QPushButton("&Device scan", ui->buttonBox);
     ui->buttonBox->addButton(m_scanButton, QDialogButtonBox::ButtonRole::ActionRole);
@@ -142,6 +88,7 @@ CIoConfig::CIoConfig(QSettings * settings,
         m_devList->clear();
         CIoConfig::getDeviceList(*m_devList);
         updateInDev(m_settings, *m_devList);
+        updateOutDev();
     });
 }
 
@@ -681,6 +628,67 @@ void CIoConfig::updateInDev(const QSettings *settings, const std::map<QString, Q
             ui->inDevEdit->setText(indev);
         }
     }
+}
+
+void CIoConfig::updateOutDev()
+{
+    QString outdev = m_settings->value("output/device", "").toString();
+
+    ui->outDevCombo->clear();
+
+    // get list of audio output devices
+#ifdef WITH_PULSEAUDIO
+   pa_device_list devices;
+   outDevList = devices.get_output_devices();
+
+   qDebug() << __FUNCTION__ << ": Available output devices:";
+   for (size_t i = 0; i < outDevList.size(); i++)
+   {
+       qDebug() << "   " << i << ":" << QString(outDevList[i].get_description().c_str());
+       //qDebug() << "     " << QString(outDevList[i].get_name().c_str());
+       ui->outDevCombo->addItem(QString(outDevList[i].get_description().c_str()));
+
+       // note that item #i in devlist will be item #(i+1)
+       // in combo box due to "default"
+       if (outdev == QString(outDevList[i].get_name().c_str()))
+           ui->outDevCombo->setCurrentIndex(i+1);
+   }
+#elif WITH_PORTAUDIO
+   portaudio_device_list   devices;
+
+   outDevList = devices.get_output_devices();
+   for (size_t i = 0; i < outDevList.size(); i++)
+   {
+       ui->outDevCombo->addItem(QString(outDevList[i].get_description().c_str()));
+
+       // note that item #i in devlist will be item #(i+1)
+       // in combo box due to "default"
+       if (outdev == QString(outDevList[i].get_name().c_str()))
+           ui->outDevCombo->setCurrentIndex(i+1);
+   }
+   //ui->outDevCombo->setEditable(true);
+
+#elif defined(GQRX_OS_MACX)
+   osxaudio_device_list devices;
+   outDevList = devices.get_output_devices();
+
+   qDebug() << __FUNCTION__ << ": Available output devices:";
+   for (size_t i = 0; i < outDevList.size(); i++)
+   {
+       qDebug() << "   " << i << ":" << QString(outDevList[i].get_name().c_str());
+       ui->outDevCombo->addItem(QString(outDevList[i].get_name().c_str()));
+
+       // note that item #i in devlist will be item #(i+1)
+       // in combo box due to "default"
+       if (outdev == QString(outDevList[i].get_name().c_str()))
+           ui->outDevCombo->setCurrentIndex(i+1);
+   }
+
+#else
+   ui->outDevCombo->addItem(m_settings->value("output/device", "Default").toString(),
+                            m_settings->value("output/device", "Default").toString());
+   ui->outDevCombo->setEditable(true);
+#endif // WITH_PULSEAUDIO
 }
 
 /**

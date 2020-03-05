@@ -61,6 +61,7 @@ private:
     void updateInputSampleRates(int rate);
     void updateDecimations(void);
     void updateInDev(const QSettings *settings, const std::map<QString, QVariant> &devList);
+    void updateOutDev();
     int  idx2decim(int idx) const;
     int  decim2idx(int decim) const;
 
