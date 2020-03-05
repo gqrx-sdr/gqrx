@@ -182,27 +182,20 @@ void receiver::stop()
 
 /**
  * @brief Select new input device.
- *
- * @bug When using ALSA, program will crash if the new device
- *      is the same as the previously used device:
- *      audio_alsa_source[hw:1]: Device or resource busy
+ * @param device
  */
 void receiver::set_input_device(const std::string device)
 {
+#ifndef QT_NO_DEBUG_OUTPUT
+    std::cout << "Set input device:" << std::endl
+              << "  old: " << input_devstr << std::endl
+              << "  new: " << device << std::endl;
+#endif
+
     std::string error = "";
 
     if (device.empty())
         return;
-
-    if (input_devstr.compare(device) == 0)
-    {
-#ifndef QT_NO_DEBUG_OUTPUT
-        std::cout << "No change in input device:" << std::endl
-                  << "  old: " << input_devstr << std::endl
-                  << "  new: " << device << std::endl;
-#endif
-        return;
-    }
 
     input_devstr = device;
 
@@ -258,21 +251,14 @@ void receiver::set_input_device(const std::string device)
 }
 
 
-/** Select new audio output device. */
+/**
+ * @brief Select new audio output device.
+ * @param device
+ */
 void receiver::set_output_device(const std::string device)
 {
-    if (output_devstr.compare(device) == 0)
-    {
 #ifndef QT_NO_DEBUG_OUTPUT
-        std::cout << "No change in output device:" << std::endl
-                  << "  old: " << output_devstr << std::endl
-                  << "  new: " << device << std::endl;
-#endif
-        return;
-    }
-
-#ifndef QT_NO_DEBUG_OUTPUT
-    std::cout << "New audio output device:" << std::endl
+    std::cout << "Set output device:" << std::endl
               << "   old: " << output_devstr << std::endl
               << "   new: " << device << std::endl;
 #endif
@@ -288,21 +274,28 @@ void receiver::set_output_device(const std::string device)
     }
     audio_snk.reset();
 
+    try {
 #ifdef WITH_PULSEAUDIO
-    audio_snk = make_pa_sink(device, d_audio_rate, "GQRX", "Audio output");
+        audio_snk = make_pa_sink(device, d_audio_rate, "GQRX", "Audio output");
 #elif WITH_PORTAUDIO
-    audio_snk = make_portaudio_sink(device, d_audio_rate, "GQRX", "Audio output");
+        audio_snk = make_portaudio_sink(device, d_audio_rate, "GQRX", "Audio output");
 #else
-    audio_snk = gr::audio::sink::make(d_audio_rate, device, true);
+        audio_snk = gr::audio::sink::make(d_audio_rate, device, true);
 #endif
 
-    if (d_demod != RX_DEMOD_OFF)
-    {
-        tb->connect(audio_gain0, 0, audio_snk, 0);
-        tb->connect(audio_gain1, 0, audio_snk, 1);
-    }
+        if (d_demod != RX_DEMOD_OFF)
+        {
+            tb->connect(audio_gain0, 0, audio_snk, 0);
+            tb->connect(audio_gain1, 0, audio_snk, 1);
+        }
 
-    tb->unlock();
+        tb->unlock();
+
+    } catch (std::exception &x) {
+        tb->unlock();
+        // handle problems on non-freeing devices
+        throw x;
+    }
 }
 
 /** Get a list of available antenna connectors. */

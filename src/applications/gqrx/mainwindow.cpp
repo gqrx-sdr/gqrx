@@ -518,7 +518,17 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
     }
 
     QString outdev = m_settings->value("output/device", "").toString();
-    rx->set_output_device(outdev.toStdString());
+
+    try {
+        rx->set_output_device(outdev.toStdString());
+    } catch (std::exception &x) {
+        QMessageBox::warning(nullptr,
+                         QObject::tr("Failed to set output device"),
+                         QObject::tr("<p><b>%1</b></p>"
+                                     "Please select another device.")
+                                 .arg(x.what()),
+                         QMessageBox::Ok);
+    }
 
     int_val = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
     if (conv_ok && (int_val > 0))
