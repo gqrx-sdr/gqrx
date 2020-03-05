@@ -60,12 +60,15 @@ private slots:
 private:
     void updateInputSampleRates(int rate);
     void updateDecimations(void);
+    void updateInDev(const QSettings *settings, const std::map<QString, QVariant> &devList);
     int  idx2decim(int idx) const;
     int  decim2idx(int decim) const;
 
 private:
     Ui::CIoConfig  *ui;
     QSettings      *m_settings;
+    QPushButton    *m_scanButton;
+    std::map<QString, QVariant> *m_devList; // will point to devList from constructor
 
 #ifdef WITH_PULSEAUDIO
     vector<pa_device>           outDevList;

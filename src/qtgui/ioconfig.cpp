@@ -50,58 +50,13 @@ CIoConfig::CIoConfig(QSettings * settings,
                      QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CIoConfig),
-    m_settings(settings)
+    m_settings(settings),
+    m_devList(&devList)
 {
-    unsigned int i=0;
-    QString devstr;
-    bool cfgmatch=false; //flag to indicate that device from config was found
-
     ui->setupUi(this);
 
-    QString indev = settings->value("input/device", "").toString();
-
-    // insert the device list in device combo box
-    std::map<QString, QVariant>::iterator I = devList.begin();
-    i = 0;
-    while (I != devList.end())
-    {
-        devstr = (*I).second.toString();
-        ui->inDevCombo->addItem((*I).first, devstr);
-
-        // is this the device stored in config?
-        if (indev == devstr)
-        {
-            ui->inDevCombo->setCurrentIndex(i);
-            ui->inDevEdit->setText(devstr);
-            cfgmatch = true;
-        }
-        ++I;
-        ++i;
-    }
-
-
-    ui->inDevCombo->addItem(tr("Other..."), QVariant(""));
-
-    // If device string from config is not one of the detected devices
-    // it could be that device is not plugged in (in which case we select
-    // other) or that this is the first time (select the first detected device).
-    if (!cfgmatch)
-    {
-        if (indev.isEmpty())
-        {
-            // First time config: select the first detected device
-            ui->inDevCombo->setCurrentIndex(0);
-            ui->inDevEdit->setText(ui->inDevCombo->itemData(0).toString());
-            if (ui->inDevEdit->text().isEmpty())
-                ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
-        }
-        else
-        {
-            // Select other
-            ui->inDevCombo->setCurrentIndex(i);
-            ui->inDevEdit->setText(indev);
-        }
-    }
+    // update input device list
+    updateInDev(settings, *m_devList);
 
     // input rate
     updateInputSampleRates(settings->value("input/sample_rate", 0).toInt());
@@ -126,7 +81,7 @@ CIoConfig::CIoConfig(QSettings * settings,
     outDevList = devices.get_output_devices();
 
     qDebug() << __FUNCTION__ << ": Available output devices:";
-    for (i = 0; i < outDevList.size(); i++)
+    for (size_t i = 0; i < outDevList.size(); i++)
     {
         qDebug() << "   " << i << ":" << QString(outDevList[i].get_description().c_str());
         //qDebug() << "     " << QString(outDevList[i].get_name().c_str());
@@ -141,7 +96,7 @@ CIoConfig::CIoConfig(QSettings * settings,
     portaudio_device_list   devices;
 
     outDevList = devices.get_output_devices();
-    for (i = 0; i < outDevList.size(); i++)
+    for (size_t i = 0; i < outDevList.size(); i++)
     {
         ui->outDevCombo->addItem(QString(outDevList[i].get_description().c_str()));
 
@@ -157,7 +112,7 @@ CIoConfig::CIoConfig(QSettings * settings,
     outDevList = devices.get_output_devices();
 
     qDebug() << __FUNCTION__ << ": Available output devices:";
-    for (i = 0; i < outDevList.size(); i++)
+    for (size_t i = 0; i < outDevList.size(); i++)
     {
         qDebug() << "   " << i << ":" << QString(outDevList[i].get_name().c_str());
         ui->outDevCombo->addItem(QString(outDevList[i].get_name().c_str()));
@@ -174,16 +129,25 @@ CIoConfig::CIoConfig(QSettings * settings,
     ui->outDevCombo->setEditable(true);
 #endif // WITH_PULSEAUDIO
 
+    m_scanButton = new QPushButton("&Device scan", ui->buttonBox);
+    ui->buttonBox->addButton(m_scanButton, QDialogButtonBox::ButtonRole::ActionRole);
+
     // Signals and slots
     connect(this, SIGNAL(accepted()), this, SLOT(saveConfig()));
     connect(ui->inDevCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(inputDeviceSelected(int)));
     connect(ui->inDevEdit, SIGNAL(textChanged(QString)), this, SLOT(inputDevstrChanged(QString)));
     connect(ui->inSrCombo, SIGNAL(editTextChanged(QString)), this, SLOT(inputRateChanged(QString)));
     connect(ui->decimCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(decimationChanged(int)));
+    connect(m_scanButton, &QPushButton::clicked, this, [=](bool) {
+        m_devList->clear();
+        CIoConfig::getDeviceList(*m_devList);
+        updateInDev(m_settings, *m_devList);
+    });
 }
 
 CIoConfig::~CIoConfig()
 {
+    delete m_scanButton;
     delete ui;
 }
 
@@ -671,6 +635,52 @@ void CIoConfig::updateDecimations(void)
 //        ui->decimCombo->addItem("512", 0);
 
     decimationChanged(0);
+}
+
+void CIoConfig::updateInDev(const QSettings *settings, const std::map<QString, QVariant> &devList)
+{
+    QString indev = settings->value("input/device", "").toString();
+    bool cfgmatch = false; //flag to indicate that device from config was found
+
+    // insert the device list in device combo box
+    ui->inDevCombo->clear();
+    int i = 0;
+    for (auto it = devList.cbegin(); it != devList.cend(); it++, i++)
+    {
+        auto devstr = (*it).second.toString();
+        ui->inDevCombo->addItem((*it).first, devstr);
+
+        // is this the device stored in config?
+        if (indev == devstr)
+        {
+            ui->inDevCombo->setCurrentIndex(i);
+            ui->inDevEdit->setText(devstr);
+            cfgmatch = true;
+        }
+    }
+
+    ui->inDevCombo->addItem(tr("Other..."), QVariant(""));
+
+    // If device string from config is not one of the detected devices
+    // it could be that device is not plugged in (in which case we select
+    // other) or that this is the first time (select the first detected device).
+    if (!cfgmatch)
+    {
+        if (indev.isEmpty())
+        {
+            // First time config: select the first detected device
+            ui->inDevCombo->setCurrentIndex(0);
+            ui->inDevEdit->setText(ui->inDevCombo->itemData(0).toString());
+            if (ui->inDevEdit->text().isEmpty())
+                ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+        }
+        else
+        {
+            // Select other
+            ui->inDevCombo->setCurrentIndex(i);
+            ui->inDevEdit->setText(indev);
+        }
+    }
 }
 
 /**
