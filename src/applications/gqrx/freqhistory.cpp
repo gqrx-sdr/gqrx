@@ -105,6 +105,18 @@ int FreqHistory::timeout_ms() const
     return FH_DEFAULT_TIMEOUT_MS;
 }
 
+#ifndef QT_NO_DEBUG_OUTPUT
+QDebug operator<<(QDebug dbg, const FreqHistory &history)
+{
+    QDebugStateSaver saver(dbg);
+    for (auto it = history.cache->cbegin(); it; it++)
+    {
+        dbg.nospace() << *it;
+    }
+    return dbg;
+}
+#endif
+
 void FreqHistory::try_make_entry(const FreqHistoryEntry &entry)
 {
     if (tmp_entry && tmp_entry->freq_hz == entry.freq_hz)
@@ -249,22 +261,6 @@ void FreqHistory::make_entry(const FHCacheEntry &entry)
 #endif
 }
 
-void FreqHistory::store_tmp_entry()
-{
-    if (tmp_entry && tmp_entry_tstamp.toMSecsSinceEpoch() <= QDateTime::currentMSecsSinceEpoch())
-    {
-        make_entry(tmp_entry);
-        // set far in future
-        tmp_entry_tstamp = QDateTime::currentDateTime().addMSecs(std::numeric_limits<qint64>::max());
-        tmp_entry.reset();
-
-#ifndef QT_NO_DEBUG_OUTPUT
-        Q_ASSERT(tmp_entry.isNull());
-        qDebug() << "Reset tmp_entry";
-#endif
-    }
-}
-
 inline void FreqHistory::emit_history_size_changed()
 {
     emit history_size_changed(cur_index, cache->count());
@@ -305,14 +301,18 @@ inline void FreqHistory::set_member(qint64 freq_hz, const FreqHistoryEntry::Varn
     }
 }
 
-#ifndef QT_NO_DEBUG_OUTPUT
-QDebug operator<<(QDebug dbg, const FreqHistory &history)
+void FreqHistory::store_tmp_entry()
 {
-    QDebugStateSaver saver(dbg);
-    for (auto it = history.cache->cbegin(); it; it++)
+    if (tmp_entry && tmp_entry_tstamp.toMSecsSinceEpoch() <= QDateTime::currentMSecsSinceEpoch())
     {
-        dbg.nospace() << *it;
-    }
-    return dbg;
-}
+        make_entry(tmp_entry);
+        // set far in future
+        tmp_entry_tstamp = QDateTime::currentDateTime().addMSecs(std::numeric_limits<qint64>::max());
+        tmp_entry.reset();
+
+#ifndef QT_NO_DEBUG_OUTPUT
+        Q_ASSERT(tmp_entry.isNull());
+        qDebug() << "Reset tmp_entry";
 #endif
+    }
+}

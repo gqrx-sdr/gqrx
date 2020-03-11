@@ -188,11 +188,6 @@ private:
     void make_entry(const FHCacheEntry &entry);
 
     /**
-     * @brief store tmp_entry permanent
-     */
-    void store_tmp_entry();
-
-    /**
      * @brief emits signales related to history size changes
      */
     inline void emit_history_size_changed();
@@ -209,6 +204,13 @@ private:
      */
     const QScopedPointer<FHCache> cache;
 
+private slots:
+    /**
+     * @brief store tmp_entry permanent
+     */
+    void store_tmp_entry();
+
+private:
     /**
      * @brief temporary storage to try making new entry with handling timeout
      */
