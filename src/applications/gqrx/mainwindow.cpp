@@ -266,15 +266,15 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(&freq_history, &FreqHistory::history_first, this, &MainWindow::on_FHFirst);
     connect(&freq_history, &FreqHistory::history_last, this, &MainWindow::on_FHLast);
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), this, SLOT(setFHFrequency(qint64)));
-    connect(uiDockRxOpt, SIGNAL(rxFreqChanged(qint64)), ui->freqCtrl, SLOT(setFHFrequency(qint64)));
+    connect(uiDockRxOpt, SIGNAL(rxFreqChanged(qint64)), this, SLOT(setFHFrequency(qint64)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFHFreqOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(setFHDemod(int)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setFHSquelch(double)));
-    connect(remote, SIGNAL(newFrequency(qint64)), ui->freqCtrl, SLOT(setFHFrequency(qint64)));
+    connect(remote, SIGNAL(newFrequency(qint64)), this, SLOT(setFHFrequency(qint64)));
     connect(remote, SIGNAL(newFilterOffset(qint64)), this, SLOT(setFHFreqOffset(qint64)));
     connect(remote, SIGNAL(newMode(int)), this, SLOT(setFHDemod(int)));
     connect(remote, SIGNAL(newSquelchLevel(double)), this, SLOT(setFHSquelch(double)));
-    connect(ui->plotter, SIGNAL(newFilterFreq(int, int)), remote, SLOT(setFHFilterFreq(int, int)));
+    connect(ui->plotter, SIGNAL(newFilterFreq(int, int)), this, SLOT(setFHFilterFreq(int, int)));
     connect(remote, SIGNAL(newPassband(int)), this, SLOT(setFHFilterBand(int)));
 
     // I/Q playback
