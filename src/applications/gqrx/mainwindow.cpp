@@ -933,7 +933,23 @@ void MainWindow::setDcCancel(bool enabled)
 /** Enable/disable automatic IQ balance. */
 void MainWindow::setIqBalance(bool enabled)
 {
-    rx->set_iq_balance(enabled);
+    try
+    {
+        rx->set_iq_balance(enabled);
+    }
+    catch (std::exception &x)
+    {
+        qCritical() << "Failed to set IQ balance: " << x.what();
+        m_settings->remove("input/iq_balance");
+        uiDockInputCtl->setIqBalance(false);
+        if (enabled)
+        {
+            QMessageBox::warning(this, tr("Gqrx error"),
+                                 tr("Failed to set IQ balance.\n"
+                                    "IQ balance setting in Input Control disabled."),
+                                 QMessageBox::Ok, QMessageBox::Ok);
+        }
+    }
 }
 
 /**
