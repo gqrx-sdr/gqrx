@@ -1288,10 +1288,10 @@ void CPlotter::drawOverlay()
         static const int fontHeight = fm.ascent() + 1;
         static const int slant = 5;
         static const int levelHeight = fontHeight + 5;
-        static const int nLevels = 10;
+        const int nLevels = h / (levelHeight + slant);
         QList<BookmarkInfo> bookmarks = Bookmarks::Get().getBookmarksInRange(m_CenterFreq + m_FftCenter - m_Span / 2,
                                                                              m_CenterFreq + m_FftCenter + m_Span / 2);
-        int tagEnd[nLevels] = {0};
+        QVector<int> tagEnd(nLevels + 1);
         for (int i = 0; i < bookmarks.size(); i++)
         {
             x = xFromFreq(bookmarks[i].frequency);
@@ -1306,30 +1306,39 @@ void CPlotter::drawOverlay()
             while(level < nLevels && tagEnd[level] > x)
                 level++;
 
-            if(level == nLevels)
+            if(level >= nLevels)
+            {
                 level = 0;
+                if (tagEnd[level] > x)
+                    continue; // no overwrite at level 0
+            }
 
             tagEnd[level] = x + nameWidth + slant - 1;
-            m_BookmarkTags.append(qMakePair<QRect, qint64>(QRect(x, level * levelHeight, nameWidth + slant, fontHeight), bookmarks[i].frequency));
+
+            const auto levelNHeight = level * levelHeight;
+            const auto levelNHeightBottom = levelNHeight + fontHeight;
+            const auto levelNHeightBottomSlant = levelNHeightBottom + slant;
+
+            m_BookmarkTags.append(qMakePair<QRect, qint64>(QRect(x, levelNHeight, nameWidth + slant, fontHeight), bookmarks[i].frequency));
 
             QColor color = QColor(bookmarks[i].GetColor());
             color.setAlpha(0x60);
             // Vertical line
             painter.setPen(QPen(color, 1, Qt::DashLine));
-            painter.drawLine(x, level * levelHeight + fontHeight + slant, x, xAxisTop);
+            painter.drawLine(x, levelNHeightBottomSlant, x, xAxisTop);
 
             // Horizontal line
             painter.setPen(QPen(color, 1, Qt::SolidLine));
-            painter.drawLine(x + slant, level * levelHeight + fontHeight,
+            painter.drawLine(x + slant, levelNHeightBottom,
                              x + nameWidth + slant - 1,
-                             level * levelHeight + fontHeight);
+                             levelNHeightBottom);
             // Diagonal line
-            painter.drawLine(x + 1, level * levelHeight + fontHeight + slant - 1,
-                             x + slant - 1, level * levelHeight + fontHeight + 1);
+            painter.drawLine(x + 1, levelNHeightBottomSlant - 1,
+                             x + slant - 1, levelNHeightBottom + 1);
 
             color.setAlpha(0xFF);
             painter.setPen(QPen(color, 2, Qt::SolidLine));
-            painter.drawText(x + slant, level * levelHeight, nameWidth,
+            painter.drawText(x + slant, levelNHeight, nameWidth,
                              fontHeight, Qt::AlignVCenter | Qt::AlignHCenter,
                              bookmarks[i].name);
         }
