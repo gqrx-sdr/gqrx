@@ -9,3 +9,4 @@ ui_*
 .DS_Store
 Info.plist
 *.AppImage
+AppDir/
