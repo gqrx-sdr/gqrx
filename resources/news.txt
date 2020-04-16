@@ -2,6 +2,7 @@
     2.12.2: In progress...
 
        NEW: Stereo option for UDP streaming.
+       NEW: Script to generate AppImage.
      FIXED: FM de-emphasis causing audio to be 20 dB quieter than it should be.
      FIXED: Update waterfall time resolution when FFT settings are changed.
      FIXED: Update waterfall time resolution when window is resized.
@@ -11,12 +12,15 @@
      FIXED: Crash when setting invalid RF gains.
      FIXED: Audio panadapter / waterfall slider direction.
      FIXED: Clear FFT averages when changing FFT size.
-  IMPROVED: DSP performance.
+     FIXED: Crash when source block doesn't support IQ balancing.
+     FIXED: Bookmark labels in FFT draw over each other.
+  IMPROVED: DSP and FFT performance.
   IMPROVED: Panadapter & waterfall performance.
   IMPROVED: Smooth panadapter & waterfall redrawing.
   IMPROVED: Better default values for various settings.
   IMPROVED: Audio waterfall colormap matches I/Q waterfall.
   IMPROVED: Use all available display space for panadapter & waterfall.
+  IMPROVED: Updated RDS decoder.
 
 
     2.12.1: Released January 27, 2020

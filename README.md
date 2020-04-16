@@ -166,16 +166,17 @@ come with a Simplified BSD license.
 
 Following people and organisations have contributed to gqrx:
 
+Arlecchino
 Alex Grinkov
 Alexander Fasching
 Andy Sloane
 Andrea Merello
-Andrea Montefusco IW0HDV 
+Andrea Montefusco, IW0HDV
 Anthony Willard
 Bastian Bloessl
 Pavel Stano
 Chris Kuethe
-Christian Lindner DL2VCL
+Christian Lindner, DL2VCL
 charlylima
 Clayton Smith
 Darin Franklin
@@ -199,8 +200,9 @@ Michael Lass
 Michael Tatarinov
 Moe Weatley
 Nadeem Hasan
-Nick Robinson KE5YWP
+Nick Robinson, KE5YWP
 Nokia
+Pavel Milanes, CO7WT
 Phil Vachon
 Rob Frohne
 Stefano Leucci
@@ -210,7 +212,7 @@ Valentin Ochs
 Vesa Solonen
 Vincent Pelletier
 Will Scales
-Wolfgang Fritz DK7OB
+Wolfgang Fritz, DK7OB
 Youssef Touil
 Zero_Chaos 
 
