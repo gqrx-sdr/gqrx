@@ -48,6 +48,10 @@ DXCSpots& DXCSpots::Get()
 void DXCSpots::add(DXCSpotInfo &info)
 {
     info.time = QTime::currentTime();
+    // check only callsign, so if present remove and re-append
+    // if check also frequency we can only change the time
+    if (m_DXCSpotList.contains(info))
+        m_DXCSpotList.removeAt(m_DXCSpotList.indexOf(info));
     m_DXCSpotList.append(info);
     std::stable_sort(m_DXCSpotList.begin(),m_DXCSpotList.end());
     emit( DXCSpotsChanged() );
@@ -76,9 +80,9 @@ QList<DXCSpotInfo> DXCSpots::getDXCSpotsInRange(qint64 low, qint64 high)
 {
     DXCSpotInfo info;
     info.frequency=low;
-    QList<DXCSpotInfo>::const_iterator lb = qLowerBound(m_DXCSpotList, info);
+    QList<DXCSpotInfo>::const_iterator lb = std::lower_bound(m_DXCSpotList.begin(), m_DXCSpotList.end(), info);
     info.frequency=high;
-    QList<DXCSpotInfo>::const_iterator ub = qUpperBound(m_DXCSpotList, info);
+    QList<DXCSpotInfo>::const_iterator ub = std::upper_bound(m_DXCSpotList.begin(), m_DXCSpotList.end(), info);
 
     QList<DXCSpotInfo> found;
 

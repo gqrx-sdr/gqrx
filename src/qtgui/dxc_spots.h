@@ -51,6 +51,13 @@ struct DXCSpotInfo
         return frequency < other.frequency;
     }
 
+    bool operator==(const DXCSpotInfo &other) const
+    {
+        // we check only the name because frequency can change a bit
+        // not good for multi-operator with the case callsign
+        return name == other.name;
+    }
+
     const QColor GetColor() const;
 };
 

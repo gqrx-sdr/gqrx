@@ -558,6 +558,9 @@
    <property name="toolTip">
     <string>Open DX Cluster Dialog</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

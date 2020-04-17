@@ -51,7 +51,7 @@ void DXC_Options::on_pushButton_DXCConnect_clicked()
 
 void DXC_Options::on_pushButton_DXCDisconnect_clicked()
 {
-    TCPSocket->write("Bye\r\n");
+    TCPSocket->close();
 }
 
 void DXC_Options::connected()
@@ -73,12 +73,13 @@ void DXC_Options::readyToRead()
     QString incommingMessage;
     incommingMessage = TCPSocket->readAll();
     ui->plainTextEdit_DXCMonitor->appendPlainText(incommingMessage);
-    if(incommingMessage.contains("Please enter your callsign:"))
+    if(incommingMessage.contains("enter your call", Qt::CaseInsensitive))
     {
         TCPSocket->write(ui->lineEdit_DXCUSername->text().append("\r\n").toUtf8());
         ui->plainTextEdit_DXCMonitor->appendPlainText(ui->lineEdit_DXCUSername->text().append("\r\n"));
     }
-    else if(incommingMessage.contains("DX de"))
+    else if(incommingMessage.contains("DX de", Qt::CaseInsensitive) &&
+            incommingMessage.contains(ui->lineEdit_DXCFilter->text()))
     {
         Spot = incommingMessage.split(" ", QString::SkipEmptyParts);
         info.name = Spot[4].trimmed();
@@ -97,6 +98,7 @@ void DXC_Options::saveSettings(QSettings *settings)
     settings->setValue("DXCPort", ui->lineEdit_DXCPort->text());
     settings->setValue("DXCUsername", ui->lineEdit_DXCUSername->text());
     settings->setValue("DXCSpotTimeout", ui->lineEdit_DXCSpottimeout->text());
+    settings->setValue("DXCFilter", ui->lineEdit_DXCFilter->text());
 
     settings->endGroup();
 }
@@ -111,6 +113,7 @@ void DXC_Options::readSettings(QSettings *settings)
     ui->lineEdit_DXCPort->setText(settings->value("DXCPort", "7300").toString());
     ui->lineEdit_DXCUSername->setText(settings->value("DXCUsername", "nocall").toString());
     ui->lineEdit_DXCSpottimeout->setText(settings->value("DXCSpotTimeout", "10").toString());
+    ui->lineEdit_DXCFilter->setText(settings->value("DXCFilter", "").toString());
 
     settings->endGroup();
 }
