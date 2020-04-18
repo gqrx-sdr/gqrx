@@ -39,8 +39,8 @@ public:
     void setTooltipsEnabled(bool enabled) { m_TooltipsEnabled = enabled; }
     void setBookmarksEnabled(bool enabled) { m_BookmarksEnabled = enabled; }
 
-    void setNewFttData(float *fftData, int size);
-    void setNewFttData(float *fftData, float *wfData, int size);
+    void setNewFftData(float *fftData, int size);
+    void setNewFftData(float *fftData, float *wfData, int size);
 
     void setCenterFreq(quint64 f);
     void setFreqUnits(qint32 unit) { m_FreqUnits = unit; }
@@ -128,6 +128,7 @@ signals:
     void newFilterFreq(int low, int high);  /* substitute for NewLow / NewHigh */
     void pandapterRangeChanged(float min, float max);
     void newZoomLevel(float level);
+    void newSize();
 
 public slots:
     // zoom functions
@@ -141,6 +142,7 @@ public slots:
     void setFftFill(bool enabled);
     void setPeakHold(bool enabled);
     void setFftRange(float min, float max);
+    void setWfColormap(const QString &cmap);
     void setPandapterRange(float min, float max);
     void setWaterfallRange(float min, float max);
     void setPeakDetection(bool enabled, float c);

@@ -7,7 +7,11 @@ add_subdirectory(qtgui)
 add_subdirectory(receivers)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    add_subdirectory(osxaudio)
+    if(${OSX_AUDIO_BACKEND} MATCHES "Portaudio")
+        add_subdirectory(portaudio)
+    else()
+        add_subdirectory(osxaudio)
+    endif()
     add_definitions(-DGQRX_OS_MACX)
     set(CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -54,10 +58,13 @@ endif(WIN32)
 #######################################################################################################################
 # Build the program
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCE} ${UIS_HDRS} ${RESOURCES_LIST})
-qt5_use_modules(${PROJECT_NAME} Core Network Widgets Svg)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
 # The pulse libraries are only needed on Linux. On other platforms they will not be found, so having them here is fine.
 target_link_libraries(${PROJECT_NAME}
+    Qt5::Core
+    Qt5::Network
+    Qt5::Widgets
+    Qt5::Svg
     ${Boost_LIBRARIES}
     ${GNURADIO_ALL_LIBRARIES}
     ${GNURADIO_OSMOSDR_LIBRARIES}
@@ -65,6 +72,16 @@ target_link_libraries(${PROJECT_NAME}
     ${PULSE-SIMPLE}
     ${PORTAUDIO_LIBRARIES}
 )
+
+if(NOT Gnuradio_VERSION VERSION_LESS "3.8")
+    target_link_libraries(${PROJECT_NAME}
+        gnuradio::gnuradio-analog
+        gnuradio::gnuradio-blocks
+        gnuradio::gnuradio-digital
+        gnuradio::gnuradio-filter
+        gnuradio::gnuradio-audio
+    )
+endif()
 
 #build a win32 app, not a console app
 if (WIN32)

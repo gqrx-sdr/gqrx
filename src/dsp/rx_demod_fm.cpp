@@ -44,8 +44,7 @@ rx_demod_fm::rx_demod_fm(float quad_rate, float max_dev, double tau)
                       gr::io_signature::make (MIN_IN, MAX_IN, sizeof (gr_complex)),
                       gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof (float))),
     d_quad_rate(quad_rate),
-    d_max_dev(max_dev),
-    d_tau(tau)
+    d_max_dev(max_dev)
 {
     float gain;
 
@@ -60,22 +59,12 @@ rx_demod_fm::rx_demod_fm(float quad_rate, float max_dev, double tau)
     d_quad = gr::analog::quadrature_demod_cf::make(gain);
 
     /* de-emphasis */
-    d_fftaps.resize(2);
-    d_fbtaps.resize(2);
-    calculate_iir_taps(d_tau);
-    d_deemph = gr::filter::iir_filter_ffd::make(d_fftaps, d_fbtaps);
+    d_deemph = make_fm_deemph(d_quad_rate, tau);
 
     /* connect block */
     connect(self(), 0, d_quad, 0);
-    if (d_tau > 1.0e-9)
-    {
-        connect(d_quad, 0, d_deemph, 0);
-        connect(d_deemph, 0, self(), 0);
-    }
-    else
-    {
-        connect(d_quad, 0, self(), 0);
-    }
+    connect(d_quad, 0, d_deemph, 0);
+    connect(d_deemph, 0, self(), 0);
 
 }
 
@@ -108,80 +97,8 @@ void rx_demod_fm::set_max_dev(float max_dev)
 
 /*! \brief Set FM de-emphasis time constant.
  *  \param tau The new time costant.
- *
- * \bug Assumes that IIR filter has already been constructed so that we
- *      can use the set_taps() method.
  */
 void rx_demod_fm::set_tau(double tau)
 {
-    if (fabs(tau - d_tau) < 1.0e-9)
-    {
-        /* no change */
-        return;
-    }
-
-    if (tau > 1.0e-9)
-    {
-        calculate_iir_taps(tau);
-        d_deemph->set_taps(d_fftaps, d_fbtaps);
-
-        /* check to see if we need to rewire flow graph */
-        if (d_tau <= 1.0e-9)
-        {
-            /* need to put deemph into the flowgraph */
-            lock();
-            disconnect(d_quad, 0, self(), 0);
-            connect(d_quad, 0, d_deemph, 0);
-            connect(d_deemph, 0, self(), 0);
-            unlock();
-        }
-
-        d_tau = tau;
-    }
-    else
-    {
-#ifndef QT_NO_DEBUG_OUTPUT
-        std::cerr << "FM de-emphasis tau is 0: " << tau << std::endl;
-#endif
-        /* diable de-emph if conencted */
-        if (d_tau > 1.0e-9)
-        {
-#ifndef QT_NO_DEBUG_OUTPUT
-            std::cout << "  Disable de-emphasis" << std::endl;
-#endif
-            lock();
-            disconnect(d_quad, 0, d_deemph, 0);
-            disconnect(d_deemph, 0, self(), 0);
-            connect(d_quad, 0, self(), 0);
-            unlock();
-        }
-
-        d_tau = 0.0;
-    }
-}
-
-/*! \brief Calculate taps for FM de-emph IIR filter. */
-void rx_demod_fm::calculate_iir_taps(double tau)
-{
-    // copied from fm_emph.py in gr-analog
-    double  w_c;    // Digital corner frequency
-    double  w_ca;   // Prewarped analog corner frequency
-    double  k, z1, p1, b0;
-    double  fs = d_quad_rate;
-
-    w_c = 1.0 / tau;
-    w_ca = 2.0 * fs * tan(w_c / (2.0 * fs));
-
-    // Resulting digital pole, zero, and gain term from the bilinear
-    // transformation of H(s) = w_ca / (s + w_ca) to
-    // H(z) = b0 (1 - z1 z^-1)/(1 - p1 z^-1)
-    k = -w_ca / (2.0 * fs);
-    z1 = -1.0;
-    p1 = (1.0 + k) / (1.0 - k);
-    b0 = -k / (1.0 - k);
-
-    d_fftaps[0] = b0;
-    d_fftaps[1] = -z1 * b0;
-    d_fbtaps[0] = 1.0;
-    d_fbtaps[1] = -p1;
+    d_deemph->set_tau(tau);
 }

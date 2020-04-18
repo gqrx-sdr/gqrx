@@ -61,6 +61,10 @@ void DockInputCtl::readSettings(QSettings * settings)
     setIqBalance(settings->value("input/iq_balance", false).toBool());
     emit iqBalanceChanged(ui->iqBalanceButton->isChecked());
 
+    bool_val = settings->value("input/ignore_limits", false).toBool();
+    setIgnoreLimits(bool_val);
+    emit ignoreLimitsChanged(bool_val);
+
     lnb_lo = settings->value("input/lnb_lo", 0).toLongLong(&conv_ok);
     if (conv_ok)
     {
@@ -68,19 +72,12 @@ void DockInputCtl::readSettings(QSettings * settings)
         emit lnbLoChanged(ui->lnbSpinBox->value());
     }
 
-    bool_val = settings->value("input/ignore_limits", false).toBool();
-    setIgnoreLimits(bool_val);
-    emit ignoreLimitsChanged(bool_val);
-
-    bool_val = settings->value("input/hwagc", false).toBool();
-    setAgc(bool_val);
-    emit autoGainChanged(bool_val);
-
     // Ignore antenna selection if there is only one option
     if (ui->antSelector->count() > 1)
     {
         QString ant = settings->value("input/antenna", "").toString();
         setAntenna(ant);
+        emit antennaSelected(ant);
     }
 
     // gains are stored as a QMap<QString, QVariant(int)>
@@ -100,10 +97,14 @@ void DockInputCtl::readSettings(QSettings * settings)
 
             gain_name = gain_iter.key();
             gain_value = 0.1 * (double)(gain_iter.value().toInt());
-            setGain(gain_name, gain_value);
-            emit gainChanged(gain_name, gain_value);
+            if (setGain(gain_name, gain_value))
+                emit gainChanged(gain_name, gain_value);
         }
     }
+
+    bool_val = settings->value("input/hwagc", false).toBool();
+    setAgc(bool_val);
+    emit autoGainChanged(bool_val);
 
     // misc GUI settings
     bool_val = settings->value("gui/fctl_reset_digits", true).toBool();
@@ -200,9 +201,10 @@ double DockInputCtl::lnbLo()
  * @param name The name of the gain to change.
  * @param value The new value.
  */
-void DockInputCtl::setGain(QString &name, double value)
+bool DockInputCtl::setGain(QString name, double value)
 {
     int gain = -1;
+    bool success = false;
 
     for (int idx = 0; idx < gain_labels.length(); idx++)
     {
@@ -210,9 +212,12 @@ void DockInputCtl::setGain(QString &name, double value)
         {
             gain = (int)(10 * value);
             gain_sliders.at(idx)->setValue(gain);
+            success = true;
             break;
         }
     }
+
+    return success;
 }
 
 /**
@@ -363,16 +368,16 @@ void DockInputCtl::setGainStages(gain_list_t &gain_list)
         step  = (int)(10.0 * gain_list[i].step);
         gain  = (int)(10.0 * gain_list[i].value);
 
-        label = new QLabel(QString("%1 gain").arg(gain_list[i].name.c_str()), this);
-        label->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum));
+        label = new QLabel(QString("%1 ").arg(gain_list[i].name.c_str()), this);
+        label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
 
-        value = new QLabel(QString("%1 dB").arg(gain_list[i].value, 0, 'f', 1), this);
-        value->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum));
+        value = new QLabel(QString(" %1 dB").arg(gain_list[i].value, 0, 'f', 1), this);
+        value->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
 
         slider = new QSlider(Qt::Horizontal, this);
         slider->setProperty("idx", i);
         slider->setProperty("name", QString(gain_list[i].name.c_str()));
-        slider->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
+        slider->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
         slider->setRange(start, stop);
         slider->setSingleStep(step);
         slider->setValue(gain);
@@ -380,7 +385,7 @@ void DockInputCtl::setGainStages(gain_list_t &gain_list)
             slider->setPageStep(10 * step);
 
         gainLayout->addWidget(label, i, 0, Qt::AlignLeft);
-        gainLayout->addWidget(slider, i, 1, Qt::AlignCenter);
+        gainLayout->addWidget(slider, i, 1);        // setting alignment would force minimum size
         gainLayout->addWidget(value, i, 2, Qt::AlignLeft);
 
         gain_labels.push_back(label);
@@ -408,27 +413,17 @@ void DockInputCtl::setGainStages(gain_list_t &gain_list)
  * Can be used for restoring the manual gains after auto-gain has been
  * disabled.
  */
-void DockInputCtl::restoreManualGains(QSettings *settings)
+void DockInputCtl::restoreManualGains(void)
 {
-    // gains are stored as a QMap<QString, QVariant(int)>
-    // note that we store the integer values, i.e. dB*10
-    QMap <QString, QVariant> allgains;
-    QString gain_name;
-    double gain_value;
-    if (settings->contains("input/gains"))
+    QString gain_stage;
+    double  gain_value;
+    int     i;
+
+    for (i = 0; i < gain_sliders.length(); i++)
     {
-        allgains = settings->value("input/gains").toMap();
-        QMapIterator <QString, QVariant> gain_iter(allgains);
-
-        while (gain_iter.hasNext())
-        {
-            gain_iter.next();
-
-            gain_name = gain_iter.key();
-            gain_value = 0.1 * (double)(gain_iter.value().toInt());
-            setGain(gain_name, gain_value);
-            emit gainChanged(gain_name, gain_value);
-        }
+        gain_stage = gain_sliders.at(i)->property("name").toString();
+        gain_value = 0.1 * (double)gain_sliders.at(i)->value();
+        emit gainChanged(gain_stage, gain_value);
     }
 }
 

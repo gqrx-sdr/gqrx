@@ -139,8 +139,24 @@ void DockRxOpt::setFilterOffset(qint64 freq_hz)
  */
 void DockRxOpt::setFilterOffsetRange(qint64 range_hz)
 {
-    if (range_hz > 0)
-        ui->filterFreq->setup(7, -range_hz/2, range_hz/2, 1, FCTL_UNIT_KHZ);
+    int num_digits;
+
+    if (range_hz <= 0)
+        return;
+
+    range_hz /= 2;
+    if (range_hz < 100e3)
+        num_digits = 5;
+    else if (range_hz < 1e6)
+        num_digits = 6;
+    else if (range_hz < 1e7)
+        num_digits = 7;
+    else if (range_hz < 1e8)
+        num_digits = 8;
+    else
+        num_digits = 9;
+
+    ui->filterFreq->setup(num_digits, -range_hz, range_hz, 1, FCTL_UNIT_KHZ);
 }
 
 /**
@@ -285,6 +301,11 @@ double DockRxOpt::currentEmph() const
 void DockRxOpt::setSquelchLevel(double level)
 {
     ui->sqlSpinBox->setValue(level);
+}
+
+double DockRxOpt::getSqlLevel(void) const
+{
+    return ui->sqlSpinBox->value();
 }
 
 /**

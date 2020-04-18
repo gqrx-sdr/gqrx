@@ -26,19 +26,29 @@
 
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/filter/firdes.h>
+
+#if GNURADIO_VERSION < 0x030800
 #include <gnuradio/filter/fir_filter_fcc.h>
 #include <gnuradio/filter/fir_filter_fff.h>
-#include <gnuradio/analog/pll_refout_cc.h>
 #include <gnuradio/blocks/multiply_cc.h>
 #include <gnuradio/blocks/multiply_ff.h>
 #include <gnuradio/blocks/multiply_const_ff.h>
-#include <gnuradio/blocks/complex_to_imag.h>
 #include <gnuradio/blocks/add_ff.h>
+#else
+#include <gnuradio/filter/fir_filter_blk.h>
+#include <gnuradio/blocks/multiply.h>
+#include <gnuradio/blocks/multiply_const.h>
+#include <gnuradio/blocks/add_blk.h>
+#endif
+
+#include <gnuradio/analog/pll_refout_cc.h>
+#include <gnuradio/blocks/complex_to_imag.h>
 #include <vector>
+#include "dsp/fm_deemph.h"
 #include "dsp/lpf.h"
 #include "dsp/resampler_xx.h"
 
- 
+
 class stereo_demod;
 
 typedef boost::shared_ptr<stereo_demod> stereo_demod_sptr;
@@ -89,6 +99,8 @@ private:
     lpf_ff_sptr lpf1;              /*!< Low-pass filter #1. */
     resampler_ff_sptr audio_rr0;   /*!< Audio resampler #0. */
     resampler_ff_sptr audio_rr1;   /*!< Audio resampler #1. */
+    fm_deemph_sptr deemph0;        /*!< FM de-emphasis #0. */
+    fm_deemph_sptr deemph1;        /*!< FM de-emphasis #1. */
     gr::blocks::multiply_const_ff::sptr cdp; /*!< Channel delta (plus). */
     gr::blocks::multiply_const_ff::sptr cdm; /*!< Channel delta (minus). */
     gr::blocks::add_ff::sptr add0;           /*!< Left stereo channel. */

@@ -92,6 +92,7 @@ private:
     int         m_LastLeadZeroPos;
     int         m_LeadZeroPos;
     int         m_NumDigits;
+    int         m_NumDigitsForUnit;     // number of digits allocated for unit (kHz, MHz, ...)
     int         m_DigStart;
     int         m_ActiveEditDigit;
     int         m_LastEditDigit;
@@ -106,6 +107,7 @@ private:
 
     QColor      m_DigitColor;
     QColor      m_BkColor;
+    QColor      m_InactiveColor;
     QColor      m_UnitsColor;
     QColor      m_HighlightColor;
 

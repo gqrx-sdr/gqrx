@@ -25,7 +25,12 @@
 
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/filter/firdes.h>
+
+#if GNURADIO_VERSION < 0x030800
 #include <gnuradio/filter/fir_filter_fff.h>
+#else
+#include <gnuradio/filter/fir_filter_blk.h>
+#endif
 
 
 class lpf_ff;

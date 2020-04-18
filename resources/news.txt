@@ -1,7 +1,92 @@
 
-      2.11: Released TBD...
+    2.12.2: In progress...
 
+       NEW: Stereo option for UDP streaming.
+       NEW: Script to generate AppImage.
+     FIXED: FM de-emphasis causing audio to be 20 dB quieter than it should be.
+     FIXED: FM de-emphasis applied incorrectly in WFM stereo receiver.
+     FIXED: Update waterfall time resolution when FFT settings are changed.
+     FIXED: Update waterfall time resolution when window is resized.
+     FIXED: Restore waterfall time span between sessions.
+     FIXED: FFT buffer overlap calculation.
+     FIXED: Crash when launching without device connected.
+     FIXED: Crash when setting invalid RF gains.
+     FIXED: Audio panadapter / waterfall slider direction.
+     FIXED: Clear FFT averages when changing FFT size.
+     FIXED: Crash when source block doesn't support IQ balancing.
+     FIXED: Bookmark labels in FFT draw over each other.
+  IMPROVED: DSP and FFT performance.
+  IMPROVED: Panadapter & waterfall performance.
+  IMPROVED: Smooth panadapter & waterfall redrawing.
+  IMPROVED: Better default values for various settings.
+  IMPROVED: Audio waterfall colormap matches I/Q waterfall.
+  IMPROVED: Use all available display space for panadapter & waterfall.
+  IMPROVED: Updated RDS decoder.
+
+
+    2.12.1: Released January 27, 2020
+
+       NEW: White Hot, Black Hot and White Hot compressed colormaps.
+
+
+      2.12: Released January 26, 2020
+
+       NEW: GNU Radio 3.8 support.
+       NEW: Mute button in audio panel.
+       NEW: Google Turbo and Plasma color maps.
+       NEW: Set/get device gains via remote control.
+     FIXED: FFT display sometimes disappears.
+     FIXED: Crash on startup when using HackRF.
+     FIXED: dB scale disappears when zooming to 1 dB per grid line.
+     FIXED: Raw I/Q output missing one channel.
+     FIXED: Trap exceptions and show a message instead of crashing.
+  IMPROVED: Prevent zooming out too far.
+  IMPROVED: Make unlit digits slightly visible.
+  IMPROVED: Only show sample rates supported by both models of BladeRF.
+
+
+    2.11.5: Released May 17, 2018
+
+     FIXED: Crash in remote control 'q' command.
+
+
+    2.11.4: Released April 17, 2018
+
+     FIXED: Reduced size of color selector button in bookmarks tag list.
+
+
+    2.11.3: Released April 13, 2018
+
+     FIXED: Memory leak in remote control interface.
+  IMPROVED: Add backspace key to frequency controller.
+
+
+    2.11.2: Released March 24, 2018
+
+     FIXED: Layout on low resolution monitors.
+
+
+    2.11.1: Released March 18, 2018
+
+     FIXED: Removed visible border around frequency and meter widgets.
+
+
+      2.11: Released March 18, 2018
+
+       NEW: Selectable IQ FFT window type.
+     FIXED: Problems on Mac Pro computers without built-in audio.
+     FIXED: Black on black tooltips in the main window.
+     FIXED: Auto-squelch sets 0 dBFS too often.
+     FIXED: Can not play I/Q files if path contains a space.
+     FIXED: Restore gains to slider states when hardware AGC is disabled.
+     FIXED: Crash on startup when audio output device is gone (Mac OS X).
+     FIXED: Filter offset no longer limited to +/- 9.999999 MHz.
+  IMPROVED: Default FFT window for reduced spectral leakage.
+  IMPROVED: Visual indicator of squelch level in the signal meter.
+  IMPROVED: Show configuration file path when listing config files using -l
   IMPROVED: Microtelecom Perseus integration.
+  IMPROVED: Implemented PPM correction for RF Space Cloud IQ (gr-osmosdr-gqrx)
+  IMPORVED: Implemented PPM correction for PlutoSDR (gr-osmosdr-gqrx)
 
 
       2.10: Released January 21, 2018
@@ -206,7 +291,7 @@
      FIXED: Frequency control widget with recent Qt was broken.
      FIXED: Bug that caused audio FFT data to be leaked into the I/Q FFT.
      FIXED: Audio recording & playback.
-     FIXED: Proper handling of frequencies above 2147483647 Hz. 
+     FIXED: Proper handling of frequencies above 2147483647 Hz.
   IMPROVED: Y-axis panning (click-and-drag).
   IMPROVED: Rescale waterfall when resizing the main window.
   IMPROVED: gr-audio support on Linux.
@@ -253,11 +338,10 @@
 
 
      2.0.0  Released on July 7, 2012
-       
+
        First stable release of C++ version with Funcube Dongle support.
 
 
      1.x
 
        Initial experiments using Python and gr-qtgui.
-

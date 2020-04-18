@@ -59,11 +59,13 @@ stereo_demod::stereo_demod(float input_rate, float audio_rate, bool stereo, bool
   double cutof_freq = d_oirt ? 15e3 : 17e3;
   lpf0 = make_lpf_ff(d_input_rate, cutof_freq, 2e3); // FIXME
   audio_rr0 = make_resampler_ff(d_audio_rate/d_input_rate);
+  deemph0 = make_fm_deemph(d_audio_rate, 50.0e-6);
 
   if (d_stereo)
   {
     lpf1 = make_lpf_ff(d_input_rate, cutof_freq, 2e3); // FIXME
     audio_rr1 = make_resampler_ff(d_audio_rate/d_input_rate);
+    deemph1 = make_fm_deemph(d_audio_rate, 50.0e-6);
 
     if (!d_oirt)
     {
@@ -118,7 +120,7 @@ stereo_demod::stereo_demod(float input_rate, float audio_rate, bool stereo, bool
         connect(pll, 0, subtone, 0);
         connect(pll, 0, subtone, 1);
         connect(subtone, 0, lo, 0);
-    
+
 #ifdef STEREO_DEMOD_PARANOIC
         connect(lo,  0, lo2, 0);
         connect(lo2, 0, mixer, 0);
@@ -130,7 +132,7 @@ stereo_demod::stereo_demod(float input_rate, float audio_rate, bool stereo, bool
         connect(tone, 0, pll, 0);
         connect(pll, 0, lo, 0);
         connect(lo, 0, mixer, 0);
-    } 
+    }
 
     connect(self(), 0, mixer, 1);
 
@@ -145,19 +147,22 @@ stereo_demod::stereo_demod(float input_rate, float audio_rate, bool stereo, bool
 
     connect(audio_rr0, 0, add0,   0);
     connect(cdp,       0, add0,   1);
-    connect(add0,      0, self(), 0); // left = sum + delta
+    connect(add0,      0, deemph0, 0);
+    connect(deemph0,   0, self(), 0); // left = sum + delta
 
     connect(audio_rr0, 0, add1,   0);
     connect(cdm,       0, add1,   1);
-    connect(add1,      0, self(), 1); // right = sum + delta
+    connect(add1,      0, deemph1, 0);
+    connect(deemph1,   0, self(), 1); // right = sum + delta
   }
   else // if (!d_stereo)
   {
     /* connect block */
     connect(self(), 0, lpf0, 0);
     connect(lpf0,   0, audio_rr0, 0);
-    connect(audio_rr0, 0, self(), 0);
-    connect(audio_rr0, 0, self(), 1);
+    connect(audio_rr0, 0, deemph0, 0);
+    connect(deemph0, 0, self(), 0);
+    connect(deemph0, 0, self(), 1);
   }
 }
 
@@ -166,4 +171,3 @@ stereo_demod::~stereo_demod()
 {
 
 }
-

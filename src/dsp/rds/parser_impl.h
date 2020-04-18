@@ -26,14 +26,14 @@ namespace rds {
 class parser_impl : public parser
 {
 public:
-	parser_impl(bool log, bool debug);
+	parser_impl(bool log, bool debug, unsigned char pty_locale);
 
 private:
 	~parser_impl();
 
 	void reset();
 	void send_message(long, std::string);
-	void parse(pmt::pmt_t msg);
+	void parse(pmt::pmt_t pdu);
 	double decode_af(unsigned int);
 	void decode_optional_content(int, unsigned long int *);
 
@@ -71,6 +71,7 @@ private:
 	bool           static_pty;
 	bool           log;
 	bool           debug;
+	unsigned char  pty_locale;
 	gr::thread::mutex d_mutex;
 };
 
@@ -78,4 +79,3 @@ private:
 } /* namespace gr */
 
 #endif /* INCLUDED_RDS_PARSER_IMPL_H */
-

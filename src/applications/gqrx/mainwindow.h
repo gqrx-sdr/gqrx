@@ -86,8 +86,6 @@ private:
     std::complex<float>* d_fftData;
     float          *d_realFftData;
     float          *d_iirFftData;
-    float          *d_pwrFftData;
-    //double *d_audioFttData;
     float           d_fftAvg;      /*!< FFT averaging parameter set by user (not the true gain). */
 
     bool d_have_audio;  /*!< Whether we have audio (i.e. not with demod_off. */
@@ -168,7 +166,7 @@ private slots:
     void startAudioPlayback(const QString filename);
     void stopAudioPlayback();
 
-    void startAudioStream(const QString udp_host, int udp_port);
+    void startAudioStream(const QString udp_host, int udp_port, bool stereo);
     void stopAudioStreaming();
 
     /* I/Q playback and recording*/
@@ -181,6 +179,7 @@ private slots:
     /* FFT settings */
     void setIqFftSize(int size);
     void setIqFftRate(int fps);
+    void setIqFftWindow(int type);
     void setIqFftSplit(int pct_wf);
     void setIqFftAvg(float avg);
     void setAudioFftRate(int fps);
@@ -189,6 +188,7 @@ private slots:
     void setPeakDetection(bool enabled);
     void setFftPeakHold(bool enable);
     void setWfTimeSpan(quint64 span_ms);
+    void setWfSize();
 
     /* FFT plot */
     void on_plotter_newDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */

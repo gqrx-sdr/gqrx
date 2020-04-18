@@ -22,6 +22,8 @@ add_source_files(SRCS_LIST
 	agc_impl.h
 	correct_iq_cc.cpp
 	correct_iq_cc.h
+	fm_deemph.cpp
+	fm_deemph.h
 	lpf.cpp
 	lpf.h
 	resampler_xx.cpp

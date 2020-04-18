@@ -29,6 +29,7 @@
 #include <gnuradio/gr_complex.h>
 #include <boost/thread/mutex.hpp>
 #include <boost/circular_buffer.hpp>
+#include <chrono>
 
 
 #define MAX_FFT_SIZE 1048576
@@ -48,7 +49,7 @@ typedef boost::shared_ptr<rx_fft_f> rx_fft_f_sptr;
  * of raw pointers, the rx_fft_c constructor is private.
  * make_rx_fft_c is the public interface for creating new instances.
  */
-rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize=4096, int wintype=gr::filter::firdes::WIN_HAMMING);
+rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize=4096, double quad_rate=0, int wintype=gr::filter::firdes::WIN_HAMMING);
 
 
 /*! \brief Block for computing complex FFT.
@@ -65,10 +66,10 @@ rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize=4096, int wintype=gr::filter::f
  */
 class rx_fft_c : public gr::sync_block
 {
-    friend rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize, int wintype);
+    friend rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize, double quad_rate, int wintype);
 
 protected:
-    rx_fft_c(unsigned int fftsize=4096, int wintype=gr::filter::firdes::WIN_HAMMING);
+    rx_fft_c(unsigned int fftsize=4096, double quad_rate=0, int wintype=gr::filter::firdes::WIN_HAMMING);
 
 public:
     ~rx_fft_c();
@@ -80,13 +81,15 @@ public:
     void get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSize);
 
     void set_window_type(int wintype);
-    int  get_window_type();
+    int  get_window_type() const;
 
     void set_fft_size(unsigned int fftsize);
-    unsigned int get_fft_size();
+    void set_quad_rate(double quad_rate);
+    unsigned int get_fft_size() const;
 
 private:
     unsigned int d_fftsize;   /*! Current FFT size. */
+    double       d_quadrate;
     int          d_wintype;   /*! Current window type. */
 
     boost::mutex d_mutex;  /*! Used to lock FFT output buffer. */
@@ -95,8 +98,10 @@ private:
     std::vector<float>  d_window; /*! FFT window taps. */
 
     boost::circular_buffer<gr_complex> d_cbuf; /*! buffer to accumulate samples. */
+    std::chrono::time_point<std::chrono::steady_clock> d_lasttime;
 
-    void do_fft(const gr_complex *data_in, unsigned int size);
+    void do_fft(unsigned int size);
+    void set_params();
 
 };
 
@@ -109,7 +114,7 @@ private:
  * of raw pointers, the rx_fft_f constructor is private.
  * make_rx_fft_f is the public interface for creating new instances.
  */
-rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize=1024, int wintype=gr::filter::firdes::WIN_HAMMING);
+rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize=1024, double audio_rate=48000, int wintype=gr::filter::firdes::WIN_HAMMING);
 
 
 /*! \brief Block for computing real FFT.
@@ -127,10 +132,10 @@ rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize=1024, int wintype=gr::filter::f
  */
 class rx_fft_f : public gr::sync_block
 {
-    friend rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize, int wintype);
+    friend rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize, double audio_rate, int wintype);
 
 protected:
-    rx_fft_f(unsigned int fftsize=1024, int wintype=gr::filter::firdes::WIN_HAMMING);
+    rx_fft_f(unsigned int fftsize=1024, double audio_rate=48000, int wintype=gr::filter::firdes::WIN_HAMMING);
 
 public:
     ~rx_fft_f();
@@ -142,13 +147,14 @@ public:
     void get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSize);
 
     void set_window_type(int wintype);
-    int  get_window_type();
+    int  get_window_type() const;
 
     void set_fft_size(unsigned int fftsize);
-    unsigned int  get_fft_size();
+    unsigned int get_fft_size() const;
 
 private:
     unsigned int d_fftsize;   /*! Current FFT size. */
+    double       d_audiorate;
     int          d_wintype;   /*! Current window type. */
 
     boost::mutex d_mutex;  /*! Used to lock FFT output buffer. */
@@ -157,8 +163,9 @@ private:
     std::vector<float>  d_window; /*! FFT window taps. */
 
     boost::circular_buffer<float> d_cbuf; /*! buffer to accumulate samples. */
+    std::chrono::time_point<std::chrono::steady_clock> d_lasttime;
 
-    void do_fft(const float *data_in, unsigned int size);
+    void do_fft(unsigned int size);
 
 };
 

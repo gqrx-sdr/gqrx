@@ -23,11 +23,15 @@
 #ifndef RECEIVER_H
 #define RECEIVER_H
 
-#include <gnuradio/analog/sig_source_c.h>
-#include <gnuradio/blocks/file_sink.h>
+#if GNURADIO_VERSION < 0x030800
 #include <gnuradio/blocks/multiply_const_ff.h>
-#include <gnuradio/blocks/multiply_cc.h>
+#else
+#include <gnuradio/blocks/multiply_const.h>
+#endif
+
+#include <gnuradio/blocks/file_sink.h>
 #include <gnuradio/blocks/null_sink.h>
+#include <gnuradio/blocks/rotator_cc.h>
 #include <gnuradio/blocks/wavfile_sink.h>
 #include <gnuradio/blocks/wavfile_source.h>
 #include <gnuradio/top_block.h>
@@ -159,6 +163,7 @@ public:
     status      set_freq_corr(double ppm);
     float       get_signal_pwr(bool dbfs) const;
     void        set_iq_fft_size(int newsize);
+    void        set_iq_fft_window(int window_type);
     void        get_iq_fft_data(std::complex<float>* fftPoints,
                                 unsigned int &fftsize);
     void        get_audio_fft_data(std::complex<float>* fftPoints,
@@ -196,7 +201,7 @@ public:
     status      start_audio_playback(const std::string filename);
     status      stop_audio_playback();
 
-    status      start_udp_streaming(const std::string host, int port);
+    status      start_udp_streaming(const std::string host, int port, bool stereo);
     status      stop_udp_streaming();
 
     /* I/Q recording and playback */
@@ -221,6 +226,7 @@ public:
 
 private:
     void        connect_all(rx_chain type);
+    void        update_ddc();
 
 private:
     bool        d_running;          /*!< Whether receiver is running or not. */
@@ -255,8 +261,7 @@ private:
     rx_fft_c_sptr             iq_fft;     /*!< Baseband FFT block. */
     rx_fft_f_sptr             audio_fft;  /*!< Audio FFT block. */
 
-    gr::analog::sig_source_c::sptr      lo;  /*!< oscillator used for tuning. */
-    gr::blocks::multiply_cc::sptr       mixer;
+    gr::blocks::rotator_cc::sptr rot;     /*!< Rotator used when only shifting frequency */
 
     gr::blocks::multiply_const_ff::sptr audio_gain0; /*!< Audio gain block. */
     gr::blocks::multiply_const_ff::sptr audio_gain1; /*!< Audio gain block. */
@@ -282,9 +287,6 @@ private:
 
     //! Get a path to a file containing random bytes
     static std::string get_random_file(void);
-
-    //! Get a path to a file containing all-zero bytes
-    static std::string get_null_file(void);
 };
 
 #endif // RECEIVER_H

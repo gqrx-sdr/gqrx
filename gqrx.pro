@@ -16,6 +16,11 @@ lessThan(QT_MAJOR_VERSION,5) {
     error("Gqrx requires Qt 5.")
 }
 
+PKGCONFIG_EXISTS = $$system(pkg-config --version)
+isEmpty(PKGCONFIG_EXISTS) {
+    error("Gqrx requires pkg-config to build.")
+}
+
 TEMPLATE = app
 
 macx {
@@ -57,7 +62,7 @@ isEmpty(PREFIX) {
 }
 
 target.path  = $$PREFIX/bin
-INSTALLS    += target 
+INSTALLS    += target
 
 #CONFIG += debug
 
@@ -68,13 +73,13 @@ CONFIG(debug, debug|release) {
 
     # Define version string (see below for releases)
     VER = $$system(git describe --abbrev=8)
-    ##VER = 2.10
+    ##VER = 2.12
 
 } else {
     DEFINES += QT_NO_DEBUG
     DEFINES += QT_NO_DEBUG_OUTPUT
     VER = $$system(git describe --abbrev=1)
-    ##VER = 2.10
+    ##VER = 2.12
 
     # Release binaries with gr bundled
     # QMAKE_RPATH & co won't work with origin
@@ -98,6 +103,7 @@ SOURCES += \
     src/dsp/agc_impl.cpp \
     src/dsp/correct_iq_cc.cpp \
     src/dsp/filter/fir_decim.cpp \
+    src/dsp/fm_deemph.cpp \
     src/dsp/lpf.cpp \
     src/dsp/rds/decoder_impl.cc \
     src/dsp/rds/parser_impl.cc \
@@ -151,6 +157,7 @@ HEADERS += \
     src/dsp/correct_iq_cc.h \
     src/dsp/filter/fir_decim.h \
     src/dsp/filter/fir_decim_coef.h \
+    src/dsp/fm_deemph.h \
     src/dsp/lpf.h \
     src/dsp/rds/api.h \
     src/dsp/rds/parser.h \
@@ -258,6 +265,29 @@ PKGCONFIG += gnuradio-analog \
              gnuradio-runtime \
              gnuradio-osmosdr
 
+# Detect GNU Radio version and link against log4cpp for 3.8
+GNURADIO_VERSION = $$system(pkg-config --modversion gnuradio-runtime)
+
+GNURADIO_VERSION_MAJOR = $$system(echo $$GNURADIO_VERSION | cut -d '.' -f1 -)
+GNURADIO_VERSION_MINOR = $$system(echo $$GNURADIO_VERSION | cut -d '.' -f2 -)
+GNURADIO_VERSION_PATCH = $$system(echo $$GNURADIO_VERSION | cut -d '.' -f3 -)
+
+GNURADIO_HEX_VERSION = $$system(            \
+  "echo $((                                 \
+    ($$GNURADIO_VERSION_MAJOR / 10) << 20 | \
+    ($$GNURADIO_VERSION_MAJOR % 10) << 16 | \
+    ($$GNURADIO_VERSION_MINOR / 10) << 12 | \
+    ($$GNURADIO_VERSION_MINOR % 10) <<  8 | \
+    ($$GNURADIO_VERSION_PATCH / 10) <<  4 | \
+    ($$GNURADIO_VERSION_PATCH % 10) <<  0   \
+  ))"                                       \
+)
+DEFINES += GNURADIO_VERSION=$$GNURADIO_HEX_VERSION
+
+greaterThan(GNURADIO_VERSION_MINOR, 7) {
+    PKGCONFIG += log4cpp
+}
+
 INCPATH += src/
 
 unix:!macx {
@@ -271,7 +301,10 @@ macx {
 
 OTHER_FILES += \
     bookmarks.csv \
-    gqrx.desktop \
-    README.md \
     COPYING \
-    news.txt
+    gqrx.appdata.xml \
+    gqrx.desktop \
+    LICENSE-CTK \
+    MANIFEST.md \
+    news.txt \
+    README.md

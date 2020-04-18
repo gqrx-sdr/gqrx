@@ -51,7 +51,7 @@ public:
     ~DockAudio();
 
     void setFftRange(quint64 minf, quint64 maxf);
-    void setNewFttData(float *fftData, int size);
+    void setNewFftData(float *fftData, int size);
     int  fftRate() const { return 10; }
 
     void setAudioGain(int gain);
@@ -70,13 +70,14 @@ public slots:
     void startAudioRecorder(void);
     void stopAudioRecorder(void);
     void setRxFrequency(qint64 freq);
+    void setWfColormap(const QString &cmap);
 
 signals:
     /*! \brief Signal emitted when audio gain has changed. Gain is in dB. */
     void audioGainChanged(float gain);
 
     /*! \brief Audio streaming over UDP has started. */
-    void audioStreamingStarted(const QString host, int port);
+    void audioStreamingStarted(const QString host, int port, bool stereo);
 
     /*! \brief Audio streaming stopped. */
     void audioStreamingStopped();
@@ -102,11 +103,13 @@ private slots:
     void on_audioRecButton_clicked(bool checked);
     void on_audioPlayButton_clicked(bool checked);
     void on_audioConfButton_clicked();
+    void on_audioMuteButton_clicked(bool checked);
     void setNewPandapterRange(int min, int max);
     void setNewWaterfallRange(int min, int max);
     void setNewRecDir(const QString &dir);
     void setNewUdpHost(const QString &host);
     void setNewUdpPort(int port);
+    void setNewUdpStereo(bool enabled);
 
 
 private:
@@ -117,6 +120,7 @@ private:
 
     QString        udp_host;     /*! UDP client host name. */
     int            udp_port;     /*! UDP client port number. */
+    bool           udp_stereo;   /*! Enable stereo streaming for UDP. */
 
     bool           autoSpan;     /*! Whether to allow mode-dependent auto span. */
 

@@ -38,8 +38,8 @@ udp_sink_f_sptr make_udp_sink_f()
     return gnuradio::get_initial_sptr(new udp_sink_f());
 }
 
-static const int MIN_IN = 1;  /*!< Mininum number of input streams. */
-static const int MAX_IN = 1;  /*!< Maximum number of input streams. */
+static const int MIN_IN = 2;  /*!< Mininum number of input streams. */
+static const int MAX_IN = 2;  /*!< Maximum number of input streams. */
 static const int MIN_OUT = 0; /*!< Minimum number of output streams. */
 static const int MAX_OUT = 0; /*!< Maximum number of output streams. */
 
@@ -59,8 +59,12 @@ udp_sink_f::udp_sink_f()
 #endif
     d_sink->disconnect();
 
-    connect(self(), 0, d_f2s, 0);
-    connect(d_f2s, 0, d_sink, 0);
+    d_inter = gr::blocks::interleave::make(sizeof(float));
+    d_null0 = gr::blocks::null_sink::make(sizeof(float));
+    d_null1 = gr::blocks::null_sink::make(sizeof(float));
+
+    connect(self(), 0, d_null0, 0);
+    connect(self(), 1, d_null1, 0);
 }
 
 udp_sink_f::~udp_sink_f()
@@ -70,15 +74,39 @@ udp_sink_f::~udp_sink_f()
 /*! \brief Start streaming through the UDP sink
  *  \param host The hostname or IP address of the client.
  *  \param port The port used for the UDP stream
+ *  \param stereo Select mono or stereo streaming
  */
-void udp_sink_f::start_streaming(const std::string host, int port)
+void udp_sink_f::start_streaming(const std::string host, int port, bool stereo)
 {
+    lock();
+    disconnect_all();
+
+    if (stereo)
+    {
+        connect(self(), 0, d_inter, 0);
+        connect(self(), 1, d_inter, 1);
+        connect(d_inter, 0, d_f2s, 0);
+        connect(d_f2s, 0, d_sink, 0);
+    }
+    else
+    {
+        connect(self(), 0, d_f2s, 0);
+        connect(d_f2s, 0, d_sink, 0);
+        connect(self(), 1, d_null0, 0);
+    }
+    unlock();
+
     d_sink->connect(host, port);
 }
 
 
 void udp_sink_f::stop_streaming(void)
 {
+    lock();
+    disconnect_all();
+    connect(self(), 0, d_null0, 0);
+    connect(self(), 1, d_null1, 0);
+    unlock();
+
     d_sink->disconnect();
 }
-

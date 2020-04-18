@@ -54,6 +54,7 @@ CFreqCtrl::CFreqCtrl(QWidget *parent) :
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
     m_BkColor = QColor(0x1F, 0x1D, 0x1D, 0xFF);
+    m_InactiveColor = QColor(0x43, 0x43, 0x43, 0xFF);
     m_DigitColor = QColor(0xFF, 0xFF, 0xFF, 0xFF);
     m_HighlightColor = QColor(0x5A, 0x5A, 0x5A, 0xFF);
     m_UnitsColor = Qt::gray;
@@ -262,9 +263,11 @@ void CFreqCtrl::setDigitColor(QColor col)
 
 void CFreqCtrl::setUnit(FctlUnit unit)
 {
+    m_NumDigitsForUnit = 2;
     switch (unit)
     {
     case FCTL_UNIT_NONE:
+        m_NumDigitsForUnit = 0;
         m_DecPos = 0;
         m_UnitString = QString();
         break;
@@ -510,6 +513,7 @@ void CFreqCtrl::keyPressEvent(QKeyEvent *event)
         moveCursorRight();
         fSkipMsg = true;
         break;
+    case Qt::Key_Backspace:
     case Qt::Key_Left:
         if (m_ActiveEditDigit != -1)
         {
@@ -559,8 +563,8 @@ void CFreqCtrl::drawBkGround(QPainter &Painter)
 
     // qDebug() <<rect;
     int    cellwidth = 100 * rect.width() /
-                       (100 * (m_NumDigits + 2) + (m_NumSeps * SEPRATIO_N) /
-                        SEPRATIO_D);
+                       (100 * (m_NumDigits + m_NumDigitsForUnit) +
+                        (m_NumSeps * SEPRATIO_N) / SEPRATIO_D);
     int    sepwidth = (SEPRATIO_N * cellwidth) / (100 * SEPRATIO_D);
     // qDebug() <<cellwidth <<sepwidth;
 
@@ -585,7 +589,7 @@ void CFreqCtrl::drawBkGround(QPainter &Painter)
     Painter.setPen(m_DigitColor);
 
     char    dgsep = ' ';       // digit group separator
-    int     digpos = rect.right() - 2 * cellwidth - 1; // starting digit x position
+    int     digpos = rect.right() - m_NumDigitsForUnit * cellwidth - 1; // starting digit x position
     for (int i = m_DigStart; i < m_NumDigits; i++)
     {
         if ((i > m_DigStart) && ((i % 3) == 0))
@@ -642,7 +646,7 @@ void CFreqCtrl::drawDigits(QPainter &Painter)
                 Painter.fillRect(m_DigitInfo[i].dQRect, m_BkColor);
 
             if (i >= m_LeadZeroPos)
-                Painter.setPen(m_BkColor);
+                Painter.setPen(m_InactiveColor);
             else
                 Painter.setPen(m_DigitColor);
 

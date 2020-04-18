@@ -24,8 +24,14 @@
 #define RX_FILTER_H
 
 #include <gnuradio/hier_block2.h>
+
+#if GNURADIO_VERSION < 0x030800
 #include <gnuradio/filter/fir_filter_ccc.h>
 #include <gnuradio/filter/freq_xlating_fir_filter_ccc.h>
+#else
+#include <gnuradio/filter/fir_filter_blk.h>
+#include <gnuradio/filter/freq_xlating_fir_filter.h>
+#endif
 
 
 #define RX_FILTER_MIN_WIDTH 100  /*! Minimum width of filter */

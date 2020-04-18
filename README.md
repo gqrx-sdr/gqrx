@@ -77,14 +77,14 @@ Gqrx can be compiled using qmake or cmake.
 The source code is hosted on Github: https://github.com/csete/gqrx
 
 To compile gqrx from source you need the following dependencies:
-- GNU Radio 3.7 with the following components:
+- GNU Radio 3.8 with the following components:
     - gnuradio-runtime
     - gnuradio-analog
-    - gnuradio-digital
-    - gnuradio-blocks
-    - gnuradio-filter
-    - gnuradio-fft
     - gnuradio-audio
+    - gnuradio-blocks
+    - gnuradio-digital
+    - gnuradio-fft
+    - gnuradio-filter
     - gnuradio-pmt
 - The gr-iqbalance library (optional)
 - Drivers for the hardware you want to have support for:
@@ -105,6 +105,7 @@ To compile gqrx from source you need the following dependencies:
     - Network
     - Widgets
     - Svg (runtime only)
+- pkg-config
 - cmake version >= 3.2.0 if you wish to build using cmake.
 
 To build using qmake, you can either open the gqrx.pro file in Qt Creator and
@@ -165,25 +166,30 @@ come with a Simplified BSD license.
 
 Following people and organisations have contributed to gqrx:
 
+Arlecchino
 Alex Grinkov
 Alexander Fasching
 Andy Sloane
 Andrea Merello
-Andrea Montefusco IW0HDV 
+Andrea Montefusco, IW0HDV
 Anthony Willard
 Bastian Bloessl
 Pavel Stano
 Chris Kuethe
-Christian Lindner DL2VCL
+Christian Lindner, DL2VCL
 charlylima
+Clayton Smith
+Darin Franklin
 Stefano Leucci
 Daniil Cherednik
 Dominic Chen
 Elias Önal
 Frank Brickle, AB2KT
+Federico Fuga
 Bob McGwier, N4HY
 Göran Weinholt, SA6CJK
 Grigory Shipunov
+Jiawei Chen
 Jiří Pinkava
 Jeff Long
 Josh Blum
@@ -194,17 +200,21 @@ Michael Lass
 Michael Tatarinov
 Moe Weatley
 Nadeem Hasan
+Nick Robinson, KE5YWP
 Nokia
+Pavel Milanes, CO7WT
 Phil Vachon
 Rob Frohne
 Stefano Leucci
+Sylvain Munaut
 Timothy Reaves
 Valentin Ochs
 Vesa Solonen
 Vincent Pelletier
 Will Scales
-Wolfgang Fritz DK7OB
+Wolfgang Fritz, DK7OB
 Youssef Touil
+Zero_Chaos 
 
 Some of the icons are from:
 - The GNOME icon theme CC-SA 3.0 by GNOME icon artists 

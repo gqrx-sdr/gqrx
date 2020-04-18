@@ -53,6 +53,7 @@ public:
 signals:
     void fftSizeChanged(int size);                 /*! FFT size changed. */
     void fftRateChanged(int fps);                  /*! FFT rate changed. */
+    void fftWindowChanged(int window);             /*! FFT window type changed */
     void wfSpanChanged(quint64 span_ms);           /*! Waterfall span changed. */
     void fftSplitChanged(int pct);                 /*! Split between pandapter and waterfall changed. */
     void fftZoomChanged(float level);              /*! Zoom level slider changed. */
@@ -66,6 +67,7 @@ signals:
     void fftFillToggled(bool fill);                /*! Toggle filling area under FFT plot. */
     void fftPeakHoldToggled(bool enable);          /*! Toggle peak hold in FFT area. */
     void peakDetectionToggled(bool enabled);       /*! Enable peak detection in FFT plot */
+    void wfColormapChanged(const QString &cmap);
 
 public slots:
     void setPandapterRange(float min, float max);
@@ -76,6 +78,7 @@ public slots:
 private slots:
     void on_fftSizeComboBox_currentIndexChanged(const QString & text);
     void on_fftRateComboBox_currentIndexChanged(const QString & text);
+    void on_fftWinComboBox_currentIndexChanged(int index);
     void on_wfSpanComboBox_currentIndexChanged(int index);
     void on_fftSplitSlider_valueChanged(int value);
     void on_fftAvgSlider_valueChanged(int value);
@@ -90,6 +93,7 @@ private slots:
     void on_peakHoldButton_toggled(bool checked);
     void on_peakDetectionButton_toggled(bool checked);
     void on_lockButton_toggled(bool checked);
+    void on_cmapComboBox_currentIndexChanged(int index);
 
 private:
     void updateInfoLabels(void);
