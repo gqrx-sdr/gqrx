@@ -107,8 +107,8 @@ stereo_demod::stereo_demod(float input_rate, float audio_rate, bool stereo, bool
 
     mixer = gr::blocks::multiply_ff::make();
 
-    cdp = gr::blocks::multiply_const_ff::make( 5.5); // FIXME
-    cdm = gr::blocks::multiply_const_ff::make(-5.5); // FIXME
+    cdp = gr::blocks::multiply_const_ff::make( 3.6);
+    cdm = gr::blocks::multiply_const_ff::make(-3.6); 
 
     add0 = gr::blocks::add_ff::make();
     add1 = gr::blocks::add_ff::make();
