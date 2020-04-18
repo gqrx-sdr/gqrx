@@ -4,6 +4,7 @@
        NEW: Stereo option for UDP streaming.
        NEW: Script to generate AppImage.
      FIXED: FM de-emphasis causing audio to be 20 dB quieter than it should be.
+     FIXED: FM de-emphasis applied incorrectly in WFM stereo receiver.
      FIXED: Update waterfall time resolution when FFT settings are changed.
      FIXED: Update waterfall time resolution when window is resized.
      FIXED: Restore waterfall time span between sessions.
@@ -344,4 +345,3 @@
      1.x
 
        Initial experiments using Python and gr-qtgui.
-
