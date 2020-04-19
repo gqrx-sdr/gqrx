@@ -360,7 +360,7 @@ double receiver::set_input_rate(double rate)
     dc_corr->set_sample_rate(d_decim_rate);
     ddc->set_decim_and_samp_rate(d_ddc_decim, d_decim_rate);
     rx->set_quad_rate(d_quad_rate);
-    iq_fft->set_quad_rate(d_quad_rate);
+    iq_fft->set_quad_rate(d_decim_rate);
     tb->unlock();
 
     return d_input_rate;
@@ -417,7 +417,7 @@ unsigned int receiver::set_input_decim(unsigned int decim)
     dc_corr->set_sample_rate(d_decim_rate);
     ddc->set_decim_and_samp_rate(d_ddc_decim, d_decim_rate);
     rx->set_quad_rate(d_quad_rate);
-    iq_fft->set_quad_rate(d_quad_rate);
+    iq_fft->set_quad_rate(d_decim_rate);
 
     if (d_decim >= 2)
     {
