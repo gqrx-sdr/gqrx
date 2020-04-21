@@ -149,6 +149,10 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     uiDockBookmarks->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_B));
     ui->mainToolBar->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
 
+    /* frequency setting shortcut */
+    QShortcut *freq_shortcut = new QShortcut(QKeySequence(Qt::Key_F), this);
+    QObject::connect(freq_shortcut, &QShortcut::activated, this, &MainWindow::frequencyFocusShortcut);
+
     setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
     setCorner(Qt::BottomLeftCorner, Qt::BottomDockWidgetArea);
@@ -2431,4 +2435,9 @@ void MainWindow::on_actionAddBookmark_triggered()
 void MainWindow::updateClusterSpots()
 {
     ui->plotter->updateOverlay();
+}
+
+void MainWindow::frequencyFocusShortcut()
+{
+    ui->freqCtrl->setFrequencyFocus();
 }

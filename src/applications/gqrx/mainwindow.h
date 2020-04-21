@@ -32,6 +32,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QSvgWidget>
+#include <QShortcut>
 
 #include "qtgui/dockrxopt.h"
 #include "qtgui/dockaudio.h"
@@ -130,6 +131,8 @@ private:
     void updateGainStages(bool read_from_device);
     void showSimpleTextFile(const QString &resource_path,
                             const QString &window_title);
+    /* key shortcut */
+    void frequencyFocusShortcut();
 
 private slots:
     /* RecentConfig */
