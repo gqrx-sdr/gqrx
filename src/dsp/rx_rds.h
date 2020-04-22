@@ -35,6 +35,7 @@
 #include <gnuradio/filter/fir_filter_blk.h>
 #include <gnuradio/filter/freq_xlating_fir_filter.h>
 #endif
+#include <gnuradio/filter/pfb_arb_resampler_ccf.h>
 
 #include <gnuradio/digital/constellation_receiver_cb.h>
 #include <gnuradio/blocks/keep_one_in_n.h>
@@ -85,10 +86,10 @@ public:
 private:
     std::vector<gr_complex> d_taps;
     std::vector<float> d_taps2;
-    gr::filter::fir_filter_ccc::sptr  d_bpf;
+    std::vector<float> d_rsmp_tap;
     gr::filter::fir_filter_ccf::sptr  d_bpf2;
     gr::filter::freq_xlating_fir_filter_fcf::sptr f_fxff;
-    gr::filter::freq_xlating_fir_filter_ccf::sptr f_fxff_ccf;
+    gr::filter::pfb_arb_resampler_ccf::sptr d_rsmp;
     std::vector<float> f_rrcf;
     gr::digital::constellation_receiver_cb::sptr d_mpsk;
     gr::blocks::keep_one_in_n::sptr b_koin;
