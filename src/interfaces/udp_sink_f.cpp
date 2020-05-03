@@ -25,6 +25,8 @@
 #include <gnuradio/blocks/udp_sink.h>
 #include <gnuradio/io_signature.h>
 
+#include <iostream>
+
 #include "udp_sink_f.h"
 
 
@@ -81,6 +83,10 @@ void udp_sink_f::start_streaming(const std::string host, int port, bool stereo)
     lock();
     disconnect_all();
 
+    std::cout << "Starting UDP streaming, Host:" << host;
+    std::cout << ", Port:" << std::to_string(port) << ", ";
+    std::cout <<  (stereo? "Stereo" : "Mono") << std::endl;
+
     if (stereo)
     {
         connect(self(), 0, d_inter, 0);
@@ -107,6 +113,8 @@ void udp_sink_f::stop_streaming(void)
     connect(self(), 0, d_null0, 0);
     connect(self(), 1, d_null1, 0);
     unlock();
+
+    std::cout << "Disconnected UDP streaming" << std::endl;
 
     d_sink->disconnect();
 }
