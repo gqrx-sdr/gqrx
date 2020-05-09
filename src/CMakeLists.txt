@@ -71,6 +71,7 @@ target_link_libraries(${PROJECT_NAME}
     ${PULSEAUDIO_LIBRARY}
     ${PULSE-SIMPLE}
     ${PORTAUDIO_LIBRARIES}
+    volk
 )
 
 if(NOT Gnuradio_VERSION VERSION_LESS "3.8")
@@ -80,6 +81,7 @@ if(NOT Gnuradio_VERSION VERSION_LESS "3.8")
         gnuradio::gnuradio-digital
         gnuradio::gnuradio-filter
         gnuradio::gnuradio-audio
+        volk
     )
 endif()
 
