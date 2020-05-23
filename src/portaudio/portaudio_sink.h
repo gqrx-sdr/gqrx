@@ -30,7 +30,11 @@ using namespace std;
 
 class portaudio_sink;
 
+#if GNURADIO_VERSION < 0x030900
 typedef boost::shared_ptr<portaudio_sink> portaudio_sink_sptr;
+#else
+typedef std::shared_ptr<portaudio_sink> portaudio_sink_sptr;
+#endif
 
 portaudio_sink_sptr make_portaudio_sink(const string device_name, int audio_rate,
                                         const string app_name,

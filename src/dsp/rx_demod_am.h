@@ -32,7 +32,11 @@
 
 class rx_demod_am;
 
+#if GNURADIO_VERSION < 0x030900
 typedef boost::shared_ptr<rx_demod_am> rx_demod_am_sptr;
+#else
+typedef std::shared_ptr<rx_demod_am> rx_demod_am_sptr;
+#endif
 
 /*! \brief Return a shared_ptr to a new instance of rx_demod_am.
  *  \param quad_rate The input sample rate.

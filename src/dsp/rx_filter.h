@@ -39,8 +39,13 @@
 class rx_filter;
 class rx_xlating_filter;
 
+#if GNURADIO_VERSION < 0x030900
 typedef boost::shared_ptr<rx_filter> rx_filter_sptr;
 typedef boost::shared_ptr<rx_xlating_filter> rx_xlating_filter_sptr;
+#else
+typedef std::shared_ptr<rx_filter> rx_filter_sptr;
+typedef std::shared_ptr<rx_xlating_filter> rx_xlating_filter_sptr;
+#endif
 
 
 /*! \brief Return a shared_ptr to a new instance of rx_filter.

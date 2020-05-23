@@ -39,7 +39,11 @@
 
 class nbrx;
 
+#if GNURADIO_VERSION < 0x030900
 typedef boost::shared_ptr<nbrx> nbrx_sptr;
+#else
+typedef std::shared_ptr<nbrx> nbrx_sptr;
+#endif
 
 /*! \brief Public constructor of nbrx_sptr. */
 nbrx_sptr make_nbrx(float quad_rate, float audio_rate);
