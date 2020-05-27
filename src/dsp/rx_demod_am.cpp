@@ -105,12 +105,6 @@ void rx_demod_am::set_dcr(bool dcr)
     d_dcr_enabled = dcr;
 }
 
-/*! \brief Get current DCR status. */
-bool rx_demod_am::dcr()
-{
-    return d_dcr_enabled;
-}
-
 /* Create a new instance of rx_demod_amsync and return a boost shared_ptr. */
 rx_demod_amsync_sptr make_rx_demod_amsync(float quad_rate, bool dcr, float pll_bw)
 {
@@ -187,12 +181,6 @@ void rx_demod_amsync::set_dcr(bool dcr)
     }
 
     d_dcr_enabled = dcr;
-}
-
-/*! \brief Get current DCR status. */
-bool rx_demod_amsync::dcr()
-{
-    return d_dcr_enabled;
 }
 
 /*! \brief Set PLL loop bandwidth.
