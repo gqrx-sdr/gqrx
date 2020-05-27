@@ -175,3 +175,8 @@ void CDemodOptions::on_cwOffsetSpin_valueChanged(int value)
 {
     emit cwOffsetChanged(value);
 }
+
+void CDemodOptions::on_syncdcrCheckBox_toggled(bool checked)
+{
+    emit amSyncDcrToggled(checked);
+}

@@ -95,6 +95,10 @@ public:
     virtual bool has_am();
     virtual void set_am_dcr(bool enabled);
 
+    /* AM-Sync parameters */
+    virtual bool has_amsync();
+    virtual void set_amsync_dcr(bool enabled);
+
     virtual void get_rds_data(std::string &outbuff, int &num);
     virtual void start_rds_decoder();
     virtual void stop_rds_decoder();

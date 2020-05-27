@@ -75,7 +75,8 @@ public:
         MODE_CWL        = 8, /*!< CW using LSB filter. */
         MODE_CWU        = 9, /*!< CW using USB filter. */
         MODE_WFM_STEREO_OIRT = 10, /*!< Broadcast FM (stereo oirt). */
-        MODE_LAST       = 11
+        MODE_AM_SYNC    = 11, /*!< Broadcast FM (stereo oirt). */
+        MODE_LAST       = 12
     };
 
     explicit DockRxOpt(qint64 filterOffsetRange = 90000, QWidget *parent = 0);
@@ -146,6 +147,9 @@ signals:
     /** Signal emitted when AM DCR status is toggled. */
     void amDcrToggled(bool enabled);
 
+    /** Signal emitted when AM-Sync DCR status is toggled. */
+    void amSyncDcrToggled(bool enabled);
+
     /** Signal emitted when baseband gain has changed. Gain is in dB. */
     //void bbGainChanged(float gain);
 
@@ -206,6 +210,7 @@ private slots:
     void demodOpt_fmEmphSelected(double tau);
     void demodOpt_amDcrToggled(bool enabled);
     void demodOpt_cwOffsetChanged(int offset);
+    void demodOpt_amSyncDcrToggled(bool enabled);
 
     // Signals coming from AGC options popup
     void agcOpt_hangToggled(bool checked);

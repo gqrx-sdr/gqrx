@@ -41,7 +41,8 @@ static const int filter_preset_table[DockRxOpt::MODE_LAST][3][2] =
     {{    100,   4000}, {   100,  2800}, {   300,  2400}},  // MODE_USB
     {{  -1000,   1000}, {  -250,   250}, {  -100,   100}},  // MODE_CWL
     {{  -1000,   1000}, {  -250,   250}, {  -100,   100}},  // MODE_CWU
-    {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}}   // MODE_WFM_STEREO_OIRT
+    {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}},  // MODE_WFM_STEREO_OIRT
+    {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}}   // MODE_AMSYNC
 };
 
 DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
@@ -66,6 +67,7 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
         ModulationStrings.append("CW-L");
         ModulationStrings.append("CW-U");
         ModulationStrings.append("WFM (oirt)");
+        ModulationStrings.append("AM-Sync");
     }
     ui->modeSelector->addItems(ModulationStrings);
 
@@ -102,6 +104,7 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     connect(demodOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(demodOpt_fmEmphSelected(double)));
     connect(demodOpt, SIGNAL(amDcrToggled(bool)), this, SLOT(demodOpt_amDcrToggled(bool)));
     connect(demodOpt, SIGNAL(cwOffsetChanged(int)), this, SLOT(demodOpt_cwOffsetChanged(int)));
+    connect(demodOpt, SIGNAL(amSyncDcrToggled(bool)), this, SLOT(demodOpt_amSyncDcrToggled(bool)));
 
     // AGC options dialog
     agcOpt = new CAgcOptions(this);
@@ -574,6 +577,8 @@ void DockRxOpt::updateDemodOptPage(int demod)
         demodOpt->setCurrentPage(CDemodOptions::PAGE_AM_OPT);
     else if (demod == MODE_CWL || demod == MODE_CWU)
         demodOpt->setCurrentPage(CDemodOptions::PAGE_CW_OPT);
+    else if (demod == MODE_AM_SYNC)
+        demodOpt->setCurrentPage(CDemodOptions::PAGE_AMSYNC_OPT);
     else
         demodOpt->setCurrentPage(CDemodOptions::PAGE_NO_OPT);
 }
@@ -719,6 +724,15 @@ void DockRxOpt::demodOpt_amDcrToggled(bool enabled)
 void DockRxOpt::demodOpt_cwOffsetChanged(int offset)
 {
     emit cwOffsetChanged(offset);
+}
+
+/**
+ * @brief AM-Sync DC removal toggled by user.
+ * @param enabled Whether DCR is enabled or not.
+ */
+void DockRxOpt::demodOpt_amSyncDcrToggled(bool enabled)
+{
+    emit amSyncDcrToggled(enabled);
 }
 
 /** Noise blanker 1 button has been toggled. */

@@ -26,16 +26,20 @@
 
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/blocks/complex_to_mag.h>
+#include <gnuradio/blocks/complex_to_real.h>
+#include <gnuradio/analog/pll_carriertracking_cc.h>
 #include <gnuradio/filter/iir_filter_ffd.h>
 #include <vector>
 
-
 class rx_demod_am;
+class rx_demod_amsync;
 
 #if GNURADIO_VERSION < 0x030900
 typedef boost::shared_ptr<rx_demod_am> rx_demod_am_sptr;
+typedef boost::shared_ptr<rx_demod_amsync> rx_demod_amsync_sptr;
 #else
 typedef std::shared_ptr<rx_demod_am> rx_demod_am_sptr;
+typedef std::shared_ptr<rx_demod_amsync> rx_demod_amsync_sptr;
 #endif
 
 /*! \brief Return a shared_ptr to a new instance of rx_demod_am.
@@ -78,5 +82,48 @@ private:
 
 };
 
+
+/*! \brief Return a shared_ptr to a new instance of rx_demod_amsync.
+ *  \param quad_rate The input sample rate.
+ *  \param dcr Enable DCR
+ *
+ * This is effectively the public constructor.
+ */
+rx_demod_amsync_sptr make_rx_demod_amsync(float quad_rate, bool dcr=true);
+
+
+/*! \brief Synchronous AM demodulator.
+ *  \ingroup DSP
+ *
+ * This class implements a synchronous AM demodulator.
+ * A PLL tracks the carrier frequency and is mixed with the signal, shifting it to
+ * 0 Hz.
+ * This block implements an optional IIR DC-removal filter for the demodulated signal.
+ *
+ */
+class rx_demod_amsync : public gr::hier_block2
+{
+
+public:
+    rx_demod_amsync(float quad_rate, bool dcr=true); // FIXME: could be private
+    ~rx_demod_amsync();
+
+    void set_dcr(bool dcr);
+    bool dcr();
+
+private:
+    /* GR blocks */
+    gr::analog::pll_carriertracking_cc::sptr d_demod1;
+    gr::blocks::complex_to_real::sptr d_demod2;
+    gr::filter::iir_filter_ffd::sptr    d_dcr;    /*! DC removal (IIR high pass). */
+
+    /* other parameters */
+    bool   d_dcr_enabled;   /*! DC removal flag. */
+
+    /* IIR DC-removal filter taps */
+    std::vector<double> d_fftaps;   /*! Feed forward taps. */
+    std::vector<double> d_fbtaps;   /*! Feed back taps. */
+
+};
 
 #endif // RX_DEMOD_AM_H

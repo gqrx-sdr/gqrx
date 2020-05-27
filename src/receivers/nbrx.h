@@ -62,7 +62,8 @@ public:
         NBRX_DEMOD_AM   = 1,  /*!< Amplitude modulation. */
         NBRX_DEMOD_FM   = 2,  /*!< Frequency modulation. */
         NBRX_DEMOD_SSB  = 3,  /*!< Single Side Band. */
-        NBRX_DEMOD_NUM  = 4   /*!< Included for convenience. */
+        NBRX_DEMOD_AMSYNC = 4, /*!< Amplitude modulation. */
+        NBRX_DEMOD_NUM  = 5   /*!< Included for convenience. */
     };
 
 public:
@@ -110,6 +111,10 @@ public:
     bool has_am() { return true; }
     void set_am_dcr(bool enabled);
 
+    /* AM-Sync parameters */
+    bool has_amsync() { return true; }
+    void set_amsync_dcr(bool enabled);
+
 private:
     bool   d_running;          /*!< Whether receiver is running or not. */
     float  d_quad_rate;        /*!< Input sample rate. */
@@ -128,6 +133,7 @@ private:
     gr::blocks::complex_to_real::sptr   demod_ssb;  /*!< SSB demodulator. */
     rx_demod_fm_sptr          demod_fm;   /*!< FM demodulator. */
     rx_demod_am_sptr          demod_am;   /*!< AM demodulator. */
+    rx_demod_amsync_sptr      demod_amsync;   /*!< AM-Sync demodulator. */
     resampler_ff_sptr         audio_rr0;  /*!< Audio resampler. */
     resampler_ff_sptr         audio_rr1;  /*!< Audio resampler. */
 
