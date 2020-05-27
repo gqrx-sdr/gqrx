@@ -112,21 +112,21 @@ bool rx_demod_am::dcr()
 }
 
 /* Create a new instance of rx_demod_amsync and return a boost shared_ptr. */
-rx_demod_amsync_sptr make_rx_demod_amsync(float quad_rate, bool dcr)
+rx_demod_amsync_sptr make_rx_demod_amsync(float quad_rate, bool dcr, float pll_bw)
 {
-    return gnuradio::get_initial_sptr(new rx_demod_amsync(quad_rate, dcr));
+    return gnuradio::get_initial_sptr(new rx_demod_amsync(quad_rate, dcr, pll_bw));
 }
 
-#define PLL_FMAX 500.0
+#define PLL_FMAX 5000.0
 
-rx_demod_amsync::rx_demod_amsync(float quad_rate, bool dcr)
+rx_demod_amsync::rx_demod_amsync(float quad_rate, bool dcr, float pll_bw)
     : gr::hier_block2 ("rx_demod_amsync",
                       gr::io_signature::make (MIN_IN, MAX_IN, sizeof (gr_complex)),
                       gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof (float))),
     d_dcr_enabled(dcr)
 {
     /* demodulator */
-    d_demod1 = gr::analog::pll_carriertracking_cc::make(0.02,
+    d_demod1 = gr::analog::pll_carriertracking_cc::make(pll_bw,
                                                         (2.0*M_PI*PLL_FMAX/quad_rate),
                                                         (2.0*M_PI*(-PLL_FMAX)/quad_rate));
     d_demod2 = gr::blocks::complex_to_real::make(1);
@@ -193,4 +193,13 @@ void rx_demod_amsync::set_dcr(bool dcr)
 bool rx_demod_amsync::dcr()
 {
     return d_dcr_enabled;
+}
+
+/*! \brief Set PLL loop bandwidth.
+ *  \param pll_bw The new PLL BW.
+ */
+void rx_demod_amsync::set_pll_bw(float pll_bw)
+{
+    d_demod1->set_loop_bandwidth(pll_bw);
+    d_demod1->update_gains();
 }

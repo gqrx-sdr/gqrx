@@ -50,7 +50,7 @@ nbrx::nbrx(float quad_rate, float audio_rate)
     demod_ssb = gr::blocks::complex_to_real::make(1);
     demod_fm = make_rx_demod_fm(PREF_QUAD_RATE, 5000.0, 75.0e-6);
     demod_am = make_rx_demod_am(PREF_QUAD_RATE, true);
-    demod_amsync = make_rx_demod_amsync(PREF_QUAD_RATE, true);
+    demod_amsync = make_rx_demod_amsync(PREF_QUAD_RATE, true, 0.001);
 
     audio_rr0.reset();
     audio_rr1.reset();
@@ -321,4 +321,9 @@ void nbrx::set_am_dcr(bool enabled)
 void nbrx::set_amsync_dcr(bool enabled)
 {
     demod_amsync->set_dcr(enabled);
+}
+
+void nbrx::set_amsync_pll_bw(float pll_bw)
+{
+    demod_amsync->set_pll_bw(pll_bw);
 }

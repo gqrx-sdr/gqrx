@@ -263,17 +263,94 @@ For digital modes it is best to switch it off.</string>
      <widget class="QWidget" name="demodAmSyncOpt">
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <widget class="QCheckBox" name="syncdcrCheckBox">
-         <property name="toolTip">
-          <string>Enable/disable DC removal.</string>
+        <layout class="QFormLayout" name="pagedemodFormLayout3">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
          </property>
-         <property name="text">
-          <string>DCR</string>
+         <property name="labelAlignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
-         <property name="checked">
-          <bool>true</bool>
+         <property name="horizontalSpacing">
+          <number>10</number>
          </property>
-        </widget>
+         <property name="verticalSpacing">
+          <number>5</number>
+         </property>
+         <property name="leftMargin">
+          <number>5</number>
+         </property>
+         <property name="rightMargin">
+          <number>5</number>
+         </property>
+         <property name="bottomMargin">
+          <number>5</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="pllBwLabel">
+           <property name="text">
+            <string>PLL</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="pllBwSelector">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>24</height>
+            </size>
+           </property>
+           <property name="toolTip">
+		   <string>Carrier tracking PLL. Weak, noisy or fading signals may
+benefit from a slower PLL. A slower PLL will take longer
+to react to changes in the carrier frequency however.</string>
+           </property>
+           <property name="statusTip">
+            <string/>
+           </property>
+           <property name="currentIndex">
+            <number>1</number>
+           </property>
+           <item>
+            <property name="text">
+             <string>Fast</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Medium</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Slow</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+	 <item row="1" column="0">
+          <widget class="QCheckBox" name="syncdcrCheckBox">
+           <property name="toolTip">
+            <string>Enable/disable DC removal.</string>
+           </property>
+           <property name="text">
+            <string>DCR</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>

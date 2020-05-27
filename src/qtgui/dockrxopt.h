@@ -150,6 +150,9 @@ signals:
     /** Signal emitted when AM-Sync DCR status is toggled. */
     void amSyncDcrToggled(bool enabled);
 
+    /** Signal emitted when new AM-Sync PLL BW is selected. */
+    void amSyncPllBwSelected(float pll_bw);
+
     /** Signal emitted when baseband gain has changed. Gain is in dB. */
     //void bbGainChanged(float gain);
 
@@ -211,6 +214,7 @@ private slots:
     void demodOpt_amDcrToggled(bool enabled);
     void demodOpt_cwOffsetChanged(int offset);
     void demodOpt_amSyncDcrToggled(bool enabled);
+    void demodOpt_amSyncPllBwSelected(float pll_bw);
 
     // Signals coming from AGC options popup
     void agcOpt_hangToggled(bool checked);

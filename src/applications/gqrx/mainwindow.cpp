@@ -209,6 +209,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockRxOpt, SIGNAL(amDcrToggled(bool)), this, SLOT(setAmDcr(bool)));
     connect(uiDockRxOpt, SIGNAL(cwOffsetChanged(int)), this, SLOT(setCwOffset(int)));
     connect(uiDockRxOpt, SIGNAL(amSyncDcrToggled(bool)), this, SLOT(setAmSyncDcr(bool)));
+    connect(uiDockRxOpt, SIGNAL(amSyncPllBwSelected(float)), this, SLOT(setAmSyncPllBw(float)));
     connect(uiDockRxOpt, SIGNAL(agcToggled(bool)), this, SLOT(setAgcOn(bool)));
     connect(uiDockRxOpt, SIGNAL(agcHangToggled(bool)), this, SLOT(setAgcHang(bool)));
     connect(uiDockRxOpt, SIGNAL(agcThresholdChanged(int)), this, SLOT(setAgcThreshold(int)));
@@ -1228,6 +1229,18 @@ void MainWindow::setCwOffset(int offset)
 void MainWindow::setAmSyncDcr(bool enabled)
 {
     rx->set_amsync_dcr(enabled);
+}
+
+/**
+ * @brief New AM-Sync PLL BW selected.
+ * @param pll_bw The new PLL BW.
+ */
+void MainWindow::setAmSyncPllBw(float pll_bw)
+{
+    qDebug() << "AM-Sync PLL BW: " << pll_bw;
+
+    /* receiver will check range */
+    rx->set_amsync_pll_bw(pll_bw);
 }
 
 /**

@@ -966,6 +966,14 @@ receiver::status receiver::set_amsync_dcr(bool enabled)
     return STATUS_OK;
 }
 
+receiver::status receiver::set_amsync_pll_bw(float pll_bw)
+{
+    if (rx->has_amsync())
+        rx->set_amsync_pll_bw(pll_bw);
+
+    return STATUS_OK;
+}
+
 receiver::status receiver::set_af_gain(float gain_db)
 {
     float k;

@@ -98,6 +98,7 @@ public:
     /* AM-Sync parameters */
     virtual bool has_amsync();
     virtual void set_amsync_dcr(bool enabled);
+    virtual void set_amsync_pll_bw(float pll_bw);
 
     virtual void get_rds_data(std::string &outbuff, int &num);
     virtual void start_rds_decoder();

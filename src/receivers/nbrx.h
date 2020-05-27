@@ -114,6 +114,7 @@ public:
     /* AM-Sync parameters */
     bool has_amsync() { return true; }
     void set_amsync_dcr(bool enabled);
+    void set_amsync_pll_bw(float pll_bw);
 
 private:
     bool   d_running;          /*!< Whether receiver is running or not. */

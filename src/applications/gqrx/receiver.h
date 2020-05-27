@@ -197,6 +197,7 @@ public:
 
     /* AM-Sync parameters */
     status      set_amsync_dcr(bool enabled);
+    status      set_amsync_pll_bw(float pll_bw);
 
     /* Audio parameters */
     status      set_af_gain(float gain_db);

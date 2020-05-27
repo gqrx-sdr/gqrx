@@ -86,10 +86,11 @@ private:
 /*! \brief Return a shared_ptr to a new instance of rx_demod_amsync.
  *  \param quad_rate The input sample rate.
  *  \param dcr Enable DCR
+ *  \param pll_bw The new PLL BW.
  *
  * This is effectively the public constructor.
  */
-rx_demod_amsync_sptr make_rx_demod_amsync(float quad_rate, bool dcr=true);
+rx_demod_amsync_sptr make_rx_demod_amsync(float quad_rate, bool dcr=true, float pll_bw=0.001);
 
 
 /*! \brief Synchronous AM demodulator.
@@ -105,10 +106,11 @@ class rx_demod_amsync : public gr::hier_block2
 {
 
 public:
-    rx_demod_amsync(float quad_rate, bool dcr=true); // FIXME: could be private
+    rx_demod_amsync(float quad_rate, bool dcr=true, float pll_bw=0.001); // FIXME: could be private
     ~rx_demod_amsync();
 
     void set_dcr(bool dcr);
+    void set_pll_bw(float pll_bw);
     bool dcr();
 
 private:

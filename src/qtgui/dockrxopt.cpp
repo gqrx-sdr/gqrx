@@ -105,6 +105,7 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     connect(demodOpt, SIGNAL(amDcrToggled(bool)), this, SLOT(demodOpt_amDcrToggled(bool)));
     connect(demodOpt, SIGNAL(cwOffsetChanged(int)), this, SLOT(demodOpt_cwOffsetChanged(int)));
     connect(demodOpt, SIGNAL(amSyncDcrToggled(bool)), this, SLOT(demodOpt_amSyncDcrToggled(bool)));
+    connect(demodOpt, SIGNAL(amSyncPllBwSelected(float)), this, SLOT(demodOpt_amSyncPllBwSelected(float)));
 
     // AGC options dialog
     agcOpt = new CAgcOptions(this);
@@ -733,6 +734,15 @@ void DockRxOpt::demodOpt_cwOffsetChanged(int offset)
 void DockRxOpt::demodOpt_amSyncDcrToggled(bool enabled)
 {
     emit amSyncDcrToggled(enabled);
+}
+
+/**
+ * @brief AM-Sync PLL BW changed by user.
+ * @param pll_bw The new PLL BW.
+ */
+void DockRxOpt::demodOpt_amSyncPllBwSelected(float pll_bw)
+{
+    emit amSyncPllBwSelected(pll_bw);
 }
 
 /** Noise blanker 1 button has been toggled. */
