@@ -38,6 +38,7 @@ public:
     void setCenterLineEnabled(bool enabled) { m_CenterLineEnabled = enabled; }
     void setTooltipsEnabled(bool enabled) { m_TooltipsEnabled = enabled; }
     void setBookmarksEnabled(bool enabled) { m_BookmarksEnabled = enabled; }
+    void setInvertScrolling(bool enabled) { m_InvertScrolling = enabled; }
 
     void setNewFftData(float *fftData, int size);
     void setNewFftData(float *fftData, float *wfData, int size);
@@ -225,6 +226,7 @@ private:
     bool        m_FilterBoxEnabled;   /*!< Draw filter box. */
     bool        m_TooltipsEnabled;     /*!< Tooltips enabled */
     bool        m_BookmarksEnabled;   /*!< Show/hide bookmarks on spectrum */
+    bool        m_InvertScrolling;
     int         m_DemodHiCutFreq;
     int         m_DemodLowCutFreq;
     int         m_DemodFreqX;		//screen coordinate x position

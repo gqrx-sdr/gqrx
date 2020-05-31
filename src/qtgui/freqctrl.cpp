@@ -65,6 +65,7 @@ CFreqCtrl::CFreqCtrl(QWidget *parent) :
     m_LRMouseFreqSel = false;
     m_ActiveEditDigit = -1;
     m_ResetLowerDigits = true;
+    m_InvertScrolling = false;
     m_UnitsFont = QFont("Arial", 12, QFont::Normal);
     m_DigitFont = QFont("Arial", 12, QFont::Normal);
 
@@ -464,7 +465,8 @@ void CFreqCtrl::mousePressEvent(QMouseEvent *event)
 void CFreqCtrl::wheelEvent(QWheelEvent *event)
 {
     QPoint    pt = event->pos();
-    int       numDegrees = event->delta() / 8;
+    int       delta = m_InvertScrolling ? -event->delta() : event->delta();
+    int       numDegrees = delta / 8;
     int       numSteps = numDegrees / 15;
 
     for (int i = m_DigStart; i < m_NumDigits; i++)

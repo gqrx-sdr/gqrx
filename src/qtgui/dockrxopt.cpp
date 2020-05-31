@@ -512,6 +512,11 @@ void DockRxOpt::setRxFreqRange(qint64 min_hz, qint64 max_hz)
     ui->freqSpinBox->blockSignals(false);
 }
 
+void DockRxOpt::setInvertScrolling(bool enabled)
+{
+    ui->filterFreq->setInvertScrolling(enabled);
+}
+
 /**
  * @brief Channel filter offset has changed
  * @param freq The new filter offset in Hz

@@ -96,6 +96,8 @@ public:
     void setHwFreq(qint64 freq_hz);
     void setRxFreqRange(qint64 min_hz, qint64 max_hz);
 
+    void setInvertScrolling(bool enabled);
+
     int  currentDemod() const;
     QString currentDemodAsString();
 

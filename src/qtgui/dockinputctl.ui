@@ -232,6 +232,13 @@
      </widget>
     </item>
     <item>
+     <widget class="QCheckBox" name="invertScrollingButton">
+      <property name="text">
+       <string>Invert scroll wheel direction</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
