@@ -982,6 +982,7 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
 void MainWindow::setFreqCtrlReset(bool enabled)
 {
     ui->freqCtrl->setResetLowerDigits(enabled);
+    uiDockRxOpt->setResetLowerDigits(enabled);
 }
 
 /** Invert scroll wheel direction */

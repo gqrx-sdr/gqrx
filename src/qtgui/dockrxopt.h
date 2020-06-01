@@ -96,6 +96,7 @@ public:
     void setHwFreq(qint64 freq_hz);
     void setRxFreqRange(qint64 min_hz, qint64 max_hz);
 
+    void setResetLowerDigits(bool enabled);
     void setInvertScrolling(bool enabled);
 
     int  currentDemod() const;
