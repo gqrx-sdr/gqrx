@@ -97,7 +97,7 @@ rx_rds_store::rx_rds_store() : gr::block ("rx_rds_store",
                                 gr::io_signature::make (0, 0, 0))
 {
         message_port_register_in(pmt::mp("store"));
-        set_msg_handler(pmt::mp("store"), boost::bind(&rx_rds_store::store, this, _1));
+        set_msg_handler(pmt::mp("store"), boost::bind(&rx_rds_store::store, this, boost::placeholders::_1));
         d_messages.set_capacity(100);
 }
 
