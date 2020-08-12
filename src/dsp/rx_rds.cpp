@@ -29,7 +29,10 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdarg.h>
+#include <boost/bind/bind.hpp>
 #include "dsp/rx_rds.h"
+
+using namespace boost::placeholders;
 
 static const int MIN_IN = 1;  /* Mininum number of input streams. */
 static const int MAX_IN = 1;  /* Maximum number of input streams. */

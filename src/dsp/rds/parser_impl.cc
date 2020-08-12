@@ -23,8 +23,10 @@
 #include "tmc_events.h"
 #include <gnuradio/io_signature.h>
 #include <math.h>
+#include <boost/bind/bind.hpp>
 
 using namespace gr::rds;
+using namespace boost::placeholders;
 
 parser::sptr
 parser::make(bool log, bool debug, unsigned char pty_locale) {
