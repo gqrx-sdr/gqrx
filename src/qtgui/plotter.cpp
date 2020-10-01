@@ -75,6 +75,8 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp)
 #define FFT_MIN_DB     -160.f
 #define FFT_MAX_DB      0.f
 
+#define FILTER_WIDTH_MIN_HZ 200
+
 // Colors of type QRgb in 0xAARRGGBB format (unsigned int)
 #define PLOTTER_BGD_COLOR           0xFF1F1D1D
 #define PLOTTER_GRID_COLOR          0xFF444242
@@ -383,6 +385,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             if (m_GrabPosition != 0)
             {
                 m_DemodLowCutFreq = freqFromX(pt.x() - m_GrabPosition ) - m_DemodCenterFreq;
+                m_DemodLowCutFreq = std::min(m_DemodLowCutFreq, m_DemodHiCutFreq - FILTER_WIDTH_MIN_HZ);
                 m_DemodLowCutFreq = roundFreq(m_DemodLowCutFreq, m_FilterClickResolution);
 
                 if (m_symetric && (event->buttons() & Qt::LeftButton))  // symetric adjustment
@@ -418,6 +421,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             if (m_GrabPosition != 0)
             {
                 m_DemodHiCutFreq = freqFromX( pt.x()-m_GrabPosition ) - m_DemodCenterFreq;
+                m_DemodHiCutFreq = std::max(m_DemodHiCutFreq, m_DemodLowCutFreq + FILTER_WIDTH_MIN_HZ);
                 m_DemodHiCutFreq = roundFreq(m_DemodHiCutFreq, m_FilterClickResolution);
 
                 if (m_symetric && (event->buttons() & Qt::LeftButton)) // symetric adjustment
