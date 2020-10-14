@@ -212,9 +212,9 @@ QList<BookmarkInfo> Bookmarks::getBookmarksInRange(qint64 low, qint64 high)
 {
     BookmarkInfo info;
     info.frequency=low;
-    QList<BookmarkInfo>::const_iterator lb = qLowerBound(m_BookmarkList, info);
+    QList<BookmarkInfo>::const_iterator lb = std::lower_bound(m_BookmarkList.begin(), m_BookmarkList.end(), info);
     info.frequency=high;
-    QList<BookmarkInfo>::const_iterator ub = qUpperBound(m_BookmarkList, info);
+    QList<BookmarkInfo>::const_iterator ub = std::upper_bound(m_BookmarkList.begin(), m_BookmarkList.end(), info);
 
     QList<BookmarkInfo> found;
 
