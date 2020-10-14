@@ -142,6 +142,7 @@ private slots:
     void setIqBalance(bool enabled);
     void setIgnoreLimits(bool ignore_limits);
     void setFreqCtrlReset(bool enabled);
+    void setInvertScrolling(bool enabled);
     void selectDemod(QString demod);
     void selectDemod(int index);
     void setFmMaxdev(float max_dev);

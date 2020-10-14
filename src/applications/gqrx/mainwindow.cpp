@@ -198,6 +198,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockInputCtl, SIGNAL(ignoreLimitsChanged(bool)), this, SLOT(setIgnoreLimits(bool)));
     connect(uiDockInputCtl, SIGNAL(antennaSelected(QString)), this, SLOT(setAntenna(QString)));
     connect(uiDockInputCtl, SIGNAL(freqCtrlResetChanged(bool)), this, SLOT(setFreqCtrlReset(bool)));
+    connect(uiDockInputCtl, SIGNAL(invertScrollingChanged(bool)), this, SLOT(setInvertScrolling(bool)));
     connect(uiDockRxOpt, SIGNAL(rxFreqChanged(qint64)), ui->freqCtrl, SLOT(setFrequency(qint64)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), remote, SLOT(setFilterOffset(qint64)));
@@ -981,6 +982,15 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
 void MainWindow::setFreqCtrlReset(bool enabled)
 {
     ui->freqCtrl->setResetLowerDigits(enabled);
+    uiDockRxOpt->setResetLowerDigits(enabled);
+}
+
+/** Invert scroll wheel direction */
+void MainWindow::setInvertScrolling(bool enabled)
+{
+    ui->freqCtrl->setInvertScrolling(enabled);
+    ui->plotter->setInvertScrolling(enabled);
+    uiDockRxOpt->setInvertScrolling(enabled);
 }
 
 /**

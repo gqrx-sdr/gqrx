@@ -347,9 +347,6 @@ void DockRxOpt::readSettings(QSettings *settings)
     int     int_val;
     double  dbl_val;
 
-    bool bool_val = settings->value("gui/fctl_reset_digits", true).toBool();
-    ui->filterFreq->setResetLowerDigits(bool_val);
-
     int_val = settings->value("receiver/cwoffset", 700).toInt(&conv_ok);
     if (conv_ok)
         demodOpt->setCwOffset(int_val);
@@ -510,6 +507,16 @@ void DockRxOpt::setRxFreqRange(qint64 min_hz, qint64 max_hz)
     ui->freqSpinBox->blockSignals(true);
     ui->freqSpinBox->setRange(1.e-3 * (double)min_hz, 1.e-3 * (double)max_hz);
     ui->freqSpinBox->blockSignals(false);
+}
+
+void DockRxOpt::setResetLowerDigits(bool enabled)
+{
+    ui->filterFreq->setResetLowerDigits(enabled);
+}
+
+void DockRxOpt::setInvertScrolling(bool enabled)
+{
+    ui->filterFreq->setInvertScrolling(enabled);
 }
 
 /**
