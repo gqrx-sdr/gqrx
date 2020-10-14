@@ -40,7 +40,7 @@ parser_impl::parser_impl(bool log, bool debug, unsigned char pty_locale)
 	pty_locale(pty_locale)
 {
 	message_port_register_in(pmt::mp("in"));
-	set_msg_handler(pmt::mp("in"), boost::bind(&parser_impl::parse, this, boost::placeholders::_1));
+	set_msg_handler(pmt::mp("in"), std::bind(&parser_impl::parse, this, std::placeholders::_1));
 	message_port_register_out(pmt::mp("out"));
 	reset();
 }
