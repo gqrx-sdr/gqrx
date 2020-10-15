@@ -1,5 +1,5 @@
 
-    2.12.2: In progress...
+      2.13: In progress...
 
        NEW: Stereo option for UDP streaming.
        NEW: Script to generate AppImage.
@@ -23,6 +23,7 @@
   IMPROVED: Audio waterfall colormap matches I/Q waterfall.
   IMPROVED: Use all available display space for panadapter & waterfall.
   IMPROVED: Updated RDS decoder.
+  IMPROVED: More Airspy HF+ sample rates added.
 
 
     2.12.1: Released January 27, 2020
