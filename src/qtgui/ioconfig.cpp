@@ -497,7 +497,18 @@ void CIoConfig::updateInputSampleRates(int rate)
     }
     else if (ui->inDevEdit->text().contains("airspyhf"))
     {
+        ui->inSrCombo->addItem("192000");
+        ui->inSrCombo->addItem("256000");
+        ui->inSrCombo->addItem("384000");
         ui->inSrCombo->addItem("768000");
+
+        if (rate > 0)
+        {
+            ui->inSrCombo->insertItem(0, QString("%1").arg(rate));
+            ui->inSrCombo->setCurrentIndex(0);
+        }
+        else
+            ui->inSrCombo->setCurrentIndex(3); // select 768 kHz
     }
     // NB: must list airspyhf first
     else if (ui->inDevEdit->text().contains("airspy"))
