@@ -199,7 +199,7 @@ void DockAudio::on_audioStreamButton_clicked(bool checked)
  *  \param checked Whether recording is ON or OFF.
  *
  * We use the clicked signal instead of the toggled which allows us to change the
- * state programatically using toggle() without triggering the signal.
+ * state programmatically using toggle() without triggering the signal.
  */
 void DockAudio::on_audioRecButton_clicked(bool checked)
 {
@@ -227,7 +227,7 @@ void DockAudio::on_audioRecButton_clicked(bool checked)
  *  \param checked Whether playback is ON or OFF.
  *
  * We use the clicked signal instead of the toggled which allows us to change the
- * state programatically using toggle() without triggering the signal.
+ * state programmatically using toggle() without triggering the signal.
  */
 void DockAudio::on_audioPlayButton_clicked(bool checked)
 {

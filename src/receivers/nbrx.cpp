@@ -24,7 +24,7 @@
 #include <iostream>
 #include "receivers/nbrx.h"
 
-// NB: Remeber to adjust filter ranges in MainWindow
+// NB: Remember to adjust filter ranges in MainWindow
 #define PREF_QUAD_RATE  96000.f
 
 nbrx_sptr make_nbrx(float quad_rate, float audio_rate)

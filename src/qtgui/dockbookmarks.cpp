@@ -239,7 +239,7 @@ void DockBookmarks::changeBookmarkTags(int row, int /*column*/)
     BookmarkInfo& bmi = Bookmarks::Get().getBookmark(iIdx);
 
     // Create and show the Dialog for a new Bookmark.
-    // Write the result into variabe 'tags'.
+    // Write the result into variable 'tags'.
     {
         QDialog dialog(this);
         dialog.setWindowTitle("Change Bookmark Tags");

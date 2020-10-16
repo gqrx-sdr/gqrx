@@ -33,7 +33,7 @@ fm_deemph_sptr make_fm_deemph(float quad_rate, double tau)
     return gnuradio::get_initial_sptr(new fm_deemph(quad_rate, tau));
 }
 
-static const int MIN_IN = 1;  /* Mininum number of input streams. */
+static const int MIN_IN = 1;  /* Minimum number of input streams. */
 static const int MAX_IN = 1;  /* Maximum number of input streams. */
 static const int MIN_OUT = 1; /* Minimum number of output streams. */
 static const int MAX_OUT = 1; /* Maximum number of output streams. */
@@ -59,7 +59,7 @@ fm_deemph::~fm_deemph ()
 }
 
 /*! \brief Set FM de-emphasis time constant.
- *  \param tau The new time costant.
+ *  \param tau The new time constant.
  */
 void fm_deemph::set_tau(double tau)
 {

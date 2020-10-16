@@ -102,7 +102,7 @@ int osxaudio_device_list::populate_device_list()
     return 0;
 
 error:
-    std::cerr << "An error occured while using OSX audio" << std::endl;
+    std::cerr << "An error occurred while using OSX audio" << std::endl;
     std::cerr << "Error number: " << err << std::endl;
     return err;
 }

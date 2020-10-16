@@ -85,7 +85,7 @@ int sniffer_f::work(int noutput_items,
 }
 
 
-/*! \brief Get number of samples avaialble for fetching.
+/*! \brief Get number of samples available for fetching.
  *  \return The number of samples in the buffer.
  *
  * This method can be used to read how many samples are currently
@@ -98,7 +98,7 @@ int  sniffer_f::samples_available()
     return d_buffer.size();
 }
 
-/*! \brief Fetch avaialble samples.
+/*! \brief Fetch available samples.
  *  \param out Pointer to allocated memory where the samples will be copied.
  *             Should be at least as big as buffer_size().
  *  \param num The number of sampels returned.

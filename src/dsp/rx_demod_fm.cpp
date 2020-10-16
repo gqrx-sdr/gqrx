@@ -34,7 +34,7 @@ rx_demod_fm_sptr make_rx_demod_fm(float quad_rate, float max_dev, double tau)
     return gnuradio::get_initial_sptr(new rx_demod_fm(quad_rate, max_dev, tau));
 }
 
-static const int MIN_IN = 1;  /* Mininum number of input streams. */
+static const int MIN_IN = 1;  /* Minimum number of input streams. */
 static const int MAX_IN = 1;  /* Maximum number of input streams. */
 static const int MIN_OUT = 1; /* Minimum number of output streams. */
 static const int MAX_OUT = 1; /* Maximum number of output streams. */
@@ -96,7 +96,7 @@ void rx_demod_fm::set_max_dev(float max_dev)
 }
 
 /*! \brief Set FM de-emphasis time constant.
- *  \param tau The new time costant.
+ *  \param tau The new time constant.
  */
 void rx_demod_fm::set_tau(double tau)
 {

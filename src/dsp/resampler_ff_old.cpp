@@ -34,7 +34,7 @@ resampler_ffo_sptr make_resampler_ffo(unsigned int input_rate, unsigned int outp
 }
 
 
-static const int MIN_IN = 1;  /* Mininum number of input streams. */
+static const int MIN_IN = 1;  /* Minimum number of input streams. */
 static const int MAX_IN = 1;  /* Maximum number of input streams. */
 static const int MIN_OUT = 1; /* Minimum number of output streams. */
 static const int MAX_OUT = 1; /* Maximum number of output streams. */

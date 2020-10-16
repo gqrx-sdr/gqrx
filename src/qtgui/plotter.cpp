@@ -389,7 +389,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 m_DemodLowCutFreq = std::min(m_DemodLowCutFreq, m_DemodHiCutFreq - FILTER_WIDTH_MIN_HZ);
                 m_DemodLowCutFreq = roundFreq(m_DemodLowCutFreq, m_FilterClickResolution);
 
-                if (m_symetric && (event->buttons() & Qt::LeftButton))  // symetric adjustment
+                if (m_symetric && (event->buttons() & Qt::LeftButton))  // symmetric adjustment
                 {
                     m_DemodHiCutFreq = -m_DemodLowCutFreq;
                 }
@@ -403,7 +403,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             }
             else
             {
-                // save initial grab postion from m_DemodFreqX
+                // save initial grab position from m_DemodFreqX
                 m_GrabPosition = pt.x()-m_DemodLowCutFreqX;
             }
         }
@@ -425,7 +425,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 m_DemodHiCutFreq = std::max(m_DemodHiCutFreq, m_DemodLowCutFreq + FILTER_WIDTH_MIN_HZ);
                 m_DemodHiCutFreq = roundFreq(m_DemodHiCutFreq, m_FilterClickResolution);
 
-                if (m_symetric && (event->buttons() & Qt::LeftButton)) // symetric adjustment
+                if (m_symetric && (event->buttons() & Qt::LeftButton)) // symmetric adjustment
                 {
                     m_DemodLowCutFreq = -m_DemodHiCutFreq;
                 }
@@ -436,7 +436,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             }
             else
             {
-                // save initial grab postion from m_DemodFreqX
+                // save initial grab position from m_DemodFreqX
                 m_GrabPosition = pt.x() - m_DemodHiCutFreqX;
             }
         }
@@ -462,7 +462,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             }
             else
             {
-                // save initial grab postion from m_DemodFreqX
+                // save initial grab position from m_DemodFreqX
                 m_GrabPosition = pt.x() - m_DemodFreqX;
             }
         }
@@ -531,7 +531,7 @@ void CPlotter::clearWaterfall()
 /**
  * @brief Save waterfall to a graphics file
  * @param filename
- * @return TRUE if the save successful, FALSE if an erorr occurred.
+ * @return TRUE if the save successful, FALSE if an error occurred.
  *
  * We assume that frequency strings are up to date
  */
@@ -656,7 +656,7 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                 // if cursor not captured set demod frequency and start demod box capture
                 emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
 
-                // save initial grab postion from m_DemodFreqX
+                // save initial grab position from m_DemodFreqX
                 // setCursor(QCursor(Qt::CrossCursor));
                 m_CursorCaptured = CENTER;
                 m_GrabPosition = 1;
@@ -742,7 +742,7 @@ void CPlotter::zoomStepX(float step, int x)
     // calculate new range shown on FFT
     float new_range = qBound(10.0f, m_Span * step, m_SampleFreq * 10.0f);
 
-    // Frequency where event occured is kept fixed under mouse
+    // Frequency where event occurred is kept fixed under mouse
     float ratio = (float)x / (float)m_OverlayPixmap.width();
     float fixed_hz = freqFromX(x);
     float f_max = fixed_hz + (1.0 - ratio) * new_range;

@@ -39,7 +39,7 @@ resampler_cc::resampler_cc(float rate)
           gr::io_signature::make (1, 1, sizeof(gr_complex)),
           gr::io_signature::make (1, 1, sizeof(gr_complex)))
 {
-    /* I ceated this code based on:
+    /* I created this code based on:
        http://gnuradio.squarespace.com/blog/2010/12/6/new-interface-for-pfb_arb_resampler_ccf.html
 
        and blks2.pfb_arb_resampler.py
@@ -100,7 +100,7 @@ resampler_ff::resampler_ff(float rate)
           gr::io_signature::make (1, 1, sizeof(float)),
           gr::io_signature::make (1, 1, sizeof(float)))
 {
-    /* I ceated this code based on:
+    /* I created this code based on:
        http://gnuradio.squarespace.com/blog/2010/12/6/new-interface-for-pfb_arb_resampler_ccf.html
 
        and blks2.pfb_arb_resampler.py

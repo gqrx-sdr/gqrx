@@ -531,7 +531,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
             QMessageBox *dialog =
                     new QMessageBox(QMessageBox::Warning, tr("Device Error"),
                                     tr("There was an error configuring the input device.\n"
-                                       "Please make sure that a supported device is atached "
+                                       "Please make sure that a supported device is attached "
                                        "to the computer and restart gqrx."),
                                     QMessageBox::Ok);
             dialog->setModal(true);
@@ -758,7 +758,7 @@ void MainWindow::updateHWFrequencyRange(bool ignore_limits)
 }
 
 /**
- * @brief Update availble frequency range.
+ * @brief Update available frequency range.
  *
  * This function sets the available frequency range based on the hardware
  * frequency range, the selected filter offset and the LNB LO.
@@ -956,11 +956,11 @@ void MainWindow::setIqBalance(bool enabled)
 
 /**
  * @brief Ignore hardware limits.
- * @param ignore_limits Whether harware limits should be ignored or not.
+ * @param ignore_limits Whether hardware limits should be ignored or not.
  *
  * This slot is triggered when the user changes the "Ignore hardware limits"
  * option. It will update the allowed frequency range and also update the
- * current RF center frequency, which may change when we swich from ignore to
+ * current RF center frequency, which may change when we switch from ignore to
  * don't ignore.
  */
 void MainWindow::setIgnoreLimits(bool ignore_limits)
@@ -1350,7 +1350,7 @@ void MainWindow::audioFftTimeout()
     pwr_scale = 1.0 / (fftsize * fftsize);
 
     /** FIXME: move post processing to rx_fft_f **/
-    /* Normalize, calculcate power and shift the FFT */
+    /* Normalize, calculate power and shift the FFT */
     for (i = 0; i < fftsize; i++)
     {
         /* normalize and shift */
@@ -1604,7 +1604,7 @@ void MainWindow::stopIqPlayback()
 
 /**
  * Go to a specific offset in the IQ file.
- * @param seek_pos The byte offset from the begining of the file.
+ * @param seek_pos The byte offset from the beginning of the file.
  */
 void MainWindow::seekIqFile(qint64 seek_pos)
 {
@@ -1698,7 +1698,7 @@ void MainWindow::setFftColor(const QColor color)
     uiDockAudio->setFftColor(color);
 }
 
-/** Enalbe/disable filling the aread below the FFT plot. */
+/** Enable/disable filling the aread below the FFT plot. */
 void MainWindow::setFftFill(bool enable)
 {
     ui->plotter->setFftFill(enable);
@@ -1725,7 +1725,7 @@ void MainWindow::setPeakDetection(bool enabled)
  *
  * This function provides a workaround for the "jerky streaming" that has
  * been experienced using some RTL-SDR dongles when DSP processing is
- * started. The jerkyness disappears when trhe receiver is reconfigured
+ * started. The jerkyness disappears when the receiver is reconfigured
  * by selecting a new demodulator.
  */
 /*void MainWindow::forceRxReconf()
@@ -2275,7 +2275,7 @@ void MainWindow::on_actionAddBookmark_triggered()
     QString tags; // list of tags separated by comma
 
     // Create and show the Dialog for a new Bookmark.
-    // Write the result into variabe 'name'.
+    // Write the result into variable 'name'.
     {
         QDialog dialog(this);
         dialog.setWindowTitle("New bookmark");

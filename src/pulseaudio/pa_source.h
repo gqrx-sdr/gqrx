@@ -63,7 +63,7 @@ public:
 private:
     pa_sample_spec d_ss;           /*! Sample specification. */
     string         d_stream_name;  /*! Descriptive name of the stream. */
-    string         d_app_name;     /*! Descriptive name of the applcation. */
+    string         d_app_name;     /*! Descriptive name of the application. */
     pa_simple     *d_pasrc;        /*! The pulseaudio object. */
 
 };

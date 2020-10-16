@@ -45,7 +45,7 @@ decoder_impl::~decoder_impl() {
 }
 
 
-////////////////////////// HELPER FUNTIONS /////////////////////////
+////////////////////////// HELPER FUNCTIONS /////////////////////////
 
 void decoder_impl::enter_no_sync() {
 	presync = false;

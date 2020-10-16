@@ -264,7 +264,7 @@ void RemoteControl::startRead()
 /*! \brief Slot called when the receiver is tuned to a new frequency.
  *  \param freq The new frequency in Hz.
  *
- * Note that this is the frequency gqrx is receiveing on, i.e. the
+ * Note that this is the frequency gqrx is receiving on, i.e. the
  * hardware frequency + the filter offset.
  */
 void RemoteControl::setNewFrequency(qint64 freq)

@@ -96,7 +96,7 @@ To compile gqrx from source you need the following dependencies:
     - HackRF Jawbreaker driver from http://greatscottgadgets.com/hackrf/
     - Airspy driver from https://github.com/airspy/host
     - SoapySDR from https://github.com/pothosware/SoapySDR
-    - RFSpace driver is bult in
+    - RFSpace driver is built in
 - gnuradio-osmosdr from http://cgit.osmocom.org/cgit/gr-osmosdr/
 - pulseaudio or portaudio (Linux only and optional)
 - Qt 5 with the following components:

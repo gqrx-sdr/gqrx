@@ -692,7 +692,7 @@ void CIoConfig::inputDeviceSelected(int index)
  * @param text THe new device string
  *
  * This slot is activated when the device string in the text edit box has changed
- * either by the user or programatically. We use this to enable/disable the OK
+ * either by the user or programmatically. We use this to enable/disable the OK
  * button - we allo OK only if there is some text in the text entry.
  */
 void CIoConfig::inputDevstrChanged(const QString &text)

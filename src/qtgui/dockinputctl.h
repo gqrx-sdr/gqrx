@@ -49,7 +49,7 @@ typedef struct
 
 /*! \brief A vector with gain parameters.
  *
- * This data structure is used for transfering
+ * This data structure is used for transferring
  * information about available gain stages.
  */
 typedef std::vector<gain_t> gain_list_t;

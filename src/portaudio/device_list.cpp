@@ -97,7 +97,7 @@ int portaudio_device_list::populate_device_list()
     return 0;
 
 error:
-    std::cerr << "An error occured while using the portaudio stream" << std::endl;
+    std::cerr << "An error occurred while using the portaudio stream" << std::endl;
     std::cerr << "Error number: " << err << std::endl;
     std::cerr << "Error message: " << Pa_GetErrorText(err) << std::endl;
     return err;

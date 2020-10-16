@@ -263,12 +263,12 @@
      FIXED: Correctly apply initial LNB LO frequency.
      FIXED: Audio output device selection on Mac OS X.
      FIXED: Properly store settings when using Save As function.
-     FIXED: Crash when recording audio whith no rec directory set.
+     FIXED: Crash when recording audio with no rec directory set.
      FIXED: Only allow audio playback while DSP is running.
      FIXED: Ensure DSP is stopped when we exit.
      FIXED: Freeze when switching modes after audio recording.
      FIXED: Toggling "ignore limits" changes frequency.
-     FIXED: Include gqrx.dekstop file.
+     FIXED: Include gqrx.desktop file.
      FIXED: Rename scope.svg to gqrx.svg to avoid confusion.
   IMPROVED: Gqrx can fit on small screens (900x600 pixels).
   IMPROVED: Better color gradient for the waterfall.
@@ -336,7 +336,7 @@
        NEW: Pan & zoom on the pandapter axes.
        NEW: Allow changing FFT size.
      FIXED: Mac OS X compatibility.
-  IMPROVED: Various improvements to the user iterface.
+  IMPROVED: Various improvements to the user interface.
 
 
      2.0.0  Released on July 7, 2012
