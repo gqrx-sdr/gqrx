@@ -1,5 +1,5 @@
 
-      2.13: In progress...
+      2.13: Released October 16, 2020
 
        NEW: Stereo option for UDP streaming.
        NEW: Script to generate AppImage.
