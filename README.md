@@ -166,58 +166,58 @@ come with a Simplified BSD license.
 
 Following people and organisations have contributed to gqrx:
 
-Arlecchino
-Alex Grinkov
-Alexander Fasching
-Andy Sloane
-Andrea Merello
-Andrea Montefusco, IW0HDV
-Anthony Willard
-Bastian Bloessl
-Pavel Stano
-Chris Kuethe
-Christian Lindner, DL2VCL
-charlylima
-Clayton Smith
-Darin Franklin
-Stefano Leucci
-Daniil Cherednik
-Dominic Chen
-Elias Önal
-Frank Brickle, AB2KT
-Federico Fuga
-Bob McGwier, N4HY
-Göran Weinholt, SA6CJK
-Grigory Shipunov
-Jiawei Chen
-Jiří Pinkava
-Jeff Long
-Josh Blum
-Kate Adams
-Kitware Inc.
-Michael Dickens
-Michael Lass
-Michael Tatarinov
-Moe Weatley
-Nadeem Hasan
-Nick Robinson, KE5YWP
-Nokia
-Pavel Milanes, CO7WT
-Phil Vachon
-Rob Frohne
-Stefano Leucci
-Sylvain Munaut
-Timothy Reaves
-Valentin Ochs
-Vesa Solonen
-Vincent Pelletier
-Will Scales
-Wolfgang Fritz, DK7OB
-Youssef Touil
-Zero_Chaos 
+* Arlecchino
+* Alex Grinkov
+* Alexander Fasching
+* Andy Sloane
+* Andrea Merello
+* Andrea Montefusco, IW0HDV
+* Anthony Willard
+* Bastian Bloessl
+* Pavel Stano
+* Chris Kuethe
+* Christian Lindner, DL2VCL
+* charlylima
+* Clayton Smith, VE3IRR
+* Darin Franklin
+* Stefano Leucci
+* Daniil Cherednik
+* Dominic Chen
+* Elias Önal
+* Frank Brickle, AB2KT
+* Federico Fuga
+* Bob McGwier, N4HY
+* Göran Weinholt, SA6CJK
+* Grigory Shipunov
+* Jiawei Chen
+* Jiří Pinkava
+* Jeff Long
+* Josh Blum
+* Kate Adams
+* Kitware Inc.
+* Michael Dickens
+* Michael Lass
+* Michael Tatarinov
+* Moe Weatley
+* Nadeem Hasan
+* Nick Robinson, KE5YWP
+* Nokia
+* Pavel Milanes, CO7WT
+* Phil Vachon
+* Rob Frohne
+* Stefano Leucci
+* Sylvain Munaut
+* Timothy Reaves
+* Valentin Ochs
+* Vesa Solonen
+* Vincent Pelletier
+* Will Scales
+* Wolfgang Fritz, DK7OB
+* Youssef Touil
+* Zero_Chaos
 
 Some of the icons are from:
-- The GNOME icon theme CC-SA 3.0 by GNOME icon artists 
+- The GNOME icon theme CC-SA 3.0 by GNOME icon artists
 - Tango icon theme, Public Domain by The people from the Tango! project
 - Mint-X icon theme, GPL by Clement Lefebvre
 
