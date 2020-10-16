@@ -166,13 +166,13 @@ come with a Simplified BSD license.
 
 Following people and organisations have contributed to gqrx:
 
-* Arlecchino
 * Alex Grinkov
 * Alexander Fasching
 * Andy Sloane
 * Andrea Merello
 * Andrea Montefusco, IW0HDV
 * Anthony Willard
+* Anton Blanchard
 * Bastian Bloessl
 * Pavel Stano
 * Chris Kuethe
@@ -187,26 +187,33 @@ Following people and organisations have contributed to gqrx:
 * Frank Brickle, AB2KT
 * Federico Fuga
 * Bob McGwier, N4HY
+* Gisle Vanem
 * Göran Weinholt, SA6CJK
 * Grigory Shipunov
+* Gwenhael Goavec-Merou
 * Jiawei Chen
 * Jiří Pinkava
 * Jeff Long
 * Josh Blum
 * Kate Adams
 * Kitware Inc.
+* Konrad Beckmann
+* Markus Kolb
 * Michael Dickens
 * Michael Lass
 * Michael Tatarinov
 * Moe Weatley
 * Nadeem Hasan
+* Nate Temple
 * Nick Robinson, KE5YWP
 * Nokia
 * Pavel Milanes, CO7WT
 * Phil Vachon
 * Rob Frohne
+* Ron Economos, W6RZ
 * Stefano Leucci
 * Sylvain Munaut
+* Tarmo Tanilsoo
 * Timothy Reaves
 * Valentin Ochs
 * Vesa Solonen
