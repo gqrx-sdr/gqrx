@@ -31,7 +31,7 @@ rx_demod_am_sptr make_rx_demod_am(float quad_rate, bool dcr)
     return gnuradio::get_initial_sptr(new rx_demod_am(quad_rate, dcr));
 }
 
-static const int MIN_IN = 1;  /* Mininum number of input streams. */
+static const int MIN_IN = 1;  /* Minimum number of input streams. */
 static const int MAX_IN = 1;  /* Maximum number of input streams. */
 static const int MIN_OUT = 1; /* Minimum number of output streams. */
 static const int MAX_OUT = 1; /* Maximum number of output streams. */

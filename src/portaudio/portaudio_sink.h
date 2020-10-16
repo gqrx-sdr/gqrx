@@ -62,6 +62,6 @@ private:
     PaStream           *d_stream;
     PaStreamParameters  d_out_params;
     string      d_stream_name;       // Descriptive name of the stream.
-    string      d_app_name;          // Descriptive name of the applcation.
+    string      d_app_name;          // Descriptive name of the application.
     int         d_audio_rate;
 };

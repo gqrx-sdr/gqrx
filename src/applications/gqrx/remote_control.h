@@ -129,7 +129,7 @@ private:
     float       signal_level;      /*!< Signal level in dBFS */
     double      squelch_level;     /*!< Squelch level in dBFS */
     bool        audio_recorder_status; /*!< Recording enabled */
-    bool        receiver_running;  /*!< Wether the receiver is running or not */
+    bool        receiver_running;  /*!< Whether the receiver is running or not */
     bool        hamlib_compatible;
     gain_list_t gains;             /*!< Possible and current gain settings */
 

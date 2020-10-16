@@ -70,7 +70,7 @@ portaudio_sink::portaudio_sink(const string device_name, int audio_rate,
                 device_name.data(), idx);
     }
 
-    // Initialize stream parmaeters
+    // Initialize stream parameters
     d_out_params.device = idx;
     d_out_params.channelCount = 2;
     d_out_params.sampleFormat = paFloat32;

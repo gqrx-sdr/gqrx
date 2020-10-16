@@ -53,7 +53,7 @@
 #define TARGET_QUAD_RATE 1e6
 
 /**
- * @brief Public contructor.
+ * @brief Public constructor.
  * @param input_device Input device specifier.
  * @param audio_device Audio output device specifier,
  *                     e.g. hw:0 when using ALSA or Portaudio.
@@ -311,7 +311,7 @@ std::vector<std::string> receiver::get_antennas(void) const
     return src->get_antennas();
 }
 
-/** Select antenna conenctor. */
+/** Select antenna connector. */
 void receiver::set_antenna(const std::string &antenna)
 {
     if (!antenna.empty())
@@ -598,7 +598,7 @@ std::vector<std::string> receiver::get_gain_names()
  * @param[out] stop  Upper limit for this gain setting.
  * @param[out] step  The resolution for this gain setting.
  *
- * This function retunrs the range for the requested gain stage.
+ * This function returns the range for the requested gain stage.
  */
 receiver::status receiver::get_gain_range(std::string &name, double *start,
                                           double *stop, double *step) const

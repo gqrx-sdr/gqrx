@@ -38,7 +38,7 @@ udp_sink_f_sptr make_udp_sink_f()
     return gnuradio::get_initial_sptr(new udp_sink_f());
 }
 
-static const int MIN_IN = 2;  /*!< Mininum number of input streams. */
+static const int MIN_IN = 2;  /*!< Minimum number of input streams. */
 static const int MAX_IN = 2;  /*!< Maximum number of input streams. */
 static const int MIN_OUT = 0; /*!< Minimum number of output streams. */
 static const int MAX_OUT = 0; /*!< Maximum number of output streams. */

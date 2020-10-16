@@ -138,7 +138,7 @@ void Afsk1200Win::on_actionInfo_triggered()
                           "<p>The Gqrx AFSK1200 decoder taps directly into the SDR signal path "
                           "eliminating the need to mess with virtual or real audio cables. "
                           "It can decode AX.25 packets and displays the decoded packets in a text view.</p>"
-                          "<p>The decoder is based on Qtmm, which is avaialble for Linux, Mac and Windows "
+                          "<p>The decoder is based on Qtmm, which is available for Linux, Mac and Windows "
                           "at <a href='http://qtmm.sf.net/'>http://qtmm.sf.net</a>.</p>"
                           ).arg(VERSION));
 

@@ -4,16 +4,16 @@
 #
 # Options:
 #   * -u will upload your AppImage file after success to github under 
-#      "continous builds"  
+#      "continuous builds"  
 #
 # Requirements:
 #   * VERSION as an ENV var, if not detected will use actual github
 #     version + commit info
-#   * This must be run after a successfuly build, and need to set the
+#   * This must be run after a successfully build, and need to set the
 #     APP var below to the path of the executable (default is the current
 #     travis build place: build/src/gqrx)
 #   * Must be run on a Linux version as old as the far distro you need to
-#     support, tested successfuly on Ubuntu 14.04 Trusty Tar
+#     support, tested successfully on Ubuntu 14.04 Trusty Tar
 #   * If you plan to use the "-u" option you need to configure some things
 #     for it to work, check this https://github.com/probonopd/uploadtool#usage
 #
@@ -23,7 +23,7 @@
 #the project root will reside after build
 APP="build/src/gqrx"
 
-# No need to tweak below unles you move files on the actual project
+# No need to tweak below unless you move files on the actual project
 DESKTOP="gqrx.desktop"
 ICON="resources/icons/gqrx.svg"
 
@@ -89,7 +89,7 @@ else
 fi
 
 if [ "$1" == "-u" ] ; then
-    # must upload to continous releases
+    # must upload to continuous releases
     # see https://github.com/probonopd/uploadtool#usage for configs to be done
     # for this to work as needed
     wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh

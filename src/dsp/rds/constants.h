@@ -122,7 +122,7 @@ const std::string rds_group_acronyms[16]={
 
 /* see page 84, Annex J in the standard */
 const std::string language_codes[44]={
-	"Unkown/not applicable",
+	"Unknown/not applicable",
 	"Albanian",
 	"Breton",
 	"Catalan",

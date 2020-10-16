@@ -57,7 +57,7 @@ rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize=4096, double quad_rate=0, int w
  *
  * This block is used to compute the FFT of the received spectrum.
  *
- * The samples are collected in a cicular buffer with size FFT_SIZE.
+ * The samples are collected in a circular buffer with size FFT_SIZE.
  * When the GUI asks for a new set of FFT data via get_fft_data() an FFT
  * will be performed on the data stored in the circular buffer - assuming
  * of course that the buffer contains at least fftsize samples.
@@ -123,7 +123,7 @@ rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize=1024, double audio_rate=48000, 
  * This block is used to compute the FFT of the audio spectrum or anything
  * else where real FFT is useful.
  *
- * The samples are collected in a cicular buffer with size FFT_SIZE.
+ * The samples are collected in a circular buffer with size FFT_SIZE.
  * When the GUI asks for a new set of FFT data using get_fft_data() an FFT
  * will be performed on the data stored in the circular buffer - assuming
  * that the buffer contains at least fftsize samples.

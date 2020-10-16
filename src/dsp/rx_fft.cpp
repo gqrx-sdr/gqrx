@@ -128,7 +128,7 @@ void rx_fft_c::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
  *  \param size The size of data_in.
  *
  * Note that this function does not lock the mutex since the caller, get_fft_data()
- * has alrady locked it.
+ * has already locked it.
  */
 void rx_fft_c::do_fft(unsigned int size)
 {
@@ -318,7 +318,7 @@ void rx_fft_f::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
  *  \param size The size of data_in.
  *
  * Note that this function does not lock the mutex since the caller, get_fft_data()
- * has alrady locked it.
+ * has already locked it.
  */
 void rx_fft_f::do_fft(unsigned int size)
 {

@@ -141,7 +141,7 @@ double ctkFooObject::property()const
 /*!
  * Define a public class constructor with no argument
  *
- * Also make sure the Pimpl is initalized
+ * Also make sure the Pimpl is initialized
  * \see \ref CorePimpl
  */
 #define CTK_CONSTRUCTOR_NO_ARG_CPP(PUB)  \
@@ -152,7 +152,7 @@ double ctkFooObject::property()const
 /*!
  * Define a public class constructor with one argument
  *
- * Also make sure the Pimpl is initalized
+ * Also make sure the Pimpl is initialized
  * \see \ref CorePimpl
  */
 #define CTK_CONSTRUCTOR_1_ARG_CPP(PUB, _ARG1)   \

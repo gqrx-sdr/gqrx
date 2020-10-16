@@ -211,7 +211,7 @@ unsigned int DockRxOpt::filterIdxFromLoHi(int lo, int hi) const
  * @param lo Low cutoff frequency in Hz
  * @param hi High cutoff frequency in Hz.
  *
- * This function will automatically select te "User" preset in the
+ * This function will automatically select the "User" preset in the
  * combo box.
  */
 void DockRxOpt::setFilterParam(int lo, int hi)
@@ -524,7 +524,7 @@ void DockRxOpt::setInvertScrolling(bool enabled)
  * @param freq The new filter offset in Hz
  *
  * This slot is activated when a new filter offset has been selected either
- * usig the mouse or using the keyboard.
+ * using the mouse or using the keyboard.
  */
 void DockRxOpt::on_filterFreq_newFrequency(qint64 freq)
 {

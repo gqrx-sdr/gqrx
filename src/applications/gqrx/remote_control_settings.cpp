@@ -57,7 +57,7 @@ int RemoteControlSettings::getPort(void) const
 /*! \brief Add items to the list of allowed hosts.
  *  \param hosts A list with the IP addresses of the allowed hosts.
  *
- * Note that setting the list wil lclear the current contents of the
+ * Note that setting the list will clear the current contents of the
  * list widget.
  */
 void RemoteControlSettings::setHosts(QStringList hosts)
