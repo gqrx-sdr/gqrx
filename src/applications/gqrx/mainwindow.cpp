@@ -2225,7 +2225,7 @@ void MainWindow::showSimpleTextFile(const QString &resource_path,
     QDialog *dialog = new QDialog(this);
     dialog->setWindowTitle(window_title);
     dialog->setLayout(layout);
-    dialog->resize(700, 400);
+    dialog->resize(800, 400);
     dialog->exec();
 
     delete dialog;
