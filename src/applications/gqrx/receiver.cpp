@@ -337,7 +337,14 @@ double receiver::set_input_rate(double rate)
             * std::numeric_limits<double>::epsilon());
 
     tb->lock();
-    d_input_rate = src->set_sample_rate(rate);
+    try
+    {
+        d_input_rate = src->set_sample_rate(rate);
+    }
+    catch (std::runtime_error &e)
+    {
+        d_input_rate = 0;
+    }
 
     if (d_input_rate == 0)
     {
