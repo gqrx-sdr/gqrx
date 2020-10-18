@@ -1521,12 +1521,12 @@ void CPlotter::makeFrequencyStrs()
     }
 }
 
-// Convert from screen coordinate to frequency
+// Convert from frequency to screen coordinate
 int CPlotter::xFromFreq(qint64 freq)
 {
-    int w = m_OverlayPixmap.width();
-    qint64 StartFreq = m_CenterFreq + m_FftCenter - m_Span/2;
-    int x = (int) w * ((float)freq - StartFreq)/(float)m_Span;
+    qint64 w = m_OverlayPixmap.width();
+    qint64 StartFreq = m_CenterFreq + m_FftCenter - m_Span / 2;
+    int x = (int) (w * (freq - StartFreq) / m_Span);
     if (x < 0)
         return 0;
     if (x > (int)w)
@@ -1537,9 +1537,9 @@ int CPlotter::xFromFreq(qint64 freq)
 // Convert from frequency to screen coordinate
 qint64 CPlotter::freqFromX(int x)
 {
-    int w = m_OverlayPixmap.width();
+    qint64 w = m_OverlayPixmap.width();
     qint64 StartFreq = m_CenterFreq + m_FftCenter - m_Span / 2;
-    qint64 f = (qint64)(StartFreq + (float)m_Span * (float)x / (float)w);
+    qint64 f = StartFreq + m_Span * (qint64) x / w;
     return f;
 }
 
