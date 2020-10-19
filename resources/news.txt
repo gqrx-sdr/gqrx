@@ -1,4 +1,9 @@
 
+    2.13.2: In progress...
+
+     FIXED: Loss of precision in the plotter's frequency axis.
+
+
     2.13.1: Released October 17, 2020
 
      FIXED: Crash when invalid sample rate is specified.
