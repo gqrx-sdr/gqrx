@@ -47,11 +47,12 @@ rx_nb_cc::rx_nb_cc(double sample_rate, float thld1, float thld2)
       d_thld_nb2(thld2),
       d_avgmag_nb1(1.0),
       d_avgmag_nb2(1.0),
+      d_delay {0},
       d_delidx(2),
       d_sigidx(0),
       d_hangtime(0)
 {
-    memset(d_delay, 0, 8 * sizeof(gr_complex));
+
 }
 
 rx_nb_cc::~rx_nb_cc()

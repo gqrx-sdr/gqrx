@@ -269,7 +269,7 @@ void BookmarksTagList::AddTag(QString name, Qt::CheckState checkstate, QColor co
     // Column 0
     item = new QTableWidgetItem();
     item->setFlags(Qt::ItemIsEnabled);
-    item->setBackgroundColor(color);
+    item->setBackground(QBrush(color));
     setItem(i, 0, item);
 }
 
