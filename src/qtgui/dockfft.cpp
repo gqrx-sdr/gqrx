@@ -79,6 +79,7 @@ DockFft::DockFft(QWidget *parent) :
     ui->colorPicker->insertColor(QColor(0x7F,0xFA,0xFA,0xFF), "Cyan");
 
     ui->cmapComboBox->addItem(tr("Gqrx"), "gqrx");
+    ui->cmapComboBox->addItem(tr("Viridis"), "viridis");    
     ui->cmapComboBox->addItem(tr("Google Turbo"), "turbo");
     ui->cmapComboBox->addItem(tr("Plasma"), "plasma");
     ui->cmapComboBox->addItem(tr("White Hot Compressed"), "whitehotcompressed");
