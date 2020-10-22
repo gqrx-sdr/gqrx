@@ -83,9 +83,9 @@ void udp_sink_f::start_streaming(const std::string host, int port, bool stereo)
     lock();
     disconnect_all();
 
-    std::cout << "Starting UDP streaming, Host:" << host;
-    std::cout << ", Port:" << std::to_string(port) << ", ";
-    std::cout <<  (stereo? "Stereo" : "Mono") << std::endl;
+    std::cout << "Starting UDP streaming, Host: " << host;
+    std::cout << ", Port: " << std::to_string(port) << ", ";
+    std::cout << (stereo ? "Stereo" : "Mono") << std::endl;
 
     if (stereo)
     {
