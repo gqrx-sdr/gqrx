@@ -31,7 +31,11 @@ using namespace std;
 
 class pa_sink;
 
+#if GNURADIO_VERSION < 0x030900
 typedef boost::shared_ptr<pa_sink> pa_sink_sptr;
+#else
+typedef std::shared_ptr<pa_sink> pa_sink_sptr;
+#endif
 
 pa_sink_sptr make_pa_sink(const string device_name, int audio_rate,
                           const string app_name,

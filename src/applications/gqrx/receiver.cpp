@@ -1002,9 +1002,15 @@ receiver::status receiver::start_audio_recording(const std::string filename)
 
     // if this fails, we don't want to go and crash now, do we
     try {
+#if GNURADIO_VERSION < 0x030900
         wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(), 2,
                                                   (unsigned int) d_audio_rate,
                                                   16);
+#else
+        wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(), 2,
+                                                  (unsigned int) d_audio_rate,
+                                                  gr::blocks::FORMAT_WAV, gr::blocks::FORMAT_PCM_16);
+#endif
     }
     catch (std::runtime_error &e) {
         std::cout << "Error opening " << filename << ": " << e.what() << std::endl;

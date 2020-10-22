@@ -33,7 +33,11 @@
 
 class downconverter_cc;
 
+#if GNURADIO_VERSION < 0x030900
 typedef boost::shared_ptr<downconverter_cc> downconverter_cc_sptr;
+#else
+typedef std::shared_ptr<downconverter_cc> downconverter_cc_sptr;
+#endif
 downconverter_cc_sptr make_downconverter_cc(unsigned int decim, double center_freq, double samp_rate);
 
 class downconverter_cc : public gr::hier_block2

@@ -32,7 +32,11 @@
 
 class fir_decim_cc;
 
+#if GNURADIO_VERSION < 0x030900
 typedef boost::shared_ptr<fir_decim_cc> fir_decim_cc_sptr;
+#else
+typedef std::shared_ptr<fir_decim_cc> fir_decim_cc_sptr;
+#endif
 fir_decim_cc_sptr make_fir_decim_cc(unsigned int decim);
 
 class fir_decim_cc : public gr::hier_block2

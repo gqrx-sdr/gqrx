@@ -38,7 +38,11 @@
 
 class wfmrx;
 
+#if GNURADIO_VERSION < 0x030900
 typedef boost::shared_ptr<wfmrx> wfmrx_sptr;
+#else
+typedef std::shared_ptr<wfmrx> wfmrx_sptr;
+#endif
 
 /*! \brief Public constructor of wfm_rx. */
 wfmrx_sptr make_wfmrx(float quad_rate, float audio_rate);

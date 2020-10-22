@@ -25,7 +25,11 @@
 #include "filter/decimator.h"
 
 class hbf_decim;
+#if GNURADIO_VERSION < 0x030900
 typedef boost::shared_ptr<hbf_decim> hbf_decim_sptr;
+#else
+typedef std::shared_ptr<hbf_decim> hbf_decim_sptr;
+#endif
 hbf_decim_sptr make_hbf_decim(unsigned int decim);
 
 /**

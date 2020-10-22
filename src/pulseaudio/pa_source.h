@@ -31,7 +31,11 @@ using namespace std;
 
 class pa_source;
 
+#if GNURADIO_VERSION < 0x030900
 typedef boost::shared_ptr<pa_source> pa_source_sptr;
+#else
+typedef std::shared_ptr<pa_source> pa_source_sptr;
+#endif
 
 pa_source_sptr make_pa_source(const string device_name,
                               int sample_rate,

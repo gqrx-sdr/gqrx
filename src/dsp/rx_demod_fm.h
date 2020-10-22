@@ -28,7 +28,11 @@
 #include "dsp/fm_deemph.h"
 
 class rx_demod_fm;
+#if GNURADIO_VERSION < 0x030900
 typedef boost::shared_ptr<rx_demod_fm> rx_demod_fm_sptr;
+#else
+typedef std::shared_ptr<rx_demod_fm> rx_demod_fm_sptr;
+#endif
 
 /*! \brief Return a shared_ptr to a new instance of rx_demod_fm.
  *  \param quad_rate The input sample rate.

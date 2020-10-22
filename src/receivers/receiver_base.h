@@ -28,7 +28,11 @@
 
 class receiver_base_cf;
 
+#if GNURADIO_VERSION < 0x030900
 typedef boost::shared_ptr<receiver_base_cf> receiver_base_cf_sptr;
+#else
+typedef std::shared_ptr<receiver_base_cf> receiver_base_cf_sptr;
+#endif
 
 
 /*! \brief Base class for receivers that output audio.
