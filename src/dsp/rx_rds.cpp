@@ -108,14 +108,14 @@ rx_rds_store::~rx_rds_store ()
 
 void rx_rds_store::store(pmt::pmt_t msg)
 {
-    boost::mutex::scoped_lock lock(d_mutex);
+    std::lock_guard<std::mutex> lock(d_mutex);
     d_messages.push_back(msg);
 
 }
 
 void rx_rds_store::get_message(std::string &out, int &type)
 {
-    boost::mutex::scoped_lock lock(d_mutex);
+    std::lock_guard<std::mutex> lock(d_mutex);
 
     if (d_messages.size()>0) {
         pmt::pmt_t msg=d_messages.front();

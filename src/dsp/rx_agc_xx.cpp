@@ -74,7 +74,7 @@ int rx_agc_cc::work(int noutput_items,
     const gr_complex *in = (const gr_complex *) input_items[0];
     gr_complex *out = (gr_complex *) output_items[0];
 
-    boost::mutex::scoped_lock lock(d_mutex);
+    std::lock_guard<std::mutex> lock(d_mutex);
     d_agc->ProcessData(noutput_items, in, out);
 
     return noutput_items;
@@ -91,7 +91,7 @@ int rx_agc_cc::work(int noutput_items,
 void rx_agc_cc::set_agc_on(bool agc_on)
 {
     if (agc_on != d_agc_on) {
-        boost::mutex::scoped_lock lock(d_mutex);
+        std::lock_guard<std::mutex> lock(d_mutex);
         d_agc_on = agc_on;
         d_agc->SetParameters(d_agc_on, d_use_hang, d_threshold, d_manual_gain,
                              d_slope, d_decay, d_sample_rate);
@@ -108,7 +108,7 @@ void rx_agc_cc::set_agc_on(bool agc_on)
 void rx_agc_cc::set_sample_rate(double sample_rate)
 {
     if (sample_rate != d_sample_rate) {
-        boost::mutex::scoped_lock lock(d_mutex);
+        std::lock_guard<std::mutex> lock(d_mutex);
         d_sample_rate = sample_rate;
         d_agc->SetParameters(d_agc_on, d_use_hang, d_threshold, d_manual_gain,
                              d_slope, d_decay, d_sample_rate);
@@ -124,7 +124,7 @@ void rx_agc_cc::set_sample_rate(double sample_rate)
 void rx_agc_cc::set_threshold(int threshold)
 {
     if ((threshold != d_threshold) && (threshold >= -160) && (threshold <= 0)) {
-        boost::mutex::scoped_lock lock(d_mutex);
+        std::lock_guard<std::mutex> lock(d_mutex);
         d_threshold = threshold;
         d_agc->SetParameters(d_agc_on, d_use_hang, d_threshold, d_manual_gain,
                              d_slope, d_decay, d_sample_rate);
@@ -142,7 +142,7 @@ void rx_agc_cc::set_threshold(int threshold)
 void rx_agc_cc::set_manual_gain(int gain)
 {
     if ((gain != d_manual_gain) && (gain >= 0) && (gain <= 100)) {
-        boost::mutex::scoped_lock lock(d_mutex);
+        std::lock_guard<std::mutex> lock(d_mutex);
         d_manual_gain = gain;
         d_agc->SetParameters(d_agc_on, d_use_hang, d_threshold, d_manual_gain,
                              d_slope, d_decay, d_sample_rate);
@@ -158,7 +158,7 @@ void rx_agc_cc::set_manual_gain(int gain)
 void rx_agc_cc::set_slope(int slope)
 {
     if ((slope != d_slope) && (slope >= 0) && (slope <= 10)) {
-        boost::mutex::scoped_lock lock(d_mutex);
+        std::lock_guard<std::mutex> lock(d_mutex);
         d_slope = slope;
         d_agc->SetParameters(d_agc_on, d_use_hang, d_threshold, d_manual_gain,
                              d_slope, d_decay, d_sample_rate);
@@ -172,7 +172,7 @@ void rx_agc_cc::set_slope(int slope)
 void rx_agc_cc::set_decay(int decay)
 {
     if ((decay != d_decay) && (decay >= 20) && (decay <= 5000)) {
-        boost::mutex::scoped_lock lock(d_mutex);
+        std::lock_guard<std::mutex> lock(d_mutex);
         d_decay = decay;
         d_agc->SetParameters(d_agc_on, d_use_hang, d_threshold, d_manual_gain,
                              d_slope, d_decay, d_sample_rate);
@@ -186,7 +186,7 @@ void rx_agc_cc::set_decay(int decay)
 void rx_agc_cc::set_use_hang(bool use_hang)
 {
     if (use_hang != d_use_hang) {
-        boost::mutex::scoped_lock lock(d_mutex);
+        std::lock_guard<std::mutex> lock(d_mutex);
         d_use_hang = use_hang;
         d_agc->SetParameters(d_agc_on, d_use_hang, d_threshold, d_manual_gain,
                              d_slope, d_decay, d_sample_rate);
