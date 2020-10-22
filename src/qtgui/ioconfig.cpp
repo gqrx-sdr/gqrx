@@ -29,7 +29,6 @@
 #include <QtGlobal>
 #include <QVariant>
 
-#include <boost/foreach.hpp>
 #include <osmosdr/device.h>
 #include <osmosdr/source.h>
 #include <osmosdr/ranges.h>
@@ -239,7 +238,7 @@ void CIoConfig::getDeviceList(std::map<QString, QVariant> &devList)
     osmosdr::devices_t devs = osmosdr::device::find();
 
     qDebug() << __FUNCTION__ << ": Available input devices:";
-    BOOST_FOREACH(osmosdr::device_t &dev, devs)
+    for (auto &dev : devs)
     {
         if (dev.count("label"))
         {
