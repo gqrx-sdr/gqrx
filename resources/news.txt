@@ -2,6 +2,7 @@
     2.13.2: In progress...
 
        NEW: Preliminary support for GNU Radio 3.9.
+       NEW: Print UDP configuration.
      FIXED: Loss of precision in the plotter's frequency axis.
 
 
