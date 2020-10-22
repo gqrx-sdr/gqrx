@@ -23,9 +23,9 @@
 #ifndef RX_NB_CC_H
 #define RX_NB_CC_H
 
+#include <mutex>
 #include <gnuradio/sync_block.h>
 #include <gnuradio/gr_complex.h>
-#include <boost/thread/mutex.hpp>
 
 class rx_nb_cc;
 
@@ -78,7 +78,7 @@ private:
     void process_nb2(gr_complex *buf, int num);
 
 private:
-    boost::mutex  d_mutex;  /*! Used to lock internal data while processing or setting parameters. */
+    std::mutex d_mutex;     /*! Used to lock internal data while processing or setting parameters. */
 
     bool   d_nb1_on;        /*! Current NB1 status (true/false). */
     bool   d_nb2_on;        /*! Current NB2 status (true/false). */

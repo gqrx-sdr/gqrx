@@ -23,9 +23,9 @@
 #ifndef RX_AGC_XX_H
 #define RX_AGC_XX_H
 
+#include <mutex>
 #include <gnuradio/sync_block.h>
 #include <gnuradio/gr_complex.h>
-#include <boost/thread/mutex.hpp>
 #include <dsp/agc_impl.h>
 
 class rx_agc_cc;
@@ -87,7 +87,7 @@ public:
 
 private:
     CAgc           *d_agc;
-    boost::mutex    d_mutex;  /*! Used to lock internal data while processing or setting parameters. */
+    std::mutex      d_mutex;  /*! Used to lock internal data while processing or setting parameters. */
 
     bool            d_agc_on;        /*! Current AGC status (true/false). */
     double          d_sample_rate;   /*! Current sample rate. */

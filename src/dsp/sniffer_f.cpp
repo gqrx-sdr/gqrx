@@ -74,7 +74,7 @@ int sniffer_f::work(int noutput_items,
 
     (void) output_items;
 
-    boost::mutex::scoped_lock lock(d_mutex);
+    std::lock_guard<std::mutex> lock(d_mutex);
 
     /* dump new samples into the buffer */
     for (i = 0; i < noutput_items; i++) {
@@ -93,7 +93,7 @@ int sniffer_f::work(int noutput_items,
  */
 int  sniffer_f::samples_available()
 {
-    boost::mutex::scoped_lock lock(d_mutex);
+    std::lock_guard<std::mutex> lock(d_mutex);
 
     return d_buffer.size();
 }
@@ -105,7 +105,7 @@ int  sniffer_f::samples_available()
  */
 void sniffer_f::get_samples(float * out, unsigned int &num)
 {
-    boost::mutex::scoped_lock lock(d_mutex);
+    std::lock_guard<std::mutex> lock(d_mutex);
 
     if (d_buffer.size() < d_minsamp) {
         /* not enough samples in buffer */
@@ -127,7 +127,7 @@ void sniffer_f::get_samples(float * out, unsigned int &num)
  */
 void sniffer_f::set_buffer_size(int newsize)
 {
-    boost::mutex::scoped_lock lock(d_mutex);
+    std::lock_guard<std::mutex> lock(d_mutex);
 
     //d_buffer.clear();
     d_buffer.set_capacity(newsize);
@@ -141,7 +141,7 @@ void sniffer_f::set_buffer_size(int newsize)
  */
 int  sniffer_f::buffer_size()
 {
-    boost::mutex::scoped_lock lock(d_mutex);
+    std::lock_guard<std::mutex> lock(d_mutex);
 
     return d_buffer.capacity();
 }

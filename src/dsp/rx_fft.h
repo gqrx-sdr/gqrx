@@ -23,11 +23,11 @@
 #ifndef RX_FFT_H
 #define RX_FFT_H
 
+#include <mutex>
 #include <gnuradio/sync_block.h>
 #include <gnuradio/fft/fft.h>
 #include <gnuradio/filter/firdes.h>       /* contains enum win_type */
 #include <gnuradio/gr_complex.h>
-#include <boost/thread/mutex.hpp>
 #include <boost/circular_buffer.hpp>
 #include <chrono>
 
@@ -92,7 +92,7 @@ private:
     double       d_quadrate;
     int          d_wintype;   /*! Current window type. */
 
-    boost::mutex d_mutex;  /*! Used to lock FFT output buffer. */
+    std::mutex   d_mutex;  /*! Used to lock FFT output buffer. */
 
     gr::fft::fft_complex    *d_fft;    /*! FFT object. */
     std::vector<float>  d_window; /*! FFT window taps. */
@@ -157,7 +157,7 @@ private:
     double       d_audiorate;
     int          d_wintype;   /*! Current window type. */
 
-    boost::mutex d_mutex;  /*! Used to lock FFT output buffer. */
+    std::mutex   d_mutex;  /*! Used to lock FFT output buffer. */
 
     gr::fft::fft_complex    *d_fft;    /*! FFT object. */
     std::vector<float>  d_window; /*! FFT window taps. */

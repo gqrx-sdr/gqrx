@@ -73,7 +73,7 @@ int rx_nb_cc::work(int noutput_items,
     gr_complex *out = (gr_complex *) output_items[0];
     int i;
 
-    boost::mutex::scoped_lock lock(d_mutex);
+    std::lock_guard<std::mutex> lock(d_mutex);
 
     // copy data into output buffer then perform the processing on that buffer
     for (i = 0; i < noutput_items; i++)

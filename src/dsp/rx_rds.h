@@ -23,6 +23,7 @@
 #ifndef RX_RDS_H
 #define RX_RDS_H
 
+#include <mutex>
 #include <gnuradio/hier_block2.h>
 
 #if GNURADIO_VERSION < 0x030800
@@ -69,7 +70,7 @@ public:
 private:
     void store(pmt::pmt_t msg);
 
-    boost::mutex d_mutex;
+    std::mutex d_mutex;
     boost::circular_buffer<pmt::pmt_t> d_messages;
 
 };
