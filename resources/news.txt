@@ -3,6 +3,7 @@
 
        NEW: Preliminary support for GNU Radio 3.9.
        NEW: Print UDP configuration.
+       NEW: Viridis color map.
      FIXED: Loss of precision in the plotter's frequency axis.
 
 
