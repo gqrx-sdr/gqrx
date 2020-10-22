@@ -56,6 +56,7 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp)
 
 #endif
 
+#include <math.h>
 #include <QColor>
 #include <QDateTime>
 #include <QDebug>
@@ -68,8 +69,6 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp)
 
 // Comment out to enable plotter debug messages
 //#define PLOTTER_DEBUG
-
-#define F2B(f) ((f) >= 1.0 ? 255 : (int)((f)*256.0))
 
 #define CUR_CUT_DELTA 5		//cursor capture delta in pixels
 
@@ -86,6 +85,12 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp)
 #define PLOTTER_FILTER_LINE_COLOR   0xFFFF7171
 #define PLOTTER_FILTER_BOX_COLOR    0xFFA0A0A4
 // FIXME: Should cache the QColors also
+
+int F2B(float f)
+{
+    int b = (f >= 1.0 ? 255 : (f <= 0.0 ? 0 : (int)floor(f * 256.0)));
+    return b;
+}
 
 static inline bool val_is_out_of_range(float val, float min, float max)
 {
