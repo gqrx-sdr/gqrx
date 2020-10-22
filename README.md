@@ -174,7 +174,7 @@ Following people and organisations have contributed to gqrx:
 * Anthony Willard
 * Anton Blanchard
 * Bastian Bloessl
-* Pavel Stano
+* Ben Reese
 * Chris Kuethe
 * Christian Lindner, DL2VCL
 * charlylima
@@ -198,6 +198,8 @@ Following people and organisations have contributed to gqrx:
 * Kate Adams
 * Kitware Inc.
 * Konrad Beckmann
+* luzpaz
+* Marco Savelli
 * Markus Kolb
 * Michael Dickens
 * Michael Lass
@@ -208,6 +210,7 @@ Following people and organisations have contributed to gqrx:
 * Nick Robinson, KE5YWP
 * Nokia
 * Pavel Milanes, CO7WT
+* Pavel Stano
 * Phil Vachon
 * Rob Frohne
 * Ron Economos, W6RZ
