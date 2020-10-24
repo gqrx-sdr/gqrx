@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>220</width>
+    <width>270</width>
     <height>200</height>
    </rect>
   </property>
@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>220</width>
-    <height>200</height>
+    <width>270</width>
+    <height>195</height>
    </size>
   </property>
   <property name="windowIcon">
@@ -74,7 +74,7 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="spacing">
-       <number>6</number>
+       <number>5</number>
       </property>
       <item>
        <widget class="QLabel" name="audioGainLabel">
