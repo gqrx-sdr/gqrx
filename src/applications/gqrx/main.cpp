@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
     po::options_description desc("Command line options");
     desc.add_options()
             ("help,h", "This help message")
-            ("style,s", po::value<std::string>(&style), "Use the give style (fusion, windows)")
+            ("style,s", po::value<std::string>(&style), "Use the given style (fusion, windows)")
             ("list,l", "List existing configurations")
             ("conf,c", po::value<std::string>(&conf), "Start with this config file")
             ("edit,e", "Edit the config file before using it")
