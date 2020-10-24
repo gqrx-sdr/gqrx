@@ -5,6 +5,7 @@
        NEW: Print UDP configuration.
        NEW: Viridis color map.
      FIXED: Loss of precision in the plotter's frequency axis.
+     FIXED: Usability on smaller screen sizes.
 
 
     2.13.1: Released October 17, 2020
