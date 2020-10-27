@@ -1,4 +1,9 @@
 
+    2.13.3: In progress...
+
+     FIXED: Crash when waterfall height is set to 100%.
+
+
     2.13.2: Released October 24, 2020
 
        NEW: Preliminary support for GNU Radio 3.9.
