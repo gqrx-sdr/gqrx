@@ -749,7 +749,7 @@ void CPlotter::zoomStepX(float step, int x)
     float new_range = qBound(10.0f, m_Span * step, m_SampleFreq * 10.0f);
 
     // Frequency where event occurred is kept fixed under mouse
-    float ratio = (float)x / (float)m_OverlayPixmap.width();
+    float ratio = (float)x / (float)width();
     float fixed_hz = freqFromX(x);
     float f_max = fixed_hz + (1.0 - ratio) * new_range;
     float f_min = f_max - new_range;
@@ -1529,20 +1529,20 @@ void CPlotter::makeFrequencyStrs()
 // Convert from frequency to screen coordinate
 int CPlotter::xFromFreq(qint64 freq)
 {
-    qint64 w = m_OverlayPixmap.width();
+    qint64 w = width();
     qint64 StartFreq = m_CenterFreq + m_FftCenter - m_Span / 2;
     int x = (int) (w * (freq - StartFreq) / m_Span);
     if (x < 0)
         return 0;
     if (x > (int)w)
-        return m_OverlayPixmap.width();
+        return w;
     return x;
 }
 
 // Convert from frequency to screen coordinate
 qint64 CPlotter::freqFromX(int x)
 {
-    qint64 w = m_OverlayPixmap.width();
+    qint64 w = width();
     qint64 StartFreq = m_CenterFreq + m_FftCenter - m_Span / 2;
     qint64 f = StartFreq + m_Span * (qint64) x / w;
     return f;
