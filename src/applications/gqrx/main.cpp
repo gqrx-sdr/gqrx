@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
             return_code = app.exec();
         }
         else
-            {
+        {
             return_code = 1;
         }
     }
@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
     Pa_Terminate();
 #endif
 
-    return  return_code;
+    return return_code;
 }
 
 /** Reset configuration file specified by file_name. */
