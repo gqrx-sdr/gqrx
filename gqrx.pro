@@ -293,12 +293,12 @@ greaterThan(GNURADIO_VERSION_MINOR, 7) {
 INCPATH += src/
 
 unix:!macx {
-    LIBS += -lboost_system$$BOOST_SUFFIX -lboost_program_options$$BOOST_SUFFIX
+    LIBS += -lboost_system$$BOOST_SUFFIX
     LIBS += -lrt  # need to include on some distros
 }
 
 macx {
-    LIBS += -lboost_system-mt -lboost_program_options-mt
+    LIBS += -lboost_system-mt
 }
 
 OTHER_FILES += \

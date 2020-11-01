@@ -21,6 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <QApplication>
+#include <QCommandLineParser>
 #include <QDebug>
 #include <QDesktopServices>
 #include <QDir>
@@ -43,8 +44,6 @@
 #include "gqrx.h"
 
 #include <iostream>
-#include <boost/program_options.hpp>
-namespace po = boost::program_options;
 
 static void reset_conf(const QString &file_name);
 static void list_conf(void);
@@ -52,9 +51,6 @@ static void list_conf(void);
 int main(int argc, char *argv[])
 {
     QString         cfg_file;
-    std::string     conf;
-    std::string     style;
-    bool            clierr = false;
     bool            edit_conf = false;
     int             return_code = 0;
 
@@ -72,47 +68,22 @@ int main(int argc, char *argv[])
     else
         qDebug() << "Failed to disable controlport";
 
-    // setup the program options
-    po::options_description desc("Command line options");
-    desc.add_options()
-            ("help,h", "This help message")
-            ("style,s", po::value<std::string>(&style), "Use the given style (fusion, windows)")
-            ("list,l", "List existing configurations")
-            ("conf,c", po::value<std::string>(&conf), "Start with this config file")
-            ("edit,e", "Edit the config file before using it")
-            ("reset,r", "Reset configuration file")
-    ;
+    QCommandLineParser parser;
+    parser.setApplicationDescription("Gqrx software defined radio receiver " VERSION);
+    parser.addHelpOption();
+    parser.addOptions({
+        {{"s", "style"}, "Use the given style (fusion, windows)", "style"},
+        {{"l", "list"}, "List existing configurations"},
+        {{"c", "conf"}, "Start with this config file", "file"},
+        {{"e", "edit"}, "Edit the config file before using it"},
+        {{"r", "reset"}, "Reset configuration file"},
+    });
+    parser.process(app);
 
-    po::variables_map vm;
-    try
-    {
-        po::store(po::parse_command_line(argc, argv, desc), vm);
-    }
-    catch(const boost::program_options::invalid_command_line_syntax& ex)
-    {
-        /* happens if e.g. -c without file name */
-        clierr = true;
-    }
-    catch(const boost::program_options::unknown_option& ex)
-    {
-        /* happens if e.g. -c without file name */
-        clierr = true;
-    }
+    if (parser.isSet("style"))
+        QApplication::setStyle(parser.value("style"));
 
-    po::notify(vm);
-
-    // print the help message
-    if (vm.count("help") || clierr)
-    {
-        std::cout << "Gqrx software defined radio receiver " << VERSION << std::endl;
-        std::cout << desc << std::endl;
-        return 1;
-    }
-
-    if (vm.count("style"))
-        QApplication::setStyle(QString::fromStdString(style));
-
-    if (vm.count("list"))
+    if (parser.isSet("list"))
     {
         list_conf();
         return 0;
@@ -153,9 +124,9 @@ int main(int argc, char *argv[])
 #endif
 
 
-    if (!conf.empty())
+    if (parser.isSet("conf"))
     {
-        cfg_file = QString::fromStdString(conf);
+        cfg_file = parser.value("conf");
         qDebug() << "User specified config file:" << cfg_file;
     }
     else
@@ -164,9 +135,9 @@ int main(int argc, char *argv[])
         qDebug() << "No user supplied config file. Using" << cfg_file;
     }
 
-    if (vm.count("reset"))
+    if (parser.isSet("reset"))
         reset_conf(cfg_file);
-    else if (vm.count("edit"))
+    else if (parser.isSet("edit"))
         edit_conf = true;
 
     try {
