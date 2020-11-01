@@ -1,5 +1,5 @@
 
-    2.13.3: In progress...
+    2.13.3: Released November 1, 2020
 
      FIXED: Crash when waterfall height is set to 100%.
   IMPROVED: Remove Boost.Program_options dependency.
