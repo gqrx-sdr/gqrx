@@ -32,12 +32,12 @@ sniffer_f_sptr make_sniffer_f(int buffsize)
 }
 
 
-/*! \brief Create a sniffe_fr object.
+/*! \brief Create a sniffer_f object.
  *  \param buffsize The internal buffer size.
  *
  * When choosing buffer size, the user of this class should take into account:
  *  - The input sample rate.
- *  - How ofter the data will be popped.
+ *  - How often the data will be popped.
  */
 sniffer_f::sniffer_f(int buffsize)
     : gr::sync_block ("rx_fft_c",
