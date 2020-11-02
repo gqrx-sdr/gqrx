@@ -9,5 +9,47 @@ Funcube Dongle, RTL-SDR, Airspy, HackRF, BladeRF, RFSpace, USRP and SoapySDR.
 Gqrx can operate as an AM/FM/SSB receiver with audio output or as an FFT-only
 instrument. There are also various hooks for interacting with external
 applications using network sockets.
+.PP
+It is strongly recommended to run the volk_profile GNU Radio utility before
+running gqrx. This will detect and enable processor-specific optimisations and
+will in many cases give a significant performance boost.
+.PP
+The first time you start gqrx it will open a device configuration dialog.
+Supported devices that are connected to the computer are discovered
+automatically and you can select any of them in the drop-down list.
+.PP
+If you don't see your device listed in the drop-down list it could be because:
+.IP \[bu]
+The driver has not been included in a binary distribution
+.IP \[bu]
+The udev rule has not been properly configured
+.IP \[bu]
+Linux kernel driver is blocking access to the device
+.PP
+You can test your device using device specific tools, such as rtl_test,
+airspy_rx, hackrf_transfer, qthid, etc.
+.PP
+Gqrx supports multiple configurations and sessions if you have several devices
+or if you want to use the same device under different configurations. You can
+load a configuration from the GUI or using the -c command line argument.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Display the help page
+.TP
+.BR \-s ", " \-\-style " " \fIstyle\fR
+Use the given style (fusion, windows)
+.TP
+.BR \-l ", " \-\-list
+List existing configurations
+.TP
+.BR \-c ", " \-\-conf " " \fIfile\fR
+Start with a specific configuration file
+.TP
+.BR \-e ", " \-\-edit
+Edit the configuration file before using it
+.TP
+.BR \-r ", " \-\-reset
+Reset the configuration file
 .SH SEE ALSO
 https://gqrx.dk/
