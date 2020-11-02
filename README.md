@@ -22,7 +22,7 @@ Alternate Mac support is available through macports and homebrew.
 Usage
 -----
 
-It is strongly recommended to run the `volk_profile` GNU Radio utility before
+It is strongly recommended to run the `volk_profile` utility before
 running gqrx. This will detect and enable processor-specific optimisations and
 will in many cases give a significant performance boost.
 
