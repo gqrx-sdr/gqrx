@@ -1,13 +1,13 @@
-.TH GQRX "1" "February 2012" "gqrx-sdr 1.9.237" "User Commands"
+.TH GQRX "1" "November 1, 2020" "gqrx 2.13.3" "User Commands"
 .SH NAME
-gqrx \- Software Defined Radio graphical user interface application.
+gqrx \- Software Defined Radio GUI application
 .SH DESCRIPTION
-AM, FM and SSB receiver powered by GNU Radio and Qt
+Gqrx is a software defined radio (SDR) receiver implemented using GNU Radio and
+the Qt GUI toolkit. It works with hardware supported by gr-osmosdr, including
+Funcube Dongle, RTL-SDR, Airspy, HackRF, BladeRF, RFSpace, USRP and SoapySDR.
 .PP
-Waterfall spectrum display and user interface elements from
-Moe Wheatley's Cutesdr program, combined with a gnuradio signal
-processing engine and hardware support for the FUNcube Dongle
-receiver hardware.
-.PP
+Gqrx can operate as an AM/FM/SSB receiver with audio output or as an FFT-only
+instrument. There are also various hooks for interacting with external
+applications using network sockets.
 .SH SEE ALSO
-http://gqrx.dk/
+https://gqrx.dk/
