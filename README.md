@@ -9,23 +9,21 @@ SoapySDR.
 
 Gqrx can operate as an AM/FM/SSB receiver with audio output or as an FFT-only
 instrument. There are also various hooks for interacting with external
-application using nertwork sockets.
+applications using network sockets.
 
 
 Download
 --------
 
-Gqrx is distributed as source code package and binaries for Linux and Mac.
+Gqrx is distributed as a source code package and binaries for Linux and Mac.
 Alternate Mac support is available through macports and homebrew.
-
-Please see http://gqrx.dk/download for a list of download resources.
 
 
 Usage
 -----
 
-It is strongly recommended to run the "volk_profile" gnuradio utility before
-running gqrx. This will detect and enable processor specific optimisations and
+It is strongly recommended to run the `volk_profile` GNU Radio utility before
+running gqrx. This will detect and enable processor-specific optimisations and
 will in many cases give a significant performance boost.
 
 The first time you start gqrx it will open a device configuration dialog.
@@ -42,11 +40,11 @@ airspy_rx, hackrf_transfer, qthid, etc.
 
 Gqrx supports multiple configurations and sessions if you have several devices
 or if you want to use the same device under different configurations. You can
-load a configuration from the GUI or using the -c command line argument. See
-"gqrx --help" for a complete list of command line arguments.
+load a configuration from the GUI or using the `-c` command line argument. See
+`gqrx --help` for a complete list of command line arguments.
 
 Tutorials and howtos are being written and published on the website
-http://gqrx.dk/
+https://gqrx.dk/
 
 
 Known problems
@@ -98,13 +96,13 @@ To compile gqrx from source you need the following dependencies:
     - SoapySDR from https://github.com/pothosware/SoapySDR
     - RFSpace driver is built in
 - gnuradio-osmosdr from http://cgit.osmocom.org/cgit/gr-osmosdr/
-- pulseaudio or portaudio (Linux only and optional)
+- pulseaudio or portaudio (Linux-only and optional)
 - Qt 5 with the following components:
     - Core
     - GUI
     - Network
     - Widgets
-    - Svg (runtime only)
+    - Svg (runtime-only)
 - pkg-config
 - cmake version >= 3.2.0 if you wish to build using cmake.
 
@@ -130,7 +128,7 @@ $ cd build
 $ cmake ..
 $ make
 </pre>
-On some systems, the default cmake release builds are "over optimized" and
+On some systems, the default cmake release builds are "over-optimized" and
 perform poorly. In that case try forcing -O2 using
 <pre>
 export CXXFLAGS=-O2
@@ -161,10 +159,10 @@ Credits and License
 Gqrx is designed and written by Alexandru Csete OZ9AEC, and it is licensed
 under the GNU General Public License.
 
-Some of the source files were adopted from Cutesdr by Moe Weatley and these
+Some of the source files were adapted from Cutesdr by Moe Weatley and these
 come with a Simplified BSD license.
 
-Following people and organisations have contributed to gqrx:
+The following people and organisations have contributed to gqrx:
 
 * Alex Grinkov
 * Alexander Fasching
