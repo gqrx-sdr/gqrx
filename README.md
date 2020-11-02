@@ -2,7 +2,7 @@ Gqrx
 ====
 
 Gqrx is an open source software defined radio (SDR) receiver implemented using
-[GNU Radio](http://gnuradio.org) and the [Qt GUI toolkit](https://www.qt.io/).
+[GNU Radio](https://gnuradio.org) and the [Qt GUI toolkit](https://www.qt.io/).
 Currently it works on Linux and Mac with hardware supported by gr-osmosdr,
 including Funcube Dongle, RTL-SDR, Airspy, HackRF, BladeRF, RFSpace, USRP and
 SoapySDR.
@@ -89,13 +89,13 @@ To compile gqrx from source you need the following dependencies:
     - Funcube Dongle Pro driver via gr-fcd
     - UHD driver via gr-uhd
     - Funcube Dongle Pro+ driver from https://github.com/dl1ksv/gr-fcdproplus
-    - RTL-SDR driver from http://cgit.osmocom.org/cgit/rtl-sdr/
-    - OsmoSDR driver from http://cgit.osmocom.org/cgit/osmo-sdr/
-    - HackRF Jawbreaker driver from http://greatscottgadgets.com/hackrf/
-    - Airspy driver from https://github.com/airspy/host
+    - RTL-SDR driver from https://git.osmocom.org/rtl-sdr
+    - OsmoSDR driver from https://git.osmocom.org/osmo-sdr
+    - HackRF driver from https://github.com/mossmann/hackrf
+    - Airspy driver from https://github.com/airspy/airspyone_host
     - SoapySDR from https://github.com/pothosware/SoapySDR
     - RFSpace driver is built in
-- gnuradio-osmosdr from http://cgit.osmocom.org/cgit/gr-osmosdr/
+- gnuradio-osmosdr from https://git.osmocom.org/gr-osmosdr
 - pulseaudio or portaudio (Linux-only and optional)
 - Qt 5 with the following components:
     - Core
