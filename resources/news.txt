@@ -1,4 +1,9 @@
 
+    2.13.4: In progress...
+
+       NEW: Added man page for use by distributions.
+
+
     2.13.3: Released November 1, 2020
 
      FIXED: Crash when waterfall height is set to 100%.
