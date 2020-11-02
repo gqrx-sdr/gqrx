@@ -28,7 +28,7 @@ using namespace gr::rds;
 
 parser::sptr
 parser::make(bool log, bool debug, unsigned char pty_locale) {
-  return gnuradio::get_initial_sptr(new parser_impl(log, debug, pty_locale));
+	return gnuradio::get_initial_sptr(new parser_impl(log, debug, pty_locale));
 }
 
 parser_impl::parser_impl(bool log, bool debug, unsigned char pty_locale)
@@ -85,7 +85,6 @@ void parser_impl::send_message(long msgtype, std::string msgtext) {
 void parser_impl::decode_type0(unsigned int *group, bool B) {
 	unsigned int af_code_1 = 0;
 	unsigned int af_code_2 = 0;
-	unsigned int  no_af    = 0;
 	double af_1            = 0;
 	double af_2            = 0;
 	char flagstring[8]     = "0000000";
@@ -132,34 +131,28 @@ void parser_impl::decode_type0(unsigned int *group, bool B) {
 		af_1 = decode_af(af_code_1);
 		af_2 = decode_af(af_code_2);
 
+		std::stringstream af_stringstream;
+		af_stringstream << std::fixed << std::setprecision(2);
+
 		if(af_1) {
-			no_af += 1;
+			if(af_1 > 80e3) {
+				af_stringstream << (af_1/1e3) << "MHz";
+			} else if((af_1<2e3)&&(af_1>100)) {
+				af_stringstream << int(af_1) << "kHz";
+			}
+		}
+		if(af_1 && af_2) {
+			af_stringstream << ", ";
 		}
 		if(af_2) {
-			no_af += 2;
-		}
-
-		std::string af1_string;
-		std::string af2_string;
-		/* only AF1 => no_af==1, only AF2 => no_af==2, both AF1 and AF2 => no_af==3 */
-		if(no_af) {
-			if(af_1 > 80e3) {
-				af1_string = str(boost::format("%2.2fMHz") % (af_1/1e3));
-			} else if((af_1<2e3)&&(af_1>100)) {
-				af1_string = str(boost::format("%ikHz") % int(af_1));
-			}
 			if(af_2 > 80e3) {
-				af2_string = str(boost::format("%2.2fMHz") % (af_2/1e3));
-			} else if ((af_2 < 2e3) && (af_2 > 100)) {
-				af2_string = str(boost::format("%ikHz") % int(af_2));
+				af_stringstream << (af_2/1e3) << "MHz";
+			} else if((af_2<2e3)&&(af_2>100)) {
+				af_stringstream << int(af_2) << "kHz";
 			}
 		}
-		if(no_af == 1) {
-			af_string = af1_string;
-		} else if(no_af == 2) {
-			af_string = af2_string;
-		} else if(no_af == 3) {
-			af_string = str(boost::format("%s, %s") % af1_string %af2_string);
+		if(af_1 || af_2) {
+			af_string = af_stringstream.str();
 		}
 	}
 
@@ -225,7 +218,7 @@ void parser_impl::decode_type1(unsigned int *group, bool B){
 		lout << "paging codes: " << int(radio_paging_codes) << " ";
 	}
 	if(day || hour || minute) {
-		lout << boost::format("program item: %id, %i, %i ") % day % hour % minute;
+		lout << "program item: " << day << ", " << hour << ", " << minute << " ";
 	}
 
 	if(!B){
@@ -354,11 +347,18 @@ void parser_impl::decode_type4(unsigned int *group, bool B){
 	year += K;
 	month -= 1 + K * 12;
 
-	std::string time = str(boost::format("%02i.%02i.%4i, %02i:%02i (%+.1fh)")\
-		% day % month % (1900 + year) % hours % minutes % local_time_offset);
-	lout << "Clocktime: " << time << std::endl;
+	std::stringstream time;
+	time << std::setfill('0');
+	time << std::setw(2) << day << ".";
+	time << std::setw(2) << month << ".";
+	time << std::setw(4) << (1900 + year) << ", ";
+	time << std::setw(2) << hours << ":";
+	time << std::setw(2) << minutes << " (";
+	time << std::fixed << std::showpos << std::setprecision(1) << local_time_offset << "h)";
 
-	send_message(5,time);
+	lout << "Clocktime: " << time.str() << std::endl;
+
+	send_message(5,time.str());
 }
 
 void parser_impl::decode_type5(unsigned int *group, bool B){
@@ -487,18 +487,18 @@ void parser_impl::decode_type13(unsigned int *group, bool B){
 }
 
 void parser_impl::decode_type14(unsigned int *group, bool B){
-	
+
 	bool tp_on               = (group[1] >> 4) & 0x01;
 	char variant_code        = group[1] & 0x0f;
 	unsigned int information = group[2];
 	unsigned int pi_on       = group[3];
-	
+
 	char pty_on = 0;
 	bool ta_on = 0;
 	static char ps_on[8] = {' ',' ',' ',' ',' ',' ',' ',' '};
 	double af_1 = 0;
 	double af_2 = 0;
-	
+
 	if (!B){
 		switch (variant_code){
 			case 0: // PS(ON)
@@ -512,7 +512,7 @@ void parser_impl::decode_type14(unsigned int *group, bool B){
 			case 4: // AF
 				af_1 = 100.0 * (((information >> 8) & 0xff) + 875);
 				af_2 = 100.0 * ((information & 0xff) + 875);
-				lout << boost::format("AF:%3.2fMHz %3.2fMHz") % (af_1/1000) % (af_2/1000);
+				lout << "AF:" << std::fixed << std::setprecision(2) << (af_1/1000) << "MHz " << (af_2/1000) << "MHz";
 			break;
 			case 5: // mapped frequencies
 			case 6: // mapped frequencies
@@ -520,20 +520,19 @@ void parser_impl::decode_type14(unsigned int *group, bool B){
 			case 8: // mapped frequencies
 				af_1 = 100.0 * (((information >> 8) & 0xff) + 875);
 				af_2 = 100.0 * ((information & 0xff) + 875);
-				lout << boost::format("TN:%3.2fMHz - ON:%3.2fMHz") % (af_1/1000) % (af_2/1000);
+				lout << "TN:" << std::fixed << std::setprecision(2) << (af_1/1000) << "MHz - ON:" << (af_2/1000) << "MHz";
 			break;
 			case 9: // mapped frequencies (AM)
 				af_1 = 100.0 * (((information >> 8) & 0xff) + 875);
 				af_2 = 9.0 * ((information & 0xff) - 16) + 531;
-				lout << boost::format("TN:%3.2fMHz - ON:%ikHz") % (af_1/1000) % int(af_2);
+				lout << "TN:" << std::fixed << std::setprecision(2) << (af_1/1000) << "MHz - ON:" << int(af_2) << "kHz";
 			break;
 			case 10: // unallocated
 			break;
 			case 11: // unallocated
 			break;
 			case 12: // linkage information
-				lout << boost::format("Linkage information: %x%x")
-					% ((information >> 8) & 0xff) % (information & 0xff);
+				lout << "Linkage information: " << std::hex << std::setw(4) << information << std::dec;
 			break;
 			case 13: // PTY(ON), TA(ON)
 				ta_on = information & 0x01;
@@ -544,8 +543,7 @@ void parser_impl::decode_type14(unsigned int *group, bool B){
 				}
 			break;
 			case 14: // PIN(ON)
-				lout << boost::format("PIN(ON):%x%x")
-					% ((information >> 8) & 0xff) % (information & 0xff);
+				lout << "PIN(ON):" << std::hex << std::setw(4) << information << std::dec;
 			break;
 			case 15: // Reserved for broadcasters use
 			break;
@@ -600,7 +598,7 @@ void parser_impl::parse(pmt::pmt_t pdu) {
 	unsigned int group_type = (unsigned int)((group[1] >> 12) & 0xf);
 	bool ab = (group[1] >> 11 ) & 0x1;
 
-	lout << boost::format("%02i%c ") % group_type % (ab ? 'B' :'A');
+	lout << std::setfill('0') << std::setw(2) << group_type << (ab ? 'B' : 'A') << " ";
 	lout << "(" << rds_group_acronyms[group_type] << ")";
 
 	program_identification = group[0];     // "PI"
@@ -608,11 +606,12 @@ void parser_impl::parse(pmt::pmt_t pdu) {
 	int pi_country_identification = (program_identification >> 12) & 0xf;
 	int pi_area_coverage = (program_identification >> 8) & 0xf;
 	unsigned char pi_program_reference_number = program_identification & 0xff;
-	std::string pistring = str(boost::format("%04X") % program_identification);
-	send_message(0, pistring);
+	std::stringstream pistring;
+	pistring << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << program_identification;
+	send_message(0, pistring.str());
 	send_message(2, pty_table[program_type][pty_locale]);
 
-	lout << " - PI:" << pistring << " - " << "PTY:" << pty_table[program_type][pty_locale];
+	lout << " - PI:" << pistring.str() << " - " << "PTY:" << pty_table[program_type][pty_locale];
 	lout << " (country:" << pi_country_codes[pi_country_identification - 1][0];
 	lout << "/" << pi_country_codes[pi_country_identification - 1][1];
 	lout << "/" << pi_country_codes[pi_country_identification - 1][2];
