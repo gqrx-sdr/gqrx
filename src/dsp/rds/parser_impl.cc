@@ -199,7 +199,7 @@ double parser_impl::decode_af(unsigned int af_code) {
 	else if((af_code > 15) && (af_code < 136) && !vhf_or_lfmf)
 		alt_frequency = 531.0 + (af_code - 16) * 9 + 531; // MF (531-1602kHz)
 
-    (void) number_of_freqs;
+	(void) number_of_freqs;
 	return alt_frequency;
 }
 
@@ -362,20 +362,20 @@ void parser_impl::decode_type4(unsigned int *group, bool B){
 }
 
 void parser_impl::decode_type5(unsigned int *group, bool B){
-    (void) group;
-    (void) B;
+	(void) group;
+	(void) B;
 	dout << "type 5 not implemented yet" << std::endl;
 }
 
 void parser_impl::decode_type6(unsigned int *group, bool B){
-    (void) group;
-    (void) B;
+	(void) group;
+	(void) B;
 	dout << "type 6 not implemented yet" << std::endl;
 }
 
 void parser_impl::decode_type7(unsigned int *group, bool B){
-    (void) group;
-    (void) B;
+	(void) group;
+	(void) B;
 	dout << "type 7 not implemented yet" << std::endl;
 }
 
@@ -457,32 +457,32 @@ void parser_impl::decode_optional_content(int no_groups, unsigned long int *free
 }
 
 void parser_impl::decode_type9(unsigned int *group, bool B){
-    (void) group;
-    (void) B;
+	(void) group;
+	(void) B;
 	dout << "type 9 not implemented yet" << std::endl;
 }
 
 void parser_impl::decode_type10(unsigned int *group, bool B){
-    (void) group;
-    (void) B;
+	(void) group;
+	(void) B;
 	dout << "type 10 not implemented yet" << std::endl;
 }
 
 void parser_impl::decode_type11(unsigned int *group, bool B){
-    (void) group;
-    (void) B;
+	(void) group;
+	(void) B;
 	dout << "type 11 not implemented yet" << std::endl;
 }
 
 void parser_impl::decode_type12(unsigned int *group, bool B){
-    (void) group;
-    (void) B;
+	(void) group;
+	(void) B;
 	dout << "type 12 not implemented yet" << std::endl;
 }
 
 void parser_impl::decode_type13(unsigned int *group, bool B){
-    (void) group;
-    (void) B;
+	(void) group;
+	(void) B;
 	dout << "type 13 not implemented yet" << std::endl;
 }
 
@@ -562,8 +562,8 @@ void parser_impl::decode_type14(unsigned int *group, bool B){
 }
 
 void parser_impl::decode_type15(unsigned int *group, bool B){
-    (void) group;
-    (void) B;
+	(void) group;
+	(void) B;
 	dout << "type 15 not implemented yet" << std::endl;
 }
 

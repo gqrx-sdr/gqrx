@@ -113,7 +113,7 @@ int decoder_impl::work (int noutput_items,
 		gr_vector_void_star &output_items)
 {
 	const bool *in = (const bool *) input_items[0];
-    (void) output_items;
+	(void) output_items;
 
 	dout << "RDS data decoder at work: input_items = "
 		<< noutput_items << ", /104 = "
