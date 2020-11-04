@@ -2,6 +2,7 @@
     2.13.4: In progress...
 
        NEW: Added man page for use by distributions.
+     FIXED: Crash when time span is set and waterfall height is set to 0%.
   IMPROVED: Removed Boost.Format dependency.
 
 

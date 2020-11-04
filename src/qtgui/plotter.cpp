@@ -877,7 +877,7 @@ void CPlotter::resizeEvent(QResizeEvent* )
 
         m_PeakHoldValid = false;
 
-        if (wf_span > 0)
+        if (wf_span > 0 && height > 0)
             msec_per_wfline = wf_span / height;
         memset(m_wfbuf, 255, MAX_SCREENSIZE);
     }
