@@ -99,7 +99,11 @@ private:
 
     std::mutex   d_mutex;  /*! Used to lock FFT output buffer. */
 
+#if GNURADIO_VERSION < 0x030900
     gr::fft::fft_complex    *d_fft;    /*! FFT object. */
+#else
+    gr::fft::fft_complex_fwd *d_fft;   /*! FFT object. */
+#endif
     std::vector<float>  d_window; /*! FFT window taps. */
 
     boost::circular_buffer<gr_complex> d_cbuf; /*! buffer to accumulate samples. */
@@ -164,7 +168,11 @@ private:
 
     std::mutex   d_mutex;  /*! Used to lock FFT output buffer. */
 
+#if GNURADIO_VERSION < 0x030900
     gr::fft::fft_complex    *d_fft;    /*! FFT object. */
+#else
+    gr::fft::fft_complex_fwd *d_fft;   /*! FFT object. */
+#endif
     std::vector<float>  d_window; /*! FFT window taps. */
 
     boost::circular_buffer<float> d_cbuf; /*! buffer to accumulate samples. */

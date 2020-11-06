@@ -49,7 +49,11 @@ rx_fft_c::rx_fft_c(unsigned int fftsize, double quad_rate, int wintype)
 {
 
     /* create FFT object */
+#if GNURADIO_VERSION < 0x030900
     d_fft = new gr::fft::fft_complex(d_fftsize, true);
+#else
+    d_fft = new gr::fft::fft_complex_fwd(d_fftsize);
+#endif
 
     /* allocate circular buffer */
     d_cbuf.set_capacity(d_fftsize + d_quadrate);
@@ -164,7 +168,11 @@ void rx_fft_c::set_params()
 
     /* reset FFT object (also reset FFTW plan) */
     delete d_fft;
-    d_fft = new gr::fft::fft_complex (d_fftsize, true);
+#if GNURADIO_VERSION < 0x030900
+    d_fft = new gr::fft::fft_complex(d_fftsize, true);
+#else
+    d_fft = new gr::fft::fft_complex_fwd(d_fftsize);
+#endif
 }
 
 /*! \brief Set new FFT size. */
@@ -242,7 +250,11 @@ rx_fft_f::rx_fft_f(unsigned int fftsize, double audio_rate, int wintype)
 {
 
     /* create FFT object */
+#if GNURADIO_VERSION < 0x030900
     d_fft = new gr::fft::fft_complex(d_fftsize, true);
+#else
+    d_fft = new gr::fft::fft_complex_fwd(d_fftsize);
+#endif
 
     /* allocate circular buffer */
     d_cbuf.set_capacity(d_fftsize + d_audiorate);
@@ -362,7 +374,11 @@ void rx_fft_f::set_fft_size(unsigned int fftsize)
 
         /* reset FFT object (also reset FFTW plan) */
         delete d_fft;
+#if GNURADIO_VERSION < 0x030900
         d_fft = new gr::fft::fft_complex(d_fftsize, true);
+#else
+        d_fft = new gr::fft::fft_complex_fwd(d_fftsize);
+#endif
     }
 }
 
