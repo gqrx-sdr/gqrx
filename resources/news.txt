@@ -1,5 +1,5 @@
 
-    2.13.5: In progress...
+    2.13.5: Released November 7, 2020
 
      FIXED: Set correct buffer size for audio FFT.
 
