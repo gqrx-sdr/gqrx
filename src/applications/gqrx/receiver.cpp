@@ -120,7 +120,7 @@ receiver::receiver(const std::string input_device,
     dc_corr = make_dc_corr_cc(d_decim_rate, 1.0);
     iq_fft = make_rx_fft_c(8192u, d_decim_rate, gr::filter::firdes::WIN_HANN);
 
-    audio_fft = make_rx_fft_f(8192u, gr::filter::firdes::WIN_HANN);
+    audio_fft = make_rx_fft_f(8192u, d_audio_rate, gr::filter::firdes::WIN_HANN);
     audio_gain0 = gr::blocks::multiply_const_ff::make(0);
     audio_gain1 = gr::blocks::multiply_const_ff::make(0);
     set_af_gain(DEFAULT_AUDIO_GAIN);

@@ -1,4 +1,9 @@
 
+    2.13.5: In progress...
+
+     FIXED: Set correct buffer size for audio FFT.
+
+
     2.13.4: Released November 6, 2020
 
        NEW: Added man page for use by distributions.
