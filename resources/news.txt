@@ -1,5 +1,5 @@
 
-    2.13.4: In progress...
+    2.13.4: Released November 6, 2020
 
        NEW: Added man page for use by distributions.
      FIXED: Crash when time span is set and waterfall height is set to 0%.
