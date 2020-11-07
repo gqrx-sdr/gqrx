@@ -612,7 +612,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
         int flo = m_settings->value("receiver/filter_low_cut", 0).toInt(&conv_ok);
         int fhi = m_settings->value("receiver/filter_high_cut", 0).toInt(&conv_ok);
 
-        if (conv_ok && flo != fhi)
+        if (conv_ok && uiDockRxOpt->currentDemod() != DockRxOpt::MODE_OFF && flo != fhi)
         {
             on_plotter_newFilterFreq(flo, fhi);
         }

@@ -3,6 +3,7 @@
 
        NEW: Added man page for use by distributions.
      FIXED: Crash when time span is set and waterfall height is set to 0%.
+     FIXED: Filter width is incorrectly set when demod is off.
   IMPROVED: Removed Boost.Format dependency.
 
 
