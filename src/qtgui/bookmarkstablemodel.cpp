@@ -223,4 +223,3 @@ int BookmarksTableModel::GetBookmarksIndexForRow(int iRow)
 {
   return m_mapRowToBookmarksIndex[iRow];
 }
-
