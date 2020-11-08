@@ -106,6 +106,7 @@ signals:
     void startAudioRecorderEvent();
     void stopAudioRecorderEvent();
     void gainChanged(QString name, double value);
+    void dspChanged(bool value);
 
 private slots:
     void acceptConnection();
@@ -117,7 +118,7 @@ private:
 
     QStringList rc_allowed_hosts;  /*!< Hosts where we accept connection from. */
     int         rc_port;           /*!< The port we are listening on. */
-    
+
     qint64      rc_freq;
     qint64      rc_filter_offset;
     qint64      bw_half;

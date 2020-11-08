@@ -1,4 +1,9 @@
 
+      2.14: In progress...
+
+       NEW: Start/stop DSP via remote control.
+
+
     2.13.5: Released November 7, 2020
 
      FIXED: Set correct buffer size for audio FFT.
