@@ -725,9 +725,9 @@ QString RemoteControl::cmd_set_func(QStringList cmdlist)
     else if ((func.compare("DSP", Qt::CaseInsensitive) == 0) && ok)
     {
         if (status)
-            emit DSP_triggered(true);
+            emit dspChanged(true);
         else
-            emit DSP_triggered(false);
+            emit dspChanged(false);
 
         answer = QString("RPRT 0\n");
     }

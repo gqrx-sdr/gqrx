@@ -106,7 +106,7 @@ signals:
     void startAudioRecorderEvent();
     void stopAudioRecorderEvent();
     void gainChanged(QString name, double value);
-    void DSP_triggered(bool value);
+    void dspChanged(bool value);
 
 private slots:
     void acceptConnection();
