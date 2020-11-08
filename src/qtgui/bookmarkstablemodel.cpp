@@ -168,7 +168,7 @@ bool BookmarksTableModel::setData(const QModelIndex &index, const QVariant &valu
 
 Qt::ItemFlags BookmarksTableModel::flags ( const QModelIndex& index ) const
 {
-    Qt::ItemFlags flags = 0;
+    Qt::ItemFlags flags = Qt::ItemFlags();
 
     switch(index.column())
     {

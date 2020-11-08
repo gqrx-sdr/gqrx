@@ -111,7 +111,7 @@ ctkRangeSliderPrivate::ctkRangeSliderPrivate(ctkRangeSlider& object)
   this->m_SubclassClickOffset = 0;
   this->m_SubclassPosition = 0;
   this->m_SubclassWidth = 0.0;
-  this->m_SelectedHandles = 0;
+  this->m_SelectedHandles = ctkRangeSliderPrivate::Handles();
   this->m_SymmetricMoves = false;
 }
 
@@ -769,7 +769,7 @@ void ctkRangeSlider::mouseReleaseEvent(QMouseEvent* mouseEvent)
   this->QSlider::mouseReleaseEvent(mouseEvent);
 
   setSliderDown(false);
-  d->m_SelectedHandles = 0;
+  d->m_SelectedHandles = ctkRangeSliderPrivate::Handles();
 
   this->update();
 }
