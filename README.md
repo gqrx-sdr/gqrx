@@ -173,6 +173,7 @@ The following people and organisations have contributed to gqrx:
 * Anton Blanchard
 * Bastian Bloessl
 * Ben Reese
+* Brandonn Etheve
 * Chris Kuethe
 * Christian Lindner, DL2VCL
 * charlylima
