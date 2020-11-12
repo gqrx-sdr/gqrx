@@ -96,6 +96,7 @@ SOURCES += \
     src/applications/gqrx/mainwindow.cpp \
     src/applications/gqrx/receiver.cpp \
     src/applications/gqrx/file_resources.cpp \
+    src/applications/gqrx/recentconfig.cpp \
     src/applications/gqrx/remote_control.cpp \
     src/applications/gqrx/remote_control_settings.cpp \
     src/dsp/afsk1200/cafsk12.cpp \
@@ -149,6 +150,7 @@ HEADERS += \
     src/applications/gqrx/gqrx.h \
     src/applications/gqrx/mainwindow.h \
     src/applications/gqrx/receiver.h \
+    src/applications/gqrx/recentconfig.h \
     src/applications/gqrx/remote_control.h \
     src/applications/gqrx/remote_control_settings.h \
     src/dsp/afsk1200/cafsk12.h \
