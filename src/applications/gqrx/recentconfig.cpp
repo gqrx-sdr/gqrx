@@ -38,16 +38,7 @@ RecentConfig::RecentConfig(const QString &configDir, QMenu *menu) : QObject()
 
     configFile = QFileInfo(QDir(configDir), RECENT_CONFIG_FILENAME);
 
-#ifndef QT_NO_DEBUG_OUTPUT
-    if (loadRecentConfig())
-        qDebug() << "Read file " << configFile.canonicalFilePath();
-    else if (configFile.canonicalFilePath().isEmpty())
-        qDebug() << "No file " << configFile.absoluteFilePath();
-    else
-        qDebug() << "Read failed of file " << configFile.absoluteFilePath();
-#else
     loadRecentConfig();
-#endif
 
     connect(this, &RecentConfig::configLoaded, this, &RecentConfig::onConfigLoaded);
     connect(this, &RecentConfig::configSaved, this, &RecentConfig::onConfigSaved);
@@ -55,14 +46,7 @@ RecentConfig::RecentConfig(const QString &configDir, QMenu *menu) : QObject()
 
 RecentConfig::~RecentConfig()
 {
-#ifndef QT_NO_DEBUG_OUTPUT
-    if (saveRecentConfig())
-        qDebug() << "Written file " << configFile.absoluteFilePath();
-    else
-        qDebug() << "Write failed to file " << configFile.absoluteFilePath();
-#else
     saveRecentConfig();
-#endif
 }
 
 void RecentConfig::createMenuActions()
@@ -186,8 +170,5 @@ void RecentConfig::onMenuAction(int index) const
     {
         const auto fname = cfgfiles->at(index).canonicalFilePath();
         emit loadConfig(fname);
-#ifndef QT_NO_DEBUG_OUTPUT
-        qDebug() << "Emitted loadConfig(" << fname << ")";
-#endif
     }
 }
