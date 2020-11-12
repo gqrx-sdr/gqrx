@@ -178,11 +178,7 @@ void CMeter::draw()
 
     // Qt 4.8+ has a 1-pixel error (or they fixed line drawing)
     // see http://stackoverflow.com/questions/16990326
-#if QT_VERSION >= 0x040800
     painter.drawRect(marg - 1, ht + 1, x - marg, 6);
-#else
-    painter.drawRect(marg, ht + 2, x - marg, 6);
-#endif
 
     if (m_SqlLevel > 0.0f)
     {

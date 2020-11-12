@@ -995,11 +995,9 @@ void CPlotter::draw()
 
         QPainter painter2(&m_2DPixmap);
 
-// workaround for "fixed" line drawing since Qt 5
-// see http://stackoverflow.com/questions/16990326
-#if QT_VERSION >= 0x050000
+        // workaround for "fixed" line drawing since Qt 5
+        // see http://stackoverflow.com/questions/16990326
         painter2.translate(0.5, 0.5);
-#endif
 
         // get new scaled fft data
         getScreenIntegerFFTData(h, qMin(w, MAX_SCREENSIZE),

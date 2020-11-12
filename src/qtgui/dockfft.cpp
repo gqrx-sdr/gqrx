@@ -46,13 +46,6 @@ DockFft::DockFft(QWidget *parent) :
 #ifdef Q_OS_MAC
     // Is this really only needed on Mac to make the color picker button appear square like the other buttons?
     ui->fillButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
-#if QT_VERSION < 0x050000
-    // Workaround for Mac, see http://stackoverflow.com/questions/3978889/why-is-qhboxlayout-causing-widgets-to-overlap
-    // Fixed in Qt 5?
-    ui->resetButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
-    ui->centerButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
-    ui->demodButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
-#endif
 #endif
 
 #ifdef Q_OS_LINUX
@@ -79,7 +72,7 @@ DockFft::DockFft(QWidget *parent) :
     ui->colorPicker->insertColor(QColor(0x7F,0xFA,0xFA,0xFF), "Cyan");
 
     ui->cmapComboBox->addItem(tr("Gqrx"), "gqrx");
-    ui->cmapComboBox->addItem(tr("Viridis"), "viridis");    
+    ui->cmapComboBox->addItem(tr("Viridis"), "viridis");
     ui->cmapComboBox->addItem(tr("Google Turbo"), "turbo");
     ui->cmapComboBox->addItem(tr("Plasma"), "plasma");
     ui->cmapComboBox->addItem(tr("White Hot Compressed"), "whitehotcompressed");
