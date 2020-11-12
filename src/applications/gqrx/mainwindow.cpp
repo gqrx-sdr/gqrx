@@ -301,7 +301,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     CIoConfig::getDeviceList(devList);
 
     m_recent_config = new RecentConfig(m_cfg_dir, ui->menu_RecentConfig);
-    connect(m_recent_config.data(), SIGNAL(loadConfig(const QString &)), this, SLOT(loadConfigSlot(const QString &)));
+    connect(m_recent_config, SIGNAL(loadConfig(const QString &)), this, SLOT(loadConfigSlot(const QString &)));
 
     // restore last session
     if (!loadConfig(cfgfile, true, true))
@@ -374,7 +374,6 @@ MainWindow::~MainWindow()
         delete m_settings;
     }
 
-    m_recent_config.clear();
     delete m_recent_config;
 
     delete iq_tool;

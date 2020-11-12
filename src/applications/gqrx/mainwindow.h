@@ -77,7 +77,7 @@ private:
     QPointer<QSettings> m_settings;  /*!< Application wide settings. */
     QString             m_cfg_dir;   /*!< Default config dir, e.g. XDG_CONFIG_HOME. */
     QString             m_last_dir;
-    QPointer<RecentConfig> m_recent_config; /* Menu File Recent config */
+    RecentConfig       *m_recent_config; /* Menu File Recent config */
 
     qint64 d_lnb_lo;  /* LNB LO in Hz. */
     qint64 d_hw_freq;
