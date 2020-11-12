@@ -113,22 +113,12 @@ bool RecentConfig::loadRecentConfig()
     while (!s.atEnd())
     {
         QString buf;
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
         if (!s.readLineInto(&buf, 33000))
         {
             file.close();
             cfgfiles->clear();
             return false;
         }
-#else
-        buf = s.readLine(33000);
-        if (buf.isNull())
-        {
-            file.close();
-            cfgfiles->clear();
-            return false;
-        }
-#endif
         if (!buf.isEmpty())
         {
             const auto fi = QFileInfo(buf);
@@ -182,15 +172,7 @@ inline void RecentConfig::updateFiles(const QString &filename)
     if (!file.exists())
         return;
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
     cfgfiles->removeOne(file);
-#else
-    const int i = cfgfiles->indexOf(file);
-    if (i >= 0)
-    {
-        cfgfiles->removeAt(i);
-    }
-#endif
     cfgfiles->prepend(file);
     if (cfgfiles->count() > MENU_MAX_ENTRIES)
     {
