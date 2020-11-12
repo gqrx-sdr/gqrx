@@ -42,6 +42,7 @@
 #include "qtgui/afsk1200win.h"
 #include "qtgui/iq_tool.h"
 
+#include "applications/gqrx/recentconfig.h"
 #include "applications/gqrx/remote_control.h"
 
 // see https://bugreports.qt-project.org/browse/QTBUG-22829
@@ -76,6 +77,7 @@ private:
     QPointer<QSettings> m_settings;  /*!< Application wide settings. */
     QString             m_cfg_dir;   /*!< Default config dir, e.g. XDG_CONFIG_HOME. */
     QString             m_last_dir;
+    QPointer<RecentConfig> m_recent_config; /* Menu File Recent config */
 
     qint64 d_lnb_lo;  /* LNB LO in Hz. */
     qint64 d_hw_freq;
@@ -128,6 +130,9 @@ private:
                             const QString &window_title);
 
 private slots:
+    /* RecentConfig */
+    void loadConfigSlot(const QString &cfgfile);
+
     /* rf */
     void setLnbLo(double freq_mhz);
     void setAntenna(const QString antenna);

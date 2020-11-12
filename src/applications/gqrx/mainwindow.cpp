@@ -300,6 +300,9 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     // restored because device probing might change the device configuration
     CIoConfig::getDeviceList(devList);
 
+    m_recent_config = new RecentConfig(m_cfg_dir, ui->menu_RecentConfig);
+    connect(m_recent_config.data(), SIGNAL(loadConfig(const QString &)), this, SLOT(loadConfigSlot(const QString &)));
+
     // restore last session
     if (!loadConfig(cfgfile, true, true))
     {
@@ -371,6 +374,9 @@ MainWindow::~MainWindow()
         delete m_settings;
     }
 
+    m_recent_config.clear();
+    delete m_recent_config;
+
     delete iq_tool;
     delete ui;
     delete uiDockRxOpt;
@@ -416,7 +422,12 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
     qDebug() << "Loading configuration from:" << cfgfile;
 
     if (m_settings)
+    {
+        // set current config to not crashed before loading new config
+        m_settings->setValue("crashed", false);
+        m_settings->sync();
         delete m_settings;
+    }
 
     if (QDir::isAbsolutePath(cfgfile))
         m_settings = new QSettings(cfgfile, QSettings::IniFormat);
@@ -643,6 +654,8 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
        ui->actionRemoteControl->setChecked(true);
     }
 
+    emit m_recent_config->configLoaded(m_settings->fileName());
+
     return conf_ok;
 }
 
@@ -655,7 +668,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
  * assumed to be the name of a file under m_cfg_dir.
  *
  * If cfgfile already exists it will be overwritten (we assume that a file
- * selection dialog has already asked for confirmation of overwrite.
+ * selection dialog has already asked for confirmation of overwrite).
  *
  * Since QSettings does not support "save as" we do this by copying the current
  * settings to a new file.
@@ -676,6 +689,7 @@ bool MainWindow::saveConfig(const QString cfgfile)
 
     if (newfile == oldfile) {
         qDebug() << "New file is equal to old file => SYNCING...";
+        emit m_recent_config->configSaved(newfile);
         return true;
     }
 
@@ -689,10 +703,6 @@ bool MainWindow::saveConfig(const QString cfgfile)
     }
     if (QFile::copy(oldfile, newfile))
     {
-        // ensure that old config has crash cleared
-        m_settings->setValue("crashed", false);
-        m_settings->sync();
-
         loadConfig(cfgfile, false, false);
         return true;
     }
@@ -2245,6 +2255,15 @@ void MainWindow::showSimpleTextFile(const QString &resource_path,
 
     delete dialog;
     // browser and layout deleted automatically
+}
+
+/**
+ * @brief Slot for handling loadConfig signals
+ * @param cfgfile
+ */
+void MainWindow::loadConfigSlot(const QString &cfgfile)
+{
+    loadConfig(cfgfile, cfgfile != m_settings->fileName(), cfgfile != m_settings->fileName());
 }
 
 /**

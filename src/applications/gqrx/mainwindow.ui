@@ -195,18 +195,27 @@
      <x>0</x>
      <y>0</y>
      <width>521</width>
-     <height>19</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <widget class="QMenu" name="menu_RecentConfig">
+     <property name="toolTip">
+      <string>Load recently used setting</string>
+     </property>
+     <property name="title">
+      <string>&amp;Recent settings</string>
+     </property>
+    </widget>
     <addaction name="actionDSP"/>
     <addaction name="separator"/>
     <addaction name="actionIoConfig"/>
     <addaction name="actionLoadSettings"/>
     <addaction name="actionSaveSettings"/>
+    <addaction name="menu_RecentConfig"/>
     <addaction name="separator"/>
     <addaction name="actionSaveWaterfall"/>
     <addaction name="separator"/>
