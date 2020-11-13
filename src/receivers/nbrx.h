@@ -62,7 +62,7 @@ public:
         NBRX_DEMOD_AM   = 1,  /*!< Amplitude modulation. */
         NBRX_DEMOD_FM   = 2,  /*!< Frequency modulation. */
         NBRX_DEMOD_SSB  = 3,  /*!< Single Side Band. */
-        NBRX_DEMOD_AMSYNC = 4, /*!< Amplitude modulation. */
+        NBRX_DEMOD_AMSYNC = 4, /*!< Amplitude modulation (synchronous demod). */
         NBRX_DEMOD_NUM  = 5   /*!< Included for convenience. */
     };
 

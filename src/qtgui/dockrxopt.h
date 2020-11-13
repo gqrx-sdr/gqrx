@@ -75,7 +75,7 @@ public:
         MODE_CWL        = 8, /*!< CW using LSB filter. */
         MODE_CWU        = 9, /*!< CW using USB filter. */
         MODE_WFM_STEREO_OIRT = 10, /*!< Broadcast FM (stereo oirt). */
-        MODE_AM_SYNC    = 11, /*!< Broadcast FM (stereo oirt). */
+        MODE_AM_SYNC    = 11, /*!< Amplitude modulation (synchronous demod). */
         MODE_LAST       = 12
     };
 
