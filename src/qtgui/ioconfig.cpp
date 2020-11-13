@@ -630,6 +630,7 @@ void CIoConfig::updateOutDev()
     QString outdev = m_settings->value("output/device", "").toString();
 
     ui->outDevCombo->clear();
+    ui->outDevCombo->addItem("Default");
 
     // get list of audio output devices
 #ifdef WITH_PULSEAUDIO
