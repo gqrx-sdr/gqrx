@@ -1345,7 +1345,6 @@ void MainWindow::iqFftTimeout()
     unsigned int    fftsize;
     unsigned int    i;
     float           pwr_scale;
-    std::complex<float> pt;     /* a single FFT point used in calculations */
 
     // FIXME: fftsize is a reference
     rx->get_iq_fft_data(d_fftData, fftsize);
