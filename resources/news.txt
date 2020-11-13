@@ -4,6 +4,7 @@
        NEW: Start/stop DSP via remote control.
        NEW: Device scan button in Configure I/O devices dialog.
        NEW: Added "Recent settings" menu.
+       NEW: Added synchronous AM demodulator.
 
 
     2.13.5: Released November 7, 2020
