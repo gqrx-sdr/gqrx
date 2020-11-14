@@ -233,9 +233,9 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             {
                 if(m_BookmarksEnabled || m_DXCSpotsEnabled)
                 {
-                    for(int i = 0; i < Taglist.size() && !onTag; i++)
+                    for(int i = 0; i < m_Taglist.size() && !onTag; i++)
                     {
-                        if (Taglist[i].first.contains(event->pos()))
+                        if (m_Taglist[i].first.contains(event->pos()))
                             onTag = true;
                     }
                 }
@@ -721,11 +721,11 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
         }
         else if (m_CursorCaptured == TAG)
         {
-            for (int i = 0; i < Taglist.size(); i++)
+            for (int i = 0; i < m_Taglist.size(); i++)
             {
-                if (Taglist[i].first.contains(event->pos()))
+                if (m_Taglist[i].first.contains(event->pos()))
                 {
-                    m_DemodCenterFreq = Taglist[i].second;
+                    m_DemodCenterFreq = m_Taglist[i].second;
                     emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
                     break;
                 }
@@ -1312,7 +1312,7 @@ void CPlotter::drawOverlay()
 
     if (m_BookmarksEnabled || m_DXCSpotsEnabled)
     {
-        Taglist.clear();
+        m_Taglist.clear();
         static const QFontMetrics fm(painter.font());
         static const int fontHeight = fm.ascent() + 1;
         static const int slant = 5;
@@ -1370,7 +1370,7 @@ void CPlotter::drawOverlay()
             const auto levelNHeightBottom = levelNHeight + fontHeight;
             const auto levelNHeightBottomSlant = levelNHeightBottom + slant;
 
-            Taglist.append(qMakePair<QRect, qint64>(QRect(x, levelNHeight, nameWidth + slant, fontHeight), tags[i].frequency));
+            m_Taglist.append(qMakePair<QRect, qint64>(QRect(x, levelNHeight, nameWidth + slant, fontHeight), tags[i].frequency));
 
             QColor color = QColor(tags[i].GetColor());
             color.setAlpha(0x60);

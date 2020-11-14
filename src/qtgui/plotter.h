@@ -278,7 +278,7 @@ private:
     float       m_PeakDetection;
     QMap<int,int>   m_Peaks;
 
-    QList< QPair<QRect, qint64> >     Taglist;
+    QList< QPair<QRect, qint64> >     m_Taglist;
 
     // Waterfall averaging
     quint64     tlast_wf_ms;        // last time waterfall has been updated
