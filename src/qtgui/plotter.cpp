@@ -65,6 +65,7 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp)
 #include <QtGlobal>
 #include <QToolTip>
 #include "plotter.h"
+#include "bandplan.h"
 #include "bookmarks.h"
 
 // Comment out to enable plotter debug messages
@@ -85,6 +86,9 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp)
 #define PLOTTER_FILTER_LINE_COLOR   0xFFFF7171
 #define PLOTTER_FILTER_BOX_COLOR    0xFFA0A0A4
 // FIXME: Should cache the QColors also
+
+#define HOR_MARGIN 5
+#define VER_MARGIN 5
 
 int F2B(float f)
 {
@@ -154,6 +158,7 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
 
     m_FilterBoxEnabled = true;
     m_CenterLineEnabled = true;
+    m_BandPlanEnabled = true;
     m_BookmarksEnabled = true;
     m_InvertScrolling = false;
 
@@ -177,6 +182,7 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     m_Percent2DScreen = 35;	//percent of screen used for 2D display
     m_VdivDelta = 30;
     m_HdivDelta = 70;
+    m_BandPlanHeight = 22;
 
     m_FreqDigits = 3;
 
@@ -295,10 +301,20 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     m_CursorCaptured = NOCAP;
                 }
                 if (m_TooltipsEnabled)
-                    QToolTip::showText(event->globalPos(),
-                                       QString("F: %1 kHz")
-                                               .arg(freqFromX(pt.x())/1.e3f, 0, 'f', 3),
-                                       this);
+                {
+                    qint64 hoverFrequency = freqFromX(pt.x());
+                    QString toolTipText = QString("F: %1 kHz").arg(hoverFrequency/1.e3f, 0, 'f', 3);
+                    QFontMetrics metrics(m_Font);
+                    int bandTopY = m_OverlayPixmap.height() - metrics.height() - 2 * VER_MARGIN - m_BandPlanHeight;
+                    QList<BandInfo> hoverBands = BandPlan::Get().getBandsEncompassing(hoverFrequency);
+                    if(m_BandPlanEnabled && pt.y() > bandTopY && hoverBands.size() > 0)
+                    {
+                        toolTipText.append("\n");
+                        for (int i = 0; i < hoverBands.size(); i++)
+                            toolTipText.append("\n" + hoverBands[i].name);
+                    }
+                    QToolTip::showText(event->globalPos(), toolTipText, this);
+                }
             }
             m_GrabPosition = 0;
         }
@@ -1280,9 +1296,6 @@ void CPlotter::drawOverlay()
     painter.setBrush(Qt::SolidPattern);
     painter.fillRect(0, 0, w, h, QColor(PLOTTER_BGD_COLOR));
 
-#define HOR_MARGIN 5
-#define VER_MARGIN 5
-
     // X and Y axis areas
     m_YAxisWidth = metrics.boundingRect("XXXX").width() + 2 * HOR_MARGIN;
     m_XAxisYCenter = h - metrics.height()/2;
@@ -1350,6 +1363,30 @@ void CPlotter::drawOverlay()
             painter.drawText(x + slant, levelNHeight, nameWidth,
                              fontHeight, Qt::AlignVCenter | Qt::AlignHCenter,
                              bookmarks[i].name);
+        }
+    }
+
+    if (m_BandPlanEnabled)
+    {
+        QList<BandInfo> bands = BandPlan::Get().getBandsInRange(m_CenterFreq + m_FftCenter - m_Span / 2,
+                                                                m_CenterFreq + m_FftCenter + m_Span / 2);
+
+        for (int i = 0; i < bands.size(); i++)
+        {
+            int band_left = xFromFreq(bands[i].minFrequency);
+            int band_right = xFromFreq(bands[i].maxFrequency);
+            int band_width = band_right - band_left;
+            rect.setRect(band_left, xAxisTop - m_BandPlanHeight, band_width, m_BandPlanHeight);
+            painter.fillRect(rect, bands[i].color);
+            QString band_label = bands[i].name + " (" + bands[i].modulation + ")";
+            int textWidth = metrics.width(band_label);
+            if (band_left < w && band_width > textWidth + 20)
+            {
+                painter.setOpacity(1.0);
+                rect.setRect(band_left, xAxisTop - m_BandPlanHeight, band_width, metrics.height());
+                painter.setPen(QColor(PLOTTER_TEXT_COLOR));
+                painter.drawText(rect, Qt::AlignCenter, band_label);
+            }
         }
     }
 
@@ -1537,7 +1574,7 @@ int CPlotter::xFromFreq(qint64 freq)
     return x;
 }
 
-// Convert from frequency to screen coordinate
+// Convert from screen coordinate to frequency
 qint64 CPlotter::freqFromX(int x)
 {
     qint64 w = width();
@@ -1681,6 +1718,12 @@ void CPlotter::setPeakDetection(bool enabled, float c)
         m_PeakDetection = -1;
     else
         m_PeakDetection = c;
+}
+
+void CPlotter::toggleBandPlan(bool state)
+{
+    m_BandPlanEnabled = state;
+    updateOverlay();
 }
 
 void CPlotter::calcDivSize (qint64 low, qint64 high, int divswanted, qint64 &adjlow, qint64 &step, int& divs)

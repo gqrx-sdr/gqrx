@@ -39,6 +39,7 @@ public:
     void setTooltipsEnabled(bool enabled) { m_TooltipsEnabled = enabled; }
     void setBookmarksEnabled(bool enabled) { m_BookmarksEnabled = enabled; }
     void setInvertScrolling(bool enabled) { m_InvertScrolling = enabled; }
+    void setBandPlanEnabled(bool enabled) { m_BandPlanEnabled = enabled; }
 
     void setNewFftData(float *fftData, int size);
     void setNewFftData(float *fftData, float *wfData, int size);
@@ -147,6 +148,7 @@ public slots:
     void setPandapterRange(float min, float max);
     void setWaterfallRange(float min, float max);
     void setPeakDetection(bool enabled, float c);
+    void toggleBandPlan(bool state);
     void updateOverlay();
 
     void setPercent2DScreen(int percent)
@@ -224,7 +226,8 @@ private:
     qint64      m_FreqPerDiv;
     bool        m_CenterLineEnabled;  /*!< Distinguish center line. */
     bool        m_FilterBoxEnabled;   /*!< Draw filter box. */
-    bool        m_TooltipsEnabled;     /*!< Tooltips enabled */
+    bool        m_TooltipsEnabled;    /*!< Tooltips enabled */
+    bool        m_BandPlanEnabled;    /*!< Show/hide band plan on spectrum */
     bool        m_BookmarksEnabled;   /*!< Show/hide bookmarks on spectrum */
     bool        m_InvertScrolling;
     int         m_DemodHiCutFreq;
@@ -263,6 +266,7 @@ private:
     QFont       m_Font;         /*!< Font used for plotter (system font) */
     int         m_HdivDelta; /*!< Minimum distance in pixels between two horizontal grid lines (vertical division). */
     int         m_VdivDelta; /*!< Minimum distance in pixels between two vertical grid lines (horizontal division). */
+    int         m_BandPlanHeight; /*!< Height in pixels of band plan (if enabled) */
 
     quint32     m_LastSampleRate;
 

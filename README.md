@@ -178,6 +178,7 @@ The following people and organisations have contributed to gqrx:
 * Christian Lindner, DL2VCL
 * charlylima
 * Clayton Smith, VE3IRR
+* Dallas Epperson
 * Darin Franklin
 * Stefano Leucci
 * Daniil Cherednik
