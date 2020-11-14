@@ -2441,5 +2441,4 @@ void MainWindow::addClusterSpot()
 void MainWindow::checkDXCSpotTimeout()
 {
     DXCSpots::Get().checkSpotTimeout();
-    ui->plotter->updateOverlay();
 }
