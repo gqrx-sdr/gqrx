@@ -22,6 +22,7 @@
  */
 #include <Qt>
 #include <QFile>
+#include <QResource>
 #include <QStringList>
 #include <QTextStream>
 #include <QString>
@@ -52,6 +53,13 @@ void BandPlan::setConfigDir(const QString& cfg_dir)
 {
     m_bandPlanFile = cfg_dir + "/bandplan.csv";
     printf("BandPlanFile is %s\n", m_bandPlanFile.toStdString().c_str());
+
+    if (!QFile::exists(m_bandPlanFile))
+    {
+        QResource resource(":/textfiles/bandplan.csv");
+        QFile::copy(resource.absoluteFilePath(), m_bandPlanFile);
+        QFile::setPermissions(m_bandPlanFile, QFile::permissions(m_bandPlanFile) | QFile::WriteOwner);
+    }
 }
 
 bool BandPlan::load()
