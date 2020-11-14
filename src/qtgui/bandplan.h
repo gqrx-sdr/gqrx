@@ -31,8 +31,6 @@
 #include <QStringList>
 #include <QColor>
 
-
-
 struct BandInfo
 {
     qint64  minFrequency;

@@ -35,7 +35,7 @@ BandPlan* BandPlan::m_pThis = 0;
 
 BandPlan::BandPlan()
 {
-    
+
 }
 
 void BandPlan::create()
@@ -58,9 +58,9 @@ bool BandPlan::load()
 {
     QFile file(m_bandPlanFile);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
-    
+
     m_BandInfoList.clear();
-    
+
     while (!file.atEnd())
     {
         QString line = QString::fromUtf8(file.readLine().trimmed());
@@ -69,7 +69,7 @@ bool BandPlan::load()
 
         QStringList strings = line.split(",");
 
-        if (strings.count() < 6){
+        if (strings.count() < 6) {
             printf("BandPlan: Ignoring Line:\n  %s\n", line.toLatin1().data());
         } else {
             BandInfo info;
@@ -84,7 +84,7 @@ bool BandPlan::load()
         }
     }
     file.close();
-    
+
     emit BandPlanChanged();
     return true;
 }
