@@ -70,18 +70,19 @@ void DXC_Options::readyToRead()
 {
     DXCSpotInfo info;
     QStringList Spot;
-    QString incommingMessage;
-    incommingMessage = TCPSocket->readAll();
-    ui->plainTextEdit_DXCMonitor->appendPlainText(incommingMessage);
-    if(incommingMessage.contains("enter your call", Qt::CaseInsensitive))
+    QString incomingMessage;
+    incomingMessage = TCPSocket->readAll();
+    ui->plainTextEdit_DXCMonitor->appendPlainText(incomingMessage.remove('\a').trimmed());
+    if(incomingMessage.contains("enter your call", Qt::CaseInsensitive)
+            || incomingMessage.contains("login:", Qt::CaseInsensitive))
     {
-        TCPSocket->write(ui->lineEdit_DXCUSername->text().append("\r\n").toUtf8());
-        ui->plainTextEdit_DXCMonitor->appendPlainText(ui->lineEdit_DXCUSername->text().append("\r\n"));
+        TCPSocket->write(ui->lineEdit_DXCUSername->text().append("\n").toUtf8());
+        ui->plainTextEdit_DXCMonitor->appendPlainText(ui->lineEdit_DXCUSername->text());
     }
-    else if(incommingMessage.contains("DX de", Qt::CaseInsensitive) &&
-            incommingMessage.contains(ui->lineEdit_DXCFilter->text()))
+    else if(incomingMessage.contains("DX de", Qt::CaseInsensitive) &&
+            incomingMessage.contains(ui->lineEdit_DXCFilter->text()))
     {
-        Spot = incommingMessage.split(" ", QString::SkipEmptyParts);
+        Spot = incomingMessage.split(" ", QString::SkipEmptyParts);
         info.name = Spot[4].trimmed();
         info.frequency = Spot[3].toDouble() * 1000;
         DXCSpots::Get().add(info);
