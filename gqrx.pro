@@ -145,7 +145,8 @@ SOURCES += \
     src/qtgui/qtcolorpicker.cpp \
     src/receivers/nbrx.cpp \
     src/receivers/receiver_base.cpp \
-    src/receivers/wfmrx.cpp
+    src/receivers/wfmrx.cpp \
+    src/qtgui/fftbuffer.cpp
 
 HEADERS += \
     src/applications/gqrx/gqrx.h \
@@ -208,7 +209,8 @@ HEADERS += \
     src/qtgui/qtcolorpicker.h \
     src/receivers/nbrx.h \
     src/receivers/receiver_base.h \
-    src/receivers/wfmrx.h
+    src/receivers/wfmrx.h \
+    src/qtgui/fftbuffer.h
 
 FORMS += \
     src/applications/gqrx/mainwindow.ui \
