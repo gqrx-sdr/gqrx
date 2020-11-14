@@ -35,7 +35,7 @@ add_source_files(SRCS_LIST
 	dxc_options.cpp
 	dxc_options.h
 	dxc_spots.cpp
-	dxc_spots.h	
+	dxc_spots.h
 	freqctrl.cpp
 	freqctrl.h
 	ioconfig.cpp

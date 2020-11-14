@@ -104,4 +104,3 @@ const QColor DXCSpotInfo::GetColor() const
 {
     return DXCSpotInfo::color;
 }
-
