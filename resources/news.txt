@@ -5,7 +5,7 @@
        NEW: Device scan button in Configure I/O devices dialog.
        NEW: Added "Recent settings" menu.
        NEW: Added synchronous AM demodulator.
-       NEW: Add band plan to bottom of FFT.
+       NEW: Added band plan to bottom of FFT.
      FIXED: PortAudio detection on MacOS.
 
 
