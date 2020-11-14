@@ -15,9 +15,9 @@ add_source_files(SRCS_LIST
 	bookmarkstablemodel.h
 	bookmarkstaglist.cpp
 	bookmarkstaglist.h
-    ctk/ctkPimpl.h
-    ctk/ctkRangeSlider.cpp
-    ctk/ctkRangeSlider.h
+	ctk/ctkPimpl.h
+	ctk/ctkRangeSlider.cpp
+	ctk/ctkRangeSlider.h
 	demod_options.cpp
 	demod_options.h
 	dockaudio.cpp
@@ -65,4 +65,3 @@ add_source_files(UI_SRCS_LIST
 	iq_tool.ui
 	nb_options.ui
 )
-
