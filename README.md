@@ -209,6 +209,7 @@ The following people and organisations have contributed to gqrx:
 * Nate Temple
 * Nick Robinson, KE5YWP
 * Nokia
+* Oliver Grossmann, DH2WQ
 * Pavel Milanes, CO7WT
 * Pavel Stano
 * Phil Vachon
