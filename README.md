@@ -181,6 +181,7 @@ The following people and organisations have contributed to gqrx:
 * Darin Franklin
 * Stefano Leucci
 * Daniil Cherednik
+* Davide Gerhard
 * Dominic Chen
 * Elias Önal
 * Frank Brickle, AB2KT
