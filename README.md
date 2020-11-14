@@ -166,35 +166,34 @@ The following people and organisations have contributed to gqrx:
 
 * Alex Grinkov
 * Alexander Fasching
-* Andy Sloane
 * Andrea Merello
 * Andrea Montefusco, IW0HDV
+* Andy Sloane
 * Anthony Willard
 * Anton Blanchard
 * Bastian Bloessl
 * Ben Reese
+* Bob McGwier, N4HY
 * Brandonn Etheve
+* charlylima
 * Chris Kuethe
 * Christian Lindner, DL2VCL
-* charlylima
 * Clayton Smith, VE3IRR
 * Dallas Epperson
-* Darin Franklin
-* Stefano Leucci
 * Daniil Cherednik
+* Darin Franklin
 * Davide Gerhard
 * Dominic Chen
 * Elias Önal
-* Frank Brickle, AB2KT
 * Federico Fuga
-* Bob McGwier, N4HY
+* Frank Brickle, AB2KT
 * Gisle Vanem
 * Göran Weinholt, SA6CJK
 * Grigory Shipunov
 * Gwenhael Goavec-Merou
+* Jeff Long
 * Jiawei Chen
 * Jiří Pinkava
-* Jeff Long
 * Josh Blum
 * Kate Adams
 * Kitware Inc.
