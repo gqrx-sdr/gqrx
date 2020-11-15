@@ -43,7 +43,7 @@ struct DXCSpotInfo
     {
         this->frequency = 0;
         this->time = QTime::currentTime();
-        this->color=(Qt::lightGray);
+        this->color = Qt::lightGray;
     }
 
     bool operator<(const DXCSpotInfo &other) const
