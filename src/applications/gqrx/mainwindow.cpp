@@ -2093,6 +2093,7 @@ void MainWindow::on_actionAFSK1200_triggered()
         {
             dec_afsk1200 = new Afsk1200Win(this);
             connect(dec_afsk1200, SIGNAL(windowClosed()), this, SLOT(afsk1200win_closed()));
+            dec_afsk1200->setAttribute(Qt::WA_DeleteOnClose);
             dec_afsk1200->show();
 
             dec_timer->start(100);
@@ -2119,8 +2120,6 @@ void MainWindow::afsk1200win_closed()
     dec_timer->stop();
     rx->stop_sniffer();
 
-    /* delete decoder object */
-    delete dec_afsk1200;
     dec_afsk1200 = 0;
 }
 
