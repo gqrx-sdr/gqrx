@@ -93,7 +93,7 @@ void DXC_Options::disconnected()
 void DXC_Options::readyToRead()
 {
     DXCSpotInfo info;
-    QStringList Spot;
+    QStringList spot;
     QString incomingMessage;
 
     incomingMessage = TCPSocket->readLine();
@@ -109,10 +109,13 @@ void DXC_Options::readyToRead()
         else if(incomingMessage.contains("DX de", Qt::CaseInsensitive) &&
                 incomingMessage.contains(ui->lineEdit_DXCFilter->text()))
         {
-            Spot = incomingMessage.split(" ", QString::SkipEmptyParts);
-            info.name = Spot[4].trimmed();
-            info.frequency = Spot[3].toDouble() * 1000;
-            DXCSpots::Get().add(info);
+            spot = incomingMessage.split(" ", QString::SkipEmptyParts);
+            if (spot.length() >= 5)
+            {
+                info.name = spot[4].trimmed();
+                info.frequency = spot[3].toDouble() * 1000;
+                DXCSpots::Get().add(info);
+            }
         }
 
         incomingMessage = TCPSocket->readLine();
