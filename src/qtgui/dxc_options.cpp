@@ -27,18 +27,18 @@
 #include <QStringList>
 #include "dxc_spots.h"
 
-DXC_Options::DXC_Options(QWidget *parent) :
+DXCOptions::DXCOptions(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::DXC_Options)
+    ui(new Ui::DXCOptions)
 {
     ui->setupUi(this);
-    TCPSocket = new QTcpSocket(this);
-    connect(TCPSocket, SIGNAL(connected()),this, SLOT(connected()));
-    connect(TCPSocket, SIGNAL(disconnected()),this, SLOT(disconnected()));
-    connect(TCPSocket, SIGNAL(readyRead()),this, SLOT(readyToRead()));
+    m_socket = new QTcpSocket(this);
+    connect(m_socket, SIGNAL(connected()),this, SLOT(connected()));
+    connect(m_socket, SIGNAL(disconnected()),this, SLOT(disconnected()));
+    connect(m_socket, SIGNAL(readyRead()),this, SLOT(readyToRead()));
 }
 
-DXC_Options::~DXC_Options()
+DXCOptions::~DXCOptions()
 {
     delete ui;
 }
@@ -49,61 +49,61 @@ DXC_Options::~DXC_Options()
  * window using the window close icon. We catch the event and hide the
  * dialog but keep it around for later use.
  */
-void DXC_Options::closeEvent(QCloseEvent *event)
+void DXCOptions::closeEvent(QCloseEvent *event)
 {
     hide();
     event->ignore();
 }
 
 /*! \brief Catch window show events. */
-void DXC_Options::showEvent(QShowEvent * event)
+void DXCOptions::showEvent(QShowEvent * event)
 {
     Q_UNUSED(event);
 }
 
-void DXC_Options::on_pushButton_DXCConnect_clicked()
+void DXCOptions::on_pushButton_DXCConnect_clicked()
 {
     DXCSpots::Get().setSpotTimeout(ui->lineEdit_DXCSpottimeout->text().toInt());
-    TCPSocket->connectToHost(ui->lineEdit_DXCAddress->text(),ui->lineEdit_DXCPort->text().toInt());
-    if(!TCPSocket->waitForConnected(5000))
+    m_socket->connectToHost(ui->lineEdit_DXCAddress->text(),ui->lineEdit_DXCPort->text().toInt());
+    if(!m_socket->waitForConnected(5000))
     {
-        ui->plainTextEdit_DXCMonitor->appendPlainText(TCPSocket->errorString());
+        ui->plainTextEdit_DXCMonitor->appendPlainText(m_socket->errorString());
     }
 }
 
-void DXC_Options::on_pushButton_DXCDisconnect_clicked()
+void DXCOptions::on_pushButton_DXCDisconnect_clicked()
 {
-    TCPSocket->close();
+    m_socket->close();
 }
 
-void DXC_Options::connected()
+void DXCOptions::connected()
 {
     ui->plainTextEdit_DXCMonitor->appendPlainText("Connected");
     ui->pushButton_DXCConnect->setDisabled(true);
     ui->pushButton_DXCDisconnect->setEnabled(true);
 }
 
-void DXC_Options::disconnected()
+void DXCOptions::disconnected()
 {
     ui->plainTextEdit_DXCMonitor->appendPlainText("Disconnected");
     ui->pushButton_DXCDisconnect->setDisabled(true);
     ui->pushButton_DXCConnect->setEnabled(true);
 }
 
-void DXC_Options::readyToRead()
+void DXCOptions::readyToRead()
 {
     DXCSpotInfo info;
     QStringList spot;
     QString incomingMessage;
 
-    incomingMessage = TCPSocket->readLine();
+    incomingMessage = m_socket->readLine();
     while (incomingMessage.length() > 0)
     {
         ui->plainTextEdit_DXCMonitor->appendPlainText(incomingMessage.remove('\a').trimmed());
         if(incomingMessage.contains("enter your call", Qt::CaseInsensitive)
                 || incomingMessage.contains("login:", Qt::CaseInsensitive))
         {
-            TCPSocket->write(ui->lineEdit_DXCUSername->text().append("\n").toUtf8());
+            m_socket->write(ui->lineEdit_DXCUSername->text().append("\n").toUtf8());
             ui->plainTextEdit_DXCMonitor->appendPlainText(ui->lineEdit_DXCUSername->text());
         }
         else if(incomingMessage.contains("DX de", Qt::CaseInsensitive) &&
@@ -118,11 +118,11 @@ void DXC_Options::readyToRead()
             }
         }
 
-        incomingMessage = TCPSocket->readLine();
+        incomingMessage = m_socket->readLine();
     }
 }
 
-void DXC_Options::saveSettings(QSettings *settings)
+void DXCOptions::saveSettings(QSettings *settings)
 {
     if (!settings)
         return;
@@ -138,7 +138,7 @@ void DXC_Options::saveSettings(QSettings *settings)
     settings->endGroup();
 }
 
-void DXC_Options::readSettings(QSettings *settings)
+void DXCOptions::readSettings(QSettings *settings)
 {
     if (!settings)
         return;

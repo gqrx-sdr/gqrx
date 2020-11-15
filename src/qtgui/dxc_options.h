@@ -32,16 +32,16 @@
 #include <QDialog>
 
 namespace Ui {
-class DXC_Options;
+class DXCOptions;
 }
 
-class DXC_Options : public QDialog
+class DXCOptions : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit DXC_Options(QWidget *parent = 0);
-    ~DXC_Options();
+    explicit DXCOptions(QWidget *parent = 0);
+    ~DXCOptions();
 
     void closeEvent(QCloseEvent *event);
     void showEvent(QShowEvent * event);
@@ -57,8 +57,8 @@ private slots:
     void readyToRead();
 
 private:
-    Ui::DXC_Options *ui;
-    QTcpSocket *TCPSocket;
+    Ui::DXCOptions *ui;
+    QTcpSocket *m_socket;
 };
 
 #endif // DXC_OPTIONS_H

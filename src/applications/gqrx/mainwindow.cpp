@@ -128,7 +128,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     iq_tool = new CIqTool(this);
 
     // create DXC Objects
-    dxc_options = new DXC_Options(this);
+    dxc_options = new DXCOptions(this);
 
     /* create dock widgets */
     uiDockRxOpt = new DockRxOpt();

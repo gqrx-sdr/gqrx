@@ -102,7 +102,7 @@ private:
     DockRDS        *uiDockRDS;
 
     CIqTool        *iq_tool;
-    DXC_Options    *dxc_options;
+    DXCOptions     *dxc_options;
 
 
     /* data decoders */
