@@ -82,12 +82,14 @@ void DXC_Options::connected()
     ui->pushButton_DXCConnect->setDisabled(true);
     ui->pushButton_DXCDisconnect->setEnabled(true);
 }
+
 void DXC_Options::disconnected()
 {
     ui->plainTextEdit_DXCMonitor->appendPlainText("Disconnected");
     ui->pushButton_DXCDisconnect->setDisabled(true);
     ui->pushButton_DXCConnect->setEnabled(true);
 }
+
 void DXC_Options::readyToRead()
 {
     DXCSpotInfo info;
@@ -110,6 +112,7 @@ void DXC_Options::readyToRead()
         DXCSpots::Get().add(info);
     }
 }
+
 void DXC_Options::saveSettings(QSettings *settings)
 {
     if (!settings)
