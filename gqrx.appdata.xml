@@ -20,7 +20,7 @@
   <!-- <url type="donation"></url> -->
   <!-- <url type="faq"></url> -->
   <!-- <url type="help"></url> -->
-  <url type="homepage">http://gqrx.dk/</url>
+  <url type="homepage">https://gqrx.dk/</url>
   <!-- <project_group>none</project_group> not a project from GNOME, KDE or XFCE -->
   <screenshots>
     <screenshot type="default">

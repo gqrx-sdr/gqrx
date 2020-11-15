@@ -27,7 +27,7 @@ Download:
 
 Gqrx is distributed as source code package and binaries for Linux and Mac. 
 Alternate Mac support is available through macports and homebrew.
-Please see http://gqrx.dk/download for a list of download resources.
+Please see https://gqrx.dk/download for a list of download resources.
 
 Usage:
 
@@ -43,4 +43,4 @@ You can test your device using device specific tools, such as rtl_test, airspy_r
 Gqrx supports multiple configurations and sessions if you have several devices or if you want to use the same device under different configurations. 
 You can load a configuration from the GUI or using the -c command line argument. 
 See "gqrx --help" for a complete list of command line arguments.
-Tutorials and howtos are being written and published on the website http://gqrx.dk/
+Tutorials and howtos are being written and published on the website https://gqrx.dk/

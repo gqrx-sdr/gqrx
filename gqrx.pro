@@ -1,6 +1,6 @@
 #--------------------------------------------------------------------------------
 #
-# Qmake project file for gqrx - http://gqrx.dk
+# Qmake project file for gqrx - https://gqrx.dk
 #
 # Common options you may want to passs to qmake:
 #

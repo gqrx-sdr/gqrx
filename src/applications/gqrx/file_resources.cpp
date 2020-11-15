@@ -1,7 +1,7 @@
 /* -*- c++ -*- */
 /*
  * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
- *           http://gqrx.dk/
+ *           https://gqrx.dk/
  *
  * Copyright (c) 2016 Josh Blum <josh@joshknows.com>
  *

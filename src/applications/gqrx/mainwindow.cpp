@@ -1,7 +1,7 @@
 /* -*- c++ -*- */
 /*
  * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
- *           http://gqrx.dk/
+ *           https://gqrx.dk/
  *
  * Copyright 2011-2014 Alexandru Csete OZ9AEC.
  * Copyright (C) 2013 by Elias Oenal <EliasOenal@gmail.com>
@@ -2332,7 +2332,7 @@ void MainWindow::on_actionAbout_triggered()
            "Funcube Dongle, RTL-SDR, Airspy, HackRF, RFSpace, BladeRF and USRP receivers."
            "</p>"
            "<p>You can download the latest version from the "
-           "<a href='http://gqrx.dk/'>Gqrx website</a>."
+           "<a href='https://gqrx.dk/'>Gqrx website</a>."
            "</p>"
            "<p>"
            "Gqrx is licensed under the <a href='http://www.gnu.org/licenses/gpl.html'>GNU General Public License</a>."
