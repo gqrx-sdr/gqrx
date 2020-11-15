@@ -40,6 +40,7 @@ public:
     void setBookmarksEnabled(bool enabled) { m_BookmarksEnabled = enabled; }
     void setInvertScrolling(bool enabled) { m_InvertScrolling = enabled; }
     void setBandPlanEnabled(bool enabled) { m_BandPlanEnabled = enabled; }
+    void setDXCSpotsEnabled(bool enabled) { m_DXCSpotsEnabled = enabled; }
 
     void setNewFftData(float *fftData, int size);
     void setNewFftData(float *fftData, float *wfData, int size);
@@ -175,7 +176,7 @@ private:
         RIGHT,
         YAXIS,
         XAXIS,
-        BOOKMARK
+        TAG
     };
 
     void        drawOverlay();
@@ -230,6 +231,7 @@ private:
     bool        m_BandPlanEnabled;    /*!< Show/hide band plan on spectrum */
     bool        m_BookmarksEnabled;   /*!< Show/hide bookmarks on spectrum */
     bool        m_InvertScrolling;
+    bool        m_DXCSpotsEnabled;   /*!< Show/hide DXC Spots on spectrum */
     int         m_DemodHiCutFreq;
     int         m_DemodLowCutFreq;
     int         m_DemodFreqX;		//screen coordinate x position
@@ -276,7 +278,7 @@ private:
     float       m_PeakDetection;
     QMap<int,int>   m_Peaks;
 
-    QList< QPair<QRect, qint64> >     m_BookmarkTags;
+    QList< QPair<QRect, qint64> >     m_Taglist;
 
     // Waterfall averaging
     quint64     tlast_wf_ms;        // last time waterfall has been updated
