@@ -70,7 +70,6 @@ public:
     static DXCSpots& Get();
 
     void add(DXCSpotInfo& info);
-    void checkSpotTimeout();
     void setSpotTimeout(int i) {m_DXCSpotTimeout = i * 60;}
     DXCSpotInfo& getDXCSpot(int i) { return m_DXCSpotList[i]; }
     QList<DXCSpotInfo> getDXCSpotsInRange(qint64 low, qint64 high);
@@ -81,8 +80,11 @@ private:
     int m_DXCSpotTimeout;
     static DXCSpots* m_pThis;
 
+private slots:
+    void checkSpotTimeout(void);
+
 signals:
-    void dxcSpotsChanged(void);
+    void dxcSpotsUpdated(void);
 };
 
 #endif // DXC_SPOTS_H
