@@ -47,7 +47,7 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
     // Frequency List
     ui->tableViewFrequencyList->setModel(bookmarksTableModel);
     ui->tableViewFrequencyList->setColumnWidth(BookmarksTableModel::COL_NAME,
-        ui->tableViewFrequencyList->columnWidth(BookmarksTableModel::COL_NAME) * 2);
+    ui->tableViewFrequencyList->columnWidth(BookmarksTableModel::COL_NAME) * 2);
     ui->tableViewFrequencyList->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableViewFrequencyList->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->tableViewFrequencyList->installEventFilter(this);
@@ -97,8 +97,8 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
 
 DockBookmarks::~DockBookmarks()
 {
+    delete ui;
     delete bookmarksTableModel;
-    bookmarksTableModel = 0;
 }
 
 void DockBookmarks::activated(const QModelIndex & index)
