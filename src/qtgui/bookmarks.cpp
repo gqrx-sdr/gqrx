@@ -27,9 +27,8 @@
 #include <QString>
 #include <QSet>
 #include <algorithm>
+#include <iostream>
 #include "bookmarks.h"
-#include <stdio.h>
-#include <wchar.h>
 
 const QColor TagInfo::DefaultColor(Qt::lightGray);
 const QString TagInfo::strUntagged("Untagged");
@@ -54,7 +53,7 @@ Bookmarks& Bookmarks::Get()
 void Bookmarks::setConfigDir(const QString& cfg_dir)
 {
     m_bookmarksFile = cfg_dir + "/bookmarks.csv";
-    printf("BookmarksFile is %s\n", m_bookmarksFile.toStdString().c_str());
+    std::cout << "BookmarksFile is " << m_bookmarksFile.toStdString() << std::endl;
 }
 
 void Bookmarks::add(BookmarkInfo &info)
@@ -102,7 +101,8 @@ bool Bookmarks::load()
             }
             else
             {
-                printf("\nBookmarks: Ignoring Line:\n  %s\n", line.toLatin1().data());
+                std::cout << "Bookmarks: Ignoring Line:" << std::endl;
+                std::cout << "  " << line.toStdString() << std::endl;
             }
         }
         std::sort(m_TagList.begin(),m_TagList.end());
@@ -134,7 +134,8 @@ bool Bookmarks::load()
             }
             else
             {
-                printf("\nBookmarks: Ignoring Line:\n  %s\n", line.toLatin1().data());
+                std::cout << "Bookmarks: Ignoring Line:" << std::endl;
+                std::cout << "  " << line.toStdString() << std::endl;
             }
         }
         file.close();

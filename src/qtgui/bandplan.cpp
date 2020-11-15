@@ -28,9 +28,8 @@
 #include <QString>
 #include <QSet>
 #include <algorithm>
+#include <iostream>
 #include "bandplan.h"
-#include <stdio.h>
-#include <wchar.h>
 
 BandPlan* BandPlan::m_pThis = 0;
 
@@ -52,7 +51,7 @@ BandPlan& BandPlan::Get()
 void BandPlan::setConfigDir(const QString& cfg_dir)
 {
     m_bandPlanFile = cfg_dir + "/bandplan.csv";
-    printf("BandPlanFile is %s\n", m_bandPlanFile.toStdString().c_str());
+    std::cout << "BandPlanFile is " << m_bandPlanFile.toStdString() << std::endl;
 
     if (!QFile::exists(m_bandPlanFile))
     {
@@ -78,7 +77,8 @@ bool BandPlan::load()
         QStringList strings = line.split(",");
 
         if (strings.count() < 6) {
-            printf("BandPlan: Ignoring Line:\n  %s\n", line.toLatin1().data());
+            std::cout << "BandPlan: Ignoring Line:" << std::endl;
+            std::cout << "  " << line.toStdString() << std::endl;
         } else {
             BandInfo info;
             info.minFrequency = strings[0].toLongLong();

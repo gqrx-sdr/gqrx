@@ -22,6 +22,7 @@
  */
 #include <QDebug>
 #include <QVariant>
+#include <iostream>
 #include "dockrxopt.h"
 #include "ui_dockrxopt.h"
 
@@ -785,7 +786,7 @@ int DockRxOpt::GetEnumForModulationString(QString param)
     }
     if(iModulation == -1)
     {
-        printf("Modulation '%s' is unknown.\n", param.toStdString().c_str());
+        std::cout << "Modulation '" << param.toStdString() << "' is unknown." << std::endl;
         iModulation = MODE_OFF;
     }
     return iModulation;
