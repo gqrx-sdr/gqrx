@@ -6,9 +6,9 @@ add_source_files(SRCS_LIST
 	afsk1200/costabf.c
 	afsk1200/filter-i386.h
 	afsk1200/filter.h
-    filter/fir_decim.cpp
-    filter/fir_decim.h
-    filter/fir_decim_coef.h
+	filter/fir_decim.cpp
+	filter/fir_decim.h
+	filter/fir_decim_coef.h
 	rds/api.h
 	rds/constants.h
 	rds/decoder_impl.cc
