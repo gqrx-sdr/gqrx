@@ -9,6 +9,7 @@
        NEW: Added support for DX cluster.
      FIXED: PortAudio detection on MacOS.
      FIXED: Crash when closing AFSK1200 decoder.
+  IMPROVED: Make axes take precedence over demod box in plotter.
 
 
     2.13.5: Released November 7, 2020

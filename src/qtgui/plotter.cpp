@@ -246,6 +246,22 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 setCursor(QCursor(Qt::PointingHandCursor));
                 m_CursorCaptured = TAG;
             }
+            else if (isPointCloseTo(pt.x(), m_YAxisWidth/2, m_YAxisWidth/2))
+            {
+                if (YAXIS != m_CursorCaptured)
+                    setCursor(QCursor(Qt::OpenHandCursor));
+                m_CursorCaptured = YAXIS;
+                if (m_TooltipsEnabled)
+                    QToolTip::hideText();
+            }
+            else if (isPointCloseTo(pt.y(), m_XAxisYCenter, m_CursorCaptureDelta+20))
+            {
+                if (XAXIS != m_CursorCaptured)
+                    setCursor(QCursor(Qt::OpenHandCursor));
+                m_CursorCaptured = XAXIS;
+                if (m_TooltipsEnabled)
+                    QToolTip::hideText();
+            }
             else if (isPointCloseTo(pt.x(), m_DemodFreqX, m_CursorCaptureDelta))
             {
                 // in move demod box center frequency region
@@ -281,22 +297,6 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                                        QString("Low cut: %1 Hz")
                                                .arg(m_DemodLowCutFreq),
                                        this);
-            }
-            else if (isPointCloseTo(pt.x(), m_YAxisWidth/2, m_YAxisWidth/2))
-            {
-                if (YAXIS != m_CursorCaptured)
-                    setCursor(QCursor(Qt::OpenHandCursor));
-                m_CursorCaptured = YAXIS;
-                if (m_TooltipsEnabled)
-                    QToolTip::hideText();
-            }
-            else if (isPointCloseTo(pt.y(), m_XAxisYCenter, m_CursorCaptureDelta+5))
-            {
-                if (XAXIS != m_CursorCaptured)
-                    setCursor(QCursor(Qt::OpenHandCursor));
-                m_CursorCaptured = XAXIS;
-                if (m_TooltipsEnabled)
-                    QToolTip::hideText();
             }
             else
             {	//if not near any grab boundaries
