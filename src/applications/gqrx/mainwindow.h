@@ -42,7 +42,6 @@
 #include "qtgui/afsk1200win.h"
 #include "qtgui/iq_tool.h"
 #include "qtgui/dxc_options.h"
-#include "qtgui/dxc_spots.h"
 
 #include "applications/gqrx/recentconfig.h"
 #include "applications/gqrx/remote_control.h"

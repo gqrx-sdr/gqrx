@@ -48,6 +48,7 @@
 #include <QSvgWidget>
 #include "qtgui/ioconfig.h"
 #include "mainwindow.h"
+#include "qtgui/dxc_options.h"
 #include "qtgui/dxc_spots.h"
 
 /* Qt Designer files */
