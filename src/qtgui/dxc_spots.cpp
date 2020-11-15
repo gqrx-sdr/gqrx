@@ -54,7 +54,7 @@ void DXCSpots::add(DXCSpotInfo &info)
         m_DXCSpotList.removeAt(m_DXCSpotList.indexOf(info));
     m_DXCSpotList.append(info);
     std::stable_sort(m_DXCSpotList.begin(),m_DXCSpotList.end());
-    emit( DXCSpotsChanged() );
+    emit( dxcSpotsChanged() );
 }
 
 void DXCSpots::checkSpotTimeout()
@@ -67,13 +67,13 @@ void DXCSpots::checkSpotTimeout()
         }
     }
     std::stable_sort(m_DXCSpotList.begin(),m_DXCSpotList.end());
-    emit( DXCSpotsChanged() );
+    emit( dxcSpotsChanged() );
 }
 
 void DXCSpots::remove(int index)
 {
     m_DXCSpotList.removeAt(index);
-    emit( DXCSpotsChanged() );
+    emit( dxcSpotsChanged() );
 }
 
 QList<DXCSpotInfo> DXCSpots::getDXCSpotsInRange(qint64 low, qint64 high)

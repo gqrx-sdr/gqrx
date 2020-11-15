@@ -85,7 +85,7 @@ private:
     static DXCSpots* m_pThis;
 
 signals:
-    void DXCSpotsChanged(void);
+    void dxcSpotsChanged(void);
 };
 
 #endif // DXC_SPOTS_H

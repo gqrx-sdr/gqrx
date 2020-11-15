@@ -275,7 +275,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(uiDockBookmarks->actionAddBookmark, SIGNAL(triggered()), this, SLOT(on_actionAddBookmark_triggered()));
 
     //DXC Spots
-    connect(&DXCSpots::Get(), SIGNAL(DXCSpotsChanged()),this , SLOT(addClusterSpot()));
+    connect(&DXCSpots::Get(), SIGNAL(dxcSpotsChanged()),this , SLOT(addClusterSpot()));
     connect(dxc_timer, SIGNAL(timeout()), this, SLOT(checkDXCSpotTimeout()));
 
     // I/Q playback
