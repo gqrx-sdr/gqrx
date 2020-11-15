@@ -71,12 +71,9 @@ public:
 
     void add(DXCSpotInfo& info);
     void checkSpotTimeout();
-    void remove(int index);
     void setSpotTimeout(int i) {m_DXCSpotTimeout = i * 60;}
     DXCSpotInfo& getDXCSpot(int i) { return m_DXCSpotList[i]; }
     QList<DXCSpotInfo> getDXCSpotsInRange(qint64 low, qint64 high);
-    //int lowerBound(qint64 low);
-    //int upperBound(qint64 high);
 
 private:
     DXCSpots(); // Singleton Constructor is private.

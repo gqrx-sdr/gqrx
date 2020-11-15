@@ -72,12 +72,6 @@ void DXCSpots::checkSpotTimeout()
     emit( dxcSpotsChanged() );
 }
 
-void DXCSpots::remove(int index)
-{
-    m_DXCSpotList.removeAt(index);
-    emit( dxcSpotsChanged() );
-}
-
 QList<DXCSpotInfo> DXCSpots::getDXCSpotsInRange(qint64 low, qint64 high)
 {
     DXCSpotInfo info;
@@ -91,15 +85,11 @@ QList<DXCSpotInfo> DXCSpots::getDXCSpotsInRange(qint64 low, qint64 high)
     while (lb != ub)
     {
         const DXCSpotInfo& info = *lb;
-        //if(info.IsActive())
-        {
-          found.append(info);
-        }
+        found.append(info);
         lb++;
     }
 
     return found;
-
 }
 
 const QColor DXCSpotInfo::GetColor() const
