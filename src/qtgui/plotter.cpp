@@ -1348,7 +1348,7 @@ void CPlotter::drawOverlay()
             x = xFromFreq(tags[i].frequency);
 
 #if defined(_WIN16) || defined(_WIN32) || defined(_WIN64)
-            int nameWidth = fm.width(bookmarks[i].name);
+            int nameWidth = fm.width(tags[i].name);
 #else
             int nameWidth = fm.boundingRect(tags[i].name).width();
 #endif
