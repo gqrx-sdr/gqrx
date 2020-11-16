@@ -7,6 +7,7 @@
        NEW: Added synchronous AM demodulator.
        NEW: Added band plan to bottom of FFT.
        NEW: Added support for DX cluster.
+       NEW: Added "F" shortcut to select the frequency controller.
      FIXED: PortAudio detection on MacOS.
      FIXED: Crash when closing AFSK1200 decoder.
   IMPROVED: Make axes take precedence over demod box in plotter.

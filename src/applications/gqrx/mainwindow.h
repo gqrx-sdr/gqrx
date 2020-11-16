@@ -130,6 +130,8 @@ private:
     void updateGainStages(bool read_from_device);
     void showSimpleTextFile(const QString &resource_path,
                             const QString &window_title);
+    /* key shortcut */
+    void frequencyFocusShortcut();
 
 private slots:
     /* RecentConfig */
