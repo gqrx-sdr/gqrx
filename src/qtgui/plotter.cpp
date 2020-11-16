@@ -1346,12 +1346,7 @@ void CPlotter::drawOverlay()
         for (int i = 0; i < tags.size(); i++)
         {
             x = xFromFreq(tags[i].frequency);
-
-#if defined(_WIN16) || defined(_WIN32) || defined(_WIN64)
-            int nameWidth = fm.width(tags[i].name);
-#else
             int nameWidth = fm.boundingRect(tags[i].name).width();
-#endif
 
             int level = 0;
             while(level < nLevels && tagEnd[level] > x)
