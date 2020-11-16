@@ -395,7 +395,7 @@ bool RemoteControl::setGain(QString name, double gain)
  *  \param mode The Hamlib rigctld compatible mode string
  *  \return An integer corresponding to the mode.
  *
- * Following mode strings are recognized: OFF, RAW, AM, FM, WFM,
+ * Following mode strings are recognized: OFF, RAW, AM, AMS, FM, WFM,
  * WFM_ST, WFM_ST_OIRT, LSB, USB, CW, CWL, CWU.
  */
 int RemoteControl::modeStrToInt(QString mode_str)
@@ -458,6 +458,10 @@ int RemoteControl::modeStrToInt(QString mode_str)
     {
         mode_int = 10;
     }
+    else if (mode_str.compare("AMS", Qt::CaseInsensitive) == 0)
+    {
+        mode_int = 11;
+    }
 
     return mode_int;
 }
@@ -516,6 +520,10 @@ QString RemoteControl::intToModeStr(int mode)
         mode_str = "WFM_ST_OIRT";
         break;
 
+    case 11:
+        mode_str = "AMS";
+        break;
+
     default:
         mode_str = "ERR";
         break;
@@ -560,7 +568,7 @@ QString RemoteControl::cmd_set_mode(QStringList cmdlist)
     QString cmd_arg = cmdlist.value(1, "");
 
     if (cmd_arg == "?")
-        answer = QString("OFF RAW AM FM WFM WFM_ST WFM_ST_OIRT LSB USB CW CWU CWR CWL\n");
+        answer = QString("OFF RAW AM AMS FM WFM WFM_ST WFM_ST_OIRT LSB USB CW CWU CWR CWL\n");
     else
     {
         int mode = modeStrToInt(cmd_arg);
@@ -839,14 +847,14 @@ QString RemoteControl::cmd_dump_state() const
         /* RX/TX frequency ranges
          * start, end, modes, low_power, high_power, vfo, ant
          *  start/end - Start/End frequency [Hz]
-         *  modes - Bit field of RIG_MODE's (AM|CW|CWR|USB|LSB|FM|WFM)
+         *  modes - Bit field of RIG_MODE's (AM|AMS|CW|CWR|USB|LSB|FM|WFM)
          *  low_power/high_power - Lower/Higher RF power in mW,
          *                         -1 for no power (ie. rx list)
          *  vfo - VFO list equipped with this range (RIG_VFO_A)
          *  ant - Antenna list equipped with this range, 0 means all
          *  FIXME: limits can be gets from receiver::get_rf_range()
          */
-        "0.000000 10000000000.000000 0xef -1 -1 0x1 0x0\n"
+        "0.000000 10000000000.000000 0x2ef -1 -1 0x1 0x0\n"
         /* End of RX frequency ranges. */
         "0 0 0 0 0 0 0\n"
         /* End of TX frequency ranges. The Gqrx is reciver only. */
@@ -862,9 +870,9 @@ QString RemoteControl::cmd_dump_state() const
         "0x82 500\n"    /* CW | CWR normal */
         "0x82 200\n"    /* CW | CWR narrow */
         "0x82 2000\n"   /* CW | CWR wide */
-        "0x21 10000\n"  /* AM | FM normal */
-        "0x21 5000\n"   /* AM | FM narrow */
-        "0x21 20000\n"  /* AM | FM wide */
+        "0x221 10000\n" /* AM | AMS | FM normal */
+        "0x221 5000\n"  /* AM | AMS | FM narrow */
+        "0x221 20000\n" /* AM | AMS | FM wide */
         "0x0c 2700\n"   /* SSB normal */
         "0x0c 1400\n"   /* SSB narrow */
         "0x0c 3900\n"   /* SSB wide */
