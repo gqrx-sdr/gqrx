@@ -486,7 +486,6 @@ void CFreqCtrl::keyPressEvent(QKeyEvent *event)
     // call base class if dont over ride key
     bool      fSkipMsg = false;
     qint64    tmp;
-    uint8_t position = 0;
 
     // qDebug() <<event->key();
 

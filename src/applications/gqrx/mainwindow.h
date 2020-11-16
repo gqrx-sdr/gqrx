@@ -32,7 +32,6 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QSvgWidget>
-#include <QShortcut>
 
 #include "qtgui/dockrxopt.h"
 #include "qtgui/dockaudio.h"

@@ -38,6 +38,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QResource>
+#include <QShortcut>
 #include <QString>
 #include <QTextBrowser>
 #include <QTextCursor>
