@@ -30,7 +30,6 @@
 
 #include "applications/gqrx/receiver.h"
 #include "dsp/correct_iq_cc.h"
-//#include "dsp/hbf_decim.h"
 #include "dsp/filter/fir_decim.h"
 #include "dsp/rx_fft.h"
 #include "receivers/nbrx.h"
