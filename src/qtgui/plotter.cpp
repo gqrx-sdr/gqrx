@@ -28,34 +28,6 @@
  * or implied, of Moe Wheatley.
  */
 #include <cmath>
-
-#ifndef _MSC_VER
-#include <sys/time.h>
-#else
-#include <Windows.h>
-#include <cstdint>
-
-int gettimeofday(struct timeval * tp, struct timezone * tzp)
-{
-    // Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
-    static const uint64_t EPOCH = ((uint64_t) 116444736000000000ULL);
-
-    SYSTEMTIME  system_time;
-    FILETIME    file_time;
-    uint64_t    time;
-
-    GetSystemTime( &system_time );
-    SystemTimeToFileTime( &system_time, &file_time );
-    time =  ((uint64_t)file_time.dwLowDateTime )      ;
-    time += ((uint64_t)file_time.dwHighDateTime) << 32;
-
-    tp->tv_sec  = (long) ((time - EPOCH) / 10000000L);
-    tp->tv_usec = (long) (system_time.wMilliseconds * 1000);
-    return 0;
-}
-
-#endif
-
 #include <math.h>
 #include <QColor>
 #include <QDateTime>
@@ -107,16 +79,6 @@ static inline bool out_of_range(float min, float max)
     return (val_is_out_of_range(min, FFT_MIN_DB, FFT_MAX_DB) ||
             val_is_out_of_range(max, FFT_MIN_DB, FFT_MAX_DB) ||
             max < min + 10.f);
-}
-
-/** Current time in milliseconds since Epoch */
-static inline quint64 time_ms(void)
-{
-    struct timeval  tval;
-
-    gettimeofday(&tval, NULL);
-
-    return 1e3 * tval.tv_sec + 1e-3 * tval.tv_usec;
 }
 
 #define STATUS_TIP \
@@ -943,7 +905,7 @@ void CPlotter::draw()
     // no need to draw if pixmap is invisible
     if (w != 0 && h != 0)
     {
-        quint64     tnow_ms = time_ms();
+        quint64     tnow_ms = QDateTime::currentMSecsSinceEpoch();
 
         // get scaled FFT data
         n = qMin(w, MAX_SCREENSIZE);
