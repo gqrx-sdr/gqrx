@@ -45,11 +45,7 @@
 
 #include "applications/gqrx/recentconfig.h"
 #include "applications/gqrx/remote_control.h"
-
-// see https://bugreports.qt-project.org/browse/QTBUG-22829
-#ifndef Q_MOC_RUN
 #include "applications/gqrx/receiver.h"
-#endif
 
 namespace Ui {
     class MainWindow;  /*! The main window UI */
