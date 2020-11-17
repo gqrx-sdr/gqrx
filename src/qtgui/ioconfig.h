@@ -31,7 +31,7 @@
 #include "pulseaudio/pa_device_list.h"
 #elif WITH_PORTAUDIO
 #include "portaudio/device_list.h"
-#elif defined(GQRX_OS_MACX)
+#elif defined(Q_OS_DARWIN)
 #include "osxaudio/device_list.h"
 #endif
 
@@ -76,7 +76,7 @@ private:
     vector<pa_device>           outDevList;
 #elif WITH_PORTAUDIO
     vector<portaudio_device>    outDevList;
-#elif defined(GQRX_OS_MACX)
+#elif defined(Q_OS_DARWIN)
     vector<osxaudio_device>     outDevList;
 #endif
 

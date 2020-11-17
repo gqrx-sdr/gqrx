@@ -37,7 +37,7 @@
 #include "pulseaudio/pa_device_list.h"
 #elif WITH_PORTAUDIO
 #include "portaudio/device_list.h"
-#elif defined(GQRX_OS_MACX)
+#elif defined(Q_OS_DARWIN)
 #include "osxaudio/device_list.h"
 #endif
 
@@ -103,7 +103,7 @@ void CIoConfig::getDeviceList(std::map<QString, QVariant> &devList)
 
     // automatic discovery of FCD does not work on Mac
     // so we do it ourselves
-#if defined(GQRX_OS_MACX)
+#if defined(Q_OS_DARWIN)
 #ifdef WITH_PORTAUDIO
     portaudio_device_list       devices;
     vector<portaudio_device>    inDevList = devices.get_input_devices();
@@ -173,7 +173,7 @@ void CIoConfig::saveConfig()
 
     idx = ui->outDevCombo->currentIndex();
 
-#if defined(WITH_PULSEAUDIO) || defined(WITH_PORTAUDIO) || defined(GQRX_OS_MACX)
+#if defined(WITH_PULSEAUDIO) || defined(WITH_PORTAUDIO) || defined(Q_OS_DARWIN)
     if (idx > 0)
     {
           qDebug() << "Output device" << idx << ":" << QString(outDevList[idx-1].get_name().c_str());
@@ -664,7 +664,7 @@ void CIoConfig::updateOutDev()
    }
    //ui->outDevCombo->setEditable(true);
 
-#elif defined(GQRX_OS_MACX)
+#elif defined(Q_OS_DARWIN)
    osxaudio_device_list devices;
    outDevList = devices.get_output_devices();
 
