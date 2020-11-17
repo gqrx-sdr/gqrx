@@ -22,11 +22,6 @@
  */
 #include <cmath>
 #include <iostream>
-#ifndef _MSC_VER
-#include <unistd.h>
-#endif
-
-#include <iostream>
 
 #include <gnuradio/prefs.h>
 #include <gnuradio/top_block.h>
@@ -856,11 +851,8 @@ receiver::status receiver::set_demod(rx_demod demod)
 {
     status ret = STATUS_OK;
 
-    // Allow reconf using same demod to provide a workaround
-    // for the "jerky streaming" we may experience with rtl
-    // dongles (the jerkyness disappears when we run this function)
-    //if (demod == d_demod)
-    //    return ret;
+    if (demod == d_demod)
+        return ret;
 
     // tb->lock() seems to hang occasioanlly
     if (d_running)
