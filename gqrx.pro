@@ -158,7 +158,6 @@ HEADERS += \
     src/applications/gqrx/remote_control_settings.h \
     src/dsp/afsk1200/cafsk12.h \
     src/dsp/afsk1200/filter.h \
-    src/dsp/afsk1200/filter-i386.h \
     src/dsp/agc_impl.h \
     src/dsp/correct_iq_cc.h \
     src/dsp/filter/fir_decim.h \
