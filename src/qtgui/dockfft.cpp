@@ -43,7 +43,7 @@ DockFft::DockFft(QWidget *parent) :
 {
     ui->setupUi(this);
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_DARWIN
     // Is this really only needed on Mac to make the color picker button appear square like the other buttons?
     ui->fillButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
 #endif

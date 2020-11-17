@@ -36,7 +36,7 @@ Afsk1200Win::Afsk1200Win(QWidget *parent) :
     ui->setupUi(this);
 
     /* select font for text viewer */
-#ifdef Q_OS_MAC
+#ifdef Q_OS_DARWIN
     ui->textView->setFont(QFont("Monaco", 12));
 #else
     ui->textView->setFont(QFont("Monospace", 11));
