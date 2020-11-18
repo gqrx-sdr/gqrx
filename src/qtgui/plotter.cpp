@@ -1365,7 +1365,7 @@ void CPlotter::drawOverlay()
             rect.setRect(band_left, xAxisTop - m_BandPlanHeight, band_width, m_BandPlanHeight);
             painter.fillRect(rect, bands[i].color);
             QString band_label = bands[i].name + " (" + bands[i].modulation + ")";
-            int textWidth = metrics.width(band_label);
+            int textWidth = metrics.boundingRect(band_label).width();
             if (band_left < w && band_width > textWidth + 20)
             {
                 painter.setOpacity(1.0);

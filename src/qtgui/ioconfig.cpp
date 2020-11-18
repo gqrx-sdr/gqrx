@@ -112,10 +112,9 @@ void CIoConfig::getDeviceList(std::map<QString, QVariant> &devList)
     vector<osxaudio_device>     inDevList = devices.get_input_devices();
 #endif
     string this_dev;
-    int i;
-    for (i = 0; i < inDevList.size(); i++)
+    for (auto &device : inDevList)
     {
-        this_dev = inDevList[i].get_name();
+        this_dev = device.get_name();
         if (this_dev.find("FUNcube Dongle V1.0") != string::npos)
         {
             devstr = "fcd,type=1,device='FUNcube Dongle V1.0'";
