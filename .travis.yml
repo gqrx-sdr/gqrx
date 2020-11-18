@@ -1,24 +1,50 @@
-sudo: required
-
-dist: xenial
-
 language: cpp
 
-compiler:
-  - gcc
-  - clang
-
-env:
-  - AUDIO_BACKEND="Pulseaudio"
-  - AUDIO_BACKEND="Portaudio"
-  - AUDIO_BACKEND="Gr-audio"
+jobs:
+  include:
+    - os: osx
+      osx_image: xcode12.2
+    - os: linux
+      dist: focal
+      compiler: gcc
+      env: AUDIO_BACKEND="Pulseaudio"
+    - os: linux
+      dist: bionic
+      compiler: gcc
+      env: AUDIO_BACKEND="Pulseaudio"
+    - os: linux
+      dist: xenial
+      compiler: gcc
+      env: AUDIO_BACKEND="Pulseaudio"
+    - os: linux
+      dist: xenial
+      compiler: gcc
+      env: AUDIO_BACKEND="Portaudio"
+    - os: linux
+      dist: xenial
+      compiler: gcc
+      env: AUDIO_BACKEND="Gr-audio"
+    - os: linux
+      dist: xenial
+      compiler: clang
+      env: AUDIO_BACKEND="Pulseaudio"
+    - os: linux
+      dist: xenial
+      compiler: clang
+      env: AUDIO_BACKEND="Portaudio"
+    - os: linux
+      dist: xenial
+      compiler: clang
+      env: AUDIO_BACKEND="Gr-audio"
 
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y cmake qt5-default libqt5svg5-dev libboost-dev libpulse-dev portaudio19-dev liblog4cpp5-dev gnuradio-dev gr-osmosdr gr-fcdproplus
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y cmake qt5-default libqt5svg5-dev libboost-dev libpulse-dev portaudio19-dev liblog4cpp5-dev gnuradio-dev gr-osmosdr gr-fcdproplus liborc-0.4-dev; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gr-osmosdr; fi
 
 script:
   - mkdir build
   - cd build
-  - cmake -DLINUX_AUDIO_BACKEND:STRING=$AUDIO_BACKEND ..
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cmake -DLINUX_AUDIO_BACKEND:STRING=$AUDIO_BACKEND ..; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cmake ..; fi
   - make
