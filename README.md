@@ -70,8 +70,6 @@ development.
 Installation from source
 ------------------------
 
-Gqrx can be compiled using qmake or cmake.
-
 The source code is hosted on Github: https://github.com/csete/gqrx
 
 To compile gqrx from source you need the following dependencies:
@@ -106,18 +104,7 @@ To compile gqrx from source you need the following dependencies:
 - pkg-config
 - cmake version >= 3.2.0 if you wish to build using cmake.
 
-To build using qmake, you can either open the gqrx.pro file in Qt Creator and
-build, or on the command line:
-<pre>
-$ git clone https://github.com/csete/gqrx.git gqrx.git
-$ cd gqrx.git
-$ mkdir build
-$ cd build
-$ qmake ..
-$ make
-</pre>
-
-Using cmake, gqrx can be compiled from within Qt Creator or in a terminal:
+Gqrx can be compiled from within Qt Creator or in a terminal:
 
 For command line builds:
 <pre>
