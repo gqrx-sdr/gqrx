@@ -43,13 +43,8 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gr-osmosdr; fi
 
 script:
-  - mkdir cmake-build
-  - cd cmake-build
+  - mkdir build
+  - cd build
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cmake -DLINUX_AUDIO_BACKEND:STRING=$AUDIO_BACKEND ..; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cmake ..; fi
   - make
-  - cd ..
-  - mkdir qmake-build
-  - cd qmake-build
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then qmake AUDIO_BACKEND=$AUDIO_BACKEND ..; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make; fi
