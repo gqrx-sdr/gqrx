@@ -5,18 +5,23 @@ project(gqrx)
 set(${PROJECT_NAME}_MAJOR "2")
 set(${PROJECT_NAME}_MINOR "13")
 set(${PROJECT_NAME}_PATCH "5")
-##set(VERSION "${${PROJECT_NAME}_MAJOR}.${${PROJECT_NAME}_MINOR}.${${PROJECT_NAME}_PATCH}")
-##set(VERSION "${${PROJECT_NAME}_MAJOR}.${${PROJECT_NAME}_MINOR}")
-##add_definitions(-DVERSION="${VERSION}")
+set(IS_RELEASE FALSE)
 
-# development version
-execute_process(
-    COMMAND git describe --long --dirty
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE GITVERSION
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-add_definitions(-DVERSION="${GITVERSION}")
+if(IS_RELEASE)
+    if(${PROJECT_NAME}_PATCH EQUAL 0)
+        set(VERSION "${${PROJECT_NAME}_MAJOR}.${${PROJECT_NAME}_MINOR}")
+    else()
+        set(VERSION "${${PROJECT_NAME}_MAJOR}.${${PROJECT_NAME}_MINOR}.${${PROJECT_NAME}_PATCH}")
+    endif()
+else()
+    execute_process(
+        COMMAND git describe --long --dirty
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE VERSION
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+endif()
+add_definitions(-DVERSION="${VERSION}")
 
 set(PACKAGE ${PROJECT_NAME})
 
