@@ -1,5 +1,5 @@
 
-      2.14: In progress...
+      2.14: Released November 19, 2020
 
        NEW: Start/stop DSP via remote control.
        NEW: Device scan button in Configure I/O devices dialog.
