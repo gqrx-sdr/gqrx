@@ -1447,7 +1447,6 @@ void CPlotter::drawOverlay()
     }
 
     // draw amplitude values (y axis)
-    int dB = m_PandMaxdB;
     m_YAxisWidth = metrics.boundingRect("-120 ").width();
     painter.setPen(QColor(PLOTTER_TEXT_COLOR));
     for (int i = 0; i < m_VerDivs; i++)
@@ -1456,7 +1455,7 @@ void CPlotter::drawOverlay()
         int th = metrics.height();
         if (y < h -xAxisHeight)
         {
-            dB = mindbadj + dbstepsize * i;
+            int dB = mindbadj + dbstepsize * i;
             rect.setRect(HOR_MARGIN, y - th / 2, m_YAxisWidth, th);
             painter.drawText(rect, Qt::AlignRight|Qt::AlignVCenter, QString::number(dB));
         }
