@@ -1262,7 +1262,7 @@ void CPlotter::drawOverlay()
     QList<BookmarkInfo> tags;
 
     // X and Y axis areas
-    m_YAxisWidth = metrics.boundingRect("XXXX").width() + 2 * HOR_MARGIN;
+    m_YAxisWidth = metrics.boundingRect("-120").width() + 2 * HOR_MARGIN;
     m_XAxisYCenter = h - metrics.height()/2;
     int xAxisHeight = metrics.height() + 2 * VER_MARGIN;
     int xAxisTop = h - xAxisHeight;
@@ -1443,7 +1443,6 @@ void CPlotter::drawOverlay()
     }
 
     // draw amplitude values (y axis)
-    m_YAxisWidth = metrics.boundingRect("-120 ").width();
     painter.setPen(QColor(PLOTTER_TEXT_COLOR));
     for (int i = 0; i < m_VerDivs; i++)
     {
@@ -1452,7 +1451,7 @@ void CPlotter::drawOverlay()
         if (y < h -xAxisHeight)
         {
             int dB = mindbadj + dbstepsize * i;
-            rect.setRect(HOR_MARGIN, y - th / 2, m_YAxisWidth, th);
+            rect.setRect(HOR_MARGIN, y - th / 2, m_YAxisWidth - 2 * HOR_MARGIN, th);
             painter.drawText(rect, Qt::AlignRight|Qt::AlignVCenter, QString::number(dB));
         }
     }

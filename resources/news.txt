@@ -2,6 +2,7 @@
     2.14.1: In progress...
 
   IMPROVED: More accurate rendering of FFT fill.
+  IMPROVED: Better rendering of amplitude axis.
 
 
       2.14: Released November 19, 2020
