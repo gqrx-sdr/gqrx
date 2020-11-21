@@ -857,10 +857,10 @@ void CFreqCtrl::setFrequencyFocus()
     uint8_t position = floor(log10(m_freq));
     position = (uint8_t)fmax(position, 4);      // restrict min to 100s of kHz
 
-    QMouseEvent *mouseEvent = new QMouseEvent(QEvent::MouseMove,
-                                              m_DigitInfo[position].dQRect.center(),
-                                              Qt::NoButton,
-                                              Qt::NoButton,
-                                              Qt::NoModifier);
-    mouseMoveEvent(mouseEvent);
+    QMouseEvent mouseEvent(QEvent::MouseMove,
+                           m_DigitInfo[position].dQRect.center(),
+                           Qt::NoButton,
+                           Qt::NoButton,
+                           Qt::NoModifier);
+    mouseMoveEvent(&mouseEvent);
 }
