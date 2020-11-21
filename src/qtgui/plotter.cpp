@@ -893,7 +893,7 @@ void CPlotter::draw()
         m_DrawOverlay = false;
     }
 
-    QPoint LineBuf[MAX_SCREENSIZE];
+    QPointF LineBuf[MAX_SCREENSIZE];
 
     if (!m_Running)
         return;
@@ -978,10 +978,6 @@ void CPlotter::draw()
 
         QPainter painter2(&m_2DPixmap);
 
-        // workaround for "fixed" line drawing since Qt 5
-        // see http://stackoverflow.com/questions/16990326
-        painter2.translate(0.5, 0.5);
-
         // get new scaled fft data
         getScreenIntegerFFTData(h, qMin(w, MAX_SCREENSIZE),
                                 m_PandMaxdB, m_PandMindB,
@@ -995,10 +991,10 @@ void CPlotter::draw()
         n = xmax - xmin;
         for (i = 0; i < n; i++)
         {
-            LineBuf[i].setX(i + xmin);
-            LineBuf[i].setY(m_fftbuf[i + xmin]);
+            LineBuf[i].setX(i + xmin + 0.5);
+            LineBuf[i].setY(m_fftbuf[i + xmin] + 0.5);
             if (m_FftFill)
-                painter2.fillRect(i + xmin, m_fftbuf[i + xmin], 1, h, fillBrush);
+                painter2.fillRect(i + xmin, m_fftbuf[i + xmin] + 1, 1, h, fillBrush);
         }
 
         painter2.setPen(m_FftColor);
