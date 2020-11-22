@@ -124,7 +124,6 @@ public:
     bool    saveWaterfall(const QString & filename) const;
 
 signals:
-    void newCenterFreq(qint64 f);
     void newDemodFreq(qint64 freq, qint64 delta); /* delta is the offset from the center */
     void newLowCutFreq(int f);
     void newHighCutFreq(int f);

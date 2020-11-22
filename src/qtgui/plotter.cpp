@@ -353,7 +353,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             {
                 m_CenterFreq += delta_hz;
                 m_DemodCenterFreq += delta_hz;
-                emit newCenterFreq(m_CenterFreq);
+                emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
             }
             else
             {
@@ -656,7 +656,6 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                 // set center freq
                 m_CenterFreq = roundFreq(freqFromX(pt.x()), m_ClickResolution);
                 m_DemodCenterFreq = m_CenterFreq;
-                emit newCenterFreq(m_CenterFreq);
                 emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
                 drawOverlay();
             }

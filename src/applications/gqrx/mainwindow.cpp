@@ -2013,12 +2013,6 @@ void MainWindow::on_plotter_newFilterFreq(int low, int high)
         uiDockRxOpt->setFilterParam(low, high);
 }
 
-void MainWindow::on_plotter_newCenterFreq(qint64 f)
-{
-    rx->set_rf_freq(f);
-    ui->freqCtrl->setFrequency(f);
-}
-
 /** Full screen button or menu item toggled. */
 void MainWindow::on_actionFullScreen_triggered(bool checked)
 {

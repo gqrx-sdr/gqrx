@@ -1,6 +1,7 @@
 
     2.14.1: In progress...
 
+     FIXED: Hardware retuning when dragging frequency axis with center button.
   IMPROVED: More accurate rendering of FFT fill.
   IMPROVED: Better rendering of amplitude axis.
 
