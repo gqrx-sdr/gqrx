@@ -48,13 +48,13 @@ struct iqt_cplx
 class CIqTool : public QDialog
 {
     Q_OBJECT
-    
+
 public:
     explicit CIqTool(QWidget *parent = 0);
     ~CIqTool();
 
     void setSampleRate(qint64 sr);
-    
+
     void closeEvent(QCloseEvent *event);
     void showEvent(QShowEvent * event);
 
@@ -77,7 +77,6 @@ private slots:
     void on_recDirButton_clicked();
     void on_recButton_clicked(bool checked);
     void on_playButton_clicked(bool checked);
-    void on_plotButton_clicked();
     void on_slider_valueChanged(int value);
     void on_listWidget_currentTextChanged(const QString &currentText);
     void timeoutFunction(void);
@@ -102,7 +101,6 @@ private:
     int     bytes_per_sample;  /*!< Bytes per sample (fc = 4) */
     int     sample_rate;       /*!< Current sample rate. */
     int     rec_len;           /*!< Length of a recording in seconds */
-    int     plot_spp;          /*!< [seconds / datapoint] */
 };
 
 #endif // IQ_TOOL_H
