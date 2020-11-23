@@ -3,6 +3,7 @@
 
      FIXED: Hardware retuning when dragging frequency axis with center button.
      FIXED: Removed non-functional Plot button from I/Q recording dialog.
+     FIXED: Tooltip for Rec button in I/Q recording dialog.
   IMPROVED: More accurate rendering of FFT fill.
   IMPROVED: Better rendering of amplitude axis.
 

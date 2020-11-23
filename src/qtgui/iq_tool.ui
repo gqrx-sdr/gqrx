@@ -103,7 +103,7 @@
         </size>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Button disabled.&lt;/p&gt;&lt;p&gt;Please use the record button in the main window.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Record I/Q samples to new file</string>
        </property>
        <property name="text">
         <string>&amp;Rec</string>
