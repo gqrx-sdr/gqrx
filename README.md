@@ -140,6 +140,24 @@ optionally, on the Projects page, under Build Steps/Make/Additional arguments,
 Use Qt Creator as before
 </pre>
 
+
+Debugging
+---------
+
+Debug logging can be enabled by setting the `QT_LOGGING_RULES` environment
+variable:
+
+```
+QT_LOGGING_RULES="*.debug=true;plotter.debug=false;qt.*.debug=false" gqrx
+```
+
+To turn on plotter debugging as well, use the following command:
+
+```
+QT_LOGGING_RULES="*.debug=true;qt.*.debug=false" gqrx
+```
+
+
 Credits and License
 -------------------
 
