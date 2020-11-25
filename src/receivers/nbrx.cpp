@@ -22,6 +22,7 @@
  */
 #include <cmath>
 #include <iostream>
+#include <QDebug>
 #include "receivers/nbrx.h"
 
 // NB: Remember to adjust filter ranges in MainWindow
@@ -103,9 +104,7 @@ void nbrx::set_quad_rate(float quad_rate)
 {
     if (std::abs(d_quad_rate-quad_rate) > 0.5)
     {
-#ifndef QT_NO_DEBUG_OUTPUT
-        std::cout << "Changing NB_RX quad rate: "  << d_quad_rate << " -> " << quad_rate << std::endl;
-#endif
+        qDebug() << "Changing NB_RX quad rate:"  << d_quad_rate << "->" << quad_rate;
         d_quad_rate = quad_rate;
         lock();
         iq_resamp->set_rate(PREF_QUAD_RATE/d_quad_rate);

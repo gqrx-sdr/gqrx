@@ -46,11 +46,6 @@ endif()
 # Workaround for naming collision with log4cpp for Debug builds
 add_definitions(-DLOG4CPP_FIX_ERROR_COLLISION=1)
 
-# Disable debug outputs in release builds
-if(${CMAKE_BUILD_TYPE} MATCHES "Release" OR ${CMAKE_BUILD_TYPE} MATCHES "RelWithDebInfo")
-    add_definitions(-DQT_NO_DEBUG_OUTPUT)
-endif()
-
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     # using regular Clang or AppleClang
     set(CMAKE_COMPILER_IS_CLANGXX 1)

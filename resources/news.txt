@@ -6,6 +6,7 @@
      FIXED: Tooltip for Rec button in I/Q recording dialog.
   IMPROVED: More accurate rendering of FFT fill.
   IMPROVED: Better rendering of amplitude axis.
+  IMPROVED: Allow debug logging to be enabled at runtime.
 
 
       2.14: Released November 19, 2020

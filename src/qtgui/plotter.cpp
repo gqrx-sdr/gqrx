@@ -41,8 +41,7 @@
 #include "bookmarks.h"
 #include "dxc_spots.h"
 
-// Comment out to enable plotter debug messages
-//#define PLOTTER_DEBUG
+Q_LOGGING_CATEGORY(plotter, "plotter")
 
 #define CUR_CUT_DELTA 5		//cursor capture delta in pixels
 
@@ -751,7 +750,7 @@ void CPlotter::zoomStepX(float step, int x)
 
     float factor = (float)m_SampleFreq / (float)m_Span;
     emit newZoomLevel(factor);
-    qDebug() << QString("Spectrum zoom: %1x").arg(factor, 0, 'f', 1);
+    qCDebug(plotter) << QString("Spectrum zoom: %1x").arg(factor, 0, 'f', 1);
 
     m_PeakHoldValid = false;
 }
@@ -1427,11 +1426,9 @@ void CPlotter::drawOverlay()
     pixperdiv = (float) h * (float) dbstepsize / (m_PandMaxdB - m_PandMindB);
     adjoffset = (float) h * (mindbadj - m_PandMindB) / (m_PandMaxdB - m_PandMindB);
 
-#ifdef PLOTTER_DEBUG
-    qDebug() << "minDb =" << m_PandMindB << "maxDb =" << m_PandMaxdB
-             << "mindbadj =" << mindbadj << "dbstepsize =" << dbstepsize
-             << "pixperdiv =" << pixperdiv << "adjoffset =" << adjoffset;
-#endif
+    qCDebug(plotter) << "minDb =" << m_PandMindB << "maxDb =" << m_PandMaxdB
+                     << "mindbadj =" << mindbadj << "dbstepsize =" << dbstepsize
+                     << "pixperdiv =" << pixperdiv << "adjoffset =" << adjoffset;
 
     painter.setPen(QPen(QColor(PLOTTER_GRID_COLOR), 1, Qt::DotLine));
     for (int i = 0; i <= m_VerDivs; i++)
@@ -1707,11 +1704,9 @@ void CPlotter::toggleBandPlan(bool state)
 
 void CPlotter::calcDivSize (qint64 low, qint64 high, int divswanted, qint64 &adjlow, qint64 &step, int& divs)
 {
-#ifdef PLOTTER_DEBUG
-    qDebug() << "low: " << low;
-    qDebug() << "high: " << high;
-    qDebug() << "divswanted: " << divswanted;
-#endif
+    qCDebug(plotter) << "low:" << low;
+    qCDebug(plotter) << "high:" << high;
+    qCDebug(plotter) << "divswanted:" << divswanted;
 
     if (divswanted == 0)
         return;
@@ -1739,11 +1734,9 @@ void CPlotter::calcDivSize (qint64 low, qint64 high, int divswanted, qint64 &adj
     if (adjlow < low)
         adjlow += step;
 
-#ifdef PLOTTER_DEBUG
-    qDebug() << "adjlow: "  << adjlow;
-    qDebug() << "step: " << step;
-    qDebug() << "divs: " << divs;
-#endif
+    qCDebug(plotter) << "adjlow:" << adjlow;
+    qCDebug(plotter) << "step:" << step;
+    qCDebug(plotter) << "divs:" << divs;
 }
 
 // contributed by Chris Kuethe @ckuethe

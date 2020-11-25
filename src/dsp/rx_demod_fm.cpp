@@ -24,6 +24,7 @@
 #include <gnuradio/io_signature.h>
 #include <iostream>
 #include <math.h>
+#include <QDebug>
 
 #include "dsp/rx_demod_fm.h"
 
@@ -51,9 +52,7 @@ rx_demod_fm::rx_demod_fm(float quad_rate, float max_dev, double tau)
     /* demodulator gain */
     gain = d_quad_rate / (2.0 * M_PI * d_max_dev);
 
-#ifndef QT_NO_DEBUG_OUTPUT
-    std::cerr << "FM demod gain: " << gain << std::endl;
-#endif
+    qDebug() << "FM demod gain:" << gain;
 
     /* demodulator */
     d_quad = gr::analog::quadrature_demod_cf::make(gain);
