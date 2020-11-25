@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Install dependencies
-        run: sudo apt-get install -y cmake qt5-default libqt5svg5-dev libboost-dev libpulse-dev portaudio19-dev liblog4cpp5-dev gnuradio-dev gr-osmosdr gr-fcdproplus liborc-0.4-dev
+        run: sudo apt-get update -qq && sudo apt-get install -y cmake qt5-default libqt5svg5-dev libboost-dev libpulse-dev portaudio19-dev liblog4cpp5-dev gnuradio-dev gr-osmosdr gr-fcdproplus liborc-0.4-dev
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Configure
