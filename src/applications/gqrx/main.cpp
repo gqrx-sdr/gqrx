@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain(GQRX_ORG_DOMAIN);
     QCoreApplication::setApplicationName(GQRX_APP_NAME);
     QCoreApplication::setApplicationVersion(VERSION);
+    QLoggingCategory::setFilterRules("*.debug=false");
 
     // setup controlport via environment variables
     // see http://lists.gnu.org/archive/html/discuss-gnuradio/2013-05/msg00270.html
