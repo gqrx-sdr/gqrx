@@ -23,6 +23,7 @@
 #include <gnuradio/io_signature.h>
 #include <gnuradio/gr_complex.h>
 #include <iostream>
+#include <QDebug>
 #include "dsp/correct_iq_cc.h"
 
 
@@ -45,9 +46,7 @@ dc_corr_cc::dc_corr_cc(double sample_rate, double tau)
     d_tau = tau;
     d_alpha = 1.0 / (1.0 + d_tau * sample_rate);
 
-#ifndef QT_NO_DEBUG_OUTPUT
-    std::cout << "IQ DCR alpha: " << d_alpha << std::endl;
-#endif
+    qDebug() << "IQ DCR alpha:" << d_alpha;
 
     d_iir = gr::filter::single_pole_iir_filter_cc::make(d_alpha, 1);
     d_sub = gr::blocks::sub_cc::make(1);
@@ -71,10 +70,8 @@ void dc_corr_cc::set_sample_rate(double sample_rate)
 
     d_iir->set_taps(d_alpha);
 
-#ifndef QT_NO_DEBUG_OUTPUT
-    std::cout << "IQ DCR samp_rate: " << sample_rate << std::endl;
-    std::cout << "IQ DCR alpha: " << d_alpha << std::endl;
-#endif
+    qDebug() << "IQ DCR samp_rate:" << sample_rate;
+    qDebug() << "IQ DCR alpha:" << d_alpha;
 }
 
 /*! \brief Set new time constant. */
@@ -85,9 +82,7 @@ void dc_corr_cc::set_tau(double tau)
 
     d_iir->set_taps(d_alpha);
 
-#ifndef QT_NO_DEBUG_OUTPUT
-    std::cout << "IQ DCR alpha: " << d_alpha << std::endl;
-#endif
+    qDebug() << "IQ DCR alpha:" << d_alpha;
 }
 
 
@@ -131,9 +126,7 @@ void iq_swap_cc::set_enabled(bool enabled)
     if (enabled == d_enabled)
         return;
 
-#ifndef QT_NO_DEBUG_OUTPUT
-    std::cout << "IQ swap: " << enabled << std::endl;
-#endif
+    qDebug() << "IQ swap:" << enabled;
 
     d_enabled = enabled;
 

@@ -22,6 +22,7 @@
  */
 #include <cmath>
 #include <iostream>
+#include <QDebug>
 
 #include <gnuradio/prefs.h>
 #include <gnuradio/top_block.h>
@@ -139,12 +140,9 @@ receiver::receiver(const std::string input_device,
 
     set_demod(RX_DEMOD_NFM);
 
-#ifndef QT_NO_DEBUG_OUTPUT
     gr::prefs pref;
-    std::cout << "Using audio backend: "
-              << pref.get_string("audio", "audio_module", "N/A")
-              << std::endl;
-#endif
+    qDebug() << "Using audio backend:"
+             << pref.get_string("audio", "audio_module", "N/A").c_str();
 }
 
 receiver::~receiver()
@@ -180,11 +178,9 @@ void receiver::stop()
  */
 void receiver::set_input_device(const std::string device)
 {
-#ifndef QT_NO_DEBUG_OUTPUT
-    std::cout << "Set input device:" << std::endl
-              << "  old: " << input_devstr << std::endl
-              << "  new: " << device << std::endl;
-#endif
+    qDebug() << "Set input device:";
+    qDebug() << "  old:" << input_devstr.c_str();
+    qDebug() << "  new:" << device.c_str();
 
     std::string error = "";
 
@@ -251,11 +247,9 @@ void receiver::set_input_device(const std::string device)
  */
 void receiver::set_output_device(const std::string device)
 {
-#ifndef QT_NO_DEBUG_OUTPUT
-    std::cout << "Set output device:" << std::endl
-              << "   old: " << output_devstr << std::endl
-              << "   new: " << device << std::endl;
-#endif
+    qDebug() << "Set output device:";
+    qDebug() << "   old:" << output_devstr.c_str();
+    qDebug() << "   new:" << device.c_str();
 
     output_devstr = device;
 
