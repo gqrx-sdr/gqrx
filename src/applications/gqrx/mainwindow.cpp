@@ -1621,11 +1621,7 @@ void MainWindow::startIqPlayback(const QString filename, float samprate)
     // FIXME: would be nice with good/bad status
     ui->statusBar->showMessage(tr("Playing %1").arg(filename));
 
-    if (ui->actionDSP->isChecked())
-    {
-        // restsart DSP
-        on_actionDSP_triggered(true);
-    }
+    on_actionDSP_triggered(true);
 }
 
 void MainWindow::stopIqPlayback()
