@@ -1,4 +1,9 @@
 
+    2.14.2: In progress...
+
+     FIXED: Handle invalid device strings gracefully.
+
+
     2.14.1: Released November 27, 2020
 
      FIXED: Hardware retuning when dragging frequency axis with center button.

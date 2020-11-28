@@ -212,7 +212,7 @@ void receiver::set_input_device(const std::string device)
     {
         src = osmosdr::source::make(device);
     }
-    catch (std::runtime_error &x)
+    catch (std::exception &x)
     {
         error = x.what();
         src = osmosdr::source::make("file="+get_random_file()+",freq=428e6,rate=96000,repeat=true,throttle=true");
