@@ -2,6 +2,7 @@
     2.14.2: In progress...
 
      FIXED: Handle invalid device strings gracefully.
+     FIXED: Receiver starts unexpectedly when "Enable RDS" is checked.
 
 
     2.14.1: Released November 27, 2020
