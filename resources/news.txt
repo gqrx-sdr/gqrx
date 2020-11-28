@@ -1,7 +1,7 @@
 
     2.14.2: In progress...
 
-     FIXED: Handle invalid device strings gracefully.
+     FIXED: Crash when invalid device string is entered.
      FIXED: Receiver starts unexpectedly when "Enable RDS" is checked.
 
 
