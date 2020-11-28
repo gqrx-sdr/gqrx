@@ -1,5 +1,5 @@
 
-    2.14.1: In progress...
+    2.14.1: Released November 27, 2020
 
      FIXED: Hardware retuning when dragging frequency axis with center button.
      FIXED: Removed non-functional Plot button from I/Q recording dialog.
