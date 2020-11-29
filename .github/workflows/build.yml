@@ -75,5 +75,5 @@ jobs:
       - name: Save artifact
         uses: actions/upload-artifact@v2
         with:
-          name: appimage
+          name: gqrx-appimage-${{ github.run_id }}
           path: Gqrx-*.AppImage
