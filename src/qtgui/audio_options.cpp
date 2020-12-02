@@ -24,8 +24,6 @@
 #include <QPalette>
 #include <QDebug>
 
-#include <iostream>
-
 #include "audio_options.h"
 #include "ui_audio_options.h"
 
