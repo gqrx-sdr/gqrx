@@ -73,6 +73,7 @@ private slots:
     void on_fftSplitSlider_valueChanged(int value);
     void on_pandRangeSlider_valuesChanged(int min, int max);
     void on_wfRangeSlider_valuesChanged(int min, int max);
+    void on_audioLockButton_toggled(bool checked);
     void on_recDirEdit_textChanged(const QString &text);
     void on_recDirButton_clicked();
     void on_udpHost_textChanged(const QString &text);
@@ -83,6 +84,7 @@ private:
     Ui::CAudioOptions *ui;            /*!< The user interface widget. */
     QDir              *work_dir;      /*!< Used for validating chosen directory. */
     QPalette          *error_palette; /*!< Palette used to indicate an error. */
+    bool               m_pand_last_modified; /* Flag to indicate which slider was changed last */
 };
 
 #endif // AUDIO_OPTIONS_H

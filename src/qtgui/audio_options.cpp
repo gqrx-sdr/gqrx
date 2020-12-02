@@ -128,6 +128,8 @@ void CAudioOptions::on_pandRangeSlider_valuesChanged(int min, int max)
 {
     if (ui->audioLockButton->isChecked())
         ui->wfRangeSlider->setValues(min, max);
+
+    m_pand_last_modified = true;
     emit newPandapterRange(min, max);
 }
 
@@ -147,7 +149,28 @@ void CAudioOptions::on_wfRangeSlider_valuesChanged(int min, int max)
 {
     if (ui->audioLockButton->isChecked())
         ui->pandRangeSlider->setValues(min, max);
+
+    m_pand_last_modified = false;
     emit newWaterfallRange(min, max);
+}
+
+/** Lock button toggled */
+void CAudioOptions::on_audioLockButton_toggled(bool checked)
+{
+    if (checked) {
+        if (m_pand_last_modified)
+        {
+            int min = ui->pandRangeSlider->minimumValue();
+            int max = ui->pandRangeSlider->maximumValue();
+            ui->wfRangeSlider->setPositions(min, max);
+        }
+        else
+        {
+            int min = ui->wfRangeSlider->minimumValue();
+            int max = ui->wfRangeSlider->maximumValue();
+            ui->pandRangeSlider->setPositions(min, max);
+        }
+    }
 }
 
 
