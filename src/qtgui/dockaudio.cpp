@@ -64,6 +64,8 @@ DockAudio::DockAudio(QWidget *parent) :
     connect(audioOptions, SIGNAL(newUdpPort(int)), this, SLOT(setNewUdpPort(int)));
     connect(audioOptions, SIGNAL(newUdpStereo(bool)), this, SLOT(setNewUdpStereo(bool)));
 
+    connect(ui->audioSpectrum, SIGNAL(pandapterRangeChanged(float,float)), audioOptions, SLOT(setPandapterSliderValues(float,float)));
+
     ui->audioSpectrum->setFreqUnits(1000);
     ui->audioSpectrum->setSampleRate(48000);  // Full bandwidth
     ui->audioSpectrum->setSpanFreq(12000);

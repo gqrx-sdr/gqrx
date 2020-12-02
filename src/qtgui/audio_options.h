@@ -57,6 +57,9 @@ public:
     void setWaterfallRange(int min, int max);
     void getWaterfallRange(int * min, int * max) const;
 
+public slots:
+    void setPandapterSliderValues(float min, float max);
+
 signals:
     void newFftSplit(int pct_2d);
     void newPandapterRange(int min, int max);
