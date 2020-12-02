@@ -81,10 +81,10 @@ private slots:
     void on_udpStereo_stateChanged(int state);
 
 private:
-    Ui::CAudioOptions *ui;            /*!< The user interface widget. */
-    QDir              *work_dir;      /*!< Used for validating chosen directory. */
-    QPalette          *error_palette; /*!< Palette used to indicate an error. */
-    bool               m_pand_last_modified; /* Flag to indicate which slider was changed last */
+    Ui::CAudioOptions *ui;                   /*!< The user interface widget. */
+    QDir              *work_dir;             /*!< Used for validating chosen directory. */
+    QPalette          *error_palette;        /*!< Palette used to indicate an error. */
+    bool               m_pand_last_modified; /*!< Flag to indicate which slider was changed last */
 };
 
 #endif // AUDIO_OPTIONS_H
