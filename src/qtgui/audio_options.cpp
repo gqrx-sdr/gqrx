@@ -24,6 +24,8 @@
 #include <QPalette>
 #include <QDebug>
 
+#include <iostream>
+
 #include "audio_options.h"
 #include "ui_audio_options.h"
 
@@ -126,6 +128,8 @@ void CAudioOptions::getPandapterRange(int * min, int * max) const
 
 void CAudioOptions::on_pandRangeSlider_valuesChanged(int min, int max)
 {
+    if (ui->audioLockButton->isChecked())
+        ui->wfRangeSlider->setValues(min, max);
     emit newPandapterRange(min, max);
 }
 
@@ -143,6 +147,8 @@ void CAudioOptions::getWaterfallRange(int * min, int * max) const
 
 void CAudioOptions::on_wfRangeSlider_valuesChanged(int min, int max)
 {
+    if (ui->audioLockButton->isChecked())
+        ui->pandRangeSlider->setValues(min, max);
     emit newWaterfallRange(min, max);
 }
 
