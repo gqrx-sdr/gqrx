@@ -3,6 +3,7 @@
 
      FIXED: Crash when invalid device string is entered.
      FIXED: Receiver starts unexpectedly when "Enable RDS" is checked.
+     FIXED: Invert scrolling option doesn't apply to audio FFT.
 
 
     2.14.1: Released November 27, 2020

@@ -1034,6 +1034,7 @@ void MainWindow::setInvertScrolling(bool enabled)
     ui->freqCtrl->setInvertScrolling(enabled);
     ui->plotter->setInvertScrolling(enabled);
     uiDockRxOpt->setInvertScrolling(enabled);
+    uiDockAudio->setInvertScrolling(enabled);
 }
 
 /**
