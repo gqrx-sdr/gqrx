@@ -381,7 +381,7 @@ void DockAudio::saveSettings(QSettings *settings)
 
 void DockAudio::readSettings(QSettings *settings)
 {
-    int     ival, fft_min, fft_max;
+    int     bool_val, ival, fft_min, fft_max;
     bool    conv_ok = false;
 
     if (!settings)
@@ -413,7 +413,8 @@ void DockAudio::readSettings(QSettings *settings)
         fft_max = 0;
     audioOptions->setWaterfallRange(fft_min, fft_max);
 
-    audioOptions->setLockButtonState(settings->value("db_ranges_locked", false).toBool());
+    bool_val = settings->value("db_ranges_locked", false).toBool();
+    audioOptions->setLockButtonState(bool_val);
 
     // Location of audio recordings
     rec_dir = settings->value("rec_dir", QDir::homePath()).toString();
