@@ -57,6 +57,9 @@ public:
     void setWaterfallRange(int min, int max);
     void getWaterfallRange(int * min, int * max) const;
 
+    void setLockButtonState(bool checked);
+    bool getLockButtonState(void) const;
+
 public slots:
     void setPandapterSliderValues(float min, float max);
 
