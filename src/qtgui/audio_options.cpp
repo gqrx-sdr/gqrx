@@ -147,7 +147,12 @@ void CAudioOptions::getWaterfallRange(int * min, int * max) const
 
 void CAudioOptions::setPandapterSliderValues(float min, float max)
 {
+    ui->pandRangeSlider->blockSignals(true);
     ui->pandRangeSlider->setValues((int)min, (int)max);
+    if (ui->audioLockButton->isChecked())
+        ui->wfRangeSlider->setValues((int) min, (int) max);
+    m_pand_last_modified = true;
+    ui->pandRangeSlider->blockSignals(false);
 }
 
 void CAudioOptions::on_wfRangeSlider_valuesChanged(int min, int max)
