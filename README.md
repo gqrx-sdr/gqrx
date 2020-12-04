@@ -1,8 +1,8 @@
 Gqrx
 ====
 
-![CI](https://github.com/csete/gqrx/workflows/CI/badge.svg)
-![Build](https://github.com/csete/gqrx/workflows/Build/badge.svg)
+[![CI](https://github.com/csete/gqrx/workflows/CI/badge.svg)](https://github.com/csete/gqrx/actions?query=workflow%3ACI+branch%3Amaster)
+[![Build](https://github.com/csete/gqrx/workflows/Build/badge.svg)](https://github.com/csete/gqrx/actions?query=workflow%3ABuild+branch%3Amaster)
 
 Gqrx is an open source software defined radio (SDR) receiver implemented using
 [GNU Radio](https://gnuradio.org) and the [Qt GUI toolkit](https://www.qt.io/).
