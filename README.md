@@ -1,6 +1,9 @@
 Gqrx
 ====
 
+![CI](https://github.com/csete/gqrx/workflows/CI/badge.svg)
+![Build](https://github.com/csete/gqrx/workflows/Build/badge.svg)
+
 Gqrx is an open source software defined radio (SDR) receiver implemented using
 [GNU Radio](https://gnuradio.org) and the [Qt GUI toolkit](https://www.qt.io/).
 Currently it works on Linux and Mac with hardware supported by gr-osmosdr,
@@ -16,8 +19,11 @@ Download
 --------
 
 Gqrx is distributed as a source code package and binaries for Linux and Mac.
-Alternate Mac support is available through macports and homebrew.
+Many Linux distributions provide gqrx in their package repositories.
+Alternate Mac support is available through [MacPorts](https://ports.macports.org/port/gqrx/summary) and [Homebrew](https://formulae.brew.sh/cask/gqrx).
 
+* [Official releases](https://github.com/csete/gqrx/releases)
+* [Pre-release builds](https://github.com/csete/gqrx/actions?query=workflow%3ABuild+branch%3Amaster)
 
 Usage
 -----
