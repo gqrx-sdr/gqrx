@@ -64,6 +64,8 @@ DockAudio::DockAudio(QWidget *parent) :
     connect(audioOptions, SIGNAL(newUdpPort(int)), this, SLOT(setNewUdpPort(int)));
     connect(audioOptions, SIGNAL(newUdpStereo(bool)), this, SLOT(setNewUdpStereo(bool)));
 
+    connect(ui->audioSpectrum, SIGNAL(pandapterRangeChanged(float,float)), audioOptions, SLOT(setPandapterSliderValues(float,float)));
+
     ui->audioSpectrum->setFreqUnits(1000);
     ui->audioSpectrum->setSampleRate(48000);  // Full bandwidth
     ui->audioSpectrum->setSpanFreq(12000);
@@ -354,6 +356,11 @@ void DockAudio::saveSettings(QSettings *settings)
     else
         settings->remove("waterfall_max_db");
 
+    if (audioOptions->getLockButtonState()) 
+        settings->setValue("db_ranges_locked", true); 
+    else 
+        settings->remove("db_ranges_locked"); 
+
     if (rec_dir != QDir::homePath())
         settings->setValue("rec_dir", rec_dir);
     else
@@ -379,7 +386,7 @@ void DockAudio::saveSettings(QSettings *settings)
 
 void DockAudio::readSettings(QSettings *settings)
 {
-    int     ival, fft_min, fft_max;
+    int     bool_val, ival, fft_min, fft_max;
     bool    conv_ok = false;
 
     if (!settings)
@@ -410,6 +417,9 @@ void DockAudio::readSettings(QSettings *settings)
     if (!conv_ok)
         fft_max = 0;
     audioOptions->setWaterfallRange(fft_min, fft_max);
+
+    bool_val = settings->value("db_ranges_locked", false).toBool();
+    audioOptions->setLockButtonState(bool_val);
 
     // Location of audio recordings
     rec_dir = settings->value("rec_dir", QDir::homePath()).toString();

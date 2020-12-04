@@ -57,6 +57,12 @@ public:
     void setWaterfallRange(int min, int max);
     void getWaterfallRange(int * min, int * max) const;
 
+    void setLockButtonState(bool checked);
+    bool getLockButtonState(void) const;
+
+public slots:
+    void setPandapterSliderValues(float min, float max);
+
 signals:
     void newFftSplit(int pct_2d);
     void newPandapterRange(int min, int max);
@@ -73,6 +79,7 @@ private slots:
     void on_fftSplitSlider_valueChanged(int value);
     void on_pandRangeSlider_valuesChanged(int min, int max);
     void on_wfRangeSlider_valuesChanged(int min, int max);
+    void on_audioLockButton_toggled(bool checked);
     void on_recDirEdit_textChanged(const QString &text);
     void on_recDirButton_clicked();
     void on_udpHost_textChanged(const QString &text);
@@ -80,9 +87,10 @@ private slots:
     void on_udpStereo_stateChanged(int state);
 
 private:
-    Ui::CAudioOptions *ui;            /*!< The user interface widget. */
-    QDir              *work_dir;      /*!< Used for validating chosen directory. */
-    QPalette          *error_palette; /*!< Palette used to indicate an error. */
+    Ui::CAudioOptions *ui;                   /*!< The user interface widget. */
+    QDir              *work_dir;             /*!< Used for validating chosen directory. */
+    QPalette          *error_palette;        /*!< Palette used to indicate an error. */
+    bool               m_pand_last_modified; /*!< Flag to indicate which slider was changed last */
 };
 
 #endif // AUDIO_OPTIONS_H
