@@ -1,6 +1,7 @@
 
     2.14.2: In progress...
 
+       NEW: Added button to lock audio FFT and waterfall ranges.
      FIXED: Crash when invalid device string is entered.
      FIXED: Receiver starts unexpectedly when "Enable RDS" is checked.
      FIXED: Invert scrolling option doesn't apply to audio FFT.
