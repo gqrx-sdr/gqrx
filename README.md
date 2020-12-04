@@ -203,6 +203,7 @@ The following people and organisations have contributed to gqrx:
 * Kate Adams
 * Kitware Inc.
 * Konrad Beckmann
+* Liu Shuyuan
 * luzpaz
 * Marco Savelli
 * Markus Kolb
