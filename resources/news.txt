@@ -1,5 +1,5 @@
 
-    2.14.2: In progress...
+    2.14.2: Released December 3, 2020
 
        NEW: Added button to lock audio FFT and waterfall ranges.
      FIXED: Crash when invalid device string is entered.
