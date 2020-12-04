@@ -1,12 +1,6 @@
-build/
-builds/
-Makefile
-gqrx.pro.user*
-*.o
-moc_*
-qrc_*
-ui_*
 .DS_Store
-Info.plist
-*.AppImage
-AppDir/
+/build/
+/*.AppImage
+/AppDir/
+/Gqrx.app/
+/version.txt

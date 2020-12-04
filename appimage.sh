@@ -3,8 +3,8 @@
 # Simple recipe to generate an appimage for this app
 #
 # Options:
-#   * -u will upload your AppImage file after success to github under 
-#      "continuous builds"  
+#   * -u will upload your AppImage file after success to github under
+#      "continuous builds"
 #
 # Requirements:
 #   * VERSION as an ENV var, if not detected will use actual github
@@ -17,7 +17,7 @@
 #   * If you plan to use the "-u" option you need to configure some things
 #     for it to work, check this https://github.com/probonopd/uploadtool#usage
 #
-# On any troubles invoke stdevPavelmc in github 
+# On any troubles invoke stdevPavelmc in github
 
 # Tweak this please: this is the path of the gqrx executable relative to
 #the project root will reside after build
@@ -33,13 +33,7 @@ echo "                Starting to build the AppImage..."
 echo "==================================================================="
 echo ""
 
-# Detect the version or craft one from the actual github status and commit
-if [ -z "$VERSION" ] ; then
-    # build the version string
-    echo "Ops! VERSION not set, crafting a version from github data..."
-    echo ""
-    export VERSION=`git describe --abbrev=8`
-fi
+export VERSION=$(<version.txt)
 
 # version notice
 echo "You are building Gqrx version: $VERSION"

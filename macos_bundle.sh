@@ -1,6 +1,6 @@
 #!/bin/bash
 
-GQRX_VERSION=$(git describe --long --dirty)
+GQRX_VERSION=$(<version.txt)
 
 mkdir -p Gqrx.app/Contents/MacOS
 mkdir -p Gqrx.app/Contents/Resources

@@ -22,6 +22,7 @@ else()
     )
 endif()
 add_definitions(-DVERSION="${VERSION}")
+file(WRITE version.txt ${VERSION})
 
 set(PACKAGE ${PROJECT_NAME})
 
