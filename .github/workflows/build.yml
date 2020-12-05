@@ -98,4 +98,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: gqrx-macos-${{ github.run_id }}
-          path: Gqrx.dmg
+          path: Gqrx-*.dmg
