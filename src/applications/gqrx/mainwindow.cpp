@@ -310,11 +310,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
 
     // enable frequency tooltips on FFT plot
-#ifdef Q_OS_DARWIN
-    ui->plotter->setTooltipsEnabled(false);
-#else
     ui->plotter->setTooltipsEnabled(true);
-#endif
 
     // Create list of input devices. This must be done before the configuration is
     // restored because device probing might change the device configuration
