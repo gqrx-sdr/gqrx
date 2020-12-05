@@ -82,7 +82,27 @@ jobs:
     runs-on: macos-10.15
     steps:
       - name: Install dependencies
-        run: brew install gr-osmosdr && brew install --HEAD dylibbundler
+        run: |
+          brew install --HEAD dylibbundler
+          brew install airspy boost gnuradio hackrf libbladerf librtlsdr uhd
+
+          cd /tmp
+          git clone https://github.com/airspy/airspyhf.git
+          cd airspyhf
+          mkdir build
+          cd build
+          cmake ..
+          make
+          sudo make install
+
+          cd /tmp
+          git clone git://git.osmocom.org/gr-osmosdr
+          cd gr-osmosdr
+          mkdir build
+          cd build
+          cmake -DENABLE_PYTHON=FALSE ..
+          make
+          sudo make install
       - name: Checkout code
         uses: actions/checkout@v2
         with:
