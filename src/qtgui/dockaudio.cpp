@@ -37,14 +37,6 @@ DockAudio::DockAudio(QWidget *parent) :
 {
     ui->setupUi(this);
 
-#ifdef Q_OS_DARWIN
-    // Workaround for Mac, see http://stackoverflow.com/questions/3978889/why-is-qhboxlayout-causing-widgets-to-overlap
-    // Might be fixed in Qt 5?
-    ui->audioPlayButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
-    ui->audioRecButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
-    ui->audioConfButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
-#endif
-
 #ifdef Q_OS_LINUX
     // buttons can be smaller than 50x32
     ui->audioMuteButton->setMinimumSize(48, 24);
@@ -356,10 +348,10 @@ void DockAudio::saveSettings(QSettings *settings)
     else
         settings->remove("waterfall_max_db");
 
-    if (audioOptions->getLockButtonState()) 
-        settings->setValue("db_ranges_locked", true); 
-    else 
-        settings->remove("db_ranges_locked"); 
+    if (audioOptions->getLockButtonState())
+        settings->setValue("db_ranges_locked", true);
+    else
+        settings->remove("db_ranges_locked");
 
     if (rec_dir != QDir::homePath())
         settings->setValue("rec_dir", rec_dir);
