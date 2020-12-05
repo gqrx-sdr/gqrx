@@ -43,11 +43,6 @@ DockFft::DockFft(QWidget *parent) :
 {
     ui->setupUi(this);
 
-#ifdef Q_OS_DARWIN
-    // Is this really only needed on Mac to make the color picker button appear square like the other buttons?
-    ui->fillButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
-#endif
-
 #ifdef Q_OS_LINUX
     // buttons can be smaller than 50x32
     ui->peakDetectionButton->setMinimumSize(48, 24);
