@@ -160,6 +160,9 @@
            <property name="checkable">
             <bool>true</bool>
            </property>
+           <property name="autoDefault">
+            <bool>false</bool>
+           </property>
           </widget>
          </item>
         </layout>
