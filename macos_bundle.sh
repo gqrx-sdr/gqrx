@@ -44,4 +44,4 @@ cp resources/icons/gqrx.icns Gqrx.app/Contents/Resources
 
 dylibbundler -s /usr/local/opt/icu4c/lib/ -od -b -x Gqrx.app/Contents/MacOS/gqrx -d Gqrx.app/Contents/Libs/
 /usr/local/opt/qt/bin/macdeployqt Gqrx.app -dmg -no-strip -always-overwrite
-mv Gqrx.app Gqrx-$GQRX_VERSION.app
+mv Gqrx.dmg Gqrx-$GQRX_VERSION.dmg
