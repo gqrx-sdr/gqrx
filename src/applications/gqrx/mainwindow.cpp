@@ -2252,7 +2252,7 @@ void MainWindow::showSimpleTextFile(const QString &resource_path,
 
     QTextBrowser *browser = new QTextBrowser();
     browser->setLineWrapMode(QTextEdit::NoWrap);
-    browser->setFontFamily("monospace");
+    browser->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
     browser->append(content);
     browser->adjustSize();
 

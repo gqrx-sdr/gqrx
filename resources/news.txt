@@ -4,6 +4,7 @@
      FIXED: Lock button in Audio options dialog is always shaded on MacOS.
      FIXED: Restored Airspy HF and BladeRF support in MacOS builds.
      FIXED: Restored frequency tooltips on MacOS.
+     FIXED: Monospace text displayed incorrectly on MacOS.
 
 
     2.14.2: Released December 3, 2020

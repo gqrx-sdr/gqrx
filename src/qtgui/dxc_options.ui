@@ -136,12 +136,6 @@
    </item>
    <item row="1" column="0">
     <widget class="QPlainTextEdit" name="plainTextEdit_DXCMonitor">
-     <property name="font">
-      <font>
-       <family>Monospace</family>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
      <property name="documentTitle">
       <string/>
      </property>
