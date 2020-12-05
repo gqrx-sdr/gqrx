@@ -138,7 +138,7 @@ if(Gnuradio_VERSION VERSION_LESS "3.8")
     find_package(Boost COMPONENTS system REQUIRED)
 endif()
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     if(NOT LINUX_AUDIO_BACKEND)
         set(LINUX_AUDIO_BACKEND Pulseaudio CACHE STRING "Choose the audio backend, options are: Pulseaudio, Portaudio, Gr-audio" FORCE)
     endif()
