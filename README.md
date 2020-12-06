@@ -210,7 +210,6 @@ The following people and organisations have contributed to gqrx:
 * Kate Adams
 * Kitware Inc.
 * Konrad Beckmann
-* Liu Shuyuan
 * luzpaz
 * Marco Savelli
 * Markus Kolb
@@ -228,6 +227,7 @@ The following people and organisations have contributed to gqrx:
 * Phil Vachon
 * Rob Frohne
 * Ron Economos, W6RZ
+* Shuyuan Liu
 * Stefano Leucci
 * Sylvain Munaut
 * Tarmo Tanilsoo
