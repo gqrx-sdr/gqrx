@@ -24,7 +24,7 @@ mkdir -p Gqrx.app/Contents/Resources
   <key>CFBundleIdentifier</key>
   <string>dk.gqrx.www</string>
   <key>CFBundleName</key>
-  <string>gqrx</string>
+  <string>Gqrx</string>
   <key>CFBundleIconFile</key>
   <string>gqrx.icns</string>
   <key>CFBundleShortVersionString</key>
