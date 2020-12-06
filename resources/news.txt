@@ -5,6 +5,7 @@
      FIXED: Restored Airspy HF and BladeRF support in MacOS builds.
      FIXED: Restored frequency tooltips on MacOS.
      FIXED: Monospace text displayed incorrectly on MacOS.
+  IMPROVED: Better rendering on high-DPI screens.
 
 
     2.14.2: Released December 3, 2020

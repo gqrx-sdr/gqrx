@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain(GQRX_ORG_DOMAIN);
     QCoreApplication::setApplicationName(GQRX_APP_NAME);
     QCoreApplication::setApplicationVersion(VERSION);
+    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
     QLoggingCategory::setFilterRules("*.debug=false");
 
     // setup controlport via environment variables
