@@ -146,7 +146,6 @@ void CFreqCtrl::setup(int NumDigits, qint64 Minf, qint64 Maxf, int MinStep,
     {
         m_DigitInfo[i].weight = pwr;
         m_DigitInfo[i].incval = pwr;
-        m_DigitInfo[i].modified = true;
         m_DigitInfo[i].editmode = false;
         m_DigitInfo[i].val = 0;
         pwr *= 10;
@@ -209,11 +208,7 @@ void CFreqCtrl::setFrequency(qint64 freq)
     for (i = m_NumDigits - 1; i >= m_DigStart; i--)
     {
         val = (int)(rem / m_DigitInfo[i].weight);
-        if (m_DigitInfo[i].val != val)
-        {
-            m_DigitInfo[i].val = val;
-            m_DigitInfo[i].modified = true;
-        }
+        m_DigitInfo[i].val = val;
         rem = rem - val * m_DigitInfo[i].weight;
         acc += val;
         if ((acc == 0) && (i > m_DecPos))
@@ -221,11 +216,6 @@ void CFreqCtrl::setFrequency(qint64 freq)
             m_LeadZeroPos = i;
         }
     }
-
-    // If the sign changed and the frequency is less than 1 unit,
-    // redraw the leading zero to get the correct sign.
-    if ((m_Oldfreq ^ m_freq) < 0 && m_DigitInfo[m_LeadZeroPos - 1].val == 0)
-        m_DigitInfo[m_LeadZeroPos - 1].modified = true;
 
     // When frequency is negative all non-zero digits that
     // have changed will have a negative sign. This loop will
@@ -249,17 +239,14 @@ void CFreqCtrl::setFrequency(qint64 freq)
     // signal the new frequency to world
     m_Oldfreq = m_freq;
     emit    newFrequency(m_freq);
-    updateCtrl(m_LastLeadZeroPos != m_LeadZeroPos);
+    update();
     m_LastLeadZeroPos = m_LeadZeroPos;
 }
 
 void CFreqCtrl::setDigitColor(QColor col)
 {
-    m_UpdateAll = true;
     m_DigitColor = col;
-    for (int i = m_DigStart; i < m_NumDigits; i++)
-        m_DigitInfo[i].modified = true;
-    updateCtrl(true);
+    update();
 }
 
 void CFreqCtrl::setUnit(FctlUnit unit)
@@ -306,53 +293,25 @@ void CFreqCtrl::setUnit(FctlUnit unit)
         break;
     }
     m_Unit = unit;
-    m_UpdateAll = true;
-    updateCtrl(true);
+    update();
 }
 
 void CFreqCtrl::setBgColor(QColor col)
 {
-    m_UpdateAll = true;
     m_BkColor = col;
-
-    for (int i = m_DigStart; i < m_NumDigits; i++)
-        m_DigitInfo[i].modified = true;
-
-    updateCtrl(true);
+    update();
 }
 
 void CFreqCtrl::setUnitsColor(QColor col)
 {
-    m_UpdateAll = true;
     m_UnitsColor = col;
-    updateCtrl(true);
+    update();
 }
 
 void CFreqCtrl::setHighlightColor(QColor col)
 {
-    m_UpdateAll = true;
     m_HighlightColor = col;
-    updateCtrl(true);
-}
-
-void CFreqCtrl::updateCtrl(bool all)
-{
-    if (all)
-    {
-        m_UpdateAll = true;
-        for (int i = m_DigStart; i < m_NumDigits; i++)
-            m_DigitInfo[i].modified = true;
-    }
     update();
-}
-
-void CFreqCtrl::resizeEvent(QResizeEvent *)
-{
-// qDebug() <<rect.width() << rect.height();
-    m_Pixmap = QPixmap(size()); // resize pixmap to current control size
-    m_Pixmap.fill(m_BkColor);
-    m_UpdateAll = true;
-    updateCtrl(true);
 }
 
 void CFreqCtrl::leaveEvent(QEvent *)
@@ -363,32 +322,24 @@ void CFreqCtrl::leaveEvent(QEvent *)
         if (m_DigitInfo[m_ActiveEditDigit].editmode)
         {
             m_DigitInfo[m_ActiveEditDigit].editmode = false;
-            m_DigitInfo[m_ActiveEditDigit].modified = true;
             m_ActiveEditDigit = -1;
-            updateCtrl(false);
+            update();
         }
     }
 }
 
 void CFreqCtrl::paintEvent(QPaintEvent *)
 {
-    QPainter    painter(&m_Pixmap);
-
-    if (m_UpdateAll)           // if need to redraw everything
-    {
-        drawBkGround(painter);
-        m_UpdateAll = false;
-    }
-    // draw any modified digits to the m_MemDC
+    QPainter painter(this);
+    drawBkGround(painter);
     drawDigits(painter);
-    // now draw pixmap onto screen
-    QPainter    scrnpainter(this);
-    scrnpainter.drawPixmap(0, 0, m_Pixmap); // blt to the screen(flickers like a candle, why?)
 }
 
 void CFreqCtrl::mouseMoveEvent(QMouseEvent *event)
 {
-    QPoint    pt = event->pos();
+    QPoint pt = event->pos();
+    bool changed = false;
+
     // find which digit is to be edited
     if (isActiveWindow())
     {
@@ -402,6 +353,7 @@ void CFreqCtrl::mouseMoveEvent(QMouseEvent *event)
                 if (!m_DigitInfo[i].editmode)
                 {
                     m_DigitInfo[i].editmode = true;
+                    changed = true;
                     m_ActiveEditDigit = i;
                 }
             }
@@ -411,12 +363,13 @@ void CFreqCtrl::mouseMoveEvent(QMouseEvent *event)
                 if (m_DigitInfo[i].editmode)
                 {
                     m_DigitInfo[i].editmode = false;
-                    m_DigitInfo[i].modified = true;
+                    changed = true;
                 }
             }
         }
 
-        updateCtrl(false);
+        if (changed)
+            update();
     }
 }
 
@@ -629,7 +582,6 @@ void CFreqCtrl::drawBkGround(QPainter &Painter)
     }
 }
 
-//  Draws just the Digits that have been modified
 void CFreqCtrl::drawDigits(QPainter &Painter)
 {
     Painter.setFont(m_DigitFont);
@@ -640,28 +592,24 @@ void CFreqCtrl::drawDigits(QPainter &Painter)
         if (m_DigitInfo[i].incval == 0)
             m_FirstEditableDigit++;
 
-        if (m_DigitInfo[i].modified || m_DigitInfo[i].editmode)
-        {
-            if (m_DigitInfo[i].editmode && m_DigitInfo[i].incval != 0)
-                Painter.fillRect(m_DigitInfo[i].dQRect, m_HighlightColor);
-            else
-                Painter.fillRect(m_DigitInfo[i].dQRect, m_BkColor);
+        if (m_DigitInfo[i].editmode && m_DigitInfo[i].incval != 0)
+            Painter.fillRect(m_DigitInfo[i].dQRect, m_HighlightColor);
+        else
+            Painter.fillRect(m_DigitInfo[i].dQRect, m_BkColor);
 
-            if (i >= m_LeadZeroPos)
-                Painter.setPen(m_InactiveColor);
-            else
-                Painter.setPen(m_DigitColor);
+        if (i >= m_LeadZeroPos)
+            Painter.setPen(m_InactiveColor);
+        else
+            Painter.setPen(m_DigitColor);
 
-            if (m_freq < 0 && i == m_LeadZeroPos - 1 && m_DigitInfo[i].val == 0)
-                Painter.drawText(m_DigitInfo[i].dQRect,
-                                 Qt::AlignHCenter | Qt::AlignVCenter,
-                                 QString("-0"));
-            else
-                Painter.drawText(m_DigitInfo[i].dQRect,
-                                 Qt::AlignHCenter | Qt::AlignVCenter,
-                                 QString().number(m_DigitInfo[i].val));
-            m_DigitInfo[i].modified = false;
-        }
+        if (m_freq < 0 && i == m_LeadZeroPos - 1 && m_DigitInfo[i].val == 0)
+            Painter.drawText(m_DigitInfo[i].dQRect,
+                             Qt::AlignHCenter | Qt::AlignVCenter,
+                             QString("-0"));
+        else
+            Painter.drawText(m_DigitInfo[i].dQRect,
+                             Qt::AlignHCenter | Qt::AlignVCenter,
+                             QString().number(m_DigitInfo[i].val));
     }
 }
 
