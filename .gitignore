@@ -1,6 +1,7 @@
 .DS_Store
 /build/
 /*.AppImage
+/*.dmg
 /AppDir/
 /Gqrx.app/
 /version.txt
