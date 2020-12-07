@@ -65,6 +65,7 @@ public slots:
 
 protected:
     void    paintEvent(QPaintEvent *);
+    void    resizeEvent(QResizeEvent *);
     void    mouseMoveEvent(QMouseEvent *);
     void    mousePressEvent(QMouseEvent *);
     void    wheelEvent(QWheelEvent *);
@@ -72,6 +73,7 @@ protected:
     void    keyPressEvent(QKeyEvent *);
 
 private:
+    void    updateCtrl(bool all);
     void    drawBkGround(QPainter &Painter);
     void    drawDigits(QPainter &Painter);
     void    incDigit();
@@ -85,6 +87,7 @@ private:
     void    moveCursorRight();
     bool    inRect(QRect &rect, QPoint &point);
 
+    bool        m_UpdateAll;
     bool        m_ExternalKeyActive;
     bool        m_LRMouseFreqSel;   /* Use left/right mouse buttons. If FALSE click area determines up/down. */
 
@@ -115,6 +118,7 @@ private:
     QColor      m_UnitsColor;
     QColor      m_HighlightColor;
 
+    QPixmap     m_Pixmap;
     QSize       m_Size;
     FctlUnit    m_Unit;
 
@@ -132,6 +136,7 @@ private:
         qint64    incval;      // value this digit increments or decrements
         QRect     dQRect;      // Digit bounding rectangle
         int       val;         // value of this digit(0-9)
+        bool      modified;    // set if this digit has been modified
         bool      editmode;    // set if this digit is selected for editing
     } m_DigitInfo[FCTL_MAX_DIGITS];
 };
