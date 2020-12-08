@@ -93,7 +93,7 @@ jobs:
           cd build
           cmake ..
           make
-          sudo make install
+          make install
 
           cd /tmp
           git clone git://git.osmocom.org/gr-osmosdr
@@ -102,7 +102,7 @@ jobs:
           cd build
           cmake -DENABLE_PYTHON=FALSE ..
           make
-          sudo make install
+          make install
       - name: Checkout code
         uses: actions/checkout@v2
         with:
