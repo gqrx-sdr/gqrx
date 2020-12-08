@@ -215,6 +215,7 @@ private:
     QPixmap     m_WaterfallPixmap;
     QColor      m_ColorTbl[256];
     QSize       m_Size;
+    qreal       m_DPR;
     QString     m_Str;
     QString     m_HDivText[HORZ_DIVS_MAX+1];
     bool        m_Running;

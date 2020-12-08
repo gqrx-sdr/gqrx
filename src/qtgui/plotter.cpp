@@ -183,8 +183,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
 
     QPoint pt = event->pos();
 
-    /* mouse ent er / mouse leave events */
-    if (m_OverlayPixmap.rect().contains(pt))
+    /* mouse enter / mouse leave events */
+    if (pt.y() < m_OverlayPixmap.height() / m_DPR)
     {
         //is in Overlay bitmap region
         if (event->buttons() == Qt::NoButton)
@@ -271,7 +271,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     qint64 hoverFrequency = freqFromX(pt.x());
                     QString toolTipText = QString("F: %1 kHz").arg(hoverFrequency/1.e3f, 0, 'f', 3);
                     QFontMetrics metrics(m_Font);
-                    int bandTopY = m_OverlayPixmap.height() - metrics.height() - 2 * VER_MARGIN - m_BandPlanHeight;
+                    int bandTopY = (m_OverlayPixmap.height() / m_DPR) - metrics.height() - 2 * VER_MARGIN - m_BandPlanHeight;
                     QList<BandInfo> hoverBands = BandPlan::Get().getBandsEncompassing(hoverFrequency);
                     if(m_BandPlanEnabled && pt.y() > bandTopY && hoverBands.size() > 0)
                     {
@@ -317,7 +317,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             // move Y scale up/down
             float delta_px = m_Yzero - pt.y();
             float delta_db = delta_px * fabs(m_PandMindB - m_PandMaxdB) /
-                             (float)m_OverlayPixmap.height();
+                             (float)(m_OverlayPixmap.height() / m_DPR);
             m_PandMindB -= delta_db;
             m_PandMaxdB -= delta_db;
             if (out_of_range(m_PandMindB, m_PandMaxdB))
@@ -347,7 +347,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             setCursor(QCursor(Qt::ClosedHandCursor));
             // pan viewable range or move center frequency
             int delta_px = m_Xzero - pt.x();
-            qint64 delta_hz = delta_px * m_Span / m_OverlayPixmap.width();
+            qint64 delta_hz = delta_px * m_Span / (m_OverlayPixmap.width() / m_DPR);
             if (event->buttons() & Qt::MidButton)
             {
                 m_CenterFreq += delta_hz;
@@ -698,7 +698,7 @@ void CPlotter::mouseReleaseEvent(QMouseEvent * event)
 {
     QPoint pt = event->pos();
 
-    if (!m_OverlayPixmap.rect().contains(pt))
+    if (pt.y() >= m_OverlayPixmap.height() / m_DPR)
     {
         // not in Overlay region
         if (NOCAP != m_CursorCaptured)
@@ -777,9 +777,9 @@ void CPlotter::wheelEvent(QWheelEvent * event)
         // Vertical zoom. Wheel down: zoom out, wheel up: zoom in
         // During zoom we try to keep the point (dB or kHz) under the cursor fixed
         float zoom_fac = delta < 0 ? 1.1 : 0.9;
-        float ratio = (float)pt.y() / (float)m_OverlayPixmap.height();
+        float ratio = (float)pt.y() / (float)(m_OverlayPixmap.height() / m_DPR);
         float db_range = m_PandMaxdB - m_PandMindB;
-        float y_range = (float)m_OverlayPixmap.height();
+        float y_range = (float)(m_OverlayPixmap.height() / m_DPR);
         float db_per_pix = db_range / y_range;
         float fixed_db = m_PandMaxdB - pt.y() * db_per_pix;
 
@@ -837,10 +837,13 @@ void CPlotter::resizeEvent(QResizeEvent* )
         int     fft_plot_height;
 
         m_Size = size();
+        m_DPR = devicePixelRatio();
         fft_plot_height = m_Percent2DScreen * m_Size.height() / 100;
-        m_OverlayPixmap = QPixmap(m_Size.width(), fft_plot_height);
+        m_OverlayPixmap = QPixmap(m_Size.width() * m_DPR, fft_plot_height * m_DPR);
+        m_OverlayPixmap.setDevicePixelRatio(m_DPR);
         m_OverlayPixmap.fill(Qt::black);
-        m_2DPixmap = QPixmap(m_Size.width(), fft_plot_height);
+        m_2DPixmap = QPixmap(m_Size.width() * m_DPR, fft_plot_height * m_DPR);
+        m_2DPixmap.setDevicePixelRatio(m_DPR);
         m_2DPixmap.fill(Qt::black);
 
         int height = m_Size.height() - fft_plot_height;
@@ -966,13 +969,13 @@ void CPlotter::draw()
     }
 
     // get/draw the 2D spectrum
-    w = m_2DPixmap.width();
-    h = m_2DPixmap.height();
+    w = m_2DPixmap.width() / m_DPR;
+    h = m_2DPixmap.height() / m_DPR;
 
     if (w != 0 && h != 0)
     {
         // first copy into 2Dbitmap the overlay bitmap.
-        m_2DPixmap = m_OverlayPixmap.copy(0,0,w,h);
+        m_2DPixmap = m_OverlayPixmap.copy(m_OverlayPixmap.rect());
 
         QPainter painter2(&m_2DPixmap);
 
@@ -1240,8 +1243,8 @@ void CPlotter::drawOverlay()
     if (m_OverlayPixmap.isNull())
         return;
 
-    int     w = m_OverlayPixmap.width();
-    int     h = m_OverlayPixmap.height();
+    int     w = m_OverlayPixmap.width() / m_DPR;
+    int     h = m_OverlayPixmap.height() / m_DPR;
     int     x,y;
     float   pixperdiv;
     float   adjoffset;
@@ -1474,7 +1477,7 @@ void CPlotter::drawOverlay()
     {
         // if not running so is no data updates to draw to screen
         // copy into 2Dbitmap the overlay bitmap.
-        m_2DPixmap = m_OverlayPixmap.copy(0,0,w,h);
+        m_2DPixmap = m_OverlayPixmap.copy(m_OverlayPixmap.rect());
 
         // trigger a new paintEvent
         update();
@@ -1563,10 +1566,10 @@ qint64 CPlotter::freqFromX(int x)
 quint64 CPlotter::msecFromY(int y)
 {
     // ensure we are in the waterfall region
-    if (y < m_OverlayPixmap.height())
+    if (y < m_OverlayPixmap.height() / m_DPR)
         return 0;
 
-    int dy = y - m_OverlayPixmap.height();
+    int dy = y - m_OverlayPixmap.height() / m_DPR;
 
     if (msec_per_wfline > 0)
         return tlast_wf_ms - dy * msec_per_wfline;
