@@ -234,6 +234,7 @@
     <addaction name="actionNews"/>
     <addaction name="separator"/>
     <addaction name="actionRemoteProtocol"/>
+    <addaction name="actionKbdShortcuts"/>
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
     <addaction name="actionAboutQt"/>
@@ -538,6 +539,18 @@
    </property>
    <property name="toolTip">
     <string>Remote control protocol</string>
+   </property>
+  </action>
+  <action name="actionKbdShortcuts">
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/info.svg</normaloff>:/icons/icons/info.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Keyboard shortcuts</string>
+   </property>
+   <property name="toolTip">
+    <string>Show help on keyboard shortcuts</string>
    </property>
   </action>
   <action name="actionSaveWaterfall">

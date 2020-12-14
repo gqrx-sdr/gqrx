@@ -22,6 +22,7 @@
  */
 #include <QDebug>
 #include <QVariant>
+#include <QShortcut>
 #include <iostream>
 #include "dockrxopt.h"
 #include "ui_dockrxopt.h"
@@ -110,6 +111,49 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     // Noise blanker options
     nbOpt = new CNbOptions(this);
     connect(nbOpt, SIGNAL(thresholdChanged(int,double)), this, SLOT(nbOpt_thresholdChanged(int,double)));
+
+    /* mode setting shortcuts */
+    QShortcut *mode_off_shortcut = new QShortcut(QKeySequence(Qt::Key_Exclam), this);
+    QShortcut *mode_raw_shortcut = new QShortcut(QKeySequence(Qt::Key_I), this);
+    QShortcut *mode_am_shortcut = new QShortcut(QKeySequence(Qt::Key_A), this);
+    QShortcut *mode_nfm_shortcut = new QShortcut(QKeySequence(Qt::Key_N), this);
+    QShortcut *mode_wfm_mono_shortcut = new QShortcut(QKeySequence(Qt::Key_W), this);
+    QShortcut *mode_wfm_stereo_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_W), this);
+    QShortcut *mode_lsb_shortcut = new QShortcut(QKeySequence(Qt::Key_S), this);
+    QShortcut *mode_usb_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_S), this);
+    QShortcut *mode_cwl_shortcut = new QShortcut(QKeySequence(Qt::Key_C), this);
+    QShortcut *mode_cwu_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_C), this);
+    QShortcut *mode_wfm_oirt_shortcut = new QShortcut(QKeySequence(Qt::Key_O), this);
+    QShortcut *mode_am_sync_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_A), this);
+
+    QObject::connect(mode_off_shortcut, &QShortcut::activated, this, &DockRxOpt::modeOffShortcut);
+    QObject::connect(mode_raw_shortcut, &QShortcut::activated, this, &DockRxOpt::modeRawShortcut);
+    QObject::connect(mode_am_shortcut, &QShortcut::activated, this, &DockRxOpt::modeAMShortcut);
+    QObject::connect(mode_nfm_shortcut, &QShortcut::activated, this, &DockRxOpt::modeNFMShortcut);
+    QObject::connect(mode_wfm_mono_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMmonoShortcut);
+    QObject::connect(mode_wfm_stereo_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMstereoShortcut);
+    QObject::connect(mode_lsb_shortcut, &QShortcut::activated, this, &DockRxOpt::modeLSBShortcut);
+    QObject::connect(mode_usb_shortcut, &QShortcut::activated, this, &DockRxOpt::modeUSBShortcut);
+    QObject::connect(mode_cwl_shortcut, &QShortcut::activated, this, &DockRxOpt::modeCWLShortcut);
+    QObject::connect(mode_cwu_shortcut, &QShortcut::activated, this, &DockRxOpt::modeCWUShortcut);
+    QObject::connect(mode_wfm_oirt_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMoirtShortcut);
+    QObject::connect(mode_am_sync_shortcut, &QShortcut::activated, this, &DockRxOpt::modeAMsyncShortcut);
+
+    /* squelch shortcuts */
+    QShortcut *squelch_reset_shortcut = new QShortcut(QKeySequence(Qt::Key_QuoteLeft), this);
+    QShortcut *squelch_auto_shortcut = new QShortcut(QKeySequence(Qt::Key_AsciiTilde), this);
+
+    QObject::connect(squelch_reset_shortcut, &QShortcut::activated, this, &DockRxOpt::on_resetSquelchButton_clicked);
+    QObject::connect(squelch_auto_shortcut, &QShortcut::activated, this, &DockRxOpt::on_autoSquelchButton_clicked);
+
+    /* filter width shortcuts */
+    QShortcut *filter_narrow_shortcut = new QShortcut(QKeySequence(Qt::Key_Less), this);
+    QShortcut *filter_normal_shortcut = new QShortcut(QKeySequence(Qt::Key_Period), this);
+    QShortcut *filter_wide_shortcut = new QShortcut(QKeySequence(Qt::Key_Greater), this);
+
+    QObject::connect(filter_narrow_shortcut, &QShortcut::activated, this, &DockRxOpt::filterNarrowShortcut);
+    QObject::connect(filter_normal_shortcut, &QShortcut::activated, this, &DockRxOpt::filterNormalShortcut);
+    QObject::connect(filter_wide_shortcut, &QShortcut::activated, this, &DockRxOpt::filterWideShortcut);
 }
 
 DockRxOpt::~DockRxOpt()
@@ -791,4 +835,67 @@ bool DockRxOpt::IsModulationValid(QString strModulation)
 QString DockRxOpt::GetStringForModulationIndex(int iModulationIndex)
 {
     return ModulationStrings[iModulationIndex];
+}
+
+void DockRxOpt::modeOffShortcut() {
+    on_modeSelector_activated(MODE_OFF);
+}
+
+void DockRxOpt::modeRawShortcut() {
+    on_modeSelector_activated(MODE_RAW);
+}
+
+void DockRxOpt::modeAMShortcut() {
+    on_modeSelector_activated(MODE_AM);
+}
+
+void DockRxOpt::modeNFMShortcut() {
+    on_modeSelector_activated(MODE_NFM);
+}
+
+void DockRxOpt::modeWFMmonoShortcut() {
+    on_modeSelector_activated(MODE_WFM_MONO);
+}
+
+void DockRxOpt::modeWFMstereoShortcut() {
+    on_modeSelector_activated(MODE_WFM_STEREO);
+}
+
+void DockRxOpt::modeLSBShortcut() {
+    on_modeSelector_activated(MODE_LSB);
+}
+
+void DockRxOpt::modeUSBShortcut() {
+    on_modeSelector_activated(MODE_USB);
+}
+
+void DockRxOpt::modeCWLShortcut() {
+    on_modeSelector_activated(MODE_CWL);
+}
+
+void DockRxOpt::modeCWUShortcut() {
+    on_modeSelector_activated(MODE_CWU);
+}
+
+void DockRxOpt::modeWFMoirtShortcut() {
+    on_modeSelector_activated(MODE_WFM_STEREO_OIRT);
+}
+
+void DockRxOpt::modeAMsyncShortcut() {
+    on_modeSelector_activated(MODE_AM_SYNC);
+}
+
+void DockRxOpt::filterNarrowShortcut() {
+    setCurrentFilter(FILTER_PRESET_NARROW);
+    on_filterCombo_activated(FILTER_PRESET_NARROW);
+}
+
+void DockRxOpt::filterNormalShortcut() {
+    setCurrentFilter(FILTER_PRESET_NORMAL);
+    on_filterCombo_activated(FILTER_PRESET_NORMAL);
+}
+
+void DockRxOpt::filterWideShortcut() {
+    setCurrentFilter(FILTER_PRESET_WIDE);
+    on_filterCombo_activated(FILTER_PRESET_WIDE);
 }

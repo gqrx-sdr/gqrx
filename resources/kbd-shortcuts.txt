@@ -1,0 +1,47 @@
+Keyboard shortcuts
+
+Main window actions:
+
+ ctrl+d         Start/stop DSP
+ ctrl+l         Load settings from a file
+ ctrl+s         Save current settings to a file
+ ctrl+shift+b   Bookmark the current frequency and mode
+ ctrl+i         Open I/Q recorder dialog
+ ctrl+w         Save waterfall as an image
+ ctrl+c         Open DX cluster dialog
+ F11            Toggle full screen mode
+ f              Set focus to the frequency controller
+ ctrl+q         Quit the program
+
+Receiver modes:
+
+ !              Demod off
+ i              Raw I/Q
+ a              AM
+ n              NFM
+ w              WFM mono
+ shift+w        WFM stereo
+ s              LSB  (memo: lower SSB)
+ shift+s        USB  (memo: upper SSB)
+ c              CW-L (memo: lower CW)
+ shift+c        CW-U (memo: upper CW)
+ o              WFM oirt
+ shift+a        AM sync
+
+Squelch:
+
+ `              Reset squelch
+ ~              Auto squelch
+
+Filter width:
+
+ <              Narrow
+ .              Normal
+ >              Wide
+
+Audio functions:
+
+ r              Start/stop recording
+ m              Toggle mute
+ -              Decrease gain by 1 dB
+ +              Increase gain by 1 dB

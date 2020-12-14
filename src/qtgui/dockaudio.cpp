@@ -23,6 +23,7 @@
 #include <cmath>
 #include <QDebug>
 #include <QDateTime>
+#include <QShortcut>
 #include <QDir>
 #include "dockaudio.h"
 #include "ui_dockaudio.h"
@@ -73,6 +74,16 @@ DockAudio::DockAudio(QWidget *parent) :
     ui->audioSpectrum->setVdivDelta(40);
     ui->audioSpectrum->setHdivDelta(40);
     ui->audioSpectrum->setFreqDigits(1);
+
+    QShortcut *rec_toggle_shortcut = new QShortcut(QKeySequence(Qt::Key_R), this);
+    QShortcut *mute_toggle_shortcut = new QShortcut(QKeySequence(Qt::Key_M), this);
+    QShortcut *audio_gain_increase_shortcut1 = new QShortcut(QKeySequence(Qt::Key_Plus), this);
+    QShortcut *audio_gain_decrease_shortcut1 = new QShortcut(QKeySequence(Qt::Key_Minus), this);
+
+    QObject::connect(rec_toggle_shortcut, &QShortcut::activated, this, &DockAudio::recordToggleShortcut);
+    QObject::connect(mute_toggle_shortcut, &QShortcut::activated, this, &DockAudio::muteToggleShortcut);
+    QObject::connect(audio_gain_increase_shortcut1, &QShortcut::activated, this, &DockAudio::increaseAudioGainShortcut);
+    QObject::connect(audio_gain_decrease_shortcut1, &QShortcut::activated, this, &DockAudio::decreaseAudioGainShortcut);
 }
 
 DockAudio::~DockAudio()
@@ -468,4 +479,20 @@ void DockAudio::setNewUdpPort(int port)
 void DockAudio::setNewUdpStereo(bool enabled)
 {
     udp_stereo = enabled;
+}
+
+void DockAudio::recordToggleShortcut() {
+    ui->audioRecButton->click();
+}
+
+void DockAudio::muteToggleShortcut() {
+    ui->audioMuteButton->click();
+}
+
+void DockAudio::increaseAudioGainShortcut() {
+	ui->audioGainSlider->triggerAction(QSlider::SliderPageStepAdd);
+}
+
+void DockAudio::decreaseAudioGainShortcut() {
+	ui->audioGainSlider->triggerAction(QSlider::SliderPageStepSub);
 }
