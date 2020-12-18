@@ -1,4 +1,9 @@
 
+    2.14.4: In progress...
+
+     FIXED: Audio output doesn't work on MacOS Big Sur.
+
+
     2.14.3: Released December 9, 2020
 
      FIXED: Lock button in Audio options dialog is always shaded on MacOS.

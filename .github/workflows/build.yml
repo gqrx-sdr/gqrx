@@ -83,7 +83,8 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          brew install --HEAD dylibbundler
+          brew update
+          brew install --HEAD dylibbundler portaudio
           brew install airspy boost gnuradio hackrf libbladerf librtlsdr uhd
 
           cd /tmp
