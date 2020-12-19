@@ -23,11 +23,11 @@ class CPlotter : public QFrame
     Q_OBJECT
 
 public:
-    explicit CPlotter(QWidget *parent = 0);
-    ~CPlotter();
+    explicit CPlotter(QWidget *parent = nullptr);
+    ~CPlotter() override;
 
-    QSize minimumSizeHint() const;
-    QSize sizeHint() const;
+    QSize minimumSizeHint() const override;
+    QSize sizeHint() const override;
 
     //void SetSdrInterface(CSdrInterface* ptr){m_pSdrInterface = ptr;}
     void draw();		//call to draw new fft data onto screen plot
@@ -56,12 +56,12 @@ public:
         m_DemodCenterFreq = m_CenterFreq + freq_hz;
         drawOverlay();
     }
-    qint64 getFilterOffset(void)
+    qint64 getFilterOffset() const
     {
         return m_DemodCenterFreq - m_CenterFreq;
     }
 
-    int getFilterBw()
+    int getFilterBw() const
     {
         return m_DemodHiCutFreq - m_DemodLowCutFreq;
     }
@@ -73,7 +73,7 @@ public:
         drawOverlay();
     }
 
-    void getHiLowCutFrequencies(int *LowCut, int *HiCut)
+    void getHiLowCutFrequencies(int *LowCut, int *HiCut) const
     {
         *LowCut = m_DemodLowCutFreq;
         *HiCut = m_DemodHiCutFreq;
@@ -106,7 +106,7 @@ public:
         }
     }
 
-    float getSampleRate(void)
+    float getSampleRate() const
     {
         return m_SampleFreq;
     }
@@ -118,9 +118,9 @@ public:
 
     int     getNearestPeak(QPoint pt);
     void    setWaterfallSpan(quint64 span_ms);
-    quint64 getWfTimeRes(void);
+    quint64 getWfTimeRes() const;
     void    setFftRate(int rate_hz);
-    void    clearWaterfall(void);
+    void    clearWaterfall();
     bool    saveWaterfall(const QString & filename) const;
 
 signals:
@@ -134,13 +134,13 @@ signals:
 
 public slots:
     // zoom functions
-    void resetHorizontalZoom(void);
-    void moveToCenterFreq(void);
-    void moveToDemodFreq(void);
+    void resetHorizontalZoom();
+    void moveToCenterFreq();
+    void moveToDemodFreq();
     void zoomOnXAxis(float level);
 
     // other FFT slots
-    void setFftPlotColor(const QColor color);
+    void setFftPlotColor(const QColor& color);
     void setFftFill(bool enabled);
     void setPeakHold(bool enabled);
     void setFftRange(float min, float max);
@@ -155,17 +155,17 @@ public slots:
     {
         m_Percent2DScreen = percent;
         m_Size = QSize(0,0);
-        resizeEvent(NULL);
+        resizeEvent(nullptr);
     }
 
 protected:
     //re-implemented widget event handlers
-    void paintEvent(QPaintEvent *event);
-    void resizeEvent(QResizeEvent* event);
-    void mouseMoveEvent(QMouseEvent * event);
-    void mousePressEvent(QMouseEvent * event);
-    void mouseReleaseEvent(QMouseEvent * event);
-    void wheelEvent( QWheelEvent * event );
+    void paintEvent(QPaintEvent *event) override;
+    void resizeEvent(QResizeEvent* event) override;
+    void mouseMoveEvent(QMouseEvent * event) override;
+    void mousePressEvent(QMouseEvent * event) override;
+    void mouseReleaseEvent(QMouseEvent * event) override;
+    void wheelEvent( QWheelEvent * event ) override;
 
 private:
     enum eCapturetype {
@@ -183,10 +183,10 @@ private:
     int         xFromFreq(qint64 freq);
     qint64      freqFromX(int x);
     void        zoomStepX(float factor, int x);
-    qint64      roundFreq(qint64 freq, int resolution);
+    static qint64      roundFreq(qint64 freq, int resolution);
     quint64     msecFromY(int y);
     void        clampDemodParameters();
-    bool        isPointCloseTo(int x, int xr, int delta)
+    static bool        isPointCloseTo(int x, int xr, int delta)
     {
         return ((x > (xr - delta)) && (x < (xr + delta)));
     }
@@ -194,20 +194,20 @@ private:
                                  float maxdB, float mindB,
                                  qint64 startFreq, qint64 stopFreq,
                                  float *inBuf, qint32 *outBuf,
-                                 qint32 *maxbin, qint32 *minbin);
-    void calcDivSize (qint64 low, qint64 high, int divswanted, qint64 &adjlow, qint64 &step, int& divs);
+                                 qint32 *maxbin, qint32 *minbin) const;
+    static void calcDivSize (qint64 low, qint64 high, int divswanted, qint64 &adjlow, qint64 &step, int& divs);
 
     bool        m_PeakHoldActive;
     bool        m_PeakHoldValid;
-    qint32      m_fftbuf[MAX_SCREENSIZE];
-    quint8      m_wfbuf[MAX_SCREENSIZE]; // used for accumulating waterfall data at high time spans
-    qint32      m_fftPeakHoldBuf[MAX_SCREENSIZE];
-    float      *m_fftData;     /*! pointer to incoming FFT data */
-    float      *m_wfData;
-    int         m_fftDataSize;
+    qint32      m_fftbuf[MAX_SCREENSIZE]{};
+    quint8      m_wfbuf[MAX_SCREENSIZE]{}; // used for accumulating waterfall data at high time spans
+    qint32      m_fftPeakHoldBuf[MAX_SCREENSIZE]{};
+    float      *m_fftData{};     /*! pointer to incoming FFT data */
+    float      *m_wfData{};
+    int         m_fftDataSize{};
 
-    int         m_XAxisYCenter;
-    int         m_YAxisWidth;
+    int         m_XAxisYCenter{};
+    int         m_YAxisWidth{};
 
     eCapturetype    m_CursorCaptured;
     QPixmap     m_2DPixmap;
@@ -215,28 +215,27 @@ private:
     QPixmap     m_WaterfallPixmap;
     QColor      m_ColorTbl[256];
     QSize       m_Size;
-    qreal       m_DPR;
-    QString     m_Str;
+    qreal       m_DPR{};
     QString     m_HDivText[HORZ_DIVS_MAX+1];
     bool        m_Running;
     bool        m_DrawOverlay;
     qint64      m_CenterFreq;       // The HW frequency
     qint64      m_FftCenter;        // Center freq in the -span ... +span range
     qint64      m_DemodCenterFreq;
-    qint64      m_StartFreqAdj;
-    qint64      m_FreqPerDiv;
+    qint64      m_StartFreqAdj{};
+    qint64      m_FreqPerDiv{};
     bool        m_CenterLineEnabled;  /*!< Distinguish center line. */
     bool        m_FilterBoxEnabled;   /*!< Draw filter box. */
-    bool        m_TooltipsEnabled;    /*!< Tooltips enabled */
+    bool        m_TooltipsEnabled{};    /*!< Tooltips enabled */
     bool        m_BandPlanEnabled;    /*!< Show/hide band plan on spectrum */
     bool        m_BookmarksEnabled;   /*!< Show/hide bookmarks on spectrum */
     bool        m_InvertScrolling;
     bool        m_DXCSpotsEnabled;   /*!< Show/hide DXC Spots on spectrum */
     int         m_DemodHiCutFreq;
     int         m_DemodLowCutFreq;
-    int         m_DemodFreqX;		//screen coordinate x position
-    int         m_DemodHiCutFreqX;	//screen coordinate x position
-    int         m_DemodLowCutFreqX;	//screen coordinate x position
+    int         m_DemodFreqX{};		//screen coordinate x position
+    int         m_DemodHiCutFreqX{};	//screen coordinate x position
+    int         m_DemodLowCutFreqX{};	//screen coordinate x position
     int         m_CursorCaptureDelta;
     int         m_GrabPosition;
     int         m_Percent2DScreen;
@@ -261,8 +260,8 @@ private:
     int         m_ClickResolution;
     int         m_FilterClickResolution;
 
-    int         m_Xzero;
-    int         m_Yzero;  /*!< Used to measure mouse drag direction. */
+    int         m_Xzero{};
+    int         m_Yzero{};  /*!< Used to measure mouse drag direction. */
     int         m_FreqDigits;  /*!< Number of decimal digits in frequency strings. */
 
     QFont       m_Font;         /*!< Font used for plotter (system font) */
@@ -270,12 +269,12 @@ private:
     int         m_VdivDelta; /*!< Minimum distance in pixels between two vertical grid lines (horizontal division). */
     int         m_BandPlanHeight; /*!< Height in pixels of band plan (if enabled) */
 
-    quint32     m_LastSampleRate;
+    quint32     m_LastSampleRate{};
 
     QColor      m_FftColor, m_FftFillCol, m_PeakHoldColor;
-    bool        m_FftFill;
+    bool        m_FftFill{};
 
-    float       m_PeakDetection;
+    float       m_PeakDetection{};
     QMap<int,int>   m_Peaks;
 
     QList< QPair<QRect, qint64> >     m_Taglist;
