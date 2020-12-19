@@ -85,6 +85,7 @@ jobs:
         run: |
           brew update
           brew install --HEAD dylibbundler portaudio
+          rm /usr/local/bin/2to3
           brew install airspy boost gnuradio hackrf libbladerf librtlsdr uhd
 
           cd /tmp
