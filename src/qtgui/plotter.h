@@ -30,7 +30,7 @@ public:
     QSize sizeHint() const override;
 
     //void SetSdrInterface(CSdrInterface* ptr){m_pSdrInterface = ptr;}
-    void draw();		//call to draw new fft data onto screen plot
+    void draw(); //call to draw new fft data onto screen plot
     void setRunningState(bool running) { m_Running = running; }
     void setClickResolution(int clickres) { m_ClickResolution = clickres; }
     void setFilterClickResolution(int clickres) { m_FilterClickResolution = clickres; }
@@ -226,16 +226,16 @@ private:
     qint64      m_FreqPerDiv{};
     bool        m_CenterLineEnabled;  /*!< Distinguish center line. */
     bool        m_FilterBoxEnabled;   /*!< Draw filter box. */
-    bool        m_TooltipsEnabled{};    /*!< Tooltips enabled */
+    bool        m_TooltipsEnabled{};  /*!< Tooltips enabled */
     bool        m_BandPlanEnabled;    /*!< Show/hide band plan on spectrum */
     bool        m_BookmarksEnabled;   /*!< Show/hide bookmarks on spectrum */
     bool        m_InvertScrolling;
-    bool        m_DXCSpotsEnabled;   /*!< Show/hide DXC Spots on spectrum */
+    bool        m_DXCSpotsEnabled;    /*!< Show/hide DXC Spots on spectrum */
     int         m_DemodHiCutFreq;
     int         m_DemodLowCutFreq;
-    int         m_DemodFreqX{};		//screen coordinate x position
-    int         m_DemodHiCutFreqX{};	//screen coordinate x position
-    int         m_DemodLowCutFreqX{};	//screen coordinate x position
+    int         m_DemodFreqX{};       //screen coordinate x position
+    int         m_DemodHiCutFreqX{};  //screen coordinate x position
+    int         m_DemodLowCutFreqX{}; //screen coordinate x position
     int         m_CursorCaptureDelta;
     int         m_GrabPosition;
     int         m_Percent2DScreen;
@@ -264,7 +264,7 @@ private:
     int         m_Yzero{};  /*!< Used to measure mouse drag direction. */
     int         m_FreqDigits;  /*!< Number of decimal digits in frequency strings. */
 
-    QFont       m_Font;         /*!< Font used for plotter (system font) */
+    QFont       m_Font;      /*!< Font used for plotter (system font) */
     int         m_HdivDelta; /*!< Minimum distance in pixels between two horizontal grid lines (vertical division). */
     int         m_VdivDelta; /*!< Minimum distance in pixels between two vertical grid lines (horizontal division). */
     int         m_BandPlanHeight; /*!< Height in pixels of band plan (if enabled) */
