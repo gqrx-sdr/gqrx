@@ -232,6 +232,7 @@ The following people and organisations have contributed to gqrx:
 * Stefano Leucci
 * Sylvain Munaut
 * Tarmo Tanilsoo
+* Tomasz Lemiech
 * Timothy Reaves
 * Valentin Ochs
 * Vesa Solonen

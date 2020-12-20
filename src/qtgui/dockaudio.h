@@ -126,6 +126,11 @@ private:
     bool           autoSpan;     /*! Whether to allow mode-dependent auto span. */
 
     qint64         rx_freq;      /*! RX frequency used in filenames. */
+
+    void           recordToggleShortcut();
+    void           muteToggleShortcut();
+    void           increaseAudioGainShortcut();
+    void           decreaseAudioGainShortcut();
 };
 
 #endif // DOCKAUDIO_H

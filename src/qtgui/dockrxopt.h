@@ -128,6 +128,22 @@ private:
     void updateDemodOptPage(int demod);
     unsigned int filterIdxFromLoHi(int lo, int hi) const;
 
+    void modeOffShortcut();
+    void modeRawShortcut();
+    void modeAMShortcut();
+    void modeNFMShortcut();
+    void modeWFMmonoShortcut();
+    void modeWFMstereoShortcut();
+    void modeLSBShortcut();
+    void modeUSBShortcut();
+    void modeCWLShortcut();
+    void modeCWUShortcut();
+    void modeWFMoirtShortcut();
+    void modeAMsyncShortcut();
+    void filterNarrowShortcut();
+    void filterNormalShortcut();
+    void filterWideShortcut();
+
 signals:
     /** Signal emitted when receiver frequency has changed */
     void rxFreqChanged(qint64 freq_hz);

@@ -2230,6 +2230,15 @@ void MainWindow::on_actionRemoteProtocol_triggered()
 }
 
 /**
+ * Show kbd-shortcuts.txt in a dialog window.
+ */
+void MainWindow::on_actionKbdShortcuts_triggered()
+{
+    showSimpleTextFile(":/textfiles/kbd-shortcuts.txt",
+                       tr("Keyboard shortcuts"));
+}
+
+/**
  * Show simple text file in a window.
  */
 void MainWindow::showSimpleTextFile(const QString &resource_path,
