@@ -198,6 +198,7 @@ The following people and organisations have contributed to gqrx:
 * Elias Önal
 * Federico Fuga
 * Frank Brickle, AB2KT
+* Frank Werner-Krippendorf, HB9FXQ
 * Ganael Laplanche
 * Gisle Vanem
 * Göran Weinholt, SA6CJK
