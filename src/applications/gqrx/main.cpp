@@ -22,14 +22,11 @@
  */
 #include <QApplication>
 #include <QCommandLineParser>
-#include <QDebug>
-#include <QDesktopServices>
 #include <QDir>
 #include <QFile>
 #include <QMessageBox>
 #include <QString>
 #include <QStringList>
-#include <QStyleFactory>
 #include <QtGlobal>
 
 #ifdef WITH_PORTAUDIO
@@ -46,7 +43,7 @@
 #include <iostream>
 
 static void reset_conf(const QString &file_name);
-static void list_conf(void);
+static void list_conf();
 
 int main(int argc, char *argv[])
 {
@@ -98,7 +95,7 @@ int main(int argc, char *argv[])
     {
         QString message = QString("Portaudio error: %1").arg(Pa_GetErrorText(err));
         qCritical() << message;
-        QMessageBox::critical(0, "Audio Error", message,
+        QMessageBox::critical(nullptr, "Audio Error", message,
                               QMessageBox::Abort, QMessageBox::NoButton);
         return 1;
     }
@@ -151,7 +148,7 @@ int main(int argc, char *argv[])
         if (w.configOk)
         {
             w.show();
-            return_code = app.exec();
+            return_code = QApplication::exec();
         }
         else
         {
@@ -201,7 +198,7 @@ static void reset_conf(const QString &file_name)
 }
 
 /** List available configurations. */
-static void list_conf(void)
+static void list_conf()
 {
     QString     conf_path;
     QByteArray  xdg_dir = qgetenv("XDG_CONFIG_HOME");
