@@ -54,7 +54,7 @@ typedef std::shared_ptr<rx_fft_f> rx_fft_f_sptr;
  * of raw pointers, the rx_fft_c constructor is private.
  * make_rx_fft_c is the public interface for creating new instances.
  */
-rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize=4096, double quad_rate=0, int wintype=gr::filter::firdes::WIN_HAMMING);
+rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize=4096, double quad_rate=0, int wintype=gr::fft::window::WIN_HAMMING);
 
 
 /*! \brief Block for computing complex FFT.
@@ -74,7 +74,7 @@ class rx_fft_c : public gr::sync_block
     friend rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize, double quad_rate, int wintype);
 
 protected:
-    rx_fft_c(unsigned int fftsize=4096, double quad_rate=0, int wintype=gr::filter::firdes::WIN_HAMMING);
+    rx_fft_c(unsigned int fftsize=4096, double quad_rate=0, int wintype=gr::fft::window::WIN_HAMMING);
 
 public:
     ~rx_fft_c();
@@ -123,7 +123,7 @@ private:
  * of raw pointers, the rx_fft_f constructor is private.
  * make_rx_fft_f is the public interface for creating new instances.
  */
-rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize=1024, double audio_rate=48000, int wintype=gr::filter::firdes::WIN_HAMMING);
+rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize=1024, double audio_rate=48000, int wintype=gr::fft::window::WIN_HAMMING);
 
 
 /*! \brief Block for computing real FFT.
@@ -144,7 +144,7 @@ class rx_fft_f : public gr::sync_block
     friend rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize, double audio_rate, int wintype);
 
 protected:
-    rx_fft_f(unsigned int fftsize=1024, double audio_rate=48000, int wintype=gr::filter::firdes::WIN_HAMMING);
+    rx_fft_f(unsigned int fftsize=1024, double audio_rate=48000, int wintype=gr::fft::window::WIN_HAMMING);
 
 public:
     ~rx_fft_f();
