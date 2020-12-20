@@ -2391,7 +2391,7 @@ void MainWindow::on_actionAddBookmark_triggered()
         info.bandwidth = ui->plotter->getFilterBw();
         info.modulation = uiDockRxOpt->currentDemodAsString();
         info.name=name;
-        QStringList listTags = tags.split(",",Qt::SkipEmptyParts);
+        QStringList listTags = tags.split(",",QString::SkipEmptyParts);
         info.tags.clear();
         if (listTags.size() == 0)
             info.tags.append(&Bookmarks::Get().findOrAddTag(""));

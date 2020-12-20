@@ -115,7 +115,7 @@ void DXCOptions::readyToRead()
         else if(incomingMessage.contains("DX de", Qt::CaseInsensitive) &&
                 incomingMessage.contains(ui->lineEdit_DXCFilter->text()))
         {
-            spot = incomingMessage.split(" ", Qt::SkipEmptyParts);
+            spot = incomingMessage.split(" ", QString::SkipEmptyParts);
             if (spot.length() >= 5)
             {
                 info.name = spot[4].trimmed();

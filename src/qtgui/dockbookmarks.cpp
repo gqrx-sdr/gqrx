@@ -265,7 +265,7 @@ void DockBookmarks::changeBookmarkTags(int row, int /*column*/)
             // list of selected tags is now in string 'tags'.
 
             // Change Tags of Bookmark
-            QStringList listTags = tags.split(",",Qt::SkipEmptyParts);
+            QStringList listTags = tags.split(",",QString::SkipEmptyParts);
             bmi.tags.clear();
             if (listTags.size() == 0)
             {
