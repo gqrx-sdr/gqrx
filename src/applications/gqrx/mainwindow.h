@@ -56,11 +56,11 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent = 0);
-    ~MainWindow();
+    explicit MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent = nullptr);
+    ~MainWindow() override;
 
-    bool loadConfig(const QString cfgfile, bool check_crash, bool restore_mainwindow);
-    bool saveConfig(const QString cfgfile);
+    bool loadConfig(const QString& cfgfile, bool check_crash, bool restore_mainwindow);
+    bool saveConfig(const QString& cfgfile);
     void storeSession();
 
     bool configOk; /*!< Main app uses this flag to know whether we should abort or continue. */
@@ -78,8 +78,8 @@ private:
 
     qint64 d_lnb_lo;  /* LNB LO in Hz. */
     qint64 d_hw_freq;
-    qint64 d_hw_freq_start;
-    qint64 d_hw_freq_stop;
+    qint64 d_hw_freq_start{};
+    qint64 d_hw_freq_stop{};
 
     enum receiver::filter_shape d_filter_shape;
     std::complex<float>* d_fftData;
@@ -103,7 +103,7 @@ private:
 
     /* data decoders */
     Afsk1200Win    *dec_afsk1200;
-    bool            dec_rds;
+    bool            dec_rds{};
 
     QTimer   *dec_timer;
     QTimer   *meter_timer;
@@ -135,11 +135,11 @@ private slots:
 
     /* rf */
     void setLnbLo(double freq_mhz);
-    void setAntenna(const QString antenna);
+    void setAntenna(const QString& antenna);
 
     /* baseband receiver */
     void setFilterOffset(qint64 freq_hz);
-    void setGain(QString name, double gain);
+    void setGain(const QString& name, double gain);
     void setAutoGain(bool enabled);
     void setFreqCorr(double ppm);
     void setIqSwap(bool reversed);
@@ -148,7 +148,7 @@ private slots:
     void setIgnoreLimits(bool ignore_limits);
     void setFreqCtrlReset(bool enabled);
     void setInvertScrolling(bool enabled);
-    void selectDemod(QString demod);
+    void selectDemod(const QString& demod);
     void selectDemod(int index);
     void setFmMaxdev(float max_dev);
     void setFmEmph(double tau);
@@ -169,18 +169,18 @@ private slots:
     void setPassband(int bandwidth);
 
     /* audio recording and playback */
-    void startAudioRec(const QString filename);
+    void startAudioRec(const QString& filename);
     void stopAudioRec();
-    void startAudioPlayback(const QString filename);
+    void startAudioPlayback(const QString& filename);
     void stopAudioPlayback();
 
-    void startAudioStream(const QString udp_host, int udp_port, bool stereo);
+    void startAudioStream(const QString& udp_host, int udp_port, bool stereo);
     void stopAudioStreaming();
 
     /* I/Q playback and recording*/
-    void startIqRecording(const QString recdir);
+    void startIqRecording(const QString& recdir);
     void stopIqRecording();
-    void startIqPlayback(const QString filename, float samprate);
+    void startIqPlayback(const QString& filename, float samprate);
     void stopIqPlayback();
     void seekIqFile(qint64 seek_pos);
 
@@ -191,7 +191,7 @@ private slots:
     void setIqFftSplit(int pct_wf);
     void setIqFftAvg(float avg);
     void setAudioFftRate(int fps);
-    void setFftColor(const QColor color);
+    void setFftColor(const QColor& color);
     void setFftFill(bool enable);
     void setPeakDetection(bool enabled);
     void setFftPeakHold(bool enable);
@@ -206,7 +206,7 @@ private slots:
     void setRdsDecoder(bool checked);
 
     /* Bookmarks */
-    void onBookmarkActivated(qint64 freq, QString demod, int bandwidth);
+    void onBookmarkActivated(qint64 freq, const QString& demod, int bandwidth);
 
     /* DXC Spots */
     void updateClusterSpots();
