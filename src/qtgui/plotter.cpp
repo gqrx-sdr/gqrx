@@ -28,7 +28,6 @@
  * or implied, of Moe Wheatley.
  */
 #include <cmath>
-#include <math.h>
 #include <QColor>
 #include <QDateTime>
 #include <QDebug>
@@ -165,17 +164,16 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
 }
 
 CPlotter::~CPlotter()
-{
-}
+= default;
 
 QSize CPlotter::minimumSizeHint() const
 {
-    return QSize(50, 50);
+    return {50, 50};
 }
 
 QSize CPlotter::sizeHint() const
 {
-    return QSize(180, 180);
+    return {180, 180};
 }
 
 void CPlotter::mouseMoveEvent(QMouseEvent* event)
@@ -273,11 +271,11 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     QFontMetrics metrics(m_Font);
                     int bandTopY = (m_OverlayPixmap.height() / m_DPR) - metrics.height() - 2 * VER_MARGIN - m_BandPlanHeight;
                     QList<BandInfo> hoverBands = BandPlan::Get().getBandsEncompassing(hoverFrequency);
-                    if(m_BandPlanEnabled && pt.y() > bandTopY && hoverBands.size() > 0)
+                    if(m_BandPlanEnabled && pt.y() > bandTopY && !hoverBands.empty())
                     {
                         toolTipText.append("\n");
-                        for (int i = 0; i < hoverBands.size(); i++)
-                            toolTipText.append("\n" + hoverBands[i].name);
+                        for (auto & hoverBand : hoverBands)
+                            toolTipText.append("\n" + hoverBand.name);
                     }
                     QToolTip::showText(event->globalPos(), toolTipText, this);
                 }
@@ -585,11 +583,11 @@ bool CPlotter::saveWaterfall(const QString & filename) const
         painter.drawText(rect, Qt::AlignRight|Qt::AlignVCenter, tt.toString("hh:mm:ss"));
     }
 
-    return pixmap.save(filename, 0, -1);
+    return pixmap.save(filename, nullptr, -1);
 }
 
 /** Get waterfall time resolution in milleconds / line. */
-quint64 CPlotter::getWfTimeRes(void)
+quint64 CPlotter::getWfTimeRes() const
 {
     if (msec_per_wfline)
         return msec_per_wfline;
@@ -681,11 +679,11 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
         }
         else if (m_CursorCaptured == TAG)
         {
-            for (int i = 0; i < m_Taglist.size(); i++)
+            for (auto & i : m_Taglist)
             {
-                if (m_Taglist[i].first.contains(event->pos()))
+                if (i.first.contains(event->pos()))
                 {
-                    m_DemodCenterFreq = m_Taglist[i].second;
+                    m_DemodCenterFreq = i.second;
                     emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
                     break;
                 }
@@ -743,7 +741,7 @@ void CPlotter::zoomStepX(float step, int x)
         f_max = m_CenterFreq + m_SampleFreq / 2.f;
     new_range = f_max - f_min;
 
-    qint64 fc = (qint64)(f_min + (f_max - f_min) / 2.0);
+    auto fc = (qint64)(f_min + (f_max - f_min) / 2.0);
 
     setFftCenterFreq(fc - m_CenterFreq);
     setSpanFreq((quint32)new_range);
@@ -779,7 +777,7 @@ void CPlotter::wheelEvent(QWheelEvent * event)
         float zoom_fac = delta < 0 ? 1.1 : 0.9;
         float ratio = (float)pt.y() / (float)(m_OverlayPixmap.height() / m_DPR);
         float db_range = m_PandMaxdB - m_PandMindB;
-        float y_range = (float)(m_OverlayPixmap.height() / m_DPR);
+        auto y_range = (float)(m_OverlayPixmap.height() / m_DPR);
         float db_per_pix = db_range / y_range;
         float fixed_db = m_PandMaxdB - pt.y() * db_per_pix;
 
@@ -1110,7 +1108,7 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
                                        float maxdB, float mindB,
                                        qint64 startFreq, qint64 stopFreq,
                                        float *inBuf, qint32 *outBuf,
-                                       int *xmin, int *xmax)
+                                       int *xmin, int *xmax) const
 {
     qint32 i;
     qint32 y;
@@ -1122,7 +1120,7 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
     qint32 m_FFTSize = m_fftDataSize;
     float *m_pFFTAveBuf = inBuf;
     float  dBGainFactor = ((float)plotHeight) / fabs(maxdB - mindB);
-    qint32* m_pTranslateTbl = new qint32[qMax(m_FFTSize, plotWidth)];
+    auto* m_pTranslateTbl = new qint32[qMax(m_FFTSize, plotWidth)];
 
     /** FIXME: qint64 -> qint32 **/
     m_BinMin = (qint32)((float)startFreq * (float)m_FFTSize / m_SampleFreq);
@@ -1302,10 +1300,10 @@ void CPlotter::drawOverlay()
             std::stable_sort(tags.begin(),tags.end());
         }
         QVector<int> tagEnd(nLevels + 1);
-        for (int i = 0; i < tags.size(); i++)
+        for (auto & tag : tags)
         {
-            x = xFromFreq(tags[i].frequency);
-            int nameWidth = fm.boundingRect(tags[i].name).width();
+            x = xFromFreq(tag.frequency);
+            int nameWidth = fm.boundingRect(tag.name).width();
 
             int level = 0;
             while(level < nLevels && tagEnd[level] > x)
@@ -1324,9 +1322,9 @@ void CPlotter::drawOverlay()
             const auto levelNHeightBottom = levelNHeight + fontHeight;
             const auto levelNHeightBottomSlant = levelNHeightBottom + slant;
 
-            m_Taglist.append(qMakePair<QRect, qint64>(QRect(x, levelNHeight, nameWidth + slant, fontHeight), tags[i].frequency));
+            m_Taglist.append(qMakePair<QRect, qint64>(QRect(x, levelNHeight, nameWidth + slant, fontHeight), tag.frequency));
 
-            QColor color = QColor(tags[i].GetColor());
+            QColor color = QColor(tag.GetColor());
             color.setAlpha(0x60);
             // Vertical line
             painter.setPen(QPen(color, 1, Qt::DashLine));
@@ -1345,7 +1343,7 @@ void CPlotter::drawOverlay()
             painter.setPen(QPen(color, 2, Qt::SolidLine));
             painter.drawText(x + slant, levelNHeight, nameWidth,
                              fontHeight, Qt::AlignVCenter | Qt::AlignHCenter,
-                             tags[i].name);
+                             tag.name);
         }
     }
 
@@ -1354,14 +1352,14 @@ void CPlotter::drawOverlay()
         QList<BandInfo> bands = BandPlan::Get().getBandsInRange(m_CenterFreq + m_FftCenter - m_Span / 2,
                                                                 m_CenterFreq + m_FftCenter + m_Span / 2);
 
-        for (int i = 0; i < bands.size(); i++)
+        for (auto & band : bands)
         {
-            int band_left = xFromFreq(bands[i].minFrequency);
-            int band_right = xFromFreq(bands[i].maxFrequency);
+            int band_left = xFromFreq(band.minFrequency);
+            int band_right = xFromFreq(band.maxFrequency);
             int band_width = band_right - band_left;
             rect.setRect(band_left, xAxisTop - m_BandPlanHeight, band_width, m_BandPlanHeight);
-            painter.fillRect(rect, bands[i].color);
-            QString band_label = bands[i].name + " (" + bands[i].modulation + ")";
+            painter.fillRect(rect, band.color);
+            QString band_label = band.name + " (" + band.modulation + ")";
             int textWidth = metrics.boundingRect(band_label).width();
             if (band_left < w && band_width > textWidth + 20)
             {
@@ -1499,7 +1497,7 @@ void CPlotter::makeFrequencyStrs()
     if ((1 == m_FreqUnits) || (m_FreqDigits == 0))
     {
         // if units is Hz then just output integer freq
-        for (int i = 0; i <= m_HorDivs; i++)
+        for (i = 0; i <= m_HorDivs; i++)
         {
             freq = (float)StartFreq/(float)m_FreqUnits;
             m_HDivText[i].setNum((int)freq);
@@ -1509,7 +1507,7 @@ void CPlotter::makeFrequencyStrs()
     }
     // here if is fractional frequency values
     // so create max sized text based on frequency units
-    for (int i = 0; i <= m_HorDivs; i++)
+    for (i = 0; i <= m_HorDivs; i++)
     {
         freq = (float)StartFreq / (float)m_FreqUnits;
         m_HDivText[i].setNum(freq,'f', m_FreqDigits);
@@ -1647,7 +1645,7 @@ void CPlotter::resetHorizontalZoom(void)
 }
 
 /** Center FFT plot around 0 (corresponds to center freq). */
-void CPlotter::moveToCenterFreq(void)
+void CPlotter::moveToCenterFreq()
 {
     setFftCenterFreq(0);
     updateOverlay();
@@ -1655,7 +1653,7 @@ void CPlotter::moveToCenterFreq(void)
 }
 
 /** Center FFT plot around the demodulator frequency. */
-void CPlotter::moveToDemodFreq(void)
+void CPlotter::moveToDemodFreq()
 {
     setFftCenterFreq(m_DemodCenterFreq-m_CenterFreq);
     updateOverlay();
@@ -1664,7 +1662,7 @@ void CPlotter::moveToDemodFreq(void)
 }
 
 /** Set FFT plot color. */
-void CPlotter::setFftPlotColor(const QColor color)
+void CPlotter::setFftPlotColor(const QColor& color)
 {
     m_FftColor = color;
     m_FftFillCol = color;
@@ -2159,7 +2157,7 @@ void CPlotter::setWfColormap(const QString &cmap)
         // contributed by @drmpeg @devnulling
         // for use with high quality spectrum paining
         // see https://gist.github.com/drmpeg/31a9a7dd6918856aeb60
-        for (int i = 0; i < 256; i++)
+        for (i = 0; i < 256; i++)
         {
             if (i < 64)
             {

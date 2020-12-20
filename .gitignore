@@ -5,3 +5,6 @@
 /AppDir/
 /Gqrx.app/
 /version.txt
+.idea/
+cmake-build*/
+
