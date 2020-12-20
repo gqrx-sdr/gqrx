@@ -36,7 +36,7 @@ rx_fft_c_sptr make_rx_fft_c (unsigned int fftsize, double quad_rate, int wintype
 
 /*! \brief Create receiver FFT object.
  *  \param fftsize The FFT size.
- *  \param wintype The window type (see gr::filter::firdes::win_type).
+ *  \param wintype The window type (see gr::fft::window::win_type).
  *
  */
 rx_fft_c::rx_fft_c(unsigned int fftsize, double quad_rate, int wintype)
@@ -212,13 +212,13 @@ void rx_fft_c::set_window_type(int wintype)
 
     d_wintype = wintype;
 
-    if ((d_wintype < gr::filter::firdes::WIN_HAMMING) || (d_wintype > gr::filter::firdes::WIN_FLATTOP))
+    if ((d_wintype < gr::fft::window::WIN_HAMMING) || (d_wintype > gr::fft::window::WIN_FLATTOP))
     {
-        d_wintype = gr::filter::firdes::WIN_HAMMING;
+        d_wintype = gr::fft::window::WIN_HAMMING;
     }
 
     d_window.clear();
-    d_window = gr::filter::firdes::window((gr::filter::firdes::win_type)d_wintype, d_fftsize, 6.76);
+    d_window = gr::fft::window::build((gr::fft::window::win_type)d_wintype, d_fftsize, 6.76);
 }
 
 /*! \brief Get currently used window type. */
@@ -237,7 +237,7 @@ rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize, double audio_rate, int wintype
 
 /*! \brief Create receiver FFT object.
  *  \param fftsize The FFT size.
- *  \param wintype The window type (see gr::filter::firdes::win_type).
+ *  \param wintype The window type (see gr::fft::window::win_type).
  *
  */
 rx_fft_f::rx_fft_f(unsigned int fftsize, double audio_rate, int wintype)
@@ -399,13 +399,13 @@ void rx_fft_f::set_window_type(int wintype)
 
     d_wintype = wintype;
 
-    if ((d_wintype < gr::filter::firdes::WIN_HAMMING) || (d_wintype > gr::filter::firdes::WIN_FLATTOP))
+    if ((d_wintype < gr::fft::window::WIN_HAMMING) || (d_wintype > gr::fft::window::WIN_FLATTOP))
     {
-        d_wintype = gr::filter::firdes::WIN_HAMMING;
+        d_wintype = gr::fft::window::WIN_HAMMING;
     }
 
     d_window.clear();
-    d_window = gr::filter::firdes::window((gr::filter::firdes::win_type)d_wintype, d_fftsize, 6.76);
+    d_window = gr::fft::window::build((gr::fft::window::win_type)d_wintype, d_fftsize, 6.76);
 }
 
 /*! \brief Get currently used window type. */
