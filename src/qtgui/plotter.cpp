@@ -679,11 +679,11 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
         }
         else if (m_CursorCaptured == TAG)
         {
-            for (auto & i : m_Taglist)
+            for (auto & tag : m_Taglist)
             {
-                if (i.first.contains(event->pos()))
+                if (tag.first.contains(event->pos()))
                 {
-                    m_DemodCenterFreq = i.second;
+                    m_DemodCenterFreq = tag.second;
                     emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
                     break;
                 }
