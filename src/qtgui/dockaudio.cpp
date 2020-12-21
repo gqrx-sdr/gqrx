@@ -219,14 +219,17 @@ void DockAudio::on_audioRecButton_clicked(bool checked)
         // use toUTC() function compatible with older versions of Qt.
         QString file_name = QDateTime::currentDateTime().toUTC().toString("gqrx_yyyyMMdd_hhmmss");
         last_audio = QString("%1/%2_%3.wav").arg(rec_dir).arg(file_name).arg(rx_freq);
+        QFileInfo info(last_audio);
 
         // emit signal and start timer
         emit audioRecStarted(last_audio);
 
+        ui->audioRecLabel->setText(info.fileName());
         ui->audioRecButton->setToolTip(tr("Stop audio recorder"));
         ui->audioPlayButton->setEnabled(false); /* prevent playback while recording */
     }
     else {
+        ui->audioRecLabel->setText("<i>DSP</i>");
         ui->audioRecButton->setToolTip(tr("Start audio recorder"));
         emit audioRecStopped();
 
