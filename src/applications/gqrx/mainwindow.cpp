@@ -806,8 +806,8 @@ void MainWindow::updateHWFrequencyRange(bool ignore_limits)
  */
 void MainWindow::updateFrequencyRange()
 {
-    qint64 start = (qint64)(rx->get_filter_offset()) + d_hw_freq_start + d_lnb_lo;
-    qint64 stop  = (qint64)(rx->get_filter_offset()) + d_hw_freq_stop  + d_lnb_lo;
+    auto start = (qint64)(rx->get_filter_offset()) + d_hw_freq_start + d_lnb_lo;
+    auto stop  = (qint64)(rx->get_filter_offset()) + d_hw_freq_stop  + d_lnb_lo;
 
     ui->freqCtrl->setup(0, start, stop, 1, FCTL_UNIT_NONE);
     uiDockRxOpt->setRxFreqRange(start, stop);
@@ -857,8 +857,8 @@ void MainWindow::updateGainStages(bool read_from_device)
  */
 void MainWindow::setNewFrequency(qint64 rx_freq)
 {
-    double hw_freq = (double)(rx_freq - d_lnb_lo) - rx->get_filter_offset();
-    qint64 center_freq = rx_freq - (qint64)rx->get_filter_offset();
+    auto hw_freq = (double)(rx_freq - d_lnb_lo) - rx->get_filter_offset();
+    auto center_freq = rx_freq - (qint64)rx->get_filter_offset();
 
     d_hw_freq = (qint64)hw_freq;
 
@@ -879,7 +879,7 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
 void MainWindow::setLnbLo(double freq_mhz)
 {
     // calculate current RF frequency
-    qint64 rf_freq = ui->freqCtrl->getFrequency() - d_lnb_lo;
+    auto rf_freq = ui->freqCtrl->getFrequency() - d_lnb_lo;
 
     d_lnb_lo = qint64(freq_mhz*1e6);
     qDebug() << "New LNB LO:" << d_lnb_lo << "Hz";
@@ -914,7 +914,7 @@ void MainWindow::setFilterOffset(qint64 freq_hz)
 
     updateFrequencyRange();
 
-    qint64 rx_freq = d_hw_freq + d_lnb_lo + freq_hz;
+    auto rx_freq = d_hw_freq + d_lnb_lo + freq_hz;
     ui->freqCtrl->setFrequency(rx_freq);
 
     if (rx->is_rds_decoder_active()) {
@@ -1548,8 +1548,8 @@ void MainWindow::startIqRecording(const QString& recdir)
     // gqrx_iq_yyyymmdd_hhmmss_freq_bw_fc.raw
     auto freq = (qint64)(rx->get_rf_freq());
     auto sr = (qint64)(rx->get_input_rate());
-    qint32 dec = (quint32)(rx->get_input_decim());
-    QString lastRec = QDateTime::currentDateTimeUtc().
+    auto dec = (quint32)(rx->get_input_decim());
+    auto lastRec = QDateTime::currentDateTimeUtc().
             toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.'raw'")
             .arg(recdir).arg(freq).arg(sr/dec);
 
@@ -1595,8 +1595,8 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate)
 
     storeSession();
 
-    int sri = (int)samprate;
-    QString devstr = QString("file='%1',rate=%2,throttle=true,repeat=false")
+    auto sri = (int)samprate;
+    auto devstr = QString("file='%1',rate=%2,throttle=true,repeat=false")
             .arg(filename).arg(sri);
 
     qDebug() << __func__ << ":" << devstr;
@@ -1604,7 +1604,7 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate)
     rx->set_input_device(devstr.toStdString());
 
     // sample rate
-    double actual_rate = rx->set_input_rate(samprate);
+    auto actual_rate = rx->set_input_rate(samprate);
     qDebug() << "Requested sample rate:" << samprate;
     qDebug() << "Actual sample rate   :" << QString("%1")
                 .arg(actual_rate, 0, 'f', 6);
@@ -1631,15 +1631,15 @@ void MainWindow::stopIqPlayback()
     ui->statusBar->showMessage(tr("I/Q playback stopped"), 5000);
 
     // restore original input device
-    QString indev = m_settings->value("input/device", "").toString();
+    auto indev = m_settings->value("input/device", "").toString();
     rx->set_input_device(indev.toStdString());
 
     // restore sample rate
     bool conv_ok;
-    int sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
+    auto sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
     if (conv_ok && (sr > 0))
     {
-        double actual_rate = rx->set_input_rate(sr);
+        auto actual_rate = rx->set_input_rate(sr);
         qDebug() << "Requested sample rate:" << sr;
         qDebug() << "Actual sample rate   :" << QString("%1")
                     .arg(actual_rate, 0, 'f', 6);
@@ -1744,7 +1744,7 @@ void MainWindow::setIqFftAvg(float avg)
 /** Audio FFT rate has changed. */
 void MainWindow::setAudioFftRate(int fps)
 {
-    int interval = 1000 / fps;
+    auto interval = 1000 / fps;
 
     if (interval < 10)
         return;
@@ -1849,7 +1849,7 @@ int MainWindow::on_actionIoConfig_triggered()
     qDebug() << "Configure I/O devices.";
 
     auto *ioconf = new CIoConfig(m_settings, devList);
-    int confres = ioconf->exec();
+    auto confres = ioconf->exec();
 
     if (confres == QDialog::Accepted)
     {
@@ -1879,7 +1879,7 @@ int MainWindow::firstTimeConfig()
     qDebug() << __func__;
 
     auto *ioconf = new CIoConfig(m_settings, devList);
-    int confres = ioconf->exec();
+    auto confres = ioconf->exec();
 
     if (confres == QDialog::Accepted)
         loadConfig(m_settings->fileName(), false, false);
@@ -1893,8 +1893,7 @@ int MainWindow::firstTimeConfig()
 /** Load configuration activated by user. */
 void MainWindow::on_actionLoadSettings_triggered()
 {
-    QString cfgfile;
-    cfgfile = QFileDialog::getOpenFileName(this, tr("Load settings"),
+    auto cfgfile = QFileDialog::getOpenFileName(this, tr("Load settings"),
                                            m_last_dir.isEmpty() ? m_cfg_dir : m_last_dir,
                                            tr("Settings (*.conf)"));
 
@@ -1917,8 +1916,7 @@ void MainWindow::on_actionLoadSettings_triggered()
 /** Save configuration activated by user. */
 void MainWindow::on_actionSaveSettings_triggered()
 {
-    QString cfgfile;
-    cfgfile = QFileDialog::getSaveFileName(this, tr("Save settings"),
+    auto cfgfile = QFileDialog::getSaveFileName(this, tr("Save settings"),
                                            m_last_dir.isEmpty() ? m_cfg_dir : m_last_dir,
                                            tr("Settings (*.conf)"));
 
@@ -1942,16 +1940,14 @@ void MainWindow::on_actionSaveSettings_triggered()
 void MainWindow::on_actionSaveWaterfall_triggered()
 {
     QDateTime   dt(QDateTime::currentDateTimeUtc());
-    QString     wffile;
-    QString     save_path;
 
     // previously used location
-    save_path = m_settings->value("wf_save_dir", "").toString();
+    auto save_path = m_settings->value("wf_save_dir", "").toString();
     if (!save_path.isEmpty())
         save_path += "/";
     save_path += dt.toString("gqrx_wf_yyyyMMdd_hhmmss.png");
 
-    wffile = QFileDialog::getSaveFileName(this, tr("Save waterfall"),
+    auto wffile = QFileDialog::getSaveFileName(this, tr("Save waterfall"),
                                           save_path, nullptr);
     if (wffile.isEmpty())
         return;
@@ -1991,11 +1987,8 @@ void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
 
 /* CPlotter::NewfilterFreq() is emitted or bookmark activated */
 void MainWindow::on_plotter_newFilterFreq(int low, int high)
-{
-    receiver::status retcode;
-
-    /* parameter correctness will be checked in receiver class */
-    retcode = rx->set_filter((double) low, (double) high, d_filter_shape);
+{   /* parameter correctness will be checked in receiver class */
+    receiver::status retcode = rx->set_filter((double) low, (double) high, d_filter_shape);
 
     /* Update filter range of plotter, in case this slot is triggered by
      * switching to a bookmark */
@@ -2148,8 +2141,8 @@ void MainWindow::onBookmarkActivated(qint64 freq, const QString& demod, int band
     selectDemod(demod);
 
     /* Check if filter is symmetric or not by checking the presets */
-    int mode = uiDockRxOpt->currentDemod();
-    int preset = uiDockRxOpt->currentFilter();
+    auto mode = uiDockRxOpt->currentDemod();
+    auto preset = uiDockRxOpt->currentFilter();
 
     int lo, hi;
     uiDockRxOpt->getFilterPreset(mode, preset, &lo, &hi);
@@ -2174,8 +2167,8 @@ void MainWindow::onBookmarkActivated(qint64 freq, const QString& demod, int band
 void MainWindow::setPassband(int bandwidth)
 {
     /* Check if filter is symmetric or not by checking the presets */
-    int mode = uiDockRxOpt->currentDemod();
-    int preset = uiDockRxOpt->currentFilter();
+    auto mode = uiDockRxOpt->currentDemod();
+    auto preset = uiDockRxOpt->currentFilter();
 
     int lo, hi;
     uiDockRxOpt->getFilterPreset(mode, preset, &lo, &hi);
@@ -2202,7 +2195,7 @@ void MainWindow::setPassband(int bandwidth)
 /** Launch Gqrx google group website. */
 void MainWindow::on_actionUserGroup_triggered()
 {
-    bool res = QDesktopServices::openUrl(QUrl("https://groups.google.com/forum/#!forum/gqrx",
+    auto res = QDesktopServices::openUrl(QUrl("https://groups.google.com/forum/#!forum/gqrx",
                                               QUrl::TolerantMode));
     if (!res)
         QMessageBox::warning(this, tr("Error"),
@@ -2255,7 +2248,7 @@ void MainWindow::showSimpleTextFile(const QString &resource_path,
     }
 
     QTextStream in(&news);
-    QString content = in.readAll();
+    auto content = in.readAll();
     news.close();
 
     auto *browser = new QTextBrowser();
@@ -2265,7 +2258,7 @@ void MainWindow::showSimpleTextFile(const QString &resource_path,
     browser->adjustSize();
 
     // scroll to the beginning
-    QTextCursor cursor = browser->textCursor();
+    auto cursor = browser->textCursor();
     cursor.setPosition(0);
     browser->setTextCursor(cursor);
 
@@ -2390,7 +2383,7 @@ void MainWindow::on_actionAddBookmark_triggered()
         info.bandwidth = ui->plotter->getFilterBw();
         info.modulation = uiDockRxOpt->currentDemodAsString();
         info.name=name;
-        QStringList listTags = tags.split(",",QString::SkipEmptyParts);
+        auto listTags = tags.split(",",QString::SkipEmptyParts);
         info.tags.clear();
         if (listTags.empty())
             info.tags.append(&Bookmarks::Get().findOrAddTag(""));
