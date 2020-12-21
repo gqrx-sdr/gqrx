@@ -477,9 +477,7 @@ void receiver::set_dc_cancel(bool enable)
 
     // until we have a way to switch on/off
     // inside the dc_corr_cc we do a reconf
-    rx_demod demod = d_demod;
-    d_demod = RX_DEMOD_OFF;
-    set_demod(demod);
+    set_demod(d_demod, true);
 }
 
 /**
@@ -840,11 +838,11 @@ receiver::status receiver::set_agc_manual_gain(int gain)
     return STATUS_OK; // FIXME
 }
 
-receiver::status receiver::set_demod(rx_demod demod)
+receiver::status receiver::set_demod(rx_demod demod, bool force)
 {
     status ret = STATUS_OK;
 
-    if (demod == d_demod)
+    if (!force && (demod == d_demod))
         return ret;
 
     // tb->lock() seems to hang occasioanlly

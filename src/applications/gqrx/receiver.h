@@ -186,7 +186,7 @@ public:
     status      set_agc_decay(int decay_ms);
     status      set_agc_manual_gain(int gain);
 
-    status      set_demod(rx_demod demod);
+    status      set_demod(rx_demod demod, bool force=false);
 
     /* FM parameters */
     status      set_fm_maxdev(float maxdev_hz);

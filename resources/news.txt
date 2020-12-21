@@ -4,6 +4,7 @@
        NEW: Many more keyboard shortcuts.
        NEW: Display filename when recording audio.
      FIXED: Audio output doesn't work on MacOS Big Sur.
+     FIXED: DC remove button doesn't work when Demod Off mode is selected.
 
 
     2.14.3: Released December 9, 2020
