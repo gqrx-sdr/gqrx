@@ -265,6 +265,10 @@ void DockRxOpt::setFilterParam(int lo, int hi)
         width_f = fabs((hi-lo)/1000.f);
         ui->filterCombo->setItemText(FILTER_PRESET_USER, QString("User (%1 k)")
                                      .arg(width_f));
+
+        int mode_index = ui->modeSelector->currentIndex();
+        filter_preset_table[mode_index][FILTER_PRESET_USER][0] = lo;
+        filter_preset_table[mode_index][FILTER_PRESET_USER][1] = hi;
     }
 }
 
