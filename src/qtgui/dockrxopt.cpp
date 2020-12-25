@@ -370,7 +370,7 @@ void DockRxOpt::getFilterPreset(int mode, int preset, int * lo, int * hi) const
         qDebug() << __func__ << ": Invalid mode:" << mode;
         mode = MODE_AM;
     }
-    else if (preset < 0 || preset > 3)
+    if (preset < 0 || preset > 3)
     {
         qDebug() << __func__ << ": Invalid preset:" << preset;
         preset = FILTER_PRESET_NORMAL;
