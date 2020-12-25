@@ -604,10 +604,23 @@ void DockRxOpt::on_filterCombo_activated(int index)
  * Note that the modes listed in the selector are different from those defined by
  * receiver::demod (we want to list LSB/USB separately but they have identical demods).
  */
-void DockRxOpt::on_modeSelector_activated(int index)
+void DockRxOpt::on_modeSelector_activated(int mode_index)
 {
-    updateDemodOptPage(index);
-    emit demodSelected(index);
+    updateDemodOptPage(mode_index);
+
+    // Update the text on the filter selector if using the User preset,
+    // as each mode has a different User filter width
+    auto filter_index =  ui->filterCombo->currentIndex();
+    if (filter_index == FILTER_PRESET_USER)
+    {
+        int hi = filter_preset_table[mode_index][FILTER_PRESET_USER][0];
+        int lo = filter_preset_table[mode_index][FILTER_PRESET_USER][1];
+        float width_f = fabs((hi-lo)/1000.f);
+        ui->filterCombo->setItemText(FILTER_PRESET_USER, QString("User (%1 k)")
+                                     .arg(width_f));
+    }
+
+    emit demodSelected(mode_index);
 }
 
 void DockRxOpt::updateDemodOptPage(int demod)
