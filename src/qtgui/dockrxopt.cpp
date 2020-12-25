@@ -606,8 +606,6 @@ void DockRxOpt::on_filterCombo_activated(int index)
  */
 void DockRxOpt::on_modeSelector_activated(int mode_index)
 {
-    updateDemodOptPage(mode_index);
-
     // Update the text on the filter selector if using the User preset,
     // as each mode has a different User filter width
     auto filter_index =  ui->filterCombo->currentIndex();
@@ -620,6 +618,7 @@ void DockRxOpt::on_modeSelector_activated(int mode_index)
                                      .arg(width_f));
     }
 
+    updateDemodOptPage(mode_index);
     emit demodSelected(mode_index);
 }
 
