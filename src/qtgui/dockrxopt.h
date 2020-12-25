@@ -246,8 +246,6 @@ private:
     CNbOptions    *nbOpt;     /** Noise blanker options. */
 
     bool agc_is_on;
-    int user_filter_lo = 0;
-    int user_filter_hi = 0;
 
     qint64 hw_freq_hz;   /** Current PLL frequency in Hz. */
 };

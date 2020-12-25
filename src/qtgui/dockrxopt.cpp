@@ -31,20 +31,20 @@
 QStringList DockRxOpt::ModulationStrings;
 
 // Filter preset table per mode, preset and lo/hi
-static const int filter_preset_table[DockRxOpt::MODE_LAST][3][2] =
-{   //     WIDE             NORMAL            NARROW
-    {{      0,      0}, {     0,     0}, {     0,     0}},  // MODE_OFF
-    {{ -15000,  15000}, { -5000,  5000}, { -1000,  1000}},  // MODE_RAW
-    {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}},  // MODE_AM
-    {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}},  // MODE_NFM
-    {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}},  // MODE_WFM_MONO
-    {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}},  // MODE_WFM_STEREO
-    {{  -4000,   -100}, { -2800,  -100}, { -2400,  -300}},  // MODE_LSB
-    {{    100,   4000}, {   100,  2800}, {   300,  2400}},  // MODE_USB
-    {{  -1000,   1000}, {  -250,   250}, {  -100,   100}},  // MODE_CWL
-    {{  -1000,   1000}, {  -250,   250}, {  -100,   100}},  // MODE_CWU
-    {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}},  // MODE_WFM_STEREO_OIRT
-    {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}}   // MODE_AMSYNC
+int filter_preset_table[DockRxOpt::MODE_LAST][4][2] =
+{   //     WIDE             NORMAL            NARROW            USER
+    {{      0,      0}, {     0,     0}, {     0,     0}, {     0,     0}},  // MODE_OFF
+    {{ -15000,  15000}, { -5000,  5000}, { -1000,  1000}, { -5000,  5000}},  // MODE_RAW
+    {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}, { -5000,  5000}},  // MODE_AM
+    {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}, { -5000,  5000}},  // MODE_NFM
+    {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}, {-80000, 80000}},  // MODE_WFM_MONO
+    {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}, {-80000, 80000}},  // MODE_WFM_STEREO
+    {{  -4000,   -100}, { -2800,  -100}, { -2400,  -300}, { -2800,  -100}},  // MODE_LSB
+    {{    100,   4000}, {   100,  2800}, {   300,  2400}, {   100,  2800}},  // MODE_USB
+    {{  -1000,   1000}, {  -250,   250}, {  -100,   100}, {  -250,   250}},  // MODE_CWL
+    {{  -1000,   1000}, {  -250,   250}, {  -100,   100}, {  -250,   250}},  // MODE_CWU
+    {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}, {-80000, 80000}},  // MODE_WFM_STEREO_OIRT
+    {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}, { -5000,  5000}}   // MODE_AMSYNC
 };
 
 DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
@@ -265,10 +265,6 @@ void DockRxOpt::setFilterParam(int lo, int hi)
         width_f = fabs((hi-lo)/1000.f);
         ui->filterCombo->setItemText(FILTER_PRESET_USER, QString("User (%1 k)")
                                      .arg(width_f));
-
-        // Save user filter settings 
-        user_filter_lo = lo;
-        user_filter_hi = hi;
     }
 }
 
@@ -375,15 +371,9 @@ void DockRxOpt::getFilterPreset(int mode, int preset, int * lo, int * hi) const
         qDebug() << __func__ << ": Invalid preset:" << preset;
         preset = FILTER_PRESET_NORMAL;
     }
-    else if (preset == 3)
-    {
-        *lo = user_filter_lo;
-        *hi = user_filter_hi;
-    }
-    else {
-        *lo = filter_preset_table[mode][preset][0];
-        *hi = filter_preset_table[mode][preset][1];
-    }
+    
+    *lo = filter_preset_table[mode][preset][0];
+    *hi = filter_preset_table[mode][preset][1];
 }
 
 int DockRxOpt::getCwOffset() const
