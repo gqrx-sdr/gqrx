@@ -209,6 +209,7 @@ The following people and organisations have contributed to gqrx:
 * Jiří Pinkava
 * Josh Blum
 * Kate Adams
+* Kenji Rikitake, JJ1BDX
 * Kitware Inc.
 * Konrad Beckmann
 * luzpaz
