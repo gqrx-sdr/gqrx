@@ -113,7 +113,7 @@ jobs:
         run: mkdir build && cd build && cmake ..
       - name: Compile
         working-directory: build
-        run: LIBRARY_PATH=/usr/local/opt/icu4c/lib make
+        run: make
       - name: Build DMG
         run: ./macos_bundle.sh
       - name: Save artifact
