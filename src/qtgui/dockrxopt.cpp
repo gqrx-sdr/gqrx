@@ -262,9 +262,11 @@ void DockRxOpt::setFilterParam(int lo, int hi)
     if (filter_index == FILTER_PRESET_USER)
     {
         float width_f;
+        glo = lo;
+        ghi = hi;
         width_f = fabs((hi-lo)/1000.f);
-        ui->filterCombo->setItemText(FILTER_PRESET_USER, QString("User (%1 k)")
-                                     .arg(width_f));
+        ui->filterCombo->setItemText(FILTER_PRESET_USER, QString("User (%1 k)").arg(width_f));
+        qobject_cast<QStandardItemModel*>(ui->filterCombo->model())->item(3)->setEnabled(true);
     }
 }
 
@@ -366,13 +368,22 @@ void DockRxOpt::getFilterPreset(int mode, int preset, int * lo, int * hi) const
         qDebug() << __func__ << ": Invalid mode:" << mode;
         mode = MODE_AM;
     }
-    else if (preset < 0 || preset > 2)
+    else if (preset < 0 || preset > 3)
     {
         qDebug() << __func__ << ": Invalid preset:" << preset;
         preset = FILTER_PRESET_NORMAL;
     }
+
+    if (preset == 3)
+    {
+    *lo = glo;
+    *hi = ghi;
+    }
+    else
+    {
     *lo = filter_preset_table[mode][preset][0];
     *hi = filter_preset_table[mode][preset][1];
+    }
 }
 
 int DockRxOpt::getCwOffset() const
