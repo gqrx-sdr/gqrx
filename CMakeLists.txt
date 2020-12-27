@@ -107,6 +107,15 @@ if(APPLE AND EXISTS /usr/local/opt/qt5)
     list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/qt5")
 endif()
 
+if(APPLE AND EXISTS /usr/local/opt/icu4c/lib)
+    # With Homebrew icu4c, `-licudata -licui18n -licuuc`
+    # are required, which reside in /usr/local/opt/icu4c/lib.
+    # See src/CMakeFiles/gqrx.dir/link.txt in the build directory.
+    set(ICU4C_LIBRARY_DIRS "/usr/local/opt/icu4c/lib")
+else()
+    set(ICU4C_LIBRARY_DIRS "")
+endif()
+
 # 3rd Party Dependency Stuff
 find_package(Qt5 COMPONENTS Core Network Widgets Svg REQUIRED)
 find_package(Gnuradio-osmosdr REQUIRED)
@@ -242,6 +251,7 @@ include_directories(
 link_directories(
     ${Boost_LIBRARY_DIRS}
     ${GNURADIO_RUNTIME_LIBRARY_DIRS}
+    ${ICU4C_LIBRARY_DIRS}
 )
 
 
