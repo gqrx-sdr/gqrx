@@ -61,26 +61,26 @@ stereo_demod::stereo_demod(float input_rate, float audio_rate, bool stereo, bool
 
   if (d_stereo)
   {
-    lpf1 = make_lpf_ff(d_input_rate, cutof_freq, 2e3); // FIXME
+    lpf1 = make_lpf_ff(d_input_rate, cutof_freq, 2e3, -2.1); // FIXME
     audio_rr1 = make_resampler_ff(d_audio_rate/d_input_rate);
     deemph1 = make_fm_deemph(d_audio_rate, 50.0e-6);
 
     if (!d_oirt)
     {
         d_tone_taps = gr::filter::firdes::complex_band_pass(
-                                       1.0,          // gain,
+                                       20.0,         // gain,
 		                                   d_input_rate, // sampling_freq
-                                       18800.,       // low_cutoff_freq
-                                       19200.,       // high_cutoff_freq
-                                       300.);        // transition_width
+                                       18980.,       // low_cutoff_freq
+                                       19020.,       // high_cutoff_freq
+                                       1000.);       // transition_width
         pll = gr::analog::pll_refout_cc::make(0.001,    // loop_bw FIXME
-                                2*M_PI * 19200 / input_rate,  // max_freq
-                                2*M_PI * 18800 / input_rate); // min_freq
+                                2*M_PI * 19020 / input_rate,  // max_freq
+                                2*M_PI * 18980 / input_rate); // min_freq
         subtone = gr::blocks::multiply_cc::make();
     } else {
         d_tone_taps = gr::filter::firdes::complex_band_pass(
                                        1.0,          // gain,
-                                           d_input_rate, // sampling_freq
+                                       d_input_rate, // sampling_freq
                                        31200.,       // low_cutoff_freq
                                        31300.,       // high_cutoff_freq
                                        100.);        // transition_width
@@ -90,62 +90,50 @@ stereo_demod::stereo_demod(float input_rate, float audio_rate, bool stereo, bool
     }
 
     tone = gr::filter::fir_filter_fcc::make(1, d_tone_taps);
+    delay = gr::blocks::delay::make(sizeof(float), (d_tone_taps.size() - 1) / 2);
 
     lo = gr::blocks::complex_to_imag::make();
 
-    d_pll_taps = gr::filter::firdes::band_pass(
-                                       1.0,          // gain,
-		                                   d_input_rate, // sampling_freq
-                                       37600.,       // low_cutoff_freq
-                                       38400.,       // high_cutoff_freq
-                                       400.);        // transition_width
-    lo2 = gr::filter::fir_filter_fff::make(1, d_pll_taps);
-
     mixer = gr::blocks::multiply_ff::make();
 
-    cdp = gr::blocks::multiply_const_ff::make( 3.61); // ±0.02
-    cdm = gr::blocks::multiply_const_ff::make(-3.61); // ±0.02
-
-    add0 = gr::blocks::add_ff::make();
-    add1 = gr::blocks::add_ff::make();
+    add = gr::blocks::add_ff::make();
+    sub = gr::blocks::sub_ff::make();
 
     /* connect block */
     if (!d_oirt) {
         connect(self(), 0, tone, 0);
+        connect(self(), 0, delay, 0);
         connect(tone, 0, pll, 0);
         connect(pll, 0, subtone, 0);
         connect(pll, 0, subtone, 1);
         connect(subtone, 0, lo, 0);
 
-        connect(lo,  0, lo2, 0);
-        connect(lo2, 0, mixer, 0);
+        connect(lo, 0, mixer, 0);
     } else {
         connect(self(), 0, tone, 0);
+        connect(self(), 0, delay, 0);
         connect(tone, 0, pll, 0);
         connect(pll, 0, lo, 0);
         connect(lo, 0, mixer, 0);
     }
 
-    connect(self(), 0, mixer, 1);
+    connect(delay, 0, mixer, 1);
 
-    connect(self(), 0, lpf0, 0);
-    connect(mixer,  0, lpf1, 0);
+    connect(delay, 0, lpf0, 0);
+    connect(mixer, 0, lpf1, 0);
 
     connect(lpf0, 0, audio_rr0, 0); // sum
-    connect(lpf1, 0, audio_rr1, 0);
+    connect(lpf1, 0, audio_rr1, 0); // delta
 
-    connect(audio_rr1, 0, cdp,  0); // +delta
-    connect(audio_rr1, 0, cdm,  0); // -delta
-
-    connect(audio_rr0, 0, add0,   0);
-    connect(cdp,       0, add0,   1);
-    connect(add0,      0, deemph0, 0);
+    connect(audio_rr0, 0, add,   0);
+    connect(audio_rr1, 0, add,   1);
+    connect(add,       0, deemph0, 0);
     connect(deemph0,   0, self(), 0); // left = sum + delta
 
-    connect(audio_rr0, 0, add1,   0);
-    connect(cdm,       0, add1,   1);
-    connect(add1,      0, deemph1, 0);
-    connect(deemph1,   0, self(), 1); // right = sum + delta
+    connect(audio_rr0, 0, sub,   0);
+    connect(audio_rr1, 0, sub,   1);
+    connect(sub,       0, deemph1, 0);
+    connect(deemph1,   0, self(), 1); // right = sum - delta
   }
   else // if (!d_stereo)
   {
