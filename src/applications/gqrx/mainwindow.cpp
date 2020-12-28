@@ -29,7 +29,6 @@
 #include <QByteArray>
 #include <QDateTime>
 #include <QDesktopServices>
-#include <QDebug>
 #include <QDialogButtonBox>
 #include <QFile>
 #include <QGroupBox>
@@ -62,7 +61,7 @@
 #include "qtgui/bookmarkstaglist.h"
 #include "qtgui/bandplan.h"
 
-MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
+MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) :
     QMainWindow(parent),
     configOk(true),
     ui(new Ui::MainWindow),
@@ -70,7 +69,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     d_hw_freq(0),
     d_fftAvg(0.25),
     d_have_audio(true),
-    dec_afsk1200(0)
+    dec_afsk1200(nullptr)
 {
     ui->setupUi(this);
     BandPlan::create();
@@ -151,7 +150,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     ui->mainToolBar->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
 
     /* frequency setting shortcut */
-    QShortcut *freq_shortcut = new QShortcut(QKeySequence(Qt::Key_F), this);
+    auto *freq_shortcut = new QShortcut(QKeySequence(Qt::Key_F), this);
     QObject::connect(freq_shortcut, &QShortcut::activated, this, &MainWindow::frequencyFocusShortcut);
 
     setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
@@ -335,7 +334,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
             configOk = true;
         }
     }
-    else if (edit_conf == true)
+    else if (edit_conf)
     {
         qDebug() << "Launching I/O device editor";
         if (on_actionIoConfig_triggered() != QDialog::Accepted)
@@ -424,7 +423,7 @@ MainWindow::~MainWindow()
  *
  * FIXME: Refactor.
  */
-bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
+bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
                             bool restore_mainwindow)
 {
     double      actual_rate;
@@ -458,7 +457,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
         if (m_settings->value("crashed", false).toBool())
         {
             qDebug() << "Crash guard triggered!" << endl;
-            QMessageBox* askUserAboutConfig =
+            auto* askUserAboutConfig =
                     new QMessageBox(QMessageBox::Warning, tr("Crash Detected!"),
                                     tr("<p>Gqrx has detected problems with the current configuration. "
                                        "Loading the configuration again could cause the application to crash.</p>"
@@ -517,7 +516,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
         }
 
         // Update window title
-        QRegExp regexp("'([a-zA-Z0-9 \\-\\_\\/\\.\\,\\(\\)]+)'");
+        QRegExp regexp(R"('([a-zA-Z0-9 \-\_\/\.\,\(\)]+)')");
         QString devlabel;
         if (regexp.indexIn(indev, 0) != -1)
             devlabel = regexp.cap(1);
@@ -566,7 +565,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
         {
             // There is an error with the device (perhaps not attached)
             // Warn user and use 100 ksps (rate used by gr-osmocom null_source)
-            QMessageBox *dialog =
+            auto *dialog =
                     new QMessageBox(QMessageBox::Warning, tr("Device Error"),
                                     tr("There was an error configuring the input device.\n"
                                        "Please make sure that a supported device is attached "
@@ -690,7 +689,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash,
  * Since QSettings does not support "save as" we do this by copying the current
  * settings to a new file.
  */
-bool MainWindow::saveConfig(const QString cfgfile)
+bool MainWindow::saveConfig(const QString& cfgfile)
 {
     QString oldfile = m_settings->fileName();
     QString newfile;
@@ -807,8 +806,8 @@ void MainWindow::updateHWFrequencyRange(bool ignore_limits)
  */
 void MainWindow::updateFrequencyRange()
 {
-    qint64 start = (qint64)(rx->get_filter_offset()) + d_hw_freq_start + d_lnb_lo;
-    qint64 stop  = (qint64)(rx->get_filter_offset()) + d_hw_freq_stop  + d_lnb_lo;
+    auto start = (qint64)(rx->get_filter_offset()) + d_hw_freq_start + d_lnb_lo;
+    auto stop  = (qint64)(rx->get_filter_offset()) + d_hw_freq_stop  + d_lnb_lo;
 
     ui->freqCtrl->setup(0, start, stop, 1, FCTL_UNIT_NONE);
     uiDockRxOpt->setRxFreqRange(start, stop);
@@ -858,8 +857,8 @@ void MainWindow::updateGainStages(bool read_from_device)
  */
 void MainWindow::setNewFrequency(qint64 rx_freq)
 {
-    double hw_freq = (double)(rx_freq - d_lnb_lo) - rx->get_filter_offset();
-    qint64 center_freq = rx_freq - (qint64)rx->get_filter_offset();
+    auto hw_freq = (double)(rx_freq - d_lnb_lo) - rx->get_filter_offset();
+    auto center_freq = rx_freq - (qint64)rx->get_filter_offset();
 
     d_hw_freq = (qint64)hw_freq;
 
@@ -880,7 +879,7 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
 void MainWindow::setLnbLo(double freq_mhz)
 {
     // calculate current RF frequency
-    qint64 rf_freq = ui->freqCtrl->getFrequency() - d_lnb_lo;
+    auto rf_freq = ui->freqCtrl->getFrequency() - d_lnb_lo;
 
     d_lnb_lo = qint64(freq_mhz*1e6);
     qDebug() << "New LNB LO:" << d_lnb_lo << "Hz";
@@ -898,7 +897,7 @@ void MainWindow::setLnbLo(double freq_mhz)
 }
 
 /** Select new antenna connector. */
-void MainWindow::setAntenna(const QString antenna)
+void MainWindow::setAntenna(const QString& antenna)
 {
     qDebug() << "New antenna selected:" << antenna;
     rx->set_antenna(antenna.toStdString());
@@ -915,7 +914,7 @@ void MainWindow::setFilterOffset(qint64 freq_hz)
 
     updateFrequencyRange();
 
-    qint64 rx_freq = d_hw_freq + d_lnb_lo + freq_hz;
+    auto rx_freq = d_hw_freq + d_lnb_lo + freq_hz;
     ui->freqCtrl->setFrequency(rx_freq);
 
     if (rx->is_rds_decoder_active()) {
@@ -928,7 +927,7 @@ void MainWindow::setFilterOffset(qint64 freq_hz)
  * @param name The name of the gain stage to adjust.
  * @param gain The new value.
  */
-void MainWindow::setGain(QString name, double gain)
+void MainWindow::setGain(const QString& name, double gain)
 {
     rx->set_gain(name.toStdString(), gain);
 }
@@ -1006,8 +1005,8 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
 {
     updateHWFrequencyRange(ignore_limits);
 
-    qint64 filter_offset = (qint64)rx->get_filter_offset();
-    qint64 freq = (qint64)rx->get_rf_freq();
+    auto filter_offset = (qint64)rx->get_filter_offset();
+    auto freq = (qint64)rx->get_rf_freq();
     ui->freqCtrl->setFrequency(d_lnb_lo + freq + filter_offset);
 
     // This will ensure that if frequency is clamped and that
@@ -1037,7 +1036,7 @@ void MainWindow::setInvertScrolling(bool enabled)
  * @brief Select new demodulator.
  * @param demod New demodulator.
  */
-void MainWindow::selectDemod(QString strModulation)
+void MainWindow::selectDemod(const QString& strModulation)
 {
     int iDemodIndex;
 
@@ -1455,7 +1454,7 @@ void MainWindow::rdsTimeout()
  * @brief Start audio recorder.
  * @param filename The file name into which audio should be recorded.
  */
-void MainWindow::startAudioRec(const QString filename)
+void MainWindow::startAudioRec(const QString& filename)
 {
     if (!d_have_audio)
     {
@@ -1498,7 +1497,7 @@ void MainWindow::stopAudioRec()
 
 
 /** Start playback of audio file. */
-void MainWindow::startAudioPlayback(const QString filename)
+void MainWindow::startAudioPlayback(const QString& filename)
 {
     if (rx->start_audio_playback(filename.toStdString()))
     {
@@ -1530,7 +1529,7 @@ void MainWindow::stopAudioPlayback()
 }
 
 /** Start streaming audio over UDP. */
-void MainWindow::startAudioStream(const QString udp_host, int udp_port, bool stereo)
+void MainWindow::startAudioStream(const QString& udp_host, int udp_port, bool stereo)
 {
     rx->start_udp_streaming(udp_host.toStdString(), udp_port, stereo);
 }
@@ -1542,15 +1541,15 @@ void MainWindow::stopAudioStreaming()
 }
 
 /** Start I/Q recording. */
-void MainWindow::startIqRecording(const QString recdir)
+void MainWindow::startIqRecording(const QString& recdir)
 {
     qDebug() << __func__;
     // generate file name using date, time, rf freq in kHz and BW in Hz
     // gqrx_iq_yyyymmdd_hhmmss_freq_bw_fc.raw
-    qint64 freq = (qint64)(rx->get_rf_freq());
-    qint64 sr = (qint64)(rx->get_input_rate());
-    qint32 dec = (quint32)(rx->get_input_decim());
-    QString lastRec = QDateTime::currentDateTimeUtc().
+    auto freq = (qint64)(rx->get_rf_freq());
+    auto sr = (qint64)(rx->get_input_rate());
+    auto dec = (quint32)(rx->get_input_decim());
+    auto lastRec = QDateTime::currentDateTimeUtc().
             toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.'raw'")
             .arg(recdir).arg(freq).arg(sr/dec);
 
@@ -1586,7 +1585,7 @@ void MainWindow::stopIqRecording()
         ui->statusBar->showMessage(tr("I/Q data recoding stopped"), 5000);
 }
 
-void MainWindow::startIqPlayback(const QString filename, float samprate)
+void MainWindow::startIqPlayback(const QString& filename, float samprate)
 {
     if (ui->actionDSP->isChecked())
     {
@@ -1596,8 +1595,8 @@ void MainWindow::startIqPlayback(const QString filename, float samprate)
 
     storeSession();
 
-    int sri = (int)samprate;
-    QString devstr = QString("file='%1',rate=%2,throttle=true,repeat=false")
+    auto sri = (int)samprate;
+    auto devstr = QString("file='%1',rate=%2,throttle=true,repeat=false")
             .arg(filename).arg(sri);
 
     qDebug() << __func__ << ":" << devstr;
@@ -1605,7 +1604,7 @@ void MainWindow::startIqPlayback(const QString filename, float samprate)
     rx->set_input_device(devstr.toStdString());
 
     // sample rate
-    double actual_rate = rx->set_input_rate(samprate);
+    auto actual_rate = rx->set_input_rate(samprate);
     qDebug() << "Requested sample rate:" << samprate;
     qDebug() << "Actual sample rate   :" << QString("%1")
                 .arg(actual_rate, 0, 'f', 6);
@@ -1632,15 +1631,15 @@ void MainWindow::stopIqPlayback()
     ui->statusBar->showMessage(tr("I/Q playback stopped"), 5000);
 
     // restore original input device
-    QString indev = m_settings->value("input/device", "").toString();
+    auto indev = m_settings->value("input/device", "").toString();
     rx->set_input_device(indev.toStdString());
 
     // restore sample rate
     bool conv_ok;
-    int sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
+    auto sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
     if (conv_ok && (sr > 0))
     {
-        double actual_rate = rx->set_input_rate(sr);
+        auto actual_rate = rx->set_input_rate(sr);
         qDebug() << "Requested sample rate:" << sr;
         qDebug() << "Actual sample rate   :" << QString("%1")
                     .arg(actual_rate, 0, 'f', 6);
@@ -1745,7 +1744,7 @@ void MainWindow::setIqFftAvg(float avg)
 /** Audio FFT rate has changed. */
 void MainWindow::setAudioFftRate(int fps)
 {
-    int interval = 1000 / fps;
+    auto interval = 1000 / fps;
 
     if (interval < 10)
         return;
@@ -1755,7 +1754,7 @@ void MainWindow::setAudioFftRate(int fps)
 }
 
 /** Set FFT plot color. */
-void MainWindow::setFftColor(const QColor color)
+void MainWindow::setFftColor(const QColor& color)
 {
     ui->plotter->setFftPlotColor(color);
     uiDockAudio->setFftColor(color);
@@ -1849,8 +1848,8 @@ int MainWindow::on_actionIoConfig_triggered()
 {
     qDebug() << "Configure I/O devices.";
 
-    CIoConfig *ioconf = new CIoConfig(m_settings, devList);
-    int confres = ioconf->exec();
+    auto *ioconf = new CIoConfig(m_settings, devList);
+    auto confres = ioconf->exec();
 
     if (confres == QDialog::Accepted)
     {
@@ -1879,8 +1878,8 @@ int MainWindow::firstTimeConfig()
 {
     qDebug() << __func__;
 
-    CIoConfig *ioconf = new CIoConfig(m_settings, devList);
-    int confres = ioconf->exec();
+    auto *ioconf = new CIoConfig(m_settings, devList);
+    auto confres = ioconf->exec();
 
     if (confres == QDialog::Accepted)
         loadConfig(m_settings->fileName(), false, false);
@@ -1894,8 +1893,7 @@ int MainWindow::firstTimeConfig()
 /** Load configuration activated by user. */
 void MainWindow::on_actionLoadSettings_triggered()
 {
-    QString cfgfile;
-    cfgfile = QFileDialog::getOpenFileName(this, tr("Load settings"),
+    auto cfgfile = QFileDialog::getOpenFileName(this, tr("Load settings"),
                                            m_last_dir.isEmpty() ? m_cfg_dir : m_last_dir,
                                            tr("Settings (*.conf)"));
 
@@ -1918,8 +1916,7 @@ void MainWindow::on_actionLoadSettings_triggered()
 /** Save configuration activated by user. */
 void MainWindow::on_actionSaveSettings_triggered()
 {
-    QString cfgfile;
-    cfgfile = QFileDialog::getSaveFileName(this, tr("Save settings"),
+    auto cfgfile = QFileDialog::getSaveFileName(this, tr("Save settings"),
                                            m_last_dir.isEmpty() ? m_cfg_dir : m_last_dir,
                                            tr("Settings (*.conf)"));
 
@@ -1943,17 +1940,15 @@ void MainWindow::on_actionSaveSettings_triggered()
 void MainWindow::on_actionSaveWaterfall_triggered()
 {
     QDateTime   dt(QDateTime::currentDateTimeUtc());
-    QString     wffile;
-    QString     save_path;
 
     // previously used location
-    save_path = m_settings->value("wf_save_dir", "").toString();
+    auto save_path = m_settings->value("wf_save_dir", "").toString();
     if (!save_path.isEmpty())
         save_path += "/";
     save_path += dt.toString("gqrx_wf_yyyyMMdd_hhmmss.png");
 
-    wffile = QFileDialog::getSaveFileName(this, tr("Save waterfall"),
-                                          save_path, 0);
+    auto wffile = QFileDialog::getSaveFileName(this, tr("Save waterfall"),
+                                          save_path, nullptr);
     if (wffile.isEmpty())
         return;
 
@@ -1992,11 +1987,8 @@ void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
 
 /* CPlotter::NewfilterFreq() is emitted or bookmark activated */
 void MainWindow::on_plotter_newFilterFreq(int low, int high)
-{
-    receiver::status retcode;
-
-    /* parameter correctness will be checked in receiver class */
-    retcode = rx->set_filter((double) low, (double) high, d_filter_shape);
+{   /* parameter correctness will be checked in receiver class */
+    receiver::status retcode = rx->set_filter((double) low, (double) high, d_filter_shape);
 
     /* Update filter range of plotter, in case this slot is triggered by
      * switching to a bookmark */
@@ -2033,7 +2025,7 @@ void MainWindow::on_actionRemoteControl_triggered(bool checked)
 /** Remote control configuration button (or menu item) clicked. */
 void MainWindow::on_actionRemoteConfig_triggered()
 {
-    RemoteControlSettings *rcs = new RemoteControlSettings();
+    auto *rcs = new RemoteControlSettings();
 
     rcs->setPort(remote->getPort());
     rcs->setHosts(remote->getHosts());
@@ -2060,7 +2052,7 @@ void MainWindow::on_actionRemoteConfig_triggered()
 void MainWindow::on_actionAFSK1200_triggered()
 {
 
-    if (dec_afsk1200 != 0)
+    if (dec_afsk1200 != nullptr)
     {
         qDebug() << "AFSK1200 decoder already active.";
         dec_afsk1200->raise();
@@ -2101,7 +2093,7 @@ void MainWindow::afsk1200win_closed()
     dec_timer->stop();
     rx->stop_sniffer();
 
-    dec_afsk1200 = 0;
+    dec_afsk1200 = nullptr;
 }
 
 /** Show DXC Options. */
@@ -2126,7 +2118,7 @@ void MainWindow::decoderTimeout()
 
 void MainWindow::setRdsDecoder(bool checked)
 {
-    if (checked == true)
+    if (checked)
     {
         qDebug() << "Starting RDS decoder.";
         uiDockRDS->showEnabled();
@@ -2143,14 +2135,14 @@ void MainWindow::setRdsDecoder(bool checked)
     }
 }
 
-void MainWindow::onBookmarkActivated(qint64 freq, QString demod, int bandwidth)
+void MainWindow::onBookmarkActivated(qint64 freq, const QString& demod, int bandwidth)
 {
     setNewFrequency(freq);
     selectDemod(demod);
 
     /* Check if filter is symmetric or not by checking the presets */
-    int mode = uiDockRxOpt->currentDemod();
-    int preset = uiDockRxOpt->currentFilter();
+    auto mode = uiDockRxOpt->currentDemod();
+    auto preset = uiDockRxOpt->currentFilter();
 
     int lo, hi;
     uiDockRxOpt->getFilterPreset(mode, preset, &lo, &hi);
@@ -2175,8 +2167,8 @@ void MainWindow::onBookmarkActivated(qint64 freq, QString demod, int bandwidth)
 void MainWindow::setPassband(int bandwidth)
 {
     /* Check if filter is symmetric or not by checking the presets */
-    int mode = uiDockRxOpt->currentDemod();
-    int preset = uiDockRxOpt->currentFilter();
+    auto mode = uiDockRxOpt->currentDemod();
+    auto preset = uiDockRxOpt->currentFilter();
 
     int lo, hi;
     uiDockRxOpt->getFilterPreset(mode, preset, &lo, &hi);
@@ -2203,7 +2195,7 @@ void MainWindow::setPassband(int bandwidth)
 /** Launch Gqrx google group website. */
 void MainWindow::on_actionUserGroup_triggered()
 {
-    bool res = QDesktopServices::openUrl(QUrl("https://groups.google.com/forum/#!forum/gqrx",
+    auto res = QDesktopServices::openUrl(QUrl("https://groups.google.com/forum/#!forum/gqrx",
                                               QUrl::TolerantMode));
     if (!res)
         QMessageBox::warning(this, tr("Error"),
@@ -2256,25 +2248,25 @@ void MainWindow::showSimpleTextFile(const QString &resource_path,
     }
 
     QTextStream in(&news);
-    QString content = in.readAll();
+    auto content = in.readAll();
     news.close();
 
-    QTextBrowser *browser = new QTextBrowser();
+    auto *browser = new QTextBrowser();
     browser->setLineWrapMode(QTextEdit::NoWrap);
     browser->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
     browser->append(content);
     browser->adjustSize();
 
     // scroll to the beginning
-    QTextCursor cursor = browser->textCursor();
+    auto cursor = browser->textCursor();
     cursor.setPosition(0);
     browser->setTextCursor(cursor);
 
 
-    QVBoxLayout *layout = new QVBoxLayout();
+    auto *layout = new QVBoxLayout();
     layout->addWidget(browser);
 
-    QDialog *dialog = new QDialog(this);
+    auto *dialog = new QDialog(this);
     dialog->setWindowTitle(window_title);
     dialog->setLayout(layout);
     dialog->resize(800, 400);
@@ -2341,27 +2333,27 @@ void MainWindow::on_actionAddBookmark_triggered()
         QDialog dialog(this);
         dialog.setWindowTitle("New bookmark");
 
-        QGroupBox* LabelAndTextfieldName = new QGroupBox(&dialog);
-        QLabel* label1 = new QLabel("Bookmark name:", LabelAndTextfieldName);
-        QLineEdit* textfield = new QLineEdit(LabelAndTextfieldName);
-        QHBoxLayout *layout = new QHBoxLayout;
+        auto* LabelAndTextfieldName = new QGroupBox(&dialog);
+        auto* label1 = new QLabel("Bookmark name:", LabelAndTextfieldName);
+        auto* textfield = new QLineEdit(LabelAndTextfieldName);
+        auto *layout = new QHBoxLayout;
         layout->addWidget(label1);
         layout->addWidget(textfield);
         LabelAndTextfieldName->setLayout(layout);
 
-        QPushButton* buttonCreateTag = new QPushButton("Create new Tag", &dialog);
+        auto* buttonCreateTag = new QPushButton("Create new Tag", &dialog);
 
-        BookmarksTagList* taglist = new BookmarksTagList(&dialog, false);
+        auto* taglist = new BookmarksTagList(&dialog, false);
         taglist->updateTags();
         taglist->DeselectAll();
 
-        QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+        auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
                                               | QDialogButtonBox::Cancel);
         connect(buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
         connect(buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
         connect(buttonCreateTag, SIGNAL(clicked()), taglist, SLOT(AddNewTag()));
 
-        QVBoxLayout *mainLayout = new QVBoxLayout(&dialog);
+        auto *mainLayout = new QVBoxLayout(&dialog);
         mainLayout->addWidget(LabelAndTextfieldName);
         mainLayout->addWidget(buttonCreateTag);
         mainLayout->addWidget(taglist);
@@ -2391,9 +2383,9 @@ void MainWindow::on_actionAddBookmark_triggered()
         info.bandwidth = ui->plotter->getFilterBw();
         info.modulation = uiDockRxOpt->currentDemodAsString();
         info.name=name;
-        QStringList listTags = tags.split(",",QString::SkipEmptyParts);
+        auto listTags = tags.split(",",QString::SkipEmptyParts);
         info.tags.clear();
-        if (listTags.size() == 0)
+        if (listTags.empty())
             info.tags.append(&Bookmarks::Get().findOrAddTag(""));
 
 
