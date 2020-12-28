@@ -1,5 +1,5 @@
 
-    2.14.4: In progress...
+    2.14.4: Released December 28, 2020
 
        NEW: Many more keyboard shortcuts.
        NEW: Display filename when recording audio.
