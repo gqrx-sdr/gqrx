@@ -1,10 +1,11 @@
 
-    2.14.4: In progress...
+    2.14.4: Released December 28, 2020
 
        NEW: Many more keyboard shortcuts.
        NEW: Display filename when recording audio.
      FIXED: Audio output doesn't work on MacOS Big Sur.
      FIXED: DC remove button doesn't work when Demod Off mode is selected.
+  IMPROVED: Better demodulation of FM stereo signals.
 
 
     2.14.3: Released December 9, 2020
