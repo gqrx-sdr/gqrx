@@ -394,6 +394,8 @@ int DockRxOpt::getCwOffset() const
 /** Read receiver configuration from settings data. */
 void DockRxOpt::readSettings(QSettings *settings)
 {
+    /** Disable Customfield in filterCombo. */
+    qobject_cast <QStandardItemModel *> (ui-> filterCombo-> model ()) -> item (3) -> setEnabled (false);
     bool    conv_ok;
     int     int_val;
     double  dbl_val;
