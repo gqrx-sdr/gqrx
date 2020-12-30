@@ -149,6 +149,12 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     uiDockBookmarks->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_B));
     ui->mainToolBar->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
 
+    QShortcut *dem_shortcut = new QShortcut(QKeySequence(Qt::Key_D), this);
+    QObject::connect(dem_shortcut, &QShortcut::activated, this, &MainWindow::frequencyDemodShortcut);
+    
+    QShortcut *cen_shortcut = new QShortcut(QKeySequence(Qt::Key_Z), this);
+    QObject::connect(cen_shortcut, &QShortcut::activated, this, &MainWindow::frequencyCentShortcut);
+    
     /* frequency setting shortcut */
     auto *freq_shortcut = new QShortcut(QKeySequence(Qt::Key_F), this);
     QObject::connect(freq_shortcut, &QShortcut::activated, this, &MainWindow::frequencyFocusShortcut);
@@ -2413,3 +2419,14 @@ void MainWindow::frequencyFocusShortcut()
 {
     ui->freqCtrl->setFrequencyFocus();
 }
+
+void MainWindow::frequencyDemodShortcut()
+{
+    ui->plotter ->moveToDemodFreq();
+  }
+
+void MainWindow::frequencyCentShortcut()
+{
+    ui->plotter ->moveToCenterFreq();
+  }
+  
