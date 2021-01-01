@@ -269,6 +269,12 @@ void DockFft::saveSettings(QSettings *settings)
     else
         settings->remove("bandplan");
 
+    // FFT Tooltip
+    if (ui->toolTipCheckbox->isChecked())
+        settings->setValue("FFTTooltip", true);
+    else
+        settings->remove("FFTTooltip");
+
     if (QString::compare(ui->cmapComboBox->currentData().toString(), DEFAULT_COLORMAP))
         settings->setValue("waterfall_colormap", ui->cmapComboBox->currentData().toString());
     else
@@ -340,6 +346,10 @@ void DockFft::readSettings(QSettings *settings)
 
     bool_val = settings->value("db_ranges_locked", false).toBool();
     ui->lockButton->setChecked(bool_val);
+
+    bool_val = settings->value("FFTTooltip", false).toBool();
+    ui->toolTipCheckbox->setChecked(bool_val);
+    emit toolTipChanged(bool_val);
 
     bool_val = settings->value("bandplan", false).toBool();
     ui->bandPlanCheckbox->setChecked(bool_val);
@@ -521,6 +531,10 @@ void DockFft::on_peakDetectionButton_toggled(bool checked)
     emit peakDetectionToggled(checked);
 }
 
+void DockFft::on_toolTipCheckbox_stateChanged(int state)
+{
+    emit toolTipChanged(state == 2);
+}
 void DockFft::on_bandPlanCheckbox_stateChanged(int state)
 {
     emit bandPlanChanged(state == 2);
