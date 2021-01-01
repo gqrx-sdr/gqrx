@@ -397,8 +397,10 @@ void DockInputCtl::setGainStages(gain_list_t &gain_list)
         slider->setRange(start, stop);
         slider->setSingleStep(step);
         slider->setValue(gain);
-        if (abs(stop - start) > 10 * step)
+        if (abs(stop - start) > 15 * step)
             slider->setPageStep(10 * step);
+        else
+            slider->setPageStep(step);
 
         gainLayout->addWidget(label, i, 0, Qt::AlignLeft);
         gainLayout->addWidget(slider, i, 1);        // setting alignment would force minimum size
