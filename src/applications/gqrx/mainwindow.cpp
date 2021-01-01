@@ -2137,6 +2137,10 @@ void MainWindow::setRdsDecoder(bool checked)
 
 void MainWindow::onBookmarkActivated(qint64 freq, const QString& demod, int bandwidth)
 {
+    // set RX filter
+    rx->set_filter_offset(0);
+    // update RF freq label and channel filter offset
+    uiDockRxOpt->setFilterOffset(0);
     setNewFrequency(freq);
     selectDemod(demod);
 
@@ -2162,6 +2166,7 @@ void MainWindow::onBookmarkActivated(qint64 freq, const QString& demod, int band
     }
 
     on_plotter_newFilterFreq(lo, hi);
+    ui->plotter ->moveToCenterFreq();
 }
 
 void MainWindow::setPassband(int bandwidth)
