@@ -1167,7 +1167,7 @@ void MainWindow::selectDemod(int mode_idx)
         rx->set_demod(receiver::RX_DEMOD_SSB);
         cwofs = -uiDockRxOpt->getCwOffset();
         ui->plotter->setDemodRanges(-5000, -100, 100, 5000, true);
-        uiDockAudio->setFftRange(0,1500);
+        uiDockAudio->setFftRange(0,abs(cwofs+cwofs));
         click_res = 10;
         break;
 
@@ -1176,7 +1176,7 @@ void MainWindow::selectDemod(int mode_idx)
         rx->set_demod(receiver::RX_DEMOD_SSB);
         cwofs = uiDockRxOpt->getCwOffset();
         ui->plotter->setDemodRanges(-5000, -100, 100, 5000, true);
-        uiDockAudio->setFftRange(0,1500);
+        uiDockAudio->setFftRange(0,cwofs+cwofs);
         click_res = 10;
         break;
 
