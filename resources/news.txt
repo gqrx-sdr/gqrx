@@ -1,4 +1,9 @@
 
+    2.15.5: In progress...
+
+       NEW: Added SoapyRemote to AppImage release.
+
+
     2.14.4: Released December 28, 2020
 
        NEW: Many more keyboard shortcuts.
