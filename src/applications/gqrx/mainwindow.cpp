@@ -1243,6 +1243,7 @@ void MainWindow::setAmDcr(bool enabled)
 void MainWindow::setCwOffset(int offset)
 {
     rx->set_cw_offset(offset);
+    uiDockAudio->setFftRange(0,offset+offset);
 }
 
 /**
