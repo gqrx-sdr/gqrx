@@ -87,6 +87,8 @@ jobs:
           brew install --HEAD --build-from-source dylibbundler portaudio
           rm /usr/local/bin/2to3
           brew install airspy boost gnuradio hackrf libbladerf librtlsdr uhd
+          brew tap pothosware/homebrew-pothos
+          brew install soapysdr soapyremote
 
           cd /tmp
           git clone https://github.com/airspy/airspyhf.git

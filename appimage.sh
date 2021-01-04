@@ -67,12 +67,7 @@ chmod a+x *.AppImage
 
 # abra-cadabra
 mkdir -p ./AppDir/usr/lib
-cp -R /usr/lib/x86_64-linux-gnu/SoapySDR ./AppDir/usr/lib/
-
-mkdir -p ./AppDir/apprun-hooks
-cat <<EOM > ./AppDir/apprun-hooks/soapysdr.sh
-export SOAPY_SDR_PLUGIN_PATH="\$this_dir"/usr/lib/SoapySDR/modules0.6
-EOM
+cp -R /usr/lib/x86_64-linux-gnu/SoapySDR/modules* ./AppDir/usr/soapy-modules
 
 ./linuxdeploy-x86_64.AppImage -e "$APP" -d "$DESKTOP" -i "$ICON" -p qt --output appimage --appdir=./AppDir
 RESULT=$?

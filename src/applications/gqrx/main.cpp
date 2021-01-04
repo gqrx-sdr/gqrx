@@ -59,6 +59,11 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
     QLoggingCategory::setFilterRules("*.debug=false");
 
+    QString plugin_path = QDir::cleanPath(QCoreApplication::applicationDirPath() + "/../soapy-modules");
+    QFileInfo plugin_path_info(plugin_path);
+    if (plugin_path_info.isDir())
+        qputenv("SOAPY_SDR_PLUGIN_PATH", plugin_path.toUtf8());
+
     // setup controlport via environment variables
     // see http://lists.gnu.org/archive/html/discuss-gnuradio/2013-05/msg00270.html
     // Note: tried using gr::prefs().save() but that doesn't have effect until the next time
