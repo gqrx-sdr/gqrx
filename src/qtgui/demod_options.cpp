@@ -172,6 +172,16 @@ int  CDemodOptions::getCwOffset(void) const
     return ui->cwOffsetSpin->value();
 }
 
+void CDemodOptions::setSbSteps(int offset)
+{
+    ui->SSB_Steps->setValue(offset);
+}
+
+int  CDemodOptions::getSbSteps(void) const
+{
+    return ui->SSB_Steps->value();
+}
+
 void CDemodOptions::setMaxDev(float max_dev)
 {
     ui->maxdevSelector->setCurrentIndex(maxdev_to_index(max_dev));
@@ -210,6 +220,11 @@ void CDemodOptions::on_dcrCheckBox_toggled(bool checked)
 void CDemodOptions::on_cwOffsetSpin_valueChanged(int value)
 {
     emit cwOffsetChanged(value);
+}
+
+void CDemodOptions::on_SSB_Steps_valueChanged(int value)
+{
+    emit ssbStepsChanged(value);
 }
 
 void CDemodOptions::on_syncdcrCheckBox_toggled(bool checked)

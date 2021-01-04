@@ -154,6 +154,7 @@ private slots:
     void setFmEmph(double tau);
     void setAmDcr(bool enabled);
     void setCwOffset(int offset);
+    void setSbSteps(int click_res);
     void setAmSyncDcr(bool enabled);
     void setAmSyncPllBw(float pll_bw);
     void setAgcOn(bool agc_on);

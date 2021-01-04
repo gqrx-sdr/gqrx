@@ -222,6 +222,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockRxOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(setFmEmph(double)));
     connect(uiDockRxOpt, SIGNAL(amDcrToggled(bool)), this, SLOT(setAmDcr(bool)));
     connect(uiDockRxOpt, SIGNAL(cwOffsetChanged(int)), this, SLOT(setCwOffset(int)));
+    connect(uiDockRxOpt, SIGNAL(ssbStepsChanged(int)), this, SLOT(setSbSteps(int)));
     connect(uiDockRxOpt, SIGNAL(amSyncDcrToggled(bool)), this, SLOT(setAmSyncDcr(bool)));
     connect(uiDockRxOpt, SIGNAL(amSyncPllBwSelected(float)), this, SLOT(setAmSyncPllBw(float)));
     connect(uiDockRxOpt, SIGNAL(agcToggled(bool)), this, SLOT(setAgcOn(bool)));
@@ -1057,6 +1058,7 @@ void MainWindow::selectDemod(const QString& strModulation)
 void MainWindow::selectDemod(int mode_idx)
 {
     double  cwofs = 0.0;
+    int     ssbstep = 50;
     int     filter_preset = uiDockRxOpt->currentFilter();
     int     flo=0, fhi=0, click_res=100;
     bool    rds_enabled;
@@ -1143,17 +1145,19 @@ void MainWindow::selectDemod(int mode_idx)
     case DockRxOpt::MODE_LSB:
         /* LSB */
         rx->set_demod(receiver::RX_DEMOD_SSB);
+        ssbstep = uiDockRxOpt->getSbSteps();
         ui->plotter->setDemodRanges(-40000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,3000);
-        click_res = 100;
+        click_res = ssbstep;
         break;
 
     case DockRxOpt::MODE_USB:
         /* USB */
         rx->set_demod(receiver::RX_DEMOD_SSB);
+        ssbstep = uiDockRxOpt->getSbSteps();
         ui->plotter->setDemodRanges(0, 5000, 100, 40000, false);
         uiDockAudio->setFftRange(0,3000);
-        click_res = 100;
+        click_res = ssbstep;
         break;
 
     case DockRxOpt::MODE_CWL:
@@ -1237,6 +1241,12 @@ void MainWindow::setAmDcr(bool enabled)
 void MainWindow::setCwOffset(int offset)
 {
     rx->set_cw_offset(offset);
+}
+
+void MainWindow::setSbSteps(int click_res)
+{
+    ui->plotter->setClickResolution(click_res);
+    ui->plotter->setFilterClickResolution(click_res);
 }
 
 /**

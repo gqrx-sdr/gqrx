@@ -97,6 +97,7 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     connect(demodOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(demodOpt_fmEmphSelected(double)));
     connect(demodOpt, SIGNAL(amDcrToggled(bool)), this, SLOT(demodOpt_amDcrToggled(bool)));
     connect(demodOpt, SIGNAL(cwOffsetChanged(int)), this, SLOT(demodOpt_cwOffsetChanged(int)));
+    connect(demodOpt, SIGNAL(ssbStepsChanged(int)), this, SLOT(demodOpt_ssbStepsChanged(int)));
     connect(demodOpt, SIGNAL(amSyncDcrToggled(bool)), this, SLOT(demodOpt_amSyncDcrToggled(bool)));
     connect(demodOpt, SIGNAL(amSyncPllBwSelected(float)), this, SLOT(demodOpt_amSyncPllBwSelected(float)));
 
@@ -380,6 +381,11 @@ int DockRxOpt::getCwOffset() const
     return demodOpt->getCwOffset();
 }
 
+int DockRxOpt::getSbSteps() const
+{
+    return demodOpt->getSbSteps();
+}
+
 /** Read receiver configuration from settings data. */
 void DockRxOpt::readSettings(QSettings *settings)
 {
@@ -390,6 +396,10 @@ void DockRxOpt::readSettings(QSettings *settings)
     int_val = settings->value("receiver/cwoffset", 700).toInt(&conv_ok);
     if (conv_ok)
         demodOpt->setCwOffset(int_val);
+
+    int_val = settings->value("receiver/ssb_step", 50).toInt(&conv_ok);
+    if (conv_ok)
+        demodOpt->setSbSteps(int_val);
 
     int_val = settings->value("receiver/fm_maxdev", 2500).toInt(&conv_ok);
     if (conv_ok)
@@ -463,6 +473,12 @@ void DockRxOpt::saveSettings(QSettings *settings)
         settings->remove("receiver/cwoffset");
     else
         settings->setValue("receiver/cwoffset", cwofs);
+
+    int ssb_step = demodOpt->getSbSteps();
+    if (ssb_step == 50)
+        settings->remove("receiver/ssb_step");
+    else
+        settings->setValue("receiver/ssb_step", ssb_step);
 
     // currently we do not need the decimal
     int_val = (int)demodOpt->getMaxDev();
@@ -614,6 +630,8 @@ void DockRxOpt::updateDemodOptPage(int demod)
         demodOpt->setCurrentPage(CDemodOptions::PAGE_AM_OPT);
     else if (demod == MODE_CWL || demod == MODE_CWU)
         demodOpt->setCurrentPage(CDemodOptions::PAGE_CW_OPT);
+    else if (demod == MODE_LSB || demod == MODE_USB)
+        demodOpt->setCurrentPage(CDemodOptions::PAGE_SB_OPT);
     else if (demod == MODE_AM_SYNC)
         demodOpt->setCurrentPage(CDemodOptions::PAGE_AMSYNC_OPT);
     else
@@ -761,6 +779,11 @@ void DockRxOpt::demodOpt_amDcrToggled(bool enabled)
 void DockRxOpt::demodOpt_cwOffsetChanged(int offset)
 {
     emit cwOffsetChanged(offset);
+}
+
+void DockRxOpt::demodOpt_ssbStepsChanged(int offset)
+{
+    emit ssbStepsChanged(offset);
 }
 
 /**

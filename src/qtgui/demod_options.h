@@ -47,7 +47,8 @@ public:
         PAGE_AM_OPT = 2,
         PAGE_CW_OPT = 3,
         PAGE_AMSYNC_OPT = 4,
-        PAGE_NUM    = 5
+        PAGE_SB_OPT = 5,
+        PAGE_NUM    = 6
     };
 
     explicit CDemodOptions(QWidget *parent = 0);
@@ -57,6 +58,9 @@ public:
 
     void setCurrentPage(int index);
     int  currentPage() const;
+
+    void setSbSteps(int offset);
+    int  getSbSteps(void) const;
 
     void setCwOffset(int offset);
     int  getCwOffset(void) const;
@@ -83,6 +87,9 @@ signals:
     /*! \brief CW offset changed. */
     void cwOffsetChanged(int offset);
 
+    /*! \brief SSB Steps changed. */
+    void ssbStepsChanged(int offset);
+    
     /*! \brief Signal emitted when AM-Sync DCR is toggled. */
     void amSyncDcrToggled(bool enabled);
 
@@ -94,6 +101,7 @@ private slots:
     void on_emphSelector_activated(int index);
     void on_dcrCheckBox_toggled(bool checked);
     void on_cwOffsetSpin_valueChanged(int value);
+    void on_SSB_Steps_valueChanged(int value);
     void on_syncdcrCheckBox_toggled(bool checked);
     void on_pllBwSelector_activated(int index);
 
