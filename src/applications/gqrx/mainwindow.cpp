@@ -2151,11 +2151,11 @@ void MainWindow::onBookmarkActivated(qint64 freq, const QString& demod, int band
     int lo, hi;
     uiDockRxOpt->getFilterPreset(mode, preset, &lo, &hi);
 
-    if(lo >= 0 && hi >= 0) // USB
+    if(lo >= 0 && hi >= 0 && mode == DockRxOpt::MODE_USB) // USB
     {
         hi = lo + bandwidth;
     }
-    else if(lo <= 0 && hi <= 0) // LSB
+    else if(lo <= 0 && hi <= 0 && mode == DockRxOpt::MODE_LSB) // LSB
     {
         lo = hi - bandwidth;
     }
