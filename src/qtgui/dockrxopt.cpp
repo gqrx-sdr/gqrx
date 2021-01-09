@@ -305,8 +305,15 @@ int  DockRxOpt::currentFilterShape() const
  */
 void DockRxOpt::setCurrentDemod(int demod)
 {
+    last_demod = demod;
+    
     if ((demod >= MODE_OFF) && (demod < MODE_LAST))
     {
+        if (ui->modeSelector->currentIndex() != demod)
+        {
+          ui->filterCombo->setItemText(FILTER_PRESET_USER, QString("User"));
+          qobject_cast <QStandardItemModel *> (ui-> filterCombo-> model ()) -> item (3) -> setEnabled (false);
+        }
         ui->modeSelector->setCurrentIndex(demod);
         updateDemodOptPage(demod);
     }
@@ -614,12 +621,15 @@ void DockRxOpt::on_filterCombo_activated(int index)
  */
 void DockRxOpt::on_modeSelector_activated(int index)
 {
+    if (last_demod != index)
+    {
+      ui->filterCombo->setCurrentIndex(1);
+      ui->filterCombo->setItemText(FILTER_PRESET_USER, QString("User"));
+      qobject_cast <QStandardItemModel *> (ui-> filterCombo-> model ()) -> item (3) -> setEnabled (false);
+      glo = 0;
+      ghi = 0;
+    }
     updateDemodOptPage(index);
-    ui->filterCombo->setCurrentIndex(1);
-    ui->filterCombo->setItemText(FILTER_PRESET_USER, QString("User"));
-    qobject_cast <QStandardItemModel *> (ui-> filterCombo-> model ()) -> item (3) -> setEnabled (false);
-    glo = 0;
-    ghi = 0;
     emit demodSelected(index);
 }
 
