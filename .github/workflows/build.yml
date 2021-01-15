@@ -86,6 +86,8 @@ jobs:
           brew update
           brew install --HEAD --build-from-source dylibbundler portaudio
           rm /usr/local/bin/2to3
+          brew unlink gcc@8
+          brew unlink gcc@9
           brew install airspy boost gnuradio hackrf libbladerf librtlsdr uhd
           brew tap pothosware/homebrew-pothos
           brew install soapysdr soapyremote
