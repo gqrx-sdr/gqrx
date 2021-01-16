@@ -1,0 +1,13 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=/usr/local/lib
+sharedlibdir=/usr/local/lib
+includedir=/usr/local/include
+
+Name: libad9361
+Description: Device specific library for AD936X transceivers
+Version: 0.2
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -libad9361
+Cflags: -I${includedir}

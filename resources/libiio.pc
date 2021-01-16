@@ -1,0 +1,12 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=/usr/local/lib
+includedir=/usr/local/include
+
+Name: libiio
+Description: Library for interfacing IIO devices
+Version: 0.21
+
+Requires:
+Libs: -L${libdir} -liio
+Cflags: -I${includedir}
