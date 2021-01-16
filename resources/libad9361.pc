@@ -1,5 +1,5 @@
 prefix=/usr/local
-exec_prefix=${prefix}
+exec_prefix=/usr/local
 libdir=/usr/local/lib
 sharedlibdir=/usr/local/lib
 includedir=/usr/local/include
@@ -9,5 +9,5 @@ Description: Device specific library for AD936X transceivers
 Version: 0.2
 
 Requires:
-Libs: -L${libdir} -L${sharedlibdir} -libad9361
+Libs: -L${libdir} -L${sharedlibdir} -lad9361
 Cflags: -I${includedir}

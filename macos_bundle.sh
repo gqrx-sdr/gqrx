@@ -1,5 +1,8 @@
 #!/bin/bash
 
+if [[ -f "/usr/local/lib/SoapySDR/modules*/libPlutoSDRSupport.so" ]]
+then
+
 cp ./resources/ad9361.h /usr/local/include
 cp ./resources/iio.h /usr/local/include
 cp ./resources/libiio.pc  /usr/local/lib/pkgconfig
@@ -15,6 +18,10 @@ cmake ..
 make install
 
 cd ../..
+
+rm -rf ./SoapyPlutoSDR
+
+fi
 
 GQRX_VERSION=$(<version.txt)
 
