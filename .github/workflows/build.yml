@@ -100,6 +100,30 @@ jobs:
           cmake ..
           make
           make install
+          
+          cd /tmp
+          git clone https://github.com/analogdevicesinc/libiio.git
+          cd libiio
+          mkdir build
+          cd build
+          cmake ..
+          sudo make install
+          
+          cd /tmp
+          git clone https://github.com/analogdevicesinc/libad9361-iio.git
+          cd libad9361-iio
+          mkdir build
+          cd build
+          cmake ..
+          sudo make install
+          
+          cd /tmp
+          git clone https://github.com/pothosware/SoapyPlutoSDR.git
+          cd SoapyPlutoSDR
+          mkdir build
+          cd build
+          cmake ..
+          make install
 
           cd /tmp
           git clone git://git.osmocom.org/gr-osmosdr
@@ -118,7 +142,7 @@ jobs:
       - name: Compile
         working-directory: build
         run: make
-      - name: Build iio and ad9361
+      - name: Build iio_ad9361_spluto
         run: ./iio_ad9361.sh
       - name: Build DMG
         run: ./macos_bundle.sh
