@@ -142,8 +142,6 @@ jobs:
       - name: Compile
         working-directory: build
         run: make
-      - name: Build iio_ad9361_spluto
-        run: ./iio_ad9361.sh
       - name: Build DMG
         run: ./macos_bundle.sh
       - name: Save artifact
