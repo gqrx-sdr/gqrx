@@ -265,7 +265,6 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
             uiDockFft, SLOT(setPandapterRange(float,float)));
     connect(ui->plotter, SIGNAL(newZoomLevel(float)),
             uiDockFft, SLOT(setZoomLevel(float)));
-    connect(ui->plotter, SIGNAL(newSize()), this, SLOT(setWfSize()));
 
     connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
@@ -1703,8 +1702,6 @@ void MainWindow::setIqFftRate(int fps)
 
     if (interval > 9 && iq_fft_timer->isActive())
         iq_fft_timer->setInterval(interval);
-
-    uiDockFft->setWfResolution(ui->plotter->getWfTimeRes());
 }
 
 void MainWindow::setIqFftWindow(int type)
@@ -1717,12 +1714,6 @@ void MainWindow::setWfTimeSpan(quint64 span_ms)
 {
     // set new time span, then send back new resolution to be shown by GUI label
     ui->plotter->setWaterfallSpan(span_ms);
-    uiDockFft->setWfResolution(ui->plotter->getWfTimeRes());
-}
-
-void MainWindow::setWfSize()
-{
-    uiDockFft->setWfResolution(ui->plotter->getWfTimeRes());
 }
 
 /**

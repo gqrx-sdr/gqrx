@@ -73,7 +73,6 @@ signals:
 public slots:
     void setPandapterRange(float min, float max);
     void setWaterfallRange(float min, float max);
-    void setWfResolution(quint64 msec_per_line);
     void setZoomLevel(float level);
 
 private slots:
