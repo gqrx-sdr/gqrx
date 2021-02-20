@@ -118,7 +118,6 @@ int DockFft::setFftRate(int fft_rate)
     if(idx != -1)
         ui->fftRateComboBox->setCurrentIndex(idx);
 
-    updateInfoLabels();
     return fftRate();
 }
 
@@ -138,7 +137,6 @@ int DockFft::setFftSize(int fft_size)
     if(idx != -1)
         ui->fftSizeComboBox->setCurrentIndex(idx);
 
-    updateInfoLabels();
     return fftSize();
 }
 
@@ -148,7 +146,6 @@ void DockFft::setSampleRate(float sample_rate)
         return;
 
     m_sample_rate = sample_rate;
-    updateInfoLabels();
 }
 
 /**
@@ -375,7 +372,6 @@ void DockFft::setZoomLevel(float level)
 {
     ui->fftZoomSlider->blockSignals(true);
     ui->fftZoomSlider->setValue((int) level);
-    ui->zoomLevelLabel->setText(QString("%1x").arg((int) level));
     ui->fftZoomSlider->blockSignals(false);
 }
 
@@ -384,7 +380,6 @@ void DockFft::on_fftSizeComboBox_currentIndexChanged(const QString &text)
 {
     int value = text.toInt();
     emit fftSizeChanged(value);
-    updateInfoLabels();
 }
 
 /** FFT rate changed. */
@@ -394,7 +389,6 @@ void DockFft::on_fftRateComboBox_currentIndexChanged(const QString & text)
     Q_UNUSED(text);
 
     emit fftRateChanged(fps);
-    updateInfoLabels();
 }
 
 void DockFft::on_fftWinComboBox_currentIndexChanged(int index)
@@ -430,14 +424,6 @@ void DockFft::on_wfSpanComboBox_currentIndexChanged(int index)
     emit wfSpanChanged(wf_span_table[index]);
 }
 
-/** Set waterfall time resolution. */
-void DockFft::setWfResolution(quint64 msec_per_line)
-{
-    float res = 1.0e-3 * (float)msec_per_line;
-
-    ui->wfResLabel->setText(QString("Res: %1 s").arg(res, 0, 'f', 2));
-}
-
 /**
  * @brief Split between waterfall and pandapter changed.
  * @param value The percentage of the waterfall.
@@ -458,7 +444,6 @@ void DockFft::on_fftAvgSlider_valueChanged(int value)
 /** FFT zoom level changed */
 void DockFft::on_fftZoomSlider_valueChanged(int level)
 {
-    ui->zoomLevelLabel->setText(QString("%1x").arg(level));
     emit fftZoomChanged((float)level);
 }
 
@@ -482,7 +467,6 @@ void DockFft::on_wfRangeSlider_valuesChanged(int min, int max)
 
 void DockFft::on_resetButton_clicked(void)
 {
-    ui->zoomLevelLabel->setText(QString("1x"));
     ui->fftZoomSlider->setValue(0);
     emit resetFftZoom();
 }
@@ -550,42 +534,4 @@ void DockFft::on_cmapComboBox_currentIndexChanged(int index)
 {
     Q_UNUSED(index);
     emit wfColormapChanged(ui->cmapComboBox->currentData().toString());
-}
-
-/** Update RBW and FFT overlab labels */
-void DockFft::updateInfoLabels(void)
-{
-    float   interval_ms;
-    float   interval_samples;
-    float   size;
-    float   rbw;
-    float   ovr;
-    int     rate;
-
-    if (m_sample_rate == 0.f)
-        return;
-
-    size = fftSize();
-
-    rbw = m_sample_rate / size;
-    if (rbw < 1.e3f)
-        ui->fftRbwLabel->setText(QString("RBW: %1 Hz").arg(rbw, 0, 'f', 1));
-    else if (rbw < 1.e6f)
-        ui->fftRbwLabel->setText(QString("RBW: %1 kHz").arg(1.e-3 * rbw, 0, 'f', 1));
-    else
-        ui->fftRbwLabel->setText(QString("RBW: %1 MHz").arg(1.e-6 * rbw, 0, 'f', 1));
-
-    rate = fftRate();
-    if (rate == 0)
-        ovr = 0;
-    else
-    {
-        interval_ms = 1000 / rate;
-        interval_samples = m_sample_rate * (interval_ms / 1000.0);
-        if (interval_samples >= size)
-            ovr = 0;
-        else
-            ovr = 100 * (1.f - interval_samples / size);
-    }
-    ui->fftOvrLabel->setText(QString("Overlap: %1%").arg(ovr, 0, 'f', 0));
 }
