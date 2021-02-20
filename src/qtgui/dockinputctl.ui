@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>280</width>
-    <height>315</height>
+    <width>240</width>
+    <height>240</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>280</width>
-    <height>315</height>
+    <width>240</width>
+    <height>240</height>
    </size>
   </property>
   <property name="windowIcon">
@@ -27,7 +27,7 @@
    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
   </property>
   <property name="windowTitle">
-   <string>Input</string>
+   <string>Input controls</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -51,7 +51,7 @@
       <item>
        <widget class="QLabel" name="lnbLabel">
         <property name="text">
-         <string>Shift</string>
+         <string>LNB LO</string>
         </property>
         <property name="indent">
          <number>-1</number>
@@ -136,7 +136,7 @@
          <string>Enable automatic DC removal</string>
         </property>
         <property name="text">
-         <string>Remove DC</string>
+         <string>DC remove</string>
         </property>
        </widget>
       </item>
@@ -146,7 +146,7 @@
          <string>Enable automatic I/Q balance (requires gr-iqbal component)</string>
         </property>
         <property name="text">
-         <string>Balance IQ</string>
+         <string>IQ balance</string>
         </property>
        </widget>
       </item>
@@ -227,14 +227,14 @@
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset subordinate digits in main frequency control widget&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
-       <string>Reset frequency dial digits</string>
+       <string>Reset frequency controller digits</string>
       </property>
      </widget>
     </item>
     <item>
      <widget class="QCheckBox" name="invertScrollingButton">
       <property name="text">
-       <string>Invert scroll direction</string>
+       <string>Invert scroll wheel direction</string>
       </property>
      </widget>
     </item>

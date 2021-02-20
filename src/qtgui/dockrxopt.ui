@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>376</width>
-    <height>389</height>
+    <width>280</width>
+    <height>330</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>376</width>
-    <height>389</height>
+    <width>280</width>
+    <height>330</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -36,7 +36,7 @@
    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
   </property>
   <property name="windowTitle">
-   <string>Receiver</string>
+   <string>Receiver Options</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -83,7 +83,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
          <string>The frequency of the hardware (not including LNB)</string>
         </property>
         <property name="text">
-         <string>Hardware frequency:</string>
+         <string>Hardware freq:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -329,7 +329,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Shape</string>
+         <string>Filter shape</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -385,7 +385,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Bandwidth</string>
+         <string>Filter width</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -527,7 +527,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
            <string>Noise blanker 1</string>
           </property>
           <property name="text">
-           <string>Static</string>
+           <string>NB1</string>
           </property>
           <property name="checkable">
            <bool>true</bool>
@@ -567,7 +567,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
            <string>Noise blanker 2</string>
           </property>
           <property name="text">
-           <string>Pulse</string>
+           <string>NB2</string>
           </property>
           <property name="checkable">
            <bool>true</bool>
@@ -745,7 +745,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
       </property>
       <property name="sizeHint" stdset="0">
        <size>
-        <width>0</width>
+        <width>10</width>
         <height>0</height>
        </size>
       </property>
