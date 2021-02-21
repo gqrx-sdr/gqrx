@@ -14,8 +14,7 @@
    <string>AFSK1200 Decoder</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../resources/icons.qrc">
-    <normaloff>:/icons/icons/terminal.svg</normaloff>:/icons/icons/terminal.svg</iconset>
+   <iconset theme="terminal"/>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -91,8 +90,8 @@
   </action>
   <action name="actionInfo">
    <property name="icon">
-    <iconset resource="../../resources/icons.qrc">
-     <normaloff>:/icons/icons/info.svg</normaloff>:/icons/icons/info.svg</iconset>
+    <iconset theme="help-info-symbolic">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Info</string>
