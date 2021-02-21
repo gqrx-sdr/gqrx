@@ -195,7 +195,7 @@
      <x>0</x>
      <y>0</y>
      <width>521</width>
-     <height>24</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -344,24 +344,6 @@
    </property>
    <property name="toolTip">
     <string>Start AFSK1200 decoder</string>
-   </property>
-  </action>
-  <action name="actionSched">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../../../resources/icons.qrc">
-     <normaloff>:/icons/icons/clock.svg</normaloff>:/icons/icons/clock.svg</iconset>
-   </property>
-   <property name="text">
-    <string>Scheduler</string>
-   </property>
-   <property name="toolTip">
-    <string>Schedule recordings and other actions</string>
    </property>
   </action>
   <action name="actionIoConfig">
