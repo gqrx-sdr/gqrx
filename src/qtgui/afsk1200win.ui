@@ -52,16 +52,6 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>800</width>
-     <height>27</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
     <string>toolBar</string>
@@ -72,12 +62,9 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionClose"/>
-   <addaction name="separator"/>
    <addaction name="actionClear"/>
    <addaction name="actionSave"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
   <action name="actionClear">
    <property name="icon">
     <iconset theme="edit-delete-symbolic">
@@ -100,18 +87,6 @@
    </property>
    <property name="toolTip">
     <string>Save received packets to a text file</string>
-   </property>
-  </action>
-  <action name="actionClose">
-   <property name="icon">
-    <iconset resource="../../resources/icons.qrc">
-     <normaloff>:/icons/icons/close.svg</normaloff>:/icons/icons/close.svg</iconset>
-   </property>
-   <property name="text">
-    <string>Close</string>
-   </property>
-   <property name="toolTip">
-    <string>Close AFSK1200 decoder window</string>
    </property>
   </action>
   <action name="actionInfo">
