@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Gqrx remote control settings</string>
+   <string>Remote control settings</string>
   </property>
   <property name="windowIcon">
    <iconset theme="network-transmit-receive-symbolic"/>
