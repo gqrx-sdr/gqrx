@@ -16,10 +16,6 @@
     <height>315</height>
    </size>
   </property>
-  <property name="windowIcon">
-   <iconset resource="../../resources/icons.qrc">
-    <normaloff>:/icons/icons/flash.svg</normaloff>:/icons/icons/flash.svg</iconset>
-  </property>
   <property name="floating">
    <bool>false</bool>
   </property>

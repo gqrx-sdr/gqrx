@@ -14,8 +14,8 @@
    <string>gqrx</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../resources/icons.qrc">
-    <normaloff>:/icons/icons/gqrx.svg</normaloff>:/icons/icons/gqrx.svg</iconset>
+   <iconset theme="gqrx">
+     <normaloff>.</normaloff>.</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true"/>

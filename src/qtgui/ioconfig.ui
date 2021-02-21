@@ -13,10 +13,6 @@
   <property name="windowTitle">
    <string>Configure I/O devices</string>
   </property>
-  <property name="windowIcon">
-   <iconset resource="../../resources/icons.qrc">
-    <normaloff>:/icons/icons/flash.svg</normaloff>:/icons/icons/flash.svg</iconset>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBoxInput">
