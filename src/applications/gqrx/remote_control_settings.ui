@@ -14,8 +14,7 @@
    <string>Gqrx remote control settings</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../resources/icons.qrc">
-    <normaloff>:/icons/icons/settings.svg</normaloff>:/icons/icons/settings.svg</iconset>
+   <iconset theme="network-transmit-receive-symbolic"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
