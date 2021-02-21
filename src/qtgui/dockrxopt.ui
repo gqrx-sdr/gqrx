@@ -32,6 +32,12 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>32</height>
+       </size>
+      </property>
       <property name="toolTip">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Channel filter offset.&lt;br/&gt;
 This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
