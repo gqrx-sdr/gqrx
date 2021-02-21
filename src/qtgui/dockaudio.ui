@@ -128,7 +128,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QPushButton" name="audioMuteButton">
+       <widget class="QToolButton" name="audioStreamButton">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -150,7 +150,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="audioStreamButton">
+       <widget class="QToolButton" name="audioMuteButton">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -175,7 +175,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="audioRecButton">
+       <widget class="QToolButton" name="audioRecButton">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -207,7 +207,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="audioPlayButton">
+       <widget class="QToolButton" name="audioPlayButton">
         <property name="enabled">
          <bool>false</bool>
         </property>
