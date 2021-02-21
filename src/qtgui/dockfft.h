@@ -94,7 +94,7 @@ private slots:
     void on_peakDetectionButton_toggled(bool checked);
     void on_lockButton_toggled(bool checked);
     void on_bandPlanCheckbox_stateChanged(int state);
-    void on_cmapComboBox_currentIndexChanged(int index);
+    void on_colorMapComboBox_currentIndexChanged(int index);
 
 private:
     void updateInfoLabels(void);
