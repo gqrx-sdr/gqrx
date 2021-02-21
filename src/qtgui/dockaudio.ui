@@ -63,7 +63,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Gain:</string>
+         <string>Gain</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>

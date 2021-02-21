@@ -67,7 +67,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
          <string>The frequency of the hardware (not including LNB)</string>
         </property>
         <property name="text">
-         <string>Hardware frequency:</string>
+         <string>Hardware frequency</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
