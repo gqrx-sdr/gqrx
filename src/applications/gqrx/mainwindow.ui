@@ -322,8 +322,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../../resources/icons.qrc">
-     <normaloff>:/icons/icons/play.svg</normaloff>:/icons/icons/play.svg</iconset>
+    <iconset theme="media-playback-start-symbolic">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Start DSP</string>
@@ -369,8 +369,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../../resources/icons.qrc">
-     <normaloff>:/icons/icons/flash.svg</normaloff>:/icons/icons/flash.svg</iconset>
+    <iconset theme="drive-harddisk-usb-symbolic">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>I/O Devices</string>
@@ -387,8 +387,8 @@
   </action>
   <action name="actionUserGroup">
    <property name="icon">
-    <iconset resource="../../../resources/icons.qrc">
-     <normaloff>:/icons/icons/help.svg</normaloff>:/icons/icons/help.svg</iconset>
+    <iconset theme="system-users-symbolic">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Gqrx user group</string>
@@ -402,8 +402,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../../resources/icons.qrc">
-     <normaloff>:/icons/icons/fullscreen.svg</normaloff>:/icons/icons/fullscreen.svg</iconset>
+    <iconset theme="view-fullscreen-symbolic">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Full screen</string>
@@ -417,8 +417,8 @@
   </action>
   <action name="actionLoadSettings">
    <property name="icon">
-    <iconset resource="../../../resources/icons.qrc">
-     <normaloff>:/icons/icons/folder.svg</normaloff>:/icons/icons/folder.svg</iconset>
+    <iconset theme="folder-open-symbolic">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Load settings</string>
@@ -435,8 +435,8 @@
   </action>
   <action name="actionSaveSettings">
    <property name="icon">
-    <iconset resource="../../../resources/icons.qrc">
-     <normaloff>:/icons/icons/floppy.svg</normaloff>:/icons/icons/floppy.svg</iconset>
+    <iconset theme="document-save-symbolic">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Save settings</string>
@@ -453,8 +453,8 @@
   </action>
   <action name="actionAddBookmark">
    <property name="icon">
-    <iconset resource="../../../resources/icons.qrc">
-     <normaloff>:/icons/icons/bookmark-new.svg</normaloff>:/icons/icons/bookmark-new.svg</iconset>
+    <iconset theme="bookmark-new-symbolic">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Add bookmark</string>
@@ -474,8 +474,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../../resources/icons.qrc">
-     <normaloff>:/icons/icons/tangeo-network-idle.svg</normaloff>:/icons/icons/tangeo-network-idle.svg</iconset>
+    <iconset theme="network-transmit-receive-symbolic">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Remote control</string>
@@ -489,8 +489,8 @@
   </action>
   <action name="actionRemoteConfig">
    <property name="icon">
-    <iconset resource="../../../resources/icons.qrc">
-     <normaloff>:/icons/icons/settings.svg</normaloff>:/icons/icons/settings.svg</iconset>
+    <iconset theme="preferences-system-symbolic">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Remote &amp;control settings</string>
@@ -501,8 +501,8 @@
   </action>
   <action name="actionIqTool">
    <property name="icon">
-    <iconset resource="../../../resources/icons.qrc">
-     <normaloff>:/icons/icons/signal.svg</normaloff>:/icons/icons/signal.svg</iconset>
+    <iconset theme="media-tape-symbolic">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>I/Q recorder</string>
@@ -519,8 +519,7 @@
   </action>
   <action name="actionNews">
    <property name="icon">
-    <iconset resource="../../../resources/icons.qrc">
-     <normaloff>:/icons/icons/info.svg</normaloff>:/icons/icons/info.svg</iconset>
+    <iconset theme="notification-new-symbolic"/>
    </property>
    <property name="text">
     <string>News</string>
@@ -531,8 +530,7 @@
   </action>
   <action name="actionRemoteProtocol">
    <property name="icon">
-    <iconset resource="../../../resources/icons.qrc">
-     <normaloff>:/icons/icons/info.svg</normaloff>:/icons/icons/info.svg</iconset>
+    <iconset theme="network-transmit-receive-symbolic"/>
    </property>
    <property name="text">
     <string>Remote control</string>
@@ -543,8 +541,7 @@
   </action>
   <action name="actionKbdShortcuts">
    <property name="icon">
-    <iconset resource="../../../resources/icons.qrc">
-     <normaloff>:/icons/icons/info.svg</normaloff>:/icons/icons/info.svg</iconset>
+    <iconset theme="input-keyboard-symbolic"/>
    </property>
    <property name="text">
     <string>Keyboard shortcuts</string>

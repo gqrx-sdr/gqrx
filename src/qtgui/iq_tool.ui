@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>482</width>
-    <height>327</height>
+    <height>300</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -25,10 +25,6 @@
   <property name="windowTitle">
    <string>I/Q recording and replay tool</string>
   </property>
-  <property name="windowIcon">
-   <iconset resource="../../resources/icons.qrc">
-    <normaloff>:/icons/icons/signal.svg</normaloff>:/icons/icons/signal.svg</iconset>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -44,6 +40,12 @@
        <property name="enabled">
         <bool>true</bool>
        </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="toolTip">
         <string>Enter a different location or use the select button</string>
        </property>
@@ -55,7 +57,7 @@
         <bool>true</bool>
        </property>
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -64,7 +66,11 @@
         <string>Select a different location</string>
        </property>
        <property name="text">
-        <string>Select</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset theme="folder-open-symbolic">
+         <normaloff>.</normaloff>.</iconset>
        </property>
        <property name="autoDefault">
         <bool>false</bool>
@@ -90,6 +96,12 @@
        <property name="enabled">
         <bool>true</bool>
        </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="minimumSize">
         <size>
          <width>32</width>
@@ -109,8 +121,7 @@
         <string>&amp;Rec</string>
        </property>
        <property name="icon">
-        <iconset resource="../../resources/icons.qrc">
-         <normaloff>:/icons/icons/record.svg</normaloff>:/icons/icons/record.svg</iconset>
+        <iconset theme="media-record-symbolic"/>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -122,6 +133,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="playButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="minimumSize">
         <size>
          <width>32</width>
@@ -141,8 +158,7 @@
         <string>&amp;Play</string>
        </property>
        <property name="icon">
-        <iconset resource="../../resources/icons.qrc">
-         <normaloff>:/icons/icons/play.svg</normaloff>:/icons/icons/play.svg</iconset>
+        <iconset theme="media-playback-start-symbolic"/>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -175,23 +191,16 @@
        </property>
       </widget>
      </item>
-     <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
     </layout>
    </item>
    <item>
     <widget class="QSlider" name="slider">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="toolTip">
       <string>Seek forward and backward in I/Q file</string>
      </property>
@@ -206,22 +215,6 @@
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QFrame" name="frame">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>50</height>
-      </size>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
      </property>
     </widget>
    </item>

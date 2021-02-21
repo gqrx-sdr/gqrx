@@ -16,10 +16,6 @@
   <property name="windowTitle">
    <string>AGC Settings</string>
   </property>
-  <property name="windowIcon">
-   <iconset resource="../../resources/icons.qrc">
-    <normaloff>:/icons/icons/signal.svg</normaloff>:/icons/icons/signal.svg</iconset>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">

@@ -80,8 +80,8 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionClear">
    <property name="icon">
-    <iconset resource="../../resources/icons.qrc">
-     <normaloff>:/icons/icons/clear.svg</normaloff>:/icons/icons/clear.svg</iconset>
+    <iconset theme="edit-delete-symbolic">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Clear</string>
@@ -92,8 +92,8 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset resource="../../resources/icons.qrc">
-     <normaloff>:/icons/icons/floppy.svg</normaloff>:/icons/icons/floppy.svg</iconset>
+    <iconset theme="document-save-symbolic">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Save</string>

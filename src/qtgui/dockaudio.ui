@@ -22,10 +22,6 @@
     <height>195</height>
    </size>
   </property>
-  <property name="windowIcon">
-   <iconset resource="../../resources/icons.qrc">
-    <normaloff>:/icons/icons/signal.svg</normaloff>:/icons/icons/signal.svg</iconset>
-  </property>
   <property name="allowedAreas">
    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
   </property>
@@ -210,13 +206,16 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Stream raw audio over UDP</string>
+         <string>Mute audio output</string>
         </property>
         <property name="statusTip">
-         <string>Stream raw audio over UDP</string>
+         <string>Mute audio output</string>
         </property>
         <property name="text">
-         <string>UDP</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset theme="audio-volume-high-symbolic"/>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -250,7 +249,11 @@
          <string>Record audio</string>
         </property>
         <property name="text">
-         <string>Rec</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset theme="media-record-symbolic">
+          <normaloff>.</normaloff>.</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -293,7 +296,11 @@
          <string>Playback previously recorded audio</string>
         </property>
         <property name="text">
-         <string>Play</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset theme="media-playback-start-symbolic">
+          <normaloff>.</normaloff>.</iconset>
         </property>
         <property name="iconSize">
          <size>
