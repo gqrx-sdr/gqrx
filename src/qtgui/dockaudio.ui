@@ -242,7 +242,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="audioConfButton">
+       <widget class="QToolButton" name="audioConfButton">
         <property name="enabled">
          <bool>true</bool>
         </property>
