@@ -6,22 +6,27 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>315</width>
-    <height>182</height>
+    <width>279</width>
+    <height>204</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Audio options</string>
   </property>
-  <property name="windowIcon">
-   <iconset resource="../../resources/icons.qrc">
-    <normaloff>:/icons/icons/audio-card.svg</normaloff>:/icons/icons/audio-card.svg</iconset>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QTabWidget" name="tabWidget">
+     <property name="tabPosition">
+      <enum>QTabWidget::North</enum>
+     </property>
+     <property name="tabShape">
+      <enum>QTabWidget::Rounded</enum>
+     </property>
      <property name="currentIndex">
       <number>0</number>
+     </property>
+     <property name="elideMode">
+      <enum>Qt::ElideNone</enum>
      </property>
      <widget class="QWidget" name="tab0">
       <attribute name="title">
@@ -39,109 +44,12 @@
             <string>Adjust split between pandapter and waterfall</string>
            </property>
            <property name="text">
-            <string>Pandapter</string>
+            <string>Spec.</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QSlider" name="fftSplitSlider">
-           <property name="toolTip">
-            <string>Adjust split between pandapter and waterfall</string>
-           </property>
-           <property name="minimum">
-            <number>0</number>
-           </property>
-           <property name="maximum">
-            <number>100</number>
-           </property>
-           <property name="value">
-            <number>100</number>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="fftSplitLabel2">
-           <property name="toolTip">
-            <string>Adjust split between pandapter and waterfall</string>
-           </property>
-           <property name="text">
-            <string>Waterfall</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QFormLayout" name="formLayout">
-         <item row="0" column="0">
-          <widget class="QLabel" name="pandRangeLabel">
-           <property name="toolTip">
-            <string>Adjust dB range on the pandapter</string>
-           </property>
-           <property name="text">
-            <string>Pandapter dB range</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="ctkRangeSlider" name="pandRangeSlider">
-           <property name="toolTip">
-            <string>Adjust dB range on the pandapter</string>
-           </property>
-           <property name="minimum">
-            <number>-120</number>
-           </property>
-           <property name="maximum">
-            <number>0</number>
-           </property>
-           <property name="value">
-            <number>-80</number>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="wfRangeLabel">
-           <property name="toolTip">
-            <string>Adjust dB range on the waterfall</string>
-           </property>
-           <property name="text">
-            <string>Waterfall dB range</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="ctkRangeSlider" name="wfRangeSlider">
-           <property name="toolTip">
-            <string>Adjust dB range on the waterfall</string>
-           </property>
-           <property name="minimum">
-            <number>-120</number>
-           </property>
-           <property name="maximum">
-            <number>0</number>
-           </property>
-           <property name="value">
-            <number>-80</number>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QPushButton" name="audioLockButton">
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -149,23 +57,250 @@
             </sizepolicy>
            </property>
            <property name="toolTip">
-            <string>Lock panadapter and waterfall sliders together</string>
+            <string>Adjust split between pandapter and waterfall</string>
            </property>
-           <property name="statusTip">
-            <string>Lock panadapter and waterfall sliders together</string>
+           <property name="minimum">
+            <number>0</number>
            </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>100</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label">
            <property name="text">
-            <string>Lock</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="autoDefault">
-            <bool>false</bool>
+            <string>Wf.</string>
            </property>
           </widget>
          </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>dB ranges</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="pandRangeLabel">
+            <property name="toolTip">
+             <string>Adjust dB range on the pandapter</string>
+            </property>
+            <property name="text">
+             <string>Spec.</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="ctkRangeSlider" name="pandRangeSlider">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Adjust dB range on the pandapter</string>
+            </property>
+            <property name="minimum">
+             <number>-120</number>
+            </property>
+            <property name="maximum">
+             <number>0</number>
+            </property>
+            <property name="value">
+             <number>-80</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2" rowspan="2">
+           <widget class="QPushButton" name="audioLockButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Lock panadapter and waterfall sliders together</string>
+            </property>
+            <property name="statusTip">
+             <string>Lock panadapter and waterfall sliders together</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset theme="link-symbolic">
+              <normaloff>.</normaloff>.</iconset>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="wfRangeLabel">
+            <property name="toolTip">
+             <string>Adjust dB range on the waterfall</string>
+            </property>
+            <property name="text">
+             <string>Wf.</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="ctkRangeSlider" name="wfRangeSlider">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Adjust dB range on the waterfall</string>
+            </property>
+            <property name="minimum">
+             <number>-120</number>
+            </property>
+            <property name="maximum">
+             <number>0</number>
+            </property>
+            <property name="value">
+             <number>-80</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab2">
+      <attribute name="title">
+       <string>UDP</string>
+      </attribute>
+      <attribute name="toolTip">
+       <string>Network streaming settings</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="hostLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Network host to stream to</string>
+         </property>
+         <property name="text">
+          <string>Host</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="udpHost">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Network host to stream to</string>
+         </property>
+         <property name="text">
+          <string>localhost</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="portLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Network port to stream to</string>
+         </property>
+         <property name="text">
+          <string>Port</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSpinBox" name="udpPort">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Network port to stream to</string>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>65535</number>
+         </property>
+         <property name="value">
+          <number>7355</number>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QCheckBox" name="udpStereo">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Stereo</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -180,7 +315,7 @@
        <item>
         <widget class="QLabel" name="recDirLabel">
          <property name="text">
-          <string>Location for recorded audio files:</string>
+          <string>Location</string>
          </property>
         </widget>
        </item>
@@ -188,6 +323,12 @@
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <widget class="QLineEdit" name="recDirEdit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="toolTip">
             <string>Enter a location for recordings</string>
            </property>
@@ -195,11 +336,21 @@
          </item>
          <item>
           <widget class="QPushButton" name="recDirButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="toolTip">
             <string>Select a location using a browser</string>
            </property>
            <property name="text">
-            <string>Select</string>
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="folder-open-symbolic">
+             <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
          </item>
@@ -212,100 +363,8 @@
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab2">
-      <attribute name="title">
-       <string>Network</string>
-      </attribute>
-      <attribute name="toolTip">
-       <string>Network streaming settings</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_3">
-       <item>
-        <layout class="QGridLayout" name="gridLayout">
-         <item row="1" column="0">
-          <widget class="QLabel" name="portLabel">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="toolTip">
-            <string>Network port to stream to</string>
-           </property>
-           <property name="text">
-            <string>UDP port</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QSpinBox" name="udpPort">
-           <property name="toolTip">
-            <string>Network port to stream to</string>
-           </property>
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>65535</number>
-           </property>
-           <property name="value">
-            <number>7355</number>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1" colspan="2">
-          <widget class="QLineEdit" name="udpHost">
-           <property name="toolTip">
-            <string>Network host to stream to</string>
-           </property>
-           <property name="text">
-            <string>localhost</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="hostLabel">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="toolTip">
-            <string>Network host to stream to</string>
-           </property>
-           <property name="text">
-            <string>UDP host</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QCheckBox" name="udpStereo">
-           <property name="text">
-            <string>Stereo</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>1</height>
+           <width>0</width>
+           <height>0</height>
           </size>
          </property>
         </spacer>
