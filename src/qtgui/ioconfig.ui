@@ -259,13 +259,6 @@
     </widget>
    </item>
    <item>
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QGroupBox" name="groupBoxOutput">
      <property name="title">
       <string>Audio output</string>
