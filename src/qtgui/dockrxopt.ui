@@ -539,7 +539,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
            <string>Auto squelch</string>
           </property>
           <property name="text">
-           <string>Auto</string>
+           <string>Current</string>
           </property>
           <property name="iconSize">
            <size>
