@@ -586,11 +586,7 @@
          <string>Lock panadapter and waterfall sliders together</string>
         </property>
         <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset theme="link-symbolic">
-          <normaloff>.</normaloff>.</iconset>
+         <string>Sync</string>
         </property>
         <property name="checkable">
          <bool>true</bool>

@@ -291,6 +291,9 @@
    </property>
   </widget>
   <action name="actionQuit">
+   <property name="icon">
+    <iconset theme="application-exit"/>
+   </property>
    <property name="text">
     <string>Quit</string>
    </property>
@@ -302,6 +305,9 @@
    </property>
   </action>
   <action name="actionAbout">
+   <property name="icon">
+    <iconset theme="help-about"/>
+   </property>
    <property name="text">
     <string>About Gqrx</string>
    </property>
@@ -310,6 +316,9 @@
    </property>
   </action>
   <action name="actionAboutQt">
+   <property name="icon">
+    <iconset theme="help-about"/>
+   </property>
    <property name="text">
     <string>About Qt</string>
    </property>
@@ -322,8 +331,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset theme="media-playback-start-symbolic">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme="media-playback-start"/>
    </property>
    <property name="text">
     <string>Start DSP</string>
@@ -339,6 +347,9 @@
    </property>
   </action>
   <action name="actionAFSK1200">
+   <property name="icon">
+    <iconset theme="terminal"/>
+   </property>
    <property name="text">
     <string>AFSK1200 Decoder</string>
    </property>
@@ -351,8 +362,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset theme="drive-harddisk-usb-symbolic">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme="audio-card"/>
    </property>
    <property name="text">
     <string>I/O Devices</string>
@@ -369,8 +379,7 @@
   </action>
   <action name="actionUserGroup">
    <property name="icon">
-    <iconset theme="system-users-symbolic">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme="user"/>
    </property>
    <property name="text">
     <string>Gqrx user group</string>
@@ -384,8 +393,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset theme="view-fullscreen-symbolic">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme="view-fullscreen"/>
    </property>
    <property name="text">
     <string>Full screen</string>
@@ -399,8 +407,7 @@
   </action>
   <action name="actionLoadSettings">
    <property name="icon">
-    <iconset theme="folder-open-symbolic">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme="document-open"/>
    </property>
    <property name="text">
     <string>Load settings</string>
@@ -417,8 +424,7 @@
   </action>
   <action name="actionSaveSettings">
    <property name="icon">
-    <iconset theme="document-save-symbolic">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme="document-save"/>
    </property>
    <property name="text">
     <string>Save settings</string>
@@ -435,8 +441,7 @@
   </action>
   <action name="actionAddBookmark">
    <property name="icon">
-    <iconset theme="bookmark-new-symbolic">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme="bookmark-new"/>
    </property>
    <property name="text">
     <string>Add bookmark</string>
@@ -456,8 +461,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset theme="network-transmit-receive-symbolic">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme="network-wireless"/>
    </property>
    <property name="text">
     <string>&amp;Remote control</string>
@@ -471,7 +475,7 @@
   </action>
   <action name="actionRemoteConfig">
    <property name="icon">
-    <iconset theme="preferences-system-symbolic">
+    <iconset theme="preferences-system">
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
@@ -483,8 +487,7 @@
   </action>
   <action name="actionIqTool">
    <property name="icon">
-    <iconset theme="media-tape-symbolic">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme="media-record"/>
    </property>
    <property name="text">
     <string>I/Q recorder</string>
@@ -501,7 +504,7 @@
   </action>
   <action name="actionNews">
    <property name="icon">
-    <iconset theme="notification-new-symbolic"/>
+    <iconset theme="document-new"/>
    </property>
    <property name="text">
     <string>News</string>
@@ -512,7 +515,7 @@
   </action>
   <action name="actionRemoteProtocol">
    <property name="icon">
-    <iconset theme="network-transmit-receive-symbolic"/>
+    <iconset theme="network-wireless"/>
    </property>
    <property name="text">
     <string>Remote control</string>
@@ -523,7 +526,8 @@
   </action>
   <action name="actionKbdShortcuts">
    <property name="icon">
-    <iconset theme="input-keyboard-symbolic"/>
+    <iconset theme="input-keyboard-symbolic">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Keyboard shortcuts</string>
@@ -533,6 +537,9 @@
    </property>
   </action>
   <action name="actionSaveWaterfall">
+   <property name="icon">
+    <iconset theme="image-x-generic"/>
+   </property>
    <property name="text">
     <string>Save waterfall</string>
    </property>

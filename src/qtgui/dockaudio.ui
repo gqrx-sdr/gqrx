@@ -189,8 +189,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset theme="media-record-symbolic">
-          <normaloff>.</normaloff>.</iconset>
+         <iconset theme="media-record"/>
         </property>
         <property name="iconSize">
          <size>
@@ -224,8 +223,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset theme="media-playback-start-symbolic">
-          <normaloff>.</normaloff>.</iconset>
+         <iconset theme="media-playback-start"/>
         </property>
         <property name="iconSize">
          <size>
