@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset theme="gqrx">
-     <normaloff>.</normaloff>.</iconset>
+    <normaloff>.</normaloff>.</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
