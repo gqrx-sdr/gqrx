@@ -569,7 +569,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QPushButton" name="lockButton">
+       <widget class="QToolButton" name="lockButton">
         <property name="enabled">
          <bool>true</bool>
         </property>
