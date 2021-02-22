@@ -44,7 +44,7 @@
             <string>Adjust split between pandapter and waterfall</string>
            </property>
            <property name="text">
-            <string>Spec.</string>
+            <string>Pand.</string>
            </property>
           </widget>
          </item>
@@ -94,7 +94,7 @@
              <string>Adjust dB range on the pandapter</string>
             </property>
             <property name="text">
-             <string>Spec.</string>
+             <string>Pand.</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -123,35 +123,6 @@
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2" rowspan="2">
-           <widget class="QPushButton" name="audioLockButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Lock panadapter and waterfall sliders together</string>
-            </property>
-            <property name="statusTip">
-             <string>Lock panadapter and waterfall sliders together</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset theme="link-symbolic">
-              <normaloff>.</normaloff>.</iconset>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-            <property name="autoDefault">
-             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -190,6 +161,28 @@
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2" rowspan="2">
+           <widget class="QToolButton" name="audioLockButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Synchronize panadapter and waterfall ranges</string>
+            </property>
+            <property name="statusTip">
+             <string>Synchronize panadapter and waterfall ranges</string>
+            </property>
+            <property name="text">
+             <string>Sync</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
             </property>
            </widget>
           </item>

@@ -222,7 +222,7 @@
     <item row="5" column="0">
      <widget class="QLabel" name="pandLabel">
       <property name="text">
-       <string>Spec. / Wf.</string>
+       <string>Pand. / Wf.</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -580,10 +580,10 @@
          </sizepolicy>
         </property>
         <property name="toolTip">
-         <string>Lock panadapter and waterfall sliders together</string>
+         <string>Synchronize panadapter and waterfall ranges</string>
         </property>
         <property name="statusTip">
-         <string>Lock panadapter and waterfall sliders together</string>
+         <string>Synchronize panadapter and waterfall ranges</string>
         </property>
         <property name="text">
          <string>Sync</string>
@@ -698,7 +698,7 @@
          <string>Set pandapter dB range</string>
         </property>
         <property name="text">
-         <string>Spec. range</string>
+         <string>Pand. range</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -729,7 +729,7 @@
        <string>Color for the FFT plot</string>
       </property>
       <property name="text">
-       <string>Spec. color</string>
+       <string>Pand. color</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
