@@ -342,7 +342,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="folder-open-symbolic">
+            <iconset theme="folder-open">
              <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
