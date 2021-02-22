@@ -14,7 +14,8 @@
    <string>AFSK1200 Decoder</string>
   </property>
   <property name="windowIcon">
-   <iconset theme="terminal"/>
+   <iconset theme="terminal">
+    <normaloff>.</normaloff>.</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -66,8 +67,7 @@
   </widget>
   <action name="actionClear">
    <property name="icon">
-    <iconset theme="edit-delete-symbolic">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme="edit-delete"/>
    </property>
    <property name="text">
     <string>Clear</string>
@@ -78,8 +78,7 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset theme="document-save-symbolic">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme="document-save"/>
    </property>
    <property name="text">
     <string>Save</string>
@@ -90,7 +89,7 @@
   </action>
   <action name="actionInfo">
    <property name="icon">
-    <iconset theme="help-info-symbolic">
+    <iconset theme="help-about">
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
