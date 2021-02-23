@@ -261,7 +261,7 @@ void DockFft::saveSettings(QSettings *settings)
         settings->remove("db_ranges_locked");
 
     // Band Plan
-    if (ui->bandPlanCheckbox->isChecked())
+    if (ui->bandPlanButton->isChecked())
         settings->setValue("bandplan", true);
     else
         settings->remove("bandplan");
@@ -339,7 +339,7 @@ void DockFft::readSettings(QSettings *settings)
     ui->lockButton->setChecked(bool_val);
 
     bool_val = settings->value("bandplan", false).toBool();
-    ui->bandPlanCheckbox->setChecked(bool_val);
+    ui->bandPlanButton->setChecked(bool_val);
     emit bandPlanChanged(bool_val);
 
     QString cmap = settings->value("waterfall_colormap", "gqrx").toString();
@@ -505,9 +505,9 @@ void DockFft::on_peakDetectionButton_toggled(bool checked)
     emit peakDetectionToggled(checked);
 }
 
-void DockFft::on_bandPlanCheckbox_stateChanged(int state)
+void DockFft::on_bandPlanButton_toggled(bool checked)
 {
-    emit bandPlanChanged(state == 2);
+    emit bandPlanChanged(checked);
 }
 
 /** lock button toggled */

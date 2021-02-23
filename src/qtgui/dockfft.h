@@ -93,7 +93,7 @@ private slots:
     void on_peakHoldButton_toggled(bool checked);
     void on_peakDetectionButton_toggled(bool checked);
     void on_lockButton_toggled(bool checked);
-    void on_bandPlanCheckbox_stateChanged(int state);
+    void on_bandPlanButton_toggled(bool checked);
     void on_colorMapComboBox_currentIndexChanged(int index);
 
 private:
