@@ -292,7 +292,8 @@
   </widget>
   <action name="actionQuit">
    <property name="icon">
-    <iconset theme="application-exit"/>
+    <iconset theme="application-exit">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Quit</string>
@@ -306,7 +307,8 @@
   </action>
   <action name="actionAbout">
    <property name="icon">
-    <iconset theme="help-about"/>
+    <iconset theme="help-about">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>About Gqrx</string>
@@ -317,7 +319,8 @@
   </action>
   <action name="actionAboutQt">
    <property name="icon">
-    <iconset theme="help-about"/>
+    <iconset theme="help-about">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>About Qt</string>
@@ -331,7 +334,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset theme="media-playback-start"/>
+    <iconset theme="media-playback-start">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Start DSP</string>
@@ -348,7 +352,8 @@
   </action>
   <action name="actionAFSK1200">
    <property name="icon">
-    <iconset theme="terminal"/>
+    <iconset theme="terminal">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>AFSK1200 Decoder</string>
@@ -362,7 +367,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset theme="audio-card"/>
+    <iconset theme="audio-card">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>I/O Devices</string>
@@ -393,7 +399,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset theme="view-fullscreen"/>
+    <iconset theme="view-fullscreen">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Full screen</string>
@@ -407,7 +414,8 @@
   </action>
   <action name="actionLoadSettings">
    <property name="icon">
-    <iconset theme="document-open"/>
+    <iconset theme="document-open">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Load settings</string>
@@ -424,7 +432,8 @@
   </action>
   <action name="actionSaveSettings">
    <property name="icon">
-    <iconset theme="document-save"/>
+    <iconset theme="document-save">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Save settings</string>
@@ -441,7 +450,8 @@
   </action>
   <action name="actionAddBookmark">
    <property name="icon">
-    <iconset theme="bookmark-new"/>
+    <iconset theme="bookmark-new">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Add bookmark</string>
@@ -461,7 +471,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset theme="network-wireless"/>
+    <iconset theme="network-wireless">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Remote control</string>
@@ -475,8 +486,7 @@
   </action>
   <action name="actionRemoteConfig">
    <property name="icon">
-    <iconset theme="preferences-system">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme="preferences-system"/>
    </property>
    <property name="text">
     <string>Remote &amp;control settings</string>
@@ -487,7 +497,8 @@
   </action>
   <action name="actionIqTool">
    <property name="icon">
-    <iconset theme="media-record"/>
+    <iconset theme="media-record">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>I/Q recorder</string>
@@ -504,7 +515,8 @@
   </action>
   <action name="actionNews">
    <property name="icon">
-    <iconset theme="document-new"/>
+    <iconset theme="document-new">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>News</string>
@@ -515,7 +527,8 @@
   </action>
   <action name="actionRemoteProtocol">
    <property name="icon">
-    <iconset theme="network-wireless"/>
+    <iconset theme="network-wireless">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Remote control</string>
