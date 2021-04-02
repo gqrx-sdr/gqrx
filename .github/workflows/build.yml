@@ -105,7 +105,7 @@ jobs:
           cd gr-osmosdr
           mkdir build
           cd build
-          cmake -DENABLE_PYTHON=FALSE ..
+          cmake ..
           LIBRARY_PATH=/usr/local/opt/icu4c/lib make
           make install
       - name: Checkout code
