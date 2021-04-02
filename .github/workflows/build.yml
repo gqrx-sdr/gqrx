@@ -87,7 +87,7 @@ jobs:
         run: |
           brew update
           brew install --HEAD --build-from-source dylibbundler portaudio
-          brew install airspy boost gnuradio hackrf libbladerf librtlsdr uhd
+          brew install airspy boost gnuradio hackrf libbladerf librtlsdr pybind11 uhd
           brew tap pothosware/homebrew-pothos
           brew install soapysdr soapyremote
 
