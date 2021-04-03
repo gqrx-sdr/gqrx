@@ -42,5 +42,5 @@ cp -r /usr/local/lib/SoapySDR/modules* Gqrx.app/Contents/soapy-modules
 chmod 644 Gqrx.app/Contents/soapy-modules/*
 
 dylibbundler -s /usr/local/opt/icu4c/lib/ -od -b -x Gqrx.app/Contents/MacOS/gqrx -x Gqrx.app/Contents/soapy-modules/libremoteSupport.so -d Gqrx.app/Contents/Libs/
-/usr/local/opt/qt/bin/macdeployqt Gqrx.app -dmg -no-strip -always-overwrite
+/usr/local/opt/qt@5/bin/macdeployqt Gqrx.app -dmg -no-strip -always-overwrite
 mv Gqrx.dmg Gqrx-$GQRX_VERSION.dmg
