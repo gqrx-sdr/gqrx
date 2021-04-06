@@ -42,7 +42,5 @@ cp -r /usr/local/lib/SoapySDR/modules* Gqrx.app/Contents/soapy-modules
 chmod 644 Gqrx.app/Contents/soapy-modules/*
 
 dylibbundler -s /usr/local/opt/icu4c/lib/ -od -b -x Gqrx.app/Contents/MacOS/gqrx -x Gqrx.app/Contents/soapy-modules/libremoteSupport.so -d Gqrx.app/Contents/Libs/
-cp /usr/local/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/Python Gqrx.app/Contents/Libs
-install_name_tool -change "/usr/local/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/Python" "@executable_path/../libs/Python" "Gqrx.app/Contents/Libs/libgnuradio-runtime.3.9.0.0.dylib"
 /usr/local/opt/qt@5/bin/macdeployqt Gqrx.app -dmg -no-strip -always-overwrite
 mv Gqrx.dmg Gqrx-$GQRX_VERSION.dmg
