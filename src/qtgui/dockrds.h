@@ -28,6 +28,7 @@ private:
 
 signals:
     void rdsDecoderToggled(bool);
+    void rdsPI(QString text);
 
 private slots:
     void on_rdsCheckbox_toggled(bool checked);

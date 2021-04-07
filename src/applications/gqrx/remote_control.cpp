@@ -42,6 +42,7 @@ RemoteControl::RemoteControl(QObject *parent) :
     rc_mode = 0;
     rc_passband_lo = 0;
     rc_passband_hi = 0;
+    rc_program_id = "0000";
     signal_level = -200.0;
     squelch_level = -150.0;
     audio_recorder_status = false;
@@ -61,7 +62,6 @@ RemoteControl::RemoteControl(QObject *parent) :
 #endif
 
     connect(&rc_server, SIGNAL(newConnection()), this, SLOT(acceptConnection()));
-
 }
 
 RemoteControl::~RemoteControl()
@@ -233,6 +233,8 @@ void RemoteControl::startRead()
         answer = cmd_get_split_vfo();
     else if (cmd == "S")
         answer = cmd_set_split_vfo();
+    else if (cmd == "p")
+        answer = cmd_get_pi();
     else if (cmd == "_")
         answer = cmd_get_info();
     else if (cmd == "AOS")
@@ -388,6 +390,12 @@ bool RemoteControl::setGain(QString name, double gain)
         }
     }
     return false;
+}
+
+/*! \brief Set RDS program identification (from RDS parser). */
+void RemoteControl::rdsPI(QString program_id)
+{
+    rc_program_id = program_id;
 }
 
 
@@ -745,6 +753,12 @@ QString RemoteControl::cmd_set_func(QStringList cmdlist)
     }
 
     return answer;
+}
+
+/* Get RDS PI */
+QString RemoteControl::cmd_get_pi() const
+{
+    return QString("%1\n").arg(rc_program_id);
 }
 
 /* Get current 'VFO' (fake, only for hamlib) */

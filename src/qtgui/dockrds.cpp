@@ -54,6 +54,7 @@ void DockRDS::updateRDS(QString text, int type)
     switch (type)
     {
     case 0:
+        emit rdsPI(text);
         ui->program_information->setText(text);
         break;
     case 1:

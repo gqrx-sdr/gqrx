@@ -95,6 +95,7 @@ public slots:
     void startAudioRecorder(QString unused);
     void stopAudioRecorder();
     bool setGain(QString name, double gain);
+    void rdsPI(QString program_id);
 
 signals:
     void newFrequency(qint64 freq);
@@ -129,6 +130,7 @@ private:
     int         rc_passband_hi;    /*!< Current high cutoff. */
     float       signal_level;      /*!< Signal level in dBFS */
     double      squelch_level;     /*!< Squelch level in dBFS */
+    QString     rc_program_id;     /*!< RDS Program identification */
     bool        audio_recorder_status; /*!< Recording enabled */
     bool        receiver_running;  /*!< Whether the receiver is running or not */
     bool        hamlib_compatible;
@@ -152,6 +154,7 @@ private:
     QString     cmd_get_split_vfo() const;
     QString     cmd_set_split_vfo();
     QString     cmd_get_info() const;
+    QString     cmd_get_pi() const;
     QString     cmd_AOS();
     QString     cmd_LOS();
     QString     cmd_lnb_lo(QStringList cmdlist);

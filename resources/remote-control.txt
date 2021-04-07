@@ -23,6 +23,8 @@ Supported commands:
     Get the value of the gain setting with the name <gain_name>
  L <gain_name>_GAIN <value>
     Set the value of the gain setting with the name <gain_name> to <value>
+ p RDS Program Identification
+    Get the RDS program identification
  u RECORD
     Get status of audio recorder
  U RECORD <status>
