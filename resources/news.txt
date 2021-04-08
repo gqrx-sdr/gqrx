@@ -2,6 +2,7 @@
     2.15.5: In progress...
 
        NEW: Added SoapyRemote to AppImage and DMG releases.
+     FIXED: Compatibility with case-sensitive filesystems on MacOS.
 
 
     2.14.4: Released December 28, 2020
