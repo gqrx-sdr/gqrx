@@ -22,6 +22,7 @@ public slots:
     void showDisabled();
     void setEnabled();
     void setDisabled();
+    void setRDSmode(bool cmd);
 
 private:
     void ClearTextFields();

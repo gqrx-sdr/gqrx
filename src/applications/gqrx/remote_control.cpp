@@ -235,6 +235,8 @@ void RemoteControl::startRead()
         answer = cmd_set_split_vfo();
     else if (cmd == "p")
         answer = cmd_get_pi();
+    else if (cmd == "R")
+        answer = cmd_set_rds(cmdlist);
     else if (cmd == "_")
         answer = cmd_get_info();
     else if (cmd == "AOS")
@@ -720,7 +722,7 @@ QString RemoteControl::cmd_set_func(QStringList cmdlist)
 
     if (func == "?")
     {
-        answer = QString("RECORD DSP\n");
+        answer = QString("RECORD DSP RDS\n");
     }
     else if ((func.compare("RECORD", Qt::CaseInsensitive) == 0) && ok)
     {
@@ -746,6 +748,23 @@ QString RemoteControl::cmd_set_func(QStringList cmdlist)
             emit dspChanged(false);
 
         answer = QString("RPRT 0\n");
+    }
+    else if ((func.compare("RDS", Qt::CaseInsensitive) == 0) && ok)
+    {
+        bool value = (status == 0) ? false : true;
+        if (status == 1) {
+            emit newRDSmode(value);
+            answer = QString("RPRT 0\n");
+        }
+        else if (status == 0) {
+            emit newRDSmode(value);
+            rc_program_id = "0000";
+            answer = QString("RPRT 0\n");
+        }
+        else
+            answer = QString("RPRT 1\n");
+
+        return answer;
     }
     else
     {
@@ -793,6 +812,30 @@ QString RemoteControl::cmd_get_split_vfo() const
 QString RemoteControl::cmd_set_split_vfo()
 {
     return QString("RPRT 1\n");
+}
+
+/* Set the RDS decoder on or off */
+QString RemoteControl::cmd_set_rds(QStringList cmdlist)
+{
+    QString cmd_arg = cmdlist.value(1, "");
+    QString answer;
+    bool value;
+
+    if (cmd_arg.compare("1") == 0) {
+        value = true;
+        emit newRDSmode(value);
+        answer = QString("RPRT 0\n");
+    }
+    else if (cmd_arg.compare("0") == 0) {
+        value = false;
+        emit newRDSmode(value);
+        rc_program_id = "0000";
+        answer = QString("RPRT 0\n");
+    }
+    else
+        answer = QString("RPRT 1\n");
+
+    return answer;
 }
 
 /* Get info */

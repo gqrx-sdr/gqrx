@@ -108,6 +108,7 @@ signals:
     void stopAudioRecorderEvent();
     void gainChanged(QString name, double value);
     void dspChanged(bool value);
+    void newRDSmode(bool value);;
 
 private slots:
     void acceptConnection();
@@ -154,6 +155,7 @@ private:
     QString     cmd_get_split_vfo() const;
     QString     cmd_set_split_vfo();
     QString     cmd_get_info() const;
+    QString     cmd_set_rds(QStringList cmdlist);
     QString     cmd_get_pi() const;
     QString     cmd_AOS();
     QString     cmd_LOS();

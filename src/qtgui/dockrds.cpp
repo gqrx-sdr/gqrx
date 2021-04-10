@@ -137,3 +137,33 @@ void DockRDS::on_rdsCheckbox_toggled(bool checked)
 {
     emit rdsDecoderToggled(checked);
 }
+
+/* used by remote control */
+void DockRDS::setRDSmode(bool cmd)
+{
+    if (!ui->rdsCheckbox->isEnabled())
+        return;
+    if (cmd && ui->rdsCheckbox->isChecked())
+        return;
+    if (!cmd && !ui->rdsCheckbox->isChecked())
+        return;
+
+    if (cmd)
+    {
+        ui->rdsCheckbox->setDisabled(true);
+        ui->rdsCheckbox->blockSignals(true);
+        emit rdsDecoderToggled(true);
+        ui->rdsCheckbox->setChecked(true);
+        ui->rdsCheckbox->blockSignals(false);
+        ui->rdsCheckbox->setEnabled(true);
+    }
+    else
+    {
+        ui->rdsCheckbox->setDisabled(true);
+        ui->rdsCheckbox->blockSignals(true);
+        emit rdsDecoderToggled(false);
+        ui->rdsCheckbox->setChecked(false);
+        ui->rdsCheckbox->blockSignals(false);
+        ui->rdsCheckbox->setEnabled(true);
+    }
+}
