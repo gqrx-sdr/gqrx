@@ -23,7 +23,7 @@ Supported commands:
     Get the value of the gain setting with the name <gain_name>
  L <gain_name>_GAIN <value>
     Set the value of the gain setting with the name <gain_name> to <value>
- p RDS Program Identification
+ p
     Get the RDS PI code (in hexadecimal). Returns 0000 if not applicable.
  u RECORD
     Get status of audio recorder
