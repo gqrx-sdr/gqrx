@@ -2,6 +2,7 @@
     2.15.5: In progress...
 
        NEW: Added SoapyRemote to AppImage and DMG releases.
+       NEW: Added SoapyPlutoSDR to DMG release.
      FIXED: Compatibility with case-sensitive filesystems on MacOS.
 
 
