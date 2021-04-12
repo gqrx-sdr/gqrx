@@ -45,6 +45,7 @@ jobs:
           cd /tmp
           git clone git://git.osmocom.org/gr-iqbal
           cd gr-iqbal
+          git checkout gr3.8
           mkdir build
           cd build
           cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_MODULES_DIR=/usr/lib/x86_64-linux-gnu/cmake ..
@@ -55,6 +56,7 @@ jobs:
           cd /tmp
           git clone git://git.osmocom.org/gr-osmosdr
           cd gr-osmosdr
+          git checkout gr3.8
           mkdir build
           cd build
           cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_MODULES_DIR=/usr/lib/x86_64-linux-gnu/cmake ..
@@ -85,8 +87,7 @@ jobs:
         run: |
           brew update
           brew install --HEAD --build-from-source dylibbundler portaudio
-          rm /usr/local/bin/2to3
-          brew install airspy boost gnuradio hackrf libbladerf librtlsdr uhd
+          brew install airspy boost gnuradio hackrf libbladerf librtlsdr pybind11 uhd
           brew tap pothosware/homebrew-pothos
           brew install soapysdr soapyremote
 
@@ -100,11 +101,45 @@ jobs:
           make install
 
           cd /tmp
+          git clone https://github.com/analogdevicesinc/libiio.git
+          cd libiio
+          mkdir build
+          cd build
+          cmake ..
+          sudo make install
+
+          cd /tmp
+          git clone https://github.com/analogdevicesinc/libad9361-iio.git
+          cd libad9361-iio
+          mkdir build
+          cd build
+          cmake ..
+          sudo make install
+
+          cd /tmp
+          git clone https://github.com/pothosware/SoapyPlutoSDR.git
+          cd SoapyPlutoSDR
+          mkdir build
+          cd build
+          cmake ..
+          make install
+
+          cd /tmp
+          cp /Library/Frameworks/iio.framework/iio /usr/local/lib/libiio.dylib
+          install_name_tool -id "/usr/local/lib/libiio.dylib" /usr/local/lib/libiio.dylib
+          cp /Library/Frameworks/ad9361.framework/ad9361 /usr/local/lib/libad9361.dylib
+          install_name_tool -id "/usr/local/lib/libad9361.dylib" /usr/local/lib/libad9361.dylib
+          install_name_tool -delete_rpath /Library/Frameworks /usr/local/lib/libad9361.dylib
+          install_name_tool -change @rpath/iio.framework/Versions/0.21/iio /usr/local/lib/libiio.dylib /usr/local/lib/libad9361.dylib
+          install_name_tool -change @rpath/iio.framework/Versions/0.21/iio /usr/local/lib/libiio.dylib /usr/local/lib/SoapySDR/modules0.*/libPlutoSDRSupport.so
+          install_name_tool -change @rpath/ad9361.framework/Versions/0.2/ad9361 /usr/local/lib/libad9361.dylib /usr/local/lib/SoapySDR/modules0.*/libPlutoSDRSupport.so
+
+          cd /tmp
           git clone git://git.osmocom.org/gr-osmosdr
           cd gr-osmosdr
           mkdir build
           cd build
-          cmake -DENABLE_PYTHON=FALSE ..
+          cmake ..
           LIBRARY_PATH=/usr/local/opt/icu4c/lib make
           make install
       - name: Checkout code
