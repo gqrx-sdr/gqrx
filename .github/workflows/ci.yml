@@ -34,6 +34,15 @@ jobs:
           brew install airspy boost gnuradio hackrf libbladerf librtlsdr pybind11 uhd
 
           cd /tmp
+          git clone git://git.osmocom.org/gr-iqbal
+          cd gr-iqbal
+          git submodule update --init --recursive
+          mkdir build
+          cd build
+          cmake ..
+          make install
+          
+          cd /tmp
           git clone git://git.osmocom.org/gr-osmosdr
           cd gr-osmosdr
           mkdir build
