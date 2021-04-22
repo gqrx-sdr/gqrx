@@ -25,7 +25,7 @@
 
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/blocks/float_to_short.h>
-#include <gnuradio/blocks/udp_sink.h>
+#include <gnuradio/network/udp_sink.h>
 #include <gnuradio/blocks/interleave.h>
 #include <gnuradio/blocks/null_sink.h>
 
@@ -50,7 +50,7 @@ public:
     void stop_streaming(void);
 
 private:
-    gr::blocks::udp_sink::sptr        d_sink;   /*!< The gnuradio UDP sink. */
+    gr::network::udp_sink::sptr       d_sink;   /*!< The gnuradio UDP sink. */
     gr::blocks::float_to_short::sptr  d_f2s;    /*!< Converts float to short. */
     gr::blocks::interleave::sptr      d_inter;  /*!< Stereo interleaver. */
     gr::blocks::null_sink::sptr       d_null0;  /*!< Null sink for mono. */

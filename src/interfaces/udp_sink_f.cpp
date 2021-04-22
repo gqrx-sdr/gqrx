@@ -22,7 +22,8 @@
  */
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/blocks/float_to_short.h>
-#include <gnuradio/blocks/udp_sink.h>
+#include <gnuradio/network/udp_header_types.h>
+#include <gnuradio/network/udp_sink.h>
 #include <gnuradio/io_signature.h>
 
 #include <iostream>
@@ -55,11 +56,16 @@ udp_sink_f::udp_sink_f()
 #ifdef GQRX_OS_MACX
     // There seems to be excessive packet loss (even to localhost) on OS X
     // unless the buffer size is limited.
-    d_sink = gr::blocks::udp_sink::make(sizeof(short), "localhost", 7355, 512);
+    d_sink = gr::network::udp_sink::make(sizeof(short), 1,
+					 "127.0.0.1", 7355,
+					 HEADERTYPE_NONE,
+					 512, true);
 #else
-    d_sink = gr::blocks::udp_sink::make(sizeof(short), "localhost", 7355);
+    d_sink = gr::network::udp_sink::make(sizeof(short), 1,
+					 "127.0.0.1", 7355,
+					 HEADERTYPE_NONE,
+					 1448, true);
 #endif
-    d_sink->disconnect();
 
     d_inter = gr::blocks::interleave::make(sizeof(float));
     d_null0 = gr::blocks::null_sink::make(sizeof(float));
@@ -101,8 +107,6 @@ void udp_sink_f::start_streaming(const std::string host, int port, bool stereo)
         connect(self(), 1, d_null0, 0);
     }
     unlock();
-
-    d_sink->connect(host, port);
 }
 
 
@@ -113,8 +117,4 @@ void udp_sink_f::stop_streaming(void)
     connect(self(), 0, d_null0, 0);
     connect(self(), 1, d_null1, 0);
     unlock();
-
-    std::cout << "Disconnected UDP streaming" << std::endl;
-
-    d_sink->disconnect();
 }

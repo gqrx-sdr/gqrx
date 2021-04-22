@@ -79,6 +79,7 @@ if(NOT Gnuradio_VERSION VERSION_LESS "3.8")
         gnuradio::gnuradio-blocks
         gnuradio::gnuradio-digital
         gnuradio::gnuradio-filter
+        gnuradio::gnuradio-network
         gnuradio::gnuradio-audio
         Volk::volk
     )
