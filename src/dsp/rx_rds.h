@@ -42,7 +42,6 @@
 #include <gnuradio/blocks/keep_one_in_n.h>
 #include <gnuradio/digital/diff_decoder_bb.h>
 #include <gnuradio/blocks/file_sink.h>
-#include <gnuradio/blocks/udp_sink.h>
 #include <gnuradio/blocks/message_debug.h>
 #include <boost/circular_buffer.hpp>
 #include "dsp/rds/decoder.h"
@@ -102,10 +101,6 @@ private:
     gr::digital::diff_decoder_bb::sptr d_ddbb;
     gr::rds::decoder::sptr rds_decoder;
     gr::rds::parser::sptr rds_parser;
-    gr::blocks::udp_sink::sptr udp_sink1;
-    gr::blocks::udp_sink::sptr udp_sink2;
-    gr::blocks::udp_sink::sptr udp_sink3;
-    gr::blocks::udp_sink::sptr udp_sink4;
 
     double d_sample_rate;
 };
