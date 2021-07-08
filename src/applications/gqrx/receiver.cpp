@@ -845,6 +845,8 @@ receiver::status receiver::set_demod(rx_demod demod, bool force)
     if (!force && (demod == d_demod))
         return ret;
 
+    d_is_stereo_type_demodulator = false;
+
     // tb->lock() seems to hang occasioanlly
     if (d_running)
     {
@@ -888,11 +890,13 @@ receiver::status receiver::set_demod(rx_demod demod, bool force)
     case RX_DEMOD_WFM_S:
         connect_all(RX_CHAIN_WFMRX);
         rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO);
+        d_is_stereo_type_demodulator = true;
         break;
 
     case RX_DEMOD_WFM_S_OIRT:
         connect_all(RX_CHAIN_WFMRX);
         rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO_UKW);
+        d_is_stereo_type_demodulator = true;
         break;
 
     case RX_DEMOD_SSB:
@@ -1000,11 +1004,11 @@ receiver::status receiver::start_audio_recording(const std::string filename)
     // if this fails, we don't want to go and crash now, do we
     try {
 #if GNURADIO_VERSION < 0x030900
-        wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(), 2,
+        wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(), d_is_stereo_type_demodulator ? 2 : 1,
                                                   (unsigned int) d_audio_rate,
                                                   16);
 #else
-        wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(), 2,
+        wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(), d_is_stereo_demod ? 2:1,
                                                   (unsigned int) d_audio_rate,
                                                   gr::blocks::FORMAT_WAV, gr::blocks::FORMAT_PCM_16);
 #endif
@@ -1016,7 +1020,11 @@ receiver::status receiver::start_audio_recording(const std::string filename)
 
     tb->lock();
     tb->connect(rx, 0, wav_sink, 0);
-    tb->connect(rx, 1, wav_sink, 1);
+
+    if (d_is_stereo_type_demodulator)
+        tb->connect(rx, 1, wav_sink, 1);
+
+
     tb->unlock();
     d_recording_wav = true;
 
@@ -1046,7 +1054,10 @@ receiver::status receiver::stop_audio_recording()
     tb->lock();
     wav_sink->close();
     tb->disconnect(rx, 0, wav_sink, 0);
-    tb->disconnect(rx, 1, wav_sink, 1);
+
+    if (d_is_stereo_type_demodulator)
+        tb->disconnect(rx, 1, wav_sink, 1);
+
     tb->unlock();
     wav_sink.reset();
     d_recording_wav = false;
@@ -1361,7 +1372,9 @@ void receiver::connect_all(rx_chain type)
     if (d_recording_wav)
     {
         tb->connect(rx, 0, wav_sink, 0);
-        tb->connect(rx, 1, wav_sink, 1);
+
+        if (d_is_stereo_type_demodulator)
+            tb->connect(rx, 1, wav_sink, 1);
     }
 
     if (d_sniffer_active)

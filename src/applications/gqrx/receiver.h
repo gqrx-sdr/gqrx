@@ -249,6 +249,7 @@ private:
     bool        d_iq_rev;           /*!< Whether I/Q is reversed or not. */
     bool        d_dc_cancel;        /*!< Enable automatic DC removal. */
     bool        d_iq_balance;       /*!< Enable automatic IQ balance. */
+    bool        d_is_stereo_type_demodulator{}; /*!< Whether we are recording WAV channels: 1/mono or 2/stereo */
 
     std::string input_devstr;  /*!< Current input device string. */
     std::string output_devstr; /*!< Current output device string. */
