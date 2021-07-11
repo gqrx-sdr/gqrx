@@ -5,7 +5,8 @@
        NEW: Added IQ balancing to MacOS release.
   IMPROVED: Reordered the receiver mode drop-down list.
   IMPROVED: Receiver mode is now stored as a string in settings files.
-
+  IMPROVED: Extended band plan data and filtering options
+  
 
     2.14.6: Released October 6, 2021
 

@@ -8,6 +8,7 @@
 #include <QImage>
 #include <vector>
 #include <QMap>
+#include <QSet>
 
 #define HORZ_DIVS_MAX 12    //50
 #define VERT_DIVS_MIN 5
@@ -148,7 +149,7 @@ public slots:
     void setPandapterRange(float min, float max);
     void setWaterfallRange(float min, float max);
     void setPeakDetection(bool enabled, float c);
-    void toggleBandPlan(bool state);
+    void toggleBandPlan(bool state, int region);
     void updateOverlay();
 
     void setPercent2DScreen(int percent)
@@ -228,6 +229,7 @@ private:
     bool        m_FilterBoxEnabled;   /*!< Draw filter box. */
     bool        m_TooltipsEnabled{};  /*!< Tooltips enabled */
     bool        m_BandPlanEnabled;    /*!< Show/hide band plan on spectrum */
+    QSet<quint8> m_BandPlanRegions;
     bool        m_BookmarksEnabled;   /*!< Show/hide bookmarks on spectrum */
     bool        m_InvertScrolling;
     bool        m_DXCSpotsEnabled;    /*!< Show/hide DXC Spots on spectrum */

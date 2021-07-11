@@ -87,6 +87,7 @@ bool BandPlan::load()
             info.step         = strings[3].toInt();
             info.color        = QColor(strings[4].trimmed());
             info.name         = strings[5].trimmed();
+            info.region       = strings[6].toUInt();
 
             m_BandInfoList.append(info);
         }
@@ -97,10 +98,11 @@ bool BandPlan::load()
     return true;
 }
 
-QList<BandInfo> BandPlan::getBandsInRange(qint64 low, qint64 high)
+QList<BandInfo> BandPlan::getBandsInRange(QSet<quint8> regions, qint64 low, qint64 high)
 {
     QList<BandInfo> found;
     for (int i = 0; i < m_BandInfoList.size(); i++) {
+        if(!regions.contains(m_BandInfoList[i].region)) continue;
         if(m_BandInfoList[i].maxFrequency < low) continue;
         if(m_BandInfoList[i].minFrequency > high) continue;
         found.append(m_BandInfoList[i]);
@@ -108,10 +110,11 @@ QList<BandInfo> BandPlan::getBandsInRange(qint64 low, qint64 high)
     return found;
 }
 
-QList<BandInfo> BandPlan::getBandsEncompassing(qint64 freq)
+QList<BandInfo> BandPlan::getBandsEncompassing(QSet<quint8> regions, qint64 freq)
 {
     QList<BandInfo> found;
     for (int i = 0; i < m_BandInfoList.size(); i++) {
+        if(!regions.contains(m_BandInfoList[i].region)) continue;
         if(m_BandInfoList[i].maxFrequency < freq) continue;
         if(m_BandInfoList[i].minFrequency > freq) continue;
         found.append(m_BandInfoList[i]);

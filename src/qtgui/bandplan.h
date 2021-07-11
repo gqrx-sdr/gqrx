@@ -39,6 +39,7 @@ struct BandInfo
     QString modulation;
     qint64  step;
     QColor  color;
+    quint8  region;
 
     BandInfo()
     {
@@ -63,8 +64,8 @@ public:
     bool load();
     int size() { return m_BandInfoList.size(); }
     BandInfo& getBand(int i) { return m_BandInfoList[i]; }
-    QList<BandInfo> getBandsInRange(qint64 low, qint64 high);
-    QList<BandInfo> getBandsEncompassing(qint64 freq);
+    QList<BandInfo> getBandsInRange(QSet<quint8> regions, qint64 low, qint64 high);
+    QList<BandInfo> getBandsEncompassing(QSet<quint8> regions, qint64 freq);
 
     void setConfigDir(const QString&);
 
