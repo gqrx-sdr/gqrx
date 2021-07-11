@@ -4,6 +4,7 @@
        NEW: Added SoapyRemote to AppImage and DMG releases.
        NEW: Added SoapyPlutoSDR to DMG release.
      FIXED: Compatibility with case-sensitive filesystems on MacOS.
+  IMPROVED: Enable band plan per region
 
 
     2.14.4: Released December 28, 2020
