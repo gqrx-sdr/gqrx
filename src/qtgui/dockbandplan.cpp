@@ -183,7 +183,7 @@ void DockBandplan::on_visibleItemList_itemDoubleClicked(QTableWidgetItem *item)
 {
     const auto freq = ui->visibleItemList->item(item->row(), 0)->text();
     auto demod = ui->visibleItemList->item(item->row(), 2)->text();
-    emit bandPlanItemSelected(freq.toInt(), demod);
+    emit bandPlanItemSelected(freq.toULongLong(), demod);
 }
 
 bool compareBandInfo(const BandInfo &a, const BandInfo &b)
