@@ -204,6 +204,9 @@ private slots:
     void on_plotter_newDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
     void on_plotter_newFilterFreq(int low, int high);    /*! New filter width */
 
+    /* Bandplan */
+    void onBandPlanItemSelected(qint64 freq, const QString& demod);
+
     /* RDS */
     void setRdsDecoder(bool checked);
 

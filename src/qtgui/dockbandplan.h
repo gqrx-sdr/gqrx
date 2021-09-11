@@ -25,7 +25,9 @@
 #define DOCKBANDPLAN_H
 
 #include <QDockWidget>
+#include <QListWidget>
 #include <QSettings>
+#include <QTableWidgetItem>
 
 #include "bandplan.h"
 
@@ -50,6 +52,10 @@ public:
 
 signals:
     void bandPlanChanged(bool state, const BandInfoFilter &filter);
+    void bandPlanItemSelected(qint64 frequency, QString modulation);
+
+private:
+    QSet<QString> updateSelection(const QListWidget *list) const;
 
 private slots:
     void on_bandPlanCheckboxEnable_stateChanged(int state);
@@ -57,6 +63,9 @@ private slots:
     void on_bandPlanCountriesList_itemSelectionChanged();
     void on_bandPlanModulationsList_itemSelectionChanged();
     void on_bandPlanUsesList_itemSelectionChanged();
+    void on_visibleItemList_itemDoubleClicked(QTableWidgetItem *item);
+
+    void on_bandPlanChanged(bool state, const BandInfoFilter &filter);
 
 private:
     Ui::DockBandplan *ui;

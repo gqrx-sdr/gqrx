@@ -290,6 +290,10 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
         uiDockBandplan, SIGNAL(bandPlanChanged(bool, const BandInfoFilter&)),
         ui->plotter,      SLOT( updateBandPlan(bool, const BandInfoFilter&))
     );
+    connect(
+        uiDockBandplan, SIGNAL(bandPlanItemSelected(qint64, QString)),
+        this,           SLOT(  onBandPlanItemSelected(qint64, QString))
+    );
 
     // Bookmarks
     connect(uiDockBookmarks, SIGNAL(newBookmarkActivated(qint64, QString, int)), this, SLOT(onBookmarkActivated(qint64, QString, int)));
@@ -2156,6 +2160,16 @@ void MainWindow::setRdsDecoder(bool checked)
         rx->stop_rds_decoder();
         rds_timer->stop();
     }
+}
+
+
+void MainWindow::onBandPlanItemSelected(qint64 freq, const QString &demod)
+{
+    int lo, hi;
+    selectDemod(demod);
+    uiDockRxOpt->getFilterPreset(uiDockRxOpt->currentDemod(), uiDockRxOpt->currentFilter(), &lo, &hi);
+    const auto bandwidth = hi - lo;
+    onBookmarkActivated(freq, demod, bandwidth);
 }
 
 void MainWindow::onBookmarkActivated(qint64 freq, const QString& demod, int bandwidth)
