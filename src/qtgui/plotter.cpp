@@ -120,6 +120,7 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     m_FilterBoxEnabled = true;
     m_CenterLineEnabled = true;
     m_BandPlanEnabled = true;
+    m_BandPlanHeight = 22;
     m_BookmarksEnabled = true;
     m_InvertScrolling = false;
     m_DXCSpotsEnabled = true;
@@ -144,7 +145,6 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     m_Percent2DScreen = 35;	//percent of screen used for 2D display
     m_VdivDelta = 30;
     m_HdivDelta = 70;
-    m_BandPlanHeight = 22;
 
     m_FreqDigits = 3;
 

@@ -84,7 +84,10 @@ bool BandPlan::load()
         info.maxFrequency = strings[1].toLongLong();
         info.modulation   = strings[2].trimmed();
         info.step         = strings[3].toInt();
-        info.color        = QColor(strings[4].trimmed());
+        info.color        = QColor(strings[4].trimmed()).toHsl();
+        if (info.color.alpha() == 255) {
+            info.color.setAlpha(0x90);
+        }
         info.name         = strings[5].trimmed();
         info.region       = strings[6].trimmed();
         info.country      = strings[7].trimmed();

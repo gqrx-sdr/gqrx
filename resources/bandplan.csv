@@ -1,116 +1,116 @@
 # minFrequency,maxFrequency,mode,step,color,name,iaruRegion,country,use
 ,,,,,,,,
 # UK LF and MF: https://rsgb.org/main/operating/band-plans/lf-mf-bands/,,,,,,,,
-135700,137800,CW,10,#90009470,UK LF CW Ham Band,1,UK,Amateur
-472000,475000,CW,10,#90009470,UK LF CW Ham Band,1,UK,Amateur
-475000,479000,CW,10,#90009470,UK LF CW/Data Ham Band,1,UK,Amateur
-1810000,1838000,CW,10,#90009470,UK MF CW Ham Band,1,UK,Amateur
-1838000,1843000,CW,10,#90009470,UK MF Data Ham Band,1,UK,Amateur
-1843000,2000000,USB,10,#90009470,UK MF SSB Ham Band,1,UK,Amateur
+135700,137800,CW,10,cyan,UK LF CW Ham Band,1,UK,Amateur
+472000,475000,CW,10,cyan,UK LF CW Ham Band,1,UK,Amateur
+475000,479000,CW,10,yellow,UK LF CW/Data Ham Band,1,UK,Amateur
+1810000,1838000,CW,10,cyan,UK MF CW Ham Band,1,UK,Amateur
+1838000,1843000,CW,10,yellow,UK MF Data Ham Band,1,UK,Amateur
+1843000,2000000,USB,10,coral,UK MF SSB Ham Band,1,UK,Amateur
 ,,,,,,,,
 # UK HF 80m 3.5MHz: https://rsgb.org/main/operating/band-plans/hf/3-5mhz/,,,,,,,,
-3500000,3560000,CW,10,#90009470,80m UK CW Ham Band,1,UK,Amateur
-3560000,3570000,CW,10,#90009470,80m UK CW Ham Band,1,UK,Amateur
-3750000,3600000,CW,10,#90009470,80m UK Data Ham Band,1,UK,Amateur
-3600000,3650000,USB,10,#90009470,80m UK SSB Ham Band,1,UK,Amateur
-3650000,3700000,USB,10,#90009470,80m UK SSB Ham Band,1,UK,Amateur
-3700000,3800000,USB,10,#90009470,80m UK SSB Ham Band,1,UK,Amateur
+3500000,3560000,CW,10,cyan,80m UK CW Ham Band,1,UK,Amateur
+3560000,3570000,CW,10,green,80m UK CW Ham Band,1,UK,Amateur
+3750000,3600000,CW,10,yellow,80m UK Data Ham Band,1,UK,Amateur
+3600000,3650000,USB,10,coral,80m UK SSB Ham Band,1,UK,Amateur
+3650000,3700000,USB,10,green,80m UK SSB Ham Band,1,UK,Amateur
+3700000,3800000,USB,10,coral,80m UK SSB Ham Band,1,UK,Amateur
 ,,,,,,,,
 # UK HF 5MHz: https://rsgb.org/main/operating/band-plans/hf/5mhz/,,,,,,,,
-5258500,5264000,CW,10,#90009470,5MHz UK CW Ham Band,1,UK,Amateur
-5276000,5284000,USB,10,#90009470,5MHz UK SSB Ham Band,1,UK,Amateur
-5288500,5292000,CW,10,#90009470,5MHz UK Beacons Ham Band,1,UK,Amateur
-5298000,5307000,USB,10,#90009470,5MHz UK All modes Ham Band,1,UK,Amateur
-5313000,5323000,USB,10,#90009470,5MHz UK All modes Ham Band,1,UK,Amateur
-5333000,5338000,USB,10,#90009470,5MHz UK USB Ham Band,1,UK,Amateur
-5354000,5358000,USB,10,#90009470,5MHz UK All modes Ham Band,1,UK,Amateur
-5362000,5374500,USB,10,#90009470,5MHz UK All modes Ham Band,1,UK,Amateur
-5378000,5382000,USB,10,#90009470,5MHz UK USB Ham Band,1,UK,Amateur
-5395000,5401500,USB,10,#90009470,5MHz UK USB Ham Band,1,UK,Amateur
-5403500,5406500,USB,10,#90009470,5MHz UK USB Ham Band,1,UK,Amateur
+5258500,5264000,CW,10,cyan,5MHz UK CW Ham Band,1,UK,Amateur
+5276000,5284000,USB,10,gold,5MHz UK SSB Ham Band,1,UK,Amateur
+5288500,5292000,CW,10,red,5MHz UK Beacons Ham Band,1,UK,Amateur
+5298000,5307000,USB,10,gold,5MHz UK All modes Ham Band,1,UK,Amateur
+5313000,5323000,USB,10,gold,5MHz UK All modes Ham Band,1,UK,Amateur
+5333000,5338000,USB,10,gold,5MHz UK USB Ham Band,1,UK,Amateur
+5354000,5358000,USB,10,green,5MHz UK All modes Ham Band,1,UK,Amateur
+5362000,5374500,USB,10,green,5MHz UK All modes Ham Band,1,UK,Amateur
+5378000,5382000,USB,10,gold,5MHz UK USB Ham Band,1,UK,Amateur
+5395000,5401500,USB,10,gold,5MHz UK USB Ham Band,1,UK,Amateur
+5403500,5406500,USB,10,gold,5MHz UK USB Ham Band,1,UK,Amateur
 ,,,,,,,,
 # UK HF 40m 7MHz: https://rsgb.org/main/operating/band-plans/hf/7mhz,,,,,,,,
-7000000,7040000,CW,10,#90009470,40m UK CW Ham Band,1,UK,Amateur
-7040000,7050000,CW,10,#90009470,40m UK Data Ham Band,1,UK,Amateur
-7050000,7060000,USB,10,#90009470,40m UK Data/SSB Ham Band,1,UK,Amateur
-7060000,7100000,USB,10,#90009470,40m UK SSB Ham Band,1,UK,Amateur
-7100000,7130000,USB,10,#90009470,40m UK SSB Ham Band,1,UK,Amateur
-7130000,7200000,USB,10,#90009470,40m UK SSB Ham Band,1,UK,Amateur
+7000000,7040000,CW,10,cyan,40m UK CW Ham Band,1,UK,Amateur
+7040000,7050000,CW,10,yellow,40m UK Data Ham Band,1,UK,Amateur
+7050000,7060000,USB,10,gold,40m UK Data/SSB Ham Band,1,UK,Amateur
+7060000,7100000,USB,10,coral,40m UK SSB Ham Band,1,UK,Amateur
+7100000,7130000,USB,10,green,40m UK SSB Ham Band,1,UK,Amateur
+7130000,7200000,USB,10,coral,40m UK SSB Ham Band,1,UK,Amateur
 ,,,,,,,,
 # UK HF 30m 10MHz: https://rsgb.org/main/operating/band-plans/hf/10mhz/,,,,,,,,
-10100000,10130000,CW,10,#90009470,30m UK CW Ham Band,1,UK,Amateur
-10130000,10150000,CW,10,#90009470,30m UK Data Ham Band,1,UK,Amateur
+10100000,10130000,CW,10,cyan,30m UK CW Ham Band,1,UK,Amateur
+10130000,10150000,CW,10,yellow,30m UK Data Ham Band,1,UK,Amateur
 ,,,,,,,,
 # UK HF 20m 14MHz: https://rsgb.org/main/operating/band-plans/hf/14mhz,,,,,,,,
-14000000,14060000,CW,10,#90009470,20m UK CW Ham Band,1,UK,Amateur
-14060000,14070000,CW,10,#90009470,20m UK CW Ham Band,1,UK,Amateur
-14070000,14099000,CW,10,#90009470,20m UK Data Ham Band,1,UK,Amateur
-14099000,14101000,CW,10,#90009470,20m UK IBP Band,1,UK,Amateur
-14101000,14125000,USB,10,#90009470,20m UK Data/SSB Ham Band,1,UK,Amateur
-14125000,14300000,USB,10,#90009470,20m UK SSB Ham Band,1,UK,Amateur
-14300000,14350000,USB,10,#90009470,20m UK SSB Ham Band,1,UK,Amateur
+14000000,14060000,CW,10,cyan,20m UK CW Ham Band,1,UK,Amateur
+14060000,14070000,CW,10,green,20m UK CW Ham Band,1,UK,Amateur
+14070000,14099000,CW,10,yellow,20m UK Data Ham Band,1,UK,Amateur
+14099000,14101000,CW,10,red,20m UK IBP Band,1,UK,Amateur
+14101000,14125000,USB,10,gold,20m UK Data/SSB Ham Band,1,UK,Amateur
+14125000,14300000,USB,10,coral,20m UK SSB Ham Band,1,UK,Amateur
+14300000,14350000,USB,10,green,20m UK SSB Ham Band,1,UK,Amateur
 ,,,,,,,,
 # UK HF 17m 18MHz: https://rsgb.org/main/operating/band-plans/hf/18mhz/,,,,,,,,
-18068000,18095000,CW,10,#90009470,17m UK CW Ham Band,1,UK,Amateur
-18095000,18109000,CW,10,#90009470,17m UK Data Ham Band,1,UK,Amateur
-18109000,18111000,CW,10,#90009470,17m UK IBP Band,1,UK,Amateur
-18111000,18168000,USB,10,#90009470,17m UK SSB Ham Band,1,UK,Amateur
+18068000,18095000,CW,10,cyan,17m UK CW Ham Band,1,UK,Amateur
+18095000,18109000,CW,10,yellow,17m UK Data Ham Band,1,UK,Amateur
+18109000,18111000,CW,10,red,17m UK IBP Band,1,UK,Amateur
+18111000,18168000,USB,10,coral,17m UK SSB Ham Band,1,UK,Amateur
 ,,,,,,,,
 # UK HF 15m 21MHz: https://rsgb.org/main/operating/band-plans/hf/21mhz/,,,,,,,,
-21000000,21070000,CW,10,#90009470,15m UK CW Ham Band,1,UK,Amateur
-21070000,21149000,CW,10,#90009470,15m UK Data Ham Band,1,UK,Amateur
-21149000,21151000,CW,10,#90009470,15m UK IBP Band,1,UK,Amateur
-21151000,21450000,USB,10,#90009470,15m UK SSB Ham Band,1,UK,Amateur
+21000000,21070000,CW,10,cyan,15m UK CW Ham Band,1,UK,Amateur
+21070000,21149000,CW,10,yellow,15m UK Data Ham Band,1,UK,Amateur
+21149000,21151000,CW,10,red,15m UK IBP Band,1,UK,Amateur
+21151000,21450000,USB,10,coral,15m UK SSB Ham Band,1,UK,Amateur
 ,,,,,,,,
 # UK HF 12m 24MHz: https://rsgb.org/main/operating/band-plans/hf/24mhz/,,,,,,,,
-24890000,24915000,CW,10,#90009470,12m UK CW Ham Band,1,UK,Amateur
-24915000,24929000,CW,10,#90009470,12m UK Data Ham Band,1,UK,Amateur
-24929000,24931000,CW,10,#90009470,12m UK IBP Band,1,UK,Amateur
-24931000,24990000,USB,10,#90009470,12m UK SSB Ham Band,1,UK,Amateur
+24890000,24915000,CW,10,cyan,12m UK CW Ham Band,1,UK,Amateur
+24915000,24929000,CW,10,yellow,12m UK Data Ham Band,1,UK,Amateur
+24929000,24931000,CW,10,red,12m UK IBP Band,1,UK,Amateur
+24931000,24990000,USB,10,coral,12m UK SSB Ham Band,1,UK,Amateur
 ,,,,,,,,
 # UK HF 10m 28MHz: https://rsgb.org/main/operating/band-plans/hf/28mhz/,,,,,,,,
-28000000,28070000,CW,10,#90009470,10m UK CW Ham Band,1,UK,Amateur
-28070000,28190000,CW,10,#90009470,10m UK Data Ham Band,1,UK,Amateur
-28190000,28300000,CW,10,#90009470,10m UK Beacons,1,UK,Amateur
-28300000,29000000,USB,10,#90009470,10m UK SSB Ham Band,1,UK,Amateur
-29000000,29300000,USB,10,#90009470,10m UK All modes Ham Band,1,UK,Amateur
-29300000,29520000,USB,10,#90009470,10m UK Satellite Band,1,UK,Amateur
-29520000,29700000,NFM,10,#90009470,10m UK FM Ham Band,1,UK,Amateur
+28000000,28070000,CW,10,cyan,10m UK CW Ham Band,1,UK,Amateur
+28070000,28190000,CW,10,yellow,10m UK Data Ham Band,1,UK,Amateur
+28190000,28300000,CW,10,red,10m UK Beacons,1,UK,Amateur
+28300000,29000000,USB,10,coral,10m UK SSB Ham Band,1,UK,Amateur
+29000000,29300000,USB,10,green,10m UK All modes Ham Band,1,UK,Amateur
+29300000,29520000,USB,10,magenta,10m UK Satellite Band,1,UK,Amateur
+29520000,29700000,NFM,10,green,10m UK FM Ham Band,1,UK,Amateur
 ,,,,,,,,
 # UK VHF 6m 50MHz: https://rsgb.org/main/operating/band-plans/vhf-uhf/50mhz-band/,,,,,,,,
-50000000,50100000,CW,10,#90009470,6m UK CW Ham Band,1,UK,Amateur
-50100000,50500000,CW,10,#90009470,6m UK CW/SSB/MGM Ham Band,1,UK,Amateur
-50500000,52000000,USB,10,#90009470,6m UK All modes Ham Band,1,UK,Amateur
+50000000,50100000,CW,10,cyan,6m UK CW Ham Band,1,UK,Amateur
+50100000,50500000,CW,10,coral,6m UK CW/SSB/MGM Ham Band,1,UK,Amateur
+50500000,52000000,USB,10,green,6m UK All modes Ham Band,1,UK,Amateur
 ,,,,,,,,
 # UK 4m 70MHz: https://rsgb.org/main/operating/band-plans/vhf-uhf/70mhz-band/,,,,,,,,
-70000000,70100000,CW,10,#90009470,4m UK Beacons,1,UK,Amateur
-70100000,70250000,CW,10,#90009470,4m UK CW/SSB/MGM Ham Band,1,UK,Amateur
-70250000,70294000,USB,10,#90009470,4m UK All modes Ham Band,1,UK,Amateur
-70294000,70500000,NFM,12.5,#90009470,4m UK NFM 12.5kHz Channelised Ham Band,1,UK,Amateur
+70000000,70100000,CW,10,red,4m UK Beacons,1,UK,Amateur
+70100000,70250000,CW,10,yellow,4m UK CW/SSB/MGM Ham Band,1,UK,Amateur
+70250000,70294000,USB,10,green,4m UK All modes Ham Band,1,UK,Amateur
+70294000,70500000,NFM,12.5,coral,4m UK NFM 12.5kHz Channelised Ham Band,1,UK,Amateur
 ,,,,,,,,
 # UK 2m 144MHz: https://rsgb.org/main/operating/band-plans/vhf-uhf/144mhz-band/,,,,,,,,
-144000000,144025000,CW,10,#90009470,2m UK CW/SSB/MGM Ham Band,1,UK,Amateur
-144025000,144150000,CW,10,#90009470,2m UK CW/MGM Ham Band,1,UK,Amateur
-144150000,144400000,CW,10,#90009470,2m UK CW/SSB/MGM Ham Band,1,UK,Amateur
-144400000,144500000,CW,10,#90009470,2m UK Beacons,1,UK,Amateur
-144500000,144794000,USB,10,#90009470,2m UK All modes Ham Band,1,UK,Amateur
-144794000,144990000,CW,10,#90009470,2m UK MGM Ham Band,1,UK,Amateur
-144990000,145193500,NFM,12.5,#90009470,2m UK FM Repeater Input Channels,1,UK,Amateur
-145200000,145593500,NFM,12.5,#90009470,2m UK FM Simplex Channels,1,UK,Amateur
-145593500,145793500,NFM,12.5,#90009470,2m UK FM Repeater Output Channels,1,UK,Amateur
-145806000,146000000,CW,10,#90009470,2m UK Amateur Satellite All modes,1,UK,Amateur
+144000000,144025000,CW,10,yellow,2m UK CW/SSB/MGM Ham Band,1,UK,Amateur
+144025000,144150000,CW,10,cyan,2m UK CW/MGM Ham Band,1,UK,Amateur
+144150000,144400000,CW,10,yellow,2m UK CW/SSB/MGM Ham Band,1,UK,Amateur
+144400000,144500000,CW,10,red,2m UK Beacons,1,UK,Amateur
+144500000,144794000,USB,10,green,2m UK All modes Ham Band,1,UK,Amateur
+144794000,144990000,CW,10,yellow,2m UK MGM Ham Band,1,UK,Amateur
+144990000,145193500,NFM,12.5,coral,2m UK FM Repeater Input Channels,1,UK,Amateur
+145200000,145593500,NFM,12.5,coral,2m UK FM Simplex Channels,1,UK,Amateur
+145593500,145793500,NFM,12.5,coral,2m UK FM Repeater Output Channels,1,UK,Amateur
+145806000,146000000,CW,10,magenta,2m UK Amateur Satellite All modes,1,UK,Amateur
 ,,,,,,,,
 # UK UHF 70cm 432MHz: https://rsgb.org/main/operating/band-plans/vhf-uhf/432mhz-band/,,,,,,,,
-432000000,432100000,CW,10,#90009470,70cm UK CW/MGM Ham Band,1,UK,Amateur
-432100000,432400000,CW,10,#90009470,70cm UK CW/SSB/MGM Ham Band,1,UK,Amateur
-432400000,432500000,CW,10,#90009470,70cm UK Beacons,1,UK,Amateur
-432500000,432994000,CW,10,#90009470,70cm UK All modes Ham Band,1,UK,Amateur
-432994000,433381000,NFM,10,#90009470,70cm UK Repeater Output Channels,1,UK,Amateur
-433394000,433600000,NFM,10,#90009470,70cm UK Simplex Channels,1,UK,Amateur
-433600000,434600000,NFM,10,#90009470,70cm UK All modes Ham Band,1,UK,Amateur
-434594000,434981000,NFM,10,#90009470,70cm UK Repeater Input Channels,1,UK,Amateur
-435000000,438000000,NFM,10,#90009470,70cm UK Amateur Satellite/DATV,1,UK,Amateur
-438000000,440000000,NFM,10,#90009470,70cm UK Repeater Input Channels,1,UK,Amateur
+432000000,432100000,CW,10,cyan,70cm UK CW/MGM Ham Band,1,UK,Amateur
+432100000,432400000,CW,10,yellow,70cm UK CW/SSB/MGM Ham Band,1,UK,Amateur
+432400000,432500000,CW,10,red,70cm UK Beacons,1,UK,Amateur
+432500000,432994000,CW,10,green,70cm UK All modes Ham Band,1,UK,Amateur
+432994000,433381000,NFM,10,coral,70cm UK Repeater Output Channels,1,UK,Amateur
+433394000,433600000,NFM,10,coral,70cm UK Simplex Channels,1,UK,Amateur
+433600000,434600000,NFM,10,green,70cm UK All modes Ham Band,1,UK,Amateur
+434594000,434981000,NFM,10,coral,70cm UK Repeater Input Channels,1,UK,Amateur
+435000000,438000000,NFM,10,magenta,70cm UK Amateur Satellite/DATV,1,UK,Amateur
+438000000,440000000,NFM,10,coral,70cm UK Repeater Input Channels,1,UK,Amateur
 ,,,,,,,,
 # TODO - add the remaining UK Amateur bands,,,,,,,,
 ,,,,,,,,
