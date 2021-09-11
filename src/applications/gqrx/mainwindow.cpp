@@ -72,9 +72,9 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     dec_afsk1200(nullptr)
 {
     ui->setupUi(this);
-    BandPlan::create();
     Bookmarks::create();
     DXCSpots::create();
+    BandPlan::create();
 
     /* Initialise default configuration directory */
     QByteArray xdg_dir = qgetenv("XDG_CONFIG_HOME");
@@ -130,15 +130,18 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     // create DXC Objects
     dxc_options = new DXCOptions(this);
 
+    // Load configurations
+    BandPlan::Get().setConfigDir(m_cfg_dir);
+    Bookmarks::Get().setConfigDir(m_cfg_dir);
+    BandPlan::Get().load();
+
     /* create dock widgets */
     uiDockRxOpt = new DockRxOpt();
     uiDockRDS = new DockRDS();
     uiDockAudio = new DockAudio();
     uiDockInputCtl = new DockInputCtl();
     uiDockFft = new DockFft();
-    BandPlan::Get().setConfigDir(m_cfg_dir);
-    Bookmarks::Get().setConfigDir(m_cfg_dir);
-    BandPlan::Get().load();
+    uiDockBandplan = new DockBandplan();
     uiDockBookmarks = new DockBookmarks(this);
 
     // setup some toggle view shortcuts
@@ -146,6 +149,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     uiDockRxOpt->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
     uiDockFft->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F));
     uiDockAudio->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_A));
+    uiDockBandplan->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_P));
     uiDockBookmarks->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_B));
     ui->mainToolBar->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
 
@@ -166,6 +170,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     addDockWidget(Qt::RightDockWidgetArea, uiDockInputCtl);
     addDockWidget(Qt::RightDockWidgetArea, uiDockRxOpt);
     addDockWidget(Qt::RightDockWidgetArea, uiDockFft);
+    addDockWidget(Qt::RightDockWidgetArea, uiDockBandplan);
     tabifyDockWidget(uiDockInputCtl, uiDockRxOpt);
     tabifyDockWidget(uiDockRxOpt, uiDockFft);
     uiDockRxOpt->raise();
@@ -180,6 +185,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     /* hide docks that we don't want to show initially */
     uiDockBookmarks->hide();
     uiDockRDS->hide();
+    uiDockBandplan->hide();
 
     /* Add dock widget actions to View menu. By doing it this way all signal/slot
        connections will be established automagially.
@@ -189,6 +195,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     ui->menu_View->addAction(uiDockRDS->toggleViewAction());
     ui->menu_View->addAction(uiDockAudio->toggleViewAction());
     ui->menu_View->addAction(uiDockFft->toggleViewAction());
+    ui->menu_View->addAction(uiDockBandplan->toggleViewAction());
     ui->menu_View->addAction(uiDockBookmarks->toggleViewAction());
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
@@ -196,10 +203,14 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     ui->menu_View->addAction(ui->actionFullScreen);
 
     /* connect signals and slots */
+
+    // Freq Ctl
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), remote, SLOT(setNewFrequency(qint64)));
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), uiDockAudio, SLOT(setRxFrequency(qint64)));
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), uiDockRxOpt, SLOT(setRxFreq(qint64)));
+
+    // Input Ctl
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), remote, SLOT(setLnbLo(double)));
     connect(uiDockInputCtl, SIGNAL(gainChanged(QString, double)), this, SLOT(setGain(QString,double)));
@@ -213,6 +224,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockInputCtl, SIGNAL(antennaSelected(QString)), this, SLOT(setAntenna(QString)));
     connect(uiDockInputCtl, SIGNAL(freqCtrlResetChanged(bool)), this, SLOT(setFreqCtrlReset(bool)));
     connect(uiDockInputCtl, SIGNAL(invertScrollingChanged(bool)), this, SLOT(setInvertScrolling(bool)));
+
+    // Rx Opt
     connect(uiDockRxOpt, SIGNAL(rxFreqChanged(qint64)), ui->freqCtrl, SLOT(setFrequency(qint64)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), remote, SLOT(setFilterOffset(qint64)));
@@ -233,6 +246,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockRxOpt, SIGNAL(noiseBlankerChanged(int,bool,float)), this, SLOT(setNoiseBlanker(int,bool,float)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
     connect(uiDockRxOpt, SIGNAL(sqlAutoClicked()), this, SLOT(setSqlLevelAuto()));
+
+    // Audio
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
     connect(uiDockAudio, SIGNAL(audioStreamingStarted(QString,int,bool)), this, SLOT(startAudioStream(QString,int,bool)));
     connect(uiDockAudio, SIGNAL(audioStreamingStopped()), this, SLOT(stopAudioStreaming()));
@@ -243,6 +258,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockAudio, SIGNAL(audioPlayStarted(QString)), this, SLOT(startAudioPlayback(QString)));
     connect(uiDockAudio, SIGNAL(audioPlayStopped()), this, SLOT(stopAudioPlayback()));
     connect(uiDockAudio, SIGNAL(fftRateChanged(int)), this, SLOT(setAudioFftRate(int)));
+
+    // FFT
     connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setIqFftSize(int)));
     connect(uiDockFft, SIGNAL(fftRateChanged(int)), this, SLOT(setIqFftRate(int)));
     connect(uiDockFft, SIGNAL(fftWindowChanged(int)), this, SLOT(setIqFftWindow(int)));
@@ -253,25 +270,26 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockFft, SIGNAL(resetFftZoom()), ui->plotter, SLOT(resetHorizontalZoom()));
     connect(uiDockFft, SIGNAL(gotoFftCenter()), ui->plotter, SLOT(moveToCenterFreq()));
     connect(uiDockFft, SIGNAL(gotoDemodFreq()), ui->plotter, SLOT(moveToDemodFreq()));
-    connect(uiDockFft, SIGNAL(bandPlanChanged(bool, int )), ui->plotter, SLOT(toggleBandPlan(bool, int)));
     connect(uiDockFft, SIGNAL(wfColormapChanged(const QString)), ui->plotter, SLOT(setWfColormap(const QString)));
     connect(uiDockFft, SIGNAL(wfColormapChanged(const QString)), uiDockAudio, SLOT(setWfColormap(const QString)));
-
-    connect(uiDockFft, SIGNAL(pandapterRangeChanged(float,float)),
-            ui->plotter, SLOT(setPandapterRange(float,float)));
-    connect(uiDockFft, SIGNAL(waterfallRangeChanged(float,float)),
-            ui->plotter, SLOT(setWaterfallRange(float,float)));
-    connect(ui->plotter, SIGNAL(pandapterRangeChanged(float,float)),
-            uiDockFft, SLOT(setPandapterRange(float,float)));
-    connect(ui->plotter, SIGNAL(newZoomLevel(float)),
-            uiDockFft, SLOT(setZoomLevel(float)));
-    connect(ui->plotter, SIGNAL(newSize()), this, SLOT(setWfSize()));
-
+    connect(uiDockFft, SIGNAL(pandapterRangeChanged(float,float)), ui->plotter, SLOT(setPandapterRange(float,float)));
+    connect(uiDockFft, SIGNAL(waterfallRangeChanged(float,float)), ui->plotter, SLOT(setWaterfallRange(float,float)));
     connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
     connect(uiDockFft, SIGNAL(fftPeakHoldToggled(bool)), this, SLOT(setFftPeakHold(bool)));
     connect(uiDockFft, SIGNAL(peakDetectionToggled(bool)), this, SLOT(setPeakDetection(bool)));
+    connect(ui->plotter, SIGNAL(pandapterRangeChanged(float,float)), uiDockFft, SLOT(setPandapterRange(float,float)));
+    connect(ui->plotter, SIGNAL(newZoomLevel(float)), uiDockFft, SLOT(setZoomLevel(float)));
+    connect(ui->plotter, SIGNAL(newSize()), this, SLOT(setWfSize()));
+
+    // RDS
     connect(uiDockRDS, SIGNAL(rdsDecoderToggled(bool)), this, SLOT(setRdsDecoder(bool)));
+
+    // Bandplan
+    connect(
+        uiDockBandplan, SIGNAL(bandPlanChanged(bool, const BandInfoFilter&)),
+        ui->plotter,      SLOT( updateBandPlan(bool, const BandInfoFilter&))
+    );
 
     // Bookmarks
     connect(uiDockBookmarks, SIGNAL(newBookmarkActivated(qint64, QString, int)), this, SLOT(onBookmarkActivated(qint64, QString, int)));
@@ -628,6 +646,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         qDebug() << "Actual bandwidth   :" << actual_bw << "Hz";
     }
 
+    uiDockBandplan->readSettings(m_settings);
     uiDockInputCtl->readSettings(m_settings); // this will also update freq range
     uiDockRxOpt->readSettings(m_settings);
     uiDockFft->readSettings(m_settings);
@@ -744,6 +763,7 @@ void MainWindow::storeSession()
     {
         m_settings->setValue("input/frequency", ui->freqCtrl->getFrequency());
 
+        uiDockBandplan->saveSettings(m_settings);
         uiDockInputCtl->saveSettings(m_settings);
         uiDockRxOpt->saveSettings(m_settings);
         uiDockFft->saveSettings(m_settings);
