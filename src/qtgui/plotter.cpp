@@ -270,7 +270,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     QString toolTipText = QString("F: %1 kHz").arg(hoverFrequency/1.e3f, 0, 'f', 3);
                     QFontMetrics metrics(m_Font);
                     int bandTopY = (m_OverlayPixmap.height() / m_DPR) - metrics.height() - 2 * VER_MARGIN - m_BandPlanHeight;
-                    QList<BandInfo> hoverBands = BandPlan::Get().getBandsEncompassing(m_BandPlanRegions, hoverFrequency);
+                    QList<BandInfo> hoverBands = BandPlan::Get().getBandsEncompassing(m_BandPlanFilter, hoverFrequency);
                     if(m_BandPlanEnabled && pt.y() > bandTopY && !hoverBands.empty())
                     {
                         toolTipText.append("\n");
@@ -1349,7 +1349,7 @@ void CPlotter::drawOverlay()
 
     if (m_BandPlanEnabled)
     {
-        QList<BandInfo> bands = BandPlan::Get().getBandsInRange(m_BandPlanRegions,
+        QList<BandInfo> bands = BandPlan::Get().getBandsInRange(m_BandPlanFilter,
                                                                 m_CenterFreq + m_FftCenter - m_Span / 2,
                                                                 m_CenterFreq + m_FftCenter + m_Span / 2);
 
@@ -1698,20 +1698,10 @@ void CPlotter::setPeakDetection(bool enabled, float c)
         m_PeakDetection = c;
 }
 
-void CPlotter::toggleBandPlan(bool state, int region)
+void CPlotter::updateBandPlan(bool state, const BandInfoFilter &filter)
 {
-    switch (region) {
-    case -1:
-        m_BandPlanEnabled = state;
-        break;
-    default:
-        if (state) {
-            m_BandPlanRegions.insert(region);
-        } else {
-            m_BandPlanRegions.remove(region);
-        }
-    }
-
+    m_BandPlanEnabled = state;
+    m_BandPlanFilter = filter;
     updateOverlay();
 }
 

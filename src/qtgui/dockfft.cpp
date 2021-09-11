@@ -24,6 +24,7 @@
 #include <QSettings>
 #include <QDebug>
 #include <QVariant>
+
 #include "dockfft.h"
 #include "ui_dockfft.h"
 
@@ -74,6 +75,7 @@ DockFft::DockFft(QWidget *parent) :
     ui->cmapComboBox->addItem(tr("White Hot"), "whitehot");
     ui->cmapComboBox->addItem(tr("Black Hot"), "blackhot");
 }
+
 DockFft::~DockFft()
 {
     delete ui;
@@ -263,32 +265,6 @@ void DockFft::saveSettings(QSettings *settings)
     else
         settings->remove("db_ranges_locked");
 
-    // Band Plan
-    if (ui->bandPlanCheckboxAll->isChecked())
-        settings->setValue("bandplan", true);
-    else
-        settings->remove("bandplan");
-
-    if (ui->bandPlanCheckboxRegion1->isChecked())
-        settings->setValue("bandplan_region1", true);
-    else
-        settings->remove("bandplan_region1");
-
-    if (ui->bandPlanCheckboxRegion2->isChecked())
-        settings->setValue("bandplan_region2", true);
-    else
-        settings->remove("bandplan_region2");
-
-    if (ui->bandPlanCheckboxRegion3->isChecked())
-        settings->setValue("bandplan_region3", true);
-    else
-        settings->remove("bandplan_region3");
-
-    if (ui->bandPlanCheckboxRegionGlobal->isChecked())
-        settings->setValue("bandplan_regionGlobal", true);
-    else
-        settings->remove("bandplan_regionGlobal");
-
     if (QString::compare(ui->cmapComboBox->currentData().toString(), DEFAULT_COLORMAP))
         settings->setValue("waterfall_colormap", ui->cmapComboBox->currentData().toString());
     else
@@ -360,26 +336,6 @@ void DockFft::readSettings(QSettings *settings)
 
     bool_val = settings->value("db_ranges_locked", false).toBool();
     ui->lockButton->setChecked(bool_val);
-
-    bool_val = settings->value("bandplan", false).toBool();
-    ui->bandPlanCheckboxAll->setChecked(bool_val);
-    emit bandPlanChanged(bool_val, -1);
-
-    bool_val = settings->value("bandplan_region1", false).toBool();
-    ui->bandPlanCheckboxRegion1->setChecked(bool_val);
-    emit bandPlanChanged(bool_val, 1);
-
-    bool_val = settings->value("bandplan_region2", false).toBool();
-    ui->bandPlanCheckboxRegion2->setChecked(bool_val);
-    emit bandPlanChanged(bool_val, 2);
-
-    bool_val = settings->value("bandplan_region3", false).toBool();
-    ui->bandPlanCheckboxRegion3->setChecked(bool_val);
-    emit bandPlanChanged(bool_val, 3);
-
-    bool_val = settings->value("bandplan_regionGlobal", false).toBool();
-    ui->bandPlanCheckboxRegionGlobal->setChecked(bool_val);
-    emit bandPlanChanged(bool_val, 0);
 
     QString cmap = settings->value("waterfall_colormap", "gqrx").toString();
     ui->cmapComboBox->setCurrentIndex(ui->cmapComboBox->findData(cmap));
@@ -555,27 +511,6 @@ void DockFft::on_peakHoldButton_toggled(bool checked)
 void DockFft::on_peakDetectionButton_toggled(bool checked)
 {
     emit peakDetectionToggled(checked);
-}
-
-void DockFft::on_bandPlanCheckboxAll_stateChanged(int state)
-{
-    emit bandPlanChanged(state == 2, -1);
-}
-void DockFft::on_bandPlanCheckboxRegion1_stateChanged(int state)
-{
-    emit bandPlanChanged(state == 2, 1);
-}
-void DockFft::on_bandPlanCheckboxRegion2_stateChanged(int state)
-{
-    emit bandPlanChanged(state == 2, 2);
-}
-void DockFft::on_bandPlanCheckboxRegion3_stateChanged(int state)
-{
-    emit bandPlanChanged(state == 2, 3);
-}
-void DockFft::on_bandPlanCheckboxRegionGlobal_stateChanged(int state)
-{
-    emit bandPlanChanged(state == 2, 0);
 }
 
 /** lock button toggled */

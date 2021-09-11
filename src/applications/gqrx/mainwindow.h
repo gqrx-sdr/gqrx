@@ -35,6 +35,7 @@
 
 #include "qtgui/dockrxopt.h"
 #include "qtgui/dockaudio.h"
+#include "qtgui/dockbandplan.h"
 #include "qtgui/dockinputctl.h"
 #include "qtgui/dockfft.h"
 #include "qtgui/dockbookmarks.h"
@@ -94,6 +95,7 @@ private:
     DockAudio      *uiDockAudio;
     DockInputCtl   *uiDockInputCtl;
     DockFft        *uiDockFft;
+    DockBandplan   *uiDockBandplan;
     DockBookmarks  *uiDockBookmarks;
     DockRDS        *uiDockRDS;
 

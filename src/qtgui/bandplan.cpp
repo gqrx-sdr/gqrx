@@ -21,6 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <Qt>
+#include <QDebug>
 #include <QFile>
 #include <QResource>
 #include <QStringList>
@@ -28,7 +29,7 @@
 #include <QString>
 #include <QSet>
 #include <algorithm>
-#include <iostream>
+
 #include "bandplan.h"
 
 BandPlan* BandPlan::m_pThis = 0;
@@ -51,7 +52,7 @@ BandPlan& BandPlan::Get()
 void BandPlan::setConfigDir(const QString& cfg_dir)
 {
     m_bandPlanFile = cfg_dir + "/bandplan.csv";
-    std::cout << "BandPlanFile is " << m_bandPlanFile.toStdString() << std::endl;
+    qInfo() << "BandPlan: File is " << m_bandPlanFile;
 
     if (!QFile::exists(m_bandPlanFile))
     {
@@ -71,26 +72,30 @@ bool BandPlan::load()
     while (!file.atEnd())
     {
         QString line = QString::fromUtf8(file.readLine().trimmed());
-        if(line.isEmpty() || line.startsWith("#"))
-            continue;
 
         QStringList strings = line.split(",");
-
-        if (strings.count() < 6) {
-            std::cout << "BandPlan: Ignoring Line:" << std::endl;
-            std::cout << "  " << line.toStdString() << std::endl;
-        } else {
-            BandInfo info;
-            info.minFrequency = strings[0].toLongLong();
-            info.maxFrequency = strings[1].toLongLong();
-            info.modulation   = strings[2].trimmed();
-            info.step         = strings[3].toInt();
-            info.color        = QColor(strings[4].trimmed());
-            info.name         = strings[5].trimmed();
-            info.region       = strings[6].toUInt();
-
-            m_BandInfoList.append(info);
+        if (line.isEmpty() || line.startsWith("#") || line.startsWith(",,") || strings.count() < 9) {
+            // qInfo() << "BandPlan: Ignoring Line:" << line;
+            continue;
         }
+
+        BandInfo info;
+        info.minFrequency = strings[0].toLongLong();
+        info.maxFrequency = strings[1].toLongLong();
+        info.modulation   = strings[2].trimmed();
+        info.step         = strings[3].toInt();
+        info.color        = QColor(strings[4].trimmed());
+        info.name         = strings[5].trimmed();
+        info.region       = strings[6].trimmed();
+        info.country      = strings[7].trimmed();
+        info.use          = strings[8].trimmed();
+
+        m_BandInfoList.append(info);
+
+        m_filterValues.countries.insert(info.country);
+        m_filterValues.modulations.insert(info.modulation);
+        m_filterValues.regions.insert(info.region);
+        m_filterValues.uses.insert(info.use);
     }
     file.close();
 
@@ -98,25 +103,25 @@ bool BandPlan::load()
     return true;
 }
 
-QList<BandInfo> BandPlan::getBandsInRange(QSet<quint8> regions, qint64 low, qint64 high)
+QList<BandInfo> BandPlan::getBandsInRange(const BandInfoFilter &filter, qint64 low, qint64 high)
 {
     QList<BandInfo> found;
     for (int i = 0; i < m_BandInfoList.size(); i++) {
-        if(!regions.contains(m_BandInfoList[i].region)) continue;
-        if(m_BandInfoList[i].maxFrequency < low) continue;
-        if(m_BandInfoList[i].minFrequency > high) continue;
+        if (!filter.matches(m_BandInfoList[i])) continue;
+        if (m_BandInfoList[i].maxFrequency < low) continue;
+        if (m_BandInfoList[i].minFrequency > high) continue;
         found.append(m_BandInfoList[i]);
     }
     return found;
 }
 
-QList<BandInfo> BandPlan::getBandsEncompassing(QSet<quint8> regions, qint64 freq)
+QList<BandInfo> BandPlan::getBandsEncompassing(const BandInfoFilter &filter, qint64 freq)
 {
     QList<BandInfo> found;
     for (int i = 0; i < m_BandInfoList.size(); i++) {
-        if(!regions.contains(m_BandInfoList[i].region)) continue;
-        if(m_BandInfoList[i].maxFrequency < freq) continue;
-        if(m_BandInfoList[i].minFrequency > freq) continue;
+        if (!filter.matches(m_BandInfoList[i])) continue;
+        if (m_BandInfoList[i].maxFrequency < freq) continue;
+        if (m_BandInfoList[i].minFrequency > freq) continue;
         found.append(m_BandInfoList[i]);
     }
     return found;
