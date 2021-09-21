@@ -94,7 +94,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     ui->freqCtrl->setup(0, 0, 9999e6, 1, FCTL_UNIT_NONE);
     ui->freqCtrl->setFrequency(144500000);
 
-    d_filter_shape = receiver::FILTER_SHAPE_NORMAL;
+    // subrx
+    d_filter_shape = rx_filter_shape::FILTER_SHAPE_NORMAL;
 
     /* create receiver object */
     rx = new receiver("", "", 1);
@@ -638,11 +639,13 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         int64_val = m_settings->value("input/frequency", 14236000).toLongLong(&conv_ok);
 
         // If frequency is out of range set frequency to the center of the range.
-        qint64 hw_freq = int64_val - d_lnb_lo - (qint64)(rx->get_filter_offset());
+        // subrx
+        qint64 hw_freq = int64_val - d_lnb_lo - (qint64)(rx->get_filter_offset(0));
         if (hw_freq < d_hw_freq_start || hw_freq > d_hw_freq_stop)
         {
             int64_val = (d_hw_freq_stop - d_hw_freq_start) / 2 +
-                        (qint64)(rx->get_filter_offset()) + d_lnb_lo;
+                        // subrx
+                        (qint64)(rx->get_filter_offset(0)) + d_lnb_lo;
         }
 
         ui->freqCtrl->setFrequency(int64_val);
@@ -783,7 +786,7 @@ void MainWindow::updateHWFrequencyRange(bool ignore_limits)
         d_hw_freq_start = (quint64) 0;
         d_hw_freq_stop  = (quint64) 9999e6;
     }
-    else if (rx->get_rf_range(&startd, &stopd, &stepd) == receiver::STATUS_OK)
+    else if (rx->get_rf_range(&startd, &stopd, &stepd) == rx_status::STATUS_OK)
     {
         d_hw_freq_start = (quint64) startd;
         d_hw_freq_stop  = (quint64) stopd;
@@ -809,8 +812,9 @@ void MainWindow::updateHWFrequencyRange(bool ignore_limits)
  */
 void MainWindow::updateFrequencyRange()
 {
-    auto start = (qint64)(rx->get_filter_offset()) + d_hw_freq_start + d_lnb_lo;
-    auto stop  = (qint64)(rx->get_filter_offset()) + d_hw_freq_stop  + d_lnb_lo;
+    // subrx
+    auto start = (qint64)(rx->get_filter_offset(0)) + d_hw_freq_start + d_lnb_lo;
+    auto stop  = (qint64)(rx->get_filter_offset(0)) + d_hw_freq_stop  + d_lnb_lo;
 
     ui->freqCtrl->setup(0, start, stop, 1, FCTL_UNIT_NONE);
     uiDockRxOpt->setRxFreqRange(start, stop);
@@ -860,8 +864,9 @@ void MainWindow::updateGainStages(bool read_from_device)
  */
 void MainWindow::setNewFrequency(qint64 rx_freq)
 {
-    auto hw_freq = (double)(rx_freq - d_lnb_lo) - rx->get_filter_offset();
-    auto center_freq = rx_freq - (qint64)rx->get_filter_offset();
+    // subrx
+    auto hw_freq = (double)(rx_freq - d_lnb_lo) - rx->get_filter_offset(0);
+    auto center_freq = rx_freq - (qint64)rx->get_filter_offset(0);
 
     d_hw_freq = (qint64)hw_freq;
 
@@ -912,7 +917,8 @@ void MainWindow::setAntenna(const QString& antenna)
  */
 void MainWindow::setFilterOffset(qint64 freq_hz)
 {
-    rx->set_filter_offset((double) freq_hz);
+    // subrc
+    rx->set_filter_offset(0, (double) freq_hz);
     ui->plotter->setFilterOffset(freq_hz);
 
     updateFrequencyRange();
@@ -920,9 +926,9 @@ void MainWindow::setFilterOffset(qint64 freq_hz)
     auto rx_freq = d_hw_freq + d_lnb_lo + freq_hz;
     ui->freqCtrl->setFrequency(rx_freq);
 
-    if (rx->is_rds_decoder_active()) {
-        rx->reset_rds_parser();
-    }
+//    if (rx->is_rds_decoder_active()) {
+//        rx->reset_rds_parser();
+//    }
 }
 
 /**
@@ -1008,7 +1014,8 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
 {
     updateHWFrequencyRange(ignore_limits);
 
-    auto filter_offset = (qint64)rx->get_filter_offset();
+    // subrx
+    auto filter_offset = (qint64)rx->get_filter_offset(0);
     auto freq = (qint64)rx->get_rf_freq();
     ui->freqCtrl->setFrequency(d_lnb_lo + freq + filter_offset);
 
@@ -1073,43 +1080,47 @@ void MainWindow::selectDemod(int mode_idx)
     qDebug() << "New mode index:" << mode_idx;
 
     uiDockRxOpt->getFilterPreset(mode_idx, filter_preset, &flo, &fhi);
-    d_filter_shape = (receiver::filter_shape)uiDockRxOpt->currentFilterShape();
+    d_filter_shape = (rx_filter_shape)uiDockRxOpt->currentFilterShape();
 
-    rds_enabled = rx->is_rds_decoder_active();
-    if (rds_enabled)
-        setRdsDecoder(false);
+//    rds_enabled = rx->is_rds_decoder_active();
+//    if (rds_enabled)
+//        setRdsDecoder(false);
     uiDockRDS->setDisabled();
 
     switch (mode_idx) {
 
     case DockRxOpt::MODE_OFF:
         /* Spectrum analyzer only */
-        if (rx->is_recording_audio())
-        {
-            stopAudioRec();
-            uiDockAudio->setAudioRecButtonState(false);
-        }
-        rx->set_demod(receiver::RX_DEMOD_OFF);
+//        if (rx->is_recording_audio())
+//        {
+//            stopAudioRec();
+//            uiDockAudio->setAudioRecButtonState(false);
+//        }
+        // subrx
+        rx->set_demod(0, rx_demod::RX_DEMOD_OFF);
         click_res = 1000;
         break;
 
     case DockRxOpt::MODE_RAW:
         /* Raw I/Q; max 96 ksps*/
-        rx->set_demod(receiver::RX_DEMOD_NONE);
+        // subrx
+        rx->set_demod(0, rx_demod::RX_DEMOD_NONE);
         ui->plotter->setDemodRanges(-40000, -200, 200, 40000, true);
         uiDockAudio->setFftRange(0,24000);
         click_res = 100;
         break;
 
     case DockRxOpt::MODE_AM:
-        rx->set_demod(receiver::RX_DEMOD_AM);
+        // subrx
+        rx->set_demod(0, rx_demod::RX_DEMOD_AM);
         ui->plotter->setDemodRanges(-40000, -200, 200, 40000, true);
         uiDockAudio->setFftRange(0,6000);
         click_res = 100;
         break;
 
     case DockRxOpt::MODE_AM_SYNC:
-        rx->set_demod(receiver::RX_DEMOD_AMSYNC);
+        // subrx
+        rx->set_demod(0, rx_demod::RX_DEMOD_AMSYNC);
         ui->plotter->setDemodRanges(-40000, -200, 200, 40000, true);
         uiDockAudio->setFftRange(0,6000);
         click_res = 100;
@@ -1118,9 +1129,10 @@ void MainWindow::selectDemod(int mode_idx)
     case DockRxOpt::MODE_NFM:
         ui->plotter->setDemodRanges(-40000, -1000, 1000, 40000, true);
         uiDockAudio->setFftRange(0, 5000);
-        rx->set_demod(receiver::RX_DEMOD_NFM);
-        rx->set_fm_maxdev(uiDockRxOpt->currentMaxdev());
-        rx->set_fm_deemph(uiDockRxOpt->currentEmph());
+        // subrx
+        rx->set_demod(0, rx_demod::RX_DEMOD_NFM);
+        rx->set_fm_maxdev(0, uiDockRxOpt->currentMaxdev());
+        rx->set_fm_deemph(0, uiDockRxOpt->currentEmph());
         click_res = 100;
         break;
 
@@ -1132,20 +1144,24 @@ void MainWindow::selectDemod(int mode_idx)
         uiDockAudio->setFftRange(0,24000);  /** FIXME: get audio rate from rx **/
         click_res = 1000;
         if (mode_idx == DockRxOpt::MODE_WFM_MONO)
-            rx->set_demod(receiver::RX_DEMOD_WFM_M);
+            // subrx
+            rx->set_demod(0, rx_demod::RX_DEMOD_WFM_M);
         else if (mode_idx == DockRxOpt::MODE_WFM_STEREO_OIRT)
-            rx->set_demod(receiver::RX_DEMOD_WFM_S_OIRT);
+            // subrx
+            rx->set_demod(0, rx_demod::RX_DEMOD_WFM_S_OIRT);
         else
-            rx->set_demod(receiver::RX_DEMOD_WFM_S);
+            // subrx
+            rx->set_demod(0, rx_demod::RX_DEMOD_WFM_S);
 
         uiDockRDS->setEnabled();
-        if (rds_enabled)
-            setRdsDecoder(true);
+//        if (rds_enabled)
+//            setRdsDecoder(true);
         break;
 
     case DockRxOpt::MODE_LSB:
         /* LSB */
-        rx->set_demod(receiver::RX_DEMOD_SSB);
+        // subrx
+        rx->set_demod(0, rx_demod::RX_DEMOD_SSB);
         ui->plotter->setDemodRanges(-40000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,3000);
         click_res = 100;
@@ -1153,7 +1169,8 @@ void MainWindow::selectDemod(int mode_idx)
 
     case DockRxOpt::MODE_USB:
         /* USB */
-        rx->set_demod(receiver::RX_DEMOD_SSB);
+        // subrx
+        rx->set_demod(0, rx_demod::RX_DEMOD_SSB);
         ui->plotter->setDemodRanges(0, 5000, 100, 40000, false);
         uiDockAudio->setFftRange(0,3000);
         click_res = 100;
@@ -1161,7 +1178,8 @@ void MainWindow::selectDemod(int mode_idx)
 
     case DockRxOpt::MODE_CWL:
         /* CW-L */
-        rx->set_demod(receiver::RX_DEMOD_SSB);
+        // subrx
+        rx->set_demod(0, rx_demod::RX_DEMOD_SSB);
         cwofs = -uiDockRxOpt->getCwOffset();
         ui->plotter->setDemodRanges(-5000, -100, 100, 5000, true);
         uiDockAudio->setFftRange(0,1500);
@@ -1170,7 +1188,8 @@ void MainWindow::selectDemod(int mode_idx)
 
     case DockRxOpt::MODE_CWU:
         /* CW-U */
-        rx->set_demod(receiver::RX_DEMOD_SSB);
+        // subrx
+        rx->set_demod(0, rx_demod::RX_DEMOD_SSB);
         cwofs = uiDockRxOpt->getCwOffset();
         ui->plotter->setDemodRanges(-5000, -100, 100, 5000, true);
         uiDockAudio->setFftRange(0,1500);
@@ -1189,9 +1208,11 @@ void MainWindow::selectDemod(int mode_idx)
     ui->plotter->setHiLowCutFrequencies(flo, fhi);
     ui->plotter->setClickResolution(click_res);
     ui->plotter->setFilterClickResolution(click_res);
-    rx->set_filter((double)flo, (double)fhi, d_filter_shape);
-    rx->set_cw_offset(cwofs);
-    rx->set_sql_level(uiDockRxOpt->currentSquelchLevel());
+
+    // subrx
+    rx->set_filter(0, (double)flo, (double)fhi, d_filter_shape);
+    rx->set_cw_offset(0, cwofs);
+    rx->set_sql_level(0, uiDockRxOpt->currentSquelchLevel());
 
     remote->setMode(mode_idx);
     remote->setPassband(flo, fhi);
@@ -1211,7 +1232,8 @@ void MainWindow::setFmMaxdev(float max_dev)
     qDebug() << "FM MAX_DEV: " << max_dev;
 
     /* receiver will check range */
-    rx->set_fm_maxdev(max_dev);
+    // subrx
+    rx->set_fm_maxdev(0, max_dev);
 }
 
 
@@ -1224,7 +1246,8 @@ void MainWindow::setFmEmph(double tau)
     qDebug() << "FM TAU: " << tau;
 
     /* receiver will check range */
-    rx->set_fm_deemph(tau);
+    // subrx
+    rx->set_fm_deemph(0, tau);
 }
 
 
@@ -1234,12 +1257,14 @@ void MainWindow::setFmEmph(double tau)
  */
 void MainWindow::setAmDcr(bool enabled)
 {
-    rx->set_am_dcr(enabled);
+    // subrx
+    rx->set_am_dcr(0, enabled);
 }
 
 void MainWindow::setCwOffset(int offset)
 {
-    rx->set_cw_offset(offset);
+    // subrx
+    rx->set_cw_offset(0, offset);
 }
 
 /**
@@ -1248,7 +1273,8 @@ void MainWindow::setCwOffset(int offset)
  */
 void MainWindow::setAmSyncDcr(bool enabled)
 {
-    rx->set_amsync_dcr(enabled);
+    // subrx
+    rx->set_amsync_dcr(0, enabled);
 }
 
 /**
@@ -1260,7 +1286,8 @@ void MainWindow::setAmSyncPllBw(float pll_bw)
     qDebug() << "AM-Sync PLL BW: " << pll_bw;
 
     /* receiver will check range */
-    rx->set_amsync_pll_bw(pll_bw);
+    // subrx
+    rx->set_amsync_pll_bw(0, pll_bw);
 }
 
 /**
@@ -1269,43 +1296,50 @@ void MainWindow::setAmSyncPllBw(float pll_bw)
  */
 void MainWindow::setAudioGain(float value)
 {
-    rx->set_af_gain(value);
+    // subrx
+    rx->set_af_gain(0, value);
 }
 
 /** Set AGC ON/OFF. */
 void MainWindow::setAgcOn(bool agc_on)
 {
-    rx->set_agc_on(agc_on);
+    // subrx
+    rx->set_agc_on(0, agc_on);
 }
 
 /** AGC hang ON/OFF. */
 void MainWindow::setAgcHang(bool use_hang)
 {
-    rx->set_agc_hang(use_hang);
+    // subrx
+    rx->set_agc_hang(0, use_hang);
 }
 
 /** AGC threshold changed. */
 void MainWindow::setAgcThreshold(int threshold)
 {
-    rx->set_agc_threshold(threshold);
+    // subrx
+    rx->set_agc_threshold(0, threshold);
 }
 
 /** AGC slope factor changed. */
 void MainWindow::setAgcSlope(int factor)
 {
-    rx->set_agc_slope(factor);
+    // subrx
+    rx->set_agc_slope(0, factor);
 }
 
 /** AGC manual gain changed. */
 void MainWindow::setAgcGain(int gain)
 {
-    rx->set_agc_manual_gain(gain);
+    // subrx
+    rx->set_agc_manual_gain(0, gain);
 }
 
 /** AGC decay changed. */
 void MainWindow::setAgcDecay(int msec)
 {
-    rx->set_agc_decay(msec);
+    // subrx
+    rx->set_agc_decay(0, msec);
 }
 
 /**
@@ -1319,8 +1353,9 @@ void MainWindow::setNoiseBlanker(int nbid, bool on, float threshold)
     qDebug() << "Noise blanker NB:" << nbid << " ON:" << on << "THLD:"
              << threshold;
 
-    rx->set_nb_on(nbid, on);
-    rx->set_nb_threshold(nbid, threshold);
+    // subrx
+    rx->set_nb_on(0, nbid, on);
+    rx->set_nb_threshold(0, nbid, threshold);
 }
 
 /**
@@ -1329,7 +1364,8 @@ void MainWindow::setNoiseBlanker(int nbid, bool on, float threshold)
  */
 void MainWindow::setSqlLevel(double level_db)
 {
-    rx->set_sql_level(level_db);
+    // subrx
+    rx->set_sql_level(0, level_db);
     ui->sMeter->setSqlLevel(level_db);
 }
 
@@ -1339,7 +1375,8 @@ void MainWindow::setSqlLevel(double level_db)
  */
 double MainWindow::setSqlLevelAuto()
 {
-    double level = rx->get_signal_pwr(true) + 1.0;
+    // subrx
+    double level = rx->get_signal_pwr(0, true) + 1.0;
     if (level > -10.0)  // avoid 0 dBFS
         level = uiDockRxOpt->getSqlLevel();
 
@@ -1352,7 +1389,8 @@ void MainWindow::meterTimeout()
 {
     float level;
 
-    level = rx->get_signal_pwr(true);
+    // subrx
+    level = rx->get_signal_pwr(0, true);
     ui->sMeter->setLevel(level);
     remote->setSignalLevel(level);
 }
@@ -1407,7 +1445,8 @@ void MainWindow::audioFftTimeout()
     if (!d_have_audio || !uiDockAudio->isVisible())
         return;
 
-    rx->get_audio_fft_data(d_fftData, fftsize);
+    // subrx
+    rx->get_audio_fft_data(0, d_fftData, fftsize);
 
     if (fftsize == 0)
     {
@@ -1443,14 +1482,14 @@ void MainWindow::audioFftTimeout()
 /** RDS message display timeout. */
 void MainWindow::rdsTimeout()
 {
-    std::string buffer;
-    int num;
+//    std::string buffer;
+//    int num;
 
-    rx->get_rds_data(buffer, num);
-    while(num!=-1) {
-        rx->get_rds_data(buffer, num);
-        uiDockRDS->updateRDS(QString::fromStdString(buffer), num);
-    }
+//    rx->get_rds_data(buffer, num);
+//    while(num!=-1) {
+//        rx->get_rds_data(buffer, num);
+//        uiDockRDS->updateRDS(QString::fromStdString(buffer), num);
+//    }
 }
 
 /**
@@ -1459,211 +1498,211 @@ void MainWindow::rdsTimeout()
  */
 void MainWindow::startAudioRec(const QString& filename)
 {
-    if (!d_have_audio)
-    {
-        QMessageBox msg_box;
-        msg_box.setIcon(QMessageBox::Critical);
-        msg_box.setText(tr("Recording audio requires a demodulator.\n"
-                           "Currently, demodulation is switched off "
-                           "(Mode->Demod off)."));
-        msg_box.exec();
-        uiDockAudio->setAudioRecButtonState(false);
-    }
-    else if (rx->start_audio_recording(filename.toStdString()))
-    {
-        ui->statusBar->showMessage(tr("Error starting audio recorder"));
+//    if (!d_have_audio)
+//    {
+//        QMessageBox msg_box;
+//        msg_box.setIcon(QMessageBox::Critical);
+//        msg_box.setText(tr("Recording audio requires a demodulator.\n"
+//                           "Currently, demodulation is switched off "
+//                           "(Mode->Demod off)."));
+//        msg_box.exec();
+//        uiDockAudio->setAudioRecButtonState(false);
+//    }
+//    else if (rx->start_audio_recording(filename.toStdString()))
+//    {
+//        ui->statusBar->showMessage(tr("Error starting audio recorder"));
 
-        /* reset state of record button */
-        uiDockAudio->setAudioRecButtonState(false);
-    }
-    else
-    {
-        ui->statusBar->showMessage(tr("Recording audio to %1").arg(filename));
-    }
+//        /* reset state of record button */
+//        uiDockAudio->setAudioRecButtonState(false);
+//    }
+//    else
+//    {
+//        ui->statusBar->showMessage(tr("Recording audio to %1").arg(filename));
+//    }
 }
 
 /** Stop audio recorder. */
 void MainWindow::stopAudioRec()
 {
-    if (rx->stop_audio_recording())
-    {
-        /* okay, this one would be weird if it really happened */
-        ui->statusBar->showMessage(tr("Error stopping audio recorder"));
+//    if (rx->stop_audio_recording())
+//    {
+//        /* okay, this one would be weird if it really happened */
+//        ui->statusBar->showMessage(tr("Error stopping audio recorder"));
 
-        uiDockAudio->setAudioRecButtonState(true);
-    }
-    else
-    {
-        ui->statusBar->showMessage(tr("Audio recorder stopped"), 5000);
-    }
+//        uiDockAudio->setAudioRecButtonState(true);
+//    }
+//    else
+//    {
+//        ui->statusBar->showMessage(tr("Audio recorder stopped"), 5000);
+//    }
 }
 
 
 /** Start playback of audio file. */
 void MainWindow::startAudioPlayback(const QString& filename)
 {
-    if (rx->start_audio_playback(filename.toStdString()))
-    {
-        ui->statusBar->showMessage(tr("Error trying to play %1").arg(filename));
+//    if (rx->start_audio_playback(filename.toStdString()))
+//    {
+//        ui->statusBar->showMessage(tr("Error trying to play %1").arg(filename));
 
-        /* reset state of record button */
-        uiDockAudio->setAudioPlayButtonState(false);
-    }
-    else
-    {
-        ui->statusBar->showMessage(tr("Playing %1").arg(filename));
-    }
+//        /* reset state of record button */
+//        uiDockAudio->setAudioPlayButtonState(false);
+//    }
+//    else
+//    {
+//        ui->statusBar->showMessage(tr("Playing %1").arg(filename));
+//    }
 }
 
 /** Stop playback of audio file. */
 void MainWindow::stopAudioPlayback()
 {
-    if (rx->stop_audio_playback())
-    {
-        /* okay, this one would be weird if it really happened */
-        ui->statusBar->showMessage(tr("Error stopping audio playback"));
+//    if (rx->stop_audio_playback())
+//    {
+//        /* okay, this one would be weird if it really happened */
+//        ui->statusBar->showMessage(tr("Error stopping audio playback"));
 
-        uiDockAudio->setAudioPlayButtonState(true);
-    }
-    else
-    {
-        ui->statusBar->showMessage(tr("Audio playback stopped"), 5000);
-    }
+//        uiDockAudio->setAudioPlayButtonState(true);
+//    }
+//    else
+//    {
+//        ui->statusBar->showMessage(tr("Audio playback stopped"), 5000);
+//    }
 }
 
 /** Start streaming audio over UDP. */
 void MainWindow::startAudioStream(const QString& udp_host, int udp_port, bool stereo)
 {
-    rx->start_udp_streaming(udp_host.toStdString(), udp_port, stereo);
+//    rx->start_udp_streaming(udp_host.toStdString(), udp_port, stereo);
 }
 
 /** Stop streaming audio over UDP. */
 void MainWindow::stopAudioStreaming()
 {
-    rx->stop_udp_streaming();
+//    rx->stop_udp_streaming();
 }
 
 /** Start I/Q recording. */
 void MainWindow::startIqRecording(const QString& recdir)
 {
-    qDebug() << __func__;
-    // generate file name using date, time, rf freq in kHz and BW in Hz
-    // gqrx_iq_yyyymmdd_hhmmss_freq_bw_fc.raw
-    auto freq = (qint64)(rx->get_rf_freq());
-    auto sr = (qint64)(rx->get_input_rate());
-    auto dec = (quint32)(rx->get_input_decim());
-    auto lastRec = QDateTime::currentDateTimeUtc().
-            toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.'raw'")
-            .arg(recdir).arg(freq).arg(sr/dec);
+//    qDebug() << __func__;
+//    // generate file name using date, time, rf freq in kHz and BW in Hz
+//    // gqrx_iq_yyyymmdd_hhmmss_freq_bw_fc.raw
+//    auto freq = (qint64)(rx->get_rf_freq());
+//    auto sr = (qint64)(rx->get_input_rate());
+//    auto dec = (quint32)(rx->get_input_decim());
+//    auto lastRec = QDateTime::currentDateTimeUtc().
+//            toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.'raw'")
+//            .arg(recdir).arg(freq).arg(sr/dec);
 
-    // start recorder; fails if recording already in progress
-    if (rx->start_iq_recording(lastRec.toStdString()))
-    {
-        // reset action status
-        ui->statusBar->showMessage(tr("Error starting I/Q recoder"));
+//    // start recorder; fails if recording already in progress
+//    if (rx->start_iq_recording(lastRec.toStdString()))
+//    {
+//        // reset action status
+//        ui->statusBar->showMessage(tr("Error starting I/Q recoder"));
 
-        // show an error message to user
-        QMessageBox msg_box;
-        msg_box.setIcon(QMessageBox::Critical);
-        msg_box.setText(tr("There was an error starting the I/Q recorder.\n"
-                           "Check write permissions for the selected location."));
-        msg_box.exec();
+//        // show an error message to user
+//        QMessageBox msg_box;
+//        msg_box.setIcon(QMessageBox::Critical);
+//        msg_box.setText(tr("There was an error starting the I/Q recorder.\n"
+//                           "Check write permissions for the selected location."));
+//        msg_box.exec();
 
-    }
-    else
-    {
-        ui->statusBar->showMessage(tr("Recording I/Q data to: %1").arg(lastRec),
-                                   5000);
-    }
+//    }
+//    else
+//    {
+//        ui->statusBar->showMessage(tr("Recording I/Q data to: %1").arg(lastRec),
+//                                   5000);
+//    }
 }
 
 /** Stop current I/Q recording. */
 void MainWindow::stopIqRecording()
 {
-    qDebug() << __func__;
+//    qDebug() << __func__;
 
-    if (rx->stop_iq_recording())
-        ui->statusBar->showMessage(tr("Error stopping I/Q recoder"));
-    else
-        ui->statusBar->showMessage(tr("I/Q data recoding stopped"), 5000);
+//    if (rx->stop_iq_recording())
+//        ui->statusBar->showMessage(tr("Error stopping I/Q recoder"));
+//    else
+//        ui->statusBar->showMessage(tr("I/Q data recoding stopped"), 5000);
 }
 
 void MainWindow::startIqPlayback(const QString& filename, float samprate)
 {
-    if (ui->actionDSP->isChecked())
-    {
-        // suspend DSP while we reload settings
-        on_actionDSP_triggered(false);
-    }
+//    if (ui->actionDSP->isChecked())
+//    {
+//        // suspend DSP while we reload settings
+//        on_actionDSP_triggered(false);
+//    }
 
-    storeSession();
+//    storeSession();
 
-    auto sri = (int)samprate;
-    auto devstr = QString("file='%1',rate=%2,throttle=true,repeat=false")
-            .arg(filename).arg(sri);
+//    auto sri = (int)samprate;
+//    auto devstr = QString("file='%1',rate=%2,throttle=true,repeat=false")
+//            .arg(filename).arg(sri);
 
-    qDebug() << __func__ << ":" << devstr;
+//    qDebug() << __func__ << ":" << devstr;
 
-    rx->set_input_device(devstr.toStdString());
+//    rx->set_input_device(devstr.toStdString());
 
-    // sample rate
-    auto actual_rate = rx->set_input_rate(samprate);
-    qDebug() << "Requested sample rate:" << samprate;
-    qDebug() << "Actual sample rate   :" << QString("%1")
-                .arg(actual_rate, 0, 'f', 6);
+//    // sample rate
+//    auto actual_rate = rx->set_input_rate(samprate);
+//    qDebug() << "Requested sample rate:" << samprate;
+//    qDebug() << "Actual sample rate   :" << QString("%1")
+//                .arg(actual_rate, 0, 'f', 6);
 
-    uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
-    ui->plotter->setSampleRate(actual_rate);
-    ui->plotter->setSpanFreq((quint32)actual_rate);
-    remote->setBandwidth(actual_rate);
+//    uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
+//    ui->plotter->setSampleRate(actual_rate);
+//    ui->plotter->setSpanFreq((quint32)actual_rate);
+//    remote->setBandwidth(actual_rate);
 
-    // FIXME: would be nice with good/bad status
-    ui->statusBar->showMessage(tr("Playing %1").arg(filename));
+//    // FIXME: would be nice with good/bad status
+//    ui->statusBar->showMessage(tr("Playing %1").arg(filename));
 
-    on_actionDSP_triggered(true);
+//    on_actionDSP_triggered(true);
 }
 
 void MainWindow::stopIqPlayback()
 {
-    if (ui->actionDSP->isChecked())
-    {
-        // suspend DSP while we reload settings
-        on_actionDSP_triggered(false);
-    }
+//    if (ui->actionDSP->isChecked())
+//    {
+//        // suspend DSP while we reload settings
+//        on_actionDSP_triggered(false);
+//    }
 
-    ui->statusBar->showMessage(tr("I/Q playback stopped"), 5000);
+//    ui->statusBar->showMessage(tr("I/Q playback stopped"), 5000);
 
-    // restore original input device
-    auto indev = m_settings->value("input/device", "").toString();
-    rx->set_input_device(indev.toStdString());
+//    // restore original input device
+//    auto indev = m_settings->value("input/device", "").toString();
+//    rx->set_input_device(indev.toStdString());
 
-    // restore sample rate
-    bool conv_ok;
-    auto sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
-    if (conv_ok && (sr > 0))
-    {
-        auto actual_rate = rx->set_input_rate(sr);
-        qDebug() << "Requested sample rate:" << sr;
-        qDebug() << "Actual sample rate   :" << QString("%1")
-                    .arg(actual_rate, 0, 'f', 6);
+//    // restore sample rate
+//    bool conv_ok;
+//    auto sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
+//    if (conv_ok && (sr > 0))
+//    {
+//        auto actual_rate = rx->set_input_rate(sr);
+//        qDebug() << "Requested sample rate:" << sr;
+//        qDebug() << "Actual sample rate   :" << QString("%1")
+//                    .arg(actual_rate, 0, 'f', 6);
 
-        uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
-        ui->plotter->setSampleRate(actual_rate);
-        ui->plotter->setSpanFreq((quint32)actual_rate);
-        remote->setBandwidth(sr);
+//        uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
+//        ui->plotter->setSampleRate(actual_rate);
+//        ui->plotter->setSpanFreq((quint32)actual_rate);
+//        remote->setBandwidth(sr);
 
-        // not needed as long as we are not recording in iq_tool
-        //iq_tool->setSampleRate(sr);
-    }
+//        // not needed as long as we are not recording in iq_tool
+//        //iq_tool->setSampleRate(sr);
+//    }
 
-    // restore frequency, gain, etc...
-    uiDockInputCtl->readSettings(m_settings);
+//    // restore frequency, gain, etc...
+//    uiDockInputCtl->readSettings(m_settings);
 
-    if (ui->actionDSP->isChecked())
-    {
-        // restsart DSP
-        on_actionDSP_triggered(true);
-    }
+//    if (ui->actionDSP->isChecked())
+//    {
+//        // restsart DSP
+//        on_actionDSP_triggered(true);
+//    }
 }
 
 
@@ -1673,7 +1712,7 @@ void MainWindow::stopIqPlayback()
  */
 void MainWindow::seekIqFile(qint64 seek_pos)
 {
-    rx->seek_iq_file((long)seek_pos);
+//    rx->seek_iq_file((long)seek_pos);
 }
 
 /** FFT size has changed. */
@@ -1978,26 +2017,28 @@ void MainWindow::on_actionIqTool_triggered()
 void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
 {
     // set RX filter
-    rx->set_filter_offset((double) delta);
+    // subrx
+    rx->set_filter_offset(0, (double) delta);
 
     // update RF freq label and channel filter offset
     uiDockRxOpt->setFilterOffset(delta);
     ui->freqCtrl->setFrequency(freq);
 
-    if (rx->is_rds_decoder_active())
-        rx->reset_rds_parser();
+//    if (rx->is_rds_decoder_active())
+//        rx->reset_rds_parser();
 }
 
 /* CPlotter::NewfilterFreq() is emitted or bookmark activated */
 void MainWindow::on_plotter_newFilterFreq(int low, int high)
 {   /* parameter correctness will be checked in receiver class */
-    receiver::status retcode = rx->set_filter((double) low, (double) high, d_filter_shape);
+    // subrx
+    rx_status retcode = rx->set_filter(0, (double) low, (double) high, d_filter_shape);
 
     /* Update filter range of plotter, in case this slot is triggered by
      * switching to a bookmark */
     ui->plotter->setHiLowCutFrequencies(low, high);
 
-    if (retcode == receiver::STATUS_OK)
+    if (retcode == rx_status::STATUS_OK)
         uiDockRxOpt->setFilterParam(low, high);
 }
 
@@ -2054,32 +2095,31 @@ void MainWindow::on_actionRemoteConfig_triggered()
  */
 void MainWindow::on_actionAFSK1200_triggered()
 {
+//    if (dec_afsk1200 != nullptr)
+//    {
+//        qDebug() << "AFSK1200 decoder already active.";
+//        dec_afsk1200->raise();
+//    }
+//    else
+//    {
+//        qDebug() << "Starting AFSK1200 decoder.";
 
-    if (dec_afsk1200 != nullptr)
-    {
-        qDebug() << "AFSK1200 decoder already active.";
-        dec_afsk1200->raise();
-    }
-    else
-    {
-        qDebug() << "Starting AFSK1200 decoder.";
+//        /* start sample sniffer */
+//        if (rx->start_sniffer(22050, DATA_BUFFER_SIZE) == rx_status::STATUS_OK)
+//        {
+//            dec_afsk1200 = new Afsk1200Win(this);
+//            connect(dec_afsk1200, SIGNAL(windowClosed()), this, SLOT(afsk1200win_closed()));
+//            dec_afsk1200->setAttribute(Qt::WA_DeleteOnClose);
+//            dec_afsk1200->show();
 
-        /* start sample sniffer */
-        if (rx->start_sniffer(22050, DATA_BUFFER_SIZE) == receiver::STATUS_OK)
-        {
-            dec_afsk1200 = new Afsk1200Win(this);
-            connect(dec_afsk1200, SIGNAL(windowClosed()), this, SLOT(afsk1200win_closed()));
-            dec_afsk1200->setAttribute(Qt::WA_DeleteOnClose);
-            dec_afsk1200->show();
-
-            dec_timer->start(100);
-        }
-        else
-            QMessageBox::warning(this, tr("Gqrx error"),
-                                 tr("Error starting sample sniffer.\n"
-                                    "Close all data decoders and try again."),
-                                 QMessageBox::Ok, QMessageBox::Ok);
-    }
+//            dec_timer->start(100);
+//        }
+//        else
+//            QMessageBox::warning(this, tr("Gqrx error"),
+//                                 tr("Error starting sample sniffer.\n"
+//                                    "Close all data decoders and try again."),
+//                                 QMessageBox::Ok, QMessageBox::Ok);
+//    }
 }
 
 
@@ -2092,11 +2132,11 @@ void MainWindow::on_actionAFSK1200_triggered()
  */
 void MainWindow::afsk1200win_closed()
 {
-    /* stop cyclic processing */
-    dec_timer->stop();
-    rx->stop_sniffer();
+//    /* stop cyclic processing */
+//    dec_timer->stop();
+//    rx->stop_sniffer();
 
-    dec_afsk1200 = nullptr;
+//    dec_afsk1200 = nullptr;
 }
 
 /** Show DXC Options. */
@@ -2111,31 +2151,31 @@ void MainWindow::on_actionDX_Cluster_triggered()
  */
 void MainWindow::decoderTimeout()
 {
-    float buffer[DATA_BUFFER_SIZE];
-    unsigned int num;
+//    float buffer[DATA_BUFFER_SIZE];
+//    unsigned int num;
 
-    rx->get_sniffer_data(&buffer[0], num);
-    if (dec_afsk1200)
-        dec_afsk1200->process_samples(&buffer[0], num);
+//    rx->get_sniffer_data(&buffer[0], num);
+//    if (dec_afsk1200)
+//        dec_afsk1200->process_samples(&buffer[0], num);
 }
 
 void MainWindow::setRdsDecoder(bool checked)
 {
-    if (checked)
-    {
-        qDebug() << "Starting RDS decoder.";
-        uiDockRDS->showEnabled();
-        rx->start_rds_decoder();
-        rx->reset_rds_parser();
-        rds_timer->start(250);
-    }
-    else
-    {
-        qDebug() << "Stopping RDS decoder.";
-        uiDockRDS->showDisabled();
-        rx->stop_rds_decoder();
-        rds_timer->stop();
-    }
+//    if (checked)
+//    {
+//        qDebug() << "Starting RDS decoder.";
+//        uiDockRDS->showEnabled();
+//        rx->start_rds_decoder();
+//        rx->reset_rds_parser();
+//        rds_timer->start(250);
+//    }
+//    else
+//    {
+//        qDebug() << "Stopping RDS decoder.";
+//        uiDockRDS->showDisabled();
+//        rx->stop_rds_decoder();
+//        rds_timer->stop();
+//    }
 }
 
 void MainWindow::onBookmarkActivated(qint64 freq, const QString& demod, int bandwidth)
