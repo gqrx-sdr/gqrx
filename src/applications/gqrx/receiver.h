@@ -35,8 +35,12 @@
 #include <gnuradio/blocks/wavfile_source.h>
 #include <gnuradio/top_block.h>
 #include <osmosdr/source.h>
+
+#include <memory>
 #include <string>
 #include <vector>
+
+#include <QDebug>
 
 #include "dsp/correct_iq_cc.h"
 #include "dsp/downconverter.h"
@@ -97,6 +101,7 @@ enum rx_filter_shape {
 class subreceiver
 {
 public:
+    typedef std::shared_ptr<subreceiver> SharedPointer;
 
     subreceiver(
             gr::top_block_sptr tb,
@@ -111,6 +116,12 @@ public:
     ~subreceiver();
 
 public:
+    /* General */
+    void        set_idx(size_t next_idx) {
+        qInfo() << "subreceiver" << idx << "gets new" << next_idx;
+        idx = next_idx;
+    }
+
     /* I/O control */
     void        set_output_device(const std::string device, const int d_audio_rate);
     void        set_input_rate(const int d_ddc_decim, const int d_decim_rate, const int d_quad_rate);
@@ -254,6 +265,8 @@ class receiver
 {
 
 public:
+    typedef std::shared_ptr<receiver> SharedPointer;
+
     receiver(const std::string input_device="",
              const std::string audio_device="",
              unsigned int decimation=1);
@@ -309,6 +322,9 @@ public:
     void        complete_reconfigure();
 
     /* Sub-receivers control */
+    size_t      add_rx();
+    void        remove_rx(size_t idx);
+
     rx_status   set_filter_offset(const size_t idx, double offset_hz);
     double      get_filter_offset(const size_t idx) const;
 
@@ -375,7 +391,7 @@ private:
     static std::string get_random_file(void);
 
     /* Sub-receivers all demodulating the same input */
-    std::vector<subreceiver>  subrx;
+    std::vector<subreceiver::SharedPointer> subrx;
 };
 
 #endif // RECEIVER_H

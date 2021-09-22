@@ -180,6 +180,11 @@ DockRxOpt::~DockRxOpt()
     delete nbOpt;
 }
 
+void DockRxOpt::set_idx(size_t idx)
+{
+
+}
+
 /**
  * @brief Set value of channel filter offset selector.
  * @param freq_hz The frequency in Hz
@@ -397,7 +402,7 @@ int DockRxOpt::getCwOffset() const
 }
 
 /** Read receiver configuration from settings data. */
-void DockRxOpt::readSettings(QSettings *settings)
+void DockRxOpt::readSettings(QSettings *settings, size_t idx)
 {
     bool    conv_ok;
     int     int_val;
@@ -473,7 +478,7 @@ void DockRxOpt::readSettings(QSettings *settings)
 }
 
 /** Save receiver configuration to settings. */
-void DockRxOpt::saveSettings(QSettings *settings)
+void DockRxOpt::saveSettings(QSettings *settings, size_t idx)
 {
     int     int_val;
 

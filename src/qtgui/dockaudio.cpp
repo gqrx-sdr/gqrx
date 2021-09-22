@@ -325,7 +325,7 @@ void DockAudio::setAudioPlayButtonState(bool checked)
     //ui->audioRecConfButton->setEnabled(!isChecked);
 }
 
-void DockAudio::saveSettings(QSettings *settings)
+void DockAudio::saveSettings(QSettings *settings, size_t idx)
 {
     int     ival, fft_min, fft_max;
 
@@ -390,7 +390,7 @@ void DockAudio::saveSettings(QSettings *settings)
     settings->endGroup();
 }
 
-void DockAudio::readSettings(QSettings *settings)
+void DockAudio::readSettings(QSettings *settings, size_t idx)
 {
     int     bool_val, ival, fft_min, fft_max;
     bool    conv_ok = false;

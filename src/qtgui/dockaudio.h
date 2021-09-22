@@ -64,8 +64,8 @@ public:
     void setFftColor(QColor color);
     void setFftFill(bool enabled);
 
-    void saveSettings(QSettings *settings);
-    void readSettings(QSettings *settings);
+    void saveSettings(QSettings *settings, size_t idx);
+    void readSettings(QSettings *settings, size_t idx);
 
 public slots:
     void startAudioRecorder(void);

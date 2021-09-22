@@ -64,7 +64,7 @@ subreceiver::subreceiver(
       d_recording_iq(false),
       d_recording_wav(false),
       d_sniffer_active(false),
-      d_demod(RX_DEMOD_OFF)
+      d_demod(RX_DEMOD_NFM)
 {
 
     ddc = make_downconverter_cc(d_ddc_decim, 0.0, d_decim_rate);
@@ -86,6 +86,7 @@ subreceiver::subreceiver(
     /* sniffer_rr is created at each activation. */
 
     // XXX somewhat duplicated in set_output_device
+    // XXX needs to update when set_idx called
     QString portName = QString("Receiver %0").arg(idx);
 #ifdef WITH_PULSEAUDIO
     audio_snk = make_pa_sink(audio_device, d_audio_rate, "GQRX", portName.toStdString());
@@ -166,14 +167,6 @@ receiver::receiver(const std::string input_device,
     gr::prefs pref;
     qInfo() << "Using audio backend:"
              << pref.get_string("audio", "audio_module", "N/A").c_str();
-
-    subrx.push_back(subreceiver(
-                        tb, src,
-                        audio_device, 0,
-                        d_ddc_decim, d_decim_rate,
-                        d_quad_rate, d_audio_rate
-                        ));
-    set_demod(0, RX_DEMOD_NFM, false);
 }
 
 receiver::~receiver()
@@ -255,7 +248,7 @@ void receiver::set_input_device(const std::string device)
     for (size_t i = 0; i < subrx.size(); ++i)
     {
         // TODO: do not force
-        subrx[i].set_demod(subrx[i].get_demod(), true, subrxsrc, d_quad_rate, d_audio_rate);
+        subrx[i]->set_demod(subrx[i]->get_demod(), true, subrxsrc, d_quad_rate, d_audio_rate);
         qInfo() << "set_input_device>set_demod for subrx" << i;
     }
 
@@ -277,6 +270,8 @@ void receiver::set_input_device(const std::string device)
 
 void subreceiver::set_output_device(const std::string device, const int d_audio_rate)
 {
+    qInfo() << "subreceiver sets output device" << device.c_str() << "at rate" << d_audio_rate;
+
     if (d_demod != RX_DEMOD_OFF)
     {
         tb->disconnect(audio_gain0, 0, audio_snk, 0);
@@ -285,6 +280,7 @@ void subreceiver::set_output_device(const std::string device, const int d_audio_
     audio_snk.reset();
 
     // XXX somewhat duplicated in subreciever()
+    // XXX needs to update when set_idx called
     QString portName = QString("Receiver %0").arg(idx);
 #ifdef WITH_PULSEAUDIO
     audio_snk = make_pa_sink(device, d_audio_rate, "GQRX", portName.toStdString());
@@ -318,7 +314,7 @@ void receiver::set_output_device(const std::string device)
     try {
         for (size_t i = 0; i < subrx.size(); ++i)
         {
-            subrx[i].set_output_device(device, d_audio_rate);
+            subrx[i]->set_output_device(device, d_audio_rate);
         }
 
         tb->unlock();
@@ -402,7 +398,7 @@ double receiver::set_input_rate(double rate)
 
     for (size_t i = 0; i < subrx.size(); ++i)
     {
-        subrx[i].set_input_rate(d_ddc_decim, d_decim_rate, d_quad_rate);
+        subrx[i]->set_input_rate(d_ddc_decim, d_decim_rate, d_quad_rate);
     }
 
     iq_fft->set_quad_rate(d_decim_rate);
@@ -463,7 +459,7 @@ unsigned int receiver::set_input_decim(unsigned int decim)
 
     for (size_t i = 0; i < subrx.size(); ++i)
     {
-        subrx[i].set_input_rate(d_ddc_decim, d_decim_rate, d_quad_rate);
+        subrx[i]->set_input_rate(d_ddc_decim, d_decim_rate, d_quad_rate);
     }
 
     iq_fft->set_quad_rate(d_decim_rate);
@@ -544,7 +540,7 @@ void receiver::set_dc_cancel(bool enable)
     for (size_t i = 0; i < subrx.size(); ++i)
     {
         qInfo() << "reciever set_dc_cancel calls subrx" << i << "set_demod";
-        subrx[i].set_demod(subrx[i].get_demod(), true, subrxsrc, d_quad_rate, d_audio_rate);
+        subrx[i]->set_demod(subrx[i]->get_demod(), true, subrxsrc, d_quad_rate, d_audio_rate);
         qInfo() << "reciever set_dc_cancel calls subrx" << i << "set_demod done";
     }
     complete_reconfigure();
@@ -696,6 +692,73 @@ rx_status receiver::set_auto_gain(bool automatic)
     return STATUS_OK;
 }
 
+size_t receiver::add_rx()
+{
+    qInfo() << "receiver add_rx begin";
+
+    begin_reconfigure();
+
+    auto nextIdx = subrx.size();
+    {
+        auto nextSub = std::make_shared<subreceiver>(
+            tb, subrxsrc,
+            output_devstr, nextIdx,
+            d_ddc_decim, d_decim_rate,
+            d_quad_rate, d_audio_rate
+        );
+        qInfo() << "receiver add_rx created sub";
+        subrx.push_back(nextSub);
+    }
+
+    for (size_t i = 0; i < subrx.size(); ++i)
+    {
+        subrx[i]->set_idx(i); // re-index
+        qInfo() << "reciever remove_rx calls subrx" << i << "set_demod";
+        subrx[i]->set_demod(subrx[i]->get_demod(), true, subrxsrc, d_quad_rate, d_audio_rate);
+        qInfo() << "reciever remove_rx calls subrx" << i << "set_demod done";
+    }
+
+    complete_reconfigure();
+
+    // we cannot call set_output_device in between begin/complete reconfigure
+    // all the graph connections must be present
+    for (size_t i = 0; i < subrx.size(); ++i)
+    {
+        subrx[i]->set_output_device(output_devstr, d_audio_rate); // update audio stream name
+        qInfo() << "reciever remove_rx calls subrx" << i << "set_output_device";
+    }
+
+    return nextIdx;
+}
+
+void receiver::remove_rx(size_t idx)
+{
+    begin_reconfigure();
+
+    {
+        std::vector<subreceiver::SharedPointer> next;
+        for (size_t i = 0; i < subrx.size(); ++i)
+        {
+            if (i != idx)
+            {
+                next.push_back(subrx[i]);
+            }
+        }
+        subrx.swap(next);
+        next.clear();
+    }
+
+    for (size_t i = 0; i < subrx.size(); ++i)
+    {
+        subrx[i]->set_idx(i); // re-index
+        subrx[i]->set_output_device(output_devstr, d_audio_rate); // update audio stream name
+        qInfo() << "reciever remove_rx calls subrx" << i << "set_demod";
+        subrx[i]->set_demod(subrx[i]->get_demod(), true, subrxsrc, d_quad_rate, d_audio_rate);
+        qInfo() << "reciever remove_rx calls subrx" << i << "set_demod done";
+    }
+    complete_reconfigure();
+}
+
 /**
  * @brief Set filter offset.
  * @param offset_hz The desired filter offset in Hz.
@@ -724,7 +787,7 @@ rx_status receiver::set_filter_offset(const size_t idx, double offset_hz)
         return rx_status::STATUS_ERROR;
     }
 
-    return subrx[idx].set_filter_offset(offset_hz);
+    return subrx[idx]->set_filter_offset(offset_hz);
 }
 
 /**
@@ -742,7 +805,7 @@ double receiver::get_filter_offset(const size_t idx) const
     if (idx >= subrx.size()) {
         return -INFINITY;
     }
-    return subrx[idx].get_filter_offset();
+    return subrx[idx]->get_filter_offset();
 }
 
 /* CW offset can serve as a "BFO" if the GUI needs it */
@@ -761,7 +824,7 @@ rx_status receiver::set_cw_offset(const size_t idx, double offset_hz)
         return rx_status::STATUS_ERROR;
     }
 
-    return subrx[idx].set_cw_offset(offset_hz);
+    return subrx[idx]->set_cw_offset(offset_hz);
 }
 
 double subreceiver::get_cw_offset(void) const
@@ -774,7 +837,7 @@ double receiver::get_cw_offset(const size_t idx) const
     if (idx >= subrx.size()) {
         return -INFINITY;
     }
-    return subrx[idx].get_cw_offset();
+    return subrx[idx]->get_cw_offset();
 }
 
 rx_status subreceiver::set_filter(double low, double high, rx_filter_shape shape)
@@ -811,7 +874,7 @@ rx_status receiver::set_filter(const size_t idx, double low, double high, rx_fil
     if (idx >= subrx.size()) {
         return rx_status::STATUS_ERROR;
     }
-    return subrx[idx].set_filter(low, high, shape);
+    return subrx[idx]->set_filter(low, high, shape);
 }
 
 
@@ -835,7 +898,7 @@ float receiver::get_signal_pwr(const size_t idx, bool dbfs) const
     if (idx >= subrx.size()) {
         return -INFINITY;
     }
-    return subrx[idx].get_signal_pwr(dbfs);
+    return subrx[idx]->get_signal_pwr(dbfs);
 }
 
 /** Set new FFT size. */
@@ -859,7 +922,7 @@ void receiver::get_iq_fft_data(std::complex<float>* fftPoints, unsigned int &fft
 void receiver::get_audio_fft_data(const size_t idx, std::complex<float>* fftPoints, unsigned int &fftsize)
 {
     if (idx < subrx.size()) {
-        subrx[idx].get_audio_fft_data(fftPoints, fftsize);
+        subrx[idx]->get_audio_fft_data(fftPoints, fftsize);
     }
 }
 
@@ -876,7 +939,7 @@ rx_status receiver::set_nb_on(const size_t idx, int nbid, bool on)
     if (idx >= subrx.size()) {
         return rx_status::STATUS_ERROR;
     }
-    return subrx[idx].set_nb_on(nbid, on);
+    return subrx[idx]->set_nb_on(nbid, on);
 }
 
 rx_status subreceiver::set_nb_threshold(int nbid, float threshold)
@@ -892,7 +955,7 @@ rx_status receiver::set_nb_threshold(const size_t idx, int nbid, float threshold
     if (idx >= subrx.size()) {
         return rx_status::STATUS_ERROR;
     }
-    return subrx[idx].set_nb_threshold(nbid, threshold);
+    return subrx[idx]->set_nb_threshold(nbid, threshold);
 }
 
 /**
@@ -912,7 +975,7 @@ rx_status receiver::set_sql_level(const size_t idx, double level_d)
     if (idx >= subrx.size()) {
         return rx_status::STATUS_ERROR;
     }
-    return subrx[idx].set_sql_level(level_d);
+    return subrx[idx]->set_sql_level(level_d);
 }
 
 /** Set squelch alpha */
@@ -929,7 +992,7 @@ rx_status receiver::set_sql_alpha(const size_t idx, double alpha)
     if (idx >= subrx.size()) {
         return rx_status::STATUS_ERROR;
     }
-    return subrx[idx].set_sql_alpha(alpha);
+    return subrx[idx]->set_sql_alpha(alpha);
 }
 
 /**
@@ -950,7 +1013,7 @@ rx_status receiver::set_agc_on(const size_t idx, bool agc_on)
     if (idx >= subrx.size()) {
         return rx_status::STATUS_ERROR;
     }
-    return subrx[idx].set_agc_on(agc_on);
+    return subrx[idx]->set_agc_on(agc_on);
 }
 
 /** Enable/disable AGC hang. */
@@ -967,7 +1030,7 @@ rx_status receiver::set_agc_hang(const size_t idx, bool use_hang)
     if (idx >= subrx.size()) {
         return rx_status::STATUS_ERROR;
     }
-    return subrx[idx].set_agc_hang(use_hang);
+    return subrx[idx]->set_agc_hang(use_hang);
 }
 
 /** Set AGC threshold. */
@@ -984,7 +1047,7 @@ rx_status receiver::set_agc_threshold(const size_t idx, int threshold)
     if (idx >= subrx.size()) {
         return rx_status::STATUS_ERROR;
     }
-    return subrx[idx].set_agc_threshold(threshold);
+    return subrx[idx]->set_agc_threshold(threshold);
 }
 
 /** Set AGC slope. */
@@ -1001,7 +1064,7 @@ rx_status receiver::set_agc_slope(const size_t idx, int slope)
     if (idx >= subrx.size()) {
         return rx_status::STATUS_ERROR;
     }
-    return subrx[idx].set_agc_slope(slope);
+    return subrx[idx]->set_agc_slope(slope);
 }
 
 /** Set AGC decay time. */
@@ -1018,7 +1081,7 @@ rx_status receiver::set_agc_decay(const size_t idx, int decay_ms)
     if (idx >= subrx.size()) {
         return rx_status::STATUS_ERROR;
     }
-    return subrx[idx].set_agc_decay(decay_ms);
+    return subrx[idx]->set_agc_decay(decay_ms);
 }
 
 /** Set fixed gain used when AGC is OFF. */
@@ -1035,7 +1098,7 @@ rx_status receiver::set_agc_manual_gain(const size_t idx, int gain)
     if (idx >= subrx.size()) {
         return rx_status::STATUS_ERROR;
     }
-    return subrx[idx].set_agc_manual_gain(gain);
+    return subrx[idx]->set_agc_manual_gain(gain);
 }
 
 rx_status subreceiver::set_demod(rx_demod demod, bool force, gr::basic_block_sptr src, int d_quad_rate, int d_audio_rate)
@@ -1152,9 +1215,9 @@ rx_status receiver::set_demod(const size_t idx, rx_demod demod, bool force)
     {
         // TODO: do not force
         if (i == idx) {
-            subrx[i].set_demod(demod, true, subrxsrc, d_quad_rate, d_audio_rate);
+            subrx[i]->set_demod(demod, true, subrxsrc, d_quad_rate, d_audio_rate);
         } else {
-            subrx[i].set_demod(subrx[i].get_demod(), true, subrxsrc, d_quad_rate, d_audio_rate);
+            subrx[i]->set_demod(subrx[i]->get_demod(), true, subrxsrc, d_quad_rate, d_audio_rate);
         }
         qInfo() << "set_demod for subrx" << i;
     }
@@ -1183,7 +1246,7 @@ rx_status receiver::set_fm_maxdev(const size_t idx, float maxdev_hz)
     if (idx >= subrx.size()) {
         return rx_status::STATUS_ERROR;
     }
-    return subrx[idx].set_fm_maxdev(maxdev_hz);
+    return subrx[idx]->set_fm_maxdev(maxdev_hz);
 }
 
 rx_status subreceiver::set_fm_deemph(double tau)
@@ -1199,7 +1262,7 @@ rx_status receiver::set_fm_deemph(const size_t idx, double tau)
     if (idx >= subrx.size()) {
         return rx_status::STATUS_ERROR;
     }
-    return subrx[idx].set_fm_deemph(tau);
+    return subrx[idx]->set_fm_deemph(tau);
 }
 
 rx_status subreceiver::set_am_dcr(bool enabled)
@@ -1215,7 +1278,7 @@ rx_status receiver::set_am_dcr(const size_t idx, bool enabled)
     if (idx >= subrx.size()) {
         return rx_status::STATUS_ERROR;
     }
-    return subrx[idx].set_am_dcr(enabled);
+    return subrx[idx]->set_am_dcr(enabled);
 }
 
 rx_status subreceiver::set_amsync_dcr(bool enabled)
@@ -1231,7 +1294,7 @@ rx_status receiver::set_amsync_dcr(const size_t idx, bool enabled)
     if (idx >= subrx.size()) {
         return rx_status::STATUS_ERROR;
     }
-    return subrx[idx].set_amsync_dcr(enabled);
+    return subrx[idx]->set_amsync_dcr(enabled);
 }
 
 rx_status subreceiver::set_amsync_pll_bw(float pll_bw)
@@ -1247,7 +1310,7 @@ rx_status receiver::set_amsync_pll_bw(const size_t idx, float pll_bw)
     if (idx >= subrx.size()) {
         return rx_status::STATUS_ERROR;
     }
-    return subrx[idx].set_amsync_pll_bw(pll_bw);
+    return subrx[idx]->set_amsync_pll_bw(pll_bw);
 }
 
 rx_status subreceiver::set_af_gain(float gain_db)
@@ -1268,7 +1331,7 @@ rx_status receiver::set_af_gain(const size_t idx, float gain_db)
     if (idx >= subrx.size()) {
         return rx_status::STATUS_ERROR;
     }
-    return subrx[idx].set_af_gain(gain_db);
+    return subrx[idx]->set_af_gain(gain_db);
 }
 
 

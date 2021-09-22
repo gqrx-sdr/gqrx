@@ -82,8 +82,10 @@ public:
     explicit DockRxOpt(qint64 filterOffsetRange = 90000, QWidget *parent = 0);
     ~DockRxOpt();
 
-    void readSettings(QSettings *settings);
-    void saveSettings(QSettings *settings);
+    void set_idx(size_t idx);
+
+    void readSettings(QSettings *settings, size_t idx);
+    void saveSettings(QSettings *settings, size_t idx);
 
     void setFilterOffsetRange(qint64 range_hz);
 
