@@ -89,7 +89,7 @@ private:
     float                d_fftAvg;      /*!< FFT averaging parameter set by user (not the true gain). */
 
     // Receiver controllers
-    std::vector<DemodulatorController::sptr> uiRxCtrls;
+    std::vector<DemodulatorController::sptr> demodCtrls;
 
     /* dock widgets */
     DockInputCtl   *uiDockInputCtl;

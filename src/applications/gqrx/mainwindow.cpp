@@ -100,9 +100,9 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 
     // create sub-receivers & controllers
     auto rxidx = rx->add_demodulator();
-    uiRxCtrls.push_back(std::make_shared<DemodulatorController>(rx, rxidx, this));
+    demodCtrls.push_back(std::make_shared<DemodulatorController>(rx, rxidx, this));
     rxidx = rx->add_demodulator();
-    uiRxCtrls.push_back(std::make_shared<DemodulatorController>(rx, rxidx, this));
+    demodCtrls.push_back(std::make_shared<DemodulatorController>(rx, rxidx, this));
 
     // remote controller
     remote = new RemoteControl();
@@ -550,9 +550,9 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         ui->plotter->setSpanFreq((quint32)actual_rate);
         remote->setBandwidth((qint64)actual_rate);
         iq_tool->setSampleRate((qint64)actual_rate);
-        for (auto rxc : uiRxCtrls)
+        for (auto demod : demodCtrls)
         {
-            rxc->setFilterOffsetRange(actual_rate);
+            demod->setFilterOffsetRange(actual_rate);
         }
     }
     else
@@ -587,7 +587,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
     }
 
-    {
+    /*{
         int flo = m_settings->value("receiver/filter_low_cut", 0).toInt(&conv_ok);
         int fhi = m_settings->value("receiver/filter_high_cut", 0).toInt(&conv_ok);
 
@@ -595,11 +595,11 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         {
             on_plotter_newFilterFreq(flo, fhi);
         }
-    }
+    }*/
 
-    for (auto rxc : uiRxCtrls)
+    for (auto demod : demodCtrls)
     {
-        rxc->readSettings(m_settings);
+        demod->readSettings(m_settings);
     }
 
     iq_tool->readSettings(m_settings);
@@ -694,7 +694,7 @@ void MainWindow::storeSession()
         iq_tool->saveSettings(m_settings);
         dxc_options->saveSettings(m_settings);
 
-        {
+        /*{
             int     flo, fhi;
             ui->plotter->getHiLowCutFrequencies(&flo, &fhi);
             if (flo != fhi)
@@ -702,11 +702,11 @@ void MainWindow::storeSession()
                 m_settings->setValue("receiver/filter_low_cut", flo);
                 m_settings->setValue("receiver/filter_high_cut", fhi);
             }
-        }
+        }*/
 
-        for (auto rxc : uiRxCtrls)
+        for (auto demod : demodCtrls)
         {
-            rxc->saveSettings(m_settings);
+            demod->saveSettings(m_settings);
         }
     }
 }
@@ -760,9 +760,9 @@ void MainWindow::updateFrequencyRange()
 
     ui->freqCtrl->setup(0, start, stop, 1, FCTL_UNIT_NONE);
 
-    for (auto rxc : uiRxCtrls)
+    for (auto demod : demodCtrls)
     {
-        rxc->setFrequencyRange(start, stop);
+        demod->setFrequencyRange(start, stop);
     }
 
     auto rx_freq = d_hw_freq + d_lnb_lo;
@@ -826,9 +826,9 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
     ui->freqCtrl->setFrequency(rx_freq);
     uiDockBookmarks->setNewFrequency(rx_freq);
 
-    for (auto rxc : uiRxCtrls)
+    for (auto demod : demodCtrls)
     {
-        rxc->setHwFrequency(rx_freq, d_lnb_lo);
+        demod->setHwFrequency(rx_freq, d_lnb_lo);
     }
 }
 
@@ -962,9 +962,9 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
 void MainWindow::setFreqCtrlReset(bool enabled)
 {
     ui->freqCtrl->setResetLowerDigits(enabled);
-    for (auto rxc : uiRxCtrls)
+    for (auto demod : demodCtrls)
     {
-        rxc->setFreqCtrlReset(enabled);
+        demod->setFreqCtrlReset(enabled);
     }
 }
 
@@ -973,9 +973,9 @@ void MainWindow::setInvertScrolling(bool enabled)
 {
     ui->freqCtrl->setInvertScrolling(enabled);
     ui->plotter->setInvertScrolling(enabled);
-    for (auto rxc : uiRxCtrls)
+    for (auto demod : demodCtrls)
     {
-        rxc->setInvertScrolling(enabled);
+        demod->setInvertScrolling(enabled);
     }
 }
 
@@ -1232,9 +1232,9 @@ void MainWindow::setIqFftAvg(float avg)
 /** Audio FFT rate has changed. */
 void MainWindow::setAudioFftRate(int fps)
 {
-    for (auto rxc : uiRxCtrls)
+    for (auto demod : demodCtrls)
     {
-        rxc->setAudioFftRate(fps);
+        demod->setAudioFftRate(fps);
     }
 }
 
@@ -1242,9 +1242,9 @@ void MainWindow::setAudioFftRate(int fps)
 void MainWindow::setFftColor(const QColor& color)
 {
     ui->plotter->setFftPlotColor(color);
-    for (auto rxc : uiRxCtrls)
+    for (auto demod : demodCtrls)
     {
-        rxc ->setFftColor(color);
+        demod->setFftColor(color);
     }
 }
 
@@ -1252,9 +1252,9 @@ void MainWindow::setFftColor(const QColor& color)
 void MainWindow::setFftFill(bool enable)
 {
     ui->plotter->setFftFill(enable);
-    for (auto rxc : uiRxCtrls)
+    for (auto demod : demodCtrls)
     {
-        rxc ->setFftFill(enable);
+        demod->setFftFill(enable);
     }
 }
 
@@ -1280,9 +1280,9 @@ void MainWindow::on_actionDSP_triggered(bool checked)
 {
     remote->setReceiverStatus(checked);
 
-    for (auto rxc : uiRxCtrls)
+    for (auto demod : demodCtrls)
     {
-        rxc->enableTimers(checked);
+        demod->enableTimers(checked);
     }
 
     if (checked)
@@ -1464,9 +1464,9 @@ void MainWindow::on_actionIqTool_triggered()
 /* CPlotter::NewDemodFreq() is emitted */
 void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
 {
-    for (auto rxc : uiRxCtrls)
+    for (auto demod : demodCtrls)
     {
-        rxc->setFilterOffset(delta);
+        demod->setFilterOffset(delta);
     }
     ui->freqCtrl->setFrequency(freq);
 }
@@ -1474,9 +1474,9 @@ void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
 /* CPlotter::NewfilterFreq() is emitted or bookmark activated */
 void MainWindow::on_plotter_newFilterFreq(int low, int high)
 {
-    for (auto rxc : uiRxCtrls)
+    for (auto demod : demodCtrls)
     {
-        rxc->setFilterFrequency(low, high);
+        demod->setFilterFrequency(low, high);
     }
 
     /* Update filter range of plotter, in case this slot is triggered by

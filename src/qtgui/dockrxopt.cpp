@@ -408,35 +408,40 @@ void DockRxOpt::readSettings(QSettings *settings, size_t idx)
     int     int_val;
     double  dbl_val;
 
-    int_val = settings->value("receiver/cwoffset", 700).toInt(&conv_ok);
+    auto configVersion = settings->value("configversion").toInt(&conv_ok);
+
+    settings->beginGroup("receiver");
+    settings->beginGroup(QString("%0").arg(idx));
+
+    int_val = settings->value("cwoffset", 700).toInt(&conv_ok);
     if (conv_ok)
         demodOpt->setCwOffset(int_val);
 
-    int_val = settings->value("receiver/fm_maxdev", 2500).toInt(&conv_ok);
+    int_val = settings->value("fm_maxdev", 2500).toInt(&conv_ok);
     if (conv_ok)
         demodOpt->setMaxDev(int_val);
 
-    dbl_val = settings->value("receiver/fm_deemph", 75).toDouble(&conv_ok);
+    dbl_val = settings->value("fm_deemph", 75).toDouble(&conv_ok);
     if (conv_ok && dbl_val >= 0)
         demodOpt->setEmph(1.0e-6 * dbl_val); // was stored as usec
 
-    qint64 offs = settings->value("receiver/offset", 0).toInt(&conv_ok);
+    qint64 offs = settings->value("offset", 0).toInt(&conv_ok);
     if (offs)
     {
         setFilterOffset(offs);
         emit filterOffsetChanged(offs);
     }
 
-    dbl_val = settings->value("receiver/sql_level", 1.0).toDouble(&conv_ok);
+    dbl_val = settings->value("sql_level", 1.0).toDouble(&conv_ok);
     if (conv_ok && dbl_val < 1.0)
         ui->sqlSpinBox->setValue(dbl_val);
 
     // AGC settings
-    int_val = settings->value("receiver/agc_threshold", -100).toInt(&conv_ok);
+    int_val = settings->value("agc_threshold", -100).toInt(&conv_ok);
     if (conv_ok)
         agcOpt->setThreshold(int_val);
 
-    int_val = settings->value("receiver/agc_decay", 500).toInt(&conv_ok);
+    int_val = settings->value("agc_decay", 500).toInt(&conv_ok);
     if (conv_ok)
     {
         agcOpt->setDecay(int_val);
@@ -450,31 +455,34 @@ void DockRxOpt::readSettings(QSettings *settings, size_t idx)
             ui->agcPresetCombo->setCurrentIndex(3);
     }
 
-    int_val = settings->value("receiver/agc_slope", 0).toInt(&conv_ok);
+    int_val = settings->value("agc_slope", 0).toInt(&conv_ok);
     if (conv_ok)
         agcOpt->setSlope(int_val);
 
-    int_val = settings->value("receiver/agc_gain", 0).toInt(&conv_ok);
+    int_val = settings->value("agc_gain", 0).toInt(&conv_ok);
     if (conv_ok)
         agcOpt->setGain(int_val);
 
-    agcOpt->setHang(settings->value("receiver/agc_usehang", false).toBool());
+    agcOpt->setHang(settings->value("agc_usehang", false).toBool());
 
-    if (settings->value("receiver/agc_off", false).toBool())
+    if (settings->value("agc_off", false).toBool())
         ui->agcPresetCombo->setCurrentIndex(4);
 
     int_val = MODE_AM;
-    if (settings->contains("receiver/demod")) {
-        if (settings->value("configversion").toInt(&conv_ok) >= 3) {
-            int_val = GetEnumForModulationString(settings->value("receiver/demod").toString());
+    if (settings->contains("demod")) {
+        if (configVersion >= 3) {
+            int_val = GetEnumForModulationString(settings->value("demod").toString());
         } else {
-            int_val = old2new[settings->value("receiver/demod").toInt(&conv_ok)];
+            int_val = old2new[settings->value("demod").toInt(&conv_ok)];
         }
     }
 
     setCurrentDemod(int_val);
-    emit demodSelected(int_val);
 
+    settings->endGroup(); // idx
+    settings->endGroup(); // receiver
+
+    emit demodSelected(int_val);
 }
 
 /** Save receiver configuration to settings. */
@@ -482,77 +490,83 @@ void DockRxOpt::saveSettings(QSettings *settings, size_t idx)
 {
     int     int_val;
 
-    settings->setValue("receiver/demod", currentDemodAsString());
+    settings->beginGroup("receiver");
+    settings->beginGroup(QString("%0").arg(idx));
+
+    settings->setValue("demod", currentDemodAsString());
 
     int cwofs = demodOpt->getCwOffset();
     if (cwofs == 700)
-        settings->remove("receiver/cwoffset");
+        settings->remove("cwoffset");
     else
-        settings->setValue("receiver/cwoffset", cwofs);
+        settings->setValue("cwoffset", cwofs);
 
     // currently we do not need the decimal
     int_val = (int)demodOpt->getMaxDev();
     if (int_val == 2500)
-        settings->remove("receiver/fm_maxdev");
+        settings->remove("fm_maxdev");
     else
-        settings->setValue("receiver/fm_maxdev", int_val);
+        settings->setValue("fm_maxdev", int_val);
 
     // save as usec
     int_val = (int)(1.0e6 * demodOpt->getEmph());
     if (int_val == 75)
-        settings->remove("receiver/fm_deemph");
+        settings->remove("fm_deemph");
     else
-        settings->setValue("receiver/fm_deemph", int_val);
+        settings->setValue("fm_deemph", int_val);
 
     qint64 offs = ui->filterFreq->getFrequency();
     if (offs)
-        settings->setValue("receiver/offset", offs);
+        settings->setValue("offset", offs);
     else
-        settings->remove("receiver/offset");
+        settings->remove("offset");
 
     qDebug() << __func__ << "*** FIXME_ SQL on/off";
     //int sql_lvl = double(ui->sqlSlider->value());  // note: dBFS*10 as int
     double sql_lvl = ui->sqlSpinBox->value();
     if (sql_lvl > -150.0)
-        settings->setValue("receiver/sql_level", sql_lvl);
+        settings->setValue("sql_level", sql_lvl);
     else
-        settings->remove("receiver/sql_level");
+        settings->remove("sql_level");
 
     // AGC settings
     int_val = agcOpt->threshold();
     if (int_val != -100)
-        settings->setValue("receiver/agc_threshold", int_val);
+        settings->setValue("agc_threshold", int_val);
     else
-        settings->remove("receiver/agc_threshold");
+        settings->remove("agc_threshold");
 
     int_val = agcOpt->decay();
     if (int_val != 500)
-        settings->setValue("receiver/agc_decay", int_val);
+        settings->setValue("agc_decay", int_val);
     else
-        settings->remove("receiver/agc_decay");
+        settings->remove("agc_decay");
 
     int_val = agcOpt->slope();
     if (int_val != 0)
-        settings->setValue("receiver/agc_slope", int_val);
+        settings->setValue("agc_slope", int_val);
     else
-        settings->remove("receiver/agc_slope");
+        settings->remove("agc_slope");
 
     int_val = agcOpt->gain();
     if (int_val != 0)
-        settings->setValue("receiver/agc_gain", int_val);
+        settings->setValue("agc_gain", int_val);
     else
-        settings->remove("receiver/agc_gain");
+        settings->remove("agc_gain");
 
     if (agcOpt->hang())
-        settings->setValue("receiver/agc_usehang", true);
+        settings->setValue("agc_usehang", true);
     else
-        settings->remove("receiver/agc_usehang");
+        settings->remove("agc_usehang");
 
     // AGC Off
     if (ui->agcPresetCombo->currentIndex() == 4)
-        settings->setValue("receiver/agc_off", true);
+        settings->setValue("agc_off", true);
     else
-        settings->remove("receiver/agc_off");
+        settings->remove("agc_off");
+
+    settings->endGroup(); // idx
+    settings->endGroup(); // receiver
 }
 
 /** RX frequency changed through spin box */

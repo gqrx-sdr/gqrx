@@ -333,6 +333,7 @@ void DockAudio::saveSettings(QSettings *settings, size_t idx)
         return;
 
     settings->beginGroup("audio");
+    settings->beginGroup(QString("%0").arg(idx));
 
     settings->setValue("gain", audioGain());
 
@@ -387,7 +388,10 @@ void DockAudio::saveSettings(QSettings *settings, size_t idx)
     else
         settings->remove("udp_stereo");
 
-    settings->endGroup();
+    // TODO: Mute?
+
+    settings->endGroup(); // idx
+    settings->endGroup(); // audio
 }
 
 void DockAudio::readSettings(QSettings *settings, size_t idx)
@@ -399,6 +403,7 @@ void DockAudio::readSettings(QSettings *settings, size_t idx)
         return;
 
     settings->beginGroup("audio");
+    settings->beginGroup(QString("%0").arg(idx));
 
     ival = settings->value("gain", QVariant(-60)).toInt(&conv_ok);
     if (conv_ok)
@@ -442,7 +447,10 @@ void DockAudio::readSettings(QSettings *settings, size_t idx)
     audioOptions->setUdpPort(udp_port);
     audioOptions->setUdpStereo(udp_stereo);
 
-    settings->endGroup();
+    // TODO: Mute?
+
+    settings->endGroup(); // idx
+    settings->endGroup(); // audio
 }
 
 void DockAudio::setNewPandapterRange(int min, int max)
