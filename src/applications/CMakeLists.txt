@@ -1,12 +1,15 @@
 #######################################################################################################################
 # Add the source files to SRCS_LIST
 add_source_files(SRCS_LIST
+        gqrx/demodulator.h
+        gqrx/demodulator.cpp
 	gqrx/gqrx.h
 	gqrx/main.cpp
 	gqrx/mainwindow.cpp
 	gqrx/mainwindow.h
-	gqrx/receiver.cpp
-	gqrx/receiver.h
+        gqrx/receiver.cpp
+        gqrx/receiver.h
+        gqrx/receiver_types.h
 	gqrx/remote_control_settings.cpp
 	gqrx/remote_control_settings.h
 	gqrx/remote_control.cpp

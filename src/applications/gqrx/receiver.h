@@ -23,17 +23,8 @@
 #ifndef RECEIVER_H
 #define RECEIVER_H
 
-#if GNURADIO_VERSION < 0x030800
-#include <gnuradio/blocks/multiply_const_ff.h>
-#else
-#include <gnuradio/blocks/multiply_const.h>
-#endif
-
-#include <gnuradio/blocks/file_sink.h>
-#include <gnuradio/blocks/null_sink.h>
-#include <gnuradio/blocks/wavfile_sink.h>
-#include <gnuradio/blocks/wavfile_source.h>
 #include <gnuradio/top_block.h>
+//#include <gnuradio/blocks/file_sink.h>
 #include <osmosdr/source.h>
 
 #include <memory>
@@ -43,211 +34,12 @@
 #include <QDebug>
 
 #include "dsp/correct_iq_cc.h"
-#include "dsp/downconverter.h"
 #include "dsp/filter/fir_decim.h"
 #include "dsp/rx_noise_blanker_cc.h"
-#include "dsp/rx_filter.h"
-#include "dsp/rx_meter.h"
-#include "dsp/rx_agc_xx.h"
-#include "dsp/rx_demod_fm.h"
-#include "dsp/rx_demod_am.h"
 #include "dsp/rx_fft.h"
-#include "dsp/sniffer_f.h"
-#include "dsp/resampler_xx.h"
-#include "interfaces/udp_sink_f.h"
-#include "receivers/receiver_base.h"
 
-#ifdef WITH_PULSEAUDIO
-#include "pulseaudio/pa_sink.h"
-#elif WITH_PORTAUDIO
-#include "portaudio/portaudio_sink.h"
-#else
-#include <gnuradio/audio/sink.h>
-#endif
-
-/** Flag used to indicate success or failure of an operation */
-enum rx_status {
-    STATUS_OK    = 0, /*!< Operation was successful. */
-    STATUS_ERROR = 1  /*!< There was an error. */
-};
-
-/** Available demodulators. */
-enum rx_demod {
-    RX_DEMOD_OFF   = 0,  /*!< No receiver. */
-    RX_DEMOD_NONE  = 1,  /*!< No demod. Raw I/Q to audio. */
-    RX_DEMOD_AM    = 2,  /*!< Amplitude modulation. */
-    RX_DEMOD_NFM   = 3,  /*!< Frequency modulation. */
-    RX_DEMOD_WFM_M = 4,  /*!< Frequency modulation (wide, mono). */
-    RX_DEMOD_WFM_S = 5,  /*!< Frequency modulation (wide, stereo). */
-    RX_DEMOD_WFM_S_OIRT = 6,  /*!< Frequency modulation (wide, stereo oirt). */
-    RX_DEMOD_SSB   = 7,  /*!< Single Side Band. */
-    RX_DEMOD_AMSYNC = 8  /*!< Amplitude modulation (synchronous demod). */
-};
-
-/** Supported receiver types. */
-enum rx_chain {
-    RX_CHAIN_NONE  = 0,   /*!< No receiver, just spectrum analyzer. */
-    RX_CHAIN_NBRX  = 1,   /*!< Narrow band receiver (AM, FM, SSB). */
-    RX_CHAIN_WFMRX = 2    /*!< Wide band FM receiver (for broadcast). */
-};
-
-/** Filter shape (convenience wrappers for "transition width"). */
-enum rx_filter_shape {
-    FILTER_SHAPE_SOFT = 0,   /*!< Soft: Transition band is TBD of width. */
-    FILTER_SHAPE_NORMAL = 1, /*!< Normal: Transition band is TBD of width. */
-    FILTER_SHAPE_SHARP = 2   /*!< Sharp: Transition band is TBD of width. */
-};
-
-class subreceiver
-{
-public:
-    typedef std::shared_ptr<subreceiver> SharedPointer;
-
-    subreceiver(
-            gr::top_block_sptr tb,
-            gr::basic_block_sptr src,
-            const std::string audio_device,
-            const int idx,
-            int d_ddc_decim,
-            int d_decim_rate,
-            int d_quad_rate,
-            int d_audio_rate
-    );
-    ~subreceiver();
-
-public:
-    /* General */
-    void        set_idx(size_t next_idx) {
-        qInfo() << "subreceiver" << idx << "gets new" << next_idx;
-        idx = next_idx;
-    }
-
-    /* I/O control */
-    void        set_output_device(const std::string device, const int d_audio_rate);
-    void        set_input_rate(const int d_ddc_decim, const int d_decim_rate, const int d_quad_rate);
-
-    /* Demodulation type */
-    rx_status   set_demod(rx_demod demod, bool force, gr::basic_block_sptr src, int d_quad_rate, int d_audio_rate);
-    rx_demod    get_demod() const {
-        return d_demod;
-    };
-
-    /* Frequency control */
-    rx_status   set_filter(double low, double high, rx_filter_shape shape);
-    rx_status   set_filter_offset(double offset_hz);
-    double      get_filter_offset(void) const;
-    rx_status   set_cw_offset(double offset_hz);
-    double      get_cw_offset(void) const;
-
-    /* Noise blanker */
-    rx_status   set_nb_on(int nbid, bool on);
-    rx_status   set_nb_threshold(int nbid, float threshold);
-
-    /* Squelch parameter */
-    rx_status   set_sql_level(double level_db);
-    rx_status   set_sql_alpha(double alpha);
-
-    /* AGC */
-    rx_status   set_agc_on(bool agc_on);
-    rx_status   set_agc_hang(bool use_hang);
-    rx_status   set_agc_threshold(int threshold);
-    rx_status   set_agc_slope(int slope);
-    rx_status   set_agc_decay(int decay_ms);
-    rx_status   set_agc_manual_gain(int gain);
-
-    /* FM parameters */
-    rx_status   set_fm_maxdev(float maxdev_hz);
-    rx_status   set_fm_deemph(double tau);
-
-    /* AM parameters */
-    rx_status   set_am_dcr(bool enabled);
-
-    /* AM-Sync parameters */
-    rx_status   set_amsync_dcr(bool enabled);
-    rx_status   set_amsync_pll_bw(float pll_bw);
-
-    /* Audio parameters */
-    rx_status   set_af_gain(float gain_db);
-
-    /* Data inspection */
-    float       get_signal_pwr(bool dbfs) const {
-        return rx->get_signal_level(dbfs);
-    }
-    void        get_audio_fft_data(std::complex<float>* fftPoints, unsigned int &fftsize) const {
-        audio_fft->get_fft_data(fftPoints, fftsize);
-    }
-
-    /* Audio Record/Playback */
-//    rx_status      start_audio_recording(const std::string filename);
-//    rx_status      stop_audio_recording();
-//    rx_status      start_audio_playback(const std::string filename);
-//    rx_status      stop_audio_playback();
-
-//    rx_status      start_udp_streaming(const std::string host, int port, bool stereo);
-//    rx_status      stop_udp_streaming();
-
-    /* I/Q recording and playback */
-//    rx_status      start_iq_recording(const std::string filename);
-//    rx_status      stop_iq_recording();
-//    rx_status      seek_iq_file(long pos);
-
-    /* sample sniffer */
-//    rx_status      start_sniffer(unsigned int samplrate, int buffsize);
-//    rx_status      stop_sniffer();
-//    void                get_sniffer_data(float * outbuff, unsigned int &num);
-//    bool                is_recording_audio(void) const { return d_recording_wav; }
-//    bool                is_snifffer_active(void) const { return d_sniffer_active; }
-
-    /* rds functions */
-//    void        get_rds_data(std::string &outbuff, int &num);
-//    void        start_rds_decoder(void);
-//    void        stop_rds_decoder();
-//    bool        is_rds_decoder_active(void) const;
-//    void        reset_rds_parser(void);
-
-    /* Plumbing */
-    void connect_all(rx_chain type, gr::basic_block_sptr src, int d_quad_rate, int d_audio_rate);
-
-private:
-    gr::top_block_sptr tb;                 /*!< Top Block */
-    int                idx;                /*!< This sub-receiver index */
-
-    double             d_filter_offset;    /*!< Current filter offset */
-    double             d_cw_offset;        /*!< CW offset */
-    bool               d_recording_iq;     /*!< Whether we are recording I/Q file. */
-    bool               d_recording_wav;    /*!< Whether we are recording WAV file. */
-    bool               d_sniffer_active;   /*!< Only one data decoder allowed. */
-
-    rx_demod           d_demod;            /*!< Current demodulator. */
-
-    downconverter_cc_sptr               ddc     ;         /*!< Digital down-converter for demod chain. */
-
-    gr::blocks::multiply_const_ff::sptr audio_gain0;      /*!< Audio gain block. */
-    gr::blocks::multiply_const_ff::sptr audio_gain1;      /*!< Audio gain block. */
-
-    gr::blocks::file_sink::sptr         iq_sink;          /*!< I/Q file sink. */
-
-//    gr::blocks::wavfile_sink::sptr      wav_sink;         /*!< WAV file sink for recording. */
-//    gr::blocks::wavfile_source::sptr    wav_src;          /*!< WAV file source for playback. */
-//    gr::blocks::null_sink::sptr         audio_null_sink0; /*!< Audio null sink used during playback. */
-//    gr::blocks::null_sink::sptr         audio_null_sink1; /*!< Audio null sink used during playback. */
-
-//    udp_sink_f_sptr   audio_udp_sink;                     /*!< UDP sink to stream audio over the network. */
-//    sniffer_f_sptr    sniffer;                            /*!< Sample sniffer for data decoders. */
-//    resampler_ff_sptr sniffer_rr;                         /*!< Sniffer resampler. */
-
-    receiver_base_cf_sptr     rx;          /*!< receive hierblock. */
-    rx_fft_f_sptr             audio_fft;   /*!< Audio FFT block. */
-
-#ifdef WITH_PULSEAUDIO
-    pa_sink_sptr              audio_snk;  /*!< Pulse audio sink. */
-#elif WITH_PORTAUDIO
-    portaudio_sink_sptr       audio_snk;  /*!< portaudio sink */
-#else
-    gr::audio::sink::sptr     audio_snk;  /*!< gr audio sink */
-#endif
-};
-
+#include "applications/gqrx/receiver_types.h"
+#include "applications/gqrx/demodulator.h"
 
 /**
  * @defgroup DSP Digital signal processing library based on GNU Radio
@@ -265,7 +57,7 @@ class receiver
 {
 
 public:
-    typedef std::shared_ptr<receiver> SharedPointer;
+    typedef std::shared_ptr<receiver> sptr;
 
     receiver(const std::string input_device="",
              const std::string audio_device="",
@@ -309,7 +101,6 @@ public:
     rx_status                 set_auto_gain(bool automatic);
     rx_status                 set_gain(std::string name, double value);
     double                    get_gain(std::string name) const;
-
     rx_status                 set_freq_corr(double ppm);
 
     /* Receiver data for visualisation */
@@ -317,13 +108,18 @@ public:
     void        set_iq_fft_window(int window_type);
     void        get_iq_fft_data(std::complex<float>* fftPoints, unsigned int &fftsize);
 
+    /* I/Q recording and playback */
+//    rx_status      start_iq_recording(const std::string filename);
+//    rx_status      stop_iq_recording();
+//    rx_status      seek_iq_file(long pos);
+
     /* Flowgraph configuration */
     void        begin_reconfigure();
     void        complete_reconfigure();
 
-    /* Sub-receivers control */
-    size_t      add_rx();
-    void        remove_rx(size_t idx);
+    /* Demodulators control */
+    size_t      add_demodulator();
+    void        remove_demodulator(size_t idx);
 
     rx_status   set_filter_offset(const size_t idx, double offset_hz);
     double      get_filter_offset(const size_t idx) const;
@@ -350,10 +146,11 @@ public:
     rx_status   set_amsync_pll_bw(const size_t idx, float pll_bw);
     rx_status   set_af_gain(const size_t idx, float gain_db);
 
-    /* Sub-receiver data for visualisation */
+    /* Demodulators data for visualisation */
     float       get_signal_pwr(const size_t idx, bool dbfs) const;
     void        get_audio_fft_data(const size_t idx, std::complex<float>* fftPoints, unsigned int &fftsize);
 
+    /* Audio system handling */
     void        set_output_device(const std::string device);
 
 private:
@@ -387,11 +184,14 @@ private:
 
     rx_fft_c_sptr             iq_fft;      /*!< Baseband FFT block. */
 
+//    bool               d_recording_iq;     /*!< Whether we are recording I/Q file. */
+//    gr::blocks::file_sink::sptr iq_sink;    /*!< I/Q file sink. */
+
     //! Get a path to a file containing random bytes
     static std::string get_random_file(void);
 
-    /* Sub-receivers all demodulating the same input */
-    std::vector<subreceiver::SharedPointer> subrx;
+    /* Demodulating receiving the same RF input */
+    std::vector<demodulator::sptr> demods;
 };
 
 #endif // RECEIVER_H

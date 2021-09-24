@@ -55,15 +55,15 @@ namespace Ui {
 }
 
 // TODO: This could be a dock UI component itself, encapsulating an Rx?
-class ReceiverController : public QObject
+class DemodulatorController : public QObject
 {
     Q_OBJECT;
 
 public:
-    typedef std::shared_ptr<ReceiverController> SharedPointer;
+    typedef std::shared_ptr<DemodulatorController> sptr;
 
-    explicit ReceiverController(
-        receiver::SharedPointer rx,
+    explicit DemodulatorController(
+        receiver::sptr rx,
         size_t idx,
         QMainWindow *parent
     ) :
@@ -147,7 +147,7 @@ public:
         rds_timer = new QTimer(this);
         connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
     }
-    ~ReceiverController() override
+    ~DemodulatorController() override
     {
         audio_fft_timer->stop();
         delete audio_fft_timer;
@@ -828,8 +828,8 @@ public slots:
     }
 
 private:
-    size_t idx;                 /*!< This Rx controller's index */
-    receiver::SharedPointer rx; /*!< The actual receiver DSP controller */
+    size_t          idx;    /*!< This Rx controller's index */
+    receiver::sptr  rx;     /*!< The actual receiver DSP controller */
 
     // Rx controls
 
@@ -886,7 +886,7 @@ private:
     float                d_fftAvg;      /*!< FFT averaging parameter set by user (not the true gain). */
 
     // Receiver controllers
-    std::vector<ReceiverController::SharedPointer> uiRxCtrls;
+    std::vector<DemodulatorController::sptr> uiRxCtrls;
 
     /* dock widgets */
     DockInputCtl   *uiDockInputCtl;
@@ -903,7 +903,7 @@ private:
     QTimer   *meter_timer;
     QTimer   *iq_fft_timer;
 
-    receiver::SharedPointer rx;
+    receiver::sptr rx;
 
     RemoteControl *remote;
 

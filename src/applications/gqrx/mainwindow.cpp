@@ -99,10 +99,10 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     rx->set_rf_freq(144500000.0f);
 
     // create sub-receivers & controllers
-    auto rxidx = rx->add_rx();
-    uiRxCtrls.push_back(std::make_shared<ReceiverController>(rx, rxidx, this));
-    rxidx = rx->add_rx();
-    uiRxCtrls.push_back(std::make_shared<ReceiverController>(rx, rxidx, this));
+    auto rxidx = rx->add_demodulator();
+    uiRxCtrls.push_back(std::make_shared<DemodulatorController>(rx, rxidx, this));
+    rxidx = rx->add_demodulator();
+    uiRxCtrls.push_back(std::make_shared<DemodulatorController>(rx, rxidx, this));
 
     // remote controller
     remote = new RemoteControl();
