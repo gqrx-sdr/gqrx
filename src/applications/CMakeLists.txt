@@ -3,6 +3,8 @@
 add_source_files(SRCS_LIST
         gqrx/demodulator.h
         gqrx/demodulator.cpp
+        gqrx/demodulator_controller.h
+        gqrx/demodulator_controller.cpp
 	gqrx/gqrx.h
 	gqrx/main.cpp
 	gqrx/mainwindow.cpp
