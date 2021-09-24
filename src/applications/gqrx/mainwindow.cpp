@@ -99,10 +99,10 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     rx->set_rf_freq(144500000.0f);
 
     // create sub-receivers & controllers
-    auto rxidx = rx->add_demodulator();
-    demodCtrls.push_back(std::make_shared<DemodulatorController>(rx, rxidx, this));
-    rxidx = rx->add_demodulator();
-    demodCtrls.push_back(std::make_shared<DemodulatorController>(rx, rxidx, this));
+    auto demod0 = rx->add_demodulator();
+    demodCtrls.push_back(std::make_shared<DemodulatorController>(rx, demod0, this));
+    auto demod1 = rx->add_demodulator();
+    demodCtrls.push_back(std::make_shared<DemodulatorController>(rx, demod1, this));
 
     // remote controller
     remote = new RemoteControl();
@@ -946,10 +946,8 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
 {
     updateHWFrequencyRange(ignore_limits);
 
-    // subrx
-    auto filter_offset = (qint64)rx->get_filter_offset(0);
     auto freq = (qint64)rx->get_rf_freq();
-    ui->freqCtrl->setFrequency(d_lnb_lo + freq + filter_offset);
+    ui->freqCtrl->setFrequency(d_lnb_lo + freq);
 
     // This will ensure that if frequency is clamped and that
     // the UI is updated with the correct frequency.
@@ -985,9 +983,12 @@ void MainWindow::meterTimeout()
     float level;
 
     // subrx
-    level = rx->get_signal_pwr(0, true);
-    ui->sMeter->setLevel(level);
-    remote->setSignalLevel(level);
+    if (demodCtrls.size() > 0) {
+        auto demod = demodCtrls[0];
+        level = demod->get_signal_pwr(true);
+        ui->sMeter->setLevel(level);
+        remote->setSignalLevel(level);
+    }
 }
 
 #define LOG2_10 3.321928094887362

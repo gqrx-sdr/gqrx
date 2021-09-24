@@ -31,6 +31,7 @@
 #include "qtgui/dockaudio.h"
 #include "qtgui/dockrds.h"
 
+#include "applications/gqrx/demodulator.h"
 #include "applications/gqrx/receiver.h"
 
 // TODO: This could be a dock UI component itself, encapsulating demod and audio?
@@ -43,7 +44,7 @@ public:
 
     explicit DemodulatorController(
         receiver::sptr rx,
-        size_t idx,
+        demodulator::sptr demod,
         QMainWindow *parent
     );
     ~DemodulatorController() override;
@@ -93,6 +94,7 @@ public slots:
     void setSqlLevel(double level_db);
     double setSqlLevelAuto();
     void setPassband(int bandwidth);
+    float get_signal_pwr(bool dbfs) const;
 
     /* Audio recording and playback */
 
@@ -118,8 +120,8 @@ public slots:
     void enableTimers(bool enabled);
 
 private:
-    size_t          idx;    /*!< This Rx controller's index */
-    receiver::sptr  rx;     /*!< The actual receiver DSP controller */
+    receiver::sptr      rx;     /*!< The actual receiver DSP controller */
+    demodulator::sptr   demod;  /*!< The actual demodulator DSP controller */
 
     // Rx controls
 

@@ -180,11 +180,6 @@ DockRxOpt::~DockRxOpt()
     delete nbOpt;
 }
 
-void DockRxOpt::set_idx(size_t idx)
-{
-
-}
-
 /**
  * @brief Set value of channel filter offset selector.
  * @param freq_hz The frequency in Hz

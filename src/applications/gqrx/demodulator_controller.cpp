@@ -25,19 +25,17 @@
 
 DemodulatorController::DemodulatorController(
     receiver::sptr rx,
-    size_t idx,
+    demodulator::sptr demod,
     QMainWindow *parent
 ) :
-    idx(idx),
     rx(rx),
+    demod(demod),
     d_have_audio(true)
 {
     d_filter_shape = rx_filter_shape::FILTER_SHAPE_NORMAL;
 
     uiDockRxOpt = new DockRxOpt();
-    uiDockRxOpt->set_idx(idx);
     uiDockAudio = new DockAudio();
-    // uiDockAudio->set_idx(idx);
     parent->addDockWidget(Qt::LeftDockWidgetArea, uiDockRxOpt);
     parent->addDockWidget(Qt::LeftDockWidgetArea, uiDockAudio);
     parent->tabifyDockWidget(uiDockRxOpt, uiDockAudio);
@@ -115,7 +113,7 @@ DemodulatorController::~DemodulatorController()
     delete audio_fft_timer;
 
     rds_timer->stop();
-    delete audio_fft_timer;
+    delete rds_timer;
 
     delete [] d_fftData;
     delete [] d_realFftData;
@@ -127,24 +125,24 @@ DemodulatorController::~DemodulatorController()
 
 void DemodulatorController::readSettings(QSettings *settings)
 {
-    uiDockRxOpt->readSettings(settings, idx);
-    uiDockAudio->readSettings(settings, idx);
+    uiDockRxOpt->readSettings(settings, demod->get_idx());
+    uiDockAudio->readSettings(settings, demod->get_idx());
 }
 
 void DemodulatorController::saveSettings(QSettings *settings)
 {
-    uiDockRxOpt->saveSettings(settings, idx);
-    uiDockAudio->saveSettings(settings, idx);
+    uiDockRxOpt->saveSettings(settings, demod->get_idx());
+    uiDockAudio->saveSettings(settings, demod->get_idx());
 }
 
 void DemodulatorController::ensureOffsetInRange(qint64 freq, qint64 lnb_lo, qint64 hw_freq_start, qint64 hw_freq_stop)
 {
     // If frequency is out of range set frequency to the center of the range.
-    qint64 hw_freq = freq - lnb_lo - (qint64)(rx->get_filter_offset(idx));
+    qint64 hw_freq = freq - lnb_lo - (qint64)(demod->get_filter_offset());
     if (hw_freq < hw_freq_start || hw_freq > hw_freq_stop)
     {
         qint64 next = (hw_freq_stop - hw_freq_start) / 2 + lnb_lo;
-        rx->set_filter_offset(idx, next);
+        demod->set_filter_offset(next);
     }
 }
 
@@ -157,21 +155,21 @@ void DemodulatorController::setFilterOffsetRange(qint64 range)
 
 void DemodulatorController::setFrequencyRange(qint64 hw_start, qint64 hw_stop)
 {
-    auto start = (qint64)(rx->get_filter_offset(idx)) + hw_start;
-    auto stop  = (qint64)(rx->get_filter_offset(idx)) + hw_stop;
+    auto start = (qint64)(demod->get_filter_offset()) + hw_start;
+    auto stop  = (qint64)(demod->get_filter_offset()) + hw_stop;
     uiDockRxOpt->setRxFreqRange(start, stop);
 }
 
 void DemodulatorController::setHwFrequency(qint64 rx_freq, qint64 d_lnb_lo)
 {
-    auto hw_freq = (double)(rx_freq - d_lnb_lo) - rx->get_filter_offset(idx);
+    auto hw_freq = (double)(rx_freq - d_lnb_lo) - demod->get_filter_offset();
     uiDockRxOpt->setHwFreq(hw_freq);
 }
 
 void DemodulatorController::setFilterFrequency(int low, int high)
 {
     /* parameter correctness will be checked in receiver class */
-    rx_status retcode = rx->set_filter(idx, (double) low, (double) high, d_filter_shape);
+    rx_status retcode = demod->set_filter((double) low, (double) high, d_filter_shape);
 
     if (retcode == rx_status::STATUS_OK) {
         uiDockRxOpt->setFilterParam(low, high);
@@ -209,7 +207,7 @@ void DemodulatorController::setFftFill(bool enable)
  */
 void DemodulatorController::setFilterOffset(qint64 freq_hz)
 {
-    rx->set_filter_offset(idx, (double) freq_hz);
+    demod->set_filter_offset((double) freq_hz);
     // ui->plotter->setFilterOffset(freq_hz);
 
     // update RF freq label and channel filter offset
@@ -275,27 +273,32 @@ void DemodulatorController::selectDemod(int mode_idx)
         //     stopAudioRec();
         //     uiDockAudio->setAudioRecButtonState(false);
         // }
-        rx->set_demod(idx, rx_demod::RX_DEMOD_OFF);
+
+        // must set demod via rx due to flowgraph reconfiguration
+        rx->set_demod(demod->get_idx(), rx_demod::RX_DEMOD_OFF);
         click_res = 1000;
         break;
 
     case DockRxOpt::MODE_RAW:
         /* Raw I/Q; max 96 ksps*/
-        rx->set_demod(idx, rx_demod::RX_DEMOD_NONE);
+        // must set demod via rx due to flowgraph reconfiguration
+        rx->set_demod(demod->get_idx(), rx_demod::RX_DEMOD_NONE);
         // ui->plotter->setDemodRanges(-40000, -200, 200, 40000, true);
         uiDockAudio->setFftRange(0,24000);
         click_res = 100;
         break;
 
     case DockRxOpt::MODE_AM:
-        rx->set_demod(idx, rx_demod::RX_DEMOD_AM);
+        // must set demod via rx due to flowgraph reconfiguration
+        rx->set_demod(demod->get_idx(), rx_demod::RX_DEMOD_AM);
         // ui->plotter->setDemodRanges(-40000, -200, 200, 40000, true);
         uiDockAudio->setFftRange(0,6000);
         click_res = 100;
         break;
 
     case DockRxOpt::MODE_AM_SYNC:
-        rx->set_demod(idx, rx_demod::RX_DEMOD_AMSYNC);
+        // must set demod via rx due to flowgraph reconfiguration
+        rx->set_demod(demod->get_idx(), rx_demod::RX_DEMOD_AMSYNC);
         // ui->plotter->setDemodRanges(-40000, -200, 200, 40000, true);
         uiDockAudio->setFftRange(0,6000);
         click_res = 100;
@@ -304,9 +307,11 @@ void DemodulatorController::selectDemod(int mode_idx)
     case DockRxOpt::MODE_NFM:
         // ui->plotter->setDemodRanges(-40000, -1000, 1000, 40000, true);
         uiDockAudio->setFftRange(0, 5000);
-        rx->set_demod(idx, rx_demod::RX_DEMOD_NFM);
-        rx->set_fm_maxdev(idx, uiDockRxOpt->currentMaxdev());
-        rx->set_fm_deemph(idx, uiDockRxOpt->currentEmph());
+
+        // must set demod via rx due to flowgraph reconfiguration
+        rx->set_demod(demod->get_idx(), rx_demod::RX_DEMOD_NFM);
+        demod->set_fm_maxdev(uiDockRxOpt->currentMaxdev());
+        demod->set_fm_deemph(uiDockRxOpt->currentEmph());
         click_res = 100;
         break;
 
@@ -317,12 +322,14 @@ void DemodulatorController::selectDemod(int mode_idx)
         // ui->plotter->setDemodRanges(-120e3, -10000, 10000, 120e3, true);
         uiDockAudio->setFftRange(0, 24000);  /** FIXME: get audio rate from rx **/
         click_res = 1000;
+
+        // must set demod via rx due to flowgraph reconfiguration
         if (mode_idx == DockRxOpt::MODE_WFM_MONO)
-            rx->set_demod(idx, rx_demod::RX_DEMOD_WFM_M);
+            rx->set_demod(demod->get_idx(), rx_demod::RX_DEMOD_WFM_M);
         else if (mode_idx == DockRxOpt::MODE_WFM_STEREO_OIRT)
-            rx->set_demod(idx, rx_demod::RX_DEMOD_WFM_S_OIRT);
+            rx->set_demod(demod->get_idx(), rx_demod::RX_DEMOD_WFM_S_OIRT);
         else
-            rx->set_demod(idx, rx_demod::RX_DEMOD_WFM_S);
+            rx->set_demod(demod->get_idx(), rx_demod::RX_DEMOD_WFM_S);
 
         // uiDockRDS->setEnabled();
         // if (rds_enabled)
@@ -331,7 +338,8 @@ void DemodulatorController::selectDemod(int mode_idx)
 
     case DockRxOpt::MODE_LSB:
         /* LSB */
-        rx->set_demod(idx, rx_demod::RX_DEMOD_SSB);
+        // must set demod via rx due to flowgraph reconfiguration
+        rx->set_demod(demod->get_idx(), rx_demod::RX_DEMOD_SSB);
         // ui->plotter->setDemodRanges(-40000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,3000);
         click_res = 100;
@@ -339,7 +347,8 @@ void DemodulatorController::selectDemod(int mode_idx)
 
     case DockRxOpt::MODE_USB:
         /* USB */
-        rx->set_demod(idx, rx_demod::RX_DEMOD_SSB);
+        // must set demod via rx due to flowgraph reconfiguration
+        rx->set_demod(demod->get_idx(), rx_demod::RX_DEMOD_SSB);
         // ui->plotter->setDemodRanges(0, 5000, 100, 40000, false);
         uiDockAudio->setFftRange(0,3000);
         click_res = 100;
@@ -347,7 +356,8 @@ void DemodulatorController::selectDemod(int mode_idx)
 
     case DockRxOpt::MODE_CWL:
         /* CW-L */
-        rx->set_demod(idx, rx_demod::RX_DEMOD_SSB);
+        // must set demod via rx due to flowgraph reconfiguration
+        rx->set_demod(demod->get_idx(), rx_demod::RX_DEMOD_SSB);
         cwofs = -uiDockRxOpt->getCwOffset();
         // ui->plotter->setDemodRanges(-5000, -100, 100, 5000, true);
         uiDockAudio->setFftRange(0,1500);
@@ -356,7 +366,8 @@ void DemodulatorController::selectDemod(int mode_idx)
 
     case DockRxOpt::MODE_CWU:
         /* CW-U */
-        rx->set_demod(idx, rx_demod::RX_DEMOD_SSB);
+        // must set demod via rx due to flowgraph reconfiguration
+        rx->set_demod(demod->get_idx(), rx_demod::RX_DEMOD_SSB);
         cwofs = uiDockRxOpt->getCwOffset();
         // ui->plotter->setDemodRanges(-5000, -100, 100, 5000, true);
         uiDockAudio->setFftRange(0,1500);
@@ -376,9 +387,9 @@ void DemodulatorController::selectDemod(int mode_idx)
     // ui->plotter->setClickResolution(click_res);
     // ui->plotter->setFilterClickResolution(click_res);
 
-    rx->set_filter(idx, (double)flo, (double)fhi, d_filter_shape);
-    rx->set_cw_offset(idx, cwofs);
-    rx->set_sql_level(idx, uiDockRxOpt->currentSquelchLevel());
+    demod->set_filter((double)flo, (double)fhi, d_filter_shape);
+    demod->set_cw_offset(cwofs);
+    demod->set_sql_level(uiDockRxOpt->currentSquelchLevel());
 
     // remote->setMode(mode_idx);
     // remote->setPassband(flo, fhi);
@@ -397,7 +408,7 @@ void DemodulatorController::setFmMaxdev(float max_dev)
     qDebug() << "FM MAX_DEV: " << max_dev;
 
     /* receiver will check range */
-    rx->set_fm_maxdev(idx, max_dev);
+    demod->set_fm_maxdev(max_dev);
 }
 
 /**
@@ -409,7 +420,7 @@ void DemodulatorController::setFmEmph(double tau)
     qDebug() << "FM TAU: " << tau;
 
     /* receiver will check range */
-    rx->set_fm_deemph(idx, tau);
+    demod->set_fm_deemph(tau);
 }
 
 /**
@@ -418,12 +429,12 @@ void DemodulatorController::setFmEmph(double tau)
  */
 void DemodulatorController::setAmDcr(bool enabled)
 {
-    rx->set_am_dcr(idx, enabled);
+    demod->set_am_dcr(enabled);
 }
 
 void DemodulatorController::setCwOffset(int offset)
 {
-    rx->set_cw_offset(idx, offset);
+    demod->set_cw_offset(offset);
 }
 
 /**
@@ -432,7 +443,7 @@ void DemodulatorController::setCwOffset(int offset)
  */
 void DemodulatorController::setAmSyncDcr(bool enabled)
 {
-    rx->set_amsync_dcr(idx, enabled);
+    demod->set_amsync_dcr(enabled);
 }
 
 /**
@@ -444,7 +455,7 @@ void DemodulatorController::setAmSyncPllBw(float pll_bw)
     qDebug() << "AM-Sync PLL BW: " << pll_bw;
 
     /* receiver will check range */
-    rx->set_amsync_pll_bw(idx, pll_bw);
+    demod->set_amsync_pll_bw(pll_bw);
 }
 
 /**
@@ -453,7 +464,7 @@ void DemodulatorController::setAmSyncPllBw(float pll_bw)
  */
 void DemodulatorController::setAudioGain(float gain)
 {
-    rx->set_af_gain(idx, gain);
+    demod->set_af_gain(gain);
 }
 
 /**
@@ -461,7 +472,7 @@ void DemodulatorController::setAudioGain(float gain)
  */
 void DemodulatorController::setAgcOn(bool agc_on)
 {
-    rx->set_agc_on(idx, agc_on);
+    demod->set_agc_on(agc_on);
 }
 
 /**
@@ -469,7 +480,7 @@ void DemodulatorController::setAgcOn(bool agc_on)
  */
 void DemodulatorController::setAgcHang(bool use_hang)
 {
-    rx->set_agc_hang(idx, use_hang);
+    demod->set_agc_hang(use_hang);
 }
 
 /**
@@ -477,7 +488,7 @@ void DemodulatorController::setAgcHang(bool use_hang)
  */
 void DemodulatorController::setAgcThreshold(int threshold)
 {
-    rx->set_agc_threshold(idx, threshold);
+    demod->set_agc_threshold(threshold);
 }
 
 /**
@@ -485,7 +496,7 @@ void DemodulatorController::setAgcThreshold(int threshold)
  */
 void DemodulatorController::setAgcSlope(int factor)
 {
-    rx->set_agc_slope(idx, factor);
+    demod->set_agc_slope(factor);
 }
 
 /**
@@ -493,7 +504,7 @@ void DemodulatorController::setAgcSlope(int factor)
  */
 void DemodulatorController::setAgcGain(int gain)
 {
-    rx->set_agc_manual_gain(idx, gain);
+    demod->set_agc_manual_gain(gain);
 }
 
 /**
@@ -501,7 +512,7 @@ void DemodulatorController::setAgcGain(int gain)
  */
 void DemodulatorController::setAgcDecay(int msec)
 {
-    rx->set_agc_decay(idx, msec);
+    demod->set_agc_decay(msec);
 }
 
 /**
@@ -512,11 +523,11 @@ void DemodulatorController::setAgcDecay(int msec)
  */
 void DemodulatorController::setNoiseBlanker(int nbid, bool on, float threshold)
 {
-    qDebug() << "Noise blanker" << idx << "NB:" << nbid << " ON:" << on << "THLD:"
+    qDebug() << "Noise blanker" << demod->get_idx() << "NB:" << nbid << " ON:" << on << "THLD:"
              << threshold;
 
-    rx->set_nb_on(idx, nbid, on);
-    rx->set_nb_threshold(idx, nbid, threshold);
+    demod->set_nb_on(nbid, on);
+    demod->set_nb_threshold(nbid, threshold);
 }
 
 /**
@@ -525,7 +536,7 @@ void DemodulatorController::setNoiseBlanker(int nbid, bool on, float threshold)
  */
 void DemodulatorController::setSqlLevel(double level_db)
 {
-    rx->set_sql_level(idx, level_db);
+    demod->set_sql_level(level_db);
     // ui->sMeter->setSqlLevel(level_db);
 }
 
@@ -535,9 +546,11 @@ void DemodulatorController::setSqlLevel(double level_db)
  */
 double DemodulatorController::setSqlLevelAuto()
 {
-    double level = rx->get_signal_pwr(idx, true) + 1.0;
-    if (level > -10.0)  // avoid 0 dBFS
+    double level = demod->get_signal_pwr(true) + 1.0;
+    if (level > -10.0) {
+        // avoid 0 dBFS
         level = uiDockRxOpt->getSqlLevel();
+    }
 
     setSqlLevel(level);
     return level;
@@ -568,6 +581,11 @@ void DemodulatorController::setPassband(int bandwidth)
 
 //        remote->setPassband(lo, hi);
 //        on_plotter_newFilterFreq(lo, hi);
+}
+
+float DemodulatorController::get_signal_pwr(bool dbfs) const
+{
+    return demod->get_signal_pwr(dbfs);
 }
 
 /* Audio recording and playback */
@@ -729,7 +747,7 @@ void DemodulatorController::audioFftTimeout()
     if (!d_have_audio || !uiDockAudio->isVisible())
         return;
 
-    rx->get_audio_fft_data(idx, d_fftData, fftsize);
+    demod->get_audio_fft_data(d_fftData, fftsize);
 
     if (fftsize == 0)
     {

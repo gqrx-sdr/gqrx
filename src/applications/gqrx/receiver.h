@@ -118,37 +118,11 @@ public:
     void        complete_reconfigure();
 
     /* Demodulators control */
-    size_t      add_demodulator();
-    void        remove_demodulator(size_t idx);
+    demodulator::sptr   add_demodulator();
+    void                remove_demodulator(demodulator::sptr demod);
 
-    rx_status   set_filter_offset(const size_t idx, double offset_hz);
-    double      get_filter_offset(const size_t idx) const;
-
-    rx_status   set_cw_offset(const size_t idx, double offset_hz);
-    double      get_cw_offset(const size_t idx) const;
-
-    rx_status   set_filter(const size_t idx, double low, double high, rx_filter_shape shape);
-    rx_status   set_nb_on(const size_t idx, int nbid, bool on);
-    rx_status   set_nb_threshold(const size_t idx, int nbid, float threshold);
-    rx_status   set_sql_level(const size_t idx, double level_d);
-    rx_status   set_sql_alpha(const size_t idx, double alpha);
-    rx_status   set_agc_on(const size_t idx, bool agc_on);
-    rx_status   set_agc_hang(const size_t idx, bool use_hang);
-    rx_status   set_agc_threshold(const size_t idx, int threshold);
-    rx_status   set_agc_slope(const size_t idx, int slope);
-    rx_status   set_agc_decay(const size_t idx, int decay_ms);
-    rx_status   set_agc_manual_gain(const size_t idx, int gain);
+    // Proxy due to flowgraph reconfiguration
     rx_status   set_demod(const size_t idx, rx_demod demod, bool force = false);
-    rx_status   set_fm_maxdev(const size_t idx, float maxdev_hz);
-    rx_status   set_fm_deemph(const size_t idx, double tau);
-    rx_status   set_am_dcr(const size_t idx, bool enabled);
-    rx_status   set_amsync_dcr(const size_t idx, bool enabled);
-    rx_status   set_amsync_pll_bw(const size_t idx, float pll_bw);
-    rx_status   set_af_gain(const size_t idx, float gain_db);
-
-    /* Demodulators data for visualisation */
-    float       get_signal_pwr(const size_t idx, bool dbfs) const;
-    void        get_audio_fft_data(const size_t idx, std::complex<float>* fftPoints, unsigned int &fftsize);
 
     /* Audio system handling */
     void        set_output_device(const std::string device);

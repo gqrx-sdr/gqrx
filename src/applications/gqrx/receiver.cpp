@@ -584,23 +584,21 @@ rx_status receiver::set_auto_gain(bool automatic)
     return STATUS_OK;
 }
 
-size_t receiver::add_demodulator()
+demodulator::sptr receiver::add_demodulator()
 {
     qInfo() << "receiver add_rx begin";
 
     begin_reconfigure();
 
     auto nextIdx = demods.size();
-    {
-        auto nextSub = std::make_shared<demodulator>(
-            tb, subrxsrc,
-            output_devstr, nextIdx,
-            d_ddc_decim, d_decim_rate,
-            d_quad_rate, d_audio_rate
-        );
-        qInfo() << "receiver add_rx created sub";
-        demods.push_back(nextSub);
-    }
+    auto nextSub = std::make_shared<demodulator>(
+        tb, subrxsrc,
+        output_devstr, nextIdx,
+        d_ddc_decim, d_decim_rate,
+        d_quad_rate, d_audio_rate
+    );
+    qInfo() << "receiver add_rx created sub";
+    demods.push_back(nextSub);
 
     for (size_t i = 0; i < demods.size(); ++i)
     {
@@ -620,10 +618,10 @@ size_t receiver::add_demodulator()
         qInfo() << "reciever remove_rx calls subrx" << i << "set_output_device";
     }
 
-    return nextIdx;
+    return nextSub;
 }
 
-void receiver::remove_demodulator(size_t idx)
+void receiver::remove_demodulator(demodulator::sptr demod)
 {
     begin_reconfigure();
 
@@ -631,7 +629,7 @@ void receiver::remove_demodulator(size_t idx)
         std::vector<demodulator::sptr> next;
         for (size_t i = 0; i < demods.size(); ++i)
         {
-            if (i != idx)
+            if (demods[i] != demod)
             {
                 next.push_back(demods[i]);
             }
@@ -651,69 +649,11 @@ void receiver::remove_demodulator(size_t idx)
     complete_reconfigure();
 }
 
-rx_status receiver::set_filter_offset(const size_t idx, double offset_hz)
-{
-    if (idx >= demods.size()) {
-        return rx_status::STATUS_ERROR;
-    }
-
-    return demods[idx]->set_filter_offset(offset_hz);
-}
-
-double receiver::get_filter_offset(const size_t idx) const
-{
-    if (idx >= demods.size()) {
-        return -INFINITY;
-    }
-    return demods[idx]->get_filter_offset();
-}
-
-rx_status receiver::set_cw_offset(const size_t idx, double offset_hz)
-{
-    if (idx >= demods.size()) {
-        return rx_status::STATUS_ERROR;
-    }
-
-    return demods[idx]->set_cw_offset(offset_hz);
-}
-
-double receiver::get_cw_offset(const size_t idx) const
-{
-    if (idx >= demods.size()) {
-        return -INFINITY;
-    }
-    return demods[idx]->get_cw_offset();
-}
-
-rx_status receiver::set_filter(const size_t idx, double low, double high, rx_filter_shape shape)
-{
-    if (idx >= demods.size()) {
-        return rx_status::STATUS_ERROR;
-    }
-    return demods[idx]->set_filter(low, high, shape);
-}
-
 rx_status receiver::set_freq_corr(double ppm)
 {
     src->set_freq_corr(ppm);
 
     return STATUS_OK;
-}
-
-/**
- * @brief Get current signal power.
- * @param dbfs Whether to use dbfs or absolute power.
- * @return The current signal power.
- *
- * This method returns the current signal power detected by the receiver. The detector
- * is located after the band pass filter. The full scale is 1.0
- */
-float receiver::get_signal_pwr(const size_t idx, bool dbfs) const
-{
-    if (idx >= demods.size()) {
-        return -INFINITY;
-    }
-    return demods[idx]->get_signal_pwr(dbfs);
 }
 
 /** Set new FFT size. */
@@ -731,94 +671,6 @@ void receiver::set_iq_fft_window(int window_type)
 void receiver::get_iq_fft_data(std::complex<float>* fftPoints, unsigned int &fftsize)
 {
     iq_fft->get_fft_data(fftPoints, fftsize);
-}
-
-/** Get latest audio FFT data. */
-void receiver::get_audio_fft_data(const size_t idx, std::complex<float>* fftPoints, unsigned int &fftsize)
-{
-    if (idx < demods.size()) {
-        demods[idx]->get_audio_fft_data(fftPoints, fftsize);
-    }
-}
-
-rx_status receiver::set_nb_on(const size_t idx, int nbid, bool on)
-{
-    if (idx >= demods.size()) {
-        return rx_status::STATUS_ERROR;
-    }
-    return demods[idx]->set_nb_on(nbid, on);
-}
-
-rx_status receiver::set_nb_threshold(const size_t idx, int nbid, float threshold)
-{
-    if (idx >= demods.size()) {
-        return rx_status::STATUS_ERROR;
-    }
-    return demods[idx]->set_nb_threshold(nbid, threshold);
-}
-
-rx_status receiver::set_sql_level(const size_t idx, double level_d)
-{
-    if (idx >= demods.size()) {
-        return rx_status::STATUS_ERROR;
-    }
-    return demods[idx]->set_sql_level(level_d);
-}
-
-rx_status receiver::set_sql_alpha(const size_t idx, double alpha)
-{
-    if (idx >= demods.size()) {
-        return rx_status::STATUS_ERROR;
-    }
-    return demods[idx]->set_sql_alpha(alpha);
-}
-
-rx_status receiver::set_agc_on(const size_t idx, bool agc_on)
-{
-    if (idx >= demods.size()) {
-        return rx_status::STATUS_ERROR;
-    }
-    return demods[idx]->set_agc_on(agc_on);
-}
-
-rx_status receiver::set_agc_hang(const size_t idx, bool use_hang)
-{
-    if (idx >= demods.size()) {
-        return rx_status::STATUS_ERROR;
-    }
-    return demods[idx]->set_agc_hang(use_hang);
-}
-
-rx_status receiver::set_agc_threshold(const size_t idx, int threshold)
-{
-    if (idx >= demods.size()) {
-        return rx_status::STATUS_ERROR;
-    }
-    return demods[idx]->set_agc_threshold(threshold);
-}
-
-rx_status receiver::set_agc_slope(const size_t idx, int slope)
-{
-    if (idx >= demods.size()) {
-        return rx_status::STATUS_ERROR;
-    }
-    return demods[idx]->set_agc_slope(slope);
-}
-
-rx_status receiver::set_agc_decay(const size_t idx, int decay_ms)
-{
-    if (idx >= demods.size()) {
-        return rx_status::STATUS_ERROR;
-    }
-    return demods[idx]->set_agc_decay(decay_ms);
-}
-
-rx_status receiver::set_agc_manual_gain(const size_t idx, int gain)
-{
-    if (idx >= demods.size()) {
-        return rx_status::STATUS_ERROR;
-    }
-    return demods[idx]->set_agc_manual_gain(gain);
 }
 
 void receiver::begin_reconfigure()
@@ -878,54 +730,6 @@ rx_status receiver::set_demod(const size_t idx, rx_demod demod, bool force)
     qInfo() << "set_demod done";
 
     return ret;
-}
-
-rx_status receiver::set_fm_maxdev(const size_t idx, float maxdev_hz)
-{
-    if (idx >= demods.size()) {
-        return rx_status::STATUS_ERROR;
-    }
-    return demods[idx]->set_fm_maxdev(maxdev_hz);
-}
-
-rx_status receiver::set_fm_deemph(const size_t idx, double tau)
-{
-    if (idx >= demods.size()) {
-        return rx_status::STATUS_ERROR;
-    }
-    return demods[idx]->set_fm_deemph(tau);
-}
-
-rx_status receiver::set_am_dcr(const size_t idx, bool enabled)
-{
-    if (idx >= demods.size()) {
-        return rx_status::STATUS_ERROR;
-    }
-    return demods[idx]->set_am_dcr(enabled);
-}
-
-rx_status receiver::set_amsync_dcr(const size_t idx, bool enabled)
-{
-    if (idx >= demods.size()) {
-        return rx_status::STATUS_ERROR;
-    }
-    return demods[idx]->set_amsync_dcr(enabled);
-}
-
-rx_status receiver::set_amsync_pll_bw(const size_t idx, float pll_bw)
-{
-    if (idx >= demods.size()) {
-        return rx_status::STATUS_ERROR;
-    }
-    return demods[idx]->set_amsync_pll_bw(pll_bw);
-}
-
-rx_status receiver::set_af_gain(const size_t idx, float gain_db)
-{
-    if (idx >= demods.size()) {
-        return rx_status::STATUS_ERROR;
-    }
-    return demods[idx]->set_af_gain(gain_db);
 }
 
 ///**

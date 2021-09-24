@@ -76,6 +76,7 @@ public:
 
 public:
     /* General */
+    size_t      get_idx() const { return idx; }
     void        set_idx(size_t next_idx) {
         qInfo() << "subreceiver" << idx << "gets new" << next_idx;
         idx = next_idx;
@@ -129,6 +130,17 @@ public:
     rx_status   set_af_gain(float gain_db);
 
     /* Data inspection */
+
+    /**
+     * @brief Get current signal power.
+     * @param dbfs Whether to use dbfs or absolute power.
+     * @return The current signal power.
+     *
+     * This method returns the current signal power detected by the receiver. The detector
+     * is located after the band pass filter. The full scale is 1.0
+     *
+     * TODO: this needs to go back into receiver?
+     */
     float       get_signal_pwr(bool dbfs) const {
         return rx->get_signal_level(dbfs);
     }
