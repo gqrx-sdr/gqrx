@@ -55,9 +55,12 @@ public:
     void ensureOffsetInRange(qint64 freq, qint64 lnb_lo, qint64 hw_freq_start, qint64 hw_freq_stop);
 
 signals:
+    void remove(size_t idx);
     void updateFrequencyRange();
 
 public slots:
+    void onRemoveAction();
+
     /* Frequency Control */
 
     void setFilterOffsetRange(qint64 range);

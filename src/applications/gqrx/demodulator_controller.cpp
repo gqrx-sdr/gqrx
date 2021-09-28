@@ -35,7 +35,9 @@ DemodulatorController::DemodulatorController(
     d_filter_shape = rx_filter_shape::FILTER_SHAPE_NORMAL;
 
     uiDockRxOpt = new DockRxOpt();
+    uiDockRxOpt->setWindowTitle(QString("Receiver %0").arg(demod->get_idx()));
     uiDockAudio = new DockAudio();
+    uiDockAudio->setWindowTitle(QString("Audio %0").arg(demod->get_idx()));
     parent->addDockWidget(Qt::LeftDockWidgetArea, uiDockRxOpt);
     parent->addDockWidget(Qt::LeftDockWidgetArea, uiDockAudio);
     parent->tabifyDockWidget(uiDockRxOpt, uiDockAudio);
@@ -53,6 +55,7 @@ DemodulatorController::DemodulatorController(
     // connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), uiDockRxOpt, SLOT(setRxFreq(qint64)));
 
     // Rx control
+    connect(uiDockRxOpt, SIGNAL(remove()), this, SLOT(onRemoveAction()));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
@@ -109,11 +112,15 @@ DemodulatorController::DemodulatorController(
 
 DemodulatorController::~DemodulatorController()
 {
+    qInfo() << "DemodulatorController::~DemodulatorController begin";
+
     audio_fft_timer->stop();
     delete audio_fft_timer;
 
     rds_timer->stop();
     delete rds_timer;
+
+    rx->remove_demodulator(demod);
 
     delete [] d_fftData;
     delete [] d_realFftData;
@@ -121,6 +128,8 @@ DemodulatorController::~DemodulatorController()
     delete uiDockRxOpt;
     delete uiDockAudio;
     delete uiDockRDS;
+
+    qInfo() << "DemodulatorController::~DemodulatorController done";
 }
 
 void DemodulatorController::readSettings(QSettings *settings)
@@ -144,6 +153,11 @@ void DemodulatorController::ensureOffsetInRange(qint64 freq, qint64 lnb_lo, qint
         qint64 next = (hw_freq_stop - hw_freq_start) / 2 + lnb_lo;
         demod->set_filter_offset(next);
     }
+}
+
+void DemodulatorController::onRemoveAction()
+{
+    emit remove(demod->get_idx());
 }
 
 /* Frequency Control */

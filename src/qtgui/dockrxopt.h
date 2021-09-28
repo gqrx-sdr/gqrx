@@ -144,7 +144,9 @@ private:
     void filterNormalShortcut();
     void filterWideShortcut();
 
-signals:
+signals:    
+    void remove();
+
     /** Signal emitted when receiver frequency has changed */
     void rxFreqChanged(qint64 freq_hz);
 

@@ -79,36 +79,41 @@ demodulator::demodulator(
 
 demodulator::~demodulator()
 {
-
+    qInfo() << "demodulator::~demodulator called";
 }
 
 void demodulator::set_output_device(const std::string device, const int d_audio_rate)
 {
-    qInfo() << "subreceiver sets output device" << device.c_str() << "at rate" << d_audio_rate;
+    qInfo() << "demodulator sets output device" << device.c_str() << "at rate" << d_audio_rate;
+    QString portName = QString("Receiver %0").arg(idx);
 
-    if (d_demod != RX_DEMOD_OFF)
+#ifdef WITH_PULSEAUDIO
+    // pulse sink can be reconfigured without affecting the tb flowgraph
+    audio_snk->select_device(device, d_audio_rate, portName.toStdString());
+#else // not pulse
+
+    if (audio_snk_connected)
     {
         tb->disconnect(audio_gain0, 0, audio_snk, 0);
         tb->disconnect(audio_gain1, 0, audio_snk, 1);
+        audio_snk_connected = false;
     }
     audio_snk.reset();
 
-    // XXX somewhat duplicated in subreciever()
-    // XXX needs to update when set_idx called
-    QString portName = QString("Receiver %0").arg(idx);
-#ifdef WITH_PULSEAUDIO
-    audio_snk = make_pa_sink(device, d_audio_rate, "GQRX", portName.toStdString());
-#elif WITH_PORTAUDIO
+#if WITH_PORTAUDIO
     audio_snk = make_portaudio_sink(device, d_audio_rate, "GQRX", portName.toStdString());
 #else
     audio_snk = gr::audio::sink::make(d_audio_rate, device, true);
 #endif
 
-    if (d_demod != RX_DEMOD_OFF)
+    if (d_demod != RX_DEMOD_OFF && !audio_snk_connected)
     {
         tb->connect(audio_gain0, 0, audio_snk, 0);
         tb->connect(audio_gain1, 0, audio_snk, 1);
+        audio_snk_connected = true;
     }
+
+#endif // not pulse
 }
 
 void demodulator::set_input_rate(const int d_ddc_decim, const int d_decim_rate, const int d_quad_rate)

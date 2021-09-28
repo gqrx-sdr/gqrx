@@ -98,12 +98,6 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     rx = std::make_shared<receiver>("", "", 1);
     rx->set_rf_freq(144500000.0f);
 
-    // create sub-receivers & controllers
-    auto demod0 = rx->add_demodulator();
-    demodCtrls.push_back(std::make_shared<DemodulatorController>(rx, demod0, this));
-    auto demod1 = rx->add_demodulator();
-    demodCtrls.push_back(std::make_shared<DemodulatorController>(rx, demod1, this));
-
     // remote controller
     remote = new RemoteControl();
 
@@ -955,6 +949,31 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
     setNewFrequency(freq);
 }
 
+void MainWindow::addDemodulator()
+{
+    auto demod = rx->add_demodulator();
+    auto ctl = std::make_shared<DemodulatorController>(rx, demod, this);
+    connect(ctl.get(), SIGNAL(remove(size_t)), this, SLOT(removeDemodulator(size_t)));
+    demodCtrls.push_back(ctl);
+}
+
+void MainWindow::removeDemodulator(size_t idx)
+{
+    if (idx >= demodCtrls.size())
+    {
+        return;
+    }
+
+    std::vector<DemodulatorController::sptr> next;
+    for (size_t i = 0; i < idx; ++i)
+    {
+        if (i != idx)
+        {
+            next.push_back(demodCtrls[i]);
+        }
+    }
+    demodCtrls.swap(next);
+}
 
 /** Reset lower digits of main frequency control widget */
 void MainWindow::setFreqCtrlReset(bool enabled)
@@ -1586,6 +1605,12 @@ void MainWindow::afsk1200win_closed()
 void MainWindow::on_actionDX_Cluster_triggered()
 {
     dxc_options->show();
+}
+
+
+void MainWindow::on_actionAddDemodulator_triggered()
+{
+    addDemodulator();
 }
 
 /**

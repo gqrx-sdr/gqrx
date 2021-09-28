@@ -195,7 +195,7 @@
      <x>0</x>
      <y>0</y>
      <width>521</width>
-     <height>24</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -277,6 +277,7 @@
    <addaction name="separator"/>
    <addaction name="actionAddBookmark"/>
    <addaction name="separator"/>
+   <addaction name="actionAddDemodulator"/>
    <addaction name="actionIqTool"/>
    <addaction name="separator"/>
    <addaction name="actionRemoteControl"/>
@@ -573,6 +574,15 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionAddDemodulator">
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/add.svg</normaloff>:/icons/icons/add.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Add Demodulator</string>
    </property>
   </action>
  </widget>

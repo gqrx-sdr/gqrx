@@ -140,6 +140,9 @@ private slots:
     void setIgnoreLimits(bool ignore_limits);
 
     /* Receivers controls */
+    void addDemodulator();
+    void removeDemodulator(size_t idx);
+
     void setFreqCtrlReset(bool enabled);
     void setInvertScrolling(bool enabled);
 
@@ -193,6 +196,7 @@ private slots:
     void on_actionAboutQt_triggered();
     void on_actionAddBookmark_triggered();
     void on_actionDX_Cluster_triggered();
+    void on_actionAddDemodulator_triggered();
 
     /* window close signals */
     void afsk1200win_closed();

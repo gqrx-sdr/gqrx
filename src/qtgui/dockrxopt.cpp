@@ -103,6 +103,8 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
                           FCTL_UNIT_KHZ);
     ui->filterFreq->setFrequency(0);
 
+    connect(ui->actionRemoveDemodulator, SIGNAL(triggered()), this, SIGNAL(remove()));
+
     // use same slot for filteCombo and filterShapeCombo
     connect(ui->filterShapeCombo, SIGNAL(activated(int)), this, SLOT(on_filterCombo_activated(int)));
 

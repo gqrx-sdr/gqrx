@@ -623,19 +623,24 @@ demodulator::sptr receiver::add_demodulator()
 
 void receiver::remove_demodulator(demodulator::sptr demod)
 {
+    qInfo() << "receiver::remove_demodulator begin";
+
     begin_reconfigure();
 
     {
+        auto rmidx = demod->get_idx();
+
         std::vector<demodulator::sptr> next;
         for (size_t i = 0; i < demods.size(); ++i)
         {
-            if (demods[i] != demod)
+            if (demods[i]->get_idx() != rmidx)
             {
                 next.push_back(demods[i]);
             }
         }
         demods.swap(next);
         next.clear();
+        demod.reset();
     }
 
     for (size_t i = 0; i < demods.size(); ++i)
@@ -647,6 +652,8 @@ void receiver::remove_demodulator(demodulator::sptr demod)
         qInfo() << "reciever remove_rx calls subrx" << i << "set_demod done";
     }
     complete_reconfigure();
+
+    qInfo() << "receiver::remove_demodulator done";
 }
 
 rx_status receiver::set_freq_corr(double ppm)

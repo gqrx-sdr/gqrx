@@ -78,7 +78,7 @@ public:
     /* General */
     size_t      get_idx() const { return idx; }
     void        set_idx(size_t next_idx) {
-        qInfo() << "subreceiver" << idx << "gets new" << next_idx;
+        qInfo() << "demodulator" << idx << "gets new" << next_idx;
         idx = next_idx;
     }
 
@@ -202,6 +202,7 @@ private:
     receiver_base_cf_sptr     rx;          /*!< receive hierblock. */
     rx_fft_f_sptr             audio_fft;   /*!< Audio FFT block. */
 
+    bool                      audio_snk_connected;
 #ifdef WITH_PULSEAUDIO
     pa_sink_sptr              audio_snk;  /*!< Pulse audio sink. */
 #elif WITH_PORTAUDIO

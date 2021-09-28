@@ -72,7 +72,6 @@ pa_sink::pa_sink(const string device_name, int audio_rate,
         /** FIXME: Throw an exception **/
         fprintf(stderr, __FILE__": pa_simple_new() failed: %s\n", pa_strerror(error));
     }
-
 }
 
 
@@ -97,11 +96,14 @@ bool pa_sink::stop()
 /*! \brief Select a new pulseaudio output device.
  *  \param device_name The name of the new output.
  */
-void pa_sink::select_device(string device_name)
+void pa_sink::select_device(string device_name, int audio_rate, string stream_name)
 {
     int error;
 
     pa_simple_free(d_pasink);
+
+    d_ss.rate = audio_rate;
+    d_stream_name = stream_name;
 
     d_pasink = pa_simple_new(NULL,
                              d_app_name.c_str(),
