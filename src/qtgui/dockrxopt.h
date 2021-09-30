@@ -23,7 +23,7 @@
 #ifndef DOCKRXOPT_H
 #define DOCKRXOPT_H
 
-#include <QDockWidget>
+#include <QFrame>
 #include <QSettings>
 #include "qtgui/agc_options.h"
 #include "qtgui/demod_options.h"
@@ -50,7 +50,7 @@ namespace Ui {
  * This class also provides the signal/slot API necessary to connect
  * the encapsulated widgets to the rest of the application.
  */
-class DockRxOpt : public QDockWidget
+class DockRxOpt : public QFrame
 {
     Q_OBJECT
 

@@ -7,6 +7,8 @@ add_source_files(SRCS_LIST
 	agc_options.h
 	audio_options.cpp
 	audio_options.h
+        basebandview.cpp
+        basebandview.h
 	bandplan.cpp
 	bandplan.h
 	bookmarks.cpp
@@ -58,6 +60,7 @@ add_source_files(UI_SRCS_LIST
 	afsk1200win.ui
 	agc_options.ui
 	audio_options.ui
+        basebandview.ui
 	demod_options.ui
 	dockaudio.ui
 	dockbookmarks.ui

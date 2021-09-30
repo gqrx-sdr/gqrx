@@ -46,10 +46,14 @@
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QSvgWidget>
+
+#include <DockAreaWidget.h>
+
 #include "qtgui/ioconfig.h"
-#include "mainwindow.h"
 #include "qtgui/dxc_options.h"
 #include "qtgui/dxc_spots.h"
+
+#include "mainwindow.h"
 
 /* Qt Designer files */
 #include "ui_mainwindow.h"
@@ -72,9 +76,22 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     dec_afsk1200(nullptr)
 {
     ui->setupUi(this);
+
+    ads::CDockManager::setConfigFlag(ads::CDockManager::OpaqueSplitterResize, true);
+    ads::CDockManager::setConfigFlag(ads::CDockManager::XmlCompressionEnabled, true);
+    ads::CDockManager::setConfigFlag(ads::CDockManager::FocusHighlighting, true);
+    ads::CDockManager::setConfigFlag(ads::CDockManager::AlwaysShowTabs, false);
+    ads::CDockManager::setConfigFlag(ads::CDockManager::DockAreaHasTabsMenuButton, true);
+    ads::CDockManager::setConfigFlag(ads::CDockManager::DockAreaDynamicTabsMenuButtonVisibility, true);
+    ads::CDockManager::setConfigFlag(ads::CDockManager::DockAreaHideDisabledButtons, true);
+
     BandPlan::create();
     Bookmarks::create();
     DXCSpots::create();
+
+    BandPlan::Get().setConfigDir(m_cfg_dir);
+    Bookmarks::Get().setConfigDir(m_cfg_dir);
+    BandPlan::Get().load();
 
     // Initialise default configuration directory
     QByteArray xdg_dir = qgetenv("XDG_CONFIG_HOME");
@@ -89,10 +106,6 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     }
 
     setWindowTitle(QString("Gqrx %1").arg(VERSION));
-
-    // frequency control widget
-    ui->freqCtrl->setup(0, 0, 9999e6, 1, FCTL_UNIT_NONE);
-    ui->freqCtrl->setFrequency(144500000);
 
     // create master receiver controller
     rx = std::make_shared<receiver>("", "", 1);
@@ -126,58 +139,68 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     // create DXC Objects
     dxc_options = new DXCOptions(this);
 
-    // create dock widgets
+    // create dock manager
+    uiDockManager = new ads::CDockManager(this);
+    // Use baseband view as central widget
+    uiBaseband = new BasebandView(this);
+    ads::CDockWidget* centralDockWidget = new ads::CDockWidget("BasebandView");
+    centralDockWidget->setWidget(uiBaseband);
+    auto* centralDockArea = uiDockManager->setCentralWidget(centralDockWidget);
+    centralDockArea->setAllowedAreas(ads::DockWidgetArea::OuterDockAreas);
 
+    // create dock widgets
     uiDockInputCtl = new DockInputCtl();
+    ads::CDockWidget* dockInput = new ads::CDockWidget("Input");
+    dockInput->setWidget(uiDockInputCtl);
+
     uiDockFft = new DockFft();
-    BandPlan::Get().setConfigDir(m_cfg_dir);
-    Bookmarks::Get().setConfigDir(m_cfg_dir);
-    BandPlan::Get().load();
-    uiDockBookmarks = new DockBookmarks(this);
+    ads::CDockWidget* dockFft = new ads::CDockWidget("FFT");
+    dockFft->setWidget(uiDockFft);
+
+    uiDockBookmarks = new DockBookmarks();
+    ads::CDockWidget* dockBookmarks = new ads::CDockWidget("Bookmarks");
+    dockBookmarks->setWidget(uiDockBookmarks);
+
+    /* Add dock widgets to manager. This should be done even for
+       dock widgets that are going to be hidden, otherwise they will
+       end up floating in their own top-level window and can not be
+       docked to the mainwindow.
+    */
+    uiDockManager->addDockWidget(ads::RightDockWidgetArea, dockInput);
+    uiDockManager->addDockWidget(ads::RightDockWidgetArea, dockFft);
+    uiDockManager->addDockWidget(ads::BottomDockWidgetArea, dockBookmarks);
+
+    // hide docks that we don't want to show initially
+    dockBookmarks->closeDockWidget();
 
     // setup some toggle view shortcuts
-    uiDockInputCtl->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_J));
-    uiDockFft->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F));
-    uiDockBookmarks->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_B));
+    dockInput->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_J));
+    dockFft->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F));
+    dockBookmarks->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_B));
     ui->mainToolBar->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
 
     // frequency setting shortcut
     auto *freq_shortcut = new QShortcut(QKeySequence(Qt::Key_F), this);
     QObject::connect(freq_shortcut, &QShortcut::activated, this, &MainWindow::frequencyFocusShortcut);
 
-    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
-    setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
-    setCorner(Qt::BottomLeftCorner, Qt::BottomDockWidgetArea);
-    setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
-
-    /* Add dock widgets to main window. This should be done even for
-       dock widgets that are going to be hidden, otherwise they will
-       end up floating in their own top-level window and can not be
-       docked to the mainwindow.
-    */
-    addDockWidget(Qt::RightDockWidgetArea, uiDockInputCtl);
-    addDockWidget(Qt::RightDockWidgetArea, uiDockFft);
-    tabifyDockWidget(uiDockInputCtl, uiDockFft);
-
-    addDockWidget(Qt::BottomDockWidgetArea, uiDockBookmarks);
-
-    // hide docks that we don't want to show initially
-    uiDockBookmarks->hide();
-
     /* Add dock widget actions to View menu. By doing it this way all signal/slot
        connections will be established automagially.
     */
-    ui->menu_View->addAction(uiDockInputCtl->toggleViewAction());
-    ui->menu_View->addAction(uiDockFft->toggleViewAction());
-    ui->menu_View->addAction(uiDockBookmarks->toggleViewAction());
+    ui->menu_View->addAction(dockInput->toggleViewAction());
+    ui->menu_View->addAction(dockFft->toggleViewAction());
+    ui->menu_View->addAction(dockBookmarks->toggleViewAction());
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->actionFullScreen);
 
+    // frequency control widget
+    uiBaseband->freqCtrl()->setup(0, 0, 9999e6, 1, FCTL_UNIT_NONE);
+    uiBaseband->freqCtrl()->setFrequency(144500000);
+
     // connect signals and slots
-    connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
-    connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), remote, SLOT(setNewFrequency(qint64)));
+    connect(uiBaseband->freqCtrl(), SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
+    connect(uiBaseband->freqCtrl(), SIGNAL(newFrequency(qint64)), remote, SLOT(setNewFrequency(qint64)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), remote, SLOT(setLnbLo(double)));
     connect(uiDockInputCtl, SIGNAL(gainChanged(QString,double)),   this, SLOT(setGain(QString,double)));
@@ -197,22 +220,22 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockFft, SIGNAL(wfSpanChanged(quint64)), this, SLOT(setWfTimeSpan(quint64)));
     connect(uiDockFft, SIGNAL(fftSplitChanged(int)), this, SLOT(setIqFftSplit(int)));
     connect(uiDockFft, SIGNAL(fftAvgChanged(float)), this, SLOT(setIqFftAvg(float)));
-    connect(uiDockFft, SIGNAL(fftZoomChanged(float)), ui->plotter, SLOT(zoomOnXAxis(float)));
-    connect(uiDockFft, SIGNAL(resetFftZoom()), ui->plotter, SLOT(resetHorizontalZoom()));
-    connect(uiDockFft, SIGNAL(gotoFftCenter()), ui->plotter, SLOT(moveToCenterFreq()));
-    connect(uiDockFft, SIGNAL(gotoDemodFreq()), ui->plotter, SLOT(moveToDemodFreq()));
-    connect(uiDockFft, SIGNAL(bandPlanChanged(bool)), ui->plotter, SLOT(toggleBandPlan(bool)));
-    connect(uiDockFft, SIGNAL(wfColormapChanged(QString)), ui->plotter, SLOT(setWfColormap(QString)));
+    connect(uiDockFft, SIGNAL(fftZoomChanged(float)), uiBaseband->plotter(), SLOT(zoomOnXAxis(float)));
+    connect(uiDockFft, SIGNAL(resetFftZoom()), uiBaseband->plotter(), SLOT(resetHorizontalZoom()));
+    connect(uiDockFft, SIGNAL(gotoFftCenter()), uiBaseband->plotter(), SLOT(moveToCenterFreq()));
+    connect(uiDockFft, SIGNAL(gotoDemodFreq()), uiBaseband->plotter(), SLOT(moveToDemodFreq()));
+    connect(uiDockFft, SIGNAL(bandPlanChanged(bool)), uiBaseband->plotter(), SLOT(toggleBandPlan(bool)));
+    connect(uiDockFft, SIGNAL(wfColormapChanged(QString)), uiBaseband->plotter(), SLOT(setWfColormap(QString)));
 
     connect(uiDockFft, SIGNAL(pandapterRangeChanged(float,float)),
-            ui->plotter, SLOT(setPandapterRange(float,float)));
+            uiBaseband->plotter(), SLOT(setPandapterRange(float,float)));
     connect(uiDockFft, SIGNAL(waterfallRangeChanged(float,float)),
-            ui->plotter, SLOT(setWaterfallRange(float,float)));
-    connect(ui->plotter, SIGNAL(pandapterRangeChanged(float,float)),
+            uiBaseband->plotter(), SLOT(setWaterfallRange(float,float)));
+    connect(uiBaseband->plotter(), SIGNAL(pandapterRangeChanged(float,float)),
             uiDockFft, SLOT(setPandapterRange(float,float)));
-    connect(ui->plotter, SIGNAL(newZoomLevel(float)),
+    connect(uiBaseband->plotter(), SIGNAL(newZoomLevel(float)),
             uiDockFft, SLOT(setZoomLevel(float)));
-    connect(ui->plotter, SIGNAL(newSize()), this, SLOT(setWfSize()));
+    connect(uiBaseband->plotter(), SIGNAL(newSize()), this, SLOT(setWfSize()));
 
     connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
@@ -237,19 +260,19 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(remote, SIGNAL(newRDSmode(bool)), uiDockRDS, SLOT(setRDSmode(bool)));
     connect(uiDockRDS, SIGNAL(rdsDecoderToggled(bool)), remote, SLOT(setRDSstatus(bool)));
     connect(remote, SIGNAL(newFilterOffset(qint64)), this, SLOT(setFilterOffset(qint64)));
-    connect(remote, SIGNAL(newFrequency(qint64)), ui->freqCtrl, SLOT(setFrequency(qint64)));
+    connect(remote, SIGNAL(newFrequency(qint64)), uiBaseband->freqCtrl(), SLOT(setFrequency(qint64)));
     connect(remote, SIGNAL(newLnbLo(double)), uiDockInputCtl, SLOT(setLnbLo(double)));
     connect(remote, SIGNAL(newLnbLo(double)), this, SLOT(setLnbLo(double)));
     connect(remote, SIGNAL(newMode(int)), this, SLOT(selectDemod(int)));
     connect(remote, SIGNAL(newSquelchLevel(double)), this, SLOT(setSqlLevel(double)));
-    connect(ui->plotter, SIGNAL(newFilterFreq(int,int)), remote, SLOT(setPassband(int,int)));
+    connect(uiBaseband->plotter(), SIGNAL(newFilterFreq(int,int)), remote, SLOT(setPassband(int,int)));
     connect(remote, SIGNAL(newPassband(int)), this, SLOT(setPassband(int)));
     connect(remote, SIGNAL(gainChanged(QString,double)), uiDockInputCtl, SLOT(setGain(QString,double)));
     connect(remote, SIGNAL(dspChanged(bool)), this, SLOT(on_actionDSP_triggered(bool)));
     connect(uiDockRDS, SIGNAL(rdsPI(QString)), remote, SLOT(rdsPI(QString)));
 
     // enable frequency tooltips on FFT plot
-    ui->plotter->setTooltipsEnabled(true);
+    uiBaseband->plotter()->setTooltipsEnabled(true);
 
     // Create list of input devices. This must be done before the configuration is
     // restored because device probing might change the device configuration
@@ -318,6 +341,7 @@ MainWindow::~MainWindow()
 
         m_settings->setValue("gui/geometry", saveGeometry());
         m_settings->setValue("gui/state", saveState());
+        m_settings->setValue("gui/docks", uiDockManager->saveState());
 
         // save session
         storeSession();
@@ -428,6 +452,8 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         restoreGeometry(m_settings->value("gui/geometry",
                                           saveGeometry()).toByteArray());
         restoreState(m_settings->value("gui/state", saveState()).toByteArray());
+
+        uiDockManager->restoreState(m_settings->value("gui/docks").toByteArray());
     }
 
     QString indev = m_settings->value("input/device", "").toString();
@@ -540,8 +566,8 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
 
         // update various widgets that need a sample rate
         uiDockFft->setSampleRate(actual_rate);
-        ui->plotter->setSampleRate(actual_rate);
-        ui->plotter->setSpanFreq((quint32)actual_rate);
+        uiBaseband->plotter()->setSampleRate(actual_rate);
+        uiBaseband->plotter()->setSpanFreq((quint32)actual_rate);
         remote->setBandwidth((qint64)actual_rate);
         iq_tool->setSampleRate((qint64)actual_rate);
         for (auto demod : demodCtrls)
@@ -577,8 +603,8 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
 
         // TODO: call ensureOffsetInRange for each ReceiverController
 
-        ui->freqCtrl->setFrequency(int64_val);
-        setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
+        uiBaseband->freqCtrl()->setFrequency(int64_val);
+        setNewFrequency(uiBaseband->freqCtrl()->getFrequency()); // ensure all GUI and RF is updated
     }
 
     /*{
@@ -679,7 +705,7 @@ void MainWindow::storeSession()
 {
     if (m_settings)
     {
-        m_settings->setValue("input/frequency", ui->freqCtrl->getFrequency());
+        m_settings->setValue("input/frequency", uiBaseband->freqCtrl()->getFrequency());
 
         uiDockInputCtl->saveSettings(m_settings);
         uiDockFft->saveSettings(m_settings);
@@ -690,7 +716,7 @@ void MainWindow::storeSession()
 
         /*{
             int     flo, fhi;
-            ui->plotter->getHiLowCutFrequencies(&flo, &fhi);
+            uiBaseband->plotter()->getHiLowCutFrequencies(&flo, &fhi);
             if (flo != fhi)
             {
                 m_settings->setValue("receiver/filter_low_cut", flo);
@@ -752,7 +778,7 @@ void MainWindow::updateFrequencyRange()
     auto start = d_hw_freq_start + d_lnb_lo;
     auto stop  = d_hw_freq_stop  + d_lnb_lo;
 
-    ui->freqCtrl->setup(0, start, stop, 1, FCTL_UNIT_NONE);
+    uiBaseband->freqCtrl()->setup(0, start, stop, 1, FCTL_UNIT_NONE);
 
     for (auto demod : demodCtrls)
     {
@@ -760,7 +786,7 @@ void MainWindow::updateFrequencyRange()
     }
 
     auto rx_freq = d_hw_freq + d_lnb_lo;
-    ui->freqCtrl->setFrequency(rx_freq);
+    uiBaseband->freqCtrl()->setFrequency(rx_freq);
 }
 
 /**
@@ -816,8 +842,8 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
     rx->set_rf_freq(hw_freq);
 
     // update widgets
-    ui->plotter->setCenterFreq(center_freq);
-    ui->freqCtrl->setFrequency(rx_freq);
+    uiBaseband->plotter()->setCenterFreq(center_freq);
+    uiBaseband->freqCtrl()->setFrequency(rx_freq);
     uiDockBookmarks->setNewFrequency(rx_freq);
 
     for (auto demod : demodCtrls)
@@ -833,15 +859,15 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
 void MainWindow::setLnbLo(double freq_mhz)
 {
     // calculate current RF frequency
-    auto rf_freq = ui->freqCtrl->getFrequency() - d_lnb_lo;
+    auto rf_freq = uiBaseband->freqCtrl()->getFrequency() - d_lnb_lo;
 
     d_lnb_lo = qint64(freq_mhz*1e6);
     qDebug() << "New LNB LO:" << d_lnb_lo << "Hz";
 
     // Update ranges and show updated frequency
     updateFrequencyRange();
-    ui->freqCtrl->setFrequency(d_lnb_lo + rf_freq);
-    ui->plotter->setCenterFreq(d_lnb_lo + d_hw_freq);
+    uiBaseband->freqCtrl()->setFrequency(d_lnb_lo + rf_freq);
+    uiBaseband->plotter()->setCenterFreq(d_lnb_lo + d_hw_freq);
 
     // update LNB LO in settings
     if (freq_mhz == 0.f)
@@ -941,18 +967,18 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
     updateHWFrequencyRange(ignore_limits);
 
     auto freq = (qint64)rx->get_rf_freq();
-    ui->freqCtrl->setFrequency(d_lnb_lo + freq);
+    uiBaseband->freqCtrl()->setFrequency(d_lnb_lo + freq);
 
     // This will ensure that if frequency is clamped and that
     // the UI is updated with the correct frequency.
-    freq = ui->freqCtrl->getFrequency();
+    freq = uiBaseband->freqCtrl()->getFrequency();
     setNewFrequency(freq);
 }
 
 void MainWindow::addDemodulator()
 {
     auto demod = rx->add_demodulator();
-    auto ctl = std::make_shared<DemodulatorController>(rx, demod, this);
+    auto ctl = std::make_shared<DemodulatorController>(rx, demod, uiDockManager);
     connect(ctl.get(), SIGNAL(remove(size_t)), this, SLOT(removeDemodulator(size_t)));
     demodCtrls.push_back(ctl);
 }
@@ -978,7 +1004,7 @@ void MainWindow::removeDemodulator(size_t idx)
 /** Reset lower digits of main frequency control widget */
 void MainWindow::setFreqCtrlReset(bool enabled)
 {
-    ui->freqCtrl->setResetLowerDigits(enabled);
+    uiBaseband->freqCtrl()->setResetLowerDigits(enabled);
     for (auto demod : demodCtrls)
     {
         demod->setFreqCtrlReset(enabled);
@@ -988,8 +1014,8 @@ void MainWindow::setFreqCtrlReset(bool enabled)
 /** Invert scroll wheel direction */
 void MainWindow::setInvertScrolling(bool enabled)
 {
-    ui->freqCtrl->setInvertScrolling(enabled);
-    ui->plotter->setInvertScrolling(enabled);
+    uiBaseband->freqCtrl()->setInvertScrolling(enabled);
+    uiBaseband->plotter()->setInvertScrolling(enabled);
     for (auto demod : demodCtrls)
     {
         demod->setInvertScrolling(enabled);
@@ -1005,7 +1031,7 @@ void MainWindow::meterTimeout()
     if (demodCtrls.size() > 0) {
         auto demod = demodCtrls[0];
         level = demod->get_signal_pwr(true);
-        ui->sMeter->setLevel(level);
+        uiBaseband->sMeter()->setLevel(level);
         remote->setSignalLevel(level);
     }
 }
@@ -1045,7 +1071,7 @@ void MainWindow::iqFftTimeout()
         d_iirFftData[i] += d_fftAvg * (d_realFftData[i] - d_iirFftData[i]);
     }
 
-    ui->plotter->setNewFftData(d_iirFftData, d_realFftData, fftsize);
+    uiBaseband->plotter()->setNewFftData(d_iirFftData, d_realFftData, fftsize);
 }
 
 /** Start I/Q recording. */
@@ -1118,8 +1144,8 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate)
 //                .arg(actual_rate, 0, 'f', 6);
 
 //    uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
-//    ui->plotter->setSampleRate(actual_rate);
-//    ui->plotter->setSpanFreq((quint32)actual_rate);
+//    uiBaseband->plotter()->setSampleRate(actual_rate);
+//    uiBaseband->plotter()->setSpanFreq((quint32)actual_rate);
 //    remote->setBandwidth(actual_rate);
 
 //    // FIXME: would be nice with good/bad status
@@ -1153,8 +1179,8 @@ void MainWindow::stopIqPlayback()
 //                    .arg(actual_rate, 0, 'f', 6);
 
 //        uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
-//        ui->plotter->setSampleRate(actual_rate);
-//        ui->plotter->setSpanFreq((quint32)actual_rate);
+//        uiBaseband->plotter()->setSampleRate(actual_rate);
+//        uiBaseband->plotter()->setSpanFreq((quint32)actual_rate);
 //        remote->setBandwidth(sr);
 
 //        // not needed as long as we are not recording in iq_tool
@@ -1198,21 +1224,21 @@ void MainWindow::setIqFftRate(int fps)
     if (fps == 0)
     {
         interval = 36e7; // 100 hours
-        ui->plotter->setRunningState(false);
+        uiBaseband->plotter()->setRunningState(false);
     }
     else
     {
         interval = 1000 / fps;
 
-        ui->plotter->setFftRate(fps);
+        uiBaseband->plotter()->setFftRate(fps);
         if (iq_fft_timer->isActive())
-            ui->plotter->setRunningState(true);
+            uiBaseband->plotter()->setRunningState(true);
     }
 
     if (interval > 9 && iq_fft_timer->isActive())
         iq_fft_timer->setInterval(interval);
 
-    uiDockFft->setWfResolution(ui->plotter->getWfTimeRes());
+    uiDockFft->setWfResolution(uiBaseband->plotter()->getWfTimeRes());
 }
 
 void MainWindow::setIqFftWindow(int type)
@@ -1224,13 +1250,13 @@ void MainWindow::setIqFftWindow(int type)
 void MainWindow::setWfTimeSpan(quint64 span_ms)
 {
     // set new time span, then send back new resolution to be shown by GUI label
-    ui->plotter->setWaterfallSpan(span_ms);
-    uiDockFft->setWfResolution(ui->plotter->getWfTimeRes());
+    uiBaseband->plotter()->setWaterfallSpan(span_ms);
+    uiDockFft->setWfResolution(uiBaseband->plotter()->getWfTimeRes());
 }
 
 void MainWindow::setWfSize()
 {
-    uiDockFft->setWfResolution(ui->plotter->getWfTimeRes());
+    uiDockFft->setWfResolution(uiBaseband->plotter()->getWfTimeRes());
 }
 
 /**
@@ -1240,7 +1266,7 @@ void MainWindow::setWfSize()
 void MainWindow::setIqFftSplit(int pct_wf)
 {
     if ((pct_wf >= 0) && (pct_wf <= 100))
-        ui->plotter->setPercent2DScreen(pct_wf);
+        uiBaseband->plotter()->setPercent2DScreen(pct_wf);
 }
 
 void MainWindow::setIqFftAvg(float avg)
@@ -1261,7 +1287,7 @@ void MainWindow::setAudioFftRate(int fps)
 /** Set FFT plot color. */
 void MainWindow::setFftColor(const QColor& color)
 {
-    ui->plotter->setFftPlotColor(color);
+    uiBaseband->plotter()->setFftPlotColor(color);
     for (auto demod : demodCtrls)
     {
         demod->setFftColor(color);
@@ -1271,7 +1297,7 @@ void MainWindow::setFftColor(const QColor& color)
 /** Enable/disable filling the aread below the FFT plot. */
 void MainWindow::setFftFill(bool enable)
 {
-    ui->plotter->setFftFill(enable);
+    uiBaseband->plotter()->setFftFill(enable);
     for (auto demod : demodCtrls)
     {
         demod->setFftFill(enable);
@@ -1280,12 +1306,12 @@ void MainWindow::setFftFill(bool enable)
 
 void MainWindow::setFftPeakHold(bool enable)
 {
-    ui->plotter->setPeakHold(enable);
+    uiBaseband->plotter()->setPeakHold(enable);
 }
 
 void MainWindow::setPeakDetection(bool enabled)
 {
-    ui->plotter->setPeakDetection(enabled ,2);
+    uiBaseband->plotter()->setPeakDetection(enabled ,2);
 }
 
 /**
@@ -1316,12 +1342,12 @@ void MainWindow::on_actionDSP_triggered(bool checked)
         if (uiDockFft->fftRate())
         {
             iq_fft_timer->start(1000/uiDockFft->fftRate());
-            ui->plotter->setRunningState(true);
+            uiBaseband->plotter()->setRunningState(true);
         }
         else
         {
             iq_fft_timer->start(36e7); // 100 hours
-            ui->plotter->setRunningState(false);
+            uiBaseband->plotter()->setRunningState(false);
         }
 
         /* update menu text and button tooltip */
@@ -1341,7 +1367,7 @@ void MainWindow::on_actionDSP_triggered(bool checked)
         ui->actionDSP->setToolTip(tr("Start DSP processing"));
         ui->actionDSP->setText(tr("Start DSP"));
 
-        ui->plotter->setRunningState(false);
+        uiBaseband->plotter()->setRunningState(false);
     }
 
     ui->actionDSP->setChecked(checked); //for remote control
@@ -1463,7 +1489,7 @@ void MainWindow::on_actionSaveWaterfall_triggered()
     if (wffile.isEmpty())
         return;
 
-    if (!ui->plotter->saveWaterfall(wffile))
+    if (!uiBaseband->plotter()->saveWaterfall(wffile))
     {
         QMessageBox::critical(this,
                               tr("Error"),
@@ -1488,7 +1514,7 @@ void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
     {
         demod->setFilterOffset(delta);
     }
-    ui->freqCtrl->setFrequency(freq);
+    uiBaseband->freqCtrl()->setFrequency(freq);
 }
 
 /* CPlotter::NewfilterFreq() is emitted or bookmark activated */
@@ -1501,7 +1527,7 @@ void MainWindow::on_plotter_newFilterFreq(int low, int high)
 
     /* Update filter range of plotter, in case this slot is triggered by
      * switching to a bookmark */
-    ui->plotter->setHiLowCutFrequencies(low, high);
+    uiBaseband->plotter()->setHiLowCutFrequencies(low, high);
 }
 
 /** Full screen button or menu item toggled. */
@@ -1853,8 +1879,8 @@ void MainWindow::on_actionAddBookmark_triggered()
         int i;
 
         BookmarkInfo info;
-        info.frequency = ui->freqCtrl->getFrequency();
-        info.bandwidth = ui->plotter->getFilterBw();
+        info.frequency = uiBaseband->freqCtrl()->getFrequency();
+        info.bandwidth = uiBaseband->plotter()->getFilterBw();
         info.modulation = uiDockRxOpt->currentDemodAsString();
         info.name=name;
         auto listTags = tags.split(",",QString::SkipEmptyParts);
@@ -1869,17 +1895,17 @@ void MainWindow::on_actionAddBookmark_triggered()
         Bookmarks::Get().add(info);
         uiDockBookmarks->updateTags();
         uiDockBookmarks->updateBookmarks();
-        ui->plotter->updateOverlay();
+        uiBaseband->plotter()->updateOverlay();
     }
     */
 }
 
 void MainWindow::updateClusterSpots()
 {
-    ui->plotter->updateOverlay();
+    uiBaseband->plotter()->updateOverlay();
 }
 
 void MainWindow::frequencyFocusShortcut()
 {
-    ui->freqCtrl->setFrequencyFocus();
+    uiBaseband->freqCtrl()->setFrequencyFocus();
 }

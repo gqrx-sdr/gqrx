@@ -36,6 +36,9 @@
 #include <QFileDialog>
 #include <QSvgWidget>
 
+#include <DockManager.h>
+
+#include "qtgui/basebandview.h"
 #include "qtgui/dockinputctl.h"
 #include "qtgui/dockfft.h"
 #include "qtgui/dockbookmarks.h"
@@ -91,13 +94,17 @@ private:
     // Receiver controllers
     std::vector<DemodulatorController::sptr> demodCtrls;
 
-    /* dock widgets */
-    DockInputCtl   *uiDockInputCtl;
-    DockFft        *uiDockFft;
-    DockBookmarks  *uiDockBookmarks;
+    /* Views */
+    BasebandView        *uiBaseband;
 
-    CIqTool        *iq_tool;
-    DXCOptions     *dxc_options;
+    /* dock widgets & management */
+    ads::CDockManager   *uiDockManager;
+    DockInputCtl        *uiDockInputCtl;
+    DockFft             *uiDockFft;
+    DockBookmarks       *uiDockBookmarks;
+
+    CIqTool             *iq_tool;
+    DXCOptions          *dxc_options;
 
     /* data decoders */
     Afsk1200Win    *dec_afsk1200; // TODO: Move to RecieverController

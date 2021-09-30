@@ -118,6 +118,15 @@ endif()
 
 # 3rd Party Dependency Stuff
 find_package(Qt5 COMPONENTS Core Network Widgets Svg REQUIRED)
+
+include(FetchContent)
+FetchContent_Declare(
+  QtAdvDoc
+  GIT_REPOSITORY https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System.git
+  GIT_TAG        3.7.2
+)
+FetchContent_MakeAvailable(QtAdvDoc)
+
 include(FindPkgConfig)
 find_package(Gnuradio-osmosdr REQUIRED)
 
@@ -247,12 +256,14 @@ include_directories(
     ${Boost_INCLUDE_DIRS}
     ${GNURADIO_RUNTIME_INCLUDE_DIRS}
     ${GNURADIO_OSMOSDR_INCLUDE_DIRS}
+    ${QtAdvancedDockingSystem_SOURCE_DIR}
 )
 
 link_directories(
     ${Boost_LIBRARY_DIRS}
     ${GNURADIO_RUNTIME_LIBRARY_DIRS}
     ${ICU4C_LIBRARY_DIRS}
+    ./x64/lib
 )
 
 

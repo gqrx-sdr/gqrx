@@ -64,7 +64,7 @@ static const int filter_preset_table[DockRxOpt::MODE_LAST][3][2] =
 };
 
 DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
-    QDockWidget(parent),
+    QFrame(parent),
     ui(new Ui::DockRxOpt),
     agc_is_on(true),
     hw_freq_hz(144500000)

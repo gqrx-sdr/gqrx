@@ -25,7 +25,7 @@
 #include "ui_dockinputctl.h"
 
 DockInputCtl::DockInputCtl(QWidget * parent) :
-    QDockWidget(parent),
+    QFrame(parent),
     ui(new Ui::DockInputCtl)
 {
     ui->setupUi(this);

@@ -26,7 +26,7 @@
 DemodulatorController::DemodulatorController(
     receiver::sptr rx,
     demodulator::sptr demod,
-    QMainWindow *parent
+    ads::CDockManager *dockMgr
 ) :
     rx(rx),
     demod(demod),
@@ -34,17 +34,24 @@ DemodulatorController::DemodulatorController(
 {
     d_filter_shape = rx_filter_shape::FILTER_SHAPE_NORMAL;
 
+    auto num = demod->get_idx() + 1;
+
     uiDockRxOpt = new DockRxOpt();
-    uiDockRxOpt->setWindowTitle(QString("Receiver %0").arg(demod->get_idx()));
+    ads::CDockWidget* dockDemod = new ads::CDockWidget(QString("Demod %0").arg(num));
+    dockDemod->setWidget(uiDockRxOpt);
+
     uiDockAudio = new DockAudio();
-    uiDockAudio->setWindowTitle(QString("Audio %0").arg(demod->get_idx()));
-    parent->addDockWidget(Qt::LeftDockWidgetArea, uiDockRxOpt);
-    parent->addDockWidget(Qt::LeftDockWidgetArea, uiDockAudio);
-    parent->tabifyDockWidget(uiDockRxOpt, uiDockAudio);
+    ads::CDockWidget* dockAudio = new ads::CDockWidget(QString("Audio %0").arg(num));
+    dockAudio->setWidget(uiDockAudio);
 
     uiDockRDS = new DockRDS();
-    parent->addDockWidget(Qt::RightDockWidgetArea, uiDockRDS);
-    uiDockRDS->hide();
+    ads::CDockWidget* dockRDS = new ads::CDockWidget(QString("RDS %0").arg(num));
+    dockRDS->setWidget(uiDockRDS);
+
+    dockMgr->addDockWidgetTab(ads::BottomDockWidgetArea, dockDemod);
+    dockMgr->addDockWidgetTab(ads::BottomDockWidgetArea, dockAudio);
+    dockMgr->addDockWidgetTab(ads::BottomDockWidgetArea, dockRDS);
+    dockRDS->closeDockWidget();
 
     d_fftData = new std::complex<float>[MAX_FFT_SIZE];
     d_realFftData = new float[MAX_FFT_SIZE];

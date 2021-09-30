@@ -24,7 +24,7 @@
 #define DOCKAUDIO_H
 
 #include <QColor>
-#include <QDockWidget>
+#include <QFrame>
 #include <QSettings>
 #include "audio_options.h"
 
@@ -42,7 +42,7 @@ namespace Ui {
  * This class also provides the signal/slot API necessary to connect
  * the encapsulated widgets to the rest of the application.
  */
-class DockAudio : public QDockWidget
+class DockAudio : public QFrame
 {
     Q_OBJECT
 

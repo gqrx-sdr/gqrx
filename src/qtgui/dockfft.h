@@ -23,7 +23,7 @@
 #ifndef DOCKFFT_H
 #define DOCKFFT_H
 
-#include <QDockWidget>
+#include <QFrame>
 #include <QSettings>
 
 namespace Ui {
@@ -31,7 +31,7 @@ namespace Ui {
 }
 
 /*! \brief Dock widget with FFT settings. */
-class DockFft : public QDockWidget
+class DockFft : public QFrame
 {
     Q_OBJECT
 

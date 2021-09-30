@@ -22,10 +22,11 @@
  */
 #pragma once
 
-#include <QDockWidget>
+#include <QFrame>
 #include <QTableWidgetItem>
-#include "qtgui/bookmarkstablemodel.h"
 #include <QItemDelegate>
+
+#include "qtgui/bookmarkstablemodel.h"
 
 namespace Ui {
     class DockBookmarks;
@@ -41,7 +42,7 @@ public:
   void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
 };
 
-class DockBookmarks : public QDockWidget
+class DockBookmarks : public QFrame
 {
     Q_OBJECT
 

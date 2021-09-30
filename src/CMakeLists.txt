@@ -71,6 +71,7 @@ target_link_libraries(${PROJECT_NAME}
     ${PULSE-SIMPLE}
     ${PORTAUDIO_LIBRARIES}
     ${VOLK_LIBRARIES}
+    qtadvanceddocking
 )
 
 if(NOT Gnuradio_VERSION VERSION_LESS "3.10")

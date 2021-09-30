@@ -31,7 +31,7 @@
 #define DEFAULT_FFT_SPLIT 100
 
 DockAudio::DockAudio(QWidget *parent) :
-    QDockWidget(parent),
+    QFrame(parent),
     ui(new Ui::DockAudio),
     autoSpan(true),
     rx_freq(144000000)

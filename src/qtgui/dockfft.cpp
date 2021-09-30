@@ -38,7 +38,7 @@
 #define DEFAULT_COLORMAP        "gqrx"
 
 DockFft::DockFft(QWidget *parent) :
-    QDockWidget(parent),
+    QFrame(parent),
     ui(new Ui::DockFft)
 {
     ui->setupUi(this);

@@ -59,7 +59,7 @@ namespace Ui {
     class DockInputCtl;
 }
 
-class DockInputCtl : public QDockWidget
+class DockInputCtl : public QFrame
 {
     Q_OBJECT
 

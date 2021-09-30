@@ -27,6 +27,8 @@
 #include <QTimer>
 #include <QMainWindow>
 
+#include <DockManager.h>
+
 #include "qtgui/dockrxopt.h"
 #include "qtgui/dockaudio.h"
 #include "qtgui/dockrds.h"
@@ -45,7 +47,7 @@ public:
     explicit DemodulatorController(
         receiver::sptr rx,
         demodulator::sptr demod,
-        QMainWindow *parent
+        ads::CDockManager *dockMgr
     );
     ~DemodulatorController() override;
 

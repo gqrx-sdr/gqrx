@@ -37,7 +37,7 @@
 #include "ui_dockbookmarks.h"
 
 DockBookmarks::DockBookmarks(QWidget *parent) :
-    QDockWidget(parent),
+    QFrame(parent),
     ui(new Ui::DockBookmarks)
 {
     ui->setupUi(this);
