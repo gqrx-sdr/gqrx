@@ -3,6 +3,7 @@
 
        NEW: Added SoapyRemote to AppImage and DMG releases.
        NEW: Added SoapyPlutoSDR to DMG release.
+       NEW: Preliminary support for GNU Radio 3.10.
      FIXED: Compatibility with case-sensitive filesystems on MacOS.
 
 
