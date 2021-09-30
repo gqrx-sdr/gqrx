@@ -73,7 +73,17 @@ target_link_libraries(${PROJECT_NAME}
     ${VOLK_LIBRARIES}
 )
 
-if(NOT Gnuradio_VERSION VERSION_LESS "3.8")
+if(NOT Gnuradio_VERSION VERSION_LESS "3.10")
+    target_link_libraries(${PROJECT_NAME}
+        gnuradio::gnuradio-analog
+        gnuradio::gnuradio-blocks
+        gnuradio::gnuradio-digital
+        gnuradio::gnuradio-filter
+        gnuradio::gnuradio-network
+        gnuradio::gnuradio-audio
+        Volk::volk
+    )
+elseif(NOT Gnuradio_VERSION VERSION_LESS "3.8")
     target_link_libraries(${PROJECT_NAME}
         gnuradio::gnuradio-analog
         gnuradio::gnuradio-blocks

@@ -20,9 +20,15 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#if GNURADIO_VERSION < 0x031000
+#include <gnuradio/blocks/udp_sink.h>
+#else
+#include <gnuradio/network/udp_header_types.h>
+#include <gnuradio/network/udp_sink.h>
+#endif
+
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/blocks/float_to_short.h>
-#include <gnuradio/blocks/udp_sink.h>
 #include <gnuradio/io_signature.h>
 
 #include <iostream>
@@ -52,6 +58,7 @@ udp_sink_f::udp_sink_f()
 {
 
     d_f2s = gr::blocks::float_to_short::make(1, 32767);
+#if GNURADIO_VERSION < 0x031000
 #ifdef GQRX_OS_MACX
     // There seems to be excessive packet loss (even to localhost) on OS X
     // unless the buffer size is limited.
@@ -60,6 +67,7 @@ udp_sink_f::udp_sink_f()
     d_sink = gr::blocks::udp_sink::make(sizeof(short), "localhost", 7355);
 #endif
     d_sink->disconnect();
+#endif
 
     d_inter = gr::blocks::interleave::make(sizeof(float));
     d_null0 = gr::blocks::null_sink::make(sizeof(float));
@@ -87,6 +95,10 @@ void udp_sink_f::start_streaming(const std::string host, int port, bool stereo)
     std::cout << ", Port: " << std::to_string(port) << ", ";
     std::cout << (stereo ? "Stereo" : "Mono") << std::endl;
 
+#if GNURADIO_VERSION >= 0x031000
+    d_sink = gr::network::udp_sink::make(sizeof(short), 1, host, port, HEADERTYPE_NONE, 1448, true);
+#endif
+
     if (stereo)
     {
         connect(self(), 0, d_inter, 0);
@@ -102,7 +114,9 @@ void udp_sink_f::start_streaming(const std::string host, int port, bool stereo)
     }
     unlock();
 
+#if GNURADIO_VERSION < 0x031000
     d_sink->connect(host, port);
+#endif
 }
 
 
@@ -116,5 +130,9 @@ void udp_sink_f::stop_streaming(void)
 
     std::cout << "Disconnected UDP streaming" << std::endl;
 
+#if GNURADIO_VERSION < 0x031000
     d_sink->disconnect();
+#else
+    d_sink = nullptr;
+#endif
 }
