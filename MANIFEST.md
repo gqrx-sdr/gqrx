@@ -13,7 +13,7 @@ dependencies:
   - gnuradio
   - gnuradio-osmosdr
   - Qt5
-repo: https://github.com/csete/gqrx.git
+repo: https://github.com/gqrx-sdr/gqrx.git
 stable_release: HEAD
 icon:
 ---

@@ -978,7 +978,7 @@ receiver::status receiver::set_af_gain(float gain_db)
  * A new recorder object is created every time we start recording and deleted every time
  * we stop recording. The idea of creating one object and starting/stopping using different
  * file names does not work with WAV files (the initial /tmp/gqrx.wav will not be stopped
- * because the wav file can not be empty). See https://github.com/csete/gqrx/issues/36
+ * because the wav file can not be empty). See https://github.com/gqrx-sdr/gqrx/issues/36
  */
 receiver::status receiver::start_audio_recording(const std::string filename)
 {
