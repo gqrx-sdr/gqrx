@@ -89,18 +89,15 @@ public:
     void set_param(double low, double high, double trans_width);
 
 private:
-    std::vector<gr_complex> d_taps;
     std::vector<float> d_taps2;
     std::vector<float> d_rsmp_tap;
-    gr::filter::fir_filter_ccf::sptr  d_bpf2;
+    gr::filter::fir_filter_ccf::sptr d_bpf2;
     gr::filter::freq_xlating_fir_filter_fcf::sptr f_fxff;
     gr::filter::pfb_arb_resampler_ccf::sptr d_rsmp;
     std::vector<float> f_rrcf;
     gr::digital::constellation_receiver_cb::sptr d_mpsk;
     gr::blocks::keep_one_in_n::sptr b_koin;
     gr::digital::diff_decoder_bb::sptr d_ddbb;
-    gr::rds::decoder::sptr rds_decoder;
-    gr::rds::parser::sptr rds_parser;
 
     double d_sample_rate;
 };
