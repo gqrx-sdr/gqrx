@@ -57,28 +57,28 @@ rx_rds::rx_rds(double sample_rate)
       d_sample_rate(sample_rate)
 {
     d_taps2 = gr::filter::firdes::low_pass(2500.0, d_sample_rate, 2400, 2000);
-    f_fxff = gr::filter::freq_xlating_fir_filter_fcf::make(1, d_taps2, 57000, d_sample_rate);
+    d_fxff = gr::filter::freq_xlating_fir_filter_fcf::make(1, d_taps2, 57000, d_sample_rate);
 
     d_rsmp_tap = gr::filter::firdes::low_pass(10, d_sample_rate, 2375, 2000);
     d_rsmp = gr::filter::pfb_arb_resampler_ccf::make(2375/d_sample_rate,d_rsmp_tap,32);
 
-    f_rrcf = gr::filter::firdes::root_raised_cosine(1, 2375, 2375, 1, 100);
-    d_bpf2 = gr::filter::fir_filter_ccf::make(1, f_rrcf);
+    d_rrcf = gr::filter::firdes::root_raised_cosine(1, 2375, 2375, 1, 100);
+    d_bpf2 = gr::filter::fir_filter_ccf::make(1, d_rrcf);
 
     gr::digital::constellation_sptr p_c = gr::digital::constellation_bpsk::make()->base();
     d_mpsk = gr::digital::constellation_receiver_cb::make(p_c, 1*M_PI/100.0, -0.06, 0.06);
 
-    b_koin = gr::blocks::keep_one_in_n::make(sizeof(unsigned char), 2);
+    d_koin = gr::blocks::keep_one_in_n::make(sizeof(unsigned char), 2);
 
     d_ddbb = gr::digital::diff_decoder_bb::make(2);
 
     /* connect filter */
-    connect(self(), 0, f_fxff, 0);
-    connect(f_fxff, 0, d_rsmp, 0);
+    connect(self(), 0, d_fxff, 0);
+    connect(d_fxff, 0, d_rsmp, 0);
     connect(d_rsmp, 0, d_bpf2, 0);
     connect(d_bpf2, 0, d_mpsk, 0);
-    connect(d_mpsk, 0, b_koin, 0);
-    connect(b_koin, 0, d_ddbb, 0);
+    connect(d_mpsk, 0, d_koin, 0);
+    connect(d_koin, 0, d_ddbb, 0);
     connect(d_ddbb, 0, self(), 0);
 }
 
