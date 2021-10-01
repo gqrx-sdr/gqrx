@@ -1,8 +1,8 @@
 Gqrx
 ====
 
-[![CI](https://github.com/csete/gqrx/workflows/CI/badge.svg)](https://github.com/csete/gqrx/actions?query=workflow%3ACI+branch%3Amaster)
-[![Build](https://github.com/csete/gqrx/workflows/Build/badge.svg)](https://github.com/csete/gqrx/actions?query=workflow%3ABuild+branch%3Amaster)
+[![CI](https://github.com/gqrx-sdr/gqrx/workflows/CI/badge.svg)](https://github.com/gqrx-sdr/gqrx/actions?query=workflow%3ACI+branch%3Amaster)
+[![Build](https://github.com/gqrx-sdr/gqrx/workflows/Build/badge.svg)](https://github.com/gqrx-sdr/gqrx/actions?query=workflow%3ABuild+branch%3Amaster)
 
 Gqrx is an open source software defined radio (SDR) receiver implemented using
 [GNU Radio](https://gnuradio.org) and the [Qt GUI toolkit](https://www.qt.io/).
@@ -22,8 +22,8 @@ Gqrx is distributed as a source code package and binaries for Linux and Mac.
 Many Linux distributions provide gqrx in their package repositories.
 Alternate Mac support is available through [MacPorts](https://ports.macports.org/port/gqrx/summary) and [Homebrew](https://formulae.brew.sh/cask/gqrx).
 
-* [Official releases](https://github.com/csete/gqrx/releases)
-* [Pre-release builds](https://github.com/csete/gqrx/actions?query=workflow%3ABuild+branch%3Amaster)
+* [Official releases](https://github.com/gqrx-sdr/gqrx/releases)
+* [Pre-release builds](https://github.com/gqrx-sdr/gqrx/actions?query=workflow%3ABuild+branch%3Amaster)
 
 Usage
 -----
@@ -56,7 +56,7 @@ https://gqrx.dk/
 Known problems
 --------------
 
-See the bug tracker on Github: https://github.com/csete/gqrx/issues
+See the bug tracker on Github: https://github.com/gqrx-sdr/gqrx/issues
 
 
 Getting help and reporting bugs
@@ -76,7 +76,7 @@ development.
 Installation from source
 ------------------------
 
-The source code is hosted on Github: https://github.com/csete/gqrx
+The source code is hosted on Github: https://github.com/gqrx-sdr/gqrx
 
 To compile gqrx from source you need the following dependencies:
 - GNU Radio 3.8 with the following components:
@@ -114,7 +114,7 @@ Gqrx can be compiled from within Qt Creator or in a terminal:
 
 For command line builds:
 <pre>
-$ git clone https://github.com/csete/gqrx.git gqrx.git
+$ git clone https://github.com/gqrx-sdr/gqrx.git gqrx.git
 $ cd gqrx.git
 $ mkdir build
 $ cd build
@@ -130,7 +130,7 @@ before the cmake step.
 
 For Qt Creator builds:
 <pre>
-$ git clone https://github.com/csete/gqrx.git gqrx.git
+$ git clone https://github.com/gqrx-sdr/gqrx.git gqrx.git
 $ cd gqrx.git
 $ mkdir build
 Start Qt Creator
