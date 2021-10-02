@@ -151,7 +151,7 @@ private:
 
     osmosdr::source::sptr     src;         /*!< Real time I/Q source. */
     fir_decim_cc_sptr         input_decim; /*!< Input decimator. */
-    gr::basic_block_sptr      subrxsrc;    /*!< Input to sub receivers */
+    gr::basic_block_sptr      demodsrc;    /*!< Input to demodulators */
 
     dc_corr_cc_sptr           dc_corr;     /*!< DC corrector block. */
     iq_swap_cc_sptr           iq_swap;     /*!< I/Q swapping block. */

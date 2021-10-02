@@ -177,7 +177,7 @@ void receiver::set_input_device(const std::string device)
     for (size_t i = 0; i < demods.size(); ++i)
     {
         // TODO: do not force
-        demods[i]->set_demod(demods[i]->get_demod(), true, subrxsrc, d_quad_rate, d_audio_rate);
+        demods[i]->set_demod(demods[i]->get_demod(), true, demodsrc, d_quad_rate, d_audio_rate);
         // qInfo() << "set_input_device>set_demod for demodulator" << i;
     }
 
@@ -432,7 +432,7 @@ void receiver::set_dc_cancel(bool enable)
     for (size_t i = 0; i < demods.size(); ++i)
     {
         // qInfo() << "reciever set_dc_cancel calls demodulator" << i << "set_demod";
-        demods[i]->set_demod(demods[i]->get_demod(), true, subrxsrc, d_quad_rate, d_audio_rate);
+        demods[i]->set_demod(demods[i]->get_demod(), true, demodsrc, d_quad_rate, d_audio_rate);
         // qInfo() << "reciever set_dc_cancel calls demodulator" << i << "set_demod done";
     }
     complete_reconfigure();
@@ -592,7 +592,7 @@ demodulator::sptr receiver::add_demodulator()
 
     auto nextIdx = demods.size();
     auto nextSub = std::make_shared<demodulator>(
-        tb, subrxsrc,
+        tb, demodsrc,
         output_devstr, nextIdx,
         d_ddc_decim, d_decim_rate,
         d_quad_rate, d_audio_rate
@@ -604,7 +604,7 @@ demodulator::sptr receiver::add_demodulator()
     {
         demods[i]->set_idx(i); // re-index
         // qInfo() << "reciever add_demodulator calls demodulator" << i << "set_demod";
-        demods[i]->set_demod(demods[i]->get_demod(), true, subrxsrc, d_quad_rate, d_audio_rate);
+        demods[i]->set_demod(demods[i]->get_demod(), true, demodsrc, d_quad_rate, d_audio_rate);
         // qInfo() << "reciever add_demodulator calls demodulator" << i << "set_demod done";
     }
 
@@ -637,7 +637,7 @@ void receiver::remove_demodulator(size_t idx)
         demods[i]->set_idx(i); // re-index
         demods[i]->set_output_device(output_devstr, d_audio_rate); // update audio stream name
         // qInfo() << "reciever remove_rx calls demodulator" << i << "set_demod";
-        demods[i]->set_demod(demods[i]->get_demod(), true, subrxsrc, d_quad_rate, d_audio_rate);
+        demods[i]->set_demod(demods[i]->get_demod(), true, demodsrc, d_quad_rate, d_audio_rate);
         // qInfo() << "reciever remove_rx calls demodulator" << i << "set_demod done";
     }
     complete_reconfigure();
@@ -714,9 +714,9 @@ rx_status receiver::set_demod(const size_t idx, rx_demod demod, bool force)
     {
         // TODO: do not force
         if (i == idx) {
-            demods[i]->set_demod(demod, true, subrxsrc, d_quad_rate, d_audio_rate);
+            demods[i]->set_demod(demod, true, demodsrc, d_quad_rate, d_audio_rate);
         } else {
-            demods[i]->set_demod(demods[i]->get_demod(), true, subrxsrc, d_quad_rate, d_audio_rate);
+            demods[i]->set_demod(demods[i]->get_demod(), true, demodsrc, d_quad_rate, d_audio_rate);
         }
         // qInfo() << "set_demod for demodulator" << i;
     }
@@ -815,13 +815,13 @@ void receiver::connect_all()
     // qInfo() << "receiver connect_all starts";
 
     // Setup source
-    subrxsrc = src;
+    demodsrc = src;
 
     // Pre-processing
     if (d_decim >= 2)
     {
-        tb->connect(subrxsrc, 0, input_decim, 0);
-        subrxsrc = input_decim;
+        tb->connect(demodsrc, 0, input_decim, 0);
+        demodsrc = input_decim;
         // qInfo() << "receiver connect_all using decim";
     }
 
@@ -831,18 +831,18 @@ void receiver::connect_all()
 //        tb->connect(b, 0, iq_sink, 0);
 //    }
 
-    tb->connect(subrxsrc, 0, iq_swap, 0);
-    subrxsrc = iq_swap;
+    tb->connect(demodsrc, 0, iq_swap, 0);
+    demodsrc = iq_swap;
     // qInfo() << "receiver connect_all connected iq_swap";
 
     if (d_dc_cancel)
     {
-        tb->connect(subrxsrc, 0, dc_corr, 0);
-        subrxsrc = dc_corr;
+        tb->connect(demodsrc, 0, dc_corr, 0);
+        demodsrc = dc_corr;
         // qInfo() << "receiver connect_all using dc cancel";
     }
 
     // Visualization
-    tb->connect(subrxsrc, 0, iq_fft, 0);
+    tb->connect(demodsrc, 0, iq_fft, 0);
     // qInfo() << "receiver connect_all connected fft";
 }
