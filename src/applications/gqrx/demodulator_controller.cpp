@@ -29,7 +29,8 @@ DemodulatorController::DemodulatorController(
     receiver::sptr rx,
     demodulator::sptr demod,
     ads::CDockManager *dockMgr,
-    QMenu *viewMenu
+    QMenu *viewMenu,
+    QSettings *settings
 ) :
     rx(rx),
     demod(demod),
@@ -49,6 +50,7 @@ DemodulatorController::DemodulatorController(
     dockDemod = new ads::CDockWidget(QString("Demod %0").arg(num));
     dockDemod->setWidget(uiDockRxOpt);
     viewMenu->addAction(dockDemod->toggleViewAction());
+    setFilterOffsetRange(rx->get_input_rate());
 
     uiDockAudio = new DockAudio();
     dockAudio = new ads::CDockWidget(QString("Audio %0").arg(num));
@@ -125,6 +127,8 @@ DemodulatorController::DemodulatorController(
 
     rds_timer = new QTimer(this);
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
+
+    readSettings(settings);
 }
 
 DemodulatorController::~DemodulatorController()

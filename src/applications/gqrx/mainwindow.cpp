@@ -1000,10 +1000,9 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
 void MainWindow::addDemodulator()
 {
     auto demod = rx->add_demodulator();
-    auto ctl = std::make_shared<DemodulatorController>(rx, demod, uiDockManager, receiversMenu);
+    auto ctl = std::make_shared<DemodulatorController>(rx, demod, uiDockManager, receiversMenu, m_settings);
     connect(ctl.get(), SIGNAL(remove(size_t)), this, SLOT(removeDemodulator(size_t)));
     demodCtrls.push_back(ctl);
-    ctl->readSettings(m_settings);
 }
 
 void MainWindow::removeDemodulator(size_t idx)

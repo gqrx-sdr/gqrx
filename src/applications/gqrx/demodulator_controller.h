@@ -48,7 +48,8 @@ public:
         receiver::sptr rx,
         demodulator::sptr demod,
         ads::CDockManager *dockMgr,
-        QMenu *viewMenu
+        QMenu *viewMenu,
+        QSettings *settings
     );
     ~DemodulatorController() override;
 
