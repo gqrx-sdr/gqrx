@@ -27,17 +27,24 @@
 #include <gnuradio/hier_block2.h>
 
 #if GNURADIO_VERSION < 0x030800
-#include <gnuradio/filter/fir_filter_ccc.h>
 #include <gnuradio/filter/fir_filter_ccf.h>
-#include <gnuradio/filter/fir_filter_fff.h>
 #include <gnuradio/filter/freq_xlating_fir_filter_fcf.h>
-#include <gnuradio/filter/freq_xlating_fir_filter_ccf.h>
+#include <gnuradio/digital/clock_recovery_mm_cc.h>
 #else
 #include <gnuradio/filter/fir_filter_blk.h>
 #include <gnuradio/filter/freq_xlating_fir_filter.h>
+#include <gnuradio/digital/symbol_sync_cc.h>
 #endif
-#include <gnuradio/filter/pfb_arb_resampler_ccf.h>
 
+#if GNURADIO_VERSION < 0x30800
+#include <gnuradio/filter/rational_resampler_base_ccf.h>
+#elif GNURADIO_VERSION < 0x30900
+#include <gnuradio/filter/rational_resampler_base.h>
+#else
+#include <gnuradio/filter/rational_resampler.h>
+#endif
+
+#include <gnuradio/analog/agc_cc.h>
 #include <gnuradio/digital/constellation_receiver_cb.h>
 #include <gnuradio/blocks/keep_one_in_n.h>
 #include <gnuradio/digital/diff_decoder_bb.h>
@@ -83,20 +90,33 @@ class rx_rds : public gr::hier_block2
 {
 
 public:
-    rx_rds(double sample_rate=96000.0);
+    rx_rds(double sample_rate=240000.0);
     ~rx_rds();
 
     void set_param(double low, double high, double trans_width);
 
 private:
-    std::vector<float> d_taps2;
+    std::vector<float> d_fxff_tap;
     std::vector<float> d_rsmp_tap;
-    gr::filter::fir_filter_ccf::sptr d_bpf2;
+    gr::filter::fir_filter_ccf::sptr d_bpf;
     gr::filter::freq_xlating_fir_filter_fcf::sptr d_fxff;
-    gr::filter::pfb_arb_resampler_ccf::sptr d_rsmp;
+
+#if GNURADIO_VERSION < 0x030900
+    gr::filter::rational_resampler_base_ccf::sptr d_rsmp;
+#else
+    gr::filter::rational_resampler_ccf::sptr d_rsmp;
+#endif
+
     std::vector<float> d_rrcf;
-    gr::digital::constellation_receiver_cb::sptr d_mpsk;
+    std::vector<float> d_rrcf_manchester;
+    gr::analog::agc_cc::sptr d_agc;
+#if GNURADIO_VERSION < 0x030800
+    gr::digital::clock_recovery_mm_cc::sptr d_sync;
     gr::blocks::keep_one_in_n::sptr d_koin;
+#else
+    gr::digital::symbol_sync_cc::sptr d_sync;
+#endif
+    gr::digital::constellation_receiver_cb::sptr d_mpsk;
     gr::digital::diff_decoder_bb::sptr d_ddbb;
 
     double d_sample_rate;

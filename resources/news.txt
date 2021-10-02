@@ -5,6 +5,7 @@
        NEW: Added SoapyPlutoSDR to DMG release.
        NEW: Preliminary support for GNU Radio 3.10.
      FIXED: Compatibility with case-sensitive filesystems on MacOS.
+  IMPROVED: Better reception of RDS signals.
 
 
     2.14.4: Released December 28, 2020
