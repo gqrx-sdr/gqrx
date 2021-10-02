@@ -1045,7 +1045,8 @@ void MainWindow::meterTimeout()
 {
     float level;
 
-    // subrx
+    // TODO: each demodulator needs its own s-meter!
+    // -> move from baseband UI to uiDockRxOpts?
     if (demodCtrls.size() > 0) {
         auto demod = demodCtrls[0];
         level = demod->get_signal_pwr(true);
