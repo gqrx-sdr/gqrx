@@ -108,10 +108,10 @@ private:
     DXCOptions          *dxc_options;
 
     /* data decoders */
-    Afsk1200Win    *dec_afsk1200; // TODO: Move to RecieverController
+    Afsk1200Win    *dec_afsk1200; // TODO: Move to DemodulatorController
 
     QTimer   *dec_timer;
-    QTimer   *meter_timer;
+
     QTimer   *iq_fft_timer;
 
     receiver::sptr rx;
@@ -212,7 +212,6 @@ private slots:
 
     /* cyclic processing */
     void decoderTimeout();
-    void meterTimeout();
     void iqFftTimeout();
 };
 

@@ -40,10 +40,6 @@ CFreqCtrl* BasebandView::freqCtrl() {
     return ui->freqCtrl;
 }
 
-CMeter* BasebandView::sMeter() {
-    return ui->sMeter;
-}
-
 CPlotter* BasebandView::plotter() {
     return ui->plotter;
 }

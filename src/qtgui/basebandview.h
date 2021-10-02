@@ -26,7 +26,6 @@
 #include <QWidget>
 
 #include "qtgui/freqctrl.h"
-#include "qtgui/meter.h"
 #include "qtgui/plotter.h"
 
 namespace Ui {
@@ -42,7 +41,6 @@ public:
     ~BasebandView();
 
     CFreqCtrl* freqCtrl();
-    CMeter* sMeter();
     CPlotter* plotter();
 
 private:

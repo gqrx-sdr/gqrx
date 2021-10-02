@@ -124,6 +124,8 @@ public slots:
     void setAudioFftRate(int fps);
     void audioFftTimeout();
     void rdsTimeout();
+    void meterTimeout();
+
     void enableTimers(bool enabled);
 
 private:
@@ -140,6 +142,7 @@ private:
     ads::CDockWidget        *dockDemod;         /*!< Wrapped dock widget for DockManager */
     bool                    d_have_audio;       /*!< Whether we have audio (i.e. not with demod_off. */
     enum rx_filter_shape    d_filter_shape;     /*!< The las used filter shape */
+    QTimer                  *meter_timer;
 
     // Audio FFT display
     DockAudio               *uiDockAudio;       /*!< Dock for the Audio display and control */

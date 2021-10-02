@@ -363,6 +363,12 @@ double DockRxOpt::currentEmph() const
 void DockRxOpt::setSquelchLevel(double level)
 {
     ui->sqlSpinBox->setValue(level);
+    ui->sMeter->setSqlLevel(level);
+}
+
+void DockRxOpt::setSignalLevel(float level)
+{
+    ui->sMeter->setLevel(level);
 }
 
 double DockRxOpt::getSqlLevel(void) const
@@ -770,6 +776,7 @@ void DockRxOpt::agcOpt_gainChanged(int gain)
  */
 void DockRxOpt::on_sqlSpinBox_valueChanged(double value)
 {
+    ui->sMeter->setSqlLevel(value);
     emit sqlLevelChanged(value);
 }
 

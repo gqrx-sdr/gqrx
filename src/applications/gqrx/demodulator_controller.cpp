@@ -93,6 +93,10 @@ DemodulatorController::DemodulatorController(
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
     connect(uiDockRxOpt, SIGNAL(sqlAutoClicked()), this, SLOT(setSqlLevelAuto()));
 
+    // meter timer
+    meter_timer = new QTimer(this);
+    connect(meter_timer, SIGNAL(timeout()), this, SLOT(meterTimeout()));
+
     // Rx remote control
     // connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), remote, SLOT(setSquelchLevel(double)));
     // connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), remote, SLOT(setFilterOffset(qint64)));
@@ -134,6 +138,9 @@ DemodulatorController::DemodulatorController(
 DemodulatorController::~DemodulatorController()
 {
     // qInfo() << "DemodulatorController::~DemodulatorController begin";
+
+    meter_timer->stop();
+    meter_timer->deleteLater();
 
     audio_fft_timer->stop();
     audio_fft_timer->deleteLater();
@@ -581,8 +588,8 @@ void DemodulatorController::setNoiseBlanker(int nbid, bool on, float threshold)
  */
 void DemodulatorController::setSqlLevel(double level_db)
 {
+    qInfo() << "DemodulatorController::setSqlLevel" << level_db;
     demod->set_sql_level(level_db);
-    // ui->sMeter->setSqlLevel(level_db);
 }
 
 /**
@@ -840,11 +847,22 @@ void DemodulatorController::rdsTimeout()
     }
 }
 
+/** Signal strength meter timeout. */
+void DemodulatorController::meterTimeout()
+{
+    float level;
+    level = demod->get_signal_pwr(true);
+    uiDockRxOpt->setSignalLevel(level);
+    // remote->setSignalLevel(level);
+}
+
 void DemodulatorController::enableTimers(bool enabled)
 {
     if (enabled) {
+        meter_timer->start(100);
         audio_fft_timer->start(40);
     } else {
+        meter_timer->stop();
         audio_fft_timer->stop();
         rds_timer->stop();
     }

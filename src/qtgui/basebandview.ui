@@ -46,7 +46,7 @@
      <property name="lineWidth">
       <number>0</number>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,0,0">
+     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0">
       <property name="spacing">
        <number>0</number>
       </property>
@@ -113,41 +113,6 @@
         </property>
        </spacer>
       </item>
-      <item>
-       <widget class="CMeter" name="sMeter">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>150</width>
-          <height>40</height>
-         </size>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_1">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>5</width>
-          <height>15</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
      </layout>
     </widget>
    </item>
@@ -183,12 +148,6 @@
    <class>CPlotter</class>
    <extends>QFrame</extends>
    <header>qtgui/plotter.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>CMeter</class>
-   <extends>QFrame</extends>
-   <header>qtgui/meter.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

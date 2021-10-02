@@ -122,6 +122,7 @@ public slots:
     void setCurrentDemod(int demod);
     void setFilterOffset(qint64 freq_hz);
     void setSquelchLevel(double level);
+    void setSignalLevel(float level);
 
 private:
     void updateHwFreq();

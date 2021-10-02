@@ -114,10 +114,6 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     // remote controller
     remote = new RemoteControl();
 
-    // meter timer
-    meter_timer = new QTimer(this);
-    connect(meter_timer, SIGNAL(timeout()), this, SLOT(meterTimeout()));
-
     // FFT timer & data
     iq_fft_timer = new QTimer(this);
     connect(iq_fft_timer, SIGNAL(timeout()), this, SLOT(iqFftTimeout()));
@@ -323,9 +319,6 @@ MainWindow::~MainWindow()
     /* stop and delete timers */
     dec_timer->stop();
     delete dec_timer;
-
-    meter_timer->stop();
-    delete meter_timer;
 
     iq_fft_timer->stop();
     delete iq_fft_timer;
@@ -1039,21 +1032,6 @@ void MainWindow::setInvertScrolling(bool enabled)
     }
 }
 
-/** Signal strength meter timeout. */
-void MainWindow::meterTimeout()
-{
-    float level;
-
-    // TODO: each demodulator needs its own s-meter!
-    // -> move from baseband UI to uiDockRxOpts?
-    if (demodCtrls.size() > 0) {
-        auto demod = demodCtrls[0];
-        level = demod->get_signal_pwr(true);
-        uiBaseband->sMeter()->setLevel(level);
-        remote->setSignalLevel(level);
-    }
-}
-
 #define LOG2_10 3.321928094887362
 
 /** Baseband FFT plot timeout. */
@@ -1355,8 +1333,6 @@ void MainWindow::on_actionDSP_triggered(bool checked)
         rx->start();
 
         /* start GUI timers */
-        meter_timer->start(100);
-
         if (uiDockFft->fftRate())
         {
             iq_fft_timer->start(1000/uiDockFft->fftRate());
@@ -1375,7 +1351,6 @@ void MainWindow::on_actionDSP_triggered(bool checked)
     else
     {
         /* stop GUI timers */
-        meter_timer->stop();
         iq_fft_timer->stop();
 
         /* stop receiver */
