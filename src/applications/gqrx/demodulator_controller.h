@@ -152,6 +152,7 @@ private:
     std::complex<float>     *d_fftData;
     float                   *d_realFftData;
     QTimer                  *audio_fft_timer;
+    QAction                 *stopAudioRecAction;
 
     // RDS
     DockRDS                 *uiDockRDS;

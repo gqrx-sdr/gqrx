@@ -22,6 +22,7 @@
  */
 
 #include <QDebug>
+#include <QMessageBox>
 
 #include "applications/gqrx/demodulator_controller.h"
 
@@ -121,6 +122,11 @@ DemodulatorController::DemodulatorController(
     audio_fft_timer = new QTimer(this);
     connect(audio_fft_timer, SIGNAL(timeout()), this, SLOT(audioFftTimeout()));
 
+    stopAudioRecAction = new QAction("Stop recording");
+    stopAudioRecAction->setEnabled(false);
+    viewMenu->addAction(stopAudioRecAction);
+    connect(stopAudioRecAction, SIGNAL(triggered()), this, SLOT(stopAudioRec()));
+
     // Audio remote control
     // connect(uiDockAudio, SIGNAL(audioRecStopped()), remote, SLOT(stopAudioRecorder()));
     // connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), remote, SLOT(startAudioRecorder(QString)));
@@ -145,6 +151,7 @@ DemodulatorController::~DemodulatorController()
 
     audio_fft_timer->stop();
     audio_fft_timer->deleteLater();
+    stopAudioRecAction->deleteLater();
 
     rds_timer->stop();
     rds_timer->deleteLater();
@@ -654,27 +661,28 @@ float DemodulatorController::get_signal_pwr(bool dbfs) const
  */
 void DemodulatorController::startAudioRec(const QString& filename)
 {
-//    if (!d_have_audio)
-//    {
-//        QMessageBox msg_box;
-//        msg_box.setIcon(QMessageBox::Critical);
-//        msg_box.setText(tr("Recording audio requires a demodulator.\n"
-//                           "Currently, demodulation is switched off "
-//                           "(Mode->Demod off)."));
-//        msg_box.exec();
-//        uiDockAudio->setAudioRecButtonState(false);
-//    }
-//    else if (rx->start_audio_recording(filename.toStdString()))
-//    {
-//        ui->statusBar->showMessage(tr("Error starting audio recorder"));
+    if (!d_have_audio)
+    {
+        QMessageBox msg_box;
+        msg_box.setIcon(QMessageBox::Critical);
+        msg_box.setText(tr("Recording audio requires a demodulator.\n"
+                           "Currently, demodulation is switched off "
+                           "(Mode->Demod off)."));
+        msg_box.exec();
+        uiDockAudio->setAudioRecButtonState(false);
+    }
+    else if (demod->start_audio_recording(filename.toStdString()) != rx_status::STATUS_OK)
+    {
+        qInfo() << tr("Error starting audio recorder");
 
-//        /* reset state of record button */
-//        uiDockAudio->setAudioRecButtonState(false);
-//    }
-//    else
-//    {
-//        ui->statusBar->showMessage(tr("Recording audio to %1").arg(filename));
-//    }
+        /* reset state of record button */
+        uiDockAudio->setAudioRecButtonState(false);
+    }
+    else
+    {
+        qInfo() << tr("Recording audio to %1").arg(filename);
+        stopAudioRecAction->setEnabled(true);
+    }
 }
 
 /**
@@ -682,17 +690,16 @@ void DemodulatorController::startAudioRec(const QString& filename)
  */
 void DemodulatorController::stopAudioRec()
 {
-//    if (rx->stop_audio_recording())
-//    {
-//        /* okay, this one would be weird if it really happened */
-//        ui->statusBar->showMessage(tr("Error stopping audio recorder"));
-
-//        uiDockAudio->setAudioRecButtonState(true);
-//    }
-//    else
-//    {
-//        ui->statusBar->showMessage(tr("Audio recorder stopped"), 5000);
-//    }
+    if (demod->stop_audio_recording() != rx_status::STATUS_OK)
+    {
+        qInfo() << tr("Error stopping audio recorder");
+        uiDockAudio->setAudioRecButtonState(true);
+    }
+    else
+    {
+        uiDockAudio->setAudioRecButtonState(false);
+        stopAudioRecAction->setEnabled(false);
+    }
 }
 
 /**

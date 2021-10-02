@@ -34,7 +34,7 @@
 #include <gnuradio/top_block.h>
 //#include <gnuradio/blocks/file_sink.h>
 #include <gnuradio/blocks/null_sink.h>
-//#include <gnuradio/blocks/wavfile_sink.h>
+#include <gnuradio/blocks/wavfile_sink.h>
 //#include <gnuradio/blocks/wavfile_source.h>
 
 #include <QObject>
@@ -71,7 +71,7 @@ public:
             int d_ddc_decim,
             int d_decim_rate,
             int d_quad_rate,
-            int d_audio_rate
+            int audio_rate
     );
     ~demodulator();
 
@@ -85,7 +85,7 @@ public:
     }
 
     /* I/O control */
-    void        set_output_device(const std::string device, const int d_audio_rate);
+    void        set_output_device(const std::string device, const int audio_rate);
     void        set_input_rate(const int d_ddc_decim, const int d_decim_rate, const int d_quad_rate);
 
     /* Demodulation type */
@@ -150,8 +150,8 @@ public:
     }
 
     /* Audio Record/Playback */
-//    rx_status      start_audio_recording(const std::string filename);
-//    rx_status      stop_audio_recording();
+    rx_status      start_audio_recording(const std::string filename);
+    rx_status      stop_audio_recording();
 //    rx_status      start_audio_playback(const std::string filename);
 //    rx_status      stop_audio_playback();
 
@@ -184,7 +184,6 @@ private:
 
     double             d_filter_offset;    /*!< Current filter offset */
     double             d_cw_offset;        /*!< CW offset */
-    bool               d_recording_wav;    /*!< Whether we are recording WAV file. */
     bool               d_sniffer_active;   /*!< Only one data decoder allowed... ? */
 
     rx_demod           d_demod;            /*!< Current demodulator. */
@@ -194,12 +193,20 @@ private:
     gr::blocks::multiply_const_ff::sptr audio_gain0;      /*!< Audio gain block. */
     gr::blocks::multiply_const_ff::sptr audio_gain1;      /*!< Audio gain block. */
 
-//    gr::blocks::wavfile_sink::sptr      wav_sink;         /*!< WAV file sink for recording. */
+    // Audio recording
+    bool                                d_recording_wav;    /*!< Whether we are recording WAV file. */
+    int                                 d_audio_rate;
+    gr::blocks::wavfile_sink::sptr      wav_sink;           /*!< WAV file sink for recording. */
+
+    // Audio playback
 //    gr::blocks::wavfile_source::sptr    wav_src;          /*!< WAV file source for playback. */
 //    gr::blocks::null_sink::sptr         audio_null_sink0; /*!< Audio null sink used during playback. */
 //    gr::blocks::null_sink::sptr         audio_null_sink1; /*!< Audio null sink used during playback. */
 
+    // UDP streaming
 //    udp_sink_f_sptr   audio_udp_sink;                     /*!< UDP sink to stream audio over the network. */
+
+    // Sample sniffer
 //    sniffer_f_sptr    sniffer;                            /*!< Sample sniffer for data decoders. */
 //    resampler_ff_sptr sniffer_rr;                         /*!< Sniffer resampler. */
 

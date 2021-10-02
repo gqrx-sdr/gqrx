@@ -36,15 +36,16 @@ demodulator::demodulator(
         int d_ddc_decim,
         int d_decim_rate,
         int d_quad_rate,
-        int d_audio_rate
+        int audio_rate
     ) :
       tb(tb),
       idx(idx),
       d_filter_offset(0.0),
       d_cw_offset(0.0),
-      d_recording_wav(false),
       d_sniffer_active(false),
-      d_demod(RX_DEMOD_NFM)
+      d_demod(RX_DEMOD_NFM),
+      d_recording_wav(false),
+      d_audio_rate(audio_rate)
 {
 
     ddc = make_downconverter_cc(d_ddc_decim, 0.0, d_decim_rate);
@@ -82,8 +83,10 @@ demodulator::~demodulator()
     // qInfo() << "demodulator::~demodulator called";
 }
 
-void demodulator::set_output_device(const std::string device, const int d_audio_rate)
+void demodulator::set_output_device(const std::string device, const int audio_rate)
 {
+    d_audio_rate = audio_rate;
+
     // qInfo() << "demodulator sets output device" << device.c_str() << "at rate" << d_audio_rate;
     QString portName = QString("Receiver %0").arg(idx);
 
@@ -419,6 +422,77 @@ rx_status demodulator::set_af_gain(float gain_db)
     return STATUS_OK;
 }
 
+/**
+ * @brief Start WAV file recorder.
+ * @param filename The filename where to record.
+ *
+ * A new recorder object is created every time we start recording and deleted every time
+ * we stop recording. The idea of creating one object and starting/stopping using different
+ * file names does not work with WAV files (the initial /tmp/gqrx.wav will not be stopped
+ * because the wav file can not be empty). See https://github.com/gqrx-sdr/gqrx/issues/36
+ */
+rx_status demodulator::start_audio_recording(const std::string filename)
+{
+    if (d_recording_wav)
+    {
+        /* error - we are already recording */
+        std::cout << "ERROR: Can not start audio recorder (already recording)" << std::endl;
+
+        return STATUS_ERROR;
+    }
+
+    // if this fails, we don't want to go and crash now, do we
+    try {
+#if GNURADIO_VERSION < 0x030900
+        wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(), 2,
+                                                  (unsigned int) d_audio_rate,
+                                                  16);
+#else
+        wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(), 2,
+                                                  (unsigned int) d_audio_rate,
+                                                  gr::blocks::FORMAT_WAV, gr::blocks::FORMAT_PCM_16);
+#endif
+    }
+    catch (std::runtime_error &e) {
+        std::cout << "Error opening " << filename << ": " << e.what() << std::endl;
+        return STATUS_ERROR;
+    }
+
+    tb->lock();
+    tb->connect(rx, 0, wav_sink, 0);
+    tb->connect(rx, 1, wav_sink, 1);
+    tb->unlock();
+    d_recording_wav = true;
+
+    std::cout << "Recording audio to " << filename << std::endl;
+
+    return STATUS_OK;
+}
+
+/** Stop WAV file recorder. */
+rx_status demodulator::stop_audio_recording()
+{
+    if (!d_recording_wav) {
+        /* error: we are not recording */
+        std::cout << "ERROR: Can not stop audio recorder (not recording)" << std::endl;
+
+        return STATUS_ERROR;
+    }
+
+    // not strictly necessary to lock but I think it is safer
+    tb->lock();
+    wav_sink->close();
+    tb->disconnect(rx, 0, wav_sink, 0);
+    tb->disconnect(rx, 1, wav_sink, 1);
+    tb->unlock();
+    wav_sink.reset();
+    d_recording_wav = false;
+
+    std::cout << "Audio recorder stopped" << std::endl;
+
+    return STATUS_OK;
+}
+
 void demodulator::get_rds_data(std::string &outbuff, int &num)
 {
     rx->get_rds_data(outbuff, num);
@@ -489,13 +563,14 @@ void demodulator::connect_all(rx_chain type, gr::basic_block_sptr src, int d_qua
         // qInfo() << "demodulator" << idx << "connect_all created connections";
     }
 
-//    // Recorders and sniffers
-//    if (d_recording_wav)
-//    {
-//        tb->connect(rx, 0, wav_sink, 0);
-//        tb->connect(rx, 1, wav_sink, 1);
-//    }
+    // Audio recording
+    if (d_recording_wav)
+    {
+        tb->connect(rx, 0, wav_sink, 0);
+        tb->connect(rx, 1, wav_sink, 1);
+    }
 
+    // Sample sniffer
 //    if (d_sniffer_active)
 //    {
 //        tb->connect(rx, 0, sniffer_rr, 0);
@@ -506,95 +581,6 @@ void demodulator::connect_all(rx_chain type, gr::basic_block_sptr src, int d_qua
 
 
 
-
-
-
-
-
-///**
-// * @brief Start WAV file recorder.
-// * @param filename The filename where to record.
-// *
-// * A new recorder object is created every time we start recording and deleted every time
-// * we stop recording. The idea of creating one object and starting/stopping using different
-// * file names does not work with WAV files (the initial /tmp/gqrx.wav will not be stopped
-// * because the wav file can not be empty). See https://github.com/gqrx-sdr/gqrx/issues/36
-// */
-//rx_status receiver::start_audio_recording(const std::string filename)
-//{
-//    if (d_recording_wav)
-//    {
-//        /* error - we are already recording */
-//        std::cout << "ERROR: Can not start audio recorder (already recording)" << std::endl;
-
-//        return STATUS_ERROR;
-//    }
-//    if (!d_running)
-//    {
-//        /* receiver is not running */
-//        std::cout << "Can not start audio recorder (receiver not running)" << std::endl;
-
-//        return STATUS_ERROR;
-//    }
-
-//    // if this fails, we don't want to go and crash now, do we
-//    try {
-//#if GNURADIO_VERSION < 0x030900
-//        wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(), 2,
-//                                                  (unsigned int) d_audio_rate,
-//                                                  16);
-//#else
-//        wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(), 2,
-//                                                  (unsigned int) d_audio_rate,
-//                                                  gr::blocks::FORMAT_WAV, gr::blocks::FORMAT_PCM_16);
-//#endif
-//    }
-//    catch (std::runtime_error &e) {
-//        std::cout << "Error opening " << filename << ": " << e.what() << std::endl;
-//        return STATUS_ERROR;
-//    }
-
-//    tb->lock();
-//    tb->connect(rx, 0, wav_sink, 0);
-//    tb->connect(rx, 1, wav_sink, 1);
-//    tb->unlock();
-//    d_recording_wav = true;
-
-//    std::cout << "Recording audio to " << filename << std::endl;
-
-//    return STATUS_OK;
-//}
-
-///** Stop WAV file recorder. */
-//rx_status receiver::stop_audio_recording()
-//{
-//    if (!d_recording_wav) {
-//        /* error: we are not recording */
-//        std::cout << "ERROR: Can not stop audio recorder (not recording)" << std::endl;
-
-//        return STATUS_ERROR;
-//    }
-//    if (!d_running)
-//    {
-//        /* receiver is not running */
-//        std::cout << "Can not stop audio recorder (receiver not running)" << std::endl;
-
-//        return STATUS_ERROR;
-//    }
-
-//    // not strictly necessary to lock but I think it is safer
-//    tb->lock();
-//    wav_sink->close();
-//    tb->disconnect(rx, 0, wav_sink, 0);
-//    tb->disconnect(rx, 1, wav_sink, 1);
-//    tb->unlock();
-//    wav_sink.reset();
-//    d_recording_wav = false;
-
-//    std::cout << "Audio recorder stopped" << std::endl;
-
-//    return STATUS_OK;
-//}
 
 ///** Start audio playback. */
 //rx_status receiver::start_audio_playback(const std::string filename)
