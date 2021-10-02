@@ -40,7 +40,6 @@
 #include <QObject>
 #include <QDebug>
 
-// TODO: downconverter move back to receiver ?
 #include "dsp/downconverter.h"
 //#include "dsp/sniffer_f.h"
 #include "dsp/rx_fft.h"
