@@ -419,6 +419,31 @@ rx_status demodulator::set_af_gain(float gain_db)
     return STATUS_OK;
 }
 
+void demodulator::get_rds_data(std::string &outbuff, int &num)
+{
+    rx->get_rds_data(outbuff, num);
+}
+
+void demodulator::start_rds_decoder(void)
+{
+    rx->start_rds_decoder();
+}
+
+void demodulator::stop_rds_decoder(void)
+{
+    rx->stop_rds_decoder();
+}
+
+bool demodulator::is_rds_decoder_active(void) const
+{
+    return rx->is_rds_decoder_active();
+}
+
+void demodulator::reset_rds_parser(void)
+{
+    rx->reset_rds_parser();
+}
+
 void demodulator::connect_all(rx_chain type, gr::basic_block_sptr src, int d_quad_rate, int d_audio_rate)
 {
     // qInfo() << "demodulator" << idx << "connect_all starts";
@@ -668,49 +693,6 @@ void demodulator::connect_all(rx_chain type, gr::basic_block_sptr src, int d_qua
 //{
 //    audio_udp_sink->stop_streaming();
 //    return STATUS_OK;
-//}
-
-//void receiver::get_rds_data(std::string &outbuff, int &num)
-//{
-//    rx->get_rds_data(outbuff, num);
-//}
-
-//void receiver::start_rds_decoder(void)
-//{
-//    if (d_running)
-//    {
-//        stop();
-//        rx->start_rds_decoder();
-//        start();
-//    }
-//    else
-//    {
-//        rx->start_rds_decoder();
-//    }
-//}
-
-//void receiver::stop_rds_decoder(void)
-//{
-//    if (d_running)
-//    {
-//        stop();
-//        rx->stop_rds_decoder();
-//        start();
-//    }
-//    else
-//    {
-//        rx->stop_rds_decoder();
-//    }
-//}
-
-//bool receiver::is_rds_decoder_active(void) const
-//{
-//    return rx->is_rds_decoder_active();
-//}
-
-//void receiver::reset_rds_parser(void)
-//{
-//    rx->reset_rds_parser();
 //}
 
 ///**

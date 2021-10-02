@@ -141,11 +141,11 @@ public:
      * This method returns the current signal power detected by the receiver. The detector
      * is located after the band pass filter. The full scale is 1.0
      */
-    float       get_signal_pwr(bool dbfs) const {
+    float get_signal_pwr(bool dbfs) const {
         return rx->get_signal_level(dbfs);
     }
 
-    void        get_audio_fft_data(std::complex<float>* fftPoints, unsigned int &fftsize) const {
+    void get_audio_fft_data(std::complex<float>* fftPoints, unsigned int &fftsize) const {
         audio_fft->get_fft_data(fftPoints, fftsize);
     }
 
@@ -166,11 +166,11 @@ public:
 //    bool                is_snifffer_active(void) const { return d_sniffer_active; }
 
     /* rds functions */
-//    void        get_rds_data(std::string &outbuff, int &num);
-//    void        start_rds_decoder(void);
-//    void        stop_rds_decoder();
-//    bool        is_rds_decoder_active(void) const;
-//    void        reset_rds_parser(void);
+    void        get_rds_data(std::string &outbuff, int &num);
+    void        start_rds_decoder(void);
+    void        stop_rds_decoder();
+    bool        is_rds_decoder_active(void) const;
+    void        reset_rds_parser(void);
 
     /* Plumbing */
     void connect_all(rx_chain type, gr::basic_block_sptr src, int d_quad_rate, int d_audio_rate);

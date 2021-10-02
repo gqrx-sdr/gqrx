@@ -258,10 +258,12 @@ void wfmrx::get_rds_data(std::string &outbuff, int &num)
 
 void wfmrx::start_rds_decoder()
 {
+    lock();
     connect(demod_fm, 0, rds, 0);
     connect(rds, 0, rds_decoder, 0);
     msg_connect(rds_decoder, "out", rds_parser, "in");
     msg_connect(rds_parser, "out", rds_store, "store");
+    unlock();
     rds_enabled=true;
 }
 

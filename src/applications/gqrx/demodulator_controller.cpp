@@ -124,10 +124,10 @@ DemodulatorController::DemodulatorController(
 
     // RDS
     connect(uiDockRDS, SIGNAL(rdsDecoderToggled(bool)), this, SLOT(setRdsDecoder(bool)));
-
     rds_timer = new QTimer(this);
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
 
+    // Update parameters from stored settings
     readSettings(settings);
 }
 
@@ -259,9 +259,9 @@ void DemodulatorController::setFilterOffset(qint64 freq_hz)
     demod->set_filter_offset((double) freq_hz);
     // ui->plotter->setFilterOffset(freq_hz);
 
-    // if (rx->is_rds_decoder_active()) {
-    //     rx->reset_rds_parser();
-    // }
+    if (demod->is_rds_decoder_active()) {
+        demod->reset_rds_parser();
+    }
 }
 
 /**
@@ -301,11 +301,11 @@ void DemodulatorController::selectDemod(int mode_idx)
     uiDockRxOpt->getFilterPreset(mode_idx, filter_preset, &flo, &fhi);
     d_filter_shape = (rx_filter_shape)uiDockRxOpt->currentFilterShape();
 
-    // Yes - RDS belongs inside this controller!
-    // bool rds_enabled = rx->is_rds_decoder_active(idx);
-    // if (rds_enabled)
-    //     setRdsDecoder(false);
-    // uiDockRDS->setDisabled();
+    bool rds_enabled = demod->is_rds_decoder_active();
+    if (rds_enabled) {
+        setRdsDecoder(false);
+    }
+    uiDockRDS->setDisabled();
 
     switch (mode_idx) {
 
@@ -375,9 +375,10 @@ void DemodulatorController::selectDemod(int mode_idx)
         else
             rx->set_demod(demod->get_idx(), rx_demod::RX_DEMOD_WFM_S);
 
-        // uiDockRDS->setEnabled();
-        // if (rds_enabled)
-        //     setRdsDecoder(true);
+        uiDockRDS->setEnabled();
+        if (rds_enabled) {
+            setRdsDecoder(true);
+        }
         break;
 
     case DockRxOpt::MODE_LSB:
@@ -746,21 +747,21 @@ void DemodulatorController::stopAudioStreaming()
 
 void DemodulatorController::setRdsDecoder(bool checked)
 {
-//    if (checked)
-//    {
-//        qDebug() << "Starting RDS decoder.";
-//        uiDockRDS->showEnabled();
-//        rx->start_rds_decoder();
-//        rx->reset_rds_parser();
-//        rds_timer->start(250);
-//    }
-//    else
-//    {
-//        qDebug() << "Stopping RDS decoder.";
-//        uiDockRDS->showDisabled();
-//        rx->stop_rds_decoder();
-//        rds_timer->stop();
-//    }
+    if (checked)
+    {
+        qDebug() << "Starting RDS decoder.";
+        uiDockRDS->showEnabled();
+        demod->start_rds_decoder();
+        demod->reset_rds_parser();
+        rds_timer->start(250);
+    }
+    else
+    {
+        qDebug() << "Stopping RDS decoder.";
+        uiDockRDS->showDisabled();
+        demod->stop_rds_decoder();
+        rds_timer->stop();
+    }
 }
 
 /* Timers */
@@ -829,14 +830,14 @@ void DemodulatorController::audioFftTimeout()
  */
 void DemodulatorController::rdsTimeout()
 {
-//    std::string buffer;
-//    int num;
+    std::string buffer;
+    int num;
 
-//    rx->get_rds_data(buffer, num);
-//    while(num!=-1) {
-//        rx->get_rds_data(buffer, num);
-//        uiDockRDS->updateRDS(QString::fromStdString(buffer), num);
-//    }
+    demod->get_rds_data(buffer, num);
+    while (num != -1) {
+        demod->get_rds_data(buffer, num);
+        uiDockRDS->updateRDS(QString::fromStdString(buffer), num);
+    }
 }
 
 void DemodulatorController::enableTimers(bool enabled)
