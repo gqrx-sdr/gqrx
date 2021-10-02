@@ -102,6 +102,7 @@ private:
     DockInputCtl        *uiDockInputCtl;
     DockFft             *uiDockFft;
     DockBookmarks       *uiDockBookmarks;
+    QMenu               *receiversMenu;
 
     CIqTool             *iq_tool;
     DXCOptions          *dxc_options;

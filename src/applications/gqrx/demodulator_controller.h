@@ -26,6 +26,7 @@
 #include <QObject>
 #include <QTimer>
 #include <QMainWindow>
+#include <QMenu>
 
 #include <DockManager.h>
 
@@ -36,7 +37,6 @@
 #include "applications/gqrx/demodulator.h"
 #include "applications/gqrx/receiver.h"
 
-// TODO: This could be a dock UI component itself, encapsulating demod and audio?
 class DemodulatorController : public QObject
 {
     Q_OBJECT;
@@ -47,7 +47,8 @@ public:
     explicit DemodulatorController(
         receiver::sptr rx,
         demodulator::sptr demod,
-        ads::CDockManager *dockMgr
+        ads::CDockManager *dockMgr,
+        QMenu *viewMenu
     );
     ~DemodulatorController() override;
 
@@ -62,6 +63,7 @@ signals:
 
 public slots:
     void onRemoveAction();
+    void onIndexChanged(size_t idx);
 
     /* Frequency Control */
 
@@ -128,22 +130,29 @@ private:
     receiver::sptr      rx;     /*!< The actual receiver DSP controller */
     demodulator::sptr   demod;  /*!< The actual demodulator DSP controller */
 
-    // Rx controls
+    // Dock management
+    ads::CDockManager       *dockMgr;           // Borrowed from MainWindow
+    QMenu                   *viewMenu;          // Borrowed from MainWindow
+    QAction                 *viewMenuSection;
 
-    DockRxOpt               *uiDockRxOpt;   /*!< Dock for the Rx settings */
-    bool                    d_have_audio;   /*!< Whether we have audio (i.e. not with demod_off. */
-    enum rx_filter_shape    d_filter_shape; /*!< The las used filter shape */
+    // Rx controls
+    DockRxOpt               *uiDockRxOpt;       /*!< Dock for the Rx settings */
+    ads::CDockWidget        *dockDemod;         /*!< Wrapped dock widget for DockManager */
+    bool                    d_have_audio;       /*!< Whether we have audio (i.e. not with demod_off. */
+    enum rx_filter_shape    d_filter_shape;     /*!< The las used filter shape */
 
     // Audio FFT display
-    DockAudio           *uiDockAudio;       /*!< Dock for the Audio display and control */
-    std::complex<float> *d_fftData;
-    float               *d_realFftData;
-    QTimer              *audio_fft_timer;
+    DockAudio               *uiDockAudio;       /*!< Dock for the Audio display and control */
+    ads::CDockWidget        *dockAudio;         /*!< Wrapped dock widget for DockManager */
+    std::complex<float>     *d_fftData;
+    float                   *d_realFftData;
+    QTimer                  *audio_fft_timer;
 
     // RDS
-    DockRDS     *uiDockRDS;
-    QTimer      *rds_timer;
-    bool        dec_rds;
+    DockRDS                 *uiDockRDS;
+    ads::CDockWidget        *dockRDS;           /*!< Wrapped dock widget for DockManager */
+    QTimer                  *rds_timer;
+    bool                    dec_rds;
 };
 
 #endif // DEMODULATOR_CONTROLLER_H

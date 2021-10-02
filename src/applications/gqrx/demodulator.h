@@ -37,8 +37,8 @@
 //#include <gnuradio/blocks/wavfile_sink.h>
 //#include <gnuradio/blocks/wavfile_source.h>
 
+#include <QObject>
 #include <QDebug>
-
 
 // TODO: downconverter move back to receiver ?
 #include "dsp/downconverter.h"
@@ -57,8 +57,10 @@
 
 #include "applications/gqrx/receiver_types.h"
 
-class demodulator
+class demodulator : public QObject
 {
+Q_OBJECT
+
 public:
     typedef std::shared_ptr<demodulator> sptr;
 
@@ -80,6 +82,7 @@ public:
     void        set_idx(size_t next_idx) {
         qInfo() << "demodulator" << idx << "gets new" << next_idx;
         idx = next_idx;
+        emit indexChanged(idx);
     }
 
     /* I/O control */
@@ -173,6 +176,9 @@ public:
 
     /* Plumbing */
     void connect_all(rx_chain type, gr::basic_block_sptr src, int d_quad_rate, int d_audio_rate);
+
+signals:
+    void indexChanged(size_t idx);
 
 private:
     gr::top_block_sptr tb;                 /*!< Top Block */

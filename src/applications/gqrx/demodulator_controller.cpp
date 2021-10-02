@@ -26,27 +26,37 @@
 DemodulatorController::DemodulatorController(
     receiver::sptr rx,
     demodulator::sptr demod,
-    ads::CDockManager *dockMgr
+    ads::CDockManager *dockMgr,
+    QMenu *viewMenu
 ) :
     rx(rx),
     demod(demod),
+    dockMgr(dockMgr),
+    viewMenu(viewMenu),
     d_have_audio(true)
 {
     d_filter_shape = rx_filter_shape::FILTER_SHAPE_NORMAL;
 
+    connect(demod.get(), SIGNAL(indexChanged(size_t)), this, SLOT(onIndexChanged(size_t)));
+
     auto num = demod->get_idx() + 1;
 
+    viewMenuSection = viewMenu->addSection(QString("Receiver %0").arg(num));
+
     uiDockRxOpt = new DockRxOpt();
-    ads::CDockWidget* dockDemod = new ads::CDockWidget(QString("Demod %0").arg(num));
+    dockDemod = new ads::CDockWidget(QString("Demod %0").arg(num));
     dockDemod->setWidget(uiDockRxOpt);
+    viewMenu->addAction(dockDemod->toggleViewAction());
 
     uiDockAudio = new DockAudio();
-    ads::CDockWidget* dockAudio = new ads::CDockWidget(QString("Audio %0").arg(num));
+    dockAudio = new ads::CDockWidget(QString("Audio %0").arg(num));
     dockAudio->setWidget(uiDockAudio);
+    viewMenu->addAction(dockAudio->toggleViewAction());
 
     uiDockRDS = new DockRDS();
-    ads::CDockWidget* dockRDS = new ads::CDockWidget(QString("RDS %0").arg(num));
+    dockRDS = new ads::CDockWidget(QString("RDS %0").arg(num));
     dockRDS->setWidget(uiDockRDS);
+    viewMenu->addAction(dockRDS->toggleViewAction());
 
     dockMgr->addDockWidgetTab(ads::BottomDockWidgetArea, dockDemod);
     dockMgr->addDockWidgetTab(ads::BottomDockWidgetArea, dockAudio);
@@ -122,19 +132,26 @@ DemodulatorController::~DemodulatorController()
     qInfo() << "DemodulatorController::~DemodulatorController begin";
 
     audio_fft_timer->stop();
-    delete audio_fft_timer;
+    audio_fft_timer->deleteLater();
 
     rds_timer->stop();
-    delete rds_timer;
+    rds_timer->deleteLater();
 
     rx->remove_demodulator(demod);
 
     delete [] d_fftData;
     delete [] d_realFftData;
 
-    delete uiDockRxOpt;
-    delete uiDockAudio;
-    delete uiDockRDS;
+    dockMgr->removeDockWidget(dockDemod);
+    dockMgr->removeDockWidget(dockAudio);
+    dockMgr->removeDockWidget(dockRDS);
+
+    dockDemod->deleteLater();
+    dockAudio->deleteLater();
+    dockRDS->deleteLater();
+
+    viewMenu->removeAction(viewMenuSection);
+    viewMenuSection->deleteLater();
 
     qInfo() << "DemodulatorController::~DemodulatorController done";
 }
@@ -165,6 +182,15 @@ void DemodulatorController::ensureOffsetInRange(qint64 freq, qint64 lnb_lo, qint
 void DemodulatorController::onRemoveAction()
 {
     emit remove(demod->get_idx());
+}
+
+void DemodulatorController::onIndexChanged(size_t idx)
+{
+    auto num = idx + 1;
+    viewMenuSection->setText(QString("Receiver %0").arg(num));
+    dockDemod->setWindowTitle(QString("Demod %0").arg(num));
+    dockAudio->setWindowTitle(QString("Audio %0").arg(num));
+    dockRDS->setWindowTitle(QString("RDS %0").arg(num));
 }
 
 /* Frequency Control */

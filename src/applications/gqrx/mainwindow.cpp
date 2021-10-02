@@ -190,6 +190,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     ui->menu_View->addAction(dockFft->toggleViewAction());
     ui->menu_View->addAction(dockBookmarks->toggleViewAction());
     ui->menu_View->addSeparator();
+    receiversMenu = ui->menu_View->addMenu("Receivers");
+    ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->actionFullScreen);
@@ -998,7 +1000,7 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
 void MainWindow::addDemodulator()
 {
     auto demod = rx->add_demodulator();
-    auto ctl = std::make_shared<DemodulatorController>(rx, demod, uiDockManager);
+    auto ctl = std::make_shared<DemodulatorController>(rx, demod, uiDockManager, receiversMenu);
     connect(ctl.get(), SIGNAL(remove(size_t)), this, SLOT(removeDemodulator(size_t)));
     demodCtrls.push_back(ctl);
     ctl->readSettings(m_settings);
