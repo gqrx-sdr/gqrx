@@ -279,6 +279,8 @@ void DockAudio::on_audioConfButton_clicked()
 /*! \brief Mute audio. */
 void DockAudio::on_audioMuteButton_clicked(bool checked)
 {
+    muted = checked;
+
     if (checked)
     {
         emit audioGainChanged(-INFINITY);
@@ -388,7 +390,10 @@ void DockAudio::saveSettings(QSettings *settings, size_t idx)
     else
         settings->remove("udp_stereo");
 
-    // TODO: Mute?
+    if (muted != false)
+        settings->setValue("muted", muted);
+    else
+        settings->remove("muted");
 
     settings->endGroup(); // idx
     settings->endGroup(); // audio
@@ -447,7 +452,9 @@ void DockAudio::readSettings(QSettings *settings, size_t idx)
     audioOptions->setUdpPort(udp_port);
     audioOptions->setUdpStereo(udp_stereo);
 
-    // TODO: Mute?
+    muted = settings->value("muted", false).toBool();
+    ui->audioMuteButton->setChecked(muted);
+    on_audioMuteButton_clicked(muted);
 
     settings->endGroup(); // idx
     settings->endGroup(); // audio

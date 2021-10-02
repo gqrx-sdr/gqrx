@@ -122,6 +122,7 @@ private:
     QString        udp_host;     /*! UDP client host name. */
     int            udp_port;     /*! UDP client port number. */
     bool           udp_stereo;   /*! Enable stereo streaming for UDP. */
+    bool           muted;        /*! Is the audio currently muted? */
 
     bool           autoSpan;     /*! Whether to allow mode-dependent auto span. */
 
