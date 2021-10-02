@@ -193,17 +193,6 @@ void DemodulatorController::saveSettings(QSettings *settings)
     uiDockAudio->saveSettings(settings, demod->get_idx());
 }
 
-void DemodulatorController::ensureOffsetInRange(qint64 freq, qint64 lnb_lo, qint64 hw_freq_start, qint64 hw_freq_stop)
-{
-    // If frequency is out of range set frequency to the center of the range.
-    qint64 hw_freq = freq - lnb_lo - (qint64)(demod->get_filter_offset());
-    if (hw_freq < hw_freq_start || hw_freq > hw_freq_stop)
-    {
-        qint64 next = (hw_freq_stop - hw_freq_start) / 2 + lnb_lo;
-        demod->set_filter_offset(next);
-    }
-}
-
 void DemodulatorController::onRemoveAction()
 {
     // qInfo() << "DemodulatorController" << this << "::onRemoveAction for demod idx" << demod->get_idx();

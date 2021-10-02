@@ -56,8 +56,6 @@ public:
     void readSettings(QSettings *settings);
     void saveSettings(QSettings *settings);
 
-    void ensureOffsetInRange(qint64 freq, qint64 lnb_lo, qint64 hw_freq_start, qint64 hw_freq_stop);
-
 signals:
     void remove(size_t idx);
 

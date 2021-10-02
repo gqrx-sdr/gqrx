@@ -605,8 +605,6 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
             int64_val = (d_hw_freq_stop - d_hw_freq_start) / 2 + d_lnb_lo;
         }
 
-        // TODO: call ensureOffsetInRange for each ReceiverController
-
         uiBaseband->freqCtrl()->setFrequency(int64_val);
         setNewFrequency(uiBaseband->freqCtrl()->getFrequency()); // ensure all GUI and RF is updated
     }
