@@ -104,7 +104,7 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
 
     connect(ui->actionRemoveDemodulator, SIGNAL(triggered()), this, SIGNAL(remove()));
 
-    // use same slot for filteCombo and filterShapeCombo
+    // use same slot for filterCombo and filterShapeCombo
     connect(ui->filterShapeCombo, SIGNAL(activated(int)), this, SLOT(on_filterCombo_activated(int)));
 
     // demodulator options dialog
@@ -129,48 +129,51 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     nbOpt = new CNbOptions(this);
     connect(nbOpt, SIGNAL(thresholdChanged(int,double)), this, SLOT(nbOpt_thresholdChanged(int,double)));
 
-    /* mode setting shortcuts */
-    QShortcut *mode_off_shortcut = new QShortcut(QKeySequence(Qt::Key_Exclam), this);
-    QShortcut *mode_raw_shortcut = new QShortcut(QKeySequence(Qt::Key_I), this);
-    QShortcut *mode_am_shortcut = new QShortcut(QKeySequence(Qt::Key_A), this);
-    QShortcut *mode_nfm_shortcut = new QShortcut(QKeySequence(Qt::Key_N), this);
-    QShortcut *mode_wfm_mono_shortcut = new QShortcut(QKeySequence(Qt::Key_W), this);
-    QShortcut *mode_wfm_stereo_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_W), this);
-    QShortcut *mode_lsb_shortcut = new QShortcut(QKeySequence(Qt::Key_S), this);
-    QShortcut *mode_usb_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_S), this);
-    QShortcut *mode_cwl_shortcut = new QShortcut(QKeySequence(Qt::Key_C), this);
-    QShortcut *mode_cwu_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_C), this);
-    QShortcut *mode_wfm_oirt_shortcut = new QShortcut(QKeySequence(Qt::Key_O), this);
-    QShortcut *mode_am_sync_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_A), this);
 
-    QObject::connect(mode_off_shortcut, &QShortcut::activated, this, &DockRxOpt::modeOffShortcut);
-    QObject::connect(mode_raw_shortcut, &QShortcut::activated, this, &DockRxOpt::modeRawShortcut);
-    QObject::connect(mode_am_shortcut, &QShortcut::activated, this, &DockRxOpt::modeAMShortcut);
-    QObject::connect(mode_nfm_shortcut, &QShortcut::activated, this, &DockRxOpt::modeNFMShortcut);
-    QObject::connect(mode_wfm_mono_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMmonoShortcut);
-    QObject::connect(mode_wfm_stereo_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMstereoShortcut);
-    QObject::connect(mode_lsb_shortcut, &QShortcut::activated, this, &DockRxOpt::modeLSBShortcut);
-    QObject::connect(mode_usb_shortcut, &QShortcut::activated, this, &DockRxOpt::modeUSBShortcut);
-    QObject::connect(mode_cwl_shortcut, &QShortcut::activated, this, &DockRxOpt::modeCWLShortcut);
-    QObject::connect(mode_cwu_shortcut, &QShortcut::activated, this, &DockRxOpt::modeCWUShortcut);
-    QObject::connect(mode_wfm_oirt_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMoirtShortcut);
-    QObject::connect(mode_am_sync_shortcut, &QShortcut::activated, this, &DockRxOpt::modeAMsyncShortcut);
+    // TODO: the keyboard shortcuts no longer work
 
-    /* squelch shortcuts */
-    QShortcut *squelch_reset_shortcut = new QShortcut(QKeySequence(Qt::Key_QuoteLeft), this);
-    QShortcut *squelch_auto_shortcut = new QShortcut(QKeySequence(Qt::Key_AsciiTilde), this);
+//    /* mode setting shortcuts */
+//    QShortcut *mode_off_shortcut = new QShortcut(QKeySequence(Qt::Key_Exclam), this);
+//    QShortcut *mode_raw_shortcut = new QShortcut(QKeySequence(Qt::Key_I), this);
+//    QShortcut *mode_am_shortcut = new QShortcut(QKeySequence(Qt::Key_A), this);
+//    QShortcut *mode_nfm_shortcut = new QShortcut(QKeySequence(Qt::Key_N), this);
+//    QShortcut *mode_wfm_mono_shortcut = new QShortcut(QKeySequence(Qt::Key_W), this);
+//    QShortcut *mode_wfm_stereo_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_W), this);
+//    QShortcut *mode_lsb_shortcut = new QShortcut(QKeySequence(Qt::Key_S), this);
+//    QShortcut *mode_usb_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_S), this);
+//    QShortcut *mode_cwl_shortcut = new QShortcut(QKeySequence(Qt::Key_C), this);
+//    QShortcut *mode_cwu_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_C), this);
+//    QShortcut *mode_wfm_oirt_shortcut = new QShortcut(QKeySequence(Qt::Key_O), this);
+//    QShortcut *mode_am_sync_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_A), this);
 
-    QObject::connect(squelch_reset_shortcut, &QShortcut::activated, this, &DockRxOpt::on_resetSquelchButton_clicked);
-    QObject::connect(squelch_auto_shortcut, &QShortcut::activated, this, &DockRxOpt::on_autoSquelchButton_clicked);
+//    QObject::connect(mode_off_shortcut, &QShortcut::activated, this, &DockRxOpt::modeOffShortcut);
+//    QObject::connect(mode_raw_shortcut, &QShortcut::activated, this, &DockRxOpt::modeRawShortcut);
+//    QObject::connect(mode_am_shortcut, &QShortcut::activated, this, &DockRxOpt::modeAMShortcut);
+//    QObject::connect(mode_nfm_shortcut, &QShortcut::activated, this, &DockRxOpt::modeNFMShortcut);
+//    QObject::connect(mode_wfm_mono_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMmonoShortcut);
+//    QObject::connect(mode_wfm_stereo_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMstereoShortcut);
+//    QObject::connect(mode_lsb_shortcut, &QShortcut::activated, this, &DockRxOpt::modeLSBShortcut);
+//    QObject::connect(mode_usb_shortcut, &QShortcut::activated, this, &DockRxOpt::modeUSBShortcut);
+//    QObject::connect(mode_cwl_shortcut, &QShortcut::activated, this, &DockRxOpt::modeCWLShortcut);
+//    QObject::connect(mode_cwu_shortcut, &QShortcut::activated, this, &DockRxOpt::modeCWUShortcut);
+//    QObject::connect(mode_wfm_oirt_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMoirtShortcut);
+//    QObject::connect(mode_am_sync_shortcut, &QShortcut::activated, this, &DockRxOpt::modeAMsyncShortcut);
 
-    /* filter width shortcuts */
-    QShortcut *filter_narrow_shortcut = new QShortcut(QKeySequence(Qt::Key_Less), this);
-    QShortcut *filter_normal_shortcut = new QShortcut(QKeySequence(Qt::Key_Period), this);
-    QShortcut *filter_wide_shortcut = new QShortcut(QKeySequence(Qt::Key_Greater), this);
+//    /* squelch shortcuts */
+//    QShortcut *squelch_reset_shortcut = new QShortcut(QKeySequence(Qt::Key_QuoteLeft), this);
+//    QShortcut *squelch_auto_shortcut = new QShortcut(QKeySequence(Qt::Key_AsciiTilde), this);
 
-    QObject::connect(filter_narrow_shortcut, &QShortcut::activated, this, &DockRxOpt::filterNarrowShortcut);
-    QObject::connect(filter_normal_shortcut, &QShortcut::activated, this, &DockRxOpt::filterNormalShortcut);
-    QObject::connect(filter_wide_shortcut, &QShortcut::activated, this, &DockRxOpt::filterWideShortcut);
+//    QObject::connect(squelch_reset_shortcut, &QShortcut::activated, this, &DockRxOpt::on_resetSquelchButton_clicked);
+//    QObject::connect(squelch_auto_shortcut, &QShortcut::activated, this, &DockRxOpt::on_autoSquelchButton_clicked);
+
+//    /* filter width shortcuts */
+//    QShortcut *filter_narrow_shortcut = new QShortcut(QKeySequence(Qt::Key_Less), this);
+//    QShortcut *filter_normal_shortcut = new QShortcut(QKeySequence(Qt::Key_Period), this);
+//    QShortcut *filter_wide_shortcut = new QShortcut(QKeySequence(Qt::Key_Greater), this);
+
+//    QObject::connect(filter_narrow_shortcut, &QShortcut::activated, this, &DockRxOpt::filterNarrowShortcut);
+//    QObject::connect(filter_normal_shortcut, &QShortcut::activated, this, &DockRxOpt::filterNormalShortcut);
+//    QObject::connect(filter_wide_shortcut, &QShortcut::activated, this, &DockRxOpt::filterWideShortcut);
 }
 
 DockRxOpt::~DockRxOpt()
@@ -187,6 +190,7 @@ DockRxOpt::~DockRxOpt()
  */
 void DockRxOpt::setFilterOffset(qint64 freq_hz)
 {
+    qInfo() << "DockRxOpt::setFilterOffset" << freq_hz;
     ui->filterFreq->setFrequency(freq_hz);
 }
 
@@ -220,12 +224,12 @@ void DockRxOpt::setFilterOffsetRange(qint64 range_hz)
  * @brief Set new RF frequency
  * @param freq_hz The frequency in Hz
  *
- * RF frequency is the frequency to which the device device is tuned to
- * The actual RX frequency is the sum of the RF frequency and the filter
- * offset.
+ * RF frequency is the frequency to which the receiver device is tuned to.
+ * The actual RX frequency is the sum of the RF frequency and the filter offset.
  */
 void DockRxOpt::setHwFreq(qint64 freq_hz)
 {
+    // qInfo() << "DockRxOpt::setHwFreq" << freq_hz;
     hw_freq_hz = freq_hz;
     updateHwFreq();
 }
@@ -235,6 +239,7 @@ void DockRxOpt::updateHwFreq()
 {
     double hw_freq_mhz = hw_freq_hz / 1.0e6;
     ui->hwFreq->setText(QString("%1 MHz").arg(hw_freq_mhz, 11, 'f', 6, ' '));
+    setRxFreq(hw_freq_hz + ui->filterFreq->getFrequency());
 }
 
 /**
@@ -374,7 +379,6 @@ double DockRxOpt::currentSquelchLevel() const
     return ui->sqlSpinBox->value();
 }
 
-
 /** Get filter lo/hi for a given mode and preset */
 void DockRxOpt::getFilterPreset(int mode, int preset, int * lo, int * hi) const
 {
@@ -424,8 +428,8 @@ void DockRxOpt::readSettings(QSettings *settings, size_t idx)
     qint64 offs = settings->value("offset", 0).toInt(&conv_ok);
     if (offs)
     {
+        // qInfo() << "DockRxOpt::readSettings recalls offset" << offs;
         setFilterOffset(offs);
-        emit filterOffsetChanged(offs);
     }
 
     dbl_val = settings->value("sql_level", 1.0).toDouble(&conv_ok);
@@ -568,14 +572,16 @@ void DockRxOpt::saveSettings(QSettings *settings, size_t idx)
 /** RX frequency changed through spin box */
 void DockRxOpt::on_freqSpinBox_valueChanged(double freq)
 {
-    emit rxFreqChanged(1.e3 * freq);
+    ui->filterFreq->setFrequency((1.e3 * freq) - hw_freq_hz);
 }
 
 void DockRxOpt::setRxFreq(qint64 freq_hz)
 {
+    // qInfo() << "DockRxOpt::setRxFreq" << freq_hz;
     ui->freqSpinBox->blockSignals(true);
     ui->freqSpinBox->setValue(1.e-3 * (double)freq_hz);
     ui->freqSpinBox->blockSignals(false);
+    emit rxFreqChanged(freq_hz);
 }
 
 void DockRxOpt::setRxFreqRange(qint64 min_hz, qint64 max_hz)
@@ -604,8 +610,8 @@ void DockRxOpt::setInvertScrolling(bool enabled)
  */
 void DockRxOpt::on_filterFreq_newFrequency(qint64 freq)
 {
-    updateHwFreq();
-
+    // qInfo() << "DockRxOpt::on_filterFreq_newFrequency " << freq;
+    setRxFreq(hw_freq_hz + freq);
     emit filterOffsetChanged(freq);
 }
 

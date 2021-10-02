@@ -68,10 +68,8 @@ DemodulatorController::DemodulatorController(
     d_fftData = new std::complex<float>[MAX_FFT_SIZE];
     d_realFftData = new float[MAX_FFT_SIZE];
 
-    // Rx Frequency Control
-    // connect(uiDockRxOpt, SIGNAL(rxFreqChanged(qint64)), ui->freqCtrl, SLOT(setFrequency(qint64)));
-    // connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), uiDockAudio, SLOT(setRxFrequency(qint64)));
-    // connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), uiDockRxOpt, SLOT(setRxFreq(qint64)));
+    // update the real rx freq for audio recorder filename
+    connect(uiDockRxOpt, SIGNAL(rxFreqChanged(qint64)), uiDockAudio, SLOT(setRxFrequency(qint64)));
 
     // Rx control
     connect(uiDockRxOpt, SIGNAL(remove()), this, SLOT(onRemoveAction()));
@@ -205,14 +203,11 @@ void DemodulatorController::setFilterOffsetRange(qint64 range)
 
 void DemodulatorController::setFrequencyRange(qint64 hw_start, qint64 hw_stop)
 {
-    auto start = (qint64)(demod->get_filter_offset()) + hw_start;
-    auto stop  = (qint64)(demod->get_filter_offset()) + hw_stop;
-    uiDockRxOpt->setRxFreqRange(start, stop);
+    uiDockRxOpt->setRxFreqRange(hw_start, hw_stop);
 }
 
-void DemodulatorController::setHwFrequency(qint64 rx_freq, qint64 d_lnb_lo)
+void DemodulatorController::setHwFrequency(qint64 hw_freq)
 {
-    auto hw_freq = (double)(rx_freq - d_lnb_lo) - demod->get_filter_offset();
     uiDockRxOpt->setHwFreq(hw_freq);
 }
 
@@ -259,11 +254,6 @@ void DemodulatorController::setFilterOffset(qint64 freq_hz)
 {
     demod->set_filter_offset((double) freq_hz);
     // ui->plotter->setFilterOffset(freq_hz);
-
-    // update RF freq label and channel filter offset
-    uiDockRxOpt->setFilterOffset(freq_hz);
-
-    emit updateFrequencyRange();
 
     // if (rx->is_rds_decoder_active()) {
     //     rx->reset_rds_parser();

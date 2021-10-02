@@ -174,6 +174,7 @@ void DockAudio::stopAudioRecorder(void)
 /*! Public slot to set new RX frequency in Hz. */
 void DockAudio::setRxFrequency(qint64 freq)
 {
+    // qInfo() << "DockAudio::setRxFrequency =" << freq;
     rx_freq = freq;
 }
 

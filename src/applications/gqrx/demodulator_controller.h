@@ -59,7 +59,6 @@ public:
 
 signals:
     void remove(size_t idx);
-    void updateFrequencyRange();
 
 public slots:
     void onRemoveAction();
@@ -69,7 +68,7 @@ public slots:
 
     void setFilterOffsetRange(qint64 range);
     void setFrequencyRange(qint64 hw_start, qint64 hw_stop);
-    void setHwFrequency(qint64 rx_freq, qint64 d_lnb_lo);
+    void setHwFrequency(qint64 hw_freq);
     void setFilterFrequency(int low, int high);
 
     /* UI Behaviour control */

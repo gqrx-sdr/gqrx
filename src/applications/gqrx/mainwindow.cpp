@@ -586,6 +586,26 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
     uiDockFft->readSettings(m_settings);
     dxc_options->readSettings(m_settings);
 
+    // Construct and configure the demodulators
+    int demodSize = demodCtrls.size();
+    int demodCount = m_settings->value("receiver/count").toUInt();
+    int demodDiff = demodCount - demodSize;
+    if (demodDiff > 0) {
+        for (int i = 0; i < demodDiff; ++i) {
+            addDemodulator();
+        }
+    } else if (demodDiff < 0) {
+        for (int i = demodCount; i < demodSize; ++i) {
+            removeDemodulator(i);
+        }
+    }
+
+    for (auto demod : demodCtrls)
+    {
+        demod->setFilterOffsetRange(actual_rate);
+        demod->readSettings(m_settings);
+    }
+
     {
         int64_val = m_settings->value("input/frequency", 14236000).toLongLong(&conv_ok);
 
@@ -611,26 +631,6 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
             on_plotter_newFilterFreq(flo, fhi);
         }
     }*/
-
-    // Construct and configure the demodulators
-    int demodSize = demodCtrls.size();
-    int demodCount = m_settings->value("receiver/count").toUInt();
-    int demodDiff = demodCount - demodSize;
-    if (demodDiff > 0) {
-        for (int i = 0; i < demodDiff; ++i) {
-            addDemodulator();
-        }
-    } else if (demodDiff < 0) {
-        for (int i = demodCount; i < demodSize; ++i) {
-            removeDemodulator(i);
-        }
-    }
-
-    for (auto demod : demodCtrls)
-    {
-        demod->readSettings(m_settings);
-        demod->setFilterOffsetRange(actual_rate);
-    }
 
     iq_tool->readSettings(m_settings);
 
@@ -870,7 +870,7 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
 
     for (auto demod : demodCtrls)
     {
-        demod->setHwFrequency(rx_freq, d_lnb_lo);
+        demod->setHwFrequency(rx_freq);
     }
 }
 
