@@ -82,6 +82,8 @@ public:
     explicit DockRxOpt(qint64 filterOffsetRange = 90000, QWidget *parent = 0);
     ~DockRxOpt();
 
+    void setupShortcuts();
+
     void readSettings(QSettings *settings, size_t idx);
     void saveSettings(QSettings *settings, size_t idx);
 

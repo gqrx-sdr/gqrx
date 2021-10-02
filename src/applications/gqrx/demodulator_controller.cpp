@@ -69,6 +69,8 @@ DemodulatorController::DemodulatorController(
     dockMgr->addDockWidgetTab(ads::BottomDockWidgetArea, dockRDS);
     dockRDS->closeDockWidget();
 
+    uiDockRxOpt->setupShortcuts();
+
     d_fftData = new std::complex<float>[MAX_FFT_SIZE];
     d_realFftData = new float[MAX_FFT_SIZE];
 
