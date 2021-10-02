@@ -1013,15 +1013,10 @@ void MainWindow::removeDemodulator(size_t idx)
         return;
     }
 
-    std::vector<DemodulatorController::sptr> next;
-    for (size_t i = 0; i < idx; ++i)
-    {
-        if (i != idx)
-        {
-            next.push_back(demodCtrls[i]);
-        }
-    }
-    demodCtrls.swap(next);
+    // qInfo() << "MainWindow::removeDemodulator demodCtrls size before=" << demodCtrls.size();
+    auto di = std::find(demodCtrls.begin(), demodCtrls.end(), demodCtrls[idx]);
+    demodCtrls.erase(di);
+    // qInfo() << "MainWindow::removeDemodulator demodCtrls size after=" << demodCtrls.size();
 }
 
 /** Reset lower digits of main frequency control widget */

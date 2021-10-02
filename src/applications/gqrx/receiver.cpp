@@ -151,7 +151,7 @@ void receiver::set_input_device(const std::string device)
 
     // XXX somewhat duplicate operations in set_demod
     tb->disconnect_all();  // !!! surely not! - makes us use force below!
-    qInfo() << "**** set_input_device disconnected all";
+    // qInfo() << "**** set_input_device disconnected all";
 
     src.reset();
 
@@ -171,24 +171,24 @@ void receiver::set_input_device(const std::string device)
     }
 
     connect_all();
-    qInfo() << "set_input_device connected all";
+    // qInfo() << "set_input_device connected all";
 
     // reset subreceivers
     for (size_t i = 0; i < demods.size(); ++i)
     {
         // TODO: do not force
         demods[i]->set_demod(demods[i]->get_demod(), true, subrxsrc, d_quad_rate, d_audio_rate);
-        qInfo() << "set_input_device>set_demod for subrx" << i;
+        // qInfo() << "set_input_device>set_demod for demodulator" << i;
     }
 
-    qInfo() << "\n\n" << gr::dot_graph(tb).c_str() << "\n\n";
+    // qInfo() << "\n\n" << gr::dot_graph(tb).c_str() << "\n\n";
 
     if (d_running)
     {
         tb->start();
     }
 
-    qInfo() << "set_input_device done";
+    // qInfo() << "set_input_device done";
 
     if (error != "")
     {
@@ -224,7 +224,7 @@ void receiver::set_output_device(const std::string device)
         throw x;
     }
 
-    qInfo() << "receiver set_output_device done";
+    // qInfo() << "receiver set_output_device done";
 }
 
 /** Get a list of available antenna connectors. */
@@ -419,7 +419,7 @@ bool receiver::get_iq_swap(void) const
  */
 void receiver::set_dc_cancel(bool enable)
 {
-    qInfo() << "reciever set_dc_cancel starts";
+    // qInfo() << "reciever set_dc_cancel starts";
 
     if (enable == d_dc_cancel)
         return;
@@ -431,13 +431,13 @@ void receiver::set_dc_cancel(bool enable)
     begin_reconfigure();
     for (size_t i = 0; i < demods.size(); ++i)
     {
-        qInfo() << "reciever set_dc_cancel calls subrx" << i << "set_demod";
+        // qInfo() << "reciever set_dc_cancel calls demodulator" << i << "set_demod";
         demods[i]->set_demod(demods[i]->get_demod(), true, subrxsrc, d_quad_rate, d_audio_rate);
-        qInfo() << "reciever set_dc_cancel calls subrx" << i << "set_demod done";
+        // qInfo() << "reciever set_dc_cancel calls demodulator" << i << "set_demod done";
     }
     complete_reconfigure();
 
-    qInfo() << "reciever set_dc_cancel done";
+    // qInfo() << "reciever set_dc_cancel done";
 }
 
 /**
@@ -586,7 +586,7 @@ rx_status receiver::set_auto_gain(bool automatic)
 
 demodulator::sptr receiver::add_demodulator()
 {
-    qInfo() << "receiver add_rx begin";
+    // qInfo() << "receiver add_demodulator begin";
 
     begin_reconfigure();
 
@@ -597,15 +597,15 @@ demodulator::sptr receiver::add_demodulator()
         d_ddc_decim, d_decim_rate,
         d_quad_rate, d_audio_rate
     );
-    qInfo() << "receiver add_rx created sub";
+    // qInfo() << "receiver add_demodulator created demod";
     demods.push_back(nextSub);
 
     for (size_t i = 0; i < demods.size(); ++i)
     {
         demods[i]->set_idx(i); // re-index
-        qInfo() << "reciever remove_rx calls subrx" << i << "set_demod";
+        // qInfo() << "reciever add_demodulator calls demodulator" << i << "set_demod";
         demods[i]->set_demod(demods[i]->get_demod(), true, subrxsrc, d_quad_rate, d_audio_rate);
-        qInfo() << "reciever remove_rx calls subrx" << i << "set_demod done";
+        // qInfo() << "reciever add_demodulator calls demodulator" << i << "set_demod done";
     }
 
     complete_reconfigure();
@@ -615,45 +615,34 @@ demodulator::sptr receiver::add_demodulator()
     for (size_t i = 0; i < demods.size(); ++i)
     {
         demods[i]->set_output_device(output_devstr, d_audio_rate); // update audio stream name
-        qInfo() << "reciever remove_rx calls subrx" << i << "set_output_device";
+        // qInfo() << "reciever add_demodulator called demodulator" << i << "set_output_device";
     }
 
     return nextSub;
 }
 
-void receiver::remove_demodulator(demodulator::sptr demod)
+void receiver::remove_demodulator(size_t idx)
 {
-    qInfo() << "receiver::remove_demodulator begin";
+    // qInfo() << "receiver::remove_demodulator begin; remove" << idx;
 
     begin_reconfigure();
 
-    {
-        auto rmidx = demod->get_idx();
-
-        std::vector<demodulator::sptr> next;
-        for (size_t i = 0; i < demods.size(); ++i)
-        {
-            if (demods[i]->get_idx() != rmidx)
-            {
-                next.push_back(demods[i]);
-            }
-        }
-        demods.swap(next);
-        next.clear();
-        demod.reset();
-    }
+    // qInfo() << "receiver::remove_demodulator demods size before=" << demods.size();
+    auto ri = std::find(demods.begin(), demods.end(), demods[idx]);
+    demods.erase(ri);
+    // qInfo() << "receiver::remove_demodulator demods size after=" << demods.size();
 
     for (size_t i = 0; i < demods.size(); ++i)
     {
         demods[i]->set_idx(i); // re-index
         demods[i]->set_output_device(output_devstr, d_audio_rate); // update audio stream name
-        qInfo() << "reciever remove_rx calls subrx" << i << "set_demod";
+        // qInfo() << "reciever remove_rx calls demodulator" << i << "set_demod";
         demods[i]->set_demod(demods[i]->get_demod(), true, subrxsrc, d_quad_rate, d_audio_rate);
-        qInfo() << "reciever remove_rx calls subrx" << i << "set_demod done";
+        // qInfo() << "reciever remove_rx calls demodulator" << i << "set_demod done";
     }
     complete_reconfigure();
 
-    qInfo() << "receiver::remove_demodulator done";
+     // qInfo() << "receiver::remove_demodulator done";
 }
 
 rx_status receiver::set_freq_corr(double ppm)
@@ -682,7 +671,7 @@ void receiver::get_iq_fft_data(std::complex<float>* fftPoints, unsigned int &fft
 
 void receiver::begin_reconfigure()
 {
-    qInfo() << "receiver begin reconfigure";
+    // qInfo() << "receiver begin reconfigure";
 
     // tb->lock() seems to hang occasioanlly
     if (d_running)
@@ -693,25 +682,25 @@ void receiver::begin_reconfigure()
 
     // XXX somewhat duplicate operations in set_input_device
     tb->disconnect_all(); // !!! surely not! - makes us use force below!
-    qInfo() << "**** begin_reconfigure disconnected all";
+    // qInfo() << "**** begin_reconfigure disconnected all";
 
     connect_all();
-    qInfo() << "begin_reconfigure connected all";
+    // qInfo() << "begin_reconfigure connected all";
 }
 
 void receiver::complete_reconfigure()
 {
-    qInfo() << "\n\n" << gr::dot_graph(tb).c_str() << "\n\n";
+    // qInfo() << "\n\n" << gr::dot_graph(tb).c_str() << "\n\n";
 
     if (d_running)
         tb->start();
 
-    qInfo() << "receiver completed reconfigure";
+    // qInfo() << "receiver completed reconfigure";
 }
 
 rx_status receiver::set_demod(const size_t idx, rx_demod demod, bool force)
 {
-    qInfo() << "reciever set_demod starts";
+    // qInfo() << "reciever set_demod starts";
 
     rx_status ret = STATUS_OK;
 
@@ -729,12 +718,12 @@ rx_status receiver::set_demod(const size_t idx, rx_demod demod, bool force)
         } else {
             demods[i]->set_demod(demods[i]->get_demod(), true, subrxsrc, d_quad_rate, d_audio_rate);
         }
-        qInfo() << "set_demod for subrx" << i;
+        // qInfo() << "set_demod for demodulator" << i;
     }
 
     complete_reconfigure();
 
-    qInfo() << "set_demod done";
+    // qInfo() << "set_demod done";
 
     return ret;
 }
@@ -823,7 +812,7 @@ rx_status receiver::set_demod(const size_t idx, rx_demod demod, bool force)
 /** Convenience function to connect all blocks. */
 void receiver::connect_all()
 {
-    qInfo() << "receiver connect_all starts";
+    // qInfo() << "receiver connect_all starts";
 
     // Setup source
     subrxsrc = src;
@@ -833,7 +822,7 @@ void receiver::connect_all()
     {
         tb->connect(subrxsrc, 0, input_decim, 0);
         subrxsrc = input_decim;
-        qInfo() << "receiver connect_all using decim";
+        // qInfo() << "receiver connect_all using decim";
     }
 
 //    if (d_recording_iq)
@@ -844,16 +833,16 @@ void receiver::connect_all()
 
     tb->connect(subrxsrc, 0, iq_swap, 0);
     subrxsrc = iq_swap;
-    qInfo() << "receiver connect_all connected iq_swap";
+    // qInfo() << "receiver connect_all connected iq_swap";
 
     if (d_dc_cancel)
     {
         tb->connect(subrxsrc, 0, dc_corr, 0);
         subrxsrc = dc_corr;
-        qInfo() << "receiver connect_all using dc cancel";
+        // qInfo() << "receiver connect_all using dc cancel";
     }
 
     // Visualization
     tb->connect(subrxsrc, 0, iq_fft, 0);
-    qInfo() << "receiver connect_all connected fft";
+    // qInfo() << "receiver connect_all connected fft";
 }

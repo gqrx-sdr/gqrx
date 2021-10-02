@@ -21,6 +21,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <QDebug>
+
 #include "applications/gqrx/demodulator_controller.h"
 
 DemodulatorController::DemodulatorController(
@@ -129,7 +131,7 @@ DemodulatorController::DemodulatorController(
 
 DemodulatorController::~DemodulatorController()
 {
-    qInfo() << "DemodulatorController::~DemodulatorController begin";
+    // qInfo() << "DemodulatorController::~DemodulatorController begin";
 
     audio_fft_timer->stop();
     audio_fft_timer->deleteLater();
@@ -137,7 +139,7 @@ DemodulatorController::~DemodulatorController()
     rds_timer->stop();
     rds_timer->deleteLater();
 
-    rx->remove_demodulator(demod);
+    rx->remove_demodulator(demod->get_idx());
 
     delete [] d_fftData;
     delete [] d_realFftData;
@@ -153,7 +155,7 @@ DemodulatorController::~DemodulatorController()
     viewMenu->removeAction(viewMenuSection);
     viewMenuSection->deleteLater();
 
-    qInfo() << "DemodulatorController::~DemodulatorController done";
+    // qInfo() << "DemodulatorController::~DemodulatorController done";
 }
 
 void DemodulatorController::readSettings(QSettings *settings)
@@ -181,6 +183,7 @@ void DemodulatorController::ensureOffsetInRange(qint64 freq, qint64 lnb_lo, qint
 
 void DemodulatorController::onRemoveAction()
 {
+    // qInfo() << "DemodulatorController" << this << "::onRemoveAction for demod idx" << demod->get_idx();
     emit remove(demod->get_idx());
 }
 

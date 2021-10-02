@@ -119,7 +119,7 @@ public:
 
     /* Demodulators control */
     demodulator::sptr   add_demodulator();
-    void                remove_demodulator(demodulator::sptr demod);
+    void                remove_demodulator(size_t idx);
 
     // Proxy due to flowgraph reconfiguration
     rx_status   set_demod(const size_t idx, rx_demod demod, bool force = false);

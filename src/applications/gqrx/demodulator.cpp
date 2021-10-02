@@ -79,12 +79,12 @@ demodulator::demodulator(
 
 demodulator::~demodulator()
 {
-    qInfo() << "demodulator::~demodulator called";
+    // qInfo() << "demodulator::~demodulator called";
 }
 
 void demodulator::set_output_device(const std::string device, const int d_audio_rate)
 {
-    qInfo() << "demodulator sets output device" << device.c_str() << "at rate" << d_audio_rate;
+    // qInfo() << "demodulator sets output device" << device.c_str() << "at rate" << d_audio_rate;
     QString portName = QString("Receiver %0").arg(idx);
 
 #ifdef WITH_PULSEAUDIO
@@ -295,12 +295,12 @@ rx_status demodulator::set_agc_manual_gain(int gain)
 
 rx_status demodulator::set_demod(rx_demod demod, bool force, gr::basic_block_sptr src, int d_quad_rate, int d_audio_rate)
 {
-    qInfo() << "subrx" << idx << "set_demod starts";
+    // qInfo() << "demodulator" << idx << "set_demod starts";
 
     rx_status ret = STATUS_OK;
 
     if (!force && (demod == d_demod)) {
-        qInfo() << "subrx" << idx << "set_demod return early";
+        // qInfo() << "demodulator" << idx << "set_demod return early";
         return ret;
     }
 
@@ -357,7 +357,7 @@ rx_status demodulator::set_demod(rx_demod demod, bool force, gr::basic_block_spt
 
     d_demod = demod;
 
-    qInfo() << "subrx" << idx << "set_demod done";
+    // qInfo() << "demodulator" << idx << "set_demod done";
 
     return ret;
 }
@@ -421,7 +421,7 @@ rx_status demodulator::set_af_gain(float gain_db)
 
 void demodulator::connect_all(rx_chain type, gr::basic_block_sptr src, int d_quad_rate, int d_audio_rate)
 {
-    qInfo() << "subrx" << idx << "connect_all starts";
+    // qInfo() << "demodulator" << idx << "connect_all starts";
 
     // RX demod chain
     switch (type)
@@ -446,7 +446,7 @@ void demodulator::connect_all(rx_chain type, gr::basic_block_sptr src, int d_qua
         break;
     }
 
-    qInfo() << "subrx" << idx << "connect_all created rx";
+    // qInfo() << "demodulator" << idx << "connect_all created rx";
 
     // Audio path (if there is a receiver)
     if (type != RX_CHAIN_NONE)
@@ -461,7 +461,7 @@ void demodulator::connect_all(rx_chain type, gr::basic_block_sptr src, int d_qua
         tb->connect(audio_gain0, 0, audio_snk, 0);
         tb->connect(audio_gain1, 0, audio_snk, 1);
 
-        qInfo() << "subrx" << idx << "connect_all created connections";
+        // qInfo() << "demodulator" << idx << "connect_all created connections";
     }
 
 //    // Recorders and sniffers
@@ -476,7 +476,7 @@ void demodulator::connect_all(rx_chain type, gr::basic_block_sptr src, int d_qua
 //        tb->connect(rx, 0, sniffer_rr, 0);
 //        tb->connect(sniffer_rr, 0, sniffer, 0);
 //    }
-    qInfo() << "subrx" << idx << "connect_all done";
+    // qInfo() << "demodulator" << idx << "connect_all done";
 }
 
 

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>328</width>
-    <height>368</height>
+    <width>280</width>
+    <height>323</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -15,12 +15,6 @@
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>325</width>
-    <height>368</height>
-   </size>
   </property>
   <property name="maximumSize">
    <size>
@@ -789,7 +783,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>10</width>
+         <width>0</width>
          <height>0</height>
         </size>
        </property>
@@ -833,7 +827,7 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
  <connections>
   <connection>
    <sender>pbRemove</sender>
-   <signal>clicked()</signal>
+   <signal>released()</signal>
    <receiver>actionRemoveDemodulator</receiver>
    <slot>trigger()</slot>
    <hints>

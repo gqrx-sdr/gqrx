@@ -99,8 +99,7 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     ui->nb1Button->setMinimumSize(32, 24);
 #endif
 
-    ui->filterFreq->setup(7, -filterOffsetRange/2, filterOffsetRange/2, 1,
-                          FCTL_UNIT_KHZ);
+    ui->filterFreq->setup(7, -filterOffsetRange/2, filterOffsetRange/2, 1, FCTL_UNIT_KHZ);
     ui->filterFreq->setFrequency(0);
 
     connect(ui->actionRemoveDemodulator, SIGNAL(triggered()), this, SIGNAL(remove()));

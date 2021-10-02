@@ -191,7 +191,7 @@ private:
 
     rx_demod           d_demod;            /*!< Current demodulator. */
 
-    downconverter_cc_sptr               ddc     ;         /*!< Digital down-converter for demod chain. */
+    downconverter_cc_sptr               ddc;              /*!< Digital down-converter for demod chain. */
 
     gr::blocks::multiply_const_ff::sptr audio_gain0;      /*!< Audio gain block. */
     gr::blocks::multiply_const_ff::sptr audio_gain1;      /*!< Audio gain block. */
