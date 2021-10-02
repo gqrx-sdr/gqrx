@@ -294,6 +294,11 @@ void DockAudio::on_audioMuteButton_clicked(bool checked)
     }
 }
 
+void DockAudio::setAudioStreamButtonState(bool checked)
+{
+    ui->audioStreamButton->setChecked(checked);
+}
+
 /*! \brief Set status of audio record button. */
 void DockAudio::setAudioRecButtonState(bool checked)
 {
@@ -444,9 +449,9 @@ void DockAudio::readSettings(QSettings *settings, size_t idx)
 
     // Audio streaming host, port and stereo setting
     udp_host = settings->value("udp_host", "localhost").toString();
-    udp_port = settings->value("udp_port", 7355).toInt(&conv_ok);
+    udp_port = settings->value("udp_port", 7355 + (int)idx).toInt(&conv_ok);
     if (!conv_ok)
-        udp_port = 7355;
+        udp_port = 7355 + idx;
     udp_stereo = settings->value("udp_stereo", false).toBool();
 
     audioOptions->setUdpHost(udp_host);

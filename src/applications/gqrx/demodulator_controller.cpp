@@ -127,6 +127,11 @@ DemodulatorController::DemodulatorController(
     viewMenu->addAction(stopAudioRecAction);
     connect(stopAudioRecAction, SIGNAL(triggered()), this, SLOT(stopAudioRec()));
 
+    stopUDPStreamAction = new QAction("Stop UDP stream");
+    stopUDPStreamAction->setEnabled(false);
+    viewMenu->addAction(stopUDPStreamAction);
+    connect(stopUDPStreamAction, SIGNAL(triggered()), this, SLOT(stopAudioStreaming()));
+
     // Audio remote control
     // connect(uiDockAudio, SIGNAL(audioRecStopped()), remote, SLOT(stopAudioRecorder()));
     // connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), remote, SLOT(startAudioRecorder(QString)));
@@ -152,6 +157,7 @@ DemodulatorController::~DemodulatorController()
     audio_fft_timer->stop();
     audio_fft_timer->deleteLater();
     stopAudioRecAction->deleteLater();
+    stopUDPStreamAction->deleteLater();
 
     rds_timer->stop();
     rds_timer->deleteLater();
@@ -747,12 +753,12 @@ void DemodulatorController::stopAudioPlayback()
 /**
  * @brief Start streaming audio over UDP.
  *
- * TODO: how is this controller supposed to know that the port is
- * not in use by soe other receiver controller?
  */
 void DemodulatorController::startAudioStream(const QString& udp_host, int udp_port, bool stereo)
 {
-//    rx->start_udp_streaming(udp_host.toStdString(), udp_port, stereo);
+    qInfo() << "DemodulatorController::startAudioStream";
+    demod->start_udp_streaming(udp_host.toStdString(), udp_port, stereo);
+    stopUDPStreamAction->setEnabled(true);
 }
 
 /**
@@ -760,7 +766,9 @@ void DemodulatorController::startAudioStream(const QString& udp_host, int udp_po
  */
 void DemodulatorController::stopAudioStreaming()
 {
-//    rx->stop_udp_streaming();
+    demod->stop_udp_streaming();
+    stopUDPStreamAction->setEnabled(false);
+    uiDockAudio->setAudioStreamButtonState(false);
 }
 
 /* RDS */

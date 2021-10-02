@@ -57,7 +57,7 @@ demodulator::demodulator(
 
     audio_fft = make_rx_fft_f(8192u, d_audio_rate, gr::fft::window::WIN_HANN);
 
-//    audio_udp_sink = make_udp_sink_f();
+    audio_udp_sink = make_udp_sink_f();
 
     /* wav sink and source is created when rec/play is started */
 //    audio_null_sink0 = gr::blocks::null_sink::make(sizeof(float));
@@ -493,6 +493,31 @@ rx_status demodulator::stop_audio_recording()
     return STATUS_OK;
 }
 
+/** Start UDP streaming of audio. */
+rx_status demodulator::start_udp_streaming(const std::string host, int port, bool stereo)
+{
+    tb->lock();
+    qInfo() << "demodulator::start_udp_streaming";
+    audio_udp_sink->start_streaming(host, port, stereo);
+    tb->unlock();
+
+    // qInfo() << "\n\n" << gr::dot_graph(tb).c_str() << "\n\n";
+
+    return STATUS_OK;
+}
+
+/** Stop UDP streaming of audio. */
+rx_status demodulator::stop_udp_streaming()
+{
+    tb->lock();
+    audio_udp_sink->stop_streaming();
+    tb->unlock();
+
+    // qInfo() << "\n\n" << gr::dot_graph(tb).c_str() << "\n\n";
+
+    return STATUS_OK;
+}
+
 void demodulator::get_rds_data(std::string &outbuff, int &num)
 {
     rx->get_rds_data(outbuff, num);
@@ -553,8 +578,8 @@ void demodulator::connect_all(rx_chain type, gr::basic_block_sptr src, int d_qua
         tb->connect(src, 0, ddc, 0);
         tb->connect(ddc, 0, rx, 0);
         tb->connect(rx, 0, audio_fft, 0);
-//        tb->connect(rx, 0, audio_udp_sink, 0);
-//        tb->connect(rx, 1, audio_udp_sink, 1);
+        tb->connect(rx, 0, audio_udp_sink, 0);
+        tb->connect(rx, 1, audio_udp_sink, 1);
         tb->connect(rx, 0, audio_gain0, 0);
         tb->connect(rx, 1, audio_gain1, 0);
         tb->connect(audio_gain0, 0, audio_snk, 0);
@@ -667,19 +692,7 @@ void demodulator::connect_all(rx_chain type, gr::basic_block_sptr src, int d_qua
 //    return STATUS_OK;
 //}
 
-///** Start UDP streaming of audio. */
-//rx_status receiver::start_udp_streaming(const std::string host, int port, bool stereo)
-//{
-//    audio_udp_sink->start_streaming(host, port, stereo);
-//    return STATUS_OK;
-//}
 
-///** Stop UDP streaming of audio. */
-//rx_status receiver::stop_udp_streaming()
-//{
-//    audio_udp_sink->stop_streaming();
-//    return STATUS_OK;
-//}
 
 ///**
 // * @brief Start data sniffer.

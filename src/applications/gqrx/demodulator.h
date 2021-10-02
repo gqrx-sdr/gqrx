@@ -43,7 +43,7 @@
 #include "dsp/downconverter.h"
 //#include "dsp/sniffer_f.h"
 #include "dsp/rx_fft.h"
-//#include "interfaces/udp_sink_f.h"
+#include "interfaces/udp_sink_f.h"
 #include "receivers/receiver_base.h"
 
 #ifdef WITH_PULSEAUDIO
@@ -155,8 +155,9 @@ public:
 //    rx_status      start_audio_playback(const std::string filename);
 //    rx_status      stop_audio_playback();
 
-//    rx_status      start_udp_streaming(const std::string host, int port, bool stereo);
-//    rx_status      stop_udp_streaming();
+    /* UDP Audio streaming */
+    rx_status      start_udp_streaming(const std::string host, int port, bool stereo);
+    rx_status      stop_udp_streaming();
 
     /* sample sniffer */
 //    rx_status      start_sniffer(unsigned int samplrate, int buffsize);
@@ -188,10 +189,10 @@ private:
 
     rx_demod           d_demod;            /*!< Current demodulator. */
 
-    downconverter_cc_sptr               ddc;              /*!< Digital down-converter for demod chain. */
+    downconverter_cc_sptr               ddc;                /*!< Digital down-converter for demod chain. */
 
-    gr::blocks::multiply_const_ff::sptr audio_gain0;      /*!< Audio gain block. */
-    gr::blocks::multiply_const_ff::sptr audio_gain1;      /*!< Audio gain block. */
+    gr::blocks::multiply_const_ff::sptr audio_gain0;        /*!< Audio gain block. */
+    gr::blocks::multiply_const_ff::sptr audio_gain1;        /*!< Audio gain block. */
 
     // Audio recording
     bool                                d_recording_wav;    /*!< Whether we are recording WAV file. */
@@ -204,7 +205,7 @@ private:
 //    gr::blocks::null_sink::sptr         audio_null_sink1; /*!< Audio null sink used during playback. */
 
     // UDP streaming
-//    udp_sink_f_sptr   audio_udp_sink;                     /*!< UDP sink to stream audio over the network. */
+    udp_sink_f_sptr   audio_udp_sink;                       /*!< UDP sink to stream audio over the network. */
 
     // Sample sniffer
 //    sniffer_f_sptr    sniffer;                            /*!< Sample sniffer for data decoders. */

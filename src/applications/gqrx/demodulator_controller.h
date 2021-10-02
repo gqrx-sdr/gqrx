@@ -154,6 +154,9 @@ private:
     QTimer                  *audio_fft_timer;
     QAction                 *stopAudioRecAction;
 
+    // UDP control
+    QAction                 *stopUDPStreamAction;
+
     // RDS
     DockRDS                 *uiDockRDS;
     ads::CDockWidget        *dockRDS;           /*!< Wrapped dock widget for DockManager */

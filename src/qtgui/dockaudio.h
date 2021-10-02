@@ -58,6 +58,7 @@ public:
     void setAudioGain(int gain);
     int  audioGain();
 
+    void setAudioStreamButtonState(bool checked);
     void setAudioRecButtonState(bool checked);
     void setAudioPlayButtonState(bool checked);
 

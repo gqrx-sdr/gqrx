@@ -690,7 +690,7 @@ void receiver::begin_reconfigure()
 
 void receiver::complete_reconfigure()
 {
-    // qInfo() << "\n\n" << gr::dot_graph(tb).c_str() << "\n\n";
+     // qInfo() << "\n\n" << gr::dot_graph(tb).c_str() << "\n\n";
 
     if (d_running)
         tb->start();
