@@ -101,6 +101,7 @@ public:
 
     void    setFreqCtrlReset(bool enabled);
     void    setInvertScrolling(bool enabled);
+    void    setoffsetFollowsHw(bool enabled);
 
 public slots:
     bool    setGain(QString name, double value);
@@ -117,6 +118,7 @@ signals:
     void antennaSelected(QString antenna);
     void freqCtrlResetChanged(bool enabled);
     void invertScrollingChanged(bool enabled);
+    void offsetFollowsHwChanged(bool enabled);
 
 public slots:
     void setLnbLo(double freq_mhz);
@@ -132,6 +134,7 @@ private slots:
     void on_antSelector_currentIndexChanged(const QString &antenna);
     void on_freqCtrlResetButton_toggled(bool checked);
     void on_invertScrollingButton_toggled(bool checked);
+    void on_offsetFollowButton_toggled(bool checked);
 
     void sliderValueChanged(int value);
 

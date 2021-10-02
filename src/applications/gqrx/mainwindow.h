@@ -153,6 +153,7 @@ private slots:
 
     void setFreqCtrlReset(bool enabled);
     void setInvertScrolling(bool enabled);
+    void setOffsetFollowsHw(bool enabled);
 
     /* I/Q playback and recording */
     void startIqRecording(const QString& recdir);

@@ -227,11 +227,20 @@ void DockRxOpt::setFilterOffsetRange(qint64 range_hz)
  * RF frequency is the frequency to which the receiver device is tuned to.
  * The actual RX frequency is the sum of the RF frequency and the filter offset.
  */
-void DockRxOpt::setHwFreq(qint64 freq_hz)
+void DockRxOpt::setHwFreq(qint64 freq_hz, bool maintain_rx_freq)
 {
     // qInfo() << "DockRxOpt::setHwFreq" << freq_hz;
     hw_freq_hz = freq_hz;
     updateHwFreq();
+
+    if (maintain_rx_freq) {
+        // Change the offset to keep the same output Rx freq
+        auto rx_freq = 1.e3 * ui->freqSpinBox->value();
+        auto new_offset = rx_freq - hw_freq_hz;
+        ui->filterFreq->setFrequency(new_offset);
+    } else {
+        setRxFreq(hw_freq_hz + ui->filterFreq->getFrequency());
+    }
 }
 
 /** Update RX frequency label. */
@@ -239,7 +248,6 @@ void DockRxOpt::updateHwFreq()
 {
     double hw_freq_mhz = hw_freq_hz / 1.0e6;
     ui->hwFreq->setText(QString("%1 MHz").arg(hw_freq_mhz, 11, 'f', 6, ' '));
-    setRxFreq(hw_freq_hz + ui->filterFreq->getFrequency());
 }
 
 /**
@@ -432,7 +440,7 @@ void DockRxOpt::readSettings(QSettings *settings, size_t idx)
         demodOpt->setEmph(1.0e-6 * dbl_val); // was stored as usec
 
     qint64 offs = settings->value("offset", 0).toInt(&conv_ok);
-    if (offs)
+    if (conv_ok)
     {
         // qInfo() << "DockRxOpt::readSettings recalls offset" << offs;
         setFilterOffset(offs);
@@ -522,10 +530,7 @@ void DockRxOpt::saveSettings(QSettings *settings, size_t idx)
         settings->setValue("fm_deemph", int_val);
 
     qint64 offs = ui->filterFreq->getFrequency();
-    if (offs)
-        settings->setValue("offset", offs);
-    else
-        settings->remove("offset");
+    settings->setValue("offset", offs);
 
     qDebug() << __func__ << "*** FIXME_ SQL on/off";
     //int sql_lvl = double(ui->sqlSlider->value());  // note: dBFS*10 as int

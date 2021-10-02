@@ -212,6 +212,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockInputCtl, SIGNAL(antennaSelected(QString)), this, SLOT(setAntenna(QString)));
     connect(uiDockInputCtl, SIGNAL(freqCtrlResetChanged(bool)), this, SLOT(setFreqCtrlReset(bool)));
     connect(uiDockInputCtl, SIGNAL(invertScrollingChanged(bool)), this, SLOT(setInvertScrolling(bool)));
+    connect(uiDockInputCtl, SIGNAL(offsetFollowsHwChanged(bool)), this, SLOT(setOffsetFollowsHw(bool)));
+
     connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setIqFftSize(int)));
     connect(uiDockFft, SIGNAL(fftRateChanged(int)), this, SLOT(setIqFftRate(int)));
     connect(uiDockFft, SIGNAL(fftWindowChanged(int)), this, SLOT(setIqFftWindow(int)));
@@ -575,10 +577,6 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         qDebug() << "Actual bandwidth   :" << actual_bw << "Hz";
     }
 
-    uiDockInputCtl->readSettings(m_settings); // this will also update freq range
-    uiDockFft->readSettings(m_settings);
-    dxc_options->readSettings(m_settings);
-
     // Construct and configure the demodulators
     int demodSize = demodCtrls.size();
     int demodCount = m_settings->value("receiver/count").toUInt();
@@ -593,11 +591,9 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         }
     }
 
-    for (auto demod : demodCtrls)
-    {
-        demod->setFilterOffsetRange(actual_rate);
-        demod->readSettings(m_settings);
-    }
+    uiDockInputCtl->readSettings(m_settings); // this will also update freq range
+    uiDockFft->readSettings(m_settings);
+    dxc_options->readSettings(m_settings);
 
     {
         int64_val = m_settings->value("input/frequency", 14236000).toLongLong(&conv_ok);
@@ -613,6 +609,12 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
 
         uiBaseband->freqCtrl()->setFrequency(int64_val);
         setNewFrequency(uiBaseband->freqCtrl()->getFrequency()); // ensure all GUI and RF is updated
+    }
+
+    for (auto demod : demodCtrls)
+    {
+        demod->setFilterOffsetRange(actual_rate);
+        demod->readSettings(m_settings);
     }
 
     /*{
@@ -1029,6 +1031,15 @@ void MainWindow::setInvertScrolling(bool enabled)
     for (auto demod : demodCtrls)
     {
         demod->setInvertScrolling(enabled);
+    }
+}
+
+/** Offset follows HW Freq */
+void MainWindow::setOffsetFollowsHw(bool enabled)
+{
+    for (auto demod : demodCtrls)
+    {
+        demod->setOffsetFollowsHw(enabled);
     }
 }
 

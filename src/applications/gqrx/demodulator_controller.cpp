@@ -36,7 +36,8 @@ DemodulatorController::DemodulatorController(
     demod(demod),
     dockMgr(dockMgr),
     viewMenu(viewMenu),
-    d_have_audio(true)
+    d_have_audio(true),
+    d_offset_follows_hw(false)
 {
     d_filter_shape = rx_filter_shape::FILTER_SHAPE_NORMAL;
 
@@ -219,7 +220,7 @@ void DemodulatorController::setFrequencyRange(qint64 hw_start, qint64 hw_stop)
 
 void DemodulatorController::setHwFrequency(qint64 hw_freq)
 {
-    uiDockRxOpt->setHwFreq(hw_freq);
+    uiDockRxOpt->setHwFreq(hw_freq, d_offset_follows_hw);
 }
 
 void DemodulatorController::setFilterFrequency(int low, int high)
@@ -243,6 +244,11 @@ void DemodulatorController::setInvertScrolling(bool enabled)
 {
     uiDockRxOpt->setInvertScrolling(enabled);
     uiDockAudio->setInvertScrolling(enabled);
+}
+
+void DemodulatorController::setOffsetFollowsHw(bool enabled)
+{
+    d_offset_follows_hw = enabled;
 }
 
 void DemodulatorController::setFftColor(const QColor& color)

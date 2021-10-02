@@ -76,6 +76,7 @@ public slots:
 
     void setFreqCtrlReset(bool enabled);
     void setInvertScrolling(bool enabled);
+    void setOffsetFollowsHw(bool enabled);
     void setFftColor(const QColor& color);
     void setFftFill(bool enable);
 
@@ -138,10 +139,11 @@ private:
     QAction                 *viewMenuSection;
 
     // Rx controls
-    DockRxOpt               *uiDockRxOpt;       /*!< Dock for the Rx settings */
-    ads::CDockWidget        *dockDemod;         /*!< Wrapped dock widget for DockManager */
-    bool                    d_have_audio;       /*!< Whether we have audio (i.e. not with demod_off. */
-    enum rx_filter_shape    d_filter_shape;     /*!< The las used filter shape */
+    DockRxOpt               *uiDockRxOpt;           /*!< Dock for the Rx settings */
+    ads::CDockWidget        *dockDemod;             /*!< Wrapped dock widget for DockManager */
+    bool                    d_have_audio;           /*!< Whether we have audio (i.e. not with demod_off. */
+    enum rx_filter_shape    d_filter_shape;         /*!< The las used filter shape */
+    bool                    d_offset_follows_hw;    /*!< Whether changing HW freq also changes offset */
     QTimer                  *meter_timer;
 
     // Audio FFT display

@@ -114,6 +114,10 @@ void DockInputCtl::readSettings(QSettings * settings)
     bool_val = settings->value("gui/invert_scrolling", false).toBool();
     emit invertScrollingChanged(bool_val);
     ui->invertScrollingButton->setChecked(bool_val);
+
+    bool_val = settings->value("gui/offset_follow_hw", false).toBool();
+    emit offsetFollowsHwChanged(bool_val);
+    ui->offsetFollowButton->setChecked(bool_val);
 }
 
 void DockInputCtl::saveSettings(QSettings * settings)
@@ -181,6 +185,12 @@ void DockInputCtl::saveSettings(QSettings * settings)
         settings->setValue("gui/invert_scrolling", true);
     else
         settings->remove("gui/invert_scrolling");
+
+    // Remember state of offset follow button. Default is unchecked.
+    if (ui->offsetFollowButton->isChecked())
+        settings->setValue("gui/offset_follow_hw", true);
+    else
+        settings->remove("gui/offset_follow_hw");
 }
 
 void DockInputCtl::readLnbLoFromSettings(QSettings * settings)
@@ -363,6 +373,11 @@ void DockInputCtl::setInvertScrolling(bool enabled)
     ui->invertScrollingButton->setChecked(enabled);
 }
 
+void DockInputCtl::setoffsetFollowsHw(bool enabled)
+{
+    ui->offsetFollowButton->setChecked(enabled);
+}
+
 /**
  * Set gain stages.
  * @param gain_list A list containing the gain stages for this device.
@@ -522,6 +537,11 @@ void DockInputCtl::on_freqCtrlResetButton_toggled(bool checked)
 void DockInputCtl::on_invertScrollingButton_toggled(bool checked)
 {
     emit invertScrollingChanged(checked);
+}
+
+void DockInputCtl::on_offsetFollowButton_toggled(bool checked)
+{
+    emit offsetFollowsHwChanged(checked);
 }
 
 /** Remove all widgets from the lists. */
