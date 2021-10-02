@@ -401,11 +401,12 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         delete m_settings;
     }
 
-    if (QDir::isAbsolutePath(cfgfile))
+    if (QDir::isAbsolutePath(cfgfile)) {
         m_settings = new QSettings(cfgfile, QSettings::IniFormat);
-    else
+    } else {
         m_settings = new QSettings(QString("%1/%2").arg(m_cfg_dir).arg(cfgfile),
                                    QSettings::IniFormat);
+    }
 
     qDebug() << "Configuration file:" << m_settings->fileName();
 
@@ -423,8 +424,9 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
             askUserAboutConfig->setDefaultButton(QMessageBox::Yes);
             askUserAboutConfig->setTextFormat(Qt::RichText);
             askUserAboutConfig->exec();
-            if (askUserAboutConfig->result() == QMessageBox::Yes)
+            if (askUserAboutConfig->result() == QMessageBox::Yes) {
                 skip_loading_cfg = true;
+            }
 
             delete askUserAboutConfig;
         }
@@ -443,17 +445,8 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
 
     // hide toolbar
     bool_val = m_settings->value("gui/hide_toolbar", false).toBool();
-    if (bool_val)
+    if (bool_val) {
         ui->mainToolBar->hide();
-
-    // main window settings
-    if (restore_mainwindow)
-    {
-        restoreGeometry(m_settings->value("gui/geometry",
-                                          saveGeometry()).toByteArray());
-        restoreState(m_settings->value("gui/state", saveState()).toByteArray());
-
-        uiDockManager->restoreState(m_settings->value("gui/docks").toByteArray());
     }
 
     QString indev = m_settings->value("input/device", "").toString();
@@ -477,10 +470,11 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         // Update window title
         QRegExp regexp(R"('([a-zA-Z0-9 \-\_\/\.\,\(\)]+)')");
         QString devlabel;
-        if (regexp.indexIn(indev, 0) != -1)
+        if (regexp.indexIn(indev, 0) != -1) {
             devlabel = regexp.cap(1);
-        else
+        } else {
             devlabel = indev; //"Unknown";
+        }
 
         setWindowTitle(QString("Gqrx %1 - %2").arg(VERSION).arg(devlabel));
 
@@ -498,8 +492,9 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
              */
             updateGainStages(false);
         }
-        else
+        else {
             updateGainStages(true);
+        }
     }
 
     QString outdev = m_settings->value("output/device", "").toString();
@@ -540,8 +535,9 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         qDebug() << "Requested sample rate:" << int_val;
         qDebug() << "Actual sample rate   :" << QString("%1").arg(actual_rate, 0, 'f', 6);
     }
-    else
+    else {
         actual_rate = rx->get_input_rate();
+    }
 
     if (actual_rate > 0.)
     {
@@ -570,13 +566,10 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         uiBaseband->plotter()->setSpanFreq((quint32)actual_rate);
         remote->setBandwidth((qint64)actual_rate);
         iq_tool->setSampleRate((qint64)actual_rate);
-        for (auto demod : demodCtrls)
-        {
-            demod->setFilterOffsetRange(actual_rate);
-        }
     }
-    else
+    else {
         qDebug() << "Error: Actual sample rate is" << actual_rate;
+    }
 
     int64_val = m_settings->value("input/bandwidth", 0).toInt(&conv_ok);
     if (conv_ok)
@@ -617,9 +610,24 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         }
     }*/
 
+    // Construct and configure the demodulators
+    int demodSize = demodCtrls.size();
+    int demodCount = m_settings->value("receiver/count").toUInt();
+    int demodDiff = demodCount - demodSize;
+    if (demodDiff > 0) {
+        for (int i = 0; i < demodDiff; ++i) {
+            addDemodulator();
+        }
+    } else if (demodDiff < 0) {
+        for (int i = demodCount; i < demodSize; ++i) {
+            removeDemodulator(i);
+        }
+    }
+
     for (auto demod : demodCtrls)
     {
         demod->readSettings(m_settings);
+        demod->setFilterOffsetRange(actual_rate);
     }
 
     iq_tool->readSettings(m_settings);
@@ -634,6 +642,17 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
     {
        remote->start_server();
        ui->actionRemoteControl->setChecked(true);
+    }
+
+    // main window settings
+    if (restore_mainwindow)
+    {
+        restoreGeometry(m_settings->value("gui/geometry",
+                                          saveGeometry()).toByteArray());
+        restoreState(m_settings->value("gui/state", saveState()).toByteArray());
+
+        // Do this last since the demods are dynamically created
+        uiDockManager->restoreState(m_settings->value("gui/docks").toByteArray());
     }
 
     emit m_recent_config->configLoaded(m_settings->fileName());
@@ -724,6 +743,7 @@ void MainWindow::storeSession()
             }
         }*/
 
+        m_settings->setValue("receiver/count",  QVariant::fromValue(demodCtrls.size()));
         for (auto demod : demodCtrls)
         {
             demod->saveSettings(m_settings);
@@ -981,6 +1001,7 @@ void MainWindow::addDemodulator()
     auto ctl = std::make_shared<DemodulatorController>(rx, demod, uiDockManager);
     connect(ctl.get(), SIGNAL(remove(size_t)), this, SLOT(removeDemodulator(size_t)));
     demodCtrls.push_back(ctl);
+    ctl->readSettings(m_settings);
 }
 
 void MainWindow::removeDemodulator(size_t idx)
