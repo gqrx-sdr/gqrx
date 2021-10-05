@@ -1,8 +1,6 @@
 #######################################################################################################################
 # Add the source files to SRCS_LIST
 add_source_files(SRCS_LIST
-	afsk1200win.cpp
-	afsk1200win.h
 	agc_options.cpp
 	agc_options.h
 	audio_options.cpp
@@ -22,6 +20,8 @@ add_source_files(SRCS_LIST
 	ctk/ctkRangeSlider.h
 	demod_options.cpp
 	demod_options.h
+        dockafsk1200.cpp
+        dockafsk1200.h
 	dockaudio.cpp
 	dockaudio.h
 	dockbookmarks.cpp
@@ -57,11 +57,11 @@ add_source_files(SRCS_LIST
 #######################################################################################################################
 # Add the source files to UI_SRCS_LIST
 add_source_files(UI_SRCS_LIST
-	afsk1200win.ui
 	agc_options.ui
 	audio_options.ui
         basebandview.ui
 	demod_options.ui
+        dockafsk1200.ui
 	dockaudio.ui
 	dockbookmarks.ui
 	dockfft.ui

@@ -41,7 +41,8 @@
 #include <QDebug>
 
 #include "dsp/downconverter.h"
-//#include "dsp/sniffer_f.h"
+#include "dsp/sniffer_f.h"
+#include "dsp/resampler_xx.h"
 #include "dsp/rx_fft.h"
 #include "interfaces/udp_sink_f.h"
 #include "receivers/receiver_base.h"
@@ -150,21 +151,22 @@ public:
     }
 
     /* Audio Record/Playback */
-    rx_status      start_audio_recording(const std::string filename);
-    rx_status      stop_audio_recording();
+    rx_status       start_audio_recording(const std::string filename);
+    rx_status       stop_audio_recording();
+//    bool                is_recording_audio(void) const { return d_recording_wav; }
+
 //    rx_status      start_audio_playback(const std::string filename);
 //    rx_status      stop_audio_playback();
 
     /* UDP Audio streaming */
-    rx_status      start_udp_streaming(const std::string host, int port, bool stereo);
-    rx_status      stop_udp_streaming();
+    rx_status       start_udp_streaming(const std::string host, int port, bool stereo);
+    rx_status       stop_udp_streaming();
 
     /* sample sniffer */
-//    rx_status      start_sniffer(unsigned int samplrate, int buffsize);
-//    rx_status      stop_sniffer();
-//    void                get_sniffer_data(float * outbuff, unsigned int &num);
-//    bool                is_recording_audio(void) const { return d_recording_wav; }
-//    bool                is_snifffer_active(void) const { return d_sniffer_active; }
+    rx_status       start_sniffer(unsigned int samplrate, int buffsize);
+    rx_status       stop_sniffer();
+    void            get_sniffer_data(float * outbuff, unsigned int &num);
+    bool            is_snifffer_active(void) const { return d_sniffer_active; }
 
     /* rds functions */
     void        get_rds_data(std::string &outbuff, int &num);
@@ -205,22 +207,22 @@ private:
 //    gr::blocks::null_sink::sptr         audio_null_sink1; /*!< Audio null sink used during playback. */
 
     // UDP streaming
-    udp_sink_f_sptr   audio_udp_sink;                       /*!< UDP sink to stream audio over the network. */
+    udp_sink_f_sptr   audio_udp_sink;       /*!< UDP sink to stream audio over the network. */
 
     // Sample sniffer
-//    sniffer_f_sptr    sniffer;                            /*!< Sample sniffer for data decoders. */
-//    resampler_ff_sptr sniffer_rr;                         /*!< Sniffer resampler. */
+    sniffer_f_sptr              sniffer;    /*!< Sample sniffer for data decoders. */
+    resampler_ff_sptr           sniffer_rr; /*!< Sniffer resampler. */
 
-    receiver_base_cf_sptr     rx;          /*!< receive hierblock. */
-    rx_fft_f_sptr             audio_fft;   /*!< Audio FFT block. */
+    receiver_base_cf_sptr       rx;         /*!< receive hierblock. */
+    rx_fft_f_sptr               audio_fft;  /*!< Audio FFT block. */
 
-    bool                      audio_snk_connected;
+    bool                        audio_snk_connected;
 #ifdef WITH_PULSEAUDIO
-    pa_sink_sptr              audio_snk;  /*!< Pulse audio sink. */
+    pa_sink_sptr                audio_snk;  /*!< Pulse audio sink. */
 #elif WITH_PORTAUDIO
-    portaudio_sink_sptr       audio_snk;  /*!< portaudio sink */
+    portaudio_sink_sptr         audio_snk;  /*!< portaudio sink */
 #else
-    gr::audio::sink::sptr     audio_snk;  /*!< gr audio sink */
+    gr::audio::sink::sptr       audio_snk;  /*!< gr audio sink */
 #endif
 };
 

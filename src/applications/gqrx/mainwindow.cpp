@@ -72,8 +72,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     ui(new Ui::MainWindow),
     d_lnb_lo(0),
     d_hw_freq(0),
-    d_fftAvg(0.25),
-    dec_afsk1200(nullptr)
+    d_fftAvg(0.25)
 {
     ui->setupUi(this);
 
@@ -125,10 +124,6 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
         d_iirFftData[i] = -140.0;  // dBFS
     }
 
-    // timer for data decoders
-    dec_timer = new QTimer(this);
-    connect(dec_timer, SIGNAL(timeout()), this, SLOT(decoderTimeout()));
-
     // create I/Q tool widget
     iq_tool = new CIqTool(this);
 
@@ -140,6 +135,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     // Use baseband view as central widget
     uiBaseband = new BasebandView(this);
     ads::CDockWidget* centralDockWidget = new ads::CDockWidget("BasebandView");
+    uiDockWidgets.push_back(centralDockWidget);
     centralDockWidget->setWidget(uiBaseband);
     auto* centralDockArea = uiDockManager->setCentralWidget(centralDockWidget);
     centralDockArea->setAllowedAreas(ads::DockWidgetArea::OuterDockAreas);
@@ -147,14 +143,17 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     // create dock widgets
     uiDockInputCtl = new DockInputCtl();
     ads::CDockWidget* dockInput = new ads::CDockWidget("Input");
+    uiDockWidgets.push_back(dockInput);
     dockInput->setWidget(uiDockInputCtl);
 
     uiDockFft = new DockFft();
     ads::CDockWidget* dockFft = new ads::CDockWidget("FFT");
+    uiDockWidgets.push_back(dockFft);
     dockFft->setWidget(uiDockFft);
 
     uiDockBookmarks = new DockBookmarks();
     ads::CDockWidget* dockBookmarks = new ads::CDockWidget("Bookmarks");
+    uiDockWidgets.push_back(dockBookmarks);
     dockBookmarks->setWidget(uiDockBookmarks);
 
     /* Add dock widgets to manager. This should be done even for
@@ -257,8 +256,6 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(iq_tool, SIGNAL(seek(qint64)), this,SLOT(seekIqFile(qint64)));
 
     // remote control
-    connect(remote, SIGNAL(newRDSmode(bool)), uiDockRDS, SLOT(setRDSmode(bool)));
-    connect(uiDockRDS, SIGNAL(rdsDecoderToggled(bool)), remote, SLOT(setRDSstatus(bool)));
     connect(remote, SIGNAL(newFilterOffset(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(remote, SIGNAL(newFrequency(qint64)), uiBaseband->freqCtrl(), SLOT(setFrequency(qint64)));
     connect(remote, SIGNAL(newLnbLo(double)), uiDockInputCtl, SLOT(setLnbLo(double)));
@@ -269,7 +266,6 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(remote, SIGNAL(newPassband(int)), this, SLOT(setPassband(int)));
     connect(remote, SIGNAL(gainChanged(QString,double)), uiDockInputCtl, SLOT(setGain(QString,double)));
     connect(remote, SIGNAL(dspChanged(bool)), this, SLOT(on_actionDSP_triggered(bool)));
-    connect(uiDockRDS, SIGNAL(rdsPI(QString)), remote, SLOT(rdsPI(QString)));
 
     // enable frequency tooltips on FFT plot
     uiBaseband->plotter()->setTooltipsEnabled(true);
@@ -316,49 +312,33 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 
 MainWindow::~MainWindow()
 {
-    on_actionDSP_triggered(false);
+    demodCtrls.clear();
+    rx.reset();
 
     /* stop and delete timers */
-    dec_timer->stop();
-    delete dec_timer;
-
     iq_fft_timer->stop();
     delete iq_fft_timer;
 
-    if (m_settings)
-    {
-        m_settings->setValue("configversion", 3);
-        m_settings->setValue("crashed", false);
-
-        // hide toolbar (default=false)
-        if (ui->mainToolBar->isHidden())
-            m_settings->setValue("gui/hide_toolbar", true);
-        else
-            m_settings->remove("gui/hide_toolbar");
-
-        m_settings->setValue("gui/geometry", saveGeometry());
-        m_settings->setValue("gui/state", saveState());
-        m_settings->setValue("gui/docks", uiDockManager->saveState());
-
-        // save session
-        storeSession();
-
-        m_settings->sync();
-        delete m_settings;
-    }
-
+    delete m_settings;
     delete m_recent_config;
-
     delete iq_tool;
     delete dxc_options;
+
+    for (auto *dw : uiDockWidgets) {
+        uiDockManager->removeDockWidget(dw);
+        delete dw;
+    }
+    uiDockWidgets.clear();
+    delete uiDockManager;
+
     delete ui;
-    delete uiDockBookmarks;
-    delete uiDockFft;
-    delete uiDockInputCtl;
+
     delete remote;
+
     delete [] d_fftData;
     delete [] d_realFftData;
     delete [] d_iirFftData;
+
     delete qsvg_dummy;
 }
 
@@ -1079,6 +1059,38 @@ void MainWindow::iqFftTimeout()
     uiBaseband->plotter()->setNewFftData(d_iirFftData, d_realFftData, fftsize);
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    qInfo() << "MainWindow::closeEvent";
+
+    // Stop the DSP
+    on_actionDSP_triggered(false);
+
+    // Save state
+    if (m_settings)
+    {
+        m_settings->setValue("configversion", 3);
+        m_settings->setValue("crashed", false);
+
+        // hide toolbar (default=false)
+        if (ui->mainToolBar->isHidden())
+            m_settings->setValue("gui/hide_toolbar", true);
+        else
+            m_settings->remove("gui/hide_toolbar");
+
+        m_settings->setValue("gui/geometry", saveGeometry());
+        m_settings->setValue("gui/state", saveState());
+        m_settings->setValue("gui/docks", uiDockManager->saveState());
+
+        // save session
+        storeSession();
+
+        m_settings->sync();
+    }
+
+    QMainWindow::closeEvent(event);
+}
+
 /** Start I/Q recording. */
 void MainWindow::startIqRecording(const QString& recdir)
 {
@@ -1574,18 +1586,16 @@ void MainWindow::on_actionRemoteConfig_triggered()
 }
 
 
-#define DATA_BUFFER_SIZE 48000
-
-/**
- * AFSK1200 decoder action triggered.
- *
- * This slot is called when the user activates the AFSK1200
- * action. It will create an AFSK1200 decoder window and start
- * and start pushing data from the receiver to it.
- */
-void MainWindow::on_actionAFSK1200_triggered()
-{
-//    if (dec_afsk1200 != nullptr)
+///**
+// * AFSK1200 decoder action triggered.
+// *
+// * This slot is called when the user activates the AFSK1200
+// * action. It will create an AFSK1200 decoder window and start
+// * and start pushing data from the receiver to it.
+// */
+//void MainWindow::on_actionAFSK1200_triggered()
+//{
+//    if (afsk1200 != nullptr)
 //    {
 //        qDebug() << "AFSK1200 decoder already active.";
 //        dec_afsk1200->raise();
@@ -1610,24 +1620,8 @@ void MainWindow::on_actionAFSK1200_triggered()
 //                                    "Close all data decoders and try again."),
 //                                 QMessageBox::Ok, QMessageBox::Ok);
 //    }
-}
+//}
 
-
-/**
- * Destroy AFSK1200 decoder window got closed.
- *
- * This slot is connected to the windowClosed() signal of the AFSK1200 decoder
- * object. We need this to properly destroy the object, stop timeout and clean
- * up whatever need to be cleaned up.
- */
-void MainWindow::afsk1200win_closed()
-{
-//    /* stop cyclic processing */
-//    dec_timer->stop();
-//    rx->stop_sniffer();
-
-//    dec_afsk1200 = nullptr;
-}
 
 /** Show DXC Options. */
 void MainWindow::on_actionDX_Cluster_triggered()
@@ -1639,20 +1633,6 @@ void MainWindow::on_actionDX_Cluster_triggered()
 void MainWindow::on_actionAddDemodulator_triggered()
 {
     addDemodulator();
-}
-
-/**
- * Cyclic processing for acquiring samples from receiver and processing them
- * with data decoders (see dec_* objects)
- */
-void MainWindow::decoderTimeout()
-{
-//    float buffer[DATA_BUFFER_SIZE];
-//    unsigned int num;
-
-//    rx->get_sniffer_data(&buffer[0], num);
-//    if (dec_afsk1200)
-//        dec_afsk1200->process_samples(&buffer[0], num);
 }
 
 void MainWindow::onBookmarkActivated(qint64 freq, const QString& demod, int bandwidth)

@@ -20,46 +20,41 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#ifndef AFSK1200WIN_H
-#define AFSK1200WIN_H
+#ifndef DOCKAFSK1200_H
+#define DOCKAFSK1200_H
 
-#include <QMainWindow>
+#include <QFrame>
 #include <QVarLengthArray>
 #include "dsp/afsk1200/cafsk12.h"
 
-
 namespace Ui {
-    class Afsk1200Win;
+class DockAFSK1200;
 }
 
-
-/*! \brief AFSK1200 decoder window. */
-class Afsk1200Win : public QMainWindow
+class DockAFSK1200 : public QFrame
 {
     Q_OBJECT
 
 public:
-    explicit Afsk1200Win(QWidget *parent = 0);
-    ~Afsk1200Win();
+    explicit DockAFSK1200(QWidget *parent = nullptr);
+    ~DockAFSK1200();
+
     void process_samples(float *buffer, int length);
 
-protected:
-    void closeEvent(QCloseEvent *ev);
-
 signals:
-    void windowClosed();  /*! Signal we emit when window is closed. */
+    void afskDecoderToggled(bool checked);
 
 private slots:
     void on_actionClear_triggered();
     void on_actionSave_triggered();
     void on_actionInfo_triggered();
+    void on_cbEnabled_toggled(bool checked);
 
 private:
-    Ui::Afsk1200Win *ui;  /*! Qt Designer form. */
+    Ui::DockAFSK1200 *ui;
 
-    CAfsk12 *decoder;     /*! The AFSK1200 decoder object. */
-
-    QVarLengthArray<float, 16384> tmpbuf;   /*! Needed to remember "overlap" smples. */
+    CAfsk12                         *decoder;   /*! The AFSK1200 decoder object. */
+    QVarLengthArray<float, 16384>   tmpbuf;     /*! Needed to remember "overlap" samples. */
 };
 
-#endif // AFSK1200WIN_H
+#endif // DOCKAFSK1200_H

@@ -20,18 +20,17 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include <QMessageBox>
-#include <QFileDialog>
-#include <QFile>
-#include <QDir>
+
 #include <QDebug>
-#include "afsk1200win.h"
-#include "ui_afsk1200win.h"
+#include <QFileDialog>
+#include <QMessageBox>
 
+#include "dockafsk1200.h"
+#include "ui_dockafsk1200.h"
 
-Afsk1200Win::Afsk1200Win(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::Afsk1200Win)
+DockAFSK1200::DockAFSK1200(QWidget *parent) :
+    QFrame(parent),
+    ui(new Ui::DockAFSK1200)
 {
     ui->setupUi(this);
 
@@ -49,7 +48,7 @@ Afsk1200Win::Afsk1200Win(QWidget *parent) :
     connect(decoder, SIGNAL(newMessage(QString)), ui->textView, SLOT(appendPlainText(QString)));
 }
 
-Afsk1200Win::~Afsk1200Win()
+DockAFSK1200::~DockAFSK1200()
 {
     qDebug() << "AFSK1200 decoder destroyed.";
 
@@ -59,7 +58,7 @@ Afsk1200Win::~Afsk1200Win()
 
 
 /*! \brief Process new set of samples. */
-void Afsk1200Win::process_samples(float *buffer, int length)
+void DockAFSK1200::process_samples(float *buffer, int length)
 {
     int overlap = 18;
     int i;
@@ -78,25 +77,14 @@ void Afsk1200Win::process_samples(float *buffer, int length)
 
 }
 
-
-/*! \brief Catch window close events and emit signal so that main application can destroy us. */
-void Afsk1200Win::closeEvent(QCloseEvent *ev)
-{
-    Q_UNUSED(ev);
-
-    emit windowClosed();
-}
-
-
 /*! \brief User clicked on the Clear button. */
-void Afsk1200Win::on_actionClear_triggered()
+void DockAFSK1200::on_actionClear_triggered()
 {
     ui->textView->clear();
 }
 
-
 /*! \brief User clicked on the Save button. */
-void Afsk1200Win::on_actionSave_triggered()
+void DockAFSK1200::on_actionSave_triggered()
 {
     /* empty text view has blockCount = 1 */
     if (ui->textView->blockCount() < 2) {
@@ -127,7 +115,7 @@ void Afsk1200Win::on_actionSave_triggered()
 
 
 /*! \brief User clicked Info button. */
-void Afsk1200Win::on_actionInfo_triggered()
+void DockAFSK1200::on_actionInfo_triggered()
 {
     QMessageBox::about(this, tr("About AFSK1200 Decoder"),
                        tr("<p>Gqrx AFSK1200 Decoder %1</p>"
@@ -138,4 +126,10 @@ void Afsk1200Win::on_actionInfo_triggered()
                           "at <a href='http://qtmm.sf.net/'>http://qtmm.sf.net</a>.</p>"
                           ).arg(VERSION));
 
+}
+
+void DockAFSK1200::on_cbEnabled_toggled(bool checked)
+{
+    qDebug() << "DockAFSK1200 cbEnabled" << checked;
+    emit afskDecoderToggled(checked);
 }

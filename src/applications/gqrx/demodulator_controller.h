@@ -30,6 +30,7 @@
 
 #include <DockManager.h>
 
+#include "qtgui/dockafsk1200.h"
 #include "qtgui/dockrxopt.h"
 #include "qtgui/dockaudio.h"
 #include "qtgui/dockrds.h"
@@ -116,14 +117,18 @@ public slots:
 
     /* RDS */
 
-    void setRdsDecoder(bool checked);
+    void setRdsDecoder(bool enabled);
+
+    /* AFSK1200 */
+    void setAfskDecoder(bool enabled);
 
     /* Timers */
 
     void setAudioFftRate(int fps);
+    void meterTimeout();
     void audioFftTimeout();
     void rdsTimeout();
-    void meterTimeout();
+    void asfkTimeout();
 
     void enableTimers(bool enabled);
 
@@ -160,6 +165,11 @@ private:
     ads::CDockWidget        *dockRDS;           /*!< Wrapped dock widget for DockManager */
     QTimer                  *rds_timer;
     bool                    dec_rds;
+
+    // ASFK1200
+    DockAFSK1200            *uiDockAFSK;
+    ads::CDockWidget        *dockAFSK;
+    QTimer                  *afsk_timer;
 };
 
 #endif // DEMODULATOR_CONTROLLER_H

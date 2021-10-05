@@ -42,7 +42,6 @@
 #include "qtgui/dockinputctl.h"
 #include "qtgui/dockfft.h"
 #include "qtgui/dockbookmarks.h"
-#include "qtgui/afsk1200win.h"
 #include "qtgui/iq_tool.h"
 #include "qtgui/dxc_options.h"
 
@@ -91,32 +90,30 @@ private:
     float               *d_iirFftData;
     float                d_fftAvg;      /*!< FFT averaging parameter set by user (not the true gain). */
 
-    // Receiver controllers
+    /* Demodulators */
     std::vector<DemodulatorController::sptr> demodCtrls;
 
     /* Views */
     BasebandView        *uiBaseband;
+    QTimer              *iq_fft_timer;
 
     /* dock widgets & management */
-    ads::CDockManager   *uiDockManager;
-    DockInputCtl        *uiDockInputCtl;
-    DockFft             *uiDockFft;
-    DockBookmarks       *uiDockBookmarks;
-    QMenu               *receiversMenu;
+    ads::CDockManager               *uiDockManager;
+    std::vector<ads::CDockWidget*>  uiDockWidgets;      // Widgets of Dock* type, wrapped for manager
+    DockInputCtl                    *uiDockInputCtl;
+    DockFft                         *uiDockFft;
+    DockBookmarks                   *uiDockBookmarks;
+    QMenu                           *receiversMenu;
 
+    /* Peripherals */
     CIqTool             *iq_tool;
     DXCOptions          *dxc_options;
 
-    /* data decoders */
-    Afsk1200Win    *dec_afsk1200; // TODO: Move to DemodulatorController
+    /* Input/receiver controller */
+    receiver::sptr      rx;
 
-    QTimer   *dec_timer;
-
-    QTimer   *iq_fft_timer;
-
-    receiver::sptr rx;
-
-    RemoteControl *remote;
+    /* Network remote control */
+    RemoteControl       *remote;
 
     std::map<QString, QVariant> devList;
 
@@ -196,7 +193,6 @@ private slots:
     void on_actionFullScreen_triggered(bool checked);
     void on_actionRemoteControl_triggered(bool checked);
     void on_actionRemoteConfig_triggered();
-    void on_actionAFSK1200_triggered();
     void on_actionUserGroup_triggered();
     void on_actionNews_triggered();
     void on_actionRemoteProtocol_triggered();
@@ -208,12 +204,13 @@ private slots:
     void on_actionAddDemodulator_triggered();
 
     /* window close signals */
-    void afsk1200win_closed();
     int  firstTimeConfig();
 
     /* cyclic processing */
-    void decoderTimeout();
     void iqFftTimeout();
+
+    /* event handling */
+    virtual void closeEvent(QCloseEvent *event) override;
 };
 
 #endif // MAINWINDOW_H

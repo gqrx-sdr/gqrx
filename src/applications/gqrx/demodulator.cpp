@@ -47,7 +47,7 @@ demodulator::demodulator(
       d_recording_wav(false),
       d_audio_rate(audio_rate)
 {
-
+    // Tuning & actual demodulation
     ddc = make_downconverter_cc(d_ddc_decim, 0.0, d_decim_rate);
     rx  = make_nbrx(d_quad_rate, d_audio_rate);
 
@@ -57,13 +57,15 @@ demodulator::demodulator(
 
     audio_fft = make_rx_fft_f(8192u, d_audio_rate, gr::fft::window::WIN_HANN);
 
-    audio_udp_sink = make_udp_sink_f();
-
     /* wav sink and source is created when rec/play is started */
 //    audio_null_sink0 = gr::blocks::null_sink::make(sizeof(float));
 //    audio_null_sink1 = gr::blocks::null_sink::make(sizeof(float));
 
-//    sniffer = make_sniffer_f();
+    // Streaming
+    audio_udp_sink = make_udp_sink_f();
+
+    // Sniffer
+    sniffer = make_sniffer_f();
     /* sniffer_rr is created at each activation. */
 
     // XXX somewhat duplicated in set_output_device
@@ -518,6 +520,59 @@ rx_status demodulator::stop_udp_streaming()
     return STATUS_OK;
 }
 
+/**
+ * @brief Start data sniffer.
+ * @param buffsize The buffer that should be used in the sniffer.
+ * @return STATUS_OK if the sniffer was started, STATUS_ERROR if the sniffer is already in use.
+ */
+rx_status demodulator::start_sniffer(unsigned int samprate, int buffsize)
+{
+    qInfo() << "demodulator::start_sniffer" << samprate << buffsize << d_sniffer_active;
+    if (d_sniffer_active) {
+        /* sniffer already in use */
+        return STATUS_ERROR;
+    }
+
+    sniffer->set_buffer_size(buffsize);
+    sniffer_rr = make_resampler_ff((float)samprate/(float)d_audio_rate);
+    tb->lock();
+    tb->connect(rx, 0, sniffer_rr, 0);
+    tb->connect(sniffer_rr, 0, sniffer, 0);
+    tb->unlock();
+    d_sniffer_active = true;
+
+    return STATUS_OK;
+}
+
+/**
+ * @brief Stop data sniffer.
+ * @return STATUS_ERROR i the sniffer is not currently active.
+ */
+rx_status demodulator::stop_sniffer()
+{
+    qInfo() << "demodulator::stop_sniffer" << d_sniffer_active;
+    if (!d_sniffer_active) {
+        return STATUS_ERROR;
+    }
+
+    tb->lock();
+    tb->disconnect(rx, 0, sniffer_rr, 0);
+    tb->disconnect(sniffer_rr, 0, sniffer, 0);
+    tb->unlock();
+    d_sniffer_active = false;
+
+    /* delete resampler */
+    sniffer_rr.reset();
+
+    return STATUS_OK;
+}
+
+/** Get sniffer data. */
+void demodulator::get_sniffer_data(float * outbuff, unsigned int &num)
+{
+    sniffer->get_samples(outbuff, num);
+}
+
 void demodulator::get_rds_data(std::string &outbuff, int &num)
 {
     rx->get_rds_data(outbuff, num);
@@ -596,11 +651,11 @@ void demodulator::connect_all(rx_chain type, gr::basic_block_sptr src, int d_qua
     }
 
     // Sample sniffer
-//    if (d_sniffer_active)
-//    {
-//        tb->connect(rx, 0, sniffer_rr, 0);
-//        tb->connect(sniffer_rr, 0, sniffer, 0);
-//    }
+    if (d_sniffer_active)
+    {
+        tb->connect(rx, 0, sniffer_rr, 0);
+        tb->connect(sniffer_rr, 0, sniffer, 0);
+    }
     // qInfo() << "demodulator" << idx << "connect_all done";
 }
 
@@ -690,57 +745,4 @@ void demodulator::connect_all(rx_chain type, gr::basic_block_sptr src, int d_qua
 //    wav_src.reset();
 
 //    return STATUS_OK;
-//}
-
-
-
-///**
-// * @brief Start data sniffer.
-// * @param buffsize The buffer that should be used in the sniffer.
-// * @return STATUS_OK if the sniffer was started, STATUS_ERROR if the sniffer is already in use.
-// */
-//rx_status receiver::start_sniffer(unsigned int samprate, int buffsize)
-//{
-//    if (d_sniffer_active) {
-//        /* sniffer already in use */
-//        return STATUS_ERROR;
-//    }
-
-//    sniffer->set_buffer_size(buffsize);
-//    sniffer_rr = make_resampler_ff((float)samprate/(float)d_audio_rate);
-//    tb->lock();
-//    tb->connect(rx, 0, sniffer_rr, 0);
-//    tb->connect(sniffer_rr, 0, sniffer, 0);
-//    tb->unlock();
-//    d_sniffer_active = true;
-
-//    return STATUS_OK;
-//}
-
-///**
-// * @brief Stop data sniffer.
-// * @return STATUS_ERROR i the sniffer is not currently active.
-// */
-//rx_status receiver::stop_sniffer()
-//{
-//    if (!d_sniffer_active) {
-//        return STATUS_ERROR;
-//    }
-
-//    tb->lock();
-//    tb->disconnect(rx, 0, sniffer_rr, 0);
-//    tb->disconnect(sniffer_rr, 0, sniffer, 0);
-//    tb->unlock();
-//    d_sniffer_active = false;
-
-//    /* delete resampler */
-//    sniffer_rr.reset();
-
-//    return STATUS_OK;
-//}
-
-///** Get sniffer data. */
-//void receiver::get_sniffer_data(float * outbuff, unsigned int &num)
-//{
-//    sniffer->get_samples(outbuff, num);
 //}

@@ -26,6 +26,10 @@
 
 #include "applications/gqrx/demodulator_controller.h"
 
+
+#define DATA_BUFFER_SIZE 48000
+
+
 DemodulatorController::DemodulatorController(
     receiver::sptr rx,
     demodulator::sptr demod,
@@ -64,10 +68,17 @@ DemodulatorController::DemodulatorController(
     dockRDS->setWidget(uiDockRDS);
     viewMenu->addAction(dockRDS->toggleViewAction());
 
+    uiDockAFSK = new DockAFSK1200();
+    dockAFSK = new ads::CDockWidget(QString("AFSK1200 %0").arg(num));
+    dockAFSK->setWidget(uiDockAFSK);
+    viewMenu->addAction(dockAFSK->toggleViewAction());
+
     dockMgr->addDockWidgetTab(ads::BottomDockWidgetArea, dockDemod);
     dockMgr->addDockWidgetTab(ads::BottomDockWidgetArea, dockAudio);
     dockMgr->addDockWidgetTab(ads::BottomDockWidgetArea, dockRDS);
+    dockMgr->addDockWidgetTab(ads::BottomDockWidgetArea, dockAFSK);
     dockRDS->closeDockWidget();
+    dockAFSK->closeDockWidget();
 
     uiDockRxOpt->setupShortcuts();
 
@@ -141,9 +152,17 @@ DemodulatorController::DemodulatorController(
     // connect(remote, SIGNAL(stopAudioRecorderEvent()), uiDockAudio, SLOT(stopAudioRecorder()));
 
     // RDS
+    // connect(remote, SIGNAL(newRDSmode(bool)), uiDockRDS, SLOT(setRDSmode(bool)));
+    // connect(uiDockRDS, SIGNAL(rdsDecoderToggled(bool)), remote, SLOT(setRDSstatus(bool)));
+    // connect(uiDockRDS, SIGNAL(rdsPI(QString)), remote, SLOT(rdsPI(QString)));
     connect(uiDockRDS, SIGNAL(rdsDecoderToggled(bool)), this, SLOT(setRdsDecoder(bool)));
     rds_timer = new QTimer(this);
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
+
+    // AFSK
+    connect(uiDockAFSK, SIGNAL(afskDecoderToggled(bool)), this, SLOT(setAfskDecoder(bool)));
+    afsk_timer = new QTimer(this);
+    connect(afsk_timer, SIGNAL(timeout()), this, SLOT(asfkTimeout()));
 
     // Update parameters from stored settings
     readSettings(settings);
@@ -164,6 +183,9 @@ DemodulatorController::~DemodulatorController()
     rds_timer->stop();
     rds_timer->deleteLater();
 
+    afsk_timer->stop();
+    afsk_timer->deleteLater();
+
     rx->remove_demodulator(demod->get_idx());
 
     delete [] d_fftData;
@@ -172,10 +194,12 @@ DemodulatorController::~DemodulatorController()
     dockMgr->removeDockWidget(dockDemod);
     dockMgr->removeDockWidget(dockAudio);
     dockMgr->removeDockWidget(dockRDS);
+    dockMgr->removeDockWidget(dockAFSK);
 
     dockDemod->deleteLater();
     dockAudio->deleteLater();
     dockRDS->deleteLater();
+    dockAFSK->deleteLater();
 
     viewMenu->removeAction(viewMenuSection);
     viewMenuSection->deleteLater();
@@ -208,6 +232,7 @@ void DemodulatorController::onIndexChanged(size_t idx)
     dockDemod->setWindowTitle(QString("Demod %0").arg(num));
     dockAudio->setWindowTitle(QString("Audio %0").arg(num));
     dockRDS->setWindowTitle(QString("RDS %0").arg(num));
+    dockAFSK->setWindowTitle(QString("ASFK1200 %0").arg(num));
 }
 
 /* Frequency Control */
@@ -288,7 +313,7 @@ void DemodulatorController::setFilterOffset(qint64 freq_hz)
 void DemodulatorController::selectDemod(const QString& demod)
 {
     int iDemodIndex = DockRxOpt::GetEnumForModulationString(demod);
-    qDebug() << "selectDemod(str):" << demod << "-> IDX:" << iDemodIndex;
+    qInfo() << "selectDemod(str):" << demod << "-> IDX:" << iDemodIndex;
 
     return selectDemod(iDemodIndex);
 }
@@ -310,10 +335,10 @@ void DemodulatorController::selectDemod(int mode_idx)
     // validate mode_idx
     if (mode_idx < DockRxOpt::MODE_OFF || mode_idx >= DockRxOpt::MODE_LAST)
     {
-        qDebug() << "Invalid mode index:" << mode_idx;
+        qInfo() << "Invalid mode index:" << mode_idx;
         mode_idx = DockRxOpt::MODE_OFF;
     }
-    qDebug() << "New mode index:" << mode_idx;
+    qInfo() << "New mode index:" << mode_idx;
 
     uiDockRxOpt->getFilterPreset(mode_idx, filter_preset, &flo, &fhi);
     d_filter_shape = (rx_filter_shape)uiDockRxOpt->currentFilterShape();
@@ -437,14 +462,14 @@ void DemodulatorController::selectDemod(int mode_idx)
         break;
 
     default:
-        qDebug() << "Unsupported mode selection (can't happen!): " << mode_idx;
+        qInfo() << "Unsupported mode selection (can't happen!): " << mode_idx;
         flo = -5000;
         fhi = 5000;
         click_res = 100;
         break;
     }
 
-    qDebug() << "Filter preset for mode" << mode_idx << "LO:" << flo << "HI:" << fhi;
+    qInfo() << "Filter preset for mode" << mode_idx << "LO:" << flo << "HI:" << fhi;
     // ui->plotter->setHiLowCutFrequencies(flo, fhi);
     // ui->plotter->setClickResolution(click_res);
     // ui->plotter->setFilterClickResolution(click_res);
@@ -467,7 +492,7 @@ void DemodulatorController::selectDemod(int mode_idx)
  */
 void DemodulatorController::setFmMaxdev(float max_dev)
 {
-    qDebug() << "FM MAX_DEV: " << max_dev;
+    qInfo() << "FM MAX_DEV: " << max_dev;
 
     /* receiver will check range */
     demod->set_fm_maxdev(max_dev);
@@ -479,7 +504,7 @@ void DemodulatorController::setFmMaxdev(float max_dev)
  */
 void DemodulatorController::setFmEmph(double tau)
 {
-    qDebug() << "FM TAU: " << tau;
+    qInfo() << "FM TAU: " << tau;
 
     /* receiver will check range */
     demod->set_fm_deemph(tau);
@@ -514,7 +539,7 @@ void DemodulatorController::setAmSyncDcr(bool enabled)
  */
 void DemodulatorController::setAmSyncPllBw(float pll_bw)
 {
-    qDebug() << "AM-Sync PLL BW: " << pll_bw;
+    qInfo() << "AM-Sync PLL BW: " << pll_bw;
 
     /* receiver will check range */
     demod->set_amsync_pll_bw(pll_bw);
@@ -585,7 +610,7 @@ void DemodulatorController::setAgcDecay(int msec)
  */
 void DemodulatorController::setNoiseBlanker(int nbid, bool on, float threshold)
 {
-    qDebug() << "Noise blanker" << demod->get_idx() << "NB:" << nbid << " ON:" << on << "THLD:"
+    qInfo() << "Noise blanker" << demod->get_idx() << "NB:" << nbid << " ON:" << on << "THLD:"
              << threshold;
 
     demod->set_nb_on(nbid, on);
@@ -764,11 +789,11 @@ void DemodulatorController::stopAudioStreaming()
 
 /* RDS */
 
-void DemodulatorController::setRdsDecoder(bool checked)
+void DemodulatorController::setRdsDecoder(bool enabled)
 {
-    if (checked)
+    if (enabled)
     {
-        qDebug() << "Starting RDS decoder.";
+        qInfo() << "Starting RDS decoder.";
         uiDockRDS->showEnabled();
         demod->start_rds_decoder();
         demod->reset_rds_parser();
@@ -776,10 +801,36 @@ void DemodulatorController::setRdsDecoder(bool checked)
     }
     else
     {
-        qDebug() << "Stopping RDS decoder.";
+        qInfo() << "Stopping RDS decoder.";
         uiDockRDS->showDisabled();
         demod->stop_rds_decoder();
         rds_timer->stop();
+    }
+}
+
+/* AFSK 1200 */
+
+void DemodulatorController::setAfskDecoder(bool enabled)
+{
+    qInfo() << "Set AFSK1200 decoder" << enabled;
+    if (enabled)
+    {
+
+        /* start sample sniffer */
+        if (demod->start_sniffer(22050, DATA_BUFFER_SIZE) == rx_status::STATUS_OK)
+        {
+            afsk_timer->start(100);
+        }
+        else
+            QMessageBox::warning(uiDockAFSK, tr("Gqrx error"),
+                                 tr("Error starting sample sniffer.\n"
+                                    "Close all data decoders and try again."),
+                                 QMessageBox::Ok, QMessageBox::Ok);
+    }
+    else
+    {
+        afsk_timer->stop();
+        demod->stop_sniffer();
     }
 }
 
@@ -795,6 +846,15 @@ void DemodulatorController::setAudioFftRate(int fps)
     if (audio_fft_timer->isActive()) {
         audio_fft_timer->setInterval(interval);
     }
+}
+
+/** Signal strength meter timeout. */
+void DemodulatorController::meterTimeout()
+{
+    float level;
+    level = demod->get_signal_pwr(true);
+    uiDockRxOpt->setSignalLevel(level);
+    // remote->setSignalLevel(level);
 }
 
 /**
@@ -816,7 +876,7 @@ void DemodulatorController::audioFftTimeout()
     if (fftsize == 0)
     {
         /* nothing to do, wait until next activation. */
-        qDebug() << "No audio FFT data.";
+        qInfo() << "No audio FFT data.";
         return;
     }
 
@@ -859,13 +919,17 @@ void DemodulatorController::rdsTimeout()
     }
 }
 
-/** Signal strength meter timeout. */
-void DemodulatorController::meterTimeout()
+/**
+ * Periodic processing for acquiring samples from receiver and processing them
+ * with data decoders (see dec_* objects)
+ */
+void DemodulatorController::asfkTimeout()
 {
-    float level;
-    level = demod->get_signal_pwr(true);
-    uiDockRxOpt->setSignalLevel(level);
-    // remote->setSignalLevel(level);
+    float buffer[DATA_BUFFER_SIZE];
+    unsigned int num;
+
+    demod->get_sniffer_data(&buffer[0], num);
+    uiDockAFSK->process_samples(&buffer[0], num);
 }
 
 void DemodulatorController::enableTimers(bool enabled)
