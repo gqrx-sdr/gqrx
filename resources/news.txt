@@ -1,5 +1,5 @@
 
-    2.14.6: In progress...
+    2.14.6: Released October 6, 2021
 
      FIXED: SoapyPlutoSDR driver on MacOS.
   IMPROVED: MacOS releases are now signed & notarized.
