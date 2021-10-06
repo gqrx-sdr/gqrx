@@ -37,6 +37,17 @@ mkdir -p Gqrx.app/Contents/Resources
 </plist>
 EOM
 
+/bin/cat <<EOM >Entitlements.plist
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+  <true/>
+</dict>
+</plist>
+EOM
+
 cp build/src/gqrx Gqrx.app/Contents/MacOS
 cp resources/icons/gqrx.icns Gqrx.app/Contents/Resources
 cp -r /usr/local/lib/SoapySDR/modules* Gqrx.app/Contents/soapy-modules
@@ -48,5 +59,5 @@ ln -sf /usr/local/opt/python@3.9/Frameworks/Python.framework /usr/local/opt/pyth
 
 for f in Gqrx.app/Contents/libs/*.dylib Gqrx.app/Contents/soapy-modules/*.so Gqrx.app/Contents/Frameworks/Python.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python Gqrx.app/Contents/Frameworks/*.framework Gqrx.app/Contents/MacOS/gqrx
 do
-    codesign --force --verify --verbose --timestamp --options runtime --sign $IDENTITY $f
+    codesign --force --verify --verbose --timestamp --options runtime --entitlements Entitlements.plist --sign $IDENTITY $f
 done
