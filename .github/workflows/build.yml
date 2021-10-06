@@ -103,6 +103,7 @@ jobs:
           cd /tmp
           git clone https://github.com/analogdevicesinc/libiio.git
           cd libiio
+          git checkout v0.23
           mkdir build
           cd build
           cmake ..
