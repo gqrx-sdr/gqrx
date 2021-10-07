@@ -236,7 +236,10 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockFft, SIGNAL(fftZoomChanged(float)), uiBaseband->plotter(), SLOT(zoomOnXAxis(float)));
     connect(uiDockFft, SIGNAL(resetFftZoom()), uiBaseband->plotter(), SLOT(resetHorizontalZoom()));
     connect(uiDockFft, SIGNAL(gotoFftCenter()), uiBaseband->plotter(), SLOT(moveToCenterFreq()));
-    connect(uiDockFft, SIGNAL(gotoDemodFreq()), uiBaseband->plotter(), SLOT(moveToDemodFreq()));
+
+    // XXX: button needs to go in demod dock? pass idx to plotter
+    // connect(uiDockFft, SIGNAL(gotoDemodFreq()), uiBaseband->plotter(), SLOT(moveToDemodFreq()));
+
     connect(uiDockFft, SIGNAL(bandPlanChanged(bool)), uiBaseband->plotter(), SLOT(toggleBandPlan(bool)));
     connect(uiDockFft, SIGNAL(wfColormapChanged(QString)), uiBaseband->plotter(), SLOT(setWfColormap(QString)));
 
@@ -990,6 +993,9 @@ void MainWindow::addDemodulator()
     auto ctl = std::make_shared<DemodulatorController>(rx, demod, uiDockManager, receiversMenu, m_settings);
     connect(ctl.get(), SIGNAL(remove(size_t)), this, SLOT(removeDemodulator(size_t)));
     demodCtrls.push_back(ctl);
+
+    uiBaseband->plotter()->setDemodulatorCount(demodCtrls.size());
+    uiBaseband->plotter()->setDemodulatorOffset(demodCtrls.size() - 1, 0);
 }
 
 void MainWindow::removeDemodulator(size_t idx)
@@ -1003,6 +1009,8 @@ void MainWindow::removeDemodulator(size_t idx)
     auto di = std::find(demodCtrls.begin(), demodCtrls.end(), demodCtrls[idx]);
     demodCtrls.erase(di);
     // qInfo() << "MainWindow::removeDemodulator demodCtrls size after=" << demodCtrls.size();
+
+    uiBaseband->plotter()->setDemodulatorCount(demodCtrls.size());
 }
 
 /** Reset lower digits of main frequency control widget */

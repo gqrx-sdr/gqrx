@@ -21,11 +21,16 @@
 
 qint64 roundFreq(qint64 freq, int resolution);
 
+/**
+ * @brief Representation of a demodulator sitting on the FFT plot
+ */
 class DemodParams : public QObject
 {
 Q_OBJECT
 
 public:
+    typedef std::shared_ptr<DemodParams> sptr;
+
     DemodParams()
     {
         m_centerFreq = 144500000;
@@ -260,8 +265,12 @@ public slots:
     // zoom functions
     void resetHorizontalZoom();
     void moveToCenterFreq();
-    void moveToDemodFreq();
+    void moveToDemodFreq(int idx);
     void zoomOnXAxis(float level);
+
+    // Demodulator display management
+    void setDemodulatorCount(size_t num);
+    void setDemodulatorOffset(int idx, qint64 offset);
 
     // other FFT slots
     void setFftPlotColor(const QColor& color);
@@ -307,7 +316,6 @@ private:
     int             xFromFreq(qint64 freq);
     qint64          freqFromX(int x);
     void            zoomStepX(float factor, int x);
-//    static qint64   roundFreq(qint64 freq, int resolution);
     quint64         msecFromY(int y);
     static bool     isPointCloseTo(int x, int xr, int delta)
     {
@@ -333,6 +341,7 @@ private:
     int             m_YAxisWidth{};
 
     eCapturetype    m_CursorCaptured;
+    int             m_DemodCaptured;
     QPixmap         m_2DPixmap;
     QPixmap         m_OverlayPixmap;
     QPixmap         m_WaterfallPixmap;
@@ -346,7 +355,7 @@ private:
     qint64          m_CenterFreq;       // The HW frequency
     qint64          m_FftCenter;        // Center freq in the -span ... +span range
 
-    DemodParams     m_demod;
+    QList<DemodParams::sptr> m_demod;
 
     qint64          m_StartFreqAdj{};
     qint64          m_FreqPerDiv{};
