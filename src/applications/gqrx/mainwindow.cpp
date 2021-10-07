@@ -140,6 +140,20 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     auto* centralDockArea = uiDockManager->setCentralWidget(centralDockWidget);
     centralDockArea->setAllowedAreas(ads::DockWidgetArea::OuterDockAreas);
 
+    connect(
+        uiBaseband->plotter(),
+        SIGNAL(newDemodFreq(size_t, qint64, qint64)),
+        this,
+        SLOT(on_newDemodFreq(size_t, qint64, qint64))
+    );
+
+    connect(
+        uiBaseband->plotter(),
+        SIGNAL(newFilterFreq(size_t, int, int)),
+        this,
+        SLOT(on_newFilterFreq(size_t, int, int))
+    );
+
     // create dock widgets
     uiDockInputCtl = new DockInputCtl();
     ads::CDockWidget* dockInput = new ads::CDockWidget("Input");
@@ -1522,26 +1536,31 @@ void MainWindow::on_actionIqTool_triggered()
 }
 
 /* CPlotter::NewDemodFreq() is emitted */
-void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
+void MainWindow::on_newDemodFreq(size_t idx, qint64 freq, qint64 delta)
 {
-    for (auto demod : demodCtrls)
-    {
-        demod->setFilterOffset(delta);
+    qInfo() << "MainWindow::on_newDemodFreq" << idx << freq << delta;
+
+    if (idx >= demodCtrls.size()) {
+        qInfo() << "idx out of range";
+        return;
     }
-    uiBaseband->freqCtrl()->setFrequency(freq);
+
+    demodCtrls[idx]->setFilterOffset(delta);
 }
 
 /* CPlotter::NewfilterFreq() is emitted or bookmark activated */
-void MainWindow::on_plotter_newFilterFreq(int low, int high)
+void MainWindow::on_newFilterFreq(size_t idx, int low, int high)
 {
-    for (auto demod : demodCtrls)
-    {
-        demod->setFilterFrequency(low, high);
+    if (idx >= demodCtrls.size()) {
+        return;
     }
 
+    demodCtrls[idx]->setFilterFrequency(low, high);
+
+    // XXX: is this necessary?
     /* Update filter range of plotter, in case this slot is triggered by
      * switching to a bookmark */
-    uiBaseband->plotter()->setHiLowCutFrequencies(low, high);
+//    uiBaseband->plotter()->drawOverlay();
 }
 
 /** Full screen button or menu item toggled. */

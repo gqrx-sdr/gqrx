@@ -47,8 +47,6 @@ Q_LOGGING_CATEGORY(plotter, "plotter")
 #define FFT_MIN_DB     -160.f
 #define FFT_MAX_DB      0.f
 
-#define FILTER_WIDTH_MIN_HZ 200
-
 // Colors of type QRgb in 0xAARRGGBB format (unsigned int)
 #define PLOTTER_BGD_COLOR           0xFF1F1D1D
 #define PLOTTER_GRID_COLOR          0xFF444242
@@ -79,6 +77,16 @@ static inline bool out_of_range(float min, float max)
             max < min + 10.f);
 }
 
+qint64 roundFreq(qint64 freq, int resolution)
+{
+    qint64 delta = resolution;
+    qint64 delta_2 = delta / 2;
+    if (freq >= 0)
+        return (freq - (freq + delta_2) % delta + delta_2);
+    else
+        return (freq - (freq + delta_2) % delta - delta_2);
+}
+
 #define STATUS_TIP \
     "Click, drag or scroll on spectrum to tune. " \
     "Drag and scroll X and Y axes for pan and zoom. " \
@@ -103,15 +111,6 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
 
     m_FftCenter = 0;
     m_CenterFreq = 144500000;
-    m_DemodCenterFreq = 144500000;
-    m_DemodHiCutFreq = 5000;
-    m_DemodLowCutFreq = -5000;
-
-    m_FLowCmin = -25000;
-    m_FLowCmax = -1000;
-    m_FHiCmin = 1000;
-    m_FHiCmax = 25000;
-    m_symetric = true;
 
     m_ClickResolution = 100;
     m_FilterClickResolution = 100;
@@ -221,7 +220,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 if (m_TooltipsEnabled)
                     QToolTip::hideText();
             }
-            else if (isPointCloseTo(pt.x(), m_DemodFreqX, m_CursorCaptureDelta))
+            else if (isPointCloseTo(pt.x(), m_demod.freqX, m_CursorCaptureDelta))
             {
                 // in move demod box center frequency region
                 if (CENTER != m_CursorCaptured)
@@ -230,10 +229,10 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 if (m_TooltipsEnabled)
                     QToolTip::showText(event->globalPos(),
                                        QString("Demod: %1 kHz")
-                                               .arg(m_DemodCenterFreq/1.e3f, 0, 'f', 3),
+                                               .arg(m_demod.centerFreq / 1.e3f, 0, 'f', 3),
                                        this);
             }
-            else if (isPointCloseTo(pt.x(), m_DemodHiCutFreqX, m_CursorCaptureDelta))
+            else if (isPointCloseTo(pt.x(), m_demod.hiCutFreqX, m_CursorCaptureDelta))
             {
                 // in move demod hicut region
                 if (RIGHT != m_CursorCaptured)
@@ -242,10 +241,10 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 if (m_TooltipsEnabled)
                     QToolTip::showText(event->globalPos(),
                                        QString("High cut: %1 Hz")
-                                               .arg(m_DemodHiCutFreq),
+                                               .arg(m_demod.hiCutFreq),
                                        this);
             }
-            else if (isPointCloseTo(pt.x(), m_DemodLowCutFreqX, m_CursorCaptureDelta))
+            else if (isPointCloseTo(pt.x(), m_demod.lowCutFreqX, m_CursorCaptureDelta))
             {
                 // in move demod lowcut region
                 if (LEFT != m_CursorCaptured)
@@ -254,7 +253,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 if (m_TooltipsEnabled)
                     QToolTip::showText(event->globalPos(),
                                        QString("Low cut: %1 Hz")
-                                               .arg(m_DemodLowCutFreq),
+                                               .arg(m_demod.lowCutFreq),
                                        this);
             }
             else
@@ -349,8 +348,9 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             if (event->buttons() & Qt::MidButton)
             {
                 m_CenterFreq += delta_hz;
-                m_DemodCenterFreq += delta_hz;
-                emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
+                m_demod.setCenterFreq(m_demod.centerFreq + delta_hz, false, m_FilterClickResolution);
+                qInfo() << "plotter emit 353";
+                emit newDemodFreq(0, m_demod.centerFreq, m_demod.centerFreq - m_CenterFreq);
             }
             else
             {
@@ -371,17 +371,13 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             // moving in demod lowcut region with left button held
             if (m_GrabPosition != 0)
             {
-                m_DemodLowCutFreq = freqFromX(pt.x() - m_GrabPosition ) - m_DemodCenterFreq;
-                m_DemodLowCutFreq = std::min(m_DemodLowCutFreq, m_DemodHiCutFreq - FILTER_WIDTH_MIN_HZ);
-                m_DemodLowCutFreq = roundFreq(m_DemodLowCutFreq, m_FilterClickResolution);
+                m_demod.setLowCut(
+                    freqFromX(pt.x() - m_GrabPosition),
+                    m_FilterClickResolution,
+                    (event->buttons() & Qt::LeftButton)
+                );
+                emit newFilterFreq(0, m_demod.lowCutFreq, m_demod.hiCutFreq);
 
-                if (m_symetric && (event->buttons() & Qt::LeftButton))  // symmetric adjustment
-                {
-                    m_DemodHiCutFreq = -m_DemodLowCutFreq;
-                }
-                clampDemodParameters();
-
-                emit newFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
                 if (m_Running)
                     m_DrawOverlay = true;
                 else
@@ -390,7 +386,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             else
             {
                 // save initial grab position from m_DemodFreqX
-                m_GrabPosition = pt.x()-m_DemodLowCutFreqX;
+                m_GrabPosition = pt.x() - m_demod.lowCutFreqX;
             }
         }
         else if (event->buttons() & ~Qt::NoButton)
@@ -407,23 +403,19 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             // moving in demod highcut region with right button held
             if (m_GrabPosition != 0)
             {
-                m_DemodHiCutFreq = freqFromX( pt.x()-m_GrabPosition ) - m_DemodCenterFreq;
-                m_DemodHiCutFreq = std::max(m_DemodHiCutFreq, m_DemodLowCutFreq + FILTER_WIDTH_MIN_HZ);
-                m_DemodHiCutFreq = roundFreq(m_DemodHiCutFreq, m_FilterClickResolution);
+                m_demod.setHiCut(
+                    freqFromX( pt.x()-m_GrabPosition),
+                    m_FilterClickResolution,
+                    (event->buttons() & Qt::LeftButton)
+                );
+                emit newFilterFreq(0, m_demod.lowCutFreq, m_demod.hiCutFreq);
 
-                if (m_symetric && (event->buttons() & Qt::LeftButton)) // symmetric adjustment
-                {
-                    m_DemodLowCutFreq = -m_DemodHiCutFreq;
-                }
-                clampDemodParameters();
-
-                emit newFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
                 updateOverlay();
             }
             else
             {
                 // save initial grab position from m_DemodFreqX
-                m_GrabPosition = pt.x() - m_DemodHiCutFreqX;
+                m_GrabPosition = pt.x() - m_demod.hiCutFreqX;
             }
         }
         else if (event->buttons() & ~Qt::NoButton)
@@ -439,17 +431,19 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         {   // moving inbetween demod lowcut and highcut region with left button held
             if (m_GrabPosition != 0)
             {
-                m_DemodCenterFreq = roundFreq(freqFromX(pt.x() - m_GrabPosition),
-                                              m_ClickResolution );
-                emit newDemodFreq(m_DemodCenterFreq,
-                                  m_DemodCenterFreq - m_CenterFreq);
+                m_demod.setCenterFreq(
+                    freqFromX(pt.x() - m_GrabPosition),
+                    false, m_ClickResolution
+                );
+                qInfo() << "plotter emit 439";
+                emit newDemodFreq(0, m_demod.centerFreq, m_demod.centerFreq - m_CenterFreq);
                 updateOverlay();
                 m_PeakHoldValid = false;
             }
             else
             {
                 // save initial grab position from m_DemodFreqX
-                m_GrabPosition = pt.x() - m_DemodFreqX;
+                m_GrabPosition = pt.x() - m_demod.freqX;
             }
         }
         else if (event->buttons() & ~Qt::NoButton)
@@ -608,23 +602,23 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
 
     if (NOCAP == m_CursorCaptured)
     {
-        if (isPointCloseTo(pt.x(), m_DemodFreqX, m_CursorCaptureDelta))
+        if (isPointCloseTo(pt.x(), m_demod.freqX, m_CursorCaptureDelta))
         {
             // move demod box center frequency region
             m_CursorCaptured = CENTER;
-            m_GrabPosition = pt.x() - m_DemodFreqX;
+            m_GrabPosition = pt.x() - m_demod.freqX;
         }
-        else if (isPointCloseTo(pt.x(), m_DemodLowCutFreqX, m_CursorCaptureDelta))
+        else if (isPointCloseTo(pt.x(), m_demod.lowCutFreqX, m_CursorCaptureDelta))
         {
             // filter low cut
             m_CursorCaptured = LEFT;
-            m_GrabPosition = pt.x() - m_DemodLowCutFreqX;
+            m_GrabPosition = pt.x() - m_demod.lowCutFreqX;
         }
-        else if (isPointCloseTo(pt.x(), m_DemodHiCutFreqX, m_CursorCaptureDelta))
+        else if (isPointCloseTo(pt.x(), m_demod.hiCutFreqX, m_CursorCaptureDelta))
         {
             // filter high cut
             m_CursorCaptured = RIGHT;
-            m_GrabPosition = pt.x() - m_DemodHiCutFreqX;
+            m_GrabPosition = pt.x() - m_demod.hiCutFreqX;
         }
         else
         {
@@ -635,12 +629,13 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                 if (m_PeakDetection > 0)
                     best = getNearestPeak(pt);
                 if (best != -1)
-                    m_DemodCenterFreq = freqFromX(best);
+                    m_demod.setCenterFreq(freqFromX(best), true, 0);
                 else
-                    m_DemodCenterFreq = roundFreq(freqFromX(pt.x()), m_ClickResolution);
+                    m_demod.setCenterFreq(freqFromX(pt.x()), false, m_ClickResolution);
 
                 // if cursor not captured set demod frequency and start demod box capture
-                emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
+                qInfo() << "plotter emit 638";
+                emit newDemodFreq(0, m_demod.centerFreq, m_demod.centerFreq - m_CenterFreq);
 
                 // save initial grab position from m_DemodFreqX
                 // setCursor(QCursor(Qt::CrossCursor));
@@ -652,8 +647,9 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
             {
                 // set center freq
                 m_CenterFreq = roundFreq(freqFromX(pt.x()), m_ClickResolution);
-                m_DemodCenterFreq = m_CenterFreq;
-                emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
+                m_demod.setCenterFreq(m_CenterFreq, true, 0);
+                qInfo() << "plotter emit 652";
+                emit newDemodFreq(0, m_demod.centerFreq, m_demod.centerFreq - m_CenterFreq);
                 drawOverlay();
             }
             else if (event->buttons() == Qt::RightButton)
@@ -683,8 +679,9 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
             {
                 if (tag.first.contains(event->pos()))
                 {
-                    m_DemodCenterFreq = tag.second;
-                    emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
+                    m_demod.setCenterFreq(tag.second, true, 0);
+                    qInfo() << "plotter emit 683";
+                    emit newDemodFreq(0, m_demod.centerFreq, m_demod.centerFreq - m_CenterFreq);
                     break;
                 }
             }
@@ -758,7 +755,7 @@ void CPlotter::zoomOnXAxis(float level)
 {
     float current_level = (float)m_SampleFreq / (float)m_Span;
 
-    zoomStepX(current_level / level, xFromFreq(m_DemodCenterFreq));
+    zoomStepX(current_level / level, xFromFreq(m_demod.centerFreq));
 }
 
 // Called when a mouse wheel is turned
@@ -798,26 +795,22 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     else if (event->modifiers() & Qt::ControlModifier)
     {
         // filter width
-        m_DemodLowCutFreq -= numSteps * m_ClickResolution;
-        m_DemodHiCutFreq += numSteps * m_ClickResolution;
-        clampDemodParameters();
-        emit newFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
+        m_demod.adjustFilterWidth(numSteps * m_ClickResolution);
+        emit newFilterFreq(0, m_demod.lowCutFreq, m_demod.hiCutFreq);
     }
 
     else if (event->modifiers() & Qt::ShiftModifier)
     {
         // filter shift
-        m_DemodLowCutFreq += numSteps * m_ClickResolution;
-        m_DemodHiCutFreq += numSteps * m_ClickResolution;
-        clampDemodParameters();
-        emit newFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
+        m_demod.shiftFilter(numSteps * m_ClickResolution);
+        emit newFilterFreq(0, m_demod.lowCutFreq, m_demod.hiCutFreq);
     }
     else
     {
         // inc/dec demod frequency
-        m_DemodCenterFreq += (numSteps * m_ClickResolution);
-        m_DemodCenterFreq = roundFreq(m_DemodCenterFreq, m_ClickResolution );
-        emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
+        m_demod.setCenterFreq(m_demod.centerFreq + (numSteps * m_ClickResolution), false, m_ClickResolution);
+        qInfo() << "plotter emit 813";
+        emit newDemodFreq(0, m_demod.centerFreq, m_demod.centerFreq - m_CenterFreq);
     }
 
     updateOverlay();
@@ -1456,19 +1449,20 @@ void CPlotter::drawOverlay()
     // Draw demod filter box
     if (m_FilterBoxEnabled)
     {
-        m_DemodFreqX = xFromFreq(m_DemodCenterFreq);
-        m_DemodLowCutFreqX = xFromFreq(m_DemodCenterFreq + m_DemodLowCutFreq);
-        m_DemodHiCutFreqX = xFromFreq(m_DemodCenterFreq + m_DemodHiCutFreq);
-
-        int dw = m_DemodHiCutFreqX - m_DemodLowCutFreqX;
+        m_demod.setXPositions(
+            xFromFreq(m_demod.centerFreq),
+            xFromFreq(m_demod.centerFreq + m_demod.lowCutFreq),
+            xFromFreq(m_demod.centerFreq + m_demod.hiCutFreq)
+        );
+        int dw = m_demod.hiCutFreqX - m_demod.lowCutFreqX;
 
         painter.setOpacity(0.3);
-        painter.fillRect(m_DemodLowCutFreqX, 0, dw, h,
+        painter.fillRect(m_demod.lowCutFreqX, 0, dw, h,
                          QColor(PLOTTER_FILTER_BOX_COLOR));
 
         painter.setOpacity(1.0);
         painter.setPen(QColor(PLOTTER_FILTER_LINE_COLOR));
-        painter.drawLine(m_DemodFreqX, 0, m_DemodFreqX, h);
+        painter.drawLine(m_demod.freqX, 0, m_demod.freqX, h);
     }
 
     if (!m_Running)
@@ -1575,53 +1569,15 @@ quint64 CPlotter::msecFromY(int y)
         return tlast_wf_ms - dy * 1000 / fft_rate;
 }
 
-// Round frequency to click resolution value
-qint64 CPlotter::roundFreq(qint64 freq, int resolution)
-{
-    qint64 delta = resolution;
-    qint64 delta_2 = delta / 2;
-    if (freq >= 0)
-        return (freq - (freq + delta_2) % delta + delta_2);
-    else
-        return (freq - (freq + delta_2) % delta - delta_2);
-}
-
-// Clamp demod freqeuency limits of m_DemodCenterFreq
-void CPlotter::clampDemodParameters()
-{
-    if(m_DemodLowCutFreq < m_FLowCmin)
-        m_DemodLowCutFreq = m_FLowCmin;
-    if(m_DemodLowCutFreq > m_FLowCmax)
-        m_DemodLowCutFreq = m_FLowCmax;
-
-    if(m_DemodHiCutFreq < m_FHiCmin)
-        m_DemodHiCutFreq = m_FHiCmin;
-    if(m_DemodHiCutFreq > m_FHiCmax)
-        m_DemodHiCutFreq = m_FHiCmax;
-}
-
-void CPlotter::setDemodRanges(int FLowCmin, int FLowCmax,
-                              int FHiCmin, int FHiCmax,
-                              bool symetric)
-{
-    m_FLowCmin=FLowCmin;
-    m_FLowCmax=FLowCmax;
-    m_FHiCmin=FHiCmin;
-    m_FHiCmax=FHiCmax;
-    m_symetric=symetric;
-    clampDemodParameters();
-    updateOverlay();
-}
-
 void CPlotter::setCenterFreq(quint64 f)
 {
     if((quint64)m_CenterFreq == f)
         return;
 
-    qint64 offset = m_CenterFreq - m_DemodCenterFreq;
+    qint64 offset = m_CenterFreq - m_demod.centerFreq;
 
     m_CenterFreq = f;
-    m_DemodCenterFreq = m_CenterFreq - offset;
+    m_demod.setCenterFreq(m_CenterFreq - offset, true, 0);
 
     updateOverlay();
 
@@ -1655,7 +1611,7 @@ void CPlotter::moveToCenterFreq()
 /** Center FFT plot around the demodulator frequency. */
 void CPlotter::moveToDemodFreq()
 {
-    setFftCenterFreq(m_DemodCenterFreq-m_CenterFreq);
+    setFftCenterFreq(m_demod.centerFreq - m_CenterFreq);
     updateOverlay();
 
     m_PeakHoldValid = false;

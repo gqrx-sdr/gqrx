@@ -174,8 +174,8 @@ private slots:
     void setWfSize();
 
     /* FFT plot */
-    void on_plotter_newDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
-    void on_plotter_newFilterFreq(int low, int high);    /*! New filter width */
+    void on_newDemodFreq(size_t idx, qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
+    void on_newFilterFreq(size_t idx, int low, int high);    /*! New filter width */
 
     /* Bookmarks */
     void onBookmarkActivated(qint64 freq, const QString& demod, int bandwidth);

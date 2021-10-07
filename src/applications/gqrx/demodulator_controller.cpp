@@ -294,12 +294,17 @@ void DemodulatorController::setFftFill(bool enable)
 
 /**
  * @brief Set new channel filter offset.
- * @param freq_hz The new filter offset in Hz.
+ * @param offset The new filter offset in Hz.
  */
-void DemodulatorController::setFilterOffset(qint64 freq_hz)
+void DemodulatorController::setFilterOffset(qint64 offset)
 {
-    demod->set_filter_offset((double) freq_hz);
-    // ui->plotter->setFilterOffset(freq_hz);
+    qInfo() << "DemodulatorController::setFilterOffset" << offset;
+
+    demod->set_filter_offset(offset);
+
+    uiDockRxOpt->blockSignals(true);
+    uiDockRxOpt->setFilterOffset(offset);
+    uiDockRxOpt->blockSignals(false);
 
     if (demod->is_rds_decoder_active()) {
         demod->reset_rds_parser();

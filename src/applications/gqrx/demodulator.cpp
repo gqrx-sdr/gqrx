@@ -143,6 +143,7 @@ void demodulator::set_input_rate(const int d_ddc_decim, const int d_decim_rate, 
  */
 rx_status demodulator::set_filter_offset(double offset_hz)
 {
+    qInfo() << "demodulator::set_filter_offset" << offset_hz;
     d_filter_offset = offset_hz;
     ddc->set_center_freq(d_filter_offset - d_cw_offset);
 

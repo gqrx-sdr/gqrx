@@ -65,7 +65,6 @@ DockAudio::DockAudio(QWidget *parent) :
     ui->audioSpectrum->setCenterFreq(0);
     ui->audioSpectrum->setPercent2DScreen(DEFAULT_FFT_SPLIT);
     ui->audioSpectrum->setFftCenterFreq(6000);
-    ui->audioSpectrum->setDemodCenterFreq(0);
     ui->audioSpectrum->setFilterBoxEnabled(false);
     ui->audioSpectrum->setCenterLineEnabled(false);
     ui->audioSpectrum->setBookmarksEnabled(false);

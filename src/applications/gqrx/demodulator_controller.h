@@ -81,7 +81,7 @@ public slots:
 
     /* Rx controls */
 
-    void setFilterOffset(qint64 freq_hz);
+    void setFilterOffset(qint64 offset);
     void selectDemod(const QString& demod);
     void selectDemod(int mode_idx);
     void setFmMaxdev(float max_dev);
