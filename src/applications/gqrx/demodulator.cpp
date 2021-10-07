@@ -72,10 +72,13 @@ demodulator::demodulator(
     // XXX needs to update when set_idx called
     QString portName = QString("Receiver %0").arg(idx);
 #ifdef WITH_PULSEAUDIO
+    d_supports_stream_naming = true;
     audio_snk = make_pa_sink(audio_device, d_audio_rate, "GQRX", portName.toStdString());
 #elif WITH_PORTAUDIO
+    d_supports_stream_naming = false;
     audio_snk = make_portaudio_sink(audio_device, d_audio_rate, "GQRX", portName.toStdString());
 #else
+    d_supports_stream_naming = false;
     audio_snk = gr::audio::sink::make(d_audio_rate, audio_device, true);
 #endif
 }

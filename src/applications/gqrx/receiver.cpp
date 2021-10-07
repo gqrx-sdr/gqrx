@@ -635,7 +635,9 @@ void receiver::remove_demodulator(size_t idx)
     for (size_t i = 0; i < demods.size(); ++i)
     {
         demods[i]->set_idx(i); // re-index
-        demods[i]->set_output_device(output_devstr, d_audio_rate); // update audio stream name
+        if (demods[i]->supports_stream_naming()) {
+            demods[i]->set_output_device(output_devstr, d_audio_rate); // update audio stream name
+        }
         // qInfo() << "reciever remove_rx calls demodulator" << i << "set_demod";
         demods[i]->set_demod(demods[i]->get_demod(), true, demodsrc, d_quad_rate, d_audio_rate);
         // qInfo() << "reciever remove_rx calls demodulator" << i << "set_demod done";

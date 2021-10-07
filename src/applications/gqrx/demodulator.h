@@ -88,6 +88,7 @@ public:
     /* I/O control */
     void        set_output_device(const std::string device, const int audio_rate);
     void        set_input_rate(const int d_ddc_decim, const int d_decim_rate, const int d_quad_rate);
+    bool        supports_stream_naming() const { return d_supports_stream_naming; }
 
     /* Demodulation type */
     rx_status   set_demod(rx_demod demod, bool force, gr::basic_block_sptr src, int d_quad_rate, int d_audio_rate);
@@ -207,7 +208,7 @@ private:
 //    gr::blocks::null_sink::sptr         audio_null_sink1; /*!< Audio null sink used during playback. */
 
     // UDP streaming
-    udp_sink_f_sptr   audio_udp_sink;       /*!< UDP sink to stream audio over the network. */
+    udp_sink_f_sptr             audio_udp_sink; /*!< UDP sink to stream audio over the network. */
 
     // Sample sniffer
     sniffer_f_sptr              sniffer;    /*!< Sample sniffer for data decoders. */
@@ -217,6 +218,7 @@ private:
     rx_fft_f_sptr               audio_fft;  /*!< Audio FFT block. */
 
     bool                        audio_snk_connected;
+    bool                        d_supports_stream_naming;
 #ifdef WITH_PULSEAUDIO
     pa_sink_sptr                audio_snk;  /*!< Pulse audio sink. */
 #elif WITH_PORTAUDIO

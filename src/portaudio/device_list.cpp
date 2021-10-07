@@ -41,6 +41,8 @@ portaudio_device::~portaudio_device()
 
 portaudio_device_list::portaudio_device_list()
 {
+    Pa_Initialize();
+
     populate_device_list();
 }
 
@@ -48,6 +50,8 @@ portaudio_device_list::~portaudio_device_list()
 {
     d_sources.clear();
     d_sinks.clear();
+
+    Pa_Terminate();
 }
 
 /** \brief Populate portaudioaudio device list.

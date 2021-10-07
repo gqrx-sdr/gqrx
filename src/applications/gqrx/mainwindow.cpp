@@ -142,16 +142,16 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 
     connect(
         uiBaseband->plotter(),
-        SIGNAL(newDemodFreq(size_t, qint64, qint64)),
+        SIGNAL(newDemodFreq(size_t,qint64,qint64)),
         this,
-        SLOT(on_newDemodFreq(size_t, qint64, qint64))
+        SLOT(on_newDemodFreq(size_t,qint64,qint64))
     );
 
     connect(
         uiBaseband->plotter(),
-        SIGNAL(newFilterFreq(size_t, int, int)),
+        SIGNAL(newFilterFreq(size_t,int,int)),
         this,
-        SLOT(on_newFilterFreq(size_t, int, int))
+        SLOT(on_newFilterFreq(size_t,int,int))
     );
 
     // create dock widgets
