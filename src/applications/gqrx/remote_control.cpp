@@ -26,6 +26,7 @@
 #include <QString>
 #include <QStringList>
 #include "remote_control.h"
+#include "qtgui/dockrxopt.h"
 
 #define DEFAULT_RC_PORT            7356
 #define DEFAULT_RC_ALLOWED_HOSTS   "::ffff:127.0.0.1"
@@ -396,65 +397,64 @@ int RemoteControl::modeStrToInt(QString mode_str)
 
     if (mode_str.compare("OFF", Qt::CaseInsensitive) == 0)
     {
-        mode_int = 0;
+        mode_int = DockRxOpt::MODE_OFF;
     }
     else if (mode_str.compare("RAW", Qt::CaseInsensitive) == 0)
     {
-        mode_int = 1;
+        mode_int = DockRxOpt::MODE_RAW;
     }
     else if (mode_str.compare("AM", Qt::CaseInsensitive) == 0)
     {
-        mode_int = 2;
+        mode_int = DockRxOpt::MODE_AM;
     }
-    else if (mode_str.compare("FM", Qt::CaseInsensitive) == 0)
+    else if (mode_str.compare("AMS", Qt::CaseInsensitive) == 0)
     {
-        mode_int = 3;
-    }
-    else if (mode_str.compare("WFM", Qt::CaseInsensitive) == 0)
-    {
-        mode_int = 4;
-    }
-    else if (mode_str.compare("WFM_ST", Qt::CaseInsensitive) == 0)
-    {
-        mode_int = 5;
+        mode_int = DockRxOpt::MODE_AM_SYNC;
     }
     else if (mode_str.compare("LSB", Qt::CaseInsensitive) == 0)
     {
-        mode_int = 6;
+        mode_int = DockRxOpt::MODE_LSB;
     }
     else if (mode_str.compare("USB", Qt::CaseInsensitive) == 0)
     {
-        mode_int = 7;
-    }
-    else if (mode_str.compare("CW", Qt::CaseInsensitive) == 0)
-    {
-        mode_int = 9;
-        hamlib_compatible = true;
+        mode_int = DockRxOpt::MODE_USB;
     }
     else if (mode_str.compare("CWL", Qt::CaseInsensitive) == 0)
     {
-        mode_int = 8;
+        mode_int = DockRxOpt::MODE_CWL;
         hamlib_compatible = false;
     }
-    else if (mode_str.compare("CWR", Qt::CaseInsensitive) == 0)
+    else if (mode_str.compare("CWR", Qt::CaseInsensitive) == 0)  // "CWR" : "CWL"
     {
-        mode_int = 8;
+        mode_int = DockRxOpt::MODE_CWL;
         hamlib_compatible = true;
     }
     else if (mode_str.compare("CWU", Qt::CaseInsensitive) == 0)
     {
-        mode_int = 9;
+        mode_int = DockRxOpt::MODE_CWU;
         hamlib_compatible = false;
+    }
+    else if (mode_str.compare("CW", Qt::CaseInsensitive) == 0)  // "CW" : "CWU"
+    {
+        mode_int = DockRxOpt::MODE_CWU;
+        hamlib_compatible = true;
+    }
+    else if (mode_str.compare("FM", Qt::CaseInsensitive) == 0)
+    {
+        mode_int = DockRxOpt::MODE_NFM;
+    }
+    else if (mode_str.compare("WFM", Qt::CaseInsensitive) == 0)
+    {
+        mode_int = DockRxOpt::MODE_WFM_MONO;
+    }
+    else if (mode_str.compare("WFM_ST", Qt::CaseInsensitive) == 0)
+    {
+        mode_int = DockRxOpt::MODE_WFM_STEREO;
     }
     else if (mode_str.compare("WFM_ST_OIRT", Qt::CaseInsensitive) == 0)
     {
-        mode_int = 10;
+        mode_int = DockRxOpt::MODE_WFM_STEREO_OIRT;
     }
-    else if (mode_str.compare("AMS", Qt::CaseInsensitive) == 0)
-    {
-        mode_int = 11;
-    }
-
     return mode_int;
 }
 
@@ -468,52 +468,52 @@ QString RemoteControl::intToModeStr(int mode)
 
     switch (mode)
     {
-    case 0:
+    case DockRxOpt::MODE_OFF:
         mode_str = "OFF";
         break;
 
-    case 1:
+    case DockRxOpt::MODE_RAW:
         mode_str = "RAW";
         break;
 
-    case 2:
+    case DockRxOpt::MODE_AM:
         mode_str = "AM";
         break;
 
-    case 3:
-        mode_str = "FM";
+    case DockRxOpt::MODE_AM_SYNC:
+        mode_str = "AMS";
         break;
 
-    case 4:
-        mode_str = "WFM";
-        break;
-
-    case 5:
-        mode_str = "WFM_ST";
-        break;
-
-    case 6:
+    case DockRxOpt::MODE_LSB:
         mode_str = "LSB";
         break;
 
-    case 7:
+    case DockRxOpt::MODE_USB:
         mode_str = "USB";
         break;
 
-    case 8:
+    case DockRxOpt::MODE_CWL:
         mode_str = (hamlib_compatible) ? "CWR" : "CWL";
         break;
 
-    case 9:
+    case DockRxOpt::MODE_CWU:
         mode_str = (hamlib_compatible) ? "CW" : "CWU";
         break;
 
-    case 10:
-        mode_str = "WFM_ST_OIRT";
+    case DockRxOpt::MODE_NFM:
+        mode_str = "FM";
         break;
 
-    case 11:
-        mode_str = "AMS";
+    case DockRxOpt::MODE_WFM_MONO:
+        mode_str = "WFM";
+        break;
+
+    case DockRxOpt::MODE_WFM_STEREO:
+        mode_str = "WFM_ST";
+        break;
+
+    case DockRxOpt::MODE_WFM_STEREO_OIRT:
+        mode_str = "WFM_ST_OIRT";
         break;
 
     default:
@@ -560,7 +560,7 @@ QString RemoteControl::cmd_set_mode(QStringList cmdlist)
     QString cmd_arg = cmdlist.value(1, "");
 
     if (cmd_arg == "?")
-        answer = QString("OFF RAW AM AMS FM WFM WFM_ST WFM_ST_OIRT LSB USB CW CWU CWR CWL\n");
+        answer = QString("OFF RAW AM AMS LSB USB CWL CWR CWU CW FM WFM WFM_ST WFM_ST_OIRT\n");
     else
     {
         int mode = modeStrToInt(cmd_arg);

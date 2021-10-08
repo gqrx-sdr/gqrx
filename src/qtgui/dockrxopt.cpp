@@ -30,21 +30,37 @@
 
 QStringList DockRxOpt::ModulationStrings;
 
+// Lookup table for conversion from old settings
+static const int old2new[] = {
+    DockRxOpt::MODE_OFF,
+    DockRxOpt::MODE_RAW,
+    DockRxOpt::MODE_AM,
+    DockRxOpt::MODE_NFM,
+    DockRxOpt::MODE_WFM_MONO,
+    DockRxOpt::MODE_WFM_STEREO,
+    DockRxOpt::MODE_LSB,
+    DockRxOpt::MODE_USB,
+    DockRxOpt::MODE_CWL,
+    DockRxOpt::MODE_CWU,
+    DockRxOpt::MODE_WFM_STEREO_OIRT,
+    DockRxOpt::MODE_AM_SYNC
+};
+
 // Filter preset table per mode, preset and lo/hi
 static const int filter_preset_table[DockRxOpt::MODE_LAST][3][2] =
 {   //     WIDE             NORMAL            NARROW
     {{      0,      0}, {     0,     0}, {     0,     0}},  // MODE_OFF
     {{ -15000,  15000}, { -5000,  5000}, { -1000,  1000}},  // MODE_RAW
     {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}},  // MODE_AM
-    {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}},  // MODE_NFM
-    {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}},  // MODE_WFM_MONO
-    {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}},  // MODE_WFM_STEREO
+    {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}},  // MODE_AMSYNC
     {{  -4000,   -100}, { -2800,  -100}, { -2400,  -300}},  // MODE_LSB
     {{    100,   4000}, {   100,  2800}, {   300,  2400}},  // MODE_USB
     {{  -1000,   1000}, {  -250,   250}, {  -100,   100}},  // MODE_CWL
     {{  -1000,   1000}, {  -250,   250}, {  -100,   100}},  // MODE_CWU
-    {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}},  // MODE_WFM_STEREO_OIRT
-    {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}}   // MODE_AMSYNC
+    {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}},  // MODE_NFM
+    {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}},  // MODE_WFM_MONO
+    {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}},  // MODE_WFM_STEREO
+    {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}}   // MODE_WFM_STEREO_OIRT
 };
 
 DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
@@ -57,19 +73,19 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
 
     if (ModulationStrings.size() == 0)
     {
-        // Keep in sync with rxopt_mode_idx
+        // Keep in sync with rxopt_mode_idx and filter_preset_table
         ModulationStrings.append("Demod Off");
         ModulationStrings.append("Raw I/Q");
         ModulationStrings.append("AM");
-        ModulationStrings.append("Narrow FM");
-        ModulationStrings.append("WFM (mono)");
-        ModulationStrings.append("WFM (stereo)");
+        ModulationStrings.append("AM-Sync");
         ModulationStrings.append("LSB");
         ModulationStrings.append("USB");
         ModulationStrings.append("CW-L");
         ModulationStrings.append("CW-U");
+        ModulationStrings.append("Narrow FM");
+        ModulationStrings.append("WFM (mono)");
+        ModulationStrings.append("WFM (stereo)");
         ModulationStrings.append("WFM (oirt)");
-        ModulationStrings.append("AM-Sync");
     }
     ui->modeSelector->addItems(ModulationStrings);
 
@@ -443,8 +459,13 @@ void DockRxOpt::readSettings(QSettings *settings)
         ui->agcPresetCombo->setCurrentIndex(4);
 
     int_val = MODE_AM;
-    if (settings->contains("receiver/demod"))
-        int_val = settings->value("receiver/demod").toInt(&conv_ok);
+    if (settings->contains("receiver/demod")) {
+        if (settings->value("configversion").toInt(&conv_ok) >= 3) {
+            int_val = GetEnumForModulationString(settings->value("receiver/demod").toString());
+        } else {
+            int_val = old2new[settings->value("receiver/demod").toInt(&conv_ok)];
+        }
+    }
 
     setCurrentDemod(int_val);
     emit demodSelected(int_val);
@@ -456,7 +477,7 @@ void DockRxOpt::saveSettings(QSettings *settings)
 {
     int     int_val;
 
-    settings->setValue("receiver/demod", ui->modeSelector->currentIndex());
+    settings->setValue("receiver/demod", currentDemodAsString());
 
     int cwofs = demodOpt->getCwOffset();
     if (cwofs == 700)
