@@ -419,17 +419,12 @@ int RemoteControl::modeStrToInt(QString mode_str)
     {
         mode_int = DockRxOpt::MODE_USB;
     }
-    else if (mode_str.compare("CW", Qt::CaseInsensitive) == 0)  // "CW" : "CWU"
-    {
-        mode_int = DockRxOpt::MODE_CWU;
-        hamlib_compatible = true;
-    }
-    else if (mode_str.compare("CWL", Qt::CaseInsensitive) == 0) // "CWR" : "CWL"
+    else if (mode_str.compare("CWL", Qt::CaseInsensitive) == 0)
     {
         mode_int = DockRxOpt::MODE_CWL;
         hamlib_compatible = false;
     }
-    else if (mode_str.compare("CWR", Qt::CaseInsensitive) == 0)
+    else if (mode_str.compare("CWR", Qt::CaseInsensitive) == 0)  // "CWR" : "CWL"
     {
         mode_int = DockRxOpt::MODE_CWL;
         hamlib_compatible = true;
@@ -438,6 +433,11 @@ int RemoteControl::modeStrToInt(QString mode_str)
     {
         mode_int = DockRxOpt::MODE_CWU;
         hamlib_compatible = false;
+    }
+    else if (mode_str.compare("CW", Qt::CaseInsensitive) == 0)  // "CW" : "CWU"
+    {
+        mode_int = DockRxOpt::MODE_CWU;
+        hamlib_compatible = true;
     }
     else if (mode_str.compare("FM", Qt::CaseInsensitive) == 0)
     {
