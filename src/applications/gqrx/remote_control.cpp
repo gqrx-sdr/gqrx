@@ -560,7 +560,7 @@ QString RemoteControl::cmd_set_mode(QStringList cmdlist)
     QString cmd_arg = cmdlist.value(1, "");
 
     if (cmd_arg == "?")
-        answer = QString("OFF RAW AM AMS FM WFM WFM_ST WFM_ST_OIRT LSB USB CW CWU CWR CWL\n");
+        answer = QString("OFF RAW AM AMS LSB USB CWL CWR CWU CW FM WFM WFM_ST WFM_ST_OIRT\n");
     else
     {
         int mode = modeStrToInt(cmd_arg);
