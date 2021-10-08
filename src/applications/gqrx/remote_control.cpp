@@ -410,7 +410,7 @@ int RemoteControl::modeStrToInt(QString mode_str)
     {
         mode_int = 3;
     }
-      else if (mode_str.compare("LSB", Qt::CaseInsensitive) == 0)
+    else if (mode_str.compare("LSB", Qt::CaseInsensitive) == 0)
     {
         mode_int = 4;
     }
@@ -501,7 +501,7 @@ QString RemoteControl::intToModeStr(int mode)
 
     case 8:
         mode_str = "FM";
-        break;        
+        break;
 
     case 9:
         mode_str = "WFM";
