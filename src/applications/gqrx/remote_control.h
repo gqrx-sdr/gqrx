@@ -95,6 +95,7 @@ public slots:
     void startAudioRecorder(QString unused);
     void stopAudioRecorder();
     bool setGain(QString name, double gain);
+    bool setRDSstatus(bool enabled);
     void rdsPI(QString program_id);
 
 signals:
@@ -129,6 +130,7 @@ private:
     int         rc_mode;           /*!< Current mode. */
     int         rc_passband_lo;    /*!< Current low cutoff. */
     int         rc_passband_hi;    /*!< Current high cutoff. */
+    bool        rds_status;        /*!< RDS decoder enabled */
     float       signal_level;      /*!< Signal level in dBFS */
     double      squelch_level;     /*!< Squelch level in dBFS */
     QString     rc_program_id;     /*!< RDS Program identification */

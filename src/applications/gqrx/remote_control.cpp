@@ -42,6 +42,7 @@ RemoteControl::RemoteControl(QObject *parent) :
     rc_passband_lo = 0;
     rc_passband_hi = 0;
     rc_program_id = "0000";
+    rds_status = false;
     signal_level = -200.0;
     squelch_level = -150.0;
     audio_recorder_status = false;
@@ -392,6 +393,11 @@ void RemoteControl::rdsPI(QString program_id)
     rc_program_id = program_id;
 }
 
+/*! \brief Set RDS status (from RDS dock). */
+void RemoteControl::setRDSstatus(bool enabled)
+{
+    rds_status = enabled;
+}
 
 /*! \brief Convert mode string to enum (DockRxOpt::rxopt_mode_idx)
  *  \param mode The Hamlib rigctld compatible mode string
@@ -693,11 +699,13 @@ QString RemoteControl::cmd_get_func(QStringList cmdlist)
     QString func = cmdlist.value(1, "");
 
     if (func == "?")
-        answer = QString("RECORD DSP\n");
+        answer = QString("RECORD DSP RDS\n");
     else if (func.compare("RECORD", Qt::CaseInsensitive) == 0)
         answer = QString("%1\n").arg(audio_recorder_status);
     else if (func.compare("DSP", Qt::CaseInsensitive) == 0)
         answer = QString("%1\n").arg(receiver_running);
+    else if (func.compare("RDS", Qt::CaseInsensitive) == 0)
+        answer = QString("%1\n").arg(rds_status);
     else
         answer = QString("RPRT 1\n");
 
@@ -816,11 +824,13 @@ QString RemoteControl::cmd_set_rds(QStringList cmdlist)
     if (cmd_arg.compare("1") == 0) {
         value = true;
         emit newRDSmode(value);
+        rds_status = true;
         answer = QString("RPRT 0\n");
     }
     else if (cmd_arg.compare("0") == 0) {
         value = false;
         emit newRDSmode(value);
+	rds_status = false;
         rc_program_id = "0000";
         answer = QString("RPRT 0\n");
     }
