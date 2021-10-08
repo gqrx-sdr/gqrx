@@ -87,7 +87,7 @@ jobs:
         run: |
           brew update
           brew install --HEAD --build-from-source dylibbundler portaudio
-          brew install airspy boost gnuradio hackrf libbladerf librtlsdr pybind11 uhd
+          brew install airspy boost gnuradio hackrf libbladerf librtlsdr libserialport pybind11 uhd
           brew tap pothosware/homebrew-pothos
           brew install soapysdr soapyremote
 
@@ -103,6 +103,7 @@ jobs:
           cd /tmp
           git clone https://github.com/analogdevicesinc/libiio.git
           cd libiio
+          git checkout v0.23
           mkdir build
           cd build
           cmake ..
@@ -130,8 +131,8 @@ jobs:
           cp /Library/Frameworks/ad9361.framework/ad9361 /usr/local/lib/libad9361.dylib
           install_name_tool -id "/usr/local/lib/libad9361.dylib" /usr/local/lib/libad9361.dylib
           install_name_tool -delete_rpath /Library/Frameworks /usr/local/lib/libad9361.dylib
-          install_name_tool -change @rpath/iio.framework/Versions/0.21/iio /usr/local/lib/libiio.dylib /usr/local/lib/libad9361.dylib
-          install_name_tool -change @rpath/iio.framework/Versions/0.21/iio /usr/local/lib/libiio.dylib /usr/local/lib/SoapySDR/modules0.*/libPlutoSDRSupport.so
+          install_name_tool -change @rpath/iio.framework/Versions/0.23/iio /usr/local/lib/libiio.dylib /usr/local/lib/libad9361.dylib
+          install_name_tool -change @rpath/iio.framework/Versions/0.23/iio /usr/local/lib/libiio.dylib /usr/local/lib/SoapySDR/modules0.*/libPlutoSDRSupport.so
           install_name_tool -change @rpath/ad9361.framework/Versions/0.2/ad9361 /usr/local/lib/libad9361.dylib /usr/local/lib/SoapySDR/modules0.*/libPlutoSDRSupport.so
 
           cd /tmp
@@ -142,6 +143,23 @@ jobs:
           cmake ..
           LIBRARY_PATH=/usr/local/opt/icu4c/lib make
           make install
+      - name: Install Apple certificate
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
       - name: Checkout code
         uses: actions/checkout@v2
         with:
@@ -151,8 +169,31 @@ jobs:
       - name: Compile
         working-directory: build
         run: make
-      - name: Build DMG
+      - name: Build app bundle
         run: ./macos_bundle.sh
+      - name: Notarize app bundle
+        uses: devbotsxyz/xcode-notarize@v1
+        with:
+          product-path: Gqrx.app
+          appstore-connect-username: ${{ secrets.NOTARIZE_USERNAME }}
+          appstore-connect-password: ${{ secrets.NOTARIZE_PASSWORD }}
+      - name: Staple app bundle
+        run: xcrun stapler staple --verbose Gqrx.app
+      - name: Create DMG
+        run: hdiutil create Gqrx.dmg -srcfolder Gqrx.app -format UDZO -fs HFS+ -volname Gqrx
+      - name: Notarize DMG
+        uses: devbotsxyz/xcode-notarize@v1
+        with:
+          product-path: Gqrx.dmg
+          primary-bundle-id: dk.gqrx.gqrx
+          appstore-connect-username: ${{ secrets.NOTARIZE_USERNAME }}
+          appstore-connect-password: ${{ secrets.NOTARIZE_PASSWORD }}
+      - name: Staple DMG
+        run: xcrun stapler staple --verbose Gqrx.dmg
+      - name: Rename DMG
+        run: |
+          GQRX_VERSION=$(<version.txt)
+          mv Gqrx.dmg Gqrx-$GQRX_VERSION.dmg
       - name: Save artifact
         uses: actions/upload-artifact@v2
         with:

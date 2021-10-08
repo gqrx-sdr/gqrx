@@ -1,9 +1,17 @@
 
-    2.15.5: In progress...
+    2.14.6: Released October 6, 2021
+
+     FIXED: SoapyPlutoSDR driver on MacOS.
+  IMPROVED: MacOS releases are now signed & notarized.
+
+
+    2.14.5: Released October 3, 2021
 
        NEW: Added SoapyRemote to AppImage and DMG releases.
        NEW: Added SoapyPlutoSDR to DMG release.
+       NEW: Preliminary support for GNU Radio 3.10.
      FIXED: Compatibility with case-sensitive filesystems on MacOS.
+  IMPROVED: Better reception of RDS signals.
 
 
     2.14.4: Released December 28, 2020

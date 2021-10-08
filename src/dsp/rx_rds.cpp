@@ -4,7 +4,7 @@
  *           https://gqrx.dk/
  *
  * Copyright 2011 Alexandru Csete OZ9AEC.
- * 
+ *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
@@ -31,6 +31,10 @@
 #include <stdarg.h>
 #include "dsp/rx_rds.h"
 
+#if GNURADIO_VERSION >= 0x030800
+#include <gnuradio/digital/timing_error_detector_type.h>
+#endif
+
 static const int MIN_IN = 1;  /* Minimum number of input streams. */
 static const int MAX_IN = 1;  /* Maximum number of input streams. */
 static const int MIN_OUT = 1; /* Minimum number of output streams. */
@@ -56,34 +60,67 @@ rx_rds::rx_rds(double sample_rate)
                       gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof (char))),
       d_sample_rate(sample_rate)
 {
-    d_taps2 = gr::filter::firdes::low_pass(2500.0, d_sample_rate, 2400, 2000);
+    if (sample_rate != 240000.0) {
+        throw std::invalid_argument("RDS sample rate not supported");
+    }
 
-    f_fxff = gr::filter::freq_xlating_fir_filter_fcf::make(1, d_taps2, 57000, d_sample_rate);
+    d_fxff_tap = gr::filter::firdes::low_pass(1, d_sample_rate, 7500, 5000);
+    d_fxff = gr::filter::freq_xlating_fir_filter_fcf::make(10, d_fxff_tap, 57000, d_sample_rate);
 
-    d_rsmp_tap = gr::filter::firdes::low_pass(10, d_sample_rate, 2375, 2000);
-    d_rsmp = gr::filter::pfb_arb_resampler_ccf::make(2375/d_sample_rate,d_rsmp_tap,32);
+    int interpolation = 19;
+    int decimation = 24;
+#if GNURADIO_VERSION < 0x30900
+    float rate = (float) interpolation / (float) decimation;
+    d_rsmp_tap = gr::filter::firdes::low_pass(interpolation, interpolation, rate * 0.45, rate * 0.1);
+    d_rsmp = gr::filter::rational_resampler_base_ccf::make(interpolation, decimation, d_rsmp_tap);
+#else
+    d_rsmp = gr::filter::rational_resampler_ccf::make(interpolation, decimation);
+#endif
 
-    f_rrcf = gr::filter::firdes::root_raised_cosine(1, 2375, 2375, 1, 100);
-    d_bpf2 = gr::filter::fir_filter_ccf::make(1, f_rrcf);
-
+    int n_taps = 151;
+    d_rrcf = gr::filter::firdes::root_raised_cosine(1, 19000, 2375, 1, n_taps);
 
     gr::digital::constellation_sptr p_c = gr::digital::constellation_bpsk::make()->base();
-    d_mpsk = gr::digital::constellation_receiver_cb::make(p_c, 1*M_PI/100.0, -0.06, 0.06);
 
-    b_koin = gr::blocks::keep_one_in_n::make(sizeof(unsigned char), 2);
+#if GNURADIO_VERSION < 0x030800
+    d_bpf = gr::filter::fir_filter_ccf::make(1, d_rrcf);
+
+    d_agc = gr::analog::agc_cc::make(2e-3, 0.585 * 1.25, 53 * 1.25);
+
+    d_sync = gr::digital::clock_recovery_mm_cc::make(8, 0.25 * 0.175 * 0.175, 0.5, 0.175, 0.005);
+
+    d_koin = gr::blocks::keep_one_in_n::make(sizeof(unsigned char), 2);
+#else
+    d_rrcf_manchester = std::vector<float>(n_taps-8);
+    for (int n = 0; n < n_taps-8; n++) {
+        d_rrcf_manchester[n] = d_rrcf[n] - d_rrcf[n+8];
+    }
+    d_bpf = gr::filter::fir_filter_ccf::make(1, d_rrcf_manchester);
+
+    d_agc = gr::analog::agc_cc::make(2e-3, 0.585, 53);
+
+    d_sync = gr::digital::symbol_sync_cc::make(gr::digital::TED_ZERO_CROSSING, 16, 0.01, 1, 1, 0.1, 1, p_c);
+#endif
+
+    d_mpsk = gr::digital::constellation_receiver_cb::make(p_c, 2*M_PI/100.0, -0.002, 0.002);
 
     d_ddbb = gr::digital::diff_decoder_bb::make(2);
 
-    rds_decoder = gr::rds::decoder::make(0, 0);
-    rds_parser = gr::rds::parser::make(1, 0, 0);
-
     /* connect filter */
-    connect(self(), 0, f_fxff, 0); 
-    connect(f_fxff, 0, d_rsmp, 0); 
-    connect(d_rsmp, 0, d_bpf2, 0);
-    connect(d_bpf2, 0, d_mpsk, 0);
-    connect(d_mpsk, 0, b_koin, 0);
-    connect(b_koin, 0, d_ddbb, 0);
+    connect(self(), 0, d_fxff, 0);
+    connect(d_fxff, 0, d_rsmp, 0);
+    connect(d_rsmp, 0, d_bpf, 0);
+    connect(d_bpf, 0, d_agc, 0);
+    connect(d_agc, 0, d_sync, 0);
+    connect(d_sync, 0, d_mpsk, 0);
+
+#if GNURADIO_VERSION < 0x030800
+    connect(d_mpsk, 0, d_koin, 0);
+    connect(d_koin, 0, d_ddbb, 0);
+#else
+    connect(d_mpsk, 0, d_ddbb, 0);
+#endif
+
     connect(d_ddbb, 0, self(), 0);
 }
 
