@@ -30,9 +30,21 @@
 
 QStringList DockRxOpt::ModulationStrings;
 
-//Lookup tables for conversation to/from old settings 
-static const int new2old [ ] = {0,1,2,11,6,7,8,9,3,4,5,10,12};
-static const int old2new [ ] = {0,1,2,8,9,10,4,5,6,7,11,3,12};
+// Lookup table for conversion from old settings
+static const int old2new[] = {
+    DockRxOpt::MODE_OFF,
+    DockRxOpt::MODE_RAW,
+    DockRxOpt::MODE_AM,
+    DockRxOpt::MODE_NFM,
+    DockRxOpt::MODE_WFM_MONO,
+    DockRxOpt::MODE_WFM_STEREO,
+    DockRxOpt::MODE_LSB,
+    DockRxOpt::MODE_USB,
+    DockRxOpt::MODE_CWL,
+    DockRxOpt::MODE_CWU,
+    DockRxOpt::MODE_WFM_STEREO_OIRT,
+    DockRxOpt::MODE_AM_SYNC
+};
 
 // Filter preset table per mode, preset and lo/hi
 static const int filter_preset_table[DockRxOpt::MODE_LAST][3][2] =
@@ -447,8 +459,13 @@ void DockRxOpt::readSettings(QSettings *settings)
         ui->agcPresetCombo->setCurrentIndex(4);
 
     int_val = MODE_AM;
-    if (settings->contains("receiver/demod"))
-        int_val = old2new [settings->value("receiver/demod").toInt(&conv_ok)];
+    if (settings->contains("receiver/demod")) {
+        if (settings->value("configversion").toInt(&conv_ok) >= 3) {
+            int_val = GetEnumForModulationString(settings->value("receiver/demod").toString());
+        } else {
+            int_val = old2new[settings->value("receiver/demod").toInt(&conv_ok)];
+        }
+    }
 
     setCurrentDemod(int_val);
     emit demodSelected(int_val);
@@ -460,7 +477,7 @@ void DockRxOpt::saveSettings(QSettings *settings)
 {
     int     int_val;
 
-    settings->setValue("receiver/demod", new2old [ui->modeSelector->currentIndex()]);
+    settings->setValue("receiver/demod", currentDemodAsString());
 
     int cwofs = demodOpt->getCwOffset();
     if (cwofs == 700)
