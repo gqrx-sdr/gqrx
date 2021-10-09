@@ -182,6 +182,7 @@ private slots:
     void on_newFilterFreq(size_t idx, int low, int high);    /*! New filter width */
 
     /* Bookmarks */
+    void onDemodulatorBookmark(size_t idx);
     void onBookmarkActivated(qint64 freq, const QString& demod, int bandwidth);
 
     /* DXC Spots */
@@ -203,7 +204,6 @@ private slots:
     void on_actionKbdShortcuts_triggered();
     void on_actionAbout_triggered();
     void on_actionAboutQt_triggered();
-    void on_actionAddBookmark_triggered();
     void on_actionDX_Cluster_triggered();
     void on_actionAddDemodulator_triggered();
 

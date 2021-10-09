@@ -119,6 +119,7 @@ public:
 
     /* Demodulators control */
     demodulator::sptr   add_demodulator();
+    demodulator::sptr   get_demodulator(size_t idx) const { return demods[idx]; }
     void                remove_demodulator(size_t idx);
     void                reindex_demodulators();
 

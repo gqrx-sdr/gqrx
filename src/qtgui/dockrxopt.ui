@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>280</width>
-    <height>376</height>
+    <height>399</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -47,6 +47,63 @@
      <property name="spacing">
       <number>0</number>
      </property>
+     <item>
+      <layout class="QHBoxLayout" name="hlToolbar">
+       <property name="leftMargin">
+        <number>4</number>
+       </property>
+       <property name="topMargin">
+        <number>4</number>
+       </property>
+       <property name="rightMargin">
+        <number>4</number>
+       </property>
+       <property name="bottomMargin">
+        <number>4</number>
+       </property>
+       <item>
+        <widget class="QToolButton" name="tbBookmark">
+         <property name="toolTip">
+          <string>Bookmark demodulator</string>
+         </property>
+         <property name="text">
+          <string>Bookmark</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/icons.qrc">
+           <normaloff>:/icons/icons/bookmark-new.svg</normaloff>:/icons/icons/bookmark-new.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QToolButton" name="tbRemove">
+         <property name="toolTip">
+          <string>Remove demodulator</string>
+         </property>
+         <property name="text">
+          <string>Remove</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/icons.qrc">
+           <normaloff>:/icons/icons/remove.svg</normaloff>:/icons/icons/remove.svg</iconset>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <property name="bottomMargin">
@@ -102,23 +159,6 @@
           </size>
          </property>
         </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pbRemove">
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/icons.qrc">
-           <normaloff>:/icons/icons/remove.svg</normaloff>:/icons/icons/remove.svg</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>12</width>
-           <height>12</height>
-          </size>
-         </property>
-        </widget>
        </item>
       </layout>
      </item>
@@ -874,6 +914,14 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
     <string>RemoveDemodulator</string>
    </property>
   </action>
+  <action name="actionAddBookmark">
+   <property name="text">
+    <string>Add Bookmark</string>
+   </property>
+   <property name="toolTip">
+    <string>Bookmark the current demod parameters</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -909,14 +957,30 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
  </resources>
  <connections>
   <connection>
-   <sender>pbRemove</sender>
-   <signal>released()</signal>
+   <sender>tbRemove</sender>
+   <signal>clicked()</signal>
    <receiver>actionRemoveDemodulator</receiver>
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>302</x>
-     <y>19</y>
+     <x>257</x>
+     <y>21</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tbBookmark</sender>
+   <signal>clicked()</signal>
+   <receiver>actionAddBookmark</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>21</x>
+     <y>21</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>

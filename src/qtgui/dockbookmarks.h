@@ -61,7 +61,6 @@ public:
 
     // ui->tableViewFrequencyList
     // ui->tableWidgetTagList
-    QAction* actionAddBookmark;
 
     void updateTags();
     void updateBookmarks();

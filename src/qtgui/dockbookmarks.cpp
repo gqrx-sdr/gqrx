@@ -64,11 +64,7 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
         contextmenu->addAction(action);
         connect(action, SIGNAL(triggered()), this, SLOT(DeleteSelectedBookmark()));
     }
-    // MenuItem Add
-    {
-        actionAddBookmark = new QAction("Add Bookmark", this);
-        contextmenu->addAction(actionAddBookmark);
-    }
+
     ui->tableViewFrequencyList->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->tableViewFrequencyList, SIGNAL(customContextMenuRequested(const QPoint&)),
         this, SLOT(ShowContextMenu(const QPoint&)));

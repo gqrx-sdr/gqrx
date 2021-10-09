@@ -103,6 +103,7 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     ui->filterFreq->setFrequency(0);
 
     connect(ui->actionRemoveDemodulator, SIGNAL(triggered()), this, SIGNAL(remove()));
+    connect(ui->actionAddBookmark, SIGNAL(triggered()), this, SIGNAL(bookmark()));
 
     // use same slot for filterCombo and filterShapeCombo
     connect(ui->filterShapeCombo, SIGNAL(activated(int)), this, SLOT(on_filterCombo_activated(int)));
@@ -177,6 +178,10 @@ void DockRxOpt::setupShortcuts()
     QObject::connect(filter_narrow_shortcut, &QShortcut::activated, this, &DockRxOpt::filterNarrowShortcut);
     QObject::connect(filter_normal_shortcut, &QShortcut::activated, this, &DockRxOpt::filterNormalShortcut);
     QObject::connect(filter_wide_shortcut, &QShortcut::activated, this, &DockRxOpt::filterWideShortcut);
+
+    /* Bookmark */
+    QShortcut *bookmark_shortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_B), this, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut);
+    QObject::connect(bookmark_shortcut, &QShortcut::activated, this, &DockRxOpt::bookmark);
 }
 
 DockRxOpt::~DockRxOpt()

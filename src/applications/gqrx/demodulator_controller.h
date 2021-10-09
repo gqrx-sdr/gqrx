@@ -69,6 +69,7 @@ public:
 
 signals:
     void remove(size_t idx);
+    void bookmark(size_t idx);
 
     void filterOffset(size_t idx, qint64 offset);
     void filterFrequency(size_t idx, int low, int high);
@@ -78,6 +79,8 @@ public slots:
     void emitCurrentSettings();
 
     void onRemoveAction();
+    void onBookmarkAction();
+
     void onIndexChanged(size_t idx);
 
     /* Frequency Control */
@@ -130,6 +133,8 @@ public slots:
     void setPassband(int bandwidth);
     float get_signal_pwr(bool dbfs) const;
 
+    QString currentDemodAsString();
+
     /* Audio recording and playback */
 
     void startAudioRec(const QString& filename);
@@ -147,6 +152,7 @@ public slots:
     void setRdsDecoder(bool enabled);
 
     /* AFSK1200 */
+
     void setAfskDecoder(bool enabled);
 
     /* Timers */
@@ -160,13 +166,13 @@ public slots:
     void enableTimers(bool enabled);
 
 private:
-    receiver::sptr          rx;     /*!< The actual receiver DSP controller */
-    demodulator::sptr       demod;  /*!< The actual demodulator DSP controller */
+    receiver::sptr          rx;                     /*!< The actual receiver DSP controller */
+    demodulator::sptr       demod;                  /*!< The actual demodulator DSP controller */
 
     // Dock management
-    ads::CDockManager           *dockMgr;       // Borrowed from MainWindow
-    QMenu                       *viewMenu;      // Borrowed from MainWindow
-    QAction                     *viewMenuSection;
+    ads::CDockManager       *dockMgr;               // Borrowed from MainWindow
+    QMenu                   *viewMenu;              // Borrowed from MainWindow
+    QAction                 *viewMenuSection;
 
     // Rx controls
     DockRxOpt               *uiDockRxOpt;           /*!< Dock for the Rx settings */
@@ -178,8 +184,8 @@ private:
     FilterRanges            m_filter_ranges;
 
     // Audio FFT display
-    DockAudio               *uiDockAudio;       /*!< Dock for the Audio display and control */
-    ads::CDockWidget        *dockAudio;         /*!< Wrapped dock widget for DockManager */
+    DockAudio               *uiDockAudio;           /*!< Dock for the Audio display and control */
+    ads::CDockWidget        *dockAudio;             /*!< Wrapped dock widget for DockManager */
     std::complex<float>     *d_fftData;
     float                   *d_realFftData;
     QTimer                  *audio_fft_timer;
@@ -190,7 +196,7 @@ private:
 
     // RDS
     DockRDS                 *uiDockRDS;
-    ads::CDockWidget        *dockRDS;           /*!< Wrapped dock widget for DockManager */
+    ads::CDockWidget        *dockRDS;               /*!< Wrapped dock widget for DockManager */
     QTimer                  *rds_timer;
     bool                    dec_rds;
 

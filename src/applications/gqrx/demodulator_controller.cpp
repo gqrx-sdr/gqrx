@@ -89,6 +89,8 @@ DemodulatorController::DemodulatorController(
 
     // Rx control
     connect(uiDockRxOpt, SIGNAL(remove()), this, SLOT(onRemoveAction()));
+    connect(uiDockRxOpt, SIGNAL(bookmark()), this, SLOT(onBookmarkAction()));
+
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
@@ -269,6 +271,11 @@ void DemodulatorController::onRemoveAction()
 {
     // qInfo() << "DemodulatorController" << this << "::onRemoveAction for demod idx" << demod->get_idx();
     emit remove(demod->get_idx());
+}
+
+void DemodulatorController::onBookmarkAction()
+{
+    emit bookmark(demod->get_idx());
 }
 
 void DemodulatorController::onIndexChanged(size_t idx)
@@ -719,6 +726,11 @@ void DemodulatorController::setPassband(int bandwidth)
 float DemodulatorController::get_signal_pwr(bool dbfs) const
 {
     return demod->get_signal_pwr(dbfs);
+}
+
+QString DemodulatorController::currentDemodAsString()
+{
+    return uiDockRxOpt->currentDemodAsString();
 }
 
 /* Audio recording and playback */

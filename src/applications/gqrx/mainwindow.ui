@@ -84,8 +84,6 @@
     <addaction name="actionRemoteControl"/>
     <addaction name="actionRemoteConfig"/>
     <addaction name="separator"/>
-    <addaction name="actionAddBookmark"/>
-    <addaction name="separator"/>
     <addaction name="actionIqTool"/>
     <addaction name="separator"/>
     <addaction name="actionDX_Cluster"/>
@@ -110,8 +108,6 @@
    <addaction name="actionIoConfig"/>
    <addaction name="actionLoadSettings"/>
    <addaction name="actionSaveSettings"/>
-   <addaction name="separator"/>
-   <addaction name="actionAddBookmark"/>
    <addaction name="separator"/>
    <addaction name="actionAddDemodulator"/>
    <addaction name="actionIqTool"/>
@@ -278,21 +274,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
-   </property>
-  </action>
-  <action name="actionAddBookmark">
-   <property name="icon">
-    <iconset resource="../../../resources/icons.qrc">
-     <normaloff>:/icons/icons/bookmark-new.svg</normaloff>:/icons/icons/bookmark-new.svg</iconset>
-   </property>
-   <property name="text">
-    <string>Add bookmark</string>
-   </property>
-   <property name="toolTip">
-    <string>Bookmark the current frequency and mode (Ctrl+Shift+B)</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+B</string>
    </property>
   </action>
   <action name="actionRemoteControl">

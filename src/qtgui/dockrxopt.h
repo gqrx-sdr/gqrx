@@ -151,6 +151,7 @@ private:
 
 signals:    
     void remove();
+    void bookmark();
 
     /** Signal emitted when receiver frequency has changed */
     void rxFreqChanged(qint64 freq_hz);

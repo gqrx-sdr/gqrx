@@ -88,10 +88,6 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     Bookmarks::create();
     DXCSpots::create();
 
-    BandPlan::Get().setConfigDir(m_cfg_dir);
-    Bookmarks::Get().setConfigDir(m_cfg_dir);
-    BandPlan::Get().load();
-
     // Initialise default configuration directory
     QByteArray xdg_dir = qgetenv("XDG_CONFIG_HOME");
     if (xdg_dir.isEmpty())
@@ -103,6 +99,10 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     {
         m_cfg_dir = QString("%1/gqrx").arg(xdg_dir.data());
     }
+
+    BandPlan::Get().setConfigDir(m_cfg_dir);
+    Bookmarks::Get().setConfigDir(m_cfg_dir);
+    BandPlan::Get().load();
 
     setWindowTitle(QString("Gqrx %1").arg(VERSION));
 
@@ -262,7 +262,6 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 
     // Bookmarks
     connect(uiDockBookmarks, SIGNAL(newBookmarkActivated(qint64,QString,int)), this, SLOT(onBookmarkActivated(qint64,QString,int)));
-    connect(uiDockBookmarks->actionAddBookmark, SIGNAL(triggered()), this, SLOT(on_actionAddBookmark_triggered()));
 
     // DXC Spots
     connect(&DXCSpots::Get(), SIGNAL(dxcSpotsUpdated()), this, SLOT(updateClusterSpots()));
@@ -1010,7 +1009,6 @@ void MainWindow::addDemodulator()
 {
     auto demod = rx->add_demodulator();
     auto ctl = std::make_shared<DemodulatorController>(rx, demod, uiDockManager, receiversMenu, m_settings);
-    connect(ctl.get(), SIGNAL(remove(size_t)), this, SLOT(removeDemodulator(size_t)));
     demodCtrls.push_back(ctl);
 
     uiBaseband->plotter()->setDemodulatorCount(demodCtrls.size());
@@ -1018,6 +1016,8 @@ void MainWindow::addDemodulator()
     // Update parameters from stored settings
     ctl->readSettings(m_settings);
 
+    connect(ctl.get(), SIGNAL(remove(size_t)), this, SLOT(removeDemodulator(size_t)));
+    connect(ctl.get(), SIGNAL(bookmark(size_t)), this, SLOT(onDemodulatorBookmark(size_t)));
     connect(
         ctl.get(), SIGNAL(filterOffset(size_t,qint64)),
         uiBaseband->plotter(), SLOT(setDemodulatorOffset(size_t,qint64))
@@ -1597,7 +1597,86 @@ void MainWindow::on_newFilterFreq(size_t idx, int low, int high)
     // XXX: is this necessary?
     /* Update filter range of plotter, in case this slot is triggered by
      * switching to a bookmark */
-//    uiBaseband->plotter()->drawOverlay();
+    //    uiBaseband->plotter()->drawOverlay();
+}
+
+void MainWindow::onDemodulatorBookmark(size_t idx)
+{
+    bool ok=false;
+    QString name;
+    QString tags; // list of tags separated by comma
+
+    // Create and show the Dialog for a new Bookmark.
+    // Write the result into variable 'name'.
+    {
+        QDialog dialog(this);
+        dialog.setWindowTitle("New bookmark");
+
+        auto* LabelAndTextfieldName = new QGroupBox(&dialog);
+        auto* label1 = new QLabel("Bookmark name:", LabelAndTextfieldName);
+        auto* textfield = new QLineEdit(LabelAndTextfieldName);
+        auto *layout = new QHBoxLayout;
+        layout->addWidget(label1);
+        layout->addWidget(textfield);
+        LabelAndTextfieldName->setLayout(layout);
+
+        auto* buttonCreateTag = new QPushButton("Create new Tag", &dialog);
+
+        auto* taglist = new BookmarksTagList(&dialog, false);
+        taglist->updateTags();
+        taglist->DeselectAll();
+
+        auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                              | QDialogButtonBox::Cancel);
+        connect(buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
+        connect(buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
+        connect(buttonCreateTag, SIGNAL(clicked()), taglist, SLOT(AddNewTag()));
+
+        auto *mainLayout = new QVBoxLayout(&dialog);
+        mainLayout->addWidget(LabelAndTextfieldName);
+        mainLayout->addWidget(buttonCreateTag);
+        mainLayout->addWidget(taglist);
+        mainLayout->addWidget(buttonBox);
+
+        ok = dialog.exec();
+        if (ok)
+        {
+            name = textfield->text();
+            tags = taglist->getSelectedTagsAsString();
+            qDebug() << "Tags: " << tags;
+        }
+        else
+        {
+            name.clear();
+            tags.clear();
+        }
+    }
+
+    // Add new Bookmark to Bookmarks...
+    if (ok)
+    {
+        int i;
+        auto demodCtl = demodCtrls[idx];
+        auto demod = rx->get_demodulator(idx);
+
+        BookmarkInfo info;
+        info.frequency = uiBaseband->freqCtrl()->getFrequency() + demod->get_filter_offset();
+        info.bandwidth = demod->get_filter_highcut() - demod->get_filter_lowcut();
+        info.modulation = demodCtl->currentDemodAsString();
+        info.name = name;
+        auto listTags = tags.split(",",QString::SkipEmptyParts);
+        info.tags.clear();
+        if (listTags.empty())
+            info.tags.append(&Bookmarks::Get().findOrAddTag(""));
+
+        for (i = 0; i < listTags.size(); ++i)
+            info.tags.append(&Bookmarks::Get().findOrAddTag(listTags[i]));
+
+        Bookmarks::Get().add(info);
+        uiDockBookmarks->updateTags();
+        uiDockBookmarks->updateBookmarks();
+        uiBaseband->plotter()->updateOverlay();
+    }
 }
 
 /** Full screen button or menu item toggled. */
@@ -1656,7 +1735,7 @@ void MainWindow::on_actionAddDemodulator_triggered()
 void MainWindow::onBookmarkActivated(qint64 freq, const QString& demod, int bandwidth)
 {
     // TODO: need some fundamentally new logic here;
-    // - ? Replace all ReceiverControllers?
+    // - ? Replace all Demodulators?
     // - ? Append if the frequency is within current hw range?
 
     /*
@@ -1815,90 +1894,6 @@ void MainWindow::on_actionAbout_triggered()
 void MainWindow::on_actionAboutQt_triggered()
 {
     QMessageBox::aboutQt(this, tr("About Qt"));
-}
-
-void MainWindow::on_actionAddBookmark_triggered()
-{
-    // TODO: need some fundamentally new logic here
-    // - ? which receiver is being bookmarked?
-
-
-    bool ok=false;
-    QString name;
-    QString tags; // list of tags separated by comma
-
-    // Create and show the Dialog for a new Bookmark.
-    // Write the result into variable 'name'.
-    {
-        QDialog dialog(this);
-        dialog.setWindowTitle("New bookmark");
-
-        auto* LabelAndTextfieldName = new QGroupBox(&dialog);
-        auto* label1 = new QLabel("Bookmark name:", LabelAndTextfieldName);
-        auto* textfield = new QLineEdit(LabelAndTextfieldName);
-        auto *layout = new QHBoxLayout;
-        layout->addWidget(label1);
-        layout->addWidget(textfield);
-        LabelAndTextfieldName->setLayout(layout);
-
-        auto* buttonCreateTag = new QPushButton("Create new Tag", &dialog);
-
-        auto* taglist = new BookmarksTagList(&dialog, false);
-        taglist->updateTags();
-        taglist->DeselectAll();
-
-        auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
-                                              | QDialogButtonBox::Cancel);
-        connect(buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
-        connect(buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
-        connect(buttonCreateTag, SIGNAL(clicked()), taglist, SLOT(AddNewTag()));
-
-        auto *mainLayout = new QVBoxLayout(&dialog);
-        mainLayout->addWidget(LabelAndTextfieldName);
-        mainLayout->addWidget(buttonCreateTag);
-        mainLayout->addWidget(taglist);
-        mainLayout->addWidget(buttonBox);
-
-        ok = dialog.exec();
-        if (ok)
-        {
-            name = textfield->text();
-            tags = taglist->getSelectedTagsAsString();
-            qDebug() << "Tags: " << tags;
-        }
-        else
-        {
-            name.clear();
-            tags.clear();
-        }
-    }
-
-    /*
-    // Add new Bookmark to Bookmarks... .!?
-    if(ok)
-    {
-        int i;
-
-        BookmarkInfo info;
-        info.frequency = uiBaseband->freqCtrl()->getFrequency();
-        info.bandwidth = uiBaseband->plotter()->getFilterBw();
-        info.modulation = uiDockRxOpt->currentDemodAsString();
-        info.name=name;
-        auto listTags = tags.split(",",QString::SkipEmptyParts);
-        info.tags.clear();
-        if (listTags.empty())
-            info.tags.append(&Bookmarks::Get().findOrAddTag(""));
-
-
-        for (i = 0; i < listTags.size(); ++i)
-            info.tags.append(&Bookmarks::Get().findOrAddTag(listTags[i]));
-
-        Bookmarks::Get().add(info);
-        uiDockBookmarks->updateTags();
-        uiDockBookmarks->updateBookmarks();
-        uiBaseband->plotter()->updateOverlay();
-    }
-    */
 }
 
 void MainWindow::updateClusterSpots()
