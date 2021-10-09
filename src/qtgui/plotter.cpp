@@ -616,40 +616,14 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
 
     if (NOCAP == m_CursorCaptured)
     {
-        m_DemodCaptured = -1;
-        for (int i = 0; i < m_demod.size(); ++i)
-        {
-            auto demod = m_demod[i];
+        qInfo() << "mousePressEvent NOCAP start";
 
-            if (isPointCloseTo(pt.x(), demod->freqX, m_CursorCaptureDelta))
-            {
-                m_DemodCaptured = i;
-                // move demod box center frequency region
-                m_CursorCaptured = CENTER;
-                m_GrabPosition = pt.x() - demod->freqX;
-            }
-            else if (isPointCloseTo(pt.x(), demod->lowCutFreqX, m_CursorCaptureDelta))
-            {
-                m_DemodCaptured = i;
-                // filter low cut
-                m_CursorCaptured = LEFT;
-                m_GrabPosition = pt.x() - demod->lowCutFreqX;
-            }
-            else if (isPointCloseTo(pt.x(), demod->hiCutFreqX, m_CursorCaptureDelta))
-            {
-                m_DemodCaptured = i;
-                // filter high cut
-                m_CursorCaptured = RIGHT;
-                m_GrabPosition = pt.x() - demod->hiCutFreqX;
-            }
-
-            if (m_DemodCaptured >= 0) {
-                break;
-            }
-        }
+        qInfo() << "mousePressEvent NOCAP " << m_CursorCaptured << m_DemodCaptured << m_GrabPosition;
 
         if (m_DemodCaptured < 0)
         {
+            qInfo() << "mousePressEvent NOCAP no demod captured";
+
             // XXX : how to select demod to tune?
             /* if (event->buttons() == Qt::LeftButton)
             {
@@ -672,15 +646,14 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                 m_GrabPosition = 1;
                 drawOverlay();
             }
-            else if (event->buttons() == Qt::MidButton)
+            else */if (event->buttons() == Qt::MidButton)
             {
                 // set center freq
-                m_CenterFreq = roundFreq(freqFromX(pt.x()), m_ClickResolution);
-                m_demod.setCenterFreq(m_CenterFreq, true, 0);
-                emit newDemodFreq(0, m_demod.centerFreq, m_demod.centerFreq - m_CenterFreq);
+                m_CenterFreq = roundFreq(freqFromX(pt.x()), 1);
+                emit newHwFrequency(m_CenterFreq);
                 drawOverlay();
             }
-            else */ if (event->buttons() == Qt::RightButton)
+            else if (event->buttons() == Qt::RightButton)
             {
                 // reset frequency zoom
                 resetHorizontalZoom();
