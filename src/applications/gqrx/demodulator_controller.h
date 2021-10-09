@@ -38,6 +38,16 @@
 #include "applications/gqrx/demodulator.h"
 #include "applications/gqrx/receiver.h"
 
+struct FilterRanges
+{
+    int lowMin;
+    int lowMax;
+    int highMin;
+    int highMax;
+    bool symmetric;
+    int resolution;
+};
+
 class DemodulatorController : public QObject
 {
     Q_OBJECT;
@@ -50,17 +60,23 @@ public:
         demodulator::sptr demod,
         ads::CDockManager *dockMgr,
         QMenu *viewMenu,
-        QSettings *settings
+        std::shared_ptr<QSettings> settings
     );
     ~DemodulatorController() override;
 
-    void readSettings(QSettings *settings);
-    void saveSettings(QSettings *settings);
+    void readSettings(std::shared_ptr<QSettings> settings);
+    void saveSettings(std::shared_ptr<QSettings> settings);
 
 signals:
     void remove(size_t idx);
 
+    void filterOffset(size_t idx, qint64 offset);
+    void filterFrequency(size_t idx, int low, int high);
+    void filterRanges(size_t idx, int lowMin, int lowMax, int highMin, int highMax, bool symmetric, int resolution);
+
 public slots:
+    void emitCurrentSettings();
+
     void onRemoveAction();
     void onIndexChanged(size_t idx);
 
@@ -69,7 +85,16 @@ public slots:
     void setFilterOffsetRange(qint64 range);
     void setFrequencyRange(qint64 hw_start, qint64 hw_stop);
     void setHwFrequency(qint64 hw_freq);
-    void setFilterFrequency(int low, int high);
+
+    void setFilterRanges(int lowMin, int lowMax, int highMin, int highMax, bool symmetric, int resolution)
+    {
+        m_filter_ranges.lowMin = lowMin;
+        m_filter_ranges.lowMax = lowMax;
+        m_filter_ranges.highMin = highMin;
+        m_filter_ranges.highMax = highMax;
+        m_filter_ranges.symmetric = symmetric;
+        m_filter_ranges.resolution = resolution;
+    }
 
     /* UI Behaviour control */
 
@@ -79,9 +104,11 @@ public slots:
     void setFftColor(const QColor& color);
     void setFftFill(bool enable);
 
-    /* Rx controls */
+    /* Demodulator controls */
 
     void setFilterOffset(qint64 offset);
+    void setFilterFrequency(int low, int high);
+
     void selectDemod(const QString& demod);
     void selectDemod(int mode_idx);
     void setFmMaxdev(float max_dev);
@@ -133,13 +160,13 @@ public slots:
     void enableTimers(bool enabled);
 
 private:
-    receiver::sptr      rx;     /*!< The actual receiver DSP controller */
-    demodulator::sptr   demod;  /*!< The actual demodulator DSP controller */
+    receiver::sptr          rx;     /*!< The actual receiver DSP controller */
+    demodulator::sptr       demod;  /*!< The actual demodulator DSP controller */
 
     // Dock management
-    ads::CDockManager       *dockMgr;           // Borrowed from MainWindow
-    QMenu                   *viewMenu;          // Borrowed from MainWindow
-    QAction                 *viewMenuSection;
+    ads::CDockManager           *dockMgr;       // Borrowed from MainWindow
+    QMenu                       *viewMenu;      // Borrowed from MainWindow
+    QAction                     *viewMenuSection;
 
     // Rx controls
     DockRxOpt               *uiDockRxOpt;           /*!< Dock for the Rx settings */
@@ -148,6 +175,7 @@ private:
     enum rx_filter_shape    d_filter_shape;         /*!< The las used filter shape */
     bool                    d_offset_follows_hw;    /*!< Whether changing HW freq also changes offset */
     QTimer                  *meter_timer;
+    FilterRanges            m_filter_ranges;
 
     // Audio FFT display
     DockAudio               *uiDockAudio;       /*!< Dock for the Audio display and control */

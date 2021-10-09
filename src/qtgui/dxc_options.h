@@ -23,6 +23,7 @@
 #ifndef DXC_OPTIONS_H
 #define DXC_OPTIONS_H
 
+#include <memory>
 
 #include <QCloseEvent>
 #include <QShowEvent>
@@ -45,8 +46,9 @@ public:
 
     void closeEvent(QCloseEvent *event);
     void showEvent(QShowEvent * event);
-    void saveSettings(QSettings *settings);
-    void readSettings(QSettings *settings);
+
+    void saveSettings(std::shared_ptr<QSettings> settings);
+    void readSettings(std::shared_ptr<QSettings> settings);
 
 private slots:
 

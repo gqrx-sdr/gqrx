@@ -193,6 +193,8 @@ void CFreqCtrl::setFrequency(qint64 freq)
     qint64    rem;
     int       val;
 
+    qInfo() << "CFreqCtrl::setFrequency" << freq;
+
     if (freq == m_Oldfreq)
         return;
 

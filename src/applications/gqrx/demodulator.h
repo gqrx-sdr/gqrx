@@ -80,7 +80,7 @@ public:
     /* General */
     size_t      get_idx() const { return idx; }
     void        set_idx(size_t next_idx) {
-        qInfo() << "demodulator" << idx << "gets new" << next_idx;
+        qInfo() << "demodulator" << idx << "gets new idx" << next_idx;
         idx = next_idx;
         emit indexChanged(idx);
     }
@@ -90,6 +90,8 @@ public:
     void        set_input_rate(const int d_ddc_decim, const int d_decim_rate, const int d_quad_rate);
     bool        supports_stream_naming() const { return d_supports_stream_naming; }
 
+    int         get_audio_rate() const { return d_audio_rate; }
+
     /* Demodulation type */
     rx_status   set_demod(rx_demod demod, bool force, gr::basic_block_sptr src, int d_quad_rate, int d_audio_rate);
     rx_demod    get_demod() const {
@@ -97,9 +99,14 @@ public:
     };
 
     /* Frequency control */
-    rx_status   set_filter(double low, double high, rx_filter_shape shape);
+    rx_status       set_filter(double low, double high, rx_filter_shape shape);
+    double          get_filter_lowcut() const;
+    double          get_filter_highcut() const;
+    rx_filter_shape get_filter_shape() const { return m_shape; }
+
     rx_status   set_filter_offset(double offset_hz);
     double      get_filter_offset(void) const;
+
     rx_status   set_cw_offset(double offset_hz);
     double      get_cw_offset(void) const;
 
@@ -187,6 +194,7 @@ private:
     int                idx;                /*!< This sub-receiver index */
 
     double             d_filter_offset;    /*!< Current filter offset */
+    rx_filter_shape    m_shape;
     double             d_cw_offset;        /*!< CW offset */
     bool               d_sniffer_active;   /*!< Only one data decoder allowed... ? */
 

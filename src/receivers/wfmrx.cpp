@@ -108,6 +108,16 @@ void wfmrx::set_filter(double low, double high, double tw)
     filter->set_param(low, high, tw);
 }
 
+double wfmrx::get_filter_low() const
+{
+    return filter->get_low();
+}
+
+double wfmrx::get_filter_high() const
+{
+    return filter->get_high();
+}
+
 float wfmrx::get_signal_level(bool dbfs)
 {
     if (dbfs)

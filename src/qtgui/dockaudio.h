@@ -23,6 +23,8 @@
 #ifndef DOCKAUDIO_H
 #define DOCKAUDIO_H
 
+#include <memory>
+
 #include <QColor>
 #include <QFrame>
 #include <QSettings>
@@ -65,8 +67,8 @@ public:
     void setFftColor(QColor color);
     void setFftFill(bool enabled);
 
-    void saveSettings(QSettings *settings, size_t idx);
-    void readSettings(QSettings *settings, size_t idx);
+    void saveSettings(std::shared_ptr<QSettings> settings, size_t idx);
+    void readSettings(std::shared_ptr<QSettings> settings, size_t idx);
 
 public slots:
     void startAudioRecorder(void);

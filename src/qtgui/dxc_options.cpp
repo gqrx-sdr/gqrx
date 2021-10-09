@@ -128,7 +128,7 @@ void DXCOptions::readyToRead()
     }
 }
 
-void DXCOptions::saveSettings(QSettings *settings)
+void DXCOptions::saveSettings(std::shared_ptr<QSettings> settings)
 {
     if (!settings)
         return;
@@ -144,7 +144,7 @@ void DXCOptions::saveSettings(QSettings *settings)
     settings->endGroup();
 }
 
-void DXCOptions::readSettings(QSettings *settings)
+void DXCOptions::readSettings(std::shared_ptr<QSettings> settings)
 {
     if (!settings)
         return;

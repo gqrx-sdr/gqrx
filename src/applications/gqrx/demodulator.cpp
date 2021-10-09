@@ -130,6 +130,52 @@ void demodulator::set_input_rate(const int d_ddc_decim, const int d_decim_rate, 
     rx->set_quad_rate(d_quad_rate);
 }
 
+rx_status demodulator::set_filter(double low, double high, rx_filter_shape shape)
+{
+    double trans_width;
+
+    if ((low >= high) || (std::abs(high-low) < RX_FILTER_MIN_WIDTH))
+        return STATUS_ERROR;
+
+    m_shape = shape;
+    switch (shape) {
+
+    case FILTER_SHAPE_SOFT:
+        trans_width = std::abs(high - low) * 0.5;
+        break;
+
+    case FILTER_SHAPE_SHARP:
+        trans_width = std::abs(high - low) * 0.1;
+        break;
+
+    case FILTER_SHAPE_NORMAL:
+    default:
+        trans_width = std::abs(high - low) * 0.2;
+        break;
+
+    }
+
+    rx->set_filter(low, high, trans_width);
+
+    return STATUS_OK;
+}
+
+/**
+ * @brief Get filter low cut frequency.
+ */
+double demodulator::get_filter_lowcut(void) const
+{
+    return rx->get_filter_low();
+}
+
+/**
+ * @brief Get filter high cut frequency.
+ */
+double demodulator::get_filter_highcut(void) const
+{
+    return rx->get_filter_high();
+}
+
 /**
  * @brief Set filter offset.
  * @param offset_hz The desired filter offset in Hz.
@@ -146,7 +192,7 @@ void demodulator::set_input_rate(const int d_ddc_decim, const int d_decim_rate, 
  */
 rx_status demodulator::set_filter_offset(double offset_hz)
 {
-    qInfo() << "demodulator::set_filter_offset" << offset_hz;
+//    qInfo() << "demodulator::set_filter_offset" << offset_hz;
     d_filter_offset = offset_hz;
     ddc->set_center_freq(d_filter_offset - d_cw_offset);
 
@@ -176,35 +222,6 @@ rx_status demodulator::set_cw_offset(double offset_hz)
 double demodulator::get_cw_offset(void) const
 {
     return d_cw_offset;
-}
-
-rx_status demodulator::set_filter(double low, double high, rx_filter_shape shape)
-{
-    double trans_width;
-
-    if ((low >= high) || (std::abs(high-low) < RX_FILTER_MIN_WIDTH))
-        return STATUS_ERROR;
-
-    switch (shape) {
-
-    case FILTER_SHAPE_SOFT:
-        trans_width = std::abs(high - low) * 0.5;
-        break;
-
-    case FILTER_SHAPE_SHARP:
-        trans_width = std::abs(high - low) * 0.1;
-        break;
-
-    case FILTER_SHAPE_NORMAL:
-    default:
-        trans_width = std::abs(high - low) * 0.2;
-        break;
-
-    }
-
-    rx->set_filter(low, high, trans_width);
-
-    return STATUS_OK;
 }
 
 rx_status demodulator::set_nb_on(int nbid, bool on)
@@ -302,9 +319,11 @@ rx_status demodulator::set_agc_manual_gain(int gain)
     return STATUS_OK; // FIXME
 }
 
-rx_status demodulator::set_demod(rx_demod demod, bool force, gr::basic_block_sptr src, int d_quad_rate, int d_audio_rate)
+rx_status demodulator::set_demod(rx_demod demod, bool force, gr::basic_block_sptr src, int d_quad_rate, int audio_rate)
 {
     // qInfo() << "demodulator" << idx << "set_demod starts";
+
+    d_audio_rate = audio_rate;
 
     rx_status ret = STATUS_OK;
 
@@ -602,9 +621,11 @@ void demodulator::reset_rds_parser(void)
     rx->reset_rds_parser();
 }
 
-void demodulator::connect_all(rx_chain type, gr::basic_block_sptr src, int d_quad_rate, int d_audio_rate)
+void demodulator::connect_all(rx_chain type, gr::basic_block_sptr src, int d_quad_rate, int audio_rate)
 {
     // qInfo() << "demodulator" << idx << "connect_all starts";
+
+    d_audio_rate = audio_rate;
 
     // RX demod chain
     switch (type)

@@ -64,6 +64,7 @@ public:
 
     bool loadConfig(const QString& cfgfile, bool check_crash, bool restore_mainwindow);
     bool saveConfig(const QString& cfgfile);
+    void storeGuiSettings();
     void storeSession();
 
     bool configOk; /*!< Main app uses this flag to know whether we should abort or continue. */
@@ -74,10 +75,10 @@ public slots:
 private:
     Ui::MainWindow *ui;
 
-    QPointer<QSettings> m_settings;  /*!< Application wide settings. */
-    QString             m_cfg_dir;   /*!< Default config dir, e.g. XDG_CONFIG_HOME. */
-    QString             m_last_dir;
-    RecentConfig       *m_recent_config; /* Menu File Recent config */
+    std::shared_ptr<QSettings>  m_settings;  /*!< Application wide settings. */
+    QString                     m_cfg_dir;   /*!< Default config dir, e.g. XDG_CONFIG_HOME. */
+    QString                     m_last_dir;
+    RecentConfig                *m_recent_config; /* Menu File Recent config */
 
     qint64 d_lnb_lo;  /* LNB LO in Hz. */
     qint64 d_hw_freq;

@@ -23,6 +23,8 @@
 #ifndef DOCKFFT_H
 #define DOCKFFT_H
 
+#include <memory>
+
 #include <QFrame>
 #include <QSettings>
 
@@ -47,8 +49,8 @@ public:
 
     void setSampleRate(float sample_rate);
 
-    void saveSettings(QSettings *settings);
-    void readSettings(QSettings *settings);
+    void saveSettings(std::shared_ptr<QSettings> settings);
+    void readSettings(std::shared_ptr<QSettings> settings);
 
 signals:
     void fftSizeChanged(int size);                 /*! FFT size changed. */

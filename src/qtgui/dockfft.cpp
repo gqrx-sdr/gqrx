@@ -178,7 +178,7 @@ int DockFft::fftSize()
 }
 
 /** Save FFT settings. */
-void DockFft::saveSettings(QSettings *settings)
+void DockFft::saveSettings(std::shared_ptr<QSettings> settings)
 {
     int  intval;
 
@@ -278,7 +278,7 @@ void DockFft::saveSettings(QSettings *settings)
 }
 
 /** Read FFT settings. */
-void DockFft::readSettings(QSettings *settings)
+void DockFft::readSettings(std::shared_ptr<QSettings> settings)
 {
     int     intval;
     int     fft_min, fft_max;

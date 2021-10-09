@@ -128,6 +128,7 @@ int pa_sink::work (int noutput_items,
                    gr_vector_const_void_star &input_items,
                    gr_vector_void_star &output_items)
 {
+
     static float audio_buffer[BUFFER_SIZE];
     float *ptr = &audio_buffer[0];
     int i, error;
@@ -136,6 +137,9 @@ int pa_sink::work (int noutput_items,
 
     if (noutput_items > BUFFER_SIZE/2)
         noutput_items = BUFFER_SIZE/2;
+
+    if (!d_pasink)
+        return noutput_items;
 
     if (input_items.size() == 2)
     {

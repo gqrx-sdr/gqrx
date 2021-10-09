@@ -36,6 +36,9 @@ public:
         m_centerFreq = 144500000;
         m_hiCutFreq = 5000;
         m_lowCutFreq = -5000;
+
+        m_clickResolution = 100;
+
         m_FLowCmin = -25000;
         m_FLowCmax = -1000;
         m_FHiCmin = 1000;
@@ -43,12 +46,12 @@ public:
         m_symetric = true;
     }
 
-    void setCenterFreq(qint64 freq, bool exact, int resolution)
+    void setCenterFreq(qint64 freq, bool exact)
     {
         if (exact) {
             m_centerFreq = freq;
         } else {
-            m_centerFreq = roundFreq(freq, resolution);
+            m_centerFreq = roundFreq(freq, m_clickResolution);
         }
     }
 
@@ -73,11 +76,15 @@ public:
         m_symetric = symetric;
     }
 
-    void setLowCut(qint64 freq, int resolution, bool sym_adjust)
+    void setClickResolution(int resolution) {
+        m_clickResolution = resolution;
+    }
+
+    void setLowCut(qint64 freq,  bool sym_adjust)
     {
         m_lowCutFreq = freq - m_centerFreq;
         m_lowCutFreq = std::min(m_lowCutFreq, m_hiCutFreq - FILTER_WIDTH_MIN_HZ);
-        m_lowCutFreq = roundFreq(m_lowCutFreq, resolution);
+        m_lowCutFreq = roundFreq(m_lowCutFreq, m_clickResolution);
 
         if (m_symetric && sym_adjust)
         {
@@ -100,11 +107,11 @@ public:
         clamp();
     }
 
-    void setHiCut(qint64 freq, int resolution, bool sym_adjust)
+    void setHiCut(qint64 freq, bool sym_adjust)
     {
         m_hiCutFreq = freq - m_centerFreq;
         m_hiCutFreq = std::max(m_hiCutFreq, m_lowCutFreq + FILTER_WIDTH_MIN_HZ);
-        m_hiCutFreq = roundFreq(m_hiCutFreq, resolution);
+        m_hiCutFreq = roundFreq(m_hiCutFreq, m_clickResolution);
 
         if (m_symetric && sym_adjust)
         {
@@ -153,6 +160,7 @@ private:
     int             m_freqX{};
     int             m_hiCutFreqX{};
     int             m_lowCutFreqX{};
+    int             m_clickResolution;
 
     // Low/High clamp limits
     int             m_FLowCmin;
@@ -194,8 +202,6 @@ public:
 
     void draw(); //call to draw new fft data onto screen plot
     void setRunningState(bool running) { m_Running = running; }
-    void setClickResolution(int clickres) { m_ClickResolution = clickres; }
-    void setFilterClickResolution(int clickres) { m_FilterClickResolution = clickres; }
     void setFilterBoxEnabled(bool enabled) { m_FilterBoxEnabled = enabled; }
     void setCenterLineEnabled(bool enabled) { m_CenterLineEnabled = enabled; }
     void setTooltipsEnabled(bool enabled) { m_TooltipsEnabled = enabled; }
@@ -253,10 +259,11 @@ public:
     bool    saveWaterfall(const QString & filename) const;
 
 signals:
+    // Demodulators
     void newDemodFreq(size_t idx, qint64 freq, qint64 delta); /* delta is the offset from the center */
-    void newLowCutFreq(int f);
-    void newHighCutFreq(int f);
-    void newFilterFreq(size_t idx, int low, int high);  /* substitute for NewLow / NewHigh */
+    void newFilterFreq(size_t idx, int low, int high);
+
+    // UI
     void pandapterRangeChanged(float min, float max);
     void newZoomLevel(float level);
     void newSize();
@@ -270,7 +277,9 @@ public slots:
 
     // Demodulator display management
     void setDemodulatorCount(size_t num);
-    void setDemodulatorOffset(int idx, qint64 offset);
+    void setDemodulatorOffset(size_t idx, qint64 offset);
+    void setDemodulatorFilterFreq(size_t idx, int low, int high);
+    void setDemodulatorRanges(size_t idx, int lowMin, int lowMax, int highMin, int highMax, bool symmetric, int resolution);
 
     // other FFT slots
     void setFftPlotColor(const QColor& color);
@@ -382,8 +391,6 @@ private:
     qint64          m_Span;
     float           m_SampleFreq;       /*!< Sample rate. */
     qint32          m_FreqUnits;
-    int             m_ClickResolution;
-    int             m_FilterClickResolution;
 
     int             m_Xzero{};
     int             m_Yzero{};          /*!< Used to measure mouse drag direction. */

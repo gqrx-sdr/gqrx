@@ -85,7 +85,7 @@ void RemoteControl::stop_server()
 }
 
 /*! \brief Read settings. */
-void RemoteControl::readSettings(QSettings *settings)
+void RemoteControl::readSettings(std::shared_ptr<QSettings> settings)
 {
     if (!settings)
         return;
@@ -103,7 +103,7 @@ void RemoteControl::readSettings(QSettings *settings)
     settings->endGroup();
 }
 
-void RemoteControl::saveSettings(QSettings *settings) const
+void RemoteControl::saveSettings(std::shared_ptr<QSettings> settings) const
 {
     if (!settings)
         return;

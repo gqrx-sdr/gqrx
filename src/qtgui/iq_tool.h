@@ -23,6 +23,8 @@
 #ifndef IQ_TOOL_H
 #define IQ_TOOL_H
 
+#include <memory>
+
 #include <QCloseEvent>
 #include <QDialog>
 #include <QDir>
@@ -58,8 +60,8 @@ public:
     void closeEvent(QCloseEvent *event);
     void showEvent(QShowEvent * event);
 
-    void saveSettings(QSettings *settings);
-    void readSettings(QSettings *settings);
+    void saveSettings(std::shared_ptr<QSettings> settings);
+    void readSettings(std::shared_ptr<QSettings> settings);
 
 signals:
     void startRecording(const QString recdir);

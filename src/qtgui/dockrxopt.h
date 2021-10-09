@@ -23,6 +23,8 @@
 #ifndef DOCKRXOPT_H
 #define DOCKRXOPT_H
 
+#include <memory>
+
 #include <QFrame>
 #include <QSettings>
 #include "qtgui/agc_options.h"
@@ -84,8 +86,8 @@ public:
 
     void setupShortcuts();
 
-    void readSettings(QSettings *settings, size_t idx);
-    void saveSettings(QSettings *settings, size_t idx);
+    void readSettings(std::shared_ptr<QSettings> settings, size_t idx);
+    void saveSettings(std::shared_ptr<QSettings> settings, size_t idx);
 
     void setFilterOffsetRange(qint64 range_hz);
 

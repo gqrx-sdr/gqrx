@@ -45,7 +45,7 @@
 #include "ui_ioconfig.h"
 
 
-CIoConfig::CIoConfig(QSettings * settings,
+CIoConfig::CIoConfig(std::shared_ptr<QSettings> settings,
                      std::map<QString, QVariant> &devList,
                      QWidget *parent) :
     QDialog(parent),
@@ -578,7 +578,7 @@ void CIoConfig::updateDecimations(void)
     decimationChanged(0);
 }
 
-void CIoConfig::updateInDev(const QSettings *settings, const std::map<QString, QVariant> &devList)
+void CIoConfig::updateInDev(std::shared_ptr<QSettings> settings, const std::map<QString, QVariant> &devList)
 {
     QString indev = settings->value("input/device", "").toString();
     bool cfgmatch = false; //flag to indicate that device from config was found

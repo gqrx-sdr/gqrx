@@ -221,7 +221,7 @@ void CIqTool::showEvent(QShowEvent * event)
 }
 
 
-void CIqTool::saveSettings(QSettings *settings)
+void CIqTool::saveSettings(std::shared_ptr<QSettings> settings)
 {
     if (!settings)
         return;
@@ -235,7 +235,7 @@ void CIqTool::saveSettings(QSettings *settings)
 
 }
 
-void CIqTool::readSettings(QSettings *settings)
+void CIqTool::readSettings(std::shared_ptr<QSettings> settings)
 {
     if (!settings)
         return;

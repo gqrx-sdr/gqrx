@@ -86,6 +86,9 @@ public:
     void set_param(double low, double high, double trans_width);
     void set_cw_offset(double offset);
 
+    double get_low() const { return d_low; }
+    double get_high() const { return d_high; }
+
 private:
     std::vector<gr_complex> d_taps;
     gr::filter::fir_filter_ccc::sptr  d_bpf;
@@ -144,6 +147,9 @@ public:
     void set_offset(double center);
     void set_param(double low, double high, double trans_width);
     void set_param(double center, double low, double high, double trans_width);
+
+    double get_low() const { return d_low; }
+    double get_high() const { return d_high; }
 
 private:
     std::vector<gr_complex> d_taps;

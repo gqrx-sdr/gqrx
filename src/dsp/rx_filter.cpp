@@ -75,6 +75,9 @@ rx_filter::~rx_filter ()
 
 void rx_filter::set_param(double low, double high, double trans_width)
 {
+    if (d_trans_width == trans_width && d_low == low && d_high == high)
+        return;
+
     d_trans_width = trans_width;
     d_low         = low;
     d_high        = high;

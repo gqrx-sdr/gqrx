@@ -597,26 +597,11 @@ demodulator::sptr receiver::add_demodulator()
         d_ddc_decim, d_decim_rate,
         d_quad_rate, d_audio_rate
     );
-    // qInfo() << "receiver add_demodulator created demod";
     demods.push_back(nextSub);
 
-    for (size_t i = 0; i < demods.size(); ++i)
-    {
-        demods[i]->set_idx(i); // re-index
-        // qInfo() << "reciever add_demodulator calls demodulator" << i << "set_demod";
-        demods[i]->set_demod(demods[i]->get_demod(), true, demodsrc, d_quad_rate, d_audio_rate);
-        // qInfo() << "reciever add_demodulator calls demodulator" << i << "set_demod done";
-    }
+    reindex_demodulators();
 
     complete_reconfigure();
-
-    // we cannot call set_output_device in between begin/complete reconfigure
-    // all the graph connections must be present
-    for (size_t i = 0; i < demods.size(); ++i)
-    {
-        demods[i]->set_output_device(output_devstr, d_audio_rate); // update audio stream name
-        // qInfo() << "reciever add_demodulator called demodulator" << i << "set_output_device";
-    }
 
     return nextSub;
 }
@@ -627,24 +612,30 @@ void receiver::remove_demodulator(size_t idx)
 
     begin_reconfigure();
 
-    // qInfo() << "receiver::remove_demodulator demods size before=" << demods.size();
     auto ri = std::find(demods.begin(), demods.end(), demods[idx]);
     demods.erase(ri);
-    // qInfo() << "receiver::remove_demodulator demods size after=" << demods.size();
 
+    reindex_demodulators();
+
+    complete_reconfigure();
+
+    // qInfo() << "receiver::remove_demodulator done";
+}
+
+void receiver::reindex_demodulators()
+{
     for (size_t i = 0; i < demods.size(); ++i)
     {
         demods[i]->set_idx(i); // re-index
         if (demods[i]->supports_stream_naming()) {
             demods[i]->set_output_device(output_devstr, d_audio_rate); // update audio stream name
+            // qInfo() << "reciever reindex_demodulators called demodulator" << i << "set_output_device";
         }
-        // qInfo() << "reciever remove_rx calls demodulator" << i << "set_demod";
-        demods[i]->set_demod(demods[i]->get_demod(), true, demodsrc, d_quad_rate, d_audio_rate);
-        // qInfo() << "reciever remove_rx calls demodulator" << i << "set_demod done";
-    }
-    complete_reconfigure();
 
-     // qInfo() << "receiver::remove_demodulator done";
+        // qInfo() << "reciever reindex_demodulators calls demodulator" << i << "set_demod";
+        demods[i]->set_demod(demods[i]->get_demod(), true, demodsrc, d_quad_rate, d_audio_rate);
+        // qInfo() << "reciever reindex_demodulators calls demodulator" << i << "set_demod done";
+    }
 }
 
 rx_status receiver::set_freq_corr(double ppm)

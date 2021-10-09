@@ -120,32 +120,33 @@ public:
     /* Demodulators control */
     demodulator::sptr   add_demodulator();
     void                remove_demodulator(size_t idx);
+    void                reindex_demodulators();
 
     // Proxy due to flowgraph reconfiguration
-    rx_status   set_demod(const size_t idx, rx_demod demod, bool force = false);
+    rx_status       set_demod(const size_t idx, rx_demod demod, bool force = false);
 
     /* Audio system handling */
-    void        set_output_device(const std::string device);
+    void            set_output_device(const std::string device);
 
 private:
-    void        connect_all(); /*!< Return the block to use as subreciever source */
+    void            connect_all(); /*!< Return the block to use as subreciever source */
 
 private:
-    bool          d_running;          /*!< Whether receiver is running or not. */
-    double        d_input_rate;       /*!< Input sample rate. */
-    double        d_decim_rate;       /*!< Rate after decimation (input_rate / decim) */
-    double        d_quad_rate;        /*!< Quadrature rate (after down-conversion) */
-    double        d_audio_rate;       /*!< Audio output rate. */
-    unsigned int  d_decim;            /*!< input decimation. */
-    unsigned int  d_ddc_decim;        /*!< Down-conversion decimation. */
-    double        d_rf_freq;          /*!< Current RF frequency. */
+    bool            d_running;          /*!< Whether receiver is running or not. */
+    double          d_input_rate;       /*!< Input sample rate. */
+    double          d_decim_rate;       /*!< Rate after decimation (input_rate / decim) */
+    double          d_quad_rate;        /*!< Quadrature rate (after down-conversion) */
+    double          d_audio_rate;       /*!< Audio output rate. */
+    unsigned int    d_decim;            /*!< input decimation. */
+    unsigned int    d_ddc_decim;        /*!< Down-conversion decimation. */
+    double          d_rf_freq;          /*!< Current RF frequency. */
 
-    bool          d_iq_rev;           /*!< Whether I/Q is reversed or not. */
-    bool          d_dc_cancel;        /*!< Enable automatic DC removal. */
-    bool          d_iq_balance;       /*!< Enable automatic IQ balance. */
+    bool            d_iq_rev;           /*!< Whether I/Q is reversed or not. */
+    bool            d_dc_cancel;        /*!< Enable automatic DC removal. */
+    bool            d_iq_balance;       /*!< Enable automatic IQ balance. */
 
-    std::string   input_devstr;       /*!< Current input device string. */
-    std::string   output_devstr;      /*!< Current output device string. */
+    std::string     input_devstr;       /*!< Current input device string. */
+    std::string     output_devstr;      /*!< Current output device string. */
 
     gr::top_block_sptr        tb;          /*!< The GNU Radio top block. */
 

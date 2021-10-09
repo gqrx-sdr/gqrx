@@ -273,14 +273,14 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(iq_tool, SIGNAL(seek(qint64)), this,SLOT(seekIqFile(qint64)));
 
     // remote control
-    connect(remote, SIGNAL(newFilterOffset(qint64)), this, SLOT(setFilterOffset(qint64)));
+//    connect(remote, SIGNAL(newFilterOffset(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(remote, SIGNAL(newFrequency(qint64)), uiBaseband->freqCtrl(), SLOT(setFrequency(qint64)));
     connect(remote, SIGNAL(newLnbLo(double)), uiDockInputCtl, SLOT(setLnbLo(double)));
     connect(remote, SIGNAL(newLnbLo(double)), this, SLOT(setLnbLo(double)));
-    connect(remote, SIGNAL(newMode(int)), this, SLOT(selectDemod(int)));
-    connect(remote, SIGNAL(newSquelchLevel(double)), this, SLOT(setSqlLevel(double)));
-    connect(uiBaseband->plotter(), SIGNAL(newFilterFreq(int,int)), remote, SLOT(setPassband(int,int)));
-    connect(remote, SIGNAL(newPassband(int)), this, SLOT(setPassband(int)));
+//    connect(remote, SIGNAL(newMode(int)), this, SLOT(selectDemod(int)));
+//    connect(remote, SIGNAL(newSquelchLevel(double)), this, SLOT(setSqlLevel(double)));
+//    connect(uiBaseband->plotter(), SIGNAL(newFilterFreq(int,int)), remote, SLOT(setPassband(int,int)));
+//    connect(remote, SIGNAL(newPassband(int)), this, SLOT(setPassband(int)));
     connect(remote, SIGNAL(gainChanged(QString,double)), uiDockInputCtl, SLOT(setGain(QString,double)));
     connect(remote, SIGNAL(dspChanged(bool)), this, SLOT(on_actionDSP_triggered(bool)));
 
@@ -336,7 +336,7 @@ MainWindow::~MainWindow()
     iq_fft_timer->stop();
     delete iq_fft_timer;
 
-    delete m_settings;
+    m_settings.reset();
     delete m_recent_config;
     delete iq_tool;
     delete dxc_options;
@@ -392,14 +392,17 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         // set current config to not crashed before loading new config
         m_settings->setValue("crashed", false);
         m_settings->sync();
-        delete m_settings;
     }
 
     if (QDir::isAbsolutePath(cfgfile)) {
-        m_settings = new QSettings(cfgfile, QSettings::IniFormat);
+        auto next = std::make_shared<QSettings>(cfgfile, QSettings::IniFormat);
+        m_settings.swap(next);
     } else {
-        m_settings = new QSettings(QString("%1/%2").arg(m_cfg_dir).arg(cfgfile),
-                                   QSettings::IniFormat);
+        auto next = std::make_shared<QSettings>(
+            QString("%1/%2").arg(m_cfg_dir).arg(cfgfile),
+            QSettings::IniFormat
+        );
+        m_settings.swap(next);
     }
 
     qDebug() << "Configuration file:" << m_settings->fileName();
@@ -533,7 +536,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         actual_rate = rx->get_input_rate();
     }
 
-    if (actual_rate > 0.)
+    if (actual_rate > 0)
     {
         int_val = m_settings->value("input/decimation", 1).toInt(&conv_ok);
         if (conv_ok && int_val >= 2)
@@ -588,6 +591,12 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         }
     }
 
+    for (auto demod : demodCtrls)
+    {
+        demod->readSettings(m_settings);
+        demod->emitCurrentSettings();
+    }
+
     uiDockInputCtl->readSettings(m_settings); // this will also update freq range
     uiDockFft->readSettings(m_settings);
     dxc_options->readSettings(m_settings);
@@ -605,22 +614,6 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         uiBaseband->freqCtrl()->setFrequency(int64_val);
         setNewFrequency(uiBaseband->freqCtrl()->getFrequency()); // ensure all GUI and RF is updated
     }
-
-    for (auto demod : demodCtrls)
-    {
-        demod->setFilterOffsetRange(actual_rate);
-        demod->readSettings(m_settings);
-    }
-
-    /*{
-        int flo = m_settings->value("receiver/filter_low_cut", 0).toInt(&conv_ok);
-        int fhi = m_settings->value("receiver/filter_high_cut", 0).toInt(&conv_ok);
-
-        if (conv_ok && flo != fhi)
-        {
-            on_plotter_newFilterFreq(flo, fhi);
-        }
-    }*/
 
     iq_tool->readSettings(m_settings);
 
@@ -706,6 +699,22 @@ bool MainWindow::saveConfig(const QString& cfgfile)
     }
 }
 
+void MainWindow::storeGuiSettings()
+{
+    if (m_settings)
+    {
+        // hide toolbar (default=false)
+        if (ui->mainToolBar->isHidden())
+            m_settings->setValue("gui/hide_toolbar", true);
+        else
+            m_settings->remove("gui/hide_toolbar");
+
+        m_settings->setValue("gui/geometry", saveGeometry());
+        m_settings->setValue("gui/state", saveState());
+        m_settings->setValue("gui/docks", uiDockManager->saveState());
+    }
+}
+
 /**
  * Store session-related parameters (frequency, gain,...)
  *
@@ -724,16 +733,6 @@ void MainWindow::storeSession()
         remote->saveSettings(m_settings);
         iq_tool->saveSettings(m_settings);
         dxc_options->saveSettings(m_settings);
-
-        /*{
-            int     flo, fhi;
-            uiBaseband->plotter()->getHiLowCutFrequencies(&flo, &fhi);
-            if (flo != fhi)
-            {
-                m_settings->setValue("receiver/filter_low_cut", flo);
-                m_settings->setValue("receiver/filter_high_cut", fhi);
-            }
-        }*/
 
         m_settings->setValue("receiver/count",  QVariant::fromValue(demodCtrls.size()));
         for (auto demod : demodCtrls)
@@ -995,7 +994,24 @@ void MainWindow::addDemodulator()
     demodCtrls.push_back(ctl);
 
     uiBaseband->plotter()->setDemodulatorCount(demodCtrls.size());
-    uiBaseband->plotter()->setDemodulatorOffset(demodCtrls.size() - 1, 0);
+
+    // Update parameters from stored settings
+    ctl->readSettings(m_settings);
+
+    connect(
+        ctl.get(), SIGNAL(filterOffset(size_t,qint64)),
+        uiBaseband->plotter(), SLOT(setDemodulatorOffset(size_t,qint64))
+    );
+    connect(
+        ctl.get(), SIGNAL(filterFrequency(size_t,int,int)),
+        uiBaseband->plotter(), SLOT(setDemodulatorFilterFreq(size_t,int,int))
+    );
+    connect(
+        ctl.get(), SIGNAL(filterRanges(size_t,int,int,int,int,bool,int)),
+        uiBaseband->plotter(), SLOT(setDemodulatorRanges(size_t,int,int,int,int,bool,int))
+    );
+
+    ctl->emitCurrentSettings();
 }
 
 void MainWindow::removeDemodulator(size_t idx)
@@ -1094,15 +1110,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         m_settings->setValue("configversion", 3);
         m_settings->setValue("crashed", false);
 
-        // hide toolbar (default=false)
-        if (ui->mainToolBar->isHidden())
-            m_settings->setValue("gui/hide_toolbar", true);
-        else
-            m_settings->remove("gui/hide_toolbar");
-
-        m_settings->setValue("gui/geometry", saveGeometry());
-        m_settings->setValue("gui/state", saveState());
-        m_settings->setValue("gui/docks", uiDockManager->saveState());
+        storeGuiSettings();
 
         // save session
         storeSession();
@@ -1502,6 +1510,7 @@ void MainWindow::on_actionSaveSettings_triggered()
         cfgfile.append(".conf");
 
     storeSession();
+    storeGuiSettings();
     saveConfig(cfgfile);
 
     // store last dir

@@ -23,6 +23,8 @@
 #ifndef REMOTE_CONTROL_H
 #define REMOTE_CONTROL_H
 
+#include <memory>
+
 #include <QObject>
 #include <QSettings>
 #include <QString>
@@ -66,8 +68,8 @@ public:
     void start_server(void);
     void stop_server(void);
 
-    void readSettings(QSettings *settings);
-    void saveSettings(QSettings *settings) const;
+    void readSettings(std::shared_ptr<QSettings> settings);
+    void saveSettings(std::shared_ptr<QSettings> settings) const;
 
     void setPort(int port);
     int  getPort(void) const

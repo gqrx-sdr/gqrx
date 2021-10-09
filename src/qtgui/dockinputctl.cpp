@@ -21,6 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <QDebug>
+
 #include "dockinputctl.h"
 #include "ui_dockinputctl.h"
 
@@ -42,7 +43,7 @@ DockInputCtl::~DockInputCtl()
     delete gainLayout;
 }
 
-void DockInputCtl::readSettings(QSettings * settings)
+void DockInputCtl::readSettings(std::shared_ptr<QSettings> settings)
 {
     qint64  lnb_lo;
     bool    conv_ok;
@@ -120,7 +121,7 @@ void DockInputCtl::readSettings(QSettings * settings)
     ui->offsetFollowButton->setChecked(bool_val);
 }
 
-void DockInputCtl::saveSettings(QSettings * settings)
+void DockInputCtl::saveSettings(std::shared_ptr<QSettings> settings)
 {
     qint64 lnb_lo = (qint64)(ui->lnbSpinBox->value()*1.e6);
     if (lnb_lo)
@@ -193,7 +194,7 @@ void DockInputCtl::saveSettings(QSettings * settings)
         settings->remove("gui/offset_follow_hw");
 }
 
-void DockInputCtl::readLnbLoFromSettings(QSettings * settings)
+void DockInputCtl::readLnbLoFromSettings(std::shared_ptr<QSettings> settings)
 {
     qint64  lnb_lo;
     bool    conv_ok;

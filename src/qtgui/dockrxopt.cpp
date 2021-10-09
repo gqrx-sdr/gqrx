@@ -419,7 +419,7 @@ int DockRxOpt::getCwOffset() const
 }
 
 /** Read receiver configuration from settings data. */
-void DockRxOpt::readSettings(QSettings *settings, size_t idx)
+void DockRxOpt::readSettings(std::shared_ptr<QSettings> settings, size_t idx)
 {
     bool    conv_ok;
     int     int_val;
@@ -503,7 +503,7 @@ void DockRxOpt::readSettings(QSettings *settings, size_t idx)
 }
 
 /** Save receiver configuration to settings. */
-void DockRxOpt::saveSettings(QSettings *settings, size_t idx)
+void DockRxOpt::saveSettings(std::shared_ptr<QSettings> settings, size_t idx)
 {
     int     int_val;
 

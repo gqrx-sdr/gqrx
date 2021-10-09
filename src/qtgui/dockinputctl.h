@@ -23,6 +23,7 @@
 #ifndef DOCKINPUTCTL_H
 #define DOCKINPUTCTL_H
 
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -67,11 +68,11 @@ public:
     explicit DockInputCtl(QWidget * parent = 0);
     ~DockInputCtl();
 
-    void    readSettings(QSettings * settings);
-    void    saveSettings(QSettings * settings);
+    void    readSettings(std::shared_ptr<QSettings> settings);
+    void    saveSettings(std::shared_ptr<QSettings> settings);
 
     double  lnbLo();
-    void    readLnbLoFromSettings(QSettings * settings);
+    void    readLnbLoFromSettings(std::shared_ptr<QSettings> settings);
 
     double  gain(QString &name);
 

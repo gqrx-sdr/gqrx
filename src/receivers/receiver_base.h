@@ -59,6 +59,9 @@ public:
     virtual void set_audio_rate(float audio_rate) = 0;
 
     virtual void set_filter(double low, double high, double tw) = 0;
+    virtual double get_filter_low() const = 0;
+    virtual double get_filter_high() const = 0;
+
     virtual void set_cw_offset(double offset) = 0;
 
     virtual float get_signal_level(bool dbfs) = 0;
