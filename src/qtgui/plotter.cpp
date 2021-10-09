@@ -682,19 +682,24 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                 resetHorizontalZoom();
             }
         }
-        // XXX: how to tune to tags?
-//        else if (m_CursorCaptured == TAG)
-//        {
-//            for (auto & tag : m_Taglist)
-//            {
-//                if (tag.first.contains(event->pos()))
-//                {
-//                    m_demod.setCenterFreq(tag.second, true, 0);
-//                    emit newDemodFreq(0, m_demod.centerFreq, m_demod.centerFreq - m_CenterFreq);
-//                    break;
-//                }
-//            }
-//        }
+        else if (m_CursorCaptured == TAG)
+        {
+            for (auto & tag : m_Taglist)
+            {
+                if (tag.first.contains(event->pos()))
+                {
+                    auto freq = tag.second;
+                    auto closestIdx = closestDemodulator(freq);
+                    if (closestIdx >= 0)
+                    {
+                        auto demod = m_demod[closestIdx];
+                        demod->setCenterFreq(freq, true);
+                        emit newDemodFreq(closestIdx, demod->centerFreq, demod->centerFreq - m_CenterFreq);
+                        break;
+                    }
+                }
+            }
+        }
     }
 }
 
