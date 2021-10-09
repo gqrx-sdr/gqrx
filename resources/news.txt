@@ -1,6 +1,7 @@
 
     2.14.7: In progress...
 
+       NEW: Added IQ balancing to MacOS release.
   IMPROVED: Reordered the receiver mode drop-down list.
   IMPROVED: Receiver mode is now stored as a string in settings files.
 
