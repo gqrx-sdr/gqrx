@@ -210,6 +210,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     uiBaseband->freqCtrl()->setFrequency(144500000);
 
     // connect signals and slots
+    connect(uiBaseband->plotter(), SIGNAL(newHwFrequency(qint64)), this, SLOT(setNewFrequencyWithOffsetFollow(qint64)));
+    connect(uiBaseband->plotter(), SIGNAL(newHwFrequency(qint64)), remote, SLOT(setNewFrequency(qint64)));
     connect(uiBaseband->freqCtrl(), SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
     connect(uiBaseband->freqCtrl(), SIGNAL(newFrequency(qint64)), remote, SLOT(setNewFrequency(qint64)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
@@ -844,6 +846,17 @@ void MainWindow::updateGainStages(bool read_from_device)
  */
 void MainWindow::setNewFrequency(qint64 rx_freq)
 {
+    setNewFrequency(rx_freq, false);
+}
+
+void MainWindow::setNewFrequencyWithOffsetFollow(qint64 rx_freq)
+{
+//    qInfo() << "MainWindow::setNewFrequencyWithOffsetFollow" << rx_freq;
+    setNewFrequency(rx_freq, true);
+}
+
+void MainWindow::setNewFrequency(qint64 rx_freq, bool offsetFollow)
+{
     auto hw_freq = (double)(rx_freq - d_lnb_lo);
     auto center_freq = rx_freq;
 
@@ -853,13 +866,20 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
     rx->set_rf_freq(hw_freq);
 
     // update widgets
-    uiBaseband->plotter()->setCenterFreq(center_freq);
-    uiBaseband->freqCtrl()->setFrequency(rx_freq);
+    if (offsetFollow) {
+        // no need to update plotter, this signal came from there; XAXIS MidButton drag
+        uiBaseband->freqCtrl()->blockSignals(true); // prevent offset mangling feedback
+        uiBaseband->freqCtrl()->setFrequency(rx_freq);
+        uiBaseband->freqCtrl()->blockSignals(false);
+    } else {
+        uiBaseband->plotter()->setCenterFreq(center_freq);
+        uiBaseband->freqCtrl()->setFrequency(rx_freq);
+    }
     uiDockBookmarks->setNewFrequency(rx_freq);
 
     for (auto demod : demodCtrls)
     {
-        demod->setHwFrequency(rx_freq);
+        demod->setHwFrequency(rx_freq, offsetFollow);
     }
 }
 

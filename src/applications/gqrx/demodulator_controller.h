@@ -84,7 +84,7 @@ public slots:
 
     void setFilterOffsetRange(qint64 range);
     void setFrequencyRange(qint64 hw_start, qint64 hw_stop);
-    void setHwFrequency(qint64 hw_freq);
+    void setHwFrequency(qint64 hw_freq, bool forceOffsetFollow);
 
     void setFilterRanges(int lowMin, int lowMax, int highMin, int highMax, bool symmetric, int resolution)
     {

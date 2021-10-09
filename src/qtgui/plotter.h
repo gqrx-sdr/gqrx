@@ -259,6 +259,9 @@ public:
     bool    saveWaterfall(const QString & filename) const;
 
 signals:
+    // Input
+    void newHwFrequency(qint64 freq);
+
     // Demodulators
     void newDemodFreq(size_t idx, qint64 freq, qint64 delta); /* delta is the offset from the center */
     void newFilterFreq(size_t idx, int low, int high);

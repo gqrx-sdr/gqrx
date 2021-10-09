@@ -226,7 +226,7 @@ void DemodulatorController::readSettings(std::shared_ptr<QSettings> settings)
         setFilterFrequency(flo, fhi);
     }
 
-    setHwFrequency(rx->get_rf_freq());
+    setHwFrequency(rx->get_rf_freq(), false);
     setFilterOffset(demod->get_filter_offset());
     setFilterOffsetRange(rx->get_input_rate());
 
@@ -295,9 +295,10 @@ void DemodulatorController::setFrequencyRange(qint64 hw_start, qint64 hw_stop)
     uiDockRxOpt->setRxFreqRange(hw_start, hw_stop);
 }
 
-void DemodulatorController::setHwFrequency(qint64 hw_freq)
+void DemodulatorController::setHwFrequency(qint64 hw_freq, bool forceOffsetFollow)
 {
-    uiDockRxOpt->setHwFreq(hw_freq, d_offset_follows_hw);
+//    qInfo() << "DemodulatorController::setHwFrequency" << hw_freq << forceOffsetFollow;
+    uiDockRxOpt->setHwFreq(hw_freq, forceOffsetFollow || d_offset_follows_hw);
 }
 
 /* UI Behaviour control */

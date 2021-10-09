@@ -363,8 +363,11 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             if (event->buttons() & Qt::MidButton)
             {
                 m_CenterFreq += delta_hz;
-//                m_demod.setCenterFreq(m_demod.centerFreq + delta_hz, false);
-//                emit newDemodFreq(0, m_demod.centerFreq, m_demod.centerFreq - m_CenterFreq);
+                for (auto &demod : m_demod)
+                {
+                    demod->setCenterFreq(demod->centerFreq + delta_hz, true);
+                }
+                emit newHwFrequency(m_CenterFreq);
             }
             else
             {

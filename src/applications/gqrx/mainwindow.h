@@ -71,8 +71,11 @@ public:
 
 public slots:
     void setNewFrequency(qint64 rx_freq);
+    void setNewFrequencyWithOffsetFollow(qint64 rx_freq);
 
 private:
+    void setNewFrequency(qint64 rx_freq, bool offsetFollow);
+
     Ui::MainWindow *ui;
 
     std::shared_ptr<QSettings>  m_settings;  /*!< Application wide settings. */
