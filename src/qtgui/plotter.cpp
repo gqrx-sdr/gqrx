@@ -616,29 +616,44 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
 
     if (NOCAP == m_CursorCaptured)
     {
-        qInfo() << "mousePressEvent NOCAP start";
-
-        qInfo() << "mousePressEvent NOCAP " << m_CursorCaptured << m_DemodCaptured << m_GrabPosition;
-
         if (m_DemodCaptured < 0)
         {
-            qInfo() << "mousePressEvent NOCAP no demod captured";
-
-            // XXX : how to select demod to tune?
-            /* if (event->buttons() == Qt::LeftButton)
+            if (event->buttons() == Qt::LeftButton && m_demod.size() > 0)
             {
-                int     best = -1;
+                int best = -1;
+                qint64 freq = 0;
+                bool exact = false;
 
                 if (m_PeakDetection > 0)
                     best = getNearestPeak(pt);
 
                 if (best != -1)
-                    m_demod.setCenterFreq(freqFromX(best), true, 0);
+                {
+                    freq = freqFromX(best);
+                    exact = true;
+                }
                 else
-                    m_demod.setCenterFreq(freqFromX(pt.x()), false, m_ClickResolution);
+                {
+                    freq = freqFromX(pt.x());
+                    exact = false;
+                }
+
+                // Find the closest demodulator
+                QList<qint64> diffs;
+                qint64 minDiff = 1e12;
+                for (auto & demod : m_demod)
+                {
+                    auto diff = abs(demod->centerFreq - freq);
+                    diffs.push_back(diff);
+                    if (diff < minDiff)
+                        minDiff = diff;
+                }
 
                 // if cursor not captured set demod frequency and start demod box capture
-                emit newDemodFreq(0, m_demod.centerFreq, m_demod.centerFreq - m_CenterFreq);
+                m_DemodCaptured = diffs.indexOf(minDiff);
+                auto demod = m_demod[m_DemodCaptured];
+                demod->setCenterFreq(freq, exact);
+                emit newDemodFreq(m_DemodCaptured, demod->centerFreq, demod->centerFreq - m_CenterFreq);
 
                 // save initial grab position from m_DemodFreqX
                 // setCursor(QCursor(Qt::CrossCursor));
@@ -646,7 +661,7 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                 m_GrabPosition = 1;
                 drawOverlay();
             }
-            else */if (event->buttons() == Qt::MidButton)
+            else if (event->buttons() == Qt::MidButton)
             {
                 // set center freq
                 m_CenterFreq = roundFreq(freqFromX(pt.x()), 1);
