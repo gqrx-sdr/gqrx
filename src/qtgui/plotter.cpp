@@ -638,28 +638,21 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                     exact = false;
                 }
 
-                // Find the closest demodulator
-                QList<qint64> diffs;
-                qint64 minDiff = 1e12;
-                for (auto & demod : m_demod)
+                auto closestIdx = closestDemodulator(freq);
+                if (closestIdx >= 0)
                 {
-                    auto diff = abs(demod->centerFreq - freq);
-                    diffs.push_back(diff);
-                    if (diff < minDiff)
-                        minDiff = diff;
+                    // if cursor not captured set demod frequency and start demod box capture
+                    m_DemodCaptured = closestIdx;
+                    auto demod = m_demod[m_DemodCaptured];
+                    demod->setCenterFreq(freq, exact);
+                    emit newDemodFreq(m_DemodCaptured, demod->centerFreq, demod->centerFreq - m_CenterFreq);
+
+                    // save initial grab position from m_DemodFreqX
+                    // setCursor(QCursor(Qt::CrossCursor));
+                    m_CursorCaptured = CENTER;
+                    m_GrabPosition = 1;
+                    drawOverlay();
                 }
-
-                // if cursor not captured set demod frequency and start demod box capture
-                m_DemodCaptured = diffs.indexOf(minDiff);
-                auto demod = m_demod[m_DemodCaptured];
-                demod->setCenterFreq(freq, exact);
-                emit newDemodFreq(m_DemodCaptured, demod->centerFreq, demod->centerFreq - m_CenterFreq);
-
-                // save initial grab position from m_DemodFreqX
-                // setCursor(QCursor(Qt::CrossCursor));
-                m_CursorCaptured = CENTER;
-                m_GrabPosition = 1;
-                drawOverlay();
             }
             else if (event->buttons() == Qt::MidButton)
             {
@@ -830,7 +823,6 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     QPoint pt = event->pos();
     int delta = m_InvertScrolling? -event->angleDelta().y() : event->angleDelta().y();
     int numDegrees = delta / 8;
-    int numSteps = numDegrees / 15;  /** FIXME: Only used for direction **/
 
     /** FIXME: zooming could use some optimisation **/
     if (m_CursorCaptured == YAXIS)
@@ -858,26 +850,36 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     {
         zoomStepX(delta < 0 ? 1.1 : 0.9, pt.x());
     }
-    // XXX: find nearest demod to modify?
-//    else if (event->modifiers() & Qt::ControlModifier)
-//    {
-//        // filter width
-//        m_demod.adjustFilterWidth(numSteps * m_ClickResolution);
-//        emit newFilterFreq(0, m_demod.lowCutFreq, m_demod.hiCutFreq);
-//    }
+    else {
+        auto freq = freqFromX(pt.x());
+        auto closestIdx = closestDemodulator(freq);
+        if (closestIdx >= 0)
+        {
+            auto demod = m_demod[closestIdx];
+            int numSteps = numDegrees / 15;  /** FIXME: Only used for direction **/
 
-//    else if (event->modifiers() & Qt::ShiftModifier)
-//    {
-//        // filter shift
-//        m_demod.shiftFilter(numSteps * m_ClickResolution);
-//        emit newFilterFreq(0, m_demod.lowCutFreq, m_demod.hiCutFreq);
-//    }
-//    else
-//    {
-//        // inc/dec demod frequency
-//        m_demod.setCenterFreq(m_demod.centerFreq + (numSteps * m_ClickResolution), false, m_ClickResolution);
-//        emit newDemodFreq(0, m_demod.centerFreq, m_demod.centerFreq - m_CenterFreq);
-//    }
+            if (event->modifiers() & Qt::ControlModifier)
+            {
+                // filter width
+                demod->adjustFilterWidth(numSteps * demod->clickResolution);
+                emit newFilterFreq(closestIdx, demod->lowCutFreq, demod->hiCutFreq);
+            }
+
+            else if (event->modifiers() & Qt::ShiftModifier)
+            {
+                // filter shift
+                demod->shiftFilter(numSteps * demod->clickResolution);
+                emit newFilterFreq(closestIdx, demod->lowCutFreq, demod->hiCutFreq);
+            }
+            else
+            {
+                // inc/dec demod frequency
+                demod->setCenterFreq(demod->centerFreq + (numSteps * demod->clickResolution), false);
+                emit newDemodFreq(closestIdx, demod->centerFreq, demod->centerFreq - m_CenterFreq);
+            }
+        }
+    }
+
 
     updateOverlay();
 }
@@ -1768,6 +1770,21 @@ void CPlotter::calcDivSize (qint64 low, qint64 high, int divswanted, qint64 &adj
     qCDebug(plotter) << "adjlow:" << adjlow;
     qCDebug(plotter) << "step:" << step;
     qCDebug(plotter) << "divs:" << divs;
+}
+
+int CPlotter::closestDemodulator(qint64 freq)
+{
+    QList<qint64> diffs;
+    qint64 minDiff = 1e12;
+    for (auto & demod : m_demod)
+    {
+        auto diff = abs(demod->centerFreq - freq);
+        diffs.push_back(diff);
+        if (diff < minDiff)
+            minDiff = diff;
+    }
+
+    return diffs.indexOf(minDiff);
 }
 
 // contributed by Chris Kuethe @ckuethe

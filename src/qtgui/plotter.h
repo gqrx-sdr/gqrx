@@ -148,6 +148,7 @@ public:
     const int&      hiCutFreqX = m_hiCutFreqX;
     const int&      lowCutFreq = m_lowCutFreq;
     const int&      lowCutFreqX = m_lowCutFreqX;
+    const int&      clickResolution = m_clickResolution;
 
     // Private data
 private:
@@ -368,6 +369,7 @@ private:
     qint64          m_FftCenter;        // Center freq in the -span ... +span range
 
     QList<DemodParams::sptr> m_demod;
+    int closestDemodulator(qint64 freq);
 
     qint64          m_StartFreqAdj{};
     qint64          m_FreqPerDiv{};
