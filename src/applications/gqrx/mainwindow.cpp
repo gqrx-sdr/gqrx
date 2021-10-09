@@ -1641,44 +1641,6 @@ void MainWindow::on_actionRemoteConfig_triggered()
     delete rcs;
 }
 
-
-///**
-// * AFSK1200 decoder action triggered.
-// *
-// * This slot is called when the user activates the AFSK1200
-// * action. It will create an AFSK1200 decoder window and start
-// * and start pushing data from the receiver to it.
-// */
-//void MainWindow::on_actionAFSK1200_triggered()
-//{
-//    if (afsk1200 != nullptr)
-//    {
-//        qDebug() << "AFSK1200 decoder already active.";
-//        dec_afsk1200->raise();
-//    }
-//    else
-//    {
-//        qDebug() << "Starting AFSK1200 decoder.";
-
-//        /* start sample sniffer */
-//        if (rx->start_sniffer(22050, DATA_BUFFER_SIZE) == rx_status::STATUS_OK)
-//        {
-//            dec_afsk1200 = new Afsk1200Win(this);
-//            connect(dec_afsk1200, SIGNAL(windowClosed()), this, SLOT(afsk1200win_closed()));
-//            dec_afsk1200->setAttribute(Qt::WA_DeleteOnClose);
-//            dec_afsk1200->show();
-
-//            dec_timer->start(100);
-//        }
-//        else
-//            QMessageBox::warning(this, tr("Gqrx error"),
-//                                 tr("Error starting sample sniffer.\n"
-//                                    "Close all data decoders and try again."),
-//                                 QMessageBox::Ok, QMessageBox::Ok);
-//    }
-//}
-
-
 /** Show DXC Options. */
 void MainWindow::on_actionDX_Cluster_triggered()
 {
@@ -1860,7 +1822,7 @@ void MainWindow::on_actionAddBookmark_triggered()
     // TODO: need some fundamentally new logic here
     // - ? which receiver is being bookmarked?
 
-    /*
+
     bool ok=false;
     QString name;
     QString tags; // list of tags separated by comma
@@ -1911,7 +1873,8 @@ void MainWindow::on_actionAddBookmark_triggered()
         }
     }
 
-    // Add new Bookmark to Bookmarks.
+    /*
+    // Add new Bookmark to Bookmarks... .!?
     if(ok)
     {
         int i;

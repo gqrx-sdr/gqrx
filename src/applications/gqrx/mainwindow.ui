@@ -26,15 +26,14 @@
   <property name="unifiedTitleAndToolBarOnMac">
    <bool>true</bool>
   </property>
-  <widget class="QWidget" name="centralWidget">
-   </widget>
+  <widget class="QWidget" name="centralWidget"/>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
      <width>521</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -88,8 +87,6 @@
     <addaction name="actionAddBookmark"/>
     <addaction name="separator"/>
     <addaction name="actionIqTool"/>
-    <addaction name="separator"/>
-    <addaction name="actionAFSK1200"/>
     <addaction name="separator"/>
     <addaction name="actionDX_Cluster"/>
    </widget>
@@ -176,14 +173,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
-   </property>
-  </action>
-  <action name="actionAFSK1200">
-   <property name="text">
-    <string>AFSK1200 Decoder</string>
-   </property>
-   <property name="toolTip">
-    <string>Start AFSK1200 decoder</string>
    </property>
   </action>
   <action name="actionSched">
@@ -426,7 +415,6 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
-
  <resources>
   <include location="../../../resources/icons.qrc"/>
  </resources>
