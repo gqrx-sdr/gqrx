@@ -175,7 +175,6 @@ QSize CPlotter::sizeHint() const
 
 void CPlotter::mouseMoveEvent(QMouseEvent* event)
 {
-
     QPoint pt = event->pos();
 
     /* mouse enter / mouse leave events */
@@ -184,6 +183,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         //is in Overlay bitmap region
         if (event->buttons() == Qt::NoButton)
         {
+            m_CursorCaptured = NOCAP;
+
             bool onTag = false;
             if(pt.y() < 15 * 10) // FIXME
             {
@@ -272,28 +273,26 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 }
             }
 
-            if (m_DemodCaptured < 0)
-            {	//if not near any grab boundaries
-                if (NOCAP != m_CursorCaptured)
+            // if not near any grab boundaries
+            if (NOCAP == m_CursorCaptured)
+            {
+                setCursor(QCursor(Qt::ArrowCursor));
+            }
+
+            if (m_TooltipsEnabled && m_DemodCaptured < 0)
+            {
+                qint64 hoverFrequency = freqFromX(pt.x());
+                QString toolTipText = QString("F: %1 kHz").arg(hoverFrequency/1.e3f, 0, 'f', 3);
+                QFontMetrics metrics(m_Font);
+                int bandTopY = (m_OverlayPixmap.height() / m_DPR) - metrics.height() - 2 * VER_MARGIN - m_BandPlanHeight;
+                QList<BandInfo> hoverBands = BandPlan::Get().getBandsEncompassing(hoverFrequency);
+                if(m_BandPlanEnabled && pt.y() > bandTopY && !hoverBands.empty())
                 {
-                    setCursor(QCursor(Qt::ArrowCursor));
-                    m_CursorCaptured = NOCAP;
+                    toolTipText.append("\n");
+                    for (auto & hoverBand : hoverBands)
+                        toolTipText.append("\n" + hoverBand.name);
                 }
-                if (m_TooltipsEnabled)
-                {
-                    qint64 hoverFrequency = freqFromX(pt.x());
-                    QString toolTipText = QString("F: %1 kHz").arg(hoverFrequency/1.e3f, 0, 'f', 3);
-                    QFontMetrics metrics(m_Font);
-                    int bandTopY = (m_OverlayPixmap.height() / m_DPR) - metrics.height() - 2 * VER_MARGIN - m_BandPlanHeight;
-                    QList<BandInfo> hoverBands = BandPlan::Get().getBandsEncompassing(hoverFrequency);
-                    if(m_BandPlanEnabled && pt.y() > bandTopY && !hoverBands.empty())
-                    {
-                        toolTipText.append("\n");
-                        for (auto & hoverBand : hoverBands)
-                            toolTipText.append("\n" + hoverBand.name);
-                    }
-                    QToolTip::showText(event->globalPos(), toolTipText, this);
-                }
+                QToolTip::showText(event->globalPos(), toolTipText, this);
             }
             m_GrabPosition = 0;
         }
