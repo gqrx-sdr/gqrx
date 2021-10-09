@@ -95,7 +95,7 @@ public slots:
     void startAudioRecorder(QString unused);
     void stopAudioRecorder();
     bool setGain(QString name, double gain);
-    bool setRDSstatus(bool enabled);
+    void setRDSstatus(bool enabled);
     void rdsPI(QString program_id);
 
 signals:
