@@ -150,7 +150,7 @@ void DockAudio::startAudioRecorder(void)
 {
     if (ui->audioRecButton->isChecked())
     {
-        qDebug() << __func__ << "An audio recording is already in progress";
+        qInfo() << __func__ << "An audio recording is already in progress";
         return;
     }
 
@@ -167,7 +167,7 @@ void DockAudio::stopAudioRecorder(void)
     if (ui->audioRecButton->isChecked())
         ui->audioRecButton->click(); // emulate a button click
     else
-        qDebug() << __func__ << "No audio recording in progress";
+        qInfo() << __func__ << "No audio recording in progress";
 }
 
 /*! Public slot to set new RX frequency in Hz. */

@@ -411,7 +411,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
     {
         if (m_settings->value("crashed", false).toBool())
         {
-            qDebug() << "Crash guard triggered!" << endl;
+            qInfo() << "Crash guard triggered!" << endl;
             auto* askUserAboutConfig =
                     new QMessageBox(QMessageBox::Warning, tr("Crash Detected!"),
                                     tr("<p>Gqrx has detected problems with the current configuration. "
@@ -543,7 +543,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         {
             if (rx->set_input_decim(int_val) != (unsigned int)int_val)
             {
-                qDebug() << "Failed to set decimation" << int_val;
+                qInfo() << "Failed to set decimation" << int_val;
                 qDebug() << "  actual decimation:" << rx->get_input_decim();
             }
             else
@@ -565,7 +565,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         iq_tool->setSampleRate((qint64)actual_rate);
     }
     else {
-        qDebug() << "Error: Actual sample rate is" << actual_rate;
+        qInfo() << "Error: Actual sample rate is" << actual_rate;
     }
 
     int64_val = m_settings->value("input/bandwidth", 0).toInt(&conv_ok);
@@ -685,7 +685,7 @@ bool MainWindow::saveConfig(const QString& cfgfile)
         if (QFile::remove(newfile))
             qDebug() << "Deleted" << newfile;
         else
-            qDebug() << "Failed to delete" << newfile;
+            qInfo() << "Failed to delete" << newfile;
     }
     if (QFile::copy(oldfile, newfile))
     {
@@ -694,7 +694,7 @@ bool MainWindow::saveConfig(const QString& cfgfile)
     }
     else
     {
-        qDebug() << "Error saving configuration to" << newfile;
+        qInfo() << "Error saving configuration to" << newfile;
         return false;
     }
 }
@@ -767,7 +767,7 @@ void MainWindow::updateHWFrequencyRange(bool ignore_limits)
     }
     else
     {
-        qDebug() << __func__ << "failed fetching new hardware frequency range";
+        qInfo() << __func__ << "failed fetching new hardware frequency range";
         d_hw_freq_start = (quint64) 0;
         d_hw_freq_stop  = (quint64) 9999e6;
     }
@@ -1099,7 +1099,7 @@ void MainWindow::iqFftTimeout()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    qInfo() << "MainWindow::closeEvent";
+//    qInfo() << "MainWindow::closeEvent";
 
     // Stop the DSP
     on_actionDSP_triggered(false);
@@ -1555,10 +1555,10 @@ void MainWindow::on_actionIqTool_triggered()
 /* CPlotter::NewDemodFreq() is emitted */
 void MainWindow::on_newDemodFreq(size_t idx, qint64 freq, qint64 delta)
 {
-    qInfo() << "MainWindow::on_newDemodFreq" << idx << freq << delta;
+//    qInfo() << "MainWindow::on_newDemodFreq" << idx << freq << delta;
 
     if (idx >= demodCtrls.size()) {
-        qInfo() << "idx out of range";
+        qInfo() << "on_newDemodFreq idx out of range";
         return;
     }
 
@@ -1755,7 +1755,7 @@ void MainWindow::showSimpleTextFile(const QString &resource_path,
 
     if (!news.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        qDebug() << "Unable to open file: " << news.fileName() <<
+        qInfo() << "Unable to open file: " << news.fileName() <<
                     " because of error " << news.errorString();
 
         return;

@@ -80,7 +80,7 @@ public:
     /* General */
     size_t      get_idx() const { return idx; }
     void        set_idx(size_t next_idx) {
-        qInfo() << "demodulator" << idx << "gets new idx" << next_idx;
+//         qInfo() << "demodulator" << idx << "gets new idx" << next_idx;
         idx = next_idx;
         emit indexChanged(idx);
     }

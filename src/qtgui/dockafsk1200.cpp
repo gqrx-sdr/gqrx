@@ -104,7 +104,7 @@ void DockAFSK1200::on_actionSave_triggered()
 
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qDebug() << "Error creating file: " << fileName;
+        qInfo() << "Error creating file: " << fileName;
         return;
     }
 

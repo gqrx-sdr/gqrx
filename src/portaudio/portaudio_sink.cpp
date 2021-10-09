@@ -93,7 +93,7 @@ portaudio_sink::~portaudio_sink()
 /* open and start audio stream */
 bool portaudio_sink::start()
 {
-    qInfo() << "portaudio_sink::start begin";
+//    qInfo() << "portaudio_sink::start begin";
 
     PaError     err;
 
@@ -123,7 +123,7 @@ bool portaudio_sink::start()
         return false;
     }
 
-    qInfo() << "portaudio_sink::start completed OK";
+//    qInfo() << "portaudio_sink::start completed OK";
 
     return true;
 }
@@ -131,7 +131,7 @@ bool portaudio_sink::start()
 /* Stop and close audio stream */
 bool portaudio_sink::stop()
 {
-    qInfo() << "portaudio_sink::stop begin";
+//    qInfo() << "portaudio_sink::stop begin";
 
     PaError     err;
     bool        retval = true;
@@ -154,14 +154,14 @@ bool portaudio_sink::stop()
                 Pa_GetErrorText(err));
     }
 
-    qInfo() << "portaudio_sink::stop completed";
+//    qInfo() << "portaudio_sink::stop completed";
 
     return retval;
 }
 
 void portaudio_sink::select_device(string device_name)
 {
-    qInfo() << "portaudio_sink::select_device (nothing to do)" << device_name.c_str();
+//    qInfo() << "portaudio_sink::select_device (nothing to do)" << device_name.c_str();
 }
 
 #define BUFFER_SIZE 100000

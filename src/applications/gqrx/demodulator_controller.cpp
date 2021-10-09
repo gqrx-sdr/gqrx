@@ -205,7 +205,7 @@ DemodulatorController::~DemodulatorController()
 
 void DemodulatorController::readSettings(std::shared_ptr<QSettings> settings)
 {
-    qInfo() << "DemodulatorController::readSettings" << demod->get_idx();
+//     qInfo() << "DemodulatorController::readSettings" << demod->get_idx();
 
     settings->beginGroup("receiver");
     settings->beginGroup(QString("%0").arg(demod->get_idx()));
@@ -336,13 +336,13 @@ void DemodulatorController::setFftFill(bool enable)
  */
 void DemodulatorController::setFilterOffset(qint64 offset)
 {
-    qInfo() << "DemodulatorController::setFilterOffset" << demod->get_idx() << offset;
+//     qInfo() << "DemodulatorController::setFilterOffset" << demod->get_idx() << offset;
 
     demod->set_filter_offset(offset);
 
-//    uiDockRxOpt->blockSignals(true);
+    uiDockRxOpt->blockSignals(true);
     uiDockRxOpt->setFilterOffset(offset);
-//    uiDockRxOpt->blockSignals(false);
+    uiDockRxOpt->blockSignals(false);
 
     if (demod->is_rds_decoder_active()) {
         demod->reset_rds_parser();
@@ -370,7 +370,7 @@ void DemodulatorController::setFilterFrequency(int low, int high)
 void DemodulatorController::selectDemod(const QString& demod)
 {
     int iDemodIndex = DockRxOpt::GetEnumForModulationString(demod);
-    qInfo() << "selectDemod(str):" << demod << "-> IDX:" << iDemodIndex;
+//    qInfo() << "selectDemod(str):" << demod << "-> IDX:" << iDemodIndex;
 
     return selectDemod(iDemodIndex);
 }
@@ -395,7 +395,7 @@ void DemodulatorController::selectDemod(int mode_idx)
         qInfo() << "Invalid mode index:" << mode_idx;
         mode_idx = DockRxOpt::MODE_OFF;
     }
-    qInfo() << "New mode index:" << mode_idx;
+//    qInfo() << "New mode index:" << mode_idx;
 
     uiDockRxOpt->getFilterPreset(mode_idx, filter_preset, &flo, &fhi);
     d_filter_shape = (rx_filter_shape)uiDockRxOpt->currentFilterShape();
@@ -515,7 +515,7 @@ void DemodulatorController::selectDemod(int mode_idx)
         break;
     }
 
-    qInfo() << "Filter preset for mode" << mode_idx << "LO:" << flo << "HI:" << fhi;
+//    qInfo() << "Filter preset for mode" << mode_idx << "LO:" << flo << "HI:" << fhi;
 
     demod->set_filter((double)flo, (double)fhi, d_filter_shape);
     demod->set_cw_offset(cwofs);
@@ -537,7 +537,7 @@ void DemodulatorController::selectDemod(int mode_idx)
  */
 void DemodulatorController::setFmMaxdev(float max_dev)
 {
-    qInfo() << "FM MAX_DEV: " << max_dev;
+//    qInfo() << "FM MAX_DEV: " << max_dev;
 
     /* receiver will check range */
     demod->set_fm_maxdev(max_dev);
@@ -549,7 +549,7 @@ void DemodulatorController::setFmMaxdev(float max_dev)
  */
 void DemodulatorController::setFmEmph(double tau)
 {
-    qInfo() << "FM TAU: " << tau;
+//    qInfo() << "FM TAU: " << tau;
 
     /* receiver will check range */
     demod->set_fm_deemph(tau);
@@ -584,7 +584,7 @@ void DemodulatorController::setAmSyncDcr(bool enabled)
  */
 void DemodulatorController::setAmSyncPllBw(float pll_bw)
 {
-    qInfo() << "AM-Sync PLL BW: " << pll_bw;
+//    qInfo() << "AM-Sync PLL BW: " << pll_bw;
 
     /* receiver will check range */
     demod->set_amsync_pll_bw(pll_bw);
@@ -655,8 +655,7 @@ void DemodulatorController::setAgcDecay(int msec)
  */
 void DemodulatorController::setNoiseBlanker(int nbid, bool on, float threshold)
 {
-    qInfo() << "Noise blanker" << demod->get_idx() << "NB:" << nbid << " ON:" << on << "THLD:"
-             << threshold;
+//    qInfo() << "Noise blanker" << demod->get_idx() << "NB:" << nbid << " ON:" << on << "THLD:" << threshold;
 
     demod->set_nb_on(nbid, on);
     demod->set_nb_threshold(nbid, threshold);
@@ -668,7 +667,7 @@ void DemodulatorController::setNoiseBlanker(int nbid, bool on, float threshold)
  */
 void DemodulatorController::setSqlLevel(double level_db)
 {
-    qInfo() << "DemodulatorController::setSqlLevel" << level_db;
+//    qInfo() << "DemodulatorController::setSqlLevel" << level_db;
     demod->set_sql_level(level_db);
 }
 
@@ -748,7 +747,7 @@ void DemodulatorController::startAudioRec(const QString& filename)
     }
     else
     {
-        qInfo() << tr("Recording audio to %1").arg(filename);
+//        qInfo() << tr("Recording audio to %1").arg(filename);
         stopAudioRecAction->setEnabled(true);
     }
 }
@@ -818,7 +817,7 @@ void DemodulatorController::stopAudioPlayback()
  */
 void DemodulatorController::startAudioStream(const QString& udp_host, int udp_port, bool stereo)
 {
-    qInfo() << "DemodulatorController::startAudioStream";
+//    qInfo() << "DemodulatorController::startAudioStream";
     demod->start_udp_streaming(udp_host.toStdString(), udp_port, stereo);
     stopUDPStreamAction->setEnabled(true);
 }
@@ -839,7 +838,7 @@ void DemodulatorController::setRdsDecoder(bool enabled)
 {
     if (enabled)
     {
-        qInfo() << "Starting RDS decoder.";
+//        qInfo() << "Starting RDS decoder.";
         uiDockRDS->showEnabled();
         demod->start_rds_decoder();
         demod->reset_rds_parser();
@@ -847,7 +846,7 @@ void DemodulatorController::setRdsDecoder(bool enabled)
     }
     else
     {
-        qInfo() << "Stopping RDS decoder.";
+//        qInfo() << "Stopping RDS decoder.";
         uiDockRDS->showDisabled();
         demod->stop_rds_decoder();
         rds_timer->stop();
@@ -858,7 +857,7 @@ void DemodulatorController::setRdsDecoder(bool enabled)
 
 void DemodulatorController::setAfskDecoder(bool enabled)
 {
-    qInfo() << "Set AFSK1200 decoder" << enabled;
+//    qInfo() << "Set AFSK1200 decoder" << enabled;
     if (enabled)
     {
 

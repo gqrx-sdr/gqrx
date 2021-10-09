@@ -786,7 +786,7 @@ void CPlotter::zoomOnXAxis(float level)
 
 void CPlotter::setDemodulatorCount(size_t num)
 {
-    qInfo() << "CPlotter::setDemodulatorCount" << num;
+//    qInfo() << "CPlotter::setDemodulatorCount" << num;
     // Construct and configure the demodulators
     int demodSize = m_demod.size();
     int demodDiff = num - demodSize;
@@ -799,14 +799,14 @@ void CPlotter::setDemodulatorCount(size_t num)
             m_demod.removeAt(i);
         }
     }
-    qInfo() << "CPlotter::setDemodulatorCount" << m_demod.size();
+//    qInfo() << "CPlotter::setDemodulatorCount" << m_demod.size();
     drawOverlay();
 }
 
 void CPlotter::setDemodulatorOffset(size_t idx, qint64 offset)
 {
     if ((int)idx >= m_demod.size()) {
-        qInfo() << "CPlotter::moveToDemodFreq invalid idx" << idx;
+        qInfo() << "CPlotter::setDemodulatorOffset invalid idx" << idx;
     }
 
     m_demod[idx]->setCenterFreq(m_CenterFreq + offset, true);
@@ -826,7 +826,7 @@ void CPlotter::setDemodulatorFilterFreq(size_t idx, int low, int high)
 void CPlotter::setDemodulatorRanges(size_t idx, int lowMin, int lowMax, int highMin, int highMax, bool symmetric, int resolution)
 {
     if ((int)idx >= m_demod.size()) {
-        qInfo() << "CPlotter::setDemodulatorFilterFreq invalid idx" << idx;
+        qInfo() << "CPlotter::setDemodulatorRanges invalid idx" << idx;
     }
 
     m_demod[idx]->setRanges(lowMin, lowMax, highMin, highMax, symmetric);

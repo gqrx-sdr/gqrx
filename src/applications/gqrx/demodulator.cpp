@@ -522,7 +522,7 @@ rx_status demodulator::stop_audio_recording()
 rx_status demodulator::start_udp_streaming(const std::string host, int port, bool stereo)
 {
     tb->lock();
-    qInfo() << "demodulator::start_udp_streaming";
+//    qInfo() << "demodulator::start_udp_streaming";
     audio_udp_sink->start_streaming(host, port, stereo);
     tb->unlock();
 
@@ -550,7 +550,7 @@ rx_status demodulator::stop_udp_streaming()
  */
 rx_status demodulator::start_sniffer(unsigned int samprate, int buffsize)
 {
-    qInfo() << "demodulator::start_sniffer" << samprate << buffsize << d_sniffer_active;
+//    qInfo() << "demodulator::start_sniffer" << samprate << buffsize << d_sniffer_active;
     if (d_sniffer_active) {
         /* sniffer already in use */
         return STATUS_ERROR;
@@ -573,7 +573,7 @@ rx_status demodulator::start_sniffer(unsigned int samprate, int buffsize)
  */
 rx_status demodulator::stop_sniffer()
 {
-    qInfo() << "demodulator::stop_sniffer" << d_sniffer_active;
+//    qInfo() << "demodulator::stop_sniffer" << d_sniffer_active;
     if (!d_sniffer_active) {
         return STATUS_ERROR;
     }

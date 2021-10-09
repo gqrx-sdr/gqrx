@@ -193,7 +193,7 @@ DockRxOpt::~DockRxOpt()
  */
 void DockRxOpt::setFilterOffset(qint64 freq_hz)
 {
-    qInfo() << "DockRxOpt::setFilterOffset" << freq_hz;
+//    qInfo() << "DockRxOpt::setFilterOffset" << freq_hz;
     ui->filterFreq->setFrequency(freq_hz);
 }
 
@@ -401,12 +401,12 @@ void DockRxOpt::getFilterPreset(int mode, int preset, int * lo, int * hi) const
 {
     if (mode < 0 || mode >= MODE_LAST)
     {
-        qDebug() << __func__ << ": Invalid mode:" << mode;
+        qInfo() << __func__ << ": Invalid mode:" << mode;
         mode = MODE_AM;
     }
     else if (preset < 0 || preset > 2)
     {
-        qDebug() << __func__ << ": Invalid preset:" << preset;
+        qInfo() << __func__ << ": Invalid preset:" << preset;
         preset = FILTER_PRESET_NORMAL;
     }
     *lo = filter_preset_table[mode][preset][0];
@@ -733,7 +733,7 @@ void DockRxOpt::on_agcPresetCombo_currentIndexChanged(int index)
         break;
 
     default:
-        qDebug() << "Invalid AGC preset:" << index;
+        qInfo() << "Invalid AGC preset:" << index;
     }
 }
 

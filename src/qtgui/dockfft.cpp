@@ -94,8 +94,7 @@ int DockFft::fftRate()
     fps = strval.toInt(&ok, 10);
 
     if (!ok)
-        qDebug() << "DockFft::fftRate : Could not convert" <<
-                    strval << "to number.";
+        qInfo() << "DockFft::fftRate : Could not convert" << strval << "to number.";
     else
         qDebug() << "New FFT rate:" << fps << "Hz";
 
@@ -165,12 +164,12 @@ int DockFft::fftSize()
 
     if (!ok)
     {
-        qDebug() << __func__ << "could not convert" << strval << "to number.";
+        qInfo() << __func__ << "could not convert" << strval << "to number.";
     }
 
     if (fft_size == 0)
     {
-        qDebug() << "Somehow we ended up with FFT size = 0; using" << DEFAULT_FFT_SIZE;
+        qInfo() << "Somehow we ended up with FFT size = 0; using" << DEFAULT_FFT_SIZE;
         fft_size = DEFAULT_FFT_SIZE;
     }
 
