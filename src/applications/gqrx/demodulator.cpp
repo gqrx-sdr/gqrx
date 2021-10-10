@@ -70,7 +70,7 @@ demodulator::demodulator(
 
     // XXX somewhat duplicated in set_output_device
     // XXX needs to update when set_idx called
-    QString portName = QString("Receiver %0").arg(idx);
+    QString portName = QString("Receiver %0").arg(idx + 1);
 #ifdef WITH_PULSEAUDIO
     d_supports_stream_naming = true;
     audio_snk = make_pa_sink(audio_device, d_audio_rate, "GQRX", portName.toStdString());
@@ -93,7 +93,7 @@ void demodulator::set_output_device(const std::string device, const int audio_ra
     d_audio_rate = audio_rate;
 
     // qInfo() << "demodulator sets output device" << device.c_str() << "at rate" << d_audio_rate;
-    QString portName = QString("Receiver %0").arg(idx);
+    QString portName = QString("Receiver %0").arg(idx + 1);
 
 #ifdef WITH_PULSEAUDIO
     // pulse sink can be reconfigured without affecting the tb flowgraph
