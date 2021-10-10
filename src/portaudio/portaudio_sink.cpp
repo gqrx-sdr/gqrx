@@ -51,35 +51,20 @@ portaudio_sink::portaudio_sink(const string device_name, int audio_rate,
   : gr::sync_block ("portaudio_sink",
         gr::io_signature::make (1, 2, sizeof(float)),
         gr::io_signature::make (0, 0, 0)),
+    d_stream(nullptr),
     d_stream_name(stream_name),
     d_app_name(app_name),
     d_audio_rate(audio_rate)
 {
     Pa_Initialize();
 
-    // find device index
-    PaDeviceIndex           idx;
-    portaudio_device_list   devices;
-
-    idx = devices.get_output_device_index(device_name);
-    if (idx == -1)
-    {
-        fprintf(stderr, "Using default audio device\n");
-        idx = Pa_GetDefaultOutputDevice();
-    }
-    else
-    {
-        fprintf(stderr, "Audio device '%s' has index %d\n",
-                device_name.data(), idx);
-    }
-
-    // Initialize stream parameters
-    d_out_params.device = idx;
     d_out_params.channelCount = 2;
     d_out_params.sampleFormat = paFloat32;
     d_out_params.suggestedLatency =
             Pa_GetDeviceInfo(d_out_params.device)->defaultHighOutputLatency;
     d_out_params.hostApiSpecificStreamInfo = NULL;
+
+    select_device(device_name);
 
     if (Pa_IsFormatSupported(NULL, &d_out_params, d_audio_rate) != paFormatIsSupported)
         fprintf(stderr, "portaudio_sink(): Audio output device does not support requested format.\n");
@@ -87,6 +72,8 @@ portaudio_sink::portaudio_sink(const string device_name, int audio_rate,
 
 portaudio_sink::~portaudio_sink()
 {
+    close_stream();
+
     Pa_Terminate();
 }
 
@@ -96,23 +83,6 @@ bool portaudio_sink::start()
 //    qInfo() << "portaudio_sink::start begin";
 
     PaError     err;
-
-    err = Pa_OpenStream(&d_stream,
-                        NULL,           // inputParameters
-                        &d_out_params,
-                        d_audio_rate,
-                        paFramesPerBufferUnspecified,
-                        paClipOff,
-                        NULL,           // no callback, use blocking API
-                        NULL);
-
-    if (err != paNoError)
-    {
-        fprintf(stderr,
-                "portaudio_sink::start(): Failed to open audio stream: %s\n",
-                Pa_GetErrorText(err));
-        return false;
-    }
 
     err = Pa_StartStream(d_stream);
     if (err != paNoError)
@@ -145,15 +115,6 @@ bool portaudio_sink::stop()
                 Pa_GetErrorText(err));
     }
 
-    err = Pa_CloseStream(d_stream);
-    if (err != paNoError)
-    {
-        retval = false;
-        fprintf(stderr,
-                "portaudio_sink::stop(): Error closing audio stream: %s\n",
-                Pa_GetErrorText(err));
-    }
-
 //    qInfo() << "portaudio_sink::stop completed";
 
     return retval;
@@ -161,17 +122,83 @@ bool portaudio_sink::stop()
 
 void portaudio_sink::select_device(string device_name)
 {
-//    qInfo() << "portaudio_sink::select_device (nothing to do)" << device_name.c_str();
+    //    qInfo() << "portaudio_sink::select_device" << device_name.c_str();
+
+    close_stream();
+
+    // find device index
+    PaDeviceIndex           idx;
+    portaudio_device_list   devices;
+
+    idx = devices.get_output_device_index(device_name);
+    if (idx == -1)
+    {
+        fprintf(stderr, "Using default audio device\n");
+        idx = Pa_GetDefaultOutputDevice();
+    }
+    else
+    {
+        fprintf(stderr, "Audio device '%s' has index %d\n",
+                device_name.data(), idx);
+    }
+
+    // Initialize stream parameters
+    d_out_params.device = idx;
+
+    open_stream();
 }
 
-#define BUFFER_SIZE 100000
+void portaudio_sink::open_stream()
+{
+    if (d_stream != nullptr)
+    {
+        close_stream();
+    }
+
+    PaError     err;
+
+    err = Pa_OpenStream(&d_stream,
+                        NULL,           // inputParameters
+                        &d_out_params,
+                        d_audio_rate,
+                        paFramesPerBufferUnspecified,
+                        paClipOff,
+                        NULL,           // no callback, use blocking API
+                        NULL);
+
+    if (err != paNoError)
+    {
+        fprintf(stderr,
+                "portaudio_sink::open_stream(): Failed to open audio stream: %s\n",
+                Pa_GetErrorText(err));
+    }
+}
+
+void portaudio_sink::close_stream()
+{
+    if (d_stream == nullptr)
+    {
+        return;
+    }
+
+    PaError     err;
+
+    err = Pa_CloseStream(d_stream);
+    if (err != paNoError)
+    {
+        fprintf(stderr,
+                "portaudio_sink::close_stream(): Error closing audio stream: %s\n",
+                Pa_GetErrorText(err));
+    }
+
+    d_stream = nullptr;
+}
+
 int portaudio_sink::work(int noutput_items,
                          gr_vector_const_void_star &input_items,
                          gr_vector_void_star &output_items)
 {
     PaError     err;
-
-    static float    audio_buffer[BUFFER_SIZE];
     float      *ptr = &audio_buffer[0];
     int         i;
 
@@ -180,25 +207,6 @@ int portaudio_sink::work(int noutput_items,
     if (noutput_items > BUFFER_SIZE/2)
         noutput_items = BUFFER_SIZE/2;
 
-    // two channels (stereo)
-    const float *data_l = (const float*) input_items[0];
-    const float *data_r = (const float*) input_items[1];
-    for (i = noutput_items; i > 0; i--)
-    {
-        *ptr++ = *data_l++;
-        *ptr++ = *data_r++;
-    }
-
-    err = Pa_WriteStream(d_stream, audio_buffer, noutput_items);
-    if (err)
-        fprintf(stderr,
-                "portaudio_sink::work(): Error writing to audio device: %s\n",
-                Pa_GetErrorText(err));
-
-    return noutput_items;
-
-// code below supports 1 or 2 channels
-#if 0
     if (input_items.size() == 2)
     {
         // two channels (stereo)
@@ -221,6 +229,12 @@ int portaudio_sink::work(int noutput_items,
             *ptr++ = a;
         }
     }
-#endif
 
+    err = Pa_WriteStream(d_stream, audio_buffer, noutput_items);
+    if (err)
+        fprintf(stderr,
+                "portaudio_sink::work(): Error writing to audio device: %s\n",
+                Pa_GetErrorText(err));
+
+    return noutput_items;
 }

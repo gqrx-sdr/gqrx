@@ -40,6 +40,8 @@ portaudio_sink_sptr make_portaudio_sink(const string device_name, int audio_rate
                                         const string app_name,
                                         const string stream_name);
 
+#define BUFFER_SIZE 100000
+
 /** Two-channel portaudio sink */
 class portaudio_sink : public gr::sync_block
 {
@@ -63,9 +65,14 @@ public:
     void select_device(string device_name);
 
 private:
+    void open_stream();
+    void close_stream();
+
     PaStream           *d_stream;
     PaStreamParameters  d_out_params;
-    string      d_stream_name;       // Descriptive name of the stream.
-    string      d_app_name;          // Descriptive name of the application.
-    int         d_audio_rate;
+    string              d_stream_name;       // Descriptive name of the stream.
+    string              d_app_name;          // Descriptive name of the application.
+    int                 d_audio_rate;
+
+    float    audio_buffer[BUFFER_SIZE];
 };
