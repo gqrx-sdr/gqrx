@@ -112,8 +112,6 @@ void pa_sink::create_sink(string device_name)
         /** FIXME: Throw an exception **/
         fprintf(stderr, __FILE__": pa_simple_new() failed: %s\n", pa_strerror(error));
     }
-
-    std::cout << "created pa sink " << d_pasink << " for stream " << d_stream_name << std::endl;
 }
 
 
