@@ -1522,7 +1522,10 @@ void CPlotter::drawOverlay()
     // Draw demod filter boxes
     if (m_FilterBoxEnabled)
     {
-        for (auto &demod : m_demod) {
+        auto f = painter.font();
+        painter.setFont(QFont("monospace", 9));
+        for (int i = 0; i < m_demod.size(); ++i) {
+            auto demod = m_demod[i];
             demod->setXPositions(
                 xFromFreq(demod->centerFreq),
                 xFromFreq(demod->centerFreq + demod->lowCutFreq),
@@ -1535,9 +1538,11 @@ void CPlotter::drawOverlay()
                              QColor(PLOTTER_FILTER_BOX_COLOR));
 
             painter.setOpacity(1.0);
-            painter.setPen(QColor(PLOTTER_FILTER_LINE_COLOR));
+            painter.setPen(QColor::fromHsv((15 * i) % 255, 240, 240));
             painter.drawLine(demod->freqX, 0, demod->freqX, h);
+            painter.drawText(demod->freqX + 3, 12, QString("%0").arg(i + 1));
         }
+        painter.setFont(f);
     }
 
     if (!m_Running)
