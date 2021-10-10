@@ -42,6 +42,8 @@ pa_sink_sptr make_pa_sink(const string device_name, int audio_rate,
                           const string stream_name);
 
 
+#define BUFFER_SIZE 10000
+
 /*! \brief Pulseaudio sink
  *  \ingroup IO
  *
@@ -68,10 +70,15 @@ public:
     void select_device(string device_name, int audio_rate, string stream_name);
 
 private:
+    void create_sink(string device_name);
+
     pa_simple *d_pasink;    /*! The pulseaudio object. */
     string d_stream_name;   /*! Descriptive name of the stream. */
     string d_app_name;      /*! Descriptive name of the application. */
     pa_sample_spec d_ss;    /*! pulseaudio sample specification. */
+    pa_channel_map d_map{2, {PA_CHANNEL_POSITION_LEFT, PA_CHANNEL_POSITION_RIGHT}};
+
+    float audio_buffer[BUFFER_SIZE];
 };
 
 #endif /* PA_SINK_H */
