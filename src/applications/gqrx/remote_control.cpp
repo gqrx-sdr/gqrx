@@ -227,7 +227,7 @@ void RemoteControl::startRead()
     else if (cmd == "S")
         answer = cmd_set_split_vfo();
     else if (cmd == "p")
-        answer = cmd_get_pi();
+        answer = cmd_get_param(cmdlist);
     else if (cmd == "R")
         answer = cmd_set_rds(cmdlist);
     else if (cmd == "_")
@@ -774,10 +774,20 @@ QString RemoteControl::cmd_set_func(QStringList cmdlist)
     return answer;
 }
 
-/* Get RDS PI */
-QString RemoteControl::cmd_get_pi() const
+/* Get parameter */
+QString RemoteControl::cmd_get_param(QStringList cmdlist)
 {
-    return QString("%1\n").arg(rc_program_id);
+    QString answer;
+    QString func = cmdlist.value(1, "");
+
+    if (func == "?")
+        answer = QString("RDS_PI\n");
+    else if (func.compare("RDS_PI", Qt::CaseInsensitive) == 0)
+        answer = QString("%1\n").arg(rc_program_id);
+    else
+        answer = QString("RPRT 1\n");
+
+    return answer;
 }
 
 /* Get current 'VFO' (fake, only for hamlib) */
@@ -830,7 +840,7 @@ QString RemoteControl::cmd_set_rds(QStringList cmdlist)
     else if (cmd_arg.compare("0") == 0) {
         value = false;
         emit newRDSmode(value);
-	rds_status = false;
+        rds_status = false;
         rc_program_id = "0000";
         answer = QString("RPRT 0\n");
     }

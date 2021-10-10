@@ -158,7 +158,7 @@ private:
     QString     cmd_set_split_vfo();
     QString     cmd_get_info() const;
     QString     cmd_set_rds(QStringList cmdlist);
-    QString     cmd_get_pi() const;
+    QString     cmd_get_param(QStringList cmdlist);
     QString     cmd_AOS();
     QString     cmd_LOS();
     QString     cmd_lnb_lo(QStringList cmdlist);

@@ -23,7 +23,7 @@ Supported commands:
     Get the value of the gain setting with the name <gain_name>
  L <gain_name>_GAIN <value>
     Set the value of the gain setting with the name <gain_name> to <value>
- p
+ p RDS_PI
     Get the RDS PI code (in hexadecimal). Returns 0000 if not applicable.
  u RECORD
     Get status of audio recorder
@@ -31,10 +31,10 @@ Supported commands:
     Set status of audio recorder to <status>
  u DSP
     Get DSP status
- u RDS
-    Get RDS decoder to <status>.  Only functions in WFM mode.
  U DSP <status>
     Set DSP status to <status>
+ u RDS
+    Get RDS decoder to <status>.  Only functions in WFM mode.
  U RDS <status>
     Set RDS decoder to <status>.  Only functions in WFM mode.
  q|Q
