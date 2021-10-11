@@ -143,27 +143,13 @@ void DockRDS::setRDSmode(bool cmd)
 {
     if (!ui->rdsCheckbox->isEnabled())
         return;
-    if (cmd && ui->rdsCheckbox->isChecked())
-        return;
-    if (!cmd && !ui->rdsCheckbox->isChecked())
+    if (cmd == ui->rdsCheckbox->isChecked())
         return;
 
-    if (cmd)
-    {
-        ui->rdsCheckbox->setDisabled(true);
-        ui->rdsCheckbox->blockSignals(true);
-        emit rdsDecoderToggled(true);
-        ui->rdsCheckbox->setChecked(true);
-        ui->rdsCheckbox->blockSignals(false);
-        ui->rdsCheckbox->setEnabled(true);
-    }
-    else
-    {
-        ui->rdsCheckbox->setDisabled(true);
-        ui->rdsCheckbox->blockSignals(true);
-        emit rdsDecoderToggled(false);
-        ui->rdsCheckbox->setChecked(false);
-        ui->rdsCheckbox->blockSignals(false);
-        ui->rdsCheckbox->setEnabled(true);
-    }
+    ui->rdsCheckbox->setDisabled(true);
+    ui->rdsCheckbox->blockSignals(true);
+    emit rdsDecoderToggled(cmd);
+    ui->rdsCheckbox->setChecked(cmd);
+    ui->rdsCheckbox->blockSignals(false);
+    ui->rdsCheckbox->setEnabled(true);
 }
