@@ -109,7 +109,7 @@ signals:
     void stopAudioRecorderEvent();
     void gainChanged(QString name, double value);
     void dspChanged(bool value);
-    void newRDSmode(bool value);;
+    void newRDSmode(bool value);
 
 private slots:
     void acceptConnection();
