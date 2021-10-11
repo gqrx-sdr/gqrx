@@ -750,19 +750,12 @@ QString RemoteControl::cmd_set_func(QStringList cmdlist)
     }
     else if ((func.compare("RDS", Qt::CaseInsensitive) == 0) && ok)
     {
-        bool value = (status == 0) ? false : true;
-        if (status == 1) {
-            emit newRDSmode(value);
-            answer = QString("RPRT 0\n");
-        }
-        else if (status == 0) {
-            emit newRDSmode(value);
-            answer = QString("RPRT 0\n");
-        }
+        if (status)
+            emit newRDSmode(true);
         else
-            answer = QString("RPRT 1\n");
+            emit newRDSmode(false);
 
-        return answer;
+        answer = QString("RPRT 0\n");
     }
     else
     {
