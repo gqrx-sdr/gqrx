@@ -143,9 +143,7 @@ void DockRDS::setRDSmode(bool cmd)
 {
     if (!ui->rdsCheckbox->isEnabled())
         return;
-    if (cmd && ui->rdsCheckbox->isChecked())
-        return;
-    if (!cmd && !ui->rdsCheckbox->isChecked())
+    if (cmd == ui->rdsCheckbox->isChecked())
         return;
 
     ui->rdsCheckbox->setDisabled(true);
