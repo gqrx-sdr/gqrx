@@ -395,6 +395,7 @@ void RemoteControl::rdsPI(QString program_id)
 void RemoteControl::setRDSstatus(bool enabled)
 {
     rds_status = enabled;
+    rc_program_id = "0000";
 }
 
 /*! \brief Convert mode string to enum (DockRxOpt::rxopt_mode_idx)
@@ -756,7 +757,6 @@ QString RemoteControl::cmd_set_func(QStringList cmdlist)
         }
         else if (status == 0) {
             emit newRDSmode(value);
-            rc_program_id = "0000";
             answer = QString("RPRT 0\n");
         }
         else
