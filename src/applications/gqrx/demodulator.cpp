@@ -95,10 +95,10 @@ void demodulator::set_output_device(const std::string device, const int audio_ra
     // qInfo() << "demodulator sets output device" << device.c_str() << "at rate" << d_audio_rate;
     QString portName = QString("Receiver %0").arg(idx + 1);
 
-#ifdef WITH_PULSEAUDIO
-    // pulse sink can be reconfigured without affecting the tb flowgraph
+#if defined(WITH_PULSEAUDIO) || defined(WITH_PORTAUDIO)
+    // pulseaudio and portaudio sinks can be reconfigured without affecting the tb flowgraph
     audio_snk->select_device(device, d_audio_rate, portName.toStdString());
-#else // not pulse
+#else
 
     if (audio_snk_connected)
     {
@@ -108,11 +108,7 @@ void demodulator::set_output_device(const std::string device, const int audio_ra
     }
     audio_snk.reset();
 
-#if WITH_PORTAUDIO
-    audio_snk = make_portaudio_sink(device, d_audio_rate, "GQRX", portName.toStdString());
-#else
     audio_snk = gr::audio::sink::make(d_audio_rate, device, true);
-#endif
 
     if (d_demod != RX_DEMOD_OFF && !audio_snk_connected)
     {
@@ -121,7 +117,7 @@ void demodulator::set_output_device(const std::string device, const int audio_ra
         audio_snk_connected = true;
     }
 
-#endif // not pulse
+#endif // pulseaudio or portaudio
 }
 
 void demodulator::set_input_rate(const int d_ddc_decim, const int d_decim_rate, const int d_quad_rate)

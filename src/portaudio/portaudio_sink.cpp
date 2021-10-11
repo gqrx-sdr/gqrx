@@ -60,14 +60,9 @@ portaudio_sink::portaudio_sink(const string device_name, int audio_rate,
 
     d_out_params.channelCount = 2;
     d_out_params.sampleFormat = paFloat32;
-    d_out_params.suggestedLatency =
-            Pa_GetDeviceInfo(d_out_params.device)->defaultHighOutputLatency;
     d_out_params.hostApiSpecificStreamInfo = NULL;
 
-    select_device(device_name);
-
-    if (Pa_IsFormatSupported(NULL, &d_out_params, d_audio_rate) != paFormatIsSupported)
-        fprintf(stderr, "portaudio_sink(): Audio output device does not support requested format.\n");
+    select_device(device_name, d_audio_rate, d_stream_name);
 }
 
 portaudio_sink::~portaudio_sink()
@@ -120,7 +115,7 @@ bool portaudio_sink::stop()
     return retval;
 }
 
-void portaudio_sink::select_device(string device_name)
+void portaudio_sink::select_device(string device_name, int audio_rate, string stream_name)
 {
     //    qInfo() << "portaudio_sink::select_device" << device_name.c_str();
 
@@ -143,7 +138,12 @@ void portaudio_sink::select_device(string device_name)
     }
 
     // Initialize stream parameters
+    d_stream_name = stream_name;
     d_out_params.device = idx;
+    d_out_params.suggestedLatency = Pa_GetDeviceInfo(d_out_params.device)->defaultHighOutputLatency;
+
+    if (Pa_IsFormatSupported(NULL, &d_out_params, d_audio_rate) != paFormatIsSupported)
+        fprintf(stderr, "portaudio_sink(): Audio output device does not support requested format.\n");
 
     open_stream();
 }
@@ -198,6 +198,13 @@ int portaudio_sink::work(int noutput_items,
                          gr_vector_const_void_star &input_items,
                          gr_vector_void_star &output_items)
 {
+    if (d_stream == nullptr)
+    {
+        fprintf(stderr,
+                "portaudio_sink::work(): no valid output stream\n");
+        return noutput_items;
+    }
+
     PaError     err;
     float      *ptr = &audio_buffer[0];
     int         i;
@@ -231,10 +238,13 @@ int portaudio_sink::work(int noutput_items,
     }
 
     err = Pa_WriteStream(d_stream, audio_buffer, noutput_items);
-    if (err)
+    if (err) {
         fprintf(stderr,
-                "portaudio_sink::work(): Error writing to audio device: %s\n",
-                Pa_GetErrorText(err));
+                "portaudio_sink::work(): Error writing to audio device: %s : %d / %d\n",
+                Pa_GetErrorText(err),
+                noutput_items,
+                BUFFER_SIZE);
+    }
 
     return noutput_items;
 }

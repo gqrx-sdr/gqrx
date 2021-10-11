@@ -62,7 +62,7 @@ public:
     bool start();
     bool stop();
 
-    void select_device(string device_name);
+    void select_device(string device_name, int audio_rate, string stream_name);
 
 private:
     void open_stream();
