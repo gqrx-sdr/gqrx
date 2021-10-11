@@ -132,6 +132,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 
     // create dock manager
     uiDockManager = new ads::CDockManager(this);
+
     // Use baseband view as central widget
     uiBaseband = new BasebandView(this);
     ads::CDockWidget* centralDockWidget = new ads::CDockWidget("BasebandView");

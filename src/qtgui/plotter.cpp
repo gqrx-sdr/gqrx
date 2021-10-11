@@ -52,7 +52,6 @@ Q_LOGGING_CATEGORY(plotter, "plotter")
 #define PLOTTER_GRID_COLOR          0xFF444242
 #define PLOTTER_TEXT_COLOR          0xFFDADADA
 #define PLOTTER_CENTER_LINE_COLOR   0xFF788296
-#define PLOTTER_FILTER_LINE_COLOR   0xFFFF7171
 #define PLOTTER_FILTER_BOX_COLOR    0xFFA0A0A4
 // FIXME: Should cache the QColors also
 
@@ -1524,7 +1523,8 @@ void CPlotter::drawOverlay()
     {
         auto f = painter.font();
         painter.setFont(QFont("monospace", 9));
-        for (int i = 0; i < m_demod.size(); ++i) {
+        auto numDemod = m_demod.size();
+        for (int i = 0; i < numDemod; ++i) {
             auto demod = m_demod[i];
             demod->setXPositions(
                 xFromFreq(demod->centerFreq),
@@ -1540,7 +1540,9 @@ void CPlotter::drawOverlay()
             painter.setOpacity(1.0);
             painter.setPen(QColor::fromHsv((15 * i) % 255, 240, 240));
             painter.drawLine(demod->freqX, 0, demod->freqX, h);
-            painter.drawText(demod->freqX + 3, 12, QString("%0").arg(i + 1));
+            if (numDemod > 1) {
+                painter.drawText(demod->freqX + 3, 24, QString("%0").arg(i + 1));
+            }
         }
         painter.setFont(f);
     }

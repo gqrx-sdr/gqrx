@@ -29,6 +29,8 @@
 #include <QMenu>
 
 #include <DockManager.h>
+#include <DockWidget.h>
+#include <DockWidgetTab.h>
 
 #include "qtgui/dockafsk1200.h"
 #include "qtgui/dockrxopt.h"

@@ -79,6 +79,9 @@ DemodulatorController::DemodulatorController(
     dockRDS->closeDockWidget();
     dockAFSK->closeDockWidget();
 
+    // Set titles and colours
+    onIndexChanged(demod->get_idx());
+
     uiDockRxOpt->setupShortcuts();
 
     d_fftData = new std::complex<float>[MAX_FFT_SIZE];
@@ -282,10 +285,29 @@ void DemodulatorController::onIndexChanged(size_t idx)
 {
     auto num = idx + 1;
     viewMenuSection->setText(QString("Receiver %0").arg(num));
+
+    // all the tab widgets have the same style, we can copy from the first and apply to all
+    auto nextStyle = dockDemod->tabWidget()->styleSheet() + "\n" +
+            QString("ads--CDockWidgetTab[focused=\"true\"]   { background-color: hsv(%0, 240, 240); }").arg(15 * idx) + "\n" +
+            QString("ads--CDockWidgetTab[focused=\"true\"] * { color: white; }") + "\n" +
+            QString("ads--CDockWidgetTab                     { background-color: hsv(%0, 240, 240); }").arg(15 * idx) + "\n" +
+            QString("ads--CDockWidgetTab                   * { color: #222; }");
+
+    dockDemod->setObjectName(QString("Demod %0").arg(num));
     dockDemod->setWindowTitle(QString("Demod %0").arg(num));
+    dockDemod->tabWidget()->setStyleSheet(nextStyle);
+
+    dockAudio->setObjectName(QString("Audio %0").arg(num));
     dockAudio->setWindowTitle(QString("Audio %0").arg(num));
+    dockAudio->tabWidget()->setStyleSheet(nextStyle);
+
+    dockRDS->setObjectName(QString("RDS %0").arg(num));
     dockRDS->setWindowTitle(QString("RDS %0").arg(num));
+    dockRDS->tabWidget()->setStyleSheet(nextStyle);
+
+    dockAFSK->setObjectName(QString("ASFK1200 %0").arg(num));
     dockAFSK->setWindowTitle(QString("ASFK1200 %0").arg(num));
+    dockAFSK->tabWidget()->setStyleSheet(nextStyle);
 
     emitCurrentSettings();
 }
