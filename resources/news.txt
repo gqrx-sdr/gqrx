@@ -1,6 +1,7 @@
 
-    2.14.7: In progress...
+      2.15: In progress...
 
+       NEW: Start/stop RDS and fetch Program Identification via remote control.
        NEW: Added IQ balancing to MacOS release.
   IMPROVED: Reordered the receiver mode drop-down list.
   IMPROVED: Receiver mode is now stored as a string in settings files.

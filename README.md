@@ -229,6 +229,7 @@ The following people and organisations have contributed to gqrx:
 * Phil Vachon
 * Rob Frohne
 * Ron Economos, W6RZ
+* Russell Dwarshuis, KB8U
 * Shuyuan Liu
 * Stefano Leucci
 * Sylvain Munaut
