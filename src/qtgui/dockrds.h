@@ -22,12 +22,14 @@ public slots:
     void showDisabled();
     void setEnabled();
     void setDisabled();
+    void setRDSmode(bool cmd);
 
 private:
     void ClearTextFields();
 
 signals:
     void rdsDecoderToggled(bool);
+    void rdsPI(QString text);
 
 private slots:
     void on_rdsCheckbox_toggled(bool checked);

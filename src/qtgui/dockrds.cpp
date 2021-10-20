@@ -54,6 +54,7 @@ void DockRDS::updateRDS(QString text, int type)
     switch (type)
     {
     case 0:
+        emit rdsPI(text);
         ui->program_information->setText(text);
         break;
     case 1:
@@ -135,4 +136,20 @@ void DockRDS::setEnabled()
 void DockRDS::on_rdsCheckbox_toggled(bool checked)
 {
     emit rdsDecoderToggled(checked);
+}
+
+/* used by remote control */
+void DockRDS::setRDSmode(bool cmd)
+{
+    if (!ui->rdsCheckbox->isEnabled())
+        return;
+    if (cmd == ui->rdsCheckbox->isChecked())
+        return;
+
+    ui->rdsCheckbox->setDisabled(true);
+    ui->rdsCheckbox->blockSignals(true);
+    emit rdsDecoderToggled(cmd);
+    ui->rdsCheckbox->setChecked(cmd);
+    ui->rdsCheckbox->blockSignals(false);
+    ui->rdsCheckbox->setEnabled(true);
 }
