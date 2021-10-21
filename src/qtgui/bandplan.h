@@ -93,10 +93,14 @@ public:
     // Return the possible values to use for bandplan filtering
     const BandInfoFilter getFilterValues() const { return m_filterValues; }
 
+public slots:
+    void on_BandPlanParseError();
+
 private:
     BandPlan(); // Singleton Constructor is private.
 
     QList<BandInfo>  m_BandInfoList;
+    QString          m_cfgPath;
     QString          m_bandPlanFile;
     static BandPlan* m_pThis;
 
@@ -104,6 +108,7 @@ private:
 
 signals:
     void BandPlanChanged(void);
+    void BandPlanParseError();
 };
 
 #endif // BANDPLAN_H

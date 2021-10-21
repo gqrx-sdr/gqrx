@@ -28,6 +28,8 @@
 #include <QTextStream>
 #include <QString>
 #include <QSet>
+#include <QMessageBox>
+
 #include <algorithm>
 
 #include "bandplan.h"
@@ -36,7 +38,7 @@ BandPlan* BandPlan::m_pThis = 0;
 
 BandPlan::BandPlan()
 {
-
+    connect(this, SIGNAL(BandPlanParseError()), this, SLOT(on_BandPlanParseError()));
 }
 
 void BandPlan::create()
@@ -51,14 +53,77 @@ BandPlan& BandPlan::Get()
 
 void BandPlan::setConfigDir(const QString& cfg_dir)
 {
+    m_cfgPath = cfg_dir;
+
     m_bandPlanFile = cfg_dir + "/bandplan.csv";
     qInfo() << "BandPlan: File is " << m_bandPlanFile;
 
+    if (QFile::exists(m_bandPlanFile))
+    {
+        QResource v1_resource(":/textfiles/bandplan-v1.csv");
+        auto v1_tmp = cfg_dir + "/v1_tmp.csv";
+        QFile::copy(v1_resource.absoluteFilePath(), v1_tmp);
+
+        QFile v1_ref_file(v1_tmp);
+        if (!v1_ref_file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            qInfo() << "Cannot open v1 ref file";
+            return;
+        }
+        auto v1_ref = v1_ref_file.readAll();
+        v1_ref_file.close();
+
+        QFile v1_usr_file(m_bandPlanFile);
+        if (!v1_usr_file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            qInfo() << "Cannot open user bandplan file";
+            return;
+        }
+        auto v1_usr = v1_usr_file.readAll();
+        v1_usr_file.close();
+
+        if (v1_ref == v1_usr) {
+            qInfo() << "BandPlan: Found original v1 file, will remove for upgrade";
+            QFile::remove(m_bandPlanFile);
+        }
+
+        QFile::remove(v1_tmp);
+    }
+
     if (!QFile::exists(m_bandPlanFile))
     {
-        QResource resource(":/textfiles/bandplan.csv");
-        QFile::copy(resource.absoluteFilePath(), m_bandPlanFile);
+        QResource v2_resource(":/textfiles/bandplan-v2.csv");
+        QFile::copy(v2_resource.absoluteFilePath(), m_bandPlanFile);
         QFile::setPermissions(m_bandPlanFile, QFile::permissions(m_bandPlanFile) | QFile::WriteOwner);
+    }
+}
+
+void BandPlan::on_BandPlanParseError()
+{
+    QMessageBox msgBox;
+    msgBox.setText(
+                "The bandplan file on disk could not be completely read."
+                );
+    msgBox.setInformativeText(
+                "Choose Restore Defaults to back up and replace your file with a new version.\n\n"
+                "Press Cancel to leave your file intact.\n"
+                "The bandplan will not show any items until you back up and remove your file from this location: \n\n" + m_bandPlanFile
+                );
+    msgBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::RestoreDefaults);
+    msgBox.setDefaultButton(QMessageBox::Cancel);
+    int ret = msgBox.exec();
+    switch (ret) {
+        case QMessageBox::Cancel:
+            // Do nothing
+            break;
+        case QMessageBox::RestoreDefaults:
+            QFile::rename(m_bandPlanFile, m_bandPlanFile + ".backup");
+            setConfigDir(m_cfgPath);
+            load();
+            break;
+        default:
+            // should never be reached
+            break;
     }
 }
 
@@ -69,6 +134,9 @@ bool BandPlan::load()
 
     m_BandInfoList.clear();
 
+    int goodlines = 0;
+    int badlines = 0;
+
     while (!file.atEnd())
     {
         QString line = QString::fromUtf8(file.readLine().trimmed());
@@ -76,22 +144,63 @@ bool BandPlan::load()
         QStringList strings = line.split(",");
         if (line.isEmpty() || line.startsWith("#") || line.startsWith(",,") || strings.count() < 9) {
             // qInfo() << "BandPlan: Ignoring Line:" << line;
+            badlines++;
             continue;
         }
 
         BandInfo info;
-        info.minFrequency = strings[0].toLongLong();
-        info.maxFrequency = strings[1].toLongLong();
-        info.modulation   = strings[2].trimmed();
-        info.step         = strings[3].toInt();
-        info.color        = QColor(strings[4].trimmed()).toHsl();
+        bool conv_ok = false;
+        info.minFrequency = strings[0].toLongLong(&conv_ok);
+        if (!conv_ok) {
+            badlines++;
+            continue;
+        }
+        info.maxFrequency = strings[1].toLongLong(&conv_ok);
+        if (!conv_ok) {
+            badlines++;
+            continue;
+        }
+        info.modulation = strings[2].trimmed();
+        if (info.modulation.length() == 0) {
+            badlines++;
+            continue;
+        }
+        info.step = strings[3].toInt(&conv_ok);
+        if (!conv_ok) {
+            badlines++;
+            continue;
+        }
+        auto col = strings[4].trimmed();
+        if (col.length() == 0) {
+            badlines++;
+            continue;
+        }
+        info.color = QColor(col).toHsl();
         if (info.color.alpha() == 255) {
             info.color.setAlpha(0x90);
         }
-        info.name         = strings[5].trimmed();
-        info.region       = strings[6].trimmed();
-        info.country      = strings[7].trimmed();
-        info.use          = strings[8].trimmed();
+        info.name = strings[5].trimmed();
+        if (info.name.length() == 0) {
+            badlines++;
+            continue;
+        }
+        info.region = strings[6].trimmed();
+        if (info.region.length() == 0) {
+            badlines++;
+            continue;
+        }
+        info.country = strings[7].trimmed();
+        if (info.country.length() == 0) {
+            badlines++;
+            continue;
+        }
+        info.use = strings[8].trimmed();
+        if (info.use.length() == 0) {
+            badlines++;
+            continue;
+        }
+
+        goodlines++;
 
         m_BandInfoList.append(info);
 
@@ -102,7 +211,16 @@ bool BandPlan::load()
     }
     file.close();
 
-    emit BandPlanChanged();
+    if (badlines > goodlines || goodlines == 0)
+    {
+        qInfo() << "BandPlan: parse error; bad lines=" << badlines << " good lines=" << goodlines;
+        emit BandPlanParseError();
+    }
+    else
+    {
+        emit BandPlanChanged();
+    }
+
     return true;
 }
 

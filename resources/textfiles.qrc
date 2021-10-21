@@ -3,6 +3,7 @@
         <file>news.txt</file>
         <file>remote-control.txt</file>
         <file>kbd-shortcuts.txt</file>
-        <file>bandplan.csv</file>
+        <file>bandplan-v2.csv</file>
+        <file>bandplan-v1.csv</file>
     </qresource>
 </RCC>
