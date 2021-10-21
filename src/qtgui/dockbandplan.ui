@@ -92,12 +92,12 @@
          <number>0</number>
         </property>
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,1">
+         <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,1">
           <property name="spacing">
            <number>6</number>
           </property>
           <item>
-           <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0,0,0">
+           <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0,0">
             <property name="sizeConstraint">
              <enum>QLayout::SetMinimumSize</enum>
             </property>
@@ -116,13 +116,6 @@
             <property name="spacing">
              <number>5</number>
             </property>
-            <item row="1" column="0" colspan="2">
-             <widget class="QLabel" name="label_4">
-              <property name="text">
-               <string>Region:</string>
-              </property>
-             </widget>
-            </item>
             <item row="2" column="2" colspan="2">
              <widget class="QListWidget" name="bandPlanCountriesList">
               <property name="alternatingRowColors">
@@ -135,6 +128,34 @@
                <bool>true</bool>
               </property>
              </widget>
+            </item>
+            <item row="0" column="0" colspan="4">
+             <widget class="QCheckBox" name="bandPlanCheckboxEnable">
+              <property name="toolTip">
+               <string>Enable Band Plan on bottom of spectrum</string>
+              </property>
+              <property name="text">
+               <string>Enable Band Plan</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="2" colspan="2">
+             <layout class="QHBoxLayout" name="horizontalLayout_6">
+              <item>
+               <widget class="QPushButton" name="pbUseNone">
+                <property name="text">
+                 <string>None</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pbUseAll">
+                <property name="text">
+                 <string>All</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item row="3" column="2" colspan="2">
              <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -154,8 +175,53 @@
               </item>
              </layout>
             </item>
-            <item row="5" column="2" colspan="2">
-             <widget class="QListWidget" name="bandPlanUsesList">
+            <item row="4" column="2" colspan="2">
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>Use:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0" colspan="2">
+             <widget class="QListWidget" name="bandPlanModulationsList">
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="selectionMode">
+               <enum>QAbstractItemView::MultiSelection</enum>
+              </property>
+              <property name="sortingEnabled">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0" colspan="2">
+             <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <item>
+               <widget class="QPushButton" name="pbRegionNone">
+                <property name="text">
+                 <string>None</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pbRegionAll">
+                <property name="text">
+                 <string>All</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="2" colspan="2">
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>Country:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="2">
+             <widget class="QListWidget" name="bandPlanRegionsList">
               <property name="alternatingRowColors">
                <bool>true</bool>
               </property>
@@ -185,61 +251,8 @@
               </item>
              </layout>
             </item>
-            <item row="0" column="0" colspan="4">
-             <widget class="QCheckBox" name="bandPlanCheckboxEnable">
-              <property name="toolTip">
-               <string>Enable Band Plan on bottom of spectrum</string>
-              </property>
-              <property name="text">
-               <string>Enable Band Plan</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="2" colspan="2">
-             <widget class="QLabel" name="label_7">
-              <property name="text">
-               <string>Use:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="2" colspan="2">
-             <layout class="QHBoxLayout" name="horizontalLayout_6">
-              <item>
-               <widget class="QPushButton" name="pbUseNone">
-                <property name="text">
-                 <string>None</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pbUseAll">
-                <property name="text">
-                 <string>All</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="3" column="0" colspan="2">
-             <layout class="QHBoxLayout" name="horizontalLayout_3">
-              <item>
-               <widget class="QPushButton" name="pbRegionNone">
-                <property name="text">
-                 <string>None</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pbRegionAll">
-                <property name="text">
-                 <string>All</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="5" column="0" colspan="2">
-             <widget class="QListWidget" name="bandPlanModulationsList">
+            <item row="5" column="2" colspan="2">
+             <widget class="QListWidget" name="bandPlanUsesList">
               <property name="alternatingRowColors">
                <bool>true</bool>
               </property>
@@ -251,10 +264,10 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="2" colspan="2">
-             <widget class="QLabel" name="label_6">
+            <item row="1" column="0" colspan="2">
+             <widget class="QLabel" name="label_4">
               <property name="text">
-               <string>Country:</string>
+               <string>Region:</string>
               </property>
              </widget>
             </item>
@@ -265,20 +278,14 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="0" colspan="2">
-             <widget class="QListWidget" name="bandPlanRegionsList">
-              <property name="alternatingRowColors">
-               <bool>true</bool>
-              </property>
-              <property name="selectionMode">
-               <enum>QAbstractItemView::MultiSelection</enum>
-              </property>
-              <property name="sortingEnabled">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
            </layout>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="bandPlanShowList">
+            <property name="text">
+             <string>Show List</string>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QTableWidget" name="visibleItemList">
@@ -364,8 +371,8 @@
      <y>49</y>
     </hint>
     <hint type="destinationlabel">
-     <x>428</x>
-     <y>209</y>
+     <x>462</x>
+     <y>168</y>
     </hint>
    </hints>
   </connection>
@@ -380,8 +387,8 @@
      <y>49</y>
     </hint>
     <hint type="destinationlabel">
-     <x>428</x>
-     <y>399</y>
+     <x>462</x>
+     <y>317</y>
     </hint>
    </hints>
   </connection>
@@ -392,12 +399,12 @@
    <slot>selectAll()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>215</x>
-     <y>428</y>
+     <x>232</x>
+     <y>346</y>
     </hint>
     <hint type="destinationlabel">
-     <x>111</x>
-     <y>399</y>
+     <x>112</x>
+     <y>317</y>
     </hint>
    </hints>
   </connection>
@@ -408,12 +415,12 @@
    <slot>clearSelection()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>322</x>
-     <y>238</y>
+     <x>347</x>
+     <y>197</y>
     </hint>
     <hint type="destinationlabel">
-     <x>428</x>
-     <y>209</y>
+     <x>462</x>
+     <y>168</y>
     </hint>
    </hints>
   </connection>
@@ -424,12 +431,12 @@
    <slot>selectAll()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>215</x>
-     <y>238</y>
+     <x>232</x>
+     <y>197</y>
     </hint>
     <hint type="destinationlabel">
-     <x>101</x>
-     <y>209</y>
+     <x>102</x>
+     <y>168</y>
     </hint>
    </hints>
   </connection>
@@ -440,12 +447,12 @@
    <slot>clearSelection()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>59</x>
-     <y>238</y>
+     <x>61</x>
+     <y>197</y>
     </hint>
     <hint type="destinationlabel">
-     <x>101</x>
-     <y>209</y>
+     <x>102</x>
+     <y>168</y>
     </hint>
    </hints>
   </connection>
@@ -456,12 +463,12 @@
    <slot>selectAll()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>427</x>
-     <y>428</y>
+     <x>461</x>
+     <y>346</y>
     </hint>
     <hint type="destinationlabel">
-     <x>428</x>
-     <y>399</y>
+     <x>462</x>
+     <y>317</y>
     </hint>
    </hints>
   </connection>
@@ -476,8 +483,8 @@
      <y>49</y>
     </hint>
     <hint type="destinationlabel">
-     <x>215</x>
-     <y>238</y>
+     <x>232</x>
+     <y>197</y>
     </hint>
    </hints>
   </connection>
@@ -492,8 +499,8 @@
      <y>49</y>
     </hint>
     <hint type="destinationlabel">
-     <x>322</x>
-     <y>428</y>
+     <x>347</x>
+     <y>346</y>
     </hint>
    </hints>
   </connection>
@@ -504,12 +511,12 @@
    <slot>clearSelection()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>61</x>
-     <y>428</y>
+     <x>63</x>
+     <y>346</y>
     </hint>
     <hint type="destinationlabel">
-     <x>111</x>
-     <y>399</y>
+     <x>112</x>
+     <y>317</y>
     </hint>
    </hints>
   </connection>
@@ -524,8 +531,8 @@
      <y>49</y>
     </hint>
     <hint type="destinationlabel">
-     <x>68</x>
-     <y>209</y>
+     <x>69</x>
+     <y>168</y>
     </hint>
    </hints>
   </connection>
@@ -540,8 +547,8 @@
      <y>49</y>
     </hint>
     <hint type="destinationlabel">
-     <x>46</x>
-     <y>399</y>
+     <x>47</x>
+     <y>317</y>
     </hint>
    </hints>
   </connection>
@@ -552,12 +559,12 @@
    <slot>clearSelection()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>322</x>
-     <y>428</y>
+     <x>347</x>
+     <y>346</y>
     </hint>
     <hint type="destinationlabel">
-     <x>428</x>
-     <y>399</y>
+     <x>462</x>
+     <y>317</y>
     </hint>
    </hints>
   </connection>
@@ -568,12 +575,12 @@
    <slot>selectAll()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>427</x>
-     <y>238</y>
+     <x>461</x>
+     <y>197</y>
     </hint>
     <hint type="destinationlabel">
-     <x>428</x>
-     <y>209</y>
+     <x>462</x>
+     <y>168</y>
     </hint>
    </hints>
   </connection>
@@ -588,8 +595,8 @@
      <y>49</y>
     </hint>
     <hint type="destinationlabel">
-     <x>322</x>
-     <y>238</y>
+     <x>347</x>
+     <y>197</y>
     </hint>
    </hints>
   </connection>
@@ -604,8 +611,8 @@
      <y>49</y>
     </hint>
     <hint type="destinationlabel">
-     <x>427</x>
-     <y>238</y>
+     <x>461</x>
+     <y>197</y>
     </hint>
    </hints>
   </connection>
@@ -620,8 +627,8 @@
      <y>49</y>
     </hint>
     <hint type="destinationlabel">
-     <x>215</x>
-     <y>428</y>
+     <x>232</x>
+     <y>346</y>
     </hint>
    </hints>
   </connection>
@@ -636,8 +643,8 @@
      <y>49</y>
     </hint>
     <hint type="destinationlabel">
-     <x>427</x>
-     <y>428</y>
+     <x>461</x>
+     <y>346</y>
     </hint>
    </hints>
   </connection>
@@ -652,8 +659,8 @@
      <y>49</y>
     </hint>
     <hint type="destinationlabel">
-     <x>86</x>
-     <y>428</y>
+     <x>88</x>
+     <y>346</y>
     </hint>
    </hints>
   </connection>
@@ -668,8 +675,8 @@
      <y>49</y>
     </hint>
     <hint type="destinationlabel">
-     <x>28</x>
-     <y>238</y>
+     <x>30</x>
+     <y>197</y>
     </hint>
    </hints>
   </connection>
@@ -686,6 +693,22 @@
     <hint type="destinationlabel">
      <x>171</x>
      <y>457</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>bandPlanShowList</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>visibleItemList</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>28</x>
+     <y>368</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>49</x>
+     <y>410</y>
     </hint>
    </hints>
   </connection>

@@ -34,6 +34,8 @@ DockBandplan::DockBandplan(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->visibleItemList->setVisible(false);
+
     connect(
         this, SIGNAL(bandPlanChanged(bool,const BandInfoFilter&)),
         this, SLOT(on_bandPlanChanged(bool,const BandInfoFilter&))
@@ -55,6 +57,7 @@ void DockBandplan::saveSettings(QSettings *settings)
     settings->beginGroup("bandplan");
 
     settings->setValue("enabled", ui->bandPlanCheckboxEnable->isChecked());
+    settings->setValue("list_visible", ui->bandPlanShowList->isChecked());
 
     QStringList bpRegions = m_bandplanFilter.regions.values();
     settings->setValue("regions", bpRegions.join("|"));
@@ -92,6 +95,9 @@ void DockBandplan::readSettings(QSettings *settings)
 
     const bool enabled = settings->value("enabled", false).toBool();
     ui->bandPlanCheckboxEnable->setChecked(enabled);
+
+    const bool list_visible = settings->value("list_visible", false).toBool();
+    ui->bandPlanShowList->setChecked(list_visible);
 
     const BandInfoFilter defaultValues = BandPlan::Get().getFilterValues();
     m_bandplanFilter.regions = loadFilterSelections(settings->value("regions").toString(), defaultValues.regions);
