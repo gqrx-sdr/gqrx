@@ -77,6 +77,8 @@ signals:
     void filterFrequency(size_t idx, int low, int high);
     void filterRanges(size_t idx, int lowMin, int lowMax, int highMin, int highMax, bool symmetric, int resolution);
 
+    void wfColormapChanged(const QString &cmap);
+
 public slots:
     void emitCurrentSettings();
 

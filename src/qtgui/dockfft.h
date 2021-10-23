@@ -52,6 +52,8 @@ public:
     void saveSettings(std::shared_ptr<QSettings> settings);
     void readSettings(std::shared_ptr<QSettings> settings);
 
+    void emitCurrentSettings();
+
 signals:
     void fftSizeChanged(int size);                 /*! FFT size changed. */
     void fftRateChanged(int fps);                  /*! FFT rate changed. */

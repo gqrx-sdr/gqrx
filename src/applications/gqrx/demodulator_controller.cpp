@@ -134,7 +134,7 @@ DemodulatorController::DemodulatorController(
     connect(uiDockAudio, SIGNAL(audioPlayStopped()), this, SLOT(stopAudioPlayback()));
     connect(uiDockAudio, SIGNAL(fftRateChanged(int)), this, SLOT(setAudioFftRate(int)));
     // Audio display
-    // connect(uiDockFft, SIGNAL(wfColormapChanged(QString)), uiDockAudio, SLOT(setWfColormap(QString)));
+     connect(this, SIGNAL(wfColormapChanged(QString)), uiDockAudio, SLOT(setWfColormap(QString)));
 
     audio_fft_timer = new QTimer(this);
     connect(audio_fft_timer, SIGNAL(timeout()), this, SLOT(audioFftTimeout()));
@@ -216,12 +216,12 @@ void DemodulatorController::readSettings(std::shared_ptr<QSettings> settings)
     settings->beginGroup(QString("%0").arg(demod->get_idx()));
 
     bool conv_ok = false;
-    rx_filter_shape fshape = (rx_filter_shape)settings->value("receiver/filter_shape", 0).toInt(&conv_ok);
+    rx_filter_shape fshape = (rx_filter_shape)settings->value("filter_shape", 0).toInt(&conv_ok);
     if (conv_ok) {
         d_filter_shape = fshape;
     }
-    int flo = settings->value("receiver/filter_low_cut", 0).toInt(&conv_ok);
-    int fhi = settings->value("receiver/filter_high_cut", 0).toInt(&conv_ok);
+    int flo = settings->value("filter_low_cut", 0).toInt(&conv_ok);
+    int fhi = settings->value("filter_high_cut", 0).toInt(&conv_ok);
 
     settings->endGroup(); // idx
     settings->endGroup(); // receiver

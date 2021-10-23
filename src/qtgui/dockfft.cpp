@@ -350,6 +350,13 @@ void DockFft::readSettings(std::shared_ptr<QSettings> settings)
     settings->endGroup();
 }
 
+void DockFft::emitCurrentSettings()
+{
+    // Add any signals here which are required to initialise/sync
+    // the state of other UI components (e.g. demodulator_controllers).
+    emit wfColormapChanged(ui->cmapComboBox->currentData().toString());
+}
+
 void DockFft::setPandapterRange(float min, float max)
 {
     ui->pandRangeSlider->blockSignals(true);

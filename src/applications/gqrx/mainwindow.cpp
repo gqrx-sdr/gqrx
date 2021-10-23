@@ -579,6 +579,8 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         qDebug() << "Actual bandwidth   :" << actual_bw << "Hz";
     }
 
+    uiDockFft->readSettings(m_settings);
+
     // Construct and configure the demodulators
     int demodSize = demodCtrls.size();
     int demodCount = m_settings->value("receiver/count").toUInt();
@@ -600,7 +602,6 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
     }
 
     uiDockInputCtl->readSettings(m_settings); // this will also update freq range
-    uiDockFft->readSettings(m_settings);
     dxc_options->readSettings(m_settings);
 
     {
@@ -1017,6 +1018,7 @@ void MainWindow::addDemodulator()
     // Update parameters from stored settings
     ctl->readSettings(m_settings);
 
+    // Demod -> UI
     connect(ctl.get(), SIGNAL(remove(size_t)), this, SLOT(removeDemodulator(size_t)));
     connect(ctl.get(), SIGNAL(bookmark(size_t)), this, SLOT(onDemodulatorBookmark(size_t)));
     connect(
@@ -1032,7 +1034,14 @@ void MainWindow::addDemodulator()
         uiBaseband->plotter(), SLOT(setDemodulatorRanges(size_t,int,int,int,int,bool,int))
     );
 
+    // UI -> Demod
+    connect(
+        uiDockFft, SIGNAL(wfColormapChanged(QString)),
+        ctl.get(), SIGNAL(wfColormapChanged(QString))
+    );
+
     ctl->emitCurrentSettings();
+    uiDockFft->emitCurrentSettings();
 }
 
 void MainWindow::removeDemodulator(size_t idx)
