@@ -118,6 +118,7 @@ private:
 
     /* Network remote control */
     RemoteControl       *remote;
+    QList<QMetaObject::Connection> remoteConnections;
 
     std::map<QString, QVariant> devList;
 
@@ -151,6 +152,8 @@ private slots:
     /* Receivers controls */
     void addDemodulator();
     void removeDemodulator(size_t idx);
+    void disconnectRemote();
+    void connectRemote(size_t demodIdx);
 
     void setFreqCtrlReset(bool enabled);
     void setInvertScrolling(bool enabled);

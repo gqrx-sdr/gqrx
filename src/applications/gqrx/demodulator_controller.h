@@ -50,6 +50,53 @@ struct FilterRanges
     int resolution;
 };
 
+class DemodulatorControllerRemoteDelegate : public QObject
+{
+    Q_OBJECT;
+
+public:
+    explicit DemodulatorControllerRemoteDelegate();
+    ~DemodulatorControllerRemoteDelegate();
+
+    void setMode(int demod) {
+        emit mode(demod);
+    }
+    void setPassband(int lo, int high) {
+        emit passband(lo, high);
+    }
+    void setSignalLevel(float level) {
+        emit signalLevel(level);
+    }
+
+signals:
+    // Demod -> remote
+    void squelchLevel(double);
+    void filterOffset(qint64);
+    void mode(int);
+    void passband(int, int);
+
+    // remote -> Demod
+    void newFilterOffset(qint64);
+    void newMode(int);
+    void newSquelchLevel(double);
+
+    // Audio -> remote
+    void stopAudioRecorder();
+    void startAudioRecorder(QString);
+    void signalLevel(float);
+
+    // remote -> Audio
+    void startAudioRecorderEvent();
+    void stopAudioRecorderEvent();
+
+    // RDS -> remote
+    void setRDSstatus(bool);
+    void rdsPI(QString);
+
+    // remote -> RDS
+    void newRDSmode(bool);
+};
+
 class DemodulatorController : public QObject
 {
     Q_OBJECT;
@@ -68,6 +115,10 @@ public:
 
     void readSettings(std::shared_ptr<QSettings> settings);
     void saveSettings(std::shared_ptr<QSettings> settings);
+
+    DemodulatorControllerRemoteDelegate* getRemote() const {
+        return remote;
+    }
 
 signals:
     void remove(size_t idx);
@@ -208,6 +259,9 @@ private:
     DockAFSK1200            *uiDockAFSK;
     ads::CDockWidget        *dockAFSK;
     QTimer                  *afsk_timer;
+
+    // Remote control
+    DemodulatorControllerRemoteDelegate *remote;
 };
 
 #endif // DEMODULATOR_CONTROLLER_H

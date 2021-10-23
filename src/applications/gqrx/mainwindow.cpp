@@ -275,14 +275,9 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(iq_tool, SIGNAL(seek(qint64)), this,SLOT(seekIqFile(qint64)));
 
     // remote control
-//    connect(remote, SIGNAL(newFilterOffset(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(remote, SIGNAL(newFrequency(qint64)), uiBaseband->freqCtrl(), SLOT(setFrequency(qint64)));
     connect(remote, SIGNAL(newLnbLo(double)), uiDockInputCtl, SLOT(setLnbLo(double)));
     connect(remote, SIGNAL(newLnbLo(double)), this, SLOT(setLnbLo(double)));
-//    connect(remote, SIGNAL(newMode(int)), this, SLOT(selectDemod(int)));
-//    connect(remote, SIGNAL(newSquelchLevel(double)), this, SLOT(setSqlLevel(double)));
-//    connect(uiBaseband->plotter(), SIGNAL(newFilterFreq(int,int)), remote, SLOT(setPassband(int,int)));
-//    connect(remote, SIGNAL(newPassband(int)), this, SLOT(setPassband(int)));
     connect(remote, SIGNAL(gainChanged(QString,double)), uiDockInputCtl, SLOT(setGain(QString,double)));
     connect(remote, SIGNAL(dspChanged(bool)), this, SLOT(on_actionDSP_triggered(bool)));
 
@@ -1042,6 +1037,12 @@ void MainWindow::addDemodulator()
 
     ctl->emitCurrentSettings();
     uiDockFft->emitCurrentSettings();
+
+    // Connect remote control to first demod only
+    if (demod->get_idx() == 0)
+    {
+        connectRemote(0);
+    }
 }
 
 void MainWindow::removeDemodulator(size_t idx)
@@ -1056,7 +1057,67 @@ void MainWindow::removeDemodulator(size_t idx)
     demodCtrls.erase(di);
     // qInfo() << "MainWindow::removeDemodulator demodCtrls size after=" << demodCtrls.size();
 
+    if (demodCtrls.size() == 0)
+    {
+        disconnectRemote();
+    }
+    else
+    {
+        connectRemote(0);
+    }
+
     uiBaseband->plotter()->setDemodulatorCount(demodCtrls.size());
+}
+
+void MainWindow::disconnectRemote()
+{
+    for (auto &c : remoteConnections)
+    {
+        disconnect(c);
+    }
+    remoteConnections.clear();
+}
+
+void MainWindow::connectRemote(size_t demodIdx)
+{
+    if (demodIdx >= demodCtrls.size())
+    {
+        return;
+    }
+
+    disconnectRemote();
+
+    auto demod = demodCtrls[demodIdx];
+    auto delegate = demod->getRemote();
+
+    // @see class DemodulatorControllerRemoteDelegate
+
+    // Demod -> remote
+    remoteConnections.push_back(connect(delegate, SIGNAL(squelchLevel(double)), remote, SLOT(setSquelchLevel(double))));
+    remoteConnections.push_back(connect(delegate, SIGNAL(filterOffset(qint64)), remote, SLOT(setFilterOffset(qint64))));
+    remoteConnections.push_back(connect(delegate, SIGNAL(mode(int)), remote, SLOT(setMode(int))));
+    remoteConnections.push_back(connect(delegate, SIGNAL(passband(int,int)), remote, SLOT(setPassband(int,int))));
+
+    // remote -> Demod
+    remoteConnections.push_back(connect(remote, SIGNAL(newFilterOffset(qint64)), delegate, SIGNAL(newFilterOffset(qint64))));
+    remoteConnections.push_back(connect(remote, SIGNAL(newMode(int)), delegate, SIGNAL(newMode(int))));
+    remoteConnections.push_back(connect(remote, SIGNAL(newSquelchLevel(double)), delegate, SIGNAL(newSquelchLevel(double))));
+
+    // Audio -> remote
+    remoteConnections.push_back(connect(delegate, SIGNAL(stopAudioRecorder()), remote, SLOT(stopAudioRecorder())));
+    remoteConnections.push_back(connect(delegate, SIGNAL(startAudioRecorder(QString)), remote, SLOT(startAudioRecorder(QString))));
+    remoteConnections.push_back(connect(delegate, SIGNAL(signalLevel(float)), remote, SLOT(setSignalLevel(float))));
+
+    // remote -> Audio
+    remoteConnections.push_back(connect(remote, SIGNAL(startAudioRecorderEvent()), delegate, SIGNAL(startAudioRecorderEvent())));
+    remoteConnections.push_back(connect(remote, SIGNAL(stopAudioRecorderEvent()), delegate, SIGNAL(stopAudioRecorderEvent())));
+
+    // RDS -> remote
+    remoteConnections.push_back(connect(delegate, SIGNAL(setRDSstatus(bool)), remote, SLOT(setRDSstatus(bool))));
+    remoteConnections.push_back(connect(delegate, SIGNAL(rdsPI(QString)), remote, SLOT(rdsPI(QString))));
+
+    // remote -> RDS
+    remoteConnections.push_back(connect(remote, SIGNAL(newRDSmode(bool)), delegate, SIGNAL(newRDSmode(bool))));
 }
 
 /** Reset lower digits of main frequency control widget */

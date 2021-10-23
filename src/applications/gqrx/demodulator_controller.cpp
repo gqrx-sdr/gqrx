@@ -42,7 +42,8 @@ DemodulatorController::DemodulatorController(
     dockMgr(dockMgr),
     viewMenu(viewMenu),
     d_have_audio(true),
-    d_offset_follows_hw(false)
+    d_offset_follows_hw(false),
+    remote(new DemodulatorControllerRemoteDelegate())
 {
     d_filter_shape = rx_filter_shape::FILTER_SHAPE_NORMAL;
 
@@ -117,12 +118,12 @@ DemodulatorController::DemodulatorController(
     connect(meter_timer, SIGNAL(timeout()), this, SLOT(meterTimeout()));
 
     // Rx remote control
-    // connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), remote, SLOT(setSquelchLevel(double)));
-    // connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), remote, SLOT(setFilterOffset(qint64)));
-    // connect(uiDockRxOpt, SIGNAL(demodSelected(int)), remote, SLOT(setMode(int)));
-    // connect(remote, SIGNAL(newFilterOffset(qint64)), uiDockRxOpt, SLOT(setFilterOffset(qint64)));
-    // connect(remote, SIGNAL(newMode(int)), uiDockRxOpt, SLOT(setCurrentDemod(int)));
-    // connect(remote, SIGNAL(newSquelchLevel(double)), uiDockRxOpt, SLOT(setSquelchLevel(double)));
+    connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), remote, SIGNAL(squelchLevel(double)));
+    connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), remote, SIGNAL(filterOffset(qint64)));
+    connect(uiDockRxOpt, SIGNAL(demodSelected(int)), remote, SIGNAL(mode(int)));
+    connect(remote, SIGNAL(newFilterOffset(qint64)), uiDockRxOpt, SLOT(setFilterOffset(qint64)));
+    connect(remote, SIGNAL(newMode(int)), uiDockRxOpt, SLOT(setCurrentDemod(int)));
+    connect(remote, SIGNAL(newSquelchLevel(double)), uiDockRxOpt, SLOT(setSquelchLevel(double)));
 
     // Audio options
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
@@ -134,7 +135,7 @@ DemodulatorController::DemodulatorController(
     connect(uiDockAudio, SIGNAL(audioPlayStopped()), this, SLOT(stopAudioPlayback()));
     connect(uiDockAudio, SIGNAL(fftRateChanged(int)), this, SLOT(setAudioFftRate(int)));
     // Audio display
-     connect(this, SIGNAL(wfColormapChanged(QString)), uiDockAudio, SLOT(setWfColormap(QString)));
+    connect(this, SIGNAL(wfColormapChanged(QString)), uiDockAudio, SLOT(setWfColormap(QString)));
 
     audio_fft_timer = new QTimer(this);
     connect(audio_fft_timer, SIGNAL(timeout()), this, SLOT(audioFftTimeout()));
@@ -150,15 +151,15 @@ DemodulatorController::DemodulatorController(
     connect(stopUDPStreamAction, SIGNAL(triggered()), this, SLOT(stopAudioStreaming()));
 
     // Audio remote control
-    // connect(uiDockAudio, SIGNAL(audioRecStopped()), remote, SLOT(stopAudioRecorder()));
-    // connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), remote, SLOT(startAudioRecorder(QString)));
-    // connect(remote, SIGNAL(startAudioRecorderEvent()), uiDockAudio, SLOT(startAudioRecorder()));
-    // connect(remote, SIGNAL(stopAudioRecorderEvent()), uiDockAudio, SLOT(stopAudioRecorder()));
+    connect(uiDockAudio, SIGNAL(audioRecStopped()), remote, SIGNAL(stopAudioRecorder()));
+    connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), remote, SIGNAL(startAudioRecorder(QString)));
+    connect(remote, SIGNAL(startAudioRecorderEvent()), uiDockAudio, SLOT(startAudioRecorder()));
+    connect(remote, SIGNAL(stopAudioRecorderEvent()), uiDockAudio, SLOT(stopAudioRecorder()));
 
     // RDS
-    // connect(remote, SIGNAL(newRDSmode(bool)), uiDockRDS, SLOT(setRDSmode(bool)));
-    // connect(uiDockRDS, SIGNAL(rdsDecoderToggled(bool)), remote, SLOT(setRDSstatus(bool)));
-    // connect(uiDockRDS, SIGNAL(rdsPI(QString)), remote, SLOT(rdsPI(QString)));
+    connect(uiDockRDS, SIGNAL(rdsDecoderToggled(bool)), remote, SIGNAL(setRDSstatus(bool)));
+    connect(uiDockRDS, SIGNAL(rdsPI(QString)), remote, SIGNAL(rdsPI(QString)));
+    connect(remote, SIGNAL(newRDSmode(bool)), uiDockRDS, SLOT(setRDSmode(bool)));
     connect(uiDockRDS, SIGNAL(rdsDecoderToggled(bool)), this, SLOT(setRdsDecoder(bool)));
     rds_timer = new QTimer(this);
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
@@ -204,6 +205,8 @@ DemodulatorController::~DemodulatorController()
 
     viewMenu->removeAction(viewMenuSection);
     viewMenuSection->deleteLater();
+
+    remote->deleteLater();
 
     // qInfo() << "DemodulatorController::~DemodulatorController done";
 }
@@ -551,8 +554,8 @@ void DemodulatorController::selectDemod(int mode_idx)
     demod->set_cw_offset(cwofs);
     demod->set_sql_level(uiDockRxOpt->currentSquelchLevel());
 
-    // remote->setMode(mode_idx);
-    // remote->setPassband(flo, fhi);
+    remote->setMode(mode_idx);
+    remote->setPassband(flo, fhi);
 
     d_have_audio = (mode_idx != DockRxOpt::MODE_OFF);
 
@@ -740,7 +743,7 @@ void DemodulatorController::setPassband(int bandwidth)
         lo = hi - bandwidth;
     }
 
-//        remote->setPassband(lo, hi);
+    remote->setPassband(lo, hi);
 
     emit filterFrequency(demod->get_idx(), lo, hi);
 }
@@ -934,7 +937,7 @@ void DemodulatorController::meterTimeout()
     float level;
     level = demod->get_signal_pwr(true);
     uiDockRxOpt->setSignalLevel(level);
-    // remote->setSignalLevel(level);
+    remote->setSignalLevel(level);
 }
 
 /**
@@ -1022,4 +1025,14 @@ void DemodulatorController::enableTimers(bool enabled)
         audio_fft_timer->stop();
         rds_timer->stop();
     }
+}
+
+DemodulatorControllerRemoteDelegate::DemodulatorControllerRemoteDelegate()
+{
+
+}
+
+DemodulatorControllerRemoteDelegate::~DemodulatorControllerRemoteDelegate()
+{
+
 }
