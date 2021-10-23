@@ -213,26 +213,46 @@ DemodulatorController::~DemodulatorController()
 
 void DemodulatorController::readSettings(std::shared_ptr<QSettings> settings)
 {
-//     qInfo() << "DemodulatorController::readSettings" << demod->get_idx();
-
-    settings->beginGroup("receiver");
-    settings->beginGroup(QString("%0").arg(demod->get_idx()));
+    // qInfo() << "DemodulatorController::readSettings" << demod->get_idx();
 
     bool conv_ok = false;
-    rx_filter_shape fshape = (rx_filter_shape)settings->value("filter_shape", 0).toInt(&conv_ok);
+    auto configVersion = settings->value("configversion").toInt(&conv_ok);
+
+    settings->beginGroup("receiver");
+
+    // Migrate v3 settings for 1st demod only
+    if (configVersion < 4 && demod->get_idx() == 0)
+    {
+        QStringList v3Keys({
+            "filter_shape",
+            "filter_low_cut",
+            "filter_high_cut"
+        });
+        for (auto &key : v3Keys)
+        {
+            if (settings->contains(key)) {
+                settings->setValue("0/" + key, settings->value(key));
+                settings->remove(key);
+            }
+        }
+    }
+
+    settings->beginGroup(QString("%0").arg(demod->get_idx()));
+
+    rx_filter_shape fshape = (rx_filter_shape)settings->value("filter_shape").toInt(&conv_ok);
     if (conv_ok) {
         d_filter_shape = fshape;
     }
-    int flo = settings->value("filter_low_cut", 0).toInt(&conv_ok);
-    int fhi = settings->value("filter_high_cut", 0).toInt(&conv_ok);
-
-    settings->endGroup(); // idx
-    settings->endGroup(); // receiver
+    int flo = settings->value("filter_low_cut").toInt(&conv_ok);
+    int fhi = settings->value("filter_high_cut").toInt(&conv_ok);
 
     if (conv_ok)
     {
         setFilterFrequency(flo, fhi);
     }
+
+    settings->endGroup(); // idx
+    settings->endGroup(); // receiver
 
     setHwFrequency(rx->get_rf_freq(), false);
     setFilterOffset(demod->get_filter_offset());

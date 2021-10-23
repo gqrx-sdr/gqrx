@@ -433,6 +433,33 @@ void DockRxOpt::readSettings(std::shared_ptr<QSettings> settings, size_t idx)
     auto configVersion = settings->value("configversion").toInt(&conv_ok);
 
     settings->beginGroup("receiver");
+
+    // Migrate v3 settings for 1st demod only
+    if (configVersion < 4 && idx == 0)
+    {
+        QStringList v3Keys({
+            "cwoffset",
+            "fm_maxdev",
+            "fm_deemph",
+            "offset",
+            "sql_level",
+            "agc_threshold",
+            "agc_delay",
+            "agc_slope",
+            "agc_gain",
+            "agc_usehang",
+            "agc_off",
+            "demod",
+        });
+        for (auto &key : v3Keys)
+        {
+            if (settings->contains(key)) {
+                settings->setValue("0/" + key, settings->value(key));
+                settings->remove(key);
+            }
+        }
+    }
+
     settings->beginGroup(QString("%0").arg(idx));
 
     int_val = settings->value("cwoffset", 700).toInt(&conv_ok);
@@ -500,11 +527,10 @@ void DockRxOpt::readSettings(std::shared_ptr<QSettings> settings, size_t idx)
     }
 
     setCurrentDemod(int_val);
+    emit demodSelected(int_val);
 
     settings->endGroup(); // idx
     settings->endGroup(); // receiver
-
-    emit demodSelected(int_val);
 }
 
 /** Save receiver configuration to settings. */

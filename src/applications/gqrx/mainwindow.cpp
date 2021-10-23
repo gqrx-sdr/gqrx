@@ -65,6 +65,7 @@
 #include "qtgui/bookmarkstaglist.h"
 #include "qtgui/bandplan.h"
 
+#define GQRX_CONFIG_VERSION 4
 
 MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) :
     QMainWindow(parent),
@@ -437,6 +438,8 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
     // manual reconf (FIXME: check status)
     conv_ok = false;
 
+    auto configVersion = m_settings->value("configversion").toInt(&conv_ok);
+
     // hide toolbar
     bool_val = m_settings->value("gui/hide_toolbar", false).toBool();
     if (bool_val) {
@@ -578,7 +581,11 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
 
     // Construct and configure the demodulators
     int demodSize = demodCtrls.size();
-    int demodCount = m_settings->value("receiver/count").toUInt();
+    int demodCount = 1;
+    if (configVersion >= 4)
+    {
+        demodCount = m_settings->value("receiver/count").toUInt();
+    }
     int demodDiff = demodCount - demodSize;
     if (demodDiff > 0) {
         for (int i = 0; i < demodDiff; ++i) {
@@ -639,6 +646,13 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
     }
 
     emit m_recent_config->configLoaded(m_settings->fileName());
+
+    // If an old config version was read and migrated then
+    // save it straight back as the new version
+    if (configVersion != GQRX_CONFIG_VERSION)
+    {
+        storeSession();
+    }
 
     return conf_ok;
 }
@@ -723,6 +737,8 @@ void MainWindow::storeSession()
 {
     if (m_settings)
     {
+        m_settings->setValue("configversion", GQRX_CONFIG_VERSION);
+
         m_settings->setValue("input/frequency", uiBaseband->freqCtrl()->getFrequency());
 
         uiDockInputCtl->saveSettings(m_settings);
@@ -1198,13 +1214,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
     // Save state
     if (m_settings)
     {
-        m_settings->setValue("configversion", 3);
-        m_settings->setValue("crashed", false);
-
+        storeSession();
         storeGuiSettings();
 
-        // save session
-        storeSession();
+        m_settings->setValue("crashed", false);
 
         m_settings->sync();
     }

@@ -412,7 +412,36 @@ void DockAudio::readSettings(std::shared_ptr<QSettings> settings, size_t idx)
     if (!settings)
         return;
 
+    auto configVersion = settings->value("configversion").toInt(&conv_ok);
+
     settings->beginGroup("audio");
+
+    // Migrate v3 settings for 1st demod only
+    if (configVersion < 4 && idx == 0)
+    {
+        QStringList v3Keys({
+            "gain",
+            "fft_split",
+            "pandapter_min_db",
+            "pandapter_max_db",
+            "waterfall_min_db",
+            "waterfall_max_db",
+            "db_ranges_locked",
+            "rec_dir",
+            "udp_host",
+            "udp_port",
+            "udp_stereo",
+            "muted",
+        });
+        for (auto &key : v3Keys)
+        {
+            if (settings->contains(key)) {
+                settings->setValue("0/" + key, settings->value(key));
+                settings->remove(key);
+            }
+        }
+    }
+
     settings->beginGroup(QString("%0").arg(idx));
 
     ival = settings->value("gain", QVariant(-60)).toInt(&conv_ok);
