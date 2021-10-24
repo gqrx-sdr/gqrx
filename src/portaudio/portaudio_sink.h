@@ -37,8 +37,7 @@ typedef std::shared_ptr<portaudio_sink> portaudio_sink_sptr;
 #endif
 
 portaudio_sink_sptr make_portaudio_sink(const string device_name, int audio_rate,
-                                        const string app_name,
-                                        const string stream_name);
+                                        const string app_name);
 
 #define BUFFER_SIZE 100000
 
@@ -47,12 +46,10 @@ class portaudio_sink : public gr::sync_block
 {
     friend portaudio_sink_sptr make_portaudio_sink(const string device_name,
                                                    int audio_rate,
-                                                   const string app_name,
-                                                   const string stream_name);
+                                                   const string app_name);
 
 public:
-    portaudio_sink(const string device_name, int audio_rate,
-                   const string app_name, const string stream_name);
+    portaudio_sink(const string device_name, int audio_rate, const string app_name);
     ~portaudio_sink();
 
     int work (int noutput_items,
@@ -62,7 +59,7 @@ public:
     bool start();
     bool stop();
 
-    void select_device(string device_name, int audio_rate, string stream_name);
+    void select_device(string device_name, int audio_rate, string /* stream_name */);
 
 private:
     void open_stream();
@@ -70,7 +67,6 @@ private:
 
     PaStream           *d_stream;
     PaStreamParameters  d_out_params;
-    string              d_stream_name;       // Descriptive name of the stream.
     string              d_app_name;          // Descriptive name of the application.
     int                 d_audio_rate;
 

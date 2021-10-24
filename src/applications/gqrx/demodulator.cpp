@@ -68,15 +68,13 @@ demodulator::demodulator(
     sniffer = make_sniffer_f();
     /* sniffer_rr is created at each activation. */
 
-    // XXX somewhat duplicated in set_output_device
-    // XXX needs to update when set_idx called
-    QString portName = QString("Receiver %0").arg(idx + 1);
 #ifdef WITH_PULSEAUDIO
     d_supports_stream_naming = true;
+    QString portName = QString("Receiver %0").arg(idx + 1);
     audio_snk = make_pa_sink(audio_device, d_audio_rate, "GQRX", portName.toStdString());
 #elif WITH_PORTAUDIO
     d_supports_stream_naming = false;
-    audio_snk = make_portaudio_sink(audio_device, d_audio_rate, "GQRX", portName.toStdString());
+    audio_snk = make_portaudio_sink(audio_device, d_audio_rate, "GQRX");
 #else
     d_supports_stream_naming = false;
     audio_snk = gr::audio::sink::make(d_audio_rate, audio_device, true);
@@ -93,10 +91,10 @@ void demodulator::set_output_device(const std::string device, const int audio_ra
     d_audio_rate = audio_rate;
 
     // qInfo() << "demodulator sets output device" << device.c_str() << "at rate" << d_audio_rate;
-    QString portName = QString("Receiver %0").arg(idx + 1);
 
 #if defined(WITH_PULSEAUDIO) || defined(WITH_PORTAUDIO)
     // pulseaudio and portaudio sinks can be reconfigured without affecting the tb flowgraph
+    QString portName = QString("Receiver %0").arg(idx + 1);
     audio_snk->select_device(device, d_audio_rate, portName.toStdString());
 #else
 

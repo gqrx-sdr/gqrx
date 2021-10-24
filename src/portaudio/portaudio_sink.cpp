@@ -37,22 +37,18 @@
  */
 portaudio_sink_sptr make_portaudio_sink(const string device_name,
                                         int audio_rate,
-                                        const string app_name,
-                                        const string stream_name)
+                                        const string app_name)
 {
     return gnuradio::get_initial_sptr(new portaudio_sink(device_name,
                                                          audio_rate,
-                                                         app_name,
-                                                         stream_name));
+                                                         app_name));
 }
 
-portaudio_sink::portaudio_sink(const string device_name, int audio_rate,
-                 const string app_name, const string stream_name)
+portaudio_sink::portaudio_sink(const string device_name, int audio_rate, const string app_name)
   : gr::sync_block ("portaudio_sink",
         gr::io_signature::make (1, 2, sizeof(float)),
         gr::io_signature::make (0, 0, 0)),
     d_stream(nullptr),
-    d_stream_name(stream_name),
     d_app_name(app_name),
     d_audio_rate(audio_rate)
 {
@@ -62,7 +58,7 @@ portaudio_sink::portaudio_sink(const string device_name, int audio_rate,
     d_out_params.sampleFormat = paFloat32;
     d_out_params.hostApiSpecificStreamInfo = NULL;
 
-    select_device(device_name, d_audio_rate, d_stream_name);
+    select_device(device_name, d_audio_rate, "");
 }
 
 portaudio_sink::~portaudio_sink()
@@ -115,7 +111,7 @@ bool portaudio_sink::stop()
     return retval;
 }
 
-void portaudio_sink::select_device(string device_name, int audio_rate, string stream_name)
+void portaudio_sink::select_device(string device_name, int audio_rate, string /* stream_name */)
 {
     //    qInfo() << "portaudio_sink::select_device" << device_name.c_str();
 
@@ -138,7 +134,6 @@ void portaudio_sink::select_device(string device_name, int audio_rate, string st
     }
 
     // Initialize stream parameters
-    d_stream_name = stream_name;
     d_out_params.device = idx;
     d_out_params.suggestedLatency = Pa_GetDeviceInfo(d_out_params.device)->defaultHighOutputLatency;
 
