@@ -374,9 +374,14 @@ void DockInputCtl::setInvertScrolling(bool enabled)
     ui->invertScrollingButton->setChecked(enabled);
 }
 
-void DockInputCtl::setoffsetFollowsHw(bool enabled)
+void DockInputCtl::setOffsetFollowsHw(bool enabled)
 {
     ui->offsetFollowButton->setChecked(enabled);
+}
+
+bool DockInputCtl::getOffsetFollowsHw() const
+{
+    return ui->offsetFollowButton->isChecked();
 }
 
 /**

@@ -614,8 +614,11 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
             int64_val = (d_hw_freq_stop - d_hw_freq_start) / 2 + d_lnb_lo;
         }
 
+        auto follow = uiDockInputCtl->getOffsetFollowsHw();
+        setOffsetFollowsHw(false); // prevent hw freq change here moving the demod offsets
         uiBaseband->freqCtrl()->setFrequency(int64_val);
         setNewFrequency(uiBaseband->freqCtrl()->getFrequency()); // ensure all GUI and RF is updated
+        setOffsetFollowsHw(follow);
     }
 
     iq_tool->readSettings(m_settings);

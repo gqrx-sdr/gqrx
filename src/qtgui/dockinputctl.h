@@ -102,7 +102,9 @@ public:
 
     void    setFreqCtrlReset(bool enabled);
     void    setInvertScrolling(bool enabled);
-    void    setoffsetFollowsHw(bool enabled);
+
+    void    setOffsetFollowsHw(bool enabled);
+    bool    getOffsetFollowsHw() const;
 
 public slots:
     bool    setGain(QString name, double value);
