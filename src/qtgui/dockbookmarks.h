@@ -59,9 +59,6 @@ public:
     explicit DockBookmarks(QWidget *parent = 0);
     ~DockBookmarks();
 
-    // ui->tableViewFrequencyList
-    // ui->tableWidgetTagList
-
     void updateTags();
     void updateBookmarks();
     void changeBookmarkTags(int row, int /*column*/);
@@ -75,8 +72,6 @@ public slots:
 private slots:
     void activated(const QModelIndex & index );
     void onDataChanged (const QModelIndex & topLeft, const QModelIndex & bottomRight);
-    //void on_addButton_clicked();
-    //void on_delButton_clicked();
     void on_tableWidgetTagList_itemChanged(QTableWidgetItem* item);
     void ShowContextMenu(const QPoint&pos);
     bool DeleteSelectedBookmark();

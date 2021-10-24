@@ -32,6 +32,7 @@
 #include <QDialogButtonBox>
 #include <QFile>
 #include <QGroupBox>
+#include <QInputDialog>
 #include <QKeySequence>
 #include <QLineEdit>
 #include <QMessageBox>
@@ -872,7 +873,6 @@ void MainWindow::setNewFrequency(qint64 rx_freq, bool offsetFollow)
 {
     auto hw_freq = (double)(rx_freq - d_lnb_lo);
     auto center_freq = rx_freq;
-
     d_hw_freq = (qint64)hw_freq;
 
     // set receiver frequency
@@ -1825,37 +1825,105 @@ void MainWindow::on_actionAddDemodulator_triggered()
 
 void MainWindow::onBookmarkActivated(qint64 freq, const QString& demod, int bandwidth)
 {
-    // TODO: need some fundamentally new logic here;
-    // - ? Replace all Demodulators?
-    // - ? Append if the frequency is within current hw range?
+    qInfo() << "MainWindow::onBookmarkActivated" << freq << demod << bandwidth;
 
-    /*
-    setNewFrequency(freq);
-    selectDemod(demod);
-
-    // Check if filter is symmetric or not by checking the presets
-    auto mode = uiDockRxOpt->currentDemod();
-    auto preset = uiDockRxOpt->currentFilter();
-
-    int lo, hi;
-    uiDockRxOpt->getFilterPreset(mode, preset, &lo, &hi);
-
-    if(lo + hi == 0)
+    // If there's no demodulators, add one
+    if (demodCtrls.size() == 0)
     {
-        lo = -bandwidth / 2;
-        hi =  bandwidth / 2;
-    }
-    else if(lo >= 0 && hi >= 0)
-    {
-        hi = lo + bandwidth;
-    }
-    else if(lo <= 0 && hi <= 0)
-    {
-        lo = hi - bandwidth;
+        addDemodulator();
     }
 
-    on_plotter_newFilterFreq(lo, hi);
-    */
+    // If there's only one demod, we can change the hw freq and demod offset
+    if (demodCtrls.size() == 1)
+    {
+        setNewFrequency(freq);
+        demodCtrls[0]->selectDemod(demod);
+        demodCtrls[0]->setFilterOffset(0); // Should the offset be stored in the bookmark?
+        demodCtrls[0]->setPassband(bandwidth);
+
+        return;
+    }
+
+    // If any of the current demods are tuned to freq, we don't need to do anything?
+    for (size_t i = 0; i < demodCtrls.size(); ++i)
+    {
+        auto d = rx->get_demodulator(i);
+        if ((d_hw_freq + d->get_filter_offset()) == freq)
+        {
+            qInfo() << "Already listening to bookmark; return";
+            return;
+        }
+    }
+
+    // If there's multiple demods, we should ask the user what to do.
+    QMessageBox msgBox;
+
+    QAbstractButton* pButtonAppend = nullptr;
+    QAbstractButton* pButtonUpdate = nullptr;
+
+    auto bw = rx->get_input_rate();
+    qint64 start = d_hw_freq - bw/2;
+    qint64 stop = d_hw_freq + bw/2;
+
+    QString msgText = "There are multiple active demodulators";
+
+    // if the bookmark should store the offset, then consider (freq+offset) for the range check
+    // qInfo() << "MainWindow::onBookmarkActivated check range" << start << freq << stop << "(" << bw << ")";
+    if (start < freq && freq < stop)
+    {
+        msgText += ".";
+        pButtonAppend = msgBox.addButton(tr("Create new"), QMessageBox::AcceptRole);
+        pButtonUpdate = msgBox.addButton(tr("Update existing"), QMessageBox::AcceptRole);
+    }
+    else
+    {
+        msgText += ", and the bookmark is outside of the current range.";
+    }
+
+    msgBox.setText(msgText + "\nWhat would you like to do?");
+
+    QAbstractButton* pButtonReplaceAll = msgBox.addButton(tr("Replace all"), QMessageBox::DestructiveRole);
+    QAbstractButton* pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::RejectRole);
+
+    msgBox.setIcon(QMessageBox::Question);
+    msgBox.setEscapeButton(pButtonCancel);
+
+    msgBox.exec();
+    auto clicked = msgBox.clickedButton();
+
+    // Append demod
+    if (pButtonAppend != nullptr && clicked == pButtonAppend)
+    {
+        addDemodulator();
+        auto newDemod = demodCtrls[demodCtrls.size() - 1];
+        newDemod->selectDemod(demod);
+        newDemod->setFilterOffset(freq - d_hw_freq); // Should the offset be stored in the bookmark?
+        newDemod->setPassband(bandwidth);
+    }
+
+    // Update
+    if (pButtonUpdate != nullptr && clicked == pButtonUpdate)
+    {
+        bool ok;
+        int i = QInputDialog::getInt(this, "", "Demodulator:", 1, 1, demodCtrls.size(), 1, &ok);
+        if (ok)
+        {
+            auto newDemod = demodCtrls[i - 1];
+            newDemod->selectDemod(demod);
+            newDemod->setFilterOffset(freq - d_hw_freq); // Should the offset be stored in the bookmark?
+            newDemod->setPassband(bandwidth);
+        }
+    }
+
+    // replace all demods
+    if (pButtonReplaceAll != nullptr && clicked == pButtonReplaceAll)
+    {
+        for (size_t i = 0; i < demodCtrls.size(); ++i)
+        {
+            removeDemodulator(0);
+        }
+        onBookmarkActivated(freq, demod, bandwidth);
+    }
 }
 
 /** Launch Gqrx google group website. */
