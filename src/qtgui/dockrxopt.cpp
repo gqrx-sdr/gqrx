@@ -104,6 +104,7 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
 
     connect(ui->actionRemoveDemodulator, SIGNAL(triggered()), this, SIGNAL(remove()));
     connect(ui->actionAddBookmark, SIGNAL(triggered()), this, SIGNAL(bookmark()));
+    connect(ui->actionCenterFFT, SIGNAL(triggered()), this, SIGNAL(centerFFT()));
 
     // use same slot for filterCombo and filterShapeCombo
     connect(ui->filterShapeCombo, SIGNAL(activated(int)), this, SLOT(on_filterCombo_activated(int)));

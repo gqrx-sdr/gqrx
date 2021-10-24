@@ -124,6 +124,7 @@ public:
 signals:
     void remove(size_t idx);
     void bookmark(size_t idx);
+    void centerFFT(size_t idx);
 
     void filterOffset(size_t idx, qint64 offset);
     void filterFrequency(size_t idx, int low, int high);
@@ -136,6 +137,7 @@ public slots:
 
     void onRemoveAction();
     void onBookmarkAction();
+    void onCenterFFTAction();
 
     void onIndexChanged(size_t idx);
 

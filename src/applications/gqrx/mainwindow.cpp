@@ -242,10 +242,6 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockFft, SIGNAL(fftZoomChanged(float)), uiBaseband->plotter(), SLOT(zoomOnXAxis(float)));
     connect(uiDockFft, SIGNAL(resetFftZoom()), uiBaseband->plotter(), SLOT(resetHorizontalZoom()));
     connect(uiDockFft, SIGNAL(gotoFftCenter()), uiBaseband->plotter(), SLOT(moveToCenterFreq()));
-
-    // XXX: button needs to go in demod dock? pass idx to plotter
-    // connect(uiDockFft, SIGNAL(gotoDemodFreq()), uiBaseband->plotter(), SLOT(moveToDemodFreq()));
-
     connect(uiDockFft, SIGNAL(bandPlanChanged(bool)), uiBaseband->plotter(), SLOT(toggleBandPlan(bool)));
     connect(uiDockFft, SIGNAL(wfColormapChanged(QString)), uiBaseband->plotter(), SLOT(setWfColormap(QString)));
 
@@ -1044,6 +1040,10 @@ void MainWindow::addDemodulator()
     connect(
         ctl.get(), SIGNAL(filterRanges(size_t,int,int,int,int,bool,int)),
         uiBaseband->plotter(), SLOT(setDemodulatorRanges(size_t,int,int,int,int,bool,int))
+    );
+    connect(
+        ctl.get(), SIGNAL(centerFFT(size_t)),
+        uiBaseband->plotter(), SLOT(moveToDemodFreq(size_t))
     );
 
     // UI -> Demod

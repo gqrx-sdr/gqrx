@@ -66,7 +66,6 @@ signals:
     void waterfallRangeChanged(float min, float max);
     void resetFftZoom(void);                       /*! FFT zoom reset. */
     void gotoFftCenter(void);                      /*! Go to FFT center. */
-    void gotoDemodFreq(void);                      /*! Center FFT around demodulator frequency. */
     void fftColorChanged(const QColor &);          /*! FFT color has changed. */
     void fftFillToggled(bool fill);                /*! Toggle filling area under FFT plot. */
     void fftPeakHoldToggled(bool enable);          /*! Toggle peak hold in FFT area. */
@@ -92,7 +91,6 @@ private slots:
     void on_wfRangeSlider_valuesChanged(int min, int max);
     void on_resetButton_clicked(void);
     void on_centerButton_clicked(void);
-    void on_demodButton_clicked(void);
     void on_colorPicker_colorChanged(const QColor &);
     void on_fillButton_toggled(bool checked);
     void on_peakHoldButton_toggled(bool checked);

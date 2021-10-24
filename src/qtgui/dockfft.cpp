@@ -50,7 +50,6 @@ DockFft::DockFft(QWidget *parent) :
     ui->lockButton->setMinimumSize(48, 24);
     ui->resetButton->setMinimumSize(48, 24);
     ui->centerButton->setMinimumSize(48, 24);
-    ui->demodButton->setMinimumSize(48, 24);
     ui->fillButton->setMinimumSize(48, 24);
     ui->colorPicker->setMinimumSize(48, 24);
 #endif
@@ -496,11 +495,6 @@ void DockFft::on_resetButton_clicked(void)
 void DockFft::on_centerButton_clicked(void)
 {
     emit gotoFftCenter();
-}
-
-void DockFft::on_demodButton_clicked(void)
-{
-    emit gotoDemodFreq();
 }
 
 /** FFT color has changed. */

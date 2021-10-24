@@ -1693,15 +1693,14 @@ void CPlotter::moveToCenterFreq()
 }
 
 /** Center FFT plot around the demodulator frequency. */
-void CPlotter::moveToDemodFreq(int idx)
+void CPlotter::moveToDemodFreq(size_t idx)
 {
-    if (idx < 0 || idx >= m_demod.size()) {
+    if (idx >= m_demod.size()) {
         qInfo() << "CPlotter::moveToDemodFreq invalid idx" << idx;
     }
 
     setFftCenterFreq(m_demod[idx]->centerFreq - m_CenterFreq);
     updateOverlay();
-
     m_PeakHoldValid = false;
 }
 

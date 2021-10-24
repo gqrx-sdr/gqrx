@@ -276,7 +276,7 @@ public slots:
     // zoom functions
     void resetHorizontalZoom();
     void moveToCenterFreq();
-    void moveToDemodFreq(int idx);
+    void moveToDemodFreq(size_t idx);
     void zoomOnXAxis(float level);
 
     // Demodulator display management

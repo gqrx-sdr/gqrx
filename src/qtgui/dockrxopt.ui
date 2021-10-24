@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>280</width>
+    <width>290</width>
     <height>399</height>
    </rect>
   </property>
@@ -72,6 +72,16 @@
          <property name="icon">
           <iconset resource="../../resources/icons.qrc">
            <normaloff>:/icons/icons/bookmark-new.svg</normaloff>:/icons/icons/bookmark-new.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="tbCenter">
+         <property name="toolTip">
+          <string>Center FFT around demodulator frequency</string>
+         </property>
+         <property name="text">
+          <string>C</string>
          </property>
         </widget>
        </item>
@@ -922,6 +932,11 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
     <string>Bookmark the current demod parameters</string>
    </property>
   </action>
+  <action name="actionCenterFFT">
+   <property name="text">
+    <string>Center FFT</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -981,6 +996,22 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
     <hint type="sourcelabel">
      <x>21</x>
      <y>21</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tbCenter</sender>
+   <signal>clicked()</signal>
+   <receiver>actionCenterFFT</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>47</x>
+     <y>15</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>

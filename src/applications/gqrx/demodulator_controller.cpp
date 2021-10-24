@@ -95,6 +95,7 @@ DemodulatorController::DemodulatorController(
     // Rx control
     connect(uiDockRxOpt, SIGNAL(remove()), this, SLOT(onRemoveAction()));
     connect(uiDockRxOpt, SIGNAL(bookmark()), this, SLOT(onBookmarkAction()));
+    connect(uiDockRxOpt, SIGNAL(centerFFT()), this, SLOT(onCenterFFTAction()));
 
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
@@ -303,6 +304,11 @@ void DemodulatorController::onRemoveAction()
 void DemodulatorController::onBookmarkAction()
 {
     emit bookmark(demod->get_idx());
+}
+
+void DemodulatorController::onCenterFFTAction()
+{
+    emit centerFFT(demod->get_idx());
 }
 
 void DemodulatorController::onIndexChanged(size_t idx)

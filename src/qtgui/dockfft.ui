@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>327</width>
-    <height>449</height>
+    <height>451</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -648,7 +648,7 @@
         </widget>
        </item>
        <item row="11" column="0" colspan="4">
-        <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0">
+        <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
          <property name="spacing">
           <number>2</number>
          </property>
@@ -705,34 +705,6 @@
            </property>
            <property name="text">
             <string>Center</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="demodButton">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>50</width>
-             <height>32</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Center FFT around demodulator frequency</string>
-           </property>
-           <property name="text">
-            <string>Demod</string>
            </property>
           </widget>
          </item>
