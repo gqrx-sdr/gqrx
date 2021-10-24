@@ -1229,126 +1229,132 @@ void MainWindow::closeEvent(QCloseEvent *event)
 /** Start I/Q recording. */
 void MainWindow::startIqRecording(const QString& recdir)
 {
-//    qDebug() << __func__;
-//    // generate file name using date, time, rf freq in kHz and BW in Hz
-//    // gqrx_iq_yyyymmdd_hhmmss_freq_bw_fc.raw
-//    auto freq = (qint64)(rx->get_rf_freq());
-//    auto sr = (qint64)(rx->get_input_rate());
-//    auto dec = (quint32)(rx->get_input_decim());
-//    auto lastRec = QDateTime::currentDateTimeUtc().
-//            toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.'raw'")
-//            .arg(recdir).arg(freq).arg(sr/dec);
+    qDebug() << __func__;
+    // generate file name using date, time, rf freq in kHz and BW in Hz
+    // gqrx_iq_yyyymmdd_hhmmss_freq_bw_fc.raw
+    auto freq = (qint64)(rx->get_rf_freq());
+    auto sr = (qint64)(rx->get_input_rate());
+    auto dec = (quint32)(rx->get_input_decim());
+    auto lastRec = QDateTime::currentDateTimeUtc().
+            toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.'raw'")
+            .arg(recdir).arg(freq).arg(sr/dec);
 
-//    // start recorder; fails if recording already in progress
-//    if (rx->start_iq_recording(lastRec.toStdString()))
-//    {
-//        // reset action status
-//        ui->statusBar->showMessage(tr("Error starting I/Q recoder"));
+    // start recorder; fails if recording already in progress
+    if (rx->start_iq_recording(lastRec.toStdString()))
+    {
+        // reset action status
+        ui->statusBar->showMessage(tr("Error starting I/Q recoder"));
 
-//        // show an error message to user
-//        QMessageBox msg_box;
-//        msg_box.setIcon(QMessageBox::Critical);
-//        msg_box.setText(tr("There was an error starting the I/Q recorder.\n"
-//                           "Check write permissions for the selected location."));
-//        msg_box.exec();
+        // show an error message to user
+        QMessageBox msg_box;
+        msg_box.setIcon(QMessageBox::Critical);
+        msg_box.setText(tr("There was an error starting the I/Q recorder.\n"
+                           "Check write permissions for the selected location."));
+        msg_box.exec();
 
-//    }
-//    else
-//    {
-//        ui->statusBar->showMessage(tr("Recording I/Q data to: %1").arg(lastRec),
-//                                   5000);
-//    }
+    }
+    else
+    {
+        ui->statusBar->showMessage(tr("Recording I/Q data to: %1").arg(lastRec),
+                                   5000);
+    }
 }
 
 /** Stop current I/Q recording. */
 void MainWindow::stopIqRecording()
 {
-//    qDebug() << __func__;
+    qDebug() << __func__;
 
-//    if (rx->stop_iq_recording())
-//        ui->statusBar->showMessage(tr("Error stopping I/Q recoder"));
-//    else
-//        ui->statusBar->showMessage(tr("I/Q data recoding stopped"), 5000);
+    if (rx->stop_iq_recording())
+        ui->statusBar->showMessage(tr("Error stopping I/Q recoder"));
+    else
+        ui->statusBar->showMessage(tr("I/Q data recoding stopped"), 5000);
 }
 
 void MainWindow::startIqPlayback(const QString& filename, float samprate)
 {
-//    if (ui->actionDSP->isChecked())
-//    {
-//        // suspend DSP while we reload settings
-//        on_actionDSP_triggered(false);
-//    }
+    if (ui->actionDSP->isChecked())
+    {
+        // suspend DSP while we reload settings
+        on_actionDSP_triggered(false);
+    }
 
-//    storeSession();
+    storeSession();
 
-//    auto sri = (int)samprate;
-//    auto devstr = QString("file='%1',rate=%2,throttle=true,repeat=false")
-//            .arg(filename).arg(sri);
+    auto sri = (int)samprate;
+    auto devstr = QString("file='%1',rate=%2,throttle=true,repeat=false")
+            .arg(filename).arg(sri);
 
-//    qDebug() << __func__ << ":" << devstr;
+    qDebug() << __func__ << ":" << devstr;
 
-//    rx->set_input_device(devstr.toStdString());
+    rx->set_input_device(devstr.toStdString());
 
-//    // sample rate
-//    auto actual_rate = rx->set_input_rate(samprate);
-//    qDebug() << "Requested sample rate:" << samprate;
-//    qDebug() << "Actual sample rate   :" << QString("%1")
-//                .arg(actual_rate, 0, 'f', 6);
+    // sample rate
+    auto actual_rate = rx->set_input_rate(samprate);
+    qDebug() << "Requested sample rate:" << samprate;
+    qDebug() << "Actual sample rate   :" << QString("%1")
+                .arg(actual_rate, 0, 'f', 6);
 
-//    uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
-//    uiBaseband->plotter()->setSampleRate(actual_rate);
-//    uiBaseband->plotter()->setSpanFreq((quint32)actual_rate);
-//    remote->setBandwidth(actual_rate);
+    for (auto &demod : demodCtrls)
+    {
+        demod->setFilterOffsetRange((qint64)(actual_rate));
+    }
+    uiBaseband->plotter()->setSampleRate(actual_rate);
+    uiBaseband->plotter()->setSpanFreq((quint32)actual_rate);
+    remote->setBandwidth(actual_rate);
 
-//    // FIXME: would be nice with good/bad status
-//    ui->statusBar->showMessage(tr("Playing %1").arg(filename));
+    // FIXME: would be nice with good/bad status
+    ui->statusBar->showMessage(tr("Playing %1").arg(filename));
 
-//    on_actionDSP_triggered(true);
+    on_actionDSP_triggered(true);
 }
 
 void MainWindow::stopIqPlayback()
 {
-//    if (ui->actionDSP->isChecked())
-//    {
-//        // suspend DSP while we reload settings
-//        on_actionDSP_triggered(false);
-//    }
+    auto wasRunning = ui->actionDSP->isChecked();
+    if (wasRunning)
+    {
+        // suspend DSP while we reload settings
+        on_actionDSP_triggered(false);
+    }
 
-//    ui->statusBar->showMessage(tr("I/Q playback stopped"), 5000);
+    ui->statusBar->showMessage(tr("I/Q playback stopped"), 5000);
 
-//    // restore original input device
-//    auto indev = m_settings->value("input/device", "").toString();
-//    rx->set_input_device(indev.toStdString());
+    // restore original input device
+    auto indev = m_settings->value("input/device", "").toString();
+    rx->set_input_device(indev.toStdString());
 
-//    // restore sample rate
-//    bool conv_ok;
-//    auto sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
-//    if (conv_ok && (sr > 0))
-//    {
-//        auto actual_rate = rx->set_input_rate(sr);
-//        qDebug() << "Requested sample rate:" << sr;
-//        qDebug() << "Actual sample rate   :" << QString("%1")
-//                    .arg(actual_rate, 0, 'f', 6);
+    // restore sample rate
+    bool conv_ok;
+    auto sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
+    if (conv_ok && (sr > 0))
+    {
+        auto actual_rate = rx->set_input_rate(sr);
+        qDebug() << "Requested sample rate:" << sr;
+        qDebug() << "Actual sample rate   :" << QString("%1")
+                    .arg(actual_rate, 0, 'f', 6);
 
-//        uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
-//        uiBaseband->plotter()->setSampleRate(actual_rate);
-//        uiBaseband->plotter()->setSpanFreq((quint32)actual_rate);
-//        remote->setBandwidth(sr);
+        for (auto &demod : demodCtrls)
+        {
+            demod->setFilterOffsetRange((qint64)(actual_rate));
+        }
+        uiBaseband->plotter()->setSampleRate(actual_rate);
+        uiBaseband->plotter()->setSpanFreq((quint32)actual_rate);
+        remote->setBandwidth(sr);
 
-//        // not needed as long as we are not recording in iq_tool
-//        //iq_tool->setSampleRate(sr);
-//    }
+        // not needed as long as we are not recording in iq_tool
+        //iq_tool->setSampleRate(sr);
+    }
 
-//    // restore frequency, gain, etc...
-//    uiDockInputCtl->readSettings(m_settings);
+    // restore frequency, gain, etc...
+    loadConfig(m_settings->fileName(), false, false);
 
-//    if (ui->actionDSP->isChecked())
-//    {
-//        // restsart DSP
-//        on_actionDSP_triggered(true);
-//    }
+    if (wasRunning)
+    {
+        // restart DSP
+        on_actionDSP_triggered(true);
+    }
 }
-
 
 /**
  * Go to a specific offset in the IQ file.
@@ -1356,7 +1362,7 @@ void MainWindow::stopIqPlayback()
  */
 void MainWindow::seekIqFile(qint64 seek_pos)
 {
-//    rx->seek_iq_file((long)seek_pos);
+    rx->seek_iq_file((long)seek_pos);
 }
 
 /** FFT size has changed. */

@@ -46,8 +46,8 @@ receiver::receiver(const std::string input_device,
       d_rf_freq(144800000.0),
       d_iq_rev(false),
       d_dc_cancel(false),
-      d_iq_balance(false) /*,
-      d_recording_iq(false) */
+      d_iq_balance(false),
+      d_recording_iq(false)
 {
 
     tb = gr::make_top_block("gqrx");
@@ -662,6 +662,87 @@ void receiver::get_iq_fft_data(std::complex<float>* fftPoints, unsigned int &fft
     iq_fft->get_fft_data(fftPoints, fftsize);
 }
 
+/**
+ * @brief Start I/Q data recorder.
+ * @param filename The filename where to record.
+ */
+rx_status receiver::start_iq_recording(const std::string filename)
+{
+    rx_status status = STATUS_OK;
+
+    if (d_recording_iq) {
+        std::cout << __func__ << ": already recording" << std::endl;
+        return STATUS_ERROR;
+    }
+
+    try
+    {
+        iq_sink = gr::blocks::file_sink::make(sizeof(gr_complex), filename.c_str(), true);
+    }
+    catch (std::runtime_error &e)
+    {
+        std::cout << __func__ << ": couldn't open I/Q file" << std::endl;
+        return STATUS_ERROR;
+    }
+
+    tb->lock();
+    if (d_decim >= 2)
+        tb->connect(input_decim, 0, iq_sink, 0);
+    else
+        tb->connect(src, 0, iq_sink, 0);
+    d_recording_iq = true;
+    tb->unlock();
+
+    return status;
+}
+
+/** Stop I/Q data recorder. */
+rx_status receiver::stop_iq_recording()
+{
+    if (!d_recording_iq) {
+        /* error: we are not recording */
+        return STATUS_ERROR;
+    }
+
+    tb->lock();
+    iq_sink->close();
+
+    if (d_decim >= 2)
+        tb->disconnect(input_decim, 0, iq_sink, 0);
+    else
+        tb->disconnect(src, 0, iq_sink, 0);
+
+    tb->unlock();
+    iq_sink.reset();
+    d_recording_iq = false;
+
+    return STATUS_OK;
+}
+
+/**
+ * @brief Seek to position in IQ file source.
+ * @param pos Byte offset from the beginning of the file.
+ */
+rx_status receiver::seek_iq_file(long pos)
+{
+    rx_status status = STATUS_OK;
+
+    tb->lock();
+
+    if (src->seek(pos, SEEK_SET))
+    {
+        status = STATUS_OK;
+    }
+    else
+    {
+        status = STATUS_ERROR;
+    }
+
+    tb->unlock();
+
+    return status;
+}
+
 void receiver::begin_reconfigure()
 {
     // qInfo() << "receiver begin reconfigure";
@@ -721,87 +802,6 @@ rx_status receiver::set_demod(const size_t idx, rx_demod demod, bool force)
     return ret;
 }
 
-///**
-// * @brief Start I/Q data recorder.
-// * @param filename The filename where to record.
-// */
-//rx_status receiver::start_iq_recording(const std::string filename)
-//{
-//    rx_status status = STATUS_OK;
-
-//    if (d_recording_iq) {
-//        std::cout << __func__ << ": already recording" << std::endl;
-//        return STATUS_ERROR;
-//    }
-
-//    try
-//    {
-//        iq_sink = gr::blocks::file_sink::make(sizeof(gr_complex), filename.c_str(), true);
-//    }
-//    catch (std::runtime_error &e)
-//    {
-//        std::cout << __func__ << ": couldn't open I/Q file" << std::endl;
-//        return STATUS_ERROR;
-//    }
-
-//    tb->lock();
-//    if (d_decim >= 2)
-//        tb->connect(input_decim, 0, iq_sink, 0);
-//    else
-//        tb->connect(src, 0, iq_sink, 0);
-//    d_recording_iq = true;
-//    tb->unlock();
-
-//    return status;
-//}
-
-///** Stop I/Q data recorder. */
-//rx_status receiver::stop_iq_recording()
-//{
-//    if (!d_recording_iq) {
-//        /* error: we are not recording */
-//        return STATUS_ERROR;
-//    }
-
-//    tb->lock();
-//    iq_sink->close();
-
-//    if (d_decim >= 2)
-//        tb->disconnect(input_decim, 0, iq_sink, 0);
-//    else
-//        tb->disconnect(src, 0, iq_sink, 0);
-
-//    tb->unlock();
-//    iq_sink.reset();
-//    d_recording_iq = false;
-
-//    return STATUS_OK;
-//}
-
-///**
-// * @brief Seek to position in IQ file source.
-// * @param pos Byte offset from the beginning of the file.
-// */
-//rx_status receiver::seek_iq_file(long pos)
-//{
-//    rx_status status = STATUS_OK;
-
-//    tb->lock();
-
-//    if (src->seek(pos, SEEK_SET))
-//    {
-//        status = STATUS_OK;
-//    }
-//    else
-//    {
-//        status = STATUS_ERROR;
-//    }
-
-//    tb->unlock();
-
-//    return status;
-//}
-
 /** Convenience function to connect all blocks. */
 void receiver::connect_all()
 {
@@ -818,11 +818,11 @@ void receiver::connect_all()
         // qInfo() << "receiver connect_all using decim";
     }
 
-//    if (d_recording_iq)
-//    {
-//        // We record IQ with minimal pre-processing
-//        tb->connect(b, 0, iq_sink, 0);
-//    }
+    if (d_recording_iq)
+    {
+        // We record IQ with minimal pre-processing
+        tb->connect(demodsrc, 0, iq_sink, 0);
+    }
 
     tb->connect(demodsrc, 0, iq_swap, 0);
     demodsrc = iq_swap;

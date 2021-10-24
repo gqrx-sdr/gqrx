@@ -24,7 +24,7 @@
 #define RECEIVER_H
 
 #include <gnuradio/top_block.h>
-//#include <gnuradio/blocks/file_sink.h>
+#include <gnuradio/blocks/file_sink.h>
 #include <osmosdr/source.h>
 
 #include <memory>
@@ -109,9 +109,9 @@ public:
     void        get_iq_fft_data(std::complex<float>* fftPoints, unsigned int &fftsize);
 
     /* I/Q recording and playback */
-//    rx_status      start_iq_recording(const std::string filename);
-//    rx_status      stop_iq_recording();
-//    rx_status      seek_iq_file(long pos);
+    rx_status   start_iq_recording(const std::string filename);
+    rx_status   stop_iq_recording();
+    rx_status   seek_iq_file(long pos);
 
     /* Flowgraph configuration */
     void        begin_reconfigure();
@@ -149,19 +149,19 @@ private:
     std::string     input_devstr;       /*!< Current input device string. */
     std::string     output_devstr;      /*!< Current output device string. */
 
-    gr::top_block_sptr        tb;          /*!< The GNU Radio top block. */
+    gr::top_block_sptr        tb;           /*!< The GNU Radio top block. */
 
-    osmosdr::source::sptr     src;         /*!< Real time I/Q source. */
-    fir_decim_cc_sptr         input_decim; /*!< Input decimator. */
-    gr::basic_block_sptr      demodsrc;    /*!< Input to demodulators */
+    osmosdr::source::sptr     src;          /*!< Real time I/Q source. */
+    fir_decim_cc_sptr         input_decim;  /*!< Input decimator. */
+    gr::basic_block_sptr      demodsrc;     /*!< Input to demodulators */
 
-    dc_corr_cc_sptr           dc_corr;     /*!< DC corrector block. */
-    iq_swap_cc_sptr           iq_swap;     /*!< I/Q swapping block. */
+    dc_corr_cc_sptr           dc_corr;      /*!< DC corrector block. */
+    iq_swap_cc_sptr           iq_swap;      /*!< I/Q swapping block. */
 
-    rx_fft_c_sptr             iq_fft;      /*!< Baseband FFT block. */
+    rx_fft_c_sptr             iq_fft;       /*!< Baseband FFT block. */
 
-//    bool               d_recording_iq;     /*!< Whether we are recording I/Q file. */
-//    gr::blocks::file_sink::sptr iq_sink;    /*!< I/Q file sink. */
+    bool            d_recording_iq;         /*!< Whether we are recording I/Q file. */
+    gr::blocks::file_sink::sptr iq_sink;    /*!< I/Q file sink. */
 
     //! Get a path to a file containing random bytes
     static std::string get_random_file(void);
