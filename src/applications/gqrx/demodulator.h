@@ -161,7 +161,7 @@ public:
     /* Audio Record/Playback */
     rx_status       start_audio_recording(const std::string filename);
     rx_status       stop_audio_recording();
-//    bool                is_recording_audio(void) const { return d_recording_wav; }
+    bool            is_recording_audio(void) const { return d_recording_wav; }
 
 //    rx_status      start_audio_playback(const std::string filename);
 //    rx_status      stop_audio_playback();

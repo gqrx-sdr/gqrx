@@ -464,12 +464,11 @@ void DemodulatorController::selectDemod(int mode_idx)
 
     case DockRxOpt::MODE_OFF:
         /* Spectrum analyzer only */
-        // Yes - Audio recorder state now inside this controller!
-        // if (rx->is_recording_audio())
-        // {
-        //     stopAudioRec();
-        //     uiDockAudio->setAudioRecButtonState(false);
-        // }
+         if (demod->is_recording_audio())
+         {
+             stopAudioRec();
+             uiDockAudio->setAudioRecButtonState(false);
+         }
 
         // must set demod via rx due to flowgraph reconfiguration
         rx->set_demod(demod->get_idx(), rx_demod::RX_DEMOD_OFF);
