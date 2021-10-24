@@ -29,6 +29,7 @@
 #include <QMenu>
 
 #include <DockManager.h>
+#include <DockAreaWidget.h>
 #include <DockWidget.h>
 #include <DockWidgetTab.h>
 

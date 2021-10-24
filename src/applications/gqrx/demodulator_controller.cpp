@@ -73,12 +73,13 @@ DemodulatorController::DemodulatorController(
     dockAFSK->setWidget(uiDockAFSK);
     viewMenu->addAction(dockAFSK->toggleViewAction());
 
-    dockMgr->addDockWidgetTab(ads::BottomDockWidgetArea, dockDemod);
-    dockMgr->addDockWidgetTab(ads::BottomDockWidgetArea, dockAudio);
-    dockMgr->addDockWidgetTab(ads::BottomDockWidgetArea, dockRDS);
-    dockMgr->addDockWidgetTab(ads::BottomDockWidgetArea, dockAFSK);
+    auto w = dockMgr->addDockWidget(ads::RightDockWidgetArea, dockDemod);
+    dockMgr->addDockWidgetTabToArea(dockAudio, w);
+    dockMgr->addDockWidgetTabToArea(dockRDS, w);
+    dockMgr->addDockWidgetTabToArea(dockAFSK, w);
     dockRDS->closeDockWidget();
     dockAFSK->closeDockWidget();
+    dockDemod->setAsCurrentTab();
 
     // Set titles and colours
     onIndexChanged(demod->get_idx());

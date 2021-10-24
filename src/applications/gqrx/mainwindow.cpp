@@ -177,8 +177,9 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
        end up floating in their own top-level window and can not be
        docked to the mainwindow.
     */
-    uiDockManager->addDockWidget(ads::RightDockWidgetArea, dockInput);
-    uiDockManager->addDockWidget(ads::RightDockWidgetArea, dockFft);
+    auto w = uiDockManager->addDockWidget(ads::LeftDockWidgetArea, dockInput);
+    uiDockManager->addDockWidgetTabToArea(dockFft, w);
+    dockInput->setAsCurrentTab();
     uiDockManager->addDockWidget(ads::BottomDockWidgetArea, dockBookmarks);
 
     // hide docks that we don't want to show initially
