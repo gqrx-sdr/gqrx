@@ -173,7 +173,7 @@
       </layout>
      </item>
      <item>
-      <widget class="CFreqCtrl" name="filterFreq">
+      <widget class="CFreqCtrl" name="filterOffset">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
