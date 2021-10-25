@@ -99,9 +99,6 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     ui->nb1Button->setMinimumSize(32, 24);
 #endif
 
-    ui->filterOffset->setup(7, -filterOffsetRange/2, filterOffsetRange/2, 1, FCTL_UNIT_KHZ);
-    ui->filterOffset->setFrequency(0);
-
     connect(ui->actionRemoveDemodulator, SIGNAL(triggered()), this, SIGNAL(remove()));
     connect(ui->actionAddBookmark, SIGNAL(triggered()), this, SIGNAL(bookmark()));
     connect(ui->actionCenterFFT, SIGNAL(triggered()), this, SIGNAL(centerFFT()));
@@ -200,6 +197,13 @@ DockRxOpt::~DockRxOpt()
 void DockRxOpt::setFilterOffset(qint64 freq_hz)
 {
 //    qInfo() << "DockRxOpt::setFilterOffset" << freq_hz;
+
+    auto afreq_hz = abs(freq_hz);
+    FctlUnit unit = FCTL_UNIT_HZ;
+    if (afreq_hz > 1e9) unit = FCTL_UNIT_GHZ;
+    else if (afreq_hz > 1e6) unit = FCTL_UNIT_MHZ;
+    else if (afreq_hz > 1e3) unit = FCTL_UNIT_KHZ;
+    ui->filterOffset->setUnit(unit);
     ui->filterOffset->setFrequency(freq_hz);
 }
 
@@ -209,24 +213,10 @@ void DockRxOpt::setFilterOffset(qint64 freq_hz)
  */
 void DockRxOpt::setFilterOffsetRange(qint64 range_hz)
 {
-    int num_digits;
-
     if (range_hz <= 0)
         return;
 
-    range_hz /= 2;
-    if (range_hz < 100e3)
-        num_digits = 5;
-    else if (range_hz < 1e6)
-        num_digits = 6;
-    else if (range_hz < 1e7)
-        num_digits = 7;
-    else if (range_hz < 1e8)
-        num_digits = 8;
-    else
-        num_digits = 9;
-
-    ui->filterOffset->setup(num_digits, -range_hz, range_hz, 1, FCTL_UNIT_KHZ);
+    ui->filterOffset->setup(0, -range_hz, range_hz, 1, FCTL_UNIT_KHZ);
 }
 
 /**
@@ -244,7 +234,7 @@ void DockRxOpt::setHwFreq(qint64 freq_hz, bool maintain_rx_freq)
 
     if (maintain_rx_freq) {
         // Change the offset to keep the same output Rx freq
-        auto rx_freq = 1.e3 * ui->freqSpinBox->value();
+        auto rx_freq = ui->filterFreq->getFrequency();
         auto new_offset = rx_freq - hw_freq_hz;
         ui->filterOffset->setFrequency(new_offset);
     } else {
@@ -615,36 +605,37 @@ void DockRxOpt::saveSettings(std::shared_ptr<QSettings> settings, size_t idx)
     settings->endGroup(); // receiver
 }
 
-/** RX frequency changed through spin box */
-void DockRxOpt::on_freqSpinBox_valueChanged(double freq)
-{
-    ui->filterOffset->setFrequency((1.e3 * freq) - hw_freq_hz);
-}
-
 void DockRxOpt::setRxFreq(qint64 freq_hz)
 {
     // qInfo() << "DockRxOpt::setRxFreq" << freq_hz;
-    ui->freqSpinBox->blockSignals(true);
-    ui->freqSpinBox->setValue(1.e-3 * (double)freq_hz);
-    ui->freqSpinBox->blockSignals(false);
+    ui->filterFreq->blockSignals(true);
+    FctlUnit unit = FCTL_UNIT_HZ;
+    if (freq_hz > 1e9) unit = FCTL_UNIT_GHZ;
+    else if (freq_hz > 1e6) unit = FCTL_UNIT_MHZ;
+    else if (freq_hz > 1e3) unit = FCTL_UNIT_KHZ;
+    ui->filterFreq->setUnit(unit);
+    ui->filterFreq->setFrequency(freq_hz);
+    ui->filterFreq->blockSignals(false);
     emit rxFreqChanged(freq_hz);
 }
 
 void DockRxOpt::setRxFreqRange(qint64 min_hz, qint64 max_hz)
 {
-    ui->freqSpinBox->blockSignals(true);
-    ui->freqSpinBox->setRange(1.e-3 * (double)min_hz, 1.e-3 * (double)max_hz);
-    ui->freqSpinBox->blockSignals(false);
+    ui->filterFreq->blockSignals(true);
+    ui->filterFreq->setup(0, min_hz, max_hz, 1, FCTL_UNIT_HZ);
+    ui->filterFreq->blockSignals(false);
 }
 
 void DockRxOpt::setResetLowerDigits(bool enabled)
 {
     ui->filterOffset->setResetLowerDigits(enabled);
+    ui->filterFreq->setResetLowerDigits(enabled);
 }
 
 void DockRxOpt::setInvertScrolling(bool enabled)
 {
     ui->filterOffset->setInvertScrolling(enabled);
+    ui->filterFreq->setInvertScrolling(enabled);
 }
 
 /**
@@ -654,11 +645,16 @@ void DockRxOpt::setInvertScrolling(bool enabled)
  * This slot is activated when a new filter offset has been selected either
  * using the mouse or using the keyboard.
  */
-void DockRxOpt::on_filterOffset_newFrequency(qint64 freq)
+void DockRxOpt::on_filterOffset_newFrequency(qint64 offset)
 {
     // qInfo() << "DockRxOpt::on_filterOffset_newFrequency " << freq;
-    setRxFreq(hw_freq_hz + freq);
-    emit filterOffsetChanged(freq);
+    setRxFreq(hw_freq_hz + offset);
+    emit filterOffsetChanged(offset);
+}
+
+void DockRxOpt::on_filterFreq_newFrequency(qint64 freq)
+{
+    ui->filterOffset->setFrequency(freq - hw_freq_hz);
 }
 
 /**

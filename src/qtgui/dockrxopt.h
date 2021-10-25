@@ -215,8 +215,8 @@ signals:
     void cwOffsetChanged(int offset);
 
 private slots:
-    void on_freqSpinBox_valueChanged(double freq);
-    void on_filterOffset_newFrequency(qint64 freq);
+    void on_filterOffset_newFrequency(qint64 offset);
+    void on_filterFreq_newFrequency(qint64 freq);
     void on_filterCombo_activated(int index);
     void on_modeSelector_activated(int index);
     void on_modeButton_clicked();
