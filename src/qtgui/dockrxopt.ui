@@ -264,13 +264,13 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>30</width>
-              <height>40</height>
+              <width>250</width>
+              <height>30</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>280</width>
+              <width>250</width>
               <height>16777215</height>
              </size>
             </property>
@@ -357,13 +357,13 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
             </property>
             <property name="minimumSize">
              <size>
-              <width>30</width>
-              <height>40</height>
+              <width>250</width>
+              <height>30</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>280</width>
+              <width>250</width>
               <height>16777215</height>
              </size>
             </property>
