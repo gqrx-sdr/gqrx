@@ -5,8 +5,8 @@ add_source_files(SRCS_LIST
 	agc_options.h
 	audio_options.cpp
 	audio_options.h
-        basebandview.cpp
-        basebandview.h
+    basebandview.cpp
+    basebandview.h
 	bandplan.cpp
 	bandplan.h
 	bookmarks.cpp
@@ -20,24 +20,24 @@ add_source_files(SRCS_LIST
 	ctk/ctkRangeSlider.h
 	demod_options.cpp
 	demod_options.h
-        dockafsk1200.cpp
-        dockafsk1200.h
+    dockafsk1200.cpp
+    dockafsk1200.h
 	dockaudio.cpp
 	dockaudio.h
 	dockbookmarks.cpp
 	dockbookmarks.h
-	dockfft.cpp
+	dockdxc.h
+    dockdxc.cpp
+    dockfft.cpp
 	dockfft.h
 	dockiqtool.h
-        dockiqtool.cpp
-        dockinputctl.cpp
+    dockiqtool.cpp
+    dockinputctl.cpp
 	dockinputctl.h
 	dockrds.cpp
 	dockrds.h
 	dockrxopt.cpp
 	dockrxopt.h
-	dxc_options.cpp
-	dxc_options.h
 	dxc_spots.cpp
 	dxc_spots.h
 	freqctrl.cpp
@@ -59,17 +59,17 @@ add_source_files(SRCS_LIST
 add_source_files(UI_SRCS_LIST
 	agc_options.ui
 	audio_options.ui
-        basebandview.ui
+    basebandview.ui
 	demod_options.ui
-        dockafsk1200.ui
+    dockafsk1200.ui
 	dockaudio.ui
 	dockbookmarks.ui
-	dockfft.ui
+	dockdxc.ui
+    dockfft.ui
 	dockinputctl.ui
 	dockiqtool.ui
-        dockrds.ui
+    dockrds.ui
 	dockrxopt.ui
-	dxc_options.ui
 	ioconfig.ui
 	nb_options.ui
 )

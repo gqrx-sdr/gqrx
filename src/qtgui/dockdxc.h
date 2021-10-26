@@ -30,22 +30,19 @@
 #include <QTcpSocket>
 #include <QSettings>
 
-#include <QDialog>
+#include <QFrame>
 
 namespace Ui {
-class DXCOptions;
+class DockDXCluster;
 }
 
-class DXCOptions : public QDialog
+class DockDXCluster : public QFrame
 {
     Q_OBJECT
 
 public:
-    explicit DXCOptions(QWidget *parent = 0);
-    ~DXCOptions();
-
-    void closeEvent(QCloseEvent *event);
-    void showEvent(QShowEvent * event);
+    explicit DockDXCluster(QWidget *parent = 0);
+    ~DockDXCluster();
 
     void saveSettings(std::shared_ptr<QSettings> settings);
     void readSettings(std::shared_ptr<QSettings> settings);
@@ -59,7 +56,7 @@ private slots:
     void readyToRead();
 
 private:
-    Ui::DXCOptions *ui;
+    Ui::DockDXCluster *ui;
     QTcpSocket *m_socket;
 };
 

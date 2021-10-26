@@ -51,7 +51,6 @@
 #include <DockAreaWidget.h>
 
 #include "qtgui/ioconfig.h"
-#include "qtgui/dxc_options.h"
 #include "qtgui/dxc_spots.h"
 
 #include "mainwindow.h"
@@ -126,9 +125,6 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
         d_iirFftData[i] = -140.0;  // dBFS
     }
 
-    // create DXC Objects
-    dxc_options = new DXCOptions(this);
-
     // create dock manager
     uiDockManager = new ads::CDockManager(this);
 
@@ -160,10 +156,10 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     uiDockWidgets.push_back(dockBookmarks);
     dockBookmarks->setWidget(uiDockBookmarks);
 
-    uiDockFft = new DockFft();
-    ads::CDockWidget* dockFft = new ads::CDockWidget("FFT");
-    uiDockWidgets.push_back(dockFft);
-    dockFft->setWidget(uiDockFft);
+    uiDockDXCluster = new DockDXCluster();
+    ads::CDockWidget* dockDXCluster = new ads::CDockWidget("DX Cluster");
+    uiDockWidgets.push_back(dockDXCluster);
+    dockDXCluster->setWidget(uiDockDXCluster);
 
     uiDockInputCtl = new DockInputCtl();
     ads::CDockWidget* dockInput = new ads::CDockWidget("Input");
@@ -174,6 +170,11 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     ads::CDockWidget* dockIQTool = new ads::CDockWidget("IQ Recorder");
     uiDockWidgets.push_back(dockIQTool);
     dockIQTool->setWidget(uiDockIQTool);
+    
+    uiDockFft = new DockFft();
+    ads::CDockWidget* dockFft = new ads::CDockWidget("FFT");
+    uiDockWidgets.push_back(dockFft);
+    dockFft->setWidget(uiDockFft);
 
     /* Add dock widgets to manager. This should be done even for
        dock widgets that are going to be hidden, otherwise they will
@@ -185,14 +186,17 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     dockInput->setAsCurrentTab();
 
     w = uiDockManager->addDockWidget(ads::BottomDockWidgetArea, dockBookmarks);
+    uiDockManager->addDockWidgetTabToArea(dockDXCluster, w);
     uiDockManager->addDockWidgetTabToArea(dockIQTool, w);
 
     // hide docks that we don't want to show initially
     dockBookmarks->closeDockWidget();
+    dockDXCluster->closeDockWidget();
     dockIQTool->closeDockWidget();
 
     // setup some toggle view shortcuts
     dockBookmarks->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_B));
+    dockDXCluster->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
     dockFft->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F));
     dockIQTool->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_I));
     dockInput->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_J));
@@ -205,15 +209,16 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     /* Add dock widget actions to View menu. By doing it this way all signal/slot
        connections will be established automagially.
     */
+    // Action icons
+    dockBookmarks->toggleViewAction()->setIcon(QIcon(":/icons/icons/bookmark-new.svg"));
+    dockIQTool->toggleViewAction()->setIcon(QIcon(":/icons/icons/signal.svg"));
+
+    // Action menu entries
     ui->menu_View->addAction(dockInput->toggleViewAction());
     ui->menu_View->addAction(dockFft->toggleViewAction());
-
-    dockBookmarks->toggleViewAction()->setIcon(QIcon(":/icons/icons/bookmark-new.svg"));
     ui->menu_View->addAction(dockBookmarks->toggleViewAction());
-
-    dockIQTool->toggleViewAction()->setIcon(QIcon(":/icons/icons/signal.svg"));
+    ui->menu_View->addAction(dockDXCluster->toggleViewAction());
     ui->menu_View->addAction(dockIQTool->toggleViewAction());
-
     ui->menu_View->addSeparator();
     receiversMenu = ui->menu_View->addMenu("Receivers");
     ui->menu_View->addSeparator();
@@ -346,7 +351,6 @@ MainWindow::~MainWindow()
 
     m_settings.reset();
     delete m_recent_config;
-    delete dxc_options;
 
     for (auto *dw : uiDockWidgets) {
         uiDockManager->removeDockWidget(dw);
@@ -613,7 +617,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
     }
 
     uiDockInputCtl->readSettings(m_settings); // this will also update freq range
-    dxc_options->readSettings(m_settings);
+    uiDockDXCluster->readSettings(m_settings);
 
     {
         int64_val = m_settings->value("input/frequency", 14236000).toLongLong(&conv_ok);
@@ -757,8 +761,8 @@ void MainWindow::storeSession()
         uiDockFft->saveSettings(m_settings);
 
         remote->saveSettings(m_settings);
+        uiDockDXCluster->saveSettings(m_settings);
         uiDockIQTool->saveSettings(m_settings);
-        dxc_options->saveSettings(m_settings);
 
         m_settings->setValue("receiver/count",  QVariant::fromValue(demodCtrls.size()));
         for (auto demod : demodCtrls)
@@ -1818,13 +1822,6 @@ void MainWindow::on_actionRemoteConfig_triggered()
 
     delete rcs;
 }
-
-/** Show DXC Options. */
-void MainWindow::on_actionDX_Cluster_triggered()
-{
-    dxc_options->show();
-}
-
 
 void MainWindow::on_actionAddDemodulator_triggered()
 {

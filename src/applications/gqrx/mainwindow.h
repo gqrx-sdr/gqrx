@@ -40,10 +40,10 @@
 
 #include "qtgui/basebandview.h"
 #include "qtgui/dockbookmarks.h"
+#include "qtgui/dockdxc.h"
 #include "qtgui/dockinputctl.h"
 #include "qtgui/dockfft.h"
 #include "qtgui/dockiqtool.h"
-#include "qtgui/dxc_options.h"
 
 #include "applications/gqrx/recentconfig.h"
 #include "applications/gqrx/remote_control.h"
@@ -105,13 +105,11 @@ private:
     ads::CDockManager               *uiDockManager;
     std::vector<ads::CDockWidget*>  uiDockWidgets;      // Widgets of Dock* type, wrapped for manager
     DockBookmarks                   *uiDockBookmarks;
+    DockDXCluster                   *uiDockDXCluster;
     DockFft                         *uiDockFft;
     DockIQTool                      *uiDockIQTool;
     DockInputCtl                    *uiDockInputCtl;
     QMenu                           *receiversMenu;
-
-    /* Peripherals */
-    DXCOptions          *dxc_options;
 
     /* Input/receiver controller */
     receiver::sptr      rx;
@@ -206,7 +204,6 @@ private slots:
     void on_actionKbdShortcuts_triggered();
     void on_actionAbout_triggered();
     void on_actionAboutQt_triggered();
-    void on_actionDX_Cluster_triggered();
     void on_actionAddDemodulator_triggered();
 
     /* window close signals */

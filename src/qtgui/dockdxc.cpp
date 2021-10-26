@@ -20,16 +20,17 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include "dxc_options.h"
-#include "ui_dxc_options.h"
 #include <QTcpSocket>
 #include <QString>
 #include <QStringList>
 #include "dxc_spots.h"
 
-DXCOptions::DXCOptions(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::DXCOptions)
+#include "dockdxc.h"
+#include "ui_dockdxc.h"
+
+DockDXCluster::DockDXCluster(QWidget *parent) :
+    QFrame(parent),
+    ui(new Ui::DockDXCluster)
 {
     ui->setupUi(this);
 
@@ -44,30 +45,12 @@ DXCOptions::DXCOptions(QWidget *parent) :
     connect(m_socket, SIGNAL(readyRead()),this, SLOT(readyToRead()));
 }
 
-DXCOptions::~DXCOptions()
+DockDXCluster::~DockDXCluster()
 {
     delete ui;
 }
 
-/*! \brief Catch window close events.
- *
- * This method is called when the user closes the audio options dialog
- * window using the window close icon. We catch the event and hide the
- * dialog but keep it around for later use.
- */
-void DXCOptions::closeEvent(QCloseEvent *event)
-{
-    hide();
-    event->ignore();
-}
-
-/*! \brief Catch window show events. */
-void DXCOptions::showEvent(QShowEvent * event)
-{
-    Q_UNUSED(event);
-}
-
-void DXCOptions::on_pushButton_DXCConnect_clicked()
+void DockDXCluster::on_pushButton_DXCConnect_clicked()
 {
     DXCSpots::Get().setSpotTimeout(ui->lineEdit_DXCSpottimeout->text().toInt());
     m_socket->connectToHost(ui->lineEdit_DXCAddress->text(),ui->lineEdit_DXCPort->text().toInt());
@@ -77,26 +60,26 @@ void DXCOptions::on_pushButton_DXCConnect_clicked()
     }
 }
 
-void DXCOptions::on_pushButton_DXCDisconnect_clicked()
+void DockDXCluster::on_pushButton_DXCDisconnect_clicked()
 {
     m_socket->close();
 }
 
-void DXCOptions::connected()
+void DockDXCluster::connected()
 {
     ui->plainTextEdit_DXCMonitor->appendPlainText("Connected");
     ui->pushButton_DXCConnect->setDisabled(true);
     ui->pushButton_DXCDisconnect->setEnabled(true);
 }
 
-void DXCOptions::disconnected()
+void DockDXCluster::disconnected()
 {
     ui->plainTextEdit_DXCMonitor->appendPlainText("Disconnected");
     ui->pushButton_DXCDisconnect->setDisabled(true);
     ui->pushButton_DXCConnect->setEnabled(true);
 }
 
-void DXCOptions::readyToRead()
+void DockDXCluster::readyToRead()
 {
     DXCSpotInfo info;
     QStringList spot;
@@ -128,7 +111,7 @@ void DXCOptions::readyToRead()
     }
 }
 
-void DXCOptions::saveSettings(std::shared_ptr<QSettings> settings)
+void DockDXCluster::saveSettings(std::shared_ptr<QSettings> settings)
 {
     if (!settings)
         return;
@@ -144,7 +127,7 @@ void DXCOptions::saveSettings(std::shared_ptr<QSettings> settings)
     settings->endGroup();
 }
 
-void DXCOptions::readSettings(std::shared_ptr<QSettings> settings)
+void DockDXCluster::readSettings(std::shared_ptr<QSettings> settings)
 {
     if (!settings)
         return;
