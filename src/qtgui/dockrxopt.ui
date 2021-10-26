@@ -233,6 +233,9 @@
               <height>0</height>
              </size>
             </property>
+            <property name="styleSheet">
+             <string notr="true">color: #dadada;</string>
+            </property>
             <property name="text">
              <string>Offset</string>
             </property>
@@ -325,6 +328,9 @@ This is an offset from the hardware RF frequency.&lt;/p&gt;&lt;/body&gt;&lt;/htm
               <width>40</width>
               <height>0</height>
              </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: #dadada;</string>
             </property>
             <property name="text">
              <string>Freq.</string>
