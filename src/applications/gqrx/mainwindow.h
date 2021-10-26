@@ -39,10 +39,10 @@
 #include <DockManager.h>
 
 #include "qtgui/basebandview.h"
+#include "qtgui/dockbookmarks.h"
 #include "qtgui/dockinputctl.h"
 #include "qtgui/dockfft.h"
-#include "qtgui/dockbookmarks.h"
-#include "qtgui/iq_tool.h"
+#include "qtgui/dockiqtool.h"
 #include "qtgui/dxc_options.h"
 
 #include "applications/gqrx/recentconfig.h"
@@ -104,13 +104,13 @@ private:
     /* dock widgets & management */
     ads::CDockManager               *uiDockManager;
     std::vector<ads::CDockWidget*>  uiDockWidgets;      // Widgets of Dock* type, wrapped for manager
-    DockInputCtl                    *uiDockInputCtl;
-    DockFft                         *uiDockFft;
     DockBookmarks                   *uiDockBookmarks;
+    DockFft                         *uiDockFft;
+    DockIQTool                      *uiDockIQTool;
+    DockInputCtl                    *uiDockInputCtl;
     QMenu                           *receiversMenu;
 
     /* Peripherals */
-    CIqTool             *iq_tool;
     DXCOptions          *dxc_options;
 
     /* Input/receiver controller */
@@ -197,7 +197,6 @@ private slots:
     void on_actionLoadSettings_triggered();
     void on_actionSaveSettings_triggered();
     void on_actionSaveWaterfall_triggered();
-    void on_actionIqTool_triggered();
     void on_actionFullScreen_triggered(bool checked);
     void on_actionRemoteControl_triggered(bool checked);
     void on_actionRemoteConfig_triggered();

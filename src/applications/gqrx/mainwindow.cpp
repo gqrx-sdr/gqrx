@@ -126,9 +126,6 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
         d_iirFftData[i] = -140.0;  // dBFS
     }
 
-    // create I/Q tool widget
-    iq_tool = new CIqTool(this);
-
     // create DXC Objects
     dxc_options = new DXCOptions(this);
 
@@ -158,20 +155,25 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     );
 
     // create dock widgets
-    uiDockInputCtl = new DockInputCtl();
-    ads::CDockWidget* dockInput = new ads::CDockWidget("Input");
-    uiDockWidgets.push_back(dockInput);
-    dockInput->setWidget(uiDockInputCtl);
+    uiDockBookmarks = new DockBookmarks();
+    ads::CDockWidget* dockBookmarks = new ads::CDockWidget("Bookmarks");
+    uiDockWidgets.push_back(dockBookmarks);
+    dockBookmarks->setWidget(uiDockBookmarks);
 
     uiDockFft = new DockFft();
     ads::CDockWidget* dockFft = new ads::CDockWidget("FFT");
     uiDockWidgets.push_back(dockFft);
     dockFft->setWidget(uiDockFft);
 
-    uiDockBookmarks = new DockBookmarks();
-    ads::CDockWidget* dockBookmarks = new ads::CDockWidget("Bookmarks");
-    uiDockWidgets.push_back(dockBookmarks);
-    dockBookmarks->setWidget(uiDockBookmarks);
+    uiDockInputCtl = new DockInputCtl();
+    ads::CDockWidget* dockInput = new ads::CDockWidget("Input");
+    uiDockWidgets.push_back(dockInput);
+    dockInput->setWidget(uiDockInputCtl);
+
+    uiDockIQTool = new DockIQTool();
+    ads::CDockWidget* dockIQTool = new ads::CDockWidget("IQ Recorder");
+    uiDockWidgets.push_back(dockIQTool);
+    dockIQTool->setWidget(uiDockIQTool);
 
     /* Add dock widgets to manager. This should be done even for
        dock widgets that are going to be hidden, otherwise they will
@@ -181,15 +183,19 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     auto w = uiDockManager->addDockWidget(ads::LeftDockWidgetArea, dockInput);
     uiDockManager->addDockWidgetTabToArea(dockFft, w);
     dockInput->setAsCurrentTab();
-    uiDockManager->addDockWidget(ads::BottomDockWidgetArea, dockBookmarks);
+
+    w = uiDockManager->addDockWidget(ads::BottomDockWidgetArea, dockBookmarks);
+    uiDockManager->addDockWidgetTabToArea(dockIQTool, w);
 
     // hide docks that we don't want to show initially
     dockBookmarks->closeDockWidget();
+    dockIQTool->closeDockWidget();
 
     // setup some toggle view shortcuts
-    dockInput->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_J));
-    dockFft->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F));
     dockBookmarks->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_B));
+    dockFft->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F));
+    dockIQTool->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_I));
+    dockInput->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_J));
     ui->mainToolBar->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
 
     // frequency setting shortcut
@@ -201,7 +207,13 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     */
     ui->menu_View->addAction(dockInput->toggleViewAction());
     ui->menu_View->addAction(dockFft->toggleViewAction());
+
+    dockBookmarks->toggleViewAction()->setIcon(QIcon(":/icons/icons/bookmark-new.svg"));
     ui->menu_View->addAction(dockBookmarks->toggleViewAction());
+
+    dockIQTool->toggleViewAction()->setIcon(QIcon(":/icons/icons/signal.svg"));
+    ui->menu_View->addAction(dockIQTool->toggleViewAction());
+
     ui->menu_View->addSeparator();
     receiversMenu = ui->menu_View->addMenu("Receivers");
     ui->menu_View->addSeparator();
@@ -267,11 +279,11 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(&DXCSpots::Get(), SIGNAL(dxcSpotsUpdated()), this, SLOT(updateClusterSpots()));
 
     // I/Q playback
-    connect(iq_tool, SIGNAL(startRecording(QString)), this, SLOT(startIqRecording(QString)));
-    connect(iq_tool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
-    connect(iq_tool, SIGNAL(startPlayback(QString,float)), this, SLOT(startIqPlayback(QString,float)));
-    connect(iq_tool, SIGNAL(stopPlayback()), this, SLOT(stopIqPlayback()));
-    connect(iq_tool, SIGNAL(seek(qint64)), this,SLOT(seekIqFile(qint64)));
+    connect(uiDockIQTool, SIGNAL(startRecording(QString)), this, SLOT(startIqRecording(QString)));
+    connect(uiDockIQTool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
+    connect(uiDockIQTool, SIGNAL(startPlayback(QString,float)), this, SLOT(startIqPlayback(QString,float)));
+    connect(uiDockIQTool, SIGNAL(stopPlayback()), this, SLOT(stopIqPlayback()));
+    connect(uiDockIQTool, SIGNAL(seek(qint64)), this,SLOT(seekIqFile(qint64)));
 
     // remote control
     connect(remote, SIGNAL(newFrequency(qint64)), uiBaseband->freqCtrl(), SLOT(setFrequency(qint64)));
@@ -334,7 +346,6 @@ MainWindow::~MainWindow()
 
     m_settings.reset();
     delete m_recent_config;
-    delete iq_tool;
     delete dxc_options;
 
     for (auto *dw : uiDockWidgets) {
@@ -560,7 +571,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         uiBaseband->plotter()->setSampleRate(actual_rate);
         uiBaseband->plotter()->setSpanFreq((quint32)actual_rate);
         remote->setBandwidth((qint64)actual_rate);
-        iq_tool->setSampleRate((qint64)actual_rate);
+        uiDockIQTool->setSampleRate((qint64)actual_rate);
     }
     else {
         qInfo() << "Error: Actual sample rate is" << actual_rate;
@@ -621,7 +632,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         setOffsetFollowsHw(follow);
     }
 
-    iq_tool->readSettings(m_settings);
+    uiDockIQTool->readSettings(m_settings);
 
     /*
      * Initialization the remote control at the end.
@@ -746,7 +757,7 @@ void MainWindow::storeSession()
         uiDockFft->saveSettings(m_settings);
 
         remote->saveSettings(m_settings);
-        iq_tool->saveSettings(m_settings);
+        uiDockIQTool->saveSettings(m_settings);
         dxc_options->saveSettings(m_settings);
 
         m_settings->setValue("receiver/count",  QVariant::fromValue(demodCtrls.size()));
@@ -1658,12 +1669,6 @@ void MainWindow::on_actionSaveWaterfall_triggered()
     // store the location used for the waterfall file
     QFileInfo fi(wffile);
     m_settings->setValue("wf_save_dir", fi.absolutePath());
-}
-
-/** Show I/Q player. */
-void MainWindow::on_actionIqTool_triggered()
-{
-    iq_tool->show();
 }
 
 /* CPlotter::NewDemodFreq() is emitted */

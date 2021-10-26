@@ -28,7 +28,9 @@ add_source_files(SRCS_LIST
 	dockbookmarks.h
 	dockfft.cpp
 	dockfft.h
-	dockinputctl.cpp
+	dockiqtool.h
+        dockiqtool.cpp
+        dockinputctl.cpp
 	dockinputctl.h
 	dockrds.cpp
 	dockrds.h
@@ -42,8 +44,6 @@ add_source_files(SRCS_LIST
 	freqctrl.h
 	ioconfig.cpp
 	ioconfig.h
-	iq_tool.cpp
-	iq_tool.h
 	meter.cpp
 	meter.h
 	nb_options.cpp
@@ -66,10 +66,10 @@ add_source_files(UI_SRCS_LIST
 	dockbookmarks.ui
 	dockfft.ui
 	dockinputctl.ui
-	dockrds.ui
+	dockiqtool.ui
+        dockrds.ui
 	dockrxopt.ui
 	dxc_options.ui
 	ioconfig.ui
-	iq_tool.ui
 	nb_options.ui
 )

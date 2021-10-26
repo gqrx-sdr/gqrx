@@ -33,7 +33,7 @@
      <x>0</x>
      <y>0</y>
      <width>521</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -84,7 +84,6 @@
     <addaction name="actionRemoteControl"/>
     <addaction name="actionRemoteConfig"/>
     <addaction name="separator"/>
-    <addaction name="actionIqTool"/>
     <addaction name="separator"/>
     <addaction name="actionDX_Cluster"/>
    </widget>
@@ -110,7 +109,6 @@
    <addaction name="actionSaveSettings"/>
    <addaction name="separator"/>
    <addaction name="actionAddDemodulator"/>
-   <addaction name="actionIqTool"/>
    <addaction name="separator"/>
    <addaction name="actionRemoteControl"/>
    <addaction name="actionRemoteConfig"/>
@@ -307,24 +305,6 @@
    </property>
    <property name="toolTip">
     <string>Configure remote control settings</string>
-   </property>
-  </action>
-  <action name="actionIqTool">
-   <property name="icon">
-    <iconset resource="../../../resources/icons.qrc">
-     <normaloff>:/icons/icons/signal.svg</normaloff>:/icons/icons/signal.svg</iconset>
-   </property>
-   <property name="text">
-    <string>I/Q recorder</string>
-   </property>
-   <property name="toolTip">
-    <string>Record and play I/Q data</string>
-   </property>
-   <property name="statusTip">
-    <string>Open I/Q recorder dialog</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+I</string>
    </property>
   </action>
   <action name="actionNews">
