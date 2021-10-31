@@ -12,11 +12,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Install dependencies
-        run: sudo apt-get update -qq && sudo apt-get install -y cmake qt5-default libqt5svg5-dev libboost-dev libpulse-dev portaudio19-dev liblog4cpp5-dev gnuradio-dev gr-osmosdr gr-fcdproplus liborc-0.4-dev
+        run: sudo apt-get update -qq && sudo apt-get install -y cmake qt5-default libqt5svg5-dev libqt5x11extras5-dev libboost-dev libpulse-dev portaudio19-dev liblog4cpp5-dev gnuradio-dev gr-osmosdr gr-fcdproplus liborc-0.4-dev
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Configure
-        run: mkdir build && cd build && cmake -DLINUX_AUDIO_BACKEND:STRING=${{ matrix.backend }} ..
+        run: mkdir build && cd build && cmake -DLINUX_AUDIO_BACKEND:STRING=${{ matrix.backend }} -DBUILD_EXAMPLES=OFF ..
       - name: Compile
         working-directory: build
         run: make
@@ -44,7 +44,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Configure
-        run: mkdir build && cd build && cmake -DOSX_AUDIO_BACKEND:STRING=${{ matrix.backend }} ..
+        run: mkdir build && cd build && cmake -DOSX_AUDIO_BACKEND:STRING=${{ matrix.backend }} -DBUILD_EXAMPLES=OFF ..
       - name: Compile
         working-directory: build
         run: make

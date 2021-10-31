@@ -6,8 +6,10 @@
 #include <QFont>
 #include <QFrame>
 #include <QImage>
-#include <vector>
 #include <QMap>
+
+#include <memory>
+#include <vector>
 
 #define HORZ_DIVS_MAX 12    //50
 #define VERT_DIVS_MIN 5
