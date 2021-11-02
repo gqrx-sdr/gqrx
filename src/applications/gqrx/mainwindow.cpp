@@ -1078,6 +1078,8 @@ void MainWindow::addDemodulator()
     {
         connectRemote(0);
     }
+
+    ctl->setHwFrequency(d_hw_freq, false);
 }
 
 void MainWindow::removeDemodulator(size_t idx)
