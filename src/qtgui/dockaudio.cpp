@@ -23,7 +23,6 @@
 #include <cmath>
 #include <QDebug>
 #include <QDateTime>
-#include <QShortcut>
 #include <QDir>
 #include "dockaudio.h"
 #include "ui_dockaudio.h"
@@ -73,20 +72,12 @@ DockAudio::DockAudio(QWidget *parent) :
     ui->audioSpectrum->setVdivDelta(40);
     ui->audioSpectrum->setHdivDelta(40);
     ui->audioSpectrum->setFreqDigits(1);
-
-    QShortcut *rec_toggle_shortcut = new QShortcut(QKeySequence(Qt::Key_R), this);
-    QShortcut *mute_toggle_shortcut = new QShortcut(QKeySequence(Qt::Key_M), this);
-    QShortcut *audio_gain_increase_shortcut1 = new QShortcut(QKeySequence(Qt::Key_Plus), this);
-    QShortcut *audio_gain_decrease_shortcut1 = new QShortcut(QKeySequence(Qt::Key_Minus), this);
-
-    QObject::connect(rec_toggle_shortcut, &QShortcut::activated, this, &DockAudio::recordToggleShortcut);
-    QObject::connect(mute_toggle_shortcut, &QShortcut::activated, this, &DockAudio::muteToggleShortcut);
-    QObject::connect(audio_gain_increase_shortcut1, &QShortcut::activated, this, &DockAudio::increaseAudioGainShortcut);
-    QObject::connect(audio_gain_decrease_shortcut1, &QShortcut::activated, this, &DockAudio::decreaseAudioGainShortcut);
 }
 
 DockAudio::~DockAudio()
 {
+    removeShortcuts();
+
     delete ui;
 }
 
@@ -140,6 +131,82 @@ void DockAudio::setFftColor(QColor color)
 void DockAudio::setFftFill(bool enabled)
 {
     ui->audioSpectrum->setFftFill(enabled);
+}
+
+void DockAudio::setupShortcuts(const size_t idx)
+{
+    // Remove any existing shortcuts
+    removeShortcuts();
+
+    // pre-select demod with a key combo
+    int dkey = -1;
+    switch (idx) {
+    case 0:
+        dkey = Qt::CTRL + Qt::Key_1;
+        break;
+    case 1:
+        dkey = Qt::CTRL + Qt::Key_2;
+        break;
+    case 2:
+        dkey = Qt::CTRL + Qt::Key_3;
+        break;
+    case 3:
+        dkey = Qt::CTRL + Qt::Key_4;
+        break;
+    case 4:
+        dkey = Qt::CTRL + Qt::Key_5;
+        break;
+    case 5:
+        dkey = Qt::CTRL + Qt::Key_6;
+        break;
+    case 6:
+        dkey = Qt::CTRL + Qt::Key_7;
+        break;
+    case 7:
+        dkey = Qt::CTRL + Qt::Key_8;
+        break;
+    case 8:
+        dkey = Qt::CTRL + Qt::Key_9;
+        break;
+    case 9:
+        dkey = Qt::CTRL + Qt::Key_0;
+        break;
+    }
+
+    // Do not set up shortcuts if the demod cannot be pre-selected
+    if (dkey < 0) {
+        return;
+    }
+
+    QShortcut *rec_toggle_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_R), this);
+    QShortcut *mute_toggle_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_M), this);
+    QShortcut *audio_gain_increase_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_Plus), this);
+    QShortcut *audio_gain_decrease_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_Minus), this);
+
+    shortcutConnections.push_back(QObject::connect(rec_toggle_shortcut, &QShortcut::activated, this, &DockAudio::recordToggleShortcut));
+    shortcutConnections.push_back(QObject::connect(mute_toggle_shortcut, &QShortcut::activated, this, &DockAudio::muteToggleShortcut));
+    shortcutConnections.push_back(QObject::connect(audio_gain_increase_shortcut, &QShortcut::activated, this, &DockAudio::increaseAudioGainShortcut));
+    shortcutConnections.push_back(QObject::connect(audio_gain_decrease_shortcut, &QShortcut::activated, this, &DockAudio::decreaseAudioGainShortcut));
+
+    // Store all the shortcut pointers so we can remove them
+    shortcuts.push_back(rec_toggle_shortcut);
+    shortcuts.push_back(mute_toggle_shortcut);
+    shortcuts.push_back(audio_gain_increase_shortcut);
+    shortcuts.push_back(audio_gain_decrease_shortcut);
+}
+
+void DockAudio::removeShortcuts()
+{
+    for (int i = 0; i < shortcutConnections.size(); ++i)
+    {
+        disconnect(shortcutConnections[i]);
+    }
+    shortcutConnections.clear();
+    for (int i = 0; i < shortcuts.size(); ++i)
+    {
+        delete shortcuts[i];
+    }
+    shortcuts.clear();
 }
 
 /*! Public slot to trig audio recording by external events (e.g. satellite AOS).

@@ -27,6 +27,8 @@
 
 #include <QFrame>
 #include <QSettings>
+#include <QShortcut>
+
 #include "qtgui/agc_options.h"
 #include "qtgui/demod_options.h"
 #include "qtgui/nb_options.h"
@@ -84,7 +86,8 @@ public:
     explicit DockRxOpt(qint64 filterOffsetRange = 90000, QWidget *parent = 0);
     ~DockRxOpt();
 
-    void setupShortcuts();
+    void setupShortcuts(const size_t idx);
+    void removeShortcuts();
 
     void readSettings(std::shared_ptr<QSettings> settings, size_t idx);
     void saveSettings(std::shared_ptr<QSettings> settings, size_t idx);
@@ -257,6 +260,9 @@ private:
     bool agc_is_on;
 
     qint64 hw_freq_hz;   /** Current PLL frequency in Hz. */
+
+    QList<QMetaObject::Connection> shortcutConnections;
+    QList<QShortcut*> shortcuts;
 };
 
 #endif // DOCKRXOPT_H

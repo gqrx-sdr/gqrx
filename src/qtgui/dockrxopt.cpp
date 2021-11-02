@@ -22,11 +22,11 @@
  */
 #include <QDebug>
 #include <QVariant>
-#include <QShortcut>
+
 #include <iostream>
+
 #include "dockrxopt.h"
 #include "ui_dockrxopt.h"
-
 
 QStringList DockRxOpt::ModulationStrings;
 
@@ -130,60 +130,139 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
 }
 
 /**
- * @brief DockRxOpt::setupShortcuts - keyboard shortcuts, scoped to this widget + children
+ * @brief DockRxOpt::setupShortcuts - keyboard shortcuts
  */
-void DockRxOpt::setupShortcuts()
+void DockRxOpt::setupShortcuts(const size_t idx)
 {
-    /* mode setting shortcuts */
-    QShortcut *mode_off_shortcut = new QShortcut(QKeySequence(Qt::Key_Exclam), this, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    QShortcut *mode_raw_shortcut = new QShortcut(QKeySequence(Qt::Key_I), this, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    QShortcut *mode_am_shortcut = new QShortcut(QKeySequence(Qt::Key_A), this, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    QShortcut *mode_nfm_shortcut = new QShortcut(QKeySequence(Qt::Key_N), this, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    QShortcut *mode_wfm_mono_shortcut = new QShortcut(QKeySequence(Qt::Key_W), this);
-    QShortcut *mode_wfm_stereo_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_W), this, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    QShortcut *mode_lsb_shortcut = new QShortcut(QKeySequence(Qt::Key_S), this, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    QShortcut *mode_usb_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_S), this, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    QShortcut *mode_cwl_shortcut = new QShortcut(QKeySequence(Qt::Key_C), this, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    QShortcut *mode_cwu_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_C), this, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    QShortcut *mode_wfm_oirt_shortcut = new QShortcut(QKeySequence(Qt::Key_O), this, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    QShortcut *mode_am_sync_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_A), this, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut);
+    // Remove any existing shortcuts
+    removeShortcuts();
 
-    QObject::connect(mode_off_shortcut, &QShortcut::activated, this, &DockRxOpt::modeOffShortcut);
-    QObject::connect(mode_raw_shortcut, &QShortcut::activated, this, &DockRxOpt::modeRawShortcut);
-    QObject::connect(mode_am_shortcut, &QShortcut::activated, this, &DockRxOpt::modeAMShortcut);
-    QObject::connect(mode_nfm_shortcut, &QShortcut::activated, this, &DockRxOpt::modeNFMShortcut);
-    QObject::connect(mode_wfm_mono_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMmonoShortcut);
-    QObject::connect(mode_wfm_stereo_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMstereoShortcut);
-    QObject::connect(mode_lsb_shortcut, &QShortcut::activated, this, &DockRxOpt::modeLSBShortcut);
-    QObject::connect(mode_usb_shortcut, &QShortcut::activated, this, &DockRxOpt::modeUSBShortcut);
-    QObject::connect(mode_cwl_shortcut, &QShortcut::activated, this, &DockRxOpt::modeCWLShortcut);
-    QObject::connect(mode_cwu_shortcut, &QShortcut::activated, this, &DockRxOpt::modeCWUShortcut);
-    QObject::connect(mode_wfm_oirt_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMoirtShortcut);
-    QObject::connect(mode_am_sync_shortcut, &QShortcut::activated, this, &DockRxOpt::modeAMsyncShortcut);
+    // pre-select demod with a key combo
+    int dkey = -1;
+    switch (idx) {
+    case 0:
+        dkey = Qt::CTRL + Qt::Key_1;
+        break;
+    case 1:
+        dkey = Qt::CTRL + Qt::Key_2;
+        break;
+    case 2:
+        dkey = Qt::CTRL + Qt::Key_3;
+        break;
+    case 3:
+        dkey = Qt::CTRL + Qt::Key_4;
+        break;
+    case 4:
+        dkey = Qt::CTRL + Qt::Key_5;
+        break;
+    case 5:
+        dkey = Qt::CTRL + Qt::Key_6;
+        break;
+    case 6:
+        dkey = Qt::CTRL + Qt::Key_7;
+        break;
+    case 7:
+        dkey = Qt::CTRL + Qt::Key_8;
+        break;
+    case 8:
+        dkey = Qt::CTRL + Qt::Key_9;
+        break;
+    case 9:
+        dkey = Qt::CTRL + Qt::Key_0;
+        break;
+    }
+
+    // Do not set up shortcuts if the demod cannot be pre-selected
+    if (dkey < 0) {
+        return;
+    }
+
+    /* mode setting shortcuts */
+    QShortcut *mode_off_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_O), this);
+    QShortcut *mode_raw_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_I), this);
+    QShortcut *mode_am_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_A), this);
+    QShortcut *mode_nfm_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_N), this);
+    QShortcut *mode_wfm_mono_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_W), this);
+    QShortcut *mode_wfm_stereo_shortcut = new QShortcut(QKeySequence(dkey, Qt::SHIFT + Qt::Key_W), this);
+    QShortcut *mode_lsb_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_S), this);
+    QShortcut *mode_usb_shortcut = new QShortcut(QKeySequence(dkey, Qt::SHIFT + Qt::Key_S), this);
+    QShortcut *mode_cwl_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_C), this);
+    QShortcut *mode_cwu_shortcut = new QShortcut(QKeySequence(dkey, Qt::SHIFT + Qt::Key_C), this);
+    QShortcut *mode_wfm_oirt_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_O), this);
+    QShortcut *mode_am_sync_shortcut = new QShortcut(QKeySequence(dkey, Qt::SHIFT + Qt::Key_A), this);
+
+    shortcutConnections.push_back(QObject::connect(mode_off_shortcut, &QShortcut::activated, this, &DockRxOpt::modeOffShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_raw_shortcut, &QShortcut::activated, this, &DockRxOpt::modeRawShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_am_shortcut, &QShortcut::activated, this, &DockRxOpt::modeAMShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_nfm_shortcut, &QShortcut::activated, this, &DockRxOpt::modeNFMShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_wfm_mono_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMmonoShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_wfm_stereo_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMstereoShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_lsb_shortcut, &QShortcut::activated, this, &DockRxOpt::modeLSBShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_usb_shortcut, &QShortcut::activated, this, &DockRxOpt::modeUSBShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_cwl_shortcut, &QShortcut::activated, this, &DockRxOpt::modeCWLShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_cwu_shortcut, &QShortcut::activated, this, &DockRxOpt::modeCWUShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_wfm_oirt_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMoirtShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_am_sync_shortcut, &QShortcut::activated, this, &DockRxOpt::modeAMsyncShortcut));
 
     /* squelch shortcuts */
-    QShortcut *squelch_reset_shortcut = new QShortcut(QKeySequence(Qt::Key_QuoteLeft), this, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    QShortcut *squelch_auto_shortcut = new QShortcut(QKeySequence(Qt::Key_AsciiTilde), this, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut);
+    QShortcut *squelch_reset_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_QuoteLeft), this);
+    QShortcut *squelch_auto_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_AsciiTilde), this);
 
-    QObject::connect(squelch_reset_shortcut, &QShortcut::activated, this, &DockRxOpt::on_resetSquelchButton_clicked);
-    QObject::connect(squelch_auto_shortcut, &QShortcut::activated, this, &DockRxOpt::on_autoSquelchButton_clicked);
+    shortcutConnections.push_back(QObject::connect(squelch_reset_shortcut, &QShortcut::activated, this, &DockRxOpt::on_resetSquelchButton_clicked));
+    shortcutConnections.push_back(QObject::connect(squelch_auto_shortcut, &QShortcut::activated, this, &DockRxOpt::on_autoSquelchButton_clicked));
 
     /* filter width shortcuts */
-    QShortcut *filter_narrow_shortcut = new QShortcut(QKeySequence(Qt::Key_Less), this, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    QShortcut *filter_normal_shortcut = new QShortcut(QKeySequence(Qt::Key_Period), this, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    QShortcut *filter_wide_shortcut = new QShortcut(QKeySequence(Qt::Key_Greater), this, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut);
+    QShortcut *filter_narrow_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_Less), this);
+    QShortcut *filter_normal_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_Period), this);
+    QShortcut *filter_wide_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_Greater), this);
 
-    QObject::connect(filter_narrow_shortcut, &QShortcut::activated, this, &DockRxOpt::filterNarrowShortcut);
-    QObject::connect(filter_normal_shortcut, &QShortcut::activated, this, &DockRxOpt::filterNormalShortcut);
-    QObject::connect(filter_wide_shortcut, &QShortcut::activated, this, &DockRxOpt::filterWideShortcut);
+    shortcutConnections.push_back(QObject::connect(filter_narrow_shortcut, &QShortcut::activated, this, &DockRxOpt::filterNarrowShortcut));
+    shortcutConnections.push_back(QObject::connect(filter_normal_shortcut, &QShortcut::activated, this, &DockRxOpt::filterNormalShortcut));
+    shortcutConnections.push_back(QObject::connect(filter_wide_shortcut, &QShortcut::activated, this, &DockRxOpt::filterWideShortcut));
 
     /* Bookmark */
-    QShortcut *bookmark_shortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_B), this, nullptr, nullptr, Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    QObject::connect(bookmark_shortcut, &QShortcut::activated, this, &DockRxOpt::bookmark);
+    QShortcut *bookmark_shortcut = new QShortcut(QKeySequence(dkey, Qt::CTRL + Qt::SHIFT + Qt::Key_B), this);
+    shortcutConnections.push_back(QObject::connect(bookmark_shortcut, &QShortcut::activated, this, &DockRxOpt::bookmark));
+
+    // Store all the shortcut pointers so we can remove them
+    shortcuts.push_back(mode_off_shortcut);
+    shortcuts.push_back(mode_raw_shortcut);
+    shortcuts.push_back(mode_am_shortcut);
+    shortcuts.push_back(mode_nfm_shortcut);
+    shortcuts.push_back(mode_wfm_mono_shortcut);
+    shortcuts.push_back(mode_wfm_stereo_shortcut);
+    shortcuts.push_back(mode_lsb_shortcut);
+    shortcuts.push_back(mode_usb_shortcut);
+    shortcuts.push_back(mode_cwl_shortcut);
+    shortcuts.push_back(mode_cwu_shortcut);
+    shortcuts.push_back(mode_wfm_oirt_shortcut);
+    shortcuts.push_back(mode_am_sync_shortcut);
+    shortcuts.push_back(squelch_reset_shortcut);
+    shortcuts.push_back(squelch_auto_shortcut);
+    shortcuts.push_back(filter_narrow_shortcut);
+    shortcuts.push_back(filter_normal_shortcut);
+    shortcuts.push_back(filter_wide_shortcut);
+    shortcuts.push_back(bookmark_shortcut);
+}
+
+void DockRxOpt::removeShortcuts()
+{
+    for (int i = 0; i < shortcutConnections.size(); ++i)
+    {
+        disconnect(shortcutConnections[i]);
+    }
+    shortcutConnections.clear();
+    for (int i = 0; i < shortcuts.size(); ++i)
+    {
+        delete shortcuts[i];
+    }
+    shortcuts.clear();
 }
 
 DockRxOpt::~DockRxOpt()
 {
+    removeShortcuts();
+
     delete ui;
     delete demodOpt;
     delete agcOpt;

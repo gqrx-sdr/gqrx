@@ -28,6 +28,8 @@
 #include <QColor>
 #include <QFrame>
 #include <QSettings>
+#include <QShortcut>
+
 #include "audio_options.h"
 
 namespace Ui {
@@ -66,6 +68,9 @@ public:
 
     void setFftColor(QColor color);
     void setFftFill(bool enabled);
+
+    void setupShortcuts(const size_t idx);
+    void removeShortcuts();
 
     void saveSettings(std::shared_ptr<QSettings> settings, size_t idx);
     void readSettings(std::shared_ptr<QSettings> settings, size_t idx);
@@ -130,6 +135,9 @@ private:
     bool           autoSpan;     /*! Whether to allow mode-dependent auto span. */
 
     qint64         rx_freq;      /*! RX frequency used in filenames. */
+
+    QList<QMetaObject::Connection> shortcutConnections;
+    QList<QShortcut*> shortcuts;
 
     void           recordToggleShortcut();
     void           muteToggleShortcut();

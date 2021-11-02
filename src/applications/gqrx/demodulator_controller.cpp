@@ -81,10 +81,8 @@ DemodulatorController::DemodulatorController(
     dockAFSK->closeDockWidget();
     dockDemod->setAsCurrentTab();
 
-    // Set titles and colours
+    // Set titles, colours and shortcuts
     onIndexChanged(demod->get_idx());
-
-    uiDockRxOpt->setupShortcuts();
 
     d_fftData = new std::complex<float>[MAX_FFT_SIZE];
     d_realFftData = new float[MAX_FFT_SIZE];
@@ -326,10 +324,12 @@ void DemodulatorController::onIndexChanged(size_t idx)
     dockDemod->setObjectName(QString("Demod %0").arg(num));
     dockDemod->setWindowTitle(QString("Demod %0").arg(num));
     dockDemod->tabWidget()->setStyleSheet(nextStyle);
+    uiDockRxOpt->setupShortcuts(idx);
 
     dockAudio->setObjectName(QString("Audio %0").arg(num));
     dockAudio->setWindowTitle(QString("Audio %0").arg(num));
     dockAudio->tabWidget()->setStyleSheet(nextStyle);
+    uiDockAudio->setupShortcuts(idx);
 
     dockRDS->setObjectName(QString("RDS %0").arg(num));
     dockRDS->setWindowTitle(QString("RDS %0").arg(num));
