@@ -48,11 +48,12 @@ Q_LOGGING_CATEGORY(plotter, "plotter")
 #define FFT_MAX_DB      0.f
 
 // Colors of type QRgb in 0xAARRGGBB format (unsigned int)
-#define PLOTTER_BGD_COLOR           0xFF1F1D1D
-#define PLOTTER_GRID_COLOR          0xFF444242
-#define PLOTTER_TEXT_COLOR          0xFFDADADA
-#define PLOTTER_CENTER_LINE_COLOR   0xFF788296
-#define PLOTTER_FILTER_BOX_COLOR    0xFFA0A0A4
+#define PLOTTER_BGD_COLOR               0xFF1F1D1D
+#define PLOTTER_GRID_COLOR              0xFF444242
+#define PLOTTER_TEXT_COLOR              0xFFDADADA
+#define PLOTTER_CENTER_LINE_COLOR       0xFF788296
+#define PLOTTER_FILTER_BOX_COLOR_NORM   0xFF898989
+#define PLOTTER_FILTER_BOX_COLOR_NEAR   0xFFC9C9D9
 // FIXME: Should cache the QColors also
 
 #define HOR_MARGIN 5
@@ -175,6 +176,7 @@ QSize CPlotter::sizeHint() const
 void CPlotter::mouseMoveEvent(QMouseEvent* event)
 {
     QPoint pt = event->pos();
+    m_mxPosition = pt.x();
 
     /* mouse enter / mouse leave events */
     if (pt.y() < m_OverlayPixmap.height() / m_DPR)
@@ -339,14 +341,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             else
             {
                 emit pandapterRangeChanged(m_PandMindB, m_PandMaxdB);
-
-                if (m_Running)
-                    m_DrawOverlay = true;
-                else
-                    drawOverlay();
-
                 m_PeakHoldValid = false;
-
                 m_Yzero = pt.y();
             }
         }
@@ -392,11 +387,6 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     (event->buttons() & Qt::LeftButton)
                 );
                 emit newFilterFreq(m_DemodCaptured, m_demod[m_DemodCaptured]->lowCutFreq, m_demod[m_DemodCaptured]->hiCutFreq);
-
-                if (m_Running)
-                    m_DrawOverlay = true;
-                else
-                    drawOverlay();
             }
             else
             {
@@ -476,6 +466,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             setCursor(QCursor(Qt::ArrowCursor));
         m_CursorCaptured = NOCAP;
     }
+
+    updateOverlay();
 }
 
 
@@ -1521,6 +1513,7 @@ void CPlotter::drawOverlay()
     // Draw demod filter boxes
     if (m_FilterBoxEnabled)
     {
+        auto closest = closestDemodulator(freqFromX(m_mxPosition));
         auto f = painter.font();
         painter.setFont(QFont("monospace", 9));
         auto numDemod = m_demod.size();
@@ -1535,10 +1528,13 @@ void CPlotter::drawOverlay()
 
             painter.setOpacity(0.3);
             painter.fillRect(demod->lowCutFreqX, 0, dw, h,
-                             QColor(PLOTTER_FILTER_BOX_COLOR));
+                             i == closest
+                               ? QColor(PLOTTER_FILTER_BOX_COLOR_NEAR)
+                               : QColor(PLOTTER_FILTER_BOX_COLOR_NORM)
+                             );
 
             painter.setOpacity(1.0);
-            painter.setPen(QColor::fromHsv((15 * i) % 255, 240, 240));
+            painter.setPen(QColor::fromHsv((15 * i) % 255, 240, i == closest ? 255 : 230));
             painter.drawLine(demod->freqX, 0, demod->freqX, h);
             if (numDemod > 1) {
                 painter.drawText(demod->freqX + 3, 24, QString("%0").arg(i + 1));

@@ -384,6 +384,7 @@ private:
     bool            m_DXCSpotsEnabled;    /*!< Show/hide DXC Spots on spectrum */
     int             m_CursorCaptureDelta;
     int             m_GrabPosition;
+    int             m_mxPosition;
     int             m_Percent2DScreen;
 
 
