@@ -420,6 +420,8 @@ void DemodulatorController::setFilterFrequency(int low, int high)
         uiDockRxOpt->setFilterParam(low, high);
     }
 
+    uiDockAudio->setFftRange(0, high);
+
     emit filterFrequency(demod->get_idx(), low, high);
 }
 
@@ -460,6 +462,8 @@ void DemodulatorController::selectDemod(int mode_idx)
     uiDockRxOpt->getFilterPreset(mode_idx, filter_preset, &flo, &fhi);
     d_filter_shape = (rx_filter_shape)uiDockRxOpt->currentFilterShape();
 
+    uiDockAudio->setFftRange(0, fhi);
+
     bool rds_enabled = demod->is_rds_decoder_active();
     if (rds_enabled) {
         setRdsDecoder(false);
@@ -485,26 +489,23 @@ void DemodulatorController::selectDemod(int mode_idx)
         // must set demod via rx due to flowgraph reconfiguration
         rx->set_demod(demod->get_idx(), rx_demod::RX_DEMOD_NONE);
         setFilterRanges(-40000, -200, 200, 40000, true, 100);
-        uiDockAudio->setFftRange(0,24000);
+        uiDockAudio->setFftRange(0, demod->get_audio_rate() / 2);
         break;
 
     case DockRxOpt::MODE_AM:
         // must set demod via rx due to flowgraph reconfiguration
         rx->set_demod(demod->get_idx(), rx_demod::RX_DEMOD_AM);
         setFilterRanges(-40000, -200, 200, 40000, true, 100);
-        uiDockAudio->setFftRange(0,6000);
         break;
 
     case DockRxOpt::MODE_AM_SYNC:
         // must set demod via rx due to flowgraph reconfiguration
         rx->set_demod(demod->get_idx(), rx_demod::RX_DEMOD_AMSYNC);
         setFilterRanges(-40000, -200, 200, 40000, true, 100);
-        uiDockAudio->setFftRange(0,6000);
         break;
 
     case DockRxOpt::MODE_NFM:
         setFilterRanges(-40000, -1000, 1000, 40000, true, 100);
-        uiDockAudio->setFftRange(0, 5000);
 
         // must set demod via rx due to flowgraph reconfiguration
         rx->set_demod(demod->get_idx(), rx_demod::RX_DEMOD_NFM);
@@ -517,7 +518,6 @@ void DemodulatorController::selectDemod(int mode_idx)
     case DockRxOpt::MODE_WFM_STEREO_OIRT:
         /* Broadcast FM */
         setFilterRanges(-120e3, -10000, 10000, 120e3, true, 1000);
-        uiDockAudio->setFftRange(0, demod->get_audio_rate());
 
         // must set demod via rx due to flowgraph reconfiguration
         if (mode_idx == DockRxOpt::MODE_WFM_MONO)
@@ -538,7 +538,6 @@ void DemodulatorController::selectDemod(int mode_idx)
         // must set demod via rx due to flowgraph reconfiguration
         rx->set_demod(demod->get_idx(), rx_demod::RX_DEMOD_SSB);
         setFilterRanges(-40000, -100, -5000, 0, false, 100);
-        uiDockAudio->setFftRange(0,3000);
         break;
 
     case DockRxOpt::MODE_USB:
@@ -546,7 +545,6 @@ void DemodulatorController::selectDemod(int mode_idx)
         // must set demod via rx due to flowgraph reconfiguration
         rx->set_demod(demod->get_idx(), rx_demod::RX_DEMOD_SSB);
         setFilterRanges(0, 5000, 100, 40000, false, 100);
-        uiDockAudio->setFftRange(0,3000);
         break;
 
     case DockRxOpt::MODE_CWL:
