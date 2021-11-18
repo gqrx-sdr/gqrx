@@ -313,12 +313,12 @@ void RemoteControl::setPassband(int passband_lo, int passband_hi)
 /*! \brief New remote frequency received. */
 void RemoteControl::setNewRemoteFreq(qint64 freq)
 {
-    qint64 delta = freq - rc_freq;
+    qint64 delta = freq - rc_freq - rc_filter_offset;
     qint64 bwh_eff = 0.8f * (float)bw_half;
 
     rc_filter_offset += delta;
-    if ((rc_filter_offset > 0 && rc_filter_offset + rc_passband_hi < bwh_eff) ||
-        (rc_filter_offset < 0 && rc_filter_offset + rc_passband_lo > -bwh_eff))
+    if ((rc_filter_offset >= 0 && rc_filter_offset + rc_passband_hi < bwh_eff) ||
+        (rc_filter_offset <= 0 && rc_filter_offset + rc_passband_lo > -bwh_eff))
     {
         // move filter offset
         emit newFilterOffset(rc_filter_offset);
@@ -331,11 +331,12 @@ void RemoteControl::setNewRemoteFreq(qint64 freq)
             rc_filter_offset = -0.2f * bwh_eff;
         else
             rc_filter_offset = 0.2f * bwh_eff;
-        emit newFilterOffset(rc_filter_offset);
-        emit newFrequency(freq);
-    }
 
-    rc_freq = freq;
+        emit newFilterOffset(rc_filter_offset);
+        freq -= rc_filter_offset;
+        emit newFrequency(freq);
+        rc_freq = freq;
+    }
 }
 
 /*! \brief Set squelch level (from mainwindow). */
@@ -542,7 +543,7 @@ QString RemoteControl::intToModeStr(int mode)
 /* Get frequency */
 QString RemoteControl::cmd_get_freq() const
 {
-    return QString("%1\n").arg(rc_freq);
+    return QString("%1\n").arg(rc_freq + rc_filter_offset);
 }
 
 /* Set new frequency */
