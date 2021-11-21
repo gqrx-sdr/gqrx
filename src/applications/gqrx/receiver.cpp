@@ -217,8 +217,12 @@ void receiver::set_input_device(const std::string device)
         tb->disconnect(src, 0, iq_swap, 0);
     }
 
-    src.reset();
-
+    //temporarily connect dummy source to ensure that previous device is closed
+    src = osmosdr::source::make("file="+get_random_file()+",freq=428e6,rate=96000,repeat=true,throttle=true");
+    tb->connect(src, 0, iq_swap, 0);
+    tb->start();
+    tb->stop();
+    tb->disconnect(src, 0, iq_swap, 0);
 
     try
     {
