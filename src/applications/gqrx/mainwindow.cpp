@@ -1856,7 +1856,9 @@ int MainWindow::on_actionIoConfig_triggered()
 
     if (confres == QDialog::Accepted)
     {
-        if (ui->actionDSP->isChecked())
+        bool dsp_running=ui->actionDSP->isChecked();
+
+        if (dsp_running)
             // suspend DSP while we reload settings
             on_actionDSP_triggered(false);
 
@@ -1865,7 +1867,7 @@ int MainWindow::on_actionIoConfig_triggered()
         storeSession();
         loadConfig(m_settings->fileName(), false, false);
 
-        if (ui->actionDSP->isChecked())
+        if (dsp_running)
             // restsart DSP
             on_actionDSP_triggered(true);
     }

@@ -178,14 +178,25 @@ void receiver::stop()
  */
 void receiver::set_input_device(const std::string device)
 {
-    qDebug() << "Set input device:";
-    qDebug() << "  old:" << input_devstr.c_str();
-    qDebug() << "  new:" << device.c_str();
-
     std::string error = "";
 
     if (device.empty())
         return;
+    if (input_devstr.compare(device) == 0)
+    {
+#ifndef QT_NO_DEBUG_OUTPUT
+        qDebug() << "No change in input device:";
+        qDebug() << "  old: " << input_devstr.c_str();
+        qDebug() << "  new: " << device.c_str();
+#endif
+        return;
+    }else{
+        qDebug() << "Set input device:";
+        qDebug() << "  old:" << input_devstr.c_str();
+        qDebug() << "  new:" << device.c_str();
+    }
+
+
 
     input_devstr = device;
 
@@ -194,7 +205,7 @@ void receiver::set_input_device(const std::string device)
     {
         tb->stop();
         tb->wait();
-    }
+    };
 
     if (d_decim >= 2)
     {
@@ -207,6 +218,7 @@ void receiver::set_input_device(const std::string device)
     }
 
     src.reset();
+
 
     try
     {
@@ -230,7 +242,6 @@ void receiver::set_input_device(const std::string device)
     {
         tb->connect(src, 0, iq_swap, 0);
     }
-
     if (d_running)
         tb->start();
 
