@@ -21,21 +21,24 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <Qt>
+#include <QDebug>
 #include <QFile>
 #include <QResource>
 #include <QStringList>
 #include <QTextStream>
 #include <QString>
 #include <QSet>
+#include <QMessageBox>
+
 #include <algorithm>
-#include <iostream>
+
 #include "bandplan.h"
 
 BandPlan* BandPlan::m_pThis = 0;
 
 BandPlan::BandPlan()
 {
-
+    connect(this, SIGNAL(BandPlanParseError()), this, SLOT(on_BandPlanParseError()));
 }
 
 void BandPlan::create()
@@ -50,14 +53,77 @@ BandPlan& BandPlan::Get()
 
 void BandPlan::setConfigDir(const QString& cfg_dir)
 {
+    m_cfgPath = cfg_dir;
+
     m_bandPlanFile = cfg_dir + "/bandplan.csv";
-    std::cout << "BandPlanFile is " << m_bandPlanFile.toStdString() << std::endl;
+    qInfo() << "BandPlan: File is " << m_bandPlanFile;
+
+    if (QFile::exists(m_bandPlanFile))
+    {
+        QResource v1_resource(":/textfiles/bandplan-v1.csv");
+        auto v1_tmp = cfg_dir + "/v1_tmp.csv";
+        QFile::copy(v1_resource.absoluteFilePath(), v1_tmp);
+
+        QFile v1_ref_file(v1_tmp);
+        if (!v1_ref_file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            qInfo() << "Cannot open v1 ref file";
+            return;
+        }
+        auto v1_ref = v1_ref_file.readAll();
+        v1_ref_file.close();
+
+        QFile v1_usr_file(m_bandPlanFile);
+        if (!v1_usr_file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            qInfo() << "Cannot open user bandplan file";
+            return;
+        }
+        auto v1_usr = v1_usr_file.readAll();
+        v1_usr_file.close();
+
+        if (v1_ref == v1_usr) {
+            qInfo() << "BandPlan: Found original v1 file, will remove for upgrade";
+            QFile::remove(m_bandPlanFile);
+        }
+
+        QFile::remove(v1_tmp);
+    }
 
     if (!QFile::exists(m_bandPlanFile))
     {
-        QResource resource(":/textfiles/bandplan.csv");
-        QFile::copy(resource.absoluteFilePath(), m_bandPlanFile);
+        QResource v2_resource(":/textfiles/bandplan-v2.csv");
+        QFile::copy(v2_resource.absoluteFilePath(), m_bandPlanFile);
         QFile::setPermissions(m_bandPlanFile, QFile::permissions(m_bandPlanFile) | QFile::WriteOwner);
+    }
+}
+
+void BandPlan::on_BandPlanParseError()
+{
+    QMessageBox msgBox;
+    msgBox.setText(
+                "The bandplan file on disk could not be completely read."
+                );
+    msgBox.setInformativeText(
+                "Choose Restore Defaults to back up and replace your file with a new version.\n\n"
+                "Press Cancel to leave your file intact.\n"
+                "The bandplan will not show any items until you back up and remove your file from this location: \n\n" + m_bandPlanFile
+                );
+    msgBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::RestoreDefaults);
+    msgBox.setDefaultButton(QMessageBox::Cancel);
+    int ret = msgBox.exec();
+    switch (ret) {
+        case QMessageBox::Cancel:
+            // Do nothing
+            break;
+        case QMessageBox::RestoreDefaults:
+            QFile::rename(m_bandPlanFile, m_bandPlanFile + ".backup");
+            setConfigDir(m_cfgPath);
+            load();
+            break;
+        default:
+            // should never be reached
+            break;
     }
 }
 
@@ -68,52 +134,115 @@ bool BandPlan::load()
 
     m_BandInfoList.clear();
 
+    int goodlines = 0;
+    int badlines = 0;
+
     while (!file.atEnd())
     {
         QString line = QString::fromUtf8(file.readLine().trimmed());
-        if(line.isEmpty() || line.startsWith("#"))
-            continue;
 
         QStringList strings = line.split(",");
-
-        if (strings.count() < 6) {
-            std::cout << "BandPlan: Ignoring Line:" << std::endl;
-            std::cout << "  " << line.toStdString() << std::endl;
-        } else {
-            BandInfo info;
-            info.minFrequency = strings[0].toLongLong();
-            info.maxFrequency = strings[1].toLongLong();
-            info.modulation   = strings[2].trimmed();
-            info.step         = strings[3].toInt();
-            info.color        = QColor(strings[4].trimmed());
-            info.name         = strings[5].trimmed();
-
-            m_BandInfoList.append(info);
+        if (line.isEmpty() || line.startsWith("#") || line.startsWith(",,") || strings.count() < 9) {
+            // qInfo() << "BandPlan: Ignoring Line:" << line;
+            badlines++;
+            continue;
         }
+
+        BandInfo info;
+        bool conv_ok = false;
+        info.minFrequency = strings[0].toLongLong(&conv_ok);
+        if (!conv_ok) {
+            badlines++;
+            continue;
+        }
+        info.maxFrequency = strings[1].toLongLong(&conv_ok);
+        if (!conv_ok) {
+            badlines++;
+            continue;
+        }
+        info.modulation = strings[2].trimmed();
+        if (info.modulation.length() == 0) {
+            badlines++;
+            continue;
+        }
+        info.step = strings[3].toInt(&conv_ok);
+        if (!conv_ok) {
+            badlines++;
+            continue;
+        }
+        auto col = strings[4].trimmed();
+        if (col.length() == 0) {
+            badlines++;
+            continue;
+        }
+        info.color = QColor(col).toHsl();
+        if (info.color.alpha() == 255) {
+            info.color.setAlpha(0x90);
+        }
+        info.name = strings[5].trimmed();
+        if (info.name.length() == 0) {
+            badlines++;
+            continue;
+        }
+        info.region = strings[6].trimmed();
+        if (info.region.length() == 0) {
+            badlines++;
+            continue;
+        }
+        info.country = strings[7].trimmed();
+        if (info.country.length() == 0) {
+            badlines++;
+            continue;
+        }
+        info.use = strings[8].trimmed();
+        if (info.use.length() == 0) {
+            badlines++;
+            continue;
+        }
+
+        goodlines++;
+
+        m_BandInfoList.append(info);
+
+        m_filterValues.countries.insert(info.country);
+        m_filterValues.modulations.insert(info.modulation);
+        m_filterValues.regions.insert(info.region);
+        m_filterValues.uses.insert(info.use);
     }
     file.close();
 
-    emit BandPlanChanged();
+    if (badlines > goodlines || goodlines == 0)
+    {
+        qInfo() << "BandPlan: parse error; bad lines=" << badlines << " good lines=" << goodlines;
+        emit BandPlanParseError();
+    }
+    else
+    {
+        emit BandPlanChanged();
+    }
+
     return true;
 }
 
-QList<BandInfo> BandPlan::getBandsInRange(qint64 low, qint64 high)
+QList<BandInfo> BandPlan::getBandsInRange(const BandInfoFilter &filter, qint64 low, qint64 high)
 {
     QList<BandInfo> found;
     for (int i = 0; i < m_BandInfoList.size(); i++) {
-        if(m_BandInfoList[i].maxFrequency < low) continue;
-        if(m_BandInfoList[i].minFrequency > high) continue;
+        if (!filter.matches(m_BandInfoList[i])) continue;
+        if (m_BandInfoList[i].maxFrequency < low) continue;
+        if (m_BandInfoList[i].minFrequency > high) continue;
         found.append(m_BandInfoList[i]);
     }
     return found;
 }
 
-QList<BandInfo> BandPlan::getBandsEncompassing(qint64 freq)
+QList<BandInfo> BandPlan::getBandsEncompassing(const BandInfoFilter &filter, qint64 freq)
 {
     QList<BandInfo> found;
     for (int i = 0; i < m_BandInfoList.size(); i++) {
-        if(m_BandInfoList[i].maxFrequency < freq) continue;
-        if(m_BandInfoList[i].minFrequency > freq) continue;
+        if (!filter.matches(m_BandInfoList[i])) continue;
+        if (m_BandInfoList[i].maxFrequency < freq) continue;
+        if (m_BandInfoList[i].minFrequency > freq) continue;
         found.append(m_BandInfoList[i]);
     }
     return found;

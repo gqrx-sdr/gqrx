@@ -35,6 +35,7 @@
 
 #include "qtgui/dockrxopt.h"
 #include "qtgui/dockaudio.h"
+#include "qtgui/dockbandplan.h"
 #include "qtgui/dockinputctl.h"
 #include "qtgui/dockfft.h"
 #include "qtgui/dockbookmarks.h"
@@ -94,6 +95,7 @@ private:
     DockAudio      *uiDockAudio;
     DockInputCtl   *uiDockInputCtl;
     DockFft        *uiDockFft;
+    DockBandplan   *uiDockBandplan;
     DockBookmarks  *uiDockBookmarks;
     DockRDS        *uiDockRDS;
 
@@ -201,6 +203,9 @@ private slots:
     /* FFT plot */
     void on_plotter_newDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
     void on_plotter_newFilterFreq(int low, int high);    /*! New filter width */
+
+    /* Bandplan */
+    void onBandPlanItemSelected(qint64 freq, const QString& demod);
 
     /* RDS */
     void setRdsDecoder(bool checked);

@@ -8,6 +8,9 @@
 #include <QImage>
 #include <vector>
 #include <QMap>
+#include <QSet>
+
+#include "bandplan.h"
 
 #define HORZ_DIVS_MAX 12    //50
 #define VERT_DIVS_MIN 5
@@ -16,7 +19,6 @@
 #define PEAK_CLICK_MAX_H_DISTANCE 10 //Maximum horizontal distance of clicked point from peak
 #define PEAK_CLICK_MAX_V_DISTANCE 20 //Maximum vertical distance of clicked point from peak
 #define PEAK_H_TOLERANCE 2
-
 
 class CPlotter : public QFrame
 {
@@ -148,7 +150,7 @@ public slots:
     void setPandapterRange(float min, float max);
     void setWaterfallRange(float min, float max);
     void setPeakDetection(bool enabled, float c);
-    void toggleBandPlan(bool state);
+    void updateBandPlan(bool state, const BandInfoFilter &filter);
     void updateOverlay();
 
     void setPercent2DScreen(int percent)
@@ -178,15 +180,15 @@ private:
         TAG
     };
 
-    void        drawOverlay();
-    void        makeFrequencyStrs();
-    int         xFromFreq(qint64 freq);
-    qint64      freqFromX(int x);
-    void        zoomStepX(float factor, int x);
-    static qint64      roundFreq(qint64 freq, int resolution);
-    quint64     msecFromY(int y);
-    void        clampDemodParameters();
-    static bool        isPointCloseTo(int x, int xr, int delta)
+    void            drawOverlay();
+    void            makeFrequencyStrs();
+    int             xFromFreq(qint64 freq);
+    qint64          freqFromX(int x);
+    void            zoomStepX(float factor, int x);
+    static qint64   roundFreq(qint64 freq, int resolution);
+    quint64         msecFromY(int y);
+    void            clampDemodParameters();
+    static bool     isPointCloseTo(int x, int xr, int delta)
     {
         return ((x > (xr - delta)) && (x < (xr + delta)));
     }
@@ -197,93 +199,94 @@ private:
                                  qint32 *maxbin, qint32 *minbin) const;
     static void calcDivSize (qint64 low, qint64 high, int divswanted, qint64 &adjlow, qint64 &step, int& divs);
 
-    bool        m_PeakHoldActive;
-    bool        m_PeakHoldValid;
-    qint32      m_fftbuf[MAX_SCREENSIZE]{};
-    quint8      m_wfbuf[MAX_SCREENSIZE]{}; // used for accumulating waterfall data at high time spans
-    qint32      m_fftPeakHoldBuf[MAX_SCREENSIZE]{};
-    float      *m_fftData{};     /*! pointer to incoming FFT data */
-    float      *m_wfData{};
-    int         m_fftDataSize{};
+    bool            m_PeakHoldActive;
+    bool            m_PeakHoldValid;
+    qint32          m_fftbuf[MAX_SCREENSIZE]{};
+    quint8          m_wfbuf[MAX_SCREENSIZE]{}; // used for accumulating waterfall data at high time spans
+    qint32          m_fftPeakHoldBuf[MAX_SCREENSIZE]{};
+    float          *m_fftData{};     /*! pointer to incoming FFT data */
+    float          *m_wfData{};
+    int             m_fftDataSize{};
 
-    int         m_XAxisYCenter{};
-    int         m_YAxisWidth{};
+    int             m_XAxisYCenter{};
+    int             m_YAxisWidth{};
 
     eCapturetype    m_CursorCaptured;
-    QPixmap     m_2DPixmap;
-    QPixmap     m_OverlayPixmap;
-    QPixmap     m_WaterfallPixmap;
-    QColor      m_ColorTbl[256];
-    QSize       m_Size;
-    qreal       m_DPR{};
-    QString     m_HDivText[HORZ_DIVS_MAX+1];
-    bool        m_Running;
-    bool        m_DrawOverlay;
-    qint64      m_CenterFreq;       // The HW frequency
-    qint64      m_FftCenter;        // Center freq in the -span ... +span range
-    qint64      m_DemodCenterFreq;
-    qint64      m_StartFreqAdj{};
-    qint64      m_FreqPerDiv{};
-    bool        m_CenterLineEnabled;  /*!< Distinguish center line. */
-    bool        m_FilterBoxEnabled;   /*!< Draw filter box. */
-    bool        m_TooltipsEnabled{};  /*!< Tooltips enabled */
-    bool        m_BandPlanEnabled;    /*!< Show/hide band plan on spectrum */
-    bool        m_BookmarksEnabled;   /*!< Show/hide bookmarks on spectrum */
-    bool        m_InvertScrolling;
-    bool        m_DXCSpotsEnabled;    /*!< Show/hide DXC Spots on spectrum */
-    int         m_DemodHiCutFreq;
-    int         m_DemodLowCutFreq;
-    int         m_DemodFreqX{};       //screen coordinate x position
-    int         m_DemodHiCutFreqX{};  //screen coordinate x position
-    int         m_DemodLowCutFreqX{}; //screen coordinate x position
-    int         m_CursorCaptureDelta;
-    int         m_GrabPosition;
-    int         m_Percent2DScreen;
+    QPixmap         m_2DPixmap;
+    QPixmap         m_OverlayPixmap;
+    QPixmap         m_WaterfallPixmap;
+    QColor          m_ColorTbl[256];
+    QSize           m_Size;
+    qreal           m_DPR{};
+    QString         m_HDivText[HORZ_DIVS_MAX+1];
+    bool            m_Running;
+    bool            m_DrawOverlay;
+    qint64          m_CenterFreq;       // The HW frequency
+    qint64          m_FftCenter;        // Center freq in the -span ... +span range
+    qint64          m_DemodCenterFreq;
+    qint64          m_StartFreqAdj{};
+    qint64          m_FreqPerDiv{};
+    bool            m_CenterLineEnabled;  /*!< Distinguish center line. */
+    bool            m_FilterBoxEnabled;   /*!< Draw filter box. */
+    bool            m_TooltipsEnabled{};  /*!< Tooltips enabled */
+    bool            m_BandPlanEnabled;    /*!< Show/hide band plan on spectrum */
+    int             m_BandPlanHeight;     /*!< Height in pixels of band plan (if enabled) */
+    BandInfoFilter  m_BandPlanFilter;
+    bool            m_BookmarksEnabled;   /*!< Show/hide bookmarks on spectrum */
+    bool            m_InvertScrolling;
+    bool            m_DXCSpotsEnabled;    /*!< Show/hide DXC Spots on spectrum */
+    int             m_DemodHiCutFreq;
+    int             m_DemodLowCutFreq;
+    int             m_DemodFreqX{};       //screen coordinate x position
+    int             m_DemodHiCutFreqX{};  //screen coordinate x position
+    int             m_DemodLowCutFreqX{}; //screen coordinate x position
+    int             m_CursorCaptureDelta;
+    int             m_GrabPosition;
+    int             m_Percent2DScreen;
 
-    int         m_FLowCmin;
-    int         m_FLowCmax;
-    int         m_FHiCmin;
-    int         m_FHiCmax;
-    bool        m_symetric;
+    int             m_FLowCmin;
+    int             m_FLowCmax;
+    int             m_FHiCmin;
+    int             m_FHiCmax;
+    bool            m_symetric;
 
-    int         m_HorDivs;   /*!< Current number of horizontal divisions. Calculated from width. */
-    int         m_VerDivs;   /*!< Current number of vertical divisions. Calculated from height. */
+    int             m_HorDivs;   /*!< Current number of horizontal divisions. Calculated from width. */
+    int             m_VerDivs;   /*!< Current number of vertical divisions. Calculated from height. */
 
-    float       m_PandMindB;
-    float       m_PandMaxdB;
-    float       m_WfMindB;
-    float       m_WfMaxdB;
+    float           m_PandMindB;
+    float           m_PandMaxdB;
+    float           m_WfMindB;
+    float           m_WfMaxdB;
 
-    qint64      m_Span;
-    float       m_SampleFreq;    /*!< Sample rate. */
-    qint32      m_FreqUnits;
-    int         m_ClickResolution;
-    int         m_FilterClickResolution;
+    qint64          m_Span;
+    float           m_SampleFreq;    /*!< Sample rate. */
+    qint32          m_FreqUnits;
+    int             m_ClickResolution;
+    int             m_FilterClickResolution;
 
-    int         m_Xzero{};
-    int         m_Yzero{};  /*!< Used to measure mouse drag direction. */
-    int         m_FreqDigits;  /*!< Number of decimal digits in frequency strings. */
+    int             m_Xzero{};
+    int             m_Yzero{};  /*!< Used to measure mouse drag direction. */
+    int             m_FreqDigits;  /*!< Number of decimal digits in frequency strings. */
 
-    QFont       m_Font;      /*!< Font used for plotter (system font) */
-    int         m_HdivDelta; /*!< Minimum distance in pixels between two horizontal grid lines (vertical division). */
-    int         m_VdivDelta; /*!< Minimum distance in pixels between two vertical grid lines (horizontal division). */
-    int         m_BandPlanHeight; /*!< Height in pixels of band plan (if enabled) */
+    QFont           m_Font;      /*!< Font used for plotter (system font) */
+    int             m_HdivDelta; /*!< Minimum distance in pixels between two horizontal grid lines (vertical division). */
+    int             m_VdivDelta; /*!< Minimum distance in pixels between two vertical grid lines (horizontal division). */
 
-    quint32     m_LastSampleRate{};
+    quint32         m_LastSampleRate{};
 
-    QColor      m_FftColor, m_FftFillCol, m_PeakHoldColor;
-    bool        m_FftFill{};
+    QColor          m_FftColor, m_FftFillCol, m_PeakHoldColor;
+    bool            m_FftFill{};
 
-    float       m_PeakDetection{};
+    float           m_PeakDetection{};
     QMap<int,int>   m_Peaks;
 
     QList< QPair<QRect, qint64> >     m_Taglist;
 
     // Waterfall averaging
-    quint64     tlast_wf_ms;        // last time waterfall has been updated
-    quint64     msec_per_wfline;    // milliseconds between waterfall updates
-    quint64     wf_span;            // waterfall span in milliseconds (0 = auto)
-    int         fft_rate;           // expected FFT rate (needed when WF span is auto)
+    quint64         tlast_wf_ms;        // last time waterfall has been updated
+    quint64         msec_per_wfline;    // milliseconds between waterfall updates
+    quint64         wf_span;            // waterfall span in milliseconds (0 = auto)
+    int             fft_rate;           // expected FFT rate (needed when WF span is auto)
 };
 
 #endif // PLOTTER_H

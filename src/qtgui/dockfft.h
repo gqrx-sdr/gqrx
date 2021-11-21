@@ -67,7 +67,6 @@ signals:
     void fftFillToggled(bool fill);                /*! Toggle filling area under FFT plot. */
     void fftPeakHoldToggled(bool enable);          /*! Toggle peak hold in FFT area. */
     void peakDetectionToggled(bool enabled);       /*! Enable peak detection in FFT plot */
-    void bandPlanChanged(bool enabled);            /*! Toggle Band Plan at bottom of FFT area. */
     void wfColormapChanged(const QString &cmap);
 
 public slots:
@@ -94,7 +93,6 @@ private slots:
     void on_peakHoldButton_toggled(bool checked);
     void on_peakDetectionButton_toggled(bool checked);
     void on_lockButton_toggled(bool checked);
-    void on_bandPlanCheckbox_stateChanged(int state);
     void on_cmapComboBox_currentIndexChanged(int index);
 
 private:
