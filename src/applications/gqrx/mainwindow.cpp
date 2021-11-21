@@ -1037,6 +1037,7 @@ void MainWindow::addDemodulator()
 {
     auto demod = rx->add_demodulator();
     auto ctl = std::make_shared<DemodulatorController>(rx, demod, uiDockManager, receiversMenu, m_settings);
+    ui->mainToolBar->addAction(ctl->getToolbarAction());
     demodCtrls.push_back(ctl);
 
     uiBaseband->plotter()->setDemodulatorCount(demodCtrls.size());
@@ -1058,6 +1059,10 @@ void MainWindow::addDemodulator()
     connect(
         ctl.get(), SIGNAL(filterRanges(size_t,int,int,int,int,bool,int)),
         uiBaseband->plotter(), SLOT(setDemodulatorRanges(size_t,int,int,int,int,bool,int))
+    );
+    connect(
+        ctl.get(), SIGNAL(focussed(size_t)),
+        uiBaseband->plotter(), SLOT(setFocussedDemod(size_t))
     );
     connect(
         ctl.get(), SIGNAL(centerFFT(size_t)),

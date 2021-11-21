@@ -14,10 +14,21 @@ Main window actions:
 
 
 The first 10 Demodulators can be controlled by keyboard.
-First press Ctrl+<num> where num is a number key 1 - 0,
+
+Shift+<num> where num is a number key 1 - 0,
+will focus the Demod panel of the same number (key 0 is 10).
+
+To change the Demod settings with keybaord, first press
+Ctrl+<num> where num is a number key 1 - 0,
 then press one of these combinations:
 
     Ctrl+Shift+B   Bookmark the current frequency and mode
+
+    UI Controls:
+
+     F              Focus frequency
+     Shift+O        Focus offset
+     P              Toggle view properties
 
     Modes:
 

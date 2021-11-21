@@ -286,6 +286,7 @@ public slots:
     void setDemodulatorOffset(size_t idx, qint64 offset);
     void setDemodulatorFilterFreq(size_t idx, int low, int high);
     void setDemodulatorRanges(size_t idx, int lowMin, int lowMax, int highMin, int highMax, bool symmetric, int resolution);
+    void setFocussedDemod(size_t idx);
 
     // other FFT slots
     void setFftPlotColor(const QColor& color);
@@ -357,6 +358,7 @@ private:
 
     eCapturetype    m_CursorCaptured;
     int             m_DemodCaptured;
+    int             m_DemodFocussed;
     QPixmap         m_2DPixmap;
     QPixmap         m_OverlayPixmap;
     QPixmap         m_WaterfallPixmap;
@@ -384,7 +386,6 @@ private:
     bool            m_DXCSpotsEnabled;    /*!< Show/hide DXC Spots on spectrum */
     int             m_CursorCaptureDelta;
     int             m_GrabPosition;
-    int             m_mxPosition;
     int             m_Percent2DScreen;
 
 

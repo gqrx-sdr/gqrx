@@ -131,6 +131,7 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
 
     m_FreqUnits = 1000000;
     m_CursorCaptured = NOCAP;
+    m_DemodFocussed = -1;
     m_Running = false;
     m_DrawOverlay = true;
     m_2DPixmap = QPixmap(0,0);
@@ -176,7 +177,6 @@ QSize CPlotter::sizeHint() const
 void CPlotter::mouseMoveEvent(QMouseEvent* event)
 {
     QPoint pt = event->pos();
-    m_mxPosition = pt.x();
 
     /* mouse enter / mouse leave events */
     if (pt.y() < m_OverlayPixmap.height() / m_DPR)
@@ -466,8 +466,6 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             setCursor(QCursor(Qt::ArrowCursor));
         m_CursorCaptured = NOCAP;
     }
-
-    updateOverlay();
 }
 
 
@@ -642,7 +640,7 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                     // setCursor(QCursor(Qt::CrossCursor));
                     m_CursorCaptured = CENTER;
                     m_GrabPosition = 1;
-                    drawOverlay();
+                    updateOverlay();
                 }
             }
             else if (event->buttons() == Qt::MidButton)
@@ -650,7 +648,7 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                 // set center freq
                 m_CenterFreq = roundFreq(freqFromX(pt.x()), 1);
                 emit newHwFrequency(m_CenterFreq);
-                drawOverlay();
+                updateOverlay();
             }
             else if (event->buttons() == Qt::RightButton)
             {
@@ -779,7 +777,7 @@ void CPlotter::setDemodulatorCount(size_t num)
         }
     }
 //    qInfo() << "CPlotter::setDemodulatorCount" << m_demod.size();
-    drawOverlay();
+    updateOverlay();
 }
 
 void CPlotter::setDemodulatorOffset(size_t idx, qint64 offset)
@@ -789,7 +787,7 @@ void CPlotter::setDemodulatorOffset(size_t idx, qint64 offset)
     }
 
     m_demod[idx]->setCenterFreq(m_CenterFreq + offset, true);
-    drawOverlay();
+    updateOverlay();
 }
 
 void CPlotter::setDemodulatorFilterFreq(size_t idx, int low, int high)
@@ -799,7 +797,7 @@ void CPlotter::setDemodulatorFilterFreq(size_t idx, int low, int high)
     }
 
     m_demod[idx]->setHiLowCutFrequencies(low, high);
-    drawOverlay();
+    updateOverlay();
 }
 
 void CPlotter::setDemodulatorRanges(size_t idx, int lowMin, int lowMax, int highMin, int highMax, bool symmetric, int resolution)
@@ -810,7 +808,13 @@ void CPlotter::setDemodulatorRanges(size_t idx, int lowMin, int lowMax, int high
 
     m_demod[idx]->setRanges(lowMin, lowMax, highMin, highMax, symmetric);
     m_demod[idx]->setClickResolution(resolution);
-    drawOverlay();
+    updateOverlay();
+}
+
+void CPlotter::setFocussedDemod(size_t idx)
+{
+    m_DemodFocussed = idx;
+    updateOverlay();
 }
 
 // Called when a mouse wheel is turned
@@ -921,7 +925,7 @@ void CPlotter::resizeEvent(QResizeEvent* )
         memset(m_wfbuf, 255, MAX_SCREENSIZE);
     }
 
-    drawOverlay();
+    updateOverlay();
     emit newSize();
 }
 
@@ -1513,7 +1517,6 @@ void CPlotter::drawOverlay()
     // Draw demod filter boxes
     if (m_FilterBoxEnabled)
     {
-        auto closest = closestDemodulator(freqFromX(m_mxPosition));
         auto f = painter.font();
         painter.setFont(QFont("monospace", 9));
         auto numDemod = m_demod.size();
@@ -1528,13 +1531,13 @@ void CPlotter::drawOverlay()
 
             painter.setOpacity(0.3);
             painter.fillRect(demod->lowCutFreqX, 0, dw, h,
-                             i == closest
+                             i == m_DemodFocussed
                                ? QColor(PLOTTER_FILTER_BOX_COLOR_NEAR)
                                : QColor(PLOTTER_FILTER_BOX_COLOR_NORM)
                              );
 
             painter.setOpacity(1.0);
-            painter.setPen(QColor::fromHsv((15 * i) % 255, 240, i == closest ? 255 : 230));
+            painter.setPen(QColor::fromHsv((15 * i) % 255, 240, i == m_DemodFocussed ? 255 : 230));
             painter.drawLine(demod->freqX, 0, demod->freqX, h);
             if (numDemod > 1) {
                 painter.drawText(demod->freqX + 3, 24, QString("%0").arg(i + 1));

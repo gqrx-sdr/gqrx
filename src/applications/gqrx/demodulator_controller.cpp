@@ -51,6 +51,8 @@ DemodulatorController::DemodulatorController(
 
     auto num = demod->get_idx() + 1;
 
+    toolbarAction = new QAction(QString("%0").arg(num));
+    connect(toolbarAction, SIGNAL(triggered()), this, SLOT(setFocus()));
     viewMenuSection = viewMenu->addSection(QString("Receiver %0").arg(num));
 
     uiDockRxOpt = new DockRxOpt();
@@ -80,6 +82,8 @@ DemodulatorController::DemodulatorController(
     dockRDS->closeDockWidget();
     dockAFSK->closeDockWidget();
     dockDemod->setAsCurrentTab();
+
+    connect(dockDemod, SIGNAL(visibilityChanged(bool)), this, SLOT(onDockDemodVisbilityChanged(bool)));
 
     // Set titles, colours and shortcuts
     onIndexChanged(demod->get_idx());
@@ -205,6 +209,7 @@ DemodulatorController::~DemodulatorController()
 
     viewMenu->removeAction(viewMenuSection);
     viewMenuSection->deleteLater();
+    toolbarAction->deleteLater();
 
     remote->deleteLater();
 
@@ -312,6 +317,9 @@ void DemodulatorController::onCenterFFTAction()
 void DemodulatorController::onIndexChanged(size_t idx)
 {
     auto num = idx + 1;
+    toolbarAction->setText(QString("%0").arg(num));
+    toolbarAction->setToolTip(QString("Focus Demod %0 (Shift+%0)").arg(num));
+    toolbarAction->setShortcut(QString("Shift+%0").arg(num));
     viewMenuSection->setText(QString("Receiver %0").arg(num));
 
     // all the tab widgets have the same style, we can copy from the first and apply to all
@@ -340,6 +348,19 @@ void DemodulatorController::onIndexChanged(size_t idx)
     dockAFSK->tabWidget()->setStyleSheet(nextStyle);
 
     emitCurrentSettings();
+}
+
+void DemodulatorController::setFocus()
+{
+    dockDemod->raise();
+    emit focussed(demod->get_idx());
+}
+
+void DemodulatorController::onDockDemodVisbilityChanged(bool visible)
+{
+    if (visible) {
+        emit focussed(demod->get_idx());
+    }
 }
 
 /* Frequency Control */
@@ -397,6 +418,7 @@ void DemodulatorController::setFftFill(bool enable)
 void DemodulatorController::setFilterOffset(qint64 offset)
 {
 //     qInfo() << "DemodulatorController::setFilterOffset" << demod->get_idx() << offset;
+    setFocus();
 
     demod->set_filter_offset(offset);
 
@@ -413,6 +435,8 @@ void DemodulatorController::setFilterOffset(qint64 offset)
 
 void DemodulatorController::setFilterFrequency(int low, int high)
 {
+    setFocus();
+
     /* parameter correctness will be checked in receiver class */
     rx_status retcode = demod->set_filter((double) low, (double) high, d_filter_shape);
 

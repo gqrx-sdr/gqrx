@@ -177,6 +177,14 @@ void DockRxOpt::setupShortcuts(const size_t idx)
         return;
     }
 
+    /* UI Controls */
+    QShortcut *ui_properties_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_P), this);
+    QShortcut *ui_focus_offset = new QShortcut(QKeySequence(dkey, Qt::SHIFT + Qt::Key_O), this);
+    QShortcut *ui_focus_freq = new QShortcut(QKeySequence(dkey, Qt::Key_F), this);
+    shortcutConnections.push_back(QObject::connect(ui_properties_shortcut, &QShortcut::activated, ui->tbProperties, &QToolButton::click));
+    shortcutConnections.push_back(QObject::connect(ui_focus_offset, &QShortcut::activated, ui->filterOffset, &CFreqCtrl::setFrequencyFocus));
+    shortcutConnections.push_back(QObject::connect(ui_focus_freq, &QShortcut::activated, ui->filterFreq, &CFreqCtrl::setFrequencyFocus));
+
     /* mode setting shortcuts */
     QShortcut *mode_off_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_O), this);
     QShortcut *mode_raw_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_I), this);
@@ -225,6 +233,9 @@ void DockRxOpt::setupShortcuts(const size_t idx)
     shortcutConnections.push_back(QObject::connect(bookmark_shortcut, &QShortcut::activated, this, &DockRxOpt::bookmark));
 
     // Store all the shortcut pointers so we can remove them
+    shortcuts.push_back(ui_properties_shortcut);
+    shortcuts.push_back(ui_focus_offset);
+    shortcuts.push_back(ui_focus_freq);
     shortcuts.push_back(mode_off_shortcut);
     shortcuts.push_back(mode_raw_shortcut);
     shortcuts.push_back(mode_am_shortcut);
@@ -499,6 +510,7 @@ void DockRxOpt::readSettings(std::shared_ptr<QSettings> settings, size_t idx)
     bool    conv_ok;
     int     int_val;
     double  dbl_val;
+    bool    bool_val;
 
     auto configVersion = settings->value("configversion").toInt(&conv_ok);
 
@@ -531,6 +543,12 @@ void DockRxOpt::readSettings(std::shared_ptr<QSettings> settings, size_t idx)
     }
 
     settings->beginGroup(QString("%0").arg(idx));
+
+    settings->beginGroup("ui");
+    bool_val = settings->value("hide_properties", false).toBool();
+    if (bool_val)
+        ui->tbProperties->setChecked(false);
+    settings->endGroup(); // ui
 
     int_val = settings->value("cwoffset", 700).toInt(&conv_ok);
     if (conv_ok)
@@ -610,6 +628,13 @@ void DockRxOpt::saveSettings(std::shared_ptr<QSettings> settings, size_t idx)
 
     settings->beginGroup("receiver");
     settings->beginGroup(QString("%0").arg(idx));
+
+    settings->beginGroup("ui");
+    if (ui->tbProperties->isChecked())
+        settings->remove("hide_properties");
+    else
+        settings->setValue("hide_properties", true);
+    settings->endGroup(); // ui
 
     settings->setValue("demod", currentDemodAsString());
 

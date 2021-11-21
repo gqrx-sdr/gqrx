@@ -121,10 +121,15 @@ public:
         return remote;
     }
 
+    QAction* getToolbarAction() const {
+        return toolbarAction;
+    }
+
 signals:
     void remove(size_t idx);
     void bookmark(size_t idx);
     void centerFFT(size_t idx);
+    void focussed(size_t idx);
 
     void filterOffset(size_t idx, qint64 offset);
     void filterFrequency(size_t idx, int low, int high);
@@ -140,6 +145,8 @@ public slots:
     void onCenterFFTAction();
 
     void onIndexChanged(size_t idx);
+    void setFocus();
+    void onDockDemodVisbilityChanged(bool visible);
 
     /* Frequency Control */
 
@@ -230,6 +237,7 @@ private:
     // Dock management
     ads::CDockManager       *dockMgr;               // Borrowed from MainWindow
     QMenu                   *viewMenu;              // Borrowed from MainWindow
+    QAction                 *toolbarAction;
     QAction                 *viewMenuSection;
 
     // Rx controls
