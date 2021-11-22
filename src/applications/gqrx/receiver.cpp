@@ -222,6 +222,7 @@ void receiver::set_input_device(const std::string device)
     tb->connect(src, 0, iq_swap, 0);
     tb->start();
     tb->stop();
+    tb->wait();
     tb->disconnect(src, 0, iq_swap, 0);
 
     try
@@ -246,6 +247,9 @@ void receiver::set_input_device(const std::string device)
     {
         tb->connect(src, 0, iq_swap, 0);
     }
+    auto last_demod=d_demod;
+    set_demod(RX_DEMOD_OFF,true);
+    set_demod(last_demod);
     if (d_running)
         tb->start();
 
@@ -1328,6 +1332,7 @@ void receiver::connect_all(rx_chain type)
 
     if (d_dc_cancel)
     {
+        dc_corr = make_dc_corr_cc(d_decim_rate, 1.0);
         tb->connect(b, 0, dc_corr, 0);
         b = dc_corr;
     }
