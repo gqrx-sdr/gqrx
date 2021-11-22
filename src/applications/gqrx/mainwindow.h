@@ -80,6 +80,7 @@ private:
     qint64 d_hw_freq;
     qint64 d_hw_freq_start{};
     qint64 d_hw_freq_stop{};
+    qint64 backupFreq; /* for IQ player */
 
     enum receiver::filter_shape d_filter_shape;
     std::complex<float>* d_fftData;
@@ -180,7 +181,7 @@ private slots:
     /* I/Q playback and recording*/
     void startIqRecording(const QString& recdir);
     void stopIqRecording();
-    void startIqPlayback(const QString& filename, float samprate);
+    void startIqPlayback(const QString& filename, float samprate, double center_freq);
     void stopIqPlayback();
     void seekIqFile(qint64 seek_pos);
 

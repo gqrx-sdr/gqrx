@@ -283,7 +283,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     // I/Q playback
     connect(iq_tool, SIGNAL(startRecording(QString)), this, SLOT(startIqRecording(QString)));
     connect(iq_tool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
-    connect(iq_tool, SIGNAL(startPlayback(QString,float)), this, SLOT(startIqPlayback(QString,float)));
+    connect(iq_tool, SIGNAL(startPlayback(QString,float,double)), this, SLOT(startIqPlayback(QString,float,double)));
     connect(iq_tool, SIGNAL(stopPlayback()), this, SLOT(stopIqPlayback()));
     connect(iq_tool, SIGNAL(seek(qint64)), this,SLOT(seekIqFile(qint64)));
 
@@ -1588,7 +1588,7 @@ void MainWindow::stopIqRecording()
         ui->statusBar->showMessage(tr("I/Q data recoding stopped"), 5000);
 }
 
-void MainWindow::startIqPlayback(const QString& filename, float samprate)
+void MainWindow::startIqPlayback(const QString& filename, float samprate, double center_freq)
 {
     if (ui->actionDSP->isChecked())
     {
@@ -1597,10 +1597,12 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate)
     }
 
     storeSession();
+    backupFreq = ui->freqCtrl->getFrequency();
 
     auto sri = (int)samprate;
-    auto devstr = QString("file='%1',rate=%2,throttle=true,repeat=false")
-            .arg(filename).arg(sri);
+    auto cf  = (long long) center_freq;
+    auto devstr = QString("file='%1',rate=%2,freq=%3,throttle=true,repeat=false")
+            .arg(filename).arg(sri).arg(cf);
 
     qDebug() << __func__ << ":" << devstr;
 
@@ -1615,6 +1617,8 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate)
     uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
     ui->plotter->setSampleRate(actual_rate);
     ui->plotter->setSpanFreq((quint32)actual_rate);
+    ui->plotter->setCenterFreq(center_freq);
+
     remote->setBandwidth(actual_rate);
 
     // FIXME: would be nice with good/bad status
@@ -1658,6 +1662,7 @@ void MainWindow::stopIqPlayback()
 
     // restore frequency, gain, etc...
     uiDockInputCtl->readSettings(m_settings);
+    setNewFrequency(backupFreq);
 
     if (ui->actionDSP->isChecked())
     {
