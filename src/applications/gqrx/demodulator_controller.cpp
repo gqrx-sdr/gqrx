@@ -220,6 +220,9 @@ void DemodulatorController::readSettings(std::shared_ptr<QSettings> settings)
 {
     // qInfo() << "DemodulatorController::readSettings" << demod->get_idx();
 
+    uiDockRxOpt->readSettings(settings, demod->get_idx());
+    uiDockAudio->readSettings(settings, demod->get_idx());
+
     bool conv_ok = false;
     auto configVersion = settings->value("configversion").toInt(&conv_ok);
 
@@ -262,9 +265,6 @@ void DemodulatorController::readSettings(std::shared_ptr<QSettings> settings)
     setHwFrequency(rx->get_rf_freq(), false);
     setFilterOffset(demod->get_filter_offset());
     setFilterOffsetRange(rx->get_input_rate());
-
-    uiDockRxOpt->readSettings(settings, demod->get_idx());
-    uiDockAudio->readSettings(settings, demod->get_idx());
 }
 
 void DemodulatorController::saveSettings(std::shared_ptr<QSettings> settings)
