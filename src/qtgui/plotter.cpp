@@ -344,6 +344,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 m_PeakHoldValid = false;
                 m_Yzero = pt.y();
             }
+
+            updateOverlay();
         }
     }
     else if (XAXIS == m_CursorCaptured)
