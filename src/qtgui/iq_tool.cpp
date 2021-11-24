@@ -356,26 +356,6 @@ void CIqTool::refreshTimeWidgets(void)
 }
 
 
-/*! \brief Extract sample rate from file name */
-qint64 CIqTool::sampleRateFromFileName(const QString &filename)
-{
-    bool ok;
-    qint64 sr;
-
-    QStringList list = filename.split('_');
-
-    if (list.size() < 5)
-        return sample_rate;
-
-    // gqrx_yymmdd_hhmmss_freq_samprate_fc.raw
-    sr = list.at(4).toLongLong(&ok);
-
-    if (ok)
-        return sr;
-    else
-        return sample_rate;  // return current rate
-}
-
 /*! \brief Extract sample rate and offset frequency from file name */
 void CIqTool::parseFileName(const QString &filename)
 {

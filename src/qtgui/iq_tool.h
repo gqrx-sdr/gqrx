@@ -84,7 +84,6 @@ private slots:
 private:
     void refreshDir(void);
     void refreshTimeWidgets(void);
-    qint64 sampleRateFromFileName(const QString &filename);
     void parseFileName(const QString &filename);
 
 private:
