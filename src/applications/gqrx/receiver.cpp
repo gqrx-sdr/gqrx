@@ -28,6 +28,7 @@
 #include <gnuradio/top_block.h>
 #include <osmosdr/source.h>
 #include <osmosdr/ranges.h>
+#include <gnuradio/blocks/float_to_complex.h>
 
 #include "applications/gqrx/receiver.h"
 #include "dsp/correct_iq_cc.h"
@@ -69,6 +70,7 @@ receiver::receiver(const std::string input_device,
       d_iq_rev(false),
       d_dc_cancel(false),
       d_iq_balance(false),
+      d_last_format(FILE_FORMAT_NONE),
       d_demod(RX_DEMOD_OFF)
 {
 
@@ -111,6 +113,11 @@ receiver::receiver(const std::string input_device,
     ddc = make_downconverter_cc(d_ddc_decim, 0.0, d_decim_rate);
     rx  = make_nbrx(d_quad_rate, d_audio_rate);
 
+    input_file = gr::blocks::file_source::make(sizeof(gr_complex),get_random_file().c_str(),false);
+    input_throttle = gr::blocks::throttle::make(sizeof(gr_complex),192000.0);
+    iq_scale = gr::blocks::multiply_const_cc::make(gr_complex(0.0,0.0));
+    to_s16lc = gr::blocks::complex_to_interleaved_short::make();
+    from_s16lc = gr::blocks::interleaved_short_to_complex::make();
     iq_swap = make_iq_swap_cc(false);
     dc_corr = make_dc_corr_cc(d_decim_rate, 1.0);
     iq_fft = make_rx_fft_c(8192u, d_decim_rate, gr::fft::window::WIN_HANN);
@@ -207,23 +214,20 @@ void receiver::set_input_device(const std::string device)
         tb->wait();
     };
 
-    if (d_decim >= 2)
-    {
-        tb->disconnect(src, 0, input_decim, 0);
-        tb->disconnect(input_decim, 0, iq_swap, 0);
-    }
-    else
-    {
-        tb->disconnect(src, 0, iq_swap, 0);
-    }
+    tb->disconnect_all();
 
     //temporarily connect dummy source to ensure that previous device is closed
     src = osmosdr::source::make("file="+get_random_file()+",freq=428e6,rate=96000,repeat=true,throttle=true");
     tb->connect(src, 0, iq_swap, 0);
+    auto last_demod=d_demod;
+    set_demod(RX_DEMOD_OFF,FILE_FORMAT_NONE,true);
+/*    gr::blocks::null_sink::sptr temp_null_sink = gr::blocks::null_sink::make(sizeof(gr_complex));
+    tb->connect(iq_swap, 0, temp_null_sink, 0);*/
     tb->start();
     tb->stop();
     tb->wait();
-    tb->disconnect(src, 0, iq_swap, 0);
+    tb->disconnect_all();
+//    tb->disconnect(src, 0, iq_swap, 0);
 
     try
     {
@@ -238,7 +242,7 @@ void receiver::set_input_device(const std::string device)
     if(src->get_sample_rate() != 0)
         set_input_rate(src->get_sample_rate());
 
-    if (d_decim >= 2)
+/*    if (d_decim >= 2)
     {
         tb->connect(src, 0, input_decim, 0);
         tb->connect(input_decim, 0, iq_swap, 0);
@@ -247,9 +251,8 @@ void receiver::set_input_device(const std::string device)
     {
         tb->connect(src, 0, iq_swap, 0);
     }
-    auto last_demod=d_demod;
-    set_demod(RX_DEMOD_OFF,true);
-    set_demod(last_demod);
+    set_demod(RX_DEMOD_OFF,FILE_FORMAT_LAST,true);*/
+    set_demod(last_demod,FILE_FORMAT_NONE,false);
     if (d_running)
         tb->start();
 
@@ -258,6 +261,122 @@ void receiver::set_input_device(const std::string device)
         throw std::runtime_error(error);
     }
 }
+
+
+void receiver::set_input_file(const std::string name, const int sample_rate, const enum file_formats fmt)
+{
+   std::string error = "";
+   size_t sample_size=1;
+    switch(fmt)
+    {
+    case FILE_FORMAT_LAST:
+    case FILE_FORMAT_NONE:
+        //TODO: Throw an exception here
+    break;
+    case FILE_FORMAT_CF:
+        sample_size=sizeof(gr_complex);
+    break;
+    case FILE_FORMAT_CS16L:
+        sample_size = sizeof(short)*2;
+    break;
+    case FILE_FORMAT_CS8:
+        sample_size = sizeof(char)*2;
+        //TODO: signal error
+        return;
+    break;
+    }
+
+    input_file = gr::blocks::file_source::make(sample_size, name.c_str(), false);
+    // tb->lock() can hang occasionally
+    if (d_running)
+    {
+        tb->stop();
+        tb->wait();
+    };
+    tb->disconnect_all();
+
+
+    gr_complex scale(1.0/256.0,0);
+    iq_scale = gr::blocks::multiply_const_cc::make(scale);
+    deinterleaver = gr::blocks::vector_to_stream::make(sample_size/2,2);
+
+    input_throttle = gr::blocks::throttle::make(sizeof(gr_complex),sample_rate);
+    auto last_demod=d_demod;
+    //set_demod(RX_DEMOD_OFF,true);
+    set_demod(last_demod,fmt,true);
+    if (d_running)
+        tb->start();
+
+    if (error != "")
+    {
+        throw std::runtime_error(error);
+    }
+    input_devstr="NULL";
+}
+
+void receiver::setup_source(enum file_formats fmt)
+{
+    gr::basic_block_sptr b;
+    if(fmt==FILE_FORMAT_LAST)
+        fmt=d_last_format;
+    else
+        d_last_format=fmt;
+    switch(fmt)
+    {
+    case FILE_FORMAT_LAST:
+    break;
+    case FILE_FORMAT_NONE:
+        // Setup source
+        b = src;
+
+        // Pre-processing
+        if (d_decim >= 2)
+        {
+            tb->connect(b, 0, input_decim, 0);
+            b = input_decim;
+        }
+
+        if (d_recording_iq)
+        {
+            // We record IQ with minimal pre-processing
+            //TODO: fix this to match new recorder
+            tb->connect(b, 0, iq_sink, 0);
+        }
+
+        tb->connect(b, 0, iq_swap, 0);
+    break;
+    case FILE_FORMAT_CF:
+        tb->connect(input_file, 0 ,input_throttle, 0);
+        if (d_decim >= 2)
+        {
+            tb->connect(input_throttle, 0, input_decim, 0);
+            tb->connect(input_decim, 0, iq_swap, 0);
+        }
+        else
+        {
+            tb->connect(input_throttle, 0, iq_swap, 0);
+        }
+    break;
+    case FILE_FORMAT_CS16L:
+        tb->connect(input_file, 0 ,deinterleaver, 0);
+        tb->connect(deinterleaver, 0 ,from_s16lc, 0);
+        tb->connect(from_s16lc, 0, input_throttle, 0);
+        if (d_decim >= 2)
+        {
+            tb->connect(input_throttle, 0, input_decim, 0);
+            tb->connect(input_decim, 0, iq_scale, 0);
+        }
+        else
+        {
+            tb->connect(input_throttle, 0, iq_scale, 0);
+        }
+        tb->connect(iq_scale, 0, iq_swap, 0);
+    break;
+    case FILE_FORMAT_CS8:
+    break;
+    }
+}
+
 
 
 /**
@@ -276,8 +395,14 @@ void receiver::set_output_device(const std::string device)
 
     if (d_demod != RX_DEMOD_OFF)
     {
-        tb->disconnect(audio_gain0, 0, audio_snk, 0);
-        tb->disconnect(audio_gain1, 0, audio_snk, 1);
+        try{
+            tb->disconnect(audio_gain0);
+        }catch(std::exception &x) {
+        }
+        try{
+            tb->disconnect(audio_gain1);
+        }catch(std::exception &x) {
+        }
     }
     audio_snk.reset();
 
@@ -292,6 +417,8 @@ void receiver::set_output_device(const std::string device)
 
         if (d_demod != RX_DEMOD_OFF)
         {
+            tb->connect(rx, 0, audio_gain0, 0);
+            tb->connect(rx, 1, audio_gain1, 0);
             tb->connect(audio_gain0, 0, audio_snk, 0);
             tb->connect(audio_gain1, 0, audio_snk, 1);
         }
@@ -496,7 +623,7 @@ void receiver::set_dc_cancel(bool enable)
 
     // until we have a way to switch on/off
     // inside the dc_corr_cc we do a reconf
-    set_demod(d_demod, true);
+    set_demod(d_demod, FILE_FORMAT_LAST, true);
 }
 
 /**
@@ -857,7 +984,7 @@ receiver::status receiver::set_agc_manual_gain(int gain)
     return STATUS_OK; // FIXME
 }
 
-receiver::status receiver::set_demod(rx_demod demod, bool force)
+receiver::status receiver::set_demod(rx_demod demod, enum file_formats fmt, bool force)
 {
     status ret = STATUS_OK;
 
@@ -876,46 +1003,46 @@ receiver::status receiver::set_demod(rx_demod demod, bool force)
     switch (demod)
     {
     case RX_DEMOD_OFF:
-        connect_all(RX_CHAIN_NONE);
+        connect_all(RX_CHAIN_NONE,fmt);
         break;
 
     case RX_DEMOD_NONE:
-        connect_all(RX_CHAIN_NBRX);
+        connect_all(RX_CHAIN_NBRX,fmt);
         rx->set_demod(nbrx::NBRX_DEMOD_NONE);
         break;
 
     case RX_DEMOD_AM:
-        connect_all(RX_CHAIN_NBRX);
+        connect_all(RX_CHAIN_NBRX,fmt);
         rx->set_demod(nbrx::NBRX_DEMOD_AM);
         break;
 
     case RX_DEMOD_AMSYNC:
-        connect_all(RX_CHAIN_NBRX);
+        connect_all(RX_CHAIN_NBRX,fmt);
         rx->set_demod(nbrx::NBRX_DEMOD_AMSYNC);
         break;
 
     case RX_DEMOD_NFM:
-        connect_all(RX_CHAIN_NBRX);
+        connect_all(RX_CHAIN_NBRX,fmt);
         rx->set_demod(nbrx::NBRX_DEMOD_FM);
         break;
 
     case RX_DEMOD_WFM_M:
-        connect_all(RX_CHAIN_WFMRX);
+        connect_all(RX_CHAIN_WFMRX,fmt);
         rx->set_demod(wfmrx::WFMRX_DEMOD_MONO);
         break;
 
     case RX_DEMOD_WFM_S:
-        connect_all(RX_CHAIN_WFMRX);
+        connect_all(RX_CHAIN_WFMRX,fmt);
         rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO);
         break;
 
     case RX_DEMOD_WFM_S_OIRT:
-        connect_all(RX_CHAIN_WFMRX);
+        connect_all(RX_CHAIN_WFMRX,fmt);
         rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO_UKW);
         break;
 
     case RX_DEMOD_SSB:
-        connect_all(RX_CHAIN_NBRX);
+        connect_all(RX_CHAIN_NBRX,fmt);
         rx->set_demod(nbrx::NBRX_DEMOD_SSB);
         break;
 
@@ -1177,10 +1304,14 @@ receiver::status receiver::stop_udp_streaming()
 /**
  * @brief Start I/Q data recorder.
  * @param filename The filename where to record.
+ * @param bytes_per_sample A hint to choose correct sample format.
  */
-receiver::status receiver::start_iq_recording(const std::string filename)
+receiver::status receiver::start_iq_recording(const std::string filename, int bytes_per_sample)
 {
     receiver::status status = STATUS_OK;
+    int sink_bytes_per_sample=bytes_per_sample;
+    if(sink_bytes_per_sample<8)
+        sink_bytes_per_sample/=2;
 
     if (d_recording_iq) {
         std::cout << __func__ << ": already recording" << std::endl;
@@ -1189,21 +1320,46 @@ receiver::status receiver::start_iq_recording(const std::string filename)
 
     try
     {
-        iq_sink = gr::blocks::file_sink::make(sizeof(gr_complex), filename.c_str(), true);
+        #if 0
+        iq_sink = /*gr::blocks::*/file_sink::make(sizeof(gr_complex), filename.c_str(), true);
+        #endif
+        iq_sink = /*gr::blocks::*/file_sink::make(sink_bytes_per_sample, filename.c_str(), true);
     }
     catch (std::runtime_error &e)
     {
         std::cout << __func__ << ": couldn't open I/Q file" << std::endl;
         return STATUS_ERROR;
     }
-
-    tb->lock();
-    if (d_decim >= 2)
-        tb->connect(input_decim, 0, iq_sink, 0);
-    else
-        tb->connect(src, 0, iq_sink, 0);
-    d_recording_iq = true;
-    tb->unlock();
+    gr_complex scale(256.0,0);
+    d_iq_bytes_per_sample=bytes_per_sample;
+    switch(d_iq_bytes_per_sample)
+    {
+    case 2:
+        std::cout << __func__ << " std::complex<char> sample format in not implemented yet." << std::endl;
+        return STATUS_ERROR;
+    break;
+    case 4:
+        iq_scale = gr::blocks::multiply_const_cc::make(scale);
+        tb->lock();
+        if (d_decim >= 2)
+            tb->connect(input_decim, 0, iq_scale, 0);
+        else
+            tb->connect(src, 0, iq_scale, 0);
+        tb->connect(iq_scale, 0 ,to_s16lc, 0);
+        tb->connect(to_s16lc, 0 ,iq_sink, 0);
+        d_recording_iq = true;
+        tb->unlock();
+    break;
+    case 8:
+        tb->lock();
+        if (d_decim >= 2)
+            tb->connect(input_decim, 0, iq_sink, 0);
+        else
+            tb->connect(src, 0, iq_sink, 0);
+        d_recording_iq = true;
+        tb->unlock();
+    break;
+    }
 
     return status;
 }
@@ -1218,12 +1374,22 @@ receiver::status receiver::stop_iq_recording()
 
     tb->lock();
     iq_sink->close();
-
-    if (d_decim >= 2)
-        tb->disconnect(input_decim, 0, iq_sink, 0);
-    else
-        tb->disconnect(src, 0, iq_sink, 0);
-
+    switch(d_iq_bytes_per_sample)
+    {
+    case 2:
+        tb->disconnect(iq_sink);
+        tb->disconnect(to_s16lc);
+        tb->disconnect(iq_scale);
+    break;
+    case 4:
+        tb->disconnect(iq_sink);
+        tb->disconnect(to_s16lc);
+        tb->disconnect(iq_scale);
+    break;
+    case 8:
+        tb->disconnect(iq_sink);
+    break;
+    }
     tb->unlock();
     iq_sink.reset();
     d_recording_iq = false;
@@ -1241,7 +1407,7 @@ receiver::status receiver::seek_iq_file(long pos)
 
     tb->lock();
 
-    if (src->seek(pos, SEEK_SET))
+    if (input_file->seek(pos, SEEK_SET))
     {
         status = STATUS_OK;
     }
@@ -1306,28 +1472,13 @@ void receiver::get_sniffer_data(float * outbuff, unsigned int &num)
     sniffer->get_samples(outbuff, num);
 }
 
+
 /** Convenience function to connect all blocks. */
-void receiver::connect_all(rx_chain type)
+void receiver::connect_all(rx_chain type, enum file_formats fmt)
 {
     gr::basic_block_sptr b;
 
-    // Setup source
-    b = src;
-
-    // Pre-processing
-    if (d_decim >= 2)
-    {
-        tb->connect(b, 0, input_decim, 0);
-        b = input_decim;
-    }
-
-    if (d_recording_iq)
-    {
-        // We record IQ with minimal pre-processing
-        tb->connect(b, 0, iq_sink, 0);
-    }
-
-    tb->connect(b, 0, iq_swap, 0);
+    setup_source(fmt);
     b = iq_swap;
 
     if (d_dc_cancel)

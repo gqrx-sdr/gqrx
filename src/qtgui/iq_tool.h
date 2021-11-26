@@ -62,9 +62,9 @@ public:
     void readSettings(QSettings *settings);
 
 signals:
-    void startRecording(const QString recdir);
+    void startRecording(const QString recdir, int bytes_per_sample);
     void stopRecording();
-    void startPlayback(const QString filename, float samprate, double center_freq);
+    void startPlayback(const QString filename, float samprate, double center_freq, int bytes_per_sample);
     void stopPlayback();
     void seek(qint64 seek_pos);
 

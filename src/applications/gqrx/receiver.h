@@ -29,10 +29,18 @@
 #include <gnuradio/blocks/multiply_const.h>
 #endif
 
+#include <gnuradio/blocks/vector_to_stream.h>
+//#include <gnuradio/blocks/complex_to_interleaved_char.h>
+#include <gnuradio/blocks/complex_to_interleaved_short.h>
+//#include <gnuradio/blocks/interleaved_char_to_complex.h>
+#include <gnuradio/blocks/interleaved_short_to_complex.h>
+#include <gnuradio/blocks/multiply_const_cc.h>
 #include <gnuradio/blocks/file_sink.h>
+#include <gnuradio/blocks/file_source.h>
 #include <gnuradio/blocks/null_sink.h>
 #include <gnuradio/blocks/wavfile_sink.h>
 #include <gnuradio/blocks/wavfile_source.h>
+#include <gnuradio/blocks/throttle.h>
 #include <gnuradio/top_block.h>
 #include <osmosdr/source.h>
 #include <string>
@@ -50,6 +58,7 @@
 #include "dsp/sniffer_f.h"
 #include "dsp/resampler_xx.h"
 #include "interfaces/udp_sink_f.h"
+#include "interfaces/file_sink.h"
 #include "receivers/receiver_base.h"
 
 #ifdef WITH_PULSEAUDIO
@@ -110,6 +119,13 @@ public:
         FILTER_SHAPE_SHARP = 2   /*!< Sharp: Transition band is TBD of width. */
     };
 
+    enum file_formats {
+        FILE_FORMAT_LAST=0,
+        FILE_FORMAT_NONE,
+        FILE_FORMAT_CF,
+        FILE_FORMAT_CS16L,
+        FILE_FORMAT_CS8,
+    };
     receiver(const std::string input_device="",
              const std::string audio_device="",
              unsigned int decimation=1);
@@ -118,6 +134,7 @@ public:
     void        start();
     void        stop();
     void        set_input_device(const std::string device);
+    void        set_input_file(const std::string name, const int sample_rate, const enum file_formats fmt);
     void        set_output_device(const std::string device);
 
     std::vector<std::string> get_antennas(void) const;
@@ -186,7 +203,7 @@ public:
     status      set_agc_decay(int decay_ms);
     status      set_agc_manual_gain(int gain);
 
-    status      set_demod(rx_demod demod, bool force=false);
+    status      set_demod(rx_demod demod, enum file_formats fmt=FILE_FORMAT_LAST, bool force=false);
 
     /* FM parameters */
     status      set_fm_maxdev(float maxdev_hz);
@@ -210,7 +227,7 @@ public:
     status      stop_udp_streaming();
 
     /* I/Q recording and playback */
-    status      start_iq_recording(const std::string filename);
+    status      start_iq_recording(const std::string filename, int bytes_per_sample);
     status      stop_iq_recording();
     status      seek_iq_file(long pos);
 
@@ -230,7 +247,8 @@ public:
     void        reset_rds_parser(void);
 
 private:
-    void        connect_all(rx_chain type);
+    void        connect_all(rx_chain type, enum file_formats fmt);
+    void        setup_source(enum file_formats fmt);
 
 private:
     bool        d_running;          /*!< Whether receiver is running or not. */
@@ -249,6 +267,9 @@ private:
     bool        d_iq_rev;           /*!< Whether I/Q is reversed or not. */
     bool        d_dc_cancel;        /*!< Enable automatic DC removal. */
     bool        d_iq_balance;       /*!< Enable automatic IQ balance. */
+    int         d_iq_bytes_per_sample;
+
+    enum file_formats d_last_format;
 
     std::string input_devstr;  /*!< Current input device string. */
     std::string output_devstr; /*!< Current output device string. */
@@ -272,7 +293,15 @@ private:
     gr::blocks::multiply_const_ff::sptr audio_gain0; /*!< Audio gain block. */
     gr::blocks::multiply_const_ff::sptr audio_gain1; /*!< Audio gain block. */
 
-    gr::blocks::file_sink::sptr         iq_sink;     /*!< I/Q file sink. */
+    file_sink::sptr                     iq_sink;     /*!< I/Q file sink. */
+    //gr::blocks::complex_to_interleaved_char::sptr to_s8c;
+    //gr::blocks::interleaved_char_to_complex::sptr from_s8c;
+    gr::blocks::complex_to_interleaved_short::sptr to_s16lc;
+    gr::blocks::interleaved_short_to_complex::sptr from_s16lc;
+    gr::blocks::multiply_const_cc::sptr            iq_scale;
+    gr::blocks::throttle::sptr                     input_throttle;
+    gr::blocks::file_source::sptr                  input_file;
+    gr::blocks::vector_to_stream::sptr             deinterleaver;
 
     gr::blocks::wavfile_sink::sptr      wav_sink;   /*!< WAV file sink for recording. */
     gr::blocks::wavfile_source::sptr    wav_src;    /*!< WAV file source for playback. */
