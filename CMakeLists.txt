@@ -145,7 +145,7 @@ math(EXPR GNURADIO_BCD_VERSION
 add_definitions(-DGNURADIO_VERSION=${GNURADIO_BCD_VERSION})
 
 if(Gnuradio_VERSION VERSION_LESS "3.8")
-    find_package(Boost COMPONENTS system REQUIRED)
+    find_package(Boost COMPONENTS system thread REQUIRED)
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")

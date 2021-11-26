@@ -31,6 +31,7 @@
 #include <QTime>
 
 #include <math.h>
+#include <iostream>
 
 #include "iq_tool.h"
 #include "ui_iq_tool.h"
@@ -91,7 +92,9 @@ void CIqTool::on_listWidget_currentTextChanged(const QString &currentText)
     QFileInfo info(*recdir, current_file);
 
     // Get duration of selected recording and update label
-    sample_rate = sampleRateFromFileName(currentText);
+    //sample_rate = sampleRateFromFileName(currentText);
+    parseFileName(currentText);
+    std::cerr<<"bytes per sample="<<bytes_per_sample<<std::endl;
     rec_len = (int)(info.size() / (sample_rate * bytes_per_sample));
 
     refreshTimeWidgets();
@@ -126,7 +129,7 @@ void CIqTool::on_playButton_clicked(bool checked)
             ui->listWidget->setEnabled(false);
             ui->recButton->setEnabled(false);
             emit startPlayback(recdir->absoluteFilePath(current_file),
-                               (float)sample_rate);
+                               (float)sample_rate,center_freq,bytes_per_sample);
         }
     }
     else
@@ -171,7 +174,7 @@ void CIqTool::on_recButton_clicked(bool checked)
     if (checked)
     {
         ui->playButton->setEnabled(false);
-        emit startRecording(recdir->path());
+        emit startRecording(recdir->path(), bytes_per_sample);
 
         refreshDir();
         ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
@@ -355,22 +358,41 @@ void CIqTool::refreshTimeWidgets(void)
 }
 
 
-/*! \brief Extract sample rate from file name */
-qint64 CIqTool::sampleRateFromFileName(const QString &filename)
+/*! \brief Extract sample rate and offset frequency from file name */
+void CIqTool::parseFileName(const QString &filename)
 {
-    bool ok;
-    qint64 sr;
+    bool sr_ok;
+    qint64 sr=1e6;
+    bool ofs_ok;
+    double ofs=1e8;
+    QString fmt="";
 
     QStringList list = filename.split('_');
 
     if (list.size() < 5)
-        return sample_rate;
+        return ;
 
     // gqrx_yymmdd_hhmmss_freq_samprate_fc.raw
-    sr = list.at(4).toLongLong(&ok);
+    sr = list.at(4).toLongLong(&sr_ok);
+    ofs = list.at(3).toDouble(&ofs_ok);
+    fmt = list.at(5);
+    list = fmt.split('.');
+    fmt = list.at(0);
 
-    if (ok)
-        return sr;
-    else
-        return sample_rate;  // return current rate
+    if (sr_ok)
+        sample_rate = sr;
+    if (ofs_ok)
+        center_freq = ofs;
+    if(fmt.compare("fc")==0)
+    {
+        bytes_per_sample=8;
+    }
+    if(fmt.compare("16")==0)
+    {
+        bytes_per_sample=4;
+    }
+    if(fmt.compare("8")==0)
+    {
+        bytes_per_sample=2;
+    }
 }
