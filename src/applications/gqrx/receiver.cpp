@@ -190,10 +190,14 @@ void receiver::set_input_device(const std::string device)
         qDebug() << "  new: " << device.c_str();
 #endif
         return;
-    }else{
+    }
+    else
+    {
+#ifndef QT_NO_DEBUG_OUTPUT
         qDebug() << "Set input device:";
         qDebug() << "  old:" << input_devstr.c_str();
         qDebug() << "  new:" << device.c_str();
+#endif
     }
 
 
@@ -205,7 +209,7 @@ void receiver::set_input_device(const std::string device)
     {
         tb->stop();
         tb->wait();
-    };
+    }
 
     if (d_decim >= 2)
     {
