@@ -57,7 +57,7 @@
         std::cout << "Writer start" <<std::endl;
         while(true)
         {
-            while(queue.pop(item))
+            while(d_queue.pop(item))
             {
                 written=0;
                 p=item.data;
@@ -82,8 +82,8 @@
                         else // is EOF
                             break;
                     }else{
-                        boost::unique_lock<boost::mutex> lock(writer_mutex);
-                        buffers_used--;
+                        gr::thread::scoped_lock lock(d_writer_mutex);
+                        d_buffers_used--;
                     }
                     written+=count;
                     p+=count;
@@ -91,57 +91,58 @@
                 delete [] item.data;
                 fflush (d_fp);
             }
-            if(writer_finish)
+            if(d_writer_finish)
             {
                 std::cout << "Writer finished" <<std::endl;
                 return;
             }
             else
             {
-               writer_ready.notify_one();
-               boost::unique_lock<boost::mutex> lock(writer_mutex);
-               writer_trigger.wait(lock);
+               d_writer_ready.notify_one();
+               gr::thread::scoped_lock lock(d_writer_mutex);
+               d_writer_trigger.wait(lock);
             }
         }
     }
 
-    file_sink::sptr file_sink::make(size_t itemsize, const char *filename, bool append)
+    file_sink::sptr file_sink::make(size_t itemsize, const char *filename, int sample_rate, bool append, int buffers_max)
     {
         return gnuradio::get_initial_sptr
-            (new file_sink(itemsize, filename, append));
+            (new file_sink(itemsize, filename, sample_rate, append, buffers_max));
     }
 
 
-    file_sink::file_sink(size_t itemsize, const char *filename, bool append)
+    file_sink::file_sink(size_t itemsize, const char *filename, int sample_rate, bool append, int buffers_max)
       : sync_block("file_sink",
                       gr::io_signature::make(1, 1, itemsize),
                       gr::io_signature::make(0, 0, 0)),
                       d_itemsize(itemsize),
                       d_fp(0), d_new_fp(0), d_updated(false), d_is_binary(true),
-                      d_append(append), queue(512), writer_finish(false)
+                      d_append(append), d_queue(512), d_writer_finish(false),
+                      d_sd_max(1024*1024*32), d_buffers_used(0), d_buffers_max(buffers_max)
     {
         if (!open(filename))
             throw std::runtime_error ("can't open file");
-        writer_thread=new boost::thread(boost::bind(&file_sink::writer,this));
-        sd.data=NULL;
-        sd.len=0;
-        buffers_used=0;
+        d_writer_thread=new boost::thread(boost::bind(&file_sink::writer,this));
+        d_sd.data=NULL;
+        d_sd.len=0;
+        d_buffers_used=0;
     }
 
     file_sink::~file_sink()
     {
         
-        if(sd.len>0)
+        if(d_sd.len>0)
         {
-            queue.push(sd);
-            sd.len=0;
-            sd.data=NULL;
+            d_queue.push(d_sd);
+            d_sd.len=0;
+            d_sd.data=NULL;
         }
         close();
-        writer_finish=true;
-        writer_trigger.notify_one();
-        writer_thread->join();
-        delete writer_thread;
+        d_writer_finish=true;
+        d_writer_trigger.notify_one();
+        d_writer_thread->join();
+        delete d_writer_thread;
         if(d_fp)
         {
             fclose(d_fp);
@@ -182,20 +183,21 @@
         }
 
         d_updated = true;
+        d_failed = false;
         return d_new_fp != 0;
     }
 
     void file_sink::close()
     {
         gr::thread::scoped_lock guard(d_mutex);	// hold mutex for duration of this function
-        if(sd.len>0)
+        if(d_sd.len>0)
         {
-            queue.push(sd);
-            sd.len=0;
-            sd.data=NULL;
+            d_queue.push(d_sd);
+            d_sd.len=0;
+            d_sd.data=NULL;
         }
-        writer_trigger.notify_one();
-        writer_ready.wait(guard);
+        d_writer_trigger.notify_one();
+        d_writer_ready.wait(guard);
         if(d_new_fp)
         {
             fclose(d_new_fp);
@@ -230,23 +232,27 @@
         char *inbuf = (char*)input_items[0];
         int len_bytes=noutput_items*d_itemsize;
         do_update();                    // update d_fp is reqd
-        if(sd.data==NULL)
-            sd.data=new char [sd_max];
-        if(sd.len+len_bytes>sd_max)
+        if(d_sd.data==NULL)
+            d_sd.data=new char [d_sd_max];
+        if(d_sd.len+len_bytes>d_sd_max)
         {
             int l_buffers_used;
-            queue.push(sd);
-            sd.data=new char [sd_max];
-            sd.len=0;
-            writer_trigger.notify_one();
+            d_queue.push(d_sd);
+            d_sd.data=new char [d_sd_max];
+            d_sd.len=0;
+            d_writer_trigger.notify_one();
             {
-                boost::unique_lock<boost::mutex> lock(writer_mutex);
-                l_buffers_used=++buffers_used;
+                gr::thread::scoped_lock lock(d_writer_mutex);
+                l_buffers_used=++d_buffers_used;
             }
             std::cerr << "buffers="<<l_buffers_used<<std::endl;
+            if(l_buffers_used>d_buffers_max)
+            {
+                d_failed=true;
+            }
         }
-        memcpy(&sd.data[sd.len],inbuf,len_bytes);
-        sd.len+=len_bytes;
+        memcpy(&d_sd.data[d_sd.len],inbuf,len_bytes);
+        d_sd.len+=len_bytes;
         return noutput_items;
 #if 0
         int  nwritten = 0;
@@ -299,5 +305,18 @@
 
     int file_sink::get_buffer_usage()
     {
-        return buffers_used;
+        return d_buffers_used;
+    }
+
+    int file_sink::get_buffers_max()
+    {
+        return d_buffers_max;
+    }
+
+    void file_sink::set_buffers_max(int buffers_max)
+    {
+        //At least one buffer should be present
+        if(buffers_max<=0)
+            buffers_max=1;
+        d_buffers_max=buffers_max;
     }

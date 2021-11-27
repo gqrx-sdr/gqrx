@@ -47,6 +47,7 @@ CIqTool::CIqTool(QWidget *parent) :
     is_recording = false;
     is_playing = false;
     bytes_per_sample = 8;
+    rec_bytes_per_sample = 8;
     sample_rate = 192000;
     rec_len = 0;
 
@@ -59,6 +60,10 @@ CIqTool::CIqTool(QWidget *parent) :
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(timeoutFunction()));
+    connect(ui->formatCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(on_formatCombo_currentIndexChanged(int)));
+    ui->formatCombo->addItem("gr_complex cf",8);
+    ui->formatCombo->addItem("short 16",4);
+    ui->formatCombo->addItem("char 8",2);
 }
 
 CIqTool::~CIqTool()
@@ -175,7 +180,9 @@ void CIqTool::on_recButton_clicked(bool checked)
     if (checked)
     {
         ui->playButton->setEnabled(false);
-        emit startRecording(recdir->path(), bytes_per_sample);
+        ui->formatCombo->setEnabled(false);
+        ui->buffersSpinBox->setEnabled(false);
+        emit startRecording(recdir->path(), rec_bytes_per_sample, ui->buffersSpinBox->value());
 
         refreshDir();
         ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
@@ -183,6 +190,8 @@ void CIqTool::on_recButton_clicked(bool checked)
     else
     {
         ui->playButton->setEnabled(true);
+        ui->formatCombo->setEnabled(true);
+        ui->buffersSpinBox->setEnabled(true);
         emit stopRecording();
     }
 }
@@ -199,6 +208,8 @@ void CIqTool::cancelRecording()
 {
     ui->recButton->setChecked(false);
     ui->playButton->setEnabled(true);
+    ui->formatCombo->setEnabled(true);
+    ui->buffersSpinBox->setEnabled(true);
     is_recording = false;
 }
 
@@ -236,7 +247,8 @@ void CIqTool::saveSettings(QSettings *settings)
         settings->setValue("baseband/rec_dir", dir);
     else
         settings->remove("baseband/rec_dir");
-
+    settings->setValue("baseband/rec_bps", rec_bytes_per_sample);
+    settings->setValue("baseband/rec_buffers", ui->buffersSpinBox->value());
 }
 
 void CIqTool::readSettings(QSettings *settings)
@@ -247,6 +259,14 @@ void CIqTool::readSettings(QSettings *settings)
     // Location of baseband recordings
     QString dir = settings->value("baseband/rec_dir", QDir::homePath()).toString();
     ui->recDirEdit->setText(dir);
+    int found=ui->formatCombo->findData(settings->value("baseband/rec_bps", 8));
+    if(found==-1)
+        rec_bytes_per_sample=8;
+    else{
+        rec_bytes_per_sample=ui->formatCombo->itemData(found).toInt();
+        ui->formatCombo->setCurrentIndex(found);
+    }
+    ui->buffersSpinBox->setValue(settings->value("baseband/rec_buffers", 1).toInt());
 }
 
 
@@ -300,6 +320,11 @@ void CIqTool::timeoutFunction(void)
     }
     if (is_recording)
         refreshTimeWidgets();
+}
+
+void CIqTool::on_formatCombo_currentIndexChanged(int index)
+{
+    rec_bytes_per_sample=ui->formatCombo->currentData().toInt();
 }
 
 /*! \brief Refresh list of files in current working directory. */

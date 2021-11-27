@@ -62,7 +62,7 @@ public:
     void readSettings(QSettings *settings);
 
 signals:
-    void startRecording(const QString recdir, int bytes_per_sample);
+    void startRecording(const QString recdir, int bytes_per_sample, int buffers_max);
     void stopRecording();
     void startPlayback(const QString filename, float samprate, double center_freq, int bytes_per_sample);
     void stopPlayback();
@@ -80,6 +80,7 @@ private slots:
     void on_slider_valueChanged(int value);
     void on_listWidget_currentTextChanged(const QString &currentText);
     void timeoutFunction(void);
+    void on_formatCombo_currentIndexChanged(int index);
 
 private:
     void refreshDir(void);
@@ -98,6 +99,7 @@ private:
     bool    is_recording;
     bool    is_playing;
     int     bytes_per_sample;  /*!< Bytes per sample (fc = 4) */
+    int     rec_bytes_per_sample;  /*!< Bytes per sample for recording */
     int     sample_rate;       /*!< Current sample rate. */
     double  center_freq;       /*!< Center frequency. */
     int     rec_len;           /*!< Length of a recording in seconds */

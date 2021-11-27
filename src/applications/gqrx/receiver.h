@@ -227,7 +227,7 @@ public:
     status      stop_udp_streaming();
 
     /* I/Q recording and playback */
-    status      start_iq_recording(const std::string filename, int bytes_per_sample);
+    status      start_iq_recording(const std::string filename, int bytes_per_sample, int buffers_max);
     status      stop_iq_recording();
     status      seek_iq_file(long pos);
 

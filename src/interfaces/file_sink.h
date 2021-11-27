@@ -49,7 +49,7 @@ public:
     * \param append if true, data is appended to the file instead of
     *        overwriting the initial content.
     */
-    static sptr make(size_t itemsize, const char *filename, bool append=false);
+    static sptr make(size_t itemsize, const char *filename, int sample_rate, bool append=false, int buffers_max=8);
     private:
       size_t d_itemsize;
 
@@ -61,22 +61,23 @@ public:
       boost::mutex d_mutex;
       bool         d_unbuffered;
       bool         d_append;
-      boost::mutex writer_mutex;
-      boost::lockfree::queue<s_data> queue;
-      boost::condition_variable writer_trigger;
-      boost::condition_variable writer_ready;
-      bool         writer_finish;
-      boost::thread * writer_thread;
-      s_data       sd;
-      static const int sd_max=1024*1024*32;
-      int          sd_p;
-      int          buffers_used;
+      boost::mutex d_writer_mutex;
+      boost::lockfree::queue<s_data> d_queue;
+      boost::condition_variable d_writer_trigger;
+      boost::condition_variable d_writer_ready;
+      bool         d_writer_finish;
+      boost::thread * d_writer_thread;
+      s_data       d_sd;
+      int          d_sd_max;
+      int          d_buffers_used;
+      int          d_buffers_max;
+      bool         d_failed;
 
     private:
     void writer();
 
     public:
-      file_sink(size_t itemsize, const char *filename, bool append);
+      file_sink(size_t itemsize, const char *filename, int sample_rate, bool append, int buffers_max=8);
       file_sink() {}
       ~file_sink();
 
@@ -104,6 +105,8 @@ public:
       void set_unbuffered(bool unbuffered);
 
       int get_buffer_usage();
+      int get_buffers_max();
+      void set_buffers_max(int buffers_max);
 
       int work(int noutput_items,
                gr_vector_const_void_star &input_items,

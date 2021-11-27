@@ -1310,7 +1310,7 @@ receiver::status receiver::stop_udp_streaming()
  * @param filename The filename where to record.
  * @param bytes_per_sample A hint to choose correct sample format.
  */
-receiver::status receiver::start_iq_recording(const std::string filename, int bytes_per_sample)
+receiver::status receiver::start_iq_recording(const std::string filename, int bytes_per_sample, int buffers_max)
 {
     receiver::status status = STATUS_OK;
     int sink_bytes_per_sample=bytes_per_sample;
@@ -1327,7 +1327,7 @@ receiver::status receiver::start_iq_recording(const std::string filename, int by
         #if 0
         iq_sink = /*gr::blocks::*/file_sink::make(sizeof(gr_complex), filename.c_str(), true);
         #endif
-        iq_sink = /*gr::blocks::*/file_sink::make(sink_bytes_per_sample, filename.c_str(), true);
+        iq_sink = /*gr::blocks::*/file_sink::make(sink_bytes_per_sample, filename.c_str(), d_input_rate, true, buffers_max);
     }
     catch (std::runtime_error &e)
     {

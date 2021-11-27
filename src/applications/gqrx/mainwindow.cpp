@@ -281,9 +281,9 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(&DXCSpots::Get(), SIGNAL(dxcSpotsUpdated()), this, SLOT(updateClusterSpots()));
 
     // I/Q playback
-    connect(iq_tool, SIGNAL(startRecording(QString,int)), this, SLOT(startIqRecording(QString,int)));
+    connect(iq_tool, SIGNAL(startRecording(QString, int, int)), this, SLOT(startIqRecording(QString, int, int)));
     connect(iq_tool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
-    connect(iq_tool, SIGNAL(startPlayback(QString,float,double,int)), this, SLOT(startIqPlayback(QString,float,double,int)));
+    connect(iq_tool, SIGNAL(startPlayback(QString, float, double, int)), this, SLOT(startIqPlayback(QString, float, double,int)));
     connect(iq_tool, SIGNAL(stopPlayback()), this, SLOT(stopIqPlayback()));
     connect(iq_tool, SIGNAL(seek(qint64)), this,SLOT(seekIqFile(qint64)));
 
@@ -1544,7 +1544,7 @@ void MainWindow::stopAudioStreaming()
 }
 
 /** Start I/Q recording. */
-void MainWindow::startIqRecording(const QString& recdir, int bytes_per_sample)
+void MainWindow::startIqRecording(const QString& recdir, int bytes_per_sample, int buffers_max)
 {
     qDebug() << __func__;
     // generate file name using date, time, rf freq in kHz and BW in Hz
@@ -1570,7 +1570,7 @@ void MainWindow::startIqRecording(const QString& recdir, int bytes_per_sample)
             .arg(recdir).arg(freq).arg(sr/dec).arg(suffix);
 
     // start recorder; fails if recording already in progress
-    if (rx->start_iq_recording(lastRec.toStdString(), bytes_per_sample))
+    if (rx->start_iq_recording(lastRec.toStdString(), bytes_per_sample, buffers_max))
     {
         // reset action status
         ui->statusBar->showMessage(tr("Error starting I/Q recoder"));
