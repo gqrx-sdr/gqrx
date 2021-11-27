@@ -101,6 +101,7 @@ private:
     int     sample_rate;       /*!< Current sample rate. */
     double  center_freq;       /*!< Center frequency. */
     int     rec_len;           /*!< Length of a recording in seconds */
+
 };
 
 #endif // IQ_TOOL_H

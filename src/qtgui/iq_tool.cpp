@@ -29,6 +29,7 @@
 #include <QString>
 #include <QStringList>
 #include <QTime>
+#include <QScrollBar>
 
 #include <math.h>
 #include <iostream>
@@ -305,7 +306,8 @@ void CIqTool::timeoutFunction(void)
 void CIqTool::refreshDir()
 {
     int selection = ui->listWidget->currentRow();
-
+    QScrollBar * sc=ui->listWidget->verticalScrollBar();
+    int lastScroll=sc->sliderPosition();
     recdir->refresh();
     QStringList files = recdir->entryList();
 
@@ -313,6 +315,7 @@ void CIqTool::refreshDir()
     ui->listWidget->clear();
     ui->listWidget->insertItems(0, files);
     ui->listWidget->setCurrentRow(selection);
+    sc->setSliderPosition(lastScroll);
     ui->listWidget->blockSignals(false);
 
     if (is_recording)
