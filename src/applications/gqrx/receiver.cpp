@@ -1319,9 +1319,9 @@ receiver::status receiver::connect_iq_recorder()
 
     #if 1
     if (d_decim >= 2)
-        tb->connect(input_decim, 0, to_s8c, 0);
+        b=input_decim;
     else
-        tb->connect(src, 0, to_s8c, 0);
+        b=src;
     #else
     b = iq_swap;
     if (d_dc_cancel)
