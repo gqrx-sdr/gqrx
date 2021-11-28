@@ -32,7 +32,7 @@ std::string receiver::get_random_file(void)
     static std::string path;
     if (path.empty())
     {
-        path = "/dev/urandom";
+        path = "/dev/zero";
         QFileInfo checkFile(QString::fromStdString(path));
         if (!checkFile.exists())
         {

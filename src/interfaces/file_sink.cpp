@@ -23,6 +23,7 @@
 
 #include <interfaces/file_sink.h>
 #include <cstdio>
+#include <algorithm>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -119,7 +120,7 @@
                       d_itemsize(itemsize),
                       d_fp(0), d_new_fp(0), d_updated(false), d_is_binary(true),
                       d_append(append), d_queue(512), d_writer_finish(false),
-                      d_sd_max(1024*1024*32), d_buffers_used(0), d_buffers_max(buffers_max)
+                      d_sd_max(std::max(8192lu,sample_rate*itemsize)), d_buffers_used(0), d_buffers_max(buffers_max)
     {
         if (!open(filename))
             throw std::runtime_error ("can't open file");
@@ -245,7 +246,6 @@
                 gr::thread::scoped_lock lock(d_writer_mutex);
                 l_buffers_used=++d_buffers_used;
             }
-            std::cerr << "buffers="<<l_buffers_used<<std::endl;
             if(l_buffers_used>d_buffers_max)
             {
                 d_failed=true;

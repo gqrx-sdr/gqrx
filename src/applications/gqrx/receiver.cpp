@@ -115,9 +115,10 @@ receiver::receiver(const std::string input_device,
 
     input_file = gr::blocks::file_source::make(sizeof(gr_complex),get_random_file().c_str(),false);
     input_throttle = gr::blocks::throttle::make(sizeof(gr_complex),192000.0);
-    iq_scale = gr::blocks::multiply_const_cc::make(gr_complex(0.0,0.0));
-    to_s16lc = gr::blocks::complex_to_interleaved_short::make();
-    from_s16lc = gr::blocks::interleaved_short_to_complex::make();
+    to_s16lc = any_to_any<gr_complex,std::complex<short>>::make(256.0);
+    to_s8c = any_to_any<gr_complex,std::complex<char>>::make(256.0);
+    from_s16lc = any_to_any<std::complex<short>,gr_complex>::make(256.0);
+    from_s8c = any_to_any<std::complex<char>,gr_complex>::make(256.0);
     iq_swap = make_iq_swap_cc(false);
     dc_corr = make_dc_corr_cc(d_decim_rate, 1.0);
     iq_fft = make_rx_fft_c(8192u, d_decim_rate, gr::fft::window::WIN_HANN);
@@ -285,8 +286,6 @@ void receiver::set_input_file(const std::string name, const int sample_rate, con
     break;
     case FILE_FORMAT_CS8:
         sample_size = sizeof(char)*2;
-        //TODO: signal error
-        return;
     break;
     }
 
@@ -300,13 +299,9 @@ void receiver::set_input_file(const std::string name, const int sample_rate, con
     tb->disconnect_all();
 
 
-    gr_complex scale(1.0/256.0,0);
-    iq_scale = gr::blocks::multiply_const_cc::make(scale);
-    deinterleaver = gr::blocks::vector_to_stream::make(sample_size/2,2);
 
     input_throttle = gr::blocks::throttle::make(sizeof(gr_complex),sample_rate);
     auto last_demod=d_demod;
-    //set_demod(RX_DEMOD_OFF,true);
     set_demod(last_demod,fmt,true);
     if (d_running)
         tb->start();
@@ -343,8 +338,7 @@ void receiver::setup_source(enum file_formats fmt)
         if (d_recording_iq)
         {
             // We record IQ with minimal pre-processing
-            //TODO: fix this to match new recorder
-            tb->connect(b, 0, iq_sink, 0);
+            connect_iq_recorder();
         }
 
         tb->connect(b, 0, iq_swap, 0);
@@ -362,21 +356,30 @@ void receiver::setup_source(enum file_formats fmt)
         }
     break;
     case FILE_FORMAT_CS16L:
-        tb->connect(input_file, 0 ,deinterleaver, 0);
-        tb->connect(deinterleaver, 0 ,from_s16lc, 0);
+        tb->connect(input_file, 0 ,from_s16lc, 0);
         tb->connect(from_s16lc, 0, input_throttle, 0);
         if (d_decim >= 2)
         {
             tb->connect(input_throttle, 0, input_decim, 0);
-            tb->connect(input_decim, 0, iq_scale, 0);
+            tb->connect(input_decim, 0, iq_swap, 0);
         }
         else
         {
-            tb->connect(input_throttle, 0, iq_scale, 0);
+            tb->connect(input_throttle, 0, iq_swap, 0);
         }
-        tb->connect(iq_scale, 0, iq_swap, 0);
     break;
     case FILE_FORMAT_CS8:
+        tb->connect(input_file, 0 ,from_s8c, 0);
+        tb->connect(from_s8c, 0, input_throttle, 0);
+        if (d_decim >= 2)
+        {
+            tb->connect(input_throttle, 0, input_decim, 0);
+            tb->connect(input_decim, 0, iq_swap, 0);
+        }
+        else
+        {
+            tb->connect(input_throttle, 0, iq_swap, 0);
+        }
     break;
     }
 }
@@ -1305,6 +1308,65 @@ receiver::status receiver::stop_udp_streaming()
     return STATUS_OK;
 }
 
+
+
+/**
+ * @brief Connect I/Q data recorder blocks.
+ */
+receiver::status receiver::connect_iq_recorder()
+{
+    gr::basic_block_sptr b;
+
+    b = iq_swap;
+    if (d_dc_cancel)
+        b = dc_corr;
+
+    switch(d_iq_bytes_per_sample)
+    {
+    case 2:
+        {
+            tb->lock();
+            #if 0
+            if (d_decim >= 2)
+                tb->connect(input_decim, 0, to_s8c, 0);
+            else
+                tb->connect(src, 0, to_s8c, 0);
+            #endif
+            tb->connect(b, 0, to_s8c, 0);
+            tb->connect(to_s8c, 0 ,iq_sink, 0);
+            d_recording_iq = true;
+            tb->unlock();
+        }
+    break;
+    case 4:
+        {
+            tb->lock();
+            #if 0
+            if (d_decim >= 2)
+                tb->connect(input_decim, 0, to_s16lc, 0);
+            else
+                tb->connect(src, 0, to_s16lc, 0);
+            #endif
+            tb->connect(b, 0, to_s16lc, 0);
+            tb->connect(to_s16lc, 0 ,iq_sink, 0);
+            d_recording_iq = true;
+            tb->unlock();
+        }
+    break;
+    case 8:
+        tb->lock();
+        if (d_decim >= 2)
+            tb->connect(input_decim, 0, iq_sink, 0);
+        else
+            tb->connect(src, 0, iq_sink, 0);
+        d_recording_iq = true;
+        tb->unlock();
+    break;
+    }
+    return STATUS_OK;
+}
+
+
 /**
  * @brief Start I/Q data recorder.
  * @param filename The filename where to record.
@@ -1312,10 +1374,9 @@ receiver::status receiver::stop_udp_streaming()
  */
 receiver::status receiver::start_iq_recording(const std::string filename, int bytes_per_sample, int buffers_max)
 {
-    receiver::status status = STATUS_OK;
     int sink_bytes_per_sample=bytes_per_sample;
-    if(sink_bytes_per_sample<8)
-        sink_bytes_per_sample/=2;
+//     if(sink_bytes_per_sample<8)
+//         sink_bytes_per_sample/=2;
 
     if (d_recording_iq) {
         std::cout << __func__ << ": already recording" << std::endl;
@@ -1334,38 +1395,8 @@ receiver::status receiver::start_iq_recording(const std::string filename, int by
         std::cout << __func__ << ": couldn't open I/Q file" << std::endl;
         return STATUS_ERROR;
     }
-    gr_complex scale(256.0,0);
     d_iq_bytes_per_sample=bytes_per_sample;
-    switch(d_iq_bytes_per_sample)
-    {
-    case 2:
-        std::cout << __func__ << " std::complex<char> sample format in not implemented yet." << std::endl;
-        return STATUS_ERROR;
-    break;
-    case 4:
-        iq_scale = gr::blocks::multiply_const_cc::make(scale);
-        tb->lock();
-        if (d_decim >= 2)
-            tb->connect(input_decim, 0, iq_scale, 0);
-        else
-            tb->connect(src, 0, iq_scale, 0);
-        tb->connect(iq_scale, 0 ,to_s16lc, 0);
-        tb->connect(to_s16lc, 0 ,iq_sink, 0);
-        d_recording_iq = true;
-        tb->unlock();
-    break;
-    case 8:
-        tb->lock();
-        if (d_decim >= 2)
-            tb->connect(input_decim, 0, iq_sink, 0);
-        else
-            tb->connect(src, 0, iq_sink, 0);
-        d_recording_iq = true;
-        tb->unlock();
-    break;
-    }
-
-    return status;
+    return connect_iq_recorder();
 }
 
 /** Stop I/Q data recorder. */
@@ -1382,13 +1413,11 @@ receiver::status receiver::stop_iq_recording()
     {
     case 2:
         tb->disconnect(iq_sink);
-        tb->disconnect(to_s16lc);
-        tb->disconnect(iq_scale);
+        tb->disconnect(to_s8c);
     break;
     case 4:
         tb->disconnect(iq_sink);
         tb->disconnect(to_s16lc);
-        tb->disconnect(iq_scale);
     break;
     case 8:
         tb->disconnect(iq_sink);
