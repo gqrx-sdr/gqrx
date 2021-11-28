@@ -115,10 +115,10 @@ receiver::receiver(const std::string input_device,
 
     input_file = gr::blocks::file_source::make(sizeof(gr_complex),get_random_file().c_str(),false);
     input_throttle = gr::blocks::throttle::make(sizeof(gr_complex),192000.0);
-    to_s16lc = any_to_any<gr_complex,std::complex<short>>::make(256.0);
-    to_s8c = any_to_any<gr_complex,std::complex<char>>::make(256.0);
-    from_s16lc = any_to_any<std::complex<short>,gr_complex>::make(256.0);
-    from_s8c = any_to_any<std::complex<char>,gr_complex>::make(256.0);
+    to_s16lc = any_to_any<gr_complex,std::complex<short>>::make(32768.0);
+    to_s8c = any_to_any<gr_complex,std::complex<char>>::make(128.0);
+    from_s16lc = any_to_any<std::complex<short>,gr_complex>::make(32768.0);
+    from_s8c = any_to_any<std::complex<char>,gr_complex>::make(128.0);
     iq_swap = make_iq_swap_cc(false);
     dc_corr = make_dc_corr_cc(d_decim_rate, 1.0);
     iq_fft = make_rx_fft_c(8192u, d_decim_rate, gr::fft::window::WIN_HANN);
