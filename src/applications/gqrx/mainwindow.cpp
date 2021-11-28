@@ -1625,6 +1625,8 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate, double
 
     storeSession();
     backupFreq = ui->freqCtrl->getFrequency();
+    backupOffset = (qint64) rx->get_filter_offset();
+
 
     auto sri = (int)samprate;
     auto cf  = (long long) center_freq;
@@ -1690,7 +1692,7 @@ void MainWindow::stopIqPlayback()
 
     // restore frequency, gain, etc...
     uiDockInputCtl->readSettings(m_settings);
-    setNewFrequency(backupFreq);
+    on_plotter_newDemodFreq(backupFreq,backupOffset);
 
     if (ui->actionDSP->isChecked())
     {

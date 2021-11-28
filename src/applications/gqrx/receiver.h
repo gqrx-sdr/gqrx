@@ -57,6 +57,7 @@
 #include "dsp/rx_fft.h"
 #include "dsp/sniffer_f.h"
 #include "dsp/resampler_xx.h"
+#include "dsp/format_converter.h"
 #include "interfaces/udp_sink_f.h"
 #include "interfaces/file_sink.h"
 #include "receivers/receiver_base.h"
@@ -249,6 +250,7 @@ public:
 private:
     void        connect_all(rx_chain type, enum file_formats fmt);
     void        setup_source(enum file_formats fmt);
+    status      connect_iq_recorder();
 
 private:
     bool        d_running;          /*!< Whether receiver is running or not. */
@@ -294,11 +296,10 @@ private:
     gr::blocks::multiply_const_ff::sptr audio_gain1; /*!< Audio gain block. */
 
     file_sink::sptr                     iq_sink;     /*!< I/Q file sink. */
-    //gr::blocks::complex_to_interleaved_char::sptr to_s8c;
-    //gr::blocks::interleaved_char_to_complex::sptr from_s8c;
-    gr::blocks::complex_to_interleaved_short::sptr to_s16lc;
-    gr::blocks::interleaved_short_to_complex::sptr from_s16lc;
-    gr::blocks::multiply_const_cc::sptr            iq_scale;
+    any_to_any<gr_complex,std::complex<short>>::sptr to_s16lc;
+    any_to_any<gr_complex,std::complex<char>>::sptr  to_s8c;
+    any_to_any<std::complex<short>,gr_complex>::sptr from_s16lc;
+    any_to_any<std::complex<char>,gr_complex>::sptr  from_s8c;
     gr::blocks::throttle::sptr                     input_throttle;
     gr::blocks::file_source::sptr                  input_file;
     gr::blocks::vector_to_stream::sptr             deinterleaver;

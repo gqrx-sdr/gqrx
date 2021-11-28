@@ -132,6 +132,7 @@ void CIqTool::on_playButton_clicked(bool checked)
         }
         else
         {
+            on_listWidget_currentTextChanged(current_file);
             ui->listWidget->setEnabled(false);
             ui->recButton->setEnabled(false);
             emit startPlayback(recdir->absoluteFilePath(current_file),

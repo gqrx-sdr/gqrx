@@ -1317,21 +1317,22 @@ receiver::status receiver::connect_iq_recorder()
 {
     gr::basic_block_sptr b;
 
+    #if 1
+    if (d_decim >= 2)
+        tb->connect(input_decim, 0, to_s8c, 0);
+    else
+        tb->connect(src, 0, to_s8c, 0);
+    #else
     b = iq_swap;
     if (d_dc_cancel)
         b = dc_corr;
+    #endif
 
     switch(d_iq_bytes_per_sample)
     {
     case 2:
         {
             tb->lock();
-            #if 0
-            if (d_decim >= 2)
-                tb->connect(input_decim, 0, to_s8c, 0);
-            else
-                tb->connect(src, 0, to_s8c, 0);
-            #endif
             tb->connect(b, 0, to_s8c, 0);
             tb->connect(to_s8c, 0 ,iq_sink, 0);
             d_recording_iq = true;
@@ -1341,12 +1342,6 @@ receiver::status receiver::connect_iq_recorder()
     case 4:
         {
             tb->lock();
-            #if 0
-            if (d_decim >= 2)
-                tb->connect(input_decim, 0, to_s16lc, 0);
-            else
-                tb->connect(src, 0, to_s16lc, 0);
-            #endif
             tb->connect(b, 0, to_s16lc, 0);
             tb->connect(to_s16lc, 0 ,iq_sink, 0);
             d_recording_iq = true;
@@ -1355,10 +1350,7 @@ receiver::status receiver::connect_iq_recorder()
     break;
     case 8:
         tb->lock();
-        if (d_decim >= 2)
-            tb->connect(input_decim, 0, iq_sink, 0);
-        else
-            tb->connect(src, 0, iq_sink, 0);
+        tb->connect(b, 0, iq_sink, 0);
         d_recording_iq = true;
         tb->unlock();
     break;

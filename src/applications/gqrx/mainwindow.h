@@ -81,6 +81,7 @@ private:
     qint64 d_hw_freq_start{};
     qint64 d_hw_freq_stop{};
     qint64 backupFreq; /* for IQ player */
+    qint64 backupOffset; /* for IQ player */
 
     enum receiver::filter_shape d_filter_shape;
     std::complex<float>* d_fftData;
