@@ -1339,7 +1339,7 @@ void MainWindow::setSqlLevel(double level_db)
  */
 double MainWindow::setSqlLevelAuto()
 {
-    double level = rx->get_signal_pwr(true) + 1.0;
+    double level = rx->get_signal_pwr() + 1.0;
     if (level > -10.0)  // avoid 0 dBFS
         level = uiDockRxOpt->getSqlLevel();
 
@@ -1352,7 +1352,7 @@ void MainWindow::meterTimeout()
 {
     float level;
 
-    level = rx->get_signal_pwr(true);
+    level = rx->get_signal_pwr();
     ui->sMeter->setLevel(level);
     remote->setSignalLevel(level);
 }

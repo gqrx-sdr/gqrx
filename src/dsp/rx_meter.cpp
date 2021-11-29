@@ -65,7 +65,7 @@ int rx_meter_c::work(int noutput_items,
 }
 
 
-float rx_meter_c::get_level()
+float rx_meter_c::get_level_db()
 {
     std::lock_guard<std::mutex> lock(d_mutex);
 
@@ -82,10 +82,6 @@ float rx_meter_c::get_level()
     for (unsigned int i = 0; i < d_avgsize; i++)
         sum += d_cbuf[i].real()*d_cbuf[i].real() + d_cbuf[i].imag()*d_cbuf[i].imag();
 
-    return sum / (float)(d_avgsize);
-}
-
-float rx_meter_c::get_level_db()
-{
-    return (float) 10. * log10f(get_level() + 1.0e-20);
+    float power = sum / (float)(d_avgsize);
+    return (float) 10. * log10f(power + 1.0e-20);
 }

@@ -51,7 +51,7 @@ rx_meter_c_sptr make_rx_meter_c(double quad_rate);
  *  \ingroup DSP
  *
  * This block can be used to measure the received signal strength.
- * The get_level() and get_level_db() methods return the average signal power
+ * The get_level_db() method returns the average signal power
  * over a 100ms period.
  */
 class rx_meter_c : public gr::sync_block
@@ -67,9 +67,6 @@ public:
     int work(int noutput_items,
              gr_vector_const_void_star &input_items,
              gr_vector_void_star &output_items);
-
-    /*! \brief Get the current signal level. */
-    float get_level();
 
     /*! \brief Get the current signal level in dBFS. */
     float get_level_db();

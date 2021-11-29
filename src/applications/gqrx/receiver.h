@@ -162,7 +162,7 @@ public:
     double      get_cw_offset(void) const;
     status      set_filter(double low, double high, filter_shape shape);
     status      set_freq_corr(double ppm);
-    float       get_signal_pwr(bool dbfs) const;
+    float       get_signal_pwr() const;
     void        set_iq_fft_size(int newsize);
     void        set_iq_fft_window(int window_type);
     void        get_iq_fft_data(std::complex<float>* fftPoints,

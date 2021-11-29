@@ -128,13 +128,9 @@ void nbrx::set_cw_offset(double offset)
     filter->set_cw_offset(offset);
 }
 
-float nbrx::get_signal_level(bool dbfs)
+float nbrx::get_signal_level()
 {
-    if (dbfs)
-        return meter->get_level_db();
-    else
-        return meter->get_level();
-
+    return meter->get_level_db();
 }
 
 void nbrx::set_nb_on(int nbid, bool on)

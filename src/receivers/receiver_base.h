@@ -61,7 +61,7 @@ public:
     virtual void set_filter(double low, double high, double tw) = 0;
     virtual void set_cw_offset(double offset) = 0;
 
-    virtual float get_signal_level(bool dbfs) = 0;
+    virtual float get_signal_level() = 0;
 
     virtual void set_demod(int demod) = 0;
 

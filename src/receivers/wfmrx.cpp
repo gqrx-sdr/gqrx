@@ -108,13 +108,9 @@ void wfmrx::set_filter(double low, double high, double tw)
     filter->set_param(low, high, tw);
 }
 
-float wfmrx::get_signal_level(bool dbfs)
+float wfmrx::get_signal_level()
 {
-    if (dbfs)
-        return meter->get_level_db();
-    else
-        return meter->get_level();
-
+    return meter->get_level_db();
 }
 
 /*
