@@ -44,7 +44,7 @@ wfmrx::wfmrx(float quad_rate, float audio_rate)
 
     filter = make_rx_filter(PREF_QUAD_RATE, -80000.0, 80000.0, 20000.0);
     sql = gr::analog::simple_squelch_cc::make(-150.0, 0.001);
-    meter = make_rx_meter_c(DETECTOR_TYPE_RMS);
+    meter = make_rx_meter_c();
     demod_fm = make_rx_demod_fm(PREF_QUAD_RATE, 75000.0, 0.0);
     stereo = make_stereo_demod(PREF_QUAD_RATE, d_audio_rate, true);
     stereo_oirt = make_stereo_demod(PREF_QUAD_RATE, d_audio_rate, true, true);
