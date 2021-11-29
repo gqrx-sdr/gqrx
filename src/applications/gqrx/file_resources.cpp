@@ -27,7 +27,7 @@
 #include <QDataStream>
 #include <iostream>
 
-std::string receiver::get_random_file(void)
+std::string receiver::get_zero_file(void)
 {
 #ifdef WIN32
   return "NUL";
@@ -35,7 +35,7 @@ std::string receiver::get_random_file(void)
   static std::string path;
   if (path.empty())
   {
-    path = "/dev/urandom";
+    path = "/dev/zero";
     QFileInfo checkFile(QString::fromStdString(path));
     if (!checkFile.exists())
     {
