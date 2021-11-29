@@ -24,6 +24,9 @@
 #define RX_METER_H
 
 #include <gnuradio/sync_block.h>
+#include <boost/circular_buffer.hpp>
+#include <chrono>
+#include <mutex>
 
 
 class rx_meter_c;
@@ -41,23 +44,22 @@ typedef std::shared_ptr<rx_meter_c> rx_meter_c_sptr;
  * of raw pointers, the rx_meter_c constructor is private.
  * make_rxfilter is the public interface for creating new instances.
  */
-rx_meter_c_sptr make_rx_meter_c();
+rx_meter_c_sptr make_rx_meter_c(double quad_rate);
 
 
 /*! \brief Block for measuring signal strength (complex input).
  *  \ingroup DSP
  *
- * This block can be used to meausre the received signal strength.
- * For each group of samples received this block stores the maximum power level,
- * which then can be retrieved using the get_level() and get_level_db()
- * methods.
+ * This block can be used to measure the received signal strength.
+ * The get_level() and get_level_db() methods return the average signal power
+ * over a 100ms period.
  */
 class rx_meter_c : public gr::sync_block
 {
-    friend rx_meter_c_sptr make_rx_meter_c();
+    friend rx_meter_c_sptr make_rx_meter_c(double quad_rate);
 
 protected:
-    rx_meter_c();
+    rx_meter_c(double quad_rate);
 
 public:
     ~rx_meter_c();
@@ -73,12 +75,13 @@ public:
     float get_level_db();
 
 private:
-    float  d_level;     /*! The current level in the range 0.0 to 1.0 */
-    float  d_level_db;  /*! The current level in dBFS with FS = 1.0 */
-    float  d_sum;       /*! Sum of msamples. */
-    int    d_num;       /*! Number of samples in d_sum and d_sumsq. */
+    double d_quadrate;
+    unsigned int d_avgsize; /*! Number of samples to average. */
 
-    void reset_stats();
+    boost::circular_buffer<gr_complex> d_cbuf; /*! buffer to accumulate samples. */
+    std::chrono::time_point<std::chrono::steady_clock> d_lasttime;
+
+    std::mutex   d_mutex;  /*! Used to lock FFT output buffer. */
 };
 
 
