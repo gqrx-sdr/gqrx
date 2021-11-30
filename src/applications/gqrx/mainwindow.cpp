@@ -1339,7 +1339,7 @@ void MainWindow::setSqlLevel(double level_db)
  */
 double MainWindow::setSqlLevelAuto()
 {
-    double level = rx->get_signal_pwr() + 1.0;
+    double level = rx->get_signal_pwr() + 3.0;
     if (level > -10.0)  // avoid 0 dBFS
         level = uiDockRxOpt->getSqlLevel();
 
