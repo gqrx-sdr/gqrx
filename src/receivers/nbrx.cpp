@@ -46,7 +46,7 @@ nbrx::nbrx(float quad_rate, float audio_rate)
     filter = make_rx_filter(PREF_QUAD_RATE, -5000.0, 5000.0, 1000.0);
     agc = make_rx_agc_cc(PREF_QUAD_RATE, true, -100, 0, 0, 500, false);
     sql = gr::analog::simple_squelch_cc::make(-150.0, 0.001);
-    meter = make_rx_meter_c(DETECTOR_TYPE_RMS);
+    meter = make_rx_meter_c(PREF_QUAD_RATE);
     demod_raw = gr::blocks::complex_to_float::make(1);
     demod_ssb = gr::blocks::complex_to_real::make(1);
     demod_fm = make_rx_demod_fm(PREF_QUAD_RATE, 5000.0, 75.0e-6);
@@ -128,13 +128,9 @@ void nbrx::set_cw_offset(double offset)
     filter->set_cw_offset(offset);
 }
 
-float nbrx::get_signal_level(bool dbfs)
+float nbrx::get_signal_level()
 {
-    if (dbfs)
-        return meter->get_level_db();
-    else
-        return meter->get_level();
-
+    return meter->get_level_db();
 }
 
 void nbrx::set_nb_on(int nbid, bool on)

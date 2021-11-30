@@ -79,7 +79,7 @@ public:
     void set_filter(double low, double high, double tw);
     void set_cw_offset(double offset);
 
-    float get_signal_level(bool dbfs);
+    float get_signal_level();
 
     /* Noise blanker */
     bool has_nb() { return true; }

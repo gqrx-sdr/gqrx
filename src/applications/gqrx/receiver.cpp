@@ -715,9 +715,9 @@ receiver::status receiver::set_freq_corr(double ppm)
  * This method returns the current signal power detected by the receiver. The detector
  * is located after the band pass filter. The full scale is 1.0
  */
-float receiver::get_signal_pwr(bool dbfs) const
+float receiver::get_signal_pwr() const
 {
-    return rx->get_signal_level(dbfs);
+    return rx->get_signal_level();
 }
 
 /** Set new FFT size. */

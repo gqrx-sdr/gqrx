@@ -3,6 +3,7 @@
 
        NEW: Start/stop RDS and fetch Program Identification via remote control.
        NEW: Added IQ balancing to MacOS release.
+     FIXED: Erratic behaviour of S-meter.
      FIXED: Compilation error due to missing include.
   IMPROVED: Reordered the receiver mode drop-down list.
   IMPROVED: Receiver mode is now stored as a string in settings files.
