@@ -1446,6 +1446,18 @@ receiver::status receiver::seek_iq_file(long pos)
     return status;
 }
 
+void        receiver::get_iq_recorder_stats(struct iq_recorder_stats &stats)
+{
+    stats.active = d_recording_iq;
+    if(d_recording_iq&&iq_sink)
+    {
+        stats.failed = iq_sink->get_failed();
+        stats.buffers_used = iq_sink->get_buffer_usage();
+        stats.file_size = iq_sink->get_written();
+    }
+}
+
+
 /**
  * @brief Start data sniffer.
  * @param buffsize The buffer that should be used in the sniffer.

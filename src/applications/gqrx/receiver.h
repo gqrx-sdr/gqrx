@@ -127,6 +127,15 @@ public:
         FILE_FORMAT_CS16L,
         FILE_FORMAT_CS8,
     };
+
+    struct iq_recorder_stats
+    {
+        bool active;
+        bool failed;
+        int buffers_used;
+        size_t file_size;
+    };
+
     receiver(const std::string input_device="",
              const std::string audio_device="",
              unsigned int decimation=1);
@@ -231,6 +240,7 @@ public:
     status      start_iq_recording(const std::string filename, int bytes_per_sample, int buffers_max);
     status      stop_iq_recording();
     status      seek_iq_file(long pos);
+    void        get_iq_recorder_stats(struct iq_recorder_stats &stats);
 
     /* sample sniffer */
     status      start_sniffer(unsigned int samplrate, int buffsize);

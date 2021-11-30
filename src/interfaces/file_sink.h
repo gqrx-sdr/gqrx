@@ -72,6 +72,7 @@ public:
       int          d_buffers_max;
       bool         d_failed;
       bool         d_closing;
+      size_t       d_written;
 
     private:
     void writer();
@@ -104,8 +105,10 @@ public:
        */
       void set_unbuffered(bool unbuffered);
 
-      int get_buffer_usage();
-      int get_buffers_max();
+      int  get_buffer_usage();
+      int  get_buffers_max();
+      bool get_failed();
+      size_t get_written();
       void set_buffers_max(int buffers_max);
 
       int work(int noutput_items,

@@ -71,6 +71,7 @@ signals:
 public slots:
     void cancelRecording();
     void cancelPlayback();
+    void updateStats(bool hasFailed, int buffersUsed, size_t fileSize);
 
 private slots:
     void on_recDirEdit_textChanged(const QString &text);
@@ -86,6 +87,7 @@ private:
     void refreshDir(void);
     void refreshTimeWidgets(void);
     void parseFileName(const QString &filename);
+    void switchStates(bool recording,bool playback);
 
 private:
     Ui::CIqTool *ui;
@@ -103,6 +105,8 @@ private:
     int     sample_rate;       /*!< Current sample rate. */
     double  center_freq;       /*!< Center frequency. */
     int     rec_len;           /*!< Length of a recording in seconds */
+    int     o_buffersUsed;
+    size_t  o_fileSize;
 
 };
 

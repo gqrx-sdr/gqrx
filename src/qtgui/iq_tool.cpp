@@ -64,6 +64,8 @@ CIqTool::CIqTool(QWidget *parent) :
     ui->formatCombo->addItem("gr_complex cf",8);
     ui->formatCombo->addItem("short 16",4);
     ui->formatCombo->addItem("char 8",2);
+    ui->bufferStats->hide();
+    ui->sizeStats->hide();
 }
 
 CIqTool::~CIqTool()
@@ -106,6 +108,36 @@ void CIqTool::on_listWidget_currentTextChanged(const QString &currentText)
     refreshTimeWidgets();
 
 }
+/*! \brief Show/hide/enable/disable GUI controls */
+
+void CIqTool::switchStates(bool recording,bool playback)
+{
+    ui->recButton->setEnabled(!playback);
+
+    ui->playButton->setEnabled(!recording);
+
+    ui->listWidget->setEnabled(!(recording||playback));
+    ui->formatCombo->setEnabled(!(recording||playback));
+    ui->buffersSpinBox->setEnabled(!(recording||playback));
+    ui->recDirEdit->setEnabled(!(recording||playback));
+    ui->recDirButton->setEnabled(!(recording||playback));
+    if(recording||playback)
+    {
+        ui->formatLabel->hide();
+        ui->buffersLabel->hide();
+        ui->formatCombo->hide();
+        ui->buffersSpinBox->hide();
+        ui->bufferStats->show();
+        ui->sizeStats->show();
+    }else{
+        ui->formatLabel->show();
+        ui->buffersLabel->show();
+        ui->formatCombo->show();
+        ui->buffersSpinBox->show();
+        ui->bufferStats->hide();
+        ui->sizeStats->hide();
+    }
+}
 
 /*! \brief Start/stop playback */
 void CIqTool::on_playButton_clicked(bool checked)
@@ -133,8 +165,7 @@ void CIqTool::on_playButton_clicked(bool checked)
         else
         {
             on_listWidget_currentTextChanged(current_file);
-            ui->listWidget->setEnabled(false);
-            ui->recButton->setEnabled(false);
+            switchStates(false,true);
             emit startPlayback(recdir->absoluteFilePath(current_file),
                                (float)sample_rate,center_freq,bytes_per_sample);
         }
@@ -142,8 +173,7 @@ void CIqTool::on_playButton_clicked(bool checked)
     else
     {
         emit stopPlayback();
-        ui->listWidget->setEnabled(true);
-        ui->recButton->setEnabled(true);
+        switchStates(false,false);
         ui->slider->setValue(0);
     }
 }
@@ -157,8 +187,7 @@ void CIqTool::on_playButton_clicked(bool checked)
 void CIqTool::cancelPlayback()
 {
     ui->playButton->setChecked(false);
-    ui->listWidget->setEnabled(true);
-    ui->recButton->setEnabled(true);
+    switchStates(false,false);
     is_playing = false;
 }
 
@@ -181,8 +210,7 @@ void CIqTool::on_recButton_clicked(bool checked)
     if (checked)
     {
         ui->playButton->setEnabled(false);
-        ui->formatCombo->setEnabled(false);
-        ui->buffersSpinBox->setEnabled(false);
+        switchStates(true,false);
         emit startRecording(recdir->path(), rec_bytes_per_sample, ui->buffersSpinBox->value());
 
         refreshDir();
@@ -190,9 +218,7 @@ void CIqTool::on_recButton_clicked(bool checked)
     }
     else
     {
-        ui->playButton->setEnabled(true);
-        ui->formatCombo->setEnabled(true);
-        ui->buffersSpinBox->setEnabled(true);
+        switchStates(false,false);
         emit stopRecording();
     }
 }
@@ -200,18 +226,39 @@ void CIqTool::on_recButton_clicked(bool checked)
 /*! \brief Cancel a recording.
  *
  * This slot can be activated to cancel an ongoing recording. Cancelling an
- * ongoing recording will stop the recording and delete the recorded file, if
- * any.
+ * ongoing recording will stop the recording
  *
  * This slot should be used to signal that a recording could not be started.
  */
 void CIqTool::cancelRecording()
 {
+    std::cerr<<"CIqTool::cancelRecording"<<std::endl;
+    on_recButton_clicked(false);
     ui->recButton->setChecked(false);
-    ui->playButton->setEnabled(true);
-    ui->formatCombo->setEnabled(true);
-    ui->buffersSpinBox->setEnabled(true);
-    is_recording = false;
+}
+
+/*! \brief Update GUI ta match current recorder state.
+ *
+ * This slot can be periodically activated to show recording progress
+ */
+void CIqTool::updateStats(bool hasFailed, int buffersUsed, size_t fileSize)
+{
+    if(hasFailed)
+    {
+        QMessageBox msg_box;
+        msg_box.setIcon(QMessageBox::Critical);
+        msg_box.setText(tr("IQ recording failed."));
+        msg_box.exec();
+    }
+    else
+    {
+        if(o_buffersUsed!=buffersUsed)
+            ui->bufferStats->setText(QString("Buffers: %1/%2").arg(buffersUsed).arg(ui->buffersSpinBox->value()));
+        if(o_fileSize!=fileSize)
+            ui->sizeStats->setText(QString("Size: %1 bytes").arg(fileSize));
+        o_buffersUsed=buffersUsed;
+        o_fileSize=fileSize;
+    }
 }
 
 /*! \brief Catch window close events.

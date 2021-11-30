@@ -1351,10 +1351,26 @@ double MainWindow::setSqlLevelAuto()
 void MainWindow::meterTimeout()
 {
     float level;
+    struct receiver::iq_recorder_stats iq_stats;
 
     level = rx->get_signal_pwr(true);
     ui->sMeter->setLevel(level);
     remote->setSignalLevel(level);
+    // As it looks like this timer is always active (when the DSP is running),
+    // check iq recorder state here too
+    rx->get_iq_recorder_stats(iq_stats);
+    if(iq_stats.active)
+    {
+        if(iq_stats.failed)
+        {
+            //stop the recorder
+            iq_tool->updateStats(iq_stats.failed, iq_stats.buffers_used, iq_stats.file_size);
+            iq_tool->cancelRecording();
+        }else{
+            //update status
+            iq_tool->updateStats(iq_stats.failed, iq_stats.buffers_used, iq_stats.file_size);
+        }
+    }
 }
 
 #define LOG2_10 3.321928094887362
@@ -1574,6 +1590,7 @@ void MainWindow::startIqRecording(const QString& recdir, int bytes_per_sample, i
     {
         // reset action status
         ui->statusBar->showMessage(tr("Error starting I/Q recoder"));
+        iq_tool->cancelRecording();
 
         // show an error message to user
         QMessageBox msg_box;

@@ -108,6 +108,7 @@
                 }
                 guard.lock();
                 d_buffers_used--;
+                d_written += written;
             }
             if(d_writer_finish)
             {
@@ -207,6 +208,7 @@
             d_updated = true;
             d_failed = false;
             d_closing = false;
+            d_written = 0;
         }
         return d_new_fp != 0;
     }
@@ -254,7 +256,7 @@
     {
         char *inbuf = (char*)input_items[0];
         int len_bytes=noutput_items*d_itemsize;
-//        do_update();                    // update d_fp is reqd
+//        do_update();                    // update d_fp is is done inside of writer thread 
         //do not queue more buffers if we are closing the file
         gr::thread::scoped_lock guard(d_mutex);
         if(d_closing||d_failed)
@@ -288,53 +290,6 @@
         memcpy(&d_sd.data[d_sd.len],inbuf,len_bytes);
         d_sd.len+=len_bytes;
         return noutput_items;
-#if 0
-        int  nwritten = 0;
-        static int n_output_min=0x7fffffff;
-        static int n_output_max=0;
-        static int cnt=0;
-
-        do_update();                    // update d_fp is reqd
-
-        if(!d_fp)
-            return noutput_items;         // drop output on the floor
-
-        while(nwritten < noutput_items)
-        {
-            int count = fwrite(inbuf, d_itemsize, noutput_items - nwritten, d_fp);
-            if(count == 0)
-            {
-            if(ferror(d_fp))
-            {
-                std::stringstream s;
-                s << "file_sink write failed with error " << fileno(d_fp) << std::endl;
-                throw std::runtime_error(s.str());
-            }
-            else // is EOF
-            {
-                break;
-            }
-            }
-            nwritten += count;
-            inbuf += count * d_itemsize;
-        }
-        if(nwritten>n_output_max)
-            n_output_max=nwritten;
-        if(nwritten>n_output_min)
-            n_output_min=nwritten;
-        if(cnt>=100)
-        {
-            cnt=0;
-            std::cout<<"min="<<n_output_min<<" max="<<n_output_max<<std::endl;
-        }
-        else
-            cnt++;
-
-        if(d_unbuffered)
-            fflush (d_fp);
-
-        return nwritten;
-#endif
     }
 
     int file_sink::get_buffer_usage()
@@ -347,9 +302,20 @@
         return d_buffers_max;
     }
 
+    bool file_sink::get_failed()
+    {
+        return d_failed;
+    }
+
+    size_t file_sink::get_written()
+    {
+        return d_written;
+    }
+
     void file_sink::set_buffers_max(int buffers_max)
     {
         //At least one buffer should be present
+        gr::thread::scoped_lock guard(d_mutex);
         if(buffers_max<=0)
             buffers_max=1;
         d_buffers_max=buffers_max;
