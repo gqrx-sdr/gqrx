@@ -52,45 +52,62 @@
 
     void file_sink::writer()
     {
-        file_sink::s_data item;
+        s_data item;
         int written=0;
         char * p;
+        FILE * old_fp=NULL;
+        int count = 0;
         std::cout << "Writer start" <<std::endl;
         while(true)
         {
+            gr::thread::scoped_lock guard(d_mutex);   // hold mutex for duration of this block
             while(d_queue.pop(item))
             {
                 written=0;
                 p=item.data;
                 while(written<item.len)
                 {
-                    gr::thread::scoped_lock guard(d_mutex);
-                    if(!d_fp)
+                    if(d_updated)
                     {
-                        delete [] item.data;
-                        return;
+                        old_fp=d_fp;
+                        d_fp = d_new_fp;                     // install new file pointer
+                        d_new_fp = 0;
+                        d_updated = false;
                     }
-                    int count = fwrite(p, 1, item.len-written, d_fp);
-                    if(count == 0)
+                    if(d_fp && !d_failed)
                     {
-                        if(ferror(d_fp))
+                        guard.unlock();
+                        count = fwrite(p, 1, item.len-written, d_fp);
+                        guard.lock();
+                        if(count == 0)
                         {
-//                            std::stringstream s;
-                            std::cerr << "file_sink write failed with error " << fileno(d_fp) << std::endl;
-//                            throw std::runtime_error(s.str());
-                            return;
+                            if(ferror(d_fp))
+                            {
+    //                            std::stringstream s;
+                                std::cerr << "file_sink write failed with error " << fileno(d_fp) << std::endl;
+                                d_failed=true;
+    //                            throw std::runtime_error(s.str());
+                                break;
+                            }
+                            else // is EOF
+                                break;
                         }
-                        else // is EOF
-                            break;
-                    }else{
-                        gr::thread::scoped_lock lock(d_writer_mutex);
-                        d_buffers_used--;
-                    }
+                    }else
+                        break;
                     written+=count;
                     p+=count;
                 }
+                guard.unlock();
                 delete [] item.data;
-                fflush (d_fp);
+                if(d_fp && !d_failed)
+                    fflush (d_fp);
+                if(old_fp)
+                {
+                    fclose(old_fp);
+                    old_fp=NULL;
+                }
+                guard.lock();
+                d_buffers_used--;
             }
             if(d_writer_finish)
             {
@@ -100,8 +117,7 @@
             else
             {
                d_writer_ready.notify_one();
-               gr::thread::scoped_lock lock(d_writer_mutex);
-               d_writer_trigger.wait(lock);
+               d_writer_trigger.wait(guard);
             }
         }
     }
@@ -120,7 +136,7 @@
                       d_itemsize(itemsize),
                       d_fp(0), d_new_fp(0), d_updated(false), d_is_binary(true),
                       d_append(append), d_queue(512), d_writer_finish(false),
-                      d_sd_max(std::max(8192lu,sample_rate*itemsize)), d_buffers_used(0), d_buffers_max(buffers_max)
+                      d_sd_max(std::max(8192,sample_rate)*itemsize), d_buffers_used(0), d_buffers_max(buffers_max)
     {
         if (!open(filename))
             throw std::runtime_error ("can't open file");
@@ -128,11 +144,12 @@
         d_sd.data=NULL;
         d_sd.len=0;
         d_buffers_used=0;
+        d_closing=false;
     }
 
     file_sink::~file_sink()
     {
-        
+        d_closing=true;
         if(d_sd.len>0)
         {
             d_queue.push(d_sd);
@@ -140,6 +157,7 @@
             d_sd.data=NULL;
         }
         close();
+        std::cout<<"Waiting the thread"<<std::endl;
         d_writer_finish=true;
         d_writer_trigger.notify_one();
         d_writer_thread->join();
@@ -153,8 +171,9 @@
 
     bool file_sink::open(const char *filename)
     {
-        gr::thread::scoped_lock guard(d_mutex);	// hold mutex for duration of this function
 
+        if(d_updated)
+            return false;
         // we use the open system call to get access to the O_LARGEFILE flag.
         int fd;
         int flags;
@@ -183,21 +202,32 @@
             ::close(fd);        // don't leak file descriptor if fdopen fails.
         }
 
-        d_updated = true;
-        d_failed = false;
+        {
+            gr::thread::scoped_lock guard(d_mutex);
+            d_updated = true;
+            d_failed = false;
+            d_closing = false;
+        }
         return d_new_fp != 0;
     }
 
     void file_sink::close()
     {
-        gr::thread::scoped_lock guard(d_mutex);	// hold mutex for duration of this function
+        std::cout<<"Closing"<<std::endl;
+        gr::thread::scoped_lock guard(d_mutex);
+        //prevent new buffers submission
+        d_closing=true;
+        //submit last buffer
         if(d_sd.len>0)
         {
             d_queue.push(d_sd);
-            d_sd.len=0;
             d_sd.data=NULL;
+            d_sd.len=0;
         }
+        //wake the thread
         d_writer_trigger.notify_one();
+        //wait for thread to finish writeng buffers
+        std::cout<<"Waiting the thread"<<std::endl;
         d_writer_ready.wait(guard);
         if(d_new_fp)
         {
@@ -209,15 +239,7 @@
 
     void file_sink::do_update()
     {
-        if(d_updated)
-        {
-            gr::thread::scoped_lock guard(d_mutex);   // hold mutex for duration of this block
-            if(d_fp)
-                fclose(d_fp);
-            d_fp = d_new_fp;                     // install new file pointer
-            d_new_fp = 0;
-            d_updated = false;
-        }
+        std::cerr<<"file_sink::do_update called!"<<std::endl;
     }
 
     void file_sink::set_unbuffered(bool unbuffered)
@@ -232,21 +254,33 @@
     {
         char *inbuf = (char*)input_items[0];
         int len_bytes=noutput_items*d_itemsize;
-        do_update();                    // update d_fp is reqd
+//        do_update();                    // update d_fp is reqd
+        //do not queue more buffers if we are closing the file
+        gr::thread::scoped_lock guard(d_mutex);
+        if(d_closing||d_failed)
+            return noutput_items;
         if(d_sd.data==NULL)
+        {
+            if(len_bytes>d_sd_max)
+                d_sd_max=len_bytes;
             d_sd.data=new char [d_sd_max];
+        }
         if(d_sd.len+len_bytes>d_sd_max)
         {
-            int l_buffers_used;
-            d_queue.push(d_sd);
+            if(d_sd.len==0)
+            {
+                free(d_sd.data);
+                d_sd.data=NULL;
+            }else{
+                d_queue.push(d_sd);
+                d_writer_trigger.notify_one();
+            }
+            if(len_bytes>d_sd_max)
+                d_sd_max=len_bytes;
             d_sd.data=new char [d_sd_max];
             d_sd.len=0;
-            d_writer_trigger.notify_one();
-            {
-                gr::thread::scoped_lock lock(d_writer_mutex);
-                l_buffers_used=++d_buffers_used;
-            }
-            if(l_buffers_used>d_buffers_max)
+            ++d_buffers_used;
+            if(d_buffers_used>d_buffers_max)
             {
                 d_failed=true;
             }

@@ -61,7 +61,6 @@ public:
       boost::mutex d_mutex;
       bool         d_unbuffered;
       bool         d_append;
-      boost::mutex d_writer_mutex;
       boost::lockfree::queue<s_data> d_queue;
       boost::condition_variable d_writer_trigger;
       boost::condition_variable d_writer_ready;
@@ -72,6 +71,7 @@ public:
       int          d_buffers_used;
       int          d_buffers_max;
       bool         d_failed;
+      bool         d_closing;
 
     private:
     void writer();
