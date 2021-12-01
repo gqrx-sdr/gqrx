@@ -1694,6 +1694,8 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate, double
 
     // FIXME: would be nice with good/bad status
     ui->statusBar->showMessage(tr("Playing %1").arg(filename));
+    ui->actionIoConfig->setDisabled(true);
+    ui->actionLoadSettings->setDisabled(true);
 
     on_actionDSP_triggered(true);
 }
@@ -1707,6 +1709,8 @@ void MainWindow::stopIqPlayback()
     }
 
     ui->statusBar->showMessage(tr("I/Q playback stopped"), 5000);
+    ui->actionIoConfig->setDisabled(false);
+    ui->actionLoadSettings->setDisabled(false);
 
     // restore original input device
     auto indev = m_settings->value("input/device", "").toString();
