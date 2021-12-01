@@ -24,6 +24,7 @@
 #include <interfaces/file_sink.h>
 #include <cstdio>
 #include <algorithm>
+#include <functional>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -57,12 +58,13 @@
         char * p;
         FILE * old_fp=NULL;
         int count = 0;
-        std::cout << "Writer start" <<std::endl;
         while(true)
         {
-            gr::thread::scoped_lock guard(d_mutex);   // hold mutex for duration of this block
-            while(d_queue.pop(item))
+            std::unique_lock<std::mutex> guard(d_mutex);   // hold mutex for duration of this block
+            while(!d_queue.empty())
             {
+                item=d_queue.front();
+                d_queue.pop();
                 written=0;
                 p=item.data;
                 while(written<item.len)
@@ -83,10 +85,8 @@
                         {
                             if(ferror(d_fp))
                             {
-    //                            std::stringstream s;
                                 std::cerr << "file_sink write failed with error " << fileno(d_fp) << std::endl;
                                 d_failed=true;
-    //                            throw std::runtime_error(s.str());
                                 break;
                             }
                             else // is EOF
@@ -112,7 +112,6 @@
             }
             if(d_writer_finish)
             {
-                std::cout << "Writer finished" <<std::endl;
                 return;
             }
             else
@@ -136,12 +135,12 @@
                       gr::io_signature::make(0, 0, 0)),
                       d_itemsize(itemsize),
                       d_fp(0), d_new_fp(0), d_updated(false), d_is_binary(true),
-                      d_append(append), d_queue(512), d_writer_finish(false),
+                      d_append(append), d_writer_finish(false),
                       d_sd_max(std::max(8192,sample_rate)*itemsize), d_buffers_used(0), d_buffers_max(buffers_max)
     {
         if (!open(filename))
             throw std::runtime_error ("can't open file");
-        d_writer_thread=new boost::thread(boost::bind(&file_sink::writer,this));
+        d_writer_thread=new std::thread(std::bind(&file_sink::writer,this));
         d_sd.data=NULL;
         d_sd.len=0;
         d_buffers_used=0;
@@ -158,7 +157,6 @@
             d_sd.data=NULL;
         }
         close();
-        std::cout<<"Waiting the thread"<<std::endl;
         d_writer_finish=true;
         d_writer_trigger.notify_one();
         d_writer_thread->join();
@@ -204,7 +202,7 @@
         }
 
         {
-            gr::thread::scoped_lock guard(d_mutex);
+            std::unique_lock<std::mutex> guard(d_mutex);
             d_updated = true;
             d_failed = false;
             d_closing = false;
@@ -215,8 +213,7 @@
 
     void file_sink::close()
     {
-        std::cout<<"Closing"<<std::endl;
-        gr::thread::scoped_lock guard(d_mutex);
+        std::unique_lock<std::mutex> guard(d_mutex);
         //prevent new buffers submission
         d_closing=true;
         //submit last buffer
@@ -229,7 +226,6 @@
         //wake the thread
         d_writer_trigger.notify_one();
         //wait for thread to finish writeng buffers
-        std::cout<<"Waiting the thread"<<std::endl;
         d_writer_ready.wait(guard);
         if(d_new_fp)
         {
@@ -237,11 +233,6 @@
             d_new_fp = 0;
         }
         d_updated = true;
-    }
-
-    void file_sink::do_update()
-    {
-        std::cerr<<"file_sink::do_update called!"<<std::endl;
     }
 
     void file_sink::set_unbuffered(bool unbuffered)
@@ -256,9 +247,8 @@
     {
         char *inbuf = (char*)input_items[0];
         int len_bytes=noutput_items*d_itemsize;
-//        do_update();                    // update d_fp is is done inside of writer thread 
         //do not queue more buffers if we are closing the file
-        gr::thread::scoped_lock guard(d_mutex);
+        std::unique_lock<std::mutex> guard(d_mutex);
         if(d_closing||d_failed)
             return noutput_items;
         if(d_sd.data==NULL)
@@ -315,7 +305,7 @@
     void file_sink::set_buffers_max(int buffers_max)
     {
         //At least one buffer should be present
-        gr::thread::scoped_lock guard(d_mutex);
+        std::unique_lock<std::mutex> guard(d_mutex);
         if(buffers_max<=0)
             buffers_max=1;
         d_buffers_max=buffers_max;

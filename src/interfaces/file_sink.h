@@ -26,7 +26,11 @@
 
 #include <gnuradio/blocks/api.h>
 #include <gnuradio/sync_block.h>
-#include <boost/lockfree/queue.hpp>
+//#include <boost/lockfree/queue.hpp>
+#include <thread>
+#include <queue>
+#include <condition_variable>
+		
 
 /*!
     * \brief Write stream to file without blocking.
@@ -36,7 +40,11 @@ class BLOCKS_API file_sink : virtual public gr::sync_block
 {
 public:
     // file_sink::sptr
+#if GNURADIO_VERSION < 0x030900
     typedef boost::shared_ptr<file_sink> sptr;
+#else
+    typedef std::shared_ptr<file_sink> sptr;
+#endif
     typedef struct {
         int len;
         char * data;
@@ -58,14 +66,14 @@ public:
       FILE        *d_new_fp;    // new FILE pointer
       bool         d_updated;   // is there a new FILE pointer?
       bool         d_is_binary;
-      boost::mutex d_mutex;
+      std::mutex d_mutex;
       bool         d_unbuffered;
       bool         d_append;
-      boost::lockfree::queue<s_data> d_queue;
-      boost::condition_variable d_writer_trigger;
-      boost::condition_variable d_writer_ready;
+      std::queue<s_data> d_queue;
+      std::condition_variable d_writer_trigger;
+      std::condition_variable d_writer_ready;
       bool         d_writer_finish;
-      boost::thread * d_writer_thread;
+      std::thread * d_writer_thread;
       s_data       d_sd;
       int          d_sd_max;
       int          d_buffers_used;
@@ -94,11 +102,6 @@ public:
        * open is called to connect to another file.
        */
       void close();
-
-      /*!
-       * \brief if we've had an update, do it now.
-       */
-      void do_update();
 
       /*!
        * \brief turn on unbuffered writes for slower outputs
