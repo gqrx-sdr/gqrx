@@ -37,6 +37,13 @@ add_definitions(-D${BUILDTYPE})
 
 # We have some custom .cmake scripts not in the official distribution.
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
+set(CMAKE_THREAD_LIBS_INIT "-lpthread")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+set(CMAKE_HAVE_THREADS_LIBRARY 1)
+set(CMAKE_USE_WIN32_THREADS_INIT 0)
+set(CMAKE_USE_PTHREADS_INIT 1)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+
 
 # Add valgrind build options if necessary
 if(${CMAKE_BUILD_TYPE} MATCHES "Valgrind")
@@ -145,7 +152,7 @@ math(EXPR GNURADIO_BCD_VERSION
 add_definitions(-DGNURADIO_VERSION=${GNURADIO_BCD_VERSION})
 
 if(Gnuradio_VERSION VERSION_LESS "3.8")
-    find_package(Boost COMPONENTS system thread REQUIRED)
+    find_package(Boost COMPONENTS system REQUIRED)
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
