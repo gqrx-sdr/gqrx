@@ -1605,6 +1605,8 @@ void MainWindow::startIqRecording(const QString& recdir, int bytes_per_sample, i
             toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_%4.'raw'")
             .arg(recdir).arg(freq).arg(sr/dec).arg(suffix);
 
+    ui->actionIoConfig->setDisabled(true);
+    ui->actionLoadSettings->setDisabled(true);
     // start recorder; fails if recording already in progress
     if (rx->start_iq_recording(lastRec.toStdString(), bytes_per_sample, buffers_max))
     {
@@ -1636,6 +1638,8 @@ void MainWindow::stopIqRecording()
         ui->statusBar->showMessage(tr("Error stopping I/Q recoder"));
     else
         ui->statusBar->showMessage(tr("I/Q data recoding stopped"), 5000);
+    ui->actionIoConfig->setDisabled(false);
+    ui->actionLoadSettings->setDisabled(false);
 }
 
 void MainWindow::startIqPlayback(const QString& filename, float samprate, double center_freq, int bytes_per_sample)
