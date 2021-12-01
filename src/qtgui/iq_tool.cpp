@@ -51,8 +51,6 @@ CIqTool::CIqTool(QWidget *parent) :
     sample_rate = 192000;
     rec_len = 0;
 
-    //ui->recDirEdit->setText(QDir::currentPath());
-
     recdir = new QDir(QDir::homePath(), "*.raw");
 
     error_palette = new QPalette();

@@ -30,10 +30,6 @@
 #endif
 
 #include <gnuradio/blocks/vector_to_stream.h>
-//#include <gnuradio/blocks/complex_to_interleaved_char.h>
-#include <gnuradio/blocks/complex_to_interleaved_short.h>
-//#include <gnuradio/blocks/interleaved_char_to_complex.h>
-#include <gnuradio/blocks/interleaved_short_to_complex.h>
 #include <gnuradio/blocks/multiply_const_cc.h>
 #include <gnuradio/blocks/file_sink.h>
 #include <gnuradio/blocks/file_source.h>

@@ -26,7 +26,6 @@
 
 #include <gnuradio/blocks/api.h>
 #include <gnuradio/sync_block.h>
-//#include <boost/lockfree/queue.hpp>
 #include <thread>
 #include <queue>
 #include <condition_variable>
@@ -39,7 +38,6 @@
 class BLOCKS_API file_sink : virtual public gr::sync_block
 {
 public:
-    // file_sink::sptr
 #if GNURADIO_VERSION < 0x030900
     typedef boost::shared_ptr<file_sink> sptr;
 #else

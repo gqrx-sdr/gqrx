@@ -226,13 +226,10 @@ void receiver::set_input_device(const std::string device)
     tb->connect(src, 0, iq_swap, 0);
     auto last_demod=d_demod;
     set_demod(RX_DEMOD_OFF,FILE_FORMAT_NONE,true);
-/*    gr::blocks::null_sink::sptr temp_null_sink = gr::blocks::null_sink::make(sizeof(gr_complex));
-    tb->connect(iq_swap, 0, temp_null_sink, 0);*/
     tb->start();
     tb->stop();
     tb->wait();
     tb->disconnect_all();
-//    tb->disconnect(src, 0, iq_swap, 0);
 
     try
     {
@@ -247,16 +244,6 @@ void receiver::set_input_device(const std::string device)
     if(src->get_sample_rate() != 0)
         set_input_rate(src->get_sample_rate());
 
-/*    if (d_decim >= 2)
-    {
-        tb->connect(src, 0, input_decim, 0);
-        tb->connect(input_decim, 0, iq_swap, 0);
-    }
-    else
-    {
-        tb->connect(src, 0, iq_swap, 0);
-    }
-    set_demod(RX_DEMOD_OFF,FILE_FORMAT_LAST,true);*/
     set_demod(last_demod,FILE_FORMAT_NONE,false);
     if (d_running)
         tb->start();
@@ -1367,8 +1354,6 @@ receiver::status receiver::connect_iq_recorder()
 receiver::status receiver::start_iq_recording(const std::string filename, int bytes_per_sample, int buffers_max)
 {
     int sink_bytes_per_sample=bytes_per_sample;
-//     if(sink_bytes_per_sample<8)
-//         sink_bytes_per_sample/=2;
 
     if (d_recording_iq) {
         std::cout << __func__ << ": already recording" << std::endl;
@@ -1377,10 +1362,7 @@ receiver::status receiver::start_iq_recording(const std::string filename, int by
 
     try
     {
-        #if 0
-        iq_sink = /*gr::blocks::*/file_sink::make(sizeof(gr_complex), filename.c_str(), true);
-        #endif
-        iq_sink = /*gr::blocks::*/file_sink::make(sink_bytes_per_sample, filename.c_str(), d_input_rate, true, buffers_max);
+        iq_sink = file_sink::make(sink_bytes_per_sample, filename.c_str(), d_input_rate, true, buffers_max);
     }
     catch (std::runtime_error &e)
     {

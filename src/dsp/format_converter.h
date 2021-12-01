@@ -46,97 +46,92 @@ namespace dispatcher
      * \li output[0][n] = static_cast<char>(input[0][m].real());
      * \li output[0][n+1] = static_cast<char>(input[0][m].imag());
      */
-    template <typename T_IN,typename T_OUT> class BLOCKS_API any_to_any : virtual public gr::sync_interpolator
+template <typename T_IN,typename T_OUT> class BLOCKS_API any_to_any : virtual public gr::sync_interpolator
+{
+public:
+    typedef boost::shared_ptr<any_to_any<T_IN,T_OUT>> sptr;
+
+    /*!
+    * Build a any-to-any.
+    */
+    static sptr make(const double scale)
     {
-    public:
-        // gr::blocks::complex_to_interleaved_char::sptr
-        typedef boost::shared_ptr<any_to_any<T_IN,T_OUT>> sptr;
+        return gnuradio::get_initial_sptr(new any_to_any<T_IN,T_OUT>(scale));
+    }
+    any_to_any(const double scale):sync_interpolator("any_to_any",
+                gr::io_signature::make (1, 1, sizeof(T_IN)),
+                gr::io_signature::make (1, 1, sizeof(T_OUT)),1)
+    {
+        //d_vector=false;
+            std::cerr<<__FUNCTION__<<std::endl;
+        d_scale=scale;
+    }
+    int work(int noutput_items,gr_vector_const_void_star &input_items,
+    gr_vector_void_star &output_items)
+    {
+        return work(noutput_items,input_items,output_items,dispatcher::tag<any_to_any>());
+    }
 
-        /*!
-        * Build a any-to-any.
-        */
-        static sptr make(const double scale)
-        {
-            return gnuradio::get_initial_sptr(new any_to_any<T_IN,T_OUT>(scale));
-        }
-        any_to_any(const double scale):sync_interpolator("any_to_any",
-                    gr::io_signature::make (1, 1, sizeof(T_IN)),
-                    gr::io_signature::make (1, 1, sizeof(T_OUT)),1)
-        {
-            //d_vector=false;
-             std::cerr<<__FUNCTION__<<std::endl;
-           d_scale=scale;
-        }
-        int work(int noutput_items,gr_vector_const_void_star &input_items,
-        gr_vector_void_star &output_items)
-        {
-           return work(noutput_items,input_items,output_items,dispatcher::tag<any_to_any>());
-        }
+private:
+    float d_scale;
 
-    private:
-        float d_scale;
+    template<typename U_IN,typename U_OUT> int work(int noutput_items,gr_vector_const_void_star &input_items,
+    gr_vector_void_star &output_items,dispatcher::tag<any_to_any<U_IN,U_OUT>>)
+    {
+        return noutput_items;
+    }
 
-        template<typename U_IN,typename U_OUT> int work(int noutput_items,gr_vector_const_void_star &input_items,
-        gr_vector_void_star &output_items,dispatcher::tag<any_to_any<U_IN,U_OUT>>)
-        {
-            return noutput_items;
-        }
+    int work(int noutput_items,gr_vector_const_void_star &input_items,
+    gr_vector_void_star &output_items,dispatcher::tag<any_to_any<gr_complex,gr_complex>>)
+    {
+        const T_IN *in = (const T_IN *) input_items[0];
+        T_OUT *out = (T_OUT *) output_items[0];
 
-        int work(int noutput_items,gr_vector_const_void_star &input_items,
-        gr_vector_void_star &output_items,dispatcher::tag<any_to_any<gr_complex,gr_complex>>)
-        {
-            const T_IN *in = (const T_IN *) input_items[0];
-            T_OUT *out = (T_OUT *) output_items[0];
+        memcpy(out,in,noutput_items*2*sizeof(gr_complex));
+        return noutput_items;
+    }
 
-            memcpy(out,in,noutput_items*2*sizeof(gr_complex));
-            return noutput_items;
-        }
-        
-        
-        int work(int noutput_items,gr_vector_const_void_star &input_items,
-        gr_vector_void_star &output_items,dispatcher::tag<any_to_any<gr_complex,std::complex<short>>>)
-        {
-            const float *in = (const float *) input_items[0];
-            short *out = (short *) output_items[0];
-            
-            volk_32f_s32f_convert_16i(out,in,d_scale,noutput_items*2);
-            return noutput_items;
-        }
-        
-        int work(int noutput_items,gr_vector_const_void_star &input_items,
-        gr_vector_void_star &output_items,dispatcher::tag<any_to_any<gr_complex,std::complex<char>>>)
-        {
-            const float *in = (const float *) input_items[0];
-            signed char *out = (signed char *) output_items[0];
 
-            volk_32f_s32f_convert_8i(out,in,d_scale,noutput_items*2);
-            return noutput_items;
-        }
-        
-        int work(int noutput_items,gr_vector_const_void_star &input_items,
-        gr_vector_void_star &output_items,dispatcher::tag<any_to_any<std::complex<short>,gr_complex>>)
-        {
-            const short *in = (const short *) input_items[0];
-            float *out = (float *) output_items[0];
+    int work(int noutput_items,gr_vector_const_void_star &input_items,
+    gr_vector_void_star &output_items,dispatcher::tag<any_to_any<gr_complex,std::complex<short>>>)
+    {
+        const float *in = (const float *) input_items[0];
+        short *out = (short *) output_items[0];
 
-            volk_16i_s32f_convert_32f(out,in,d_scale,noutput_items*2);
-            return noutput_items;
-        }
-        
-        int work(int noutput_items,gr_vector_const_void_star &input_items,
-        gr_vector_void_star &output_items,dispatcher::tag<any_to_any<std::complex<char>,gr_complex>>)
-        {
-            const signed char *in = (const signed char *) input_items[0];
-            float *out = (float *) output_items[0];
+        volk_32f_s32f_convert_16i(out,in,d_scale,noutput_items*2);
+        return noutput_items;
+    }
 
-            volk_8i_s32f_convert_32f(out,in,d_scale,noutput_items*2);
-/*            int k;
-            int n=noutput_items*2;
-            for(k=0;k<n;k++)
-                out[k]=in[k]*d_scale;*/
-            return noutput_items;
-        }
-    };
+    int work(int noutput_items,gr_vector_const_void_star &input_items,
+    gr_vector_void_star &output_items,dispatcher::tag<any_to_any<gr_complex,std::complex<char>>>)
+    {
+        const float *in = (const float *) input_items[0];
+        signed char *out = (signed char *) output_items[0];
+
+        volk_32f_s32f_convert_8i(out,in,d_scale,noutput_items*2);
+        return noutput_items;
+    }
+
+    int work(int noutput_items,gr_vector_const_void_star &input_items,
+    gr_vector_void_star &output_items,dispatcher::tag<any_to_any<std::complex<short>,gr_complex>>)
+    {
+        const short *in = (const short *) input_items[0];
+        float *out = (float *) output_items[0];
+
+        volk_16i_s32f_convert_32f(out,in,d_scale,noutput_items*2);
+        return noutput_items;
+    }
+
+    int work(int noutput_items,gr_vector_const_void_star &input_items,
+    gr_vector_void_star &output_items,dispatcher::tag<any_to_any<std::complex<char>,gr_complex>>)
+    {
+        const signed char *in = (const signed char *) input_items[0];
+        float *out = (float *) output_items[0];
+
+        volk_8i_s32f_convert_32f(out,in,d_scale,noutput_items*2);
+        return noutput_items;
+    }
+};
 
 
 
