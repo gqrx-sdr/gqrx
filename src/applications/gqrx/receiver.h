@@ -241,6 +241,8 @@ public:
     status      stop_iq_recording();
     status      seek_iq_file(long pos);
     void        get_iq_recorder_stats(struct iq_recorder_stats &stats);
+    bool        is_recording_iq(void) const { return d_recording_iq; }
+    bool        is_playing_iq(void) const { return d_last_format!=FILE_FORMAT_NONE; }
 
     /* sample sniffer */
     status      start_sniffer(unsigned int samplrate, int buffsize);
