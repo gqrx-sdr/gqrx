@@ -1599,8 +1599,9 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate)
     storeSession();
 
     auto sri = (int)samprate;
-    auto devstr = QString("file='%1',rate=%2,throttle=true,repeat=false")
-            .arg(filename).arg(sri);
+    QString quotedFilename = receiver::double_quote_path(filename.toStdString()).c_str();
+    auto devstr = QString("file=%1,rate=%2,throttle=true,repeat=false")
+            .arg(quotedFilename).arg(sri);
 
     qDebug() << __func__ << ":" << devstr;
 

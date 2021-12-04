@@ -21,17 +21,18 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "applications/gqrx/receiver.h"
+#include <iostream>
+#include <sstream>
+
+#include <boost/io/quoted.hpp>
 #include <QFileInfo>
 #include <QTemporaryFile>
 #include <QDataStream>
-#include <iostream>
+
+#include "applications/gqrx/receiver.h"
 
 std::string receiver::get_zero_file(void)
 {
-#ifdef WIN32
-  return "NUL";
-#else
   static std::string path;
   if (path.empty())
   {
@@ -45,12 +46,28 @@ std::string receiver::get_zero_file(void)
       path = temp_file.fileName().toStdString();
       {
         QDataStream stream(&temp_file);
-        for (size_t i = 0; i < 1024 * 8; i++) stream << qint8(rand());
+        for (size_t i = 0; i < 1024 * 8; i++) stream << qint8(0);
       }
       temp_file.close();
-      std::cout << "Created random file " << path << std::endl;
+      std::cout << "Created zero file " << path << std::endl;
     }
   }
   return path;
-#endif
+}
+
+std::string receiver::double_quote_path(std::string path)
+{
+  if (path == "") {
+    return path;
+  }
+
+  std::stringstream q1;
+  q1 << boost::io::quoted(path, '\\', '\'');
+  std::stringstream q2;
+  q2 << boost::io::quoted(q1.str(), '\\', ',');
+  std::string qp = q2.str();
+  if (qp[0] == ',')
+    qp = qp.substr(1, qp.size() - 2);
+
+  return qp;
 }
