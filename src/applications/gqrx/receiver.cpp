@@ -21,7 +21,9 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <cmath>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <QDebug>
 
 #include <gnuradio/prefs.h>
@@ -76,7 +78,7 @@ receiver::receiver(const std::string input_device,
 
     if (input_device.empty())
     {
-        src = osmosdr::source::make("file="+get_zero_file()+",freq=428e6,rate=96000,repeat=true,throttle=true");
+        src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
     }
     else
     {
@@ -215,7 +217,7 @@ void receiver::set_input_device(const std::string device)
     catch (std::exception &x)
     {
         error = x.what();
-        src = osmosdr::source::make("file="+get_zero_file()+",freq=428e6,rate=96000,repeat=true,throttle=true");
+        src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
     }
 
     if(src->get_sample_rate() != 0)
@@ -1412,4 +1414,14 @@ bool receiver::is_rds_decoder_active(void) const
 void receiver::reset_rds_parser(void)
 {
     rx->reset_rds_parser();
+}
+
+std::string receiver::escape_filename(std::string filename)
+{
+    std::stringstream ss1;
+    std::stringstream ss2;
+
+    ss1 << std::quoted(filename, '\'', '\\');
+    ss2 << std::quoted(ss1.str(), '\'', '\\');
+    return ss2.str();
 }

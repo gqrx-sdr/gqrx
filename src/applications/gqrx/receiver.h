@@ -229,6 +229,9 @@ public:
     bool        is_rds_decoder_active(void) const;
     void        reset_rds_parser(void);
 
+    /* utility functions */
+    static std::string escape_filename(std::string filename);
+
 private:
     void        connect_all(rx_chain type);
 

@@ -57,7 +57,7 @@ endif(WIN32)
 #######################################################################################################################
 # Build the program
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCE} ${UIS_HDRS} ${RESOURCES_LIST})
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 # The pulse libraries are only needed on Linux. On other platforms they will not be found, so having them here is fine.
 target_link_libraries(${PROJECT_NAME}
     Qt5::Core

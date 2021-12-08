@@ -5,6 +5,8 @@
        NEW: Added IQ balancing to MacOS release.
      FIXED: Erratic behaviour of S-meter.
      FIXED: Compilation error due to missing include.
+     FIXED: Startup crash on Windows.
+     FIXED: I/Q playback when filename contains special characters.
   IMPROVED: Reordered the receiver mode drop-down list.
   IMPROVED: Receiver mode is now stored as a string in settings files.
   IMPROVED: Increased automatic squelch margin to 3 dB.
