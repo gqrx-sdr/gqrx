@@ -76,7 +76,7 @@ receiver::receiver(const std::string input_device,
 
     if (input_device.empty())
     {
-        src = osmosdr::source::make("file="+get_random_file()+",freq=428e6,rate=96000,repeat=true,throttle=true");
+        src = osmosdr::source::make("file="+get_zero_file()+",freq=428e6,rate=96000,repeat=true,throttle=true");
     }
     else
     {
@@ -215,7 +215,7 @@ void receiver::set_input_device(const std::string device)
     catch (std::exception &x)
     {
         error = x.what();
-        src = osmosdr::source::make("file="+get_random_file()+",freq=428e6,rate=96000,repeat=true,throttle=true");
+        src = osmosdr::source::make("file="+get_zero_file()+",freq=428e6,rate=96000,repeat=true,throttle=true");
     }
 
     if(src->get_sample_rate() != 0)

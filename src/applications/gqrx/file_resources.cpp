@@ -27,12 +27,12 @@
 #include <QDataStream>
 #include <iostream>
 
-std::string receiver::get_random_file(void)
+std::string receiver::get_zero_file(void)
 {
     static std::string path;
     if (path.empty())
     {
-        path = "/dev/urandom";
+        path = "/dev/zero";
         QFileInfo checkFile(QString::fromStdString(path));
         if (!checkFile.exists())
         {
@@ -42,7 +42,7 @@ std::string receiver::get_random_file(void)
             path = temp_file.fileName().toStdString();
             {
                 QDataStream stream(&temp_file);
-                for (size_t i = 0; i < 1024*8; i++) stream << qint8(rand());
+                for (size_t i = 0; i < 1024*8; i++) stream << qint8(0);
             }
             temp_file.close();
             std::cout << "Created random file " << path << std::endl;
