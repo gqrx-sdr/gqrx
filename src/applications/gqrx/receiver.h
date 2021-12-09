@@ -229,6 +229,9 @@ public:
     bool        is_rds_decoder_active(void) const;
     void        reset_rds_parser(void);
 
+    /* utility functions */
+    static std::string escape_filename(std::string filename);
+
 private:
     void        connect_all(rx_chain type);
 
@@ -292,7 +295,7 @@ private:
 #endif
 
     //! Get a path to a file containing random bytes
-    static std::string get_random_file(void);
+    static std::string get_zero_file(void);
 };
 
 #endif // RECEIVER_H
