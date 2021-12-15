@@ -1,5 +1,5 @@
 
-      2.15: In progress...
+      2.15: Released December 15, 2021
 
        NEW: Start/stop RDS and fetch Program Identification via remote control.
        NEW: Added IQ balancing to MacOS release.
