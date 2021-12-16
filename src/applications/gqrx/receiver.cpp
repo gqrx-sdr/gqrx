@@ -858,7 +858,7 @@ receiver::status receiver::set_demod(rx_demod demod, bool force)
     if (!force && (demod == d_demod))
         return ret;
 
-    // tb->lock() seems to hang occasioanlly
+    // tb->lock() seems to hang occasionally
     if (d_running)
     {
         tb->stop();

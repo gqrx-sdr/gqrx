@@ -209,7 +209,7 @@
   IMPROVED: Show configuration file path when listing config files using -l
   IMPROVED: Microtelecom Perseus integration.
   IMPROVED: Implemented PPM correction for RF Space Cloud IQ (gr-osmosdr-gqrx)
-  IMPORVED: Implemented PPM correction for PlutoSDR (gr-osmosdr-gqrx)
+  IMPROVED: Implemented PPM correction for PlutoSDR (gr-osmosdr-gqrx)
 
 
       2.10: Released January 21, 2018

@@ -37,7 +37,7 @@ typedef std::shared_ptr<rx_nb_cc> rx_nb_cc_sptr;
 
 
 /*! \brief Return a shared_ptr to a new instance of rx_nb_cc.
- *  \param sample_rate The samle rate (default = 96000).
+ *  \param sample_rate The sample rate (default = 96000).
  *  \param threshold Noise blanker threshold. Range 0.0 to 1.0 (TBC)
  *
  * This is effectively the public constructor for a new noise blanker block.
@@ -92,7 +92,7 @@ private:
     float  d_avgmag_nb1;    /*! Average magnitude. */
     float  d_avgmag_nb2;    /*! Average magnitude. */
     gr_complex d_avgsig, d_delay[8];
-    int    d_delidx, d_sigidx, d_hangtime;   // FIXME: need longer buffer for higher sampel rates?
+    int    d_delidx, d_sigidx, d_hangtime;   // FIXME: need longer buffer for higher sample rates?
 
 };
 

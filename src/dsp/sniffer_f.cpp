@@ -101,7 +101,7 @@ int  sniffer_f::samples_available()
 /*! \brief Fetch available samples.
  *  \param out Pointer to allocated memory where the samples will be copied.
  *             Should be at least as big as buffer_size().
- *  \param num The number of sampels returned.
+ *  \param num The number of samples returned.
  */
 void sniffer_f::get_samples(float * out, unsigned int &num)
 {
