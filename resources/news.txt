@@ -1,4 +1,9 @@
 
+    2.15.1: In progress...
+
+     FIXED: DSP stops when device is changed.
+
+
       2.15: Released December 15, 2021
 
        NEW: Start/stop RDS and fetch Program Identification via remote control.
