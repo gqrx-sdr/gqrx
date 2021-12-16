@@ -39,7 +39,7 @@ typedef std::shared_ptr<rx_agc_cc> rx_agc_cc_sptr;
 
 /**
  * \brief Return a shared_ptr to a new instance of rx_agc_cc.
- * \param sample_rate The samle rate (default = 96000).
+ * \param sample_rate The sample rate (default = 96000).
  * \param agc_on      Whether AGC should be ON (default = true).
  * \param threshold   AGC Knee in dB if AGC is active. Range -160 to 0 dB.
  * \param manual_gain Manual gain when AGC is OFF. Range 0 to 100 dB.

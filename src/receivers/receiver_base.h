@@ -39,7 +39,7 @@ typedef std::shared_ptr<receiver_base_cf> receiver_base_cf_sptr;
  *  \ingroup RX
  *
  * This block provides a base class and common interface for receivers that
- * outpout audio (or other kind of float data).
+ * output audio (or other kind of float data).
  *
  */
 class receiver_base_cf : public gr::hier_block2
