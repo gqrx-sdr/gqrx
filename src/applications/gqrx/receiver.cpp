@@ -208,7 +208,18 @@ void receiver::set_input_device(const std::string device)
         tb->disconnect(src, 0, iq_swap, 0);
     }
 
+#if GNURADIO_VERSION < 0x030802
+    //Work around GNU Radio bug #3184
+    //temporarily connect dummy source to ensure that previous device is closed
+    src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
+    tb->connect(src, 0, iq_swap, 0);
+    tb->start();
+    tb->stop();
+    tb->wait();
+    tb->disconnect(src, 0, iq_swap, 0);
+#else
     src.reset();
+#endif
 
     try
     {
