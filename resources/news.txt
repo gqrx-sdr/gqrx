@@ -2,6 +2,7 @@
     2.15.1: In progress...
 
      FIXED: DSP stops when device is changed.
+     FIXED: USB error when device settings are changed.
 
 
       2.15: Released December 15, 2021
