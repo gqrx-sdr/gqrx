@@ -150,8 +150,8 @@ public:
      * This method returns the current signal power detected by the receiver. The detector
      * is located after the band pass filter. The full scale is 1.0
      */
-    float get_signal_pwr(bool dbfs) const {
-        return rx->get_signal_level(dbfs);
+    float get_signal_pwr() const {
+        return rx->get_signal_level();
     }
 
     void get_audio_fft_data(std::complex<float>* fftPoints, unsigned int &fftsize) const {

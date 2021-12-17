@@ -1307,8 +1307,9 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate)
     storeSession();
 
     auto sri = (int)samprate;
-    auto devstr = QString("file='%1',rate=%2,throttle=true,repeat=false")
-            .arg(filename).arg(sri);
+    QString escapedFilename = receiver::escape_filename(filename.toStdString()).c_str();
+    auto devstr = QString("file=%1,rate=%2,throttle=true,repeat=false")
+            .arg(escapedFilename).arg(sri);
 
     qDebug() << __func__ << ":" << devstr;
 
@@ -1570,7 +1571,9 @@ int MainWindow::on_actionIoConfig_triggered()
 
     if (confres == QDialog::Accepted)
     {
-        if (ui->actionDSP->isChecked())
+        bool dsp_running = ui->actionDSP->isChecked();
+
+        if (dsp_running)
             // suspend DSP while we reload settings
             on_actionDSP_triggered(false);
 
@@ -1579,7 +1582,7 @@ int MainWindow::on_actionIoConfig_triggered()
         storeSession();
         loadConfig(m_settings->fileName(), false, false);
 
-        if (ui->actionDSP->isChecked())
+        if (dsp_running)
             // restsart DSP
             on_actionDSP_triggered(true);
     }

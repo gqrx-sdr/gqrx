@@ -21,10 +21,12 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <cmath>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
+#include <QDebug>
 
 #include <gnuradio/prefs.h>
-#include <QDebug>
 
 #include "applications/gqrx/receiver.h"
 
@@ -54,7 +56,7 @@ receiver::receiver(const std::string input_device,
 
     if (input_device.empty())
     {
-        src = osmosdr::source::make("file="+get_random_file()+",freq=428e6,rate=96000,repeat=true,throttle=true");
+        src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
     }
     else
     {
@@ -153,7 +155,18 @@ void receiver::set_input_device(const std::string device)
     tb->disconnect_all();  // !!! surely not! - makes us use force below!
     // qInfo() << "**** set_input_device disconnected all";
 
+#if GNURADIO_VERSION < 0x030802
+    //Work around GNU Radio bug #3184
+    //temporarily connect dummy source to ensure that previous device is closed
+    src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
+    tb->connect(src, 0, iq_swap, 0);
+    tb->start();
+    tb->stop();
+    tb->wait();
+    tb->disconnect(src, 0, iq_swap, 0);
+#else
     src.reset();
+#endif
 
     try
     {
@@ -162,7 +175,7 @@ void receiver::set_input_device(const std::string device)
     catch (std::exception &x)
     {
         error = x.what();
-        src = osmosdr::source::make("file="+get_random_file()+",freq=428e6,rate=96000,repeat=true,throttle=true");
+        src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
     }
 
     if (src->get_sample_rate() != 0)
@@ -662,6 +675,7 @@ void receiver::get_iq_fft_data(std::complex<float>* fftPoints, unsigned int &fft
     iq_fft->get_fft_data(fftPoints, fftsize);
 }
 
+
 /**
  * @brief Start I/Q data recorder.
  * @param filename The filename where to record.
@@ -838,4 +852,14 @@ void receiver::connect_all()
     // Visualization
     tb->connect(demodsrc, 0, iq_fft, 0);
     // qInfo() << "receiver connect_all connected fft";
+}
+
+std::string receiver::escape_filename(std::string filename)
+{
+    std::stringstream ss1;
+    std::stringstream ss2;
+
+    ss1 << std::quoted(filename, '\'', '\\');
+    ss2 << std::quoted(ss1.str(), '\'', '\\');
+    return ss2.str();
 }

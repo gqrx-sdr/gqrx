@@ -129,6 +129,9 @@ public:
     /* Audio system handling */
     void            set_output_device(const std::string device);
 
+    /* utility functions */
+    static std::string escape_filename(std::string filename);
+
 private:
     void            connect_all(); /*!< Return the block to use as subreciever source */
 
@@ -163,11 +166,11 @@ private:
     bool            d_recording_iq;         /*!< Whether we are recording I/Q file. */
     gr::blocks::file_sink::sptr iq_sink;    /*!< I/Q file sink. */
 
-    //! Get a path to a file containing random bytes
-    static std::string get_random_file(void);
-
-    /* Demodulating receiving the same RF input */
+    /* Demodulors receiving the same RF input */
     std::vector<demodulator::sptr> demods;
+
+    //! Get a path to a file containing null bytes
+    static std::string get_zero_file(void);
 };
 
 #endif // RECEIVER_H

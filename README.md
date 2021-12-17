@@ -241,6 +241,7 @@ The following people and organisations have contributed to gqrx:
 * Valentin Ochs
 * Vesa Solonen
 * Vincent Pelletier
+* Vladisslav P
 * Will Scales
 * Wolfgang Fritz, DK7OB
 * Youssef Touil

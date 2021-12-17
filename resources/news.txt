@@ -1,12 +1,22 @@
 
-      2.15: In progress...
+    2.15.1: In progress...
+
+     FIXED: DSP stops when device is changed.
+     FIXED: USB error when device settings are changed.
+       NEW: Multiple demodulators
+
+
+      2.15: Released December 15, 2021
 
        NEW: Start/stop RDS and fetch Program Identification via remote control.
        NEW: Added IQ balancing to MacOS release.
-       NEW: Multiple demodulators
+     FIXED: Erratic behaviour of S-meter.
      FIXED: Compilation error due to missing include.
+     FIXED: Startup crash on Windows.
+     FIXED: I/Q playback when filename contains special characters.
   IMPROVED: Reordered the receiver mode drop-down list.
   IMPROVED: Receiver mode is now stored as a string in settings files.
+  IMPROVED: Increased automatic squelch margin to 3 dB.
 
 
     2.14.6: Released October 6, 2021
@@ -200,7 +210,7 @@
   IMPROVED: Show configuration file path when listing config files using -l
   IMPROVED: Microtelecom Perseus integration.
   IMPROVED: Implemented PPM correction for RF Space Cloud IQ (gr-osmosdr-gqrx)
-  IMPORVED: Implemented PPM correction for PlutoSDR (gr-osmosdr-gqrx)
+  IMPROVED: Implemented PPM correction for PlutoSDR (gr-osmosdr-gqrx)
 
 
       2.10: Released January 21, 2018
@@ -286,7 +296,8 @@
   IMPROVED: Set default audio FFT range to -70...0 dB.
   IMPROVED: Restore audio FFT dB scaling between sessions.
 
-     2.5.3: Released February 3, 2016.
+
+     2.5.3: Released February 3, 2016
 
        NEW: Set and read squelch via remote control socket.
      FIXED: Toolbar appearance on Mac OS X.
@@ -295,14 +306,16 @@
   IMPROVED: Respond to \dump_state remote command (needed by some clients).
   IMPROVED: Read remote frequency as double for rigctl compatibility.
 
-     2.5.2: Released January 21, 2016.
+
+     2.5.2: Released January 21, 2016
 
        NEW: Support for Red Pitaya (RX only).
        NEW: Build with GNU Radio 3.7.9.
   IMPROVED: Increased spacing between frequency divisions to prevent overlap.
   IMPROVED: Reduced minimum window size requirement to around 800x600 pixels.
 
-       2.5  Released January 7, 2016
+
+       2.5: Released January 7, 2016
 
        NEW: Read out signal time and on the waterfall (disabled on OS X).
        NEW: Save waterfall to graphics file.
@@ -316,7 +329,7 @@
   IMPROVED: Button layouts (mostly on Mac OS X).
 
 
-       2.4  Released December 14, 2015
+       2.4: Released December 14, 2015
 
        NEW: Bookmarks.
        NEW: FM RDS decoder using gr-rds.
@@ -343,18 +356,18 @@
   IMPROVED: Robustness against malformed remote control commands.
 
 
-     2.3.2  Released November 28, 2014
+     2.3.2: Released November 28, 2014
 
      FIXED: Pandapter and waterfall widths are limited to 4096 pixels.
   IMPROVED: Add 2.5 Msps preset for Airspy.
 
 
-     2.3.1  Released August 8, 2014
+     2.3.1: Released August 8, 2014
 
      FIXED: Use correct categories in .desktop file.
 
 
-     2.3.0  Released August 5, 2014
+     2.3.0: Released August 5, 2014
 
        NEW: Support for setting analog bandwidth.
        NEW: Support for setting gain stages individually.
@@ -388,7 +401,7 @@
   IMPROVED: Make release news available through the Help menu.
 
 
-     2.2.0  Released August 8, 2013
+     2.2.0: Released August 8, 2013
 
        NEW: Official Ubuntu PPA and Mac OS X app bundle.
        NEW: Allow using audio output devices other than the default.
@@ -412,12 +425,12 @@
   IMPROVED: Audio gain setting no longer has impact on WAV recording.
 
 
-   2.1.251  Released on March 1, 2013
+   2.1.251: Released March 1, 2013
 
      FIXED: Incorrect device selection in config dialog.
 
 
-   2.1.246  Released on February 29, 2013
+   2.1.246: Released February 29, 2013
 
        NEW: I/Q swapping option.
        NEW: FFT video filter with non-linear gain (still WIP).
@@ -442,7 +455,7 @@
   IMPROVED: I/Q DC canceling.
 
 
-   2.1.148  Released on December 9, 2012
+   2.1.148: Released December 9, 2012
 
        NEW: Support for USRP and RTL2832U (rtlsdr) devices.
        NEW: Pan & zoom on the pandapter axes.
@@ -451,11 +464,11 @@
   IMPROVED: Various improvements to the user interface.
 
 
-     2.0.0  Released on July 7, 2012
+     2.0.0: Released July 7, 2012
 
        First stable release of C++ version with Funcube Dongle support.
 
 
-     1.x
+     1.x:
 
        Initial experiments using Python and gr-qtgui.

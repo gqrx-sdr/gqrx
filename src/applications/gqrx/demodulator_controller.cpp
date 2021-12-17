@@ -758,7 +758,7 @@ void DemodulatorController::setSqlLevel(double level_db)
  */
 double DemodulatorController::setSqlLevelAuto()
 {
-    double level = demod->get_signal_pwr(true) + 1.0;
+    double level = demod->get_signal_pwr() + 3.0;
     if (level > -10.0) {
         // avoid 0 dBFS
         level = uiDockRxOpt->getSqlLevel();
@@ -796,9 +796,9 @@ void DemodulatorController::setPassband(int bandwidth)
     emit filterFrequency(demod->get_idx(), lo, hi);
 }
 
-float DemodulatorController::get_signal_pwr(bool dbfs) const
+float DemodulatorController::get_signal_pwr() const
 {
-    return demod->get_signal_pwr(dbfs);
+    return demod->get_signal_pwr();
 }
 
 QString DemodulatorController::currentDemodAsString()
@@ -983,7 +983,7 @@ void DemodulatorController::setAudioFftRate(int fps)
 void DemodulatorController::meterTimeout()
 {
     float level;
-    level = demod->get_signal_pwr(true);
+    level = demod->get_signal_pwr();
     uiDockRxOpt->setSignalLevel(level);
     remote->setSignalLevel(level);
 }

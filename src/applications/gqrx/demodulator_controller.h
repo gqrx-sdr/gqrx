@@ -196,7 +196,7 @@ public slots:
     void setSqlLevel(double level_db);
     double setSqlLevelAuto();
     void setPassband(int bandwidth);
-    float get_signal_pwr(bool dbfs) const;
+    float get_signal_pwr() const;
 
     QString currentDemodAsString();
 
