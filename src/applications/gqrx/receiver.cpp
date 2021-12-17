@@ -189,6 +189,9 @@ void receiver::set_input_device(const std::string device)
     if (device.empty())
         return;
 
+    if (input_devstr.compare(device) == 0)
+        return;
+
     input_devstr = device;
 
     // tb->lock() can hang occasionally
