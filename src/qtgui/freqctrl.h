@@ -86,6 +86,7 @@ private:
     void    moveCursorLeft();
     void    moveCursorRight();
     bool    inRect(QRect &rect, QPoint &point);
+    void    setActiveDigit(int idx);
 
     bool        m_UpdateAll;
     bool        m_ExternalKeyActive;

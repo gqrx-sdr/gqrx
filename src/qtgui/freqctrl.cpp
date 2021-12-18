@@ -95,6 +95,33 @@ bool CFreqCtrl::inRect(QRect &rect, QPoint &point)
         return false;
 }
 
+void CFreqCtrl::setActiveDigit(int idx)
+{
+    for (int i = m_DigStart; i < m_NumDigits; i++)
+    {
+        if (i == idx)
+        {
+            if (!m_DigitInfo[i].editmode)
+            {
+                m_DigitInfo[i].editmode = true;
+                m_ActiveEditDigit = i;
+            }
+        }
+        else
+        {
+            // un-highlight the previous digit if moved off it
+            if (m_DigitInfo[i].editmode)
+            {
+                m_DigitInfo[i].editmode = false;
+                m_DigitInfo[i].modified = true;
+            }
+        }
+    }
+
+    updateCtrl(false);
+
+}
+
 static int fmax_to_numdigits(qint64 fmax)
 {
     if (fmax < 10e6)
@@ -401,24 +428,9 @@ void CFreqCtrl::mouseMoveEvent(QMouseEvent *event)
         {
             if (inRect(m_DigitInfo[i].dQRect, pt))
             {
-                if (!m_DigitInfo[i].editmode)
-                {
-                    m_DigitInfo[i].editmode = true;
-                    m_ActiveEditDigit = i;
-                }
-            }
-            else
-            {
-                // un-highlight the previous digit if moved off it
-                if (m_DigitInfo[i].editmode)
-                {
-                    m_DigitInfo[i].editmode = false;
-                    m_DigitInfo[i].modified = true;
-                }
+                setActiveDigit(i);
             }
         }
-
-        updateCtrl(false);
     }
 }
 
@@ -822,8 +834,7 @@ void CFreqCtrl::moveCursorLeft()
 {
     if ((m_ActiveEditDigit >= 0) && (m_ActiveEditDigit < m_NumDigits - 1))
     {
-        cursor().setPos(mapToGlobal(m_DigitInfo[++m_ActiveEditDigit].dQRect.
-                                    center()));
+        setActiveDigit(m_ActiveEditDigit + 1);
     }
 }
 
@@ -831,8 +842,7 @@ void CFreqCtrl::moveCursorRight()
 {
     if (m_ActiveEditDigit > m_FirstEditableDigit)
     {
-        cursor().setPos(mapToGlobal(m_DigitInfo[--m_ActiveEditDigit].dQRect.
-                                    center()));
+        setActiveDigit(m_ActiveEditDigit - 1);
     }
 }
 
@@ -840,8 +850,7 @@ void CFreqCtrl::cursorHome()
 {
     if (m_ActiveEditDigit >= 0)
     {
-        cursor().setPos(mapToGlobal(
-                            m_DigitInfo[m_NumDigits - 1].dQRect.center()));
+        setActiveDigit(m_NumDigits - 1);
     }
 }
 
@@ -849,8 +858,7 @@ void CFreqCtrl::cursorEnd()
 {
     if (m_ActiveEditDigit > 0)
     {
-        cursor().setPos(mapToGlobal(m_DigitInfo[m_FirstEditableDigit].dQRect.
-                                    center()));
+        setActiveDigit(m_FirstEditableDigit);
     }
 }
 
