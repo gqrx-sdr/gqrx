@@ -1,8 +1,9 @@
 
-    2.15.1: In progress...
+    2.15.1: Released December 18, 2021
 
      FIXED: DSP stops when device is changed.
      FIXED: USB error when device settings are changed.
+     FIXED: Changing frequency using the keyboard doesn't work on MacOS.
        NEW: Multiple demodulators
 
 
