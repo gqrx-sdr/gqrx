@@ -20,6 +20,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <iomanip>
 #include <QDebug>
 #include <QFile>
 #include <QPushButton>
@@ -155,7 +156,7 @@ void CIoConfig::getDeviceList(std::map<QString, QVariant> &devList)
             devlabel = "Unknown";
         }
 
-        devstr = QString(dev.to_string().c_str());
+        devstr = QString(escapeDevstr(dev.to_string()).c_str());
         devList.insert(std::pair<QString, QVariant>(devlabel, devstr));
         qDebug() << "  " << devlabel;
     }
@@ -788,4 +789,14 @@ int CIoConfig::decim2idx(int decim) const
         ++idx;
 
     return idx;
+}
+
+/** Escape devstr to make some SoapySDR devices work when selected from drop-down */
+std::string CIoConfig::escapeDevstr(std::string devstr)
+{
+    std::stringstream ss1;
+    if (devstr.find(" ") == std::string::npos)
+        return devstr;
+    ss1 << std::quoted(devstr, '\'', '\\');
+    return ss1.str();
 }
