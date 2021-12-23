@@ -95,7 +95,7 @@ void CAgcOptions::setPreset(agc_preset_e preset)
         break;
 
     default:
-        qDebug() << __func__ << "Invalid AGC preset" << preset;
+        qInfo() << __func__ << "Invalid AGC preset" << preset;
         break;
 
     }

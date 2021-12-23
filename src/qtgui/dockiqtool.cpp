@@ -32,12 +32,12 @@
 
 #include <math.h>
 
-#include "iq_tool.h"
-#include "ui_iq_tool.h"
+#include "dockiqtool.h"
+#include "ui_dockiqtool.h"
 
 
-CIqTool::CIqTool(QWidget *parent) :
-    QDialog(parent),
+DockIQTool::DockIQTool(QWidget *parent) :
+    QFrame(parent),
     ui(new Ui::CIqTool)
 {
     ui->setupUi(this);
@@ -59,7 +59,7 @@ CIqTool::CIqTool(QWidget *parent) :
     connect(timer, SIGNAL(timeout()), this, SLOT(timeoutFunction()));
 }
 
-CIqTool::~CIqTool()
+DockIQTool::~DockIQTool()
 {
     timer->stop();
     delete timer;
@@ -70,7 +70,7 @@ CIqTool::~CIqTool()
 }
 
 /*! \brief Set new sample rate. */
-void CIqTool::setSampleRate(qint64 sr)
+void DockIQTool::setSampleRate(qint64 sr)
 {
     sample_rate = sr;
 
@@ -84,7 +84,7 @@ void CIqTool::setSampleRate(qint64 sr)
 }
 
 /*! \brief Slot activated when the user selects a file. */
-void CIqTool::on_listWidget_currentTextChanged(const QString &currentText)
+void DockIQTool::on_listWidget_currentTextChanged(const QString &currentText)
 {
 
     current_file = currentText;
@@ -99,7 +99,7 @@ void CIqTool::on_listWidget_currentTextChanged(const QString &currentText)
 }
 
 /*! \brief Start/stop playback */
-void CIqTool::on_playButton_clicked(bool checked)
+void DockIQTool::on_playButton_clicked(bool checked)
 {
     is_playing = checked;
 
@@ -144,7 +144,7 @@ void CIqTool::on_playButton_clicked(bool checked)
  *
  * This slot should be used to signal that a playback could not be started.
  */
-void CIqTool::cancelPlayback()
+void DockIQTool::cancelPlayback()
 {
     ui->playButton->setChecked(false);
     ui->listWidget->setEnabled(true);
@@ -154,7 +154,7 @@ void CIqTool::cancelPlayback()
 
 
 /*! \brief Slider value (seek position) has changed. */
-void CIqTool::on_slider_valueChanged(int value)
+void DockIQTool::on_slider_valueChanged(int value)
 {
     refreshTimeWidgets();
 
@@ -164,7 +164,7 @@ void CIqTool::on_slider_valueChanged(int value)
 
 
 /*! \brief Start/stop recording */
-void CIqTool::on_recButton_clicked(bool checked)
+void DockIQTool::on_recButton_clicked(bool checked)
 {
     is_recording = checked;
 
@@ -191,7 +191,7 @@ void CIqTool::on_recButton_clicked(bool checked)
  *
  * This slot should be used to signal that a recording could not be started.
  */
-void CIqTool::cancelRecording()
+void DockIQTool::cancelRecording()
 {
     ui->recButton->setChecked(false);
     ui->playButton->setEnabled(true);
@@ -204,7 +204,7 @@ void CIqTool::cancelRecording()
  * window using the window close icon. We catch the event and hide the
  * dialog but keep it around for later use.
  */
-void CIqTool::closeEvent(QCloseEvent *event)
+void DockIQTool::closeEvent(QCloseEvent *event)
 {
     timer->stop();
     hide();
@@ -212,7 +212,7 @@ void CIqTool::closeEvent(QCloseEvent *event)
 }
 
 /*! \brief Catch window show events. */
-void CIqTool::showEvent(QShowEvent * event)
+void DockIQTool::showEvent(QShowEvent * event)
 {
     Q_UNUSED(event);
     refreshDir();
@@ -221,7 +221,7 @@ void CIqTool::showEvent(QShowEvent * event)
 }
 
 
-void CIqTool::saveSettings(QSettings *settings)
+void DockIQTool::saveSettings(std::shared_ptr<QSettings> settings)
 {
     if (!settings)
         return;
@@ -235,7 +235,7 @@ void CIqTool::saveSettings(QSettings *settings)
 
 }
 
-void CIqTool::readSettings(QSettings *settings)
+void DockIQTool::readSettings(std::shared_ptr<QSettings> settings)
 {
     if (!settings)
         return;
@@ -249,7 +249,7 @@ void CIqTool::readSettings(QSettings *settings)
 /*! \brief Slot called when the recordings directory has changed either
  *         because of user input or programmatically.
  */
-void CIqTool::on_recDirEdit_textChanged(const QString &dir)
+void DockIQTool::on_recDirEdit_textChanged(const QString &dir)
 {
     if (recdir->exists(dir))
     {
@@ -265,7 +265,7 @@ void CIqTool::on_recDirEdit_textChanged(const QString &dir)
 }
 
 /*! \brief Slot called when the user clicks on the "Select" button. */
-void CIqTool::on_recDirButton_clicked()
+void DockIQTool::on_recDirButton_clicked()
 {
     QString dir = QFileDialog::getExistingDirectory(this, tr("Select a directory"),
                                                     ui->recDirEdit->text(),
@@ -278,7 +278,7 @@ void CIqTool::on_recDirButton_clicked()
 
 
 
-void CIqTool::timeoutFunction(void)
+void DockIQTool::timeoutFunction(void)
 {
     refreshDir();
 
@@ -299,7 +299,7 @@ void CIqTool::timeoutFunction(void)
 }
 
 /*! \brief Refresh list of files in current working directory. */
-void CIqTool::refreshDir()
+void DockIQTool::refreshDir()
 {
     int selection = ui->listWidget->currentRow();
 
@@ -325,7 +325,7 @@ void CIqTool::refreshDir()
  *
  * \note Safe for recordings > 24 hours
  */
-void CIqTool::refreshTimeWidgets(void)
+void DockIQTool::refreshTimeWidgets(void)
 {
     ui->slider->setMaximum(rec_len);
 
@@ -356,7 +356,7 @@ void CIqTool::refreshTimeWidgets(void)
 
 
 /*! \brief Extract sample rate from file name */
-qint64 CIqTool::sampleRateFromFileName(const QString &filename)
+qint64 DockIQTool::sampleRateFromFileName(const QString &filename)
 {
     bool ok;
     qint64 sr;

@@ -108,6 +108,16 @@ void wfmrx::set_filter(double low, double high, double tw)
     filter->set_param(low, high, tw);
 }
 
+double wfmrx::get_filter_low() const
+{
+    return filter->get_low();
+}
+
+double wfmrx::get_filter_high() const
+{
+    return filter->get_high();
+}
+
 float wfmrx::get_signal_level()
 {
     return meter->get_level_db();
@@ -254,10 +264,12 @@ void wfmrx::get_rds_data(std::string &outbuff, int &num)
 
 void wfmrx::start_rds_decoder()
 {
+    lock();
     connect(demod_fm, 0, rds, 0);
     connect(rds, 0, rds_decoder, 0);
     msg_connect(rds_decoder, "out", rds_parser, "in");
     msg_connect(rds_parser, "out", rds_store, "store");
+    unlock();
     rds_enabled=true;
 }
 

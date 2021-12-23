@@ -23,6 +23,7 @@
 #ifndef DOCKINPUTCTL_H
 #define DOCKINPUTCTL_H
 
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -59,7 +60,7 @@ namespace Ui {
     class DockInputCtl;
 }
 
-class DockInputCtl : public QDockWidget
+class DockInputCtl : public QFrame
 {
     Q_OBJECT
 
@@ -67,11 +68,11 @@ public:
     explicit DockInputCtl(QWidget * parent = 0);
     ~DockInputCtl();
 
-    void    readSettings(QSettings * settings);
-    void    saveSettings(QSettings * settings);
+    void    readSettings(std::shared_ptr<QSettings> settings);
+    void    saveSettings(std::shared_ptr<QSettings> settings);
 
     double  lnbLo();
-    void    readLnbLoFromSettings(QSettings * settings);
+    void    readLnbLoFromSettings(std::shared_ptr<QSettings> settings);
 
     double  gain(QString &name);
 
@@ -102,6 +103,9 @@ public:
     void    setFreqCtrlReset(bool enabled);
     void    setInvertScrolling(bool enabled);
 
+    void    setOffsetFollowsHw(bool enabled);
+    bool    getOffsetFollowsHw() const;
+
 public slots:
     bool    setGain(QString name, double value);
 
@@ -117,6 +121,7 @@ signals:
     void antennaSelected(QString antenna);
     void freqCtrlResetChanged(bool enabled);
     void invertScrollingChanged(bool enabled);
+    void offsetFollowsHwChanged(bool enabled);
 
 public slots:
     void setLnbLo(double freq_mhz);
@@ -132,6 +137,7 @@ private slots:
     void on_antSelector_currentIndexChanged(const QString &antenna);
     void on_freqCtrlResetButton_toggled(bool checked);
     void on_invertScrollingButton_toggled(bool checked);
+    void on_offsetFollowButton_toggled(bool checked);
 
     void sliderValueChanged(int value);
 

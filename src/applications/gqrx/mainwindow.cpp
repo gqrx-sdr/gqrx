@@ -32,6 +32,7 @@
 #include <QDialogButtonBox>
 #include <QFile>
 #include <QGroupBox>
+#include <QInputDialog>
 #include <QKeySequence>
 #include <QLineEdit>
 #include <QMessageBox>
@@ -46,10 +47,13 @@
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QSvgWidget>
+
+#include <DockAreaWidget.h>
+
 #include "qtgui/ioconfig.h"
-#include "mainwindow.h"
-#include "qtgui/dxc_options.h"
 #include "qtgui/dxc_spots.h"
+
+#include "mainwindow.h"
 
 /* Qt Designer files */
 #include "ui_mainwindow.h"
@@ -61,22 +65,31 @@
 #include "qtgui/bookmarkstaglist.h"
 #include "qtgui/bandplan.h"
 
+#define GQRX_CONFIG_VERSION 4
+
 MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) :
     QMainWindow(parent),
     configOk(true),
     ui(new Ui::MainWindow),
     d_lnb_lo(0),
     d_hw_freq(0),
-    d_fftAvg(0.25),
-    d_have_audio(true),
-    dec_afsk1200(nullptr)
+    d_fftAvg(0.25)
 {
     ui->setupUi(this);
+
+    ads::CDockManager::setConfigFlag(ads::CDockManager::OpaqueSplitterResize, true);
+    ads::CDockManager::setConfigFlag(ads::CDockManager::XmlCompressionEnabled, true);
+    ads::CDockManager::setConfigFlag(ads::CDockManager::FocusHighlighting, true);
+    ads::CDockManager::setConfigFlag(ads::CDockManager::AlwaysShowTabs, false);
+    ads::CDockManager::setConfigFlag(ads::CDockManager::DockAreaHasTabsMenuButton, true);
+    ads::CDockManager::setConfigFlag(ads::CDockManager::DockAreaDynamicTabsMenuButtonVisibility, true);
+    ads::CDockManager::setConfigFlag(ads::CDockManager::DockAreaHideDisabledButtons, true);
+
     BandPlan::create();
     Bookmarks::create();
     DXCSpots::create();
 
-    /* Initialise default configuration directory */
+    // Initialise default configuration directory
     QByteArray xdg_dir = qgetenv("XDG_CONFIG_HOME");
     if (xdg_dir.isEmpty())
     {
@@ -88,122 +101,144 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
         m_cfg_dir = QString("%1/gqrx").arg(xdg_dir.data());
     }
 
+    BandPlan::Get().setConfigDir(m_cfg_dir);
+    Bookmarks::Get().setConfigDir(m_cfg_dir);
+    BandPlan::Get().load();
+
     setWindowTitle(QString("Gqrx %1").arg(VERSION));
 
-    /* frequency control widget */
-    ui->freqCtrl->setup(0, 0, 9999e6, 1, FCTL_UNIT_NONE);
-    ui->freqCtrl->setFrequency(144500000);
-
-    d_filter_shape = receiver::FILTER_SHAPE_NORMAL;
-
-    /* create receiver object */
-    rx = new receiver("", "", 1);
+    // create master receiver controller
+    rx = std::make_shared<receiver>("", "", 1);
     rx->set_rf_freq(144500000.0f);
 
     // remote controller
     remote = new RemoteControl();
 
-    /* meter timer */
-    meter_timer = new QTimer(this);
-    connect(meter_timer, SIGNAL(timeout()), this, SLOT(meterTimeout()));
-
-    /* FFT timer & data */
+    // FFT timer & data
     iq_fft_timer = new QTimer(this);
     connect(iq_fft_timer, SIGNAL(timeout()), this, SLOT(iqFftTimeout()));
-
-    audio_fft_timer = new QTimer(this);
-    connect(audio_fft_timer, SIGNAL(timeout()), this, SLOT(audioFftTimeout()));
 
     d_fftData = new std::complex<float>[MAX_FFT_SIZE];
     d_realFftData = new float[MAX_FFT_SIZE];
     d_iirFftData = new float[MAX_FFT_SIZE];
-    for (int i = 0; i < MAX_FFT_SIZE; i++)
+    for (int i = 0; i < MAX_FFT_SIZE; i++) {
         d_iirFftData[i] = -140.0;  // dBFS
+    }
 
-    /* timer for data decoders */
-    dec_timer = new QTimer(this);
-    connect(dec_timer, SIGNAL(timeout()), this, SLOT(decoderTimeout()));
+    // create dock manager
+    uiDockManager = new ads::CDockManager(this);
 
-    // create I/Q tool widget
-    iq_tool = new CIqTool(this);
+    // Use baseband view as central widget
+    uiBaseband = new BasebandView(this);
+    ads::CDockWidget* centralDockWidget = new ads::CDockWidget("BasebandView");
+    uiDockWidgets.push_back(centralDockWidget);
+    centralDockWidget->setWidget(uiBaseband);
+    auto* centralDockArea = uiDockManager->setCentralWidget(centralDockWidget);
+    centralDockArea->setAllowedAreas(ads::DockWidgetArea::OuterDockAreas);
 
-    // create DXC Objects
-    dxc_options = new DXCOptions(this);
+    connect(
+        uiBaseband->plotter(),
+        SIGNAL(newDemodFreq(size_t,qint64,qint64)),
+        this,
+        SLOT(on_newDemodFreq(size_t,qint64,qint64))
+    );
 
-    /* create dock widgets */
-    uiDockRxOpt = new DockRxOpt();
-    uiDockRDS = new DockRDS();
-    uiDockAudio = new DockAudio();
+    connect(
+        uiBaseband->plotter(),
+        SIGNAL(newFilterFreq(size_t,int,int)),
+        this,
+        SLOT(on_newFilterFreq(size_t,int,int))
+    );
+
+    // create dock widgets
+    uiDockBookmarks = new DockBookmarks();
+    ads::CDockWidget* dockBookmarks = new ads::CDockWidget("Bookmarks");
+    uiDockWidgets.push_back(dockBookmarks);
+    dockBookmarks->setWidget(uiDockBookmarks);
+
+    uiDockDXCluster = new DockDXCluster();
+    ads::CDockWidget* dockDXCluster = new ads::CDockWidget("DX Cluster");
+    uiDockWidgets.push_back(dockDXCluster);
+    dockDXCluster->setWidget(uiDockDXCluster);
+
     uiDockInputCtl = new DockInputCtl();
+    ads::CDockWidget* dockInput = new ads::CDockWidget("Input");
+    uiDockWidgets.push_back(dockInput);
+    dockInput->setWidget(uiDockInputCtl);
+
+    uiDockIQTool = new DockIQTool();
+    ads::CDockWidget* dockIQTool = new ads::CDockWidget("IQ Recorder");
+    uiDockWidgets.push_back(dockIQTool);
+    dockIQTool->setWidget(uiDockIQTool);
+    
     uiDockFft = new DockFft();
-    BandPlan::Get().setConfigDir(m_cfg_dir);
-    Bookmarks::Get().setConfigDir(m_cfg_dir);
-    BandPlan::Get().load();
-    uiDockBookmarks = new DockBookmarks(this);
+    ads::CDockWidget* dockFft = new ads::CDockWidget("FFT");
+    uiDockWidgets.push_back(dockFft);
+    dockFft->setWidget(uiDockFft);
 
-    // setup some toggle view shortcuts
-    uiDockInputCtl->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_J));
-    uiDockRxOpt->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
-    uiDockFft->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F));
-    uiDockAudio->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_A));
-    uiDockBookmarks->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_B));
-    ui->mainToolBar->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
-
-    /* frequency setting shortcut */
-    auto *freq_shortcut = new QShortcut(QKeySequence(Qt::Key_F), this);
-    QObject::connect(freq_shortcut, &QShortcut::activated, this, &MainWindow::frequencyFocusShortcut);
-
-    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
-    setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
-    setCorner(Qt::BottomLeftCorner, Qt::BottomDockWidgetArea);
-    setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
-
-    /* Add dock widgets to main window. This should be done even for
+    /* Add dock widgets to manager. This should be done even for
        dock widgets that are going to be hidden, otherwise they will
        end up floating in their own top-level window and can not be
        docked to the mainwindow.
     */
-    addDockWidget(Qt::RightDockWidgetArea, uiDockInputCtl);
-    addDockWidget(Qt::RightDockWidgetArea, uiDockRxOpt);
-    addDockWidget(Qt::RightDockWidgetArea, uiDockFft);
-    tabifyDockWidget(uiDockInputCtl, uiDockRxOpt);
-    tabifyDockWidget(uiDockRxOpt, uiDockFft);
-    uiDockRxOpt->raise();
+    auto w = uiDockManager->addDockWidget(ads::LeftDockWidgetArea, dockInput);
+    uiDockManager->addDockWidgetTabToArea(dockFft, w);
+    dockInput->setAsCurrentTab();
 
-    addDockWidget(Qt::RightDockWidgetArea, uiDockAudio);
-    addDockWidget(Qt::RightDockWidgetArea, uiDockRDS);
-    tabifyDockWidget(uiDockAudio, uiDockRDS);
-    uiDockAudio->raise();
+    w = uiDockManager->addDockWidget(ads::BottomDockWidgetArea, dockBookmarks);
+    uiDockManager->addDockWidgetTabToArea(dockDXCluster, w);
+    uiDockManager->addDockWidgetTabToArea(dockIQTool, w);
 
-    addDockWidget(Qt::BottomDockWidgetArea, uiDockBookmarks);
+    // hide docks that we don't want to show initially
+    dockBookmarks->closeDockWidget();
+    dockDXCluster->closeDockWidget();
+    dockIQTool->closeDockWidget();
 
-    /* hide docks that we don't want to show initially */
-    uiDockBookmarks->hide();
-    uiDockRDS->hide();
+    // setup some toggle view shortcuts
+    dockBookmarks->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_B));
+    dockDXCluster->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
+    dockFft->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F));
+    dockIQTool->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_I));
+    dockInput->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_J));
+    ui->mainToolBar->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
+
+    // frequency setting shortcut
+    auto *freq_shortcut = new QShortcut(QKeySequence(Qt::Key_F), this);
+    QObject::connect(freq_shortcut, &QShortcut::activated, this, &MainWindow::frequencyFocusShortcut);
 
     /* Add dock widget actions to View menu. By doing it this way all signal/slot
        connections will be established automagially.
     */
-    ui->menu_View->addAction(uiDockInputCtl->toggleViewAction());
-    ui->menu_View->addAction(uiDockRxOpt->toggleViewAction());
-    ui->menu_View->addAction(uiDockRDS->toggleViewAction());
-    ui->menu_View->addAction(uiDockAudio->toggleViewAction());
-    ui->menu_View->addAction(uiDockFft->toggleViewAction());
-    ui->menu_View->addAction(uiDockBookmarks->toggleViewAction());
+    // Action icons
+    dockBookmarks->toggleViewAction()->setIcon(QIcon(":/icons/icons/bookmark-new.svg"));
+    dockIQTool->toggleViewAction()->setIcon(QIcon(":/icons/icons/signal.svg"));
+
+    // Action menu entries
+    ui->menu_View->addAction(dockInput->toggleViewAction());
+    ui->menu_View->addAction(dockFft->toggleViewAction());
+    ui->menu_View->addAction(dockBookmarks->toggleViewAction());
+    ui->menu_View->addAction(dockDXCluster->toggleViewAction());
+    ui->menu_View->addAction(dockIQTool->toggleViewAction());
+    ui->menu_View->addSeparator();
+    receiversMenu = ui->menu_View->addMenu("Receivers");
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->actionFullScreen);
 
-    /* connect signals and slots */
-    connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
-    connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), remote, SLOT(setNewFrequency(qint64)));
-    connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), uiDockAudio, SLOT(setRxFrequency(qint64)));
-    connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), uiDockRxOpt, SLOT(setRxFreq(qint64)));
+    // frequency control widget
+    uiBaseband->freqCtrl()->setup(0, 0, 9999e6, 1, FCTL_UNIT_NONE);
+    uiBaseband->freqCtrl()->setFrequency(144500000);
+
+    // connect signals and slots
+    connect(uiBaseband->plotter(), SIGNAL(newHwFrequency(qint64)), this, SLOT(setNewFrequencyWithOffsetFollow(qint64)));
+    connect(uiBaseband->plotter(), SIGNAL(newHwFrequency(qint64)), remote, SLOT(setNewFrequency(qint64)));
+    connect(uiBaseband->freqCtrl(), SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
+    connect(uiBaseband->freqCtrl(), SIGNAL(newFrequency(qint64)), remote, SLOT(setNewFrequency(qint64)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), remote, SLOT(setLnbLo(double)));
-    connect(uiDockInputCtl, SIGNAL(gainChanged(QString, double)), this, SLOT(setGain(QString,double)));
-    connect(uiDockInputCtl, SIGNAL(gainChanged(QString, double)), remote, SLOT(setGain(QString,double)));
+    connect(uiDockInputCtl, SIGNAL(gainChanged(QString,double)),   this, SLOT(setGain(QString,double)));
+    connect(uiDockInputCtl, SIGNAL(gainChanged(QString,double)), remote, SLOT(setGain(QString,double)));
     connect(uiDockInputCtl, SIGNAL(autoGainChanged(bool)), this, SLOT(setAutoGain(bool)));
     connect(uiDockInputCtl, SIGNAL(freqCorrChanged(double)), this, SLOT(setFreqCorr(double)));
     connect(uiDockInputCtl, SIGNAL(iqSwapChanged(bool)), this, SLOT(setIqSwap(bool)));
@@ -213,113 +248,64 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockInputCtl, SIGNAL(antennaSelected(QString)), this, SLOT(setAntenna(QString)));
     connect(uiDockInputCtl, SIGNAL(freqCtrlResetChanged(bool)), this, SLOT(setFreqCtrlReset(bool)));
     connect(uiDockInputCtl, SIGNAL(invertScrollingChanged(bool)), this, SLOT(setInvertScrolling(bool)));
-    connect(uiDockRxOpt, SIGNAL(rxFreqChanged(qint64)), ui->freqCtrl, SLOT(setFrequency(qint64)));
-    connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
-    connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), remote, SLOT(setFilterOffset(qint64)));
-    connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
-    connect(uiDockRxOpt, SIGNAL(demodSelected(int)), remote, SLOT(setMode(int)));
-    connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
-    connect(uiDockRxOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(setFmEmph(double)));
-    connect(uiDockRxOpt, SIGNAL(amDcrToggled(bool)), this, SLOT(setAmDcr(bool)));
-    connect(uiDockRxOpt, SIGNAL(cwOffsetChanged(int)), this, SLOT(setCwOffset(int)));
-    connect(uiDockRxOpt, SIGNAL(amSyncDcrToggled(bool)), this, SLOT(setAmSyncDcr(bool)));
-    connect(uiDockRxOpt, SIGNAL(amSyncPllBwSelected(float)), this, SLOT(setAmSyncPllBw(float)));
-    connect(uiDockRxOpt, SIGNAL(agcToggled(bool)), this, SLOT(setAgcOn(bool)));
-    connect(uiDockRxOpt, SIGNAL(agcHangToggled(bool)), this, SLOT(setAgcHang(bool)));
-    connect(uiDockRxOpt, SIGNAL(agcThresholdChanged(int)), this, SLOT(setAgcThreshold(int)));
-    connect(uiDockRxOpt, SIGNAL(agcSlopeChanged(int)), this, SLOT(setAgcSlope(int)));
-    connect(uiDockRxOpt, SIGNAL(agcGainChanged(int)), this, SLOT(setAgcGain(int)));
-    connect(uiDockRxOpt, SIGNAL(agcDecayChanged(int)), this, SLOT(setAgcDecay(int)));
-    connect(uiDockRxOpt, SIGNAL(noiseBlankerChanged(int,bool,float)), this, SLOT(setNoiseBlanker(int,bool,float)));
-    connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
-    connect(uiDockRxOpt, SIGNAL(sqlAutoClicked()), this, SLOT(setSqlLevelAuto()));
-    connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
-    connect(uiDockAudio, SIGNAL(audioStreamingStarted(QString,int,bool)), this, SLOT(startAudioStream(QString,int,bool)));
-    connect(uiDockAudio, SIGNAL(audioStreamingStopped()), this, SLOT(stopAudioStreaming()));
-    connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), this, SLOT(startAudioRec(QString)));
-    connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), remote, SLOT(startAudioRecorder(QString)));
-    connect(uiDockAudio, SIGNAL(audioRecStopped()), this, SLOT(stopAudioRec()));
-    connect(uiDockAudio, SIGNAL(audioRecStopped()), remote, SLOT(stopAudioRecorder()));
-    connect(uiDockAudio, SIGNAL(audioPlayStarted(QString)), this, SLOT(startAudioPlayback(QString)));
-    connect(uiDockAudio, SIGNAL(audioPlayStopped()), this, SLOT(stopAudioPlayback()));
-    connect(uiDockAudio, SIGNAL(fftRateChanged(int)), this, SLOT(setAudioFftRate(int)));
+    connect(uiDockInputCtl, SIGNAL(offsetFollowsHwChanged(bool)), this, SLOT(setOffsetFollowsHw(bool)));
+
     connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setIqFftSize(int)));
     connect(uiDockFft, SIGNAL(fftRateChanged(int)), this, SLOT(setIqFftRate(int)));
     connect(uiDockFft, SIGNAL(fftWindowChanged(int)), this, SLOT(setIqFftWindow(int)));
     connect(uiDockFft, SIGNAL(wfSpanChanged(quint64)), this, SLOT(setWfTimeSpan(quint64)));
     connect(uiDockFft, SIGNAL(fftSplitChanged(int)), this, SLOT(setIqFftSplit(int)));
     connect(uiDockFft, SIGNAL(fftAvgChanged(float)), this, SLOT(setIqFftAvg(float)));
-    connect(uiDockFft, SIGNAL(fftZoomChanged(float)), ui->plotter, SLOT(zoomOnXAxis(float)));
-    connect(uiDockFft, SIGNAL(resetFftZoom()), ui->plotter, SLOT(resetHorizontalZoom()));
-    connect(uiDockFft, SIGNAL(gotoFftCenter()), ui->plotter, SLOT(moveToCenterFreq()));
-    connect(uiDockFft, SIGNAL(gotoDemodFreq()), ui->plotter, SLOT(moveToDemodFreq()));
-    connect(uiDockFft, SIGNAL(bandPlanChanged(bool)), ui->plotter, SLOT(toggleBandPlan(bool)));
-    connect(uiDockFft, SIGNAL(wfColormapChanged(const QString)), ui->plotter, SLOT(setWfColormap(const QString)));
-    connect(uiDockFft, SIGNAL(wfColormapChanged(const QString)), uiDockAudio, SLOT(setWfColormap(const QString)));
+    connect(uiDockFft, SIGNAL(fftZoomChanged(float)), uiBaseband->plotter(), SLOT(zoomOnXAxis(float)));
+    connect(uiDockFft, SIGNAL(resetFftZoom()), uiBaseband->plotter(), SLOT(resetHorizontalZoom()));
+    connect(uiDockFft, SIGNAL(gotoFftCenter()), uiBaseband->plotter(), SLOT(moveToCenterFreq()));
+    connect(uiDockFft, SIGNAL(bandPlanChanged(bool)), uiBaseband->plotter(), SLOT(toggleBandPlan(bool)));
+    connect(uiDockFft, SIGNAL(wfColormapChanged(QString)), uiBaseband->plotter(), SLOT(setWfColormap(QString)));
 
     connect(uiDockFft, SIGNAL(pandapterRangeChanged(float,float)),
-            ui->plotter, SLOT(setPandapterRange(float,float)));
+            uiBaseband->plotter(), SLOT(setPandapterRange(float,float)));
     connect(uiDockFft, SIGNAL(waterfallRangeChanged(float,float)),
-            ui->plotter, SLOT(setWaterfallRange(float,float)));
-    connect(ui->plotter, SIGNAL(pandapterRangeChanged(float,float)),
+            uiBaseband->plotter(), SLOT(setWaterfallRange(float,float)));
+    connect(uiBaseband->plotter(), SIGNAL(pandapterRangeChanged(float,float)),
             uiDockFft, SLOT(setPandapterRange(float,float)));
-    connect(ui->plotter, SIGNAL(newZoomLevel(float)),
+    connect(uiBaseband->plotter(), SIGNAL(newZoomLevel(float)),
             uiDockFft, SLOT(setZoomLevel(float)));
-    connect(ui->plotter, SIGNAL(newSize()), this, SLOT(setWfSize()));
+    connect(uiBaseband->plotter(), SIGNAL(newSize()), this, SLOT(setWfSize()));
 
     connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
     connect(uiDockFft, SIGNAL(fftPeakHoldToggled(bool)), this, SLOT(setFftPeakHold(bool)));
     connect(uiDockFft, SIGNAL(peakDetectionToggled(bool)), this, SLOT(setPeakDetection(bool)));
-    connect(uiDockRDS, SIGNAL(rdsDecoderToggled(bool)), this, SLOT(setRdsDecoder(bool)));
 
     // Bookmarks
-    connect(uiDockBookmarks, SIGNAL(newBookmarkActivated(qint64, QString, int)), this, SLOT(onBookmarkActivated(qint64, QString, int)));
-    connect(uiDockBookmarks->actionAddBookmark, SIGNAL(triggered()), this, SLOT(on_actionAddBookmark_triggered()));
+    connect(uiDockBookmarks, SIGNAL(newBookmarkActivated(qint64,QString,int)), this, SLOT(onBookmarkActivated(qint64,QString,int)));
 
-    //DXC Spots
+    // DXC Spots
     connect(&DXCSpots::Get(), SIGNAL(dxcSpotsUpdated()), this, SLOT(updateClusterSpots()));
 
     // I/Q playback
-    connect(iq_tool, SIGNAL(startRecording(QString)), this, SLOT(startIqRecording(QString)));
-    connect(iq_tool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
-    connect(iq_tool, SIGNAL(startPlayback(QString,float)), this, SLOT(startIqPlayback(QString,float)));
-    connect(iq_tool, SIGNAL(stopPlayback()), this, SLOT(stopIqPlayback()));
-    connect(iq_tool, SIGNAL(seek(qint64)), this,SLOT(seekIqFile(qint64)));
+    connect(uiDockIQTool, SIGNAL(startRecording(QString)), this, SLOT(startIqRecording(QString)));
+    connect(uiDockIQTool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
+    connect(uiDockIQTool, SIGNAL(startPlayback(QString,float)), this, SLOT(startIqPlayback(QString,float)));
+    connect(uiDockIQTool, SIGNAL(stopPlayback()), this, SLOT(stopIqPlayback()));
+    connect(uiDockIQTool, SIGNAL(seek(qint64)), this,SLOT(seekIqFile(qint64)));
 
     // remote control
-    connect(remote, SIGNAL(newRDSmode(bool)), uiDockRDS, SLOT(setRDSmode(bool)));
-    connect(uiDockRDS, SIGNAL(rdsDecoderToggled(bool)), remote, SLOT(setRDSstatus(bool)));
-    connect(remote, SIGNAL(newFilterOffset(qint64)), this, SLOT(setFilterOffset(qint64)));
-    connect(remote, SIGNAL(newFilterOffset(qint64)), uiDockRxOpt, SLOT(setFilterOffset(qint64)));
-    connect(remote, SIGNAL(newFrequency(qint64)), ui->freqCtrl, SLOT(setFrequency(qint64)));
+    connect(remote, SIGNAL(newFrequency(qint64)), uiBaseband->freqCtrl(), SLOT(setFrequency(qint64)));
     connect(remote, SIGNAL(newLnbLo(double)), uiDockInputCtl, SLOT(setLnbLo(double)));
     connect(remote, SIGNAL(newLnbLo(double)), this, SLOT(setLnbLo(double)));
-    connect(remote, SIGNAL(newMode(int)), this, SLOT(selectDemod(int)));
-    connect(remote, SIGNAL(newMode(int)), uiDockRxOpt, SLOT(setCurrentDemod(int)));
-    connect(remote, SIGNAL(newSquelchLevel(double)), this, SLOT(setSqlLevel(double)));
-    connect(remote, SIGNAL(newSquelchLevel(double)), uiDockRxOpt, SLOT(setSquelchLevel(double)));
-    connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), remote, SLOT(setSquelchLevel(double)));
-    connect(remote, SIGNAL(startAudioRecorderEvent()), uiDockAudio, SLOT(startAudioRecorder()));
-    connect(remote, SIGNAL(stopAudioRecorderEvent()), uiDockAudio, SLOT(stopAudioRecorder()));
-    connect(ui->plotter, SIGNAL(newFilterFreq(int, int)), remote, SLOT(setPassband(int, int)));
-    connect(remote, SIGNAL(newPassband(int)), this, SLOT(setPassband(int)));
-    connect(remote, SIGNAL(gainChanged(QString, double)), uiDockInputCtl, SLOT(setGain(QString,double)));
+    connect(remote, SIGNAL(gainChanged(QString,double)), uiDockInputCtl, SLOT(setGain(QString,double)));
     connect(remote, SIGNAL(dspChanged(bool)), this, SLOT(on_actionDSP_triggered(bool)));
-    connect(uiDockRDS, SIGNAL(rdsPI(QString)), remote, SLOT(rdsPI(QString)));
-
-    rds_timer = new QTimer(this);
-    connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
 
     // enable frequency tooltips on FFT plot
-    ui->plotter->setTooltipsEnabled(true);
+    uiBaseband->plotter()->setTooltipsEnabled(true);
 
     // Create list of input devices. This must be done before the configuration is
     // restored because device probing might change the device configuration
     CIoConfig::getDeviceList(devList);
 
     m_recent_config = new RecentConfig(m_cfg_dir, ui->menu_RecentConfig);
-    connect(m_recent_config, SIGNAL(loadConfig(const QString &)), this, SLOT(loadConfigSlot(const QString &)));
+    connect(m_recent_config, SIGNAL(loadConfig(QString)), this, SLOT(loadConfigSlot(QString)));
 
     // restore last session
     if (!loadConfig(cfgfile, true, true))
@@ -356,58 +342,31 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 
 MainWindow::~MainWindow()
 {
-    on_actionDSP_triggered(false);
+    demodCtrls.clear();
+    rx.reset();
 
     /* stop and delete timers */
-    dec_timer->stop();
-    delete dec_timer;
-
-    meter_timer->stop();
-    delete meter_timer;
-
     iq_fft_timer->stop();
     delete iq_fft_timer;
 
-    audio_fft_timer->stop();
-    delete audio_fft_timer;
-
-    if (m_settings)
-    {
-        m_settings->setValue("configversion", 3);
-        m_settings->setValue("crashed", false);
-
-        // hide toolbar (default=false)
-        if (ui->mainToolBar->isHidden())
-            m_settings->setValue("gui/hide_toolbar", true);
-        else
-            m_settings->remove("gui/hide_toolbar");
-
-        m_settings->setValue("gui/geometry", saveGeometry());
-        m_settings->setValue("gui/state", saveState());
-
-        // save session
-        storeSession();
-
-        m_settings->sync();
-        delete m_settings;
-    }
-
+    m_settings.reset();
     delete m_recent_config;
 
-    delete iq_tool;
-    delete dxc_options;
+    for (auto *dw : uiDockWidgets) {
+        uiDockManager->removeDockWidget(dw);
+        delete dw;
+    }
+    uiDockWidgets.clear();
+    delete uiDockManager;
+
     delete ui;
-    delete uiDockRxOpt;
-    delete uiDockAudio;
-    delete uiDockBookmarks;
-    delete uiDockFft;
-    delete uiDockInputCtl;
-    delete uiDockRDS;
-    delete rx;
+
     delete remote;
+
     delete [] d_fftData;
     delete [] d_realFftData;
     delete [] d_iirFftData;
+
     delete qsvg_dummy;
 }
 
@@ -444,14 +403,18 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         // set current config to not crashed before loading new config
         m_settings->setValue("crashed", false);
         m_settings->sync();
-        delete m_settings;
     }
 
-    if (QDir::isAbsolutePath(cfgfile))
-        m_settings = new QSettings(cfgfile, QSettings::IniFormat);
-    else
-        m_settings = new QSettings(QString("%1/%2").arg(m_cfg_dir).arg(cfgfile),
-                                   QSettings::IniFormat);
+    if (QDir::isAbsolutePath(cfgfile)) {
+        auto next = std::make_shared<QSettings>(cfgfile, QSettings::IniFormat);
+        m_settings.swap(next);
+    } else {
+        auto next = std::make_shared<QSettings>(
+            QString("%1/%2").arg(m_cfg_dir).arg(cfgfile),
+            QSettings::IniFormat
+        );
+        m_settings.swap(next);
+    }
 
     qDebug() << "Configuration file:" << m_settings->fileName();
 
@@ -459,7 +422,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
     {
         if (m_settings->value("crashed", false).toBool())
         {
-            qDebug() << "Crash guard triggered!" << endl;
+            qInfo() << "Crash guard triggered!" << endl;
             auto* askUserAboutConfig =
                     new QMessageBox(QMessageBox::Warning, tr("Crash Detected!"),
                                     tr("<p>Gqrx has detected problems with the current configuration. "
@@ -469,8 +432,9 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
             askUserAboutConfig->setDefaultButton(QMessageBox::Yes);
             askUserAboutConfig->setTextFormat(Qt::RichText);
             askUserAboutConfig->exec();
-            if (askUserAboutConfig->result() == QMessageBox::Yes)
+            if (askUserAboutConfig->result() == QMessageBox::Yes) {
                 skip_loading_cfg = true;
+            }
 
             delete askUserAboutConfig;
         }
@@ -487,17 +451,12 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
     // manual reconf (FIXME: check status)
     conv_ok = false;
 
+    auto configVersion = m_settings->value("configversion").toInt(&conv_ok);
+
     // hide toolbar
     bool_val = m_settings->value("gui/hide_toolbar", false).toBool();
-    if (bool_val)
+    if (bool_val) {
         ui->mainToolBar->hide();
-
-    // main window settings
-    if (restore_mainwindow)
-    {
-        restoreGeometry(m_settings->value("gui/geometry",
-                                          saveGeometry()).toByteArray());
-        restoreState(m_settings->value("gui/state", saveState()).toByteArray());
     }
 
     QString indev = m_settings->value("input/device", "").toString();
@@ -521,10 +480,11 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         // Update window title
         QRegExp regexp(R"('([a-zA-Z0-9 \-\_\/\.\,\(\)]+)')");
         QString devlabel;
-        if (regexp.indexIn(indev, 0) != -1)
+        if (regexp.indexIn(indev, 0) != -1) {
             devlabel = regexp.cap(1);
-        else
+        } else {
             devlabel = indev; //"Unknown";
+        }
 
         setWindowTitle(QString("Gqrx %1 - %2").arg(VERSION).arg(devlabel));
 
@@ -542,8 +502,9 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
              */
             updateGainStages(false);
         }
-        else
+        else {
             updateGainStages(true);
+        }
     }
 
     QString outdev = m_settings->value("output/device", "").toString();
@@ -584,17 +545,18 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         qDebug() << "Requested sample rate:" << int_val;
         qDebug() << "Actual sample rate   :" << QString("%1").arg(actual_rate, 0, 'f', 6);
     }
-    else
+    else {
         actual_rate = rx->get_input_rate();
+    }
 
-    if (actual_rate > 0.)
+    if (actual_rate > 0)
     {
         int_val = m_settings->value("input/decimation", 1).toInt(&conv_ok);
         if (conv_ok && int_val >= 2)
         {
             if (rx->set_input_decim(int_val) != (unsigned int)int_val)
             {
-                qDebug() << "Failed to set decimation" << int_val;
+                qInfo() << "Failed to set decimation" << int_val;
                 qDebug() << "  actual decimation:" << rx->get_input_decim();
             }
             else
@@ -609,15 +571,15 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
             rx->set_input_decim(1);
 
         // update various widgets that need a sample rate
-        uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
         uiDockFft->setSampleRate(actual_rate);
-        ui->plotter->setSampleRate(actual_rate);
-        ui->plotter->setSpanFreq((quint32)actual_rate);
+        uiBaseband->plotter()->setSampleRate(actual_rate);
+        uiBaseband->plotter()->setSpanFreq((quint32)actual_rate);
         remote->setBandwidth((qint64)actual_rate);
-        iq_tool->setSampleRate((qint64)actual_rate);
+        uiDockIQTool->setSampleRate((qint64)actual_rate);
     }
-    else
-        qDebug() << "Error: Actual sample rate is" << actual_rate;
+    else {
+        qInfo() << "Error: Actual sample rate is" << actual_rate;
+    }
 
     int64_val = m_settings->value("input/bandwidth", 0).toInt(&conv_ok);
     if (conv_ok)
@@ -628,38 +590,53 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         qDebug() << "Actual bandwidth   :" << actual_bw << "Hz";
     }
 
-    uiDockInputCtl->readSettings(m_settings); // this will also update freq range
-    uiDockRxOpt->readSettings(m_settings);
     uiDockFft->readSettings(m_settings);
-    uiDockAudio->readSettings(m_settings);
-    dxc_options->readSettings(m_settings);
+
+    // Construct and configure the demodulators
+    int demodSize = demodCtrls.size();
+    int demodCount = 1;
+    if (configVersion >= 4)
+    {
+        demodCount = m_settings->value("receiver/count").toUInt();
+    }
+    int demodDiff = demodCount - demodSize;
+    if (demodDiff > 0) {
+        for (int i = 0; i < demodDiff; ++i) {
+            addDemodulator();
+        }
+    } else if (demodDiff < 0) {
+        for (int i = demodCount; i < demodSize; ++i) {
+            removeDemodulator(i);
+        }
+    }
+
+    for (auto demod : demodCtrls)
+    {
+        demod->readSettings(m_settings);
+        demod->emitCurrentSettings();
+    }
+
+    uiDockInputCtl->readSettings(m_settings); // this will also update freq range
+    uiDockDXCluster->readSettings(m_settings);
 
     {
         int64_val = m_settings->value("input/frequency", 14236000).toLongLong(&conv_ok);
 
         // If frequency is out of range set frequency to the center of the range.
-        qint64 hw_freq = int64_val - d_lnb_lo - (qint64)(rx->get_filter_offset());
+        qint64 hw_freq = int64_val - d_lnb_lo;
         if (hw_freq < d_hw_freq_start || hw_freq > d_hw_freq_stop)
         {
-            int64_val = (d_hw_freq_stop - d_hw_freq_start) / 2 +
-                        (qint64)(rx->get_filter_offset()) + d_lnb_lo;
+            int64_val = (d_hw_freq_stop - d_hw_freq_start) / 2 + d_lnb_lo;
         }
 
-        ui->freqCtrl->setFrequency(int64_val);
-        setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
+        auto follow = uiDockInputCtl->getOffsetFollowsHw();
+        setOffsetFollowsHw(false); // prevent hw freq change here moving the demod offsets
+        uiBaseband->freqCtrl()->setFrequency(int64_val);
+        setNewFrequency(uiBaseband->freqCtrl()->getFrequency()); // ensure all GUI and RF is updated
+        setOffsetFollowsHw(follow);
     }
 
-    {
-        int flo = m_settings->value("receiver/filter_low_cut", 0).toInt(&conv_ok);
-        int fhi = m_settings->value("receiver/filter_high_cut", 0).toInt(&conv_ok);
-
-        if (conv_ok && uiDockRxOpt->currentDemod() != DockRxOpt::MODE_OFF && flo != fhi)
-        {
-            on_plotter_newFilterFreq(flo, fhi);
-        }
-    }
-
-    iq_tool->readSettings(m_settings);
+    uiDockIQTool->readSettings(m_settings);
 
     /*
      * Initialization the remote control at the end.
@@ -673,7 +650,25 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
        ui->actionRemoteControl->setChecked(true);
     }
 
+    // main window settings
+    if (restore_mainwindow)
+    {
+        restoreGeometry(m_settings->value("gui/geometry",
+                                          saveGeometry()).toByteArray());
+        restoreState(m_settings->value("gui/state", saveState()).toByteArray());
+
+        // Do this last since the demods are dynamically created
+        uiDockManager->restoreState(m_settings->value("gui/docks").toByteArray());
+    }
+
     emit m_recent_config->configLoaded(m_settings->fileName());
+
+    // If an old config version was read and migrated then
+    // save it straight back as the new version
+    if (configVersion != GQRX_CONFIG_VERSION)
+    {
+        storeSession();
+    }
 
     return conf_ok;
 }
@@ -718,7 +713,7 @@ bool MainWindow::saveConfig(const QString& cfgfile)
         if (QFile::remove(newfile))
             qDebug() << "Deleted" << newfile;
         else
-            qDebug() << "Failed to delete" << newfile;
+            qInfo() << "Failed to delete" << newfile;
     }
     if (QFile::copy(oldfile, newfile))
     {
@@ -727,8 +722,24 @@ bool MainWindow::saveConfig(const QString& cfgfile)
     }
     else
     {
-        qDebug() << "Error saving configuration to" << newfile;
+        qInfo() << "Error saving configuration to" << newfile;
         return false;
+    }
+}
+
+void MainWindow::storeGuiSettings()
+{
+    if (m_settings)
+    {
+        // hide toolbar (default=false)
+        if (ui->mainToolBar->isHidden())
+            m_settings->setValue("gui/hide_toolbar", true);
+        else
+            m_settings->remove("gui/hide_toolbar");
+
+        m_settings->setValue("gui/geometry", saveGeometry());
+        m_settings->setValue("gui/state", saveState());
+        m_settings->setValue("gui/docks", uiDockManager->saveState());
     }
 }
 
@@ -742,25 +753,21 @@ void MainWindow::storeSession()
 {
     if (m_settings)
     {
-        m_settings->setValue("input/frequency", ui->freqCtrl->getFrequency());
+        m_settings->setValue("configversion", GQRX_CONFIG_VERSION);
+
+        m_settings->setValue("input/frequency", uiBaseband->freqCtrl()->getFrequency());
 
         uiDockInputCtl->saveSettings(m_settings);
-        uiDockRxOpt->saveSettings(m_settings);
         uiDockFft->saveSettings(m_settings);
-        uiDockAudio->saveSettings(m_settings);
 
         remote->saveSettings(m_settings);
-        iq_tool->saveSettings(m_settings);
-        dxc_options->saveSettings(m_settings);
+        uiDockDXCluster->saveSettings(m_settings);
+        uiDockIQTool->saveSettings(m_settings);
 
+        m_settings->setValue("receiver/count",  QVariant::fromValue(demodCtrls.size()));
+        for (auto demod : demodCtrls)
         {
-            int     flo, fhi;
-            ui->plotter->getHiLowCutFrequencies(&flo, &fhi);
-            if (flo != fhi)
-            {
-                m_settings->setValue("receiver/filter_low_cut", flo);
-                m_settings->setValue("receiver/filter_high_cut", fhi);
-            }
+            demod->saveSettings(m_settings);
         }
     }
 }
@@ -783,14 +790,14 @@ void MainWindow::updateHWFrequencyRange(bool ignore_limits)
         d_hw_freq_start = (quint64) 0;
         d_hw_freq_stop  = (quint64) 9999e6;
     }
-    else if (rx->get_rf_range(&startd, &stopd, &stepd) == receiver::STATUS_OK)
+    else if (rx->get_rf_range(&startd, &stopd, &stepd) == rx_status::STATUS_OK)
     {
         d_hw_freq_start = (quint64) startd;
         d_hw_freq_stop  = (quint64) stopd;
     }
     else
     {
-        qDebug() << __func__ << "failed fetching new hardware frequency range";
+        qInfo() << __func__ << "failed fetching new hardware frequency range";
         d_hw_freq_start = (quint64) 0;
         d_hw_freq_stop  = (quint64) 9999e6;
     }
@@ -809,11 +816,18 @@ void MainWindow::updateHWFrequencyRange(bool ignore_limits)
  */
 void MainWindow::updateFrequencyRange()
 {
-    auto start = (qint64)(rx->get_filter_offset()) + d_hw_freq_start + d_lnb_lo;
-    auto stop  = (qint64)(rx->get_filter_offset()) + d_hw_freq_stop  + d_lnb_lo;
+    auto start = d_hw_freq_start + d_lnb_lo;
+    auto stop  = d_hw_freq_stop  + d_lnb_lo;
 
-    ui->freqCtrl->setup(0, start, stop, 1, FCTL_UNIT_NONE);
-    uiDockRxOpt->setRxFreqRange(start, stop);
+    uiBaseband->freqCtrl()->setup(0, start, stop, 1, FCTL_UNIT_NONE);
+
+    for (auto demod : demodCtrls)
+    {
+        demod->setFrequencyRange(start, stop);
+    }
+
+    auto rx_freq = d_hw_freq + d_lnb_lo;
+    uiBaseband->freqCtrl()->setFrequency(rx_freq);
 }
 
 /**
@@ -860,19 +874,40 @@ void MainWindow::updateGainStages(bool read_from_device)
  */
 void MainWindow::setNewFrequency(qint64 rx_freq)
 {
-    auto hw_freq = (double)(rx_freq - d_lnb_lo) - rx->get_filter_offset();
-    auto center_freq = rx_freq - (qint64)rx->get_filter_offset();
+    setNewFrequency(rx_freq, false);
+}
 
+void MainWindow::setNewFrequencyWithOffsetFollow(qint64 rx_freq)
+{
+//    qInfo() << "MainWindow::setNewFrequencyWithOffsetFollow" << rx_freq;
+    setNewFrequency(rx_freq, true);
+}
+
+void MainWindow::setNewFrequency(qint64 rx_freq, bool offsetFollow)
+{
+    auto hw_freq = (double)(rx_freq - d_lnb_lo);
+    auto center_freq = rx_freq;
     d_hw_freq = (qint64)hw_freq;
 
     // set receiver frequency
     rx->set_rf_freq(hw_freq);
 
     // update widgets
-    ui->plotter->setCenterFreq(center_freq);
-    uiDockRxOpt->setHwFreq(d_hw_freq);
-    ui->freqCtrl->setFrequency(rx_freq);
+    if (offsetFollow) {
+        // no need to update plotter, this signal came from there; XAXIS MidButton drag
+        uiBaseband->freqCtrl()->blockSignals(true); // prevent offset mangling feedback
+        uiBaseband->freqCtrl()->setFrequency(rx_freq);
+        uiBaseband->freqCtrl()->blockSignals(false);
+    } else {
+        uiBaseband->plotter()->setCenterFreq(center_freq);
+        uiBaseband->freqCtrl()->setFrequency(rx_freq);
+    }
     uiDockBookmarks->setNewFrequency(rx_freq);
+
+    for (auto demod : demodCtrls)
+    {
+        demod->setHwFrequency(rx_freq, offsetFollow);
+    }
 }
 
 /**
@@ -882,15 +917,15 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
 void MainWindow::setLnbLo(double freq_mhz)
 {
     // calculate current RF frequency
-    auto rf_freq = ui->freqCtrl->getFrequency() - d_lnb_lo;
+    auto rf_freq = uiBaseband->freqCtrl()->getFrequency() - d_lnb_lo;
 
     d_lnb_lo = qint64(freq_mhz*1e6);
     qDebug() << "New LNB LO:" << d_lnb_lo << "Hz";
 
     // Update ranges and show updated frequency
     updateFrequencyRange();
-    ui->freqCtrl->setFrequency(d_lnb_lo + rf_freq);
-    ui->plotter->setCenterFreq(d_lnb_lo + d_hw_freq);
+    uiBaseband->freqCtrl()->setFrequency(d_lnb_lo + rf_freq);
+    uiBaseband->plotter()->setCenterFreq(d_lnb_lo + d_hw_freq);
 
     // update LNB LO in settings
     if (freq_mhz == 0.f)
@@ -904,25 +939,6 @@ void MainWindow::setAntenna(const QString& antenna)
 {
     qDebug() << "New antenna selected:" << antenna;
     rx->set_antenna(antenna.toStdString());
-}
-
-/**
- * @brief Set new channel filter offset.
- * @param freq_hz The new filter offset in Hz.
- */
-void MainWindow::setFilterOffset(qint64 freq_hz)
-{
-    rx->set_filter_offset((double) freq_hz);
-    ui->plotter->setFilterOffset(freq_hz);
-
-    updateFrequencyRange();
-
-    auto rx_freq = d_hw_freq + d_lnb_lo + freq_hz;
-    ui->freqCtrl->setFrequency(rx_freq);
-
-    if (rx->is_rds_decoder_active()) {
-        rx->reset_rds_parser();
-    }
 }
 
 /**
@@ -1008,353 +1024,172 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
 {
     updateHWFrequencyRange(ignore_limits);
 
-    auto filter_offset = (qint64)rx->get_filter_offset();
     auto freq = (qint64)rx->get_rf_freq();
-    ui->freqCtrl->setFrequency(d_lnb_lo + freq + filter_offset);
+    uiBaseband->freqCtrl()->setFrequency(d_lnb_lo + freq);
 
     // This will ensure that if frequency is clamped and that
     // the UI is updated with the correct frequency.
-    freq = ui->freqCtrl->getFrequency();
+    freq = uiBaseband->freqCtrl()->getFrequency();
     setNewFrequency(freq);
 }
 
+void MainWindow::addDemodulator()
+{
+    auto demod = rx->add_demodulator();
+    auto ctl = std::make_shared<DemodulatorController>(rx, demod, uiDockManager, receiversMenu, m_settings);
+    ui->mainToolBar->addAction(ctl->getToolbarAction());
+    demodCtrls.push_back(ctl);
+
+    uiBaseband->plotter()->setDemodulatorCount(demodCtrls.size());
+
+    // Update parameters from stored settings
+    ctl->readSettings(m_settings);
+
+    // Demod -> UI
+    connect(ctl.get(), SIGNAL(remove(size_t)), this, SLOT(removeDemodulator(size_t)));
+    connect(ctl.get(), SIGNAL(bookmark(size_t)), this, SLOT(onDemodulatorBookmark(size_t)));
+    connect(
+        ctl.get(), SIGNAL(filterOffset(size_t,qint64)),
+        uiBaseband->plotter(), SLOT(setDemodulatorOffset(size_t,qint64))
+    );
+    connect(
+        ctl.get(), SIGNAL(filterFrequency(size_t,int,int)),
+        uiBaseband->plotter(), SLOT(setDemodulatorFilterFreq(size_t,int,int))
+    );
+    connect(
+        ctl.get(), SIGNAL(filterRanges(size_t,int,int,int,int,bool,int)),
+        uiBaseband->plotter(), SLOT(setDemodulatorRanges(size_t,int,int,int,int,bool,int))
+    );
+    connect(
+        ctl.get(), SIGNAL(focussed(size_t)),
+        uiBaseband->plotter(), SLOT(setFocussedDemod(size_t))
+    );
+    connect(
+        ctl.get(), SIGNAL(centerFFT(size_t)),
+        uiBaseband->plotter(), SLOT(moveToDemodFreq(size_t))
+    );
+
+    // UI -> Demod
+    connect(
+        uiDockFft, SIGNAL(wfColormapChanged(QString)),
+        ctl.get(), SIGNAL(wfColormapChanged(QString))
+    );
+
+    ctl->emitCurrentSettings();
+    uiDockFft->emitCurrentSettings();
+
+    // Connect remote control to first demod only
+    if (demod->get_idx() == 0)
+    {
+        connectRemote(0);
+    }
+
+    ctl->setHwFrequency(d_hw_freq, false);
+}
+
+void MainWindow::removeDemodulator(size_t idx)
+{
+    if (idx >= demodCtrls.size())
+    {
+        return;
+    }
+
+    // qInfo() << "MainWindow::removeDemodulator demodCtrls size before=" << demodCtrls.size();
+    auto di = std::find(demodCtrls.begin(), demodCtrls.end(), demodCtrls[idx]);
+    demodCtrls.erase(di);
+    // qInfo() << "MainWindow::removeDemodulator demodCtrls size after=" << demodCtrls.size();
+
+    if (demodCtrls.size() == 0)
+    {
+        disconnectRemote();
+    }
+    else
+    {
+        connectRemote(0);
+    }
+
+    uiBaseband->plotter()->setDemodulatorCount(demodCtrls.size());
+}
+
+void MainWindow::disconnectRemote()
+{
+    for (auto &c : remoteConnections)
+    {
+        disconnect(c);
+    }
+    remoteConnections.clear();
+}
+
+void MainWindow::connectRemote(size_t demodIdx)
+{
+    if (demodIdx >= demodCtrls.size())
+    {
+        return;
+    }
+
+    disconnectRemote();
+
+    auto demod = demodCtrls[demodIdx];
+    auto delegate = demod->getRemote();
+
+    // @see class DemodulatorControllerRemoteDelegate
+
+    // Demod -> remote
+    remoteConnections.push_back(connect(delegate, SIGNAL(squelchLevel(double)), remote, SLOT(setSquelchLevel(double))));
+    remoteConnections.push_back(connect(delegate, SIGNAL(filterOffset(qint64)), remote, SLOT(setFilterOffset(qint64))));
+    remoteConnections.push_back(connect(delegate, SIGNAL(mode(int)), remote, SLOT(setMode(int))));
+    remoteConnections.push_back(connect(delegate, SIGNAL(passband(int,int)), remote, SLOT(setPassband(int,int))));
+
+    // remote -> Demod
+    remoteConnections.push_back(connect(remote, SIGNAL(newFilterOffset(qint64)), delegate, SIGNAL(newFilterOffset(qint64))));
+    remoteConnections.push_back(connect(remote, SIGNAL(newMode(int)), delegate, SIGNAL(newMode(int))));
+    remoteConnections.push_back(connect(remote, SIGNAL(newSquelchLevel(double)), delegate, SIGNAL(newSquelchLevel(double))));
+
+    // Audio -> remote
+    remoteConnections.push_back(connect(delegate, SIGNAL(stopAudioRecorder()), remote, SLOT(stopAudioRecorder())));
+    remoteConnections.push_back(connect(delegate, SIGNAL(startAudioRecorder(QString)), remote, SLOT(startAudioRecorder(QString))));
+    remoteConnections.push_back(connect(delegate, SIGNAL(signalLevel(float)), remote, SLOT(setSignalLevel(float))));
+
+    // remote -> Audio
+    remoteConnections.push_back(connect(remote, SIGNAL(startAudioRecorderEvent()), delegate, SIGNAL(startAudioRecorderEvent())));
+    remoteConnections.push_back(connect(remote, SIGNAL(stopAudioRecorderEvent()), delegate, SIGNAL(stopAudioRecorderEvent())));
+
+    // RDS -> remote
+    remoteConnections.push_back(connect(delegate, SIGNAL(setRDSstatus(bool)), remote, SLOT(setRDSstatus(bool))));
+    remoteConnections.push_back(connect(delegate, SIGNAL(rdsPI(QString)), remote, SLOT(rdsPI(QString))));
+
+    // remote -> RDS
+    remoteConnections.push_back(connect(remote, SIGNAL(newRDSmode(bool)), delegate, SIGNAL(newRDSmode(bool))));
+}
 
 /** Reset lower digits of main frequency control widget */
 void MainWindow::setFreqCtrlReset(bool enabled)
 {
-    ui->freqCtrl->setResetLowerDigits(enabled);
-    uiDockRxOpt->setResetLowerDigits(enabled);
+    uiBaseband->freqCtrl()->setResetLowerDigits(enabled);
+    for (auto demod : demodCtrls)
+    {
+        demod->setFreqCtrlReset(enabled);
+    }
 }
 
 /** Invert scroll wheel direction */
 void MainWindow::setInvertScrolling(bool enabled)
 {
-    ui->freqCtrl->setInvertScrolling(enabled);
-    ui->plotter->setInvertScrolling(enabled);
-    uiDockRxOpt->setInvertScrolling(enabled);
-    uiDockAudio->setInvertScrolling(enabled);
-}
-
-/**
- * @brief Select new demodulator.
- * @param demod New demodulator.
- */
-void MainWindow::selectDemod(const QString& strModulation)
-{
-    int iDemodIndex;
-
-    iDemodIndex = DockRxOpt::GetEnumForModulationString(strModulation);
-    qDebug() << "selectDemod(str):" << strModulation << "-> IDX:" << iDemodIndex;
-
-    return selectDemod(iDemodIndex);
-}
-
-/**
- * @brief Select new demodulator.
- * @param demod New demodulator index.
- *
- * This slot basically maps the index of the mode selector to receiver::demod
- * and configures the default channel filter.
- *
- */
-void MainWindow::selectDemod(int mode_idx)
-{
-    double  cwofs = 0.0;
-    int     filter_preset = uiDockRxOpt->currentFilter();
-    int     flo=0, fhi=0, click_res=100;
-    bool    rds_enabled;
-
-    // validate mode_idx
-    if (mode_idx < DockRxOpt::MODE_OFF || mode_idx >= DockRxOpt::MODE_LAST)
+    uiBaseband->freqCtrl()->setInvertScrolling(enabled);
+    uiBaseband->plotter()->setInvertScrolling(enabled);
+    for (auto demod : demodCtrls)
     {
-        qDebug() << "Invalid mode index:" << mode_idx;
-        mode_idx = DockRxOpt::MODE_OFF;
+        demod->setInvertScrolling(enabled);
     }
-    qDebug() << "New mode index:" << mode_idx;
+}
 
-    uiDockRxOpt->getFilterPreset(mode_idx, filter_preset, &flo, &fhi);
-    d_filter_shape = (receiver::filter_shape)uiDockRxOpt->currentFilterShape();
-
-    rds_enabled = rx->is_rds_decoder_active();
-    if (rds_enabled)
-        setRdsDecoder(false);
-    uiDockRDS->setDisabled();
-
-    switch (mode_idx) {
-
-    case DockRxOpt::MODE_OFF:
-        /* Spectrum analyzer only */
-        if (rx->is_recording_audio())
-        {
-            stopAudioRec();
-            uiDockAudio->setAudioRecButtonState(false);
-        }
-        rx->set_demod(receiver::RX_DEMOD_OFF);
-        click_res = 1000;
-        break;
-
-    case DockRxOpt::MODE_RAW:
-        /* Raw I/Q; max 96 ksps*/
-        rx->set_demod(receiver::RX_DEMOD_NONE);
-        ui->plotter->setDemodRanges(-40000, -200, 200, 40000, true);
-        uiDockAudio->setFftRange(0,24000);
-        click_res = 100;
-        break;
-
-    case DockRxOpt::MODE_AM:
-        rx->set_demod(receiver::RX_DEMOD_AM);
-        ui->plotter->setDemodRanges(-40000, -200, 200, 40000, true);
-        uiDockAudio->setFftRange(0,6000);
-        click_res = 100;
-        break;
-
-    case DockRxOpt::MODE_AM_SYNC:
-        rx->set_demod(receiver::RX_DEMOD_AMSYNC);
-        ui->plotter->setDemodRanges(-40000, -200, 200, 40000, true);
-        uiDockAudio->setFftRange(0,6000);
-        click_res = 100;
-        break;
-
-    case DockRxOpt::MODE_NFM:
-        ui->plotter->setDemodRanges(-40000, -1000, 1000, 40000, true);
-        uiDockAudio->setFftRange(0, 5000);
-        rx->set_demod(receiver::RX_DEMOD_NFM);
-        rx->set_fm_maxdev(uiDockRxOpt->currentMaxdev());
-        rx->set_fm_deemph(uiDockRxOpt->currentEmph());
-        click_res = 100;
-        break;
-
-    case DockRxOpt::MODE_WFM_MONO:
-    case DockRxOpt::MODE_WFM_STEREO:
-    case DockRxOpt::MODE_WFM_STEREO_OIRT:
-        /* Broadcast FM */
-        ui->plotter->setDemodRanges(-120e3, -10000, 10000, 120e3, true);
-        uiDockAudio->setFftRange(0,24000);  /** FIXME: get audio rate from rx **/
-        click_res = 1000;
-        if (mode_idx == DockRxOpt::MODE_WFM_MONO)
-            rx->set_demod(receiver::RX_DEMOD_WFM_M);
-        else if (mode_idx == DockRxOpt::MODE_WFM_STEREO_OIRT)
-            rx->set_demod(receiver::RX_DEMOD_WFM_S_OIRT);
-        else
-            rx->set_demod(receiver::RX_DEMOD_WFM_S);
-
-        uiDockRDS->setEnabled();
-        if (rds_enabled)
-            setRdsDecoder(true);
-        break;
-
-    case DockRxOpt::MODE_LSB:
-        /* LSB */
-        rx->set_demod(receiver::RX_DEMOD_SSB);
-        ui->plotter->setDemodRanges(-40000, -100, -5000, 0, false);
-        uiDockAudio->setFftRange(0,3000);
-        click_res = 100;
-        break;
-
-    case DockRxOpt::MODE_USB:
-        /* USB */
-        rx->set_demod(receiver::RX_DEMOD_SSB);
-        ui->plotter->setDemodRanges(0, 5000, 100, 40000, false);
-        uiDockAudio->setFftRange(0,3000);
-        click_res = 100;
-        break;
-
-    case DockRxOpt::MODE_CWL:
-        /* CW-L */
-        rx->set_demod(receiver::RX_DEMOD_SSB);
-        cwofs = -uiDockRxOpt->getCwOffset();
-        ui->plotter->setDemodRanges(-5000, -100, 100, 5000, true);
-        uiDockAudio->setFftRange(0,1500);
-        click_res = 10;
-        break;
-
-    case DockRxOpt::MODE_CWU:
-        /* CW-U */
-        rx->set_demod(receiver::RX_DEMOD_SSB);
-        cwofs = uiDockRxOpt->getCwOffset();
-        ui->plotter->setDemodRanges(-5000, -100, 100, 5000, true);
-        uiDockAudio->setFftRange(0,1500);
-        click_res = 10;
-        break;
-
-    default:
-        qDebug() << "Unsupported mode selection (can't happen!): " << mode_idx;
-        flo = -5000;
-        fhi = 5000;
-        click_res = 100;
-        break;
+/** Offset follows HW Freq */
+void MainWindow::setOffsetFollowsHw(bool enabled)
+{
+    for (auto demod : demodCtrls)
+    {
+        demod->setOffsetFollowsHw(enabled);
     }
-
-    qDebug() << "Filter preset for mode" << mode_idx << "LO:" << flo << "HI:" << fhi;
-    ui->plotter->setHiLowCutFrequencies(flo, fhi);
-    ui->plotter->setClickResolution(click_res);
-    ui->plotter->setFilterClickResolution(click_res);
-    rx->set_filter((double)flo, (double)fhi, d_filter_shape);
-    rx->set_cw_offset(cwofs);
-    rx->set_sql_level(uiDockRxOpt->currentSquelchLevel());
-
-    remote->setMode(mode_idx);
-    remote->setPassband(flo, fhi);
-
-    d_have_audio = (mode_idx != DockRxOpt::MODE_OFF);
-
-    uiDockRxOpt->setCurrentDemod(mode_idx);
-}
-
-
-/**
- * @brief New FM deviation selected.
- * @param max_dev The enw FM deviation.
- */
-void MainWindow::setFmMaxdev(float max_dev)
-{
-    qDebug() << "FM MAX_DEV: " << max_dev;
-
-    /* receiver will check range */
-    rx->set_fm_maxdev(max_dev);
-}
-
-
-/**
- * @brief New FM de-emphasis time consant selected.
- * @param tau The new time constant
- */
-void MainWindow::setFmEmph(double tau)
-{
-    qDebug() << "FM TAU: " << tau;
-
-    /* receiver will check range */
-    rx->set_fm_deemph(tau);
-}
-
-
-/**
- * @brief AM DCR status changed (slot).
- * @param enabled Whether DCR is enabled or not.
- */
-void MainWindow::setAmDcr(bool enabled)
-{
-    rx->set_am_dcr(enabled);
-}
-
-void MainWindow::setCwOffset(int offset)
-{
-    rx->set_cw_offset(offset);
-}
-
-/**
- * @brief AM-Sync DCR status changed (slot).
- * @param enabled Whether DCR is enabled or not.
- */
-void MainWindow::setAmSyncDcr(bool enabled)
-{
-    rx->set_amsync_dcr(enabled);
-}
-
-/**
- * @brief New AM-Sync PLL BW selected.
- * @param pll_bw The new PLL BW.
- */
-void MainWindow::setAmSyncPllBw(float pll_bw)
-{
-    qDebug() << "AM-Sync PLL BW: " << pll_bw;
-
-    /* receiver will check range */
-    rx->set_amsync_pll_bw(pll_bw);
-}
-
-/**
- * @brief Audio gain changed.
- * @param value The new audio gain in dB.
- */
-void MainWindow::setAudioGain(float value)
-{
-    rx->set_af_gain(value);
-}
-
-/** Set AGC ON/OFF. */
-void MainWindow::setAgcOn(bool agc_on)
-{
-    rx->set_agc_on(agc_on);
-}
-
-/** AGC hang ON/OFF. */
-void MainWindow::setAgcHang(bool use_hang)
-{
-    rx->set_agc_hang(use_hang);
-}
-
-/** AGC threshold changed. */
-void MainWindow::setAgcThreshold(int threshold)
-{
-    rx->set_agc_threshold(threshold);
-}
-
-/** AGC slope factor changed. */
-void MainWindow::setAgcSlope(int factor)
-{
-    rx->set_agc_slope(factor);
-}
-
-/** AGC manual gain changed. */
-void MainWindow::setAgcGain(int gain)
-{
-    rx->set_agc_manual_gain(gain);
-}
-
-/** AGC decay changed. */
-void MainWindow::setAgcDecay(int msec)
-{
-    rx->set_agc_decay(msec);
-}
-
-/**
- * @brief Noise blanker configuration changed.
- * @param nb1 Noise blanker 1 ON/OFF.
- * @param nb2 Noise blanker 2 ON/OFF.
- * @param threshold Noise blanker threshold.
- */
-void MainWindow::setNoiseBlanker(int nbid, bool on, float threshold)
-{
-    qDebug() << "Noise blanker NB:" << nbid << " ON:" << on << "THLD:"
-             << threshold;
-
-    rx->set_nb_on(nbid, on);
-    rx->set_nb_threshold(nbid, threshold);
-}
-
-/**
- * @brief Squelch level changed.
- * @param level_db The new squelch level in dBFS.
- */
-void MainWindow::setSqlLevel(double level_db)
-{
-    rx->set_sql_level(level_db);
-    ui->sMeter->setSqlLevel(level_db);
-}
-
-/**
- * @brief Squelch level auto clicked.
- * @return The new squelch level.
- */
-double MainWindow::setSqlLevelAuto()
-{
-    double level = rx->get_signal_pwr() + 3.0;
-    if (level > -10.0)  // avoid 0 dBFS
-        level = uiDockRxOpt->getSqlLevel();
-
-    setSqlLevel(level);
-    return level;
-}
-
-/** Signal strength meter timeout. */
-void MainWindow::meterTimeout()
-{
-    float level;
-
-    level = rx->get_signal_pwr();
-    ui->sMeter->setLevel(level);
-    remote->setSignalLevel(level);
 }
 
 #define LOG2_10 3.321928094887362
@@ -1392,155 +1227,28 @@ void MainWindow::iqFftTimeout()
         d_iirFftData[i] += d_fftAvg * (d_realFftData[i] - d_iirFftData[i]);
     }
 
-    ui->plotter->setNewFftData(d_iirFftData, d_realFftData, fftsize);
+    uiBaseband->plotter()->setNewFftData(d_iirFftData, d_realFftData, fftsize);
 }
 
-/** Audio FFT plot timeout. */
-void MainWindow::audioFftTimeout()
+void MainWindow::closeEvent(QCloseEvent *event)
 {
-    unsigned int    fftsize;
-    unsigned int    i;
-    float           pwr;
-    float           pwr_scale;
-    std::complex<float> pt;             /* a single FFT point used in calculations */
+//    qInfo() << "MainWindow::closeEvent";
 
-    if (!d_have_audio || !uiDockAudio->isVisible())
-        return;
+    // Stop the DSP
+    on_actionDSP_triggered(false);
 
-    rx->get_audio_fft_data(d_fftData, fftsize);
-
-    if (fftsize == 0)
+    // Save state
+    if (m_settings)
     {
-        /* nothing to do, wait until next activation. */
-        qDebug() << "No audio FFT data.";
-        return;
+        storeSession();
+        storeGuiSettings();
+
+        m_settings->setValue("crashed", false);
+
+        m_settings->sync();
     }
 
-    pwr_scale = 1.0 / (fftsize * fftsize);
-
-    /** FIXME: move post processing to rx_fft_f **/
-    /* Normalize, calculate power and shift the FFT */
-    for (i = 0; i < fftsize; i++)
-    {
-        /* normalize and shift */
-        if (i < fftsize/2)
-        {
-            pt = d_fftData[fftsize/2+i];
-        }
-        else
-        {
-            pt = d_fftData[i-fftsize/2];
-        }
-
-        /* calculate power in dBFS */
-        pwr = pwr_scale * (pt.imag() * pt.imag() + pt.real() * pt.real());
-        d_realFftData[i] = 10.0 * log10f(pwr + 1.0e-20);
-    }
-
-    uiDockAudio->setNewFftData(d_realFftData, fftsize);
-}
-
-/** RDS message display timeout. */
-void MainWindow::rdsTimeout()
-{
-    std::string buffer;
-    int num;
-
-    rx->get_rds_data(buffer, num);
-    while(num!=-1) {
-        rx->get_rds_data(buffer, num);
-        uiDockRDS->updateRDS(QString::fromStdString(buffer), num);
-    }
-}
-
-/**
- * @brief Start audio recorder.
- * @param filename The file name into which audio should be recorded.
- */
-void MainWindow::startAudioRec(const QString& filename)
-{
-    if (!d_have_audio)
-    {
-        QMessageBox msg_box;
-        msg_box.setIcon(QMessageBox::Critical);
-        msg_box.setText(tr("Recording audio requires a demodulator.\n"
-                           "Currently, demodulation is switched off "
-                           "(Mode->Demod off)."));
-        msg_box.exec();
-        uiDockAudio->setAudioRecButtonState(false);
-    }
-    else if (rx->start_audio_recording(filename.toStdString()))
-    {
-        ui->statusBar->showMessage(tr("Error starting audio recorder"));
-
-        /* reset state of record button */
-        uiDockAudio->setAudioRecButtonState(false);
-    }
-    else
-    {
-        ui->statusBar->showMessage(tr("Recording audio to %1").arg(filename));
-    }
-}
-
-/** Stop audio recorder. */
-void MainWindow::stopAudioRec()
-{
-    if (rx->stop_audio_recording())
-    {
-        /* okay, this one would be weird if it really happened */
-        ui->statusBar->showMessage(tr("Error stopping audio recorder"));
-
-        uiDockAudio->setAudioRecButtonState(true);
-    }
-    else
-    {
-        ui->statusBar->showMessage(tr("Audio recorder stopped"), 5000);
-    }
-}
-
-
-/** Start playback of audio file. */
-void MainWindow::startAudioPlayback(const QString& filename)
-{
-    if (rx->start_audio_playback(filename.toStdString()))
-    {
-        ui->statusBar->showMessage(tr("Error trying to play %1").arg(filename));
-
-        /* reset state of record button */
-        uiDockAudio->setAudioPlayButtonState(false);
-    }
-    else
-    {
-        ui->statusBar->showMessage(tr("Playing %1").arg(filename));
-    }
-}
-
-/** Stop playback of audio file. */
-void MainWindow::stopAudioPlayback()
-{
-    if (rx->stop_audio_playback())
-    {
-        /* okay, this one would be weird if it really happened */
-        ui->statusBar->showMessage(tr("Error stopping audio playback"));
-
-        uiDockAudio->setAudioPlayButtonState(true);
-    }
-    else
-    {
-        ui->statusBar->showMessage(tr("Audio playback stopped"), 5000);
-    }
-}
-
-/** Start streaming audio over UDP. */
-void MainWindow::startAudioStream(const QString& udp_host, int udp_port, bool stereo)
-{
-    rx->start_udp_streaming(udp_host.toStdString(), udp_port, stereo);
-}
-
-/** Stop streaming audio over UDP. */
-void MainWindow::stopAudioStreaming()
-{
-    rx->stop_udp_streaming();
+    QMainWindow::closeEvent(event);
 }
 
 /** Start I/Q recording. */
@@ -1613,9 +1321,12 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate)
     qDebug() << "Actual sample rate   :" << QString("%1")
                 .arg(actual_rate, 0, 'f', 6);
 
-    uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
-    ui->plotter->setSampleRate(actual_rate);
-    ui->plotter->setSpanFreq((quint32)actual_rate);
+    for (auto &demod : demodCtrls)
+    {
+        demod->setFilterOffsetRange((qint64)(actual_rate));
+    }
+    uiBaseband->plotter()->setSampleRate(actual_rate);
+    uiBaseband->plotter()->setSpanFreq((quint32)actual_rate);
     remote->setBandwidth(actual_rate);
 
     // FIXME: would be nice with good/bad status
@@ -1626,7 +1337,8 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate)
 
 void MainWindow::stopIqPlayback()
 {
-    if (ui->actionDSP->isChecked())
+    auto wasRunning = ui->actionDSP->isChecked();
+    if (wasRunning)
     {
         // suspend DSP while we reload settings
         on_actionDSP_triggered(false);
@@ -1648,9 +1360,12 @@ void MainWindow::stopIqPlayback()
         qDebug() << "Actual sample rate   :" << QString("%1")
                     .arg(actual_rate, 0, 'f', 6);
 
-        uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
-        ui->plotter->setSampleRate(actual_rate);
-        ui->plotter->setSpanFreq((quint32)actual_rate);
+        for (auto &demod : demodCtrls)
+        {
+            demod->setFilterOffsetRange((qint64)(actual_rate));
+        }
+        uiBaseband->plotter()->setSampleRate(actual_rate);
+        uiBaseband->plotter()->setSpanFreq((quint32)actual_rate);
         remote->setBandwidth(sr);
 
         // not needed as long as we are not recording in iq_tool
@@ -1658,15 +1373,14 @@ void MainWindow::stopIqPlayback()
     }
 
     // restore frequency, gain, etc...
-    uiDockInputCtl->readSettings(m_settings);
+    loadConfig(m_settings->fileName(), false, false);
 
-    if (ui->actionDSP->isChecked())
+    if (wasRunning)
     {
-        // restsart DSP
+        // restart DSP
         on_actionDSP_triggered(true);
     }
 }
-
 
 /**
  * Go to a specific offset in the IQ file.
@@ -1694,21 +1408,21 @@ void MainWindow::setIqFftRate(int fps)
     if (fps == 0)
     {
         interval = 36e7; // 100 hours
-        ui->plotter->setRunningState(false);
+        uiBaseband->plotter()->setRunningState(false);
     }
     else
     {
         interval = 1000 / fps;
 
-        ui->plotter->setFftRate(fps);
+        uiBaseband->plotter()->setFftRate(fps);
         if (iq_fft_timer->isActive())
-            ui->plotter->setRunningState(true);
+            uiBaseband->plotter()->setRunningState(true);
     }
 
     if (interval > 9 && iq_fft_timer->isActive())
         iq_fft_timer->setInterval(interval);
 
-    uiDockFft->setWfResolution(ui->plotter->getWfTimeRes());
+    uiDockFft->setWfResolution(uiBaseband->plotter()->getWfTimeRes());
 }
 
 void MainWindow::setIqFftWindow(int type)
@@ -1720,13 +1434,13 @@ void MainWindow::setIqFftWindow(int type)
 void MainWindow::setWfTimeSpan(quint64 span_ms)
 {
     // set new time span, then send back new resolution to be shown by GUI label
-    ui->plotter->setWaterfallSpan(span_ms);
-    uiDockFft->setWfResolution(ui->plotter->getWfTimeRes());
+    uiBaseband->plotter()->setWaterfallSpan(span_ms);
+    uiDockFft->setWfResolution(uiBaseband->plotter()->getWfTimeRes());
 }
 
 void MainWindow::setWfSize()
 {
-    uiDockFft->setWfResolution(ui->plotter->getWfTimeRes());
+    uiDockFft->setWfResolution(uiBaseband->plotter()->getWfTimeRes());
 }
 
 /**
@@ -1736,7 +1450,7 @@ void MainWindow::setWfSize()
 void MainWindow::setIqFftSplit(int pct_wf)
 {
     if ((pct_wf >= 0) && (pct_wf <= 100))
-        ui->plotter->setPercent2DScreen(pct_wf);
+        uiBaseband->plotter()->setPercent2DScreen(pct_wf);
 }
 
 void MainWindow::setIqFftAvg(float avg)
@@ -1748,37 +1462,40 @@ void MainWindow::setIqFftAvg(float avg)
 /** Audio FFT rate has changed. */
 void MainWindow::setAudioFftRate(int fps)
 {
-    auto interval = 1000 / fps;
-
-    if (interval < 10)
-        return;
-
-    if (audio_fft_timer->isActive())
-        audio_fft_timer->setInterval(interval);
+    for (auto demod : demodCtrls)
+    {
+        demod->setAudioFftRate(fps);
+    }
 }
 
 /** Set FFT plot color. */
 void MainWindow::setFftColor(const QColor& color)
 {
-    ui->plotter->setFftPlotColor(color);
-    uiDockAudio->setFftColor(color);
+    uiBaseband->plotter()->setFftPlotColor(color);
+    for (auto demod : demodCtrls)
+    {
+        demod->setFftColor(color);
+    }
 }
 
 /** Enable/disable filling the aread below the FFT plot. */
 void MainWindow::setFftFill(bool enable)
 {
-    ui->plotter->setFftFill(enable);
-    uiDockAudio->setFftFill(enable);
+    uiBaseband->plotter()->setFftFill(enable);
+    for (auto demod : demodCtrls)
+    {
+        demod->setFftFill(enable);
+    }
 }
 
 void MainWindow::setFftPeakHold(bool enable)
 {
-    ui->plotter->setPeakHold(enable);
+    uiBaseband->plotter()->setPeakHold(enable);
 }
 
 void MainWindow::setPeakDetection(bool enabled)
 {
-    ui->plotter->setPeakDetection(enabled ,2);
+    uiBaseband->plotter()->setPeakDetection(enabled ,2);
 }
 
 /**
@@ -1793,26 +1510,27 @@ void MainWindow::on_actionDSP_triggered(bool checked)
 {
     remote->setReceiverStatus(checked);
 
+    for (auto demod : demodCtrls)
+    {
+        demod->enableTimers(checked);
+    }
+
     if (checked)
     {
         /* start receiver */
         rx->start();
 
         /* start GUI timers */
-        meter_timer->start(100);
-
         if (uiDockFft->fftRate())
         {
             iq_fft_timer->start(1000/uiDockFft->fftRate());
-            ui->plotter->setRunningState(true);
+            uiBaseband->plotter()->setRunningState(true);
         }
         else
         {
             iq_fft_timer->start(36e7); // 100 hours
-            ui->plotter->setRunningState(false);
+            uiBaseband->plotter()->setRunningState(false);
         }
-
-        audio_fft_timer->start(40);
 
         /* update menu text and button tooltip */
         ui->actionDSP->setToolTip(tr("Stop DSP processing"));
@@ -1821,10 +1539,7 @@ void MainWindow::on_actionDSP_triggered(bool checked)
     else
     {
         /* stop GUI timers */
-        meter_timer->stop();
         iq_fft_timer->stop();
-        audio_fft_timer->stop();
-        rds_timer->stop();
 
         /* stop receiver */
         rx->stop();
@@ -1833,11 +1548,10 @@ void MainWindow::on_actionDSP_triggered(bool checked)
         ui->actionDSP->setToolTip(tr("Start DSP processing"));
         ui->actionDSP->setText(tr("Start DSP"));
 
-        ui->plotter->setRunningState(false);
+        uiBaseband->plotter()->setRunningState(false);
     }
 
     ui->actionDSP->setChecked(checked); //for remote control
-
 }
 
 /**
@@ -1935,6 +1649,7 @@ void MainWindow::on_actionSaveSettings_triggered()
         cfgfile.append(".conf");
 
     storeSession();
+    storeGuiSettings();
     saveConfig(cfgfile);
 
     // store last dir
@@ -1958,7 +1673,7 @@ void MainWindow::on_actionSaveWaterfall_triggered()
     if (wffile.isEmpty())
         return;
 
-    if (!ui->plotter->saveWaterfall(wffile))
+    if (!uiBaseband->plotter()->saveWaterfall(wffile))
     {
         QMessageBox::critical(this,
                               tr("Error"),
@@ -1970,38 +1685,111 @@ void MainWindow::on_actionSaveWaterfall_triggered()
     m_settings->setValue("wf_save_dir", fi.absolutePath());
 }
 
-/** Show I/Q player. */
-void MainWindow::on_actionIqTool_triggered()
-{
-    iq_tool->show();
-}
-
-
 /* CPlotter::NewDemodFreq() is emitted */
-void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
+void MainWindow::on_newDemodFreq(size_t idx, qint64 freq, qint64 delta)
 {
-    // set RX filter
-    rx->set_filter_offset((double) delta);
+//    qInfo() << "MainWindow::on_newDemodFreq" << idx << freq << delta;
 
-    // update RF freq label and channel filter offset
-    uiDockRxOpt->setFilterOffset(delta);
-    ui->freqCtrl->setFrequency(freq);
+    if (idx >= demodCtrls.size()) {
+        qInfo() << "on_newDemodFreq idx out of range";
+        return;
+    }
 
-    if (rx->is_rds_decoder_active())
-        rx->reset_rds_parser();
+    demodCtrls[idx]->setFilterOffset(delta);
 }
 
 /* CPlotter::NewfilterFreq() is emitted or bookmark activated */
-void MainWindow::on_plotter_newFilterFreq(int low, int high)
-{   /* parameter correctness will be checked in receiver class */
-    receiver::status retcode = rx->set_filter((double) low, (double) high, d_filter_shape);
+void MainWindow::on_newFilterFreq(size_t idx, int low, int high)
+{
+    if (idx >= demodCtrls.size()) {
+        return;
+    }
 
+    demodCtrls[idx]->setFilterFrequency(low, high);
+
+    // XXX: is this necessary?
     /* Update filter range of plotter, in case this slot is triggered by
      * switching to a bookmark */
-    ui->plotter->setHiLowCutFrequencies(low, high);
+    //    uiBaseband->plotter()->drawOverlay();
+}
 
-    if (retcode == receiver::STATUS_OK)
-        uiDockRxOpt->setFilterParam(low, high);
+void MainWindow::onDemodulatorBookmark(size_t idx)
+{
+    bool ok=false;
+    QString name;
+    QString tags; // list of tags separated by comma
+
+    // Create and show the Dialog for a new Bookmark.
+    // Write the result into variable 'name'.
+    {
+        QDialog dialog(this);
+        dialog.setWindowTitle("New bookmark");
+
+        auto* LabelAndTextfieldName = new QGroupBox(&dialog);
+        auto* label1 = new QLabel("Bookmark name:", LabelAndTextfieldName);
+        auto* textfield = new QLineEdit(LabelAndTextfieldName);
+        auto *layout = new QHBoxLayout;
+        layout->addWidget(label1);
+        layout->addWidget(textfield);
+        LabelAndTextfieldName->setLayout(layout);
+
+        auto* buttonCreateTag = new QPushButton("Create new Tag", &dialog);
+
+        auto* taglist = new BookmarksTagList(&dialog, false);
+        taglist->updateTags();
+        taglist->DeselectAll();
+
+        auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                              | QDialogButtonBox::Cancel);
+        connect(buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
+        connect(buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
+        connect(buttonCreateTag, SIGNAL(clicked()), taglist, SLOT(AddNewTag()));
+
+        auto *mainLayout = new QVBoxLayout(&dialog);
+        mainLayout->addWidget(LabelAndTextfieldName);
+        mainLayout->addWidget(buttonCreateTag);
+        mainLayout->addWidget(taglist);
+        mainLayout->addWidget(buttonBox);
+
+        ok = dialog.exec();
+        if (ok)
+        {
+            name = textfield->text();
+            tags = taglist->getSelectedTagsAsString();
+            qDebug() << "Tags: " << tags;
+        }
+        else
+        {
+            name.clear();
+            tags.clear();
+        }
+    }
+
+    // Add new Bookmark to Bookmarks...
+    if (ok)
+    {
+        int i;
+        auto demodCtl = demodCtrls[idx];
+        auto demod = rx->get_demodulator(idx);
+
+        BookmarkInfo info;
+        info.frequency = uiBaseband->freqCtrl()->getFrequency() + demod->get_filter_offset();
+        info.bandwidth = demod->get_filter_highcut() - demod->get_filter_lowcut();
+        info.modulation = demodCtl->currentDemodAsString();
+        info.name = name;
+        auto listTags = tags.split(",",QString::SkipEmptyParts);
+        info.tags.clear();
+        if (listTags.empty())
+            info.tags.append(&Bookmarks::Get().findOrAddTag(""));
+
+        for (i = 0; i < listTags.size(); ++i)
+            info.tags.append(&Bookmarks::Get().findOrAddTag(listTags[i]));
+
+        Bookmarks::Get().add(info);
+        uiDockBookmarks->updateTags();
+        uiDockBookmarks->updateBookmarks();
+        uiBaseband->plotter()->updateOverlay();
+    }
 }
 
 /** Full screen button or menu item toggled. */
@@ -2045,157 +1833,112 @@ void MainWindow::on_actionRemoteConfig_triggered()
     delete rcs;
 }
 
-
-#define DATA_BUFFER_SIZE 48000
-
-/**
- * AFSK1200 decoder action triggered.
- *
- * This slot is called when the user activates the AFSK1200
- * action. It will create an AFSK1200 decoder window and start
- * and start pushing data from the receiver to it.
- */
-void MainWindow::on_actionAFSK1200_triggered()
+void MainWindow::on_actionAddDemodulator_triggered()
 {
-
-    if (dec_afsk1200 != nullptr)
-    {
-        qDebug() << "AFSK1200 decoder already active.";
-        dec_afsk1200->raise();
-    }
-    else
-    {
-        qDebug() << "Starting AFSK1200 decoder.";
-
-        /* start sample sniffer */
-        if (rx->start_sniffer(22050, DATA_BUFFER_SIZE) == receiver::STATUS_OK)
-        {
-            dec_afsk1200 = new Afsk1200Win(this);
-            connect(dec_afsk1200, SIGNAL(windowClosed()), this, SLOT(afsk1200win_closed()));
-            dec_afsk1200->setAttribute(Qt::WA_DeleteOnClose);
-            dec_afsk1200->show();
-
-            dec_timer->start(100);
-        }
-        else
-            QMessageBox::warning(this, tr("Gqrx error"),
-                                 tr("Error starting sample sniffer.\n"
-                                    "Close all data decoders and try again."),
-                                 QMessageBox::Ok, QMessageBox::Ok);
-    }
-}
-
-
-/**
- * Destroy AFSK1200 decoder window got closed.
- *
- * This slot is connected to the windowClosed() signal of the AFSK1200 decoder
- * object. We need this to properly destroy the object, stop timeout and clean
- * up whatever need to be cleaned up.
- */
-void MainWindow::afsk1200win_closed()
-{
-    /* stop cyclic processing */
-    dec_timer->stop();
-    rx->stop_sniffer();
-
-    dec_afsk1200 = nullptr;
-}
-
-/** Show DXC Options. */
-void MainWindow::on_actionDX_Cluster_triggered()
-{
-    dxc_options->show();
-}
-
-/**
- * Cyclic processing for acquiring samples from receiver and processing them
- * with data decoders (see dec_* objects)
- */
-void MainWindow::decoderTimeout()
-{
-    float buffer[DATA_BUFFER_SIZE];
-    unsigned int num;
-
-    rx->get_sniffer_data(&buffer[0], num);
-    if (dec_afsk1200)
-        dec_afsk1200->process_samples(&buffer[0], num);
-}
-
-void MainWindow::setRdsDecoder(bool checked)
-{
-    if (checked)
-    {
-        qDebug() << "Starting RDS decoder.";
-        uiDockRDS->showEnabled();
-        rx->start_rds_decoder();
-        rx->reset_rds_parser();
-        rds_timer->start(250);
-    }
-    else
-    {
-        qDebug() << "Stopping RDS decoder.";
-        uiDockRDS->showDisabled();
-        rx->stop_rds_decoder();
-        rds_timer->stop();
-    }
+    addDemodulator();
 }
 
 void MainWindow::onBookmarkActivated(qint64 freq, const QString& demod, int bandwidth)
 {
-    setNewFrequency(freq);
-    selectDemod(demod);
+    qInfo() << "MainWindow::onBookmarkActivated" << freq << demod << bandwidth;
 
-    /* Check if filter is symmetric or not by checking the presets */
-    auto mode = uiDockRxOpt->currentDemod();
-    auto preset = uiDockRxOpt->currentFilter();
-
-    int lo, hi;
-    uiDockRxOpt->getFilterPreset(mode, preset, &lo, &hi);
-
-    if(lo + hi == 0)
+    // If there's no demodulators, add one
+    if (demodCtrls.size() == 0)
     {
-        lo = -bandwidth / 2;
-        hi =  bandwidth / 2;
-    }
-    else if(lo >= 0 && hi >= 0)
-    {
-        hi = lo + bandwidth;
-    }
-    else if(lo <= 0 && hi <= 0)
-    {
-        lo = hi - bandwidth;
+        addDemodulator();
     }
 
-    on_plotter_newFilterFreq(lo, hi);
-}
-
-void MainWindow::setPassband(int bandwidth)
-{
-    /* Check if filter is symmetric or not by checking the presets */
-    auto mode = uiDockRxOpt->currentDemod();
-    auto preset = uiDockRxOpt->currentFilter();
-
-    int lo, hi;
-    uiDockRxOpt->getFilterPreset(mode, preset, &lo, &hi);
-
-    if(lo + hi == 0)
+    // If there's only one demod, we can change the hw freq and demod offset
+    if (demodCtrls.size() == 1)
     {
-        lo = -bandwidth / 2;
-        hi =  bandwidth / 2;
-    }
-    else if(lo >= 0 && hi >= 0)
-    {
-        hi = lo + bandwidth;
-    }
-    else if(lo <= 0 && hi <= 0)
-    {
-        lo = hi - bandwidth;
+        setNewFrequency(freq);
+        demodCtrls[0]->selectDemod(demod);
+        demodCtrls[0]->setFilterOffset(0); // Should the offset be stored in the bookmark?
+        demodCtrls[0]->setPassband(bandwidth);
+
+        return;
     }
 
-    remote->setPassband(lo, hi);
+    // If any of the current demods are tuned to freq, we don't need to do anything?
+    for (size_t i = 0; i < demodCtrls.size(); ++i)
+    {
+        auto d = rx->get_demodulator(i);
+        if ((d_hw_freq + d->get_filter_offset()) == freq)
+        {
+            qInfo() << "Already listening to bookmark; return";
+            return;
+        }
+    }
 
-    on_plotter_newFilterFreq(lo, hi);
+    // If there's multiple demods, we should ask the user what to do.
+    QMessageBox msgBox;
+
+    QAbstractButton* pButtonAppend = nullptr;
+    QAbstractButton* pButtonUpdate = nullptr;
+
+    auto bw = rx->get_input_rate();
+    qint64 start = d_hw_freq - bw/2;
+    qint64 stop = d_hw_freq + bw/2;
+
+    QString msgText = "There are multiple active demodulators";
+
+    // if the bookmark should store the offset, then consider (freq+offset) for the range check
+    // qInfo() << "MainWindow::onBookmarkActivated check range" << start << freq << stop << "(" << bw << ")";
+    if (start < freq && freq < stop)
+    {
+        msgText += ".";
+        pButtonAppend = msgBox.addButton(tr("Create new"), QMessageBox::AcceptRole);
+        pButtonUpdate = msgBox.addButton(tr("Update existing"), QMessageBox::AcceptRole);
+    }
+    else
+    {
+        msgText += ", and the bookmark is outside of the current range.";
+    }
+
+    msgBox.setText(msgText + "\nWhat would you like to do?");
+
+    QAbstractButton* pButtonReplaceAll = msgBox.addButton(tr("Replace all"), QMessageBox::DestructiveRole);
+    QAbstractButton* pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::RejectRole);
+
+    msgBox.setIcon(QMessageBox::Question);
+    msgBox.setEscapeButton(pButtonCancel);
+
+    msgBox.exec();
+    auto clicked = msgBox.clickedButton();
+
+    // Append demod
+    if (pButtonAppend != nullptr && clicked == pButtonAppend)
+    {
+        addDemodulator();
+        auto newDemod = demodCtrls[demodCtrls.size() - 1];
+        newDemod->selectDemod(demod);
+        newDemod->setFilterOffset(freq - d_hw_freq); // Should the offset be stored in the bookmark?
+        newDemod->setPassband(bandwidth);
+    }
+
+    // Update
+    if (pButtonUpdate != nullptr && clicked == pButtonUpdate)
+    {
+        bool ok;
+        int i = QInputDialog::getInt(this, "", "Demodulator:", 1, 1, demodCtrls.size(), 1, &ok);
+        if (ok)
+        {
+            auto newDemod = demodCtrls[i - 1];
+            newDemod->selectDemod(demod);
+            newDemod->setFilterOffset(freq - d_hw_freq); // Should the offset be stored in the bookmark?
+            newDemod->setPassband(bandwidth);
+        }
+    }
+
+    // replace all demods
+    if (pButtonReplaceAll != nullptr && clicked == pButtonReplaceAll)
+    {
+        for (size_t i = 0; i < demodCtrls.size(); ++i)
+        {
+            removeDemodulator(0);
+        }
+        onBookmarkActivated(freq, demod, bandwidth);
+    }
 }
 
 /** Launch Gqrx google group website. */
@@ -2247,7 +1990,7 @@ void MainWindow::showSimpleTextFile(const QString &resource_path,
 
     if (!news.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        qDebug() << "Unable to open file: " << news.fileName() <<
+        qInfo() << "Unable to open file: " << news.fileName() <<
                     " because of error " << news.errorString();
 
         return;
@@ -2327,90 +2070,12 @@ void MainWindow::on_actionAboutQt_triggered()
     QMessageBox::aboutQt(this, tr("About Qt"));
 }
 
-void MainWindow::on_actionAddBookmark_triggered()
-{
-    bool ok=false;
-    QString name;
-    QString tags; // list of tags separated by comma
-
-    // Create and show the Dialog for a new Bookmark.
-    // Write the result into variable 'name'.
-    {
-        QDialog dialog(this);
-        dialog.setWindowTitle("New bookmark");
-
-        auto* LabelAndTextfieldName = new QGroupBox(&dialog);
-        auto* label1 = new QLabel("Bookmark name:", LabelAndTextfieldName);
-        auto* textfield = new QLineEdit(LabelAndTextfieldName);
-        auto *layout = new QHBoxLayout;
-        layout->addWidget(label1);
-        layout->addWidget(textfield);
-        LabelAndTextfieldName->setLayout(layout);
-
-        auto* buttonCreateTag = new QPushButton("Create new Tag", &dialog);
-
-        auto* taglist = new BookmarksTagList(&dialog, false);
-        taglist->updateTags();
-        taglist->DeselectAll();
-
-        auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
-                                              | QDialogButtonBox::Cancel);
-        connect(buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
-        connect(buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
-        connect(buttonCreateTag, SIGNAL(clicked()), taglist, SLOT(AddNewTag()));
-
-        auto *mainLayout = new QVBoxLayout(&dialog);
-        mainLayout->addWidget(LabelAndTextfieldName);
-        mainLayout->addWidget(buttonCreateTag);
-        mainLayout->addWidget(taglist);
-        mainLayout->addWidget(buttonBox);
-
-        ok = dialog.exec();
-        if (ok)
-        {
-            name = textfield->text();
-            tags = taglist->getSelectedTagsAsString();
-            qDebug() << "Tags: " << tags;
-        }
-        else
-        {
-            name.clear();
-            tags.clear();
-        }
-    }
-
-    // Add new Bookmark to Bookmarks.
-    if(ok)
-    {
-        int i;
-
-        BookmarkInfo info;
-        info.frequency = ui->freqCtrl->getFrequency();
-        info.bandwidth = ui->plotter->getFilterBw();
-        info.modulation = uiDockRxOpt->currentDemodAsString();
-        info.name=name;
-        auto listTags = tags.split(",",QString::SkipEmptyParts);
-        info.tags.clear();
-        if (listTags.empty())
-            info.tags.append(&Bookmarks::Get().findOrAddTag(""));
-
-
-        for (i = 0; i < listTags.size(); ++i)
-            info.tags.append(&Bookmarks::Get().findOrAddTag(listTags[i]));
-
-        Bookmarks::Get().add(info);
-        uiDockBookmarks->updateTags();
-        uiDockBookmarks->updateBookmarks();
-        ui->plotter->updateOverlay();
-    }
-}
-
 void MainWindow::updateClusterSpots()
 {
-    ui->plotter->updateOverlay();
+    uiBaseband->plotter()->updateOverlay();
 }
 
 void MainWindow::frequencyFocusShortcut()
 {
-    ui->freqCtrl->setFrequencyFocus();
+    uiBaseband->freqCtrl()->setFrequencyFocus();
 }

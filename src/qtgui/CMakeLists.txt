@@ -1,12 +1,12 @@
 #######################################################################################################################
 # Add the source files to SRCS_LIST
 add_source_files(SRCS_LIST
-	afsk1200win.cpp
-	afsk1200win.h
 	agc_options.cpp
 	agc_options.h
 	audio_options.cpp
 	audio_options.h
+    basebandview.cpp
+    basebandview.h
 	bandplan.cpp
 	bandplan.h
 	bookmarks.cpp
@@ -20,28 +20,30 @@ add_source_files(SRCS_LIST
 	ctk/ctkRangeSlider.h
 	demod_options.cpp
 	demod_options.h
+    dockafsk1200.cpp
+    dockafsk1200.h
 	dockaudio.cpp
 	dockaudio.h
 	dockbookmarks.cpp
 	dockbookmarks.h
-	dockfft.cpp
+	dockdxc.h
+    dockdxc.cpp
+    dockfft.cpp
 	dockfft.h
-	dockinputctl.cpp
+	dockiqtool.h
+    dockiqtool.cpp
+    dockinputctl.cpp
 	dockinputctl.h
 	dockrds.cpp
 	dockrds.h
 	dockrxopt.cpp
 	dockrxopt.h
-	dxc_options.cpp
-	dxc_options.h
 	dxc_spots.cpp
 	dxc_spots.h
 	freqctrl.cpp
 	freqctrl.h
 	ioconfig.cpp
 	ioconfig.h
-	iq_tool.cpp
-	iq_tool.h
 	meter.cpp
 	meter.h
 	nb_options.cpp
@@ -55,18 +57,19 @@ add_source_files(SRCS_LIST
 #######################################################################################################################
 # Add the source files to UI_SRCS_LIST
 add_source_files(UI_SRCS_LIST
-	afsk1200win.ui
 	agc_options.ui
 	audio_options.ui
+    basebandview.ui
 	demod_options.ui
+    dockafsk1200.ui
 	dockaudio.ui
 	dockbookmarks.ui
-	dockfft.ui
+	dockdxc.ui
+    dockfft.ui
 	dockinputctl.ui
-	dockrds.ui
+	dockiqtool.ui
+    dockrds.ui
 	dockrxopt.ui
-	dxc_options.ui
 	ioconfig.ui
-	iq_tool.ui
 	nb_options.ui
 )

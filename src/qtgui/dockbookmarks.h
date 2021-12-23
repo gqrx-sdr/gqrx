@@ -22,10 +22,11 @@
  */
 #pragma once
 
-#include <QDockWidget>
+#include <QFrame>
 #include <QTableWidgetItem>
-#include "qtgui/bookmarkstablemodel.h"
 #include <QItemDelegate>
+
+#include "qtgui/bookmarkstablemodel.h"
 
 namespace Ui {
     class DockBookmarks;
@@ -41,7 +42,7 @@ public:
   void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
 };
 
-class DockBookmarks : public QDockWidget
+class DockBookmarks : public QFrame
 {
     Q_OBJECT
 
@@ -58,10 +59,6 @@ public:
     explicit DockBookmarks(QWidget *parent = 0);
     ~DockBookmarks();
 
-    // ui->tableViewFrequencyList
-    // ui->tableWidgetTagList
-    QAction* actionAddBookmark;
-
     void updateTags();
     void updateBookmarks();
     void changeBookmarkTags(int row, int /*column*/);
@@ -75,8 +72,6 @@ public slots:
 private slots:
     void activated(const QModelIndex & index );
     void onDataChanged (const QModelIndex & topLeft, const QModelIndex & bottomRight);
-    //void on_addButton_clicked();
-    //void on_delButton_clicked();
     void on_tableWidgetTagList_itemChanged(QTableWidgetItem* item);
     void ShowContextMenu(const QPoint&pos);
     bool DeleteSelectedBookmark();

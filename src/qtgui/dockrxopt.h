@@ -23,8 +23,12 @@
 #ifndef DOCKRXOPT_H
 #define DOCKRXOPT_H
 
-#include <QDockWidget>
+#include <memory>
+
+#include <QFrame>
 #include <QSettings>
+#include <QShortcut>
+
 #include "qtgui/agc_options.h"
 #include "qtgui/demod_options.h"
 #include "qtgui/nb_options.h"
@@ -50,7 +54,7 @@ namespace Ui {
  * This class also provides the signal/slot API necessary to connect
  * the encapsulated widgets to the rest of the application.
  */
-class DockRxOpt : public QDockWidget
+class DockRxOpt : public QFrame
 {
     Q_OBJECT
 
@@ -82,8 +86,11 @@ public:
     explicit DockRxOpt(qint64 filterOffsetRange = 90000, QWidget *parent = 0);
     ~DockRxOpt();
 
-    void readSettings(QSettings *settings);
-    void saveSettings(QSettings *settings);
+    void setupShortcuts(const size_t idx);
+    void removeShortcuts();
+
+    void readSettings(std::shared_ptr<QSettings> settings, size_t idx);
+    void saveSettings(std::shared_ptr<QSettings> settings, size_t idx);
 
     void setFilterOffsetRange(qint64 range_hz);
 
@@ -94,7 +101,7 @@ public:
     void setCurrentFilterShape(int index);
     int  currentFilterShape() const;
 
-    void setHwFreq(qint64 freq_hz);
+    void setHwFreq(qint64 freq_hz, bool maintain_rx_freq);
     void setRxFreqRange(qint64 min_hz, qint64 max_hz);
 
     void setResetLowerDigits(bool enabled);
@@ -122,6 +129,7 @@ public slots:
     void setCurrentDemod(int demod);
     void setFilterOffset(qint64 freq_hz);
     void setSquelchLevel(double level);
+    void setSignalLevel(float level);
 
 private:
     void updateHwFreq();
@@ -144,7 +152,11 @@ private:
     void filterNormalShortcut();
     void filterWideShortcut();
 
-signals:
+signals:    
+    void remove();
+    void bookmark();
+    void centerFFT();
+
     /** Signal emitted when receiver frequency has changed */
     void rxFreqChanged(qint64 freq_hz);
 
@@ -206,7 +218,7 @@ signals:
     void cwOffsetChanged(int offset);
 
 private slots:
-    void on_freqSpinBox_valueChanged(double freq);
+    void on_filterOffset_newFrequency(qint64 offset);
     void on_filterFreq_newFrequency(qint64 freq);
     void on_filterCombo_activated(int index);
     void on_modeSelector_activated(int index);
@@ -248,6 +260,9 @@ private:
     bool agc_is_on;
 
     qint64 hw_freq_hz;   /** Current PLL frequency in Hz. */
+
+    QList<QMetaObject::Connection> shortcutConnections;
+    QList<QShortcut*> shortcuts;
 };
 
 #endif // DOCKRXOPT_H

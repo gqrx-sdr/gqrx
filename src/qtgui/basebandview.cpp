@@ -3,7 +3,7 @@
  * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
  *           https://gqrx.dk/
  *
- * Copyright 2011-2013 Alexandru Csete OZ9AEC.
+ * Copyright 2021 Doug Hammond.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,44 +20,26 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#ifndef DOCKRDS_H
-#define DOCKRDS_H
-#include <QFrame>
-#include <QSettings>
 
-namespace Ui {
-    class DockRDS;
+#include "basebandview.h"
+#include "ui_basebandview.h"
+
+BasebandView::BasebandView(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::BasebandView)
+{
+    ui->setupUi(this);
 }
 
-
-class DockRDS : public QFrame
+BasebandView::~BasebandView()
 {
-    Q_OBJECT
+    delete ui;
+}
 
-public:
-    explicit DockRDS(QWidget *parent = 0);
-    ~DockRDS();
+CFreqCtrl* BasebandView::freqCtrl() {
+    return ui->freqCtrl;
+}
 
-public slots:
-    void updateRDS(QString text, int type);
-    void showEnabled();
-    void showDisabled();
-    void setEnabled();
-    void setDisabled();
-    void setRDSmode(bool cmd);
-
-private:
-    void ClearTextFields();
-
-signals:
-    void rdsDecoderToggled(bool);
-    void rdsPI(QString text);
-
-private slots:
-    void on_rdsCheckbox_toggled(bool checked);
-
-private:
-    Ui::DockRDS *ui;        /*! The Qt designer UI file. */
-};
-
-#endif // DOCKRDS_H
+CPlotter* BasebandView::plotter() {
+    return ui->plotter;
+}

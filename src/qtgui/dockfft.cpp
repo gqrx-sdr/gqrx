@@ -38,7 +38,7 @@
 #define DEFAULT_COLORMAP        "gqrx"
 
 DockFft::DockFft(QWidget *parent) :
-    QDockWidget(parent),
+    QFrame(parent),
     ui(new Ui::DockFft)
 {
     ui->setupUi(this);
@@ -50,7 +50,6 @@ DockFft::DockFft(QWidget *parent) :
     ui->lockButton->setMinimumSize(48, 24);
     ui->resetButton->setMinimumSize(48, 24);
     ui->centerButton->setMinimumSize(48, 24);
-    ui->demodButton->setMinimumSize(48, 24);
     ui->fillButton->setMinimumSize(48, 24);
     ui->colorPicker->setMinimumSize(48, 24);
 #endif
@@ -94,8 +93,7 @@ int DockFft::fftRate()
     fps = strval.toInt(&ok, 10);
 
     if (!ok)
-        qDebug() << "DockFft::fftRate : Could not convert" <<
-                    strval << "to number.";
+        qInfo() << "DockFft::fftRate : Could not convert" << strval << "to number.";
     else
         qDebug() << "New FFT rate:" << fps << "Hz";
 
@@ -165,12 +163,12 @@ int DockFft::fftSize()
 
     if (!ok)
     {
-        qDebug() << __func__ << "could not convert" << strval << "to number.";
+        qInfo() << __func__ << "could not convert" << strval << "to number.";
     }
 
     if (fft_size == 0)
     {
-        qDebug() << "Somehow we ended up with FFT size = 0; using" << DEFAULT_FFT_SIZE;
+        qInfo() << "Somehow we ended up with FFT size = 0; using" << DEFAULT_FFT_SIZE;
         fft_size = DEFAULT_FFT_SIZE;
     }
 
@@ -178,7 +176,7 @@ int DockFft::fftSize()
 }
 
 /** Save FFT settings. */
-void DockFft::saveSettings(QSettings *settings)
+void DockFft::saveSettings(std::shared_ptr<QSettings> settings)
 {
     int  intval;
 
@@ -278,7 +276,7 @@ void DockFft::saveSettings(QSettings *settings)
 }
 
 /** Read FFT settings. */
-void DockFft::readSettings(QSettings *settings)
+void DockFft::readSettings(std::shared_ptr<QSettings> settings)
 {
     int     intval;
     int     fft_min, fft_max;
@@ -349,6 +347,13 @@ void DockFft::readSettings(QSettings *settings)
     ui->cmapComboBox->setCurrentIndex(ui->cmapComboBox->findData(cmap));
 
     settings->endGroup();
+}
+
+void DockFft::emitCurrentSettings()
+{
+    // Add any signals here which are required to initialise/sync
+    // the state of other UI components (e.g. demodulator_controllers).
+    emit wfColormapChanged(ui->cmapComboBox->currentData().toString());
 }
 
 void DockFft::setPandapterRange(float min, float max)
@@ -490,11 +495,6 @@ void DockFft::on_resetButton_clicked(void)
 void DockFft::on_centerButton_clicked(void)
 {
     emit gotoFftCenter();
-}
-
-void DockFft::on_demodButton_clicked(void)
-{
-    emit gotoDemodFreq();
 }
 
 /** FFT color has changed. */

@@ -22,11 +22,11 @@
  */
 #include <QDebug>
 #include <QVariant>
-#include <QShortcut>
+
 #include <iostream>
+
 #include "dockrxopt.h"
 #include "ui_dockrxopt.h"
-
 
 QStringList DockRxOpt::ModulationStrings;
 
@@ -64,7 +64,7 @@ static const int filter_preset_table[DockRxOpt::MODE_LAST][3][2] =
 };
 
 DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
-    QDockWidget(parent),
+    QFrame(parent),
     ui(new Ui::DockRxOpt),
     agc_is_on(true),
     hw_freq_hz(144500000)
@@ -99,11 +99,11 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     ui->nb1Button->setMinimumSize(32, 24);
 #endif
 
-    ui->filterFreq->setup(7, -filterOffsetRange/2, filterOffsetRange/2, 1,
-                          FCTL_UNIT_KHZ);
-    ui->filterFreq->setFrequency(0);
+    connect(ui->actionRemoveDemodulator, SIGNAL(triggered()), this, SIGNAL(remove()));
+    connect(ui->actionAddBookmark, SIGNAL(triggered()), this, SIGNAL(bookmark()));
+    connect(ui->actionCenterFFT, SIGNAL(triggered()), this, SIGNAL(centerFFT()));
 
-    // use same slot for filteCombo and filterShapeCombo
+    // use same slot for filterCombo and filterShapeCombo
     connect(ui->filterShapeCombo, SIGNAL(activated(int)), this, SLOT(on_filterCombo_activated(int)));
 
     // demodulator options dialog
@@ -127,53 +127,153 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     // Noise blanker options
     nbOpt = new CNbOptions(this);
     connect(nbOpt, SIGNAL(thresholdChanged(int,double)), this, SLOT(nbOpt_thresholdChanged(int,double)));
+}
+
+/**
+ * @brief DockRxOpt::setupShortcuts - keyboard shortcuts
+ */
+void DockRxOpt::setupShortcuts(const size_t idx)
+{
+    // Remove any existing shortcuts
+    removeShortcuts();
+
+    // pre-select demod with a key combo
+    int dkey = -1;
+    switch (idx) {
+    case 0:
+        dkey = Qt::CTRL + Qt::Key_1;
+        break;
+    case 1:
+        dkey = Qt::CTRL + Qt::Key_2;
+        break;
+    case 2:
+        dkey = Qt::CTRL + Qt::Key_3;
+        break;
+    case 3:
+        dkey = Qt::CTRL + Qt::Key_4;
+        break;
+    case 4:
+        dkey = Qt::CTRL + Qt::Key_5;
+        break;
+    case 5:
+        dkey = Qt::CTRL + Qt::Key_6;
+        break;
+    case 6:
+        dkey = Qt::CTRL + Qt::Key_7;
+        break;
+    case 7:
+        dkey = Qt::CTRL + Qt::Key_8;
+        break;
+    case 8:
+        dkey = Qt::CTRL + Qt::Key_9;
+        break;
+    case 9:
+        dkey = Qt::CTRL + Qt::Key_0;
+        break;
+    }
+
+    // Do not set up shortcuts if the demod cannot be pre-selected
+    if (dkey < 0) {
+        return;
+    }
+
+    /* UI Controls */
+    QShortcut *ui_properties_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_P), this);
+    QShortcut *ui_focus_offset = new QShortcut(QKeySequence(dkey, Qt::SHIFT + Qt::Key_O), this);
+    QShortcut *ui_focus_freq = new QShortcut(QKeySequence(dkey, Qt::Key_F), this);
+    shortcutConnections.push_back(QObject::connect(ui_properties_shortcut, &QShortcut::activated, ui->tbProperties, &QToolButton::click));
+    shortcutConnections.push_back(QObject::connect(ui_focus_offset, &QShortcut::activated, ui->filterOffset, &CFreqCtrl::setFrequencyFocus));
+    shortcutConnections.push_back(QObject::connect(ui_focus_freq, &QShortcut::activated, ui->filterFreq, &CFreqCtrl::setFrequencyFocus));
 
     /* mode setting shortcuts */
-    QShortcut *mode_off_shortcut = new QShortcut(QKeySequence(Qt::Key_Exclam), this);
-    QShortcut *mode_raw_shortcut = new QShortcut(QKeySequence(Qt::Key_I), this);
-    QShortcut *mode_am_shortcut = new QShortcut(QKeySequence(Qt::Key_A), this);
-    QShortcut *mode_nfm_shortcut = new QShortcut(QKeySequence(Qt::Key_N), this);
-    QShortcut *mode_wfm_mono_shortcut = new QShortcut(QKeySequence(Qt::Key_W), this);
-    QShortcut *mode_wfm_stereo_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_W), this);
-    QShortcut *mode_lsb_shortcut = new QShortcut(QKeySequence(Qt::Key_S), this);
-    QShortcut *mode_usb_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_S), this);
-    QShortcut *mode_cwl_shortcut = new QShortcut(QKeySequence(Qt::Key_C), this);
-    QShortcut *mode_cwu_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_C), this);
-    QShortcut *mode_wfm_oirt_shortcut = new QShortcut(QKeySequence(Qt::Key_O), this);
-    QShortcut *mode_am_sync_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_A), this);
+    QShortcut *mode_off_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_O), this);
+    QShortcut *mode_raw_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_I), this);
+    QShortcut *mode_am_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_A), this);
+    QShortcut *mode_nfm_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_N), this);
+    QShortcut *mode_wfm_mono_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_W), this);
+    QShortcut *mode_wfm_stereo_shortcut = new QShortcut(QKeySequence(dkey, Qt::SHIFT + Qt::Key_W), this);
+    QShortcut *mode_lsb_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_S), this);
+    QShortcut *mode_usb_shortcut = new QShortcut(QKeySequence(dkey, Qt::SHIFT + Qt::Key_S), this);
+    QShortcut *mode_cwl_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_C), this);
+    QShortcut *mode_cwu_shortcut = new QShortcut(QKeySequence(dkey, Qt::SHIFT + Qt::Key_C), this);
+    QShortcut *mode_wfm_oirt_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_O), this);
+    QShortcut *mode_am_sync_shortcut = new QShortcut(QKeySequence(dkey, Qt::SHIFT + Qt::Key_A), this);
 
-    QObject::connect(mode_off_shortcut, &QShortcut::activated, this, &DockRxOpt::modeOffShortcut);
-    QObject::connect(mode_raw_shortcut, &QShortcut::activated, this, &DockRxOpt::modeRawShortcut);
-    QObject::connect(mode_am_shortcut, &QShortcut::activated, this, &DockRxOpt::modeAMShortcut);
-    QObject::connect(mode_nfm_shortcut, &QShortcut::activated, this, &DockRxOpt::modeNFMShortcut);
-    QObject::connect(mode_wfm_mono_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMmonoShortcut);
-    QObject::connect(mode_wfm_stereo_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMstereoShortcut);
-    QObject::connect(mode_lsb_shortcut, &QShortcut::activated, this, &DockRxOpt::modeLSBShortcut);
-    QObject::connect(mode_usb_shortcut, &QShortcut::activated, this, &DockRxOpt::modeUSBShortcut);
-    QObject::connect(mode_cwl_shortcut, &QShortcut::activated, this, &DockRxOpt::modeCWLShortcut);
-    QObject::connect(mode_cwu_shortcut, &QShortcut::activated, this, &DockRxOpt::modeCWUShortcut);
-    QObject::connect(mode_wfm_oirt_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMoirtShortcut);
-    QObject::connect(mode_am_sync_shortcut, &QShortcut::activated, this, &DockRxOpt::modeAMsyncShortcut);
+    shortcutConnections.push_back(QObject::connect(mode_off_shortcut, &QShortcut::activated, this, &DockRxOpt::modeOffShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_raw_shortcut, &QShortcut::activated, this, &DockRxOpt::modeRawShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_am_shortcut, &QShortcut::activated, this, &DockRxOpt::modeAMShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_nfm_shortcut, &QShortcut::activated, this, &DockRxOpt::modeNFMShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_wfm_mono_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMmonoShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_wfm_stereo_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMstereoShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_lsb_shortcut, &QShortcut::activated, this, &DockRxOpt::modeLSBShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_usb_shortcut, &QShortcut::activated, this, &DockRxOpt::modeUSBShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_cwl_shortcut, &QShortcut::activated, this, &DockRxOpt::modeCWLShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_cwu_shortcut, &QShortcut::activated, this, &DockRxOpt::modeCWUShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_wfm_oirt_shortcut, &QShortcut::activated, this, &DockRxOpt::modeWFMoirtShortcut));
+    shortcutConnections.push_back(QObject::connect(mode_am_sync_shortcut, &QShortcut::activated, this, &DockRxOpt::modeAMsyncShortcut));
 
     /* squelch shortcuts */
-    QShortcut *squelch_reset_shortcut = new QShortcut(QKeySequence(Qt::Key_QuoteLeft), this);
-    QShortcut *squelch_auto_shortcut = new QShortcut(QKeySequence(Qt::Key_AsciiTilde), this);
+    QShortcut *squelch_reset_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_QuoteLeft), this);
+    QShortcut *squelch_auto_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_AsciiTilde), this);
 
-    QObject::connect(squelch_reset_shortcut, &QShortcut::activated, this, &DockRxOpt::on_resetSquelchButton_clicked);
-    QObject::connect(squelch_auto_shortcut, &QShortcut::activated, this, &DockRxOpt::on_autoSquelchButton_clicked);
+    shortcutConnections.push_back(QObject::connect(squelch_reset_shortcut, &QShortcut::activated, this, &DockRxOpt::on_resetSquelchButton_clicked));
+    shortcutConnections.push_back(QObject::connect(squelch_auto_shortcut, &QShortcut::activated, this, &DockRxOpt::on_autoSquelchButton_clicked));
 
     /* filter width shortcuts */
-    QShortcut *filter_narrow_shortcut = new QShortcut(QKeySequence(Qt::Key_Less), this);
-    QShortcut *filter_normal_shortcut = new QShortcut(QKeySequence(Qt::Key_Period), this);
-    QShortcut *filter_wide_shortcut = new QShortcut(QKeySequence(Qt::Key_Greater), this);
+    QShortcut *filter_narrow_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_Less), this);
+    QShortcut *filter_normal_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_Period), this);
+    QShortcut *filter_wide_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_Greater), this);
 
-    QObject::connect(filter_narrow_shortcut, &QShortcut::activated, this, &DockRxOpt::filterNarrowShortcut);
-    QObject::connect(filter_normal_shortcut, &QShortcut::activated, this, &DockRxOpt::filterNormalShortcut);
-    QObject::connect(filter_wide_shortcut, &QShortcut::activated, this, &DockRxOpt::filterWideShortcut);
+    shortcutConnections.push_back(QObject::connect(filter_narrow_shortcut, &QShortcut::activated, this, &DockRxOpt::filterNarrowShortcut));
+    shortcutConnections.push_back(QObject::connect(filter_normal_shortcut, &QShortcut::activated, this, &DockRxOpt::filterNormalShortcut));
+    shortcutConnections.push_back(QObject::connect(filter_wide_shortcut, &QShortcut::activated, this, &DockRxOpt::filterWideShortcut));
+
+    /* Bookmark */
+    QShortcut *bookmark_shortcut = new QShortcut(QKeySequence(dkey, Qt::CTRL + Qt::SHIFT + Qt::Key_B), this);
+    shortcutConnections.push_back(QObject::connect(bookmark_shortcut, &QShortcut::activated, this, &DockRxOpt::bookmark));
+
+    // Store all the shortcut pointers so we can remove them
+    shortcuts.push_back(ui_properties_shortcut);
+    shortcuts.push_back(ui_focus_offset);
+    shortcuts.push_back(ui_focus_freq);
+    shortcuts.push_back(mode_off_shortcut);
+    shortcuts.push_back(mode_raw_shortcut);
+    shortcuts.push_back(mode_am_shortcut);
+    shortcuts.push_back(mode_nfm_shortcut);
+    shortcuts.push_back(mode_wfm_mono_shortcut);
+    shortcuts.push_back(mode_wfm_stereo_shortcut);
+    shortcuts.push_back(mode_lsb_shortcut);
+    shortcuts.push_back(mode_usb_shortcut);
+    shortcuts.push_back(mode_cwl_shortcut);
+    shortcuts.push_back(mode_cwu_shortcut);
+    shortcuts.push_back(mode_wfm_oirt_shortcut);
+    shortcuts.push_back(mode_am_sync_shortcut);
+    shortcuts.push_back(squelch_reset_shortcut);
+    shortcuts.push_back(squelch_auto_shortcut);
+    shortcuts.push_back(filter_narrow_shortcut);
+    shortcuts.push_back(filter_normal_shortcut);
+    shortcuts.push_back(filter_wide_shortcut);
+    shortcuts.push_back(bookmark_shortcut);
+}
+
+void DockRxOpt::removeShortcuts()
+{
+    for (int i = 0; i < shortcutConnections.size(); ++i)
+    {
+        disconnect(shortcutConnections[i]);
+    }
+    shortcutConnections.clear();
+    for (int i = 0; i < shortcuts.size(); ++i)
+    {
+        delete shortcuts[i];
+    }
+    shortcuts.clear();
 }
 
 DockRxOpt::~DockRxOpt()
 {
+    removeShortcuts();
+
     delete ui;
     delete demodOpt;
     delete agcOpt;
@@ -186,7 +286,15 @@ DockRxOpt::~DockRxOpt()
  */
 void DockRxOpt::setFilterOffset(qint64 freq_hz)
 {
-    ui->filterFreq->setFrequency(freq_hz);
+//    qInfo() << "DockRxOpt::setFilterOffset" << freq_hz;
+
+    auto afreq_hz = abs(freq_hz);
+    FctlUnit unit = FCTL_UNIT_HZ;
+    if (afreq_hz > 1e9) unit = FCTL_UNIT_GHZ;
+    else if (afreq_hz > 1e6) unit = FCTL_UNIT_MHZ;
+    else if (afreq_hz > 1e3) unit = FCTL_UNIT_KHZ;
+    ui->filterOffset->setUnit(unit);
+    ui->filterOffset->setFrequency(freq_hz);
 }
 
 /**
@@ -195,38 +303,33 @@ void DockRxOpt::setFilterOffset(qint64 freq_hz)
  */
 void DockRxOpt::setFilterOffsetRange(qint64 range_hz)
 {
-    int num_digits;
-
     if (range_hz <= 0)
         return;
 
-    range_hz /= 2;
-    if (range_hz < 100e3)
-        num_digits = 5;
-    else if (range_hz < 1e6)
-        num_digits = 6;
-    else if (range_hz < 1e7)
-        num_digits = 7;
-    else if (range_hz < 1e8)
-        num_digits = 8;
-    else
-        num_digits = 9;
-
-    ui->filterFreq->setup(num_digits, -range_hz, range_hz, 1, FCTL_UNIT_KHZ);
+    ui->filterOffset->setup(0, -range_hz, range_hz, 1, FCTL_UNIT_KHZ);
 }
 
 /**
  * @brief Set new RF frequency
  * @param freq_hz The frequency in Hz
  *
- * RF frequency is the frequency to which the device device is tuned to
- * The actual RX frequency is the sum of the RF frequency and the filter
- * offset.
+ * RF frequency is the frequency to which the receiver device is tuned to.
+ * The actual RX frequency is the sum of the RF frequency and the filter offset.
  */
-void DockRxOpt::setHwFreq(qint64 freq_hz)
+void DockRxOpt::setHwFreq(qint64 freq_hz, bool maintain_rx_freq)
 {
+    // qInfo() << "DockRxOpt::setHwFreq" << freq_hz;
     hw_freq_hz = freq_hz;
     updateHwFreq();
+
+    if (maintain_rx_freq) {
+        // Change the offset to keep the same output Rx freq
+        auto rx_freq = ui->filterFreq->getFrequency();
+        auto new_offset = rx_freq - hw_freq_hz;
+        ui->filterOffset->setFrequency(new_offset);
+    } else {
+        setRxFreq(hw_freq_hz + ui->filterOffset->getFrequency());
+    }
 }
 
 /** Update RX frequency label. */
@@ -357,6 +460,12 @@ double DockRxOpt::currentEmph() const
 void DockRxOpt::setSquelchLevel(double level)
 {
     ui->sqlSpinBox->setValue(level);
+    ui->sMeter->setSqlLevel(level);
+}
+
+void DockRxOpt::setSignalLevel(float level)
+{
+    ui->sMeter->setLevel(level);
 }
 
 double DockRxOpt::getSqlLevel(void) const
@@ -373,18 +482,17 @@ double DockRxOpt::currentSquelchLevel() const
     return ui->sqlSpinBox->value();
 }
 
-
 /** Get filter lo/hi for a given mode and preset */
 void DockRxOpt::getFilterPreset(int mode, int preset, int * lo, int * hi) const
 {
     if (mode < 0 || mode >= MODE_LAST)
     {
-        qDebug() << __func__ << ": Invalid mode:" << mode;
+        qInfo() << __func__ << ": Invalid mode:" << mode;
         mode = MODE_AM;
     }
     else if (preset < 0 || preset > 2)
     {
-        qDebug() << __func__ << ": Invalid preset:" << preset;
+        qInfo() << __func__ << ": Invalid preset:" << preset;
         preset = FILTER_PRESET_NORMAL;
     }
     *lo = filter_preset_table[mode][preset][0];
@@ -397,41 +505,80 @@ int DockRxOpt::getCwOffset() const
 }
 
 /** Read receiver configuration from settings data. */
-void DockRxOpt::readSettings(QSettings *settings)
+void DockRxOpt::readSettings(std::shared_ptr<QSettings> settings, size_t idx)
 {
     bool    conv_ok;
     int     int_val;
     double  dbl_val;
+    bool    bool_val;
 
-    int_val = settings->value("receiver/cwoffset", 700).toInt(&conv_ok);
+    auto configVersion = settings->value("configversion").toInt(&conv_ok);
+
+    settings->beginGroup("receiver");
+
+    // Migrate v3 settings for 1st demod only
+    if (configVersion < 4 && idx == 0)
+    {
+        QStringList v3Keys({
+            "cwoffset",
+            "fm_maxdev",
+            "fm_deemph",
+            "offset",
+            "sql_level",
+            "agc_threshold",
+            "agc_delay",
+            "agc_slope",
+            "agc_gain",
+            "agc_usehang",
+            "agc_off",
+            "demod",
+        });
+        for (auto &key : v3Keys)
+        {
+            if (settings->contains(key)) {
+                settings->setValue("0/" + key, settings->value(key));
+                settings->remove(key);
+            }
+        }
+    }
+
+    settings->beginGroup(QString("%0").arg(idx));
+
+    settings->beginGroup("ui");
+    bool_val = settings->value("hide_properties", false).toBool();
+    if (bool_val)
+        ui->tbProperties->setChecked(false);
+    settings->endGroup(); // ui
+
+    int_val = settings->value("cwoffset", 700).toInt(&conv_ok);
     if (conv_ok)
         demodOpt->setCwOffset(int_val);
 
-    int_val = settings->value("receiver/fm_maxdev", 2500).toInt(&conv_ok);
+    int_val = settings->value("fm_maxdev", 2500).toInt(&conv_ok);
     if (conv_ok)
         demodOpt->setMaxDev(int_val);
 
-    dbl_val = settings->value("receiver/fm_deemph", 75).toDouble(&conv_ok);
+    dbl_val = settings->value("fm_deemph", 75).toDouble(&conv_ok);
     if (conv_ok && dbl_val >= 0)
         demodOpt->setEmph(1.0e-6 * dbl_val); // was stored as usec
 
-    qint64 offs = settings->value("receiver/offset", 0).toInt(&conv_ok);
-    if (offs)
+    qint64 offs = settings->value("offset", 0).toInt(&conv_ok);
+    if (conv_ok)
     {
+        // qInfo() << "DockRxOpt::readSettings recalls offset" << offs;
         setFilterOffset(offs);
-        emit filterOffsetChanged(offs);
     }
 
-    dbl_val = settings->value("receiver/sql_level", 1.0).toDouble(&conv_ok);
+    dbl_val = settings->value("sql_level", 1.0).toDouble(&conv_ok);
     if (conv_ok && dbl_val < 1.0)
         ui->sqlSpinBox->setValue(dbl_val);
 
     // AGC settings
-    int_val = settings->value("receiver/agc_threshold", -100).toInt(&conv_ok);
+    int_val = settings->value("agc_threshold", -100).toInt(&conv_ok);
     if (conv_ok)
         agcOpt->setThreshold(int_val);
 
-    int_val = settings->value("receiver/agc_decay", 500).toInt(&conv_ok);
+    int_val = settings->value("agc_decay", 500).toInt(&conv_ok);
     if (conv_ok)
     {
         agcOpt->setDecay(int_val);
@@ -445,138 +592,153 @@ void DockRxOpt::readSettings(QSettings *settings)
             ui->agcPresetCombo->setCurrentIndex(3);
     }
 
-    int_val = settings->value("receiver/agc_slope", 0).toInt(&conv_ok);
+    int_val = settings->value("agc_slope", 0).toInt(&conv_ok);
     if (conv_ok)
         agcOpt->setSlope(int_val);
 
-    int_val = settings->value("receiver/agc_gain", 0).toInt(&conv_ok);
+    int_val = settings->value("agc_gain", 0).toInt(&conv_ok);
     if (conv_ok)
         agcOpt->setGain(int_val);
 
-    agcOpt->setHang(settings->value("receiver/agc_usehang", false).toBool());
+    agcOpt->setHang(settings->value("agc_usehang", false).toBool());
 
-    if (settings->value("receiver/agc_off", false).toBool())
+    if (settings->value("agc_off", false).toBool())
         ui->agcPresetCombo->setCurrentIndex(4);
 
     int_val = MODE_AM;
-    if (settings->contains("receiver/demod")) {
-        if (settings->value("configversion").toInt(&conv_ok) >= 3) {
-            int_val = GetEnumForModulationString(settings->value("receiver/demod").toString());
+    if (settings->contains("demod")) {
+        if (configVersion >= 3) {
+            int_val = GetEnumForModulationString(settings->value("demod").toString());
         } else {
-            int_val = old2new[settings->value("receiver/demod").toInt(&conv_ok)];
+            int_val = old2new[settings->value("demod").toInt(&conv_ok)];
         }
     }
 
     setCurrentDemod(int_val);
     emit demodSelected(int_val);
 
+    settings->endGroup(); // idx
+    settings->endGroup(); // receiver
 }
 
 /** Save receiver configuration to settings. */
-void DockRxOpt::saveSettings(QSettings *settings)
+void DockRxOpt::saveSettings(std::shared_ptr<QSettings> settings, size_t idx)
 {
     int     int_val;
 
-    settings->setValue("receiver/demod", currentDemodAsString());
+    settings->beginGroup("receiver");
+    settings->beginGroup(QString("%0").arg(idx));
+
+    settings->beginGroup("ui");
+    if (ui->tbProperties->isChecked())
+        settings->remove("hide_properties");
+    else
+        settings->setValue("hide_properties", true);
+    settings->endGroup(); // ui
+
+    settings->setValue("demod", currentDemodAsString());
 
     int cwofs = demodOpt->getCwOffset();
     if (cwofs == 700)
-        settings->remove("receiver/cwoffset");
+        settings->remove("cwoffset");
     else
-        settings->setValue("receiver/cwoffset", cwofs);
+        settings->setValue("cwoffset", cwofs);
 
     // currently we do not need the decimal
     int_val = (int)demodOpt->getMaxDev();
     if (int_val == 2500)
-        settings->remove("receiver/fm_maxdev");
+        settings->remove("fm_maxdev");
     else
-        settings->setValue("receiver/fm_maxdev", int_val);
+        settings->setValue("fm_maxdev", int_val);
 
     // save as usec
     int_val = (int)(1.0e6 * demodOpt->getEmph());
     if (int_val == 75)
-        settings->remove("receiver/fm_deemph");
+        settings->remove("fm_deemph");
     else
-        settings->setValue("receiver/fm_deemph", int_val);
+        settings->setValue("fm_deemph", int_val);
 
-    qint64 offs = ui->filterFreq->getFrequency();
-    if (offs)
-        settings->setValue("receiver/offset", offs);
-    else
-        settings->remove("receiver/offset");
+    qint64 offs = ui->filterOffset->getFrequency();
+    settings->setValue("offset", offs);
 
     qDebug() << __func__ << "*** FIXME_ SQL on/off";
     //int sql_lvl = double(ui->sqlSlider->value());  // note: dBFS*10 as int
     double sql_lvl = ui->sqlSpinBox->value();
     if (sql_lvl > -150.0)
-        settings->setValue("receiver/sql_level", sql_lvl);
+        settings->setValue("sql_level", sql_lvl);
     else
-        settings->remove("receiver/sql_level");
+        settings->remove("sql_level");
 
     // AGC settings
     int_val = agcOpt->threshold();
     if (int_val != -100)
-        settings->setValue("receiver/agc_threshold", int_val);
+        settings->setValue("agc_threshold", int_val);
     else
-        settings->remove("receiver/agc_threshold");
+        settings->remove("agc_threshold");
 
     int_val = agcOpt->decay();
     if (int_val != 500)
-        settings->setValue("receiver/agc_decay", int_val);
+        settings->setValue("agc_decay", int_val);
     else
-        settings->remove("receiver/agc_decay");
+        settings->remove("agc_decay");
 
     int_val = agcOpt->slope();
     if (int_val != 0)
-        settings->setValue("receiver/agc_slope", int_val);
+        settings->setValue("agc_slope", int_val);
     else
-        settings->remove("receiver/agc_slope");
+        settings->remove("agc_slope");
 
     int_val = agcOpt->gain();
     if (int_val != 0)
-        settings->setValue("receiver/agc_gain", int_val);
+        settings->setValue("agc_gain", int_val);
     else
-        settings->remove("receiver/agc_gain");
+        settings->remove("agc_gain");
 
     if (agcOpt->hang())
-        settings->setValue("receiver/agc_usehang", true);
+        settings->setValue("agc_usehang", true);
     else
-        settings->remove("receiver/agc_usehang");
+        settings->remove("agc_usehang");
 
     // AGC Off
     if (ui->agcPresetCombo->currentIndex() == 4)
-        settings->setValue("receiver/agc_off", true);
+        settings->setValue("agc_off", true);
     else
-        settings->remove("receiver/agc_off");
-}
+        settings->remove("agc_off");
 
-/** RX frequency changed through spin box */
-void DockRxOpt::on_freqSpinBox_valueChanged(double freq)
-{
-    emit rxFreqChanged(1.e3 * freq);
+    settings->endGroup(); // idx
+    settings->endGroup(); // receiver
 }
 
 void DockRxOpt::setRxFreq(qint64 freq_hz)
 {
-    ui->freqSpinBox->blockSignals(true);
-    ui->freqSpinBox->setValue(1.e-3 * (double)freq_hz);
-    ui->freqSpinBox->blockSignals(false);
+    // qInfo() << "DockRxOpt::setRxFreq" << freq_hz;
+    ui->filterFreq->blockSignals(true);
+    FctlUnit unit = FCTL_UNIT_HZ;
+    if (freq_hz > 1e9) unit = FCTL_UNIT_GHZ;
+    else if (freq_hz > 1e6) unit = FCTL_UNIT_MHZ;
+    else if (freq_hz > 1e3) unit = FCTL_UNIT_KHZ;
+    ui->filterFreq->setUnit(unit);
+    ui->filterFreq->setFrequency(freq_hz);
+    ui->filterFreq->blockSignals(false);
+    emit rxFreqChanged(freq_hz);
 }
 
 void DockRxOpt::setRxFreqRange(qint64 min_hz, qint64 max_hz)
 {
-    ui->freqSpinBox->blockSignals(true);
-    ui->freqSpinBox->setRange(1.e-3 * (double)min_hz, 1.e-3 * (double)max_hz);
-    ui->freqSpinBox->blockSignals(false);
+    ui->filterFreq->blockSignals(true);
+    ui->filterFreq->setup(0, min_hz, max_hz, 1, FCTL_UNIT_HZ);
+    ui->filterFreq->blockSignals(false);
 }
 
 void DockRxOpt::setResetLowerDigits(bool enabled)
 {
+    ui->filterOffset->setResetLowerDigits(enabled);
     ui->filterFreq->setResetLowerDigits(enabled);
 }
 
 void DockRxOpt::setInvertScrolling(bool enabled)
 {
+    ui->filterOffset->setInvertScrolling(enabled);
     ui->filterFreq->setInvertScrolling(enabled);
 }
 
@@ -587,11 +749,16 @@ void DockRxOpt::setInvertScrolling(bool enabled)
  * This slot is activated when a new filter offset has been selected either
  * using the mouse or using the keyboard.
  */
+void DockRxOpt::on_filterOffset_newFrequency(qint64 offset)
+{
+    // qInfo() << "DockRxOpt::on_filterOffset_newFrequency " << freq;
+    setRxFreq(hw_freq_hz + offset);
+    emit filterOffsetChanged(offset);
+}
+
 void DockRxOpt::on_filterFreq_newFrequency(qint64 freq)
 {
-    updateHwFreq();
-
-    emit filterOffsetChanged(freq);
+    ui->filterOffset->setFrequency(freq - hw_freq_hz);
 }
 
 /**
@@ -698,7 +865,7 @@ void DockRxOpt::on_agcPresetCombo_currentIndexChanged(int index)
         break;
 
     default:
-        qDebug() << "Invalid AGC preset:" << index;
+        qInfo() << "Invalid AGC preset:" << index;
     }
 }
 
@@ -749,6 +916,7 @@ void DockRxOpt::agcOpt_gainChanged(int gain)
  */
 void DockRxOpt::on_sqlSpinBox_valueChanged(double value)
 {
+    ui->sMeter->setSqlLevel(value);
     emit sqlLevelChanged(value);
 }
 

@@ -23,6 +23,8 @@
 #ifndef IOCONFIG_H
 #define IOCONFIG_H
 
+#include <memory>
+
 #include <QDialog>
 #include <QSettings>
 #include <QString>
@@ -46,7 +48,7 @@ class CIoConfig : public QDialog
     Q_OBJECT
 
 public:
-    explicit CIoConfig(QSettings *settings, std::map<QString, QVariant> &devList, QWidget *parent = 0);
+    explicit CIoConfig(std::shared_ptr<QSettings> settings, std::map<QString, QVariant> &devList, QWidget *parent = 0);
     virtual ~CIoConfig();
     static void getDeviceList(std::map<QString, QVariant> &devList);
 
@@ -61,7 +63,7 @@ private slots:
 private:
     void updateInputSampleRates(int rate);
     void updateDecimations(void);
-    void updateInDev(const QSettings *settings, const std::map<QString, QVariant> &devList);
+    void updateInDev(std::shared_ptr<QSettings> settings, const std::map<QString, QVariant> &devList);
     void updateOutDev();
     int  idx2decim(int idx) const;
     int  decim2idx(int decim) const;
@@ -69,7 +71,7 @@ private:
 
 private:
     Ui::CIoConfig  *ui;
-    QSettings      *m_settings;
+    std::shared_ptr<QSettings> m_settings;
     QPushButton    *m_scanButton;
     std::map<QString, QVariant> *m_devList; // will point to devList from constructor
 

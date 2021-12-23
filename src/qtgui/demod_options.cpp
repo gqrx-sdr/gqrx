@@ -69,7 +69,7 @@ float maxdev_from_index(int index)
         return 25000.0;
     default:
         /* Voice 5k */
-        qDebug() << "Invalid max_dev index: " << index;
+        qInfo() << "Invalid max_dev index: " << index;
         return 5000.0;
     }
 }
@@ -105,7 +105,7 @@ static float pll_bw_from_index(int index)
         /* Slow */
         return 0.0001;
     default:
-        qDebug() << "Invalid AM-Sync PLL BW index: " << index;
+        qInfo() << "Invalid AM-Sync PLL BW index: " << index;
         return 0.001;
     }
 }

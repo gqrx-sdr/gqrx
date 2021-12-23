@@ -3,7 +3,7 @@
  * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
  *           https://gqrx.dk/
  *
- * Copyright 2011-2013 Alexandru Csete OZ9AEC.
+ * Copyright 2011 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,44 +20,41 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#ifndef DOCKRDS_H
-#define DOCKRDS_H
+#ifndef DOCKAFSK1200_H
+#define DOCKAFSK1200_H
+
 #include <QFrame>
-#include <QSettings>
+#include <QVarLengthArray>
+#include "dsp/afsk1200/cafsk12.h"
 
 namespace Ui {
-    class DockRDS;
+class DockAFSK1200;
 }
 
-
-class DockRDS : public QFrame
+class DockAFSK1200 : public QFrame
 {
     Q_OBJECT
 
 public:
-    explicit DockRDS(QWidget *parent = 0);
-    ~DockRDS();
+    explicit DockAFSK1200(QWidget *parent = nullptr);
+    ~DockAFSK1200();
 
-public slots:
-    void updateRDS(QString text, int type);
-    void showEnabled();
-    void showDisabled();
-    void setEnabled();
-    void setDisabled();
-    void setRDSmode(bool cmd);
-
-private:
-    void ClearTextFields();
+    void process_samples(float *buffer, int length);
 
 signals:
-    void rdsDecoderToggled(bool);
-    void rdsPI(QString text);
+    void afskDecoderToggled(bool checked);
 
 private slots:
-    void on_rdsCheckbox_toggled(bool checked);
+    void on_actionClear_triggered();
+    void on_actionSave_triggered();
+    void on_actionInfo_triggered();
+    void on_cbEnabled_toggled(bool checked);
 
 private:
-    Ui::DockRDS *ui;        /*! The Qt designer UI file. */
+    Ui::DockAFSK1200 *ui;
+
+    CAfsk12                         *decoder;   /*! The AFSK1200 decoder object. */
+    QVarLengthArray<float, 16384>   tmpbuf;     /*! Needed to remember "overlap" samples. */
 };
 
-#endif // DOCKRDS_H
+#endif // DOCKAFSK1200_H

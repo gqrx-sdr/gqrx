@@ -88,7 +88,9 @@ udp_sink_f::~udp_sink_f()
  */
 void udp_sink_f::start_streaming(const std::string host, int port, bool stereo)
 {
-    lock();
+    // calling lock() here hangs the app - ??
+    // work around this by having the caller lock the top-block instead
+    // lock();
     disconnect_all();
 
     std::cout << "Starting UDP streaming, Host: " << host;
@@ -110,9 +112,9 @@ void udp_sink_f::start_streaming(const std::string host, int port, bool stereo)
     {
         connect(self(), 0, d_f2s, 0);
         connect(d_f2s, 0, d_sink, 0);
-        connect(self(), 1, d_null0, 0);
+        connect(self(), 1, d_null1, 0);
     }
-    unlock();
+    // unlock();
 
 #if GNURADIO_VERSION < 0x031000
     d_sink->connect(host, port);
@@ -122,11 +124,13 @@ void udp_sink_f::start_streaming(const std::string host, int port, bool stereo)
 
 void udp_sink_f::stop_streaming(void)
 {
-    lock();
+    // calling lock() here hangs the app - ??
+    // work around this by having the caller lock the top-block instead
+    // lock();
     disconnect_all();
     connect(self(), 0, d_null0, 0);
     connect(self(), 1, d_null1, 0);
-    unlock();
+    // unlock();
 
     std::cout << "Disconnected UDP streaming" << std::endl;
 

@@ -77,6 +77,9 @@ public:
     void set_audio_rate(float audio_rate);
 
     void set_filter(double low, double high, double tw);
+    double get_filter_low() const;
+    double get_filter_high() const;
+
     void set_cw_offset(double offset);
 
     float get_signal_level();

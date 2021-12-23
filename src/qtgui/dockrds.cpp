@@ -26,7 +26,7 @@
 #include "ui_dockrds.h"
 
 DockRDS::DockRDS(QWidget *parent) :
-    QDockWidget(parent),
+    QFrame(parent),
     ui(new Ui::DockRDS)
 {
     ui->setupUi(this);

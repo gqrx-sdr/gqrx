@@ -220,6 +220,8 @@ void CFreqCtrl::setFrequency(qint64 freq)
     qint64    rem;
     int       val;
 
+//    qInfo() << "CFreqCtrl::setFrequency" << freq;
+
     if (freq == m_Oldfreq)
         return;
 
@@ -301,7 +303,7 @@ void CFreqCtrl::setUnit(FctlUnit unit)
         break;
     case FCTL_UNIT_HZ:
         m_DecPos = 0;
-        m_UnitString = "Hz ";
+        m_UnitString = " Hz";
         break;
     case FCTL_UNIT_KHZ:
         m_DecPos = 3;

@@ -3,7 +3,7 @@
  * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
  *           https://gqrx.dk/
  *
- * Copyright 2020 Oliver Grossmann.
+ * Copyright 2021 Doug Hammond.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,45 +20,31 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#ifndef DXC_OPTIONS_H
-#define DXC_OPTIONS_H
+#ifndef BASEBANDVIEW_H
+#define BASEBANDVIEW_H
 
+#include <QWidget>
 
-#include <QCloseEvent>
-#include <QShowEvent>
-#include <QTcpSocket>
-#include <QSettings>
-
-#include <QDialog>
+#include "qtgui/freqctrl.h"
+#include "qtgui/plotter.h"
 
 namespace Ui {
-class DXCOptions;
+class BasebandView;
 }
 
-class DXCOptions : public QDialog
+class BasebandView : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit DXCOptions(QWidget *parent = 0);
-    ~DXCOptions();
+    explicit BasebandView(QWidget *parent = nullptr);
+    ~BasebandView();
 
-    void closeEvent(QCloseEvent *event);
-    void showEvent(QShowEvent * event);
-    void saveSettings(QSettings *settings);
-    void readSettings(QSettings *settings);
-
-private slots:
-
-    void on_pushButton_DXCConnect_clicked();
-    void on_pushButton_DXCDisconnect_clicked();
-    void connected();
-    void disconnected();
-    void readyToRead();
+    CFreqCtrl* freqCtrl();
+    CPlotter* plotter();
 
 private:
-    Ui::DXCOptions *ui;
-    QTcpSocket *m_socket;
+    Ui::BasebandView *ui;
 };
 
-#endif // DXC_OPTIONS_H
+#endif // BASEBANDVIEW_H

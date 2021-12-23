@@ -23,7 +23,6 @@
 #include <cmath>
 #include <QDebug>
 #include <QDateTime>
-#include <QShortcut>
 #include <QDir>
 #include "dockaudio.h"
 #include "ui_dockaudio.h"
@@ -31,7 +30,7 @@
 #define DEFAULT_FFT_SPLIT 100
 
 DockAudio::DockAudio(QWidget *parent) :
-    QDockWidget(parent),
+    QFrame(parent),
     ui(new Ui::DockAudio),
     autoSpan(true),
     rx_freq(144000000)
@@ -65,7 +64,6 @@ DockAudio::DockAudio(QWidget *parent) :
     ui->audioSpectrum->setCenterFreq(0);
     ui->audioSpectrum->setPercent2DScreen(DEFAULT_FFT_SPLIT);
     ui->audioSpectrum->setFftCenterFreq(6000);
-    ui->audioSpectrum->setDemodCenterFreq(0);
     ui->audioSpectrum->setFilterBoxEnabled(false);
     ui->audioSpectrum->setCenterLineEnabled(false);
     ui->audioSpectrum->setBookmarksEnabled(false);
@@ -74,20 +72,12 @@ DockAudio::DockAudio(QWidget *parent) :
     ui->audioSpectrum->setVdivDelta(40);
     ui->audioSpectrum->setHdivDelta(40);
     ui->audioSpectrum->setFreqDigits(1);
-
-    QShortcut *rec_toggle_shortcut = new QShortcut(QKeySequence(Qt::Key_R), this);
-    QShortcut *mute_toggle_shortcut = new QShortcut(QKeySequence(Qt::Key_M), this);
-    QShortcut *audio_gain_increase_shortcut1 = new QShortcut(QKeySequence(Qt::Key_Plus), this);
-    QShortcut *audio_gain_decrease_shortcut1 = new QShortcut(QKeySequence(Qt::Key_Minus), this);
-
-    QObject::connect(rec_toggle_shortcut, &QShortcut::activated, this, &DockAudio::recordToggleShortcut);
-    QObject::connect(mute_toggle_shortcut, &QShortcut::activated, this, &DockAudio::muteToggleShortcut);
-    QObject::connect(audio_gain_increase_shortcut1, &QShortcut::activated, this, &DockAudio::increaseAudioGainShortcut);
-    QObject::connect(audio_gain_decrease_shortcut1, &QShortcut::activated, this, &DockAudio::decreaseAudioGainShortcut);
 }
 
 DockAudio::~DockAudio()
 {
+    removeShortcuts();
+
     delete ui;
 }
 
@@ -143,6 +133,82 @@ void DockAudio::setFftFill(bool enabled)
     ui->audioSpectrum->setFftFill(enabled);
 }
 
+void DockAudio::setupShortcuts(const size_t idx)
+{
+    // Remove any existing shortcuts
+    removeShortcuts();
+
+    // pre-select demod with a key combo
+    int dkey = -1;
+    switch (idx) {
+    case 0:
+        dkey = Qt::CTRL + Qt::Key_1;
+        break;
+    case 1:
+        dkey = Qt::CTRL + Qt::Key_2;
+        break;
+    case 2:
+        dkey = Qt::CTRL + Qt::Key_3;
+        break;
+    case 3:
+        dkey = Qt::CTRL + Qt::Key_4;
+        break;
+    case 4:
+        dkey = Qt::CTRL + Qt::Key_5;
+        break;
+    case 5:
+        dkey = Qt::CTRL + Qt::Key_6;
+        break;
+    case 6:
+        dkey = Qt::CTRL + Qt::Key_7;
+        break;
+    case 7:
+        dkey = Qt::CTRL + Qt::Key_8;
+        break;
+    case 8:
+        dkey = Qt::CTRL + Qt::Key_9;
+        break;
+    case 9:
+        dkey = Qt::CTRL + Qt::Key_0;
+        break;
+    }
+
+    // Do not set up shortcuts if the demod cannot be pre-selected
+    if (dkey < 0) {
+        return;
+    }
+
+    QShortcut *rec_toggle_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_R), this);
+    QShortcut *mute_toggle_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_M), this);
+    QShortcut *audio_gain_increase_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_Plus), this);
+    QShortcut *audio_gain_decrease_shortcut = new QShortcut(QKeySequence(dkey, Qt::Key_Minus), this);
+
+    shortcutConnections.push_back(QObject::connect(rec_toggle_shortcut, &QShortcut::activated, this, &DockAudio::recordToggleShortcut));
+    shortcutConnections.push_back(QObject::connect(mute_toggle_shortcut, &QShortcut::activated, this, &DockAudio::muteToggleShortcut));
+    shortcutConnections.push_back(QObject::connect(audio_gain_increase_shortcut, &QShortcut::activated, this, &DockAudio::increaseAudioGainShortcut));
+    shortcutConnections.push_back(QObject::connect(audio_gain_decrease_shortcut, &QShortcut::activated, this, &DockAudio::decreaseAudioGainShortcut));
+
+    // Store all the shortcut pointers so we can remove them
+    shortcuts.push_back(rec_toggle_shortcut);
+    shortcuts.push_back(mute_toggle_shortcut);
+    shortcuts.push_back(audio_gain_increase_shortcut);
+    shortcuts.push_back(audio_gain_decrease_shortcut);
+}
+
+void DockAudio::removeShortcuts()
+{
+    for (int i = 0; i < shortcutConnections.size(); ++i)
+    {
+        disconnect(shortcutConnections[i]);
+    }
+    shortcutConnections.clear();
+    for (int i = 0; i < shortcuts.size(); ++i)
+    {
+        delete shortcuts[i];
+    }
+    shortcuts.clear();
+}
+
 /*! Public slot to trig audio recording by external events (e.g. satellite AOS).
  *
  * If a recording is already in progress we ignore the event.
@@ -151,7 +217,7 @@ void DockAudio::startAudioRecorder(void)
 {
     if (ui->audioRecButton->isChecked())
     {
-        qDebug() << __func__ << "An audio recording is already in progress";
+        qInfo() << __func__ << "An audio recording is already in progress";
         return;
     }
 
@@ -168,12 +234,13 @@ void DockAudio::stopAudioRecorder(void)
     if (ui->audioRecButton->isChecked())
         ui->audioRecButton->click(); // emulate a button click
     else
-        qDebug() << __func__ << "No audio recording in progress";
+        qInfo() << __func__ << "No audio recording in progress";
 }
 
 /*! Public slot to set new RX frequency in Hz. */
 void DockAudio::setRxFrequency(qint64 freq)
 {
+    // qInfo() << "DockAudio::setRxFrequency =" << freq;
     rx_freq = freq;
 }
 
@@ -279,6 +346,8 @@ void DockAudio::on_audioConfButton_clicked()
 /*! \brief Mute audio. */
 void DockAudio::on_audioMuteButton_clicked(bool checked)
 {
+    muted = checked;
+
     if (checked)
     {
         emit audioGainChanged(-INFINITY);
@@ -289,6 +358,11 @@ void DockAudio::on_audioMuteButton_clicked(bool checked)
         float gain = float(value) / 10.0;
         emit audioGainChanged(gain);
     }
+}
+
+void DockAudio::setAudioStreamButtonState(bool checked)
+{
+    ui->audioStreamButton->setChecked(checked);
 }
 
 /*! \brief Set status of audio record button. */
@@ -325,7 +399,7 @@ void DockAudio::setAudioPlayButtonState(bool checked)
     //ui->audioRecConfButton->setEnabled(!isChecked);
 }
 
-void DockAudio::saveSettings(QSettings *settings)
+void DockAudio::saveSettings(std::shared_ptr<QSettings> settings, size_t idx)
 {
     int     ival, fft_min, fft_max;
 
@@ -333,6 +407,7 @@ void DockAudio::saveSettings(QSettings *settings)
         return;
 
     settings->beginGroup("audio");
+    settings->beginGroup(QString("%0").arg(idx));
 
     settings->setValue("gain", audioGain());
 
@@ -387,10 +462,16 @@ void DockAudio::saveSettings(QSettings *settings)
     else
         settings->remove("udp_stereo");
 
-    settings->endGroup();
+    if (muted != false)
+        settings->setValue("muted", muted);
+    else
+        settings->remove("muted");
+
+    settings->endGroup(); // idx
+    settings->endGroup(); // audio
 }
 
-void DockAudio::readSettings(QSettings *settings)
+void DockAudio::readSettings(std::shared_ptr<QSettings> settings, size_t idx)
 {
     int     bool_val, ival, fft_min, fft_max;
     bool    conv_ok = false;
@@ -398,7 +479,37 @@ void DockAudio::readSettings(QSettings *settings)
     if (!settings)
         return;
 
+    auto configVersion = settings->value("configversion").toInt(&conv_ok);
+
     settings->beginGroup("audio");
+
+    // Migrate v3 settings for 1st demod only
+    if (configVersion < 4 && idx == 0)
+    {
+        QStringList v3Keys({
+            "gain",
+            "fft_split",
+            "pandapter_min_db",
+            "pandapter_max_db",
+            "waterfall_min_db",
+            "waterfall_max_db",
+            "db_ranges_locked",
+            "rec_dir",
+            "udp_host",
+            "udp_port",
+            "udp_stereo",
+            "muted",
+        });
+        for (auto &key : v3Keys)
+        {
+            if (settings->contains(key)) {
+                settings->setValue("0/" + key, settings->value(key));
+                settings->remove(key);
+            }
+        }
+    }
+
+    settings->beginGroup(QString("%0").arg(idx));
 
     ival = settings->value("gain", QVariant(-60)).toInt(&conv_ok);
     if (conv_ok)
@@ -433,16 +544,21 @@ void DockAudio::readSettings(QSettings *settings)
 
     // Audio streaming host, port and stereo setting
     udp_host = settings->value("udp_host", "localhost").toString();
-    udp_port = settings->value("udp_port", 7355).toInt(&conv_ok);
+    udp_port = settings->value("udp_port", 7355 + (int)idx).toInt(&conv_ok);
     if (!conv_ok)
-        udp_port = 7355;
+        udp_port = 7355 + idx;
     udp_stereo = settings->value("udp_stereo", false).toBool();
 
     audioOptions->setUdpHost(udp_host);
     audioOptions->setUdpPort(udp_port);
     audioOptions->setUdpStereo(udp_stereo);
 
-    settings->endGroup();
+    muted = settings->value("muted", false).toBool();
+    ui->audioMuteButton->setChecked(muted);
+    on_audioMuteButton_clicked(muted);
+
+    settings->endGroup(); // idx
+    settings->endGroup(); // audio
 }
 
 void DockAudio::setNewPandapterRange(int min, int max)

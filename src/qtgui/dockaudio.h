@@ -23,9 +23,13 @@
 #ifndef DOCKAUDIO_H
 #define DOCKAUDIO_H
 
+#include <memory>
+
 #include <QColor>
-#include <QDockWidget>
+#include <QFrame>
 #include <QSettings>
+#include <QShortcut>
+
 #include "audio_options.h"
 
 namespace Ui {
@@ -42,7 +46,7 @@ namespace Ui {
  * This class also provides the signal/slot API necessary to connect
  * the encapsulated widgets to the rest of the application.
  */
-class DockAudio : public QDockWidget
+class DockAudio : public QFrame
 {
     Q_OBJECT
 
@@ -58,14 +62,18 @@ public:
     void setAudioGain(int gain);
     int  audioGain();
 
+    void setAudioStreamButtonState(bool checked);
     void setAudioRecButtonState(bool checked);
     void setAudioPlayButtonState(bool checked);
 
     void setFftColor(QColor color);
     void setFftFill(bool enabled);
 
-    void saveSettings(QSettings *settings);
-    void readSettings(QSettings *settings);
+    void setupShortcuts(const size_t idx);
+    void removeShortcuts();
+
+    void saveSettings(std::shared_ptr<QSettings> settings, size_t idx);
+    void readSettings(std::shared_ptr<QSettings> settings, size_t idx);
 
 public slots:
     void startAudioRecorder(void);
@@ -122,10 +130,14 @@ private:
     QString        udp_host;     /*! UDP client host name. */
     int            udp_port;     /*! UDP client port number. */
     bool           udp_stereo;   /*! Enable stereo streaming for UDP. */
+    bool           muted;        /*! Is the audio currently muted? */
 
     bool           autoSpan;     /*! Whether to allow mode-dependent auto span. */
 
     qint64         rx_freq;      /*! RX frequency used in filenames. */
+
+    QList<QMetaObject::Connection> shortcutConnections;
+    QList<QShortcut*> shortcuts;
 
     void           recordToggleShortcut();
     void           muteToggleShortcut();

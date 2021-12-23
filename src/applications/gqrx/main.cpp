@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     if (qputenv("GR_CONF_CONTROLPORT_ON", "False"))
         qDebug() << "Controlport disabled";
     else
-        qDebug() << "Failed to disable controlport";
+        qInfo() << "Failed to disable controlport";
 
     QCommandLineParser parser;
     parser.setApplicationDescription("Gqrx software defined radio receiver " VERSION);
@@ -194,11 +194,11 @@ static void reset_conf(const QString &file_name)
         if (QFile::remove(cfg_file))
             qDebug() << cfg_file << "deleted";
         else
-            qDebug() << "Failed to remove" << cfg_file;
+            qInfo() << "Failed to remove" << cfg_file;
     }
     else
     {
-        qDebug() << "Can not delete" << cfg_file << "- file does not exist!";
+        qInfo() << "Can not delete" << cfg_file << "- file does not exist!";
     }
 }
 

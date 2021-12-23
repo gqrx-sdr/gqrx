@@ -11,7 +11,7 @@ jobs:
         run: |
           sudo add-apt-repository -y ppa:gnuradio/gnuradio-releases
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends cmake qt5-default qt5-gtk-platformtheme qttranslations5-l10n libqt5svg5-dev libboost-dev libpulse-dev portaudio19-dev liblog4cpp5-dev gnuradio-dev libairspy-dev libairspyhf-dev libfreesrp-dev libhackrf-dev librtlsdr-dev libsoapysdr-dev soapysdr-module-remote libuhd-dev liborc-0.4-dev libhidapi-dev
+          sudo apt-get install -y --no-install-recommends cmake qt5-default qt5-gtk-platformtheme qttranslations5-l10n libqt5svg5-dev libqt5x11extras5-dev libboost-dev libpulse-dev portaudio19-dev liblog4cpp5-dev gnuradio-dev libairspy-dev libairspyhf-dev libfreesrp-dev libhackrf-dev librtlsdr-dev libsoapysdr-dev soapysdr-module-remote libuhd-dev liborc-0.4-dev libhidapi-dev
 
           cd /tmp
           git clone https://github.com/Nuand/bladeRF.git
@@ -68,7 +68,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Configure
-        run: mkdir build && cd build && cmake ..
+        run: mkdir build && cd build && cmake -DBUILD_EXAMPLES=OFF ..
       - name: Compile
         working-directory: build
         run: make
@@ -174,7 +174,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Configure
-        run: mkdir build && cd build && cmake ..
+        run: mkdir build && cd build && cmake -DBUILD_EXAMPLES=OFF ..
       - name: Compile
         working-directory: build
         run: make

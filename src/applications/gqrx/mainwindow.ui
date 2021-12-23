@@ -26,176 +26,14 @@
   <property name="unifiedTitleAndToolBarOnMac">
    <bool>true</bool>
   </property>
-  <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout_2">
-    <property name="spacing">
-     <number>0</number>
-    </property>
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
-     <number>0</number>
-    </property>
-    <item>
-     <widget class="QFrame" name="frame">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(31, 29, 29);</string>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Plain</enum>
-      </property>
-      <property name="lineWidth">
-       <number>0</number>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,0,0">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="topMargin">
-        <number>10</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <property name="bottomMargin">
-        <number>10</number>
-       </property>
-       <item>
-        <spacer name="horizontalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>5</width>
-           <height>15</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="CFreqCtrl" name="freqCtrl">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>280</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string/>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>5</width>
-           <height>15</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="CMeter" name="sMeter">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>150</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_1">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>5</width>
-           <height>15</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="CPlotter" name="plotter">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="autoFillBackground">
-       <bool>true</bool>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
+  <widget class="QWidget" name="centralWidget"/>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
      <width>521</width>
-     <height>24</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -246,13 +84,7 @@
     <addaction name="actionRemoteControl"/>
     <addaction name="actionRemoteConfig"/>
     <addaction name="separator"/>
-    <addaction name="actionAddBookmark"/>
     <addaction name="separator"/>
-    <addaction name="actionIqTool"/>
-    <addaction name="separator"/>
-    <addaction name="actionAFSK1200"/>
-    <addaction name="separator"/>
-    <addaction name="actionDX_Cluster"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Tools"/>
@@ -275,9 +107,7 @@
    <addaction name="actionLoadSettings"/>
    <addaction name="actionSaveSettings"/>
    <addaction name="separator"/>
-   <addaction name="actionAddBookmark"/>
-   <addaction name="separator"/>
-   <addaction name="actionIqTool"/>
+   <addaction name="actionAddDemodulator"/>
    <addaction name="separator"/>
    <addaction name="actionRemoteControl"/>
    <addaction name="actionRemoteConfig"/>
@@ -336,14 +166,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
-   </property>
-  </action>
-  <action name="actionAFSK1200">
-   <property name="text">
-    <string>AFSK1200 Decoder</string>
-   </property>
-   <property name="toolTip">
-    <string>Start AFSK1200 decoder</string>
    </property>
   </action>
   <action name="actionSched">
@@ -451,21 +273,6 @@
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="actionAddBookmark">
-   <property name="icon">
-    <iconset resource="../../../resources/icons.qrc">
-     <normaloff>:/icons/icons/bookmark-new.svg</normaloff>:/icons/icons/bookmark-new.svg</iconset>
-   </property>
-   <property name="text">
-    <string>Add bookmark</string>
-   </property>
-   <property name="toolTip">
-    <string>Bookmark the current frequency and mode (Ctrl+Shift+B)</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+B</string>
-   </property>
-  </action>
   <action name="actionRemoteControl">
    <property name="checkable">
     <bool>true</bool>
@@ -497,24 +304,6 @@
    </property>
    <property name="toolTip">
     <string>Configure remote control settings</string>
-   </property>
-  </action>
-  <action name="actionIqTool">
-   <property name="icon">
-    <iconset resource="../../../resources/icons.qrc">
-     <normaloff>:/icons/icons/signal.svg</normaloff>:/icons/icons/signal.svg</iconset>
-   </property>
-   <property name="text">
-    <string>I/Q recorder</string>
-   </property>
-   <property name="toolTip">
-    <string>Record and play I/Q data</string>
-   </property>
-   <property name="statusTip">
-    <string>Open I/Q recorder dialog</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+I</string>
    </property>
   </action>
   <action name="actionNews">
@@ -564,39 +353,17 @@
     <string>Ctrl+W</string>
    </property>
   </action>
-  <action name="actionDX_Cluster">
+  <action name="actionAddDemodulator">
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/add.svg</normaloff>:/icons/icons/add.svg</iconset>
+   </property>
    <property name="text">
-    <string>DX Cluster</string>
-   </property>
-   <property name="toolTip">
-    <string>Open DX Cluster Dialog</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+C</string>
+    <string>Add Demodulator</string>
    </property>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <customwidgets>
-  <customwidget>
-   <class>CFreqCtrl</class>
-   <extends>QFrame</extends>
-   <header>qtgui/freqctrl.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>CPlotter</class>
-   <extends>QFrame</extends>
-   <header>qtgui/plotter.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>CMeter</class>
-   <extends>QFrame</extends>
-   <header>qtgui/meter.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="../../../resources/icons.qrc"/>
  </resources>

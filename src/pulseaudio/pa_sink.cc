@@ -52,27 +52,12 @@ pa_sink::pa_sink(const string device_name, int audio_rate,
     d_stream_name(stream_name),
     d_app_name(app_name)
 {
-    int error;
-
     /* The sample type to use */
     d_ss.format = PA_SAMPLE_FLOAT32LE;
     d_ss.rate = audio_rate;
     d_ss.channels = 2;
-    d_pasink = pa_simple_new(NULL,
-                             d_app_name.c_str(),
-                             PA_STREAM_PLAYBACK,
-                             device_name.empty() ? NULL : device_name.c_str(),
-                             d_stream_name.c_str(),
-                             &d_ss,
-                             NULL,
-                             NULL,
-                             &error);
 
-    if (!d_pasink) {
-        /** FIXME: Throw an exception **/
-        fprintf(stderr, __FILE__": pa_simple_new() failed: %s\n", pa_strerror(error));
-    }
-
+    create_sink(device_name);
 }
 
 
@@ -97,11 +82,21 @@ bool pa_sink::stop()
 /*! \brief Select a new pulseaudio output device.
  *  \param device_name The name of the new output.
  */
-void pa_sink::select_device(string device_name)
+void pa_sink::select_device(string device_name, int audio_rate, string stream_name)
+{
+    if (d_pasink) {
+        pa_simple_free(d_pasink);
+    }
+
+    d_ss.rate = audio_rate;
+    d_stream_name = stream_name;
+
+    create_sink(device_name);
+}
+
+void pa_sink::create_sink(string device_name)
 {
     int error;
-
-    pa_simple_free(d_pasink);
 
     d_pasink = pa_simple_new(NULL,
                              d_app_name.c_str(),
@@ -109,7 +104,7 @@ void pa_sink::select_device(string device_name)
                              device_name.empty() ? NULL : device_name.c_str(),
                              d_stream_name.c_str(),
                              &d_ss,
-                             NULL,
+                             &d_map,
                              NULL,
                              &error);
 
@@ -120,13 +115,10 @@ void pa_sink::select_device(string device_name)
 }
 
 
-#define BUFFER_SIZE 100000
-
 int pa_sink::work (int noutput_items,
                    gr_vector_const_void_star &input_items,
                    gr_vector_void_star &output_items)
 {
-    static float audio_buffer[BUFFER_SIZE];
     float *ptr = &audio_buffer[0];
     int i, error;
 
@@ -134,6 +126,9 @@ int pa_sink::work (int noutput_items,
 
     if (noutput_items > BUFFER_SIZE/2)
         noutput_items = BUFFER_SIZE/2;
+
+    if (!d_pasink)
+        return noutput_items;
 
     if (input_items.size() == 2)
     {

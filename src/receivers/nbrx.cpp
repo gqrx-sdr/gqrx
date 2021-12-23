@@ -123,6 +123,16 @@ void nbrx::set_filter(double low, double high, double tw)
     filter->set_param(low, high, tw);
 }
 
+double nbrx::get_filter_low() const
+{
+    return filter->get_low();
+}
+
+double nbrx::get_filter_high() const
+{
+    return filter->get_high();
+}
+
 void nbrx::set_cw_offset(double offset)
 {
     filter->set_cw_offset(offset);

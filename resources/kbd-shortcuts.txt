@@ -5,43 +5,61 @@ Main window actions:
  Ctrl+D         Start/stop DSP
  Ctrl+L         Load settings from a file
  Ctrl+S         Save current settings to a file
- Ctrl+Shift+B   Bookmark the current frequency and mode
  Ctrl+I         Open I/Q recorder dialog
  Ctrl+W         Save waterfall as an image
  Ctrl+C         Open DX cluster dialog
  F11            Toggle full screen mode
- F              Set focus to the frequency controller
+ F              Set focus to the input frequency controller
  Ctrl+Q         Quit the program
 
-Receiver modes:
 
- !              Demod off
- I              Raw I/Q
- A              AM
- N              NFM
- W              WFM mono
- Shift+W        WFM stereo
- S              LSB  (memo: lower SSB)
- Shift+S        USB  (memo: upper SSB)
- C              CW-L (memo: lower CW)
- Shift+C        CW-U (memo: upper CW)
- O              WFM oirt
- Shift+A        AM sync
+The first 10 Demodulators can be controlled by keyboard.
 
-Squelch:
+Shift+<num> where num is a number key 1 - 0,
+will focus the Demod panel of the same number (key 0 is 10).
 
- `              Reset squelch
- ~              Auto squelch
+To change the Demod settings with keybaord, first press
+Ctrl+<num> where num is a number key 1 - 0,
+then press one of these combinations:
 
-Filter width:
+    Ctrl+Shift+B   Bookmark the current frequency and mode
 
- <              Narrow
- .              Normal
- >              Wide
+    UI Controls:
 
-Audio functions:
+     F              Focus frequency
+     Shift+O        Focus offset
+     P              Toggle view properties
 
- R              Start/stop recording
- M              Toggle mute
- -              Decrease gain by 1 dB
- +              Increase gain by 1 dB
+    Modes:
+
+     !              Demod off
+     I              Raw I/Q
+     A              AM
+     N              NFM
+     W              WFM mono
+     Shift+W        WFM stereo
+     S              LSB  (memo: lower SSB)
+     Shift+S        USB  (memo: upper SSB)
+     C              CW-L (memo: lower CW)
+     Shift+C        CW-U (memo: upper CW)
+     O              WFM oirt
+     Shift+A        AM sync
+
+    Squelch:
+
+     `              Reset squelch
+     ~              Auto squelch
+
+    Filter width:
+
+     <              Narrow
+     .              Normal
+     >              Wide
+
+
+    Audio functions:
+
+     R              Start/stop recording
+     M              Toggle mute
+     -              Decrease gain by 1 dB
+     +              Increase gain by 1 dB

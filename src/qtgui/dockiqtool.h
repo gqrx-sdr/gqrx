@@ -23,8 +23,10 @@
 #ifndef IQ_TOOL_H
 #define IQ_TOOL_H
 
+#include <memory>
+
 #include <QCloseEvent>
-#include <QDialog>
+#include <QFrame>
 #include <QDir>
 #include <QPalette>
 #include <QSettings>
@@ -45,21 +47,21 @@ struct iqt_cplx
 
 
 /*! \brief User interface for I/Q recording and playback. */
-class CIqTool : public QDialog
+class DockIQTool : public QFrame
 {
     Q_OBJECT
 
 public:
-    explicit CIqTool(QWidget *parent = 0);
-    ~CIqTool();
+    explicit DockIQTool(QWidget *parent = 0);
+    ~DockIQTool();
 
     void setSampleRate(qint64 sr);
 
     void closeEvent(QCloseEvent *event);
     void showEvent(QShowEvent * event);
 
-    void saveSettings(QSettings *settings);
-    void readSettings(QSettings *settings);
+    void saveSettings(std::shared_ptr<QSettings> settings);
+    void readSettings(std::shared_ptr<QSettings> settings);
 
 signals:
     void startRecording(const QString recdir);

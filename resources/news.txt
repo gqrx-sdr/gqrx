@@ -9,6 +9,7 @@
      FIXED: DSP stops when device is changed.
      FIXED: USB error when device settings are changed.
      FIXED: Changing frequency using the keyboard doesn't work on MacOS.
+       NEW: Multiple demodulators
 
 
       2.15: Released December 15, 2021
