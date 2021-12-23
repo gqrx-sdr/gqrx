@@ -1,4 +1,9 @@
 
+    2.15.2: In progress...
+
+     FIXED: Device selection fails for some SoapySDR devices.
+
+
     2.15.1: Released December 18, 2021
 
      FIXED: DSP stops when device is changed.

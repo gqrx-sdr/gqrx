@@ -65,6 +65,7 @@ private:
     void updateOutDev();
     int  idx2decim(int idx) const;
     int  decim2idx(int decim) const;
+    static std::string escapeDevstr(std::string devstr);
 
 private:
     Ui::CIoConfig  *ui;
