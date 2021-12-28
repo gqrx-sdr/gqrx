@@ -2,6 +2,7 @@
     2.15.2: In progress...
 
      FIXED: Device selection fails for some SoapySDR devices.
+     FIXED: Segfault when starting AppImage on some systems.
 
 
     2.15.1: Released December 18, 2021
