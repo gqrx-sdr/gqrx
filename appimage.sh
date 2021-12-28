@@ -69,6 +69,9 @@ chmod a+x *.AppImage
 mkdir -p ./AppDir/usr/lib
 cp -R /usr/lib/x86_64-linux-gnu/SoapySDR/modules* ./AppDir/usr/soapy-modules
 
+mkdir -p ./AppDir/apprun-hooks
+echo 'export UHD_PKG_PATH="$APPDIR/usr"' >./AppDir/apprun-hooks/uhd-hook.sh
+
 ./linuxdeploy-x86_64.AppImage -e "$APP" -d "$DESKTOP" -i "$ICON" -p qt --output appimage --appdir=./AppDir
 RESULT=$?
 
