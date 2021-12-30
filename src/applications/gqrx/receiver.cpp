@@ -231,18 +231,9 @@ void receiver::set_input_device(const std::string device)
         src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
     }
 
+    set_demod(d_demod, true);
     if(src->get_sample_rate() != 0)
         set_input_rate(src->get_sample_rate());
-
-    if (d_decim >= 2)
-    {
-        tb->connect(src, 0, input_decim, 0);
-        tb->connect(input_decim, 0, iq_swap, 0);
-    }
-    else
-    {
-        tb->connect(src, 0, iq_swap, 0);
-    }
 
     if (d_running)
         tb->start();
@@ -1326,6 +1317,7 @@ void receiver::connect_all(rx_chain type)
 
     if (d_dc_cancel)
     {
+        dc_corr = make_dc_corr_cc(d_decim_rate, 1.0);
         tb->connect(b, 0, dc_corr, 0);
         b = dc_corr;
     }
@@ -1334,25 +1326,19 @@ void receiver::connect_all(rx_chain type)
     tb->connect(b, 0, iq_fft, 0);
 
     // RX demod chain
+    rx.reset();
     switch (type)
     {
     case RX_CHAIN_NBRX:
-        if (rx->name() != "NBRX")
-        {
-            rx.reset();
-            rx = make_nbrx(d_quad_rate, d_audio_rate);
-        }
+        rx = make_nbrx(d_quad_rate, d_audio_rate);
         break;
 
     case RX_CHAIN_WFMRX:
-        if (rx->name() != "WFMRX")
-        {
-            rx.reset();
-            rx = make_wfmrx(d_quad_rate, d_audio_rate);
-        }
+        rx = make_wfmrx(d_quad_rate, d_audio_rate);
         break;
 
     default:
+        rx = make_nbrx(d_quad_rate, d_audio_rate);
         break;
     }
 

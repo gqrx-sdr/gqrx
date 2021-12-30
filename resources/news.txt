@@ -3,6 +3,8 @@
 
      FIXED: Device selection fails for some SoapySDR devices.
      FIXED: Segfault when starting AppImage on some systems.
+     FIXED: Waterfall & sound stop working after playing invalid I/Q file.
+     FIXED: Crash when using I/Q playback and audio recording simultaneously.
   IMPROVED: Frequency accuracy of plots at high zoom levels.
 
 
