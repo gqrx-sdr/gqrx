@@ -1330,15 +1330,15 @@ void receiver::connect_all(rx_chain type)
     switch (type)
     {
     case RX_CHAIN_NBRX:
-            rx = make_nbrx(d_quad_rate, d_audio_rate);
+        rx = make_nbrx(d_quad_rate, d_audio_rate);
         break;
 
     case RX_CHAIN_WFMRX:
-            rx = make_wfmrx(d_quad_rate, d_audio_rate);
+        rx = make_wfmrx(d_quad_rate, d_audio_rate);
         break;
 
     default:
-            rx = make_nbrx(d_quad_rate, d_audio_rate);
+        rx = make_nbrx(d_quad_rate, d_audio_rate);
         break;
     }
 
