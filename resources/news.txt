@@ -3,6 +3,7 @@
 
      FIXED: Device selection fails for some SoapySDR devices.
      FIXED: Segfault when starting AppImage on some systems.
+  IMPROVED: Frequency accuracy of plots at high zoom levels.
 
 
     2.15.1: Released December 18, 2021
