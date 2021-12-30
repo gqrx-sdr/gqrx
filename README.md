@@ -208,6 +208,7 @@ The following people and organisations have contributed to gqrx:
 * Jeff Long
 * Jiawei Chen
 * Jiří Pinkava
+* Joachim Schueth, DL2KCD
 * Josh Blum
 * Kate Adams
 * Kenji Rikitake, JJ1BDX

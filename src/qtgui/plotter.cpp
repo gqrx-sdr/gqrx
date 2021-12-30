@@ -146,7 +146,7 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     m_HdivDelta = 70;
     m_BandPlanHeight = 22;
 
-    m_FreqDigits = 3;
+    m_FreqDigits = 6;
 
     m_Peaks = QMap<int,int>();
     setPeakDetection(false, 2);
@@ -230,7 +230,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 if (m_TooltipsEnabled)
                     QToolTip::showText(event->globalPos(),
                                        QString("Demod: %1 kHz")
-                                               .arg(m_DemodCenterFreq/1.e3f, 0, 'f', 3),
+                                               .arg(m_DemodCenterFreq/1.e3, 0, 'f', 3),
                                        this);
             }
             else if (isPointCloseTo(pt.x(), m_DemodHiCutFreqX, m_CursorCaptureDelta))
@@ -267,7 +267,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 if (m_TooltipsEnabled)
                 {
                     qint64 hoverFrequency = freqFromX(pt.x());
-                    QString toolTipText = QString("F: %1 kHz").arg(hoverFrequency/1.e3f, 0, 'f', 3);
+                    QString toolTipText = QString("F: %1 kHz").arg(hoverFrequency/1.e3, 0, 'f', 3);
                     QFontMetrics metrics(m_Font);
                     int bandTopY = (m_OverlayPixmap.height() / m_DPR) - metrics.height() - 2 * VER_MARGIN - m_BandPlanHeight;
                     QList<BandInfo> hoverBands = BandPlan::Get().getBandsEncompassing(hoverFrequency);
@@ -302,7 +302,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             QToolTip::showText(event->globalPos(),
                                QString("%1\n%2 kHz")
                                        .arg(tt.toString("yyyy.MM.dd hh:mm:ss.zzz"))
-                                       .arg(freqFromX(pt.x())/1.e3f, 0, 'f', 3),
+                                       .arg(freqFromX(pt.x())/1.e3, 0, 'f', 3),
                                this);
         }
     }
@@ -346,21 +346,24 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             // pan viewable range or move center frequency
             int delta_px = m_Xzero - pt.x();
             qint64 delta_hz = delta_px * m_Span / (m_OverlayPixmap.width() / m_DPR);
-            if (event->buttons() & Qt::MidButton)
+            if (delta_hz != 0) // update m_Xzero only on real change
             {
-                m_CenterFreq += delta_hz;
-                m_DemodCenterFreq += delta_hz;
-                emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
-            }
-            else
-            {
-                setFftCenterFreq(m_FftCenter + delta_hz);
-            }
-            updateOverlay();
+                if (event->buttons() & Qt::MidButton)
+                {
+                    m_CenterFreq += delta_hz;
+                    m_DemodCenterFreq += delta_hz;
+                    emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
+                }
+                else
+                {
+                    setFftCenterFreq(m_FftCenter + delta_hz);
+                }
+                updateOverlay();
 
-            m_PeakHoldValid = false;
+                m_PeakHoldValid = false;
 
-            m_Xzero = pt.x();
+                m_Xzero = pt.x();
+            }
         }
     }
     else if (LEFT == m_CursorCaptured)
@@ -725,26 +728,49 @@ void CPlotter::mouseReleaseEvent(QMouseEvent * event)
 void CPlotter::zoomStepX(float step, int x)
 {
     // calculate new range shown on FFT
-    float new_range = qBound(10.0f, m_Span * step, m_SampleFreq * 10.0f);
+    double new_range = qBound(10.0, m_Span * (double)step, m_SampleFreq * 10.0);
 
     // Frequency where event occurred is kept fixed under mouse
-    float ratio = (float)x / (float)width();
-    float fixed_hz = freqFromX(x);
-    float f_max = fixed_hz + (1.0 - ratio) * new_range;
-    float f_min = f_max - new_range;
+    double ratio = (double)x / (double)width();
+    qint64 fixed_hz = freqFromX(x);
+    double f_max = fixed_hz + (1.0 - ratio) * new_range;
+    double f_min = f_max - new_range;
 
     // ensure we don't go beyond the rangelimits
-    if (f_min < m_CenterFreq - m_SampleFreq / 2.f)
-        f_min = m_CenterFreq - m_SampleFreq / 2.f;
+    bool limit_hit = false;
+    double lolim = m_CenterFreq - m_SampleFreq / 2.0;
+    double hilim = m_CenterFreq + m_SampleFreq / 2.0;
+    if (f_min < lolim)
+    {
+        f_min = lolim;
+        limit_hit = true;
+    }
+    if (f_max > hilim)
+    {
+        f_max = hilim;
+        limit_hit = true;
+    }
 
-    if (f_max > m_CenterFreq + m_SampleFreq / 2.f)
-        f_max = m_CenterFreq + m_SampleFreq / 2.f;
-    new_range = f_max - f_min;
+    // the new span
+    quint32 new_span = (quint32)(f_max - f_min);
+    if( new_span & 1 )
+    {
+        new_span++; // keep span even to avoid rounding in span/2
+    }
 
-    auto fc = (qint64)(f_min + (f_max - f_min) / 2.0);
-
-    setFftCenterFreq(fc - m_CenterFreq);
-    setSpanFreq((quint32)new_range);
+    // find new FFT center frequency
+    qint64 new_FftCenter;
+    if( limit_hit ) // cannot keep fixed_hz fixed
+    {
+    	new_FftCenter = qRound64((f_min + f_max) / 2.0) - m_CenterFreq;
+    }
+    else // calculate new FFT center frequency that really keeps fixed_hz fixed
+    {
+    	qint64 wouldbe_hz = (m_CenterFreq + m_FftCenter - new_span / 2) + ratio * new_span;
+    	new_FftCenter = m_FftCenter + (fixed_hz - wouldbe_hz);
+    }
+    setFftCenterFreq(new_FftCenter);
+    setSpanFreq(new_span);
 
     float factor = (float)m_SampleFreq / (float)m_Span;
     emit newZoomLevel(factor);
@@ -1147,8 +1173,13 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
     else
     {
         // more plot points than FFT points
+        double fftstep = (double)m_SampleFreq / (double)m_FFTSize; // FFT frequency bin width
         for (i = 0; i < plotWidth; i++)
-            m_pTranslateTbl[i] = m_BinMin + (i*(m_BinMax - m_BinMin)) / plotWidth;
+        {
+            double ratio = (double)i / (double)plotWidth;
+            double freq = startFreq + ratio * (stopFreq - startFreq);
+            m_pTranslateTbl[i] = qint32(m_FFTSize / 2 + freq / fftstep + 0.5);
+        }
         *xmin = 0;
         *xmax = plotWidth;
     }
@@ -1404,7 +1435,7 @@ void CPlotter::drawOverlay()
     painter.setPen(QColor(PLOTTER_TEXT_COLOR));
     for (int i = 0; i <= m_HorDivs; i++)
     {
-        int tw = metrics.boundingRect(m_HDivText[i]).width();
+        int tw = w;
         x = (int)((float)i*pixperdiv + adjoffset);
         if (x > m_YAxisWidth)
         {
@@ -1491,7 +1522,7 @@ void CPlotter::drawOverlay()
 void CPlotter::makeFrequencyStrs()
 {
     qint64  StartFreq = m_StartFreqAdj;
-    float   freq;
+    double  freq;
     int     i,j;
 
     if ((1 == m_FreqUnits) || (m_FreqDigits == 0))
@@ -1499,7 +1530,7 @@ void CPlotter::makeFrequencyStrs()
         // if units is Hz then just output integer freq
         for (i = 0; i <= m_HorDivs; i++)
         {
-            freq = (float)StartFreq/(float)m_FreqUnits;
+            freq = (double)StartFreq/(double)m_FreqUnits;
             m_HDivText[i].setNum((int)freq);
             StartFreq += m_FreqPerDiv;
         }
@@ -1509,7 +1540,7 @@ void CPlotter::makeFrequencyStrs()
     // so create max sized text based on frequency units
     for (i = 0; i <= m_HorDivs; i++)
     {
-        freq = (float)StartFreq / (float)m_FreqUnits;
+        freq = (double)StartFreq / (double)m_FreqUnits;
         m_HDivText[i].setNum(freq,'f', m_FreqDigits);
         StartFreq += m_FreqPerDiv;
     }
@@ -1532,7 +1563,7 @@ void CPlotter::makeFrequencyStrs()
     StartFreq = m_StartFreqAdj;
     for (i = 0; i <= m_HorDivs; i++)
     {
-        freq = (float)StartFreq/(float)m_FreqUnits;
+        freq = (double)StartFreq/(double)m_FreqUnits;
         m_HDivText[i].setNum(freq,'f', max);
         StartFreq += m_FreqPerDiv;
     }
@@ -1554,9 +1585,8 @@ int CPlotter::xFromFreq(qint64 freq)
 // Convert from screen coordinate to frequency
 qint64 CPlotter::freqFromX(int x)
 {
-    qint64 w = width();
-    qint64 StartFreq = m_CenterFreq + m_FftCenter - m_Span / 2;
-    qint64 f = StartFreq + m_Span * (qint64) x / w;
+    double ratio = (double)x / (double)width();
+    qint64 f = (m_CenterFreq + m_FftCenter - m_Span / 2) + ratio * m_Span;
     return f;
 }
 
