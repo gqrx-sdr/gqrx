@@ -62,7 +62,10 @@ int main(int argc, char *argv[])
     QString plugin_path = QDir::cleanPath(QCoreApplication::applicationDirPath() + "/../soapy-modules");
     QFileInfo plugin_path_info(plugin_path);
     if (plugin_path_info.isDir())
+    {
         qputenv("SOAPY_SDR_PLUGIN_PATH", plugin_path.toUtf8());
+        qputenv("SOAPY_SDR_ROOT", "/invalid");
+    }
 
     // setup controlport via environment variables
     // see http://lists.gnu.org/archive/html/discuss-gnuradio/2013-05/msg00270.html
