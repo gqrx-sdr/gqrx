@@ -98,11 +98,6 @@ void wfmrx::set_quad_rate(float quad_rate)
     }
 }
 
-void wfmrx::set_audio_rate(float audio_rate)
-{
-    (void) audio_rate;
-}
-
 void wfmrx::set_filter(double low, double high, double tw)
 {
     filter->set_param(low, high, tw);
