@@ -180,7 +180,7 @@ private slots:
     /* I/Q playback and recording*/
     void startIqRecording(const QString& recdir);
     void stopIqRecording();
-    void startIqPlayback(const QString& filename, float samprate);
+    void startIqPlayback(const QString& filename, float samprate, qint64 center_freq);
     void stopIqPlayback();
     void seekIqFile(qint64 seek_pos);
 

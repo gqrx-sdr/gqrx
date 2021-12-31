@@ -64,7 +64,7 @@ public:
 signals:
     void startRecording(const QString recdir);
     void stopRecording();
-    void startPlayback(const QString filename, float samprate);
+    void startPlayback(const QString filename, float samprate, qint64 center_freq);
     void stopPlayback();
     void seek(qint64 seek_pos);
 
@@ -84,8 +84,7 @@ private slots:
 private:
     void refreshDir(void);
     void refreshTimeWidgets(void);
-    qint64 sampleRateFromFileName(const QString &filename);
-
+    void parseFileName(const QString &filename);
 
 private:
     Ui::CIqTool *ui;
@@ -100,6 +99,7 @@ private:
     bool    is_playing;
     int     bytes_per_sample;  /*!< Bytes per sample (fc = 4) */
     int     sample_rate;       /*!< Current sample rate. */
+    qint64  center_freq;       /*!< Center frequency. */
     int     rec_len;           /*!< Length of a recording in seconds */
 };
 
