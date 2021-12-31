@@ -116,7 +116,7 @@ receiver::receiver(const std::string input_device,
     ddc = make_downconverter_cc(d_ddc_decim, 0.0, d_decim_rate);
     rx  = make_nbrx(d_quad_rate, d_audio_rate);
 
-    input_file = gr::blocks::file_source::make(sizeof(gr_complex),get_zero_file().c_str(),false);
+    input_file = file_source::make(sizeof(gr_complex),get_zero_file().c_str(),0,0,1);
     input_throttle = gr::blocks::throttle::make(sizeof(gr_complex),192000.0);
 
     to_s32lc = any_to_any<gr_complex,std::complex<int32_t>>::make();
@@ -264,12 +264,14 @@ void receiver::set_input_device(const std::string device)
  * @param fmt
  */
 void receiver::set_input_file(const std::string name, const int sample_rate,
-                              const enum file_formats fmt, bool repeat)
+                              const enum file_formats fmt, int buffers_max,
+                              bool repeat)
 {
     std::string error = "";
     size_t sample_size = sample_size_from_format(fmt);
 
-    input_file = gr::blocks::file_source::make(sample_size, name.c_str(), repeat);
+    input_file = file_source::make(sample_size, name.c_str(), 0, 0, sample_rate,
+                                   repeat,buffers_max);
 
     if (d_running)
     {
@@ -1508,14 +1510,19 @@ receiver::status receiver::seek_iq_file(long pos)
     return status;
 }
 
-void receiver::get_iq_recorder_stats(struct iq_recorder_stats &stats)
+void receiver::get_iq_tool_stats(struct iq_tool_stats &stats)
 {
-    stats.active = d_recording_iq;
+    stats.recording = d_recording_iq;
+    stats.playing = (d_last_format != FILE_FORMAT_NONE);
     if(d_recording_iq && iq_sink)
     {
         stats.failed = iq_sink->get_failed();
-        stats.buffers_used = iq_sink->get_buffer_usage();
-        stats.file_size = iq_sink->get_written();
+        stats.buffer_usage = iq_sink->get_buffer_usage();
+        stats.file_pos = iq_sink->get_written();
+    }else{
+        stats.failed = input_file->get_failed();
+        stats.buffer_usage = input_file->get_buffer_usage();
+        stats.file_pos = input_file->tell();
     }
 }
 

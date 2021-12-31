@@ -123,6 +123,7 @@ void CIqTool::switchControlsState(bool recording, bool playback)
     ui->playButton->setEnabled(!recording);
     ui->slider->setEnabled(!recording);
 
+    ui->repeat->setEnabled(!(recording || playback));
     ui->listWidget->setEnabled(!(recording || playback));
     ui->recDirEdit->setEnabled(!(recording || playback));
     ui->recDirButton->setEnabled(!(recording || playback));
@@ -179,6 +180,7 @@ void CIqTool::on_playButton_clicked(bool checked)
 
             emit startPlayback(recdir->absoluteFilePath(current_file),
                                (float)sample_rate, center_freq, fmt,
+                               ui->buffersSpinBox->value(),
                                ui->repeat->checkState() == Qt::Checked);
         }
     }
@@ -271,8 +273,7 @@ void CIqTool::stopIqRecorder(void)
 void CIqTool::cancelRecording()
 {
     ui->recButton->setChecked(false);
-    ui->playButton->setEnabled(true);
-    is_recording = false;
+    on_recButton_clicked(false);
 }
 
 /*! \brief Update GUI ta match current recorder state.
@@ -281,19 +282,31 @@ void CIqTool::cancelRecording()
  */
 void CIqTool::updateStats(bool hasFailed, int buffersUsed, size_t fileSize)
 {
-    if (hasFailed)
+    if(is_recording)
     {
-        QMessageBox msg_box;
-        msg_box.setIcon(QMessageBox::Critical);
-        msg_box.setText(tr("IQ recording failed."));
-        msg_box.exec();
+        if (hasFailed)
+        {
+            QMessageBox msg_box;
+            msg_box.setIcon(QMessageBox::Critical);
+            msg_box.setText(tr("IQ recording failed."));
+            msg_box.exec();
+        }
+        else
+        {
+            if(o_buffersUsed!=buffersUsed)
+                ui->bufferStats->setText(QString("Buffer: %1%").arg(buffersUsed));
+            if(o_fileSize != fileSize)
+                ui->sizeStats->setText(QString("Size: %1 bytes").arg(fileSize));
+            o_buffersUsed = buffersUsed;
+            o_fileSize = fileSize;
+        }
     }
-    else
+    if(is_playing)
     {
         if(o_buffersUsed!=buffersUsed)
-            ui->bufferStats->setText(QString("Buffers: %1/%2").arg(buffersUsed).arg(ui->buffersSpinBox->value()));
+            ui->bufferStats->setText(QString("Buffer: %1%").arg(buffersUsed));
         if(o_fileSize != fileSize)
-            ui->sizeStats->setText(QString("Size: %1 bytes").arg(fileSize));
+            ui->sizeStats->setText(QString("Pos: %1 bytes").arg(fileSize));
         o_buffersUsed = buffersUsed;
         o_fileSize = fileSize;
     }
@@ -397,12 +410,11 @@ void CIqTool::timeoutFunction(void)
 
     if (is_playing)
     {
-        // advance slider with one second
-        int val = ui->slider->value();
+        int val = o_fileSize / (sample_rate * bytes_per_sample);
         if (val < ui->slider->maximum())
         {
             ui->slider->blockSignals(true);
-            ui->slider->setValue(val + 1);
+            ui->slider->setValue(val);
             ui->slider->blockSignals(false);
             refreshTimeWidgets();
         }

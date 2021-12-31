@@ -24,8 +24,6 @@
 #define RECEIVER_H
 
 #include <gnuradio/blocks/multiply_const.h>
-#include <gnuradio/blocks/file_sink.h>
-#include <gnuradio/blocks/file_source.h>
 #include <gnuradio/blocks/null_sink.h>
 #include <gnuradio/blocks/wavfile_sink.h>
 #include <gnuradio/blocks/wavfile_source.h>
@@ -49,6 +47,7 @@
 #include "dsp/format_converter.h"
 #include "interfaces/udp_sink_f.h"
 #include "interfaces/file_sink.h"
+#include "interfaces/file_source.h"
 #include "receivers/receiver_base.h"
 
 #ifdef WITH_PULSEAUDIO
@@ -122,12 +121,13 @@ public:
         FILE_FORMAT_SIGMF,
     };
 
-    struct iq_recorder_stats
+    struct iq_tool_stats
     {
-        bool active;
+        bool recording;
+        bool playing;
         bool failed;
-        int buffers_used;
-        size_t file_size;
+        int buffer_usage;
+        size_t file_pos;
      };
 
     static const unsigned int DEFAULT_FFT_SIZE = 8192;
@@ -142,7 +142,8 @@ public:
     void        set_input_device(const std::string device);
     void        set_output_device(const std::string device);
     void        set_input_file(const std::string name, const int sample_rate,
-                               const enum file_formats fmt, bool repeat);
+                               const enum file_formats fmt, int buffers_max,
+                               bool repeat);
 
     std::vector<std::string> get_antennas(void) const;
     void        set_antenna(const std::string &antenna);
@@ -239,8 +240,8 @@ public:
     status      start_iq_recording(const std::string filename, const enum file_formats fmt, int buffers_max);
     status      stop_iq_recording();
     status      seek_iq_file(long pos);
-    void        get_iq_recorder_stats(struct iq_recorder_stats &stats);
-    bool        is_playing_iq() const { return !(d_iq_fmt == FILE_FORMAT_NONE); }
+    void        get_iq_tool_stats(struct iq_tool_stats &stats);
+    bool        is_playing_iq() { return d_iq_fmt != FILE_FORMAT_NONE; }
 
     /* sample sniffer */
     status      start_sniffer(unsigned int samplrate, int buffsize);
@@ -329,7 +330,7 @@ private:
     any_to_any<std::complex<uint8_t>, gr_complex>::sptr  from_s8uc;
 
     gr::blocks::throttle::sptr                     input_throttle;
-    gr::blocks::file_source::sptr                  input_file;
+    file_source::sptr                              input_file;
 
     gr::blocks::wavfile_sink::sptr      wav_sink;   /*!< WAV file sink for recording. */
     gr::blocks::wavfile_source::sptr    wav_src;    /*!< WAV file source for playback. */
