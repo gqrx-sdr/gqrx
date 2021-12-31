@@ -112,12 +112,6 @@ void nbrx::set_quad_rate(float quad_rate)
     }
 }
 
-void nbrx::set_audio_rate(float audio_rate)
-{
-    (void) audio_rate;
-    std::cout << "**** FIXME: nbrx::set_audio_rate() not implemented" << std::endl;
-}
-
 void nbrx::set_filter(double low, double high, double tw)
 {
     filter->set_param(low, high, tw);

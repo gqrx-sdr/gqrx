@@ -56,7 +56,6 @@ public:
     virtual bool stop() = 0;
 
     virtual void set_quad_rate(float quad_rate) = 0;
-    virtual void set_audio_rate(float audio_rate) = 0;
 
     virtual void set_filter(double low, double high, double tw) = 0;
     virtual void set_cw_offset(double offset) = 0;
