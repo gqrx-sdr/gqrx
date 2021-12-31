@@ -283,7 +283,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     // I/Q playback
     connect(iq_tool, SIGNAL(startRecording(QString)), this, SLOT(startIqRecording(QString)));
     connect(iq_tool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
-    connect(iq_tool, SIGNAL(startPlayback(QString,float)), this, SLOT(startIqPlayback(QString,float)));
+    connect(iq_tool, SIGNAL(startPlayback(QString,float,qint64)), this, SLOT(startIqPlayback(QString,float,qint64)));
     connect(iq_tool, SIGNAL(stopPlayback()), this, SLOT(stopIqPlayback()));
     connect(iq_tool, SIGNAL(seek(qint64)), this,SLOT(seekIqFile(qint64)));
 
@@ -1588,7 +1588,7 @@ void MainWindow::stopIqRecording()
         ui->statusBar->showMessage(tr("I/Q data recoding stopped"), 5000);
 }
 
-void MainWindow::startIqPlayback(const QString& filename, float samprate)
+void MainWindow::startIqPlayback(const QString& filename, float samprate, qint64 center_freq)
 {
     if (ui->actionDSP->isChecked())
     {
@@ -1599,13 +1599,16 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate)
     storeSession();
 
     auto sri = (int)samprate;
+    auto cf  = center_freq;
+    double current_offset = rx->get_filter_offset();
     QString escapedFilename = receiver::escape_filename(filename.toStdString()).c_str();
-    auto devstr = QString("file=%1,rate=%2,throttle=true,repeat=false")
-            .arg(escapedFilename).arg(sri);
+    auto devstr = QString("file=%1,rate=%2,freq=%3,throttle=true,repeat=false")
+            .arg(escapedFilename).arg(sri).arg(cf);
 
     qDebug() << __func__ << ":" << devstr;
 
     rx->set_input_device(devstr.toStdString());
+    updateHWFrequencyRange(false);
 
     // sample rate
     auto actual_rate = rx->set_input_rate(samprate);
@@ -1616,6 +1619,11 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate)
     uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
     ui->plotter->setSampleRate(actual_rate);
     ui->plotter->setSpanFreq((quint32)actual_rate);
+    if (std::abs(current_offset) > actual_rate / 2)
+        on_plotter_newDemodFreq(center_freq, 0);
+    else
+        on_plotter_newDemodFreq(center_freq + current_offset, current_offset);
+
     remote->setBandwidth(actual_rate);
 
     // FIXME: would be nice with good/bad status
@@ -1659,6 +1667,14 @@ void MainWindow::stopIqPlayback()
 
     // restore frequency, gain, etc...
     uiDockInputCtl->readSettings(m_settings);
+    bool centerOK = false;
+    bool offsetOK = false;
+    qint64 oldCenter = m_settings->value("input/frequency", 0).toLongLong(&centerOK);
+    qint64 oldOffset = m_settings->value("receiver/offset", 0).toLongLong(&offsetOK);
+    if (centerOK && offsetOK)
+    {
+        on_plotter_newDemodFreq(oldCenter, oldOffset);
+    }
 
     if (ui->actionDSP->isChecked())
     {

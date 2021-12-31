@@ -47,6 +47,7 @@ CIqTool::CIqTool(QWidget *parent) :
     bytes_per_sample = 8;
     sample_rate = 192000;
     rec_len = 0;
+    center_freq = 1e8;
 
     //ui->recDirEdit->setText(QDir::currentPath());
 
@@ -83,6 +84,7 @@ void CIqTool::setSampleRate(qint64 sr)
     }
 }
 
+
 /*! \brief Slot activated when the user selects a file. */
 void CIqTool::on_listWidget_currentTextChanged(const QString &currentText)
 {
@@ -90,10 +92,10 @@ void CIqTool::on_listWidget_currentTextChanged(const QString &currentText)
     current_file = currentText;
     QFileInfo info(*recdir, current_file);
 
-    // Get duration of selected recording and update label
-    sample_rate = sampleRateFromFileName(currentText);
+    parseFileName(currentText);
     rec_len = (int)(info.size() / (sample_rate * bytes_per_sample));
 
+    // Get duration of selected recording and update label
     refreshTimeWidgets();
 
 }
@@ -126,7 +128,7 @@ void CIqTool::on_playButton_clicked(bool checked)
             ui->listWidget->setEnabled(false);
             ui->recButton->setEnabled(false);
             emit startPlayback(recdir->absoluteFilePath(current_file),
-                               (float)sample_rate);
+                               (float)sample_rate, center_freq);
         }
     }
     else
@@ -276,8 +278,6 @@ void CIqTool::on_recDirButton_clicked()
         ui->recDirEdit->setText(dir);
 }
 
-
-
 void CIqTool::timeoutFunction(void)
 {
     refreshDir();
@@ -355,22 +355,25 @@ void CIqTool::refreshTimeWidgets(void)
 }
 
 
-/*! \brief Extract sample rate from file name */
-qint64 CIqTool::sampleRateFromFileName(const QString &filename)
+/*! \brief Extract sample rate and offset frequency from file name */
+void CIqTool::parseFileName(const QString &filename)
 {
-    bool ok;
+    bool   sr_ok;
     qint64 sr;
+    bool   center_ok;
+    qint64 center;
 
     QStringList list = filename.split('_');
 
     if (list.size() < 5)
-        return sample_rate;
+        return;
 
     // gqrx_yymmdd_hhmmss_freq_samprate_fc.raw
-    sr = list.at(4).toLongLong(&ok);
+    sr = list.at(4).toLongLong(&sr_ok);
+    center = list.at(3).toLongLong(&center_ok);
 
-    if (ok)
-        return sr;
-    else
-        return sample_rate;  // return current rate
+    if (sr_ok)
+        sample_rate = sr;
+    if (center_ok)
+        center_freq = center;
 }
