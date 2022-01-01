@@ -87,6 +87,8 @@ private:
     qint64 d_hw_freq_start{};
     qint64 d_hw_freq_stop{};
 
+    bool d_ignore_limits;
+
     enum receiver::filter_shape d_filter_shape;
     std::vector<float> d_iqFftData;
     float           d_fftAvg;      /*!< FFT averaging parameter set by user (not the true gain). */
