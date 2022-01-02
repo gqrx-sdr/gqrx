@@ -2319,8 +2319,8 @@ void MainWindow::on_actionAbout_triggered()
         tr("<p>This is Gqrx %1</p>"
            "<p>Copyright (C) 2011-2020 Alexandru Csete & contributors.</p>"
            "<p>Gqrx is a software defined radio (SDR) receiver powered by "
-           "<a href='http://www.gnuradio.org/'>GNU Radio</a> and the Qt toolkit. "
-           "<p>Gqrx uses the <a href='https://osmocom.org/projects/sdr/wiki/GrOsmoSDR'>GrOsmoSDR</a> "
+           "<a href='https://www.gnuradio.org/'>GNU Radio</a> and the Qt toolkit. "
+           "<p>Gqrx uses the <a href='https://osmocom.org/projects/gr-osmosdr/wiki/GrOsmoSDR'>GrOsmoSDR</a> "
            "input source block and works with any input device supported by it, including "
            "Funcube Dongle, RTL-SDR, Airspy, HackRF, RFSpace, BladeRF and USRP receivers."
            "</p>"
@@ -2328,7 +2328,7 @@ void MainWindow::on_actionAbout_triggered()
            "<a href='https://gqrx.dk/'>Gqrx website</a>."
            "</p>"
            "<p>"
-           "Gqrx is licensed under the <a href='http://www.gnu.org/licenses/gpl.html'>GNU General Public License</a>."
+           "Gqrx is licensed under the <a href='https://www.gnu.org/licenses/gpl-3.0.html'>GNU General Public License</a>."
            "</p>").arg(VERSION));
 }
 
