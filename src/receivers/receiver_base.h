@@ -25,7 +25,7 @@
 
 #include <gnuradio/hier_block2.h>
 
-
+#define RECEIVER_NB_COUNT 2
 class receiver_base_cf;
 
 #if GNURADIO_VERSION < 0x030900
@@ -58,8 +58,8 @@ public:
     virtual void set_quad_rate(float quad_rate) = 0;
     virtual void set_audio_rate(float audio_rate) = 0;
 
-    virtual void set_filter(double low, double high, double tw) = 0;
-    virtual void set_cw_offset(double offset) = 0;
+    virtual void set_filter(double low, double high, double tw);
+    virtual void set_cw_offset(double offset);
 
     virtual float get_signal_level() = 0;
 
@@ -106,6 +106,27 @@ public:
     virtual void reset_rds_parser();
     virtual bool is_rds_decoder_active();
 
+    virtual void restore_settings(receiver_base_cf_sptr from);
+protected:
+    double d_filter_low;
+    double d_filter_high;
+    double d_filter_tw;
+    double d_cw_offset;
+    double d_level_db;
+    double d_alpha;
+    bool d_agc_on;
+    bool d_agc_use_hang;
+    int d_agc_threshold;
+    int d_agc_slope;
+    int d_agc_decay_ms;
+    int d_agc_gain;
+    float d_fm_maxdev;
+    double d_fm_deemph;
+    bool d_am_dcr;
+    bool d_amsync_dcr;
+    float d_amsync_pll_bw;
+    bool d_nb_on[RECEIVER_NB_COUNT];
+    float d_nb_threshold[RECEIVER_NB_COUNT];
 };
 
 #endif // RECEIVER_BASE_H

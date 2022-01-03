@@ -120,11 +120,13 @@ void nbrx::set_audio_rate(float audio_rate)
 
 void nbrx::set_filter(double low, double high, double tw)
 {
+    receiver_base_cf::set_filter(low, high, tw);
     filter->set_param(low, high, tw);
 }
 
 void nbrx::set_cw_offset(double offset)
 {
+    receiver_base_cf::set_cw_offset(offset);
     filter->set_cw_offset(offset);
 }
 
@@ -135,6 +137,7 @@ float nbrx::get_signal_level()
 
 void nbrx::set_nb_on(int nbid, bool on)
 {
+    receiver_base_cf::set_nb_on(nbid, on);
     if (nbid == 1)
         nb->set_nb1_on(on);
     else if (nbid == 2)
@@ -143,6 +146,7 @@ void nbrx::set_nb_on(int nbid, bool on)
 
 void nbrx::set_nb_threshold(int nbid, float threshold)
 {
+    receiver_base_cf::set_nb_threshold(nbid, threshold);
     if (nbid == 1)
         nb->set_threshold1(threshold);
     else if (nbid == 2)
@@ -151,41 +155,49 @@ void nbrx::set_nb_threshold(int nbid, float threshold)
 
 void nbrx::set_sql_level(double level_db)
 {
+    receiver_base_cf::set_sql_level(level_db);
     sql->set_threshold(level_db);
 }
 
 void nbrx::set_sql_alpha(double alpha)
 {
+    receiver_base_cf::set_sql_alpha(alpha);
     sql->set_alpha(alpha);
 }
 
 void nbrx::set_agc_on(bool agc_on)
 {
+    receiver_base_cf::set_agc_on(agc_on);
     agc->set_agc_on(agc_on);
 }
 
 void nbrx::set_agc_hang(bool use_hang)
 {
+    receiver_base_cf::set_agc_hang(use_hang);
     agc->set_use_hang(use_hang);
 }
 
 void nbrx::set_agc_threshold(int threshold)
 {
+    receiver_base_cf::set_agc_threshold(threshold);
     agc->set_threshold(threshold);
 }
 
 void nbrx::set_agc_slope(int slope)
 {
+    receiver_base_cf::set_agc_slope(slope);
     agc->set_slope(slope);
 }
 
 void nbrx::set_agc_decay(int decay_ms)
 {
+    receiver_base_cf::set_agc_decay(decay_ms);
     agc->set_decay(decay_ms);
 }
 
 void nbrx::set_agc_manual_gain(int gain)
 {
+    receiver_base_cf::set_agc_manual_gain(gain);
     agc->set_manual_gain(gain);
 }
 
@@ -300,25 +312,34 @@ void nbrx::set_demod(int rx_demod)
 
 void nbrx::set_fm_maxdev(float maxdev_hz)
 {
+    receiver_base_cf::set_fm_maxdev(maxdev_hz);
     demod_fm->set_max_dev(maxdev_hz);
 }
 
 void nbrx::set_fm_deemph(double tau)
 {
+    receiver_base_cf::set_fm_deemph(tau);
     demod_fm->set_tau(tau);
 }
 
 void nbrx::set_am_dcr(bool enabled)
 {
+    receiver_base_cf::set_am_dcr(enabled);
+    lock();
     demod_am->set_dcr(enabled);
+    unlock();
 }
 
 void nbrx::set_amsync_dcr(bool enabled)
 {
+    receiver_base_cf::set_amsync_dcr(enabled);
+    lock();
     demod_amsync->set_dcr(enabled);
+    unlock();
 }
 
 void nbrx::set_amsync_pll_bw(float pll_bw)
 {
+    receiver_base_cf::set_amsync_pll_bw(pll_bw);
     demod_amsync->set_pll_bw(pll_bw);
 }

@@ -105,6 +105,7 @@ void wfmrx::set_audio_rate(float audio_rate)
 
 void wfmrx::set_filter(double low, double high, double tw)
 {
+    receiver_base_cf::set_filter(low, high, tw);
     filter->set_param(low, high, tw);
 }
 
@@ -113,65 +114,17 @@ float wfmrx::get_signal_level()
     return meter->get_level_db();
 }
 
-/*
-void nbrx::set_nb_on(int nbid, bool on)
-{
-    if (nbid == 1)
-        nb->set_nb1_on(on);
-    else if (nbid == 2)
-        nb->set_nb2_on(on);
-}
-
-void nbrx::set_nb_threshold(int nbid, float threshold)
-{
-    if (nbid == 1)
-        nb->set_threshold1(threshold);
-    else if (nbid == 2)
-        nb->set_threshold2(threshold);
-}
-*/
-
 void wfmrx::set_sql_level(double level_db)
 {
+    receiver_base_cf::set_sql_level(level_db);
     sql->set_threshold(level_db);
 }
 
 void wfmrx::set_sql_alpha(double alpha)
 {
+    receiver_base_cf::set_sql_alpha(alpha);
     sql->set_alpha(alpha);
 }
-
-/*
-void nbrx::set_agc_on(bool agc_on)
-{
-    agc->set_agc_on(agc_on);
-}
-
-void nbrx::set_agc_hang(bool use_hang)
-{
-    agc->set_use_hang(use_hang);
-}
-
-void nbrx::set_agc_threshold(int threshold)
-{
-    agc->set_threshold(threshold);
-}
-
-void nbrx::set_agc_slope(int slope)
-{
-    agc->set_slope(slope);
-}
-
-void nbrx::set_agc_decay(int decay_ms)
-{
-    agc->set_decay(decay_ms);
-}
-
-void nbrx::set_agc_manual_gain(int gain)
-{
-    agc->set_manual_gain(gain);
-}
-*/
 
 void wfmrx::set_demod(int demod)
 {
@@ -235,16 +188,6 @@ void wfmrx::set_demod(int demod)
 
     /* continue processing */
     unlock();
-}
-
-void wfmrx::set_fm_maxdev(float maxdev_hz)
-{
-    demod_fm->set_max_dev(maxdev_hz);
-}
-
-void wfmrx::set_fm_deemph(double tau)
-{
-    demod_fm->set_tau(tau);
 }
 
 void wfmrx::get_rds_data(std::string &outbuff, int &num)
