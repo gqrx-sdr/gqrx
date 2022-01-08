@@ -71,6 +71,7 @@ receiver::receiver(const std::string input_device,
       d_iq_rev(false),
       d_dc_cancel(false),
       d_iq_balance(false),
+      d_udp_streaming(false),
       d_demod(RX_DEMOD_OFF)
 {
 
@@ -198,25 +199,19 @@ void receiver::set_input_device(const std::string device)
         tb->wait();
     }
 
-    if (d_decim >= 2)
-    {
-        tb->disconnect(src, 0, input_decim, 0);
-        tb->disconnect(input_decim, 0, iq_swap, 0);
-    }
-    else
-    {
-        tb->disconnect(src, 0, iq_swap, 0);
-    }
+    tb->disconnect_all();
 
 #if GNURADIO_VERSION < 0x030802
     //Work around GNU Radio bug #3184
     //temporarily connect dummy source to ensure that previous device is closed
     src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
-    tb->connect(src, 0, iq_swap, 0);
+    auto null_snk = gr::blocks::null_sink::make(sizeof(gr_complex));
+    tb->connect(src, 0, null_snk, 0);
     tb->start();
     tb->stop();
     tb->wait();
-    tb->disconnect(src, 0, iq_swap, 0);
+    tb->disconnect(src, 0, null_snk, 0);
+    null_snk.reset();
 #else
     src.reset();
 #endif
@@ -234,15 +229,7 @@ void receiver::set_input_device(const std::string device)
     if(src->get_sample_rate() != 0)
         set_input_rate(src->get_sample_rate());
 
-    if (d_decim >= 2)
-    {
-        tb->connect(src, 0, input_decim, 0);
-        tb->connect(input_decim, 0, iq_swap, 0);
-    }
-    else
-    {
-        tb->connect(src, 0, iq_swap, 0);
-    }
+    set_demod(d_demod, true);
 
     if (d_running)
         tb->start();
@@ -270,8 +257,14 @@ void receiver::set_output_device(const std::string device)
 
     if (d_demod != RX_DEMOD_OFF)
     {
-        tb->disconnect(audio_gain0, 0, audio_snk, 0);
-        tb->disconnect(audio_gain1, 0, audio_snk, 1);
+        try {
+            tb->disconnect(audio_gain0, 0, audio_snk, 0);
+        } catch(std::exception &x) {
+        }
+        try {
+            tb->disconnect(audio_gain1, 0, audio_snk, 1);
+        } catch(std::exception &x) {
+        }
     }
     audio_snk.reset();
 
@@ -379,16 +372,6 @@ unsigned int receiver::set_input_decim(unsigned int decim)
         tb->wait();
     }
 
-    if (d_decim >= 2)
-    {
-        tb->disconnect(src, 0, input_decim, 0);
-        tb->disconnect(input_decim, 0, iq_swap, 0);
-    }
-    else
-    {
-        tb->disconnect(src, 0, iq_swap, 0);
-    }
-
     input_decim.reset();
     d_decim = decim;
     if (d_decim >= 2)
@@ -412,6 +395,7 @@ unsigned int receiver::set_input_decim(unsigned int decim)
         d_decim_rate = d_input_rate;
     }
 
+    set_demod(d_demod, true);
     // update quadrature rate
     d_ddc_decim = std::max(1, (int)(d_decim_rate / TARGET_QUAD_RATE));
     d_quad_rate = d_decim_rate / d_ddc_decim;
@@ -419,16 +403,6 @@ unsigned int receiver::set_input_decim(unsigned int decim)
     ddc->set_decim_and_samp_rate(d_ddc_decim, d_decim_rate);
     rx->set_quad_rate(d_quad_rate);
     iq_fft->set_quad_rate(d_decim_rate);
-
-    if (d_decim >= 2)
-    {
-        tb->connect(src, 0, input_decim, 0);
-        tb->connect(input_decim, 0, iq_swap, 0);
-    }
-    else
-    {
-        tb->connect(src, 0, iq_swap, 0);
-    }
 
 #ifdef CUSTOM_AIRSPY_KERNELS
     if (input_devstr.find("airspy") != std::string::npos)
@@ -464,7 +438,9 @@ void receiver::set_iq_swap(bool reversed)
         return;
 
     d_iq_rev = reversed;
-    iq_swap->set_enabled(d_iq_rev);
+    set_demod(d_demod, true);
+    if(d_iq_rev)
+        iq_swap->set_enabled(d_iq_rev);
 }
 
 /**
@@ -1028,8 +1004,8 @@ receiver::status receiver::start_audio_recording(const std::string filename)
     }
 
     tb->lock();
-    tb->connect(rx, 0, wav_sink, 0);
-    tb->connect(rx, 1, wav_sink, 1);
+    tb->connect(audio_gain0, 0, wav_sink, 0);
+    tb->connect(audio_gain1, 0, wav_sink, 1);
     tb->unlock();
     d_recording_wav = true;
 
@@ -1058,14 +1034,8 @@ receiver::status receiver::stop_audio_recording()
     // not strictly necessary to lock but I think it is safer
     tb->lock();
     wav_sink->close();
-    tb->disconnect(rx, 0, wav_sink, 0);
-    tb->disconnect(rx, 1, wav_sink, 1);
-
-    // Temporary workaround for https://github.com/gnuradio/gnuradio/issues/5436
-    tb->disconnect(ddc, 0, rx, 0);
-    tb->connect(ddc, 0, rx, 0);
-    // End temporary workaronud
-
+    tb->disconnect(audio_gain0, 0, wav_sink, 0);
+    tb->disconnect(audio_gain1, 0, wav_sink, 1);
     tb->unlock();
     wav_sink.reset();
     d_recording_wav = false;
@@ -1118,16 +1088,10 @@ receiver::status receiver::start_audio_playback(const std::string filename)
     /* route demodulator output to null sink */
     tb->disconnect(rx, 0, audio_gain0, 0);
     tb->disconnect(rx, 1, audio_gain1, 0);
-    tb->disconnect(rx, 0, audio_fft, 0);
-    tb->disconnect(rx, 0, audio_udp_sink, 0);
-    tb->disconnect(rx, 1, audio_udp_sink, 1);
     tb->connect(rx, 0, audio_null_sink0, 0); /** FIXME: other channel? */
     tb->connect(rx, 1, audio_null_sink1, 0); /** FIXME: other channel? */
     tb->connect(wav_src, 0, audio_gain0, 0);
     tb->connect(wav_src, 1, audio_gain1, 0);
-    tb->connect(wav_src, 0, audio_fft, 0);
-    tb->connect(wav_src, 0, audio_udp_sink, 0);
-    tb->connect(wav_src, 1, audio_udp_sink, 1);
     start();
 
     std::cout << "Playing audio from " << filename << std::endl;
@@ -1142,16 +1106,10 @@ receiver::status receiver::stop_audio_playback()
     stop();
     tb->disconnect(wav_src, 0, audio_gain0, 0);
     tb->disconnect(wav_src, 1, audio_gain1, 0);
-    tb->disconnect(wav_src, 0, audio_fft, 0);
-    tb->disconnect(wav_src, 0, audio_udp_sink, 0);
-    tb->disconnect(wav_src, 1, audio_udp_sink, 1);
     tb->disconnect(rx, 0, audio_null_sink0, 0);
     tb->disconnect(rx, 1, audio_null_sink1, 0);
     tb->connect(rx, 0, audio_gain0, 0);
     tb->connect(rx, 1, audio_gain1, 0);
-    tb->connect(rx, 0, audio_fft, 0);  /** FIXME: other channel? */
-    tb->connect(rx, 0, audio_udp_sink, 0);
-    tb->connect(rx, 1, audio_udp_sink, 1);
     start();
 
     /* delete wav_src since we can not change file name */
@@ -1163,7 +1121,12 @@ receiver::status receiver::stop_audio_playback()
 /** Start UDP streaming of audio. */
 receiver::status receiver::start_udp_streaming(const std::string host, int port, bool stereo)
 {
+    tb->lock();
+    tb->connect(audio_gain0, 0, audio_udp_sink, 0);
+    tb->connect(audio_gain1, 0, audio_udp_sink, 1);
+    tb->unlock();
     audio_udp_sink->start_streaming(host, port, stereo);
+    d_udp_streaming = true;
     return STATUS_OK;
 }
 
@@ -1171,6 +1134,11 @@ receiver::status receiver::start_udp_streaming(const std::string host, int port,
 receiver::status receiver::stop_udp_streaming()
 {
     audio_udp_sink->stop_streaming();
+    tb->lock();
+    tb->disconnect(audio_gain0, 0, audio_udp_sink, 0);
+    tb->disconnect(audio_gain1, 0, audio_udp_sink, 1);
+    tb->unlock();
+    d_udp_streaming = false;
     return STATUS_OK;
 }
 
@@ -1270,7 +1238,7 @@ receiver::status receiver::start_sniffer(unsigned int samprate, int buffsize)
     sniffer->set_buffer_size(buffsize);
     sniffer_rr = make_resampler_ff((float)samprate/(float)d_audio_rate);
     tb->lock();
-    tb->connect(rx, 0, sniffer_rr, 0);
+    tb->connect(audio_gain0, 0, sniffer_rr, 0);
     tb->connect(sniffer_rr, 0, sniffer, 0);
     tb->unlock();
     d_sniffer_active = true;
@@ -1289,13 +1257,7 @@ receiver::status receiver::stop_sniffer()
     }
 
     tb->lock();
-    tb->disconnect(rx, 0, sniffer_rr, 0);
-
-    // Temporary workaround for https://github.com/gnuradio/gnuradio/issues/5436
-    tb->disconnect(ddc, 0, rx, 0);
-    tb->connect(ddc, 0, rx, 0);
-    // End temporary workaronud
-
+    tb->disconnect(audio_gain0, 0, sniffer_rr, 0);
     tb->disconnect(sniffer_rr, 0, sniffer, 0);
     tb->unlock();
     d_sniffer_active = false;
@@ -1333,8 +1295,11 @@ void receiver::connect_all(rx_chain type)
         tb->connect(b, 0, iq_sink, 0);
     }
 
-    tb->connect(b, 0, iq_swap, 0);
-    b = iq_swap;
+    if (d_iq_rev)
+    {
+        tb->connect(b, 0, iq_swap, 0);
+        b = iq_swap;
+    }
 
     if (d_dc_cancel)
     {
@@ -1373,11 +1338,9 @@ void receiver::connect_all(rx_chain type)
     {
         tb->connect(b, 0, ddc, 0);
         tb->connect(ddc, 0, rx, 0);
-        tb->connect(rx, 0, audio_fft, 0);
-        tb->connect(rx, 0, audio_udp_sink, 0);
-        tb->connect(rx, 1, audio_udp_sink, 1);
         tb->connect(rx, 0, audio_gain0, 0);
         tb->connect(rx, 1, audio_gain1, 0);
+        tb->connect(audio_gain0, 0, audio_fft, 0);
         tb->connect(audio_gain0, 0, audio_snk, 0);
         tb->connect(audio_gain1, 0, audio_snk, 1);
     }
@@ -1385,14 +1348,20 @@ void receiver::connect_all(rx_chain type)
     // Recorders and sniffers
     if (d_recording_wav)
     {
-        tb->connect(rx, 0, wav_sink, 0);
-        tb->connect(rx, 1, wav_sink, 1);
+        tb->connect(audio_gain0, 0, wav_sink, 0);
+        tb->connect(audio_gain1, 0, wav_sink, 1);
     }
 
     if (d_sniffer_active)
     {
-        tb->connect(rx, 0, sniffer_rr, 0);
+        tb->connect(audio_gain0, 0, sniffer_rr, 0);
         tb->connect(sniffer_rr, 0, sniffer, 0);
+    }
+
+    if(d_udp_streaming)
+    {
+        tb->connect(audio_gain0, 0, audio_udp_sink, 0);
+        tb->connect(audio_gain1, 0, audio_udp_sink, 1);
     }
 }
 
