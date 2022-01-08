@@ -1060,6 +1060,12 @@ receiver::status receiver::stop_audio_recording()
     wav_sink->close();
     tb->disconnect(rx, 0, wav_sink, 0);
     tb->disconnect(rx, 1, wav_sink, 1);
+
+    // Temporary workaround for https://github.com/gnuradio/gnuradio/issues/5436
+    tb->disconnect(ddc, 0, rx, 0);
+    tb->connect(ddc, 0, rx, 0);
+    // End temporary workaronud
+
     tb->unlock();
     wav_sink.reset();
     d_recording_wav = false;
@@ -1284,6 +1290,12 @@ receiver::status receiver::stop_sniffer()
 
     tb->lock();
     tb->disconnect(rx, 0, sniffer_rr, 0);
+
+    // Temporary workaround for https://github.com/gnuradio/gnuradio/issues/5436
+    tb->disconnect(ddc, 0, rx, 0);
+    tb->connect(ddc, 0, rx, 0);
+    // End temporary workaronud
+
     tb->disconnect(sniffer_rr, 0, sniffer, 0);
     tb->unlock();
     d_sniffer_active = false;
