@@ -63,7 +63,7 @@ Getting help and reporting bugs
 -------------------------------
 
 There is a Google group for discussing anything related to Gqrx:
-https://groups.google.com/forum/#!forum/gqrx
+https://groups.google.com/g/gqrx
 This includes getting help with installation and troubleshooting. Please
 remember to provide detailed description of your problem, your setup, what
 steps you followed, etc.

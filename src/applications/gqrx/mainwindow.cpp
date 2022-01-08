@@ -2217,12 +2217,12 @@ void MainWindow::setPassband(int bandwidth)
 /** Launch Gqrx google group website. */
 void MainWindow::on_actionUserGroup_triggered()
 {
-    auto res = QDesktopServices::openUrl(QUrl("https://groups.google.com/forum/#!forum/gqrx",
+    auto res = QDesktopServices::openUrl(QUrl("https://groups.google.com/g/gqrx",
                                               QUrl::TolerantMode));
     if (!res)
         QMessageBox::warning(this, tr("Error"),
                              tr("Failed to open website:\n"
-                                "https://groups.google.com/forum/#!forum/gqrx"),
+                                "https://groups.google.com/g/gqrx"),
                              QMessageBox::Close);
 }
 
