@@ -4,6 +4,7 @@
        NEW: Save & restore center frequency when playing I/Q files.
      FIXED: Device selection fails for some SoapySDR devices.
      FIXED: Segfault when starting AppImage on some systems.
+     FIXED: Crash/freeze after stopping audio recorder or AFSK1200 decoder.
   IMPROVED: Frequency accuracy of plots at high zoom levels.
 
 
