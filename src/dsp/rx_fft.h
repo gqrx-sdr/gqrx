@@ -28,7 +28,7 @@
 #include <gnuradio/fft/fft.h>
 #include <gnuradio/filter/firdes.h>       /* contains enum win_type */
 #include <gnuradio/gr_complex.h>
-#include <boost/circular_buffer.hpp>
+#include <gnuradio/buffer.h>
 #include <chrono>
 
 
@@ -88,12 +88,12 @@ public:
     void set_window_type(int wintype);
     int  get_window_type() const;
 
-    void set_fft_size(unsigned int fftsize);
+    void set_fft_size(int fftsize);
     void set_quad_rate(double quad_rate);
     unsigned int get_fft_size() const;
 
 private:
-    unsigned int d_fftsize;   /*! Current FFT size. */
+    int d_fftsize;   /*! Current FFT size. */
     double       d_quadrate;
     int          d_wintype;   /*! Current window type. */
 
@@ -106,7 +106,8 @@ private:
 #endif
     std::vector<float>  d_window; /*! FFT window taps. */
 
-    boost::circular_buffer<gr_complex> d_cbuf; /*! buffer to accumulate samples. */
+    gr::buffer_sptr d_writer;
+    gr::buffer_reader_sptr d_reader;
     std::chrono::time_point<std::chrono::steady_clock> d_lasttime;
 
     void do_fft(unsigned int size);
@@ -158,11 +159,11 @@ public:
     void set_window_type(int wintype);
     int  get_window_type() const;
 
-    void set_fft_size(unsigned int fftsize);
+    void set_fft_size(int fftsize);
     unsigned int get_fft_size() const;
 
 private:
-    unsigned int d_fftsize;   /*! Current FFT size. */
+    int d_fftsize;   /*! Current FFT size. */
     double       d_audiorate;
     int          d_wintype;   /*! Current window type. */
 
@@ -175,7 +176,8 @@ private:
 #endif
     std::vector<float>  d_window; /*! FFT window taps. */
 
-    boost::circular_buffer<float> d_cbuf; /*! buffer to accumulate samples. */
+    gr::buffer_sptr d_writer;
+    gr::buffer_reader_sptr d_reader;
     std::chrono::time_point<std::chrono::steady_clock> d_lasttime;
 
     void do_fft(unsigned int size);

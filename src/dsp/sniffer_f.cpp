@@ -47,7 +47,8 @@ sniffer_f::sniffer_f(int buffsize)
 {
 
     /* allocate circular buffer */
-    d_buffer.set_capacity(buffsize);
+    d_writer = gr::make_buffer(buffsize, sizeof(float));
+    d_reader = gr::buffer_add_reader(d_writer, 0);
 
 }
 
@@ -69,17 +70,16 @@ int sniffer_f::work(int noutput_items,
                     gr_vector_const_void_star &input_items,
                     gr_vector_void_star &output_items)
 {
-    int i;
-    const float *in = (const float *)input_items[0];
-
-    (void) output_items;
 
     std::lock_guard<std::mutex> lock(d_mutex);
 
     /* dump new samples into the buffer */
-    for (i = 0; i < noutput_items; i++) {
-        d_buffer.push_back(in[i]);
-    }
+    if (noutput_items > d_writer->bufsize())
+        noutput_items = d_writer->bufsize();
+    if (d_writer->space_available() < noutput_items)
+        d_reader->update_read_pointer(noutput_items - d_writer->space_available());
+    memcpy(d_writer->write_pointer(), input_items[0], sizeof(float) * noutput_items);
+    d_writer->update_write_pointer(noutput_items);
 
     return noutput_items;
 }
@@ -95,7 +95,7 @@ int  sniffer_f::samples_available()
 {
     std::lock_guard<std::mutex> lock(d_mutex);
 
-    return d_buffer.size();
+    return d_reader->items_available();
 }
 
 /*! \brief Fetch available samples.
@@ -107,18 +107,15 @@ void sniffer_f::get_samples(float * out, unsigned int &num)
 {
     std::lock_guard<std::mutex> lock(d_mutex);
 
-    if (d_buffer.size() < d_minsamp) {
+    if (d_reader->items_available() < d_minsamp) {
         /* not enough samples in buffer */
         num = 0;
         return;
     }
 
-    num = d_buffer.size();
-    float *buff = d_buffer.linearize();
-
-    memcpy(out, buff, sizeof(float)*num);
-
-    d_buffer.clear();
+    num = d_reader->items_available();
+    memcpy(out, d_reader->read_pointer(), sizeof(float)*num);
+    d_reader->update_read_pointer(num);
 }
 
 
@@ -129,8 +126,8 @@ void sniffer_f::set_buffer_size(int newsize)
 {
     std::lock_guard<std::mutex> lock(d_mutex);
 
-    //d_buffer.clear();
-    d_buffer.set_capacity(newsize);
+    d_writer = gr::make_buffer(newsize, sizeof(float));
+    d_reader = gr::buffer_add_reader(d_writer, 0);
 }
 
 
@@ -143,5 +140,5 @@ int  sniffer_f::buffer_size()
 {
     std::lock_guard<std::mutex> lock(d_mutex);
 
-    return d_buffer.capacity();
+    return d_writer->bufsize();
 }

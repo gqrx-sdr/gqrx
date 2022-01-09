@@ -39,7 +39,8 @@ rx_meter_c::rx_meter_c(double quad_rate)
       d_avgsize(quad_rate * 0.100)
 {
     /* allocate circular buffer */
-    d_cbuf.set_capacity(d_avgsize + d_quadrate);
+    d_writer = gr::make_buffer(d_avgsize + d_quadrate, sizeof(gr_complex));
+    d_reader = gr::buffer_add_reader(d_writer, 0);
 
     d_lasttime = std::chrono::steady_clock::now();
 }
@@ -55,11 +56,12 @@ int rx_meter_c::work(int noutput_items,
 {
     std::lock_guard<std::mutex> lock(d_mutex);
 
-    const gr_complex *in = (const gr_complex *) input_items[0];
-    (void) output_items; // unused
-
-    for (int i = 0; i < noutput_items; i++)
-        d_cbuf.push_back(in[i]);
+    if (noutput_items > d_writer->bufsize())
+        noutput_items = d_writer->bufsize();
+    if (d_writer->space_available() < noutput_items)
+        d_reader->update_read_pointer(noutput_items - d_writer->space_available());
+    memcpy(d_writer->write_pointer(), input_items[0], sizeof(gr_complex) * noutput_items);
+    d_writer->update_write_pointer(noutput_items);
 
     return noutput_items;
 }
@@ -69,19 +71,18 @@ float rx_meter_c::get_level_db()
 {
     std::lock_guard<std::mutex> lock(d_mutex);
 
-    if (d_cbuf.size() < d_avgsize)
+    if (d_reader->items_available() < d_avgsize)
         return 0;
 
     std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = now - d_lasttime;
     d_lasttime = now;
 
-    d_cbuf.erase_begin(std::min((unsigned int)(diff.count() * d_quadrate * 1.001), (unsigned int)d_cbuf.size() - d_avgsize));
-
+    d_reader->update_read_pointer(std::min((unsigned int)(diff.count() * d_quadrate * 1.001), (unsigned int)d_reader->items_available() - d_avgsize));
+    gr_complex *p = (gr_complex *)d_reader->read_pointer();
     float sum = 0;
-    for (unsigned int i = 0; i < d_avgsize; i++)
-        sum += d_cbuf[i].real()*d_cbuf[i].real() + d_cbuf[i].imag()*d_cbuf[i].imag();
-
+    for (int i = 0; i < d_avgsize; i++)
+        sum += p[i].real()*p[i].real() + p[i].imag()*p[i].imag();
     float power = sum / (float)(d_avgsize);
     return (float) 10. * log10f(power + 1.0e-20);
 }

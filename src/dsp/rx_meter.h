@@ -24,7 +24,7 @@
 #define RX_METER_H
 
 #include <gnuradio/sync_block.h>
-#include <boost/circular_buffer.hpp>
+#include <gnuradio/buffer.h>
 #include <chrono>
 #include <mutex>
 
@@ -73,9 +73,10 @@ public:
 
 private:
     double d_quadrate;
-    unsigned int d_avgsize; /*! Number of samples to average. */
+    int d_avgsize; /*! Number of samples to average. */
 
-    boost::circular_buffer<gr_complex> d_cbuf; /*! buffer to accumulate samples. */
+    gr::buffer_sptr d_writer; /*! buffer to accumulate samples. */
+    gr::buffer_reader_sptr d_reader;
     std::chrono::time_point<std::chrono::steady_clock> d_lasttime;
 
     std::mutex   d_mutex;  /*! Used to lock FFT output buffer. */
