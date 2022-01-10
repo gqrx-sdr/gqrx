@@ -67,6 +67,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     ui(new Ui::MainWindow),
     d_lnb_lo(0),
     d_hw_freq(0),
+    d_ignore_limits(false),
     d_fftAvg(0.25),
     d_fftNormalizeEnergy(false),
     d_have_audio(true),
@@ -310,9 +311,9 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(&DXCSpots::Get(), SIGNAL(dxcSpotsUpdated()), this, SLOT(updateClusterSpots()));
 
     // I/Q playback
-    connect(iq_tool, SIGNAL(startRecording(QString)), this, SLOT(startIqRecording(QString)));
+    connect(iq_tool, SIGNAL(startRecording(QString, file_formats)), this, SLOT(startIqRecording(QString, file_formats)));
     connect(iq_tool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
-    connect(iq_tool, SIGNAL(startPlayback(QString,float,qint64)), this, SLOT(startIqPlayback(QString,float,qint64)));
+    connect(iq_tool, SIGNAL(startPlayback(QString, float, qint64, file_formats)), this, SLOT(startIqPlayback(QString, float, qint64, file_formats)));
     connect(iq_tool, SIGNAL(stopPlayback()), this, SLOT(stopIqPlayback()));
     connect(iq_tool, SIGNAL(seek(qint64)), this,SLOT(seekIqFile(qint64)));
 
@@ -1645,26 +1646,31 @@ void MainWindow::stopAudioStreaming()
     rx->stop_udp_streaming();
 }
 
-/** Start I/Q recording. */
-void MainWindow::startIqRecording(const QString& recdir)
+QString MainWindow::makeIQFilename(const QString& recdir, file_formats fmt, const QDateTime ts)
 {
-    qDebug() << __func__;
     // generate file name using date, time, rf freq in kHz and BW in Hz
     // gqrx_iq_yyyymmdd_hhmmss_freq_bw_fc.raw
     auto freq = qRound64(rx->get_rf_freq());
     auto sr = qRound64(rx->get_input_rate());
     auto dec = (quint32)(rx->get_input_decim());
-    auto lastRec = QDateTime::currentDateTimeUtc().
-            toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.'raw'")
-            .arg(recdir).arg(freq).arg(sr/dec);
+    QString suffix = any_to_any_base::fmt[fmt].suffix;
+    return ts.toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_%4.'raw'")
+            .arg(recdir).arg(freq).arg(sr/dec).arg(suffix);
+}
 
+/** Start I/Q recording. */
+void MainWindow::startIqRecording(const QString& recdir, file_formats fmt)
+{
+
+    auto lastRec = makeIQFilename(recdir, fmt, QDateTime::currentDateTimeUtc());
     ui->actionIoConfig->setDisabled(true);
     ui->actionLoadSettings->setDisabled(true);
     // start recorder; fails if recording already in progress
-    if (rx->start_iq_recording(lastRec.toStdString()))
+    if (rx->start_iq_recording(lastRec.toStdString(), fmt))
     {
         // reset action status
         ui->statusBar->showMessage(tr("Error starting I/Q recoder"));
+        iq_tool->cancelRecording();
 
         // show an error message to user
         QMessageBox msg_box;
@@ -1694,7 +1700,7 @@ void MainWindow::stopIqRecording()
     ui->actionLoadSettings->setDisabled(false);
 }
 
-void MainWindow::startIqPlayback(const QString& filename, float samprate, qint64 center_freq)
+void MainWindow::startIqPlayback(const QString& filename, float samprate, qint64 center_freq, file_formats fmt)
 {
     if (ui->actionDSP->isChecked())
     {
@@ -1715,6 +1721,7 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate, qint64
 
     rx->set_input_device(devstr.toStdString());
     updateHWFrequencyRange(false);
+    rx->set_input_file(filename.toStdString(), samprate, fmt);
 
     // sample rate
     auto actual_rate = rx->set_input_rate((double)samprate);
@@ -1772,9 +1779,6 @@ void MainWindow::stopIqPlayback()
         ui->plotter->setSampleRate(actual_rate);
         ui->plotter->setSpanFreq((quint32)actual_rate);
         remote->setBandwidth(sr);
-
-        // not needed as long as we are not recording in iq_tool
-        //iq_tool->setSampleRate(sr);
     }
 
     // restore frequency, gain, etc...
