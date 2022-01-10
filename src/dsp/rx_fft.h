@@ -29,6 +29,9 @@
 #include <gnuradio/filter/firdes.h>       /* contains enum win_type */
 #include <gnuradio/gr_complex.h>
 #include <gnuradio/buffer.h>
+#if GNURADIO_VERSION >= 0x031000
+#include <gnuradio/buffer_reader.h>
+#endif
 #include <chrono>
 
 
@@ -88,12 +91,12 @@ public:
     void set_window_type(int wintype);
     int  get_window_type() const;
 
-    void set_fft_size(int fftsize);
+    void set_fft_size(unsigned int fftsize);
     void set_quad_rate(double quad_rate);
     unsigned int get_fft_size() const;
 
 private:
-    int d_fftsize;   /*! Current FFT size. */
+    unsigned int d_fftsize;   /*! Current FFT size. */
     double       d_quadrate;
     int          d_wintype;   /*! Current window type. */
 
@@ -159,11 +162,11 @@ public:
     void set_window_type(int wintype);
     int  get_window_type() const;
 
-    void set_fft_size(int fftsize);
+    void set_fft_size(unsigned int fftsize);
     unsigned int get_fft_size() const;
 
 private:
-    int d_fftsize;   /*! Current FFT size. */
+    unsigned int d_fftsize;   /*! Current FFT size. */
     double       d_audiorate;
     int          d_wintype;   /*! Current window type. */
 

@@ -25,6 +25,9 @@
 
 #include <gnuradio/sync_block.h>
 #include <gnuradio/buffer.h>
+#if GNURADIO_VERSION >= 0x031000
+#include <gnuradio/buffer_reader.h>
+#endif
 #include <chrono>
 #include <mutex>
 
@@ -73,7 +76,7 @@ public:
 
 private:
     double d_quadrate;
-    int d_avgsize; /*! Number of samples to average. */
+    unsigned int d_avgsize; /*! Number of samples to average. */
 
     gr::buffer_sptr d_writer; /*! buffer to accumulate samples. */
     gr::buffer_reader_sptr d_reader;

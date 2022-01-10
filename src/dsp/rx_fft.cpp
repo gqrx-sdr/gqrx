@@ -56,7 +56,11 @@ rx_fft_c::rx_fft_c(unsigned int fftsize, double quad_rate, int wintype)
 #endif
 
     /* allocate circular buffer */
+#if GNURADIO_VERSION < 0x031000
     d_writer = gr::make_buffer(d_fftsize + d_quadrate, sizeof(gr_complex));
+#else
+    d_writer = gr::make_buffer(d_fftsize + d_quadrate, sizeof(gr_complex), 1, 1);
+#endif
     d_reader = gr::buffer_add_reader(d_writer, 0);
 
     /* create FFT window */
@@ -83,16 +87,22 @@ int rx_fft_c::work(int noutput_items,
                    gr_vector_const_void_star &input_items,
                    gr_vector_void_star &output_items)
 {
+    const gr_complex *in = (const gr_complex*)input_items[0];
     (void) output_items;
 
     /* just throw new samples into the buffer */
     std::lock_guard<std::mutex> lock(d_mutex);
-    if (d_writer->space_available() < noutput_items)
-        d_reader->update_read_pointer(noutput_items - d_writer->space_available());
-    memcpy(d_writer->write_pointer(), input_items[0], sizeof(gr_complex) * noutput_items);
-    d_writer->update_write_pointer(noutput_items);
-    return noutput_items;
 
+    int items_to_copy = std::min(noutput_items, (int)d_writer->bufsize());
+    if (items_to_copy < noutput_items)
+        in += (noutput_items - items_to_copy);
+
+    if (d_writer->space_available() < items_to_copy)
+        d_reader->update_read_pointer(items_to_copy - d_writer->space_available());
+    memcpy(d_writer->write_pointer(), in, sizeof(gr_complex) * items_to_copy);
+    d_writer->update_write_pointer(items_to_copy);
+
+    return noutput_items;
 }
 
 /*! \brief Get FFT data.
@@ -103,7 +113,7 @@ void rx_fft_c::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
 {
     std::lock_guard<std::mutex> lock(d_mutex);
 
-    if (d_reader->items_available() < d_fftsize)
+    if ((unsigned int)d_reader->items_available() < d_fftsize)
     {
         // not enough samples in the buffer
         fftSize = 0;
@@ -116,11 +126,11 @@ void rx_fft_c::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
     d_lasttime = now;
 
     /* perform FFT */
-    d_reader->update_read_pointer(std::min((int)(diff.count() * d_quadrate * 1.001), d_reader->items_available() - d_fftsize));
+    d_reader->update_read_pointer(std::min((unsigned int)(diff.count() * d_quadrate * 1.001), d_reader->items_available() - d_fftsize));
     do_fft(d_fftsize);
 
     /* get FFT data */
-    memcpy(fftPoints, d_fft->get_outbuf(), sizeof(gr_complex) * d_fftsize);
+    memcpy(fftPoints, d_fft->get_outbuf(), sizeof(gr_complex)*d_fftsize);
     fftSize = d_fftsize;
 }
 
@@ -143,7 +153,7 @@ void rx_fft_c::do_fft(unsigned int size)
     }
     else
     {
-        memcpy(d_fft->get_inbuf(), p, sizeof(gr_complex) * size);
+        memcpy(d_fft->get_inbuf(), p, sizeof(gr_complex)*size);
     }
 
     /* compute FFT */
@@ -154,8 +164,13 @@ void rx_fft_c::do_fft(unsigned int size)
 void rx_fft_c::set_params()
 {
     std::lock_guard<std::mutex> lock(d_mutex);
+
     /* clear and resize circular buffer */
+#if GNURADIO_VERSION < 0x031000
     d_writer = gr::make_buffer(d_fftsize + d_quadrate, sizeof(gr_complex));
+#else
+    d_writer = gr::make_buffer(d_fftsize + d_quadrate, sizeof(gr_complex), 1, 1);
+#endif
     d_reader = gr::buffer_add_reader(d_writer, 0);
 
     /* reset window */
@@ -173,7 +188,7 @@ void rx_fft_c::set_params()
 }
 
 /*! \brief Set new FFT size. */
-void rx_fft_c::set_fft_size(int fftsize)
+void rx_fft_c::set_fft_size(unsigned int fftsize)
 {
     if (fftsize != d_fftsize)
     {
@@ -254,7 +269,11 @@ rx_fft_f::rx_fft_f(unsigned int fftsize, double audio_rate, int wintype)
 #endif
 
     /* allocate circular buffer */
+#if GNURADIO_VERSION < 0x031000
     d_writer = gr::make_buffer(d_fftsize + d_audiorate, sizeof(float));
+#else
+    d_writer = gr::make_buffer(d_fftsize + d_audiorate, sizeof(float), 1, 1);
+#endif
     d_reader = gr::buffer_add_reader(d_writer, 0);
 
     /* create FFT window */
@@ -281,14 +300,21 @@ int rx_fft_f::work(int noutput_items,
                    gr_vector_const_void_star &input_items,
                    gr_vector_void_star &output_items)
 {
+    const float *in = (const float*)input_items[0];
     (void) output_items;
 
     /* just throw new samples into the buffer */
     std::lock_guard<std::mutex> lock(d_mutex);
-    if(d_writer->space_available() < noutput_items)
-        d_reader->update_read_pointer(noutput_items - d_writer->space_available());
-    memcpy(d_writer->write_pointer(), input_items[0], sizeof(gr_complex) * noutput_items);
-    d_writer->update_write_pointer(noutput_items);
+
+    int items_to_copy = std::min(noutput_items, (int)d_writer->bufsize());
+    if (items_to_copy < noutput_items)
+        in += (noutput_items - items_to_copy);
+
+    if (d_writer->space_available() < items_to_copy)
+        d_reader->update_read_pointer(items_to_copy - d_writer->space_available());
+    memcpy(d_writer->write_pointer(), in, sizeof(float) * items_to_copy);
+    d_writer->update_write_pointer(items_to_copy);
+
     return noutput_items;
 }
 
@@ -300,7 +326,7 @@ void rx_fft_f::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
 {
     std::lock_guard<std::mutex> lock(d_mutex);
 
-    if (d_reader->items_available() < d_fftsize)
+    if ((unsigned int)d_reader->items_available() < d_fftsize)
     {
         // not enough samples in the buffer
         fftSize = 0;
@@ -313,11 +339,11 @@ void rx_fft_f::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
     d_lasttime = now;
 
     /* perform FFT */
-    d_reader->update_read_pointer(std::min((unsigned int)(diff.count() * d_audiorate * 1.001), (unsigned int)d_reader->items_available() - d_fftsize));
+    d_reader->update_read_pointer(std::min((unsigned int)(diff.count() * d_audiorate * 1.001), d_reader->items_available() - d_fftsize));
     do_fft(d_fftsize);
 
     /* get FFT data */
-    memcpy(fftPoints, d_fft->get_outbuf(), sizeof(gr_complex) * d_fftsize);
+    memcpy(fftPoints, d_fft->get_outbuf(), sizeof(gr_complex)*d_fftsize);
     fftSize = d_fftsize;
 }
 
@@ -350,7 +376,7 @@ void rx_fft_f::do_fft(unsigned int size)
 
 
 /*! \brief Set new FFT size. */
-void rx_fft_f::set_fft_size(int fftsize)
+void rx_fft_f::set_fft_size(unsigned int fftsize)
 {
     if (fftsize != d_fftsize)
     {
@@ -359,7 +385,11 @@ void rx_fft_f::set_fft_size(int fftsize)
         d_fftsize = fftsize;
 
         /* clear and resize circular buffer */
-        d_writer = gr::make_buffer(d_fftsize + d_audiorate,sizeof(float));
+#if GNURADIO_VERSION < 0x031000
+        d_writer = gr::make_buffer(d_fftsize + d_audiorate, sizeof(float));
+#else
+        d_writer = gr::make_buffer(d_fftsize + d_audiorate, sizeof(float), 1, 1);
+#endif
         d_reader = gr::buffer_add_reader(d_writer, 0);
 
         /* reset window */
