@@ -59,7 +59,7 @@ private:
 
     CAfsk12 *decoder;     /*! The AFSK1200 decoder object. */
 
-    std::vector<float> tmpbuf;   /*! Needed to remember "overlap" smples. */
+    std::vector<float> tmpbuf;   /*! Needed to remember "overlap" samples. */
 };
 
 #endif // AFSK1200WIN_H
