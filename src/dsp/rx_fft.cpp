@@ -261,6 +261,8 @@ rx_fft_f::rx_fft_f(unsigned int fftsize, double audio_rate, int wintype)
 
     /* create FFT window */
     set_window_type(wintype);
+
+    d_lasttime = std::chrono::steady_clock::now();
 }
 
 rx_fft_f::~rx_fft_f()
