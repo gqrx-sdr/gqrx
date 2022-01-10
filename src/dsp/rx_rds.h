@@ -50,7 +50,7 @@
 #include <gnuradio/digital/diff_decoder_bb.h>
 #include <gnuradio/blocks/file_sink.h>
 #include <gnuradio/blocks/message_debug.h>
-#include <boost/circular_buffer.hpp>
+#include <queue>
 #include "dsp/rds/decoder.h"
 #include "dsp/rds/parser.h"
 
@@ -82,7 +82,7 @@ private:
     void store(pmt::pmt_t msg);
 
     std::mutex d_mutex;
-    boost::circular_buffer<pmt::pmt_t> d_messages;
+    std::queue<pmt::pmt_t> d_messages;
 
 };
 

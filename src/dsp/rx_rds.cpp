@@ -135,7 +135,6 @@ rx_rds_store::rx_rds_store() : gr::block ("rx_rds_store",
 {
         message_port_register_in(pmt::mp("store"));
         set_msg_handler(pmt::mp("store"), std::bind(&rx_rds_store::store, this, std::placeholders::_1));
-        d_messages.set_capacity(100);
 }
 
 rx_rds_store::~rx_rds_store ()
@@ -146,7 +145,7 @@ rx_rds_store::~rx_rds_store ()
 void rx_rds_store::store(pmt::pmt_t msg)
 {
     std::lock_guard<std::mutex> lock(d_mutex);
-    d_messages.push_back(msg);
+    d_messages.push(msg);
 
 }
 
@@ -158,7 +157,7 @@ void rx_rds_store::get_message(std::string &out, int &type)
         pmt::pmt_t msg=d_messages.front();
         type=pmt::to_long(pmt::tuple_ref(msg,0));
         out=pmt::symbol_to_string(pmt::tuple_ref(msg,1));
-        d_messages.pop_front();
+        d_messages.pop();
     } else {
         type=-1;
     }

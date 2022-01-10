@@ -25,7 +25,10 @@
 
 #include <mutex>
 #include <gnuradio/sync_block.h>
-#include <boost/circular_buffer.hpp>
+#include <gnuradio/buffer.h>
+#if GNURADIO_VERSION >= 0x031000
+#include <gnuradio/buffer_reader.h>
+#endif
 
 
 class sniffer_f;
@@ -85,7 +88,8 @@ public:
 private:
 
     std::mutex d_mutex;                     /*! Used to prevent concurrent access to buffer. */
-    boost::circular_buffer<float> d_buffer; /*! buffer to accumulate samples. */
+    gr::buffer_sptr d_writer;
+    gr::buffer_reader_sptr d_reader;
     unsigned int d_minsamp;                 /*! smallest number of samples we want to return. */
 
 };
