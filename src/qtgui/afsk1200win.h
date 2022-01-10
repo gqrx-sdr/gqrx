@@ -59,7 +59,7 @@ private:
 
     CAfsk12 *decoder;     /*! The AFSK1200 decoder object. */
 
-    QVarLengthArray<float, 16384> tmpbuf;   /*! Needed to remember "overlap" smples. */
+    std::vector<float> tmpbuf;   /*! Needed to remember "overlap" smples. */
 };
 
 #endif // AFSK1200WIN_H
