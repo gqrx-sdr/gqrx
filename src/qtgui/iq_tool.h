@@ -31,6 +31,8 @@
 #include <QShowEvent>
 #include <QString>
 #include <QTimer>
+#include "dsp/format_converter.h"
+
 
 namespace Ui {
     class CIqTool;
@@ -62,9 +64,9 @@ public:
     void readSettings(QSettings *settings);
 
 signals:
-    void startRecording(const QString recdir, const QString format);
+    void startRecording(const QString recdir, file_formats fmt);
     void stopRecording();
-    void startPlayback(const QString filename, float samprate, qint64 center_freq);
+    void startPlayback(const QString filename, float samprate, qint64 center_freq, file_formats fmt);
     void stopPlayback();
     void seek(qint64 seek_pos);
 
@@ -82,18 +84,13 @@ private slots:
     void on_slider_valueChanged(int value);
     void on_listWidget_currentTextChanged(const QString &currentText);
     void timeoutFunction(void);
+    void on_formatCombo_currentIndexChanged(int index);
 
 private:
-    enum IqToolState
-    {
-        STATE_IDLE = 0,
-        STATE_PLAYING,
-        STATE_RECORDING
-    };
     void refreshDir(void);
     void refreshTimeWidgets(void);
     void parseFileName(const QString &filename);
-    void switchControlsState(enum IqToolState state);
+    void switchControlsState(bool recording, bool playback);
 
 private:
     Ui::CIqTool *ui;
@@ -106,10 +103,13 @@ private:
 
     bool    is_recording;
     bool    is_playing;
-    int     bytes_per_sample;  /*!< Bytes per sample (fc = 4) */
-    int     sample_rate;       /*!< Current sample rate. */
+    qint64  chunk_size;
+    qint64  samples_per_chunk;
+    file_formats fmt;
+    file_formats rec_fmt;
+    qint64  sample_rate;       /*!< Current sample rate. */
     qint64  center_freq;       /*!< Center frequency. */
-    int     rec_len;           /*!< Length of a recording in seconds */
+    qint64  rec_len;           /*!< Length of a recording in seconds */
 };
 
 #endif // IQ_TOOL_H

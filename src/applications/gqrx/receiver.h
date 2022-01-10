@@ -25,9 +25,11 @@
 
 #include <gnuradio/blocks/file_sink.h>
 #include <gnuradio/blocks/multiply_const.h>
+#include <gnuradio/blocks/file_source.h>
 #include <gnuradio/blocks/null_sink.h>
 #include <gnuradio/blocks/wavfile_sink.h>
 #include <gnuradio/blocks/wavfile_source.h>
+#include <gnuradio/blocks/throttle.h>
 #include <gnuradio/top_block.h>
 #include <osmosdr/source.h>
 #include <string>
@@ -44,6 +46,7 @@
 #include "dsp/rx_fft.h"
 #include "dsp/sniffer_f.h"
 #include "dsp/resampler_xx.h"
+#include "dsp/format_converter.h"
 #include "interfaces/udp_sink_f.h"
 #include "receivers/receiver_base.h"
 
@@ -116,6 +119,7 @@ public:
     void        stop();
     void        set_input_device(const std::string device);
     void        set_output_device(const std::string device);
+    void        set_input_file(const std::string name, const int sample_rate, const file_formats fmt);
 
     std::vector<std::string> get_antennas(void) const;
     void        set_antenna(const std::string &antenna);
@@ -183,7 +187,9 @@ public:
     status      set_agc_decay(int decay_ms);
     status      set_agc_manual_gain(int gain);
 
-    status      set_demod(rx_demod demod, bool force=false);
+    status      set_demod(rx_demod demod,
+                          file_formats fmt = FILE_FORMAT_LAST,
+                          bool force = false);
 
     /* FM parameters */
     status      set_fm_maxdev(float maxdev_hz);
@@ -207,10 +213,10 @@ public:
     status      stop_udp_streaming();
 
     /* I/Q recording and playback */
-    status      start_iq_recording(const std::string filename);
+    status      start_iq_recording(const std::string filename, const file_formats fmt);
     status      stop_iq_recording();
     status      seek_iq_file(long pos);
-    bool        is_playing_iq(void) const { return input_devstr.substr(0, 5).compare("file=") == 0; }
+    bool        is_playing_iq() const { return !(d_iq_fmt == FILE_FORMAT_NONE); }
 
     /* sample sniffer */
     status      start_sniffer(unsigned int samplrate, int buffsize);
@@ -231,7 +237,9 @@ public:
     static std::string escape_filename(std::string filename);
 
 private:
-    void        connect_all(rx_chain type);
+    void        connect_all(rx_chain type, file_formats fmt);
+    void        setup_source(file_formats fmt);
+    status      connect_iq_recorder();
 
 private:
     bool        d_running;          /*!< Whether receiver is running or not. */
@@ -250,6 +258,8 @@ private:
     bool        d_iq_rev;           /*!< Whether I/Q is reversed or not. */
     bool        d_dc_cancel;        /*!< Enable automatic DC removal. */
     bool        d_iq_balance;       /*!< Enable automatic IQ balance. */
+    file_formats d_iq_fmt;
+    file_formats d_last_format;
 
     std::string input_devstr;  /*!< Current input device string. */
     std::string output_devstr; /*!< Current output device string. */
@@ -276,6 +286,36 @@ private:
     gr::blocks::multiply_const_ff::sptr wav_gain1; /*!< WAV file gain block. */
 
     gr::blocks::file_sink::sptr         iq_sink;     /*!< I/Q file sink. */
+    //Format converters to/from signed integer
+    std::vector<any_to_any_base::sptr> convert_to
+    {
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        any_to_any<gr_complex,std::complex<int8_t>>::make(),
+        any_to_any<gr_complex,std::complex<int16_t>>::make(),
+        any_to_any<gr_complex,std::complex<int32_t>>::make(),
+        any_to_any<gr_complex,std::complex<uint8_t>>::make(),
+        any_to_any<gr_complex,std::complex<uint16_t>>::make(),
+        any_to_any<gr_complex,std::complex<uint32_t>>::make()
+    };
+    std::vector<any_to_any_base::sptr> convert_from
+    {
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        any_to_any<std::complex<int8_t>,gr_complex>::make(),
+        any_to_any<std::complex<int16_t>,gr_complex>::make(),
+        any_to_any<std::complex<int32_t>,gr_complex>::make(),
+        any_to_any<std::complex<uint8_t>,gr_complex>::make(),
+        any_to_any<std::complex<uint16_t>,gr_complex>::make(),
+        any_to_any<std::complex<uint32_t>,gr_complex>::make()
+    };
+
+    gr::blocks::throttle::sptr                     input_throttle;
+    gr::blocks::file_source::sptr                  input_file;
 
     gr::blocks::wavfile_sink::sptr      wav_sink;   /*!< WAV file sink for recording. */
     gr::blocks::wavfile_source::sptr    wav_src;    /*!< WAV file source for playback. */
