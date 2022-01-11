@@ -21,6 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <math.h>
+#include <volk/volk.h>
 #include <gnuradio/io_signature.h>
 #include <dsp/rx_meter.h>
 #include <iostream>
@@ -88,10 +89,8 @@ float rx_meter_c::get_level_db()
     d_lasttime = now;
 
     d_reader->update_read_pointer(std::min((unsigned int)(diff.count() * d_quadrate * 1.001), (unsigned int)d_reader->items_available() - d_avgsize));
-    gr_complex *p = (gr_complex *)d_reader->read_pointer();
     float sum = 0;
-    for (unsigned int i = 0; i < d_avgsize; i++)
-        sum += p[i].real()*p[i].real() + p[i].imag()*p[i].imag();
+    volk_32f_x2_dot_prod_32f(&sum, (float *)d_reader->read_pointer(), (float *)d_reader->read_pointer(), d_avgsize * 2);
     float power = sum / (float)(d_avgsize);
     return (float) 10. * log10f(power + 1.0e-20);
 }

@@ -21,6 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <math.h>
+#include <volk/volk.h>
 #include <gnuradio/io_signature.h>
 #include <gnuradio/filter/firdes.h>
 #include <gnuradio/gr_complex.h>
@@ -148,8 +149,7 @@ void rx_fft_c::do_fft(unsigned int size)
     if (d_window.size())
     {
         gr_complex *dst = d_fft->get_inbuf();
-        for (unsigned int i = 0; i < size; i++)
-            dst[i] = p[i] * d_window[i];
+        volk_32fc_32f_multiply_32fc(dst, p, &d_window[0], size);
     }
     else
     {
