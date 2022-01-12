@@ -3,7 +3,7 @@
 
      FIXED: RDS receiver skips some messages.
      FIXED: Buffer overruns in AFSK1200 decoder.
-  IMPROVED: FFT performance.
+  IMPROVED: FFT and S-meter performance.
 
 
     2.15.2: Released January 8, 2022
