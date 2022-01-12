@@ -3,6 +3,7 @@
 
      FIXED: RDS receiver skips some messages.
      FIXED: Buffer overruns in AFSK1200 decoder.
+     FIXED: Crash when opening APSK1200 decoder with demod off.
   IMPROVED: FFT and S-meter performance.
 
 
