@@ -1089,6 +1089,10 @@ void MainWindow::selectDemod(int mode_idx)
             stopAudioRec();
             uiDockAudio->setAudioRecButtonState(false);
         }
+        if (dec_afsk1200 != nullptr)
+        {
+            dec_afsk1200->close();
+        }
         rx->set_demod(receiver::RX_DEMOD_OFF);
         click_res = 1000;
         break;
@@ -2073,7 +2077,16 @@ void MainWindow::on_actionRemoteConfig_triggered()
  */
 void MainWindow::on_actionAFSK1200_triggered()
 {
-
+    if (!d_have_audio)
+    {
+        QMessageBox msg_box;
+        msg_box.setIcon(QMessageBox::Critical);
+        msg_box.setText(tr("AFSK1200 decoder requires a demodulator.\n"
+                           "Currently, demodulation is switched off "
+                           "(Mode->Demod off)."));
+        msg_box.exec();
+        return;
+    }
     if (dec_afsk1200 != nullptr)
     {
         qDebug() << "AFSK1200 decoder already active.";

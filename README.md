@@ -229,6 +229,7 @@ The following people and organisations have contributed to gqrx:
 * Pavel Milanes, CO7WT
 * Pavel Stano
 * Phil Vachon
+* Radoslav Gerganov
 * Rob Frohne
 * Ron Economos, W6RZ
 * Russell Dwarshuis, KB8U
