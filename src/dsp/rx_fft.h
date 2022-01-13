@@ -113,7 +113,7 @@ private:
     gr::buffer_reader_sptr d_reader;
     std::chrono::time_point<std::chrono::steady_clock> d_lasttime;
 
-    void do_fft(unsigned int size);
+    void apply_window(unsigned int size);
     void set_params();
 
 };
@@ -183,7 +183,7 @@ private:
     gr::buffer_reader_sptr d_reader;
     std::chrono::time_point<std::chrono::steady_clock> d_lasttime;
 
-    void do_fft(unsigned int size);
+    void apply_window(unsigned int size);
 
 };
 
