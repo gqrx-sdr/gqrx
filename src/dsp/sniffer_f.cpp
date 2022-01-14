@@ -40,7 +40,7 @@ sniffer_f_sptr make_sniffer_f(int buffsize)
  *  - How often the data will be popped.
  */
 sniffer_f::sniffer_f(int buffsize)
-    : gr::sync_block ("rx_fft_c",
+    : gr::sync_block ("sniffer_f",
           gr::io_signature::make(1, 1, sizeof(float)),
           gr::io_signature::make(0, 0, 0)),
       d_minsamp(1000)
