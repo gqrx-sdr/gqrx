@@ -58,11 +58,14 @@ rx_fft_c::rx_fft_c(unsigned int fftsize, double quad_rate, int wintype)
 
     /* allocate circular buffer */
 #if GNURADIO_VERSION < 0x031000
-    d_writer = gr::make_buffer(d_fftsize + d_quadrate, sizeof(gr_complex));
+    d_writer = gr::make_buffer(MAX_FFT_SIZE * 2, sizeof(gr_complex));
 #else
-    d_writer = gr::make_buffer(d_fftsize + d_quadrate, sizeof(gr_complex), 1, 1);
+    d_writer = gr::make_buffer(MAX_FFT_SIZE * 2, sizeof(gr_complex), 1, 1);
 #endif
     d_reader = gr::buffer_add_reader(d_writer, 0);
+
+    memset(d_writer->write_pointer(), 0, sizeof(gr_complex) * MAX_FFT_SIZE);
+    d_writer->update_write_pointer(MAX_FFT_SIZE);
 
     /* create FFT window */
     set_window_type(wintype);
@@ -114,20 +117,12 @@ void rx_fft_c::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
 {
     std::unique_lock<std::mutex> lock(d_mutex);
 
-    if ((unsigned int)d_reader->items_available() < d_fftsize)
-    {
-        // not enough samples in the buffer
-        fftSize = 0;
-
-        return;
-    }
-
     std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = now - d_lasttime;
     d_lasttime = now;
 
     /* perform FFT */
-    d_reader->update_read_pointer(std::min((unsigned int)(diff.count() * d_quadrate * 1.001), d_reader->items_available() - d_fftsize));
+    d_reader->update_read_pointer(std::min((int)(diff.count() * d_quadrate * 1.001), d_reader->items_available() - MAX_FFT_SIZE));
     apply_window(d_fftsize);
     lock.unlock();
 
@@ -150,6 +145,7 @@ void rx_fft_c::apply_window(unsigned int size)
 {
     /* apply window, if any */
     gr_complex * p = (gr_complex *)d_reader->read_pointer();
+    p += (MAX_FFT_SIZE - d_fftsize);
     if (d_window.size())
     {
         gr_complex *dst = d_fft->get_inbuf();
@@ -165,14 +161,6 @@ void rx_fft_c::apply_window(unsigned int size)
 void rx_fft_c::set_params()
 {
     std::lock_guard<std::mutex> lock(d_mutex);
-
-    /* clear and resize circular buffer */
-#if GNURADIO_VERSION < 0x031000
-    d_writer = gr::make_buffer(d_fftsize + d_quadrate, sizeof(gr_complex));
-#else
-    d_writer = gr::make_buffer(d_fftsize + d_quadrate, sizeof(gr_complex), 1, 1);
-#endif
-    d_reader = gr::buffer_add_reader(d_writer, 0);
 
     /* reset window */
     int wintype = d_wintype; // FIXME: would be nicer with a window_reset()
