@@ -94,11 +94,12 @@ public:
     bool has_agc() { return true; }
     void set_agc_on(bool agc_on);
     void set_agc_target_level(int target_level);
-    void set_agc_manual_gain(int gain);
+    void set_agc_manual_gain(float gain);
     void set_agc_max_gain(int gain);
     void set_agc_attack(int attack_ms);
     void set_agc_decay(int decay_ms);
     void set_agc_hang(int hang_ms);
+    float get_agc_gain();
 
     void set_demod(int demod);
 

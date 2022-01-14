@@ -138,15 +138,15 @@ void rx_agc_2f::set_target_level(int target_level)
 
 /**
  * \brief Set new manual gain.
- * \param gain The new manual gain between 0 and 100dB.
+ * \param gain The new manual gain between -160 and 160dB.
  *
  * The manual gain is used when AGC is switched off.
  *
  * \sa set_agc_on()
  */
-void rx_agc_2f::set_manual_gain(int gain)
+void rx_agc_2f::set_manual_gain(float gain)
 {
-    if ((gain != d_manual_gain) && (gain >= -160) && (gain <= 160)) {
+    if ((gain != d_manual_gain) && (gain >= -160.0) && (gain <= 160.0)) {
         std::lock_guard<std::mutex> lock(d_mutex);
         d_manual_gain = gain;
         reconfigure();
@@ -211,3 +211,10 @@ void rx_agc_2f::set_hang(int hang)
         reconfigure();
     }
 }
+
+float rx_agc_2f::get_current_gain()
+{
+    std::lock_guard<std::mutex> lock(d_mutex);
+    return d_agc->CurrentGainDb();
+}
+

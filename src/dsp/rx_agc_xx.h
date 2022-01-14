@@ -88,11 +88,12 @@ public:
     void set_agc_on(bool agc_on);
     void set_sample_rate(double sample_rate);
     void set_target_level(int target_level);
-    void set_manual_gain(int gain);
+    void set_manual_gain(float gain);
     void set_max_gain(int gain);
     void set_attack(int attack);
     void set_decay(int decay);
     void set_hang(int hang);
+    float get_current_gain();
 
 private:
     void reconfigure();
@@ -103,7 +104,7 @@ private:
     bool            d_agc_on;        /*! Current AGC status (true/false). */
     double          d_sample_rate;   /*! Current sample rate. */
     int             d_target_level;  /*! SGC target level (-160...0 dB). */
-    int             d_manual_gain;   /*! Current gain when AGC is OFF. */
+    float           d_manual_gain;   /*! Current gain when AGC is OFF. */
     int             d_max_gain;      /*! Maximum gain when AGC is ON. */
     int             d_attack;        /*! Current AGC attack (20...5000 ms). */
     int             d_decay;         /*! Current AGC decay (20...5000 ms). */

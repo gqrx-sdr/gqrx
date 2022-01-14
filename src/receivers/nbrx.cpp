@@ -166,7 +166,7 @@ void nbrx::set_agc_target_level(int target_level)
     agc->set_target_level(target_level);
 }
 
-void nbrx::set_agc_manual_gain(int gain)
+void nbrx::set_agc_manual_gain(float gain)
 {
     agc->set_manual_gain(gain);
 }
@@ -189,6 +189,11 @@ void nbrx::set_agc_decay(int decay_ms)
 void nbrx::set_agc_hang(int hang_ms)
 {
     agc->set_hang(hang_ms);
+}
+
+float nbrx::get_agc_gain()
+{
+    return agc->get_current_gain();
 }
 
 void nbrx::set_demod(int rx_demod)

@@ -167,6 +167,7 @@ private slots:
     void setSqlLevel(double level_db);
     double setSqlLevelAuto();
     void setAudioGain(float gain);
+    void setAudioMute(bool mute);
     void setPassband(int bandwidth);
 
     /* audio recording and playback */

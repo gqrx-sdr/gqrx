@@ -71,7 +71,7 @@ CAgc::~CAgc()
 }
 
 void CAgc::SetParameters(double sample_rate, bool agc_on, int target_level,
-                         int manual_gain, int max_gain, int attack, int decay,
+                         float manual_gain, int max_gain, int attack, int decay,
                          int hang, bool force)
 {
     bool samp_rate_changed = false;

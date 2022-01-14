@@ -89,7 +89,7 @@ void receiver_base_cf::set_agc_target_level(int target_level)
     (void) target_level;
 }
 
-void receiver_base_cf::set_agc_manual_gain(int gain)
+void receiver_base_cf::set_agc_manual_gain(float gain)
 {
     (void) gain;
 }
@@ -112,6 +112,11 @@ void receiver_base_cf::set_agc_decay(int decay_ms)
 void receiver_base_cf::set_agc_hang(int hang_ms)
 {
     (void) hang_ms;
+}
+
+float receiver_base_cf::get_agc_gain()
+{
+    return 0;
 }
 
 bool receiver_base_cf::has_fm()

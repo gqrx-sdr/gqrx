@@ -235,6 +235,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
     connect(uiDockRxOpt, SIGNAL(sqlAutoClicked()), this, SLOT(setSqlLevelAuto()));
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
+    connect(uiDockAudio, SIGNAL(audioMuteChanged(bool)), this, SLOT(setAudioMute(bool)));
     connect(uiDockAudio, SIGNAL(audioStreamingStarted(QString,int,bool)), this, SLOT(startAudioStream(QString,int,bool)));
     connect(uiDockAudio, SIGNAL(audioStreamingStopped()), this, SLOT(stopAudioStreaming()));
     connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), this, SLOT(startAudioRec(QString)));
@@ -1190,9 +1191,10 @@ void MainWindow::selectDemod(int mode_idx)
     rx->set_cw_offset(cwofs);
     rx->set_sql_level(uiDockRxOpt->currentSquelchLevel());
 
-    rx->set_agc_on(uiDockRxOpt->getAgcOn());
+    //Call wrapper to update enable/disabled state
+    setAgcOn(uiDockRxOpt->getAgcOn());
     rx->set_agc_target_level(uiDockRxOpt->getAgcTargetLevel());
-    rx->set_agc_manual_gain(uiDockRxOpt->getAgcManualGain());
+    rx->set_agc_manual_gain(uiDockAudio->audioGain());
     rx->set_agc_max_gain(uiDockRxOpt->getAgcMaxGain());
     rx->set_agc_attack(uiDockRxOpt->getAgcAttack());
     rx->set_agc_decay(uiDockRxOpt->getAgcDecay());
@@ -1274,13 +1276,35 @@ void MainWindow::setAmSyncPllBw(float pll_bw)
  */
 void MainWindow::setAudioGain(float value)
 {
-    rx->set_af_gain(value);
+    rx->set_agc_manual_gain(value);
+}
+
+/**
+ * @brief Audio mute changed.
+ * @param mute New state.
+ */
+void MainWindow::setAudioMute(bool mute)
+{
+    if(mute)
+    {
+        rx->set_agc_target_level(-80);
+        rx->set_agc_manual_gain(-80);
+        if(!uiDockRxOpt->getAgcOn())
+            uiDockAudio->setGainEnabled(false);
+    }else{
+        rx->set_agc_target_level(uiDockRxOpt->getAgcTargetLevel());
+        rx->set_agc_manual_gain(uiDockAudio->audioGain() / 10.0);
+        if(!uiDockRxOpt->getAgcOn())
+            uiDockAudio->setGainEnabled(true);
+    }
+
 }
 
 /** Set AGC ON/OFF. */
 void MainWindow::setAgcOn(bool agc_on)
 {
     rx->set_agc_on(agc_on);
+    uiDockAudio->setGainEnabled(!agc_on);
 }
 
 /** AGC hang ON/OFF. */
@@ -1366,6 +1390,8 @@ void MainWindow::meterTimeout()
     level = rx->get_signal_pwr();
     ui->sMeter->setLevel(level);
     remote->setSignalLevel(level);
+    if(uiDockRxOpt->getAgcOn())
+        uiDockAudio->setAudioGain(rx->get_agc_gain() * 10.0);
 }
 
 #define LOG2_10 3.321928094887362

@@ -149,7 +149,7 @@ void wfmrx::set_agc_target_level(int target_level)
     agc->set_target_level(target_level);
 }
 
-void wfmrx::set_agc_manual_gain(int gain)
+void wfmrx::set_agc_manual_gain(float gain)
 {
     agc->set_manual_gain(gain);
 }
@@ -172,6 +172,11 @@ void wfmrx::set_agc_decay(int decay_ms)
 void wfmrx::set_agc_hang(int hang_ms)
 {
     agc->set_hang(hang_ms);
+}
+
+float wfmrx::get_agc_gain()
+{
+    return agc->get_current_gain();
 }
 
 void wfmrx::set_demod(int demod)

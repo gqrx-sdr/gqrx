@@ -24,7 +24,7 @@ public:
     CAgc();
     virtual ~CAgc();
     void SetParameters(double sample_rate, bool agc_on, int target_level,
-                       int manual_gain, int max_gain, int attack, int decay,
+                       float manual_gain, int max_gain, int attack, int decay,
                        int hang, bool force = false);
     void ProcessData(float * pOutData0,float * pOutData1, const float * pInData0, const float * pInData1, int Length);
     float CurrentGainDb();
@@ -36,7 +36,7 @@ private:
     float d_sample_rate;
     bool d_agc_on;
     int d_target_level;
-    int d_manual_gain;
+    float d_manual_gain;
     int d_max_gain;
     int d_attack;
     int d_decay;

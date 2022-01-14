@@ -181,11 +181,12 @@ public:
     /* AGC */
     status      set_agc_on(bool agc_on);
     status      set_agc_target_level(int target_level);
-    status      set_agc_manual_gain(int gain);
+    status      set_agc_manual_gain(float gain);
     status      set_agc_max_gain(int gain);
     status      set_agc_attack(int attack_ms);
     status      set_agc_decay(int decay_ms);
     status      set_agc_hang(int hang_ms);
+    float       get_agc_gain();
 
     status      set_demod(rx_demod demod, bool force=false);
 
@@ -201,7 +202,6 @@ public:
     status      set_amsync_pll_bw(float pll_bw);
 
     /* Audio parameters */
-    status      set_af_gain(float gain_db);
     status      start_audio_recording(const std::string filename);
     status      stop_audio_recording();
     status      start_audio_playback(const std::string filename);
@@ -273,11 +273,7 @@ private:
 
     downconverter_cc_sptr     ddc;        /*!< Digital down-converter for demod chain. */
 
-    gr::blocks::multiply_const_ff::sptr audio_gain0; /*!< Audio gain block. */
-    gr::blocks::multiply_const_ff::sptr audio_gain1; /*!< Audio gain block. */
-
     gr::blocks::file_sink::sptr         iq_sink;     /*!< I/Q file sink. */
-
     gr::blocks::wavfile_sink::sptr      wav_sink;   /*!< WAV file sink for recording. */
     gr::blocks::wavfile_source::sptr    wav_src;    /*!< WAV file source for playback. */
     gr::blocks::null_sink::sptr         audio_null_sink0; /*!< Audio null sink used during playback. */

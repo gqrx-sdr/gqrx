@@ -131,6 +131,14 @@ int  DockAudio::audioGain()
     return ui->audioGainSlider->value();
 }
 
+/*! \brief Set audio gain slider state.
+ *  \param state new slider state.
+ */
+void DockAudio::setGainEnabled(bool state)
+{
+    ui->audioGainSlider->setEnabled(state);
+}
+
 /*! Set FFT plot color. */
 void DockAudio::setFftColor(QColor color)
 {
@@ -279,16 +287,7 @@ void DockAudio::on_audioConfButton_clicked()
 /*! \brief Mute audio. */
 void DockAudio::on_audioMuteButton_clicked(bool checked)
 {
-    if (checked)
-    {
-        emit audioGainChanged(-INFINITY);
-    }
-    else
-    {
-        int value = ui->audioGainSlider->value();
-        float gain = float(value) / 10.0;
-        emit audioGainChanged(gain);
-    }
+    emit audioMuteChanged(checked);
 }
 
 /*! \brief Set status of audio record button. */
