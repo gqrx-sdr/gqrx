@@ -128,7 +128,7 @@ private:
 
     rx_nb_cc_sptr             nb;         /*!< Noise blanker. */
     rx_meter_c_sptr           meter;      /*!< Signal strength. */
-    rx_agc_cc_sptr            agc;        /*!< Receiver AGC. */
+    rx_agc_2f_sptr            agc;        /*!< Receiver AGC. */
     gr::analog::simple_squelch_cc::sptr sql;        /*!< Squelch. */
     gr::blocks::complex_to_float::sptr  demod_raw;  /*!< Raw I/Q passthrough. */
     gr::blocks::complex_to_real::sptr   demod_ssb;  /*!< SSB demodulator. */

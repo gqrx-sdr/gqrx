@@ -28,12 +28,12 @@
 #include <gnuradio/gr_complex.h>
 #include <dsp/agc_impl.h>
 
-class rx_agc_cc;
+class rx_agc_2f;
 
 #if GNURADIO_VERSION < 0x030900
-typedef boost::shared_ptr<rx_agc_cc> rx_agc_cc_sptr;
+typedef boost::shared_ptr<rx_agc_2f> rx_agc_2f_sptr;
 #else
-typedef std::shared_ptr<rx_agc_cc> rx_agc_cc_sptr;
+typedef std::shared_ptr<rx_agc_2f> rx_agc_2f_sptr;
 #endif
 
 
@@ -56,7 +56,7 @@ typedef std::shared_ptr<rx_agc_cc> rx_agc_cc_sptr;
  * To avoid accidental use of raw pointers, the rx_agc_cc constructor is private.
  * make_rx_agc_cc is the public interface for creating new instances.
  */
-rx_agc_cc_sptr make_rx_agc_cc(double sample_rate, bool agc_on, int target_level,
+rx_agc_2f_sptr make_rx_agc_2f(double sample_rate, bool agc_on, int target_level,
                               int manual_gain, int max_gain, int attack,
                               int decay, int hang);
 
@@ -67,19 +67,19 @@ rx_agc_cc_sptr make_rx_agc_cc(double sample_rate, bool agc_on, int target_level,
  * This block performs automatic gain control.
  * To be written...
  */
-class rx_agc_cc : public gr::sync_block
+class rx_agc_2f : public gr::sync_block
 {
-    friend rx_agc_cc_sptr make_rx_agc_cc(double sample_rate, bool agc_on,
+    friend rx_agc_2f_sptr make_rx_agc_2f(double sample_rate, bool agc_on,
                                          int target_level, int manual_gain,
                                          int max_gain, int attack, int decay,
                                          int hang);
 
 protected:
-    rx_agc_cc(double sample_rate, bool agc_on, int target_level,
+    rx_agc_2f(double sample_rate, bool agc_on, int target_level,
               int manual_gain, int max_gain, int attack, int decay, int hang);
 
 public:
-    ~rx_agc_cc();
+    ~rx_agc_2f();
 
     int work(int noutput_items,
              gr_vector_const_void_star &input_items,

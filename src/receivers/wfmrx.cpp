@@ -43,6 +43,7 @@ wfmrx::wfmrx(float quad_rate, float audio_rate)
     iq_resamp = make_resampler_cc(PREF_QUAD_RATE/d_quad_rate);
 
     filter = make_rx_filter(PREF_QUAD_RATE, -80000.0, 80000.0, 20000.0);
+    agc = make_rx_agc_2f(d_audio_rate, true, 0, 0, 100, 500, 500, 0);
     sql = gr::analog::simple_squelch_cc::make(-150.0, 0.001);
     meter = make_rx_meter_c(PREF_QUAD_RATE);
     demod_fm = make_rx_demod_fm(PREF_QUAD_RATE, 75000.0, 0.0);
@@ -63,8 +64,10 @@ wfmrx::wfmrx(float quad_rate, float audio_rate)
     connect(filter, 0, sql, 0);
     connect(sql, 0, demod_fm, 0);
     connect(demod_fm, 0, mono, 0);
-    connect(mono, 0, self(), 0); // left  channel
-    connect(mono, 1, self(), 1); // right channel
+    connect(mono, 0, agc, 0); // left  channel
+    connect(mono, 1, agc, 1); // right channel
+    connect(agc, 0, self(), 0);
+    connect(agc, 1, self(), 1);
 }
 
 wfmrx::~wfmrx()
@@ -109,7 +112,7 @@ float wfmrx::get_signal_level()
 }
 
 /*
-void nbrx::set_nb_on(int nbid, bool on)
+void wfmrx::set_nb_on(int nbid, bool on)
 {
     if (nbid == 1)
         nb->set_nb1_on(on);
@@ -117,7 +120,7 @@ void nbrx::set_nb_on(int nbid, bool on)
         nb->set_nb2_on(on);
 }
 
-void nbrx::set_nb_threshold(int nbid, float threshold)
+void wfmrx::set_nb_threshold(int nbid, float threshold)
 {
     if (nbid == 1)
         nb->set_threshold1(threshold);
@@ -136,37 +139,40 @@ void wfmrx::set_sql_alpha(double alpha)
     sql->set_alpha(alpha);
 }
 
-/*
-void nbrx::set_agc_on(bool agc_on)
+void wfmrx::set_agc_on(bool agc_on)
 {
     agc->set_agc_on(agc_on);
 }
 
-void nbrx::set_agc_hang(bool use_hang)
+void wfmrx::set_agc_target_level(int target_level)
 {
-    agc->set_use_hang(use_hang);
+    agc->set_target_level(target_level);
 }
 
-void nbrx::set_agc_threshold(int threshold)
+void wfmrx::set_agc_manual_gain(int gain)
 {
-    agc->set_threshold(threshold);
+    agc->set_manual_gain(gain);
 }
 
-void nbrx::set_agc_slope(int slope)
+void wfmrx::set_agc_max_gain(int gain)
 {
-    agc->set_slope(slope);
+    agc->set_max_gain(gain);
 }
 
-void nbrx::set_agc_decay(int decay_ms)
+void wfmrx::set_agc_attack(int attack_ms)
+{
+    agc->set_attack(attack_ms);
+}
+
+void wfmrx::set_agc_decay(int decay_ms)
 {
     agc->set_decay(decay_ms);
 }
 
-void nbrx::set_agc_manual_gain(int gain)
+void wfmrx::set_agc_hang(int hang_ms)
 {
-    agc->set_manual_gain(gain);
+    agc->set_hang(hang_ms);
 }
-*/
 
 void wfmrx::set_demod(int demod)
 {
@@ -188,20 +194,20 @@ void wfmrx::set_demod(int demod)
     case WFMRX_DEMOD_MONO:
     default:
         disconnect(demod_fm, 0, mono, 0);
-        disconnect(mono, 0, self(), 0); // left  channel
-        disconnect(mono, 1, self(), 1); // right channel
+        disconnect(mono, 0, agc, 0); // left  channel
+        disconnect(mono, 1, agc, 1); // right channel
         break;
 
     case WFMRX_DEMOD_STEREO:
         disconnect(demod_fm, 0, stereo, 0);
-        disconnect(stereo, 0, self(), 0); // left  channel
-        disconnect(stereo, 1, self(), 1); // right channel
+        disconnect(stereo, 0, agc, 0); // left  channel
+        disconnect(stereo, 1, agc, 1); // right channel
         break;
 
     case WFMRX_DEMOD_STEREO_UKW:
         disconnect(demod_fm, 0, stereo_oirt, 0);
-        disconnect(stereo_oirt, 0, self(), 0); // left  channel
-        disconnect(stereo_oirt, 1, self(), 1); // right channel
+        disconnect(stereo_oirt, 0, agc, 0); // left  channel
+        disconnect(stereo_oirt, 1, agc, 1); // right channel
         break;
     }
 
@@ -210,20 +216,20 @@ void wfmrx::set_demod(int demod)
     case WFMRX_DEMOD_MONO:
     default:
         connect(demod_fm, 0, mono, 0);
-        connect(mono, 0, self(), 0); // left  channel
-        connect(mono, 1, self(), 1); // right channel
+        connect(mono, 0, agc, 0); // left  channel
+        connect(mono, 1, agc, 1); // right channel
         break;
 
     case WFMRX_DEMOD_STEREO:
         connect(demod_fm, 0, stereo, 0);
-        connect(stereo, 0, self(), 0); // left  channel
-        connect(stereo, 1, self(), 1); // right channel
+        connect(stereo, 0, agc, 0); // left  channel
+        connect(stereo, 1, agc, 1); // right channel
         break;
 
     case WFMRX_DEMOD_STEREO_UKW:
         connect(demod_fm, 0, stereo_oirt, 0);
-        connect(stereo_oirt, 0, self(), 0); // left  channel
-        connect(stereo_oirt, 1, self(), 1); // right channel
+        connect(stereo_oirt, 0, agc, 0); // left  channel
+        connect(stereo_oirt, 1, agc, 1); // right channel
         break;
     }
     d_demod = (wfmrx_demod) demod;

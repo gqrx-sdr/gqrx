@@ -44,7 +44,7 @@
 #include <iostream>
 #include <volk/volk.h>
 
-#define NO_AGC_DEBUG
+#define AGC_DEBUG
 
 #define MIN_GAIN_DB (-20.0f)
 #define MIN_GAIN powf(10.0, MIN_GAIN_DB)
@@ -95,7 +95,7 @@ void CAgc::SetParameters(double sample_rate, bool agc_on, int target_level,
     if (d_target_level != target_level || force)
     {
         d_target_level = target_level;
-        d_target_mag = powf(10.0, float(d_target_level) / 10.0);
+        d_target_mag = powf(10.0, TYPEFLOAT(d_target_level) / 20.0);
         target_level_changed = true;
     }
     if (d_manual_gain != manual_gain || force)
@@ -150,16 +150,16 @@ void CAgc::SetParameters(double sample_rate, bool agc_on, int target_level,
          }
     }
     if ((manual_gain_changed || agc_on_changed) && !agc_on)
-        d_current_gain = powf(10.0, float(d_manual_gain) / 10.0);
+        d_current_gain = powf(10.0, TYPEFLOAT(d_manual_gain) / 20.0);
     if (max_gain_changed || attack_changed || samp_rate_changed)
         d_attack_step = 1.0 / powf(10.0, std::max(TYPEFLOAT(d_max_gain), - MIN_GAIN_DB) / TYPEFLOAT(d_buf_samples) / 20.0);
     if (max_gain_changed || decay_changed || samp_rate_changed)
-        d_decay_step = powf(10.0, float(d_max_gain) / float(sample_rate * d_decay / 1000.0) / 10.0);
+        d_decay_step = powf(10.0, TYPEFLOAT(d_max_gain) / TYPEFLOAT(sample_rate * d_decay / 1000.0) / 20.0);
     if (hang_changed || samp_rate_changed)
         d_hang_samp = sample_rate * d_hang / 1000.0;
 
     if (target_level_changed || max_gain_changed)
-        d_floor = powf(10.0, float(d_target_level - d_max_gain) / 10.0);
+        d_floor = powf(10.0, TYPEFLOAT(d_target_level - d_max_gain) / 20.0);
     #ifdef AGC_DEBUG
     std::cerr<<std::endl<<
         "d_target_mag="<<d_target_mag<<std::endl<<
@@ -167,9 +167,9 @@ void CAgc::SetParameters(double sample_rate, bool agc_on, int target_level,
         "d_manual_gain="<<d_manual_gain<<std::endl<<
         "d_max_gain="<<d_max_gain<<std::endl<<
         "d_attack="<<d_attack<<std::endl<<
-        "d_attack_step="<<d_attack_step<<std::endl<<
+        "d_attack_step="<<log10(d_attack_step)*20.0<<std::endl<<
         "d_decay="<<d_decay<<std::endl<<
-        "d_decay_step="<<d_decay_step<<std::endl<<
+        "d_decay_step="<<log10(d_decay_step)*20.0<<std::endl<<
         "d_hang="<<d_hang<<std::endl<<
         "d_hang_samp="<<d_hang_samp<<std::endl<<
         "d_buf_samples="<<d_buf_samples<<std::endl<<
@@ -201,22 +201,25 @@ void CAgc::update_buffer(int p)
 
 }
 
-void CAgc::ProcessData(TYPECPX * pOutData, const TYPECPX * pInData, int Length)
+void CAgc::ProcessData(float * pOutData0,float * pOutData1, const float * pInData0, const float * pInData1, int Length)
 {
     int k;
-    float max_out = 0;
-    float mag_in = 0;
+    TYPEFLOAT max_out = 0;
+    TYPEFLOAT mag_in = 0;
     if (d_agc_on)
     {
-        float * mag_vect = &((float *)pOutData)[Length];
-        volk_32fc_magnitude_32f(mag_vect, pInData, Length);
+//        float * mag_vect = &((float *)pOutData)[Length];
+//        volk_32fc_magnitude_32f(mag_vect, pInData, Length);
         for (k = 0; k < Length; k++)
         {
-            TYPECPX sample_in = pInData[k];
-            mag_in = mag_vect[k];
-            TYPECPX sample_out = d_sample_buf[d_buf_p];
+            float sample_in0 = pInData0[k];
+            float sample_in1 = pInData1[k];
+//            mag_in = mag_vect[k];
+            mag_in = std::max(fabs(sample_in0),fabs(sample_in1));
+            float sample_out0 = d_sample_buf[d_buf_p].real();
+            float sample_out1 = d_sample_buf[d_buf_p].imag();
 
-            d_sample_buf[d_buf_p] = sample_in;
+            d_sample_buf[d_buf_p] = TYPECPX(sample_in0, sample_in1);
             d_mag_buf[d_buf_p] = mag_in;
             update_buffer(d_buf_p);
             max_out = get_peak();
@@ -263,16 +266,25 @@ void CAgc::ProcessData(TYPECPX * pOutData, const TYPECPX * pInData, int Length)
                 d_hang_counter--;
             if (d_current_gain < MIN_GAIN)
                 d_current_gain = MIN_GAIN;
-            pOutData[k] = sample_out * d_current_gain;
+            pOutData0[k] = sample_out0 * d_current_gain;
+            pOutData1[k] = sample_out1 * d_current_gain;
             d_buf_p = buf_p_next;
         }
-    }else
-        volk_32f_s32f_multiply_32f((float *)pOutData, (float *)pInData, d_current_gain, Length * 2);
-    #ifdef AGC_DEBUG
+    }
+    else{
+        volk_32f_s32f_multiply_32f((float *)pOutData0, (float *)pInData0, d_current_gain, Length);
+        volk_32f_s32f_multiply_32f((float *)pOutData1, (float *)pInData1, d_current_gain, Length);
+    }
+    #ifdef AGC_DEBUG2
     if(d_prev_dbg != d_target_gain)
     {
         std::cerr<<"------ d_target_gain="<<d_target_gain<<" d_current_gain="<<d_current_gain<<" d_hang_counter="<<d_hang_counter<<  std::endl;
         d_prev_dbg = d_target_gain;
     }
     #endif
+}
+
+float CAgc::CurrentGainDb()
+{
+    return 20.0 * log10f(d_current_gain);
 }

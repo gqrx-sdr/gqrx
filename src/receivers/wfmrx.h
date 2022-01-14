@@ -35,6 +35,7 @@
 #include "dsp/rx_rds.h"
 #include "dsp/rds/decoder.h"
 #include "dsp/rds/parser.h"
+#include "dsp/rx_agc_xx.h"
 
 class wfmrx;
 
@@ -87,13 +88,14 @@ public:
     void set_sql_alpha(double alpha);
 
     /* AGC */
-    bool has_agc() { return false; }
-    /*void set_agc_on(bool agc_on);
-    void set_agc_hang(bool use_hang);
-    void set_agc_threshold(int threshold);
-    void set_agc_slope(int slope);
+    bool has_agc() { return true; }
+    void set_agc_on(bool agc_on);
+    void set_agc_target_level(int target_level);
+    void set_agc_manual_gain(int gain);
+    void set_agc_max_gain(int gain);
+    void set_agc_attack(int attack_ms);
     void set_agc_decay(int decay_ms);
-    void set_agc_manual_gain(int gain);*/
+    void set_agc_hang(int hang_ms);
 
     void set_demod(int demod);
 
@@ -119,6 +121,7 @@ private:
     rx_filter_sptr            filter;    /*!< Non-translating bandpass filter.*/
 
     rx_meter_c_sptr           meter;     /*!< Signal strength. */
+    rx_agc_2f_sptr            agc;        /*!< Receiver AGC. */
     gr::analog::simple_squelch_cc::sptr sql;       /*!< Squelch. */
     rx_demod_fm_sptr          demod_fm;  /*!< FM demodulator. */
     stereo_demod_sptr         stereo;    /*!< FM stereo demodulator. */

@@ -25,10 +25,10 @@
 #include <gnuradio/gr_complex.h>
 #include <dsp/rx_agc_xx.h>
 
-rx_agc_cc_sptr make_rx_agc_cc(double sample_rate, bool agc_on, int target_level,
+rx_agc_2f_sptr make_rx_agc_2f(double sample_rate, bool agc_on, int target_level,
                               int manual_gain, int max_gain, int attack, int decay, int hang)
 {
-    return gnuradio::get_initial_sptr(new rx_agc_cc(sample_rate, agc_on, target_level,
+    return gnuradio::get_initial_sptr(new rx_agc_2f(sample_rate, agc_on, target_level,
                                                     manual_gain, max_gain, attack, decay,
                                                     hang));
 }
@@ -36,13 +36,13 @@ rx_agc_cc_sptr make_rx_agc_cc(double sample_rate, bool agc_on, int target_level,
 /**
  * \brief Create receiver AGC object.
  *
- * Use make_rx_agc_cc() instead.
+ * Use make_rx_agc_2f() instead.
  */
-rx_agc_cc::rx_agc_cc(double sample_rate, bool agc_on, int target_level,
+rx_agc_2f::rx_agc_2f(double sample_rate, bool agc_on, int target_level,
                               int manual_gain, int max_gain, int attack, int decay, int hang)
-    : gr::sync_block ("rx_agc_cc",
-          gr::io_signature::make(1, 1, sizeof(gr_complex)),
-          gr::io_signature::make(1, 1, sizeof(gr_complex))),
+    : gr::sync_block ("rx_agc_2f",
+          gr::io_signature::make(2, 2, sizeof(float)),
+          gr::io_signature::make(2, 2, sizeof(float))),
       d_agc_on(agc_on),
       d_sample_rate(sample_rate),
       d_target_level(target_level),
@@ -56,12 +56,12 @@ rx_agc_cc::rx_agc_cc(double sample_rate, bool agc_on, int target_level,
     reconfigure();
 }
 
-rx_agc_cc::~rx_agc_cc()
+rx_agc_2f::~rx_agc_2f()
 {
     delete d_agc;
 }
 
-void rx_agc_cc::reconfigure()
+void rx_agc_2f::reconfigure()
 {
     d_agc->SetParameters(d_sample_rate, d_agc_on, d_target_level, d_manual_gain, d_max_gain, d_attack, d_decay, d_hang);
 }
@@ -73,15 +73,17 @@ void rx_agc_cc::reconfigure()
  * \param input_items
  * \param output_items
  */
-int rx_agc_cc::work(int noutput_items,
+int rx_agc_2f::work(int noutput_items,
                     gr_vector_const_void_star &input_items,
                     gr_vector_void_star &output_items)
 {
-    const gr_complex *in = (const gr_complex *) input_items[0];
-    gr_complex *out = (gr_complex *) output_items[0];
+    const float *in0 = (const float *) input_items[0];
+    const float *in1 = (const float *) input_items[1];
+    float *out0 = (float *) output_items[0];
+    float *out1 = (float *) output_items[1];
 
     std::lock_guard<std::mutex> lock(d_mutex);
-    d_agc->ProcessData(out, in, noutput_items);
+    d_agc->ProcessData(out0, out1, in0, in1, noutput_items);
 
     return noutput_items;
 }
@@ -94,7 +96,7 @@ int rx_agc_cc::work(int noutput_items,
  *
  * \sa set_manual_gain()
  */
-void rx_agc_cc::set_agc_on(bool agc_on)
+void rx_agc_2f::set_agc_on(bool agc_on)
 {
     if (agc_on != d_agc_on) {
         std::lock_guard<std::mutex> lock(d_mutex);
@@ -110,7 +112,7 @@ void rx_agc_cc::set_agc_on(bool agc_on)
  * The AGC uses knowledge about the sample rate to calculate various delays and
  * time constants.
  */
-void rx_agc_cc::set_sample_rate(double sample_rate)
+void rx_agc_2f::set_sample_rate(double sample_rate)
 {
     if (sample_rate != d_sample_rate) {
         std::lock_guard<std::mutex> lock(d_mutex);
@@ -125,7 +127,7 @@ void rx_agc_cc::set_sample_rate(double sample_rate)
  *
  * Maximum output signal lenvel in dB..
  */
-void rx_agc_cc::set_target_level(int target_level)
+void rx_agc_2f::set_target_level(int target_level)
 {
     if ((target_level != d_target_level) && (target_level >= -160) && (target_level <= 0)) {
         std::lock_guard<std::mutex> lock(d_mutex);
@@ -142,7 +144,7 @@ void rx_agc_cc::set_target_level(int target_level)
  *
  * \sa set_agc_on()
  */
-void rx_agc_cc::set_manual_gain(int gain)
+void rx_agc_2f::set_manual_gain(int gain)
 {
     if ((gain != d_manual_gain) && (gain >= -160) && (gain <= 160)) {
         std::lock_guard<std::mutex> lock(d_mutex);
@@ -159,7 +161,7 @@ void rx_agc_cc::set_manual_gain(int gain)
  *
  * \sa set_agc_on()
  */
-void rx_agc_cc::set_max_gain(int gain)
+void rx_agc_2f::set_max_gain(int gain)
 {
     if ((gain != d_max_gain) && (gain >= 0) && (gain <= 160)) {
         std::lock_guard<std::mutex> lock(d_mutex);
@@ -175,7 +177,7 @@ void rx_agc_cc::set_max_gain(int gain)
  * Sets length of the delay buffer
  *
  */
-void rx_agc_cc::set_attack(int attack)
+void rx_agc_2f::set_attack(int attack)
 {
     if ((attack != d_attack) && (attack >= 20) && (attack <= 5000)) {
         std::lock_guard<std::mutex> lock(d_mutex);
@@ -188,7 +190,7 @@ void rx_agc_cc::set_attack(int attack)
  * \brief Set AGC decay time.
  * \param decay The new AGC decay time between 20 to 5000 ms.
  */
-void rx_agc_cc::set_decay(int decay)
+void rx_agc_2f::set_decay(int decay)
 {
     if ((decay != d_decay) && (decay >= 20) && (decay <= 5000)) {
         std::lock_guard<std::mutex> lock(d_mutex);
@@ -201,7 +203,7 @@ void rx_agc_cc::set_decay(int decay)
  * \brief Set AGC hang time between 0 to 5000 ms.
  * \param hang Time to keep AGC gain at constant level after the peak.
  */
-void rx_agc_cc::set_hang(int hang)
+void rx_agc_2f::set_hang(int hang)
 {
     if ((hang != d_hang) && (hang >= 0) && (hang <= 5000)) {
         std::lock_guard<std::mutex> lock(d_mutex);
