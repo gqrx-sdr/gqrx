@@ -1680,6 +1680,7 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate, qint64
 
     qDebug() << __func__ << ":" << devstr;
 
+    rx->set_input_decim(1);
     rx->set_input_device(devstr.toStdString());
     updateHWFrequencyRange(false);
 
@@ -1719,12 +1720,33 @@ void MainWindow::stopIqPlayback()
     auto indev = m_settings->value("input/device", "").toString();
     rx->set_input_device(indev.toStdString());
 
-    // restore sample rate
     bool conv_ok;
+    // restore input decimation
+    auto decim = m_settings->value("input/decimation", 0).toInt(&conv_ok);
+    if (conv_ok && decim >= 2)
+    {
+        if (rx->set_input_decim(decim) != (unsigned int)decim)
+        {
+            qDebug() << "Failed to set decimation" << decim;
+            decim = rx->get_input_decim();
+            qDebug() << "  actual decimation:" << decim;
+        }
+        else
+            qDebug() << "Input decimation:" << decim;
+    }
+    else
+    {
+        decim = 1;
+        rx->set_input_decim(decim);
+    }
+
+    // restore sample rate
     auto sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
     if (conv_ok && (sr > 0))
     {
         auto actual_rate = rx->set_input_rate(sr);
+        if(decim >= 2)
+            actual_rate /= decim;
         qDebug() << "Requested sample rate:" << sr;
         qDebug() << "Actual sample rate   :" << QString("%1")
                     .arg(actual_rate, 0, 'f', 6);
