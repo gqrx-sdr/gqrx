@@ -5,6 +5,7 @@
      FIXED: Buffer overruns in AFSK1200 decoder.
      FIXED: Crash when opening APSK1200 decoder with demod off.
   IMPROVED: FFT and S-meter performance.
+  IMPROVED: Reduced FFT memory usage.
 
 
     2.15.2: Released January 8, 2022
