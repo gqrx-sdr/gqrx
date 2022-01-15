@@ -73,7 +73,7 @@ private:
     QString m_Str;
     qreal   m_pixperdb;     // pixels / dB
     int     m_Siglevel;
-    int     m_dBFS;
+    float   m_dBFS;
     qreal   m_Sql;
     qreal   m_SqlLevel;
 };

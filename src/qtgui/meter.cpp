@@ -196,7 +196,7 @@ void CMeter::draw()
 
     painter.setPen(QColor(0xDA, 0xDA, 0xDA, 0xFF));
     painter.setOpacity(1.0);
-    m_Str.setNum(m_dBFS);
+    m_Str.setNum(m_dBFS, 'f', 1);
     painter.drawText(marg, h - 2, m_Str + " dBFS" );
 
     update();
