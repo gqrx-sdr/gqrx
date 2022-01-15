@@ -169,12 +169,17 @@ void CMeter::draw()
     qreal ht = (qreal) h * CTRL_NEEDLE_TOP;
     qreal x = marg + m_Siglevel;
 
-    painter.setBrush(QBrush(QColor(0, 190, 0, 255)));
-    painter.setOpacity(1.0);
+    if (m_Siglevel > 0.0f)
+    {
+        QColor color(0, 190, 0, 255);
+        QPen pen(color);
+        pen.setJoinStyle(Qt::MiterJoin);
+        painter.setPen(pen);
+        painter.setBrush(QBrush(color));
+        painter.setOpacity(1.0);
 
-    // Qt 4.8+ has a 1-pixel error (or they fixed line drawing)
-    // see http://stackoverflow.com/questions/16990326
-    painter.drawRect(QRectF(marg - 1, ht + 1, x - marg, 6));
+        painter.drawRect(QRectF(marg, ht + 2, x - marg, 4));
+    }
 
     if (m_SqlLevel > 0.0f)
     {
