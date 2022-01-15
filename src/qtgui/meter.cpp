@@ -119,7 +119,7 @@ void CMeter::setLevel(float dbfs)
     float level = m_dBFS;
     float alpha  = dbfs < level ? ALPHA_DECAY : ALPHA_RISE;
     m_dBFS -= alpha * (level - dbfs);
-    m_Siglevel = (int)((level - MIN_DB) * m_pixperdb);
+    m_Siglevel = (level - MIN_DB) * m_pixperdb;
 
     draw();
 }
@@ -174,7 +174,7 @@ void CMeter::draw()
 
     // Qt 4.8+ has a 1-pixel error (or they fixed line drawing)
     // see http://stackoverflow.com/questions/16990326
-    painter.drawRect(marg - 1, ht + 1, x - marg, 6);
+    painter.drawRect(QRectF(marg - 1, ht + 1, x - marg, 6));
 
     if (m_SqlLevel > 0.0f)
     {
