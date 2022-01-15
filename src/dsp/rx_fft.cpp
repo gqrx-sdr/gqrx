@@ -126,12 +126,15 @@ void rx_fft_c::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
     apply_window(d_fftsize);
     lock.unlock();
 
-    /* compute FFT */
-    d_fft->execute();
+    {
+        std::unique_lock<std::mutex> fft_lock(d_fft_mutex);
+        /* compute FFT */
+        d_fft->execute();
 
-    /* get FFT data */
-    memcpy(fftPoints, d_fft->get_outbuf(), sizeof(gr_complex)*d_fftsize);
-    fftSize = d_fftsize;
+        /* get FFT data */
+        memcpy(fftPoints, d_fft->get_outbuf(), sizeof(gr_complex)*d_fftsize);
+        fftSize = d_fftsize;
+    }
 }
 
 /*! \brief Compute FFT on the available input data.
@@ -160,12 +163,14 @@ void rx_fft_c::apply_window(unsigned int size)
 /*! \brief Update circular buffer and FFT object. */
 void rx_fft_c::set_params()
 {
-    std::lock_guard<std::mutex> lock(d_mutex);
+    std::unique_lock<std::mutex> fft_lock(d_fft_mutex);
+    std::unique_lock<std::mutex> lock(d_mutex);
 
     /* reset window */
     int wintype = d_wintype; // FIXME: would be nicer with a window_reset()
     d_wintype = -1;
     set_window_type(wintype);
+    lock.unlock();
 
     /* reset FFT object (also reset FFTW plan) */
     delete d_fft;
@@ -327,12 +332,15 @@ void rx_fft_f::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
     apply_window(d_fftsize);
     lock.unlock();
 
-    /* compute FFT */
-    d_fft->execute();
+    {
+        std::unique_lock<std::mutex> fft_lock(d_fft_mutex);
+        /* compute FFT */
+        d_fft->execute();
 
-    /* get FFT data */
-    memcpy(fftPoints, d_fft->get_outbuf(), sizeof(gr_complex)*d_fftsize);
-    fftSize = d_fftsize;
+        /* get FFT data */
+        memcpy(fftPoints, d_fft->get_outbuf(), sizeof(gr_complex)*d_fftsize);
+        fftSize = d_fftsize;
+    }
 }
 
 /*! \brief Compute FFT on the available input data.
@@ -365,7 +373,8 @@ void rx_fft_f::set_fft_size(unsigned int fftsize)
 {
     if (fftsize != d_fftsize)
     {
-        std::lock_guard<std::mutex> lock(d_mutex);
+        std::unique_lock<std::mutex> fft_lock(d_fft_mutex);
+        std::unique_lock<std::mutex> lock(d_mutex);
 
         d_fftsize = fftsize;
 
@@ -373,6 +382,7 @@ void rx_fft_f::set_fft_size(unsigned int fftsize)
         int wintype = d_wintype; // FIXME: would be nicer with a window_reset()
         d_wintype = -1;
         set_window_type(wintype);
+        lock.unlock();
 
         /* reset FFT object (also reset FFTW plan) */
         delete d_fft;

@@ -102,6 +102,7 @@ private:
     int          d_wintype;   /*! Current window type. */
 
     std::mutex   d_mutex;  /*! Used to lock FFT output buffer. */
+    std::mutex   d_fft_mutex;  /*! Used to lock FFT configuration. */
 
 #if GNURADIO_VERSION < 0x030900
     gr::fft::fft_complex    *d_fft;    /*! FFT object. */
@@ -172,6 +173,7 @@ private:
     int          d_wintype;   /*! Current window type. */
 
     std::mutex   d_mutex;  /*! Used to lock FFT output buffer. */
+    std::mutex   d_fft_mutex;  /*! Used to lock FFT configuration. */
 
 #if GNURADIO_VERSION < 0x030900
     gr::fft::fft_complex    *d_fft;    /*! FFT object. */
