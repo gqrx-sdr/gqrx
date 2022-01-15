@@ -36,6 +36,7 @@
 
 
 #define MAX_FFT_SIZE 1048576
+#define AUDIO_BUFFER_SIZE 65536
 
 class rx_fft_c;
 class rx_fft_f;

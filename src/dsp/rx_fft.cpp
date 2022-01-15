@@ -259,11 +259,14 @@ rx_fft_f::rx_fft_f(unsigned int fftsize, double audio_rate, int wintype)
 
     /* allocate circular buffer */
 #if GNURADIO_VERSION < 0x031000
-    d_writer = gr::make_buffer(d_fftsize + d_audiorate, sizeof(float));
+    d_writer = gr::make_buffer(AUDIO_BUFFER_SIZE, sizeof(float));
 #else
-    d_writer = gr::make_buffer(d_fftsize + d_audiorate, sizeof(float), 1, 1);
+    d_writer = gr::make_buffer(AUDIO_BUFFER_SIZE, sizeof(float), 1, 1);
 #endif
     d_reader = gr::buffer_add_reader(d_writer, 0);
+
+    memset(d_writer->write_pointer(), 0, sizeof(gr_complex) * d_fftsize);
+    d_writer->update_write_pointer(d_fftsize);
 
     /* create FFT window */
     set_window_type(wintype);
@@ -315,14 +318,6 @@ void rx_fft_f::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
 {
     std::unique_lock<std::mutex> lock(d_mutex);
 
-    if ((unsigned int)d_reader->items_available() < d_fftsize)
-    {
-        // not enough samples in the buffer
-        fftSize = 0;
-
-        return;
-    }
-
     std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = now - d_lasttime;
     d_lasttime = now;
@@ -373,14 +368,6 @@ void rx_fft_f::set_fft_size(unsigned int fftsize)
         std::lock_guard<std::mutex> lock(d_mutex);
 
         d_fftsize = fftsize;
-
-        /* clear and resize circular buffer */
-#if GNURADIO_VERSION < 0x031000
-        d_writer = gr::make_buffer(d_fftsize + d_audiorate, sizeof(float));
-#else
-        d_writer = gr::make_buffer(d_fftsize + d_audiorate, sizeof(float), 1, 1);
-#endif
-        d_reader = gr::buffer_add_reader(d_writer, 0);
 
         /* reset window */
         int wintype = d_wintype; // FIXME: would be nicer with a window_reset()
