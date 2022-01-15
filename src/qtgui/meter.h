@@ -72,7 +72,7 @@ private:
     QSize   m_Size;
     QString m_Str;
     qreal   m_pixperdb;     // pixels / dB
-    int     m_Siglevel;
+    qreal   m_Siglevel;
     float   m_dBFS;
     qreal   m_Sql;
     qreal   m_SqlLevel;
