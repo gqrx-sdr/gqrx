@@ -1,5 +1,5 @@
 
-    2.15.3: In progress...
+    2.15.3: Released January 15, 2022
 
      FIXED: RDS receiver skips some messages.
      FIXED: Buffer overruns in AFSK1200 decoder.
