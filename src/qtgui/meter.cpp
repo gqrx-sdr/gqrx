@@ -168,13 +168,6 @@ void CMeter::draw()
     qreal marg = (qreal) w * CTRL_MARGIN;
     qreal ht = (qreal) h * CTRL_NEEDLE_TOP;
     qreal x = marg + m_Siglevel;
-    QPoint pts[3];
-    pts[0].setX(x);
-    pts[0].setY(ht + 2);
-    pts[1].setX(x - 6);
-    pts[1].setY(hline + 8);
-    pts[2].setX(x + 6);
-    pts[2].setY(hline + 8);
 
     painter.setBrush(QBrush(QColor(0, 190, 0, 255)));
     painter.setOpacity(1.0);
