@@ -32,8 +32,8 @@ static const int MAX_OUT = 1; /* Maximum number of output streams. */
 
 
 /*
- * Create a new instance of lpf and return
- * a boost shared_ptr. This is effectively the public constructor.
+ * Create a new instance of lpf_ff and return
+ * a shared_ptr. This is effectively the public constructor.
  */
 lpf_ff_sptr make_lpf_ff(double sample_rate, double cutoff_freq,
                         double trans_width, double gain)
@@ -83,4 +83,3 @@ void lpf_ff::set_param(double cutoff_freq, double trans_width)
 
     lpf->set_taps(d_taps);
 }
-

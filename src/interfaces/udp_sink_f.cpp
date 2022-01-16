@@ -37,8 +37,8 @@
 
 
 /*
- * Create a new instance of gr::fcd::source_c_impl and return an
- * upcasted boost shared_ptr. This is effectively the public
+ * Create a new instance of udp_sink_f and return an
+ * upcasted shared_ptr. This is effectively the public
  * constructor.
  */
 udp_sink_f_sptr make_udp_sink_f()

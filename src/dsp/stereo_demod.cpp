@@ -27,7 +27,7 @@
 #include <dsp/stereo_demod.h>
 
 
-/* Create a new instance of stereo_demod and return a boost shared_ptr. */
+/* Create a new instance of stereo_demod and return a shared_ptr. */
 stereo_demod_sptr make_stereo_demod(float quad_rate, float audio_rate,
                                     bool stereo, bool oirt)
 {

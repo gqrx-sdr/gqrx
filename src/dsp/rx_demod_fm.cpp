@@ -29,7 +29,7 @@
 #include "dsp/rx_demod_fm.h"
 
 
-/* Create a new instance of rx_demod_fm and return a boost shared_ptr. */
+/* Create a new instance of rx_demod_fm and return a shared_ptr. */
 rx_demod_fm_sptr make_rx_demod_fm(float quad_rate, float max_dev, double tau)
 {
     return gnuradio::get_initial_sptr(new rx_demod_fm(quad_rate, max_dev, tau));

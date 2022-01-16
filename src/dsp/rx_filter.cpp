@@ -35,7 +35,7 @@ static const int MAX_OUT = 1; /* Maximum number of output streams. */
 
 /*
  * Create a new instance of rx_filter and return
- * a boost shared_ptr. This is effectively the public constructor.
+ * a shared_ptr. This is effectively the public constructor.
  */
 rx_filter_sptr make_rx_filter(double sample_rate, double low, double high, double trans_width)
 {
@@ -112,7 +112,7 @@ void rx_filter::set_cw_offset(double offset)
 
 /*
  * Create a new instance of rx_xlating_filter and return
- * a boost shared_ptr. This is effectively the public constructor.
+ * a shared_ptr. This is effectively the public constructor.
  */
 rx_xlating_filter_sptr make_rx_xlating_filter(double sample_rate, double center, double low, double high, double trans_width)
 {

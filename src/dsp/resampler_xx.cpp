@@ -27,7 +27,7 @@
 
 
 /* Create a new instance of resampler_cc and return
- * a boost shared_ptr. This is effectively the public constructor.
+ * a shared_ptr. This is effectively the public constructor.
  */
 resampler_cc_sptr make_resampler_cc(float rate)
 {
@@ -88,7 +88,7 @@ void resampler_cc::set_rate(float rate)
 }
 
 /* Create a new instance of resampler_ff and return
- * a boost shared_ptr. This is effectively the public constructor.
+ * a shared_ptr. This is effectively the public constructor.
  */
 resampler_ff_sptr make_resampler_ff(float rate)
 {

@@ -42,7 +42,7 @@ static const int MAX_OUT = 1; /* Maximum number of output streams. */
 
 /*
  * Create a new instance of rx_rds and return
- * a boost shared_ptr. This is effectively the public constructor.
+ * a shared_ptr. This is effectively the public constructor.
  */
 rx_rds_sptr make_rx_rds(double sample_rate)
 {

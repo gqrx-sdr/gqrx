@@ -27,7 +27,7 @@
 #include "dsp/fm_deemph.h"
 
 
-/* Create a new instance of fm_deemph and return a boost shared_ptr. */
+/* Create a new instance of fm_deemph and return a shared_ptr. */
 fm_deemph_sptr make_fm_deemph(float quad_rate, double tau)
 {
     return gnuradio::get_initial_sptr(new fm_deemph(quad_rate, tau));

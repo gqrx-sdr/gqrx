@@ -25,7 +25,7 @@
 #include <dsp/rx_demod_am.h>
 
 
-/* Create a new instance of rx_demod_am and return a boost shared_ptr. */
+/* Create a new instance of rx_demod_am and return a shared_ptr. */
 rx_demod_am_sptr make_rx_demod_am(float quad_rate, bool dcr)
 {
     return gnuradio::get_initial_sptr(new rx_demod_am(quad_rate, dcr));
@@ -105,7 +105,7 @@ void rx_demod_am::set_dcr(bool dcr)
     d_dcr_enabled = dcr;
 }
 
-/* Create a new instance of rx_demod_amsync and return a boost shared_ptr. */
+/* Create a new instance of rx_demod_amsync and return a shared_ptr. */
 rx_demod_amsync_sptr make_rx_demod_amsync(float quad_rate, bool dcr, float pll_bw)
 {
     return gnuradio::get_initial_sptr(new rx_demod_amsync(quad_rate, dcr, pll_bw));
