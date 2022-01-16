@@ -160,8 +160,6 @@ void rx_fft_c::apply_window(unsigned int size)
 /*! \brief Update circular buffer and FFT object. */
 void rx_fft_c::set_params()
 {
-    std::lock_guard<std::mutex> lock(d_mutex);
-
     /* reset window */
     int wintype = d_wintype; // FIXME: would be nicer with a window_reset()
     d_wintype = -1;
@@ -365,8 +363,6 @@ void rx_fft_f::set_fft_size(unsigned int fftsize)
 {
     if (fftsize != d_fftsize)
     {
-        std::lock_guard<std::mutex> lock(d_mutex);
-
         d_fftsize = fftsize;
 
         /* reset window */

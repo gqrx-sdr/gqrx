@@ -1,4 +1,9 @@
 
+    2.15.4: In progress...
+
+     FIXED: Audio is delayed when FFT size is changed.
+
+
     2.15.3: Released January 15, 2022
 
      FIXED: RDS receiver skips some messages.
