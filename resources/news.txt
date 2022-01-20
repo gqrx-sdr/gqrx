@@ -1,4 +1,9 @@
 
+    2.15.5: In progress...
+
+     FIXED: Use correct categories in desktop entry file.
+
+
     2.15.4: Released January 15, 2022
 
      FIXED: Audio is delayed when FFT size is changed.
