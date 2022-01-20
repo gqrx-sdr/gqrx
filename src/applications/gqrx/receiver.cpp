@@ -1363,30 +1363,12 @@ void receiver::get_rds_data(std::string &outbuff, int &num)
 
 void receiver::start_rds_decoder(void)
 {
-    if (d_running)
-    {
-        stop();
-        rx->start_rds_decoder();
-        start();
-    }
-    else
-    {
-        rx->start_rds_decoder();
-    }
+    rx->start_rds_decoder();
 }
 
 void receiver::stop_rds_decoder(void)
 {
-    if (d_running)
-    {
-        stop();
-        rx->stop_rds_decoder();
-        start();
-    }
-    else
-    {
-        rx->stop_rds_decoder();
-    }
+    rx->stop_rds_decoder();
 }
 
 bool receiver::is_rds_decoder_active(void) const
