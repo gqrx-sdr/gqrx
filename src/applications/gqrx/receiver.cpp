@@ -191,12 +191,7 @@ void receiver::set_input_device(const std::string device)
 
     input_devstr = device;
 
-    // tb->lock() can hang occasionally
-    if (d_running)
-    {
-        tb->stop();
-        tb->wait();
-    }
+    tb->lock();
 
     if (d_decim >= 2)
     {
@@ -208,18 +203,7 @@ void receiver::set_input_device(const std::string device)
         tb->disconnect(src, 0, iq_swap, 0);
     }
 
-#if GNURADIO_VERSION < 0x030802
-    //Work around GNU Radio bug #3184
-    //temporarily connect dummy source to ensure that previous device is closed
-    src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
-    tb->connect(src, 0, iq_swap, 0);
-    tb->start();
-    tb->stop();
-    tb->wait();
-    tb->disconnect(src, 0, iq_swap, 0);
-#else
     src.reset();
-#endif
 
     try
     {
@@ -244,8 +228,7 @@ void receiver::set_input_device(const std::string device)
         tb->connect(src, 0, iq_swap, 0);
     }
 
-    if (d_running)
-        tb->start();
+    tb->unlock();
 
     if (error != "")
     {
@@ -373,11 +356,7 @@ unsigned int receiver::set_input_decim(unsigned int decim)
     if (decim == d_decim)
         return d_decim;
 
-    if (d_running)
-    {
-        tb->stop();
-        tb->wait();
-    }
+    tb->lock();
 
     if (d_decim >= 2)
     {
@@ -435,8 +414,7 @@ unsigned int receiver::set_input_decim(unsigned int decim)
         src->set_bandwidth(d_decim_rate);
 #endif
 
-    if (d_running)
-        tb->start();
+    tb->unlock();
 
     return d_decim;
 }
@@ -858,12 +836,7 @@ receiver::status receiver::set_demod(rx_demod demod, bool force)
     if (!force && (demod == d_demod))
         return ret;
 
-    // tb->lock() seems to hang occasionally
-    if (d_running)
-    {
-        tb->stop();
-        tb->wait();
-    }
+    tb->lock();
 
     tb->disconnect_all();
 
@@ -920,8 +893,7 @@ receiver::status receiver::set_demod(rx_demod demod, bool force)
 
     d_demod = demod;
 
-    if (d_running)
-        tb->start();
+    tb->unlock();
 
     return ret;
 }
@@ -1060,12 +1032,6 @@ receiver::status receiver::stop_audio_recording()
     wav_sink->close();
     tb->disconnect(rx, 0, wav_sink, 0);
     tb->disconnect(rx, 1, wav_sink, 1);
-
-    // Temporary workaround for https://github.com/gnuradio/gnuradio/issues/5436
-    tb->disconnect(ddc, 0, rx, 0);
-    tb->connect(ddc, 0, rx, 0);
-    // End temporary workaronud
-
     tb->unlock();
     wav_sink.reset();
     d_recording_wav = false;
@@ -1290,12 +1256,6 @@ receiver::status receiver::stop_sniffer()
 
     tb->lock();
     tb->disconnect(rx, 0, sniffer_rr, 0);
-
-    // Temporary workaround for https://github.com/gnuradio/gnuradio/issues/5436
-    tb->disconnect(ddc, 0, rx, 0);
-    tb->connect(ddc, 0, rx, 0);
-    // End temporary workaronud
-
     tb->disconnect(sniffer_rr, 0, sniffer, 0);
     tb->unlock();
     d_sniffer_active = false;
