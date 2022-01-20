@@ -14,5 +14,5 @@ Comment[zh_CN]=使用 GNU Radio 和 Qt GUI 实现的软件无线电接收器
 Exec=gqrx
 Terminal=false
 Icon=gqrx
-Categories=Network;HamRadio;
+Categories=AudioVideo;Audio;Qt;HamRadio;
 Keywords=SDR;Radio;HAM;
