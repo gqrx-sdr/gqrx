@@ -1,5 +1,5 @@
 
-    2.15.5: In progress...
+    2.15.5: Released January 20, 2022
 
      FIXED: Use correct categories in desktop entry file.
 
