@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-  <id>gqrx.desktop</id>
+  <id>dk.gqrx.gqrx</id>
   <name>Gqrx</name>
   <summary>Software defined radio receiver implemented using GNU Radio and the Qt GUI toolkit</summary>
   <summary xml:lang="nl">Software defined radio ontvanger geïmplementeerd met GNU Radio en de Qt GUI toolkit</summary>
-  <summary xml:lang="ru">Приемник для программно-определенного радио (SDR) использующий GNU Radio и библиотеку Qt.</summary>
+  <summary xml:lang="ru">Приемник для программно-определенного радио (SDR) использующий GNU Radio и библиотеку Qt</summary>
   <developer_name>Alexandru Csete</developer_name>
   <description>
    <p>
