@@ -14,6 +14,8 @@ Gqrx can operate as an AM/FM/SSB receiver with audio output or as an FFT-only
 instrument. There are also various hooks for interacting with external
 applications using network sockets.
 
+![Screenshot of the main Gqrx window](resources/screenshots/gqrx-main.png)
+
 
 Download
 --------
