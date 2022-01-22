@@ -25,7 +25,7 @@
   <screenshots>
     <screenshot type="default">
       <!-- <caption></caption> -->
-      <image height="722" width="1024">https://c2.staticflickr.com/2/1567/23593127703_11fc1ac026_b.jpg</image>
+      <image width="1850" height="1055">https://raw.githubusercontent.com/gqrx-sdr/gqrx/master/resources/screenshots/gqrx-main.png</image>
     </screenshot>
   </screenshots>
   <update_contact>daveo@fedoraproject.org</update_contact>
