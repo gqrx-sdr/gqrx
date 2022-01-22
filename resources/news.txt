@@ -1,5 +1,5 @@
 
-    2.15.6: In progress...
+    2.15.6: Released January 22, 2022
 
   IMPROVED: Install icon, desktop entry, and appstream metadata.
 
