@@ -24,7 +24,7 @@
 APP="build/src/gqrx"
 
 # No need to tweak below unless you move files on the actual project
-DESKTOP="gqrx.desktop"
+DESKTOP="dk.gqrx.gqrx.desktop"
 ICON="resources/icons/gqrx.svg"
 
 # clean log space

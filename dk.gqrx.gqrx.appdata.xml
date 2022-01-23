@@ -28,5 +28,6 @@
       <image width="1850" height="1055">https://raw.githubusercontent.com/gqrx-sdr/gqrx/master/resources/screenshots/gqrx-main.png</image>
     </screenshot>
   </screenshots>
-  <update_contact>daveo@fedoraproject.org</update_contact>
+  <content_rating type="oars-1.1" />
+  <update_contact>argilo@gmail.com</update_contact>
 </component>

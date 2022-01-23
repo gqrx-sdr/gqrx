@@ -261,10 +261,10 @@ if(Gnuradio_VERSION VERSION_LESS "3.8")
 endif()
 
 # Install desktop
-install(FILES gqrx.desktop DESTINATION share/applications)
+install(FILES dk.gqrx.gqrx.desktop DESTINATION share/applications)
 
 # Install appstream / metainfo file
-install(FILES gqrx.appdata.xml DESTINATION share/metainfo)
+install(FILES dk.gqrx.gqrx.appdata.xml DESTINATION share/metainfo)
 
 # Install icon
 install(FILES resources/icons/gqrx.svg DESTINATION share/icons/hicolor/scalable/apps)
