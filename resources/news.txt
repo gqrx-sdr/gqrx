@@ -1,4 +1,9 @@
 
+    2.15.7: In progress...
+
+     FIXED: Errors & warnings in appstream metadata & desktop entry.
+
+
     2.15.6: Released January 22, 2022
 
   IMPROVED: Install icon, desktop entry, and appstream metadata.
