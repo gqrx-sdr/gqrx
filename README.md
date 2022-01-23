@@ -81,7 +81,7 @@ Installation from source
 The source code is hosted on Github: https://github.com/gqrx-sdr/gqrx
 
 To compile gqrx from source you need the following dependencies:
-- GNU Radio 3.8 with the following components:
+- GNU Radio 3.7, 3.8, 3.9, or 3.10 with the following components:
     - gnuradio-runtime
     - gnuradio-analog
     - gnuradio-audio
@@ -89,6 +89,7 @@ To compile gqrx from source you need the following dependencies:
     - gnuradio-digital
     - gnuradio-fft
     - gnuradio-filter
+    - gnuradio-network (GNU Radio 3.10 only)
     - gnuradio-pmt
 - The gr-iqbalance library (optional)
 - Drivers for the hardware you want to have support for:
@@ -109,8 +110,7 @@ To compile gqrx from source you need the following dependencies:
     - Network
     - Widgets
     - Svg (runtime-only)
-- pkg-config
-- cmake version >= 3.2.0 if you wish to build using cmake.
+- cmake version >= 3.2.0
 
 Gqrx can be compiled from within Qt Creator or in a terminal:
 
