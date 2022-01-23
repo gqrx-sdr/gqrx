@@ -1,5 +1,5 @@
 
-    2.15.7: In progress...
+    2.15.7: Released January 23, 2022
 
      FIXED: Errors & warnings in appstream metadata & desktop entry.
 
