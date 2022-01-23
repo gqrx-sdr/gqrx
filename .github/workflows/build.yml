@@ -19,7 +19,7 @@ jobs:
           mkdir build
           cd build
           cmake -DCMAKE_INSTALL_PREFIX=/usr ..
-          make
+          make -j4
           sudo make install
           sudo ldconfig
 
@@ -29,7 +29,7 @@ jobs:
           mkdir build
           cd build
           cmake -DCMAKE_INSTALL_PREFIX=/usr ..
-          make
+          make -j4
           sudo make install
           sudo ldconfig
 
@@ -38,7 +38,7 @@ jobs:
           cd libosmo-dsp
           autoreconf -i
           ./configure --prefix=/usr
-          make
+          make -j4
           sudo make install
           sudo ldconfig
 
@@ -49,7 +49,7 @@ jobs:
           mkdir build
           cd build
           cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_MODULES_DIR=/usr/lib/x86_64-linux-gnu/cmake ..
-          make
+          make -j4
           sudo make install
           sudo ldconfig
 
@@ -60,7 +60,7 @@ jobs:
           mkdir build
           cd build
           cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_MODULES_DIR=/usr/lib/x86_64-linux-gnu/cmake ..
-          make
+          make -j4
           sudo make install
           sudo ldconfig
       - name: Checkout code
@@ -71,7 +71,7 @@ jobs:
         run: mkdir build && cd build && cmake ..
       - name: Compile
         working-directory: build
-        run: make
+        run: make -j4
       - name: Build AppImage
         run: ./appimage.sh
       - name: Save artifact
@@ -97,7 +97,7 @@ jobs:
           mkdir build
           cd build
           cmake ..
-          make
+          make -j4
           make install
 
           cd /tmp
@@ -107,6 +107,7 @@ jobs:
           mkdir build
           cd build
           cmake ..
+          make -j4
           sudo make install
 
           cd /tmp
@@ -115,6 +116,7 @@ jobs:
           mkdir build
           cd build
           cmake ..
+          make -j4
           sudo make install
 
           cd /tmp
@@ -123,6 +125,7 @@ jobs:
           mkdir build
           cd build
           cmake ..
+          make -j4
           make install
 
           cd /tmp
@@ -142,6 +145,7 @@ jobs:
           mkdir build
           cd build
           cmake ..
+          make -j4
           make install
 
           cd /tmp
@@ -150,7 +154,7 @@ jobs:
           mkdir build
           cd build
           cmake ..
-          LIBRARY_PATH=/usr/local/opt/icu4c/lib make
+          LIBRARY_PATH=/usr/local/opt/icu4c/lib make -j4
           make install
       - name: Install Apple certificate
         env:
@@ -177,7 +181,7 @@ jobs:
         run: mkdir build && cd build && cmake ..
       - name: Compile
         working-directory: build
-        run: make
+        run: make -j4
       - name: Build app bundle
         run: ./macos_bundle.sh
       - name: Notarize app bundle
