@@ -21,9 +21,9 @@ jobs:
         working-directory: build
         run: make
       - name: Validate desktop entry
-        run: desktop-file-validate gqrx.desktop
+        run: desktop-file-validate dk.gqrx.gqrx.desktop
       - name: Validate appstream metadata
-        run: appstreamcli validate gqrx.appdata.xml
+        run: appstreamcli validate dk.gqrx.gqrx.appdata.xml
   macos-build:
     name: MacOS CI
     strategy:
