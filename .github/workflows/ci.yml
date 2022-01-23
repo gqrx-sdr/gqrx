@@ -19,7 +19,7 @@ jobs:
         run: mkdir build && cd build && cmake -DLINUX_AUDIO_BACKEND:STRING=${{ matrix.backend }} ..
       - name: Compile
         working-directory: build
-        run: make
+        run: make -j4
       - name: Validate desktop entry
         run: desktop-file-validate gqrx.desktop
       - name: Validate appstream metadata
@@ -43,7 +43,7 @@ jobs:
           mkdir build
           cd build
           cmake ..
-          LIBRARY_PATH=/usr/local/opt/icu4c/lib make
+          LIBRARY_PATH=/usr/local/opt/icu4c/lib make -j4
           make install
       - name: Checkout code
         uses: actions/checkout@v2
@@ -51,4 +51,4 @@ jobs:
         run: mkdir build && cd build && cmake -DOSX_AUDIO_BACKEND:STRING=${{ matrix.backend }} ..
       - name: Compile
         working-directory: build
-        run: make
+        run: make -j4
