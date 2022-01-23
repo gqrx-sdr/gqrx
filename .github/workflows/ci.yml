@@ -21,8 +21,10 @@ jobs:
         working-directory: build
         run: make
       - name: Validate desktop entry
+        if: matrix.os == 'ubuntu-20.04'
         run: desktop-file-validate dk.gqrx.gqrx.desktop
       - name: Validate appstream metadata
+        if: matrix.os == 'ubuntu-20.04'
         run: appstreamcli validate dk.gqrx.gqrx.appdata.xml
   macos-build:
     name: MacOS CI
