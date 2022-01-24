@@ -63,6 +63,7 @@ int pa_device_list::populate_device_list()
     // Create a mainloop API and connection to the default server
     pa_ml = pa_mainloop_new();
     pa_mlapi = pa_mainloop_get_api(pa_ml);
+    pa_op = nullptr;
     pa_ctx = pa_context_new(pa_mlapi, "test");
 
     // Connect to the pulseaudio server
