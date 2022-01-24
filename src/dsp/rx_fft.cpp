@@ -119,6 +119,7 @@ void rx_fft_c::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
 
     std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = now - d_lasttime;
+    diff = std::min(diff, std::chrono::duration<double>(d_writer->bufsize() / d_quadrate));
     d_lasttime = now;
 
     /* perform FFT */
@@ -318,6 +319,7 @@ void rx_fft_f::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSiz
 
     std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = now - d_lasttime;
+    diff = std::min(diff, std::chrono::duration<double>(d_writer->bufsize() / d_audiorate));
     d_lasttime = now;
 
     /* perform FFT */
