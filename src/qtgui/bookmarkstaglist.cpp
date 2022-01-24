@@ -162,23 +162,20 @@ void BookmarksTagList::setSelectedTags(QList<TagInfo*> tags)
     setSortingEnabled(true);
 }
 
-QString BookmarksTagList::getSelectedTagsAsString()
+QStringList BookmarksTagList::getSelectedTags()
 {
-    QString strResult;
+    QStringList tags;
 
     int iRows = rowCount();
-    bool bFirst = true;
     for(int i=0; i<iRows; ++i)
     {
         QTableWidgetItem* pItem = item(i,1);
         if(pItem->checkState() == Qt::Checked)
         {
-            if(!bFirst) strResult += ", ";
-            strResult += pItem->text();
-            bFirst = false;
+            tags << pItem->text();
         }
     }
-    return strResult;
+    return tags;
 }
 
 void BookmarksTagList::ShowContextMenu(const QPoint& pos)

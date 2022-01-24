@@ -197,7 +197,11 @@ void RemoteControl::startRead()
     if (bytes_read < 2)  // command + '\n'
         return;
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
     QStringList cmdlist = QString(buffer).trimmed().split(" ", QString::SkipEmptyParts);
+#else
+    QStringList cmdlist = QString(buffer).trimmed().split(" ", Qt::SkipEmptyParts);
+#endif
 
     if (cmdlist.size() == 0)
         return;

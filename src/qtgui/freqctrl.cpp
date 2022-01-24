@@ -86,7 +86,7 @@ QSize CFreqCtrl::sizeHint() const
     return QSize(100, 20);
 }
 
-bool CFreqCtrl::inRect(QRect &rect, QPoint &point)
+bool CFreqCtrl::inRect(QRect &rect, QPointF &point)
 {
     if ((point.x() < rect.right()) && (point.x() > rect.x()) &&
         (point.y() < rect.bottom()) && (point.y() > rect.y()))
@@ -417,7 +417,7 @@ void CFreqCtrl::paintEvent(QPaintEvent *)
 
 void CFreqCtrl::mouseMoveEvent(QMouseEvent *event)
 {
-    QPoint    pt = event->pos();
+    QPointF pt = event->localPos();
     // find which digit is to be edited
     if (isActiveWindow())
     {
@@ -436,7 +436,7 @@ void CFreqCtrl::mouseMoveEvent(QMouseEvent *event)
 
 void CFreqCtrl::mousePressEvent(QMouseEvent *event)
 {
-    QPoint    pt = event->pos();
+    QPointF pt = event->localPos();
     if (event->button() == Qt::LeftButton)
     {
         for (int i = m_DigStart; i < m_NumDigits; i++)
@@ -478,7 +478,11 @@ void CFreqCtrl::mousePressEvent(QMouseEvent *event)
 
 void CFreqCtrl::wheelEvent(QWheelEvent *event)
 {
-    QPoint    pt = event->pos();
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+    QPointF   pt = QPointF(event->pos());
+#else
+    QPointF   pt = event->position();
+#endif
     int       delta = m_InvertScrolling ? -event->angleDelta().y() : event->angleDelta().y();
     int       numDegrees = delta / 8;
     int       numSteps = numDegrees / 15;

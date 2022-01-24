@@ -233,7 +233,7 @@ void ComboBoxDelegateModulation::setModelData(QWidget *editor, QAbstractItemMode
 void DockBookmarks::changeBookmarkTags(int row, int /*column*/)
 {
     bool ok = false;
-    QString tags; // list of tags separated by comma
+    QStringList tags;
 
     int iIdx = bookmarksTableModel->GetBookmarksIndexForRow(row);
     BookmarkInfo& bmi = Bookmarks::Get().getBookmark(iIdx);
@@ -261,19 +261,17 @@ void DockBookmarks::changeBookmarkTags(int row, int /*column*/)
         ok = dialog.exec();
         if (ok)
         {
-            tags = taglist->getSelectedTagsAsString();
-            // list of selected tags is now in string 'tags'.
+            tags = taglist->getSelectedTags();
 
             // Change Tags of Bookmark
-            QStringList listTags = tags.split(",",QString::SkipEmptyParts);
             bmi.tags.clear();
-            if (listTags.size() == 0)
+            if (tags.size() == 0)
             {
                 bmi.tags.append(&Bookmarks::Get().findOrAddTag("")); // "Untagged"
             }
-            for (int i = 0; i < listTags.size(); ++i)
+            for (int i = 0; i < tags.size(); ++i)
             {
-                bmi.tags.append(&Bookmarks::Get().findOrAddTag(listTags[i]));
+                bmi.tags.append(&Bookmarks::Get().findOrAddTag(tags[i]));
             }
             Bookmarks::Get().save();
         }

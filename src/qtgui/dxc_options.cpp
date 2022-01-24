@@ -115,7 +115,11 @@ void DXCOptions::readyToRead()
         else if(incomingMessage.contains("DX de", Qt::CaseInsensitive) &&
                 incomingMessage.contains(ui->lineEdit_DXCFilter->text()))
         {
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
             spot = incomingMessage.split(" ", QString::SkipEmptyParts);
+#else
+            spot = incomingMessage.split(" ", Qt::SkipEmptyParts);
+#endif
             if (spot.length() >= 5)
             {
                 info.name = spot[4].trimmed();
