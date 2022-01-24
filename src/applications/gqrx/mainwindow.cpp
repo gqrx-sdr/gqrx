@@ -459,7 +459,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
     {
         if (m_settings->value("crashed", false).toBool())
         {
-            qDebug() << "Crash guard triggered!" << endl;
+            qDebug() << "Crash guard triggered!";
             auto* askUserAboutConfig =
                     new QMessageBox(QMessageBox::Warning, tr("Crash Detected!"),
                                     tr("<p>Gqrx has detected problems with the current configuration. "
