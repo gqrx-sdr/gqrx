@@ -32,7 +32,7 @@ class BookmarksTagList : public QTableWidget
     Q_OBJECT
 public:
     explicit BookmarksTagList(QWidget *parent = 0, bool bShowUntagged = true);
-    QString getSelectedTagsAsString();
+    QStringList getSelectedTags();
     void setSelectedTagsAsString(const QString& strTags);
     void setSelectedTags(QList<TagInfo*> tags);
     bool m_bUpdating;

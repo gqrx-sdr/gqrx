@@ -2360,7 +2360,7 @@ void MainWindow::on_actionAddBookmark_triggered()
 {
     bool ok=false;
     QString name;
-    QString tags; // list of tags separated by comma
+    QStringList tags;
 
     // Create and show the Dialog for a new Bookmark.
     // Write the result into variable 'name'.
@@ -2398,7 +2398,7 @@ void MainWindow::on_actionAddBookmark_triggered()
         if (ok)
         {
             name = textfield->text();
-            tags = taglist->getSelectedTagsAsString();
+            tags = taglist->getSelectedTags();
             qDebug() << "Tags: " << tags;
         }
         else
@@ -2418,14 +2418,13 @@ void MainWindow::on_actionAddBookmark_triggered()
         info.bandwidth = ui->plotter->getFilterBw();
         info.modulation = uiDockRxOpt->currentDemodAsString();
         info.name=name;
-        auto listTags = tags.split(",",QString::SkipEmptyParts);
         info.tags.clear();
-        if (listTags.empty())
+        if (tags.empty())
             info.tags.append(&Bookmarks::Get().findOrAddTag(""));
 
 
-        for (i = 0; i < listTags.size(); ++i)
-            info.tags.append(&Bookmarks::Get().findOrAddTag(listTags[i]));
+        for (i = 0; i < tags.size(); ++i)
+            info.tags.append(&Bookmarks::Get().findOrAddTag(tags[i]));
 
         Bookmarks::Get().add(info);
         uiDockBookmarks->updateTags();
