@@ -85,7 +85,7 @@ private:
     void    cursorEnd();
     void    moveCursorLeft();
     void    moveCursorRight();
-    bool    inRect(QRect &rect, QPoint &point);
+    bool    inRect(QRect &rect, QPointF &point);
     void    setActiveDigit(int idx);
 
     bool        m_UpdateAll;
