@@ -519,14 +519,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         }
 
         // Update window title
-        QRegExp regexp(R"('([a-zA-Z0-9 \-\_\/\.\,\(\)]+)')");
-        QString devlabel;
-        if (regexp.indexIn(indev, 0) != -1)
-            devlabel = regexp.cap(1);
-        else
-            devlabel = indev; //"Unknown";
-
-        setWindowTitle(QString("Gqrx %1 - %2").arg(VERSION).arg(devlabel));
+        setWindowTitle(QString("Gqrx %1 - %2").arg(VERSION).arg(indev));
 
         // Add available antenna connectors to the UI
         std::vector<std::string> antennas = rx->get_antennas();

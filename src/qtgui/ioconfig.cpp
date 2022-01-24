@@ -24,7 +24,6 @@
 #include <QDebug>
 #include <QFile>
 #include <QPushButton>
-#include <QRegExp>
 #include <QSettings>
 #include <QString>
 #include <QtGlobal>
