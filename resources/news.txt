@@ -3,6 +3,7 @@
 
      FIXED: Crash when DSP is restarted after a long pause.
      FIXED: Remove usage of deprecated Qt APIs.
+     FIXED: Return correct RDS status in remote control.
   IMPROVED: Allow ordinary IP addresses to be used in remote control settings.
 
 
