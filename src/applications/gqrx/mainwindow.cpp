@@ -142,12 +142,12 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     uiDockBookmarks = new DockBookmarks(this);
 
     // setup some toggle view shortcuts
-    uiDockInputCtl->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_J));
-    uiDockRxOpt->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
-    uiDockFft->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F));
-    uiDockAudio->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_A));
-    uiDockBookmarks->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_B));
-    ui->mainToolBar->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
+    uiDockInputCtl->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_J));
+    uiDockRxOpt->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_R));
+    uiDockFft->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F));
+    uiDockAudio->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_A));
+    uiDockBookmarks->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_B));
+    ui->mainToolBar->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_T));
 
     /* frequency setting shortcut */
     auto *freq_shortcut = new QShortcut(QKeySequence(Qt::Key_F), this);
