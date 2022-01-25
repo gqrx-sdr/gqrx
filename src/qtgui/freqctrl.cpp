@@ -417,7 +417,11 @@ void CFreqCtrl::paintEvent(QPaintEvent *)
 
 void CFreqCtrl::mouseMoveEvent(QMouseEvent *event)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QPointF pt = event->localPos();
+#else
+    QPointF pt = event->position();
+#endif
     // find which digit is to be edited
     if (isActiveWindow())
     {
@@ -436,7 +440,11 @@ void CFreqCtrl::mouseMoveEvent(QMouseEvent *event)
 
 void CFreqCtrl::mousePressEvent(QMouseEvent *event)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QPointF pt = event->localPos();
+#else
+    QPointF pt = event->position();
+#endif
     if (event->button() == Qt::LeftButton)
     {
         for (int i = m_DigStart; i < m_NumDigits; i++)
