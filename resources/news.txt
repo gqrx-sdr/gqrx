@@ -1,5 +1,5 @@
 
-    2.15.8: In progress...
+    2.15.8: Released January 25, 2022
 
      FIXED: Crash when DSP is restarted after a long pause.
      FIXED: Remove usage of deprecated Qt APIs.
