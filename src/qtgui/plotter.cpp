@@ -228,10 +228,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     setCursor(QCursor(Qt::SizeHorCursor));
                 m_CursorCaptured = CENTER;
                 if (m_TooltipsEnabled)
-                    QToolTip::showText(event->globalPos(),
-                                       QString("Demod: %1 kHz")
-                                               .arg(m_DemodCenterFreq/1.e3, 0, 'f', 3),
-                                       this);
+                    showToolTip(event, QString("Demod: %1 kHz").arg(m_DemodCenterFreq/1.e3, 0, 'f', 3));
             }
             else if (isPointCloseTo(pt.x(), m_DemodHiCutFreqX, m_CursorCaptureDelta))
             {
@@ -240,10 +237,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     setCursor(QCursor(Qt::SizeFDiagCursor));
                 m_CursorCaptured = RIGHT;
                 if (m_TooltipsEnabled)
-                    QToolTip::showText(event->globalPos(),
-                                       QString("High cut: %1 Hz")
-                                               .arg(m_DemodHiCutFreq),
-                                       this);
+                    showToolTip(event, QString("High cut: %1 Hz").arg(m_DemodHiCutFreq));
             }
             else if (isPointCloseTo(pt.x(), m_DemodLowCutFreqX, m_CursorCaptureDelta))
             {
@@ -252,10 +246,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     setCursor(QCursor(Qt::SizeBDiagCursor));
                 m_CursorCaptured = LEFT;
                 if (m_TooltipsEnabled)
-                    QToolTip::showText(event->globalPos(),
-                                       QString("Low cut: %1 Hz")
-                                               .arg(m_DemodLowCutFreq),
-                                       this);
+                    showToolTip(event, QString("Low cut: %1 Hz").arg(m_DemodLowCutFreq));
             }
             else
             {	//if not near any grab boundaries
@@ -277,7 +268,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                         for (auto & hoverBand : hoverBands)
                             toolTipText.append("\n" + hoverBand.name);
                     }
-                    QToolTip::showText(event->globalPos(), toolTipText, this);
+                    showToolTip(event, toolTipText);
                 }
             }
             m_GrabPosition = 0;
@@ -299,11 +290,9 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             QDateTime tt;
             tt.setMSecsSinceEpoch(msecFromY(pt.y()));
 
-            QToolTip::showText(event->globalPos(),
-                               QString("%1\n%2 kHz")
+            showToolTip(event, QString("%1\n%2 kHz")
                                        .arg(tt.toString("yyyy.MM.dd hh:mm:ss.zzz"))
-                                       .arg(freqFromX(pt.x())/1.e3, 0, 'f', 3),
-                               this);
+                                       .arg(freqFromX(pt.x())/1.e3, 0, 'f', 3));
         }
     }
     // process mouse moves while in cursor capture modes
@@ -1772,6 +1761,15 @@ void CPlotter::calcDivSize (qint64 low, qint64 high, int divswanted, qint64 &adj
     qCDebug(plotter) << "adjlow:" << adjlow;
     qCDebug(plotter) << "step:" << step;
     qCDebug(plotter) << "divs:" << divs;
+}
+
+void CPlotter::showToolTip(QMouseEvent* event, QString toolTipText)
+{
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    QToolTip::showText(event->globalPos(), toolTipText, this);
+#else
+    QToolTip::showText(event->globalPosition().toPoint(), toolTipText, this);
+#endif
 }
 
 // contributed by Chris Kuethe @ckuethe

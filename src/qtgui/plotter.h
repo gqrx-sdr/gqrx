@@ -196,6 +196,7 @@ private:
                                  float *inBuf, qint32 *outBuf,
                                  qint32 *maxbin, qint32 *minbin) const;
     static void calcDivSize (qint64 low, qint64 high, int divswanted, qint64 &adjlow, qint64 &step, int& divs);
+    void        showToolTip(QMouseEvent* event, QString toolTipText);
 
     bool        m_PeakHoldActive;
     bool        m_PeakHoldValid;
