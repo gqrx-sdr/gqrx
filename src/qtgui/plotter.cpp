@@ -340,7 +340,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
     }
     else if (XAXIS == m_CursorCaptured)
     {
-        if (event->buttons() & (Qt::LeftButton | Qt::MidButton))
+        if (event->buttons() & (Qt::LeftButton | Qt::MiddleButton))
         {
             setCursor(QCursor(Qt::ClosedHandCursor));
             // pan viewable range or move center frequency
@@ -348,7 +348,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             qint64 delta_hz = delta_px * m_Span / (m_OverlayPixmap.width() / m_DPR);
             if (delta_hz != 0) // update m_Xzero only on real change
             {
-                if (event->buttons() & Qt::MidButton)
+                if (event->buttons() & Qt::MiddleButton)
                 {
                     m_CenterFreq += delta_hz;
                     m_DemodCenterFreq += delta_hz;
@@ -651,7 +651,7 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                 m_GrabPosition = 1;
                 drawOverlay();
             }
-            else if (event->buttons() == Qt::MidButton)
+            else if (event->buttons() == Qt::MiddleButton)
             {
                 // set center freq
                 m_CenterFreq = roundFreq(freqFromX(pt.x()), m_ClickResolution);
@@ -1357,7 +1357,7 @@ void CPlotter::drawOverlay()
             const auto levelNHeightBottom = levelNHeight + fontHeight;
             const auto levelNHeightBottomSlant = levelNHeightBottom + slant;
 
-            m_Taglist.append(qMakePair<QRect, qint64>(QRect(x, levelNHeight, nameWidth + slant, fontHeight), tag.frequency));
+            m_Taglist.append(qMakePair(QRect(x, levelNHeight, nameWidth + slant, fontHeight), tag.frequency));
 
             QColor color = QColor(tag.GetColor());
             color.setAlpha(0x60);
