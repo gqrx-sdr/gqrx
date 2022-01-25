@@ -627,13 +627,13 @@ QString RemoteControl::cmd_get_level(QStringList cmdlist)
     {
         answer = QString("%1\n").arg(squelch_level, 0, 'f', 1);
     }
-    else if (lvl.contains(QRegExp("_GAIN$")))
+    else if (lvl.endsWith("_GAIN"))
     {
-        QString name = lvl.remove(QRegExp("_GAIN$"));
+        lvl.chop(5);
         answer = QString("RPRT 1\n");
         for(auto &g : gains)
         {
-            if(name == QString::fromStdString(g.name))
+            if(lvl == QString::fromStdString(g.name))
             {
                 answer = QString("%1\n").arg(g.value);
                 break;
@@ -676,13 +676,13 @@ QString RemoteControl::cmd_set_level(QStringList cmdlist)
             answer = QString("RPRT 1\n");
         }
     }
-    else if (lvl.contains(QRegExp("_GAIN$")))
+    else if (lvl.endsWith("_GAIN"))
     {
-        QString name = lvl.remove(QRegExp("_GAIN$"));
+        lvl.chop(5);
 
         bool ok;
         double gain = cmdlist.value(2, "ERR").toDouble(&ok);
-        if (ok && setGain(name, gain))
+        if (ok && setGain(lvl, gain))
             answer = QString("RPRT 0\n");
         else
             answer = QString("RPRT 1\n");
