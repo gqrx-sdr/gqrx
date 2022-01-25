@@ -29,7 +29,7 @@
 #include "qtgui/dockrxopt.h"
 
 #define DEFAULT_RC_PORT            7356
-#define DEFAULT_RC_ALLOWED_HOSTS   "::ffff:127.0.0.1"
+#define DEFAULT_RC_ALLOWED_HOSTS   "127.0.0.1"
 
 RemoteControl::RemoteControl(QObject *parent) :
     QObject(parent)
@@ -167,19 +167,22 @@ void RemoteControl::acceptConnection()
     rc_socket = rc_server.nextPendingConnection();
 
     // check if host is allowed
-    QString address = rc_socket->peerAddress().toString();
-    if (rc_allowed_hosts.indexOf(address) == -1)
+    auto address = rc_socket->peerAddress();
+
+    for (auto allowed_host : rc_allowed_hosts)
     {
-        std::cout << "*** Remote connection attempt from " << address.toStdString()
-                  << " (not in allowed list)" << std::endl;
-        rc_socket->close();
-        rc_socket->deleteLater();
-        rc_socket = 0;
+        if (address.isEqual(QHostAddress(allowed_host)))
+        {
+            connect(rc_socket, SIGNAL(readyRead()), this, SLOT(startRead()));
+            return;
+        }
     }
-    else
-    {
-        connect(rc_socket, SIGNAL(readyRead()), this, SLOT(startRead()));
-    }
+
+    std::cout << "*** Remote connection attempt from " << address.toString().toStdString()
+              << " (not in allowed list)" << std::endl;
+    rc_socket->close();
+    rc_socket->deleteLater();
+    rc_socket = 0;
 }
 
 /*! \brief Start reading from the socket.
