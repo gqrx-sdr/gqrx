@@ -134,13 +134,13 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     QShortcut *mode_am_shortcut = new QShortcut(QKeySequence(Qt::Key_A), this);
     QShortcut *mode_nfm_shortcut = new QShortcut(QKeySequence(Qt::Key_N), this);
     QShortcut *mode_wfm_mono_shortcut = new QShortcut(QKeySequence(Qt::Key_W), this);
-    QShortcut *mode_wfm_stereo_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_W), this);
+    QShortcut *mode_wfm_stereo_shortcut = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_W), this);
     QShortcut *mode_lsb_shortcut = new QShortcut(QKeySequence(Qt::Key_S), this);
-    QShortcut *mode_usb_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_S), this);
+    QShortcut *mode_usb_shortcut = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_S), this);
     QShortcut *mode_cwl_shortcut = new QShortcut(QKeySequence(Qt::Key_C), this);
-    QShortcut *mode_cwu_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_C), this);
+    QShortcut *mode_cwu_shortcut = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_C), this);
     QShortcut *mode_wfm_oirt_shortcut = new QShortcut(QKeySequence(Qt::Key_O), this);
-    QShortcut *mode_am_sync_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_A), this);
+    QShortcut *mode_am_sync_shortcut = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_A), this);
 
     QObject::connect(mode_off_shortcut, &QShortcut::activated, this, &DockRxOpt::modeOffShortcut);
     QObject::connect(mode_raw_shortcut, &QShortcut::activated, this, &DockRxOpt::modeRawShortcut);
