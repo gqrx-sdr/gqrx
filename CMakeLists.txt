@@ -125,7 +125,6 @@ find_package(Qt6 QUIET COMPONENTS Core Network Widgets Svg SvgWidgets)
 if(NOT Qt6_FOUND)
     find_package(Qt5 REQUIRED COMPONENTS Core Network Widgets Svg)
 endif()
-include(FindPkgConfig)
 find_package(Gnuradio-osmosdr REQUIRED)
 
 set(GR_REQUIRED_COMPONENTS RUNTIME ANALOG AUDIO BLOCKS DIGITAL FILTER FFT PMT)

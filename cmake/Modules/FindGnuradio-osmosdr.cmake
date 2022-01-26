@@ -1,8 +1,3 @@
-if(NOT PKG_CONFIG_FOUND)
-    INCLUDE(FindPkgConfig)
-endif()
-PKG_CHECK_MODULES(PC_GNURADIO_OSMOSDR gnuradio-osmosdr)
-
 FIND_PATH(
     GNURADIO_OSMOSDR_INCLUDE_DIRS
     NAMES osmosdr/source.h
