@@ -102,9 +102,13 @@ endfunction(add_source_files)
 
 if(APPLE AND EXISTS /usr/local/opt/qt5)
     # Homebrew installs Qt5 (up to at least 5.9.1) in
-    # /usr/local/qt5, ensure it can be found by CMake since
+    # /usr/local/opt/qt5, ensure it can be found by CMake since
     # it is not in the default /usr/local prefix.
     list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/qt5")
+endif()
+
+if(APPLE AND EXISTS /usr/local/opt/qt6)
+    list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/qt6")
 endif()
 
 if(APPLE AND EXISTS /usr/local/opt/icu4c/lib)
@@ -117,7 +121,10 @@ else()
 endif()
 
 # 3rd Party Dependency Stuff
-find_package(Qt5 COMPONENTS Core Network Widgets Svg REQUIRED)
+find_package(Qt6 QUIET COMPONENTS Core Network Widgets Svg SvgWidgets)
+if(NOT Qt6_FOUND)
+    find_package(Qt5 REQUIRED COMPONENTS Core Network Widgets Svg)
+endif()
 include(FindPkgConfig)
 find_package(Gnuradio-osmosdr REQUIRED)
 
