@@ -171,7 +171,11 @@ void RemoteControl::acceptConnection()
 
     for (auto allowed_host : rc_allowed_hosts)
     {
+#if QT_VERSION < QT_VERSION_CHECK(5, 8, 0)
+        if (address == QHostAddress(allowed_host))
+#else
         if (address.isEqual(QHostAddress(allowed_host)))
+#endif
         {
             connect(rc_socket, SIGNAL(readyRead()), this, SLOT(startRead()));
             return;
