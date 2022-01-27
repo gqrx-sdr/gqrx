@@ -86,19 +86,9 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install --HEAD --build-from-source dylibbundler portaudio
-          brew install airspy boost gnuradio hackrf libbladerf librtlsdr libserialport pybind11 uhd
+          brew install airspy airspyhf boost dylibbundler gnuradio hackrf libbladerf librtlsdr libserialport portaudio pybind11 uhd
           brew tap pothosware/homebrew-pothos
           brew install soapysdr soapyremote
-
-          cd /tmp
-          git clone https://github.com/airspy/airspyhf.git
-          cd airspyhf
-          mkdir build
-          cd build
-          cmake ..
-          make -j4
-          make install
 
           cd /tmp
           git clone https://github.com/analogdevicesinc/libiio.git
