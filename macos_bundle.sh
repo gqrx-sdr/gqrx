@@ -37,7 +37,7 @@ mkdir -p Gqrx.app/Contents/Resources
 </plist>
 EOM
 
-/bin/cat <<EOM >Entitlements.plist
+/bin/cat <<EOM >/tmp/Entitlements.plist
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -59,5 +59,5 @@ ln -sf /usr/local/opt/python@3.9/Frameworks/Python.framework /usr/local/opt/pyth
 
 for f in Gqrx.app/Contents/libs/*.dylib Gqrx.app/Contents/soapy-modules/*.so Gqrx.app/Contents/Frameworks/Python.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python Gqrx.app/Contents/Frameworks/*.framework Gqrx.app/Contents/MacOS/gqrx
 do
-    codesign --force --verify --verbose --timestamp --options runtime --entitlements Entitlements.plist --sign $IDENTITY $f
+    codesign --force --verify --verbose --timestamp --options runtime --entitlements /tmp/Entitlements.plist --sign $IDENTITY $f
 done
