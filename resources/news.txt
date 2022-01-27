@@ -1,4 +1,10 @@
 
+    2.15.9: In progress...
+
+       NEW: Qt 6 support.
+     FIXED: Slider widgets don't work correctly on MacOS Monterey.
+
+
     2.15.8: Released January 25, 2022
 
      FIXED: Crash when DSP is restarted after a long pause.
