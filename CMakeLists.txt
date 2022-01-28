@@ -125,11 +125,12 @@ find_package(Qt6 QUIET COMPONENTS Core Network Widgets Svg SvgWidgets)
 if(NOT Qt6_FOUND)
     find_package(Qt5 REQUIRED COMPONENTS Core Network Widgets Svg)
 endif()
-include(FindPkgConfig)
-find_package(Gnuradio-osmosdr REQUIRED)
+find_package(Boost REQUIRED COMPONENTS chrono)
+find_package(gr-iqbal NAMES gnuradio gnuradio-iqbalance)
+find_package(gr-osmosdr NAMES osmosdr gnuradio-osmosdr)
 
 set(GR_REQUIRED_COMPONENTS RUNTIME ANALOG AUDIO BLOCKS DIGITAL FILTER FFT PMT)
-find_package(Gnuradio REQUIRED COMPONENTS analog audio blocks digital filter fft network)
+find_package(Gnuradio REQUIRED COMPONENTS analog audio blocks digital filter fft network uhd)
 if(NOT Gnuradio_FOUND)
     message(FATAL_ERROR "GnuRadio Runtime required to compile gqrx")
 endif()
@@ -248,7 +249,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Finish configuring compiler / linker settings & flags
 include_directories(
     ${CMAKE_SOURCE_DIR}/include
-    ${GNURADIO_OSMOSDR_INCLUDE_DIRS}
 )
 
 link_directories(
