@@ -86,7 +86,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install airspy airspyhf boost dylibbundler gnuradio hackrf libbladerf librtlsdr libserialport portaudio pybind11 uhd
+          brew install airspy airspyhf boost dylibbundler gnuradio hackrf libbladerf librtlsdr libserialport portaudio pybind11 uhd qt@6
           brew tap pothosware/homebrew-pothos
           brew install soapysdr soapyremote
 
