@@ -380,18 +380,18 @@ void DockFft::setZoomLevel(float level)
 }
 
 /** FFT size changed. */
-void DockFft::on_fftSizeComboBox_currentIndexChanged(const QString &text)
+void DockFft::on_fftSizeComboBox_currentIndexChanged(int index)
 {
-    int value = text.toInt();
+    int value = ui->fftSizeComboBox->itemText(index).toInt();
     emit fftSizeChanged(value);
     updateInfoLabels();
 }
 
 /** FFT rate changed. */
-void DockFft::on_fftRateComboBox_currentIndexChanged(const QString & text)
+void DockFft::on_fftRateComboBox_currentIndexChanged(int index)
 {
     int fps = fftRate();
-    Q_UNUSED(text);
+    Q_UNUSED(index);
 
     emit fftRateChanged(fps);
     updateInfoLabels();

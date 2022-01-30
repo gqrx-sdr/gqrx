@@ -77,8 +77,8 @@ public slots:
     void setZoomLevel(float level);
 
 private slots:
-    void on_fftSizeComboBox_currentIndexChanged(const QString & text);
-    void on_fftRateComboBox_currentIndexChanged(const QString & text);
+    void on_fftSizeComboBox_currentIndexChanged(int index);
+    void on_fftRateComboBox_currentIndexChanged(int index);
     void on_fftWinComboBox_currentIndexChanged(int index);
     void on_wfSpanComboBox_currentIndexChanged(int index);
     void on_fftSplitSlider_valueChanged(int value);

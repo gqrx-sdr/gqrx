@@ -129,7 +129,7 @@ private slots:
     void on_dcCancelButton_toggled(bool checked);
     void on_iqBalanceButton_toggled(bool checked);
     void on_ignoreButton_toggled(bool checked);
-    void on_antSelector_currentIndexChanged(const QString &antenna);
+    void on_antSelector_currentIndexChanged(int index);
     void on_freqCtrlResetButton_toggled(bool checked);
     void on_invertScrollingButton_toggled(bool checked);
 
