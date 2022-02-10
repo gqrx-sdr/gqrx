@@ -274,17 +274,16 @@ void receiver::set_output_device(const std::string device)
         tb->disconnect(audio_gain0, 0, audio_snk, 0);
         tb->disconnect(audio_gain1, 0, audio_snk, 1);
     }
-    audio_snk.reset();
 
     try {
 #ifdef WITH_PULSEAUDIO
-        audio_snk = make_pa_sink(device, d_audio_rate, "GQRX", "Audio output");
+        auto new_audio_snk = make_pa_sink(device, d_audio_rate, "GQRX", "Audio output");
 #elif WITH_PORTAUDIO
-        audio_snk = make_portaudio_sink(device, d_audio_rate, "GQRX", "Audio output");
+        auto new_audio_snk = make_portaudio_sink(device, d_audio_rate, "GQRX", "Audio output");
 #else
-        audio_snk = gr::audio::sink::make(d_audio_rate, device, true);
+        auto new_audio_snk = gr::audio::sink::make(d_audio_rate, device, true);
 #endif
-
+        audio_snk = new_audio_snk;
         if (d_demod != RX_DEMOD_OFF)
         {
             tb->connect(audio_gain0, 0, audio_snk, 0);
@@ -294,6 +293,12 @@ void receiver::set_output_device(const std::string device)
         tb->unlock();
 
     } catch (std::exception &x) {
+        if (d_demod != RX_DEMOD_OFF)
+        {
+            tb->connect(audio_gain0, 0, audio_snk, 0);
+            tb->connect(audio_gain1, 0, audio_snk, 1);
+        }
+
         tb->unlock();
         // handle problems on non-freeing devices
         throw x;

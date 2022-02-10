@@ -579,6 +579,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
                                      "Please select another device.")
                                  .arg(x.what()),
                          QMessageBox::Ok);
+        conf_ok = false;
     }
 
     int_val = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
