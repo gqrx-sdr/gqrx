@@ -66,6 +66,12 @@ public:
     void setFftFill(bool enabled);
 
     bool getSquelchTriggered();
+    void setSquelchTriggered(bool mode);
+    void setRecDir(const QString &dir);
+    void setRecMinTime(int time_ms);
+    void setRecMaxGap(int time_ms);
+
+
 
     void saveSettings(QSettings *settings);
     void readSettings(QSettings *settings);
@@ -120,6 +126,9 @@ signals:
     /*! \brief Signal emitted when squelch triggered recording max gap time is changed. */
     void recMaxGapChanged(int time_ms);
 
+    /*! \brief Signal emitted when toAllVFOs button is clicked. */
+    void copyRecSettingsToAllVFOs();
+
 private slots:
     void on_audioGainSlider_valueChanged(int value);
     void on_audioStreamButton_clicked(bool checked);
@@ -127,15 +136,16 @@ private slots:
     void on_audioPlayButton_clicked(bool checked);
     void on_audioConfButton_clicked();
     void on_audioMuteButton_clicked(bool checked);
-    void setNewPandapterRange(int min, int max);
-    void setNewWaterfallRange(int min, int max);
-    void setNewRecDir(const QString &dir);
-    void setNewUdpHost(const QString &host);
-    void setNewUdpPort(int port);
-    void setNewUdpStereo(bool enabled);
-    void setNewSquelchTriggered(bool enabled);
-    void setRecMinTime(int time_ms);
-    void setRecMaxGap(int time_ms);
+    void pandapterRange_changed(int min, int max);
+    void waterfallRange_changed(int min, int max);
+    void recDir_changed(const QString &dir);
+    void udpHost_changed(const QString &host);
+    void udpPort_changed(int port);
+    void udpStereo_changed(bool enabled);
+    void squelchTriggered_changed(bool enabled);
+    void recMinTime_changed(int time_ms);
+    void recMaxGap_changed(int time_ms);
+    void copyRecSettingsToAllVFOs_clicked();
 
 
 private:

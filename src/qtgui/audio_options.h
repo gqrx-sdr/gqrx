@@ -80,6 +80,7 @@ signals:
     void newSquelchTriggered(bool enabled);
     void newRecMinTime(int time_ms);
     void newRecMaxGap(int time_ms);
+    void copyRecSettingsToAllVFOs();
 
 private slots:
     void on_fftSplitSlider_valueChanged(int value);
@@ -94,6 +95,7 @@ private slots:
     void on_squelchTriggered_stateChanged(int state);
     void on_recMinTime_valueChanged(int value);
     void on_recMaxGap_valueChanged(int value);
+    void on_toAllVFOsButton_clicked();
 
 private:
     Ui::CAudioOptions *ui;                   /*!< The user interface widget. */

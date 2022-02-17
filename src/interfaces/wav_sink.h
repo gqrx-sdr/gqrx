@@ -183,6 +183,7 @@ public:
     int get_rec_max_gap() { return d_max_gap_ms; }
     int get_min_time();
     int get_max_gap();
+    bool is_active() { return !! d_fp; }
 private:
     bool open_unlocked(const char* filename);
     int  open_new_unlocked();

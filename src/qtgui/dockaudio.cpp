@@ -41,15 +41,16 @@ DockAudio::DockAudio(QWidget *parent) :
     audioOptions = new CAudioOptions(this);
 
     connect(audioOptions, SIGNAL(newFftSplit(int)), ui->audioSpectrum, SLOT(setPercent2DScreen(int)));
-    connect(audioOptions, SIGNAL(newPandapterRange(int,int)), this, SLOT(setNewPandapterRange(int,int)));
-    connect(audioOptions, SIGNAL(newWaterfallRange(int,int)), this, SLOT(setNewWaterfallRange(int,int)));
-    connect(audioOptions, SIGNAL(newRecDirSelected(QString)), this, SLOT(setNewRecDir(QString)));
-    connect(audioOptions, SIGNAL(newUdpHost(QString)), this, SLOT(setNewUdpHost(QString)));
-    connect(audioOptions, SIGNAL(newUdpPort(int)), this, SLOT(setNewUdpPort(int)));
-    connect(audioOptions, SIGNAL(newUdpStereo(bool)), this, SLOT(setNewUdpStereo(bool)));
-    connect(audioOptions, SIGNAL(newSquelchTriggered(bool)), this, SLOT(setNewSquelchTriggered(bool)));
-    connect(audioOptions, SIGNAL(newRecMinTime(int)), this, SLOT(setRecMinTime(int)));
-    connect(audioOptions, SIGNAL(newRecMaxGap(int)), this, SLOT(setRecMaxGap(int)));
+    connect(audioOptions, SIGNAL(newPandapterRange(int,int)), this, SLOT(pandapterRange_changed(int,int)));
+    connect(audioOptions, SIGNAL(newWaterfallRange(int,int)), this, SLOT(waterfallRange_changed(int,int)));
+    connect(audioOptions, SIGNAL(newRecDirSelected(QString)), this, SLOT(recDir_changed(QString)));
+    connect(audioOptions, SIGNAL(newUdpHost(QString)), this, SLOT(udpHost_changed(QString)));
+    connect(audioOptions, SIGNAL(newUdpPort(int)), this, SLOT(udpPort_changed(int)));
+    connect(audioOptions, SIGNAL(newUdpStereo(bool)), this, SLOT(udpStereo_changed(bool)));
+    connect(audioOptions, SIGNAL(newSquelchTriggered(bool)), this, SLOT(squelchTriggered_changed(bool)));
+    connect(audioOptions, SIGNAL(newRecMinTime(int)), this, SLOT(recMinTime_changed(int)));
+    connect(audioOptions, SIGNAL(newRecMaxGap(int)), this, SLOT(recMaxGap_changed(int)));
+    connect(audioOptions, SIGNAL(copyRecSettingsToAllVFOs()), this, SLOT(copyRecSettingsToAllVFOs_clicked()));
 
     connect(ui->audioSpectrum, SIGNAL(pandapterRangeChanged(float,float)), audioOptions, SLOT(setPandapterSliderValues(float,float)));
 
@@ -156,6 +157,30 @@ void DockAudio::setFftFill(bool enabled)
 bool DockAudio::getSquelchTriggered()
 {
     return squelch_triggered;
+}
+
+void DockAudio::setSquelchTriggered(bool mode)
+{
+    squelch_triggered = mode;
+    audioOptions->setSquelchTriggered(mode);
+}
+
+void DockAudio::setRecDir(const QString &dir)
+{
+    rec_dir = dir;
+    audioOptions->setRecDir(dir);
+}
+
+void DockAudio::setRecMinTime(int time_ms)
+{
+    recMinTime = time_ms;
+    audioOptions->setRecMinTime(time_ms);
+}
+
+void DockAudio::setRecMaxGap(int time_ms)
+{
+    recMaxGap = time_ms;
+    audioOptions->setRecMaxGap(time_ms);
 }
 
 /*! Public slot to set new RX frequency in Hz. */
@@ -298,8 +323,6 @@ void DockAudio::saveSettings(QSettings *settings)
 
     settings->beginGroup("audio");
 
-    settings->setValue("gain", audioGain());
-
     ival = audioOptions->getFftSplit();
     if (ival != DEFAULT_FFT_SPLIT)
         settings->setValue("fft_split", ival);
@@ -331,11 +354,6 @@ void DockAudio::saveSettings(QSettings *settings)
     else
         settings->remove("db_ranges_locked");
 
-    if (rec_dir != QDir::homePath())
-        settings->setValue("rec_dir", rec_dir);
-    else
-        settings->remove("rec_dir");
-
     if (udp_host.isEmpty())
         settings->remove("udp_host");
     else
@@ -351,21 +369,6 @@ void DockAudio::saveSettings(QSettings *settings)
     else
         settings->remove("udp_stereo");
 
-    if (squelch_triggered != false)
-        settings->setValue("squelch_triggered_recording", squelch_triggered);
-    else
-        settings->remove("squelch_triggered_recording");
-
-    if(recMinTime != 0)
-        settings->setValue("rec_min_time", recMinTime);
-    else
-        settings->remove("rec_min_time");
-
-    if(recMaxGap != 0)
-        settings->setValue("rec_max_gap", recMaxGap);
-    else
-        settings->remove("rec_max_gap");
-
     settings->endGroup();
 }
 
@@ -378,10 +381,6 @@ void DockAudio::readSettings(QSettings *settings)
         return;
 
     settings->beginGroup("audio");
-
-    ival = settings->value("gain", QVariant(-60)).toInt(&conv_ok);
-    if (conv_ok)
-        setAudioGain(ival);
 
     ival = settings->value("fft_split", DEFAULT_FFT_SPLIT).toInt(&conv_ok);
     if (conv_ok)
@@ -406,10 +405,6 @@ void DockAudio::readSettings(QSettings *settings)
     bool_val = settings->value("db_ranges_locked", false).toBool();
     audioOptions->setLockButtonState(bool_val);
 
-    // Location of audio recordings
-    rec_dir = settings->value("rec_dir", QDir::homePath()).toString();
-    audioOptions->setRecDir(rec_dir);
-
     // Audio streaming host, port and stereo setting
     udp_host = settings->value("udp_host", "localhost").toString();
     udp_port = settings->value("udp_port", 7355).toInt(&conv_ok);
@@ -421,27 +416,15 @@ void DockAudio::readSettings(QSettings *settings)
     audioOptions->setUdpPort(udp_port);
     audioOptions->setUdpStereo(udp_stereo);
 
-    squelch_triggered = settings->value("squelch_triggered_recording", false).toBool();
-    audioOptions->setSquelchTriggered(squelch_triggered);
-
-    recMinTime = settings->value("rec_min_time", 0).toInt(&conv_ok);
-    if (!conv_ok)
-        recMinTime = 0;
-    audioOptions->setRecMinTime(recMinTime);
-    recMaxGap = settings->value("rec_max_gap", 0).toInt(&conv_ok);
-    if (!conv_ok)
-        recMaxGap = 0;
-    audioOptions->setRecMaxGap(recMaxGap);
-
     settings->endGroup();
 }
 
-void DockAudio::setNewPandapterRange(int min, int max)
+void DockAudio::pandapterRange_changed(int min, int max)
 {
     ui->audioSpectrum->setPandapterRange(min, max);
 }
 
-void DockAudio::setNewWaterfallRange(int min, int max)
+void DockAudio::waterfallRange_changed(int min, int max)
 {
     ui->audioSpectrum->setWaterfallRange(min, max);
 }
@@ -449,14 +432,14 @@ void DockAudio::setNewWaterfallRange(int min, int max)
 /*! \brief Slot called when a new valid recording directory has been selected
  *         in the audio conf dialog.
  */
-void DockAudio::setNewRecDir(const QString &dir)
+void DockAudio::recDir_changed(const QString &dir)
 {
     rec_dir = dir;
     emit recDirChanged(dir);
 }
 
 /*! \brief Slot called when a new network host has been entered. */
-void DockAudio::setNewUdpHost(const QString &host)
+void DockAudio::udpHost_changed(const QString &host)
 {
     if (host.isEmpty())
         udp_host = "localhost";
@@ -465,13 +448,13 @@ void DockAudio::setNewUdpHost(const QString &host)
 }
 
 /*! \brief Slot called when a new network port has been entered. */
-void DockAudio::setNewUdpPort(int port)
+void DockAudio::udpPort_changed(int port)
 {
     udp_port = port;
 }
 
 /*! \brief Slot called when the mono/stereo streaming setting changes. */
-void DockAudio::setNewUdpStereo(bool enabled)
+void DockAudio::udpStereo_changed(bool enabled)
 {
     udp_stereo = enabled;
 }
@@ -496,20 +479,20 @@ void DockAudio::audioRecStopped()
 }
 
 
-void DockAudio::setNewSquelchTriggered(bool enabled)
+void DockAudio::squelchTriggered_changed(bool enabled)
 {
     squelch_triggered = enabled;
     ui->audioRecButton->setStyleSheet(enabled?"color: rgb(255,0,0)":"");
     emit recSquelchTriggeredChanged(enabled);
 }
 
-void DockAudio::setRecMinTime(int time_ms)
+void DockAudio::recMinTime_changed(int time_ms)
 {
     recMinTime = time_ms;
     emit recMinTimeChanged(time_ms);
 }
 
-void DockAudio::setRecMaxGap(int time_ms)
+void DockAudio::recMaxGap_changed(int time_ms)
 {
     recMaxGap = time_ms;
     emit recMaxGapChanged(time_ms);
@@ -532,4 +515,9 @@ void DockAudio::increaseAudioGainShortcut() {
 void DockAudio::decreaseAudioGainShortcut() {
     if(ui->audioGainSlider->isEnabled())
         ui->audioGainSlider->triggerAction(QSlider::SliderPageStepSub);
+}
+
+void DockAudio::copyRecSettingsToAllVFOs_clicked()
+{
+    emit copyRecSettingsToAllVFOs();
 }

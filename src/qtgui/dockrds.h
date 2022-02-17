@@ -34,7 +34,7 @@ signals:
     void radiotextChanged(QString);
 
 private slots:
-    void on_rdsCheckbox_toggled(bool checked);
+    void on_rdsCheckbox_clicked(bool checked);
 
 private:
     Ui::DockRDS *ui;        /*! The Qt designer UI file. */

@@ -199,6 +199,33 @@ void CAgcOptions::enableHang(bool enabled)
     ui->hangTitle->setEnabled(enabled);
 }
 
+/*! \brief Get panning fixed position. */
+int CAgcOptions::panning()
+{
+    return ui->panningSlider->value();
+}
+
+/*! \brief Set panning fixed position. */
+void CAgcOptions::setPanning(int value)
+{
+    if(value < -100)
+        return;
+    if(value > 100)
+        return;
+    ui->panningSlider->setValue(value);
+}
+
+/*! \brief Get panning auto mode. */
+bool CAgcOptions::panningAuto()
+{
+    return (Qt::Checked == ui->panningAutoCheckBox->checkState());
+}
+
+/*! \brief Set panning auto mode. */
+void CAgcOptions::setPanningAuto(bool value)
+{
+    ui->panningAutoCheckBox->setCheckState(value ? Qt::Checked : Qt::Unchecked);
+}
 
 /*! \brief AGC max gain slider value has changed. */
 void CAgcOptions::on_maxGainSlider_valueChanged(int value)
@@ -234,4 +261,18 @@ void CAgcOptions::on_hangSlider_valueChanged(int value)
     ui->hangLabel->setText(QString("%1 ms").arg(ui->hangSlider->value()));
     emit hangChanged(value);
 }
+/*! \brief Panning slider value has changed. */
+void CAgcOptions::on_panningSlider_valueChanged(int value)
+{
+    ui->panningLabel->setText(QString::number(value));
+    emit panningChanged(value);
+}
 
+/*! \brief Panning auto checkbox state changed. */
+void CAgcOptions::on_panningAutoCheckBox_stateChanged(int state)
+{
+    ui->panningSlider->setEnabled(!(state == Qt::Checked));
+    ui->panningTitle->setEnabled(!(state == Qt::Checked));
+    ui->panningLabel->setEnabled(!(state == Qt::Checked));
+    emit panningAutoChanged(state == Qt::Checked);
+}

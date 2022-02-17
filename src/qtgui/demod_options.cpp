@@ -192,26 +192,6 @@ double CDemodOptions::getEmph(void) const
     return tau_from_index(ui->emphSelector->currentIndex());
 }
 
-void CDemodOptions::setDcr(bool enabled)
-{
-    ui->dcrCheckBox->setChecked(enabled);
-}
-
-bool CDemodOptions::getDcr(void) const
-{
-    return ui->dcrCheckBox->isChecked();
-}
-
-void CDemodOptions::setSyncDcr(bool enabled)
-{
-    ui->syncdcrCheckBox->setChecked(enabled);
-}
-
-bool CDemodOptions::getSyncDcr(void) const
-{
-    return ui->syncdcrCheckBox->isChecked();
-}
-
 void CDemodOptions::on_maxdevSelector_activated(int index)
 {
     emit fmMaxdevSelected(maxdev_from_index(index));
@@ -250,4 +230,14 @@ float CDemodOptions::getPllBw(void) const
 void CDemodOptions::on_pllBwSelector_activated(int index)
 {
     emit amSyncPllBwSelected(pll_bw_from_index(index));
+}
+
+void CDemodOptions::setAmDcr(bool on)
+{
+    ui->dcrCheckBox->setChecked(on);
+}
+
+void CDemodOptions::setAmSyncDcr(bool on)
+{
+    ui->syncdcrCheckBox->setChecked(on);
 }

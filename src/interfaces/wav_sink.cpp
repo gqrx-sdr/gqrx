@@ -418,7 +418,7 @@ void wavfile_sink_gqrx::writeout(const int offset, const int writecount, const i
     int nwritten = 0;
     int bp = 0;
     int errnum;
-    while(nwritten < writecount)
+    while (nwritten < writecount)
     {
         for (bp = 0; (nwritten < writecount) && (bp < s_items_size); nwritten++, bp++)
         {
@@ -445,9 +445,13 @@ void wavfile_sink_gqrx::writeout(const int offset, const int writecount, const i
 
 void wavfile_sink_gqrx::set_sql_triggered(const bool enabled)
 {
-    std::unique_lock<std::mutex> guard(d_mutex);
-    d_squelch_triggered = enabled;
-    d_prev_action = ACT_NONE;
+    if (d_squelch_triggered == enabled)
+        return;
+    {
+        std::unique_lock<std::mutex> guard(d_mutex);
+        d_squelch_triggered = enabled;
+        d_prev_action = ACT_NONE;
+    }
 }
 
 void wavfile_sink_gqrx::set_bits_per_sample(int bits_per_sample)

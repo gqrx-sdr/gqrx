@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>315</width>
-    <height>209</height>
+    <height>242</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -167,6 +167,19 @@
          </item>
         </layout>
        </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab1">
@@ -272,6 +285,23 @@
            </property>
            <property name="singleStep">
             <number>100</number>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="LabelGlobal">
+           <property name="text">
+            <string>Copy to</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QPushButton" name="toAllVFOsButton">
+           <property name="toolTip">
+            <string>Copy location, min time, max gap settings to all VFOs</string>
+           </property>
+           <property name="text">
+            <string>All VFOs</string>
            </property>
           </widget>
          </item>

@@ -3,7 +3,7 @@
  * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
  *           https://gqrx.dk/
  *
- * Copyright 2013 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2016 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,38 +20,28 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#ifndef NB_OPTIONS_H
-#define NB_OPTIONS_H
+#ifndef DEFINES_H
+#define DEFINES_H
 
-#include <QDialog>
-#include <QCloseEvent>
+/* Maximum number of receivers */
+#define RX_MAX 256
 
-namespace Ui {
-class CNbOptions;
-}
 
-class CNbOptions : public QDialog
-{
-    Q_OBJECT
+#define TARGET_QUAD_RATE 1e6
 
-public:
-    explicit CNbOptions(QWidget *parent = 0);
-    ~CNbOptions();
+/* Number of noice blankers */
+#define RECEIVER_NB_COUNT 2
 
-    void closeEvent(QCloseEvent *event);
+// NB: Remember to adjust filter ranges in MainWindow
+#define NB_PREF_QUAD_RATE  96000.f
 
-    double nbThreshold(int nbid);
-    void setNbThreshold(int nbid, double threshold);
+#define WFM_PREF_QUAD_RATE   240e3 // Nominal channel spacing is 200 kHz
 
-signals:
-    void thresholdChanged(int nb, double val);
+#define RX_FILTER_MIN_WIDTH 100  /*! Minimum width of filter */
 
-private slots:
-    void on_nb1Threshold_valueChanged(double val);
-    void on_nb2Threshold_valueChanged(double val);
+#include <memory>
+#include <set>
+#include <iostream>
 
-private:
-    Ui::CNbOptions *ui;
-};
 
-#endif // NB_OPTIONS_H
+#endif // DEFINES_H
