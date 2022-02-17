@@ -84,19 +84,24 @@ void receiver_base_cf::set_agc_on(bool agc_on)
     (void) agc_on;
 }
 
-void receiver_base_cf::set_agc_hang(bool use_hang)
+void receiver_base_cf::set_agc_target_level(int target_level)
 {
-    (void) use_hang;
+    (void) target_level;
 }
 
-void receiver_base_cf::set_agc_threshold(int threshold)
+void receiver_base_cf::set_agc_manual_gain(int gain)
 {
-    (void) threshold;
+    (void) gain;
 }
 
-void receiver_base_cf::set_agc_slope(int slope)
+void receiver_base_cf::set_agc_max_gain(int gain)
 {
-    (void) slope;
+    (void) gain;
+}
+
+void receiver_base_cf::set_agc_attack(int attack_ms)
+{
+    (void) attack_ms;
 }
 
 void receiver_base_cf::set_agc_decay(int decay_ms)
@@ -104,9 +109,9 @@ void receiver_base_cf::set_agc_decay(int decay_ms)
     (void) decay_ms;
 }
 
-void receiver_base_cf::set_agc_manual_gain(int gain)
+void receiver_base_cf::set_agc_hang(int hang_ms)
 {
-    (void) gain;
+    (void) hang_ms;
 }
 
 bool receiver_base_cf::has_fm()

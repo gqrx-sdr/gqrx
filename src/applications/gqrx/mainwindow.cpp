@@ -225,11 +225,12 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockRxOpt, SIGNAL(amSyncDcrToggled(bool)), this, SLOT(setAmSyncDcr(bool)));
     connect(uiDockRxOpt, SIGNAL(amSyncPllBwSelected(float)), this, SLOT(setAmSyncPllBw(float)));
     connect(uiDockRxOpt, SIGNAL(agcToggled(bool)), this, SLOT(setAgcOn(bool)));
-    connect(uiDockRxOpt, SIGNAL(agcHangToggled(bool)), this, SLOT(setAgcHang(bool)));
-    connect(uiDockRxOpt, SIGNAL(agcThresholdChanged(int)), this, SLOT(setAgcThreshold(int)));
-    connect(uiDockRxOpt, SIGNAL(agcSlopeChanged(int)), this, SLOT(setAgcSlope(int)));
+    connect(uiDockRxOpt, SIGNAL(agcTargetLevelChanged(int)), this, SLOT(setAgcTargetLevel(int)));
     connect(uiDockRxOpt, SIGNAL(agcGainChanged(int)), this, SLOT(setAgcGain(int)));
+    connect(uiDockRxOpt, SIGNAL(agcMaxGainChanged(int)), this, SLOT(setAgcMaxGain(int)));
+    connect(uiDockRxOpt, SIGNAL(agcAttackChanged(int)), this, SLOT(setAgcAttack(int)));
     connect(uiDockRxOpt, SIGNAL(agcDecayChanged(int)), this, SLOT(setAgcDecay(int)));
+    connect(uiDockRxOpt, SIGNAL(agcHangChanged(int)), this, SLOT(setAgcHang(int)));
     connect(uiDockRxOpt, SIGNAL(noiseBlankerChanged(int,bool,float)), this, SLOT(setNoiseBlanker(int,bool,float)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
     connect(uiDockRxOpt, SIGNAL(sqlAutoClicked()), this, SLOT(setSqlLevelAuto()));
@@ -1189,6 +1190,14 @@ void MainWindow::selectDemod(int mode_idx)
     rx->set_cw_offset(cwofs);
     rx->set_sql_level(uiDockRxOpt->currentSquelchLevel());
 
+    rx->set_agc_on(uiDockRxOpt->getAgcOn());
+    rx->set_agc_target_level(uiDockRxOpt->getAgcTargetLevel());
+    rx->set_agc_manual_gain(uiDockRxOpt->getAgcManualGain());
+    rx->set_agc_max_gain(uiDockRxOpt->getAgcMaxGain());
+    rx->set_agc_attack(uiDockRxOpt->getAgcAttack());
+    rx->set_agc_decay(uiDockRxOpt->getAgcDecay());
+    rx->set_agc_hang(uiDockRxOpt->getAgcHang());
+
     remote->setMode(mode_idx);
     remote->setPassband(flo, fhi);
 
@@ -1275,27 +1284,33 @@ void MainWindow::setAgcOn(bool agc_on)
 }
 
 /** AGC hang ON/OFF. */
-void MainWindow::setAgcHang(bool use_hang)
+void MainWindow::setAgcHang(int hang)
 {
-    rx->set_agc_hang(use_hang);
+    rx->set_agc_hang(hang);
 }
 
 /** AGC threshold changed. */
-void MainWindow::setAgcThreshold(int threshold)
+void MainWindow::setAgcTargetLevel(int targetLevel)
 {
-    rx->set_agc_threshold(threshold);
+    rx->set_agc_target_level(targetLevel);
 }
 
 /** AGC slope factor changed. */
-void MainWindow::setAgcSlope(int factor)
+void MainWindow::setAgcAttack(int attack)
 {
-    rx->set_agc_slope(factor);
+    rx->set_agc_attack(attack);
 }
 
 /** AGC manual gain changed. */
 void MainWindow::setAgcGain(int gain)
 {
     rx->set_agc_manual_gain(gain);
+}
+
+/** AGC maximum gain changed. */
+void MainWindow::setAgcMaxGain(int gain)
+{
+    rx->set_agc_max_gain(gain);
 }
 
 /** AGC decay changed. */

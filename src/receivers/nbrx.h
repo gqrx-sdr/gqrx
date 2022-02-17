@@ -93,11 +93,12 @@ public:
     /* AGC */
     bool has_agc() { return true; }
     void set_agc_on(bool agc_on);
-    void set_agc_hang(bool use_hang);
-    void set_agc_threshold(int threshold);
-    void set_agc_slope(int slope);
-    void set_agc_decay(int decay_ms);
+    void set_agc_target_level(int target_level);
     void set_agc_manual_gain(int gain);
+    void set_agc_max_gain(int gain);
+    void set_agc_attack(int attack_ms);
+    void set_agc_decay(int decay_ms);
+    void set_agc_hang(int hang_ms);
 
     void set_demod(int demod);
 

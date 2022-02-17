@@ -180,11 +180,12 @@ public:
 
     /* AGC */
     status      set_agc_on(bool agc_on);
-    status      set_agc_hang(bool use_hang);
-    status      set_agc_threshold(int threshold);
-    status      set_agc_slope(int slope);
-    status      set_agc_decay(int decay_ms);
+    status      set_agc_target_level(int target_level);
     status      set_agc_manual_gain(int gain);
+    status      set_agc_max_gain(int gain);
+    status      set_agc_attack(int attack_ms);
+    status      set_agc_decay(int decay_ms);
+    status      set_agc_hang(int hang_ms);
 
     status      set_demod(rx_demod demod, bool force=false);
 

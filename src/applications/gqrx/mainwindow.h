@@ -157,11 +157,12 @@ private slots:
     void setAmSyncDcr(bool enabled);
     void setAmSyncPllBw(float pll_bw);
     void setAgcOn(bool agc_on);
-    void setAgcHang(bool use_hang);
-    void setAgcThreshold(int threshold);
-    void setAgcSlope(int factor);
+    void setAgcHang(int hang);
+    void setAgcTargetLevel(int targetLevel);
+    void setAgcAttack(int attack);
     void setAgcDecay(int msec);
     void setAgcGain(int gain);
+    void setAgcMaxGain(int gain);
     void setNoiseBlanker(int nbid, bool on, float threshold);
     void setSqlLevel(double level_db);
     double setSqlLevelAuto();

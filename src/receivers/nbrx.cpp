@@ -44,7 +44,7 @@ nbrx::nbrx(float quad_rate, float audio_rate)
 
     nb = make_rx_nb_cc(PREF_QUAD_RATE, 3.3, 2.5);
     filter = make_rx_filter(PREF_QUAD_RATE, -5000.0, 5000.0, 1000.0);
-    agc = make_rx_agc_cc(PREF_QUAD_RATE, true, -100, 0, 0, 500, false);
+    agc = make_rx_agc_cc(PREF_QUAD_RATE, true, 0, 0, 100, 500, 500, 0);
     sql = gr::analog::simple_squelch_cc::make(-150.0, 0.001);
     meter = make_rx_meter_c(PREF_QUAD_RATE);
     demod_raw = gr::blocks::complex_to_float::make(1);
@@ -158,19 +158,24 @@ void nbrx::set_agc_on(bool agc_on)
     agc->set_agc_on(agc_on);
 }
 
-void nbrx::set_agc_hang(bool use_hang)
+void nbrx::set_agc_target_level(int target_level)
 {
-    agc->set_use_hang(use_hang);
+    agc->set_target_level(target_level);
 }
 
-void nbrx::set_agc_threshold(int threshold)
+void nbrx::set_agc_manual_gain(int gain)
 {
-    agc->set_threshold(threshold);
+    agc->set_manual_gain(gain);
 }
 
-void nbrx::set_agc_slope(int slope)
+void nbrx::set_agc_max_gain(int gain)
 {
-    agc->set_slope(slope);
+    agc->set_max_gain(gain);
+}
+
+void nbrx::set_agc_attack(int attack_ms)
+{
+    agc->set_attack(attack_ms);
 }
 
 void nbrx::set_agc_decay(int decay_ms)
@@ -178,9 +183,9 @@ void nbrx::set_agc_decay(int decay_ms)
     agc->set_decay(decay_ms);
 }
 
-void nbrx::set_agc_manual_gain(int gain)
+void nbrx::set_agc_hang(int hang_ms)
 {
-    agc->set_manual_gain(gain);
+    agc->set_hang(hang_ms);
 }
 
 void nbrx::set_demod(int rx_demod)
