@@ -47,6 +47,9 @@ DockAudio::DockAudio(QWidget *parent) :
     connect(audioOptions, SIGNAL(newUdpHost(QString)), this, SLOT(setNewUdpHost(QString)));
     connect(audioOptions, SIGNAL(newUdpPort(int)), this, SLOT(setNewUdpPort(int)));
     connect(audioOptions, SIGNAL(newUdpStereo(bool)), this, SLOT(setNewUdpStereo(bool)));
+    connect(audioOptions, SIGNAL(newSquelchTriggered(bool)), this, SLOT(setNewSquelchTriggered(bool)));
+    connect(audioOptions, SIGNAL(newRecMinTime(int)), this, SLOT(setRecMinTime(int)));
+    connect(audioOptions, SIGNAL(newRecMaxGap(int)), this, SLOT(setRecMaxGap(int)));
 
     connect(ui->audioSpectrum, SIGNAL(pandapterRangeChanged(float,float)), audioOptions, SLOT(setPandapterSliderValues(float,float)));
 
@@ -150,32 +153,9 @@ void DockAudio::setFftFill(bool enabled)
     ui->audioSpectrum->enableFftFill(enabled);
 }
 
-/*! Public slot to trig audio recording by external events (e.g. satellite AOS).
- *
- * If a recording is already in progress we ignore the event.
- */
-void DockAudio::startAudioRecorder(void)
+bool DockAudio::getSquelchTriggered()
 {
-    if (ui->audioRecButton->isChecked())
-    {
-        qDebug() << __func__ << "An audio recording is already in progress";
-        return;
-    }
-
-    // emulate a button click
-    ui->audioRecButton->click();
-}
-
-/*! Public slot to stop audio recording by external events (e.g. satellite LOS).
- *
- * The event is ignored if no audio recording is in progress.
- */
-void DockAudio::stopAudioRecorder(void)
-{
-    if (ui->audioRecButton->isChecked())
-        ui->audioRecButton->click(); // emulate a button click
-    else
-        qDebug() << __func__ << "No audio recording in progress";
+    return squelch_triggered;
 }
 
 /*! Public slot to set new RX frequency in Hz. */
@@ -221,25 +201,12 @@ void DockAudio::on_audioStreamButton_clicked(bool checked)
 void DockAudio::on_audioRecButton_clicked(bool checked)
 {
     if (checked) {
-        // FIXME: option to use local time
-        // use toUTC() function compatible with older versions of Qt.
-        QString file_name = QDateTime::currentDateTime().toUTC().toString("gqrx_yyyyMMdd_hhmmss");
-        last_audio = QString("%1/%2_%3.wav").arg(rec_dir).arg(file_name).arg(rx_freq);
-        QFileInfo info(last_audio);
 
         // emit signal and start timer
-        emit audioRecStarted(last_audio);
-
-        ui->audioRecLabel->setText(info.fileName());
-        ui->audioRecButton->setToolTip(tr("Stop audio recorder"));
-        ui->audioPlayButton->setEnabled(false); /* prevent playback while recording */
+        emit audioRecStart();
     }
     else {
-        ui->audioRecLabel->setText("<i>DSP</i>");
-        ui->audioRecButton->setToolTip(tr("Start audio recorder"));
-        emit audioRecStopped();
-
-        ui->audioPlayButton->setEnabled(true);
+        emit audioRecStop();
     }
 }
 
@@ -384,6 +351,21 @@ void DockAudio::saveSettings(QSettings *settings)
     else
         settings->remove("udp_stereo");
 
+    if (squelch_triggered != false)
+        settings->setValue("squelch_triggered_recording", squelch_triggered);
+    else
+        settings->remove("squelch_triggered_recording");
+
+    if(recMinTime != 0)
+        settings->setValue("rec_min_time", recMinTime);
+    else
+        settings->remove("rec_min_time");
+
+    if(recMaxGap != 0)
+        settings->setValue("rec_max_gap", recMaxGap);
+    else
+        settings->remove("rec_max_gap");
+
     settings->endGroup();
 }
 
@@ -439,6 +421,18 @@ void DockAudio::readSettings(QSettings *settings)
     audioOptions->setUdpPort(udp_port);
     audioOptions->setUdpStereo(udp_stereo);
 
+    squelch_triggered = settings->value("squelch_triggered_recording", false).toBool();
+    audioOptions->setSquelchTriggered(squelch_triggered);
+
+    recMinTime = settings->value("rec_min_time", 0).toInt(&conv_ok);
+    if (!conv_ok)
+        recMinTime = 0;
+    audioOptions->setRecMinTime(recMinTime);
+    recMaxGap = settings->value("rec_max_gap", 0).toInt(&conv_ok);
+    if (!conv_ok)
+        recMaxGap = 0;
+    audioOptions->setRecMaxGap(recMaxGap);
+
     settings->endGroup();
 }
 
@@ -458,6 +452,7 @@ void DockAudio::setNewWaterfallRange(int min, int max)
 void DockAudio::setNewRecDir(const QString &dir)
 {
     rec_dir = dir;
+    emit recDirChanged(dir);
 }
 
 /*! \brief Slot called when a new network host has been entered. */
@@ -480,6 +475,46 @@ void DockAudio::setNewUdpStereo(bool enabled)
 {
     udp_stereo = enabled;
 }
+
+/*! \brief Slot called when audio recording is started after clicking rec or being triggered by squelch. */
+void DockAudio::audioRecStarted(const QString filename)
+{
+    last_audio = filename;
+    QFileInfo info(last_audio);
+    ui->audioRecLabel->setText(info.fileName());
+    ui->audioRecButton->setToolTip(tr("Stop audio recorder"));
+    ui->audioPlayButton->setEnabled(false); /* prevent playback while recording */
+    setAudioRecButtonState(true);
+}
+
+void DockAudio::audioRecStopped()
+{
+    ui->audioRecLabel->setText("<i>DSP</i>");
+    ui->audioRecButton->setToolTip(tr("Start audio recorder"));
+    ui->audioPlayButton->setEnabled(true);
+    setAudioRecButtonState(false);
+}
+
+
+void DockAudio::setNewSquelchTriggered(bool enabled)
+{
+    squelch_triggered = enabled;
+    ui->audioRecButton->setStyleSheet(enabled?"color: rgb(255,0,0)":"");
+    emit recSquelchTriggeredChanged(enabled);
+}
+
+void DockAudio::setRecMinTime(int time_ms)
+{
+    recMinTime = time_ms;
+    emit recMinTimeChanged(time_ms);
+}
+
+void DockAudio::setRecMaxGap(int time_ms)
+{
+    recMaxGap = time_ms;
+    emit recMaxGapChanged(time_ms);
+}
+
 
 void DockAudio::recordToggleShortcut() {
     ui->audioRecButton->click();

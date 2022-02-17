@@ -91,7 +91,7 @@ jobs:
           sudo chown -R runner:admin /usr/local/
           brew update
           brew install --HEAD librtlsdr
-          brew install airspy airspyhf boost dylibbundler gnuradio hackrf libbladerf libserialport portaudio pybind11 six soapyremote uhd qt@6 || true
+          brew install airspy airspyhf boost dylibbundler gnuradio hackrf libbladerf libserialport portaudio pybind11 six soapyremote uhd libsndfile qt@6 || true
 
           cd /tmp
           git clone https://github.com/analogdevicesinc/libiio.git

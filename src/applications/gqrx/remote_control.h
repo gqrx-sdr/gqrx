@@ -94,7 +94,7 @@ public slots:
     void setSquelchLevel(double level);
     void setAudioGain(float gain);
     void setAudioMuted(bool muted);
-    void startAudioRecorder(QString unused);
+    void startAudioRecorder();
     void stopAudioRecorder();
     bool setGain(QString name, double gain);
     void setRDSstatus(bool enabled);

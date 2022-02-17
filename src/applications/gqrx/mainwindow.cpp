@@ -113,6 +113,9 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     /* create receiver object */
     rx = new receiver("", "", 1);
     rx->set_rf_freq(144500000.0);
+    rx->set_audio_rec_event_handler(std::bind(audio_rec_event, this,
+                              std::placeholders::_1,
+                              std::placeholders::_2));
 
     // remote controller
     remote = new RemoteControl();
@@ -262,12 +265,16 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockAudio, SIGNAL(audioMuteChanged(bool)), this, SLOT(setAudioMute(bool)));
     connect(uiDockAudio, SIGNAL(audioStreamingStarted(QString,int,bool)), this, SLOT(startAudioStream(QString,int,bool)));
     connect(uiDockAudio, SIGNAL(audioStreamingStopped()), this, SLOT(stopAudioStreaming()));
-    connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), this, SLOT(startAudioRec(QString)));
-    connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), remote, SLOT(startAudioRecorder(QString)));
-    connect(uiDockAudio, SIGNAL(audioRecStopped()), this, SLOT(stopAudioRec()));
-    connect(uiDockAudio, SIGNAL(audioRecStopped()), remote, SLOT(stopAudioRecorder()));
+    connect(uiDockAudio, SIGNAL(audioRecStart()), this, SLOT(startAudioRec()));
+    connect(uiDockAudio, SIGNAL(audioRecStart()), remote, SLOT(startAudioRecorder()));
+    connect(uiDockAudio, SIGNAL(audioRecStop()), this, SLOT(stopAudioRec()));
+    connect(uiDockAudio, SIGNAL(audioRecStop()), remote, SLOT(stopAudioRecorder()));
     connect(uiDockAudio, SIGNAL(audioPlayStarted(QString)), this, SLOT(startAudioPlayback(QString)));
     connect(uiDockAudio, SIGNAL(audioPlayStopped()), this, SLOT(stopAudioPlayback()));
+    connect(uiDockAudio, SIGNAL(recDirChanged(QString)), this, SLOT(recDirChanged(QString)));
+    connect(uiDockAudio, SIGNAL(recSquelchTriggeredChanged(bool)), this, SLOT(recSquelchTriggeredChanged(bool)));
+    connect(uiDockAudio, SIGNAL(recMinTimeChanged(int)), this, SLOT(recMinTimeChanged(int)));
+    connect(uiDockAudio, SIGNAL(recMaxGapChanged(int)), this, SLOT(recMaxGapChanged(int)));
     connect(uiDockAudio, SIGNAL(fftRateChanged(int)), this, SLOT(setAudioFftRate(int)));
 
     // FFT Dock
@@ -338,8 +345,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(remote, SIGNAL(newSquelchLevel(double)), uiDockRxOpt, SLOT(setSquelchLevel(double)));
     connect(remote, SIGNAL(newAudioGain(float)), this, SLOT(setAudioGain(float)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), remote, SLOT(setSquelchLevel(double)));
-    connect(remote, SIGNAL(startAudioRecorderEvent()), uiDockAudio, SLOT(startAudioRecorder()));
-    connect(remote, SIGNAL(stopAudioRecorderEvent()), uiDockAudio, SLOT(stopAudioRecorder()));
+    connect(remote, SIGNAL(startAudioRecorderEvent()), this, SLOT(startAudioRec()));
+    connect(remote, SIGNAL(stopAudioRecorderEvent()), this, SLOT(stopAudioRec()));
     connect(ui->plotter, SIGNAL(newFilterFreq(int, int)), remote, SLOT(setPassband(int, int)));
     connect(remote, SIGNAL(newPassband(int)), this, SLOT(setPassband(int)));
     connect(remote, SIGNAL(gainChanged(QString, double)), uiDockInputCtl, SLOT(setGain(QString,double)));
@@ -352,6 +359,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 
     rds_timer = new QTimer(this);
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
+    connect(this, SIGNAL(sigAudioRecEvent(QString, bool)), this, SLOT(audioRecEvent(QString, bool)), Qt::QueuedConnection);
 
     // enable frequency tooltips on FFT plot
     ui->plotter->setTooltipsEnabled(true);
@@ -1568,10 +1576,46 @@ void MainWindow::rdsTimeout()
 }
 
 /**
+ * @brief Set audio recording directory.
+ * @param dir The directory, where audio files should be created.
+ */
+void MainWindow::recDirChanged(const QString dir)
+{
+    rx->set_audio_rec_dir(dir.toStdString());
+}
+
+/**
+ * @brief Set audio recording squelch triggered mode.
+ * @param enabled New state.
+ */
+void MainWindow::recSquelchTriggeredChanged(const bool enabled)
+{
+    rx->set_audio_rec_sql_triggered(enabled);
+}
+
+/**
+ * @brief Set audio recording squelch triggered minimum time.
+ * @param time_ms New time in milliseconds.
+ */
+void MainWindow::recMinTimeChanged(const int time_ms)
+{
+    rx->set_audio_rec_min_time(time_ms);
+}
+
+/**
+ * @brief Set audio recording squelch triggered maximum gap time.
+ * @param time_ms New time in milliseconds.
+ */
+void MainWindow::recMaxGapChanged(const int time_ms)
+{
+    rx->set_audio_rec_max_gap(time_ms);
+}
+
+/**
  * @brief Start audio recorder.
  * @param filename The file name into which audio should be recorded.
  */
-void MainWindow::startAudioRec(const QString& filename)
+void MainWindow::startAudioRec()
 {
     if (!d_have_audio)
     {
@@ -1583,16 +1627,10 @@ void MainWindow::startAudioRec(const QString& filename)
         msg_box.exec();
         uiDockAudio->setAudioRecButtonState(false);
     }
-    else if (rx->start_audio_recording(filename.toStdString()))
+    else if (rx->start_audio_recording())
     {
         ui->statusBar->showMessage(tr("Error starting audio recorder"));
-
-        /* reset state of record button */
         uiDockAudio->setAudioRecButtonState(false);
-    }
-    else
-    {
-        ui->statusBar->showMessage(tr("Recording audio to %1").arg(filename));
     }
 }
 
@@ -1603,15 +1641,23 @@ void MainWindow::stopAudioRec()
     {
         /* okay, this one would be weird if it really happened */
         ui->statusBar->showMessage(tr("Error stopping audio recorder"));
-
-        uiDockAudio->setAudioRecButtonState(true);
-    }
-    else
-    {
-        ui->statusBar->showMessage(tr("Audio recorder stopped"), 5000);
     }
 }
 
+/** Audio recording is started or stopped. */
+void MainWindow::audioRecEvent(const QString filename, bool is_running)
+{
+    if(is_running)
+    {
+        ui->statusBar->showMessage(tr("Recording audio to %1").arg(filename));
+        uiDockAudio->audioRecStarted(QString(filename));
+     }else{
+        /* reset state of record button */
+        uiDockAudio->audioRecStopped();
+        ui->statusBar->showMessage(tr("Audio recorder stopped"), 5000);
+     }
+
+}
 
 /** Start playback of audio file. */
 void MainWindow::startAudioPlayback(const QString& filename)
@@ -2578,4 +2624,16 @@ void MainWindow::toggleMarkers()
 {
     enableMarkers(!d_show_markers);
     uiDockFft->setMarkersEnabled(d_show_markers);
+}
+
+/** Called from GNU Radio thread */
+void MainWindow::audioRecEventEmitter(std::string filename, bool is_running)
+{
+    emit sigAudioRecEvent(QString(filename.data()), is_running);
+}
+
+/** Called from GNU Radio thread */
+void MainWindow::audio_rec_event(MainWindow *self, std::string filename, bool is_running)
+{
+    self->audioRecEventEmitter(filename, is_running);
 }
