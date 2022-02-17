@@ -65,14 +65,16 @@ public:
     void setFftColor(QColor color);
     void setFftFill(bool enabled);
 
+    bool getSquelchTriggered();
+
     void saveSettings(QSettings *settings);
     void readSettings(QSettings *settings);
 
 public slots:
-    void startAudioRecorder(void);
-    void stopAudioRecorder(void);
     void setRxFrequency(qint64 freq);
     void setWfColormap(const QString &cmap);
+    void audioRecStarted(const QString filename);
+    void audioRecStopped();
 
 signals:
     /*! \brief Signal emitted when audio gain has changed. Gain is in dB. */
@@ -85,10 +87,10 @@ signals:
     void audioStreamingStopped();
 
     /*! \brief Signal emitted when audio recording is started. */
-    void audioRecStarted(const QString filename);
+    void audioRecStart();
 
     /*! \brief Signal emitted when audio recording is stopped. */
-    void audioRecStopped();
+    void audioRecStop();
 
     /*! \brief Signal emitted when audio playback is started. */
     void audioPlayStarted(const QString filename);
@@ -101,6 +103,18 @@ signals:
 
     /*! \brief Signal emitted when audio mute has changed. */
     void audioMuteChanged(bool mute);
+
+    /*! \brief Signal emitted when recording directory has changed. */
+    void recDirChanged(const QString dir);
+
+    /*! \brief Signal emitted when squelch triggered recording mode is changed. */
+    void recSquelchTriggeredChanged(const bool enabled);
+
+    /*! \brief Signal emitted when squelch triggered recording min time is changed. */
+    void recMinTimeChanged(int time_ms);
+
+    /*! \brief Signal emitted when squelch triggered recording max gap time is changed. */
+    void recMaxGapChanged(int time_ms);
 
 private slots:
     void on_audioGainSlider_valueChanged(int value);
@@ -115,6 +129,9 @@ private slots:
     void setNewUdpHost(const QString &host);
     void setNewUdpPort(int port);
     void setNewUdpStereo(bool enabled);
+    void setNewSquelchTriggered(bool enabled);
+    void setRecMinTime(int time_ms);
+    void setRecMaxGap(int time_ms);
 
 
 private:
@@ -126,6 +143,9 @@ private:
     QString        udp_host;     /*! UDP client host name. */
     int            udp_port;     /*! UDP client port number. */
     bool           udp_stereo;   /*! Enable stereo streaming for UDP. */
+    bool           squelch_triggered; /*! Enable squelch-triggered recording */
+    int            recMinTime;   /*! Minimum squelch-triggered recording time */
+    int            recMaxGap;    /*! Maximum gap time in squelch-triggered mode*/
 
     bool           autoSpan;     /*! Whether to allow mode-dependent auto span. */
 

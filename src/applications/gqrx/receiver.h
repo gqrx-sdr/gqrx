@@ -26,7 +26,6 @@
 #include <gnuradio/blocks/file_sink.h>
 #include <gnuradio/blocks/multiply_const.h>
 #include <gnuradio/blocks/null_sink.h>
-#include <gnuradio/blocks/wavfile_sink.h>
 #include <gnuradio/blocks/wavfile_source.h>
 #include <gnuradio/top_block.h>
 #include <osmosdr/source.h>
@@ -104,6 +103,8 @@ public:
         FILTER_SHAPE_NORMAL = 1, /*!< Normal: Transition band is TBD of width. */
         FILTER_SHAPE_SHARP = 2   /*!< Sharp: Transition band is TBD of width. */
     };
+
+    typedef std::function<void(std::string, bool)> audio_rec_event_handler_t;
 
     static const unsigned int DEFAULT_FFT_SIZE = 8192;
 
@@ -202,8 +203,13 @@ public:
     status      set_amsync_pll_bw(float pll_bw);
 
     /* Audio parameters */
-    status      start_audio_recording(const std::string filename);
+    status      set_audio_rec_dir(const std::string dir);
+    status      set_audio_rec_sql_triggered(const bool enabled);
+    status      set_audio_rec_min_time(const int time_ms);
+    status      set_audio_rec_max_gap(const int time_ms);
+    status      start_audio_recording();
     status      stop_audio_recording();
+    std::string get_last_audio_filename();
     status      start_audio_playback(const std::string filename);
     status      stop_audio_playback();
 
@@ -232,6 +238,10 @@ public:
 
     /* utility functions */
     static std::string escape_filename(std::string filename);
+    template <typename T> void set_audio_rec_event_handler(T handler)
+    {
+        d_audio_rec_event_handler = handler;
+    }
 
 private:
     void        connect_all(rx_chain type);
@@ -276,7 +286,6 @@ private:
 
     gr::blocks::file_sink::sptr         iq_sink;     /*!< I/Q file sink. */
 
-    gr::blocks::wavfile_sink::sptr      wav_sink;   /*!< WAV file sink for recording. */
     gr::blocks::wavfile_source::sptr    wav_src;    /*!< WAV file source for playback. */
     gr::blocks::null_sink::sptr         audio_null_sink0; /*!< Audio null sink used during playback. */
     gr::blocks::null_sink::sptr         audio_null_sink1; /*!< Audio null sink used during playback. */
@@ -292,9 +301,11 @@ private:
 #else
     gr::audio::sink::sptr     audio_snk;  /*!< gr audio sink */
 #endif
-
+    audio_rec_event_handler_t d_audio_rec_event_handler;
     //! Get a path to a file containing random bytes
     static std::string get_zero_file(void);
+    static void audio_rec_event(receiver * self, std::string filename,
+                                bool is_running);
 };
 
 #endif // RECEIVER_H

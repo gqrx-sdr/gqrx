@@ -359,7 +359,7 @@ void RemoteControl::setAudioGain(float gain)
 }
 
 /*! \brief Start audio recorder (from mainwindow). */
-void RemoteControl::startAudioRecorder(QString unused)
+void RemoteControl::startAudioRecorder()
 {
     if (rc_mode > 0)
         audio_recorder_status = true;
