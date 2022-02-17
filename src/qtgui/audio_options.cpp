@@ -280,3 +280,8 @@ void CAudioOptions::on_udpStereo_stateChanged(int state)
 {
     emit newUdpStereo(state);
 }
+
+void CAudioOptions::on_toAllVFOsButton_clicked()
+{
+    emit copyRecSettingsToAllVFOs();
+}

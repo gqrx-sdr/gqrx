@@ -70,6 +70,10 @@ public:
     void setHang(int value);
     void enableHang(bool enabled);
 
+    int panning();
+    void setPanning(int value);
+    bool panningAuto();
+    void setPanningAuto(bool value);
 
     enum agc_preset_e
     {
@@ -88,6 +92,8 @@ signals:
     void attackChanged(int decay);
     void decayChanged(int decay);
     void hangChanged(int hang);
+    void panningChanged(int panning);
+    void panningAutoChanged(bool panningAuto);
 
 private slots:
     void on_maxGainSlider_valueChanged(int value);
@@ -95,6 +101,8 @@ private slots:
     void on_attackSlider_valueChanged(int value);
     void on_decaySlider_valueChanged(int value);
     void on_hangSlider_valueChanged(int value);
+    void on_panningSlider_valueChanged(int value);
+    void on_panningAutoCheckBox_stateChanged(int state);
 
 private:
     Ui::CAgcOptions *ui;

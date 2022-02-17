@@ -53,51 +53,28 @@ class wfmrx : public receiver_base_cf
 {
 
 public:
-    /*! \brief Available demodulators. */
-    enum wfmrx_demod {
-        WFMRX_DEMOD_MONO       = 0,  /*!< Mono. */
-        WFMRX_DEMOD_STEREO     = 1,  /*!< FM stereo. */
-        WFMRX_DEMOD_STEREO_UKW = 2,  /*!< UKW stereo. */
-        WFMRX_DEMOD_NUM        = 3   /*!< Included for convenience. */
-    };
     wfmrx(float quad_rate, float audio_rate);
     ~wfmrx();
 
-    bool start();
-    bool stop();
+    bool start() override;
+    bool stop() override;
 
 
-    void set_filter(double low, double high, double tw);
-    void set_cw_offset(double offset) { (void)offset; }
+    void set_filter(int low, int high, int tw) override;
 
     /* Noise blanker */
-    bool has_nb() { return false; }
-    //void set_nb_on(int nbid, bool on);
-    //void set_nb_threshold(int nbid, float threshold);
+    bool has_nb() override { return false; }
 
-    /* Squelch parameter */
-    bool has_sql() { return true; }
+    void set_demod(Modulations::idx demod) override;
 
-    /* AGC */
-    bool has_agc() { return true; }
-
-    void set_demod(int demod);
-
-    /* FM parameters */
-    bool has_fm() {return true; }
-    void set_fm_maxdev(float maxdev_hz);
-    void set_fm_deemph(double tau);
-
-    void get_rds_data(std::string &outbuff, int &num);
-    void start_rds_decoder();
-    void stop_rds_decoder();
-    void reset_rds_parser();
-    bool is_rds_decoder_active();
+    void get_rds_data(std::string &outbuff, int &num) override;
+    void start_rds_decoder() override;
+    void stop_rds_decoder() override;
+    void reset_rds_parser() override;
+    bool is_rds_decoder_active() override;
 
 private:
     bool   d_running;          /*!< Whether receiver is running or not. */
-
-    wfmrx_demod               d_demod;   /*!< Current demodulator. */
 
     rx_filter_sptr            filter;    /*!< Non-translating bandpass filter.*/
 

@@ -60,7 +60,7 @@ typedef std::shared_ptr<rx_agc_2f> rx_agc_2f_sptr;
  */
 rx_agc_2f_sptr make_rx_agc_2f(double sample_rate, bool agc_on, int target_level,
                               int manual_gain, int max_gain, int attack,
-                              int decay, int hang);
+                              int decay, int hang, int panning);
 
 /**
  * \brief Experimental AGC block for analog voice modes (AM, SSB, CW).
@@ -74,11 +74,12 @@ class rx_agc_2f : public gr::sync_block
     friend rx_agc_2f_sptr make_rx_agc_2f(double sample_rate, bool agc_on,
                                          int target_level, int manual_gain,
                                          int max_gain, int attack, int decay,
-                                         int hang);
+                                         int hang, int panning);
 
 protected:
     rx_agc_2f(double sample_rate, bool agc_on, int target_level,
-              int manual_gain, int max_gain, int attack, int decay, int hang);
+              int manual_gain, int max_gain, int attack, int decay, int hang,
+              int panning);
 
 public:
     ~rx_agc_2f();
@@ -97,11 +98,13 @@ public:
     void set_attack(int attack);
     void set_decay(int decay);
     void set_hang(int hang);
+    void set_panning(int panning);
+
     float get_current_gain();
 private:
     void set_parameters(double sample_rate, bool agc_on, int target_level,
                        float manual_gain, int max_gain, int attack, int decay,
-                       int hang, bool force = false);
+                       int hang, int panning, bool force = false);
 
     std::mutex      d_mutex;  /*! Used to lock internal data while processing or setting parameters. */
 
@@ -113,6 +116,7 @@ private:
     int             d_attack;        /*! Current AGC attack (20...5000 ms). */
     int             d_decay;         /*! Current AGC decay (20...5000 ms). */
     int             d_hang;          /*! Current AGC hang (0...5000 ms). */
+    int             d_panning;       /*! Current AGC panning (-100...100). */
 private:
     float get_peak();
     void update_buffer(int p);
@@ -130,6 +134,10 @@ private:
     TYPEFLOAT d_decay_step;
     TYPEFLOAT d_attack_step;
     TYPEFLOAT d_floor;
+    TYPEFLOAT d_gain_l;
+    TYPEFLOAT d_gain_r;
+    int d_delay_l;
+    int d_delay_r;
 
     std::vector<float>   d_mag_buf;
     bool d_refill;

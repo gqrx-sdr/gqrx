@@ -51,57 +51,36 @@ nbrx_sptr make_nbrx(float quad_rate, float audio_rate);
 class nbrx : public receiver_base_cf
 {
 public:
-    /*! \brief Available demodulators. */
-    enum nbrx_demod {
-        NBRX_DEMOD_NONE = 0,  /*!< No demod. Raw I/Q to audio. */
-        NBRX_DEMOD_AM   = 1,  /*!< Amplitude modulation. */
-        NBRX_DEMOD_FM   = 2,  /*!< Frequency modulation. */
-        NBRX_DEMOD_SSB  = 3,  /*!< Single Side Band. */
-        NBRX_DEMOD_AMSYNC = 4, /*!< Amplitude modulation (synchronous demod). */
-        NBRX_DEMOD_NUM  = 5   /*!< Included for convenience. */
-    };
-
-public:
     nbrx(float quad_rate, float audio_rate);
     virtual ~nbrx() { };
 
-    bool start();
-    bool stop();
+    bool start() override;
+    bool stop() override;
 
-    void set_filter(double low, double high, double tw);
-    void set_cw_offset(double offset);
+    void set_filter(int low, int high, int tw) override;
+    void set_offset(int offset) override;
+    void set_cw_offset(int offset) override;
 
     /* Noise blanker */
-    bool has_nb() { return true; }
-    void set_nb_on(int nbid, bool on);
-    void set_nb_threshold(int nbid, float threshold);
+    bool has_nb() override { return true; }
+    void set_nb_on(int nbid, bool on) override;
+    void set_nb_threshold(int nbid, float threshold) override;
 
-    /* Squelch parameter */
-    bool has_sql() { return true; }
-
-    /* AGC */
-    bool has_agc() { return true; }
-
-    void set_demod(int demod);
+    void set_demod(Modulations::idx new_demod) override;
 
     /* FM parameters */
-    bool has_fm() { return true; }
-    void set_fm_maxdev(float maxdev_hz);
-    void set_fm_deemph(double tau);
+    void set_fm_maxdev(float maxdev_hz) override;
+    void set_fm_deemph(double tau) override;
 
     /* AM parameters */
-    bool has_am() { return true; }
-    void set_am_dcr(bool enabled);
+    void set_am_dcr(bool enabled) override;
 
     /* AM-Sync parameters */
-    bool has_amsync() { return true; }
-    void set_amsync_dcr(bool enabled);
-    void set_amsync_pll_bw(float pll_bw);
+    void set_amsync_dcr(bool enabled) override;
+    void set_amsync_pll_bw(float pll_bw) override;
 
 private:
     bool   d_running;          /*!< Whether receiver is running or not. */
-
-    nbrx_demod                d_demod;    /*!< Current demodulator. */
 
     rx_filter_sptr            filter;  /*!< Non-translating bandpass filter.*/
 
