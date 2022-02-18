@@ -123,6 +123,7 @@ void CIqTool::switchControlsState(bool recording, bool playback)
     ui->recDirEdit->setEnabled(!(recording || playback));
     ui->recDirButton->setEnabled(!(recording || playback));
     ui->formatCombo->setEnabled(!(recording || playback));
+    ui->repeat->setEnabled(!(recording || playback));
 }
 
 /*! \brief Start/stop playback */
@@ -154,7 +155,8 @@ void CIqTool::on_playButton_clicked(bool checked)
             switchControlsState(false, true);
 
             emit startPlayback(recdir->absoluteFilePath(current_file),
-                               (float)sample_rate, center_freq, fmt);
+                               (float)sample_rate, center_freq, fmt,
+                               ui->repeat->checkState() == Qt::Checked);
         }
     }
     else

@@ -263,12 +263,13 @@ void receiver::set_input_device(const std::string device)
  * @param sample_rate
  * @param fmt
  */
-void receiver::set_input_file(const std::string name, const int sample_rate, const enum file_formats fmt)
+void receiver::set_input_file(const std::string name, const int sample_rate,
+                              const enum file_formats fmt, bool repeat)
 {
     std::string error = "";
     size_t sample_size = sample_size_from_format(fmt);
 
-    input_file = gr::blocks::file_source::make(sample_size, name.c_str(), false);
+    input_file = gr::blocks::file_source::make(sample_size, name.c_str(), repeat);
 
     if (d_running)
     {
