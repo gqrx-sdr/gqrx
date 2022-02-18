@@ -64,7 +64,7 @@ public:
     void readSettings(QSettings *settings);
 
 signals:
-    void startRecording(const QString recdir, enum receiver::file_formats fmt);
+    void startRecording(const QString recdir, enum receiver::file_formats fmt, int buffers_max);
     void stopRecording();
     void startPlayback(const QString filename, float samprate, qint64 center_freq,
                        enum receiver::file_formats fmt, bool repeat);
@@ -74,6 +74,7 @@ signals:
 public slots:
     void cancelRecording();
     void cancelPlayback();
+    void updateStats(bool hasFailed, int buffersUsed, size_t fileSize);
 
 private slots:
     void on_recDirEdit_textChanged(const QString &text);
@@ -109,6 +110,8 @@ private:
     int     sample_rate;       /*!< Current sample rate. */
     qint64  center_freq;       /*!< Center frequency. */
     int     rec_len;           /*!< Length of a recording in seconds */
+    int     o_buffersUsed;
+    size_t  o_fileSize;
 };
 
 #endif // IQ_TOOL_H

@@ -67,7 +67,8 @@ CIqTool::CIqTool(QWidget *parent) :
     ui->formatCombo->addItem("uint 32", receiver::FILE_FORMAT_CS32LU);
     ui->formatCombo->addItem("ushort 16", receiver::FILE_FORMAT_CS16LU);
     ui->formatCombo->addItem("uchar 8", receiver::FILE_FORMAT_CS8U);
-
+    ui->bufferStats->hide();
+    ui->sizeStats->hide();
 }
 
 CIqTool::~CIqTool()
@@ -124,6 +125,25 @@ void CIqTool::switchControlsState(bool recording, bool playback)
     ui->recDirButton->setEnabled(!(recording || playback));
     ui->formatCombo->setEnabled(!(recording || playback));
     ui->repeat->setEnabled(!(recording || playback));
+    ui->buffersSpinBox->setEnabled(!(recording || playback));
+    if (recording || playback)
+    {
+        ui->formatLabel->hide();
+        ui->buffersLabel->hide();
+        ui->formatCombo->hide();
+        ui->buffersSpinBox->hide();
+        ui->bufferStats->show();
+        ui->sizeStats->show();
+    }
+    else
+    {
+        ui->formatLabel->show();
+        ui->buffersLabel->show();
+        ui->formatCombo->show();
+        ui->buffersSpinBox->show();
+        ui->bufferStats->hide();
+        ui->sizeStats->hide();
+    }
 }
 
 /*! \brief Start/stop playback */
@@ -198,7 +218,7 @@ void CIqTool::on_recButton_clicked(bool checked)
     if (checked)
     {
         switchControlsState(true, false);
-        emit startRecording(recdir->path(), rec_fmt);
+        emit startRecording(recdir->path(), rec_fmt, ui->buffersSpinBox->value());
 
         refreshDir();
         ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
@@ -224,6 +244,30 @@ void CIqTool::cancelRecording()
     ui->playButton->setEnabled(true);
     is_recording = false;
 }
+
+/*! \brief Update GUI ta match current recorder state.
+ *
+ * This slot can be periodically activated to show recording progress
+ */
+void CIqTool::updateStats(bool hasFailed, int buffersUsed, size_t fileSize)
+{
+    if (hasFailed)
+    {
+        QMessageBox msg_box;
+        msg_box.setIcon(QMessageBox::Critical);
+        msg_box.setText(tr("IQ recording failed."));
+        msg_box.exec();
+    }
+    else
+    {
+        if(o_buffersUsed!=buffersUsed)
+            ui->bufferStats->setText(QString("Buffers: %1/%2").arg(buffersUsed).arg(ui->buffersSpinBox->value()));
+        if(o_fileSize != fileSize)
+            ui->sizeStats->setText(QString("Size: %1 bytes").arg(fileSize));
+        o_buffersUsed = buffersUsed;
+        o_fileSize = fileSize;
+    }
+ }
 
 /*! \brief Catch window close events.
  *
@@ -260,6 +304,7 @@ void CIqTool::saveSettings(QSettings *settings)
     else
         settings->remove("baseband/rec_dir");
     settings->setValue("baseband/rec_fmt", rec_fmt);
+    settings->setValue("baseband/rec_buffers", ui->buffersSpinBox->value());
 }
 
 void CIqTool::readSettings(QSettings *settings)
@@ -281,6 +326,7 @@ void CIqTool::readSettings(QSettings *settings)
         rec_bytes_per_sample = receiver::sample_size_from_format((enum receiver::file_formats)ui->formatCombo->itemData(found).toInt());
         ui->formatCombo->setCurrentIndex(found);
     }
+    ui->buffersSpinBox->setValue(settings->value("baseband/rec_buffers", 1).toInt());
 }
 
 
@@ -326,7 +372,7 @@ void CIqTool::timeoutFunction(void)
         if (val < ui->slider->maximum())
         {
             ui->slider->blockSignals(true);
-            ui->slider->setValue(val+1);
+            ui->slider->setValue(val + 1);
             ui->slider->blockSignals(false);
             refreshTimeWidgets();
         }
