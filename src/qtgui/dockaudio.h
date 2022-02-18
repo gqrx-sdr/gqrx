@@ -57,6 +57,7 @@ public:
 
     void setAudioGain(int gain);
     int  audioGain();
+    void setGainEnabled(bool state);
 
     void setAudioRecButtonState(bool checked);
     void setAudioPlayButtonState(bool checked);
@@ -98,6 +99,9 @@ signals:
 
     /*! \brief FFT rate changed. */
     void fftRateChanged(int fps);
+
+    /*! \brief Signal emitted when audio mute has changed. */
+    void audioMuteChanged(bool mute);
 
 private slots:
     void on_audioGainSlider_valueChanged(int value);
