@@ -48,6 +48,7 @@
 #include "dsp/resampler_xx.h"
 #include "dsp/format_converter.h"
 #include "interfaces/udp_sink_f.h"
+#include "interfaces/file_sink.h"
 #include "receivers/receiver_base.h"
 
 #ifdef WITH_PULSEAUDIO
@@ -120,6 +121,14 @@ public:
         FILE_FORMAT_CS32LU,
         FILE_FORMAT_SIGMF,
     };
+
+    struct iq_recorder_stats
+    {
+        bool active;
+        bool failed;
+        int buffers_used;
+        size_t file_size;
+     };
 
     static const unsigned int DEFAULT_FFT_SIZE = 8192;
 
@@ -227,10 +236,11 @@ public:
     status      stop_udp_streaming();
 
     /* I/Q recording and playback */
-    status      start_iq_recording(const std::string filename, const enum file_formats fmt);
+    status      start_iq_recording(const std::string filename, const enum file_formats fmt, int buffers_max);
     status      stop_iq_recording();
     status      seek_iq_file(long pos);
-    bool        is_playing_iq(void) const { return input_devstr.substr(0, 5).compare("file=") == 0; }
+    void        get_iq_recorder_stats(struct iq_recorder_stats &stats);
+    bool        is_playing_iq() const { return !(d_iq_fmt == FILE_FORMAT_NONE); }
 
     /* sample sniffer */
     status      start_sniffer(unsigned int samplrate, int buffsize);
@@ -301,7 +311,7 @@ private:
     gr::blocks::multiply_const_ff::sptr wav_gain0; /*!< WAV file gain block. */
     gr::blocks::multiply_const_ff::sptr wav_gain1; /*!< WAV file gain block. */
 
-    gr::blocks::file_sink::sptr         iq_sink;     /*!< I/Q file sink. */
+    file_sink::sptr         iq_sink;     /*!< I/Q file sink. */
     //Format converters to/from signed integer
     any_to_any<gr_complex, std::complex<int32_t>>::sptr to_s32lc;
     any_to_any<std::complex<int32_t>, gr_complex>::sptr from_s32lc;

@@ -316,8 +316,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(&DXCSpots::Get(), SIGNAL(dxcSpotsUpdated()), this, SLOT(updateClusterSpots()));
 
     // I/Q playback
-    connect(iq_tool, SIGNAL(startRecording(QString, enum receiver::file_formats)), this, SLOT(startIqRecording(QString, enum receiver::file_formats)));
-    connect(iq_tool, SIGNAL(startRecording(QString, enum receiver::file_formats)), remote, SLOT(startIqRecorder()));
+    connect(iq_tool, SIGNAL(startRecording(QString, enum receiver::file_formats, int)), this, SLOT(startIqRecording(QString, enum receiver::file_formats, int)));
+    connect(iq_tool, SIGNAL(startRecording(QString, enum receiver::file_formats, int)), remote, SLOT(startIqRecorder()));
     connect(iq_tool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
     connect(iq_tool, SIGNAL(stopRecording()), remote, SLOT(stopIqRecorder()));
     connect(iq_tool, SIGNAL(startPlayback(QString, float, qint64, enum receiver::file_formats, bool)), this, SLOT(startIqPlayback(QString, float, qint64, enum receiver::file_formats, bool)));
@@ -1501,10 +1501,26 @@ double MainWindow::setSqlLevelAuto()
 void MainWindow::meterTimeout()
 {
     float level;
+    struct receiver::iq_recorder_stats iq_stats;
 
     level = rx->get_signal_pwr();
     ui->sMeter->setLevel(level);
     remote->setSignalLevel(level);
+    // As it looks like this timer is always active (when the DSP is running),
+    // check iq recorder state here too
+    rx->get_iq_recorder_stats(iq_stats);
+    if(iq_stats.active)
+    {
+        if(iq_stats.failed)
+        {
+            //stop the recorder
+            iq_tool->updateStats(iq_stats.failed, iq_stats.buffers_used, iq_stats.file_size);
+            iq_tool->cancelRecording();
+        }else{
+            //update status
+            iq_tool->updateStats(iq_stats.failed, iq_stats.buffers_used, iq_stats.file_size);
+        }
+    }
 }
 
 /** Baseband FFT plot timeout. */
@@ -1668,7 +1684,7 @@ void MainWindow::stopAudioStreaming()
 }
 
 /** Start I/Q recording. */
-void MainWindow::startIqRecording(const QString& recdir, receiver::file_formats fmt)
+void MainWindow::startIqRecording(const QString& recdir, receiver::file_formats fmt, int buffers_max)
 {
     // generate file name using date, time, rf freq in kHz and BW in Hz
     // gqrx_iq_yyyymmdd_hhmmss_freq_bw_fc.raw
@@ -1744,7 +1760,7 @@ void MainWindow::startIqRecording(const QString& recdir, receiver::file_formats 
     ui->actionIoConfig->setDisabled(true);
     ui->actionLoadSettings->setDisabled(true);
     // start recorder; fails if recording already in progress
-    if (!ok || rx->start_iq_recording(lastRec.toStdString(), fmt))
+    if (!ok || rx->start_iq_recording(lastRec.toStdString(), fmt, buffers_max))
     {
         // remove metadata file if we managed to open it
         if (sigmf && metaFile.isOpen())
