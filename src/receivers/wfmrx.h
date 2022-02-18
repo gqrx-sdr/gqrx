@@ -24,14 +24,11 @@
 #ifndef WFMRX_H
 #define WFMRX_H
 
-#include <gnuradio/analog/simple_squelch_cc.h>
 #include "receivers/receiver_base.h"
 #include "dsp/rx_noise_blanker_cc.h"
 #include "dsp/rx_filter.h"
-#include "dsp/rx_meter.h"
 #include "dsp/rx_demod_fm.h"
 #include "dsp/stereo_demod.h"
-#include "dsp/resampler_xx.h"
 #include "dsp/rx_rds.h"
 #include "dsp/rds/decoder.h"
 #include "dsp/rds/parser.h"
@@ -69,12 +66,9 @@ public:
     bool start();
     bool stop();
 
-    void set_quad_rate(float quad_rate);
 
     void set_filter(double low, double high, double tw);
     void set_cw_offset(double offset) { (void)offset; }
-
-    float get_signal_level();
 
     /* Noise blanker */
     bool has_nb() { return false; }
@@ -83,17 +77,9 @@ public:
 
     /* Squelch parameter */
     bool has_sql() { return true; }
-    void set_sql_level(double level_db);
-    void set_sql_alpha(double alpha);
 
     /* AGC */
-    bool has_agc() { return false; }
-    /*void set_agc_on(bool agc_on);
-    void set_agc_hang(bool use_hang);
-    void set_agc_threshold(int threshold);
-    void set_agc_slope(int slope);
-    void set_agc_decay(int decay_ms);
-    void set_agc_manual_gain(int gain);*/
+    bool has_agc() { return true; }
 
     void set_demod(int demod);
 
@@ -110,16 +96,11 @@ public:
 
 private:
     bool   d_running;          /*!< Whether receiver is running or not. */
-    float  d_quad_rate;        /*!< Input sample rate. */
-    int    d_audio_rate;       /*!< Audio output rate. */
 
     wfmrx_demod               d_demod;   /*!< Current demodulator. */
 
-    resampler_cc_sptr         iq_resamp; /*!< Baseband resampler. */
     rx_filter_sptr            filter;    /*!< Non-translating bandpass filter.*/
 
-    rx_meter_c_sptr           meter;     /*!< Signal strength. */
-    gr::analog::simple_squelch_cc::sptr sql;       /*!< Squelch. */
     rx_demod_fm_sptr          demod_fm;  /*!< FM demodulator. */
     stereo_demod_sptr         stereo;    /*!< FM stereo demodulator. */
     stereo_demod_sptr         stereo_oirt;    /*!< FM stereo oirt demodulator. */

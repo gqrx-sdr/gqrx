@@ -22,6 +22,7 @@
  */
 #include <gnuradio/io_signature.h>
 #include "receivers/receiver_base.h"
+#include <QDebug>
 
 
 static const int MIN_IN = 1;  /* Minimum number of input streams. */
@@ -29,17 +30,40 @@ static const int MAX_IN = 1;  /* Maximum number of input streams. */
 static const int MIN_OUT = 2; /* Minimum number of output streams. */
 static const int MAX_OUT = 2; /* Maximum number of output streams. */
 
-receiver_base_cf::receiver_base_cf(std::string src_name)
+receiver_base_cf::receiver_base_cf(std::string src_name, float pref_quad_rate, float quad_rate, int audio_rate)
     : gr::hier_block2 (src_name,
                       gr::io_signature::make (MIN_IN, MAX_IN, sizeof(gr_complex)),
-                      gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof(float)))
+                      gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof(float))),
+      d_quad_rate(quad_rate),
+      d_audio_rate(audio_rate),
+      d_pref_quad_rate(pref_quad_rate)
 {
-
+    iq_resamp = make_resampler_cc(d_pref_quad_rate/d_quad_rate);
+    agc = make_rx_agc_2f(d_audio_rate, false, 0, 0, 100, 500, 500, 0);
+    sql = gr::analog::simple_squelch_cc::make(-150.0, 0.001);
+    meter = make_rx_meter_c(d_pref_quad_rate);
 }
 
 receiver_base_cf::~receiver_base_cf()
 {
 
+}
+
+void receiver_base_cf::set_quad_rate(float quad_rate)
+{
+    if (std::abs(d_quad_rate-quad_rate) > 0.5f)
+    {
+        qDebug() << "Changing RX quad rate:"  << d_quad_rate << "->" << quad_rate;
+        d_quad_rate = quad_rate;
+        lock();
+        iq_resamp->set_rate(d_pref_quad_rate/d_quad_rate);
+        unlock();
+    }
+}
+
+float receiver_base_cf::get_signal_level()
+{
+    return meter->get_level_db();
 }
 
 bool receiver_base_cf::has_nb()
@@ -66,12 +90,12 @@ bool receiver_base_cf::has_sql()
 
 void receiver_base_cf::set_sql_level(double level_db)
 {
-    (void) level_db;
+    sql->set_threshold(level_db);
 }
 
 void receiver_base_cf::set_sql_alpha(double alpha)
 {
-    (void) alpha;
+    sql->set_alpha(alpha);
 }
 
 bool receiver_base_cf::has_agc()
@@ -81,32 +105,42 @@ bool receiver_base_cf::has_agc()
 
 void receiver_base_cf::set_agc_on(bool agc_on)
 {
-    (void) agc_on;
+    agc->set_agc_on(agc_on);
 }
 
-void receiver_base_cf::set_agc_hang(bool use_hang)
+void receiver_base_cf::set_agc_target_level(int target_level)
 {
-    (void) use_hang;
+    agc->set_target_level(target_level);
 }
 
-void receiver_base_cf::set_agc_threshold(int threshold)
+void receiver_base_cf::set_agc_manual_gain(float gain)
 {
-    (void) threshold;
+    agc->set_manual_gain(gain);
 }
 
-void receiver_base_cf::set_agc_slope(int slope)
+void receiver_base_cf::set_agc_max_gain(int gain)
 {
-    (void) slope;
+    agc->set_max_gain(gain);
+}
+
+void receiver_base_cf::set_agc_attack(int attack_ms)
+{
+    agc->set_attack(attack_ms);
 }
 
 void receiver_base_cf::set_agc_decay(int decay_ms)
 {
-    (void) decay_ms;
+    agc->set_decay(decay_ms);
 }
 
-void receiver_base_cf::set_agc_manual_gain(int gain)
+void receiver_base_cf::set_agc_hang(int hang_ms)
 {
-    (void) gain;
+    agc->set_hang(hang_ms);
+}
+
+float receiver_base_cf::get_agc_gain()
+{
+    return agc->get_current_gain();
 }
 
 bool receiver_base_cf::has_fm()
