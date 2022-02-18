@@ -320,7 +320,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(iq_tool, SIGNAL(startRecording(QString, enum receiver::file_formats)), remote, SLOT(startIqRecorder()));
     connect(iq_tool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
     connect(iq_tool, SIGNAL(stopRecording()), remote, SLOT(stopIqRecorder()));
-    connect(iq_tool, SIGNAL(startPlayback(QString, float, qint64, enum receiver::file_formats)), this, SLOT(startIqPlayback(QString, float, qint64, enum receiver::file_formats)));
+    connect(iq_tool, SIGNAL(startPlayback(QString, float, qint64, enum receiver::file_formats, bool)), this, SLOT(startIqPlayback(QString, float, qint64, enum receiver::file_formats, bool)));
     connect(iq_tool, SIGNAL(stopPlayback()), this, SLOT(stopIqPlayback()));
     connect(iq_tool, SIGNAL(seek(qint64)), this,SLOT(seekIqFile(qint64)));
 
@@ -1782,7 +1782,9 @@ void MainWindow::stopIqRecording()
     ui->actionLoadSettings->setDisabled(false);
 }
 
-void MainWindow::startIqPlayback(const QString& filename, float samprate, qint64 center_freq, enum receiver::file_formats fmt)
+void MainWindow::startIqPlayback(const QString& filename, float samprate,
+                                 qint64 center_freq,
+                                 enum receiver::file_formats fmt, bool repeat)
 {
     if (ui->actionDSP->isChecked())
     {
@@ -1803,7 +1805,7 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate, qint64
 
     rx->set_input_device(devstr.toStdString());
     updateHWFrequencyRange(false);
-    rx->set_input_file(filename.toStdString(), samprate, fmt);
+    rx->set_input_file(filename.toStdString(), samprate, fmt, repeat);
 
     // sample rate
     auto actual_rate = rx->set_input_rate((double)samprate);

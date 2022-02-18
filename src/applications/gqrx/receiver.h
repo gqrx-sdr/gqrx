@@ -132,7 +132,8 @@ public:
     void        stop();
     void        set_input_device(const std::string device);
     void        set_output_device(const std::string device);
-    void        set_input_file(const std::string name, const int sample_rate, const enum file_formats fmt);
+    void        set_input_file(const std::string name, const int sample_rate,
+                               const enum file_formats fmt, bool repeat);
 
     std::vector<std::string> get_antennas(void) const;
     void        set_antenna(const std::string &antenna);
