@@ -113,14 +113,6 @@ void DockAudio::setAudioGain(int gain)
     ui->audioGainSlider->setValue(gain);
 }
 
-/*! \brief Set new audio gain.
- *  \param gain the new audio gain in dB
- */
-void DockAudio::setAudioGainDb(float gain)
-{
-    ui->audioGainSlider->setValue(int(std::round(gain*10.0f)));
-}
-
 /*! \brief Set audio muted
  *  \param muted true if audio should be muted
  */
@@ -130,13 +122,20 @@ void DockAudio::setAudioMuted(bool muted)
     ui->audioMuteButton->click();
 }
 
-
 /*! \brief Get current audio gain.
  *  \returns The current audio gain in tens of dB (0 dB = 10).
  */
 int  DockAudio::audioGain()
 {
     return ui->audioGainSlider->value();
+}
+
+/*! \brief Set audio gain slider state.
+ *  \param state new slider state.
+ */
+void DockAudio::setGainEnabled(bool state)
+{
+    ui->audioGainSlider->setEnabled(state);
 }
 
 /*! Set FFT plot color. */
@@ -199,8 +198,7 @@ void DockAudio::on_audioGainSlider_valueChanged(int value)
 
     // update dB label
     ui->audioGainDbLabel->setText(QString("%1 dB").arg((double)gain, 5, 'f', 1));
-    if (!ui->audioMuteButton->isChecked())
-        emit audioGainChanged(gain);
+    emit audioGainChanged(gain);
 }
 
 /*! \brief Streaming button clicked.
@@ -287,17 +285,7 @@ void DockAudio::on_audioConfButton_clicked()
 /*! \brief Mute audio. */
 void DockAudio::on_audioMuteButton_clicked(bool checked)
 {
-    if (checked)
-    {
-        emit audioGainChanged(-INFINITY);
-    }
-    else
-    {
-        int value = ui->audioGainSlider->value();
-        float gain = float(value) / 10.0f;
-        emit audioGainChanged(gain);
-    }
-    emit audioMuted(checked);
+    emit audioMuteChanged(checked);
 }
 
 /*! \brief Set status of audio record button. */
@@ -502,9 +490,11 @@ void DockAudio::muteToggleShortcut() {
 }
 
 void DockAudio::increaseAudioGainShortcut() {
-	ui->audioGainSlider->triggerAction(QSlider::SliderPageStepAdd);
+    if(ui->audioGainSlider->isEnabled())
+        ui->audioGainSlider->triggerAction(QSlider::SliderPageStepAdd);
 }
 
 void DockAudio::decreaseAudioGainShortcut() {
-	ui->audioGainSlider->triggerAction(QSlider::SliderPageStepSub);
+    if(ui->audioGainSlider->isEnabled())
+        ui->audioGainSlider->triggerAction(QSlider::SliderPageStepSub);
 }

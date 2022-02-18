@@ -57,6 +57,7 @@ public:
 
     void setAudioGain(int gain);
     int  audioGain();
+    void setGainEnabled(bool state);
 
     void setAudioRecButtonState(bool checked);
     void setAudioPlayButtonState(bool checked);
@@ -72,7 +73,6 @@ public slots:
     void stopAudioRecorder(void);
     void setRxFrequency(qint64 freq);
     void setWfColormap(const QString &cmap);
-    void setAudioGainDb(float gain);
     void setAudioMuted(bool muted);
 
 signals:
@@ -102,6 +102,9 @@ signals:
     
     /*! \brief Audio mute chenged. */
     void audioMuted(bool muted);
+
+    /*! \brief Signal emitted when audio mute has changed. */
+    void audioMuteChanged(bool mute);
 
 private slots:
     void on_audioGainSlider_valueChanged(int value);

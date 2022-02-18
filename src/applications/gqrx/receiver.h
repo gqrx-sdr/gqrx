@@ -177,11 +177,16 @@ public:
 
     /* AGC */
     status      set_agc_on(bool agc_on);
-    status      set_agc_hang(bool use_hang);
-    status      set_agc_threshold(int threshold);
-    status      set_agc_slope(int slope);
+    status      set_agc_target_level(int target_level);
+    status      set_agc_manual_gain(float gain);
+    status      set_agc_max_gain(int gain);
+    status      set_agc_attack(int attack_ms);
     status      set_agc_decay(int decay_ms);
-    status      set_agc_manual_gain(int gain);
+    status      set_agc_hang(int hang_ms);
+    float       get_agc_gain();
+
+    status      set_mute(bool mute);
+    bool        get_mute();
 
     status      set_demod(rx_demod demod, bool force=false);
 
@@ -197,7 +202,6 @@ public:
     status      set_amsync_pll_bw(float pll_bw);
 
     /* Audio parameters */
-    status      set_af_gain(float gain_db);
     status      start_audio_recording(const std::string filename);
     status      stop_audio_recording();
     status      start_audio_playback(const std::string filename);
@@ -249,6 +253,7 @@ private:
     bool        d_iq_rev;           /*!< Whether I/Q is reversed or not. */
     bool        d_dc_cancel;        /*!< Enable automatic DC removal. */
     bool        d_iq_balance;       /*!< Enable automatic IQ balance. */
+    bool        d_mute;             /*!< Enable audio mute. */
 
     std::string input_devstr;  /*!< Current input device string. */
     std::string output_devstr; /*!< Current output device string. */
@@ -268,11 +273,6 @@ private:
     rx_fft_f_sptr             audio_fft;  /*!< Audio FFT block. */
 
     downconverter_cc_sptr     ddc;        /*!< Digital down-converter for demod chain. */
-
-    gr::blocks::multiply_const_ff::sptr audio_gain0; /*!< Audio gain block. */
-    gr::blocks::multiply_const_ff::sptr audio_gain1; /*!< Audio gain block. */
-    gr::blocks::multiply_const_ff::sptr wav_gain0; /*!< WAV file gain block. */
-    gr::blocks::multiply_const_ff::sptr wav_gain1; /*!< WAV file gain block. */
 
     gr::blocks::file_sink::sptr         iq_sink;     /*!< I/Q file sink. */
 
