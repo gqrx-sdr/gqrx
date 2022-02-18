@@ -113,10 +113,10 @@
          <string>Audio gain</string>
         </property>
         <property name="minimum">
-         <number>-800</number>
+         <number>-1000</number>
         </property>
         <property name="maximum">
-         <number>500</number>
+         <number>1000</number>
         </property>
         <property name="value">
          <number>-60</number>
@@ -129,16 +129,22 @@
       <item>
        <widget class="QLabel" name="audioGainDbLabel">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>60</width>
+          <height>0</height>
+         </size>
         </property>
         <property name="text">
          <string>-6.0 dB</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignCenter</set>
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
         <property name="margin">
          <number>0</number>

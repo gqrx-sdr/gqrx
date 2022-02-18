@@ -116,6 +116,13 @@ public:
 
     double  getSqlLevel(void) const;
 
+    bool    getAgcOn();
+    int     getAgcTargetLevel();
+    int     getAgcMaxGain();
+    int     getAgcAttack();
+    int     getAgcDecay();
+    int     getAgcHang();
+
     static QStringList ModulationStrings;
     static QString GetStringForModulationIndex(int iModulationIndex);
     static int GetEnumForModulationString(QString param);
@@ -189,20 +196,20 @@ signals:
     /** Signal emitted when AGC is togglen ON/OFF. */
     void agcToggled(bool agc_on);
 
-    /** Signal emitted when AGC hang is toggled. */
-    void agcHangToggled(bool use_hang);
+    /** Signal emitted when AGC target level has changed. Level in dB. */
+    void agcTargetLevelChanged(int value);
 
-    /** Signal emitted when AGC threshold has changed. Threshold in dB. */
-    void agcThresholdChanged(int value);
+    /** Signal emitted when AGC maximum gain has changed. Gain is in dB.*/
+    void agcMaxGainChanged(int gain);
 
-    /** Signal emitted when AGC slope has changed. Slope is in dB.*/
-    void agcSlopeChanged(int slope);
+    /** Signal emitted when AGC attack has changed. Decay is in millisec.*/
+    void agcAttackChanged(int attack);
 
     /** Signal emitted when AGC decay has changed. Decay is in millisec.*/
     void agcDecayChanged(int decay);
 
-    /** Signal emitted when AGC manual gain has changed. Gain is in dB.*/
-    void agcGainChanged(int gain);
+    /** Signal emitted when AGC hang is changed. Hang is in millisec.*/
+    void agcHangChanged(int hang);
 
     /** Signal emitted when noise blanker status has changed. */
     void noiseBlankerChanged(int nbid, bool on, float threshold);
@@ -237,11 +244,11 @@ private slots:
     void demodOpt_amSyncPllBwSelected(float pll_bw);
 
     // Signals coming from AGC options popup
-    void agcOpt_hangToggled(bool checked);
-    void agcOpt_gainChanged(int value);
-    void agcOpt_thresholdChanged(int value);
-    void agcOpt_slopeChanged(int value);
+    void agcOpt_maxGainChanged(int value);
+    void agcOpt_targetLevelChanged(int value);
+    void agcOpt_attackChanged(int value);
     void agcOpt_decayChanged(int value);
+    void agcOpt_hangChanged(int value);
 
 private:
     Ui::DockRxOpt *ui;        /** The Qt designer UI file. */

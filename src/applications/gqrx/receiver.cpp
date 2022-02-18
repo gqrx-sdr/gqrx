@@ -46,8 +46,6 @@
 #include <gnuradio/audio/sink.h>
 #endif
 
-#define DEFAULT_AUDIO_GAIN -6.0
-#define WAV_FILE_GAIN 0.5
 #define TARGET_QUAD_RATE 1e6
 
 /**
@@ -72,6 +70,7 @@ receiver::receiver(const std::string input_device,
       d_iq_rev(false),
       d_dc_cancel(false),
       d_iq_balance(false),
+      d_mute(false),
       d_demod(RX_DEMOD_OFF)
 {
 
@@ -119,9 +118,6 @@ receiver::receiver(const std::string input_device,
     iq_fft = make_rx_fft_c(DEFAULT_FFT_SIZE, d_decim_rate, gr::fft::window::WIN_HANN);
 
     audio_fft = make_rx_fft_f(DEFAULT_FFT_SIZE, d_audio_rate, gr::fft::window::WIN_HANN);
-    audio_gain0 = gr::blocks::multiply_const_ff::make(0);
-    audio_gain1 = gr::blocks::multiply_const_ff::make(0);
-    set_af_gain(DEFAULT_AUDIO_GAIN);
 
     audio_udp_sink = make_udp_sink_f();
 
@@ -271,8 +267,14 @@ void receiver::set_output_device(const std::string device)
 
     if (d_demod != RX_DEMOD_OFF)
     {
-        tb->disconnect(audio_gain0, 0, audio_snk, 0);
-        tb->disconnect(audio_gain1, 0, audio_snk, 1);
+        try
+        {
+            tb->disconnect(rx, 0, audio_snk, 0);
+            tb->disconnect(rx, 1, audio_snk, 1);
+        }
+        catch(std::exception &x)
+        {
+        }
     }
     audio_snk.reset();
 
@@ -285,10 +287,10 @@ void receiver::set_output_device(const std::string device)
         audio_snk = gr::audio::sink::make(d_audio_rate, device, true);
 #endif
 
-        if (d_demod != RX_DEMOD_OFF)
+        if ((d_demod != RX_DEMOD_OFF) && !d_mute)
         {
-            tb->connect(audio_gain0, 0, audio_snk, 0);
-            tb->connect(audio_gain1, 0, audio_snk, 1);
+            tb->connect(rx, 0, audio_snk, 0);
+            tb->connect(rx, 1, audio_snk, 1);
         }
 
         tb->unlock();
@@ -817,29 +819,47 @@ receiver::status receiver::set_agc_on(bool agc_on)
     return STATUS_OK; // FIXME
 }
 
-/** Enable/disable AGC hang. */
-receiver::status receiver::set_agc_hang(bool use_hang)
+/** Set AGC hang. */
+receiver::status receiver::set_agc_hang(int hang_ms)
 {
     if (rx->has_agc())
-        rx->set_agc_hang(use_hang);
+        rx->set_agc_hang(hang_ms);
 
     return STATUS_OK; // FIXME
 }
 
-/** Set AGC threshold. */
-receiver::status receiver::set_agc_threshold(int threshold)
+/** Set AGC target level. */
+receiver::status receiver::set_agc_target_level(int target_level)
 {
     if (rx->has_agc())
-        rx->set_agc_threshold(threshold);
+        rx->set_agc_target_level(target_level);
 
     return STATUS_OK; // FIXME
 }
 
-/** Set AGC slope. */
-receiver::status receiver::set_agc_slope(int slope)
+/** Set fixed gain used when AGC is OFF. */
+receiver::status receiver::set_agc_manual_gain(float gain)
 {
     if (rx->has_agc())
-        rx->set_agc_slope(slope);
+        rx->set_agc_manual_gain(gain);
+
+    return STATUS_OK; // FIXME
+}
+
+/** Set maximum gain used when AGC is ON. */
+receiver::status receiver::set_agc_max_gain(int gain)
+{
+    if (rx->has_agc())
+        rx->set_agc_max_gain(gain);
+
+    return STATUS_OK; // FIXME
+}
+
+/** Set AGC attack. */
+receiver::status receiver::set_agc_attack(int attack_ms)
+{
+    if (rx->has_agc())
+        rx->set_agc_attack(attack_ms);
 
     return STATUS_OK; // FIXME
 }
@@ -853,13 +873,43 @@ receiver::status receiver::set_agc_decay(int decay_ms)
     return STATUS_OK; // FIXME
 }
 
-/** Set fixed gain used when AGC is OFF. */
-receiver::status receiver::set_agc_manual_gain(int gain)
+/** Get AGC current gain. */
+float receiver::get_agc_gain()
 {
     if (rx->has_agc())
-        rx->set_agc_manual_gain(gain);
+        return rx->get_agc_gain();
+    else
+        return 0;
+}
 
-    return STATUS_OK; // FIXME
+/** Set audio mute. */
+receiver::status receiver::set_mute(bool mute)
+{
+    if (d_mute == mute)
+        return STATUS_OK;
+    if(d_demod != RX_DEMOD_OFF)
+    {
+        tb->lock();
+        if (mute)
+        {
+            tb->disconnect(rx, 0, audio_snk, 0);
+            tb->disconnect(rx, 1, audio_snk, 1);
+        }
+        else
+        {
+            tb->connect(rx, 0, audio_snk, 0);
+            tb->connect(rx, 1, audio_snk, 1);
+        }
+        tb->unlock();
+    }
+    d_mute = mute;
+    return STATUS_OK;
+}
+
+/** Get audio mute. */
+bool receiver::get_mute()
+{
+    return d_mute;
 }
 
 receiver::status receiver::set_demod(rx_demod demod, bool force)
@@ -981,20 +1031,6 @@ receiver::status receiver::set_amsync_pll_bw(float pll_bw)
     return STATUS_OK;
 }
 
-receiver::status receiver::set_af_gain(float gain_db)
-{
-    float k;
-
-    /* convert dB to factor */
-    k = powf(10.0f, gain_db / 20.0f);
-    //std::cout << "G:" << gain_db << "dB / K:" << k << std::endl;
-    audio_gain0->set_k(k);
-    audio_gain1->set_k(k);
-
-    return STATUS_OK;
-}
-
-
 /**
  * @brief Start WAV file recorder.
  * @param filename The filename where to record.
@@ -1006,9 +1042,11 @@ receiver::status receiver::set_af_gain(float gain_db)
  */
 receiver::status receiver::start_audio_recording(const std::string filename)
 {
+    if(d_demod == RX_DEMOD_OFF)
+        return STATUS_ERROR;
     if (d_recording_wav)
     {
-        /* error - we are already recording */
+        /* error - bwe are already recording */
         std::cout << "ERROR: Can not start audio recorder (already recording)" << std::endl;
 
         return STATUS_ERROR;
@@ -1020,9 +1058,6 @@ receiver::status receiver::start_audio_recording(const std::string filename)
 
         return STATUS_ERROR;
     }
-
-    wav_gain0 = gr::blocks::multiply_const_ff::make(WAV_FILE_GAIN);
-    wav_gain1 = gr::blocks::multiply_const_ff::make(WAV_FILE_GAIN);
 
     // if this fails, we don't want to go and crash now, do we
     try {
@@ -1042,10 +1077,8 @@ receiver::status receiver::start_audio_recording(const std::string filename)
     }
 
     tb->lock();
-    tb->connect(rx, 0, wav_gain0, 0);
-    tb->connect(rx, 1, wav_gain1, 0);
-    tb->connect(wav_gain0, 0, wav_sink, 0);
-    tb->connect(wav_gain1, 0, wav_sink, 1);
+    tb->connect(rx, 0, wav_sink, 0);
+    tb->connect(rx, 1, wav_sink, 1);
     tb->unlock();
     d_recording_wav = true;
 
@@ -1074,10 +1107,8 @@ receiver::status receiver::stop_audio_recording()
     // not strictly necessary to lock but I think it is safer
     tb->lock();
     wav_sink->close();
-    tb->disconnect(rx, 0, wav_gain0, 0);
-    tb->disconnect(rx, 1, wav_gain1, 0);
-    tb->disconnect(wav_gain0, 0, wav_sink, 0);
-    tb->disconnect(wav_gain1, 0, wav_sink, 1);
+    tb->disconnect(rx, 0, wav_sink, 0);
+    tb->disconnect(rx, 1, wav_sink, 1);
 
     // Temporary workaround for https://github.com/gnuradio/gnuradio/issues/5436
     tb->disconnect(ddc, 0, rx, 0);
@@ -1085,8 +1116,6 @@ receiver::status receiver::stop_audio_recording()
     // End temporary workaronud
 
     tb->unlock();
-    wav_gain0.reset();
-    wav_gain1.reset();
     wav_sink.reset();
     d_recording_wav = false;
 
@@ -1136,15 +1165,21 @@ receiver::status receiver::start_audio_playback(const std::string filename)
 
     stop();
     /* route demodulator output to null sink */
-    tb->disconnect(rx, 0, audio_gain0, 0);
-    tb->disconnect(rx, 1, audio_gain1, 0);
+    if (!d_mute)
+    {
+        tb->disconnect(rx, 0, audio_snk, 0);
+        tb->disconnect(rx, 1, audio_snk, 1);
+    }
     tb->disconnect(rx, 0, audio_fft, 0);
     tb->disconnect(rx, 0, audio_udp_sink, 0);
     tb->disconnect(rx, 1, audio_udp_sink, 1);
     tb->connect(rx, 0, audio_null_sink0, 0); /** FIXME: other channel? */
     tb->connect(rx, 1, audio_null_sink1, 0); /** FIXME: other channel? */
-    tb->connect(wav_src, 0, audio_gain0, 0);
-    tb->connect(wav_src, 1, audio_gain1, 0);
+    if (!d_mute)
+    {
+        tb->connect(wav_src, 0, audio_snk, 0);
+        tb->connect(wav_src, 1, audio_snk, 1);
+    }
     tb->connect(wav_src, 0, audio_fft, 0);
     tb->connect(wav_src, 0, audio_udp_sink, 0);
     tb->connect(wav_src, 1, audio_udp_sink, 1);
@@ -1160,15 +1195,21 @@ receiver::status receiver::stop_audio_playback()
 {
     /* disconnect wav source and reconnect receiver */
     stop();
-    tb->disconnect(wav_src, 0, audio_gain0, 0);
-    tb->disconnect(wav_src, 1, audio_gain1, 0);
+    if (!d_mute)
+    {
+        tb->disconnect(wav_src, 0, audio_snk, 0);
+        tb->disconnect(wav_src, 1, audio_snk, 1);
+    }
     tb->disconnect(wav_src, 0, audio_fft, 0);
     tb->disconnect(wav_src, 0, audio_udp_sink, 0);
     tb->disconnect(wav_src, 1, audio_udp_sink, 1);
     tb->disconnect(rx, 0, audio_null_sink0, 0);
     tb->disconnect(rx, 1, audio_null_sink1, 0);
-    tb->connect(rx, 0, audio_gain0, 0);
-    tb->connect(rx, 1, audio_gain1, 0);
+    if (!d_mute)
+    {
+        tb->connect(rx, 0, audio_snk, 0);
+        tb->connect(rx, 1, audio_snk, 1);
+    }
     tb->connect(rx, 0, audio_fft, 0);  /** FIXME: other channel? */
     tb->connect(rx, 0, audio_udp_sink, 0);
     tb->connect(rx, 1, audio_udp_sink, 1);
@@ -1396,26 +1437,24 @@ void receiver::connect_all(rx_chain type)
         tb->connect(rx, 0, audio_fft, 0);
         tb->connect(rx, 0, audio_udp_sink, 0);
         tb->connect(rx, 1, audio_udp_sink, 1);
-        tb->connect(rx, 0, audio_gain0, 0);
-        tb->connect(rx, 1, audio_gain1, 0);
-        tb->connect(audio_gain0, 0, audio_snk, 0);
-        tb->connect(audio_gain1, 0, audio_snk, 1);
+        if (!d_mute)
+        {
+            tb->connect(rx, 0, audio_snk, 0);
+            tb->connect(rx, 1, audio_snk, 1);
+        }
+        // Recorders and sniffers
+        if (d_recording_wav)
+        {
+            tb->connect(rx, 0, wav_sink, 0);
+            tb->connect(rx, 1, wav_sink, 1);
+        }
+        if (d_sniffer_active)
+        {
+            tb->connect(rx, 0, sniffer_rr, 0);
+            tb->connect(sniffer_rr, 0, sniffer, 0);
+        }
     }
 
-    // Recorders and sniffers
-    if (d_recording_wav)
-    {
-        tb->connect(rx, 0, wav_gain0, 0);
-        tb->connect(rx, 1, wav_gain1, 0);
-        tb->connect(wav_gain0, 0, wav_sink, 0);
-        tb->connect(wav_gain1, 0, wav_sink, 1);
-    }
-
-    if (d_sniffer_active)
-    {
-        tb->connect(rx, 0, sniffer_rr, 0);
-        tb->connect(sniffer_rr, 0, sniffer, 0);
-    }
 }
 
 void receiver::get_rds_data(std::string &outbuff, int &num)

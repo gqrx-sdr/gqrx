@@ -49,10 +49,10 @@ void CAgcOptions::closeEvent(QCloseEvent *event)
     event->ignore();
 }
 
-/*! \brief Get current gain slider value. */
-int CAgcOptions::gain()
+/*! \brief Get current max gain slider value. */
+int CAgcOptions::maxGain()
 {
-    return ui->gainSlider->value();
+    return ui->maxGainSlider->value();
 }
 
 /*! \brief Set AGC preset. */
@@ -61,37 +61,39 @@ void CAgcOptions::setPreset(agc_preset_e preset)
     switch (preset)
     {
     case AGC_FAST:
+        setAttack(20);
         setDecay(100);
+        setHang(0);
+        enableAttack(false);
         enableDecay(false);
-        setSlope(0);
-        enableSlope(false);
-        enableGain(false);
+        enableHang(false);
         break;
 
     case AGC_MEDIUM:
+        setAttack(50);
         setDecay(500);
+        setHang(0);
+        enableAttack(false);
         enableDecay(false);
-        setSlope(0);
-        enableSlope(false);
-        enableGain(false);
+        enableHang(false);
         break;
 
     case AGC_SLOW:
+        setAttack(100);
         setDecay(2000);
+        setHang(0);
+        enableAttack(false);
         enableDecay(false);
-        setSlope(0);
-        enableSlope(false);
-        enableGain(false);
+        enableHang(false);
         break;
 
     case AGC_USER:
+        enableAttack(true);
         enableDecay(true);
-        enableSlope(true);
-        enableGain(false);
+        enableHang(true);
         break;
 
     case AGC_OFF:
-        enableGain(true);
         break;
 
     default:
@@ -101,62 +103,50 @@ void CAgcOptions::setPreset(agc_preset_e preset)
     }
 }
 
-/*! \brief Set new gain slider value. */
-void CAgcOptions::setGain(int value)
+/*! \brief Set new max gain slider value. */
+void CAgcOptions::setMaxGain(int value)
 {
-    ui->gainSlider->setValue(value);
-    ui->gainLabel->setText(QString("%1 dB").arg(ui->gainSlider->value()));
+    ui->maxGainSlider->setValue(value);
+    ui->maxGainLabel->setText(QString("%1 dB").arg(ui->maxGainSlider->value()));
 }
 
-/*! \brief Enable or disable gain slider.
+/*! \brief Get current AGC target level. */
+int CAgcOptions::targetLevel()
+{
+    return ui->targetLevelSlider->value();
+}
+
+/*! \brief Set new AGC target level. */
+void CAgcOptions::setTargetLevel(int value)
+{
+    ui->targetLevelSlider->setValue(value);
+    ui->targetLevelLabel->setText(QString("%1 dB").arg(ui->targetLevelSlider->value()));
+}
+
+
+/*! \brief Get current attack value. */
+int CAgcOptions::attack()
+{
+    return ui->attackSlider->value();
+}
+
+/*! \brief Set new attack value. */
+void CAgcOptions::setAttack(int value)
+{
+    ui->attackSlider->setValue(value);
+    ui->attackLabel->setText(QString("%1 ms").arg(ui->attackSlider->value()));
+}
+
+/*! \brief Enable or disable AGC attack slider.
  *  \param enabled Whether the slider should be enabled or not.
  *
- * The gain slider is enabled when AGC is OFF to provide manual gain
- * control. It is disabled when AGC is ON.
+ * The attack slider is enabled when AGC is in user mode.
  */
-void CAgcOptions::enableGain(bool enabled)
+void CAgcOptions::enableAttack(bool enabled)
 {
-    ui->gainLabel->setEnabled(enabled);
-    ui->gainSlider->setEnabled(enabled);
-    ui->label1->setEnabled(enabled);
-}
-
-/*! \brief Get current AGC threshold. */
-int CAgcOptions::threshold()
-{
-    return ui->thresholdSlider->value();
-}
-
-/*! \brief Set new AGC threshold. */
-void CAgcOptions::setThreshold(int value)
-{
-    ui->thresholdSlider->setValue(value);
-    ui->thresholdLabel->setText(QString("%1 dB").arg(ui->thresholdSlider->value()));
-}
-
-/*! \brief Get current AGC slope. */
-int CAgcOptions::slope()
-{
-    return ui->slopeSlider->value();
-}
-
-/*! \brief Set new AGC slope. */
-void CAgcOptions::setSlope(int value)
-{
-    ui->slopeSlider->setValue(value);
-    ui->slopeLabel->setText(QString("%1 dB").arg(ui->slopeSlider->value()));
-}
-
-/*! \brief Enable or disable AGC slope slider.
- *  \param enabled Whether the slider should be enabled or not.
- *
- * The slope slider is enabled when AGC is in user mode.
- */
-void CAgcOptions::enableSlope(bool enabled)
-{
-    ui->slopeSlider->setEnabled(enabled);
-    ui->slopeLabel->setEnabled(enabled);
-    ui->label3->setEnabled(enabled);
+    ui->attackSlider->setEnabled(enabled);
+    ui->attackLabel->setEnabled(enabled);
+    ui->attackTitle->setEnabled(enabled);
 }
 
 /*! \brief Get current decay value. */
@@ -181,54 +171,67 @@ void CAgcOptions::enableDecay(bool enabled)
 {
     ui->decaySlider->setEnabled(enabled);
     ui->decayLabel->setEnabled(enabled);
-    ui->label4->setEnabled(enabled);
+    ui->decayTitle->setEnabled(enabled);
 }
 
-/*! \brief Get current state of AGC hang button. */
-bool CAgcOptions::hang()
+/*! \brief Get current hang value. */
+int CAgcOptions::hang()
 {
-    return ui->hangButton->isChecked();
+    return ui->hangSlider->value();
 }
 
-/*! \brief Set state og AGC hang button. */
-void CAgcOptions::setHang(bool checked)
+/*! \brief Set new hang value. */
+void CAgcOptions::setHang(int value)
 {
-    ui->hangButton->setChecked(checked);
+    ui->hangSlider->setValue(value);
+    ui->hangLabel->setText(QString("%1 ms").arg(ui->hangSlider->value()));
+}
+
+/*! \brief Enable or disable AGC hang slider.
+ *  \param enabled Whether the slider should be enabled or not.
+ *
+ * The hang slider is enabled when AGC is in user mode.
+ */
+void CAgcOptions::enableHang(bool enabled)
+{
+    ui->hangSlider->setEnabled(enabled);
+    ui->hangLabel->setEnabled(enabled);
+    ui->hangTitle->setEnabled(enabled);
 }
 
 
-
-/*! \brief AGC gain slider value has changed. */
-void CAgcOptions::on_gainSlider_valueChanged(int gain)
+/*! \brief AGC max gain slider value has changed. */
+void CAgcOptions::on_maxGainSlider_valueChanged(int value)
 {
-    ui->gainLabel->setText(QString("%1 dB").arg(ui->gainSlider->value()));
-    emit gainChanged(gain);
+    ui->maxGainLabel->setText(QString("%1 dB").arg(ui->maxGainSlider->value()));
+    emit maxGainChanged(value);
 }
 
-/*! \brief AGC threshold slider value has changed. */
-void CAgcOptions::on_thresholdSlider_valueChanged(int threshold)
+/*! \brief AGC target level slider value has changed. */
+void CAgcOptions::on_targetLevelSlider_valueChanged(int value)
 {
-    ui->thresholdLabel->setText(QString("%1 dB").arg(ui->thresholdSlider->value()));
-    emit thresholdChanged(threshold);
+    ui->targetLevelLabel->setText(QString("%1 dB").arg(ui->targetLevelSlider->value()));
+    emit targetLevelChanged(value);
 }
 
-/*! \brief AGC slope slider value has changed. */
-void CAgcOptions::on_slopeSlider_valueChanged(int slope)
+/*! \brief AGC attack slider value has changed. */
+void CAgcOptions::on_attackSlider_valueChanged(int value)
 {
-    ui->slopeLabel->setText(QString("%1 dB").arg(ui->slopeSlider->value()));
-    emit slopeChanged(slope);
+    ui->attackLabel->setText(QString("%1 ms").arg(ui->attackSlider->value()));
+    emit attackChanged(value);
 }
 
 /*! \brief AGC decay slider value has changed. */
-void CAgcOptions::on_decaySlider_valueChanged(int decay)
+void CAgcOptions::on_decaySlider_valueChanged(int value)
 {
     ui->decayLabel->setText(QString("%1 ms").arg(ui->decaySlider->value()));
-    emit decayChanged(decay);
+    emit decayChanged(value);
 }
 
-/*! \brief AGC hang button has been toggled. */
-void CAgcOptions::on_hangButton_toggled(bool checked)
+/*! \brief AGC hang slider value has changed. */
+void CAgcOptions::on_hangSlider_valueChanged(int value)
 {
-    ui->hangButton->setText(checked ? tr("Enabled") : tr("Disabled"));
-    emit hangChanged(checked);
+    ui->hangLabel->setText(QString("%1 ms").arg(ui->hangSlider->value()));
+    emit hangChanged(value);
 }
+
