@@ -879,12 +879,7 @@ void MainWindow::storeSession()
                 m_settings->setValue("fm_deemph", int_val);
 
             qint64 offs = rx->get_filter_offset();
-            if (offs)
-            {
                 m_settings->setValue("offset", offs);
-            }
-            else
-                m_settings->remove("offset");
 
             if (rx->get_freq_lock())
                 m_settings->setValue("freq_locked", true);
@@ -1133,6 +1128,8 @@ void MainWindow::readRXSettings(int ver)
     if (!conv_ok)
         int_val = 0;
     rxSpinBox->setMaximum(rx->get_rx_count() - 1);
+    if(int_val >= rx->get_rx_count())
+        int_val = 0;
     ui->plotter->removeVfo(rx->get_vfo(int_val));
     rx->select_rx(int_val);
     ui->plotter->setCurrentVfo(int_val);
