@@ -697,11 +697,9 @@ int receiver::delete_rx()
     {
         if (d_current != int(rx.size()) - 1)
         {
-            disconnect_rx(rx.back()->get_index());
             rx[d_current] = rx.back();
             rx[d_current]->set_index(d_current);
             rx.back().reset();
-            connect_rx();
         }
         else
             d_current--;
