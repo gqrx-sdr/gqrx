@@ -57,6 +57,7 @@ resampler_cc::resampler_cc(float rate)
 
     /* create the filter */
     d_filter = gr::filter::pfb_arb_resampler_ccf::make(rate, d_taps, flt_size);
+    d_filter->set_output_multiple(4096);
 
     /* connect filter */
     connect(self(), 0, d_filter, 0);
@@ -82,6 +83,7 @@ void resampler_cc::set_rate(float rate)
     disconnect(d_filter, 0, self(), 0);
     d_filter.reset();
     d_filter = gr::filter::pfb_arb_resampler_ccf::make(rate, d_taps, flt_size);
+    d_filter->set_output_multiple(4096);
     connect(self(), 0, d_filter, 0);
     connect(d_filter, 0, self(), 0);
     unlock();
