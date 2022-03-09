@@ -387,7 +387,7 @@ void rx_agc_2f::set_parameters(double sample_rate, bool agc_on, int target_level
     if (d_target_level != target_level || force)
     {
         d_target_level = target_level;
-        d_target_mag = exp10f(TYPEFLOAT(d_target_level) / 20.f);
+        d_target_mag = exp10f(TYPEFLOAT(d_target_level) / 20.f) * 32767.f / 32768.f;
         target_level_changed = true;
     }
     if (d_manual_gain != manual_gain || force)
