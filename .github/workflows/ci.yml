@@ -40,7 +40,7 @@ jobs:
           brew install airspy boost gnuradio hackrf libbladerf librtlsdr pybind11 uhd qt@6
 
           cd /tmp
-          git clone git://git.osmocom.org/gr-osmosdr
+          git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
           cd gr-osmosdr
           mkdir build
           cd build

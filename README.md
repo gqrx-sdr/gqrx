@@ -96,13 +96,12 @@ To compile gqrx from source you need the following dependencies:
     - Funcube Dongle Pro driver via gr-fcd
     - UHD driver via gr-uhd
     - Funcube Dongle Pro+ driver from https://github.com/dl1ksv/gr-fcdproplus
-    - RTL-SDR driver from https://git.osmocom.org/rtl-sdr
-    - OsmoSDR driver from https://git.osmocom.org/osmo-sdr
+    - RTL-SDR driver from https://gitea.osmocom.org/sdr/rtl-sdr
     - HackRF driver from https://github.com/mossmann/hackrf
     - Airspy driver from https://github.com/airspy/airspyone_host
     - SoapySDR from https://github.com/pothosware/SoapySDR
     - RFSpace driver is built in
-- gnuradio-osmosdr from https://git.osmocom.org/gr-osmosdr
+- gnuradio-osmosdr from https://gitea.osmocom.org/sdr/gr-osmosdr
 - pulseaudio or portaudio (Linux-only and optional)
 - Qt 5 with the following components:
     - Core

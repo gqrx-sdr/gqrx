@@ -34,7 +34,7 @@ jobs:
           sudo ldconfig
 
           cd /tmp
-          git clone git://git.osmocom.org/libosmo-dsp
+          git clone https://gitea.osmocom.org/sdr/libosmo-dsp.git
           cd libosmo-dsp
           autoreconf -i
           ./configure --prefix=/usr
@@ -43,7 +43,7 @@ jobs:
           sudo ldconfig
 
           cd /tmp
-          git clone git://git.osmocom.org/gr-iqbal
+          git clone https://gitea.osmocom.org/sdr/gr-iqbal.git
           cd gr-iqbal
           git checkout gr3.8
           mkdir build
@@ -54,7 +54,7 @@ jobs:
           sudo ldconfig
 
           cd /tmp
-          git clone git://git.osmocom.org/gr-osmosdr
+          git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
           cd gr-osmosdr
           git checkout gr3.8
           mkdir build
@@ -129,7 +129,7 @@ jobs:
           install_name_tool -change @rpath/ad9361.framework/Versions/0.2/ad9361 /usr/local/lib/libad9361.dylib /usr/local/lib/SoapySDR/modules0.*/libPlutoSDRSupport.so
 
           cd /tmp
-          git clone git://git.osmocom.org/gr-iqbal
+          git clone https://gitea.osmocom.org/sdr/gr-iqbal.git
           cd gr-iqbal
           git submodule update --init --recursive
           mkdir build
@@ -139,7 +139,7 @@ jobs:
           make install
 
           cd /tmp
-          git clone git://git.osmocom.org/gr-osmosdr
+          git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
           cd gr-osmosdr
           mkdir build
           cd build
