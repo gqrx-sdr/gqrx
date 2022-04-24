@@ -269,6 +269,17 @@ void DockFft::saveSettings(QSettings *settings)
         settings->setValue("bandplan", true);
     else
         settings->remove("bandplan");
+    
+    // Peak
+    if (ui->peakDetectionButton->isChecked())
+        settings->setValue("peak_detect", true);
+    else
+        settings->remove("peak_detect");
+
+    if (ui->peakHoldButton->isChecked())
+        settings->setValue("peak_hold", true);
+    else
+        settings->remove("peak_hold");
 
     if (QString::compare(ui->cmapComboBox->currentData().toString(), DEFAULT_COLORMAP))
         settings->setValue("waterfall_colormap", ui->cmapComboBox->currentData().toString());
@@ -351,6 +362,14 @@ void DockFft::readSettings(QSettings *settings)
     bool_val = settings->value("bandplan", false).toBool();
     ui->bandPlanCheckbox->setChecked(bool_val);
     emit bandPlanChanged(bool_val);
+
+    bool_val = settings->value("peak_detect", false).toBool();
+    ui->peakDetectionButton->setChecked(bool_val);
+    emit peakDetectionToggled(bool_val);
+
+    bool_val = settings->value("peak_hold", false).toBool();
+    ui->peakHoldButton->setChecked(bool_val);
+    emit fftPeakHoldToggled(bool_val);
 
     QString cmap = settings->value("waterfall_colormap", "gqrx").toString();
     ui->cmapComboBox->setCurrentIndex(ui->cmapComboBox->findData(cmap));
