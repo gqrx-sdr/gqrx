@@ -4,79 +4,73 @@ Gqrx
 [![CI](https://github.com/gqrx-sdr/gqrx/workflows/CI/badge.svg)](https://github.com/gqrx-sdr/gqrx/actions?query=workflow%3ACI+branch%3Amaster)
 [![Build](https://github.com/gqrx-sdr/gqrx/workflows/Build/badge.svg)](https://github.com/gqrx-sdr/gqrx/actions?query=workflow%3ABuild+branch%3Amaster)
 
-Gqrx is an open source software defined radio (SDR) receiver implemented using
-[GNU Radio](https://gnuradio.org) and the [Qt GUI toolkit](https://www.qt.io/).
-Currently it works on Linux and Mac with hardware supported by gr-osmosdr,
-including Funcube Dongle, RTL-SDR, Airspy, HackRF, BladeRF, RFSpace, USRP and
-SoapySDR.
+Gqrx is an open source software defined radio (SDR) receiver implemented using [GNU Radio](https://gnuradio.org) and the [Qt GUI toolkit](https://www.qt.io/).
+Currently it works on Linux and Mac with hardware supported by gr-osmosdr, including Funcube Dongle, RTL-SDR, Airspy, HackRF, BladeRF, RFSpace, USRP and SoapySDR.
 
-Gqrx can operate as an AM/FM/SSB receiver with audio output or as an FFT-only
-instrument. There are also various hooks for interacting with external
+Gqrx can operate as an AM/FM/SSB receiver with audio output or as an FFT-only instrument. There are also various hooks for interacting with external
 applications using network sockets.
 
 ![Screenshot of the main Gqrx window](resources/screenshots/gqrx-main.png)
 
 
 Download
---------
+========
 
-Gqrx is distributed as a source code package and binaries for Linux and Mac.
-Many Linux distributions provide gqrx in their package repositories.
-Alternate Mac support is available through [MacPorts](https://ports.macports.org/port/gqrx/summary) and [Homebrew](https://formulae.brew.sh/cask/gqrx).
+Gqrx is distributed as a source code package and binaries for Linux and Mac. Many Linux distributions provide gqrx in their package repositories.
 
 * [Official releases](https://github.com/gqrx-sdr/gqrx/releases)
 * [Pre-release builds](https://github.com/gqrx-sdr/gqrx/actions?query=workflow%3ABuild+branch%3Amaster)
 
-Usage
------
+Alternate Mac support is available through [MacPorts](https://ports.macports.org/port/gqrx/summary) and [Homebrew](https://formulae.brew.sh/cask/gqrx).
 
-It is strongly recommended to run the `volk_profile` utility before
-running gqrx. This will detect and enable processor-specific optimisations and
-will in many cases give a significant performance boost.
+Installation 
+============
 
-The first time you start gqrx it will open a device configuration dialog.
-Supported devices that are connected to the computer are discovered
-automatically and you can select any of them in the drop-down list.
+Our installation instructions cover Linux, Mac OS, Raspberry-Pi, and source code. If you're installation option is not available here, you can request it via [this 1 question poll](https://poll.fm/11102781).
 
-If you don't see your device listed in the drop-down list it could be because:
-- The driver has not been included in a binary distribution
-- The udev rule has not been properly configured
-- Linux kernel driver is blocking access to the device
+Linux distributions
+-------------------
 
-You can test your device using device specific tools, such as rtl_test,
-airspy_rx, hackrf_transfer, qthid, etc.
+The simplest installation for Linux distributions is by our [official AppImage release](https://github.com/gqrx-sdr/gqrx/releases). Many Linux distributions provide gqrx in their package repositories. Linux distribution versions can be out-of-date. 
 
-Gqrx supports multiple configurations and sessions if you have several devices
-or if you want to use the same device under different configurations. You can
-load a configuration from the GUI or using the `-c` command line argument. See
-`gqrx --help` for a complete list of command line arguments.
+Alternatively you can install from [source code](https://github.com/gqrx-sdr/gqrx/edit/master/README.md#installation-from-source). It will soon be possible to install gqrx on [linux-64, linux-aarch64 via the conda-forge](https://github.com/gqrx-sdr/gqrx/edit/master/README.md#installation-via-conda).
 
-Tutorials and howtos are being written and published on the website
-https://gqrx.dk/
-
-
-Known problems
+Mac OS install 
 --------------
 
-See the bug tracker on Github: https://github.com/gqrx-sdr/gqrx/issues
+The simplest installation is by our [offical Mac OS release](https://github.com/gqrx-sdr/gqrx/releases).
 
+Alternate Mac support is available through [MacPorts](https://ports.macports.org/port/gqrx/details/) and [Homebrew](https://formulae.brew.sh/cask/gqrx). It will soon be possible to install gqrx on [Mac OS osx-64 via the conda-forge](https://github.com/gqrx-sdr/gqrx/edit/master/README.md#installation-via-conda).
 
-Getting help and reporting bugs
--------------------------------
+Raspberry-Pi
+------------
 
-There is a Google group for discussing anything related to Gqrx:
-https://groups.google.com/g/gqrx
-This includes getting help with installation and troubleshooting. Please
-remember to provide detailed description of your problem, your setup, what
-steps you followed, etc.
+The simplest installation for Raspberry-Pi devices is via the Raspberry-Pi software repository.
 
-Please stick around and help others with their problems. Otherwise, if only
-developers provide user support there will be no more time for further
-development.
+```
+open the Applications menu
+select Preferences
+Add / Remove Software
+search for Gqrx
+After installation, Gqrx will be available in the Internet section of the Applications menu
+```
 
+Alternatively you can install it via [source using the instructions found on this blogpost](https://gqrx.dk/download/gqrx-sdr-for-the-raspberry-pi).
 
-Installation from source
-------------------------
+Windows
+-------
+
+Right now there is no simple way to install gqrx on Windows. It will soon be possible to install it on [Windows 64 bit (win-64) via the conda-forge](https://github.com/gqrx-sdr/gqrx/edit/master/README.md#installation-via-conda).
+
+Installation via Conda
+----------------------
+
+(Note: Installation via Conda is not yet fully supported. It is hoped this will be possible very soon.)
+
+The objective is to make it possible to install gqrx using [the conda-forge package manager](https://anaconda.org/conda-forge/gqrx). When this happens it'll be possible to install gqrx on linux-64, linux-aarch64, osx-64, and win-64.
+
+Installation from source code
+-----------------------------
 
 The source code is hosted on Github: https://github.com/gqrx-sdr/gqrx
 
@@ -148,6 +142,70 @@ Use Qt Creator as before
 </pre>
 
 
+Usage
+=====
+
+First use - optimise
+--------------------
+
+It is strongly recommended to run the `volk_profile` utility before
+running gqrx. This will detect and enable processor-specific optimisations and
+will in many cases give a significant performance boost.
+
+The first time you start gqrx it will open a device configuration dialog.
+Supported devices that are connected to the computer are discovered
+automatically and you can select any of them in the drop-down list.
+
+If you don't see your device listed in the drop-down list it could be because:
+- The driver has not been included in a binary distribution
+- The udev rule has not been properly configured
+- Linux kernel driver is blocking access to the device
+
+You can test your device using device specific tools, such as rtl_test,
+airspy_rx, hackrf_transfer, qthid, etc.
+
+Gqrx supports multiple configurations and sessions if you have several devices
+or if you want to use the same device under different configurations. You can
+load a configuration from the GUI or using the `-c` command line argument. See
+`gqrx --help` for a complete list of command line arguments.
+
+Tutorials and howtos
+---------------------
+
+Tutorials and howtos are being written and published on the website
+https://gqrx.dk/
+
+
+Known problems
+--------------
+
+See the bug tracker on Github: https://github.com/gqrx-sdr/gqrx/issues
+
+
+Join the community - Get help, report bugs and contribute
+=========================================================
+
+Mail list
+---------
+
+There is a Google group for discussing anything related to Gqrx:
+https://groups.google.com/g/gqrx
+
+This includes getting help with installation and troubleshooting. Please
+remember to provide detailed description of your problem, your setup, what
+steps you followed, etc.
+
+Please stick around and help others with their problems. Otherwise, if only
+developers provide user support there will be no more time for further
+development.
+
+Chat
+----
+
+There is a busy [gqrx chat channel hosted](#gqrx:gnuradio.org
+) on Gnu Radio matrix. You're welcome to join, then search for #gqrx:gnuradio.org.
+
+
 Debugging
 ---------
 
@@ -166,10 +224,10 @@ QT_LOGGING_RULES="*.debug=true;qt.*.debug=false" gqrx
 
 
 Credits and License
--------------------
+===================
 
 Gqrx is designed and written by Alexandru Csete OZ9AEC, and it is licensed
-under the GNU General Public License.
+under the[ GNU General Public License](https://www.gnu.org/licenses/gpl-3.0.en.html).
 
 Some of the source files were adapted from Cutesdr by Moe Weatley and these
 come with a Simplified BSD license.
@@ -249,14 +307,17 @@ The following people and organisations have contributed to gqrx:
 * Youssef Touil
 * Zero_Chaos
 
-Some of the icons are from:
-- The GNOME icon theme CC-SA 3.0 by GNOME icon artists
-- Tango icon theme, Public Domain by The people from the Tango! project
-- Mint-X icon theme, GPL by Clement Lefebvre
-
 Also thanks to Volker Schroer and Alexey Bazhin for bringing Funcube Dongle
 Pro+ support to GNU Radio and Gqrx.
 
 Let me know if somebody is missing from the list.
 
 Alex OZ9AEC
+
+UI Design & iconography
+=======================
+
+Some of the icons are from:
+- The GNOME icon theme CC-SA 3.0 by GNOME icon artists
+- [Tango icon theme](https://en.wikipedia.org/wiki/Tango_Desktop_Project), Public Domain by The people from the Tango! project
+- [Mint-X icon theme](https://github.com/linuxmint/mint-x-icons), GPL by Clement Lefebvre
