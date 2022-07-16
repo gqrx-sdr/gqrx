@@ -7,12 +7,18 @@ jobs:
     name: Ubuntu CI
     strategy:
       matrix:
-        os: [ubuntu-18.04, ubuntu-20.04]
+        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04]
         backend: [Pulseaudio, Portaudio, Gr-audio]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Install dependencies
-        run: sudo apt-get update -qq && sudo apt-get install -y cmake qt5-default libqt5svg5-dev libboost-dev libpulse-dev portaudio19-dev liblog4cpp5-dev gnuradio-dev gr-osmosdr gr-fcdproplus liborc-0.4-dev appstream desktop-file-utils
+        run: sudo apt-get update -qq && sudo apt-get install -y cmake libboost-dev libpulse-dev portaudio19-dev libsndfile-dev liblog4cpp5-dev gnuradio-dev gr-osmosdr liborc-0.4-dev appstream desktop-file-utils
+      - name: Install Qt5
+        if: matrix.os != 'ubuntu-22.04'
+        run: sudo apt-get install -y qt5-default libqt5svg5-dev
+      - name: Install Qt6
+        if: matrix.os == 'ubuntu-22.04'
+        run: sudo apt-get install -y qt6-base-dev libqt6svg6-dev libqt6svgwidgets6 libgl-dev
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Configure
