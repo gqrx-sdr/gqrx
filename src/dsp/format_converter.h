@@ -44,6 +44,9 @@ enum file_formats {
     FILE_FORMAT_CS8U,
     FILE_FORMAT_CS16LU,
     FILE_FORMAT_CS32LU,
+    FILE_FORMAT_CS10L,
+    FILE_FORMAT_CS12L,
+    FILE_FORMAT_CS14L,
     FILE_FORMAT_COUNT,
 };
 
@@ -76,6 +79,9 @@ public:
         {2,1,"8u.raw","uchar 8"},
         {4,1,"16u.raw","ushort 16"},
         {8,1,"32u.raw","uint 32"},
+        {5,2,"10.raw","10 bit"},
+        {3,1,"12.raw","12 bit"},
+        {7,2,"14.raw","14 bit"},
     };
 
     void set_decimation(unsigned decimation)
@@ -147,6 +153,12 @@ protected:
     void convert(const std::complex<int8_t> *in, gr_complex * out, int noutput_items);
     void convert(const gr_complex *in, std::complex<uint8_t> * out, int noutput_items);
     void convert(const std::complex<uint8_t> *in, gr_complex * out, int noutput_items);
+    void convert(const gr_complex *in, std::array<int8_t,5> * out, int noutput_items);
+    void convert(const std::array<int8_t,5> *in, gr_complex * out, int noutput_items);
+    void convert(const gr_complex *in, std::array<int8_t,3> * out, int noutput_items);
+    void convert(const std::array<int8_t,3> *in, gr_complex * out, int noutput_items);
+    void convert(const gr_complex *in, std::array<int8_t,7> * out, int noutput_items);
+    void convert(const std::array<int8_t,7> *in, gr_complex * out, int noutput_items);
 };
 
     /*!
@@ -248,6 +260,36 @@ public:
     static sptr make(dispatcher::tag<any_to_any<std::complex<uint8_t>, gr_complex>>)
     {
         return gnuradio::get_initial_sptr(new any_to_any<T_IN, T_OUT>(-float(INT8_MIN)));
+    }
+
+    static sptr make(dispatcher::tag<any_to_any<gr_complex, std::array<int8_t,5>>>)
+    {
+        return gnuradio::get_initial_sptr(new any_to_any<T_IN, T_OUT>(512.0f,2,1));
+    }
+
+    static sptr make(dispatcher::tag<any_to_any<std::array<int8_t,5>, gr_complex>>)
+    {
+        return gnuradio::get_initial_sptr(new any_to_any<T_IN, T_OUT>(512.0f,1,2));
+    }
+
+    static sptr make(dispatcher::tag<any_to_any<gr_complex, std::array<int8_t,3>>>)
+    {
+        return gnuradio::get_initial_sptr(new any_to_any<T_IN, T_OUT>(2048.0f));
+    }
+
+    static sptr make(dispatcher::tag<any_to_any<std::array<int8_t,3>, gr_complex>>)
+    {
+        return gnuradio::get_initial_sptr(new any_to_any<T_IN, T_OUT>(2048.0f));
+    }
+
+    static sptr make(dispatcher::tag<any_to_any<gr_complex, std::array<int8_t,7>>>)
+    {
+        return gnuradio::get_initial_sptr(new any_to_any<T_IN, T_OUT>(8192.0f,2,1));
+    }
+
+    static sptr make(dispatcher::tag<any_to_any<std::array<int8_t,7>, gr_complex>>)
+    {
+        return gnuradio::get_initial_sptr(new any_to_any<T_IN, T_OUT>(8192.0f,1,2));
     }
 
     any_to_any(const double scale, unsigned decimation=1, unsigned interpolation=1):sync_block("any_to_any",
