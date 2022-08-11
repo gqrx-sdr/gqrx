@@ -1603,6 +1603,7 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate, qint64
 
     qDebug() << __func__ << ":" << devstr;
 
+    rx->set_input_decim(1);
     rx->set_input_device(devstr.toStdString());
     updateHWFrequencyRange(false);
 
