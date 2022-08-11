@@ -118,6 +118,7 @@ public:
         FILE_FORMAT_CS8U,
         FILE_FORMAT_CS16LU,
         FILE_FORMAT_CS32LU,
+        FILE_FORMAT_COUNT
     };
 
     static const unsigned int DEFAULT_FFT_SIZE = 8192;
@@ -248,8 +249,9 @@ public:
 
     /* utility functions */
     static std::string escape_filename(std::string filename);
-    static int sample_size_from_format(enum file_formats fmt);
 
+    static const std::vector<std::string> file_format_suffixes;
+    static const std::vector<int> sample_sizes;
 
 private:
     void        connect_all(rx_chain type, enum file_formats fmt);

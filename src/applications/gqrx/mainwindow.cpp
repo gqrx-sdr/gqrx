@@ -1624,33 +1624,9 @@ void MainWindow::startIqRecording(const QString& recdir, receiver::file_formats 
     auto freq = qRound64(rx->get_rf_freq());
     auto sr = qRound64(rx->get_input_rate());
     auto dec = (quint32)(rx->get_input_decim());
-    QString suffix = "fc";
-    switch(fmt)
-    {
-    case receiver::FILE_FORMAT_CS8:
-        suffix = "8";
-    break;
-    case receiver::FILE_FORMAT_CS16L:
-        suffix = "16";
-    break;
-    case receiver::FILE_FORMAT_CS32L:
-        suffix = "32";
-    break;
-    case receiver::FILE_FORMAT_CS8U:
-        suffix = "8u";
-    break;
-    case receiver::FILE_FORMAT_CS16LU:
-        suffix = "16u";
-    break;
-    case receiver::FILE_FORMAT_CS32LU:
-        suffix = "32u";
-    break;
-    default:
-        fmt = receiver::FILE_FORMAT_CF;
-        suffix = "fc";
-    }
+    QString suffix = QString(receiver::file_format_suffixes[fmt].c_str());
     auto lastRec = QDateTime::currentDateTimeUtc().
-            toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_%4.'raw'")
+            toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3%4")
             .arg(recdir).arg(freq).arg(sr/dec).arg(suffix);
 
     // start recorder; fails if recording already in progress

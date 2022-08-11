@@ -52,7 +52,12 @@ CIqTool::CIqTool(QWidget *parent) :
     rec_len = 0;
     center_freq = 1e8;
 
-    recdir = new QDir(QDir::homePath(), "*.raw");
+    recdir = new QDir(QDir::homePath());
+    QStringList nameFilters;
+    for (auto & str: receiver::file_format_suffixes)
+        if (str != "")
+            nameFilters << "*" + QString(str.c_str());
+    recdir->setNameFilters(nameFilters);
 
     error_palette = new QPalette();
     error_palette->setColor(QPalette::Text, Qt::red);
@@ -264,7 +269,7 @@ void CIqTool::readSettings(QSettings *settings)
     }
     else
     {
-        rec_bytes_per_sample = receiver::sample_size_from_format((enum receiver::file_formats)ui->formatCombo->itemData(found).toInt());
+        rec_bytes_per_sample = receiver::sample_sizes[(enum receiver::file_formats)ui->formatCombo->itemData(found).toInt()];
         ui->formatCombo->setCurrentIndex(found);
     }
 }
@@ -324,7 +329,7 @@ void CIqTool::timeoutFunction(void)
 void CIqTool::on_formatCombo_currentIndexChanged(int index)
 {
     rec_fmt = (enum receiver::file_formats)ui->formatCombo->currentData().toInt();
-    rec_bytes_per_sample = receiver::sample_size_from_format(rec_fmt);
+    rec_bytes_per_sample = receiver::sample_sizes[rec_fmt];
 }
 
 /*! \brief Refresh list of files in current working directory. */
@@ -391,10 +396,10 @@ void CIqTool::refreshTimeWidgets(void)
 void CIqTool::parseFileName(const QString &filename)
 {
     bool   sr_ok;
-    qint64 sr=1e6;
+    qint64 sr = 1e6;
     bool   ofs_ok;
-    double ofs=1e8;
-    QString fmt_str="";
+    double ofs = 1e8;
+    QString fmt_str = "";
 
     QStringList list = filename.split('_');
 
@@ -405,46 +410,17 @@ void CIqTool::parseFileName(const QString &filename)
     sr = list.at(4).toLongLong(&sr_ok);
     ofs = list.at(3).toDouble(&ofs_ok);
     fmt_str = list.at(5);
-    list = fmt_str.split('.');
-    fmt_str = list.at(0);
 
     if (sr_ok)
         sample_rate = sr;
     if (ofs_ok)
         center_freq = ofs;
-    if(fmt_str.compare("fc") == 0)
+    for (int k = receiver::FILE_FORMAT_CF; k < receiver::FILE_FORMAT_COUNT; k++)
     {
-        bytes_per_sample = 8;
-        fmt = receiver::FILE_FORMAT_CF;
-    }
-    if(fmt_str.compare("32") == 0)
-    {
-        bytes_per_sample = 8;
-        fmt = receiver::FILE_FORMAT_CS32L;
-    }
-    if(fmt_str.compare("16") == 0)
-    {
-        bytes_per_sample = 4;
-        fmt = receiver::FILE_FORMAT_CS16L;
-    }
-    if(fmt_str.compare("8") == 0)
-    {
-        bytes_per_sample = 2;
-        fmt = receiver::FILE_FORMAT_CS8;
-    }
-    if(fmt_str.compare("32u") == 0)
-    {
-        bytes_per_sample = 8;
-        fmt = receiver::FILE_FORMAT_CS32LU;
-    }
-    if(fmt_str.compare("16u") == 0)
-    {
-        bytes_per_sample = 4;
-        fmt = receiver::FILE_FORMAT_CS16LU;
-    }
-    if(fmt_str.compare("8u") == 0)
-    {
-        bytes_per_sample = 2;
-        fmt = receiver::FILE_FORMAT_CS8U;
+        if (filename.endsWith(QString(receiver::file_format_suffixes[k].c_str())))
+        {
+            fmt = receiver::file_formats(k);
+            bytes_per_sample = receiver::sample_sizes[fmt];
+        }
     }
 }

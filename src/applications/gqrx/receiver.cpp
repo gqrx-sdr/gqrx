@@ -50,6 +50,32 @@
 #define WAV_FILE_GAIN 0.5
 #define TARGET_QUAD_RATE 1e6
 
+const std::vector<std::string> receiver::file_format_suffixes
+{
+    "",
+    "",
+    "_fc.raw",
+    "_8.raw",
+    "_16.raw",
+    "_32.raw",
+    "_8u.raw",
+    "_16u.raw",
+    "_32u.raw"
+};
+
+const std::vector<int> receiver::sample_sizes
+{
+    0,
+    0,
+    8,
+    2,
+    4,
+    8,
+    2,
+    4,
+    8
+};
+
 /**
  * @brief Public constructor.
  * @param input_device Input device specifier.
@@ -252,7 +278,7 @@ void receiver::set_input_device(const std::string device)
 void receiver::set_input_file(const std::string name, const int sample_rate, const enum file_formats fmt)
 {
     std::string error = "";
-    size_t sample_size = sample_size_from_format(fmt);
+    size_t sample_size = sample_sizes[fmt];
 
     input_file = gr::blocks::file_source::make(sample_size, name.c_str(), false);
 
@@ -1318,7 +1344,7 @@ receiver::status receiver::connect_iq_recorder()
  */
 receiver::status receiver::start_iq_recording(const std::string filename, const enum file_formats fmt)
 {
-    int sink_bytes_per_sample = sample_size_from_format(fmt);
+    int sink_bytes_per_sample = sample_sizes[fmt];
 
     if (d_recording_iq) {
         std::cout << __func__ << ": already recording" << std::endl;
@@ -1561,28 +1587,6 @@ bool receiver::is_rds_decoder_active(void) const
 void receiver::reset_rds_parser(void)
 {
     rx->reset_rds_parser();
-}
-
-int receiver::sample_size_from_format(enum file_formats fmt)
-{
-    switch(fmt)
-    {
-    case FILE_FORMAT_LAST:
-            throw std::runtime_error("invalid format requested");
-    case FILE_FORMAT_NONE:
-    case FILE_FORMAT_CF:
-    case FILE_FORMAT_CS32L:
-    case FILE_FORMAT_CS32LU:
-        return 8;
-    case FILE_FORMAT_CS16L:
-    case FILE_FORMAT_CS16LU:
-        return 4;
-    case FILE_FORMAT_CS8:
-    case FILE_FORMAT_CS8U:
-        return 2;
-    }
-    throw std::runtime_error("invalid format requested");
-    return 0;
 }
 
 std::string receiver::escape_filename(std::string filename)
