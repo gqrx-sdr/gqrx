@@ -195,9 +195,9 @@ private slots:
     void stopAudioStreaming();
 
     /* I/Q playback and recording*/
-    void startIqRecording(const QString& recdir);
+    void startIqRecording(const QString& recdir, enum receiver::file_formats fmt);
     void stopIqRecording();
-    void startIqPlayback(const QString& filename, float samprate, qint64 center_freq);
+    void startIqPlayback(const QString& filename, float samprate, qint64 center_freq, enum receiver::file_formats fmt);
     void stopIqPlayback();
     void seekIqFile(qint64 seek_pos);
 
