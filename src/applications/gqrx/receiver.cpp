@@ -54,13 +54,13 @@ const std::vector<std::string> receiver::file_format_suffixes
 {
     "",
     "",
-    "_fc.raw",
-    "_8.raw",
-    "_16.raw",
-    "_32.raw",
-    "_8u.raw",
-    "_16u.raw",
-    "_32u.raw"
+    ".cf32",
+    ".cs8",
+    ".cs16",
+    ".cs32",
+    ".cu8",
+    ".cu16",
+    ".cu32"
 };
 
 const std::vector<int> receiver::sample_sizes
