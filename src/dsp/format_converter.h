@@ -318,7 +318,4 @@ private:
     }
 };
 
-
-
-
 #endif /* INCLUDED_FORMAT_CONVERTER_H */

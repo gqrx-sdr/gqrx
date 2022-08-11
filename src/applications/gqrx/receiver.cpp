@@ -117,18 +117,6 @@ receiver::receiver(const std::string input_device,
 
     input_file = gr::blocks::file_source::make(sizeof(gr_complex),get_zero_file().c_str(),false);
     input_throttle = gr::blocks::throttle::make(sizeof(gr_complex),192000.0);
-    to_s32lc = any_to_any<gr_complex,std::complex<int32_t>>::make();
-    from_s32lc = any_to_any<std::complex<int32_t>,gr_complex>::make();
-    to_s16lc = any_to_any<gr_complex,std::complex<int16_t>>::make();
-    from_s16lc = any_to_any<std::complex<int16_t>,gr_complex>::make();
-    to_s8c = any_to_any<gr_complex,std::complex<int8_t>>::make();
-    from_s8c = any_to_any<std::complex<int8_t>,gr_complex>::make();
-    to_s32luc = any_to_any<gr_complex,std::complex<uint32_t>>::make();
-    from_s32luc = any_to_any<std::complex<uint32_t>,gr_complex>::make();
-    to_s16luc = any_to_any<gr_complex,std::complex<uint16_t>>::make();
-    from_s16luc = any_to_any<std::complex<uint16_t>,gr_complex>::make();
-    to_s8uc = any_to_any<gr_complex,std::complex<uint8_t>>::make();
-    from_s8uc = any_to_any<std::complex<uint8_t>,gr_complex>::make();
 
     iq_swap = make_iq_swap_cc(false);
     dc_corr = make_dc_corr_cc(d_decim_rate, 1.0);
@@ -299,11 +287,8 @@ void receiver::setup_source(enum file_formats fmt)
         fmt = d_last_format;
     else
         d_last_format = fmt;
-    switch(fmt)
+    if (fmt == FILE_FORMAT_NONE)
     {
-    case FILE_FORMAT_LAST:// Unreachable, just silence the warning
-    return;
-    case FILE_FORMAT_NONE:
         // Setup source
         b = src;
 
@@ -321,34 +306,16 @@ void receiver::setup_source(enum file_formats fmt)
         }
 
         tb->connect(b, 0, iq_swap, 0);
-    return;
-    case FILE_FORMAT_CF:
+        return;
+    }
+    if (fmt == FILE_FORMAT_CF) // No conversion
+    {
         tb->connect(input_file, 0 ,input_throttle, 0);
-    break;
-    case FILE_FORMAT_CS32L:
-        tb->connect(input_file, 0 ,from_s32lc, 0);
-        tb->connect(from_s32lc, 0, input_throttle, 0);
-    break;
-    case FILE_FORMAT_CS16L:
-        tb->connect(input_file, 0 ,from_s16lc, 0);
-        tb->connect(from_s16lc, 0, input_throttle, 0);
-    break;
-    case FILE_FORMAT_CS8:
-        tb->connect(input_file, 0 ,from_s8c, 0);
-        tb->connect(from_s8c, 0, b, 0);
-    break;
-    case FILE_FORMAT_CS32LU:
-        tb->connect(input_file, 0 ,from_s32luc, 0);
-        tb->connect(from_s32luc, 0, b, 0);
-    break;
-    case FILE_FORMAT_CS16LU:
-        tb->connect(input_file, 0 ,from_s16luc, 0);
-        tb->connect(from_s16luc, 0, b, 0);
-    break;
-    case FILE_FORMAT_CS8U:
-        tb->connect(input_file, 0 ,from_s8uc, 0);
-        tb->connect(from_s8uc, 0, b, 0);
-    break;
+    }
+    if (fmt > FILE_FORMAT_CF) // Connect through a converter
+    {
+        tb->connect(input_file, 0, convert_from[fmt], 0);
+        tb->connect(convert_from[fmt], 0, input_throttle, 0);
     }
     if (d_decim >= 2)
     {
@@ -1326,68 +1293,20 @@ receiver::status receiver::connect_iq_recorder()
     else
         b = src;
 
-    switch(d_iq_fmt)
+    if (d_iq_fmt == FILE_FORMAT_CF)
     {
-    case FILE_FORMAT_CS8:
-        {
-            tb->lock();
-            tb->connect(b, 0, to_s8c, 0);
-            tb->connect(to_s8c, 0, iq_sink, 0);
-            d_recording_iq = true;
-            tb->unlock();
-        }
-    break;
-    case FILE_FORMAT_CS16L:
-        {
-            tb->lock();
-            tb->connect(b, 0, to_s16lc, 0);
-            tb->connect(to_s16lc, 0, iq_sink, 0);
-            d_recording_iq = true;
-            tb->unlock();
-        }
-    break;
-    case FILE_FORMAT_CS32L:
-        {
-            tb->lock();
-            tb->connect(b, 0, to_s32lc, 0);
-            tb->connect(to_s32lc, 0, iq_sink, 0);
-            d_recording_iq = true;
-            tb->unlock();
-        }
-    break;
-    case FILE_FORMAT_CS8U:
-        {
-            tb->lock();
-            tb->connect(b, 0, to_s8uc, 0);
-            tb->connect(to_s8uc, 0, iq_sink, 0);
-            d_recording_iq = true;
-            tb->unlock();
-        }
-    break;
-    case FILE_FORMAT_CS16LU:
-        {
-            tb->lock();
-            tb->connect(b, 0, to_s16luc, 0);
-            tb->connect(to_s16luc, 0, iq_sink, 0);
-            d_recording_iq = true;
-            tb->unlock();
-        }
-    break;
-    case FILE_FORMAT_CS32LU:
-        {
-            tb->lock();
-            tb->connect(b, 0, to_s32luc, 0);
-            tb->connect(to_s32luc, 0, iq_sink, 0);
-            d_recording_iq = true;
-            tb->unlock();
-        }
-    break;
-    case FILE_FORMAT_CF:
         tb->lock();
         tb->connect(b, 0, iq_sink, 0);
         d_recording_iq = true;
         tb->unlock();
-    break;
+    }
+    if (d_iq_fmt > FILE_FORMAT_CF)
+    {
+            tb->lock();
+            tb->connect(b, 0, convert_to[d_iq_fmt], 0);
+            tb->connect(convert_to[d_iq_fmt], 0, iq_sink, 0);
+            d_recording_iq = true;
+            tb->unlock();
     }
     return STATUS_OK;
 }
@@ -1430,35 +1349,14 @@ receiver::status receiver::stop_iq_recording()
 
     tb->lock();
     iq_sink->close();
-    switch(d_iq_fmt)
+    if (d_iq_fmt == FILE_FORMAT_CF)
     {
-    case FILE_FORMAT_CS8:
         tb->disconnect(iq_sink);
-        tb->disconnect(to_s8c);
-    break;
-    case FILE_FORMAT_CS16L:
+    }
+    if (d_iq_fmt > FILE_FORMAT_CF)
+    {
         tb->disconnect(iq_sink);
-        tb->disconnect(to_s16lc);
-    break;
-    case FILE_FORMAT_CS32L:
-        tb->disconnect(iq_sink);
-        tb->disconnect(to_s32lc);
-    break;
-    case FILE_FORMAT_CS8U:
-        tb->disconnect(iq_sink);
-        tb->disconnect(to_s8uc);
-    break;
-    case FILE_FORMAT_CS16LU:
-        tb->disconnect(iq_sink);
-        tb->disconnect(to_s16luc);
-    break;
-    case FILE_FORMAT_CS32LU:
-        tb->disconnect(iq_sink);
-        tb->disconnect(to_s32luc);
-    break;
-    case FILE_FORMAT_CF:
-        tb->disconnect(iq_sink);
-    break;
+        tb->disconnect(convert_to[d_iq_fmt]);
     }
     tb->unlock();
     iq_sink.reset();

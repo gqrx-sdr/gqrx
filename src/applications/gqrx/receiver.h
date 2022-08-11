@@ -301,21 +301,31 @@ private:
     gr::blocks::multiply_const_ff::sptr wav_gain1; /*!< WAV file gain block. */
 
     gr::blocks::file_sink::sptr         iq_sink;     /*!< I/Q file sink. */
-    //Format converters to/from complex signed integers
-    any_to_any<gr_complex, std::complex<int32_t>>::sptr to_s32lc;
-    any_to_any<std::complex<int32_t>, gr_complex>::sptr from_s32lc;
-    any_to_any<gr_complex, std::complex<int16_t>>::sptr to_s16lc;
-    any_to_any<std::complex<int16_t>, gr_complex>::sptr from_s16lc;
-    any_to_any<gr_complex, std::complex<int8_t>>::sptr  to_s8c;
-    any_to_any<std::complex<int8_t>, gr_complex>::sptr  from_s8c;
-
-    //Format converters to/from complex unsigned integers
-    any_to_any<gr_complex, std::complex<uint32_t>>::sptr to_s32luc;
-    any_to_any<std::complex<uint32_t>, gr_complex>::sptr from_s32luc;
-    any_to_any<gr_complex, std::complex<uint16_t>>::sptr to_s16luc;
-    any_to_any<std::complex<uint16_t>, gr_complex>::sptr from_s16luc;
-    any_to_any<gr_complex, std::complex<uint8_t>>::sptr  to_s8uc;
-    any_to_any<std::complex<uint8_t>, gr_complex>::sptr  from_s8uc;
+    //Format converters to/from different sample formats
+    std::vector<gr::block_sptr> convert_to
+    {
+        nullptr,
+        nullptr,
+        nullptr,
+        any_to_any<gr_complex,std::complex<int8_t>>::make(),
+        any_to_any<gr_complex,std::complex<int16_t>>::make(),
+        any_to_any<gr_complex,std::complex<int32_t>>::make(),
+        any_to_any<gr_complex,std::complex<uint8_t>>::make(),
+        any_to_any<gr_complex,std::complex<uint16_t>>::make(),
+        any_to_any<gr_complex,std::complex<uint32_t>>::make()
+    };
+    std::vector<gr::block_sptr> convert_from
+    {
+        nullptr,
+        nullptr,
+        nullptr,
+        any_to_any<std::complex<int8_t>,gr_complex>::make(),
+        any_to_any<std::complex<int16_t>,gr_complex>::make(),
+        any_to_any<std::complex<int32_t>,gr_complex>::make(),
+        any_to_any<std::complex<uint8_t>,gr_complex>::make(),
+        any_to_any<std::complex<uint16_t>,gr_complex>::make(),
+        any_to_any<std::complex<uint32_t>,gr_complex>::make()
+    };
 
     gr::blocks::throttle::sptr                     input_throttle;
     gr::blocks::file_source::sptr                  input_file;
