@@ -7,7 +7,7 @@ jobs:
     name: Ubuntu CI
     strategy:
       matrix:
-        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04]
+        os: [ubuntu-20.04, ubuntu-22.04]
         backend: [Pulseaudio, Portaudio, Gr-audio]
     runs-on: ${{ matrix.os }}
     steps:
@@ -36,7 +36,7 @@ jobs:
     name: MacOS CI
     strategy:
       matrix:
-        os: [macos-10.15, macos-11, macos-12]
+        os: [macos-11, macos-12]
         backend: [Portaudio, Gr-audio]
     runs-on: ${{ matrix.os }}
     steps:
