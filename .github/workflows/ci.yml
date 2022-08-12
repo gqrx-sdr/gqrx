@@ -4,33 +4,67 @@ on: [push, pull_request]
 
 jobs:
   ubuntu-build:
-    name: Ubuntu CI
+    name: Linux CI
     strategy:
       matrix:
-        os: [ubuntu-20.04, ubuntu-22.04]
-        backend: [Pulseaudio, Portaudio, Gr-audio]
-    runs-on: ${{ matrix.os }}
+        image:
+          - "ubuntu:18.04"
+          - "ubuntu:20.04"
+          - "ubuntu:22.04"
+        backend:
+          - Pulseaudio
+          - Portaudio
+          - Gr-audio
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.image }}
+      env:
+        DEBIAN_FRONTEND: noninteractive
     steps:
       - name: Install dependencies
-        run: sudo apt-get update -qq && sudo apt-get install -y cmake libboost-dev libpulse-dev portaudio19-dev libsndfile-dev liblog4cpp5-dev gnuradio-dev gr-osmosdr liborc-0.4-dev appstream desktop-file-utils
+        run: |
+          apt-get update -qq
+          apt-get install -y \
+            cmake \
+            libboost-dev \
+            libpulse-dev \
+            portaudio19-dev \
+            libsndfile-dev \
+            liblog4cpp5-dev \
+            gnuradio-dev \
+            gr-osmosdr \
+            liborc-0.4-dev \
+            appstream \
+            desktop-file-utils
       - name: Install Qt5
-        if: matrix.os != 'ubuntu-22.04'
-        run: sudo apt-get install -y qt5-default libqt5svg5-dev
+        if: matrix.image != 'ubuntu:22.04'
+        run: |
+          apt-get install -y \
+            qt5-default \
+            libqt5svg5-dev
       - name: Install Qt6
-        if: matrix.os == 'ubuntu-22.04'
-        run: sudo apt-get install -y qt6-base-dev libqt6svg6-dev libqt6svgwidgets6 libgl-dev
+        if: matrix.image == 'ubuntu:22.04'
+        run: |
+          apt-get install -y \
+            qt6-base-dev \
+            libqt6svg6-dev \
+            libqt6svgwidgets6 \
+            libgl-dev
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Configure
-        run: mkdir build && cd build && cmake -DLINUX_AUDIO_BACKEND:STRING=${{ matrix.backend }} ..
+        run: |
+          mkdir build
+          cd build
+          cmake -DLINUX_AUDIO_BACKEND:STRING=${{ matrix.backend }} ..
       - name: Compile
         working-directory: build
         run: make -j4
       - name: Validate desktop entry
-        if: matrix.os == 'ubuntu-20.04'
+        if: matrix.image != 'ubuntu:18.04'
         run: desktop-file-validate dk.gqrx.gqrx.desktop
       - name: Validate appstream metadata
-        if: matrix.os == 'ubuntu-20.04'
+        if: matrix.image != 'ubuntu:18.04'
         run: appstreamcli validate dk.gqrx.gqrx.appdata.xml
   macos-build:
     name: MacOS CI
