@@ -5,13 +5,46 @@ on: [push]
 jobs:
   appimage:
     name: AppImage
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
+    container:
+      image: "ubuntu:18.04"
+      env:
+        DEBIAN_FRONTEND: noninteractive
+        APPIMAGE_EXTRACT_AND_RUN: "1"
     steps:
       - name: Install dependencies
         run: |
-          sudo add-apt-repository -y ppa:gnuradio/gnuradio-releases
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends cmake qt5-default qt5-gtk-platformtheme qttranslations5-l10n libqt5svg5-dev libboost-dev libpulse-dev portaudio19-dev liblog4cpp5-dev gnuradio-dev libairspy-dev libairspyhf-dev libfreesrp-dev libhackrf-dev librtlsdr-dev libsoapysdr-dev soapysdr-module-remote libuhd-dev liborc-0.4-dev libhidapi-dev
+          apt-get update -qq
+          apt-get install -y --no-install-recommends software-properties-common
+          add-apt-repository -y ppa:gnuradio/gnuradio-releases
+          add-apt-repository -y ppa:git-core/ppa
+          apt-get install -y --no-install-recommends \
+            git \
+            build-essential \
+            autoconf \
+            automake \
+            cmake \
+            libtool \
+            wget \
+            qt5-default \
+            qt5-gtk-platformtheme \
+            qttranslations5-l10n \
+            libqt5svg5-dev \
+            libboost-dev \
+            libpulse-dev \
+            portaudio19-dev \
+            liblog4cpp5-dev \
+            gnuradio-dev \
+            libairspy-dev \
+            libairspyhf-dev \
+            libfreesrp-dev \
+            libhackrf-dev \
+            librtlsdr-dev \
+            libsoapysdr-dev \
+            soapysdr-module-remote \
+            libuhd-dev \
+            liborc-0.4-dev \
+            libhidapi-dev
 
           cd /tmp
           git clone https://github.com/Nuand/bladeRF.git
@@ -20,8 +53,8 @@ jobs:
           cd build
           cmake -DCMAKE_INSTALL_PREFIX=/usr ..
           make -j4
-          sudo make install
-          sudo ldconfig
+          make install
+          ldconfig
 
           cd /tmp
           git clone https://github.com/dl1ksv/gr-fcdproplus.git
@@ -30,8 +63,8 @@ jobs:
           cd build
           cmake -DCMAKE_INSTALL_PREFIX=/usr ..
           make -j4
-          sudo make install
-          sudo ldconfig
+          make install
+          ldconfig
 
           cd /tmp
           git clone https://gitea.osmocom.org/sdr/libosmo-dsp.git
@@ -39,8 +72,8 @@ jobs:
           autoreconf -i
           ./configure --prefix=/usr
           make -j4
-          sudo make install
-          sudo ldconfig
+          make install
+          ldconfig
 
           cd /tmp
           git clone https://gitea.osmocom.org/sdr/gr-iqbal.git
@@ -50,8 +83,8 @@ jobs:
           cd build
           cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_MODULES_DIR=/usr/lib/x86_64-linux-gnu/cmake ..
           make -j4
-          sudo make install
-          sudo ldconfig
+          make install
+          ldconfig
 
           cd /tmp
           git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
@@ -59,16 +92,20 @@ jobs:
           git checkout gr3.8
           mkdir build
           cd build
-          cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_MODULES_DIR=/usr/lib/x86_64-linux-gnu/cmake ..
+          cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_MODULES_DIR=/usr/lib/x86_64-linux-gnu/cmake -DENABLE_PYTHON=False ..
           make -j4
-          sudo make install
-          sudo ldconfig
+          make install
+          ldconfig
       - name: Checkout code
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
       - name: Configure
-        run: mkdir build && cd build && cmake ..
+        run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+          mkdir build
+          cd build
+          cmake ..
       - name: Compile
         working-directory: build
         run: make -j4
