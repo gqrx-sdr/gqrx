@@ -37,6 +37,10 @@ Supported commands:
     Get status of audio recorder
  U RECORD <status>
     Set status of audio recorder to <status>
+ u IQRECORD
+    Get status of IQ recorder
+ U IQRECORD <status>
+    Set status of IQ recorder to <status>
  u DSP
     Get DSP (SDR receiver) status
  U DSP <status>
