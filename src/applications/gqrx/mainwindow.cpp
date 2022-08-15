@@ -281,8 +281,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(&DXCSpots::Get(), SIGNAL(dxcSpotsUpdated()), this, SLOT(updateClusterSpots()));
 
     // I/Q playback
-    connect(iq_tool, SIGNAL(startRecording(QString)), this, SLOT(startIqRecording(QString)));
-    connect(iq_tool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
+    connect(iq_tool, SIGNAL(startRecording(QString)), this, SLOT(startIqRec(QString)));
+    connect(iq_tool, SIGNAL(stopRecording()), this, SLOT(stopIqRec()));
     connect(iq_tool, SIGNAL(startPlayback(QString,float,qint64)), this, SLOT(startIqPlayback(QString,float,qint64)));
     connect(iq_tool, SIGNAL(stopPlayback()), this, SLOT(stopIqPlayback()));
     connect(iq_tool, SIGNAL(seek(qint64)), this,SLOT(seekIqFile(qint64)));
@@ -301,6 +301,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), remote, SLOT(setSquelchLevel(double)));
     connect(remote, SIGNAL(startAudioRecorderEvent()), uiDockAudio, SLOT(startAudioRecorder()));
     connect(remote, SIGNAL(stopAudioRecorderEvent()), uiDockAudio, SLOT(stopAudioRecorder()));
+    connect(remote, SIGNAL(startIqRecorderEvent()), iq_tool, SLOT(startIqRecorder()));
+    connect(remote, SIGNAL(stopIqRecorderEvent()), iq_tool, SLOT(stopIqRecorder()));
     connect(ui->plotter, SIGNAL(newFilterFreq(int, int)), remote, SLOT(setPassband(int, int)));
     connect(remote, SIGNAL(newPassband(int)), this, SLOT(setPassband(int)));
     connect(remote, SIGNAL(gainChanged(QString, double)), uiDockInputCtl, SLOT(setGain(QString,double)));
@@ -1540,7 +1542,7 @@ void MainWindow::stopAudioStreaming()
 }
 
 /** Start I/Q recording. */
-void MainWindow::startIqRecording(const QString& recdir)
+void MainWindow::startIqRec(const QString& recdir)
 {
     qDebug() << __func__;
     // generate file name using date, time, rf freq in kHz and BW in Hz
@@ -1574,7 +1576,7 @@ void MainWindow::startIqRecording(const QString& recdir)
 }
 
 /** Stop current I/Q recording. */
-void MainWindow::stopIqRecording()
+void MainWindow::stopIqRec()
 {
     qDebug() << __func__;
 
