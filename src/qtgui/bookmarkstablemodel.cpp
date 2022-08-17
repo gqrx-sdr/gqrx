@@ -101,8 +101,8 @@ QVariant BookmarksTableModel::data ( const QModelIndex & index, int role ) const
                 {
                     strTags.append(",");
                 }
-                TagInfo& tag = *info.tags[iTag];
-                strTags.append(tag.name);
+                TagInfo::sptr tag = info.tags[iTag];
+                strTags.append(tag->name);
             }
             return strTags;
         }
@@ -154,7 +154,7 @@ bool BookmarksTableModel::setData(const QModelIndex &index, const QVariant &valu
                 for(int i=0; i<strList.size(); ++i)
                 {
                     QString strTag = strList[i].trimmed();
-                    info.tags.append( &Bookmarks::Get().findOrAddTag(strTag) );
+                    info.tags.append( Bookmarks::Get().findOrAddTag(strTag) );
                 }
                 emit dataChanged(index, index);
                 return true;
@@ -196,8 +196,8 @@ void BookmarksTableModel::update()
         bool bActive = false;
         for(int iTag=0; iTag<info.tags.size(); ++iTag)
         {
-            TagInfo& tag = *info.tags[iTag];
-            if(tag.active)
+            TagInfo::sptr tag = info.tags[iTag];
+            if(tag->active)
             {
                 bActive = true;
                 break;

@@ -267,11 +267,11 @@ void DockBookmarks::changeBookmarkTags(int row, int /*column*/)
             bmi.tags.clear();
             if (tags.size() == 0)
             {
-                bmi.tags.append(&Bookmarks::Get().findOrAddTag("")); // "Untagged"
+                bmi.tags.append(Bookmarks::Get().findOrAddTag("")); // "Untagged"
             }
             for (int i = 0; i < tags.size(); ++i)
             {
-                bmi.tags.append(&Bookmarks::Get().findOrAddTag(tags[i]));
+                bmi.tags.append(Bookmarks::Get().findOrAddTag(tags[i]));
             }
             Bookmarks::Get().save();
         }

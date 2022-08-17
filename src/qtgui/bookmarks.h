@@ -30,9 +30,11 @@
 #include <QList>
 #include <QStringList>
 #include <QColor>
+#include <memory>
 
 struct TagInfo
 {
+    using sptr = std::shared_ptr<TagInfo>;
     QString name;
     QColor color;
     bool active;
@@ -46,6 +48,10 @@ struct TagInfo
         this->color=DefaultColor;
         this->name = name;
     }
+    static sptr make(QString name = "")
+    {
+        return std::make_shared<TagInfo>(name);
+    }
     bool operator<(const TagInfo &other) const
     {
         return name < other.name;
@@ -58,7 +64,7 @@ struct BookmarkInfo
     QString name;
     QString modulation;
     qint64  bandwidth;
-    QList<TagInfo*> tags;
+    QList<TagInfo::sptr> tags;
 
     BookmarkInfo()
     {
@@ -107,8 +113,8 @@ public:
     //int lowerBound(qint64 low);
     //int upperBound(qint64 high);
 
-    QList<TagInfo> getTagList() { return  QList<TagInfo>(m_TagList); }
-    TagInfo& findOrAddTag(QString tagName);
+    QList<TagInfo::sptr> getTagList() { return  QList<TagInfo::sptr>(m_TagList); }
+    TagInfo::sptr findOrAddTag(QString tagName);
     int getTagIndex(QString tagName);
     bool removeTag(QString tagName);
     bool setTagChecked(QString tagName, bool bChecked);
@@ -117,10 +123,10 @@ public:
 
 private:
     Bookmarks(); // Singleton Constructor is private.
-    QList<BookmarkInfo> m_BookmarkList;
-    QList<TagInfo> m_TagList;
-    QString        m_bookmarksFile;
-    static Bookmarks* m_pThis;
+    QList<BookmarkInfo>  m_BookmarkList;
+    QList<TagInfo::sptr> m_TagList;
+    QString              m_bookmarksFile;
+    static Bookmarks*    m_pThis;
 
 signals:
     void BookmarksChanged(void);
