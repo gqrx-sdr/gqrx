@@ -58,7 +58,7 @@ rx_agc_2f::rx_agc_2f(double sample_rate, bool agc_on, int target_level,
                               int decay, int hang, int panning)
     : gr::sync_block ("rx_agc_2f",
           gr::io_signature::make(2, 2, sizeof(float)),
-          gr::io_signature::make(2, 2, sizeof(float))),
+          gr::io_signature::make(2, 4, sizeof(float))),
       d_agc_on(agc_on),
       d_sample_rate(sample_rate),
       d_target_level(target_level),
@@ -123,6 +123,8 @@ int rx_agc_2f::work(int noutput_items,
     const float *in1 = (const float *) input_items[1];
     float *out0 = (float *) output_items[0];
     float *out1 = (float *) output_items[1];
+    float *out2 = (float *) output_items[2];
+    float *out3 = (float *) output_items[3];
 
     std::lock_guard<std::mutex> lock(d_mutex);
 
@@ -159,8 +161,8 @@ int rx_agc_2f::work(int noutput_items,
             float sample_in0 = in0[k_hist];
             float sample_in1 = in1[k_hist];
             mag_in = std::max(fabs(sample_in0),fabs(sample_in1));
-            float sample_out0 = in0[k_hist - d_buf_samples - d_delay_l];
-            float sample_out1 = in1[k_hist - d_buf_samples - d_delay_r];
+            float sample_out0 = in0[k_hist - d_buf_samples];
+            float sample_out1 = in1[k_hist - d_buf_samples];
 
             d_mag_buf[d_buf_p] = mag_in;
             update_buffer(d_buf_p);
@@ -208,14 +210,22 @@ int rx_agc_2f::work(int noutput_items,
                 d_hang_counter--;
             if (d_current_gain < MIN_GAIN)
                 d_current_gain = MIN_GAIN;
-            out0[k] = sample_out0 * d_current_gain * d_gain_l;
-            out1[k] = sample_out1 * d_current_gain * d_gain_r;
+            out0[k] = in0[k_hist - d_buf_samples - d_delay_l] * d_current_gain * d_gain_l;
+            out1[k] = in1[k_hist - d_buf_samples - d_delay_r] * d_current_gain * d_gain_r;
+            if (output_items.size() > 2)
+                out2[k] = sample_out0 * d_current_gain;
+            if (output_items.size() > 3)
+                out3[k] = sample_out1 * d_current_gain;
             d_buf_p = buf_p_next;
         }
     }
     else{
         volk_32f_s32f_multiply_32f((float *)out0, (float *)&in0[history() - 1 - d_delay_l], d_current_gain * d_gain_l, noutput_items);
         volk_32f_s32f_multiply_32f((float *)out1, (float *)&in1[history() - 1 - d_delay_r], d_current_gain * d_gain_r, noutput_items);
+        if (output_items.size() > 2)
+            volk_32f_s32f_multiply_32f((float *)out2, (float *)&in0[history() - 1], d_current_gain, noutput_items);
+        if (output_items.size() > 3)
+            volk_32f_s32f_multiply_32f((float *)out3, (float *)&in1[history() - 1], d_current_gain, noutput_items);
     }
     #ifdef AGC_DEBUG2
     static TYPEFLOAT d_prev_dbg = 0.0;
