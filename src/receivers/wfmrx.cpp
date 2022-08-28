@@ -57,8 +57,8 @@ wfmrx::wfmrx(float quad_rate, float audio_rate)
     connect(demod_fm, 0, mono, 0);
     connect(mono, 0, agc, 0); // left  channel
     connect(mono, 1, agc, 1); // right channel
-    connect(agc, 0, self(), 0);
-    connect(agc, 1, self(), 1);
+    connect(agc, 2, self(), 0);
+    connect(agc, 3, self(), 1);
 }
 
 wfmrx::~wfmrx()
