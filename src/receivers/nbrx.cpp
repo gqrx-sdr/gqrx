@@ -66,8 +66,8 @@ nbrx::nbrx(float quad_rate, float audio_rate)
     connect(nb, 0, filter, 0);
     connect(filter, 0, meter, 0);
     connect(filter, 0, sql, 0);
-    connect(agc, 0, self(), 0);
-    connect(agc, 1, self(), 1);
+    connect(agc, 2, self(), 0);
+    connect(agc, 3, self(), 1);
 }
 
 bool nbrx::start()
