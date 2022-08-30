@@ -355,12 +355,7 @@ void RemoteControl::setSquelchLevel(double level)
 /*! \brief Start audio recorder (from mainwindow). */
 void RemoteControl::startAudioRecorder(QString unused)
 {
-    /* TODO
-     * Delete just the line with the if statement below?
-     * If we do not track for the fulltime the status in here
-     * we will have an issues as soon remote contril is enabled
-     * and audio recording already running?
-     */
+    /* Check first if a demodulation mode is set. */
     if (rc_mode > 0)
         audio_recorder_status = true;
 }
@@ -374,10 +369,6 @@ void RemoteControl::stopAudioRecorder()
 /*! \brief Start iq recorder (from another window). */
 void RemoteControl::startIqRecorder(QString unused)
 {
-    /* TODO
-     * Check my note in startAudioRecorder about the if statement
-     * If I'm wrong there the implementation in here is wrong as well.
-     */
     iq_recorder_status = true;
 }
 
@@ -757,21 +748,18 @@ QString RemoteControl::cmd_set_func(QStringList cmdlist)
     }
     else if ((func.compare("RECORD", Qt::CaseInsensitive) == 0) && ok)
     {
-        audio_recorder_status = status;
-        if (status)
+        if (rc_mode == 0 || !receiver_running)
         {
-            if (rc_mode > 0 && receiver_running)
-            {
-                emit startAudioRecorderEvent();
-                answer = QString("RPRT 0\n");
-            }
-            else
-                answer = QString("RPRT 1\n");
+            answer = QString("RPRT 1\n");
         }
         else
         {
-            emit stopAudioRecorderEvent();
             answer = QString("RPRT 0\n");
+            audio_recorder_status = status;
+            if (status)
+                emit startAudioRecorderEvent();
+            else
+                emit stopAudioRecorderEvent();
         }
     }
     else if ((func.compare("IQRECORD", Qt::CaseInsensitive) == 0) && ok)
