@@ -47,6 +47,7 @@ RemoteControl::RemoteControl(QObject *parent) :
     signal_level = -200.0;
     squelch_level = -150.0;
     audio_recorder_status = false;
+    iq_recorder_status = false;
     receiver_running = false;
     hamlib_compatible = false;
 
@@ -354,6 +355,7 @@ void RemoteControl::setSquelchLevel(double level)
 /*! \brief Start audio recorder (from mainwindow). */
 void RemoteControl::startAudioRecorder(QString unused)
 {
+    /* Check first if a demodulation mode is set. */
     if (rc_mode > 0)
         audio_recorder_status = true;
 }
@@ -362,6 +364,18 @@ void RemoteControl::startAudioRecorder(QString unused)
 void RemoteControl::stopAudioRecorder()
 {
     audio_recorder_status = false;
+}
+
+/*! \brief Start iq recorder (from another window). */
+void RemoteControl::startIqRecorder(QString unused)
+{
+    iq_recorder_status = true;
+}
+
+/*! \brief Stop iq recorder (from another window). */
+void RemoteControl::stopIqRecorder()
+{
+    iq_recorder_status = false;
 }
 
 /*! \brief Set receiver status (from mainwindow). */
@@ -708,6 +722,8 @@ QString RemoteControl::cmd_get_func(QStringList cmdlist)
         answer = QString("RECORD DSP RDS\n");
     else if (func.compare("RECORD", Qt::CaseInsensitive) == 0)
         answer = QString("%1\n").arg(audio_recorder_status);
+    else if (func.compare("IQRECORD", Qt::CaseInsensitive) == 0)
+        answer = QString("%1\n").arg(iq_recorder_status);
     else if (func.compare("DSP", Qt::CaseInsensitive) == 0)
         answer = QString("%1\n").arg(receiver_running);
     else if (func.compare("RDS", Qt::CaseInsensitive) == 0)
@@ -752,6 +768,25 @@ QString RemoteControl::cmd_set_func(QStringList cmdlist)
             audio_recorder_status = status;
             if (status)
                 emit startAudioRecorderEvent();
+        }
+    }
+    else if ((func.compare("IQRECORD", Qt::CaseInsensitive) == 0) && ok)
+    {
+        iq_recorder_status = status;
+        if (status)
+        {
+            if (receiver_running)
+            {
+                emit startIqRecorderEvent();
+                answer = QString("RPRT 0\n");
+            }
+            else
+                answer = QString("RPRT 1\n");       // Seend error
+        }
+        else
+        {
+            emit stopIqRecorderEvent();
+            answer = QString("RPRT 0\n");
         }
     }
     else if ((func.compare("DSP", Qt::CaseInsensitive) == 0) && ok)
