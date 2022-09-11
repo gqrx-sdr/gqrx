@@ -860,14 +860,14 @@ QString RemoteControl::cmd_set_demod_center()
     return QString("RPRT 0\n");
 }
 
-/* Centralize the demod window within the FFT window*/
+/* Reset zoom of FFT window*/
 QString RemoteControl::cmd_reset_FftZoom()
 {
     emit resetFftZoomEvent();
     return QString("RPRT 0\n");
 }
 
-/* Centralize the demod window within the FFT window*/
+/* Centralize the FFT window*/
 QString RemoteControl::cmd_center_FftView()
 {
     emit centerFftViewEvent();
