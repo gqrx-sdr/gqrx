@@ -242,6 +242,8 @@ void RemoteControl::startRead()
         answer = cmd_AOS();
     else if (cmd == "LOS")
         answer = cmd_LOS();
+    else if (cmd == "DC")
+        answer = cmd_set_demod_center();
     else if (cmd == "LNB_LO")
         answer = cmd_lnb_lo(cmdlist);
     else if (cmd == "\\dump_state")
@@ -847,6 +849,12 @@ QString RemoteControl::cmd_LOS()
     return QString("RPRT 0\n");
 }
 
+/* Centralize the demod window within the FFT window*/
+QString RemoteControl::cmd_set_demod_center()
+{
+    emit centerDemodViewEvent();
+    return QString("RPRT 0\n");
+}
 /* Set the LNB LO value */
 QString RemoteControl::cmd_lnb_lo(QStringList cmdlist)
 {
