@@ -108,6 +108,8 @@ signals:
     void startAudioRecorderEvent();
     void stopAudioRecorderEvent();
     void centerDemodViewEvent();
+    void resetFftZoomEvent();
+    void centerFftViewEvent();
     void gainChanged(QString name, double value);
     void dspChanged(bool value);
     void newRDSmode(bool value);
@@ -162,8 +164,9 @@ private:
     QString     cmd_AOS();
     QString     cmd_LOS();
     QString     cmd_set_demod_center();
+    QString     cmd_reset_FftZoom();
+    QString     cmd_center_FftView();
     QString     cmd_lnb_lo(QStringList cmdlist);
     QString     cmd_dump_state() const;
 };
-
 #endif // REMOTE_CONTROL_H

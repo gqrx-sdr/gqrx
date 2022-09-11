@@ -307,6 +307,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(remote, SIGNAL(dspChanged(bool)), this, SLOT(on_actionDSP_triggered(bool)));
     connect(uiDockRDS, SIGNAL(rdsPI(QString)), remote, SLOT(rdsPI(QString)));
     connect(remote, SIGNAL(centerDemodViewEvent()), uiDockFft, SIGNAL(gotoDemodFreq()));
+    connect(remote, SIGNAL(resetFftZoomEvent()), uiDockFft, SIGNAL(resetFftZoom()));
+    connect(remote, SIGNAL(centerFftViewEvent()), uiDockFft, SIGNAL(gotoFftCenter()));
 
     rds_timer = new QTimer(this);
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
