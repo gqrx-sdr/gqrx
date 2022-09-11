@@ -92,6 +92,7 @@ public slots:
     void setMode(int mode);
     void setPassband(int passband_lo, int passband_hi);
     void setSquelchLevel(double level);
+    void setFFTZoomLevel(float level);
     void startAudioRecorder(QString unused);
     void stopAudioRecorder();
     bool setGain(QString name, double gain);
@@ -108,6 +109,7 @@ signals:
     void startAudioRecorderEvent();
     void stopAudioRecorderEvent();
     void centerDemodViewEvent();
+    void fftZoomChangedEvent(float zoom);
     void resetFftZoomEvent();
     void centerFftViewEvent();
     void gainChanged(QString name, double value);
@@ -129,6 +131,7 @@ private:
     qint64      rc_filter_offset;
     qint64      bw_half;
     double      rc_lnb_lo_mhz;     /*!< Current LNB LO freq in MHz */
+    float       fft_zoom_level;    /*!< Current FFT Zoom level */
 
     int         rc_mode;           /*!< Current mode. */
     int         rc_passband_lo;    /*!< Current low cutoff. */
@@ -165,6 +168,7 @@ private:
     QString     cmd_LOS();
     QString     cmd_set_demod_center();
     QString     cmd_reset_FftZoom();
+    QString     cmd_set_FftZoom(QStringList cmdlist);
     QString     cmd_center_FftView();
     QString     cmd_lnb_lo(QStringList cmdlist);
     QString     cmd_dump_state() const;

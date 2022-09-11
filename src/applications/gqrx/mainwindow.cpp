@@ -309,6 +309,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(remote, SIGNAL(centerDemodViewEvent()), uiDockFft, SIGNAL(gotoDemodFreq()));
     connect(remote, SIGNAL(resetFftZoomEvent()), uiDockFft, SIGNAL(resetFftZoom()));
     connect(remote, SIGNAL(centerFftViewEvent()), uiDockFft, SIGNAL(gotoFftCenter()));
+    connect(remote, SIGNAL(fftZoomChangedEvent(float)), uiDockFft, SIGNAL(fftZoomChanged(float)));
 
     rds_timer = new QTimer(this);
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));

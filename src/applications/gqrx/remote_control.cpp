@@ -246,6 +246,8 @@ void RemoteControl::startRead()
         answer = cmd_set_demod_center();
     else if (cmd == "RFZ")
         answer = cmd_reset_FftZoom();
+    else if (cmd == "SFZ")
+        answer = cmd_set_FftZoom(cmdlist);
     else if (cmd == "SFC")
         answer = cmd_center_FftView();
     else if (cmd == "LNB_LO")
@@ -285,6 +287,13 @@ void RemoteControl::setNewFrequency(qint64 freq)
 void RemoteControl::setFilterOffset(qint64 freq)
 {
     rc_filter_offset = freq;
+}
+
+/*! \brief Slot called when the FFT Zoom has changed
+ */
+void RemoteControl::setFFTZoomLevel(float level)
+{
+    fft_zoom_level = level;
 }
 
 /*! \brief Slot called when the LNB LO frequency has changed
@@ -896,6 +905,29 @@ QString RemoteControl::cmd_lnb_lo(QStringList cmdlist)
         return QString("%1\n").arg((qint64)(rc_lnb_lo_mhz * 1e6));
     }
 }
+/* Set the FFT zoom level */
+QString RemoteControl::cmd_set_FftZoom(QStringList cmdlist)
+{
+    if(cmdlist.size() == 2)
+    {
+        bool ok;
+        float zoom_lvl = cmdlist[1].toFloat(&ok);
+
+        if (ok)
+        {
+            fft_zoom_level = zoom_lvl;
+            emit fftZoomChangedEvent(fft_zoom_level);
+            return QString("RPRT 0\n");
+        }
+
+        return QString("RPRT 1\n");
+    }
+    else
+    {
+        return QString("%1\n").arg((float)(fft_zoom_level));
+    }
+}
+
 
 /*
  * '\dump_state' used by hamlib clients, e.g. xdx, fldigi, rigctl and etc
