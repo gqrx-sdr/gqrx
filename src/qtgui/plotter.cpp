@@ -28,6 +28,7 @@
  * or implied, of Moe Wheatley.
  */
 #include <cmath>
+#include <QGuiApplication>
 #include <QColor>
 #include <QDateTime>
 #include <QDebug>
@@ -798,7 +799,8 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                 }
 
                 // left-click with no modifiers: set center frequency
-                else if (mods == 0) {
+                else
+                {
                     int best = -1;
 
                     if (m_PeakDetectActive > 0)
@@ -809,7 +811,14 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                         m_DemodCenterFreq = roundFreq(freqFromX(px), m_ClickResolution);
 
                     // if cursor not captured set demod frequency and start demod box capture
-                    emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
+                    if(mods == Qt::ShiftModifier)
+                    {
+                        emit newDemodFreqAdd(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
+                    }else  if(mods == Qt::ControlModifier){
+                        // TODO: find some use for the ctrl modifier
+                    }else{
+                        emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
+                    }
 
                     // save initial grab position from m_DemodFreqX
                     // setCursor(QCursor(Qt::CrossCursor));
