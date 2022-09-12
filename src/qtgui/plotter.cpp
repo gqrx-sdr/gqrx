@@ -776,6 +776,7 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
     int px = qRound((qreal)pt.x() * m_DPR);
     int py = qRound((qreal)pt.y() * m_DPR);
     QPoint ppos = QPoint(px, py);
+    quint32 mods = event->modifiers() & (Qt::ShiftModifier|Qt::ControlModifier);
 
     if (NOCAP == m_CursorCaptured)
     {
@@ -802,7 +803,6 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
             if (event->buttons() == Qt::LeftButton)
             {
                 // {shift|ctrl|ctrl-shift}-left-click: set ab markers around signal at cursor
-                quint32 mods = event->modifiers() & (Qt::ShiftModifier|Qt::ControlModifier);
                 if (m_MarkersEnabled && ((event->modifiers() & mods) != 0))
                 {
                     float *selectBuf = nullptr;
@@ -941,6 +941,8 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                     if (event->buttons() == Qt::LeftButton)
                     {
                         //just tune
+                        if(mods == Qt::ShiftModifier)
+                            m_CenterFreq = tag.second;
                         m_DemodCenterFreq = tag.second;
                         emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
                         break;
@@ -948,6 +950,8 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                     else if (event->buttons() == Qt::MiddleButton)
                     {
                         //tune and load settings
+                        if(mods == Qt::ShiftModifier)
+                            m_CenterFreq = tag.second;
                         m_DemodCenterFreq = tag.second;
                         emit newDemodFreqAdd(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
                         break;
@@ -955,6 +959,8 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                     else if (event->buttons() == Qt::RightButton)
                     {
                         //new demod here
+                        if(mods == Qt::ShiftModifier)
+                            m_CenterFreq = tag.second;
                         m_DemodCenterFreq = tag.second;
                         emit newDemodFreqLoad(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
                         break;
