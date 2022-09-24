@@ -711,7 +711,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         ui->freqCtrl->setFrequency(int64_val  + (qint64)(rx->get_filter_offset()));
         setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
     }
-    readRXSettings(ver);
+    readRXSettings(ver, actual_rate);
     if (ver < 4)
     {
         // Center frequency for FFT plotter
@@ -1008,12 +1008,13 @@ void MainWindow::storeSession()
     }
 }
 
-void MainWindow::readRXSettings(int ver)
+void MainWindow::readRXSettings(int ver, double actual_rate)
 {
     bool conv_ok;
     int int_val;
     double  dbl_val;
     int i = 0;
+    qint64 offs = 0;
     rxSpinBox->setMaximum(0);
     while (rx->get_rx_count() > 1)
         rx->delete_rx();
@@ -1024,14 +1025,17 @@ void MainWindow::readRXSettings(int ver)
     {
         m_settings->beginGroup(grp);
 
-        qint64 offs = m_settings->value("offset", 0).toInt(&conv_ok);
-        if (conv_ok)
-            rx->set_filter_offset(offs);
+        bool isLocked = m_settings->value("freq_locked", false).toBool();
+        rx->set_freq_lock(isLocked);
 
-        if (m_settings->value("freq_locked", false).toBool())
-            rx->set_freq_lock(true);
-        else
-            rx->set_freq_lock(false);
+        offs = m_settings->value("offset", 0).toInt(&conv_ok);
+        if (conv_ok)
+        {
+            if(!isLocked || ver < 4)
+                if(std::abs(offs) > actual_rate / 2)
+                    offs = (offs > 0) ? (actual_rate / 2) : (-actual_rate / 2);
+            rx->set_filter_offset(offs);
+        }
 
         int_val = Modulations::MODE_AM;
         if (m_settings->contains("demod")) {
@@ -1165,6 +1169,9 @@ void MainWindow::readRXSettings(int ver)
     ui->plotter->setCurrentVfo(int_val);
     if (rxSpinBox->value() != int_val)
         rxSpinBox->setValue(int_val);
+    offs = rx->get_filter_offset();
+    if(std::abs(offs) > actual_rate / 2)
+        rx->set_filter_offset((offs > 0) ? (actual_rate / 2) : (-actual_rate / 2));
     loadRxToGUI();
 }
 
