@@ -941,6 +941,15 @@ void MainWindow::storeSession()
                 m_settings->setValue("agc_off", true);
             else
                 m_settings->remove("agc_off");
+            //noise blanker
+            for (int j = 1; j < RECEIVER_NB_COUNT + 1; j++)
+            {
+                if(rx->get_nb_on(j))
+                    m_settings->setValue(QString("nb%1on").arg(j), true);
+                else
+                    m_settings->remove(QString("nb%1on").arg(j));
+                m_settings->setValue(QString("nb%1thr").arg(j), rx->get_nb_threshold(j));
+            }
             //filter
             int     flo, fhi;
             receiver::filter_shape fdw;
@@ -1097,6 +1106,14 @@ void MainWindow::readRXSettings(int ver, double actual_rate)
             rx->set_agc_on(false);
         else
             rx->set_agc_on(true);
+
+        for (int j = 1; j < RECEIVER_NB_COUNT + 1; j++)
+        {
+            rx->set_nb_on(j, m_settings->value(QString("nb%1on").arg(j), false).toBool());
+            float thr = m_settings->value(QString("nb%1thr").arg(j), 2.0).toFloat(&conv_ok);
+            if (conv_ok)
+                rx->set_nb_threshold(j, thr);
+        }
 
         bool flo_ok = false;
         bool fhi_ok = false;
