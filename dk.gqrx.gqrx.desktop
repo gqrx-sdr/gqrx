@@ -4,6 +4,8 @@ Name=Gqrx
 GenericName=Software Defined Radio
 Comment=Software defined radio receiver implemented using GNU Radio and the Qt GUI toolkit
 # FIXME add comments in other languages
+GenericName[cs]=Softwarově definované rádio (SDR)
+Comment[cs]=Příjímač na bázi softwarově definovaného rádia implementovaný s použitím GNU Radio a Qt
 GenericName[ru]=Программно-определённое радио
 Comment[ru]=Приемник для программно-определенного радио (SDR) использующий GNU Radio и библиотеку Qt.
 GenericName[nl]=Software Defined Radio
