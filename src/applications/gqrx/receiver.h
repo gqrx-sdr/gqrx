@@ -110,6 +110,11 @@ public:
         FILTER_SHAPE_SHARP = 2   /*!< Sharp: Transition band is TBD of width. */
     };
 
+    enum class RecordingFormat {
+        RAW,
+        WAV,
+    };
+
     receiver(const std::string input_device="",
              const std::string audio_device="",
              unsigned int decimation=1);
@@ -210,7 +215,7 @@ public:
     status      stop_udp_streaming();
 
     /* I/Q recording and playback */
-    status      start_iq_recording(const std::string filename);
+    status      start_iq_recording(const std::string filename, const RecordingFormat format);
     status      stop_iq_recording();
     status      seek_iq_file(long pos);
 
@@ -275,7 +280,9 @@ private:
     gr::blocks::multiply_const_ff::sptr audio_gain0; /*!< Audio gain block. */
     gr::blocks::multiply_const_ff::sptr audio_gain1; /*!< Audio gain block. */
 
-    gr::blocks::file_sink::sptr         iq_sink;     /*!< I/Q file sink. */
+    gr::blocks::file_sink::sptr         iq_sink_raw;     /*!< I/Q file sink. */
+    gr::blocks::wavfile_sink::sptr      iq_sink_wav;     /*!< I/Q file sink. */
+    gr::blocks::complex_to_float::sptr  iq_complex_to_float;
 
     gr::blocks::wavfile_sink::sptr      wav_sink;   /*!< WAV file sink for recording. */
     gr::blocks::wavfile_source::sptr    wav_src;    /*!< WAV file source for playback. */

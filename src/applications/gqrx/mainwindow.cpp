@@ -281,7 +281,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(&DXCSpots::Get(), SIGNAL(dxcSpotsUpdated()), this, SLOT(updateClusterSpots()));
 
     // I/Q playback
-    connect(iq_tool, SIGNAL(startRecording(QString)), this, SLOT(startIqRecording(QString)));
+    connect(iq_tool, SIGNAL(startRecording(QString,receiver::RecordingFormat)),
+            this, SLOT(startIqRecording(QString,receiver::RecordingFormat)));
     connect(iq_tool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
     connect(iq_tool, SIGNAL(startPlayback(QString,float,qint64)), this, SLOT(startIqPlayback(QString,float,qint64)));
     connect(iq_tool, SIGNAL(stopPlayback()), this, SLOT(stopIqPlayback()));
@@ -1540,20 +1541,21 @@ void MainWindow::stopAudioStreaming()
 }
 
 /** Start I/Q recording. */
-void MainWindow::startIqRecording(const QString& recdir)
+void MainWindow::startIqRecording(const QString& recdir, const receiver::RecordingFormat format)
 {
     qDebug() << __func__;
     // generate file name using date, time, rf freq in kHz and BW in Hz
-    // gqrx_iq_yyyymmdd_hhmmss_freq_bw_fc.raw
+    // gqrx_iq_yyyymmdd_hhmmss_freq_bw_fc.format
+    const char * const suffix = format == receiver::RecordingFormat::RAW ? "raw" : "wav";
     auto freq = (qint64)(rx->get_rf_freq());
     auto sr = (qint64)(rx->get_input_rate());
     auto dec = (quint32)(rx->get_input_decim());
     auto lastRec = QDateTime::currentDateTimeUtc().
-            toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.'raw'")
-            .arg(recdir).arg(freq).arg(sr/dec);
+            toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.%4")
+            .arg(recdir).arg(freq).arg(sr/dec).arg(suffix);
 
     // start recorder; fails if recording already in progress
-    if (rx->start_iq_recording(lastRec.toStdString()))
+    if (rx->start_iq_recording(lastRec.toStdString(), format))
     {
         // reset action status
         ui->statusBar->showMessage(tr("Error starting I/Q recoder"));
@@ -1564,7 +1566,6 @@ void MainWindow::startIqRecording(const QString& recdir)
         msg_box.setText(tr("There was an error starting the I/Q recorder.\n"
                            "Check write permissions for the selected location."));
         msg_box.exec();
-
     }
     else
     {
