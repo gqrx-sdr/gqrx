@@ -26,6 +26,7 @@
 #include <QColor>
 #include <QDockWidget>
 #include <QSettings>
+#include <QMenu>
 #include "audio_options.h"
 
 namespace Ui {
@@ -73,7 +74,7 @@ public:
     void setRecMinTime(int time_ms);
     void setRecMaxGap(int time_ms);
 
-
+    void setAudioMute(bool on);
 
     void saveSettings(QSettings *settings);
     void readSettings(QSettings *settings);
@@ -119,7 +120,7 @@ signals:
     void fftRateChanged(int fps);
 
     /*! \brief Signal emitted when audio mute has changed. */
-    void audioMuteChanged(bool mute);
+    void audioMuteChanged(bool mute, bool global);
 
     /*! \brief Signal emitted when recording directory has changed. */
     void recDirChanged(const QString dir);
@@ -143,6 +144,7 @@ private slots:
     void on_audioPlayButton_clicked(bool checked);
     void on_audioConfButton_clicked();
     void on_audioMuteButton_clicked(bool checked);
+    void on_audioMuteButton_customContextMenuRequested(const QPoint& pos);
     void pandapterRange_changed(int min, int max);
     void waterfallRange_changed(int min, int max);
     void recDir_changed(const QString &dir);
@@ -153,6 +155,7 @@ private slots:
     void recMinTime_changed(int time_ms);
     void recMaxGap_changed(int time_ms);
     void copyRecSettingsToAllVFOs_clicked();
+    void menuMuteAll(bool checked);
 
 
 private:
@@ -176,6 +179,8 @@ private:
     void           muteToggleShortcut();
     void           increaseAudioGainShortcut();
     void           decreaseAudioGainShortcut();
+    QMenu         *muteButtonMenu;
+    QAction       *muteAllAction;
 };
 
 #endif // DOCKAUDIO_H

@@ -125,6 +125,11 @@ void vfo_s::set_agc_panning_auto(bool mode)
     d_agc_panning_auto = mode;
 }
 
+void vfo_s::set_agc_mute(bool agc_mute)
+{
+    d_agc_mute = agc_mute;
+}
+
 void vfo_s::set_cw_offset(int offset)
 {
     d_cw_offset = offset;

@@ -68,6 +68,7 @@ rx_agc_2f::rx_agc_2f(double sample_rate, bool agc_on, int target_level,
       d_decay(decay),
       d_hang(hang),
       d_panning(panning),
+      d_mute(false),
       d_target_mag(1),
       d_hang_samp(0),
       d_buf_samples(0),
@@ -209,8 +210,14 @@ int rx_agc_2f::work(int noutput_items,
                 d_hang_counter--;
             if (d_current_gain < MIN_GAIN)
                 d_current_gain = MIN_GAIN;
-            out2[k] = in0[k_hist - d_buf_samples - d_delay_l] * d_current_gain * d_gain_l;
-            out3[k] = in1[k_hist - d_buf_samples - d_delay_r] * d_current_gain * d_gain_r;
+            if (d_mute)
+            {
+                out2[k] = 0.0;
+                out3[k] = 0.0;
+            }else{
+                out2[k] = in0[k_hist - d_buf_samples - d_delay_l] * d_current_gain * d_gain_l;
+                out3[k] = in1[k_hist - d_buf_samples - d_delay_r] * d_current_gain * d_gain_r;
+            }
             out0[k] = sample_out0 * d_current_gain;
             out1[k] = sample_out1 * d_current_gain;
             d_buf_p = buf_p_next;
@@ -224,8 +231,14 @@ int rx_agc_2f::work(int noutput_items,
         get_tags_in_window(work_tags, 1, 0, noutput_items);
         for (const auto& tag : work_tags)
             add_item_tag(1, tag.offset, tag.key, tag.value);
-        volk_32f_s32f_multiply_32f((float *)out2, (float *)&in0[history() - 1 - d_delay_l], d_current_gain * d_gain_l, noutput_items);
-        volk_32f_s32f_multiply_32f((float *)out3, (float *)&in1[history() - 1 - d_delay_r], d_current_gain * d_gain_r, noutput_items);
+        if (d_mute)
+        {
+            std::memset(out2, 0, sizeof(float) * noutput_items);
+            std::memset(out3, 0, sizeof(float) * noutput_items);
+        }else{
+            volk_32f_s32f_multiply_32f((float *)out2, (float *)&in0[history() - 1 - d_delay_l], d_current_gain * d_gain_l, noutput_items);
+            volk_32f_s32f_multiply_32f((float *)out3, (float *)&in1[history() - 1 - d_delay_r], d_current_gain * d_gain_r, noutput_items);
+        }
         volk_32f_s32f_multiply_32f((float *)out0, (float *)&in0[history() - 1], d_current_gain, noutput_items);
         volk_32f_s32f_multiply_32f((float *)out1, (float *)&in1[history() - 1], d_current_gain, noutput_items);
     }
@@ -367,6 +380,18 @@ void rx_agc_2f::set_panning(int panning)
     if((panning != d_panning) && (panning >=-100) && (panning <= 100)) {
         std::lock_guard<std::mutex> lock(d_mutex);
         set_parameters(d_sample_rate, d_agc_on, d_target_level, d_manual_gain, d_max_gain, d_attack, d_decay, d_hang, panning);
+    }
+}
+
+/**
+ * \brief Set mute enabled or disabled (audio output only).
+ * \param mute New mute state.
+ */
+void rx_agc_2f::set_mute(bool mute)
+{
+    if (mute != d_mute) {
+        std::lock_guard<std::mutex> lock(d_mutex);
+        d_mute = mute;
     }
 }
 

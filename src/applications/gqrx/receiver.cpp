@@ -1105,6 +1105,19 @@ bool receiver::get_agc_panning_auto()
     return rx[d_current]->get_agc_panning_auto();
 }
 
+/** Set AGC mute */
+receiver::status receiver::set_agc_mute(bool agc_mute)
+{
+    rx[d_current]->set_agc_mute(agc_mute);
+
+    return STATUS_OK; // FIXME
+}
+
+bool receiver::get_agc_mute()
+{
+    return rx[d_current]->get_agc_mute();
+}
+
 /** Get AGC current gain. */
 float receiver::get_agc_gain()
 {

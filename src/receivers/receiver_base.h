@@ -117,6 +117,7 @@ public:
     void  set_agc_decay(int decay_ms) override;
     void  set_agc_hang(int hang_ms) override;
     void  set_agc_panning(int panning) override;
+    void  set_agc_mute(bool agc_mute) override;
     virtual float get_agc_gain();
 
     /* CW parameters */

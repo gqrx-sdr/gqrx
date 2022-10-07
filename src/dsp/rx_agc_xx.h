@@ -99,6 +99,7 @@ public:
     void set_decay(int decay);
     void set_hang(int hang);
     void set_panning(int panning);
+    void set_mute(bool mute);
 
     float get_current_gain();
 private:
@@ -117,6 +118,7 @@ private:
     int             d_decay;         /*! Current AGC decay (20...5000 ms). */
     int             d_hang;          /*! Current AGC hang (0...5000 ms). */
     int             d_panning;       /*! Current AGC panning (-100...100). */
+    int             d_mute;          /*! Current AGC mute state. */
 private:
     float get_peak();
     void update_buffer(int p);

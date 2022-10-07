@@ -223,6 +223,12 @@ void receiver_base_cf::set_agc_panning(int panning)
     vfo_s::set_agc_panning(panning);
 }
 
+void receiver_base_cf::set_agc_mute(bool agc_mute)
+{
+    agc->set_mute(agc_mute);
+    vfo_s::set_agc_mute(agc_mute);
+}
+
 float receiver_base_cf::get_agc_gain()
 {
     return agc->get_current_gain();
