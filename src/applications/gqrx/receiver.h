@@ -209,6 +209,8 @@ public:
     int         get_agc_panning();
     status      set_agc_panning_auto(bool mode);
     bool        get_agc_panning_auto();
+    status      set_agc_mute(bool agc_mute);
+    bool        get_agc_mute();
     float       get_agc_gain();
 
     /* Mute */

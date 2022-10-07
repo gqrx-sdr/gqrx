@@ -275,7 +275,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockRxOpt, SIGNAL(freqLock(bool, bool)), this, SLOT(setFreqLock(bool, bool)));
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), remote, SLOT(setAudioGain(float)));
-    connect(uiDockAudio, SIGNAL(audioMuteChanged(bool)), this, SLOT(setAudioMute(bool)));
+    connect(uiDockAudio, SIGNAL(audioMuteChanged(bool,bool)), this, SLOT(setAudioMute(bool,bool)));
     connect(uiDockAudio, SIGNAL(udpHostChanged(const QString)), this, SLOT(audioStreamHostChanged(const QString)));
     connect(uiDockAudio, SIGNAL(udpPortChanged(int)), this, SLOT(audioStreamPortChanged(int)));
     connect(uiDockAudio, SIGNAL(udpStereoChanged(bool)), this, SLOT(audioStreamStereoChanged(bool)));
@@ -1936,10 +1936,14 @@ void MainWindow::setAudioGain(float value)
 /**
  * @brief Audio mute changed.
  * @param mute New state.
+ * @param global Set global or this VFO mute.
  */
-void MainWindow::setAudioMute(bool mute)
+void MainWindow::setAudioMute(bool mute, bool global)
 {
-    rx->set_mute(mute);
+    if (global)
+        rx->set_mute(mute);
+    else
+        rx->set_agc_mute(mute);
 }
 
 /** Set AGC ON/OFF. */
@@ -3328,6 +3332,7 @@ void MainWindow::loadRxToGUI()
     uiDockAudio->setSquelchTriggered(rx->get_audio_rec_sql_triggered());
     uiDockAudio->setRecMinTime(rx->get_audio_rec_min_time());
     uiDockAudio->setRecMaxGap(rx->get_audio_rec_max_gap());
+    uiDockAudio->setAudioMute(rx->get_agc_mute());
 
     //FIXME Prevent playing incomplete audio or remove audio player
     if (rx->is_recording_audio())

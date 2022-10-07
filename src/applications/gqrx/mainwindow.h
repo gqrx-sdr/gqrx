@@ -200,7 +200,7 @@ private slots:
     double setSqlLevelAuto(bool global);
     void resetSqlLevelGlobal();
     void setAudioGain(float gain);
-    void setAudioMute(bool mute);
+    void setAudioMute(bool mute, bool global);
     void setPassband(int bandwidth);
     void setFreqLock(bool lock, bool all);
 
