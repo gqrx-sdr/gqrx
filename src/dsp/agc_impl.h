@@ -12,6 +12,7 @@
 #define AGC_IMPL_H
 
 #include <complex>
+#include <deque>
 
 #define MAX_DELAY_BUF 2048
 
@@ -35,7 +36,6 @@ public:
     virtual ~CAgc();
     void SetParameters(bool AgcOn, bool UseHang, int Threshold, int ManualGain, int Slope, int Decay, double SampleRate);
     void ProcessData(int Length, const TYPECPX * pInData, TYPECPX * pOutData);
-    void ProcessData(int Length, const float * pInData, float * pOutData);
 
 private:
     bool        m_AgcOn;
@@ -73,6 +73,7 @@ private:
     float*      m_SigDelayBuf_r;
 
     float       m_MagBuf[MAX_DELAY_BUF];
+    std::deque<int> m_MagDeque;
 };
 
 #endif //  AGC_IMPL_H
