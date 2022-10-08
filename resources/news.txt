@@ -1,4 +1,9 @@
 
+   2.15.10: In progress...
+
+  IMPROVED: AGC performance.
+
+
     2.15.9: Released April 9, 2022
 
        NEW: Qt 6 support.

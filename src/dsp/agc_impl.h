@@ -12,6 +12,7 @@
 #define AGC_IMPL_H
 
 #include <complex>
+#include <deque>
 
 #define MAX_DELAY_BUF 2048
 
@@ -72,6 +73,7 @@ private:
     float*      m_SigDelayBuf_r;
 
     float       m_MagBuf[MAX_DELAY_BUF];
+    std::deque<int> m_MagDeque;
 };
 
 #endif //  AGC_IMPL_H

@@ -138,6 +138,10 @@ void CAgc::SetParameters(bool AgcOn,  bool UseHang, int Threshold, int ManualGai
     m_ManualGain = ManualGain;
     m_SlopeFactor = SlopeFactor;
     m_Decay = Decay;
+
+    m_DelaySamples = (int)(m_SampleRate * DELAY_TIMECONST);
+    m_WindowSamples = (int)(m_SampleRate * WINDOW_TIMECONST);
+
     if (m_SampleRate != SampleRate)
     {
         //clear out delay buffer and init some things if sample rate changes
@@ -153,6 +157,9 @@ void CAgc::SetParameters(bool AgcOn,  bool UseHang, int Threshold, int ManualGai
         m_DecayAve = -5.0;
         m_AttackAve = -5.0;
         m_MagBufPos = 0;
+
+        m_MagDeque.clear();
+        m_MagDeque.push_back(m_WindowSamples - 1);
     }
 
     // convert m_ThreshGain to linear manual gain value
@@ -177,9 +184,6 @@ void CAgc::SetParameters(bool AgcOn,  bool UseHang, int Threshold, int ManualGai
         m_DecayFallAlpha = (1.0 - expf(-1.0 / (m_SampleRate * RELEASE_TIMECONST)));
     else
         m_DecayFallAlpha = (1.0 - expf(-1.0 / (m_SampleRate * (float)m_Decay * 0.001)));
-
-    m_DelaySamples = (int)(m_SampleRate * DELAY_TIMECONST);
-    m_WindowSamples = (int)(m_SampleRate * WINDOW_TIMECONST);
 
     // clamp Delay samples within buffer limit
     if (m_DelaySamples >= MAX_DELAY_BUF - 1)
@@ -221,28 +225,19 @@ void CAgc::ProcessData(int Length, const TYPECPX * pInData, TYPECPX * pOutData)
             mag = log10f(mag + MIN_CONSTANT) - LOG_MAX_AMPL;
 
             // create a sliding window of 'm_WindowSamples' magnitudes and output the peak value within the sliding window
-            float tmp = m_MagBuf[m_MagBufPos];   // get oldest mag sample from buffer into tmp
+            if (m_MagDeque.front() == m_MagBufPos)
+                m_MagDeque.pop_front();
+
+            while ((!m_MagDeque.empty()) && mag >= m_MagBuf[m_MagDeque.back()])
+                m_MagDeque.pop_back();
+
+            m_MagDeque.push_back(m_MagBufPos);
+
+            m_Peak = m_MagBuf[m_MagDeque.front()];
+
             m_MagBuf[m_MagBufPos++] = mag;       // put latest mag sample in buffer;
             if (m_MagBufPos >= m_WindowSamples)  // deal with magnitude buffer wrap around
                 m_MagBufPos = 0;
-            if (mag > m_Peak)
-            {
-                m_Peak = mag;	//if new sample is larger than current peak then use it, no need to look at buffer values
-            }
-            else
-            {
-                if (tmp == m_Peak)    //tmp is oldest sample pulled out of buffer
-                {                     //if oldest sample pulled out was last peak then need to find next highest peak in buffer
-                    m_Peak = -8.0;    //set to lowest value to find next max peak
-                    //search all buffer for maximum value and set as new peak
-                    for (int i = 0; i < m_WindowSamples; i++)
-                    {
-                        tmp = m_MagBuf[i];
-                        if (tmp > m_Peak)
-                            m_Peak = tmp;
-                    }
-                }
-            }
 
             if (m_UseHang)
             {
