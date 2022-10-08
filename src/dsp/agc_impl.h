@@ -35,7 +35,6 @@ public:
     virtual ~CAgc();
     void SetParameters(bool AgcOn, bool UseHang, int Threshold, int ManualGain, int Slope, int Decay, double SampleRate);
     void ProcessData(int Length, const TYPECPX * pInData, TYPECPX * pOutData);
-    void ProcessData(int Length, const float * pInData, float * pOutData);
 
 private:
     bool        m_AgcOn;
