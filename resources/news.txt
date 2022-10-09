@@ -2,6 +2,7 @@
    2.15.10: In progress...
 
        NEW: Restore FFT zoom level between sessions.
+       NEW: Restore peak detect & peak hold between sessions.
   IMPROVED: AGC performance.
 
 
