@@ -31,7 +31,7 @@
 #define DEFAULT_FFT_MIN_DB     -120
 #define DEFAULT_FFT_RATE        25
 #define DEFAULT_FFT_SIZE        8192
-#define DEFAULT_FFT_ZOOM        0
+#define DEFAULT_FFT_ZOOM        1
 #define DEFAULT_FFT_WINDOW      1       // Hann
 #define DEFAULT_WATERFALL_SPAN  0       // Auto
 #define DEFAULT_FFT_SPLIT       35
