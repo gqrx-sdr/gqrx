@@ -149,6 +149,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     uiDockRxOpt = new DockRxOpt();
     uiDockRDS = new DockRDS();
     uiDockFAX = new DockFAX();
+    uiDockRTTY = new DockRTTY();
     uiDockAudio = new DockAudio();
     uiDockInputCtl = new DockInputCtl();
     uiDockFft = new DockFft();
@@ -199,9 +200,11 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     addDockWidget(Qt::RightDockWidgetArea, uiDockAudio);
     addDockWidget(Qt::RightDockWidgetArea, uiDockRDS);
     addDockWidget(Qt::RightDockWidgetArea, uiDockFAX);
+    addDockWidget(Qt::RightDockWidgetArea, uiDockRTTY);
 
     tabifyDockWidget(uiDockAudio, uiDockRDS);
     tabifyDockWidget(uiDockRDS, uiDockFAX);
+    tabifyDockWidget(uiDockFAX, uiDockRTTY);
     uiDockAudio->raise();
 
     addDockWidget(Qt::BottomDockWidgetArea, uiDockBookmarks);
@@ -210,6 +213,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     uiDockBookmarks->hide();
     uiDockRDS->hide();
     uiDockFAX->hide();
+    uiDockRTTY->hide();
 
     /* Add dock widget actions to View menu. By doing it this way all signal/slot
        connections will be established automagially.
@@ -218,6 +222,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     ui->menu_View->addAction(uiDockRxOpt->toggleViewAction());
     ui->menu_View->addAction(uiDockRDS->toggleViewAction());
     ui->menu_View->addAction(uiDockFAX->toggleViewAction());
+    ui->menu_View->addAction(uiDockRTTY->toggleViewAction());
     ui->menu_View->addAction(uiDockAudio->toggleViewAction());
     ui->menu_View->addAction(uiDockFft->toggleViewAction());
     ui->menu_View->addAction(uiDockBookmarks->toggleViewAction());
@@ -317,6 +322,19 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockFAX, SIGNAL(fax_sync_Clicked()), this, SLOT(force_fax_sync()));
     connect(uiDockFAX, SIGNAL(fax_start_Clicked()), this, SLOT(force_fax_start()));
     connect(uiDockFAX, SIGNAL(fax_save_Clicked()), this, SLOT(save_fax()));
+    connect(uiDockRTTY, SIGNAL(rtty_start_decoder()), this, SLOT(start_rtty_decoder()));
+    connect(uiDockRTTY, SIGNAL(rtty_stop_decoder()), this, SLOT(stop_rtty_decoder()));
+    connect(uiDockRTTY, SIGNAL(rtty_reset_clicked()), this, SLOT(reset_rtty_decoder()));
+    connect(uiDockRTTY, SIGNAL(rtty_baud_rate_Changed(float)), this, SLOT(set_rtty_baud_rate(float)));
+    connect(uiDockRTTY, SIGNAL(rtty_mark_freq_Changed(float)), this, SLOT(set_rtty_mark_freq(float)));
+    connect(uiDockRTTY, SIGNAL(rtty_space_freq_Changed(float)), this, SLOT(set_rtty_space_freq(float)));
+    connect(uiDockRTTY, SIGNAL(rtty_threshold_Changed(float)), this, SLOT(set_rtty_threshold(float)));
+    connect(uiDockRTTY, SIGNAL(rtty_bandwidth_Changed(float)), this, SLOT(set_rtty_bandwidth(float)));
+    connect(uiDockRTTY, SIGNAL(rtty_transwidth_Changed(float)), this, SLOT(set_rtty_transwidth(float)));
+    connect(uiDockRTTY, SIGNAL(rtty_filterlen_Changed(float)), this, SLOT(set_rtty_filterlen(float)));
+    connect(uiDockRTTY, SIGNAL(rtty_mode_Changed(int)), this, SLOT(set_rtty_mode(int)));
+    connect(uiDockRTTY, SIGNAL(rtty_parity_Changed(int)), this, SLOT(set_rtty_parity(int)));
+    connect(uiDockRTTY, SIGNAL(rtty_save_clicked()), this, SLOT(save_rtty()));
 
     // Plotter
     connect(ui->plotter, SIGNAL(pandapterRangeChanged(float,float)),
@@ -368,6 +386,9 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 
     fax_timer = new QTimer(this);
     connect(fax_timer, SIGNAL(timeout()), this, SLOT(faxTimeout()));
+
+    rtty_timer = new QTimer(this);
+    connect(rtty_timer, SIGNAL(timeout()), this, SLOT(rttyTimeout()));
 
     // enable frequency tooltips on FFT plot
     ui->plotter->setTooltipsEnabled(true);
@@ -462,6 +483,7 @@ MainWindow::~MainWindow()
     delete uiDockInputCtl;
     delete uiDockRDS;
     delete uiDockFAX;
+    delete uiDockRTTY;
     delete rx;
     delete remote;
     delete qsvg_dummy;
@@ -681,6 +703,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
     uiDockRxOpt->readSettings(m_settings);
     uiDockFft->readSettings(m_settings);
     uiDockAudio->readSettings(m_settings);
+    uiDockRTTY->readSettings(m_settings);
     uiDockFAX->readSettings(m_settings);
     dxc_options->readSettings(m_settings);
 
@@ -809,6 +832,7 @@ void MainWindow::storeSession()
         uiDockFft->saveSettings(m_settings);
         uiDockAudio->saveSettings(m_settings);
         uiDockFAX->saveSettings(m_settings);
+        uiDockRTTY->saveSettings(m_settings);
 
         remote->saveSettings(m_settings);
         iq_tool->saveSettings(m_settings);
@@ -1193,6 +1217,7 @@ void MainWindow::selectDemod(int mode_idx)
     int     flo=0, fhi=0, click_res=100;
     bool    rds_decoder_enabled;
     bool    fax_decoder_enabled;
+    bool    rtty_decoder_enabled;
 
     // validate mode_idx
     if (mode_idx < DockRxOpt::MODE_OFF || mode_idx >= DockRxOpt::MODE_LAST)
@@ -1214,6 +1239,11 @@ void MainWindow::selectDemod(int mode_idx)
     if (fax_decoder_enabled)
         stop_fax_decoder();
     uiDockFAX->set_Disabled();
+
+    rtty_decoder_enabled = rx->is_decoder_active(receiver_base_cf::RX_DECODER_RTTY);
+    if (rtty_decoder_enabled)
+        stop_rtty_decoder();
+    uiDockRTTY->set_Disabled();
 
     switch (mode_idx) {
 
@@ -1331,6 +1361,10 @@ void MainWindow::selectDemod(int mode_idx)
         uiDockFAX->set_Enabled();
         if (fax_decoder_enabled)
             start_fax_decoder();
+
+        uiDockRTTY->set_Enabled();
+        if (rtty_decoder_enabled)
+            start_rtty_decoder();
     }
 
     qDebug() << "Filter preset for mode" << mode_idx << "LO:" << flo << "HI:" << fhi;
@@ -2002,6 +2036,7 @@ void MainWindow::on_actionDSP_triggered(bool checked)
         audio_fft_timer->stop();
         rds_timer->stop();
         fax_timer->stop();
+        rtty_timer->stop();
 
         /* stop receiver */
         rx->stop();
@@ -2418,6 +2453,135 @@ int MainWindow::save_fax() {
         return 0;
     else
         return -1;
+}
+
+/** RTTY message display timeout. */
+void MainWindow::rttyTimeout() {
+    std::string data;
+    int num;
+
+    while (rx->get_decoder_data(receiver_base_cf::RX_DECODER_RTTY,(void*)&data, num)!=-1) {
+        if (!rtty_running && !data.empty()) { // New transmission is starting
+            qint64 freq = ui->freqCtrl->getFrequency();
+            rtty_name = QDateTime::currentDateTimeUtc().toString("'gqrx_'yyyyMMdd_hhmmss_%1_'rtty.txt'").arg(freq);
+            fprintf(stderr,"RTTY : Start of transmission :  %s\n",rtty_name.toLocal8Bit().data());
+            uiDockRTTY->ClearText();
+            rtty_running = true;
+        }
+
+        if (data.empty()) {
+            fprintf(stderr,"RTTY : End of transmission.\n");
+            if (uiDockRTTY->get_autosave()) {
+                if (save_rtty() == 0)
+                    fprintf(stderr,"RTTY : Text saved to %s\n",rtty_name.toLocal8Bit().data());
+                rtty_running = false;
+            }
+	} else
+            uiDockRTTY->update_text(QString::fromStdString(data));
+
+    }
+}
+
+void MainWindow::start_rtty_decoder() {
+    qDebug() << "Starting RTTY decoder.";
+    rx->set_decoder_param(receiver_base_cf::RX_DECODER_RTTY,"baud_rate",std::to_string(uiDockRTTY->get_baud_rate()));
+    rx->set_decoder_param(receiver_base_cf::RX_DECODER_RTTY,"mark_freq",std::to_string(uiDockRTTY->get_mark_freq()));
+    rx->set_decoder_param(receiver_base_cf::RX_DECODER_RTTY,"space_freq",std::to_string(uiDockRTTY->get_space_freq()));
+    rx->set_decoder_param(receiver_base_cf::RX_DECODER_RTTY,"threshold",std::to_string(uiDockRTTY->get_threshold()));
+    rx->set_decoder_param(receiver_base_cf::RX_DECODER_RTTY,"bandwidth",std::to_string(uiDockRTTY->get_bandwidth()));
+    rx->set_decoder_param(receiver_base_cf::RX_DECODER_RTTY,"transwidth",std::to_string(uiDockRTTY->get_transwidth()));
+    rx->set_decoder_param(receiver_base_cf::RX_DECODER_RTTY,"filterlen",std::to_string(uiDockRTTY->get_filterlen()));
+    rx->set_decoder_param(receiver_base_cf::RX_DECODER_RTTY,"mode",std::to_string(uiDockRTTY->get_mode()));
+    rx->set_decoder_param(receiver_base_cf::RX_DECODER_RTTY,"parity",std::to_string(uiDockRTTY->get_parity()));
+    uiDockRTTY->show_Enabled();
+    rx->start_decoder(receiver_base_cf::RX_DECODER_RTTY);
+    rx->reset_decoder(receiver_base_cf::RX_DECODER_RTTY);
+    rtty_name.clear();
+    rtty_running=false;
+    rtty_timer->start(250);
+}
+
+void MainWindow::stop_rtty_decoder() {
+    qDebug() << "Stopping RTTY decoder.";
+    uiDockRTTY->show_Disabled();
+    rx->stop_decoder(receiver_base_cf::RX_DECODER_RTTY);
+    rtty_timer->stop();
+    rtty_running=false;
+    rtty_name.clear();
+}
+
+void MainWindow::reset_rtty_decoder() {
+    rx->reset_decoder(receiver_base_cf::RX_DECODER_RTTY);
+}
+
+void MainWindow::set_rtty_baud_rate(float baud_rate) {
+    rx->set_decoder_param(receiver_base_cf::RX_DECODER_RTTY,"baud_rate",std::to_string(baud_rate));
+}
+
+void MainWindow::set_rtty_mark_freq(float mark_freq) {
+    std::string Val;
+    rx->set_decoder_param(receiver_base_cf::RX_DECODER_RTTY,"mark_freq",std::to_string(mark_freq));
+}
+
+void MainWindow::set_rtty_space_freq(float space_freq) {
+    std::string Val;
+    rx->set_decoder_param(receiver_base_cf::RX_DECODER_RTTY,"space_freq",std::to_string(space_freq));
+}
+
+void MainWindow::set_rtty_threshold(float threshold) {
+    std::string Val;
+    rx->set_decoder_param(receiver_base_cf::RX_DECODER_RTTY,"threshold",std::to_string(threshold));
+}
+
+void MainWindow::set_rtty_bandwidth(float bandwidth) {
+    std::string Val;
+    rx->set_decoder_param(receiver_base_cf::RX_DECODER_RTTY,"bandwidth",std::to_string(bandwidth));
+}
+
+void MainWindow::set_rtty_transwidth(float transwidth) {
+    std::string Val;
+    rx->set_decoder_param(receiver_base_cf::RX_DECODER_RTTY,"transwidth",std::to_string(transwidth));
+}
+
+void MainWindow::set_rtty_filterlen(float filterlen) {
+    std::string Val;
+    rx->set_decoder_param(receiver_base_cf::RX_DECODER_RTTY,"filterlen",std::to_string(filterlen));
+}
+
+void MainWindow::set_rtty_mode(int mode) {
+    rx->set_decoder_param(receiver_base_cf::RX_DECODER_RTTY,"mode",std::to_string(mode));
+}
+
+void MainWindow::set_rtty_parity(int parity) {
+    rx->set_decoder_param(receiver_base_cf::RX_DECODER_RTTY,"parity",std::to_string(parity));
+}
+
+int MainWindow::save_rtty() {
+    auto freq = ui->freqCtrl->getFrequency();
+    QString dir = uiDockRTTY->get_directory();
+    QString name;
+    int ret;
+
+    if (rtty_name.isEmpty())
+        name = QDateTime::currentDateTimeUtc().toString("gqrx_yyyyMMdd_hhmmss_%1_'rtty.txt'").arg(freq);
+    else
+	name = rtty_name;
+
+    if (!dir.isEmpty())
+        name = dir + '/' + name;
+
+    QFile file(name);
+
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream out(&file);
+        out << uiDockRTTY->get_text();
+	ret = 0;
+    }
+    else {
+	ret = -1;
+    }
+
+    return ret;
 }
 
 void MainWindow::onBookmarkActivated(qint64 freq, const QString& demod, int bandwidth)
