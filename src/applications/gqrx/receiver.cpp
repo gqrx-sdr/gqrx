@@ -4,6 +4,7 @@
  *           https://gqrx.dk/
  *
  * Copyright 2011-2014 Alexandru Csete OZ9AEC.
+ * Generic rx decoder interface Copyright 2022 Marc CAPDEVILLE F4JMZ
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,6 +73,7 @@ receiver::receiver(const std::string input_device,
       d_iq_rev(false),
       d_dc_cancel(false),
       d_iq_balance(false),
+      d_rx_chain(RX_CHAIN_NONE),
       d_demod(RX_DEMOD_OFF)
 {
 
@@ -1388,6 +1390,8 @@ void receiver::connect_all(rx_chain type)
         break;
     }
 
+    d_rx_chain = type;
+
     // Audio path (if there is a receiver)
     if (type != RX_CHAIN_NONE)
     {
@@ -1416,6 +1420,39 @@ void receiver::connect_all(rx_chain type)
         tb->connect(rx, 0, sniffer_rr, 0);
         tb->connect(sniffer_rr, 0, sniffer, 0);
     }
+}
+
+enum receiver::rx_chain receiver::get_rx_chain() {
+    return d_rx_chain;
+}
+
+/* generic rx decoder functions */
+int receiver::start_decoder(enum receiver_base_cf::rx_decoder decoder_type) {
+    return rx->start_decoder(decoder_type);
+}
+
+int receiver::stop_decoder(enum receiver_base_cf::rx_decoder decoder_type) {
+    return rx->stop_decoder(decoder_type);
+}
+
+bool receiver::is_decoder_active(enum receiver_base_cf::rx_decoder decoder_type) const {
+    return rx->is_decoder_active(decoder_type);
+}
+
+int receiver::reset_decoder(enum receiver_base_cf::rx_decoder decoder_type) {
+    return rx->reset_decoder(decoder_type);
+}
+
+int receiver::set_decoder_param(enum receiver_base_cf::rx_decoder decoder_type, std::string param, std::string val) {
+    return rx->set_decoder_param(decoder_type,param,val);
+}
+
+int receiver::get_decoder_param(enum receiver_base_cf::rx_decoder decoder_type, std::string param, std::string &val) {
+    return rx->get_decoder_param(decoder_type,param,val);
+}
+
+int receiver::get_decoder_data(enum receiver_base_cf::rx_decoder decoder_type,void* data, int &num) {
+    return rx->get_decoder_data(decoder_type,data,num);
 }
 
 void receiver::get_rds_data(std::string &outbuff, int &num)

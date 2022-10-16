@@ -4,6 +4,7 @@
  *           https://gqrx.dk/
  *
  * Copyright 2011-2014 Alexandru Csete OZ9AEC.
+ * Generic rx decoder interface Copyright 2022 Marc CAPDEVILLE F4JMZ
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -226,8 +227,18 @@ public:
     bool        is_rds_decoder_active(void) const;
     void        reset_rds_parser(void);
 
+    /* generic rx decoder functions */
+    int         start_decoder(enum receiver_base_cf::rx_decoder decoder_type);
+    int         stop_decoder(enum receiver_base_cf::rx_decoder decoder_type);
+    bool        is_decoder_active(enum receiver_base_cf::rx_decoder decoder_type) const;
+    int         reset_decoder(enum receiver_base_cf::rx_decoder decoder_type);
+    int         set_decoder_param(enum receiver_base_cf::rx_decoder decoder_type, std::string param, std::string val);
+    int         get_decoder_param(enum receiver_base_cf::rx_decoder decoder_type, std::string param, std::string &val);
+    int         get_decoder_data(enum receiver_base_cf::rx_decoder decoder_type, void* data, int& num);
+
     /* utility functions */
     static std::string escape_filename(std::string filename);
+    enum rx_chain get_rx_chain();
 
 private:
     void        connect_all(rx_chain type);
@@ -253,6 +264,7 @@ private:
     std::string input_devstr;  /*!< Current input device string. */
     std::string output_devstr; /*!< Current output device string. */
 
+    rx_chain    d_rx_chain;    /*! Current Rx chain */
     rx_demod    d_demod;       /*!< Current demodulator. */
 
     gr::top_block_sptr         tb;        /*!< The GNU Radio top block. */
