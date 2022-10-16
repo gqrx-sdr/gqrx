@@ -58,6 +58,7 @@ public:
         RX_DECODER_ANY = -2,
         RX_DECODER_ALL = -1,
         RX_DECODER_NONE = 0,
+    RX_DECODER_RDS,
         RX_DECODER_MAX
     };
 
@@ -116,12 +117,6 @@ public:
     virtual int set_decoder_param(enum rx_decoder decoder_type, std::string param, std::string val);
     virtual int get_decoder_param(enum rx_decoder decoder_type, std::string param, std::string &val);
     virtual int get_decoder_data(enum rx_decoder decoder_type,void* data, int &num);
-
-    virtual void get_rds_data(std::string &outbuff, int &num);
-    virtual void start_rds_decoder();
-    virtual void stop_rds_decoder();
-    virtual void reset_rds_parser();
-    virtual bool is_rds_decoder_active();
 
 };
 

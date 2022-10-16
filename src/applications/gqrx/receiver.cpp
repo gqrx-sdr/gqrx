@@ -1455,49 +1455,6 @@ int receiver::get_decoder_data(enum receiver_base_cf::rx_decoder decoder_type,vo
     return rx->get_decoder_data(decoder_type,data,num);
 }
 
-void receiver::get_rds_data(std::string &outbuff, int &num)
-{
-    rx->get_rds_data(outbuff, num);
-}
-
-void receiver::start_rds_decoder(void)
-{
-    if (d_running)
-    {
-        stop();
-        rx->start_rds_decoder();
-        start();
-    }
-    else
-    {
-        rx->start_rds_decoder();
-    }
-}
-
-void receiver::stop_rds_decoder(void)
-{
-    if (d_running)
-    {
-        stop();
-        rx->stop_rds_decoder();
-        start();
-    }
-    else
-    {
-        rx->stop_rds_decoder();
-    }
-}
-
-bool receiver::is_rds_decoder_active(void) const
-{
-    return rx->is_rds_decoder_active();
-}
-
-void receiver::reset_rds_parser(void)
-{
-    rx->reset_rds_parser();
-}
-
 std::string receiver::escape_filename(std::string filename)
 {
     std::stringstream ss1;

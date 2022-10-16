@@ -188,26 +188,3 @@ int receiver_base_cf::get_decoder_data(enum rx_decoder decoder_type, void* data,
     (void) num;
         return -1;
 }
-
-void receiver_base_cf::get_rds_data(std::string &outbuff, int &num)
-{
-        (void) outbuff;
-        (void) num;
-}
-
-void receiver_base_cf::start_rds_decoder()
-{
-}
-
-void receiver_base_cf::stop_rds_decoder()
-{
-}
-
-void receiver_base_cf::reset_rds_parser()
-{
-}
-
-bool receiver_base_cf::is_rds_decoder_active()
-{
-    return false;
-}
