@@ -1298,7 +1298,7 @@ void CPlotter::drawOverlay()
         static const int fontHeight = fm.ascent() + 1;
         static const int slant = 5;
         static const int levelHeight = fontHeight + 5;
-        static const int nLevels = h / (levelHeight + slant);
+        int nLevels = h / (levelHeight + slant);
         if (m_BookmarksEnabled)
         {
             tags = Bookmarks::Get().getBookmarksInRange(m_CenterFreq + m_FftCenter - m_Span / 2,
@@ -1375,20 +1375,45 @@ void CPlotter::drawOverlay()
     {
         QList<BandInfo> bands = BandPlan::Get().getBandsInRange(m_CenterFreq + m_FftCenter - m_Span / 2,
                                                                 m_CenterFreq + m_FftCenter + m_Span / 2);
-
+        int bandLevel = 0;
+        qint64 last_max = 0;
+        qint64 last_max_0 = 0;
+        
+        std::sort(bands.begin(), bands.end(), [=]( const BandInfo& band1 , const BandInfo& band2 )->bool {
+            if (band1.minFrequency == band2.minFrequency) {
+                if (band1.maxFrequency != band2.maxFrequency) 
+                    return band1.maxFrequency > band2.maxFrequency;
+                else
+                    return band1.name < band2.name;
+            }
+            return band1.minFrequency < band2.minFrequency;
+        });
+        
         for (auto & band : bands)
         {
+            if (band.minFrequency >= last_max_0) {
+                bandLevel = 0;
+                last_max = band.maxFrequency;
+                last_max_0 = last_max;
+            } else if (band.minFrequency < last_max) {
+                --bandLevel;
+                last_max = band.maxFrequency;
+            } else if (band.minFrequency == last_max) {
+                last_max = band.maxFrequency;
+            }
+            
             int band_left = xFromFreq(band.minFrequency);
             int band_right = xFromFreq(band.maxFrequency);
             int band_width = band_right - band_left;
-            rect.setRect(band_left, xAxisTop - m_BandPlanHeight, band_width, m_BandPlanHeight);
+            int band_bottom = bandLevel * m_BandPlanHeight;
+            rect.setRect(band_left, xAxisTop - m_BandPlanHeight + band_bottom, band_width, m_BandPlanHeight);
             painter.fillRect(rect, band.color);
             QString band_label = band.name + " (" + band.modulation + ")";
             int textWidth = metrics.boundingRect(band_label).width();
             if (band_left < w && band_width > textWidth + 20)
             {
                 painter.setOpacity(1.0);
-                rect.setRect(band_left, xAxisTop - m_BandPlanHeight, band_width, metrics.height());
+                rect.setRect(band_left, xAxisTop - m_BandPlanHeight + band_bottom, band_width, m_BandPlanHeight);
                 painter.setPen(QColor(PLOTTER_TEXT_COLOR));
                 painter.drawText(rect, Qt::AlignCenter, band_label);
             }
