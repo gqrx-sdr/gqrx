@@ -122,6 +122,14 @@ void DockAudio::setAudioGain(int gain)
     ui->audioGainSlider->setValue(gain);
 }
 
+/*! \brief Set new audio gain.
+ *  \param gain the new audio gain in dB
+ */
+void DockAudio::setAudioGainDb(float gain)
+{
+    ui->audioGainSlider->setValue(int(std::round(gain*10.0)));
+}
+
 
 /*! \brief Get current audio gain.
  *  \returns The current audio gain in tens of dB (0 dB = 10).

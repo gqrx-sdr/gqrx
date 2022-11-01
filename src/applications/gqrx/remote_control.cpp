@@ -351,6 +351,12 @@ void RemoteControl::setSquelchLevel(double level)
     squelch_level = level;
 }
 
+/*! \brief Set audio gain (from mainwindow). */
+void RemoteControl::setAudioGain(float gain)
+{
+    audio_gain = gain;
+}
+
 /*! \brief Start audio recorder (from mainwindow). */
 void RemoteControl::startAudioRecorder(QString unused)
 {
@@ -630,6 +636,10 @@ QString RemoteControl::cmd_get_level(QStringList cmdlist)
     {
         answer = QString("%1\n").arg(squelch_level, 0, 'f', 1);
     }
+    else if (lvl.compare("AF", Qt::CaseInsensitive) == 0)
+    {
+        answer = QString("%1\n").arg(audio_gain, 0, 'f', 1);
+    }
     else if (lvl.endsWith("_GAIN"))
     {
         lvl.chop(5);
@@ -673,6 +683,21 @@ QString RemoteControl::cmd_set_level(QStringList cmdlist)
             answer = QString("RPRT 0\n");
             squelch_level = std::max<double>(-150, std::min<double>(0, squelch));
             emit newSquelchLevel(squelch_level);
+        }
+        else
+        {
+            answer = QString("RPRT 1\n");
+        }
+    }
+    else if (lvl.compare("AF", Qt::CaseInsensitive) == 0)
+    {
+        bool ok;
+        float new_audio_gain = cmdlist.value(2, "ERR").toFloat(&ok);
+        if (ok)
+        {
+            answer = QString("RPRT 0\n");
+            new_audio_gain = std::max<float>(-80.0f, std::min<float>(50.0f, new_audio_gain));
+            emit newAudioGain(new_audio_gain);
         }
         else
         {
