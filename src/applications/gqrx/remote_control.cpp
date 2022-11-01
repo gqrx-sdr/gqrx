@@ -626,7 +626,7 @@ QString RemoteControl::cmd_get_level(QStringList cmdlist)
         QStringList names;
         for(auto &g : gains)
             names.push_back(QString("%1_GAIN").arg(QString::fromStdString(g.name)));
-        answer = QString("SQL STRENGTH %1\n").arg(names.join(" "));
+        answer = QString("SQL STRENGTH AF %1\n").arg(names.join(" "));
     }
     else if (lvl.compare("STRENGTH", Qt::CaseInsensitive) == 0 || lvl.isEmpty())
     {
@@ -672,7 +672,7 @@ QString RemoteControl::cmd_set_level(QStringList cmdlist)
         QStringList names;
         for(auto &g : gains)
             names.push_back(QString("%1_GAIN").arg(QString::fromStdString(g.name)));
-        answer = QString("SQL %1\n").arg(names.join(" "));
+        answer = QString("SQL AF %1\n").arg(names.join(" "));
     }
     else if (lvl.compare("SQL", Qt::CaseInsensitive) == 0)
     {
