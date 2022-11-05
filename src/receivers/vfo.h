@@ -73,7 +73,10 @@ typedef class vfo_s
         d_rec_dir(""),
         d_rec_sql_triggered(false),
         d_rec_min_time(0),
-        d_rec_max_gap(0)
+        d_rec_max_gap(0),
+        d_udp_host("127.0.0.1"),
+        d_udp_port(7355),
+        d_udp_stereo(false)
     {
         for (int k = 0; k < RECEIVER_NB_COUNT; k++)
         {
@@ -143,6 +146,10 @@ typedef class vfo_s
     inline bool get_audio_rec_sql_triggered() const { return d_rec_sql_triggered; }
     inline int get_audio_rec_min_time() const { return d_rec_min_time; }
     inline int get_audio_rec_max_gap() const { return d_rec_max_gap; }
+    /* UDP streaming */
+    inline const std::string &get_udp_host() const { return d_udp_host; }
+    inline int get_udp_port() const { return d_udp_port; }
+    inline bool get_udp_stereo() const { return d_udp_stereo; }
 
     //setters
     virtual void set_offset(int offset);
@@ -188,6 +195,11 @@ typedef class vfo_s
     virtual void set_audio_rec_min_time(const int time_ms);
     virtual void set_audio_rec_max_gap(const int time_ms);
 
+    /* UDP streaming */
+    virtual bool set_udp_host(const std::string &host);
+    virtual bool set_udp_port(int port);
+    virtual bool set_udp_stereo(bool stereo);
+
     virtual void restore_settings(vfo_s& from, bool force = true);
 
     protected:
@@ -229,6 +241,9 @@ typedef class vfo_s
     int              d_rec_min_time;
     int              d_rec_max_gap;
 
+    std::string      d_udp_host;
+    int              d_udp_port;
+    bool             d_udp_stereo;
 
 } vfo;
 

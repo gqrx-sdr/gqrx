@@ -252,8 +252,15 @@ public:
     status      start_audio_playback(const std::string filename);
     status      stop_audio_playback();
 
-    status      start_udp_streaming(const std::string host, int port, bool stereo);
-    status      stop_udp_streaming();
+    /* UDP  streaming */
+    status      set_udp_host(std::string host);
+    std::string get_udp_host();
+    status      set_udp_port(int port);
+    int         get_udp_port();
+    status      set_udp_stereo(bool stereo);
+    bool        get_udp_stereo();
+    status      set_udp_streaming(bool streaming);
+    bool        get_udp_streaming();
 
     /* I/Q recording and playback */
     status      start_iq_recording(const std::string filename);
@@ -337,7 +344,6 @@ private:
     gr::blocks::null_sink::sptr         audio_null_sink0; /*!< Audio null sink used during playback. */
     gr::blocks::null_sink::sptr         audio_null_sink1; /*!< Audio null sink used during playback. */
 
-    udp_sink_f_sptr   audio_udp_sink;  /*!< UDP sink to stream audio over the network. */
     sniffer_f_sptr    sniffer;    /*!< Sample sniffer for data decoders. */
     resampler_ff_sptr sniffer_rr; /*!< Sniffer resampler. */
 

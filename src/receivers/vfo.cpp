@@ -201,6 +201,25 @@ void vfo_s::set_audio_rec_max_gap(const int time_ms)
     d_rec_max_gap = time_ms;
 }
 
+/* UDP streaming */
+bool vfo_s::set_udp_host(const std::string &host)
+{
+    d_udp_host = host;
+    return true;
+}
+
+bool vfo_s::set_udp_port(int port)
+{
+    d_udp_port = port;
+    return true;
+}
+
+bool vfo_s::set_udp_stereo(bool stereo)
+{
+    d_udp_stereo = stereo;
+    return true;
+}
+
 void vfo_s::restore_settings(vfo_s& from, bool force)
 {
     set_offset(from.get_offset());
@@ -241,4 +260,7 @@ void vfo_s::restore_settings(vfo_s& from, bool force)
     if (force || (from.get_audio_rec_max_gap() > 0))
         set_audio_rec_max_gap(from.get_audio_rec_max_gap());
     set_audio_rec_sql_triggered(from.get_audio_rec_sql_triggered());
+    set_udp_host(from.get_udp_host());
+    set_udp_port(from.get_udp_port());
+    set_udp_stereo(from.get_udp_stereo());
 }

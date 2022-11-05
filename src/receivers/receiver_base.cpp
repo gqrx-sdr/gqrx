@@ -26,6 +26,7 @@
 #include <QDateTime>
 #include <QDir>
 #include <functional>
+#include <exception>
 
 static const int MIN_IN = 1;  /* Minimum number of input streams. */
 static const int MAX_IN = 1;  /* Maximum number of input streams. */
@@ -43,6 +44,7 @@ receiver_base_cf::receiver_base_cf(std::string src_name, float pref_quad_rate, d
       d_ddc_decim(1),
       d_audio_rate(audio_rate),
       d_center_freq(145500000.0),
+      d_udp_streaming(false),
       d_pref_quad_rate(pref_quad_rate)
 {
     d_ddc_decim = std::max(1, (int)(d_decim_rate / TARGET_QUAD_RATE));
@@ -59,8 +61,12 @@ receiver_base_cf::receiver_base_cf(std::string src_name, float pref_quad_rate, d
     wav_sink = wavfile_sink_gqrx::make(0, 2, (unsigned int) d_audio_rate,
                                        wavfile_sink_gqrx::FORMAT_WAV,
                                        wavfile_sink_gqrx::FORMAT_PCM_16);
+    audio_udp_sink = make_udp_sink_f();
+
     connect(agc, 0, wav_sink, 0);
     connect(agc, 1, wav_sink, 1);
+    connect(agc, 0, audio_udp_sink, 0);
+    connect(agc, 1, audio_udp_sink, 1);
     wav_sink->set_rec_event_handler(std::bind(rec_event, this, std::placeholders::_1,
                                     std::placeholders::_2));
 }
@@ -243,6 +249,51 @@ void receiver_base_cf::reset_rds_parser()
 bool receiver_base_cf::is_rds_decoder_active()
 {
     return false;
+}
+
+/* UDP streaming */
+bool receiver_base_cf::set_udp_host(const std::string &host)
+{
+    if(d_udp_host == host)
+        return true;
+    if (d_udp_streaming)
+        return false;
+    return vfo_s::set_udp_host(host);
+}
+
+bool receiver_base_cf::set_udp_port(int port)
+{
+    if(d_udp_port == port)
+        return true;
+    if (d_udp_streaming)
+        return false;
+    return vfo_s::set_udp_port(port);
+}
+
+bool receiver_base_cf::set_udp_stereo(bool stereo)
+{
+    if(d_udp_stereo == stereo)
+        return true;
+    if (d_udp_streaming)
+        return false;
+    return vfo_s::set_udp_stereo(stereo);
+}
+
+bool receiver_base_cf::set_udp_streaming(bool streaming)
+{
+    if(d_udp_streaming == streaming)
+        return true;
+    try{
+        if(!d_udp_streaming && streaming)
+            audio_udp_sink->start_streaming(d_udp_host, d_udp_port, d_udp_stereo);
+        if(d_udp_streaming && !streaming)
+            audio_udp_sink->stop_streaming();
+    }catch(std::exception & e)
+    {
+        return false;
+    }
+    d_udp_streaming = streaming;
+    return true;
 }
 
 int receiver_base_cf::start_audio_recording()

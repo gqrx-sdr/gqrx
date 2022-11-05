@@ -123,8 +123,6 @@ receiver::receiver(const std::string input_device,
 
     audio_fft = make_rx_fft_f(DEFAULT_FFT_SIZE, d_audio_rate, gr::fft::window::WIN_HANN);
 
-    audio_udp_sink = make_udp_sink_f();
-
     add0 = gr::blocks::add_ff::make(1);
     add1 = gr::blocks::add_ff::make(1);
     mc0  = gr::blocks::multiply_const_ff::make(1.0, 1);
@@ -1500,15 +1498,11 @@ receiver::status receiver::start_audio_playback(const std::string filename)
         tb->disconnect(mc1, 0, audio_snk, 1);
     }
     tb->disconnect(rx[d_current], 0, audio_fft, 0);
-    tb->disconnect(rx[d_current], 0, audio_udp_sink, 0);
-    tb->disconnect(rx[d_current], 1, audio_udp_sink, 1);
     tb->connect(rx[d_current], 0, audio_null_sink0, 0); /** FIXME: other channel? */
     tb->connect(rx[d_current], 1, audio_null_sink1, 0); /** FIXME: other channel? */
     tb->connect(wav_src, 0, audio_snk, 0);
     tb->connect(wav_src, 1, audio_snk, 1);
     tb->connect(wav_src, 0, audio_fft, 0);
-    tb->connect(wav_src, 0, audio_udp_sink, 0);
-    tb->connect(wav_src, 1, audio_udp_sink, 1);
     start();
 
     std::cout << "Playing audio from " << filename << std::endl;
@@ -1524,8 +1518,6 @@ receiver::status receiver::stop_audio_playback()
     tb->disconnect(wav_src, 0, audio_snk, 0);
     tb->disconnect(wav_src, 1, audio_snk, 1);
     tb->disconnect(wav_src, 0, audio_fft, 0);
-    tb->disconnect(wav_src, 0, audio_udp_sink, 0);
-    tb->disconnect(wav_src, 1, audio_udp_sink, 1);
     tb->disconnect(rx[d_current], 0, audio_null_sink0, 0);
     tb->disconnect(rx[d_current], 1, audio_null_sink1, 0);
     if (d_active > 0)
@@ -1534,8 +1526,6 @@ receiver::status receiver::stop_audio_playback()
         tb->connect(mc1, 0, audio_snk, 1);
     }
     tb->connect(rx[d_current], 0, audio_fft, 0);  /** FIXME: other channel? */
-    tb->connect(rx[d_current], 0, audio_udp_sink, 0);
-    tb->connect(rx[d_current], 1, audio_udp_sink, 1);
     start();
 
     /* delete wav_src since we can not change file name */
@@ -1544,18 +1534,45 @@ receiver::status receiver::stop_audio_playback()
     return STATUS_OK;
 }
 
-/** Start UDP streaming of audio. */
-receiver::status receiver::start_udp_streaming(const std::string host, int port, bool stereo)
+/** UDP streaming of audio. */
+receiver::status receiver::set_udp_host(std::string host)
 {
-    audio_udp_sink->start_streaming(host, port, stereo);
-    return STATUS_OK;
+    return rx[d_current]->set_udp_host(host) ? STATUS_OK : STATUS_ERROR;
 }
 
-/** Stop UDP streaming of audio. */
-receiver::status receiver::stop_udp_streaming()
+std::string receiver::get_udp_host()
 {
-    audio_udp_sink->stop_streaming();
-    return STATUS_OK;
+    return rx[d_current]->get_udp_host();
+}
+
+receiver::status receiver::set_udp_port(int port)
+{
+    return rx[d_current]->set_udp_port(port) ? STATUS_OK : STATUS_ERROR;
+}
+
+int receiver::get_udp_port()
+{
+    return rx[d_current]->get_udp_port();
+}
+
+receiver::status receiver::set_udp_stereo(bool stereo)
+{
+    return rx[d_current]->set_udp_stereo(stereo) ? STATUS_OK : STATUS_ERROR;
+}
+
+bool receiver::get_udp_stereo()
+{
+    return rx[d_current]->get_udp_stereo();
+}
+
+receiver::status receiver::set_udp_streaming(bool streaming)
+{
+    return rx[d_current]->set_udp_streaming(streaming) ? STATUS_OK : STATUS_ERROR;
+}
+
+bool receiver::get_udp_streaming()
+{
+    return rx[d_current]->get_udp_streaming();
 }
 
 /**
@@ -1875,8 +1892,6 @@ void receiver::background_rx()
     if (rx[d_current]->get_demod() != Modulations::MODE_OFF)
     {
         tb->disconnect(rx[d_current], 0, audio_fft, 0);
-        tb->disconnect(rx[d_current], 0, audio_udp_sink, 0);
-        tb->disconnect(rx[d_current], 1, audio_udp_sink, 1);
         if (d_sniffer_active)
         {
             tb->disconnect(rx[d_current], 0, sniffer_rr, 0);
@@ -1891,8 +1906,6 @@ void receiver::foreground_rx()
     if (rx[d_current]->get_demod() != Modulations::MODE_OFF)
     {
         tb->connect(rx[d_current], 0, audio_fft, 0);
-        tb->connect(rx[d_current], 0, audio_udp_sink, 0);
-        tb->connect(rx[d_current], 1, audio_udp_sink, 1);
         if (d_sniffer_active)
         {
             tb->connect(rx[d_current], 0, sniffer_rr, 0);
