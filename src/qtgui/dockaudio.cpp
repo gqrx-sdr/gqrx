@@ -212,7 +212,7 @@ void DockAudio::on_audioGainSlider_valueChanged(int value)
 void DockAudio::on_audioStreamButton_clicked(bool checked)
 {
     if (checked)
-        emit audioStreamingStarted(udp_host, udp_port, udp_stereo);
+        emit audioStreamingStarted();
     else
         emit audioStreamingStopped();
 }
@@ -297,6 +297,30 @@ void DockAudio::setAudioRecButtonState(bool checked)
     //ui->audioRecConfButton->setEnabled(!isChecked);
 }
 
+void DockAudio::setAudioStreamState(const std::string & host,int port,bool stereo, bool running)
+{
+    audioOptions->setUdpHost(udp_host = QString::fromStdString(host));
+    audioOptions->setUdpPort(udp_port = port);
+    audioOptions->setUdpStereo(udp_stereo = stereo);
+    setAudioStreamButtonState(running);
+}
+
+/*! \brief Set status of audio record button. */
+void DockAudio::setAudioStreamButtonState(bool checked)
+{
+    if (checked == ui->audioStreamButton->isChecked()) {
+        /* nothing to do */
+        return;
+    }
+
+    // toggle the button and set the state of the other buttons accordingly
+    ui->audioStreamButton->toggle();
+    bool isChecked = ui->audioStreamButton->isChecked();
+
+    ui->audioStreamButton->setToolTip(isChecked ? tr("Stop audio streaming") : tr("Start audio streaming"));
+    //TODO: disable host/port controls
+}
+
 /*! \brief Set status of audio record button. */
 void DockAudio::setAudioPlayButtonState(bool checked)
 {
@@ -354,21 +378,6 @@ void DockAudio::saveSettings(QSettings *settings)
     else
         settings->remove("db_ranges_locked");
 
-    if (udp_host.isEmpty())
-        settings->remove("udp_host");
-    else
-        settings->setValue("udp_host", udp_host);
-
-    if (udp_port != 7355)
-        settings->setValue("udp_port", udp_port);
-    else
-        settings->remove("udp_port");
-
-    if (udp_stereo != false)
-        settings->setValue("udp_stereo", udp_stereo);
-    else
-        settings->remove("udp_stereo");
-
     settings->endGroup();
 }
 
@@ -405,17 +414,6 @@ void DockAudio::readSettings(QSettings *settings)
     bool_val = settings->value("db_ranges_locked", false).toBool();
     audioOptions->setLockButtonState(bool_val);
 
-    // Audio streaming host, port and stereo setting
-    udp_host = settings->value("udp_host", "localhost").toString();
-    udp_port = settings->value("udp_port", 7355).toInt(&conv_ok);
-    if (!conv_ok)
-        udp_port = 7355;
-    udp_stereo = settings->value("udp_stereo", false).toBool();
-
-    audioOptions->setUdpHost(udp_host);
-    audioOptions->setUdpPort(udp_port);
-    audioOptions->setUdpStereo(udp_stereo);
-
     settings->endGroup();
 }
 
@@ -445,18 +443,21 @@ void DockAudio::udpHost_changed(const QString &host)
         udp_host = "localhost";
     else
         udp_host = host;
+    emit udpHostChanged(udp_host);
 }
 
 /*! \brief Slot called when a new network port has been entered. */
 void DockAudio::udpPort_changed(int port)
 {
     udp_port = port;
+    emit udpPortChanged(port);
 }
 
 /*! \brief Slot called when the mono/stereo streaming setting changes. */
 void DockAudio::udpStereo_changed(bool enabled)
 {
     udp_stereo = enabled;
+    emit udpStereoChanged(enabled);
 }
 
 /*! \brief Slot called when audio recording is started after clicking rec or being triggered by squelch. */

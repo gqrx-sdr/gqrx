@@ -216,7 +216,11 @@ private slots:
     void stopAudioPlayback();
     void copyRecSettingsToAllVFOs();
 
-    void startAudioStream(const QString& udp_host, int udp_port, bool stereo);
+    /* audio UDP streaming */
+    void audioStreamHostChanged(const QString udp_host);
+    void audioStreamPortChanged(const int udp_port);
+    void audioStreamStereoChanged(const bool udp_stereo);
+    void startAudioStream();
     void stopAudioStreaming();
 
     /* I/Q playback and recording*/

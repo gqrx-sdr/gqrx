@@ -276,7 +276,10 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), remote, SLOT(setAudioGain(float)));
     connect(uiDockAudio, SIGNAL(audioMuteChanged(bool)), this, SLOT(setAudioMute(bool)));
-    connect(uiDockAudio, SIGNAL(audioStreamingStarted(QString,int,bool)), this, SLOT(startAudioStream(QString,int,bool)));
+    connect(uiDockAudio, SIGNAL(udpHostChanged(const QString)), this, SLOT(audioStreamHostChanged(const QString)));
+    connect(uiDockAudio, SIGNAL(udpPortChanged(int)), this, SLOT(audioStreamPortChanged(int)));
+    connect(uiDockAudio, SIGNAL(udpStereoChanged(bool)), this, SLOT(audioStreamStereoChanged(bool)));
+    connect(uiDockAudio, SIGNAL(audioStreamingStarted()), this, SLOT(startAudioStream()));
     connect(uiDockAudio, SIGNAL(audioStreamingStopped()), this, SLOT(stopAudioStreaming()));
     connect(uiDockAudio, SIGNAL(audioRecStart()), this, SLOT(startAudioRec()));
     connect(uiDockAudio, SIGNAL(audioRecStart()), remote, SLOT(startAudioRecorder()));
@@ -977,6 +980,22 @@ void MainWindow::storeSession()
             else
                 m_settings->remove("rec_max_gap");
 
+            if (rx->get_udp_host() != "127.0.0.1")
+                m_settings->setValue("udp_host", QString::fromStdString(rx->get_udp_host()));
+            else
+                m_settings->remove("udp_host");
+
+            if (rx->get_udp_stereo() != false)
+                m_settings->setValue("udp_stereo", true);
+            else
+                m_settings->remove("udp_stereo");
+
+            int_val = rx->get_udp_port();
+            if (int_val != 7355)
+                m_settings->setValue("udp_port", int_val);
+            else
+                m_settings->remove("udp_port");
+
             m_settings->endGroup();
             if (rx_count <= 1)
                 break;
@@ -1110,6 +1129,17 @@ void MainWindow::readRXSettings(int ver)
         if (!conv_ok)
             int_val = 0;
         rx->set_audio_rec_max_gap(int_val);
+
+        QString udp_host = m_settings->value("udp_host", "127.0.0.1").toString();
+        rx->set_udp_host(udp_host.toStdString());
+
+        int_val = m_settings->value("udp_port", 7355).toInt(&conv_ok);
+        if (!conv_ok)
+            int_val = 7355;
+        rx->set_udp_port(int_val);
+
+        bool udp_stereo = m_settings->value("udp_stereo", false).toBool();
+        rx->set_udp_stereo(udp_stereo);
 
         m_settings->endGroup();
         ui->plotter->addVfo(rx->get_current_vfo());
@@ -2218,16 +2248,34 @@ void MainWindow::copyRecSettingsToAllVFOs()
         }
 }
 
-/** Start streaming audio over UDP. */
-void MainWindow::startAudioStream(const QString& udp_host, int udp_port, bool stereo)
+void MainWindow::audioStreamHostChanged(const QString udp_host)
 {
-    rx->start_udp_streaming(udp_host.toStdString(), udp_port, stereo);
+    std::string host = udp_host.toStdString();
+    rx->set_udp_host(host);//TODO: handle errors
+}
+
+void MainWindow::audioStreamPortChanged(const int udp_port)
+{
+    rx->set_udp_port(udp_port);//TODO: handle errors
+}
+
+void MainWindow::audioStreamStereoChanged(const bool udp_stereo)
+{
+    rx->set_udp_stereo(udp_stereo);//TODO: handle errors
+}
+
+/** Start streaming audio over UDP. */
+void MainWindow::startAudioStream()
+{
+    rx->set_udp_streaming(true);
+    uiDockAudio->setAudioStreamButtonState(rx->get_udp_streaming());
 }
 
 /** Stop streaming audio over UDP. */
 void MainWindow::stopAudioStreaming()
 {
-    rx->stop_udp_streaming();
+    rx->set_udp_streaming(false);
+    uiDockAudio->setAudioStreamButtonState(rx->get_udp_streaming());
 }
 
 /** Start I/Q recording. */
@@ -3280,6 +3328,7 @@ void MainWindow::loadRxToGUI()
         uiDockAudio->audioRecStarted(QString(rx->get_last_audio_filename().data()));
     else
         uiDockAudio->audioRecStopped();
+    uiDockAudio->setAudioStreamState(rx->get_udp_host(), rx->get_udp_port(), rx->get_udp_stereo(), rx->get_udp_streaming());
     d_have_audio = (mode_idx != Modulations::MODE_OFF);
     switch (mode_idx)
     {

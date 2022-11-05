@@ -31,6 +31,7 @@
 #include "dsp/rx_squelch.h"
 #include "dsp/downconverter.h"
 #include "interfaces/wav_sink.h"
+#include "interfaces/udp_sink_f.h"
 #include "receivers/vfo.h"
 #include "defines.h"
 
@@ -89,6 +90,13 @@ public:
     void set_audio_rec_min_time(const int time_ms) override;
     void set_audio_rec_max_gap(const int time_ms) override;
 
+    /* UDP  streaming */
+    bool         set_udp_host(const std::string &host) override;
+    bool         set_udp_port(int port) override;
+    bool         set_udp_stereo(bool stereo) override;
+    virtual bool set_udp_streaming(bool streaming);
+    inline bool  get_udp_streaming() const { return d_udp_streaming; }
+
     virtual float get_signal_level();
 
     void set_demod(Modulations::idx demod) override;
@@ -141,6 +149,7 @@ protected:
     int          d_audio_rate;   /*!< Audio output rate. */
     double       d_center_freq;
     std::string  d_audio_filename;
+    bool         d_udp_streaming;
 
     downconverter_cc_sptr     ddc;        /*!< Digital down-converter for demod chain. */
     resampler_cc_sptr         iq_resamp;   /*!< Baseband resampler. */
@@ -148,6 +157,7 @@ protected:
     rx_agc_2f_sptr            agc;        /*!< Receiver AGC. */
     rx_sql_cc_sptr            sql;        /*!< Squelch. */
     wavfile_sink_gqrx::sptr   wav_sink;   /*!< WAV file sink for recording. */
+    udp_sink_f_sptr           audio_udp_sink;  /*!< UDP sink to stream audio over the network. */
 private:
     float d_pref_quad_rate;
     rec_event_handler_t d_rec_event;

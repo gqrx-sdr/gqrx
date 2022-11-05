@@ -60,6 +60,8 @@ public:
     void setGainEnabled(bool state);
 
     void setAudioRecButtonState(bool checked);
+    void setAudioStreamState(const std::string & host,int port,bool stereo, bool running);
+    void setAudioStreamButtonState(bool checked);
     void setAudioPlayButtonState(bool checked);
 
     void setFftColor(QColor color);
@@ -87,8 +89,17 @@ signals:
     /*! \brief Signal emitted when audio gain has changed. Gain is in dB. */
     void audioGainChanged(float gain);
 
+    /*! \brief Audio streaming UDP host changed. */
+    void udpHostChanged(const QString host);
+
+    /*! \brief Audio streaming UDP port changed. */
+    void udpPortChanged(int port);
+
+    /*! \brief Audio streaming stereo setting changed. */
+    void udpStereoChanged(bool stereo);
+
     /*! \brief Audio streaming over UDP has started. */
-    void audioStreamingStarted(const QString host, int port, bool stereo);
+    void audioStreamingStarted();
 
     /*! \brief Audio streaming stopped. */
     void audioStreamingStopped();
