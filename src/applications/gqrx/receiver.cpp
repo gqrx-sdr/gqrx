@@ -1217,14 +1217,12 @@ receiver::status receiver::stop_iq_recording()
     }
 
     tb->lock();
-    iq_sink->close();
-
     if (d_decim >= 2)
         tb->disconnect(input_decim, 0, iq_sink, 0);
     else
         tb->disconnect(src, 0, iq_sink, 0);
-
     tb->unlock();
+
     iq_sink.reset();
     d_recording_iq = false;
 
