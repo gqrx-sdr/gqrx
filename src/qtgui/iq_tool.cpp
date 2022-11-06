@@ -59,12 +59,16 @@ CIqTool::CIqTool(QWidget *parent) :
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(timeoutFunction()));
+
+    recdirWatcher = new QFileSystemWatcher(this);
+    connect(recdirWatcher, SIGNAL(directoryChanged(const QString)), this, SLOT(directoryChanged(const QString)));
 }
 
 CIqTool::~CIqTool()
 {
     timer->stop();
     delete timer;
+    delete recdirWatcher;
     delete ui;
     delete recdir;
     delete error_palette;
@@ -104,8 +108,6 @@ void CIqTool::on_listWidget_currentTextChanged(const QString &currentText)
 /*! \brief Start/stop playback */
 void CIqTool::on_playButton_clicked(bool checked)
 {
-    is_playing = checked;
-
     if (checked)
     {
         if (current_file.isEmpty())
@@ -130,11 +132,15 @@ void CIqTool::on_playButton_clicked(bool checked)
             ui->recButton->setEnabled(false);
             emit startPlayback(recdir->absoluteFilePath(current_file),
                                (float)sample_rate, center_freq);
+            is_playing = true;
+            timer->start(1000);
         }
     }
     else
     {
         emit stopPlayback();
+        is_playing = false;
+        timer->stop();
         ui->listWidget->setEnabled(true);
         ui->recButton->setEnabled(true);
         ui->slider->setValue(0);
@@ -153,6 +159,7 @@ void CIqTool::cancelPlayback()
     ui->listWidget->setEnabled(true);
     ui->recButton->setEnabled(true);
     is_playing = false;
+    timer->stop();
 }
 
 
@@ -175,12 +182,14 @@ void CIqTool::on_recButton_clicked(bool checked)
     {
         ui->playButton->setEnabled(false);
         emit startRecording(recdir->path());
+        timer->start(1000);
 
         refreshDir();
         ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
     }
     else
     {
+        timer->stop();
         ui->playButton->setEnabled(true);
         emit stopRecording();
     }
@@ -199,6 +208,7 @@ void CIqTool::cancelRecording()
     ui->recButton->setChecked(false);
     ui->playButton->setEnabled(true);
     is_recording = false;
+    timer->stop();
 }
 
 /*! \brief Catch window close events.
@@ -209,6 +219,7 @@ void CIqTool::cancelRecording()
  */
 void CIqTool::closeEvent(QCloseEvent *event)
 {
+    recdirWatcher->removePath(recdir->path());
     timer->stop();
     hide();
     event->ignore();
@@ -220,7 +231,10 @@ void CIqTool::showEvent(QShowEvent * event)
     Q_UNUSED(event);
     refreshDir();
     refreshTimeWidgets();
-    timer->start(1000);
+    if (is_playing || is_recording) {
+        timer->start(1000);
+    }
+    recdirWatcher->addPath(recdir->path());
 }
 
 
@@ -281,8 +295,6 @@ void CIqTool::on_recDirButton_clicked()
 
 void CIqTool::timeoutFunction(void)
 {
-    refreshDir();
-
     if (is_playing)
     {
         // advance slider with one second
@@ -295,8 +307,14 @@ void CIqTool::timeoutFunction(void)
             refreshTimeWidgets();
         }
     }
-    if (is_recording)
+    if (is_recording) {
         refreshTimeWidgets();
+
+        // update rec_len; if the file being recorded is the one selected
+        // in the list, the length will update periodically
+        QFileInfo info(*recdir, current_file);
+        rec_len = (int)(info.size() / (sample_rate * bytes_per_sample));
+    }
 }
 
 /*! \brief Refresh list of files in current working directory. */
@@ -315,14 +333,6 @@ void CIqTool::refreshDir()
     ui->listWidget->setCurrentRow(selection);
     sc->setSliderPosition(lastScroll);
     ui->listWidget->blockSignals(false);
-
-    if (is_recording)
-    {
-        // update rec_len; if the file being recorded is the one selected
-        // in the list, the length will update periodically
-        QFileInfo info(*recdir, current_file);
-        rec_len = (int)(info.size() / (sample_rate * bytes_per_sample));
-    }
 }
 
 /*! \brief Refresh time labels and slider position
