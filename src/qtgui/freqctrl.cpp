@@ -31,6 +31,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <sys/param.h>
+
 #include <QDebug>
 #include "freqctrl.h"
 
@@ -876,13 +878,11 @@ void CFreqCtrl::cursorEnd()
 
 void CFreqCtrl::setFrequencyFocus()
 {
-    uint8_t position = floor(log10(m_freq));
-    position = (uint8_t)fmax(position, 4);      // restrict min to 100s of kHz
+    if (!hasFocus() || m_ActiveEditDigit == -1) {
+        // Select last digit or 5th digit (100s of kHz), whatever is bigger.
+        uint8_t position = MAX(int(log10(m_freq)), 5);
 
-    QMouseEvent mouseEvent(QEvent::MouseMove,
-                           m_DigitInfo[position].dQRect.center(),
-                           Qt::NoButton,
-                           Qt::NoButton,
-                           Qt::NoModifier);
-    mouseMoveEvent(&mouseEvent);
+        setFocus(Qt::ShortcutFocusReason);
+        setActiveDigit(position);
+    }
 }
