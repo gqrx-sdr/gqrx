@@ -32,6 +32,8 @@
 #include <QString>
 #include <QTimer>
 
+#include "applications/gqrx/receiver.h"
+
 namespace Ui {
     class CIqTool;
 }
@@ -62,7 +64,7 @@ public:
     void readSettings(QSettings *settings);
 
 signals:
-    void startRecording(const QString recdir);
+    void startRecording(const QString recdir, const receiver::RecordingFormat format);
     void stopRecording();
     void startPlayback(const QString filename, float samprate, qint64 center_freq);
     void stopPlayback();
@@ -79,6 +81,8 @@ private slots:
     void on_playButton_clicked(bool checked);
     void on_slider_valueChanged(int value);
     void on_listWidget_currentTextChanged(const QString &currentText);
+    void on_wavRadioButton_clicked(bool checked);
+    void on_rawRadioButton_clicked(bool checked);
     void timeoutFunction(void);
 
 private:
@@ -89,6 +93,7 @@ private:
 private:
     Ui::CIqTool *ui;
 
+    receiver::RecordingFormat format;
     QDir        *recdir;
     QTimer      *timer;
     QPalette    *error_palette; /*!< Palette used to indicate an error. */

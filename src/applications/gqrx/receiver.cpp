@@ -1178,7 +1178,7 @@ receiver::status receiver::stop_udp_streaming()
  * @brief Start I/Q data recorder.
  * @param filename The filename where to record.
  */
-receiver::status receiver::start_iq_recording(const std::string filename)
+receiver::status receiver::start_iq_recording(const std::string filename, const receiver::RecordingFormat format)
 {
     receiver::status status = STATUS_OK;
 
@@ -1187,9 +1187,18 @@ receiver::status receiver::start_iq_recording(const std::string filename)
         return STATUS_ERROR;
     }
 
+    gr::basic_block_sptr iq_sink;
     try
     {
-        iq_sink = gr::blocks::file_sink::make(sizeof(gr_complex), filename.c_str(), true);
+        if (format == receiver::RecordingFormat::WAV) {
+            iq_sink_wav = gr::blocks::wavfile_sink::make(
+                filename.c_str(), 2, get_quad_rate(), gr::blocks::FORMAT_WAV, gr::blocks::FORMAT_FLOAT);
+            iq_complex_to_float = gr::blocks::complex_to_float::make();
+            iq_sink = iq_complex_to_float;
+        } else {
+            iq_sink_raw = gr::blocks::file_sink::make(sizeof(gr_complex), filename.c_str(), true);
+            iq_sink = iq_sink_raw;
+        }
     }
     catch (std::runtime_error &e)
     {
@@ -1198,6 +1207,10 @@ receiver::status receiver::start_iq_recording(const std::string filename)
     }
 
     tb->lock();
+    if (format == receiver::RecordingFormat::WAV) {
+        tb->connect(iq_complex_to_float, 0, iq_sink_wav, 0);
+        tb->connect(iq_complex_to_float, 1, iq_sink_wav, 1);
+    }
     if (d_decim >= 2)
         tb->connect(input_decim, 0, iq_sink, 0);
     else
@@ -1216,8 +1229,18 @@ receiver::status receiver::stop_iq_recording()
         return STATUS_ERROR;
     }
 
+    gr::basic_block_sptr iq_sink;
     tb->lock();
-    iq_sink->close();
+    if (iq_sink_raw) {
+        iq_sink_raw->close();
+        iq_sink = iq_sink_raw;
+    }
+    if (iq_sink_wav) {
+        iq_sink_wav->close();
+        iq_sink = iq_complex_to_float;
+        tb->disconnect(iq_complex_to_float, 0, iq_sink_wav, 0);
+        tb->disconnect(iq_complex_to_float, 1, iq_sink_wav, 1);
+    }
 
     if (d_decim >= 2)
         tb->disconnect(input_decim, 0, iq_sink, 0);
@@ -1225,7 +1248,9 @@ receiver::status receiver::stop_iq_recording()
         tb->disconnect(src, 0, iq_sink, 0);
 
     tb->unlock();
-    iq_sink.reset();
+    iq_sink_raw.reset();
+    iq_sink_wav.reset();
+    iq_complex_to_float.reset();
     d_recording_iq = false;
 
     return STATUS_OK;
@@ -1330,7 +1355,14 @@ void receiver::connect_all(rx_chain type)
     if (d_recording_iq)
     {
         // We record IQ with minimal pre-processing
-        tb->connect(b, 0, iq_sink, 0);
+        if (iq_sink_raw) {
+            tb->connect(b, 0, iq_sink_raw, 0);
+        }
+        if (iq_sink_wav) {
+            tb->connect(b, 0, iq_complex_to_float, 0);
+            tb->connect(iq_complex_to_float, 0, iq_sink_wav, 0);
+            tb->connect(iq_complex_to_float, 1, iq_sink_wav, 1);
+        }
     }
 
     tb->connect(b, 0, iq_swap, 0);

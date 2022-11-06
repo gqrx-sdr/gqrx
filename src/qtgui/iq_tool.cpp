@@ -38,7 +38,8 @@
 
 CIqTool::CIqTool(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::CIqTool)
+    ui(new Ui::CIqTool),
+    format(receiver::RecordingFormat::RAW)
 {
     ui->setupUi(this);
 
@@ -51,7 +52,8 @@ CIqTool::CIqTool(QWidget *parent) :
 
     //ui->recDirEdit->setText(QDir::currentPath());
 
-    recdir = new QDir(QDir::homePath(), "*.raw");
+    recdir = new QDir(QDir::homePath(), "*.raw;*.wav");
+    recdir->setFilter(QDir::Files);
 
     error_palette = new QPalette();
     error_palette->setColor(QPalette::Text, Qt::red);
@@ -98,6 +100,16 @@ void CIqTool::on_listWidget_currentTextChanged(const QString &currentText)
     // Get duration of selected recording and update label
     refreshTimeWidgets();
 
+}
+
+void CIqTool::on_wavRadioButton_clicked(bool checked)
+{
+    format = receiver::RecordingFormat::WAV;
+}
+
+void CIqTool::on_rawRadioButton_clicked(bool checked)
+{
+    format = receiver::RecordingFormat::RAW;
 }
 
 /*! \brief Start/stop playback */
@@ -173,7 +185,7 @@ void CIqTool::on_recButton_clicked(bool checked)
     if (checked)
     {
         ui->playButton->setEnabled(false);
-        emit startRecording(recdir->path());
+        emit startRecording(recdir->path(), format);
 
         refreshDir();
         ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
@@ -235,6 +247,11 @@ void CIqTool::saveSettings(QSettings *settings)
     else
         settings->remove("baseband/rec_dir");
 
+    if (format == receiver::RecordingFormat::RAW) {
+        settings->setValue("baseband/rec_format", "raw");
+    } else {
+        settings->setValue("baseband/rec_format", "wav");
+    }
 }
 
 void CIqTool::readSettings(QSettings *settings)
@@ -245,8 +262,18 @@ void CIqTool::readSettings(QSettings *settings)
     // Location of baseband recordings
     QString dir = settings->value("baseband/rec_dir", QDir::homePath()).toString();
     ui->recDirEdit->setText(dir);
-}
 
+    QString fmt = settings->value("baseband/rec_format", "raw").toString();
+    if (fmt == "wav") {
+        ui->rawRadioButton->setChecked(false);
+        ui->wavRadioButton->setChecked(true);
+        format = receiver::RecordingFormat::WAV;
+    } else {
+        ui->rawRadioButton->setChecked(true);
+        ui->wavRadioButton->setChecked(false);
+        format = receiver::RecordingFormat::RAW;
+    }
+}
 
 /*! \brief Slot called when the recordings directory has changed either
  *         because of user input or programmatically.
