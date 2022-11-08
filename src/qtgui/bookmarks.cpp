@@ -164,8 +164,7 @@ bool Bookmarks::save()
             BookmarkInfo& info = m_BookmarkList[iBookmark];
             for(int iTag = 0; iTag < info.tags.size(); ++iTag)
             {
-              TagInfo& tag = *info.tags[iTag];
-              usedTags.insert(&tag);
+              usedTags.insert(info.tags[iTag]);
             }
         }
 
