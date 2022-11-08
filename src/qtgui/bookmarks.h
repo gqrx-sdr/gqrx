@@ -116,6 +116,7 @@ public:
     TagInfo& findOrAddTag(QString tagName);
     int getTagIndex(QString tagName);
     bool removeTag(QString tagName);
+    bool renameTag(QString oldName, QString newName);
     bool setTagChecked(QString tagName, bool bChecked);
 
     void setConfigDir(const QString&);

@@ -40,6 +40,9 @@ public:
 private:
     bool m_bShowUntagged;
 
+private slots:
+    void on_itemChanged(QTableWidgetItem *item);
+
 signals:
 
 public slots:
@@ -48,7 +51,7 @@ public slots:
     void changeColor(int row, int column);
     void toggleCheckedState(int row, int column);
     void ShowContextMenu(const QPoint& pos);
-    //bool RenameSelectedTag();
+    bool RenameSelectedTag();
     void AddNewTag();
     void AddTag(QString name, Qt::CheckState checkstate = Qt::Checked, QColor color = TagInfo::DefaultColor);
     void DeleteSelectedTag();

@@ -289,6 +289,32 @@ bool Bookmarks::removeTag(QString tagName)
     return true;
 }
 
+bool Bookmarks::renameTag(QString oldName, QString newName)
+{
+    oldName = oldName.trimmed();
+    newName = newName.trimmed();
+
+    if(oldName == TagInfo::strUntagged || oldName == "")
+        return false;
+
+    if (oldName == newName)
+        return false;
+
+    if (getTagIndex(newName) != -1)
+        return false;
+
+    const int idx = getTagIndex(oldName);
+    if (idx == -1)
+        return false;
+
+    m_TagList[idx].name = newName;
+
+    emit BookmarksChanged();
+    emit TagListChanged();
+
+    return true;
+}
+
 bool Bookmarks::setTagChecked(QString tagName, bool bChecked)
 {
     int idx = getTagIndex(tagName);
