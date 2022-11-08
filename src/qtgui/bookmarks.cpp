@@ -245,8 +245,7 @@ TagInfo &Bookmarks::findOrAddTag(QString tagName)
     if (idx != -1)
         return m_TagList[idx];
 
-    TagInfo info;
-    info.name=tagName;
+    TagInfo info(tagName);
     m_TagList.append(info);
     emit TagListChanged();
     return m_TagList.last();
