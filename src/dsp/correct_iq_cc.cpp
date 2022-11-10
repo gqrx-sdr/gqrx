@@ -98,6 +98,7 @@ iq_swap_cc::iq_swap_cc(bool enabled)
           gr::io_signature::make(1, 1, sizeof(gr_complex)))
 {
     d_enabled = enabled;
+#if GNURADIO_VERSION < 0x30900
     d_c2f = gr::blocks::complex_to_float::make();
     d_f2c = gr::blocks::float_to_complex::make();
 
@@ -113,6 +114,22 @@ iq_swap_cc::iq_swap_cc(bool enabled)
         connect(d_c2f, 1, d_f2c, 1);
     }
     connect(d_f2c, 0, self(), 0);
+#else
+    d_swap_iq = gr::blocks::swap_iq::make(1, sizeof(gr_complex));
+    d_copy = gr::blocks::copy::make(sizeof(gr_complex));
+    d_copy->set_enabled(true);
+
+    if (enabled)
+    {
+        connect(self(), 0, d_swap_iq, 0);
+        connect(d_swap_iq, 0, self(), 0);
+    }
+    else
+    {
+        connect(self(), 0, d_copy, 0);
+        connect(d_copy, 0, self(), 0);
+    }
+#endif
 }
 
 iq_swap_cc::~iq_swap_cc()
@@ -131,6 +148,7 @@ void iq_swap_cc::set_enabled(bool enabled)
     d_enabled = enabled;
 
     lock();
+#if GNURADIO_VERSION < 0x30900
     if (d_enabled)
     {
         disconnect(d_c2f, 0, d_f2c, 0);
@@ -145,6 +163,22 @@ void iq_swap_cc::set_enabled(bool enabled)
         connect(d_c2f, 0, d_f2c, 0);
         connect(d_c2f, 1, d_f2c, 1);
     }
+#else
+    if (d_enabled)
+    {
+        disconnect(self(), 0, d_copy, 0);
+        disconnect(d_copy, 0, self(), 0);
+        connect(self(), 0, d_swap_iq, 0);
+        connect(d_swap_iq, 0, self(), 0);
+    }
+    else
+    {
+        disconnect(self(), 0, d_swap_iq, 0);
+        disconnect(d_swap_iq, 0, self(), 0);
+        connect(self(), 0, d_copy, 0);
+        connect(d_copy, 0, self(), 0);
+    }
+#endif
 
 /** DEBUG **/
 /** disconnect_all() does not work here **/

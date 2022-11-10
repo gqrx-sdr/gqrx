@@ -24,8 +24,13 @@
 #define CORRECT_IQ_CC_H
 
 #include <gnuradio/gr_complex.h>
+#if GNURADIO_VERSION < 0x30900
 #include <gnuradio/blocks/complex_to_float.h>
 #include <gnuradio/blocks/float_to_complex.h>
+#else
+#include <gnuradio/blocks/copy.h>
+#include <gnuradio/blocks/correctiq_swapiq.h>
+#endif
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/filter/single_pole_iir_filter_cc.h>
 
@@ -99,8 +104,13 @@ public:
     void set_enabled(bool enabled);
 
 private:
+#if GNURADIO_VERSION < 0x30900
     gr::blocks::complex_to_float::sptr d_c2f;
     gr::blocks::float_to_complex::sptr d_f2c;
+#else
+    gr::blocks::copy::sptr d_copy;
+    gr::blocks::swap_iq::sptr d_swap_iq;
+#endif
     bool d_enabled;
 };
 
