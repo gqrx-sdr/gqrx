@@ -1144,7 +1144,7 @@ void MainWindow::selectDemod(int mode_idx)
         rx->set_demod(receiver::RX_DEMOD_SSB);
         ui->plotter->setDemodRanges(-40000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,3000);
-        click_res = 100;
+        click_res = 50;
         break;
 
     case DockRxOpt::MODE_USB:
@@ -1152,7 +1152,7 @@ void MainWindow::selectDemod(int mode_idx)
         rx->set_demod(receiver::RX_DEMOD_SSB);
         ui->plotter->setDemodRanges(0, 5000, 100, 40000, false);
         uiDockAudio->setFftRange(0,3000);
-        click_res = 100;
+        click_res = 50;
         break;
 
     case DockRxOpt::MODE_CWL:
