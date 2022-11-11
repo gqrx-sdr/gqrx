@@ -36,9 +36,9 @@
 #include <gnuradio/digital/symbol_sync_cc.h>
 #endif
 
-#if GNURADIO_VERSION < 0x30800
+#if GNURADIO_VERSION < 0x030800
 #include <gnuradio/filter/rational_resampler_base_ccf.h>
-#elif GNURADIO_VERSION < 0x30900
+#elif GNURADIO_VERSION < 0x030900
 #include <gnuradio/filter/rational_resampler_base.h>
 #else
 #include <gnuradio/filter/rational_resampler.h>
