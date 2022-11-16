@@ -1379,7 +1379,7 @@ void CPlotter::drawOverlay()
         qint64 last_max = 0;
         qint64 last_max_0 = 0;
         
-        std::sort(bands.begin(), bands.end(), [=]( const BandInfo& band1 , const BandInfo& band2 )->bool {
+        std::sort(bands.begin(), bands.end(), []( const BandInfo& band1 , const BandInfo& band2 )->bool {
             if (band1.minFrequency == band2.minFrequency) {
                 if (band1.maxFrequency != band2.maxFrequency) 
                     return band1.maxFrequency > band2.maxFrequency;
