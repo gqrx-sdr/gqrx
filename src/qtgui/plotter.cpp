@@ -751,12 +751,12 @@ void CPlotter::zoomStepX(float step, int x)
     qint64 new_FftCenter;
     if( limit_hit ) // cannot keep fixed_hz fixed
     {
-    	new_FftCenter = qRound64((f_min + f_max) / 2.0) - m_CenterFreq;
+        new_FftCenter = qRound64((f_min + f_max) / 2.0) - m_CenterFreq;
     }
     else // calculate new FFT center frequency that really keeps fixed_hz fixed
     {
-    	qint64 wouldbe_hz = (m_CenterFreq + m_FftCenter - new_span / 2) + ratio * new_span;
-    	new_FftCenter = m_FftCenter + (fixed_hz - wouldbe_hz);
+        qint64 wouldbe_hz = (m_CenterFreq + m_FftCenter - new_span / 2) + ratio * new_span;
+        new_FftCenter = m_FftCenter + (fixed_hz - wouldbe_hz);
     }
     setFftCenterFreq(new_FftCenter);
     setSpanFreq(new_span);
@@ -1299,6 +1299,7 @@ void CPlotter::drawOverlay()
         static const int slant = 5;
         static const int levelHeight = fontHeight + 5;
         int nLevels = h / (levelHeight + slant);
+        
         if (m_BookmarksEnabled)
         {
             tags = Bookmarks::Get().getBookmarksInRange(m_CenterFreq + m_FftCenter - m_Span / 2,
@@ -1375,19 +1376,12 @@ void CPlotter::drawOverlay()
     {
         QList<BandInfo> bands = BandPlan::Get().getBandsInRange(m_CenterFreq + m_FftCenter - m_Span / 2,
                                                                 m_CenterFreq + m_FftCenter + m_Span / 2);
+        
         int bandLevel = 0;
         qint64 last_max = 0;
         qint64 last_max_0 = 0;
-        
-        std::sort(bands.begin(), bands.end(), [=]( const BandInfo& band1 , const BandInfo& band2 )->bool {
-            if (band1.minFrequency == band2.minFrequency) {
-                if (band1.maxFrequency != band2.maxFrequency) 
-                    return band1.maxFrequency > band2.maxFrequency;
-                else
-                    return band1.name < band2.name;
-            }
-            return band1.minFrequency < band2.minFrequency;
-        });
+                
+        std::sort(bands.begin(), bands.end());
         
         for (auto & band : bands)
         {
@@ -1406,8 +1400,10 @@ void CPlotter::drawOverlay()
             int band_right = xFromFreq(band.maxFrequency);
             int band_width = band_right - band_left;
             int band_bottom = bandLevel * m_BandPlanHeight;
+            
             rect.setRect(band_left, xAxisTop - m_BandPlanHeight + band_bottom, band_width, m_BandPlanHeight);
             painter.fillRect(rect, band.color);
+            
             QString band_label = band.name + " (" + band.modulation + ")";
             int textWidth = metrics.boundingRect(band_label).width();
             if (band_left < w && band_width > textWidth + 20)
