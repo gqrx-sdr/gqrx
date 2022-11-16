@@ -1380,7 +1380,7 @@ void CPlotter::drawOverlay()
         int bandLevel = 0;
         qint64 last_max = 0;
         qint64 last_max_0 = 0;
-                
+        
         std::sort(bands.begin(), bands.end());
         
         for (auto & band : bands)
@@ -1409,7 +1409,6 @@ void CPlotter::drawOverlay()
             if (band_left < w && band_width > textWidth + 20)
             {
                 painter.setOpacity(1.0);
-                rect.setRect(band_left, xAxisTop - m_BandPlanHeight + band_bottom, band_width, m_BandPlanHeight);
                 painter.setPen(QColor(PLOTTER_TEXT_COLOR));
                 painter.drawText(rect, Qt::AlignCenter, band_label);
             }
