@@ -101,6 +101,20 @@ void CIqTool::on_listWidget_currentTextChanged(const QString &currentText)
 
 }
 
+/*! \brief Show/hide/enable/disable GUI controls */
+
+void CIqTool::switchControlsState(enum IqToolState state)
+{
+    ui->recButton->setEnabled(state != STATE_PLAYING);
+
+    ui->playButton->setEnabled(state != STATE_RECORDING);
+    ui->slider->setEnabled(state != STATE_RECORDING);
+
+    ui->listWidget->setEnabled(state == STATE_IDLE);
+    ui->recDirEdit->setEnabled(state == STATE_IDLE);
+    ui->recDirButton->setEnabled(state == STATE_IDLE);
+}
+
 /*! \brief Start/stop playback */
 void CIqTool::on_playButton_clicked(bool checked)
 {
@@ -126,9 +140,8 @@ void CIqTool::on_playButton_clicked(bool checked)
         }
         else
         {
-            ui->listWidget->setEnabled(false);
-            ui->recButton->setEnabled(false);
             on_listWidget_currentTextChanged(current_file);
+            switchControlsState(STATE_PLAYING);
             emit startPlayback(recdir->absoluteFilePath(current_file),
                                (float)sample_rate, center_freq);
         }
@@ -136,8 +149,7 @@ void CIqTool::on_playButton_clicked(bool checked)
     else
     {
         emit stopPlayback();
-        ui->listWidget->setEnabled(true);
-        ui->recButton->setEnabled(true);
+        switchControlsState(STATE_IDLE);
         ui->slider->setValue(0);
     }
 }
@@ -150,9 +162,7 @@ void CIqTool::on_playButton_clicked(bool checked)
  */
 void CIqTool::cancelPlayback()
 {
-    ui->playButton->setChecked(false);
-    ui->listWidget->setEnabled(true);
-    ui->recButton->setEnabled(true);
+    switchControlsState(STATE_IDLE);
     is_playing = false;
 }
 
@@ -173,7 +183,7 @@ void CIqTool::on_recButton_clicked(bool checked)
 
     if (checked)
     {
-        ui->playButton->setEnabled(false);
+        switchControlsState(STATE_RECORDING);
         emit startRecording(recdir->path(), ui->formatCombo->currentText());
 
         refreshDir();
@@ -181,7 +191,7 @@ void CIqTool::on_recButton_clicked(bool checked)
     }
     else
     {
-        ui->playButton->setEnabled(true);
+        switchControlsState(STATE_IDLE);
         emit stopRecording();
     }
 }
@@ -224,8 +234,7 @@ void CIqTool::stopIqRecorder(void)
  */
 void CIqTool::cancelRecording()
 {
-    ui->recButton->setChecked(false);
-    ui->playButton->setEnabled(true);
+    switchControlsState(STATE_IDLE);
     is_recording = false;
 }
 
