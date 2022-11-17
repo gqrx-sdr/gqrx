@@ -176,6 +176,23 @@ QSize CPlotter::sizeHint() const
     return {180, 180};
 }
 
+void CPlotter::mouseDoubleClickEvent(QMouseEvent* event)
+{
+    if (m_CursorCaptured == TAG)
+    {
+        for (auto & tag : m_Taglist)
+        {
+            if (tag.first.contains(event->pos()))
+            {
+                const BookmarkInfo &b = tag.second;
+
+                emit newBookmarkActivated(b.frequency, b.modulation, b.bandwidth);
+                break;
+            }
+        }
+    }
+}
+
 void CPlotter::mouseMoveEvent(QMouseEvent* event)
 {
 
@@ -675,7 +692,8 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
             {
                 if (tag.first.contains(event->pos()))
                 {
-                    m_DemodCenterFreq = tag.second;
+                    m_DemodCenterFreq = tag.second.frequency;
+
                     emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
                     break;
                 }
@@ -1346,7 +1364,7 @@ void CPlotter::drawOverlay()
             const auto levelNHeightBottom = levelNHeight + fontHeight;
             const auto levelNHeightBottomSlant = levelNHeightBottom + slant;
 
-            m_Taglist.append(qMakePair(QRect(x, levelNHeight, nameWidth + slant, fontHeight), tag.frequency));
+            m_Taglist.append(qMakePair(QRect(x, levelNHeight, nameWidth + slant, fontHeight), tag));
 
             QColor color = QColor(tag.GetColor());
             color.setAlpha(0x60);
