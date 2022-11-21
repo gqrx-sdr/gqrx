@@ -39,6 +39,7 @@
 #include "qtgui/dockfft.h"
 #include "qtgui/dockbookmarks.h"
 #include "qtgui/dockrds.h"
+#include "qtgui/dockfax.h"
 #include "qtgui/afsk1200win.h"
 #include "qtgui/iq_tool.h"
 #include "qtgui/dxc_options.h"
@@ -97,6 +98,10 @@ private:
     std::vector<float> d_audioFftData;
     bool d_have_audio;  /*!< Whether we have audio (i.e. not with demod_off. */
 
+    QImage fax_image;
+    bool fax_running;
+    QString fax_name;
+
     /* dock widgets */
     DockRxOpt      *uiDockRxOpt;
     DockAudio      *uiDockAudio;
@@ -104,6 +109,7 @@ private:
     DockFft        *uiDockFft;
     DockBookmarks  *uiDockBookmarks;
     DockRDS        *uiDockRDS;
+    DockFAX        *uiDockFAX;
 
     CIqTool        *iq_tool;
     DXCOptions     *dxc_options;
@@ -118,6 +124,7 @@ private:
     QTimer   *iq_fft_timer;
     QTimer   *audio_fft_timer;
     QTimer   *rds_timer;
+    QTimer   *fax_timer;
     quint64  d_last_fft_ms;
     float    d_avg_fft_rate;
     bool     d_frame_drop;
@@ -220,6 +227,19 @@ private slots:
     /* RDS */
     void setRdsDecoder(bool checked);
 
+    /* FAX */
+    void start_fax_decoder();
+    void stop_fax_decoder();
+    void reset_fax_decoder();
+    void set_fax_lpm(float);
+    void set_fax_black_freq(float);
+    void set_fax_white_freq(float);
+    void set_fax_ioc(float);
+    void force_fax_reset();
+    void force_fax_sync();
+    void force_fax_start();
+    int  save_fax();
+
     /* Bookmarks */
     void onBookmarkActivated(qint64 freq, const QString& demod, int bandwidth);
 
@@ -261,6 +281,7 @@ private slots:
     void iqFftTimeout();
     void audioFftTimeout();
     void rdsTimeout();
+    void faxTimeout();
 };
 
 #endif // MAINWINDOW_H
