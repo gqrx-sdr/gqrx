@@ -59,7 +59,8 @@ public:
         RX_DECODER_ALL = -1,
         RX_DECODER_NONE = 0,
         RX_DECODER_RDS,
-    RX_DECODER_FAX,
+        RX_DECODER_FAX,
+	RX_DECODER_RTTY,
         RX_DECODER_MAX
     };
 
