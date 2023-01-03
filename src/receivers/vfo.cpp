@@ -227,8 +227,6 @@ bool vfo_s::set_udp_stereo(bool stereo)
 
 void vfo_s::restore_settings(vfo_s& from, bool force)
 {
-    set_offset(from.get_offset());
-    set_filter(from.get_filter_low(), from.get_filter_high(), from.get_filter_tw());
     set_freq_lock(from.get_freq_lock());
     set_demod(from.get_demod());
     set_sql_level(from.get_sql_level());
@@ -245,6 +243,7 @@ void vfo_s::restore_settings(vfo_s& from, bool force)
     set_agc_panning_auto(from.get_agc_panning_auto());
 
     set_cw_offset(from.get_cw_offset());
+    set_filter(from.get_filter_low(), from.get_filter_high(), from.get_filter_tw());
 
     set_fm_maxdev(from.get_fm_maxdev());
     set_fm_deemph(from.get_fm_deemph());

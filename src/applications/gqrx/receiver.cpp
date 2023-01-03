@@ -1229,6 +1229,7 @@ receiver::status receiver::set_demod_locked(Modulations::idx demod, int old_idx)
         if (old_rx.get() != rx[d_current].get())
         {
             rx[d_current]->restore_settings(*old_rx.get());
+            rx[d_current]->set_offset(old_rx->get_offset());
             // Recorders
             if (old_rx.get() != rx[d_current].get())
             {

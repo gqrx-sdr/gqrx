@@ -92,6 +92,8 @@ void nbrx::set_filter(int low, int high, int tw)
 
 void nbrx::set_cw_offset(int offset)
 {
+    if(offset==get_cw_offset())
+        return;
     vfo_s::set_cw_offset(offset);
     switch (get_demod())
     {
@@ -111,6 +113,8 @@ void nbrx::set_cw_offset(int offset)
 
 void nbrx::set_offset(int offset)
 {
+    if(offset==get_offset())
+        return;
     vfo_s::set_offset(offset);
     switch (get_demod())
     {
