@@ -32,6 +32,7 @@
 #include <QDialogButtonBox>
 #include <QFile>
 #include <QGroupBox>
+#include <QJsonDocument>
 #include <QKeySequence>
 #include <QLineEdit>
 #include <QMessageBox>
@@ -317,7 +318,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(&DXCSpots::Get(), SIGNAL(dxcSpotsUpdated()), this, SLOT(updateClusterSpots()));
 
     // I/Q playback
-    connect(iq_tool, SIGNAL(startRecording(QString)), this, SLOT(startIqRecording(QString)));
+    connect(iq_tool, SIGNAL(startRecording(QString, QString)), this, SLOT(startIqRecording(QString, QString)));
     connect(iq_tool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
     connect(iq_tool, SIGNAL(startPlayback(QString,float,qint64)), this, SLOT(startIqPlayback(QString,float,qint64)));
     connect(iq_tool, SIGNAL(stopPlayback()), this, SLOT(stopIqPlayback()));
@@ -1629,7 +1630,7 @@ void MainWindow::stopAudioStreaming()
 }
 
 /** Start I/Q recording. */
-void MainWindow::startIqRecording(const QString& recdir)
+void MainWindow::startIqRecording(const QString& recdir, const QString& format)
 {
     qDebug() << __func__;
     // generate file name using date, time, rf freq in kHz and BW in Hz
@@ -1637,13 +1638,45 @@ void MainWindow::startIqRecording(const QString& recdir)
     auto freq = qRound64(rx->get_rf_freq());
     auto sr = qRound64(rx->get_input_rate());
     auto dec = (quint32)(rx->get_input_decim());
-    auto lastRec = QDateTime::currentDateTimeUtc().
-            toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.'raw'")
-            .arg(recdir).arg(freq).arg(sr/dec);
+    auto currentDate = QDateTime::currentDateTimeUtc();
+    auto filenameTemplate = currentDate.toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.%4").arg(recdir).arg(freq).arg(sr/dec);
+    bool sigmf = (format == "SigMF");
+    auto lastRec = filenameTemplate.arg(sigmf ? "sigmf-data" : "raw");
+
+    QFile metaFile(filenameTemplate.arg("sigmf-meta"));
+    bool ok = true;
+    if (sigmf) {
+        auto meta = QJsonDocument { QJsonObject {
+            {"global", QJsonObject {
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
+                {"core:datatype", "cf32_be"},
+#else
+                {"core:datatype", "cf32_le"},
+#endif
+                {"core:sample_rate", sr/dec},
+                {"core:version", "1.0.0"},
+                {"core:recorder", "Gqrx " VERSION},
+            }}, {"captures", QJsonArray {
+                QJsonObject {
+                    {"core:sample_start", 0},
+                    {"core:frequency", freq},
+                    {"core:datetime", currentDate.toString(Qt::ISODateWithMs)},
+                },
+            }}, {"annotations", QJsonArray {}},
+        }}.toJson();
+
+        if (!metaFile.open(QIODevice::WriteOnly) || metaFile.write(meta) != meta.size()) {
+            ok = false;
+        }
+    }
 
     // start recorder; fails if recording already in progress
-    if (rx->start_iq_recording(lastRec.toStdString()))
+    if (!ok || rx->start_iq_recording(lastRec.toStdString()))
     {
+        // remove metadata file if we managed to open it
+        if (sigmf && metaFile.isOpen())
+            metaFile.remove();
+
         // reset action status
         ui->statusBar->showMessage(tr("Error starting I/Q recoder"));
 

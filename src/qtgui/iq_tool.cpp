@@ -52,6 +52,7 @@ CIqTool::CIqTool(QWidget *parent) :
     //ui->recDirEdit->setText(QDir::currentPath());
 
     recdir = new QDir(QDir::homePath(), "*.raw");
+    recdir->setNameFilters(recdir->nameFilters() << "*.sigmf-data");
 
     error_palette = new QPalette();
     error_palette->setColor(QPalette::Text, Qt::red);
@@ -173,7 +174,7 @@ void CIqTool::on_recButton_clicked(bool checked)
     if (checked)
     {
         ui->playButton->setEnabled(false);
-        emit startRecording(recdir->path());
+        emit startRecording(recdir->path(), ui->formatCombo->currentText());
 
         refreshDir();
         ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
