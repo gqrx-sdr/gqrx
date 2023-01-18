@@ -77,8 +77,11 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
+          brew install python@3.11 || true
+          brew link --overwrite python@3.11
+          brew install python@3.10 || true
+          brew link --overwrite python@3.10
           brew install airspy boost gnuradio hackrf libbladerf librtlsdr pybind11 uhd qt@6
-
           cd /tmp
           git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
           cd gr-osmosdr
