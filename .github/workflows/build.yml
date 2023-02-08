@@ -118,7 +118,7 @@ jobs:
           path: Gqrx-*.AppImage
   macos:
     name: MacOS
-    runs-on: macos-10.15
+    runs-on: macos-11
     steps:
       - name: Install dependencies
         run: |
