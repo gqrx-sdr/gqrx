@@ -89,7 +89,7 @@ jobs:
           cd /tmp
           git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
           cd gr-osmosdr
-          git checkout gr3.8
+          git checkout origin/gr3.8
           mkdir build
           cd build
           cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_MODULES_DIR=/usr/lib/x86_64-linux-gnu/cmake -DENABLE_PYTHON=False ..
