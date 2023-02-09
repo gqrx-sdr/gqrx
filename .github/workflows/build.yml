@@ -97,7 +97,7 @@ jobs:
           make install
           ldconfig
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Configure
@@ -112,7 +112,7 @@ jobs:
       - name: Build AppImage
         run: ./appimage.sh
       - name: Save artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: gqrx-appimage-${{ github.run_id }}
           path: Gqrx-*.AppImage
@@ -201,7 +201,7 @@ jobs:
           security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Configure
@@ -235,7 +235,7 @@ jobs:
           GQRX_VERSION=$(<version.txt)
           mv Gqrx.dmg Gqrx-$GQRX_VERSION.dmg
       - name: Save artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: gqrx-macos-${{ github.run_id }}
           path: Gqrx-*.dmg
