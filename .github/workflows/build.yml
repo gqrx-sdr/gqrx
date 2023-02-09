@@ -212,22 +212,24 @@ jobs:
       - name: Build app bundle
         run: ./macos_bundle.sh
       - name: Notarize app bundle
-        uses: devbotsxyz/xcode-notarize@v1
-        with:
-          product-path: Gqrx.app
-          appstore-connect-username: ${{ secrets.NOTARIZE_USERNAME }}
-          appstore-connect-password: ${{ secrets.NOTARIZE_PASSWORD }}
+        env:
+          NOTARIZE_USERNAME: ${{ secrets.NOTARIZE_USERNAME }}
+          NOTARIZE_TEAM_ID: ${{ secrets.NOTARIZE_TEAM_ID }}
+          NOTARIZE_PASSWORD: ${{ secrets.NOTARIZE_PASSWORD }}
+        run: |
+          ditto -c -k --keepParent Gqrx.app Gqrx.zip
+          xcrun notarytool submit Gqrx.zip --apple-id "$NOTARIZE_USERNAME" --team-id "$NOTARIZE_TEAM_ID" --password "$NOTARIZE_PASSWORD" --wait
       - name: Staple app bundle
         run: xcrun stapler staple --verbose Gqrx.app
       - name: Create DMG
         run: hdiutil create Gqrx.dmg -srcfolder Gqrx.app -format UDZO -fs HFS+ -volname Gqrx
       - name: Notarize DMG
-        uses: devbotsxyz/xcode-notarize@v1
-        with:
-          product-path: Gqrx.dmg
-          primary-bundle-id: dk.gqrx.gqrx
-          appstore-connect-username: ${{ secrets.NOTARIZE_USERNAME }}
-          appstore-connect-password: ${{ secrets.NOTARIZE_PASSWORD }}
+        env:
+          NOTARIZE_USERNAME: ${{ secrets.NOTARIZE_USERNAME }}
+          NOTARIZE_TEAM_ID: ${{ secrets.NOTARIZE_TEAM_ID }}
+          NOTARIZE_PASSWORD: ${{ secrets.NOTARIZE_PASSWORD }}
+        run: |
+          xcrun notarytool submit Gqrx.dmg --apple-id "$NOTARIZE_USERNAME" --team-id "$NOTARIZE_TEAM_ID" --password "$NOTARIZE_PASSWORD" --wait
       - name: Staple DMG
         run: xcrun stapler staple --verbose Gqrx.dmg
       - name: Rename DMG
