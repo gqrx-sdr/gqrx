@@ -125,7 +125,7 @@ jobs:
           brew update
           brew install airspy airspyhf boost dylibbundler gnuradio hackrf libbladerf librtlsdr libserialport portaudio pybind11 uhd qt@6
           brew tap pothosware/homebrew-pothos
-          brew install soapysdr soapyremote
+          brew install soapyremote
 
           cd /tmp
           git clone https://github.com/analogdevicesinc/libiio.git
