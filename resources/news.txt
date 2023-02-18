@@ -6,6 +6,7 @@
      FIXED: Remove empty frame from bottom of I/Q tool window.
      FIXED: Sudden scrolling of file list in I/Q tool window.
   IMPROVED: AGC performance.
+  IMPROVED: Apply amplitude normalization to FFT window functions.
 
 
     2.15.9: Released April 9, 2022
