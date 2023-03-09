@@ -56,6 +56,7 @@ Q_LOGGING_CATEGORY(plotter, "plotter")
 #define PLOTTER_CENTER_LINE_COLOR   0xFF788296
 #define PLOTTER_FILTER_LINE_COLOR   0xFFFF7171
 #define PLOTTER_FILTER_BOX_COLOR    0xFFA0A0A4
+#define PLOTTER_MARKER_COLOR        0XFF7FFF7F
 // FIXME: Should cache the QColors also
 
 #define HOR_MARGIN 5
@@ -248,6 +249,22 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 if (m_TooltipsEnabled)
                     showToolTip(event, QString("Low cut: %1 Hz").arg(m_DemodLowCutFreq));
             }
+            else if (isPointCloseTo(pt.x(), m_MarkerAX, m_CursorCaptureDelta))
+            {
+                if (MARKER_A != m_CursorCaptured && m_MarkerFreqA != 0)
+                    setCursor(QCursor(Qt::OpenHandCursor));
+                m_CursorCaptured = MARKER_A;
+                if (m_TooltipsEnabled)
+                    showToolTip(event, QString("Marker A: %1 kHz").arg(m_MarkerFreqA/1.e3, 0, 'f', 3));
+            }
+            else if (isPointCloseTo(pt.x(), m_MarkerBX, m_CursorCaptureDelta))
+            {
+                if (MARKER_B != m_CursorCaptured && m_MarkerFreqB != 0)
+                    setCursor(QCursor(Qt::OpenHandCursor));
+                m_CursorCaptured = MARKER_B;
+                if (m_TooltipsEnabled)
+                    showToolTip(event, QString("Marker B: %1 kHz").arg(m_MarkerFreqB/1.e3, 0, 'f', 3));
+            }
             else
             {	//if not near any grab boundaries
                 if (NOCAP != m_CursorCaptured)
@@ -257,8 +274,12 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 }
                 if (m_TooltipsEnabled)
                 {
+                    QString toolTipText;
                     qint64 hoverFrequency = freqFromX(pt.x());
-                    QString toolTipText = QString("F: %1 kHz").arg(hoverFrequency/1.e3, 0, 'f', 3);
+                    toolTipText = QString("%1 kHz\nΔ %2 kHz")
+                                          .arg(hoverFrequency/1.e3, 0, 'f', 3)
+                                          .arg(locale().toString((hoverFrequency - m_DemodCenterFreq)/1.e3, 'f', 3));
+
                     QFontMetrics metrics(m_Font);
                     int bandTopY = (m_OverlayPixmap.height() / m_DPR) - metrics.height() - 2 * VER_MARGIN - m_BandPlanHeight;
                     QList<BandInfo> hoverBands = BandPlan::Get().getBandsEncompassing(hoverFrequency);
@@ -450,6 +471,46 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             m_CursorCaptured = NOCAP;
         }
     }
+    else if (MARKER_A == m_CursorCaptured)
+    {
+        if (event->buttons() & Qt::LeftButton)
+        {
+            qint64 prevA = m_MarkerFreqA;
+            m_MarkerFreqA = freqFromX(pt.x());
+            emit markerSelectA(m_MarkerFreqA);
+            // Shift-drag moves both markers
+            if ((event->modifiers() & Qt::ShiftModifier) && m_MarkerFreqB != 0) {
+                qint64 df = m_MarkerFreqA - prevA;
+                m_MarkerFreqB += df;
+                emit markerSelectB(m_MarkerFreqB);
+            }
+        }
+        else if (event->buttons() & ~Qt::NoButton)
+        {
+            setCursor(QCursor(Qt::ArrowCursor));
+            m_CursorCaptured = NOCAP;
+        }
+    }
+    else if (MARKER_B == m_CursorCaptured)
+    {
+        if (event->buttons() & Qt::LeftButton)
+        {
+            qint64 prevB = m_MarkerFreqB;
+            m_MarkerFreqB = freqFromX(pt.x());
+            emit markerSelectB(m_MarkerFreqB);
+            // Shift-drag moves both markers
+            if ((event->modifiers() & Qt::ShiftModifier) && m_MarkerFreqA != 0) {
+                qint64 df = m_MarkerFreqB - prevB;
+                m_MarkerFreqA += df;
+                emit markerSelectA(m_MarkerFreqA);
+            }
+        }
+        else if (event->buttons() & ~Qt::NoButton)
+        {
+            setCursor(QCursor(Qt::ArrowCursor));
+            m_CursorCaptured = NOCAP;
+        }
+    }
     else
     {
         // cursor not captured
@@ -622,23 +683,59 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
         {
             if (event->buttons() == Qt::LeftButton)
             {
-                int     best = -1;
+                // shift-left-click: set ab markers around signal at cursor
+                if (event->modifiers() & Qt::ShiftModifier)
+                {
+                    // ctrl-shift uses peak hold, shift uses current fft
+                    bool usePeak = (event->modifiers() & Qt::ControlModifier);
 
-                if (m_PeakDetection > 0)
-                    best = getNearestPeak(pt);
-                if (best != -1)
-                    m_DemodCenterFreq = freqFromX(best);
-                else
-                    m_DemodCenterFreq = roundFreq(freqFromX(pt.x()), m_ClickResolution);
+                    // ignore if data source is not valid
+                    if ((usePeak && m_PeakHoldValid) || (!usePeak && m_fftDataSize != 0))
+                    {
+                        int *selectBuf = usePeak ? m_fftPeakHoldBuf : m_fftbuf;
 
-                // if cursor not captured set demod frequency and start demod box capture
-                emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
+                        // Ignore clicks above the plot, below the pandapter, or when uninitialized
+                        int h = m_2DPixmap.height() / m_DPR;
+                        if (event->y() > selectBuf[event->x()]
+                            && event->y() < h
+                            && m_fftDataSize > 0)
+                        {
+                            int xLeft = event->x();
+                            int xRight = event->x();
+                            for(; xLeft > 0 && selectBuf[xLeft] < event->y(); --xLeft);
+                            for(; xRight < m_fftDataSize && selectBuf[xRight] < event->y(); ++xRight);
+                            qint64 freqLeft = freqFromX(xLeft);
+                            qint64 freqRight = freqFromX(xRight);
 
-                // save initial grab position from m_DemodFreqX
-                // setCursor(QCursor(Qt::CrossCursor));
-                m_CursorCaptured = CENTER;
-                m_GrabPosition = 1;
-                drawOverlay();
+                            // setMarkers slot calls drawOverlay() so no need to call here
+                            //setMarkers(freqLeft, freqRight);
+
+                            emit markerSelectA(freqLeft);
+                            emit markerSelectB(freqRight);
+                        }
+                    }
+                }
+
+                // left-click: set center frequency
+                else {
+                    int best = -1;
+
+                    if (m_PeakDetection > 0)
+                        best = getNearestPeak(pt);
+                    if (best != -1)
+                        m_DemodCenterFreq = freqFromX(best);
+                    else
+                        m_DemodCenterFreq = roundFreq(freqFromX(pt.x()), m_ClickResolution);
+
+                    // if cursor not captured set demod frequency and start demod box capture
+                    emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
+
+                    // save initial grab position from m_DemodFreqX
+                    // setCursor(QCursor(Qt::CrossCursor));
+                    m_CursorCaptured = CENTER;
+                    m_GrabPosition = 1;
+                    drawOverlay();
+                }
             }
             else if (event->buttons() == Qt::MiddleButton)
             {
@@ -1006,13 +1103,24 @@ void CPlotter::draw()
 
         // draw the pandapter
         QBrush fillBrush = QBrush(m_FftFillCol);
+        QColor abFillColor = QColor(PLOTTER_MARKER_COLOR);
+        abFillColor.setAlpha(20);
+        QBrush abFillBrush = QBrush(abFillColor);
+        int minMarker = std::min(m_MarkerAX, m_MarkerBX);
+        int maxMarker = std::max(m_MarkerAX, m_MarkerBX);
         n = xmax - xmin;
         for (i = 0; i < n; i++)
         {
             LineBuf[i].setX(i + xmin + 0.5);
             LineBuf[i].setY(m_fftbuf[i + xmin] + 0.5);
-            if (m_FftFill)
+            // Always fill marker span if both are on screen
+            if (minMarker && maxMarker && i > minMarker && i < maxMarker) {
+                painter2.fillRect(i + xmin, m_fftbuf[i + xmin] + 1, 1, h, abFillBrush);
+            }
+            else if (m_FftFill)
+            {
                 painter2.fillRect(i + xmin, m_fftbuf[i + xmin] + 1, 1, h, fillBrush);
+            }
         }
 
         painter2.setPen(m_FftColor);
@@ -1403,6 +1511,47 @@ void CPlotter::drawOverlay()
             painter.setPen(QColor(PLOTTER_CENTER_LINE_COLOR));
             painter.drawLine(x, 0, x, xAxisTop);
         }
+
+        QBrush brush;
+        brush.setColor(QColor(PLOTTER_MARKER_COLOR));
+        brush.setStyle(Qt::SolidPattern);
+        painter.setPen(QColor(PLOTTER_MARKER_COLOR));
+
+        int markerSize = metrics.height() / 2;
+
+        if (m_MarkerFreqA != 0) {
+            x = xFromFreq(m_MarkerFreqA);
+            m_MarkerAX = x;
+            if (x > 0 && x < w) {
+                QPolygon poly;
+                QPainterPath path;
+                poly << QPoint(x - markerSize/2, 0)
+                     << QPoint(x + markerSize/2, 0)
+                     << QPoint(x, markerSize);
+                path.addPolygon(poly);
+                painter.drawPolygon(poly);
+                painter.fillPath(path, brush);
+                painter.drawLine(x, markerSize, x, xAxisTop);
+                painter.drawStaticText(QPointF(x + markerSize/2, 0), QStaticText("A"));
+            }
+        }
+
+        if (m_MarkerFreqB != 0) {
+            x = xFromFreq(m_MarkerFreqB);
+            m_MarkerBX = x;
+            if (x > 0 && x < w) {
+                QPolygon poly;
+                QPainterPath path;
+                poly << QPoint(x - markerSize/2, 0)
+                     << QPoint(x + markerSize/2, 0)
+                     << QPoint(x, markerSize);
+                path.addPolygon(poly);
+                painter.drawPolygon(poly);
+                painter.fillPath(path, brush);
+                painter.drawLine(x, markerSize, x, xAxisTop);
+                painter.drawStaticText(QPointF(x + markerSize/2, 0), QStaticText("B"));
+            }
+        }
     }
 
     // Frequency grid
@@ -1724,6 +1873,18 @@ void CPlotter::setPeakDetection(bool enabled, float c)
 void CPlotter::toggleBandPlan(bool state)
 {
     m_BandPlanEnabled = state;
+    updateOverlay();
+}
+
+void CPlotter::setMarkers(qint64 a, qint64 b)
+{
+    // Invalidate x positions
+    m_MarkerAX = 0;
+    m_MarkerBX = 0;
+
+    m_MarkerFreqA = a;
+    m_MarkerFreqB = b;
+
     updateOverlay();
 }
 

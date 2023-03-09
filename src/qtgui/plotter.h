@@ -131,6 +131,8 @@ signals:
     void pandapterRangeChanged(float min, float max);
     void newZoomLevel(float level);
     void newSize();
+    void markerSelectA(qint64 freq);
+    void markerSelectB(qint64 freq);
 
 public slots:
     // zoom functions
@@ -149,6 +151,7 @@ public slots:
     void setWaterfallRange(float min, float max);
     void setPeakDetection(bool enabled, float c);
     void toggleBandPlan(bool state);
+    void setMarkers(qint64 a, qint64 b);
     void updateOverlay();
 
     void setPercent2DScreen(int percent)
@@ -175,7 +178,9 @@ private:
         RIGHT,
         YAXIS,
         XAXIS,
-        TAG
+        TAG,
+        MARKER_A,
+        MARKER_B
     };
 
     void        drawOverlay();
@@ -223,6 +228,8 @@ private:
     qint64      m_CenterFreq;       // The HW frequency
     qint64      m_FftCenter;        // Center freq in the -span ... +span range
     qint64      m_DemodCenterFreq;
+    qint64      m_MarkerFreqA;
+    qint64      m_MarkerFreqB;
     qint64      m_StartFreqAdj{};
     qint64      m_FreqPerDiv{};
     bool        m_CenterLineEnabled;  /*!< Distinguish center line. */
@@ -237,6 +244,8 @@ private:
     int         m_DemodFreqX{};       //screen coordinate x position
     int         m_DemodHiCutFreqX{};  //screen coordinate x position
     int         m_DemodLowCutFreqX{}; //screen coordinate x position
+    int         m_MarkerAX{};
+    int         m_MarkerBX{};
     int         m_CursorCaptureDelta;
     int         m_GrabPosition;
     int         m_Percent2DScreen;

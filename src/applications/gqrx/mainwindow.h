@@ -67,6 +67,8 @@ public:
 
 public slots:
     void setNewFrequency(qint64 rx_freq);
+    void setMarkerA(qint64 freq);
+    void setMarkerB(qint64 freq);
 
 private:
     Ui::MainWindow *ui;
@@ -78,6 +80,8 @@ private:
 
     qint64 d_lnb_lo;  /* LNB LO in Hz. */
     qint64 d_hw_freq;
+    qint64 d_marker_a;
+    qint64 d_marker_b;
     qint64 d_hw_freq_start{};
     qint64 d_hw_freq_stop{};
 
@@ -120,9 +124,12 @@ private:
     // dummy widget to enforce linking to QtSvg
     QSvgWidget      *qsvg_dummy;
 
+    QFont font;
+
 private:
     void updateHWFrequencyRange(bool ignore_limits);
     void updateFrequencyRange();
+    void updateDeltaAndCenter();
     void updateGainStages(bool read_from_device);
     void showSimpleTextFile(const QString &resource_path,
                             const QString &window_title);
@@ -232,6 +239,11 @@ private slots:
     void on_actionAddBookmark_triggered();
     void on_actionDX_Cluster_triggered();
 
+    /* markers*/
+    void on_setMarkerButtonA_clicked();
+    void on_setMarkerButtonB_clicked();
+    void on_clearMarkerButtonA_clicked();
+    void on_clearMarkerButtonB_clicked();
 
     /* window close signals */
     void afsk1200win_closed();

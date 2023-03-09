@@ -90,6 +90,16 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 
     setWindowTitle(QString("Gqrx %1").arg(VERSION));
 
+    // Set fixed widths for labels so they don't move around when set
+    QFontMetrics metrics(font);
+    QRect markerRect = metrics.boundingRect("99,999,999.999 kHz");
+    ui->markerLabelA->setFixedWidth(markerRect.width());
+    ui->markerLabelB->setFixedWidth(markerRect.width());
+    QRect deltaFreqRect = metrics.boundingRect("Δ99,999,999.999 kHz   ⨏99,999,999.999 kHz");
+    ui->deltaFreqLabel->setFixedWidth(deltaFreqRect.width());
+    setMarkerA(0);
+    setMarkerB(0);
+
     /* frequency control widget */
     ui->freqCtrl->setup(0, 0, 9999e6, 1, FCTL_UNIT_NONE);
     ui->freqCtrl->setFrequency(144500000);
@@ -270,6 +280,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(ui->plotter, SIGNAL(newZoomLevel(float)),
             uiDockFft, SLOT(setZoomLevel(float)));
     connect(ui->plotter, SIGNAL(newSize()), this, SLOT(setWfSize()));
+    connect(ui->plotter, SIGNAL(markerSelectA(qint64)), this, SLOT(setMarkerA(qint64)));
+    connect(ui->plotter, SIGNAL(markerSelectB(qint64)), this, SLOT(setMarkerB(qint64)));
 
     connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
@@ -869,6 +881,74 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
     uiDockRxOpt->setHwFreq(d_hw_freq);
     ui->freqCtrl->setFrequency(rx_freq);
     uiDockBookmarks->setNewFrequency(rx_freq);
+}
+
+// Update delta and center (of marker span) when markers are updated
+void MainWindow::updateDeltaAndCenter()
+{
+    if (d_marker_a != 0 && d_marker_b != 0)
+    {
+        qint64 delta = d_marker_b - d_marker_a;
+        qint64 center = (d_marker_a + d_marker_b) / 2;
+        ui->deltaFreqLabel->setText(QString("Δ%1 kHz   ⨏%2 kHz")
+                            .arg(locale().toString(delta/1.e3, 'f', 3))
+                            .arg(locale().toString(center/1.e3, 'f', 3)));
+    }
+    else {
+        ui->deltaFreqLabel->setText("");
+    }
+}
+
+// Set marker via slots
+void MainWindow::setMarkerA(qint64 freq)
+{
+    d_marker_a = freq;
+    if (freq != 0)
+    {
+        ui->markerLabelA->setText(QString("%1 kHz").arg(locale().toString(freq/1.e3, 'f', 3)));
+    }
+    else {
+        ui->markerLabelA->setText("");
+    }
+    ui->plotter->setMarkers(d_marker_a, d_marker_b);
+    updateDeltaAndCenter();
+}
+
+void MainWindow::setMarkerB(qint64 freq)
+{
+    d_marker_b = freq;
+    if (freq != 0)
+    {
+        ui->markerLabelB->setText(QString("%1 kHz").arg(locale().toString(freq/1.e3, 'f', 3)));
+    }
+    else {
+        ui->markerLabelB->setText("");
+    }
+    ui->plotter->setMarkers(d_marker_a, d_marker_b);
+    updateDeltaAndCenter();
+}
+
+// Set marker via buttons
+void MainWindow::on_setMarkerButtonA_clicked()
+{
+    auto center_freq = d_hw_freq + (qint64)rx->get_filter_offset();
+    setMarkerA(center_freq);
+}
+
+void MainWindow::on_setMarkerButtonB_clicked()
+{
+    auto center_freq = d_hw_freq + (qint64)rx->get_filter_offset();
+    setMarkerB(center_freq);
+}
+
+void MainWindow::on_clearMarkerButtonA_clicked()
+{
+    setMarkerA(0);
+}
+
+void MainWindow::on_clearMarkerButtonB_clicked()
+{
+    setMarkerB(0);
 }
 
 /**
