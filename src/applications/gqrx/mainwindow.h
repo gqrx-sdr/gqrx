@@ -196,6 +196,7 @@ private slots:
     void setFftFill(bool enable);
     void setPeakDetection(bool enabled);
     void setFftPeakHold(bool enable);
+    void setFftMinHold(bool enable);
     void setWfTimeSpan(quint64 span_ms);
     void setWfSize();
 

@@ -48,6 +48,7 @@ DockFft::DockFft(QWidget *parent) :
     // buttons can be smaller than 50x32
     ui->peakDetectionButton->setMinimumSize(48, 24);
     ui->peakHoldButton->setMinimumSize(48, 24);
+    ui->minHoldButton->setMinimumSize(48, 24);
     ui->lockButton->setMinimumSize(48, 24);
     ui->resetButton->setMinimumSize(48, 24);
     ui->centerButton->setMinimumSize(48, 24);
@@ -269,7 +270,7 @@ void DockFft::saveSettings(QSettings *settings)
         settings->setValue("bandplan", true);
     else
         settings->remove("bandplan");
-    
+
     // Peak
     if (ui->peakDetectionButton->isChecked())
         settings->setValue("peak_detect", true);
@@ -280,6 +281,11 @@ void DockFft::saveSettings(QSettings *settings)
         settings->setValue("peak_hold", true);
     else
         settings->remove("peak_hold");
+
+    if (ui->minHoldButton->isChecked())
+        settings->setValue("min_hold", true);
+    else
+        settings->remove("min_hold");
 
     if (QString::compare(ui->cmapComboBox->currentData().toString(), DEFAULT_COLORMAP))
         settings->setValue("waterfall_colormap", ui->cmapComboBox->currentData().toString());
@@ -370,6 +376,10 @@ void DockFft::readSettings(QSettings *settings)
     bool_val = settings->value("peak_hold", false).toBool();
     ui->peakHoldButton->setChecked(bool_val);
     emit fftPeakHoldToggled(bool_val);
+
+    bool_val = settings->value("min_hold", false).toBool();
+    ui->minHoldButton->setChecked(bool_val);
+    emit fftMinHoldToggled(bool_val);
 
     QString cmap = settings->value("waterfall_colormap", "gqrx").toString();
     ui->cmapComboBox->setCurrentIndex(ui->cmapComboBox->findData(cmap));
@@ -544,6 +554,12 @@ void DockFft::on_fillButton_toggled(bool checked)
 void DockFft::on_peakHoldButton_toggled(bool checked)
 {
     emit fftPeakHoldToggled(checked);
+}
+
+/** minHold button toggled */
+void DockFft::on_minHoldButton_toggled(bool checked)
+{
+    emit fftMinHoldToggled(checked);
 }
 
 /** peakDetection button toggled */

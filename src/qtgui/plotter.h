@@ -143,6 +143,7 @@ public slots:
     void setFftPlotColor(const QColor& color);
     void setFftFill(bool enabled);
     void setPeakHold(bool enabled);
+    void setMinHold(bool enabled);
     void setFftRange(float min, float max);
     void setWfColormap(const QString &cmap);
     void setPandapterRange(float min, float max);
@@ -200,9 +201,12 @@ private:
 
     bool        m_PeakHoldActive;
     bool        m_PeakHoldValid;
+    bool        m_MinHoldActive;
+    bool        m_MinHoldValid;
     qint32      m_fftbuf[MAX_SCREENSIZE]{};
     quint8      m_wfbuf[MAX_SCREENSIZE]{}; // used for accumulating waterfall data at high time spans
     qint32      m_fftPeakHoldBuf[MAX_SCREENSIZE]{};
+    qint32      m_fftMinHoldBuf[MAX_SCREENSIZE]{};
     float      *m_fftData{};     /*! pointer to incoming FFT data */
     float      *m_wfData{};
     int         m_fftDataSize{};
@@ -272,7 +276,7 @@ private:
 
     quint32     m_LastSampleRate{};
 
-    QColor      m_FftColor, m_FftFillCol, m_PeakHoldColor;
+    QColor      m_FftColor, m_FftFillCol, m_PeakHoldColor, m_MinHoldColor;
     bool        m_FftFill{};
 
     float       m_PeakDetection{};

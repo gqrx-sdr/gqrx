@@ -274,6 +274,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
     connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
     connect(uiDockFft, SIGNAL(fftPeakHoldToggled(bool)), this, SLOT(setFftPeakHold(bool)));
+    connect(uiDockFft, SIGNAL(fftMinHoldToggled(bool)), this, SLOT(setFftMinHold(bool)));
     connect(uiDockFft, SIGNAL(peakDetectionToggled(bool)), this, SLOT(setPeakDetection(bool)));
     connect(uiDockRDS, SIGNAL(rdsDecoderToggled(bool)), this, SLOT(setRdsDecoder(bool)));
 
@@ -1790,6 +1791,11 @@ void MainWindow::setFftFill(bool enable)
 void MainWindow::setFftPeakHold(bool enable)
 {
     ui->plotter->setPeakHold(enable);
+}
+
+void MainWindow::setFftMinHold(bool enable)
+{
+    ui->plotter->setMinHold(enable);
 }
 
 void MainWindow::setPeakDetection(bool enabled)

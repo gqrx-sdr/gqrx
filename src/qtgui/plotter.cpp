@@ -100,6 +100,8 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
 
     m_PeakHoldActive = false;
     m_PeakHoldValid = false;
+    m_MinHoldActive = false;
+    m_MinHoldValid = false;
 
     m_FftCenter = 0;
     m_CenterFreq = 144500000;
@@ -151,6 +153,7 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     m_Peaks = QMap<int,int>();
     setPeakDetection(false, 2);
     m_PeakHoldValid = false;
+    m_MinHoldValid = false;
 
     setFftPlotColor(QColor(0xFF,0xFF,0xFF,0xFF));
     setFftFill(false);
@@ -322,6 +325,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     drawOverlay();
 
                 m_PeakHoldValid = false;
+                m_MinHoldValid = false;
 
                 m_Yzero = pt.y();
             }
@@ -350,6 +354,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 updateOverlay();
 
                 m_PeakHoldValid = false;
+                m_MinHoldValid = false;
 
                 m_Xzero = pt.x();
             }
@@ -437,6 +442,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                                   m_DemodCenterFreq - m_CenterFreq);
                 updateOverlay();
                 m_PeakHoldValid = false;
+                m_MinHoldValid = false;
             }
             else
             {
@@ -766,6 +772,7 @@ void CPlotter::zoomStepX(float step, int x)
     qCDebug(plotter) << QString("Spectrum zoom: %1x").arg(factor, 0, 'f', 1);
 
     m_PeakHoldValid = false;
+    m_MinHoldValid = false;
 }
 
 // Zoom on X axis (absolute level)
@@ -807,6 +814,7 @@ void CPlotter::wheelEvent(QWheelEvent * event)
 
         m_PandMindB = m_PandMaxdB - db_range;
         m_PeakHoldValid = false;
+        m_MinHoldValid = false;
 
         emit pandapterRangeChanged(m_PandMindB, m_PandMaxdB);
     }
@@ -877,6 +885,7 @@ void CPlotter::resizeEvent(QResizeEvent* )
         }
 
         m_PeakHoldValid = false;
+        m_MinHoldValid = false;
 
         if (wf_span > 0 && height > 0)
             msec_per_wfline = wf_span / height;
@@ -1071,6 +1080,23 @@ void CPlotter::draw()
             m_PeakHoldValid = true;
         }
 
+        // Min hold
+        if (m_MinHoldActive)
+        {
+            for (i = 0; i < n; i++)
+            {
+                if(!m_MinHoldValid || m_fftbuf[i] > m_fftMinHoldBuf[i])
+                    m_fftMinHoldBuf[i] = m_fftbuf[i];
+
+                LineBuf[i].setX(i + xmin);
+                LineBuf[i].setY(m_fftMinHoldBuf[i + xmin]);
+            }
+            painter2.setPen(m_MinHoldColor);
+            painter2.drawPolyline(LineBuf, n);
+
+            m_MinHoldValid = true;
+        }
+
         painter2.end();
 
     }
@@ -1246,6 +1272,7 @@ void CPlotter::setPandapterRange(float min, float max)
     m_PandMaxdB = max;
     updateOverlay();
     m_PeakHoldValid = false;
+    m_MinHoldValid = false;
 }
 
 void CPlotter::setWaterfallRange(float min, float max)
@@ -1649,6 +1676,7 @@ void CPlotter::setCenterFreq(quint64 f)
     updateOverlay();
 
     m_PeakHoldValid = false;
+    m_MinHoldValid = false;
 }
 
 // Ensure overlay is updated by either scheduling or forcing a redraw
@@ -1674,6 +1702,7 @@ void CPlotter::moveToCenterFreq()
     setFftCenterFreq(0);
     updateOverlay();
     m_PeakHoldValid = false;
+    m_MinHoldValid = false;
 }
 
 /** Center FFT plot around the demodulator frequency. */
@@ -1683,6 +1712,7 @@ void CPlotter::moveToDemodFreq()
     updateOverlay();
 
     m_PeakHoldValid = false;
+    m_MinHoldValid = false;
 }
 
 /** Set FFT plot color. */
@@ -1693,6 +1723,8 @@ void CPlotter::setFftPlotColor(const QColor& color)
     m_FftFillCol.setAlpha(0x1A);
     m_PeakHoldColor = color;
     m_PeakHoldColor.setAlpha(60);
+    m_MinHoldColor = color;
+    m_MinHoldColor.setAlpha(60);
 }
 
 /** Enable/disable filling the area below the FFT plot. */
@@ -1706,6 +1738,13 @@ void CPlotter::setPeakHold(bool enabled)
 {
     m_PeakHoldActive = enabled;
     m_PeakHoldValid = false;
+}
+
+/** Set min hold on or off. */
+void CPlotter::setMinHold(bool enabled)
+{
+    m_MinHoldActive = enabled;
+    m_MinHoldValid = false;
 }
 
 /**
