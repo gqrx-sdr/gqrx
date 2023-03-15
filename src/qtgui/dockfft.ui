@@ -955,6 +955,16 @@
             </property>
             <item>
              <property name="text">
+              <string>4194304</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>2097152</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
               <string>1048576</string>
              </property>
             </item>
