@@ -95,16 +95,18 @@ int rx_fft_c::work(int noutput_items,
     (void) output_items;
 
     /* just throw new samples into the buffer */
-    std::lock_guard<std::mutex> lock(d_mutex);
-
     int items_to_copy = std::min(noutput_items, (int)d_writer->bufsize());
     if (items_to_copy < noutput_items)
         in += (noutput_items - items_to_copy);
 
-    if (d_writer->space_available() < items_to_copy)
-        d_reader->update_read_pointer(items_to_copy - d_writer->space_available());
-    memcpy(d_writer->write_pointer(), in, sizeof(gr_complex) * items_to_copy);
-    d_writer->update_write_pointer(items_to_copy);
+    {
+        std::lock_guard<std::mutex> lock(d_mutex);
+
+        if (d_writer->space_available() < items_to_copy)
+            d_reader->update_read_pointer(items_to_copy - d_writer->space_available());
+        memcpy(d_writer->write_pointer(), in, sizeof(gr_complex) * items_to_copy);
+        d_writer->update_write_pointer(items_to_copy);
+    }
 
     return noutput_items;
 }
@@ -115,17 +117,17 @@ int rx_fft_c::work(int noutput_items,
  */
 void rx_fft_c::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSize)
 {
-    std::unique_lock<std::mutex> lock(d_mutex);
-
     std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = now - d_lasttime;
     diff = std::min(diff, std::chrono::duration<double>(d_writer->bufsize() / d_quadrate));
     d_lasttime = now;
 
-    /* perform FFT */
-    d_reader->update_read_pointer(std::min((int)(diff.count() * d_quadrate * 1.001), d_reader->items_available() - MAX_FFT_SIZE));
-    apply_window(d_fftsize);
-    lock.unlock();
+    {
+        std::lock_guard<std::mutex> lock(d_mutex);
+
+        d_reader->update_read_pointer(std::min((int)(diff.count() * d_quadrate * 1.001), d_reader->items_available() - MAX_FFT_SIZE));
+        apply_window(d_fftsize);
+    }
 
     /* compute FFT */
     d_fft->execute();
@@ -298,16 +300,18 @@ int rx_fft_f::work(int noutput_items,
     (void) output_items;
 
     /* just throw new samples into the buffer */
-    std::lock_guard<std::mutex> lock(d_mutex);
-
     int items_to_copy = std::min(noutput_items, (int)d_writer->bufsize());
     if (items_to_copy < noutput_items)
         in += (noutput_items - items_to_copy);
 
-    if (d_writer->space_available() < items_to_copy)
-        d_reader->update_read_pointer(items_to_copy - d_writer->space_available());
-    memcpy(d_writer->write_pointer(), in, sizeof(float) * items_to_copy);
-    d_writer->update_write_pointer(items_to_copy);
+    {
+        std::lock_guard<std::mutex> lock(d_mutex);
+
+        if (d_writer->space_available() < items_to_copy)
+            d_reader->update_read_pointer(items_to_copy - d_writer->space_available());
+        memcpy(d_writer->write_pointer(), in, sizeof(float) * items_to_copy);
+        d_writer->update_write_pointer(items_to_copy);
+    }
 
     return noutput_items;
 }
@@ -318,17 +322,18 @@ int rx_fft_f::work(int noutput_items,
  */
 void rx_fft_f::get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSize)
 {
-    std::unique_lock<std::mutex> lock(d_mutex);
-
     std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = now - d_lasttime;
     diff = std::min(diff, std::chrono::duration<double>(d_writer->bufsize() / d_audiorate));
     d_lasttime = now;
 
     /* perform FFT */
-    d_reader->update_read_pointer(std::min((unsigned int)(diff.count() * d_audiorate * 1.001), d_reader->items_available() - d_fftsize));
-    apply_window(d_fftsize);
-    lock.unlock();
+    {
+        std::lock_guard<std::mutex> lock(d_mutex);
+
+        d_reader->update_read_pointer(std::min((unsigned int)(diff.count() * d_audiorate * 1.001), d_reader->items_available() - d_fftsize));
+        apply_window(d_fftsize);
+    }
 
     /* compute FFT */
     d_fft->execute();
