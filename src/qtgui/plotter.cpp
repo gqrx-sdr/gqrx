@@ -905,6 +905,8 @@ void CPlotter::draw()
     int     h;
     int     xmin, xmax;
 
+    QFontMetrics metrics(m_Font);
+
     if (m_DrawOverlay)
     {
         drawOverlay();
@@ -987,9 +989,10 @@ void CPlotter::draw()
 
     // get/draw the 2D spectrum
     w = m_2DPixmap.width() / m_DPR;
-    h = m_2DPixmap.height() / m_DPR;
+    // subtract font height from available area to protect freq labels
+    h = (m_2DPixmap.height() - metrics.height()) / m_DPR;
 
-    if (w != 0 && h != 0)
+    if (w != 0 && h > 0)
     {
         // first copy into 2Dbitmap the overlay bitmap.
         m_2DPixmap = m_OverlayPixmap.copy(m_OverlayPixmap.rect());
@@ -1441,9 +1444,10 @@ void CPlotter::drawOverlay()
     qint64 mindBAdj64 = 0;
     qint64 dbDivSize = 0;
 
+    // Subtract font height from available area to protect freq labels
     calcDivSize((qint64) m_PandMindB, (qint64) m_PandMaxdB,
-                qMax(h/m_VdivDelta, VERT_DIVS_MIN), mindBAdj64, dbDivSize,
-                m_VerDivs);
+                qMax((h - metrics.height())/m_VdivDelta, VERT_DIVS_MIN),
+                mindBAdj64, dbDivSize, m_VerDivs);
 
     dbstepsize = (float) dbDivSize;
     mindbadj = mindBAdj64;
