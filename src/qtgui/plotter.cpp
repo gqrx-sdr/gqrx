@@ -1018,42 +1018,6 @@ void CPlotter::draw()
         painter2.setPen(m_FftColor);
         painter2.drawPolyline(LineBuf, n);
 
-        // Peak detection
-        if (m_PeakDetection > 0)
-        {
-            m_Peaks.clear();
-
-            float   mean = 0;
-            float   sum_of_sq = 0;
-            for (i = 0; i < n; i++)
-            {
-                mean += m_fftbuf[i + xmin];
-                sum_of_sq += m_fftbuf[i + xmin] * m_fftbuf[i + xmin];
-            }
-            mean /= n;
-            float stdev= sqrt(sum_of_sq / n - mean * mean );
-
-            int lastPeak = -1;
-            for (i = 0; i < n; i++)
-            {
-                //m_PeakDetection times the std over the mean or better than current peak
-                float d = (lastPeak == -1) ? (mean - m_PeakDetection * stdev) :
-                          m_fftbuf[lastPeak + xmin];
-
-                if (m_fftbuf[i + xmin] < d)
-                    lastPeak=i;
-
-                if (lastPeak != -1 &&
-                    (i - lastPeak > PEAK_H_TOLERANCE || i == n-1))
-                {
-                    m_Peaks.insert(lastPeak + xmin, m_fftbuf[lastPeak + xmin]);
-                    painter2.drawEllipse(lastPeak + xmin - 5,
-                                         m_fftbuf[lastPeak + xmin] - 5, 10, 10);
-                    lastPeak = -1;
-                }
-            }
-        }
-
         // Peak hold
         if (m_PeakHoldActive)
         {
@@ -1069,6 +1033,64 @@ void CPlotter::draw()
             painter2.drawPolyline(LineBuf, n);
 
             m_PeakHoldValid = true;
+        }
+
+        // Peak detection
+        if (m_PeakDetection > 0)
+        {
+            // If peak hold is on, use it to detect peaks. Otherwise use current fft.
+            int *detectSource = m_PeakHoldActive ? m_fftPeakHoldBuf : m_fftbuf;
+            m_Peaks.clear();
+
+            if (m_PeakHoldActive)
+            {
+                const int detectWindow = 20;
+                for (i = xmin + detectWindow/2; i < xmin + n - detectWindow/2; ++i)
+                {
+                    int d = detectSource[i];
+                    int maxInWindow = h;
+                    for (int j = i - detectWindow/2; j <= i + detectWindow/2 + 1; ++j)
+                        if (j != i && detectSource[j] < maxInWindow)
+                            maxInWindow = detectSource[j];
+                    if (d < maxInWindow)
+                        m_Peaks.insert(i + 1, d);
+                }
+            }
+            else
+            {
+                float   mean = 0;
+                float   sum_of_sq = 0;
+                for (i = 0; i < n; i++)
+                {
+                    mean += detectSource[i + xmin];
+                    sum_of_sq += detectSource[i + xmin] * m_fftbuf[i + xmin];
+                }
+                mean /= n;
+                float stdev= sqrt(sum_of_sq / n - mean * mean );
+                int lastPeak = -1;
+                for (i = 0; i < n; i++)
+                {
+                    //m_PeakDetection times the std over the mean or better than current peak
+                    float d = (lastPeak == -1) ? (mean - m_PeakDetection * stdev) :
+                            detectSource[lastPeak + xmin];
+
+                    if (detectSource[i + xmin] < d)
+                        lastPeak=i;
+
+                    if (lastPeak != -1 &&
+                        (i - lastPeak > PEAK_H_TOLERANCE || i == n-1))
+                    {
+                        m_Peaks.insert(lastPeak + xmin + 1, detectSource[lastPeak + xmin]);
+                        lastPeak = -1;
+                    }
+                }
+            }
+
+            // Paint peaks
+            painter2.setPen(m_FftColor);
+            for(auto peakx : m_Peaks.keys()) {
+                painter2.drawEllipse(peakx - 6, m_Peaks.value(peakx) - 5, 10, 10);
+            }
         }
 
         painter2.end();
