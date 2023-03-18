@@ -128,6 +128,8 @@ private:
                             const QString &window_title);
     /* key shortcut */
     void frequencyFocusShortcut();
+    void frequencyDemodShortcut();
+    void frequencyCentShortcut();
 
 private slots:
     /* RecentConfig */

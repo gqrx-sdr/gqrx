@@ -149,6 +149,12 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     uiDockBookmarks->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_B));
     ui->mainToolBar->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_T));
 
+    QShortcut *dem_shortcut = new QShortcut(QKeySequence(Qt::Key_D), this);
+    QObject::connect(dem_shortcut, &QShortcut::activated, this, &MainWindow::frequencyDemodShortcut);
+    
+    QShortcut *cen_shortcut = new QShortcut(QKeySequence(Qt::Key_Z), this);
+    QObject::connect(cen_shortcut, &QShortcut::activated, this, &MainWindow::frequencyCentShortcut);
+    
     /* frequency setting shortcut */
     auto *freq_shortcut = new QShortcut(QKeySequence(Qt::Key_F), this);
     QObject::connect(freq_shortcut, &QShortcut::activated, this, &MainWindow::frequencyFocusShortcut);
@@ -1160,7 +1166,7 @@ void MainWindow::selectDemod(int mode_idx)
         rx->set_demod(receiver::RX_DEMOD_SSB);
         cwofs = -uiDockRxOpt->getCwOffset();
         ui->plotter->setDemodRanges(-5000, -100, 100, 5000, true);
-        uiDockAudio->setFftRange(0,1500);
+        uiDockAudio->setFftRange(0,abs(cwofs+cwofs));
         click_res = 10;
         break;
 
@@ -1169,7 +1175,7 @@ void MainWindow::selectDemod(int mode_idx)
         rx->set_demod(receiver::RX_DEMOD_SSB);
         cwofs = uiDockRxOpt->getCwOffset();
         ui->plotter->setDemodRanges(-5000, -100, 100, 5000, true);
-        uiDockAudio->setFftRange(0,1500);
+        uiDockAudio->setFftRange(0,cwofs+cwofs);
         click_res = 10;
         break;
 
@@ -1236,6 +1242,7 @@ void MainWindow::setAmDcr(bool enabled)
 void MainWindow::setCwOffset(int offset)
 {
     rx->set_cw_offset(offset);
+    uiDockAudio->setFftRange(0,offset+offset);
 }
 
 /**
@@ -2435,3 +2442,14 @@ void MainWindow::frequencyFocusShortcut()
 {
     ui->freqCtrl->setFrequencyFocus();
 }
+
+void MainWindow::frequencyDemodShortcut()
+{
+    ui->plotter ->moveToDemodFreq();
+  }
+
+void MainWindow::frequencyCentShortcut()
+{
+    ui->plotter ->moveToCenterFreq();
+  }
+  
