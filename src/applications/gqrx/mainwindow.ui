@@ -191,6 +191,9 @@
              <property name="focusPolicy">
               <enum>Qt::NoFocus</enum>
              </property>
+             <property name="styleSheet">
+              <string notr="true">color:rgb(255, 255, 255)</string>
+             </property>
              <property name="text">
               <string>→A</string>
              </property>
@@ -200,6 +203,9 @@
             <widget class="QPushButton" name="clearMarkerButtonA">
              <property name="focusPolicy">
               <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
              </property>
              <property name="text">
               <string/>
@@ -218,8 +224,11 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="styleSheet">
+              <string notr="true">color:rgb(255, 255, 255)</string>
+             </property>
              <property name="text">
-              <string>99,999,999.999 kHz</string>
+              <string>-99,999,999.999 kHz</string>
              </property>
             </widget>
            </item>
@@ -227,6 +236,9 @@
             <widget class="QPushButton" name="setMarkerButtonB">
              <property name="focusPolicy">
               <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color:rgb(255, 255, 255)</string>
              </property>
              <property name="text">
               <string>→B</string>
@@ -255,8 +267,11 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="styleSheet">
+              <string notr="true">color:rgb(255, 255, 255)</string>
+             </property>
              <property name="text">
-              <string>99,999,999.999</string>
+              <string>-99,999,999.999 kHz</string>
              </property>
             </widget>
            </item>
@@ -268,8 +283,11 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="styleSheet">
+              <string notr="true">color:rgb(255, 255, 255)</string>
+             </property>
              <property name="text">
-              <string>Δ99,999,999.999 kHz   ⨏99,999,999.999 kHz</string>
+              <string>Δ-99,999,999.999 kHz   ⨏-99,999,999.999 kHz</string>
              </property>
             </widget>
            </item>
