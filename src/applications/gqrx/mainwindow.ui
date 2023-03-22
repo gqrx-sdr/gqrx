@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>521</width>
+    <width>1194</width>
     <height>350</height>
    </rect>
   </property>
@@ -63,7 +63,7 @@
       <property name="lineWidth">
        <number>0</number>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,0,0">
+      <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0">
        <property name="spacing">
         <number>0</number>
        </property>
@@ -80,90 +80,241 @@
         <number>10</number>
        </property>
        <item>
-        <spacer name="horizontalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>5</width>
-           <height>15</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="CFreqCtrl" name="freqCtrl">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>280</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string/>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>5</width>
-           <height>15</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="CMeter" name="sMeter">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>150</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_1">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>5</width>
-           <height>15</height>
-          </size>
-         </property>
-        </spacer>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <item>
+            <spacer name="horizontalSpacer_7">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>5</width>
+               <height>15</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="CFreqCtrl" name="freqCtrl">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>280</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>5</width>
+               <height>15</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="CMeter" name="sMeter">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_5">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>5</width>
+               <height>15</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QFrame" name="markerFrame">
+           <layout class="QHBoxLayout" name="markerHBox">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>5</width>
+                <height>15</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="setMarkerButtonA">
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color:rgb(255, 255, 255)</string>
+              </property>
+              <property name="text">
+               <string>→A</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="clearMarkerButtonA">
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="../../../resources/icons.qrc">
+                <normaloff>:/icons/icons/close.svg</normaloff>:/icons/icons/close.svg</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="markerLabelA">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color:rgb(255, 255, 255)</string>
+              </property>
+              <property name="text">
+               <string>-99,999,999.999 kHz</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="setMarkerButtonB">
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color:rgb(255, 255, 255)</string>
+              </property>
+              <property name="text">
+               <string>→B</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="clearMarkerButtonB">
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="../../../resources/icons.qrc">
+                <normaloff>:/icons/icons/close.svg</normaloff>:/icons/icons/close.svg</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="markerLabelB">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color:rgb(255, 255, 255)</string>
+              </property>
+              <property name="text">
+               <string>-99,999,999.999 kHz</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="deltaFreqLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color:rgb(255, 255, 255)</string>
+              </property>
+              <property name="text">
+               <string>Δ-99,999,999.999 kHz   ⨏-99,999,999.999 kHz</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_6">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
@@ -194,8 +345,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>521</width>
-     <height>24</height>
+     <width>1194</width>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -424,10 +575,10 @@
     <string>Load settings</string>
    </property>
    <property name="toolTip">
-    <string>Load previously stored configuration</string>
+    <string>Load settings from config file, use that config file</string>
    </property>
    <property name="statusTip">
-    <string>Load previously stored settings from a file</string>
+    <string/>
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
@@ -442,10 +593,10 @@
     <string>Save settings</string>
    </property>
    <property name="toolTip">
-    <string>Save current configuration</string>
+    <string>Save current settings to config file, use that config file</string>
    </property>
    <property name="statusTip">
-    <string>Save current configuration to a file</string>
+    <string/>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>

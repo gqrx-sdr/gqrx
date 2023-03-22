@@ -90,6 +90,17 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 
     setWindowTitle(QString("Gqrx %1").arg(VERSION));
 
+    // Set fixed widths for labels so they don't move around when set
+    QFontMetrics metrics(font);
+    QRect markerRect = metrics.boundingRect("99,999,999.999 kHz");
+    ui->markerLabelA->setFixedWidth(markerRect.width());
+    ui->markerLabelB->setFixedWidth(markerRect.width());
+    QRect deltaFreqRect = metrics.boundingRect("Δ99,999,999.999 kHz   ⨏99,999,999.999 kHz");
+    ui->deltaFreqLabel->setFixedWidth(deltaFreqRect.width());
+    setMarkerA(MARKER_OFF);
+    setMarkerB(MARKER_OFF);
+    d_show_markers = true;
+
     /* frequency control widget */
     ui->freqCtrl->setup(0, 0, 9999e6, 1, FCTL_UNIT_NONE);
     ui->freqCtrl->setFrequency(144500000);
@@ -116,9 +127,6 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 
     d_fftData = new std::complex<float>[MAX_FFT_SIZE];
     d_realFftData = new float[MAX_FFT_SIZE];
-    d_iirFftData = new float[MAX_FFT_SIZE];
-    for (int i = 0; i < MAX_FFT_SIZE; i++)
-        d_iirFftData[i] = -140.0;  // dBFS
 
     /* timer for data decoders */
     dec_timer = new QTimer(this);
@@ -156,6 +164,12 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     // zero cursor (rx filter offset)
     auto *rx_offset_zero_shortcut = new QShortcut(QKeySequence(Qt::Key_Z), this);
     QObject::connect(rx_offset_zero_shortcut, &QShortcut::activated, this, &MainWindow::rxOffsetZeroShortcut);
+    // freeze plotter on SPACE
+    auto *toggle_freeze_shortcut = new QShortcut(QKeySequence(Qt::Key_Space), this);
+    QObject::connect(toggle_freeze_shortcut, &QShortcut::activated, this, &MainWindow::toggleFreezeShortcut);
+    // toggle markers on/off
+    auto *toggle_markers_shortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_K), this);
+    QObject::connect(toggle_markers_shortcut, &QShortcut::activated, this, &MainWindow::toggleMarkers);
 
     setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
@@ -248,35 +262,46 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockAudio, SIGNAL(audioPlayStarted(QString)), this, SLOT(startAudioPlayback(QString)));
     connect(uiDockAudio, SIGNAL(audioPlayStopped()), this, SLOT(stopAudioPlayback()));
     connect(uiDockAudio, SIGNAL(fftRateChanged(int)), this, SLOT(setAudioFftRate(int)));
+
+    // FFT Dock
     connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setIqFftSize(int)));
     connect(uiDockFft, SIGNAL(fftRateChanged(int)), this, SLOT(setIqFftRate(int)));
     connect(uiDockFft, SIGNAL(fftWindowChanged(int)), this, SLOT(setIqFftWindow(int)));
     connect(uiDockFft, SIGNAL(wfSpanChanged(quint64)), this, SLOT(setWfTimeSpan(quint64)));
     connect(uiDockFft, SIGNAL(fftSplitChanged(int)), this, SLOT(setIqFftSplit(int)));
-    connect(uiDockFft, SIGNAL(fftAvgChanged(float)), this, SLOT(setIqFftAvg(float)));
+    connect(uiDockFft, SIGNAL(fftAvgChanged(float)), ui->plotter, SLOT(setFftAvg(float)));
     connect(uiDockFft, SIGNAL(fftZoomChanged(float)), ui->plotter, SLOT(zoomOnXAxis(float)));
+    connect(uiDockFft, SIGNAL(waterfallModeChanged(int)), ui->plotter, SLOT(setWaterfallMode(int)));
+    connect(uiDockFft, SIGNAL(plotModeChanged(int)), ui->plotter, SLOT(setPlotMode(int)));
+    connect(uiDockFft, SIGNAL(plotScaleChanged(int)), ui->plotter, SLOT(setPlotScale(int)));
+    connect(uiDockFft, SIGNAL(plotPerChanged(int)), ui->plotter, SLOT(setPlotPer(int)));
     connect(uiDockFft, SIGNAL(resetFftZoom()), ui->plotter, SLOT(resetHorizontalZoom()));
     connect(uiDockFft, SIGNAL(gotoFftCenter()), ui->plotter, SLOT(moveToCenterFreq()));
     connect(uiDockFft, SIGNAL(gotoDemodFreq()), ui->plotter, SLOT(moveToDemodFreq()));
-    connect(uiDockFft, SIGNAL(bandPlanChanged(bool)), ui->plotter, SLOT(toggleBandPlan(bool)));
+    connect(uiDockFft, SIGNAL(bandPlanChanged(bool)), ui->plotter, SLOT(enableBandPlan(bool)));
+    connect(uiDockFft, SIGNAL(markersChanged(bool)), ui->plotter, SLOT(enableMarkers(bool)));
+    connect(uiDockFft, SIGNAL(markersChanged(bool)), this, SLOT(enableMarkers(bool)));
     connect(uiDockFft, SIGNAL(wfColormapChanged(const QString)), ui->plotter, SLOT(setWfColormap(const QString)));
     connect(uiDockFft, SIGNAL(wfColormapChanged(const QString)), uiDockAudio, SLOT(setWfColormap(const QString)));
-
     connect(uiDockFft, SIGNAL(pandapterRangeChanged(float,float)),
             ui->plotter, SLOT(setPandapterRange(float,float)));
     connect(uiDockFft, SIGNAL(waterfallRangeChanged(float,float)),
             ui->plotter, SLOT(setWaterfallRange(float,float)));
+    connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
+    connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(enableFftFill(bool)));
+    connect(uiDockFft, SIGNAL(fftMaxHoldToggled(bool)), ui->plotter, SLOT(enableMaxHold(bool)));
+    connect(uiDockFft, SIGNAL(fftMinHoldToggled(bool)), ui->plotter, SLOT(enableMinHold(bool)));
+    connect(uiDockFft, SIGNAL(peakDetectToggled(bool)), ui->plotter, SLOT(enablePeakDetect(bool)));
+    connect(uiDockRDS, SIGNAL(rdsDecoderToggled(bool)), this, SLOT(setRdsDecoder(bool)));
+
+    // Plotter
     connect(ui->plotter, SIGNAL(pandapterRangeChanged(float,float)),
             uiDockFft, SLOT(setPandapterRange(float,float)));
     connect(ui->plotter, SIGNAL(newZoomLevel(float)),
             uiDockFft, SLOT(setZoomLevel(float)));
     connect(ui->plotter, SIGNAL(newSize()), this, SLOT(setWfSize()));
-
-    connect(uiDockFft, SIGNAL(fftColorChanged(QColor)), this, SLOT(setFftColor(QColor)));
-    connect(uiDockFft, SIGNAL(fftFillToggled(bool)), this, SLOT(setFftFill(bool)));
-    connect(uiDockFft, SIGNAL(fftPeakHoldToggled(bool)), this, SLOT(setFftPeakHold(bool)));
-    connect(uiDockFft, SIGNAL(peakDetectionToggled(bool)), this, SLOT(setPeakDetection(bool)));
-    connect(uiDockRDS, SIGNAL(rdsDecoderToggled(bool)), this, SLOT(setRdsDecoder(bool)));
+    connect(ui->plotter, SIGNAL(markerSelectA(qint64)), this, SLOT(setMarkerA(qint64)));
+    connect(ui->plotter, SIGNAL(markerSelectB(qint64)), this, SLOT(setMarkerB(qint64)));
 
     // Bookmarks
     connect(uiDockBookmarks, SIGNAL(newBookmarkActivated(qint64, QString, int)), this, SLOT(onBookmarkActivated(qint64, QString, int)));
@@ -413,7 +438,6 @@ MainWindow::~MainWindow()
     delete remote;
     delete [] d_fftData;
     delete [] d_realFftData;
-    delete [] d_iirFftData;
     delete qsvg_dummy;
 }
 
@@ -872,6 +896,74 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
     uiDockRxOpt->setHwFreq(d_hw_freq);
     ui->freqCtrl->setFrequency(rx_freq);
     uiDockBookmarks->setNewFrequency(rx_freq);
+}
+
+// Update delta and center (of marker span) when markers are updated
+void MainWindow::updateDeltaAndCenter()
+{
+    if (d_marker_a != MARKER_OFF && d_marker_b != MARKER_OFF)
+    {
+        qint64 delta = d_marker_b - d_marker_a;
+        qint64 center = (d_marker_a + d_marker_b) / 2;
+        ui->deltaFreqLabel->setText(QString("Δ%1 kHz   ⨏%2 kHz")
+                            .arg(locale().toString(delta/1.e3, 'f', 3))
+                            .arg(locale().toString(center/1.e3, 'f', 3)));
+    }
+    else {
+        ui->deltaFreqLabel->setText("");
+    }
+}
+
+// Set marker via slots
+void MainWindow::setMarkerA(qint64 freq)
+{
+    d_marker_a = freq;
+    if (freq != MARKER_OFF)
+    {
+        ui->markerLabelA->setText(QString("%1 kHz").arg(locale().toString(freq/1.e3, 'f', 3)));
+    }
+    else {
+        ui->markerLabelA->setText("");
+    }
+    ui->plotter->setMarkers(d_marker_a, d_marker_b);
+    updateDeltaAndCenter();
+}
+
+void MainWindow::setMarkerB(qint64 freq)
+{
+    d_marker_b = freq;
+    if (freq != MARKER_OFF)
+    {
+        ui->markerLabelB->setText(QString("%1 kHz").arg(locale().toString(freq/1.e3, 'f', 3)));
+    }
+    else {
+        ui->markerLabelB->setText("");
+    }
+    ui->plotter->setMarkers(d_marker_a, d_marker_b);
+    updateDeltaAndCenter();
+}
+
+// Set marker via buttons
+void MainWindow::on_setMarkerButtonA_clicked()
+{
+    auto center_freq = d_hw_freq + (qint64)rx->get_filter_offset();
+    setMarkerA(center_freq + d_lnb_lo);
+}
+
+void MainWindow::on_setMarkerButtonB_clicked()
+{
+    auto center_freq = d_hw_freq + (qint64)rx->get_filter_offset();
+    setMarkerB(center_freq + d_lnb_lo);
+}
+
+void MainWindow::on_clearMarkerButtonA_clicked()
+{
+    setMarkerA(MARKER_OFF);
+}
+
+void MainWindow::on_clearMarkerButtonB_clicked()
+{
+    setMarkerB(MARKER_OFF);
 }
 
 /**
@@ -1363,14 +1455,11 @@ void MainWindow::meterTimeout()
     remote->setSignalLevel(level);
 }
 
-#define LOG2_10 3.321928094887362
-
 /** Baseband FFT plot timeout. */
 void MainWindow::iqFftTimeout()
 {
     unsigned int    fftsize;
     unsigned int    i;
-    float           pwr_scale;
 
     // FIXME: fftsize is a reference
     rx->get_iq_fft_data(d_fftData, fftsize);
@@ -1381,24 +1470,13 @@ void MainWindow::iqFftTimeout()
         return;
     }
 
-    // NB: without cast to float the multiplication will overflow at 64k
-    // and pwr_scale will be inf
-    pwr_scale = 1.0 / ((float)fftsize * (float)fftsize);
+    // Shifted mag^2(FFT)
+    for (i = 0; i < fftsize/2; ++i)
+        d_realFftData[i] = static_cast<float>(std::norm(d_fftData[i + fftsize/2]));
+    for (i = fftsize/2; i < fftsize; ++i)
+        d_realFftData[i] = static_cast<float>(std::norm(d_fftData[i - fftsize/2]));
 
-    /* Normalize, calculate power and shift the FFT */
-    volk_32fc_magnitude_squared_32f(d_realFftData, d_fftData + (fftsize/2), fftsize/2);
-    volk_32fc_magnitude_squared_32f(d_realFftData + (fftsize/2), d_fftData, fftsize/2);
-    volk_32f_s32f_multiply_32f(d_realFftData, d_realFftData, pwr_scale, fftsize);
-    volk_32f_log2_32f(d_realFftData, d_realFftData, fftsize);
-    volk_32f_s32f_multiply_32f(d_realFftData, d_realFftData, 10 / LOG2_10, fftsize);
-
-    for (i = 0; i < fftsize; i++)
-    {
-        /* FFT averaging */
-        d_iirFftData[i] += d_fftAvg * (d_realFftData[i] - d_iirFftData[i]);
-    }
-
-    ui->plotter->setNewFftData(d_iirFftData, d_realFftData, fftsize);
+    ui->plotter->setNewFftData(d_realFftData, fftsize);
 }
 
 /** Audio FFT plot timeout. */
@@ -1406,9 +1484,6 @@ void MainWindow::audioFftTimeout()
 {
     unsigned int    fftsize;
     unsigned int    i;
-    float           pwr;
-    float           pwr_scale;
-    std::complex<float> pt;             /* a single FFT point used in calculations */
 
     if (!d_have_audio || !uiDockAudio->isVisible())
         return;
@@ -1422,26 +1497,10 @@ void MainWindow::audioFftTimeout()
         return;
     }
 
-    pwr_scale = 1.0 / (fftsize * fftsize);
-
-    /** FIXME: move post processing to rx_fft_f **/
-    /* Normalize, calculate power and shift the FFT */
-    for (i = 0; i < fftsize; i++)
-    {
-        /* normalize and shift */
-        if (i < fftsize/2)
-        {
-            pt = d_fftData[fftsize/2+i];
-        }
-        else
-        {
-            pt = d_fftData[i-fftsize/2];
-        }
-
-        /* calculate power in dBFS */
-        pwr = pwr_scale * (pt.imag() * pt.imag() + pt.real() * pt.real());
-        d_realFftData[i] = 10.0 * log10f(pwr + 1.0e-20);
-    }
+    for (i = 0; i < fftsize/2; ++i)
+        d_realFftData[i] = static_cast<float>(std::norm(d_fftData[i + fftsize/2]));
+    for (i = fftsize/2; i < fftsize; ++i)
+        d_realFftData[i] = static_cast<float>(std::norm(d_fftData[i - fftsize/2]));
 
     uiDockAudio->setNewFftData(d_realFftData, fftsize);
 }
@@ -1704,14 +1763,14 @@ void MainWindow::setIqFftSize(int size)
 {
     qDebug() << "Changing baseband FFT size to" << size;
     rx->set_iq_fft_size(size);
-    for (int i = 0; i < size; i++)
-        d_iirFftData[i] = -140.0;  // dBFS
 }
 
 /** Baseband FFT rate has changed. */
 void MainWindow::setIqFftRate(int fps)
 {
     int interval;
+
+    d_fps = fps;
 
     if (fps == 0)
     {
@@ -1727,7 +1786,8 @@ void MainWindow::setIqFftRate(int fps)
             ui->plotter->setRunningState(true);
     }
 
-    if (interval > 9 && iq_fft_timer->isActive())
+    // Limit to 250 fps
+    if (interval > 3 && iq_fft_timer->isActive())
         iq_fft_timer->setInterval(interval);
 
     uiDockFft->setWfResolution(ui->plotter->getWfTimeRes());
@@ -1761,12 +1821,6 @@ void MainWindow::setIqFftSplit(int pct_wf)
         ui->plotter->setPercent2DScreen(pct_wf);
 }
 
-void MainWindow::setIqFftAvg(float avg)
-{
-    if ((avg >= 0) && (avg <= 1.0))
-        d_fftAvg = avg;
-}
-
 /** Audio FFT rate has changed. */
 void MainWindow::setAudioFftRate(int fps)
 {
@@ -1787,20 +1841,10 @@ void MainWindow::setFftColor(const QColor& color)
 }
 
 /** Enable/disable filling the aread below the FFT plot. */
-void MainWindow::setFftFill(bool enable)
+void MainWindow::enableFftFill(bool enable)
 {
-    ui->plotter->setFftFill(enable);
+    ui->plotter->enableFftFill(enable);
     uiDockAudio->setFftFill(enable);
-}
-
-void MainWindow::setFftPeakHold(bool enable)
-{
-    ui->plotter->setPeakHold(enable);
-}
-
-void MainWindow::setPeakDetection(bool enabled)
-{
-    ui->plotter->setPeakDetection(enabled ,2);
 }
 
 /**
@@ -2447,4 +2491,21 @@ void MainWindow::frequencyFocusShortcut()
 void MainWindow::rxOffsetZeroShortcut()
 {
     uiDockRxOpt->setFilterOffset(0);
+}
+
+void MainWindow::toggleFreezeShortcut()
+{
+    ui->plotter->toggleFreeze();
+}
+
+void MainWindow::enableMarkers(bool enabled)
+{
+    d_show_markers = enabled;
+    ui->markerFrame->setVisible(d_show_markers);
+}
+
+void MainWindow::toggleMarkers()
+{
+    enableMarkers(!d_show_markers);
+    uiDockFft->setMarkersEnabled(d_show_markers);
 }

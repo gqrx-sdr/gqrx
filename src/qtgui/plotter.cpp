@@ -42,10 +42,12 @@
 
 Q_LOGGING_CATEGORY(plotter, "plotter")
 
-#define CUR_CUT_DELTA 5		//cursor capture delta in pixels
+#define CUR_CUT_DELTA         5     // cursor capture delta in pixels
+#define CLICK_FREQ_RESOLUTION 100   // frequency rounding for set via click
+#define VDIV_DELTA            30
 
 #define FFT_MIN_DB     -160.f
-#define FFT_MAX_DB      0.f
+#define FFT_MAX_DB      30.f
 
 #define FILTER_WIDTH_MIN_HZ 200
 
@@ -56,6 +58,7 @@ Q_LOGGING_CATEGORY(plotter, "plotter")
 #define PLOTTER_CENTER_LINE_COLOR   0xFF788296
 #define PLOTTER_FILTER_LINE_COLOR   0xFFFF7171
 #define PLOTTER_FILTER_BOX_COLOR    0xFFA0A0A4
+#define PLOTTER_MARKER_COLOR        0XFF7FFF7F
 // FIXME: Should cache the QColors also
 
 #define HOR_MARGIN 5
@@ -94,12 +97,18 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     setAttribute(Qt::WA_NoSystemBackground, true);
     setMouseTracking(true);
 
-    setTooltipsEnabled(false);
+    m_TooltipsEnabled = false;
     setStatusTip(tr(STATUS_TIP));
     setWfColormap("gqrx");
 
-    m_PeakHoldActive = false;
-    m_PeakHoldValid = false;
+    m_MaxHoldActive = false;
+    m_MaxHoldValid = false;
+    m_MinHoldActive = false;
+    m_MinHoldValid = false;
+    m_IIRValid = false;
+    m_histIIRValid = false;
+    m_alpha = 1.0;
+    m_histMaxIIR = 0.0;
 
     m_FftCenter = 0;
     m_CenterFreq = 144500000;
@@ -113,12 +122,17 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     m_FHiCmax = 25000;
     m_symetric = true;
 
-    m_ClickResolution = 100;
-    m_FilterClickResolution = 100;
+    m_ClickResolution = CLICK_FREQ_RESOLUTION;
+    m_FilterClickResolution = CLICK_FREQ_RESOLUTION;
     m_CursorCaptureDelta = CUR_CUT_DELTA;
+    m_WaterfallMode = WATERFALL_MODE_MAX;
+    m_PlotMode = PLOT_MODE_MAX;
+    m_PlotScale = PLOT_SCALE_V;
+    m_PlotPer = PLOT_PER_RBW;
 
     m_FilterBoxEnabled = true;
     m_CenterLineEnabled = true;
+    m_MarkersEnabled = true;
     m_BandPlanEnabled = true;
     m_BookmarksEnabled = true;
     m_InvertScrolling = false;
@@ -130,37 +144,39 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     m_HorDivs = 12;
     m_VerDivs = 6;
     m_PandMaxdB = m_WfMaxdB = 0.f;
-    m_PandMindB = m_WfMindB = -150.f;
+    m_PandMindB = m_WfMindB = FFT_MAX_DB;
 
     m_FreqUnits = 1000000;
     m_CursorCaptured = NOCAP;
     m_Running = false;
     m_DrawOverlay = true;
-    m_2DPixmap = QPixmap(0,0);
-    m_OverlayPixmap = QPixmap(0,0);
-    m_WaterfallPixmap = QPixmap(0,0);
+    m_Frozen = false;
+    m_2DPixmap = QPixmap();
+    m_OverlayPixmap = QPixmap();
+    m_WaterfallPixmap = QPixmap();
     m_Size = QSize(0,0);
     m_GrabPosition = 0;
     m_Percent2DScreen = 35;	//percent of screen used for 2D display
-    m_VdivDelta = 30;
-    m_HdivDelta = 70;
-    m_BandPlanHeight = 22;
+    m_VdivDelta = VDIV_DELTA;
+    m_BandPlanHeight = 0.0;
 
     m_FreqDigits = 6;
 
-    m_Peaks = QMap<int,int>();
-    setPeakDetection(false, 2);
-    m_PeakHoldValid = false;
+    m_Peaks = QMap<int,qreal>();
+    enablePeakDetect(false);
 
     setFftPlotColor(QColor(0xFF,0xFF,0xFF,0xFF));
-    setFftFill(false);
+    enableFftFill(false);
 
     // always update waterfall
     tlast_wf_ms = 0;
+    tlast_wf_drawn_ms = 0;
     msec_per_wfline = 0;
+    tlast_peaks_ms = 0;
+    wf_epoch = 0;
+    wf_count = 0;
     wf_span = 0;
     fft_rate = 15;
-    memset(m_wfbuf, 255, MAX_SCREENSIZE);
 }
 
 CPlotter::~CPlotter()
@@ -178,23 +194,28 @@ QSize CPlotter::sizeHint() const
 
 void CPlotter::mouseMoveEvent(QMouseEvent* event)
 {
-
     QPoint pt = event->pos();
 
+    int w = m_OverlayPixmap.width();
+    int h = m_OverlayPixmap.height();
+    int px = qRound((qreal)pt.x() * m_DPR);
+    int py = qRound((qreal)pt.y() * m_DPR);
+    QPoint ppos = QPoint(px, py);
+
     /* mouse enter / mouse leave events */
-    if (pt.y() < m_OverlayPixmap.height() / m_DPR)
+    if (py < h)
     {
         //is in Overlay bitmap region
         if (event->buttons() == Qt::NoButton)
         {
             bool onTag = false;
-            if(pt.y() < 15 * 10) // FIXME
+            if(py < 15 * 10) // FIXME
             {
                 if(m_BookmarksEnabled || m_DXCSpotsEnabled)
                 {
                     for(int i = 0; i < m_Taglist.size() && !onTag; i++)
                     {
-                        if (m_Taglist[i].first.contains(event->pos()))
+                        if (m_Taglist[i].first.contains(ppos))
                             onTag = true;
                     }
                 }
@@ -205,7 +226,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 setCursor(QCursor(Qt::PointingHandCursor));
                 m_CursorCaptured = TAG;
             }
-            else if (isPointCloseTo(pt.x(), m_YAxisWidth/2, m_YAxisWidth/2))
+            else if (isPointCloseTo(px, m_YAxisWidth/2, m_YAxisWidth/2))
             {
                 if (YAXIS != m_CursorCaptured)
                     setCursor(QCursor(Qt::OpenHandCursor));
@@ -213,7 +234,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 if (m_TooltipsEnabled)
                     QToolTip::hideText();
             }
-            else if (isPointCloseTo(pt.y(), m_XAxisYCenter, m_CursorCaptureDelta+20))
+            else if (isPointCloseTo(py, m_XAxisYCenter, m_CursorCaptureDelta+20))
             {
                 if (XAXIS != m_CursorCaptured)
                     setCursor(QCursor(Qt::OpenHandCursor));
@@ -221,7 +242,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 if (m_TooltipsEnabled)
                     QToolTip::hideText();
             }
-            else if (isPointCloseTo(pt.x(), m_DemodFreqX, m_CursorCaptureDelta))
+            else if (isPointCloseTo(px, m_DemodFreqX, m_CursorCaptureDelta))
             {
                 // in move demod box center frequency region
                 if (CENTER != m_CursorCaptured)
@@ -230,7 +251,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 if (m_TooltipsEnabled)
                     showToolTip(event, QString("Demod: %1 kHz").arg(m_DemodCenterFreq/1.e3, 0, 'f', 3));
             }
-            else if (isPointCloseTo(pt.x(), m_DemodHiCutFreqX, m_CursorCaptureDelta))
+            else if (isPointCloseTo(px, m_DemodHiCutFreqX, m_CursorCaptureDelta))
             {
                 // in move demod hicut region
                 if (RIGHT != m_CursorCaptured)
@@ -239,7 +260,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 if (m_TooltipsEnabled)
                     showToolTip(event, QString("High cut: %1 Hz").arg(m_DemodHiCutFreq));
             }
-            else if (isPointCloseTo(pt.x(), m_DemodLowCutFreqX, m_CursorCaptureDelta))
+            else if (isPointCloseTo(px, m_DemodLowCutFreqX, m_CursorCaptureDelta))
             {
                 // in move demod lowcut region
                 if (LEFT != m_CursorCaptured)
@@ -247,6 +268,22 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 m_CursorCaptured = LEFT;
                 if (m_TooltipsEnabled)
                     showToolTip(event, QString("Low cut: %1 Hz").arg(m_DemodLowCutFreq));
+            }
+            else if (m_MarkersEnabled && isPointCloseTo(px, m_MarkerAX, m_CursorCaptureDelta))
+            {
+                if (MARKER_A != m_CursorCaptured && m_MarkerFreqA != MARKER_OFF)
+                    setCursor(QCursor(Qt::OpenHandCursor));
+                m_CursorCaptured = MARKER_A;
+                if (m_TooltipsEnabled)
+                    showToolTip(event, QString("Marker A: %1 kHz").arg(m_MarkerFreqA/1.e3, 0, 'f', 3));
+            }
+            else if (m_MarkersEnabled && isPointCloseTo(px, m_MarkerBX, m_CursorCaptureDelta))
+            {
+                if (MARKER_B != m_CursorCaptured && m_MarkerFreqB != MARKER_OFF)
+                    setCursor(QCursor(Qt::OpenHandCursor));
+                m_CursorCaptured = MARKER_B;
+                if (m_TooltipsEnabled)
+                    showToolTip(event, QString("Marker B: %1 kHz").arg(m_MarkerFreqB/1.e3, 0, 'f', 3));
             }
             else
             {	//if not near any grab boundaries
@@ -257,14 +294,17 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 }
                 if (m_TooltipsEnabled)
                 {
-                    qint64 hoverFrequency = freqFromX(pt.x());
-                    QString toolTipText = QString("F: %1 kHz").arg(hoverFrequency/1.e3, 0, 'f', 3);
-                    QFontMetrics metrics(m_Font);
-                    int bandTopY = (m_OverlayPixmap.height() / m_DPR) - metrics.height() - 2 * VER_MARGIN - m_BandPlanHeight;
+                    QString toolTipText;
+                    qint64 hoverFrequency = freqFromX(px);
+                    toolTipText = QString("%1 kHz\nΔ %2 kHz")
+                                          .arg(hoverFrequency/1.e3, 0, 'f', 3)
+                                          .arg(locale().toString((hoverFrequency - m_DemodCenterFreq)/1.e3, 'f', 3));
+
+                    QFontMetricsF metrics(m_Font);
+                    qreal bandTopY = ((qreal)h) - metrics.height() - 2 * VER_MARGIN - m_BandPlanHeight;
                     QList<BandInfo> hoverBands = BandPlan::Get().getBandsEncompassing(hoverFrequency);
-                    if(m_BandPlanEnabled && pt.y() > bandTopY && !hoverBands.empty())
+                    if(m_BandPlanEnabled && py > bandTopY && !hoverBands.empty())
                     {
-                        toolTipText.append("\n");
                         for (auto & hoverBand : hoverBands)
                             toolTipText.append("\n" + hoverBand.name);
                     }
@@ -288,11 +328,11 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         if (m_TooltipsEnabled)
         {
             QDateTime tt;
-            tt.setMSecsSinceEpoch(msecFromY(pt.y()));
+            tt.setMSecsSinceEpoch(msecFromY(py));
 
             showToolTip(event, QString("%1\n%2 kHz")
                                        .arg(tt.toString("yyyy.MM.dd hh:mm:ss.zzz"))
-                                       .arg(freqFromX(pt.x())/1.e3, 0, 'f', 3));
+                                       .arg(freqFromX(px)/1.e3, 0, 'f', 3));
         }
     }
     // process mouse moves while in cursor capture modes
@@ -302,9 +342,9 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         {
             setCursor(QCursor(Qt::ClosedHandCursor));
             // move Y scale up/down
-            float delta_px = m_Yzero - pt.y();
-            float delta_db = delta_px * fabs(m_PandMindB - m_PandMaxdB) /
-                             (float)(m_OverlayPixmap.height() / m_DPR);
+            qreal delta_px = m_Yzero - py;
+            qreal delta_db = delta_px * fabs(m_PandMindB - m_PandMaxdB) /
+                             (qreal)h;
             m_PandMindB -= delta_db;
             m_PandMaxdB -= delta_db;
             if (out_of_range(m_PandMindB, m_PandMaxdB))
@@ -315,15 +355,15 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             else
             {
                 emit pandapterRangeChanged(m_PandMindB, m_PandMaxdB);
+                updateOverlay();
 
-                if (m_Running)
-                    m_DrawOverlay = true;
-                else
-                    drawOverlay();
+                m_MaxHoldValid = false;
+                m_MinHoldValid = false;
+                m_histIIRValid = false;
 
-                m_PeakHoldValid = false;
+                m_Yzero = py;
 
-                m_Yzero = pt.y();
+                updateOverlay();
             }
         }
     }
@@ -333,8 +373,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         {
             setCursor(QCursor(Qt::ClosedHandCursor));
             // pan viewable range or move center frequency
-            int delta_px = m_Xzero - pt.x();
-            qint64 delta_hz = delta_px * m_Span / (m_OverlayPixmap.width() / m_DPR);
+            int delta_px = m_Xzero - px;
+            qint64 delta_hz = qRound64((qreal)delta_px * (qreal)m_Span / (qreal)w);
             if (delta_hz != 0) // update m_Xzero only on real change
             {
                 if (event->buttons() & Qt::MiddleButton)
@@ -347,11 +387,14 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 {
                     setFftCenterFreq(m_FftCenter + delta_hz);
                 }
+
+                m_MaxHoldValid = false;
+                m_MinHoldValid = false;
+                m_histIIRValid = false;
+
+                m_Xzero = px;
+
                 updateOverlay();
-
-                m_PeakHoldValid = false;
-
-                m_Xzero = pt.x();
             }
         }
     }
@@ -363,7 +406,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             // moving in demod lowcut region with left button held
             if (m_GrabPosition != 0)
             {
-                m_DemodLowCutFreq = freqFromX(pt.x() - m_GrabPosition ) - m_DemodCenterFreq;
+                m_DemodLowCutFreq = freqFromX(px - m_GrabPosition ) - m_DemodCenterFreq;
                 m_DemodLowCutFreq = std::min(m_DemodLowCutFreq, m_DemodHiCutFreq - FILTER_WIDTH_MIN_HZ);
                 m_DemodLowCutFreq = roundFreq(m_DemodLowCutFreq, m_FilterClickResolution);
 
@@ -374,15 +417,12 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 clampDemodParameters();
 
                 emit newFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
-                if (m_Running)
-                    m_DrawOverlay = true;
-                else
-                    drawOverlay();
+                updateOverlay();
             }
             else
             {
                 // save initial grab position from m_DemodFreqX
-                m_GrabPosition = pt.x()-m_DemodLowCutFreqX;
+                m_GrabPosition = px-m_DemodLowCutFreqX;
             }
         }
         else if (event->buttons() & ~Qt::NoButton)
@@ -399,7 +439,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             // moving in demod highcut region with right button held
             if (m_GrabPosition != 0)
             {
-                m_DemodHiCutFreq = freqFromX( pt.x()-m_GrabPosition ) - m_DemodCenterFreq;
+                m_DemodHiCutFreq = freqFromX(px-m_GrabPosition) - m_DemodCenterFreq;
                 m_DemodHiCutFreq = std::max(m_DemodHiCutFreq, m_DemodLowCutFreq + FILTER_WIDTH_MIN_HZ);
                 m_DemodHiCutFreq = roundFreq(m_DemodHiCutFreq, m_FilterClickResolution);
 
@@ -415,7 +455,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             else
             {
                 // save initial grab position from m_DemodFreqX
-                m_GrabPosition = pt.x() - m_DemodHiCutFreqX;
+                m_GrabPosition = px - m_DemodHiCutFreqX;
             }
         }
         else if (event->buttons() & ~Qt::NoButton)
@@ -431,17 +471,63 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         {   // moving inbetween demod lowcut and highcut region with left button held
             if (m_GrabPosition != 0)
             {
-                m_DemodCenterFreq = roundFreq(freqFromX(pt.x() - m_GrabPosition),
+                m_DemodCenterFreq = roundFreq(freqFromX(px - m_GrabPosition),
                                               m_ClickResolution );
                 emit newDemodFreq(m_DemodCenterFreq,
                                   m_DemodCenterFreq - m_CenterFreq);
+                m_MaxHoldValid = false;
+                m_MinHoldValid = false;
+                m_histIIRValid = false;
                 updateOverlay();
-                m_PeakHoldValid = false;
             }
             else
             {
                 // save initial grab position from m_DemodFreqX
-                m_GrabPosition = pt.x() - m_DemodFreqX;
+                m_GrabPosition = px - m_DemodFreqX;
+            }
+        }
+        else if (event->buttons() & ~Qt::NoButton)
+        {
+            setCursor(QCursor(Qt::ArrowCursor));
+            m_CursorCaptured = NOCAP;
+        }
+    }
+    else if (MARKER_A == m_CursorCaptured
+             && px < w - m_CursorCaptureDelta
+             && px > m_YAxisWidth + m_CursorCaptureDelta)
+    {
+        if (event->buttons() & Qt::LeftButton)
+        {
+            qint64 prevA = m_MarkerFreqA;
+            m_MarkerFreqA = freqFromX(px);
+            emit markerSelectA(m_MarkerFreqA);
+            // Shift-drag moves both markers
+            if ((event->modifiers() & Qt::ShiftModifier) && m_MarkerFreqB != MARKER_OFF) {
+                qint64 df = m_MarkerFreqA - prevA;
+                m_MarkerFreqB += df;
+                emit markerSelectB(m_MarkerFreqB);
+            }
+        }
+        else if (event->buttons() & ~Qt::NoButton)
+        {
+            setCursor(QCursor(Qt::ArrowCursor));
+            m_CursorCaptured = NOCAP;
+        }
+    }
+    else if (MARKER_B == m_CursorCaptured
+             && px < w - m_CursorCaptureDelta
+             && px > m_YAxisWidth + m_CursorCaptureDelta)
+    {
+        if (event->buttons() & Qt::LeftButton)
+        {
+            qint64 prevB = m_MarkerFreqB;
+            m_MarkerFreqB = freqFromX(px);
+            emit markerSelectB(m_MarkerFreqB);
+            // Shift-drag moves both markers
+            if ((event->modifiers() & Qt::ShiftModifier) && m_MarkerFreqA != MARKER_OFF) {
+                qint64 df = m_MarkerFreqB - prevB;
+                m_MarkerFreqA += df;
+                emit markerSelectA(m_MarkerFreqA);
             }
         }
         else if (event->buttons() & ~Qt::NoButton)
@@ -466,20 +552,23 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
 
 int CPlotter::getNearestPeak(QPoint pt)
 {
-    QMap<int, int>::const_iterator i = m_Peaks.lowerBound(pt.x() - PEAK_CLICK_MAX_H_DISTANCE);
-    QMap<int, int>::const_iterator upperBound = m_Peaks.upperBound(pt.x() + PEAK_CLICK_MAX_H_DISTANCE);
-    float   dist = 1.0e10;
+    int px = qRound((qreal)pt.x() * m_DPR);
+    int py = qRound((qreal)pt.y() * m_DPR);
+
+    QMap<int, qreal>::const_iterator i = m_Peaks.lowerBound(px - PEAK_CLICK_MAX_H_DISTANCE);
+    QMap<int, qreal>::const_iterator upperBound = m_Peaks.upperBound(px + PEAK_CLICK_MAX_H_DISTANCE);
+    qreal   dist = 1.0e10;
     int     best = -1;
 
     for ( ; i != upperBound; i++)
     {
         int x = i.key();
-        int y = i.value();
+        qreal y = i.value();
 
-        if (abs(y - pt.y()) > PEAK_CLICK_MAX_V_DISTANCE)
+        if (abs(y - py) > PEAK_CLICK_MAX_V_DISTANCE)
             continue;
 
-        float d = powf(y - pt.y(), 2) + powf(x - pt.x(), 2);
+        qreal d = powf(y - py, 2) + powf(x - px, 2);
         if (d < dist)
         {
             dist = d;
@@ -494,16 +583,25 @@ int CPlotter::getNearestPeak(QPoint pt)
 void CPlotter::setWaterfallSpan(quint64 span_ms)
 {
     wf_span = span_ms;
-    if (m_WaterfallPixmap.height() > 0) {
-        msec_per_wfline = wf_span / m_WaterfallPixmap.height();
+    if (!m_WaterfallPixmap.isNull()) {
+        wf_epoch = QDateTime::currentMSecsSinceEpoch();
+        wf_count = 0;
+        msec_per_wfline = (double)wf_span / (qreal)m_WaterfallPixmap.height();
     }
     clearWaterfall();
 }
 
 void CPlotter::clearWaterfall()
 {
-    m_WaterfallPixmap.fill(Qt::black);
-    memset(m_wfbuf, 255, MAX_SCREENSIZE);
+    if (!m_WaterfallPixmap.isNull())
+        m_WaterfallPixmap.fill(Qt::black);
+    clearWaterfallBuf();
+}
+
+void CPlotter::clearWaterfallBuf()
+{
+    for (int i = 0; i < MAX_SCREENSIZE; i++)
+        m_wfbuf[i] = 0.0;
 }
 
 /**
@@ -521,7 +619,7 @@ bool CPlotter::saveWaterfall(const QString & filename) const
     QRect           rect;
     QDateTime       tt;
     QFont           font("sans-serif");
-    QFontMetrics    font_metrics(font);
+    QFontMetricsF   font_metrics(font);
     float           pixperdiv;
     int             x, y, w, h;
     int             hxa, wya = 85;
@@ -563,9 +661,9 @@ bool CPlotter::saveWaterfall(const QString & filename) const
     {
         y = (int)((float)i * pixperdiv);
         if (msec_per_wfline > 0)
-            msec =  tlast_wf_ms - y * msec_per_wfline;
+            msec =  tlast_wf_ms - qRound(y * msec_per_wfline);
         else
-            msec =  tlast_wf_ms - y * 1000 / fft_rate;
+            msec =  tlast_wf_ms - qRound(y * 1000.0 / fft_rate);
 
         tt.setMSecsSinceEpoch(msec);
         rect.setRect(0, y - font_metrics.height(), wya - 5, font_metrics.height());
@@ -578,18 +676,24 @@ bool CPlotter::saveWaterfall(const QString & filename) const
     return pixmap.save(filename, nullptr, -1);
 }
 
+void CPlotter::toggleFreeze()
+{
+    m_Frozen = !m_Frozen;
+}
+
 /** Get waterfall time resolution in milleconds / line. */
 quint64 CPlotter::getWfTimeRes() const
 {
     if (msec_per_wfline)
         return msec_per_wfline;
     else
-        return 1000 / fft_rate; // Auto mode
+        return qRound64(1000.0 / (double)fft_rate); // Auto mode
 }
 
 void CPlotter::setFftRate(int rate_hz)
 {
     fft_rate = rate_hz;
+    m_histIIRValid = false;
     clearWaterfall();
 }
 
@@ -597,56 +701,137 @@ void CPlotter::setFftRate(int rate_hz)
 void CPlotter::mousePressEvent(QMouseEvent * event)
 {
     QPoint pt = event->pos();
+    int px = qRound((qreal)pt.x() * m_DPR);
+    int py = qRound((qreal)pt.y() * m_DPR);
+    QPoint ppos = QPoint(px, py);
 
     if (NOCAP == m_CursorCaptured)
     {
-        if (isPointCloseTo(pt.x(), m_DemodFreqX, m_CursorCaptureDelta))
+        if (isPointCloseTo(px, m_DemodFreqX, m_CursorCaptureDelta))
         {
             // move demod box center frequency region
             m_CursorCaptured = CENTER;
-            m_GrabPosition = pt.x() - m_DemodFreqX;
+            m_GrabPosition = px - m_DemodFreqX;
         }
-        else if (isPointCloseTo(pt.x(), m_DemodLowCutFreqX, m_CursorCaptureDelta))
+        else if (isPointCloseTo(px, m_DemodLowCutFreqX, m_CursorCaptureDelta))
         {
             // filter low cut
             m_CursorCaptured = LEFT;
-            m_GrabPosition = pt.x() - m_DemodLowCutFreqX;
+            m_GrabPosition = px - m_DemodLowCutFreqX;
         }
-        else if (isPointCloseTo(pt.x(), m_DemodHiCutFreqX, m_CursorCaptureDelta))
+        else if (isPointCloseTo(px, m_DemodHiCutFreqX, m_CursorCaptureDelta))
         {
             // filter high cut
             m_CursorCaptured = RIGHT;
-            m_GrabPosition = pt.x() - m_DemodHiCutFreqX;
+            m_GrabPosition = px - m_DemodHiCutFreqX;
         }
         else
         {
             if (event->buttons() == Qt::LeftButton)
             {
-                int     best = -1;
+                // {shift|ctrl|ctrl-shift}-left-click: set ab markers around signal at cursor
+                quint32 mods = event->modifiers() & (Qt::ShiftModifier|Qt::ControlModifier);
+                if (m_MarkersEnabled && ((event->modifiers() & mods) != 0))
+                {
+                    float *selectBuf = nullptr;
 
-                if (m_PeakDetection > 0)
-                    best = getNearestPeak(pt);
-                if (best != -1)
-                    m_DemodCenterFreq = freqFromX(best);
-                else
-                    m_DemodCenterFreq = roundFreq(freqFromX(pt.x()), m_ClickResolution);
+                    // when max hold is valid, ctrl-shift selects max hold
+                    if (m_MaxHoldActive && (mods == (Qt::ShiftModifier | Qt::ControlModifier)))
+                    {
+                        selectBuf = m_fftMaxHoldBuf;
+                    }
+                    // in max mode, shift selects max
+                    else if (m_PlotMode == PLOT_MODE_MAX && (mods == Qt::ShiftModifier))
+                    {
+                        selectBuf = m_fftMaxBuf;
+                    }
+                    // in avg mode, shift select avg
+                    else if (m_PlotMode == PLOT_MODE_AVG && (mods == Qt::ShiftModifier))
+                    {
+                        selectBuf = m_fftAvgBuf;
+                    }
+                    // in filled and histogram modes, shift selects max, ctrl selects avg
+                    else if (m_PlotMode == PLOT_MODE_FILLED || m_PlotMode == PLOT_MODE_HISTOGRAM)
+                    {
+                        if (mods == Qt::ShiftModifier)
+                        {
+                            selectBuf = m_fftAvgBuf;
+                        }
+                        else if (mods == Qt::ControlModifier)
+                        {
+                            selectBuf = m_fftMaxBuf;
+                        }
+                    }
 
-                // if cursor not captured set demod frequency and start demod box capture
-                emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
+                    // ignore if data source is not valid
+                    if (m_fftDataSize && selectBuf)
+                    {
+                        // Find the data value of the click y()
 
-                // save initial grab position from m_DemodFreqX
-                // setCursor(QCursor(Qt::CrossCursor));
-                m_CursorCaptured = CENTER;
-                m_GrabPosition = 1;
-                drawOverlay();
+                        const qreal plotHeight = m_2DPixmap.height();
+                        const float panddBGainFactor = plotHeight / fabs(m_PandMaxdB - m_PandMindB);
+                        const float vlog = m_PandMaxdB - py / panddBGainFactor;
+                        const float logFactor = m_PlotScale == PLOT_SCALE_V ? 10.0 : 10.0;
+                        // const float logFactor = m_PlotScale == PLOT_SCALE_V ? 20.0 : 10.0;
+                        const float v = powf(10.0, vlog / logFactor);
+
+                        // Ignore clicks exactly on the plot, below the
+                        // pandapter, or when uninitialized
+                        if (v != selectBuf[px]
+                            && py < plotHeight
+                            && m_fftDataSize > 0)
+                        {
+                            int xLeft = px;
+                            int xRight = px;
+                            // Select span below the plot
+                            if (v < selectBuf[px])
+                            {
+                                for(; xLeft > 0 && selectBuf[xLeft] > v; --xLeft);
+                                for(; xRight < m_fftDataSize && selectBuf[xRight] > v; ++xRight);
+                            }
+                            // Select span above the plot
+                            else
+                            {
+                                for(; xLeft > 0 && selectBuf[xLeft] < v; --xLeft);
+                                for(; xRight < m_fftDataSize && selectBuf[xRight] < v; ++xRight);
+                            }
+                            qint64 freqLeft = freqFromX(xLeft);
+                            qint64 freqRight = freqFromX(xRight);
+
+                            emit markerSelectA(freqLeft);
+                            emit markerSelectB(freqRight);
+                        }
+                    }
+                }
+
+                // left-click with no modifiers: set center frequency
+                else if (mods == 0) {
+                    int best = -1;
+
+                    if (m_PeakDetectActive > 0)
+                        best = getNearestPeak(pt);
+                    if (best != -1)
+                        m_DemodCenterFreq = freqFromX(best);
+                    else
+                        m_DemodCenterFreq = roundFreq(freqFromX(px), m_ClickResolution);
+
+                    // if cursor not captured set demod frequency and start demod box capture
+                    emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
+
+                    // save initial grab position from m_DemodFreqX
+                    // setCursor(QCursor(Qt::CrossCursor));
+                    m_CursorCaptured = CENTER;
+                    m_GrabPosition = 1;
+                    updateOverlay();
+                }
             }
             else if (event->buttons() == Qt::MiddleButton)
             {
                 // set center freq
-                m_CenterFreq = roundFreq(freqFromX(pt.x()), m_ClickResolution);
+                m_CenterFreq = roundFreq(freqFromX(px), m_ClickResolution);
                 m_DemodCenterFreq = m_CenterFreq;
                 emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
-                drawOverlay();
+                updateOverlay();
             }
             else if (event->buttons() == Qt::RightButton)
             {
@@ -659,10 +844,10 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
     {
         if (m_CursorCaptured == YAXIS)
             // get ready for moving Y axis
-            m_Yzero = pt.y();
+            m_Yzero = py;
         else if (m_CursorCaptured == XAXIS)
         {
-            m_Xzero = pt.x();
+            m_Xzero = px;
             if (event->buttons() == Qt::RightButton)
             {
                 // reset frequency zoom
@@ -673,7 +858,7 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
         {
             for (auto & tag : m_Taglist)
             {
-                if (tag.first.contains(event->pos()))
+                if (tag.first.contains(ppos))
                 {
                     m_DemodCenterFreq = tag.second;
                     emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
@@ -687,8 +872,9 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
 void CPlotter::mouseReleaseEvent(QMouseEvent * event)
 {
     QPoint pt = event->pos();
+    int py = qRound((qreal)pt.y() * m_DPR);
 
-    if (pt.y() >= m_OverlayPixmap.height() / m_DPR)
+    if (py >= m_OverlayPixmap.height())
     {
         // not in Overlay region
         if (NOCAP != m_CursorCaptured)
@@ -720,7 +906,7 @@ void CPlotter::zoomStepX(float step, int x)
     double new_range = qBound(10.0, m_Span * (double)step, m_SampleFreq * 10.0);
 
     // Frequency where event occurred is kept fixed under mouse
-    double ratio = (double)x / (double)width();
+    double ratio = (double)x / (qreal)m_Size.width() / m_DPR;
     qint64 fixed_hz = freqFromX(x);
     double f_max = fixed_hz + (1.0 - ratio) * new_range;
     double f_min = f_max - new_range;
@@ -765,25 +951,64 @@ void CPlotter::zoomStepX(float step, int x)
     emit newZoomLevel(factor);
     qCDebug(plotter) << QString("Spectrum zoom: %1x").arg(factor, 0, 'f', 1);
 
-    m_PeakHoldValid = false;
+    m_MaxHoldValid = false;
+    m_MinHoldValid = false;
+    m_histIIRValid = false;
 }
 
 // Zoom on X axis (absolute level)
 void CPlotter::zoomOnXAxis(float level)
 {
     float current_level = (float)m_SampleFreq / (float)m_Span;
-
     zoomStepX(current_level / level, xFromFreq(m_DemodCenterFreq));
+    updateOverlay();
+}
+
+void CPlotter::setPlotMode(int mode)
+{
+    m_PlotMode = (ePlotMode)mode;
+    m_MaxHoldValid = false;
+    m_MinHoldValid = false;
+    // Do not need to invalidate IIR data when switching modes
+
+    updateOverlay();
+}
+
+void CPlotter::setPlotScale(int scale)
+{
+    m_PlotScale = (ePlotScale)scale;
+    m_MaxHoldValid = false;
+    m_MinHoldValid = false;
+    m_IIRValid = false;
+    m_histIIRValid = false;
+}
+
+void CPlotter::setPlotPer(int per)
+{
+    m_PlotPer = (ePlotPer)per;
+    m_MaxHoldValid = false;
+    m_MinHoldValid = false;
+    m_IIRValid = false;
+    m_histIIRValid = false;
+}
+
+void CPlotter::setWaterfallMode(int mode)
+{
+    m_WaterfallMode = (eWaterfallMode)mode;
 }
 
 // Called when a mouse wheel is turned
 void CPlotter::wheelEvent(QWheelEvent * event)
 {
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-    QPointF pt = QPointF(event->pos());
+    QPoint pt = QPoint(event->pos());
 #else
     QPointF pt = event->position();
 #endif
+    int h = m_OverlayPixmap.height();
+    int px = qRound((qreal)pt.x() * m_DPR);
+    int py = qRound((qreal)pt.y() * m_DPR);
+
     int delta = m_InvertScrolling? -event->angleDelta().y() : event->angleDelta().y();
     int numDegrees = delta / 8;
     int numSteps = numDegrees / 15;  /** FIXME: Only used for direction **/
@@ -794,11 +1019,11 @@ void CPlotter::wheelEvent(QWheelEvent * event)
         // Vertical zoom. Wheel down: zoom out, wheel up: zoom in
         // During zoom we try to keep the point (dB or kHz) under the cursor fixed
         float zoom_fac = delta < 0 ? 1.1 : 0.9;
-        float ratio = (float)pt.y() / (float)(m_OverlayPixmap.height() / m_DPR);
+        float ratio = (qreal)py / (qreal)(h);
         float db_range = m_PandMaxdB - m_PandMindB;
-        auto y_range = (float)(m_OverlayPixmap.height() / m_DPR);
+        auto y_range = (qreal)(h);
         float db_per_pix = db_range / y_range;
-        float fixed_db = m_PandMaxdB - pt.y() * db_per_pix;
+        float fixed_db = m_PandMaxdB - py * db_per_pix;
 
         db_range = qBound(10.f, db_range * zoom_fac, FFT_MAX_DB - FFT_MIN_DB);
         m_PandMaxdB = fixed_db + ratio * db_range;
@@ -806,13 +1031,15 @@ void CPlotter::wheelEvent(QWheelEvent * event)
             m_PandMaxdB = FFT_MAX_DB;
 
         m_PandMindB = m_PandMaxdB - db_range;
-        m_PeakHoldValid = false;
+        m_MaxHoldValid = false;
+        m_MinHoldValid = false;
+        m_histIIRValid = false;
 
         emit pandapterRangeChanged(m_PandMindB, m_PandMaxdB);
     }
     else if (m_CursorCaptured == XAXIS)
     {
-        zoomStepX(delta < 0 ? 1.1 : 0.9, pt.x());
+        zoomStepX(delta < 0 ? 1.1 : 0.9, px);
     }
     else if (event->modifiers() & Qt::ControlModifier)
     {
@@ -848,235 +1075,723 @@ void CPlotter::resizeEvent(QResizeEvent* )
     if (!size().isValid())
         return;
 
-    if (m_Size != size())
+    m_DPR = devicePixelRatioF();
+    QSize s = QSize(size().width(), size().height());
+    if (m_Size != s)
     {
-        // if changed, resize pixmaps to new screensize
-        int     fft_plot_height;
+        m_Size = s;
 
-        m_Size = size();
-        m_DPR = devicePixelRatio();
-        fft_plot_height = m_Percent2DScreen * m_Size.height() / 100;
-        m_OverlayPixmap = QPixmap(m_Size.width() * m_DPR, fft_plot_height * m_DPR);
-        m_OverlayPixmap.setDevicePixelRatio(m_DPR);
-        m_OverlayPixmap.fill(Qt::black);
-        m_2DPixmap = QPixmap(m_Size.width() * m_DPR, fft_plot_height * m_DPR);
-        m_2DPixmap.setDevicePixelRatio(m_DPR);
-        m_2DPixmap.fill(Qt::black);
+        // Use scaled system font
+        m_Font = QFont();
+        m_Font.setPointSizeF(m_Font.pointSizeF() * m_DPR);
 
-        int height = m_Size.height() - fft_plot_height;
-        if (m_WaterfallPixmap.isNull())
+        // Higher resolution pixmaps are used with higher DPR. They are
+        // rescaled in paintEvent().
+        const int w = qRound((qreal)s.width() * m_DPR);
+        const int plotHeight = qRound((qreal)m_Percent2DScreen * (qreal)s.height() / 100.0 * m_DPR);
+        const int wfHeight = qRound((qreal)s.height() * m_DPR) - plotHeight;
+
+        m_OverlayPixmap = QPixmap(w, plotHeight);
+        m_OverlayPixmap.fill(Qt::transparent);
+
+        m_2DPixmap = QPixmap(w, plotHeight);
+        m_2DPixmap.fill(PLOTTER_BGD_COLOR);
+
+        // No waterfall, use null pixmap
+        if (wfHeight == 0)
         {
-            m_WaterfallPixmap = QPixmap(m_Size.width(), height);
+            m_WaterfallPixmap = QPixmap();
+        }
+
+        // New waterfall, create blank area
+        else if (m_WaterfallPixmap.isNull()) {
+            m_WaterfallPixmap = QPixmap(w, wfHeight);
             m_WaterfallPixmap.fill(Qt::black);
         }
+
+        // Existing waterfall, rescale width but no height as that would
+        // invalidate time
         else
         {
-            m_WaterfallPixmap = m_WaterfallPixmap.scaled(m_Size.width(), height,
-                                                         Qt::IgnoreAspectRatio,
-                                                         Qt::SmoothTransformation);
+            QPixmap oldWaterfall = m_WaterfallPixmap.scaled(
+                w, m_WaterfallPixmap.height(),
+                Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+            m_WaterfallPixmap = QPixmap(w, wfHeight);
+            m_WaterfallPixmap.fill(Qt::black);
+            QRect copyRect(0, 0,
+                           qMin(w, oldWaterfall.width()),
+                           qMin(wfHeight, oldWaterfall.height()));
+            QPainter painter(&m_WaterfallPixmap);
+            painter.drawPixmap(QPointF(0.0, 0.0), oldWaterfall, copyRect);
         }
 
-        m_PeakHoldValid = false;
+        // Invalidate on resize
+        m_MaxHoldValid = false;
+        m_MinHoldValid = false;
+        m_histIIRValid = false;
+        // Do not need to invalidate IIR data (just histogram IIR)
 
-        if (wf_span > 0 && height > 0)
-            msec_per_wfline = wf_span / height;
-        memset(m_wfbuf, 255, MAX_SCREENSIZE);
+        // Waterfall accumulator my be the wrong size now, so invalidate.
+        if (msec_per_wfline > 0)
+            clearWaterfallBuf();
+
+        // Other things that need to scale with DPR
+        m_CursorCaptureDelta = qRound((qreal)CUR_CUT_DELTA * m_DPR);
     }
 
     drawOverlay();
+    draw(false);
     emit newSize();
+
+    m_Frozen = false;
 }
 
 // Called by QT when screen needs to be redrawn
 void CPlotter::paintEvent(QPaintEvent *)
 {
+    // Pixmap resolution scales with DPR. Here, they are rescaled to fit the
+    // the CPlotter resolution.
+
     QPainter painter(this);
 
-    painter.drawPixmap(0, 0, m_2DPixmap);
-    painter.drawPixmap(0, m_Percent2DScreen * m_Size.height() / 100,
-                       m_WaterfallPixmap);
+    int plotHeightT = 0;
+    if (!m_2DPixmap.isNull())
+    {
+        const int plotWidthS = m_2DPixmap.width();
+        const int plotHeightS = m_2DPixmap.height();
+        const QRectF plotRectS(0.0, 0.0, plotWidthS, plotHeightS);
+
+        const int plotWidthT = qRound((qreal)plotWidthS / m_DPR);
+        plotHeightT = qRound((qreal)plotHeightS / m_DPR);
+        const QRectF plotRectT(0.0, 0.0, plotWidthT, plotHeightT);
+
+        painter.drawPixmap(plotRectT, m_2DPixmap, plotRectS);
+    }
+
+    if (!m_Frozen && !m_WaterfallPixmap.isNull())
+    {
+        const int wfWidthS = m_WaterfallPixmap.width();
+        const int wfHeightS = m_WaterfallPixmap.height();
+        const QRectF wfRectS(0.0, 0.0, wfWidthS, wfHeightS);
+
+        const int wfWidthT = qRound((qreal)wfWidthS / m_DPR);
+        const int wfHeightT = qRound((qreal)wfHeightS / m_DPR);
+        const QRectF wfRectT(0.0, plotHeightT, wfWidthT, wfHeightT);
+
+        painter.drawPixmap(wfRectT, m_WaterfallPixmap, wfRectS);
+    }
 }
 
 // Called to update spectrum data for displaying on the screen
-void CPlotter::draw()
+void CPlotter::draw(bool newData)
 {
-    int     i, n;
-    int     w;
-    int     h;
-    int     xmin, xmax;
+    qint32        i, j;
+    qint32        xmin, xmax;
+    double        histMax;
+    QFontMetricsF metrics(m_Font);
 
-    if (m_DrawOverlay)
+    QPointF avgLineBuf[MAX_SCREENSIZE];
+    QPointF maxLineBuf[MAX_SCREENSIZE];
+
+    const quint64 tnow_ms = QDateTime::currentMSecsSinceEpoch();
+
+    // Pixmaps might be null, so scale up m_Size to get width.
+    const qreal w = m_Size.width() * m_DPR;
+    const qreal plotHeight = m_2DPixmap.height();
+    const qreal shadowOffset = metrics.height() / 20.0;
+
+    // Scale plotter for graph height
+    const double panddBGainFactor = plotHeight / fabs(m_PandMaxdB - m_PandMindB);
+    // Scale waterfall and histogram for colormap
+    const double wfdBGainFactor = 256.0 / fabs(m_WfMaxdB - m_WfMindB);
+
+    const double fftSize = m_fftDataSize;
+    const double sampleFreq = m_SampleFreq;
+
+    const double startFreq = (double)m_FftCenter - (double)m_Span / 2.0;
+    const double endFreq = (double)m_FftCenter + (double)m_Span / 2.0;
+
+    // Start and end fft bins for requested frequency offsets. These values
+    // could be outside the actual fft data range, since the display can be
+    // shifted past limits while zooming.
+    const qint32 startBin = std::min(startFreq * fftSize / sampleFreq + fftSize / 2.0, fftSize - 1);
+    const qint32 endBin = std::max(endFreq * fftSize / sampleFreq + fftSize / 2.0, (double)startBin);
+
+    // Start and end FFT bins to be displayed, clipped to valid fft bins
+    const qint32 minbin = std::max(startBin, 0);
+    const qint32 maxbin = std::min(endBin, m_fftDataSize - 1);
+
+    // Number of bins mapped across plot, taking zoom into account
+    const int numBins = endBin - startBin;
+    // Pixels per mapped bin
+    const double xScale = w / (double)numBins;
+
+    // Redraw the plot if it is visible.
+    const bool doPlotter = !m_2DPixmap.isNull();
+
+    // Do not waste time with histogram calculations unless in this mode.
+    const bool doHistogram = m_PlotMode == PLOT_MODE_HISTOGRAM;
+
+    // Use fewer histogram bins when statistics are sparse
+    const int histBinsDisplayed = std::min(
+        MAX_HISTOGRAM_SIZE,
+        std::max(32,
+            qRound(32 * (double)numBins / 2048.0))
+        );
+
+    const double histdBGainFactor = (double)histBinsDisplayed / fabs(m_PandMaxdB - m_PandMindB);
+
+    // Show max and average highlights on histogram if it would not be too
+    // cluttered
+    const bool showHistHighlights = histBinsDisplayed >= MAX_HISTOGRAM_SIZE / 2;
+
+    // Waterfall is advanced only if visible and running, and if there is new
+    // data. Repaints for other reasons do not require any action here.
+    const bool doWaterfall = !m_WaterfallPixmap.isNull() && m_Running && newData;
+
+    // Draw avg line, except in max mode. Suppress if it would clutter histogram.
+    const bool doAvgLine = m_PlotMode != PLOT_MODE_MAX
+                           && (m_PlotMode != PLOT_MODE_HISTOGRAM || showHistHighlights);
+
+    // Draw max line, except in avg and histogram modes
+    const bool doMaxLine = m_PlotMode != PLOT_MODE_AVG
+                           && m_PlotMode != PLOT_MODE_HISTOGRAM;
+
+    // Initialize results
+    if (doHistogram)
+        memset(m_histogram, 0, sizeof(m_histogram));
+
+    // Peak means "peak of average" in AVG mode, else "peak of max"
+    const bool peakIsAverage = m_PlotMode == PLOT_MODE_AVG;
+    // Min mean "min of peak" in PEAK mode, else "min of average"
+    const bool minIsAverage = m_PlotMode != PLOT_MODE_MAX;
+
+    // Scale log10 by 20 for V, 10 for dBm
+    const float logFactor = m_PlotScale == PLOT_SCALE_V ? 10.0 : 10.0;
+
+    // Make sure zeros don't get through to log calcs
+    const float fmin = std::numeric_limits<float>::min();
+
+    float vmax;
+    float vmaxIIR;
+    double vsum;
+    double vsumIIR;
+
+    if ((qreal)numBins >= w)
     {
-        drawOverlay();
-        m_DrawOverlay = false;
+        qint32 count;
+        xmin = qRound((double)(minbin - startBin) * xScale);
+        xmax = qRound((double)(maxbin - startBin) * xScale);
+        qint32 xprev = xmin;
+        bool first = true;
+
+        for(qint32 i = minbin; i <= maxbin; i++)
+        {
+            const double xD = (double)(i - startBin) * xScale;
+            const int x = qRound(xD);
+
+            // Plot uses IIR output. Histogram and waterfall use raw fft data.
+            const float v = m_fftData[i];
+            const float viir = m_fftIIR[i];
+
+            if (first)
+            {
+                vmax = v;
+                vmaxIIR = viir;
+                vsum = v;
+                vsumIIR = viir;
+                count = 1;
+            }
+
+            // Histogram increments the appropriate bin for each value. Ignore
+            // out-of-range values, rather than clipping. Allocate value to two
+            // closest bins using linear interpolation.
+            if (doHistogram)
+            {
+                const double binD = histdBGainFactor * (m_PandMaxdB - logFactor * log10f(v));
+                const int binLeft = std::max((int)(xD - 0.5), 0);
+                const int binRight = std::min(binLeft + 1, numBins - 1);
+                const int binLow = std::max((int)(binD - 0.5), 0);
+                const int binHigh = std::min(binLow + 1, histBinsDisplayed - 1);
+                const double wgtH = (xD - (double)binLeft) / 2.0;
+                const double wgtV = (binD - (double)binLow) / 2.0;
+                if (binLow >= 0 && binLow < histBinsDisplayed) {
+                    m_histogram[binLeft][binLow] += (1.0 - wgtV) * (1.0 - wgtH);
+                    m_histogram[binLeft][binHigh] += wgtV * (1.0 - wgtH);
+                    m_histogram[binRight][binLow] += (1.0 - wgtV) * wgtH;
+                    m_histogram[binRight][binHigh] += wgtV * wgtH;
+                }
+            }
+
+            // New (or last) pixel - output values
+            if (x != xprev || i == maxbin)
+            {
+                vmax = std::max(vmax, fmin);
+                m_wfMaxBuf[xprev] = vmax;
+
+                vmaxIIR = std::max(vmaxIIR, fmin);
+                m_fftMaxBuf[xprev] = vmaxIIR;
+
+                const float vavg = std::max((float)(vsum / count), fmin);
+                m_wfAvgBuf[xprev] = vavg;
+                const float vavgIIR = std::max((float)(vsumIIR / count), fmin);
+                m_fftAvgBuf[xprev] = vavgIIR;
+
+                // New peak hold value if greater, or reset
+                const float currentPeak = m_fftMaxHoldBuf[xprev];
+                const float newPeak = peakIsAverage ? vavgIIR : vmaxIIR;
+                m_fftMaxHoldBuf[xprev] = m_MaxHoldValid ? std::max(currentPeak, newPeak) : newPeak;
+
+                // New min hold value if less, or reset
+                const float currentMin = m_fftMinHoldBuf[xprev];
+                const float newMin = minIsAverage ? vavgIIR : vmaxIIR;
+                m_fftMinHoldBuf[xprev] = m_MinHoldValid ? std::min(currentMin, newMin) : newMin;
+
+                vmax = v;
+                vmaxIIR = viir;
+                vsum = v;
+                vsumIIR = viir;
+                count = 1;
+                xprev = x;
+            }
+
+            else if (!first)
+            {
+                vmax = std::max(v, vmax);
+                vmaxIIR = std::max(viir, vmaxIIR);
+                vsum += v;
+                vsumIIR += viir;
+                ++count;
+            }
+
+            first = false;
+        }
+
+        m_MaxHoldValid = true;
+        m_MinHoldValid = true;
+    }
+    // w > m_fftDataSize uses no averaging
+    else
+    {
+        xmin = qRound((double)(minbin - startBin) * xScale);
+        xmax = qRound((double)(maxbin - startBin) * xScale);
+
+        for (i = xmin; i < xmax; i++)
+        {
+            j = qRound((double)i / xScale + startBin);
+            const float v = m_fftData[j];
+            const float viir = m_fftIIR[j];
+
+            m_wfMaxBuf[i] = v;
+            m_wfAvgBuf[i] = v;
+            m_fftMaxBuf[i] = viir;
+            m_fftAvgBuf[i] = viir;
+
+            // New peak hold value if greater, or reset
+            const float currentPeak = m_fftMaxHoldBuf[i];
+            m_fftMaxHoldBuf[i] = m_MaxHoldValid ? std::max(currentPeak, viir) : viir;
+
+            // New min hold value if less, or reset
+            const float currentMin = m_fftMinHoldBuf[i];
+            m_fftMinHoldBuf[i] = m_MinHoldValid ? std::min(currentMin, viir) : viir;
+
+            // Histogram increments the appropriate bin for each value. Ignore
+            // out-of-range values, rather than clipping. Allocate value to two
+            // closest bins using linear interpolation.
+            if (doHistogram)
+            {
+                const double binD = histdBGainFactor * (m_PandMaxdB - logFactor * log10f(v));
+                const int binLow = std::max((int)(binD - 0.5), 0);
+                const int binHigh = std::min(binLow + 1, histBinsDisplayed - 1);
+                const double wgt = (binD - (double)binLow) / 2.0;
+                if (binLow >= 0 && binLow < histBinsDisplayed) {
+                    m_histogram[i][binLow] += 1.0 - wgt;
+                    m_histogram[i][binHigh] += wgt;
+                }
+            }
+        }
     }
 
-    QPointF LineBuf[MAX_SCREENSIZE];
+    const int npts = xmax - xmin;
 
-    if (!m_Running)
-        return;
-
-    // get/draw the waterfall
-    w = m_WaterfallPixmap.width();
-    h = m_WaterfallPixmap.height();
-
-    // no need to draw if pixmap is invisible
-    if (w != 0 && h != 0)
+    if (doWaterfall)
     {
-        quint64     tnow_ms = QDateTime::currentMSecsSinceEpoch();
+        // Pick max or avg for waterfall
+        float *dataSource;
+        if (m_WaterfallMode == WATERFALL_MODE_AVG)
+            dataSource = m_wfAvgBuf;
+        else
+            dataSource = m_wfMaxBuf;
 
-        // get scaled FFT data
-        n = qMin(w, MAX_SCREENSIZE);
-        getScreenIntegerFFTData(255, n, m_WfMaxdB, m_WfMindB,
-                                m_FftCenter - (qint64)m_Span / 2,
-                                m_FftCenter + (qint64)m_Span / 2,
-                                m_wfData, m_fftbuf,
-                                &xmin, &xmax);
-
+        // if not in "auto" mode, store max waterfall data
         if (msec_per_wfline > 0)
         {
-            // not in "auto" mode, so accumulate waterfall data
-            for (i = 0; i < n; i++)
-            {
-                // average
-                //m_wfbuf[i] = (m_wfbuf[i] + m_fftbuf[i]) / 2;
-
-                // peak (0..255 where 255 is min)
-                if (m_fftbuf[i] < m_wfbuf[i])
-                    m_wfbuf[i] = m_fftbuf[i];
-            }
+            for (i = 0; i < npts; ++i)
+                m_wfbuf[i] = std::max(m_wfbuf[i], dataSource[i]);
         }
 
         // is it time to update waterfall?
-        if (tnow_ms - tlast_wf_ms >= msec_per_wfline)
+        if (tnow_ms - wf_epoch > wf_count * msec_per_wfline)
         {
+            ++wf_count;
+
+            // cursor times are relative to last time drawn
             tlast_wf_ms = tnow_ms;
+            if (!m_Frozen)
+                tlast_wf_drawn_ms = tnow_ms;
 
             // move current data down one line(must do before attaching a QPainter object)
-            m_WaterfallPixmap.scroll(0, 1, 0, 0, w, h);
+            m_WaterfallPixmap.scroll(0, 1, m_WaterfallPixmap.rect());
 
             QPainter painter1(&m_WaterfallPixmap);
 
             // draw new line of fft data at top of waterfall bitmap
-            painter1.setPen(QColor(0, 0, 0));
-            for (i = 0; i < xmin; i++)
-                painter1.drawPoint(i, 0);
-            for (i = xmax; i < w; i++)
-                painter1.drawPoint(i, 0);
+            // draw black areas where data will not be draw
+            painter1.setPen(QPen(Qt::black));
+            painter1.drawRect(QRectF(0.0, 0.0, xmin, 1.0));
+            painter1.drawRect(QRectF(xmax, 0.0, w - xmax, 1.0));
+
+            // Use stored max if in manual mode, else current data
+            const float *wfSource = msec_per_wfline > 0 ? m_wfbuf : dataSource;
+            for (i = 0; i < npts; ++i)
+            {
+                const int ix = i + xmin;
+                qint32 cidx = qRound((m_WfMaxdB - logFactor * log10f(wfSource[ix])) * wfdBGainFactor);
+                cidx = std::max(std::min(cidx, 255), 0);
+                painter1.setPen(m_ColorTbl[255 - cidx]);
+                painter1.drawRect(QRectF(ix, 0.0, 1.0, 1.0));
+            }
 
             if (msec_per_wfline > 0)
-            {
-                // user set time span
-                for (i = xmin; i < xmax; i++)
-                {
-                    painter1.setPen(m_ColorTbl[255 - m_wfbuf[i]]);
-                    painter1.drawPoint(i, 0);
-                    m_wfbuf[i] = 255;
-                }
-            }
-            else
-            {
-                for (i = xmin; i < xmax; i++)
-                {
-                    painter1.setPen(m_ColorTbl[255 - m_fftbuf[i]]);
-                    painter1.drawPoint(i, 0);
-                }
-            }
+                clearWaterfallBuf();
         }
     }
 
     // get/draw the 2D spectrum
-    w = m_2DPixmap.width() / m_DPR;
-    h = m_2DPixmap.height() / m_DPR;
-
-    if (w != 0 && h != 0)
+    if (doPlotter)
     {
-        // first copy into 2Dbitmap the overlay bitmap.
-        m_2DPixmap = m_OverlayPixmap.copy(m_OverlayPixmap.rect());
-
+        m_2DPixmap.fill(PLOTTER_BGD_COLOR);
         QPainter painter2(&m_2DPixmap);
 
-        // get new scaled fft data
-        getScreenIntegerFFTData(h, qMin(w, MAX_SCREENSIZE),
-                                m_PandMaxdB, m_PandMindB,
-                                m_FftCenter - (qint64)m_Span/2,
-                                m_FftCenter + (qint64)m_Span/2,
-                                m_fftData, m_fftbuf,
-                                &xmin, &xmax);
+        // Update histogram IIR
+        const double frameTime = 1.0 / (double)fft_rate;
+        if (m_PlotMode == PLOT_MODE_HISTOGRAM)
+        {
+            const double gamma = 1.0;
+            const double a = powf(1.0 - m_alpha, gamma);
+            // fast attack ... leaving alternative here in case it's useful
+            const double aAttack = 1.0;
+            // const double aAttack = 1.0 - a * frameTime;
+            const double aDecay = 1.0 - pow(a, 4.0 * frameTime);
+
+            histMax = 0.0;
+            for (i = xmin; i < xmax; ++i) {
+                for (j = 0; j < histBinsDisplayed; ++j)
+                {
+                    double histV;
+                    const double histPrev = m_histIIR[i][j];
+                    const double histNew = m_histogram[i][j];
+                    // Fast response when invalid
+                    if (!m_histIIRValid)
+                        histV = histNew;
+                    else
+                        histV = histPrev + aAttack * histNew - aDecay * histPrev;
+                    m_histIIR[i][j] = std::max(histV, 0.0);
+                    histMax = std::max(histMax, histV);
+                }
+            }
+            m_histIIRValid = true;
+
+            // 5 Hz time constant for colormap adjustment
+            const double histMaxAlpha = std::min(5.0 * frameTime, 1.0);
+            m_histMaxIIR = m_histMaxIIR * (1.0 - histMaxAlpha) + histMax * histMaxAlpha;
+        }
 
         // draw the pandapter
         QBrush fillBrush = QBrush(m_FftFillCol);
-        n = xmax - xmin;
-        for (i = 0; i < n; i++)
+
+        // Fill between max and avg
+        QColor maxFillCol = m_FftFillCol;
+        maxFillCol.setAlpha(80);
+        QBrush maxFillBrush = QBrush(maxFillCol);
+
+        // Diagonal fill for area between markers. Scale the pattern to DPR.
+        QColor abFillColor = QColor(PLOTTER_MARKER_COLOR);
+        abFillColor.setAlpha(128);
+        QBrush abFillBrush = QBrush(abFillColor, Qt::BDiagPattern);
+
+        QColor maxLineColor = QColor(m_FftFillCol);
+        if (m_PlotMode == PLOT_MODE_FILLED)
+            maxLineColor.setAlpha(128);
+        else
+            maxLineColor.setAlpha(255);
+
+        QPen maxLinePen = QPen(maxLineColor);
+
+        // Same color as max in avg mode, different for filled mode
+        QPen avgLinePen;
+        if (m_PlotMode == PLOT_MODE_AVG || m_PlotMode == PLOT_MODE_HISTOGRAM)
         {
-            LineBuf[i].setX(i + xmin + 0.5);
-            LineBuf[i].setY(m_fftbuf[i + xmin] + 0.5);
-            if (m_FftFill)
-                painter2.fillRect(i + xmin, m_fftbuf[i + xmin] + 1, 1, h, fillBrush);
+            QColor avgLineCol = m_FftFillCol;
+            avgLineCol.setAlpha(255);
+            avgLinePen = QPen(avgLineCol);
+        }
+        else {
+            QColor avgLineCol = QColor(Qt::cyan);
+            avgLineCol.setAlpha(192);
+            avgLinePen = QPen(avgLineCol);
         }
 
-        painter2.setPen(m_FftColor);
-        painter2.drawPolyline(LineBuf, n);
+        // The m_Marker{AB}X values are one cycle old, which makes for a laggy
+        // effect, so get fresh values here.
+        const int ax = xFromFreq(m_MarkerFreqA);
+        const int bx = xFromFreq(m_MarkerFreqB);
+        bool fillMarkers = (m_MarkersEnabled && m_MarkerFreqA != MARKER_OFF
+                                             && m_MarkerFreqB != MARKER_OFF);
+        const int minMarker = std::min(ax, bx);
+        const int maxMarker = std::max(ax, bx);
 
-        // Peak detection
-        if (m_PeakDetection > 0)
+        const double binSizeY = plotHeight / (double)histBinsDisplayed;
+        for (i = 0; i < npts; i++)
         {
-            m_Peaks.clear();
+            const int ix = i + xmin;
+            const qreal yMaxD = std::max(std::min(
+                panddBGainFactor * (m_PandMaxdB - logFactor * log10f(m_fftMaxBuf[ix])),
+                plotHeight), 0.0);
+            const qreal yAvgD = std::max(std::min(
+                panddBGainFactor * (m_PandMaxdB - logFactor * log10f(m_fftAvgBuf[ix])),
+                plotHeight), 0.0);
 
-            float   mean = 0;
-            float   sum_of_sq = 0;
-            for (i = 0; i < n; i++)
+            if (m_PlotMode == PLOT_MODE_HISTOGRAM)
             {
-                mean += m_fftbuf[i + xmin];
-                sum_of_sq += m_fftbuf[i + xmin] * m_fftbuf[i + xmin];
-            }
-            mean /= n;
-            float stdev= sqrt(sum_of_sq / n - mean * mean );
-
-            int lastPeak = -1;
-            for (i = 0; i < n; i++)
-            {
-                //m_PeakDetection times the std over the mean or better than current peak
-                float d = (lastPeak == -1) ? (mean - m_PeakDetection * stdev) :
-                          m_fftbuf[lastPeak + xmin];
-
-                if (m_fftbuf[i + xmin] < d)
-                    lastPeak=i;
-
-                if (lastPeak != -1 &&
-                    (i - lastPeak > PEAK_H_TOLERANCE || i == n-1))
+                const double *histData = m_histIIR[(ix)];
+                qreal topBin = plotHeight;
+                for (j = 0; j < histBinsDisplayed; ++j)
                 {
-                    m_Peaks.insert(lastPeak + xmin, m_fftbuf[lastPeak + xmin]);
-                    painter2.drawEllipse(lastPeak + xmin - 5,
-                                         m_fftbuf[lastPeak + xmin] - 5, 10, 10);
-                    lastPeak = -1;
+                    qint32 cidx = qRound(histData[j] / m_histMaxIIR * 255.0 * .7);
+                    if (cidx > 0) {
+                        cidx += 65;  // 255 * 0.7 = 178, + 65 = 243
+                        // Histogram IIR can cause out-of-range cidx
+                        cidx = std::max(std::min(cidx, 255), 0);
+                        QColor c = m_ColorTbl[cidx];
+                        // Paint rectangle
+                        const qreal binY = binSizeY * j;
+                        topBin = std::min(topBin, binY);
+                        const qreal binH = binSizeY * (j + 1) - binY;
+                        painter2.fillRect(QRectF(ix, binY, 1.0, binH), c);
+                    }
+                }
+                // Highlight the top bin, if it isn't too crowded
+                if (topBin != plotHeight && showHistHighlights) {
+                    painter2.fillRect(QRectF(ix, topBin, 1.0, binSizeY), maxLineColor);
                 }
             }
+
+            // Add max, average points if they will be drawn
+            if (doMaxLine)
+                maxLineBuf[i] = QPointF(ix + 0.5, yMaxD + 0.5);
+            if (doAvgLine)
+                avgLineBuf[i] = QPointF(ix + 0.5, yAvgD + 0.5);
+
+            // Fill area between markers, even if they are off screen
+            qreal yFill = m_PlotMode == PLOT_MODE_MAX ? yMaxD : yAvgD;
+            if (fillMarkers && (ix) > minMarker && (ix) < maxMarker) {
+                painter2.fillRect(QRectF(ix, yFill + 1.0, 1.0, plotHeight - yFill), abFillBrush);
+            }
+            if (m_FftFill && m_PlotMode != PLOT_MODE_HISTOGRAM)
+            {
+                painter2.fillRect(QRectF(ix, yFill + 1.0, 1.0, plotHeight - yFill), m_FftFillCol);
+            }
+            if (m_PlotMode == PLOT_MODE_FILLED)
+            {
+                painter2.fillRect(QRectF(ix, yMaxD + 1.0, 1.0, yAvgD - yMaxD), maxFillBrush);
+            }
+        }
+
+        if (doMaxLine) {
+            // NOT scaling to DPR due to performance
+            painter2.setPen(maxLinePen);
+            painter2.drawPolyline(maxLineBuf, npts);
+        }
+        if (doAvgLine) {
+            // NOT scaling to DPR due to performance
+            painter2.setPen(avgLinePen);
+            painter2.drawPolyline(avgLineBuf, npts);
         }
 
         // Peak hold
-        if (m_PeakHoldActive)
+        if (m_MaxHoldActive)
         {
-            for (i = 0; i < n; i++)
+            // Show max(max) except when showing only avg on screen
+            for (i = 0; i < npts; i++)
             {
-                if(!m_PeakHoldValid || m_fftbuf[i] < m_fftPeakHoldBuf[i])
-                    m_fftPeakHoldBuf[i] = m_fftbuf[i];
-
-                LineBuf[i].setX(i + xmin);
-                LineBuf[i].setY(m_fftPeakHoldBuf[i + xmin]);
+                const int ix = i + xmin;
+                const qreal yMaxHoldD = std::max(std::min(
+                    panddBGainFactor * (m_PandMaxdB - logFactor * log10f(m_fftMaxHoldBuf[ix])),
+                    plotHeight), 0.0);
+                maxLineBuf[i] = QPointF(ix, yMaxHoldD);
             }
-            painter2.setPen(m_PeakHoldColor);
-            painter2.drawPolyline(LineBuf, n);
+            // NOT scaling to DPR due to performance
+            painter2.setPen(m_MaxHoldColor);
+            painter2.drawPolyline(maxLineBuf, npts);
 
-            m_PeakHoldValid = true;
+            m_MaxHoldValid = true;
         }
 
-        painter2.end();
+        // Min hold
+        if (m_MinHoldActive)
+        {
+            // Show min(avg) except when showing only max on scree
+            for (i = 0; i < npts; i++)
+            {
+                const int ix = i + xmin;
+                const qreal yMinHoldD = std::max(std::min(
+                    panddBGainFactor * (m_PandMaxdB - logFactor * log10f(m_fftMinHoldBuf[ix])),
+                    plotHeight), 0.0);
+                maxLineBuf[i] = QPointF(ix, yMinHoldD);
+            }
+            // NOT scaling to DPR due to performance
+            painter2.setPen(m_MinHoldColor);
+            painter2.drawPolyline(maxLineBuf, npts);
 
+            m_MinHoldValid = true;
+        }
+
+        // Peak detection
+        if (m_PeakDetectActive)
+        {
+            const int pw = PEAK_WINDOW_HALF_WIDTH;
+
+            // Use data source appropriate for current display mode
+            float *_detectSource;
+            if (m_MaxHoldActive)
+                _detectSource = m_fftMaxHoldBuf;
+            else if (m_PlotMode == PLOT_MODE_AVG || m_PlotMode == PLOT_MODE_HISTOGRAM)
+                _detectSource = m_fftAvgBuf;
+            else
+                _detectSource = m_fftMaxBuf;
+            const float *detectSource = _detectSource;
+
+            // Run peak detection periodically. If overlay will be redrawn, run
+            // peak detection since zoom/pan may have changed.
+            if (tnow_ms > tlast_peaks_ms + PEAK_UPDATE_PERIOD || m_DrawOverlay) {
+                tlast_peaks_ms = tnow_ms;
+                m_Peaks.clear();
+                // Collect statistics (min/max/avg of window) and find sharper peaks
+                for (i = pw; i < npts - pw; ++i)
+                {
+                    const int ix = i + xmin;
+                    const float d = detectSource[ix];
+                    float maxInWindow = std::numeric_limits<float>::lowest();
+                    float minInWindow = std::numeric_limits<float>::max();
+                    double sum = d;
+                    for (j = i - pw; j < i; ++j)
+                    {
+                        const float v = detectSource[j + xmin];
+                        maxInWindow = std::max(maxInWindow, v);
+                        minInWindow = std::min(minInWindow, v);
+                        sum += v;
+                    }
+                    for (j = i + 1; j < i + pw; ++j)
+                    {
+                        const float v = detectSource[j + xmin];
+                        maxInWindow = std::max(maxInWindow, v);
+                        minInWindow = std::min(minInWindow, v);
+                        sum += v;
+                    }
+                    m_peakSmoothBuf[ix] = sum / (double)(pw * 2 * 1);
+                    if (d > maxInWindow && d > 2.0 * minInWindow)
+                    {
+                        const qreal y = std::max(std::min(
+                            panddBGainFactor * (m_PandMaxdB - logFactor * log10f(d)),
+                            plotHeight - 0.0), 0.0);
+                        m_Peaks[ix] = y;
+                    }
+                }
+
+                // Fill the ends of the d_peakSmoothBuf with valid end values
+                // and run detection again on smoothed data, looking for wider
+                // peaks
+                for (i = 0; i < pw; ++i)
+                    m_peakSmoothBuf[i + xmin] = 0; // m_peakSmoothBuf[xmin + pw];
+                for (i = npts - pw; i < npts; ++i)
+                    m_peakSmoothBuf[i + xmin] = 0; // m_peakSmoothBuf[xmin + npts - pw - 1];
+                for (i = pw; i < npts - pw; ++i)
+                {
+                    const int ix = i + xmin;
+                    const float d = m_peakSmoothBuf[ix];
+                    float maxInWindow = std::numeric_limits<float>::lowest();
+                    for (j = i - pw; j < i; ++j)
+                    {
+                        const float v = m_peakSmoothBuf[j + xmin];
+                        maxInWindow = std::max(maxInWindow, v);
+                    }
+                    for (j = i + 1; j < i + pw; ++j)
+                    {
+                        const float v = m_peakSmoothBuf[j + xmin];
+                        maxInWindow = std::max(maxInWindow, v);
+                    }
+                    if (d > maxInWindow
+                        && d > 1.0 * m_peakSmoothBuf[ix - pw]
+                        && d > 1.0 * m_peakSmoothBuf[ix + pw])
+                    {
+                        const qreal y = std::max(std::min(
+                            panddBGainFactor * ((m_PandMaxdB - logFactor * log10f(detectSource[ix]))),
+                            plotHeight - 0.0), 0.0);
+                        m_Peaks[ix] = y;
+                    }
+                }
+            }
+
+            // Paint peaks with shadow
+            QPen peakPen(m_maxFftColor, m_DPR);
+            QPen peakShadowPen(Qt::black, m_DPR);
+            peakPen.setWidthF(m_DPR);
+            for(auto peakx : m_Peaks.keys()) {
+                const qreal peakv = m_Peaks.value(peakx);
+                painter2.setPen(peakShadowPen);
+                painter2.drawEllipse(QRectF(
+                    peakx - 5.0 * m_DPR + shadowOffset, peakv - 5.0 * m_DPR + shadowOffset,
+                    10.0 * m_DPR, 10.0 * m_DPR));
+                painter2.setPen(peakPen);
+                painter2.drawEllipse(QRectF(peakx - 5.0 * m_DPR, peakv - 5.0 * m_DPR,
+                                           10.0 * m_DPR, 10.0 * m_DPR));
+            }
+        }
+
+        // Update the overlay if needed
+        if (m_DrawOverlay)
+        {
+            drawOverlay();
+            m_DrawOverlay = false;
+        }
+
+        // Draw overlay over plot
+        painter2.setCompositionMode(QPainter::CompositionMode_SourceOver);
+        painter2.drawPixmap(QPointF(0.0, 0.0), m_OverlayPixmap);
     }
 
     // trigger a new paintEvent
     update();
+}
+
+void CPlotter::setRunningState(bool running)
+{
+    // Reset waterfall time and clear waterfall, since time is no longer correct
+    if (running and !m_Running)
+    {
+        setWaterfallSpan(wf_span);
+
+        // Invalidate any existing data
+        m_MaxHoldValid = false;
+        m_MinHoldValid = false;
+        m_IIRValid = false;
+        m_histIIRValid = false;
+        m_histMaxIIR = std::numeric_limits<float>::min();
+
+    }
+
+    m_Running = running;
 }
 
 /**
@@ -1087,148 +1802,85 @@ void CPlotter::draw()
  * When FFT data is set using this method, the same data will be used for both the
  * pandapter and the waterfall.
  */
-void CPlotter::setNewFftData(float *fftData, int size)
+void CPlotter::setNewFftData(const float *fftData, int size)
 {
-    /** FIXME **/
-    if (!m_Running)
-        m_Running = true;
-
-    m_wfData = fftData;
-    m_fftData = fftData;
-    m_fftDataSize = size;
-
-    draw();
-}
-
-/**
- * Set new FFT data.
- * @param fftData Pointer to the new FFT data used on the pandapter.
- * @param wfData Pointer to the FFT data used in the waterfall.
- * @param size The FFT size.
- *
- * This method can be used to set different FFT data set for the pandapter and the
- * waterfall.
- */
-
-void CPlotter::setNewFftData(float *fftData, float *wfData, int size)
-{
-    /** FIXME **/
-    if (!m_Running)
-        m_Running = true;
-
-    m_wfData = wfData;
-    m_fftData = fftData;
-    m_fftDataSize = size;
-
-    draw();
-}
-
-void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
-                                       float maxdB, float mindB,
-                                       qint64 startFreq, qint64 stopFreq,
-                                       float *inBuf, qint32 *outBuf,
-                                       int *xmin, int *xmax) const
-{
-    qint32 i;
-    qint32 y;
-    qint32 x;
-    qint32 ymax = 10000;
-    qint32 xprev = -1;
-    qint32 minbin, maxbin;
-    qint32 m_BinMin, m_BinMax;
-    qint32 m_FFTSize = m_fftDataSize;
-    float *m_pFFTAveBuf = inBuf;
-    float  dBGainFactor = ((float)plotHeight) / fabs(maxdB - mindB);
-    auto* m_pTranslateTbl = new qint32[qMax(m_FFTSize, plotWidth)];
-
-    /** FIXME: qint64 -> qint32 **/
-    m_BinMin = (qint32)((float)startFreq * (float)m_FFTSize / m_SampleFreq);
-    m_BinMin += (m_FFTSize/2);
-    m_BinMax = (qint32)((float)stopFreq * (float)m_FFTSize / m_SampleFreq);
-    m_BinMax += (m_FFTSize/2);
-
-    minbin = m_BinMin < 0 ? 0 : m_BinMin;
-    if (m_BinMin > m_FFTSize)
-        m_BinMin = m_FFTSize - 1;
-    if (m_BinMax <= m_BinMin)
-        m_BinMax = m_BinMin + 1;
-    maxbin = m_BinMax < m_FFTSize ? m_BinMax : m_FFTSize;
-    bool largeFft = (m_BinMax-m_BinMin) > plotWidth; // true if more fft point than plot points
-
-    if (largeFft)
+    if (size != m_fftDataSize)
     {
-        // more FFT points than plot points
-        for (i = minbin; i < maxbin; i++)
-            m_pTranslateTbl[i] = ((qint64)(i-m_BinMin)*plotWidth) / (m_BinMax - m_BinMin);
-        *xmin = m_pTranslateTbl[minbin];
-        *xmax = m_pTranslateTbl[maxbin - 1] + 1;
+        // Reallocate and invalidate IIRs
+        m_fftData.resize(size);
+        m_fftIIR.resize(size);
+
+        m_MaxHoldValid = false;
+        m_MinHoldValid = false;
+        m_IIRValid = false;
+
+        m_histIIRValid = false;
+        m_histMaxIIR = std::numeric_limits<float>::min();
+
+        m_fftDataSize = size;
     }
+
+    // For V, V^2 -> V/RBW
+    if (m_PlotScale == PLOT_SCALE_V) {
+        for (int i = 0; i < size; ++i)
+            // fftData[i] = sqrtf(fftData[i]) / (float)size;
+            m_fftData[i] = fftData[i] / (float)size / (float)size;
+    }
+    // For DBM, give choose dBm/RBW or dBm/Hz, scaled to 50 ohm.
+    // 1000 V^2 / 2R
     else
     {
-        // more plot points than FFT points
-        double fftstep = (double)m_SampleFreq / (double)m_FFTSize; // FFT frequency bin width
-        for (i = 0; i < plotWidth; i++)
-        {
-            double ratio = (double)i / (double)plotWidth;
-            double freq = startFreq + ratio * (stopFreq - startFreq);
-            m_pTranslateTbl[i] = qint32(m_FFTSize / 2 + freq / fftstep + 0.5);
-        }
-        *xmin = 0;
-        *xmax = plotWidth;
+        float _pwr_scale;
+        if (m_PlotPer == PLOT_PER_RBW)
+            _pwr_scale = 1000.0 / (2.0 * 50.0 * (float)size * (float)size);
+        else
+            _pwr_scale = 1000.0 / (2.0 * 50.0 * (float)size * (float)m_SampleFreq);
+        const float pwr_scale = _pwr_scale;
+        for (int i = 0; i < size; ++i)
+            m_fftData[i] = fftData[i] * pwr_scale;
     }
 
-    if (largeFft)
-    {
-        // more FFT points than plot points
-        for (i = minbin; i < maxbin; i++ )
+    // Update IIR. If IIR is invalid, set alpha to use latest value. Since the
+    // IIR is linear data and users would like to see symmetric attack/decay on
+    // the logarithmic y-axis, IIR is in terms of multiplication rather than
+    // addition.
+
+    // Make sure zeros don't get through to log calcs
+    const float fmin = std::numeric_limits<float>::min();
+
+    // Time constant, taking update rate into account. Attack and decay rate of
+    // change in dB/sec should not visibly change with FFT rate.
+    const double _a = pow((double)fft_rate, -1.75 * (1.0 - m_alpha));
+
+    // Make the slider vs alpha nonlinear
+    const double gamma = 0.7;
+    const double a = pow(_a, gamma);
+
+    // Shortcut expensive pow() if not needed
+    const bool needIIR = m_IIRValid                         // Initializing
+                      && a != 1.0;                          // IIR is NOP
+
+    if (needIIR) {
+        for (int i = 0; i < size; ++i)
         {
-            y = (qint32)(dBGainFactor*(maxdB-m_pFFTAveBuf[i]));
-
-            if (y > plotHeight)
-                y = plotHeight;
-            else if (y < 0)
-                y = 0;
-
-            x = m_pTranslateTbl[i];	//get fft bin to plot x coordinate transform
-
-            if (x == xprev)   // still mappped to same fft bin coordinate
-            {
-                if (y < ymax) // store only the max value
-                {
-                    outBuf[x] = y;
-                    ymax = y;
-                }
-
-            }
-            else
-            {
-                outBuf[x] = y;
-                xprev = x;
-                ymax = y;
-            }
+            const double v = m_fftData[i];
+            const double iir = std::max(m_fftIIR[i], fmin);
+            m_fftIIR[i] = iir * powf(v / iir, a);
         }
     }
     else
     {
-        // more plot points than FFT points
-        for (x = 0; x < plotWidth; x++ )
-        {
-            i = m_pTranslateTbl[x]; // get plot to fft bin coordinate transform
-            if(i < 0 || i >= m_FFTSize)
-                y = plotHeight;
-            else
-                y = (qint32)(dBGainFactor*(maxdB-m_pFFTAveBuf[i]));
-
-            if (y > plotHeight)
-                y = plotHeight;
-            else if (y < 0)
-                y = 0;
-
-            outBuf[x] = y;
-        }
+        memcpy(m_fftIIR.data(), m_fftData.data(), size * sizeof(float));
     }
 
-    delete [] m_pTranslateTbl;
+    m_IIRValid = true;
+
+    draw(true);
+}
+
+void CPlotter::setFftAvg(float avg)
+{
+    m_alpha = avg;
 }
 
 void CPlotter::setFftRange(float min, float max)
@@ -1244,8 +1896,10 @@ void CPlotter::setPandapterRange(float min, float max)
 
     m_PandMindB = min;
     m_PandMaxdB = max;
+    m_MaxHoldValid = false;
+    m_MinHoldValid = false;
+    m_histIIRValid = false;
     updateOverlay();
-    m_PeakHoldValid = false;
 }
 
 void CPlotter::setWaterfallRange(float min, float max)
@@ -1265,40 +1919,38 @@ void CPlotter::drawOverlay()
     if (m_OverlayPixmap.isNull())
         return;
 
-    int     w = m_OverlayPixmap.width() / m_DPR;
-    int     h = m_OverlayPixmap.height() / m_DPR;
-    int     x,y;
-    float   pixperdiv;
-    float   adjoffset;
-    float   dbstepsize;
-    float   mindbadj;
-    QRect   rect;
-    QFontMetrics    metrics(m_Font);
-    QPainter        painter(&m_OverlayPixmap);
+    int     x;
+    qreal   pixperdiv;
+    qreal   adjoffset;
+    qreal   dbstepsize;
+    qreal   mindbadj;
+    QFontMetricsF metrics(m_Font);
+    const qreal shadowOffset = metrics.height() / 20.0;
+    qreal   w = m_OverlayPixmap.width();
+    qreal   h = m_OverlayPixmap.height();
 
+    m_OverlayPixmap.fill(Qt::transparent);
+    QPainter painter(&m_OverlayPixmap);
+    // painter.setRenderHint(QPainter::Antialiasing);
     painter.setFont(m_Font);
-
-    // solid background
-    painter.setBrush(Qt::SolidPattern);
-    painter.fillRect(0, 0, w, h, QColor(PLOTTER_BGD_COLOR));
 
     QList<BookmarkInfo> tags;
 
     // X and Y axis areas
     m_YAxisWidth = metrics.boundingRect("-120").width() + 2 * HOR_MARGIN;
     m_XAxisYCenter = h - metrics.height()/2;
-    int xAxisHeight = metrics.height() + 2 * VER_MARGIN;
-    int xAxisTop = h - xAxisHeight;
-    int fLabelTop = xAxisTop + VER_MARGIN;
+    qreal xAxisHeight = metrics.height() + 2 * VER_MARGIN;
+    qreal xAxisTop = h - xAxisHeight;
+    qreal fLabelTop = xAxisTop + VER_MARGIN;
 
     if (m_BookmarksEnabled || m_DXCSpotsEnabled)
     {
         m_Taglist.clear();
-        static const QFontMetrics fm(painter.font());
-        static const int fontHeight = fm.ascent() + 1;
-        static const int slant = 5;
-        static const int levelHeight = fontHeight + 5;
-        static const int nLevels = h / (levelHeight + slant);
+        static const QFontMetricsF fm(painter.font());
+        static const qreal fontHeight = fm.ascent() + 1;
+        static const qreal slant = 5;
+        static const qreal levelHeight = fontHeight + 5;
+        static const qreal nLevels = h / (levelHeight + slant);
         if (m_BookmarksEnabled)
         {
             tags = Bookmarks::Get().getBookmarksInRange(m_CenterFreq + m_FftCenter - m_Span / 2,
@@ -1327,7 +1979,7 @@ void CPlotter::drawOverlay()
         for (auto & tag : tags)
         {
             x = xFromFreq(tag.frequency);
-            int nameWidth = fm.boundingRect(tag.name).width();
+            qreal nameWidth = fm.boundingRect(tag.name).width();
 
             int level = 0;
             while(level < nLevels && tagEnd[level] > x)
@@ -1349,22 +2001,22 @@ void CPlotter::drawOverlay()
             m_Taglist.append(qMakePair(QRect(x, levelNHeight, nameWidth + slant, fontHeight), tag.frequency));
 
             QColor color = QColor(tag.GetColor());
-            color.setAlpha(0x60);
+            color.setAlpha(100);
             // Vertical line
-            painter.setPen(QPen(color, 1, Qt::DashLine));
-            painter.drawLine(x, levelNHeightBottomSlant, x, xAxisTop);
+            painter.setPen(QPen(color, m_DPR, Qt::DashLine));
+            painter.drawLine(QPointF(x, levelNHeightBottomSlant), QPointF(x, xAxisTop));
 
             // Horizontal line
-            painter.setPen(QPen(color, 1, Qt::SolidLine));
-            painter.drawLine(x + slant, levelNHeightBottom,
-                             x + nameWidth + slant - 1,
-                             levelNHeightBottom);
+            painter.setPen(QPen(color, m_DPR, Qt::SolidLine));
+            painter.drawLine(QPointF(x + slant, levelNHeightBottom),
+                             QPointF(x + nameWidth + slant - 1,
+                             levelNHeightBottom));
             // Diagonal line
-            painter.drawLine(x + 1, levelNHeightBottomSlant - 1,
-                             x + slant - 1, levelNHeightBottom + 1);
+            painter.drawLine(QPointF(x + 1, levelNHeightBottomSlant - 1),
+                             QPointF(x + slant - 1, levelNHeightBottom + 1));
 
-            color.setAlpha(0xFF);
-            painter.setPen(QPen(color, 2, Qt::SolidLine));
+            color.setAlpha(255);
+            painter.setPen(QPen(color, 2.0 * m_DPR, Qt::SolidLine));
             painter.drawText(x + slant, levelNHeight, nameWidth,
                              fontHeight, Qt::AlignVCenter | Qt::AlignHCenter,
                              tag.name);
@@ -1376,21 +2028,22 @@ void CPlotter::drawOverlay()
         QList<BandInfo> bands = BandPlan::Get().getBandsInRange(m_CenterFreq + m_FftCenter - m_Span / 2,
                                                                 m_CenterFreq + m_FftCenter + m_Span / 2);
 
+        m_BandPlanHeight = metrics.height() + VER_MARGIN;
         for (auto & band : bands)
         {
             int band_left = xFromFreq(band.minFrequency);
             int band_right = xFromFreq(band.maxFrequency);
             int band_width = band_right - band_left;
-            rect.setRect(band_left, xAxisTop - m_BandPlanHeight, band_width, m_BandPlanHeight);
+            QRectF rect(band_left, xAxisTop - m_BandPlanHeight, band_width, m_BandPlanHeight);
             painter.fillRect(rect, band.color);
             QString band_label = band.name + " (" + band.modulation + ")";
-            int textWidth = metrics.boundingRect(band_label).width();
+            qreal textWidth = metrics.boundingRect(band_label).width();
             if (band_left < w && band_width > textWidth + 20)
             {
                 painter.setOpacity(1.0);
-                rect.setRect(band_left, xAxisTop - m_BandPlanHeight, band_width, metrics.height());
-                painter.setPen(QColor(PLOTTER_TEXT_COLOR));
-                painter.drawText(rect, Qt::AlignCenter, band_label);
+                QRectF textRect(band_left, xAxisTop - m_BandPlanHeight, band_width, metrics.height());
+                painter.setPen(QPen(QColor(PLOTTER_TEXT_COLOR), m_DPR));
+                painter.drawText(textRect, Qt::AlignCenter, band_label);
             }
         }
     }
@@ -1400,8 +2053,52 @@ void CPlotter::drawOverlay()
         x = xFromFreq(m_CenterFreq);
         if (x > 0 && x < w)
         {
-            painter.setPen(QColor(PLOTTER_CENTER_LINE_COLOR));
-            painter.drawLine(x, 0, x, xAxisTop);
+            painter.setPen(QPen(QColor(PLOTTER_CENTER_LINE_COLOR), m_DPR));
+            painter.drawLine(QPointF(x, 0), QPointF(x, xAxisTop));
+        }
+    }
+
+    if (m_MarkersEnabled)
+    {
+        QBrush brush;
+        brush.setColor(QColor(PLOTTER_MARKER_COLOR));
+        brush.setStyle(Qt::SolidPattern);
+        painter.setPen(QPen(QColor(PLOTTER_MARKER_COLOR), m_DPR));
+
+        qreal markerSize = metrics.height() / 2;
+
+        if (m_MarkerFreqA != MARKER_OFF) {
+            x = xFromFreq(m_MarkerFreqA);
+            m_MarkerAX = x;
+            if (x > 0 && x < w) {
+                QPolygon poly;
+                QPainterPath path;
+                poly << QPoint(x - markerSize/2, 0)
+                     << QPoint(x + markerSize/2, 0)
+                     << QPoint(x, markerSize);
+                path.addPolygon(poly);
+                painter.drawPolygon(poly);
+                painter.fillPath(path, brush);
+                painter.drawLine(x, markerSize, x, xAxisTop);
+                painter.drawStaticText(QPointF(x + markerSize/2, 0), QStaticText("A"));
+            }
+        }
+
+        if (m_MarkerFreqB != MARKER_OFF) {
+            x = xFromFreq(m_MarkerFreqB);
+            m_MarkerBX = x;
+            if (x > 0 && x < w) {
+                QPolygon poly;
+                QPainterPath path;
+                poly << QPoint(x - markerSize/2, 0)
+                     << QPoint(x + markerSize/2, 0)
+                     << QPoint(x, markerSize);
+                path.addPolygon(poly);
+                painter.drawPolygon(poly);
+                painter.fillPath(path, brush);
+                painter.drawLine(x, markerSize, x, xAxisTop);
+                painter.drawStaticText(QPointF(x + markerSize/2, 0), QStaticText("B"));
+            }
         }
     }
 
@@ -1410,30 +2107,38 @@ void CPlotter::drawOverlay()
     QString label;
     label.setNum(float((StartFreq + m_Span) / m_FreqUnits), 'f', m_FreqDigits);
     calcDivSize(StartFreq, StartFreq + m_Span,
-                qMin(w/(metrics.boundingRect(label).width() + metrics.boundingRect("O").width()), HORZ_DIVS_MAX),
+                qMin(w / (metrics.boundingRect(label).width() + metrics.boundingRect("O").width()),
+                     (qreal)HORZ_DIVS_MAX),
                 m_StartFreqAdj, m_FreqPerDiv, m_HorDivs);
-    pixperdiv = (float)w * (float) m_FreqPerDiv / (float) m_Span;
+    pixperdiv = w * (float) m_FreqPerDiv / (float) m_Span;
     adjoffset = pixperdiv * float (m_StartFreqAdj - StartFreq) / (float) m_FreqPerDiv;
 
-    painter.setPen(QPen(QColor(PLOTTER_GRID_COLOR), 1, Qt::DotLine));
+    // Hairline for grid lines
+    painter.setPen(QPen(QColor(PLOTTER_GRID_COLOR), 0.0, Qt::DotLine));
     for (int i = 0; i <= m_HorDivs; i++)
     {
-        x = (int)((float)i * pixperdiv + adjoffset);
-        if (x > m_YAxisWidth)
-            painter.drawLine(x, 0, x, xAxisTop);
+        qreal xD = (double)i * pixperdiv + adjoffset;
+        if (xD > m_YAxisWidth)
+            painter.drawLine(xD, 0, xD, xAxisTop);
     }
 
     // draw frequency values (x axis)
     makeFrequencyStrs();
-    painter.setPen(QColor(PLOTTER_TEXT_COLOR));
     for (int i = 0; i <= m_HorDivs; i++)
     {
-        int tw = w;
-        x = (int)((float)i*pixperdiv + adjoffset);
-        if (x > m_YAxisWidth)
+        qreal xD = (qreal)i * pixperdiv + adjoffset;
+        if (xD > m_YAxisWidth)
         {
-            rect.setRect(x - tw/2, fLabelTop, tw, metrics.height());
-            painter.drawText(rect, Qt::AlignHCenter|Qt::AlignBottom, m_HDivText[i]);
+            // Shadow
+            QRectF shadowRect(xD + shadowOffset - w/2, fLabelTop + shadowOffset,
+                              w, metrics.height());
+            painter.setPen(QPen(QColor(Qt::black)));
+            painter.drawText(shadowRect, Qt::AlignHCenter|Qt::AlignBottom, m_HDivText[i]);
+            // Foreground
+            QRectF textRect(xD - w/2, fLabelTop,
+                            w, metrics.height());
+            painter.setPen(QPen(QColor(PLOTTER_TEXT_COLOR)));
+            painter.drawText(textRect, Qt::AlignHCenter|Qt::AlignBottom, m_HDivText[i]);
         }
     }
 
@@ -1442,38 +2147,47 @@ void CPlotter::drawOverlay()
     qint64 dbDivSize = 0;
 
     calcDivSize((qint64) m_PandMindB, (qint64) m_PandMaxdB,
-                qMax(h/m_VdivDelta, VERT_DIVS_MIN), mindBAdj64, dbDivSize,
-                m_VerDivs);
+                qMax(h / (m_VdivDelta * m_DPR), (qreal)VERT_DIVS_MIN),
+                mindBAdj64, dbDivSize, m_VerDivs);
 
     dbstepsize = (float) dbDivSize;
     mindbadj = mindBAdj64;
 
-    pixperdiv = (float) h * (float) dbstepsize / (m_PandMaxdB - m_PandMindB);
-    adjoffset = (float) h * (mindbadj - m_PandMindB) / (m_PandMaxdB - m_PandMindB);
+    pixperdiv = h * (float)dbstepsize / (m_PandMaxdB - m_PandMindB);
+    adjoffset = h * (mindbadj - m_PandMindB) / (m_PandMaxdB - m_PandMindB);
 
     qCDebug(plotter) << "minDb =" << m_PandMindB << "maxDb =" << m_PandMaxdB
                      << "mindbadj =" << mindbadj << "dbstepsize =" << dbstepsize
                      << "pixperdiv =" << pixperdiv << "adjoffset =" << adjoffset;
 
-    painter.setPen(QPen(QColor(PLOTTER_GRID_COLOR), 1, Qt::DotLine));
+    // Hairline for grid lines
+    painter.setPen(QPen(QColor(PLOTTER_GRID_COLOR), 0.0, Qt::DotLine));
     for (int i = 0; i <= m_VerDivs; i++)
     {
-        y = h - (int)((float) i * pixperdiv + adjoffset);
+        qreal y = h - ((double)i * pixperdiv + adjoffset);
         if (y < h - xAxisHeight)
             painter.drawLine(m_YAxisWidth, y, w, y);
     }
 
     // draw amplitude values (y axis)
-    painter.setPen(QColor(PLOTTER_TEXT_COLOR));
     for (int i = 0; i < m_VerDivs; i++)
     {
-        y = h - (int)((float) i * pixperdiv + adjoffset);
-        int th = metrics.height();
+        qreal y = h - ((double)i * pixperdiv + adjoffset);
+        qreal th = metrics.height();
+        qreal shadowOffset = th / 20.0;
         if (y < h -xAxisHeight)
         {
             int dB = mindbadj + dbstepsize * i;
-            rect.setRect(HOR_MARGIN, y - th / 2, m_YAxisWidth - 2 * HOR_MARGIN, th);
-            painter.drawText(rect, Qt::AlignRight|Qt::AlignVCenter, QString::number(dB));
+            // Shadow
+            painter.setPen(QPen(QColor(Qt::black)));
+            QRectF shadowRect(HOR_MARGIN + shadowOffset, y - th / 2 + shadowOffset,
+                              m_YAxisWidth - 2 * HOR_MARGIN, th);
+            painter.drawText(shadowRect, Qt::AlignRight|Qt::AlignVCenter, QString::number(dB));
+            // Foreground
+            painter.setPen(QPen(QColor(PLOTTER_TEXT_COLOR)));
+            QRectF textRect(HOR_MARGIN, y - th / 2,
+                            m_YAxisWidth - 2 * HOR_MARGIN, th);
+            painter.drawText(textRect, Qt::AlignRight|Qt::AlignVCenter, QString::number(dB));
         }
     }
 
@@ -1491,19 +2205,13 @@ void CPlotter::drawOverlay()
                          QColor(PLOTTER_FILTER_BOX_COLOR));
 
         painter.setOpacity(1.0);
-        painter.setPen(QColor(PLOTTER_FILTER_LINE_COLOR));
+        painter.setPen(QPen(QColor(PLOTTER_FILTER_LINE_COLOR), m_DPR));
         painter.drawLine(m_DemodFreqX, 0, m_DemodFreqX, h);
     }
 
-    if (!m_Running)
-    {
-        // if not running so is no data updates to draw to screen
-        // copy into 2Dbitmap the overlay bitmap.
-        m_2DPixmap = m_OverlayPixmap.copy(m_OverlayPixmap.rect());
-
-        // trigger a new paintEvent
-        update();
-    }
+    // Draw a black line at the bottom of the plotter to separate it from the
+    // waterfall
+    painter.fillRect(QRect(0.0, h - 1.0 * m_DPR, w, 1.0 * m_DPR), Qt::black);
 
     painter.end();
 }
@@ -1565,9 +2273,11 @@ void CPlotter::makeFrequencyStrs()
 // Convert from frequency to screen coordinate
 int CPlotter::xFromFreq(qint64 freq)
 {
-    qint64 w = width();
-    qint64 StartFreq = m_CenterFreq + m_FftCenter - m_Span / 2;
-    int x = (int) (w * (freq - StartFreq) / m_Span);
+    qreal w = m_Size.width() * m_DPR;
+    double startFreq = (double)m_CenterFreq
+                       + (double)m_FftCenter
+                       - (double)m_Span / 2.0;
+    int x = qRound(w * ((double)freq - startFreq) / (double)m_Span);
     if (x < 0)
         return 0;
     if (x > (int)w)
@@ -1578,24 +2288,27 @@ int CPlotter::xFromFreq(qint64 freq)
 // Convert from screen coordinate to frequency
 qint64 CPlotter::freqFromX(int x)
 {
-    double ratio = (double)x / (double)width();
-    qint64 f = (m_CenterFreq + m_FftCenter - m_Span / 2) + ratio * m_Span;
+    double ratio = (double)x / (qreal)m_Size.width() / m_DPR;
+    qint64 f = qRound64((double)m_CenterFreq + (double)m_FftCenter
+                        - (double)m_Span / 2.0 + ratio * (double)m_Span);
     return f;
 }
 
 /** Calculate time offset of a given line on the waterfall */
 quint64 CPlotter::msecFromY(int y)
 {
+    int h = m_OverlayPixmap.height();
+
     // ensure we are in the waterfall region
-    if (y < m_OverlayPixmap.height() / m_DPR)
+    if (y < h)
         return 0;
 
-    int dy = y - m_OverlayPixmap.height() / m_DPR;
+    qreal dy = (qreal)y - (qreal)h;
 
     if (msec_per_wfline > 0)
-        return tlast_wf_ms - dy * msec_per_wfline;
+        return tlast_wf_drawn_ms - dy * msec_per_wfline;
     else
-        return tlast_wf_ms - dy * 1000 / fft_rate;
+        return tlast_wf_drawn_ms - dy * 1000.0 / (double)fft_rate;
 }
 
 // Round frequency to click resolution value
@@ -1646,18 +2359,22 @@ void CPlotter::setCenterFreq(quint64 f)
     m_CenterFreq = f;
     m_DemodCenterFreq = m_CenterFreq - offset;
 
-    updateOverlay();
+    m_MaxHoldValid = false;
+    m_MinHoldValid = false;
+    m_histIIRValid = false;
+    m_IIRValid = false;
 
-    m_PeakHoldValid = false;
+    updateOverlay();
 }
 
-// Ensure overlay is updated by either scheduling or forcing a redraw
+// Invalidate overlay. If not running, force a redraw.
 void CPlotter::updateOverlay()
 {
-    if (m_Running)
-        m_DrawOverlay = true;
-    else
-        drawOverlay();
+    m_DrawOverlay = true;
+    if (!m_Running)
+    {
+        draw(false);
+    }
 }
 
 /** Reset horizontal zoom to 100% and centered around 0. */
@@ -1666,46 +2383,64 @@ void CPlotter::resetHorizontalZoom(void)
     setFftCenterFreq(0);
     setSpanFreq((qint32)m_SampleFreq);
     emit newZoomLevel(1.0);
+    m_MaxHoldValid = false;
+    m_MinHoldValid = false;
+    m_histIIRValid = false;
+    updateOverlay();
 }
 
 /** Center FFT plot around 0 (corresponds to center freq). */
 void CPlotter::moveToCenterFreq()
 {
     setFftCenterFreq(0);
+    m_MaxHoldValid = false;
+    m_MinHoldValid = false;
+    m_histIIRValid = false;
     updateOverlay();
-    m_PeakHoldValid = false;
 }
 
 /** Center FFT plot around the demodulator frequency. */
 void CPlotter::moveToDemodFreq()
 {
     setFftCenterFreq(m_DemodCenterFreq-m_CenterFreq);
+    m_MaxHoldValid = false;
+    m_MinHoldValid = false;
+    m_histIIRValid = false;
     updateOverlay();
-
-    m_PeakHoldValid = false;
 }
 
 /** Set FFT plot color. */
 void CPlotter::setFftPlotColor(const QColor& color)
 {
-    m_FftColor = color;
+    m_avgFftColor = color;
+    m_maxFftColor = color;
+    // m_maxFftColor.setAlpha(192);
     m_FftFillCol = color;
-    m_FftFillCol.setAlpha(0x1A);
-    m_PeakHoldColor = color;
-    m_PeakHoldColor.setAlpha(60);
+    m_FftFillCol.setAlpha(26);
+    m_MaxHoldColor = color;
+    m_MaxHoldColor.setAlpha(80);
+    m_MinHoldColor = color;
+    m_MinHoldColor.setAlpha(80);
 }
 
 /** Enable/disable filling the area below the FFT plot. */
-void CPlotter::setFftFill(bool enabled)
+void CPlotter::enableFftFill(bool enabled)
 {
     m_FftFill = enabled;
 }
 
 /** Set peak hold on or off. */
-void CPlotter::setPeakHold(bool enabled)
+void CPlotter::enableMaxHold(bool enabled)
 {
-    m_PeakHoldActive = enabled;
-    m_PeakHoldValid = false;
+    m_MaxHoldActive = enabled;
+    m_MaxHoldValid = false;
+}
+
+/** Set min hold on or off. */
+void CPlotter::enableMinHold(bool enabled)
+{
+    m_MinHoldActive = enabled;
+    m_MinHoldValid = false;
 }
 
 /**
@@ -1713,17 +2448,31 @@ void CPlotter::setPeakHold(bool enabled)
  * @param enabled The new state of peak detection.
  * @param c Minimum distance of peaks from mean, in multiples of standard deviation.
  */
-void CPlotter::setPeakDetection(bool enabled, float c)
+void CPlotter::enablePeakDetect(bool enabled)
 {
-    if(!enabled || c <= 0)
-        m_PeakDetection = -1;
-    else
-        m_PeakDetection = c;
+    m_PeakDetectActive = enabled;
 }
 
-void CPlotter::toggleBandPlan(bool state)
+void CPlotter::enableBandPlan(bool enabled)
 {
-    m_BandPlanEnabled = state;
+    m_BandPlanEnabled = enabled;
+    updateOverlay();
+}
+
+void CPlotter::enableMarkers(bool enabled)
+{
+    m_MarkersEnabled = enabled;
+}
+
+void CPlotter::setMarkers(qint64 a, qint64 b)
+{
+    // Invalidate x positions
+    m_MarkerAX = -1;
+    m_MarkerBX = -1;
+
+    m_MarkerFreqA = a;
+    m_MarkerFreqB = b;
+
     updateOverlay();
 }
 
