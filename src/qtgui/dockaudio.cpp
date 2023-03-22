@@ -60,11 +60,11 @@ DockAudio::DockAudio(QWidget *parent) :
     ui->audioSpectrum->setFilterBoxEnabled(false);
     ui->audioSpectrum->setCenterLineEnabled(false);
     ui->audioSpectrum->setBookmarksEnabled(false);
-    ui->audioSpectrum->setBandPlanEnabled(false);
+    ui->audioSpectrum->enableBandPlan(false);
     ui->audioSpectrum->setFftRange(-80., 0.);
     ui->audioSpectrum->setVdivDelta(40);
-    ui->audioSpectrum->setHdivDelta(40);
     ui->audioSpectrum->setFreqDigits(1);
+    ui->audioSpectrum->setRunningState(true);
 
     QShortcut *rec_toggle_shortcut = new QShortcut(QKeySequence(Qt::Key_R), this);
     QShortcut *mute_toggle_shortcut = new QShortcut(QKeySequence(Qt::Key_M), this);
@@ -139,7 +139,7 @@ void DockAudio::setFftColor(QColor color)
 /*! Enable/disable filling area under FFT plot. */
 void DockAudio::setFftFill(bool enabled)
 {
-    ui->audioSpectrum->setFftFill(enabled);
+    ui->audioSpectrum->enableFftFill(enabled);
 }
 
 /*! Public slot to trig audio recording by external events (e.g. satellite AOS).

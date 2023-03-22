@@ -11,6 +11,7 @@ Main window actions:
  Ctrl+C         Open DX cluster dialog
  F11            Toggle full screen mode
  F              Set focus to the frequency controller
+ P              Pause/resume waterfall scrolling
  Z              Zero frequency offset
  Ctrl+Q         Quit the program
 
