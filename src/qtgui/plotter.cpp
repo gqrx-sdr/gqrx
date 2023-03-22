@@ -1053,7 +1053,7 @@ void CPlotter::draw()
                         if (j != i && detectSource[j] < maxInWindow)
                             maxInWindow = detectSource[j];
                     if (d < maxInWindow)
-                        m_Peaks.insert(i + 1, d);
+                        m_Peaks.insert(i, d);
                 }
             }
             else
@@ -1080,7 +1080,7 @@ void CPlotter::draw()
                     if (lastPeak != -1 &&
                         (i - lastPeak > PEAK_H_TOLERANCE || i == n-1))
                     {
-                        m_Peaks.insert(lastPeak + xmin + 1, detectSource[lastPeak + xmin]);
+                        m_Peaks.insert(lastPeak + xmin, detectSource[lastPeak + xmin]);
                         lastPeak = -1;
                     }
                 }
@@ -1089,7 +1089,7 @@ void CPlotter::draw()
             // Paint peaks
             painter2.setPen(m_FftColor);
             for(auto peakx : m_Peaks.keys()) {
-                painter2.drawEllipse(peakx - 6, m_Peaks.value(peakx) - 5, 10, 10);
+                painter2.drawEllipse(peakx - 5, m_Peaks.value(peakx) - 5, 10, 10);
             }
         }
 
