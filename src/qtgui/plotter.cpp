@@ -136,6 +136,7 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     m_CursorCaptured = NOCAP;
     m_Running = false;
     m_DrawOverlay = true;
+    m_Frozen = false;
     m_2DPixmap = QPixmap(0,0);
     m_OverlayPixmap = QPixmap(0,0);
     m_WaterfallPixmap = QPixmap(0,0);
@@ -578,6 +579,11 @@ bool CPlotter::saveWaterfall(const QString & filename) const
     return pixmap.save(filename, nullptr, -1);
 }
 
+void CPlotter::toggleFreeze()
+{
+    m_Frozen = !m_Frozen;
+}
+
 /** Get waterfall time resolution in milleconds / line. */
 quint64 CPlotter::getWfTimeRes() const
 {
@@ -885,6 +891,8 @@ void CPlotter::resizeEvent(QResizeEvent* )
 
     drawOverlay();
     emit newSize();
+
+    m_Frozen = false;
 }
 
 // Called by QT when screen needs to be redrawn
@@ -893,8 +901,11 @@ void CPlotter::paintEvent(QPaintEvent *)
     QPainter painter(this);
 
     painter.drawPixmap(0, 0, m_2DPixmap);
-    painter.drawPixmap(0, m_Percent2DScreen * m_Size.height() / 100,
-                       m_WaterfallPixmap);
+    if (!m_Frozen)
+    {
+        painter.drawPixmap(0, m_Percent2DScreen * m_Size.height() / 100,
+                           m_WaterfallPixmap);
+    }
 }
 
 // Called to update spectrum data for displaying on the screen

@@ -129,6 +129,7 @@ private:
     /* key shortcuts */
     void frequencyFocusShortcut();
     void rxOffsetZeroShortcut();
+    void toggleFreezeShortcut();
 
 private slots:
     /* RecentConfig */

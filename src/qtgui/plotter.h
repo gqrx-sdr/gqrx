@@ -122,6 +122,7 @@ public:
     void    setFftRate(int rate_hz);
     void    clearWaterfall();
     bool    saveWaterfall(const QString & filename) const;
+    void    toggleFreeze();
 
 signals:
     void newDemodFreq(qint64 freq, qint64 delta); /* delta is the offset from the center */
@@ -211,6 +212,7 @@ private:
     int         m_YAxisWidth{};
 
     eCapturetype    m_CursorCaptured;
+    bool        m_Frozen;           // Waterfall is frozen - pixmap will not be rendered
     QPixmap     m_2DPixmap;
     QPixmap     m_OverlayPixmap;
     QPixmap     m_WaterfallPixmap;

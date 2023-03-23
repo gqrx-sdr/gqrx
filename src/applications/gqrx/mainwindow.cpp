@@ -157,6 +157,10 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     auto *rx_offset_zero_shortcut = new QShortcut(QKeySequence(Qt::Key_Z), this);
     QObject::connect(rx_offset_zero_shortcut, &QShortcut::activated, this, &MainWindow::rxOffsetZeroShortcut);
 
+    // freeze plotter on SPACE
+    auto *toggle_freeze_shortcut = new QShortcut(QKeySequence(Qt::Key_Space), this);
+    QObject::connect(toggle_freeze_shortcut, &QShortcut::activated, this, &MainWindow::toggleFreezeShortcut);
+
     setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
     setCorner(Qt::BottomLeftCorner, Qt::BottomDockWidgetArea);
@@ -2443,4 +2447,9 @@ void MainWindow::frequencyFocusShortcut()
 void MainWindow::rxOffsetZeroShortcut()
 {
     uiDockRxOpt->setFilterOffset(0);
+}
+
+void MainWindow::toggleFreezeShortcut()
+{
+    ui->plotter->toggleFreeze();
 }
