@@ -87,7 +87,7 @@ iq_swap_cc_sptr make_iq_swap_cc(bool enabled);
 /*! \brief Block to swap I and Q channels.
  *  \ingroup DSP
  */
-class iq_swap_cc : public gr::hier_block2
+class iq_swap_cc : public gr::sync_block
 {
     friend iq_swap_cc_sptr make_iq_swap_cc(bool enabled);
 
@@ -97,10 +97,11 @@ protected:
 public:
     ~iq_swap_cc();
     void set_enabled(bool enabled);
+    int work(int noutput_items,
+             gr_vector_const_void_star& input_items,
+             gr_vector_void_star& output_items);
 
 private:
-    gr::blocks::complex_to_float::sptr d_c2f;
-    gr::blocks::float_to_complex::sptr d_f2c;
     bool d_enabled;
 };
 
