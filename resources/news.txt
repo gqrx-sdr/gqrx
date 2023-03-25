@@ -3,6 +3,7 @@
 
        NEW: Restore FFT zoom level between sessions.
        NEW: Restore peak detect & peak hold between sessions.
+       NEW: "Z" keyboard shortcut sets frequency offset to zero.
      FIXED: Remove empty frame from bottom of I/Q tool window.
      FIXED: Sudden scrolling of file list in I/Q tool window.
   IMPROVED: AGC performance.
