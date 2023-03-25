@@ -40,11 +40,6 @@ struct TagInfo
     static const QColor DefaultColor;
     static const QString strUntagged;
 
-    TagInfo()
-    {
-        active=true;
-        this->color=DefaultColor;
-    }
     TagInfo(QString name)
     {
         active=true;
