@@ -6,6 +6,7 @@
        NEW: "Z" keyboard shortcut sets frequency offset to zero.
      FIXED: Remove empty frame from bottom of I/Q tool window.
      FIXED: Sudden scrolling of file list in I/Q tool window.
+     FIXED: Reset zoom slider after right click on panadapter / waterfall.
   IMPROVED: AGC performance.
   IMPROVED: Apply amplitude normalization to FFT window functions.
 
