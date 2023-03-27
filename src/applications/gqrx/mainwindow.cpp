@@ -1375,9 +1375,8 @@ void MainWindow::iqFftTimeout()
         return;
     }
 
-    // NB: without cast to float the multiplication will overflow at 64k
-    // and pwr_scale will be inf
-    pwr_scale = 1.0 / ((float)fftsize * (float)fftsize);
+    // Scale to dB/MHz
+    pwr_scale = 1.0 / 1000000.0 / (float)fftsize;
 
     /* Normalize, calculate power and shift the FFT */
     volk_32fc_magnitude_squared_32f(d_realFftData, d_fftData + (fftsize/2), fftsize/2);
