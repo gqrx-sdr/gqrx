@@ -292,6 +292,12 @@ void DockFft::saveSettings(QSettings *settings)
     else
         settings->remove("fft_zoom");
 
+    intval = ui->samplingModeBox->currentIndex();
+    if (intval != 0)
+        settings->setValue("sampling_mode", intval);
+    else
+        settings->remove("sampling_mode");
+
     settings->endGroup();
 }
 
@@ -378,6 +384,10 @@ void DockFft::readSettings(QSettings *settings)
     intval = settings->value("fft_zoom", DEFAULT_FFT_ZOOM).toInt(&conv_ok);
     if (conv_ok)
         ui->fftZoomSlider->setValue(intval);
+
+    intval = settings->value("sampling_mode", 0).toInt(&conv_ok);
+    if (conv_ok && intval >=0 && intval <=2)
+        ui->samplingModeBox->setCurrentIndex(intval);
 
     settings->endGroup();
 }
@@ -491,6 +501,11 @@ void DockFft::on_fftZoomSlider_valueChanged(int level)
 {
     ui->zoomLevelLabel->setText(QString("%1x").arg(level));
     emit fftZoomChanged((float)level);
+}
+
+void DockFft::on_samplingModeBox_currentIndexChanged(int index)
+{
+    emit samplingModeChanged(index);
 }
 
 void DockFft::on_pandRangeSlider_valuesChanged(int min, int max)

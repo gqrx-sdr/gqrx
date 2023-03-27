@@ -57,6 +57,7 @@ signals:
     void wfSpanChanged(quint64 span_ms);           /*! Waterfall span changed. */
     void fftSplitChanged(int pct);                 /*! Split between pandapter and waterfall changed. */
     void fftZoomChanged(float level);              /*! Zoom level slider changed. */
+    void samplingModeChanged(int value);           /*! Sampling mode (max/avg/min) changed. */
     void fftAvgChanged(float gain);                /*! FFT video filter gain has changed. */
     void pandapterRangeChanged(float min, float max);
     void waterfallRangeChanged(float min, float max);
@@ -84,6 +85,7 @@ private slots:
     void on_fftSplitSlider_valueChanged(int value);
     void on_fftAvgSlider_valueChanged(int value);
     void on_fftZoomSlider_valueChanged(int level);
+    void on_samplingModeBox_currentIndexChanged(int index);
     void on_pandRangeSlider_valuesChanged(int min, int max);
     void on_wfRangeSlider_valuesChanged(int min, int max);
     void on_resetButton_clicked(void);

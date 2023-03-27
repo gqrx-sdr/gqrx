@@ -116,6 +116,7 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     m_ClickResolution = 100;
     m_FilterClickResolution = 100;
     m_CursorCaptureDelta = CUR_CUT_DELTA;
+    m_SamplingMode = SAMPLING_MODE_MAX;
 
     m_FilterBoxEnabled = true;
     m_CenterLineEnabled = true;
@@ -776,6 +777,12 @@ void CPlotter::zoomOnXAxis(float level)
     zoomStepX(current_level / level, xFromFreq(m_DemodCenterFreq));
 }
 
+void CPlotter::setSamplingMode(int mode)
+{
+    m_SamplingMode = (eSamplingMode)mode;
+    m_PeakHoldValid = false;
+}
+
 // Called when a mouse wheel is turned
 void CPlotter::wheelEvent(QWheelEvent * event)
 {
@@ -931,7 +938,8 @@ void CPlotter::draw()
                                 m_FftCenter - (qint64)m_Span / 2,
                                 m_FftCenter + (qint64)m_Span / 2,
                                 m_wfData, m_fftbuf,
-                                &xmin, &xmax);
+                                &xmin, &xmax,
+                                m_SamplingMode);
 
         if (msec_per_wfline > 0)
         {
@@ -1002,7 +1010,8 @@ void CPlotter::draw()
                                 m_FftCenter - (qint64)m_Span/2,
                                 m_FftCenter + (qint64)m_Span/2,
                                 m_fftData, m_fftbuf,
-                                &xmin, &xmax);
+                                &xmin, &xmax,
+                                m_SamplingMode);
 
         // draw the pandapter
         QBrush fillBrush = QBrush(m_FftFillCol);
@@ -1093,6 +1102,11 @@ void CPlotter::setNewFftData(float *fftData, int size)
     if (!m_Running)
         m_Running = true;
 
+    if (size != m_fftDataSize)
+    {
+        m_PeakHoldValid = false;
+    }
+
     m_wfData = fftData;
     m_fftData = fftData;
     m_fftDataSize = size;
@@ -1116,6 +1130,11 @@ void CPlotter::setNewFftData(float *fftData, float *wfData, int size)
     if (!m_Running)
         m_Running = true;
 
+    if (size != m_fftDataSize)
+    {
+        m_PeakHoldValid = false;
+    }
+
     m_wfData = wfData;
     m_fftData = fftData;
     m_fftDataSize = size;
@@ -1127,12 +1146,12 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
                                        float maxdB, float mindB,
                                        qint64 startFreq, qint64 stopFreq,
                                        float *inBuf, qint32 *outBuf,
-                                       int *xmin, int *xmax) const
+                                       int *xmin, int *xmax,
+                                       eSamplingMode mode) const
 {
     qint32 i;
     qint32 y;
     qint32 x;
-    qint32 ymax = 10000;
     qint32 xprev = -1;
     qint32 minbin, maxbin;
     qint32 m_BinMin, m_BinMax;
@@ -1177,40 +1196,110 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
         *xmax = plotWidth;
     }
 
+    // more FFT points than plot points
     if (largeFft)
     {
-        // more FFT points than plot points
-        for (i = minbin; i < maxbin; i++ )
+        if (mode == SAMPLING_MODE_MAX)
         {
-            y = (qint32)(dBGainFactor*(maxdB-m_pFFTAveBuf[i]));
-
-            if (y > plotHeight)
-                y = plotHeight;
-            else if (y < 0)
-                y = 0;
-
-            x = m_pTranslateTbl[i];	//get fft bin to plot x coordinate transform
-
-            if (x == xprev)   // still mappped to same fft bin coordinate
+            qint32 ymax = 10000;
+            for (i = minbin; i < maxbin; i++ )
             {
-                if (y < ymax) // store only the max value
+                y = (qint32)(dBGainFactor*(maxdB-m_pFFTAveBuf[i]));
+
+                if (y > plotHeight)
+                    y = plotHeight;
+                else if (y < 0)
+                    y = 0;
+
+                x = m_pTranslateTbl[i];	//get fft bin to plot x coordinate transform
+
+                if (x == xprev)   // still mappped to same fft bin coordinate
+                {
+                    if (y < ymax) // store only the max value
+                    {
+                        outBuf[x] = y;
+                        ymax = y;
+                    }
+
+                }
+                else
                 {
                     outBuf[x] = y;
+                    xprev = x;
                     ymax = y;
                 }
-
             }
-            else
+        }
+        else if (mode == SAMPLING_MODE_AVG)
+        {
+            qint64 binsum = 0;
+            qint64 bincount = 0;
+            for (i = minbin; i < maxbin; i++ )
             {
-                outBuf[x] = y;
-                xprev = x;
-                ymax = y;
+                y = (qint32)(dBGainFactor*(maxdB-m_pFFTAveBuf[i]));
+
+                if (y > plotHeight)
+                    y = plotHeight;
+                else if (y < 0)
+                    y = 0;
+
+                x = m_pTranslateTbl[i];	//get fft bin to plot x coordinate transform
+
+                if (x == xprev)   // still mappped to same fft bin coordinate
+                {
+                    binsum += y;
+                    ++bincount;
+                }
+                else
+                {
+                    if (xprev >= 0)
+                        outBuf[xprev] = lround((double)binsum / (double)bincount);
+                    xprev = x;
+                    binsum = y;
+                    bincount = 1;
+                }
+            }
+
+            // Last bin
+            if (xprev >= 0)
+                outBuf[xprev] = lround((double)binsum / (double)bincount);
+        }
+        else if (mode == SAMPLING_MODE_MIN)
+        {
+            qint32 ymin = 10000;
+            for (i = minbin; i < maxbin; i++ )
+            {
+                y = (qint32)(dBGainFactor*(maxdB-m_pFFTAveBuf[i]));
+
+                if (y > plotHeight)
+                    y = plotHeight;
+                else if (y < 0)
+                    y = 0;
+
+                x = m_pTranslateTbl[i];	//get fft bin to plot x coordinate transform
+
+                if (x == xprev)   // still mappped to same fft bin coordinate
+                {
+                    if (y > ymin) // store only the min value
+                    {
+                        outBuf[x] = y;
+                        ymin = y;
+                    }
+
+                }
+                else
+                {
+                    outBuf[x] = y;
+                    xprev = x;
+                    ymin = y;
+                }
             }
         }
     }
+
+    // more plot points than FFT points
     else
     {
-        // more plot points than FFT points
         for (x = 0; x < plotWidth; x++ )
         {
             i = m_pTranslateTbl[x]; // get plot to fft bin coordinate transform
