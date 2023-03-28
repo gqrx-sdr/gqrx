@@ -1364,7 +1364,7 @@ void MainWindow::iqFftTimeout()
 {
     unsigned int    fftsize;
     unsigned int    i;
-    float           pwr_scale;
+    double          quad_rate = rx->get_input_rate() / rx->get_input_decim();
 
     // FIXME: fftsize is a reference
     rx->get_iq_fft_data(d_fftData, fftsize);
@@ -1375,9 +1375,8 @@ void MainWindow::iqFftTimeout()
         return;
     }
 
-    // NB: without cast to float the multiplication will overflow at 64k
-    // and pwr_scale will be inf
-    pwr_scale = 1.0 / ((float)fftsize * (float)fftsize);
+    // Scale for dBm into 50 ohms
+    const double pwr_scale = 1000.0 / (2.0 * (double)fftsize * quad_rate * 50.0);
 
     /* Normalize, calculate power and shift the FFT */
     volk_32fc_magnitude_squared_32f(d_realFftData, d_fftData + (fftsize/2), fftsize/2);
