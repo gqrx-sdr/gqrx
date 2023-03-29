@@ -1264,37 +1264,6 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
             if (xprev >= 0)
                 outBuf[xprev] = lround((double)binsum / (double)bincount);
         }
-        else if (mode == SAMPLING_MODE_MIN)
-        {
-            qint32 ymin = 10000;
-            for (i = minbin; i < maxbin; i++ )
-            {
-                y = (qint32)(dBGainFactor*(maxdB-m_pFFTAveBuf[i]));
-
-                if (y > plotHeight)
-                    y = plotHeight;
-                else if (y < 0)
-                    y = 0;
-
-                x = m_pTranslateTbl[i];	//get fft bin to plot x coordinate transform
-
-                if (x == xprev)   // still mappped to same fft bin coordinate
-                {
-                    if (y > ymin) // store only the min value
-                    {
-                        outBuf[x] = y;
-                        ymin = y;
-                    }
-
-                }
-                else
-                {
-                    outBuf[x] = y;
-                    xprev = x;
-                    ymin = y;
-                }
-            }
-        }
     }
 
     // more plot points than FFT points

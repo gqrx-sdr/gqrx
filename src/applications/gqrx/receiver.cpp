@@ -744,6 +744,11 @@ void receiver::set_iq_fft_window(int window_type)
     iq_fft->set_window_type(window_type);
 }
 
+void receiver::set_iq_rbw(int rbw)
+{
+    iq_fft->set_rbw(rbw);
+}
+
 /** Get latest baseband FFT data. */
 void receiver::get_iq_fft_data(std::complex<float>* fftPoints, unsigned int &fftsize)
 {

@@ -76,6 +76,8 @@ private:
     QString             m_last_dir;
     RecentConfig       *m_recent_config; /* Menu File Recent config */
 
+    bool d_display_dbm;
+
     qint64 d_lnb_lo;  /* LNB LO in Hz. */
     qint64 d_hw_freq;
     qint64 d_hw_freq_start{};
@@ -189,6 +191,8 @@ private slots:
     void setIqFftSize(int size);
     void setIqFftRate(int fps);
     void setIqFftWindow(int type);
+    void setIqRbw(int rbw);
+    void setDisplayDbm(int state);
     void setIqFftSplit(int pct_wf);
     void setIqFftAvg(float avg);
     void setAudioFftRate(int fps);

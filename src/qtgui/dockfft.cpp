@@ -269,7 +269,7 @@ void DockFft::saveSettings(QSettings *settings)
         settings->setValue("bandplan", true);
     else
         settings->remove("bandplan");
-    
+
     // Peak
     if (ui->peakDetectionButton->isChecked())
         settings->setValue("peak_detect", true);
@@ -441,6 +441,25 @@ void DockFft::on_fftRateComboBox_currentIndexChanged(int index)
 void DockFft::on_fftWinComboBox_currentIndexChanged(int index)
 {
     emit fftWindowChanged(index);
+}
+
+void DockFft::on_rbwBox_currentIndexChanged(int index)
+{
+    if (index == 0)
+    {
+        emit rbwChanged(0);
+    }
+    else
+    {
+        QString text = ui->rbwBox->currentText();
+        int val = text.toInt();
+        emit rbwChanged(val);
+    }
+}
+
+void DockFft::on_dbmBox_stateChanged(int state)
+{
+    emit displayDbmChanged(state);
 }
 
 static const quint64 wf_span_table[] =

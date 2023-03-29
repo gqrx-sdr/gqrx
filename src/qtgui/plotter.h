@@ -125,9 +125,7 @@ public:
 
     enum eSamplingMode {
         SAMPLING_MODE_MAX = 0,
-        SAMPLING_MODE_AVG = 1,
-        SAMPLING_MODE_MIN = 2
-    };
+        SAMPLING_MODE_AVG = 1    };
 
 signals:
     void newDemodFreq(qint64 freq, qint64 delta); /* delta is the offset from the center */

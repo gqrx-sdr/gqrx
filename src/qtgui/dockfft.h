@@ -54,6 +54,8 @@ signals:
     void fftSizeChanged(int size);                 /*! FFT size changed. */
     void fftRateChanged(int fps);                  /*! FFT rate changed. */
     void fftWindowChanged(int window);             /*! FFT window type changed */
+    void rbwChanged(int rbw);                      /*! Minimum RBW */
+    void displayDbmChanged(int state);             /*! Whether to show dBm/Hz.*/
     void wfSpanChanged(quint64 span_ms);           /*! Waterfall span changed. */
     void fftSplitChanged(int pct);                 /*! Split between pandapter and waterfall changed. */
     void fftZoomChanged(float level);              /*! Zoom level slider changed. */
@@ -81,6 +83,8 @@ private slots:
     void on_fftSizeComboBox_currentIndexChanged(int index);
     void on_fftRateComboBox_currentIndexChanged(int index);
     void on_fftWinComboBox_currentIndexChanged(int index);
+    void on_rbwBox_currentIndexChanged(int index);
+    void on_dbmBox_stateChanged(int state);
     void on_wfSpanComboBox_currentIndexChanged(int index);
     void on_fftSplitSlider_valueChanged(int value);
     void on_fftAvgSlider_valueChanged(int value);

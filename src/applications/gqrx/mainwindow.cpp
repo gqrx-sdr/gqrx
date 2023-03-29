@@ -65,6 +65,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     QMainWindow(parent),
     configOk(true),
     ui(new Ui::MainWindow),
+    d_display_dbm(false),
     d_lnb_lo(0),
     d_hw_freq(0),
     d_fftAvg(0.25),
@@ -250,6 +251,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setIqFftSize(int)));
     connect(uiDockFft, SIGNAL(fftRateChanged(int)), this, SLOT(setIqFftRate(int)));
     connect(uiDockFft, SIGNAL(fftWindowChanged(int)), this, SLOT(setIqFftWindow(int)));
+    connect(uiDockFft, SIGNAL(rbwChanged(int)), this, SLOT(setIqRbw(int)));
+    connect(uiDockFft, SIGNAL(displayDbmChanged(int)), this, SLOT(setDisplayDbm(int)));
     connect(uiDockFft, SIGNAL(wfSpanChanged(quint64)), this, SLOT(setWfTimeSpan(quint64)));
     connect(uiDockFft, SIGNAL(fftSplitChanged(int)), this, SLOT(setIqFftSplit(int)));
     connect(uiDockFft, SIGNAL(fftAvgChanged(float)), this, SLOT(setIqFftAvg(float)));
@@ -1377,7 +1380,11 @@ void MainWindow::iqFftTimeout()
     }
 
     // Scale for dBm into 50 ohms
-    const double pwr_scale = 1000.0 / (2.0 * (double)fftsize * quad_rate * 50.0);
+    double pwr_scale;
+    if (d_display_dbm)
+        pwr_scale = 1000.0 / (2.0 * (double)fftsize * quad_rate * 50.0);
+    else
+        pwr_scale = 1.0 / (double)fftsize / (double)fftsize;
 
     /* Normalize, calculate power and shift the FFT */
     volk_32fc_magnitude_squared_32f(d_realFftData, d_fftData + (fftsize/2), fftsize/2);
@@ -1730,6 +1737,16 @@ void MainWindow::setIqFftRate(int fps)
 void MainWindow::setIqFftWindow(int type)
 {
     rx->set_iq_fft_window(type);
+}
+
+void MainWindow::setIqRbw(int rbw)
+{
+    rx->set_iq_rbw(rbw);
+}
+
+void MainWindow::setDisplayDbm(int state)
+{
+    d_display_dbm = (state != 0);
 }
 
 /** Waterfall time span has changed. */
