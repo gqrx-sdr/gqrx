@@ -217,6 +217,11 @@ void DockFft::saveSettings(QSettings *settings)
     else
         settings->remove("averaging");
 
+    if (ui->dbmBox->checkState())
+        settings->setValue("display_dbm_hz", true);
+    else
+        settings->remove("display_dbm_hz");
+
     if (ui->fftSplitSlider->value() != DEFAULT_FFT_SPLIT)
         settings->setValue("split", ui->fftSplitSlider->value());
     else
@@ -334,6 +339,9 @@ void DockFft::readSettings(QSettings *settings)
     intval = settings->value("averaging", DEFAULT_FFT_AVG).toInt(&conv_ok);
     if (conv_ok)
         ui->fftAvgSlider->setValue(intval);
+
+    bool_val = settings->value("display_dbm_hz", false).toBool();
+    ui->dbmBox->setChecked(bool_val);
 
     intval = settings->value("split", DEFAULT_FFT_SPLIT).toInt(&conv_ok);
     if (conv_ok)
