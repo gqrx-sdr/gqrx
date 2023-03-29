@@ -471,7 +471,9 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             m_CursorCaptured = NOCAP;
         }
     }
-    else if (MARKER_A == m_CursorCaptured)
+    else if (MARKER_A == m_CursorCaptured
+             && pt.x() < m_OverlayPixmap.width() - m_CursorCaptureDelta
+             && pt.x() > m_YAxisWidth + m_CursorCaptureDelta)
     {
         if (event->buttons() & Qt::LeftButton)
         {
@@ -491,7 +493,9 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             m_CursorCaptured = NOCAP;
         }
     }
-    else if (MARKER_B == m_CursorCaptured)
+    else if (MARKER_B == m_CursorCaptured
+             && pt.x() < m_OverlayPixmap.width() - m_CursorCaptureDelta
+             && pt.x() > m_YAxisWidth + m_CursorCaptureDelta)
     {
         if (event->buttons() & Qt::LeftButton)
         {
@@ -1104,17 +1108,26 @@ void CPlotter::draw()
         // draw the pandapter
         QBrush fillBrush = QBrush(m_FftFillCol);
         QColor abFillColor = QColor(PLOTTER_MARKER_COLOR);
-        abFillColor.setAlpha(20);
-        QBrush abFillBrush = QBrush(abFillColor);
-        int minMarker = std::min(m_MarkerAX, m_MarkerBX);
-        int maxMarker = std::max(m_MarkerAX, m_MarkerBX);
+        abFillColor.setAlpha(128);
+        QBrush abFillBrush = QBrush(abFillColor, Qt::BDiagPattern);
+
+        bool fillMarkers = (m_MarkerFreqA != 0 && m_MarkerFreqB != 0);
+        int minMarker = -1;
+        int maxMarker = -1;
+        if (fillMarkers)
+        {
+            int ax = xFromFreq(m_MarkerFreqA);
+            int bx = xFromFreq(m_MarkerFreqB);
+            minMarker = std::min(ax, bx);
+            maxMarker = std::max(ax, bx);
+        }
         n = xmax - xmin;
         for (i = 0; i < n; i++)
         {
             LineBuf[i].setX(i + xmin + 0.5);
             LineBuf[i].setY(m_fftbuf[i + xmin] + 0.5);
-            // Always fill marker span if both are on screen
-            if (minMarker && maxMarker && i > minMarker && i < maxMarker) {
+            // Fill area between markers, even if they are off screen
+            if (fillMarkers && i > minMarker && i < maxMarker) {
                 painter2.fillRect(i + xmin, m_fftbuf[i + xmin] + 1, 1, h, abFillBrush);
             }
             else if (m_FftFill)
