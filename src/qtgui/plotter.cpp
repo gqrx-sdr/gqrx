@@ -1721,6 +1721,11 @@ void CPlotter::setPeakDetection(bool enabled, float c)
         m_PeakDetection = c;
 }
 
+void CPlotter::toggleToolTip(bool state)
+{
+    m_TooltipsEnabled = state;
+}
+
 void CPlotter::toggleBandPlan(bool state)
 {
     m_BandPlanEnabled = state;

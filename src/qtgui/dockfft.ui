@@ -1106,13 +1106,23 @@
             </property>
            </widget>
           </item>
-          <item row="14" column="0" colspan="4">
+          <item row="14" column="0" colspan="2">
             <widget class="QCheckBox" name="bandPlanCheckbox">
               <property name="toolTip">
                 <string>Enable Band Plan on bottom of spectrum</string>
               </property>
               <property name="text">
                 <string>Enable Band Plan</string>
+              </property>
+            </widget>
+          </item>
+          <item row="14" column="2" colspan="2">
+            <widget class="QCheckBox" name="toolTipCheckbox">
+              <property name="toolTip">
+                <string>Enable FFT Tooltip</string>
+              </property>
+              <property name="text">
+                <string>Enable FFT Tooltip</string>
               </property>
             </widget>
           </item>
