@@ -990,7 +990,7 @@ void CPlotter::draw()
     // get/draw the 2D spectrum
     w = m_2DPixmap.width() / m_DPR;
     // subtract font height from available area to protect freq labels
-    h = (m_2DPixmap.height() - metrics.height()) / m_DPR;
+    h = m_2DPixmap.height() / m_DPR - metrics.height();
 
     if (w != 0 && h > 0)
     {
