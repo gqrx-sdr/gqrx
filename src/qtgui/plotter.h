@@ -197,10 +197,10 @@ private:
     }
     void getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
                                  float maxdB, float mindB,
-                                 qint64 startFreq, qint64 stopFreq,
-                                 float *inBuf, qint32 *outBuf,
-                                 qint32 *maxbin, qint32 *minbin,
-                                 enum eSamplingMode mode = SAMPLING_MODE_MAX) const;
+                                 qint64 startFreq, qint64 endFreq,
+                                 const float *fftAvgBuf, qint32 *outBuf,
+                                 int *xmin, int *xmax,
+                                 eSamplingMode mode = SAMPLING_MODE_MAX) const;
     static void calcDivSize (qint64 low, qint64 high, int divswanted, qint64 &adjlow, qint64 &step, int& divs);
     void        showToolTip(QMouseEvent* event, QString toolTipText);
 
