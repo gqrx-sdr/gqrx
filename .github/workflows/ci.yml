@@ -77,7 +77,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install airspy boost gnuradio hackrf libbladerf librtlsdr pybind11 uhd qt@6
+          brew install airspy boost gnuradio hackrf libbladerf librtlsdr pybind11 uhd qt@6 || true
 
           cd /tmp
           git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
