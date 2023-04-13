@@ -10,6 +10,7 @@
      FIXED: Aliasing when input rate is higher than 2 Msps.
   IMPROVED: AGC performance.
   IMPROVED: WFM stereo & OIRT performance.
+  IMPROVED: I/Q swap performance.
   IMPROVED: Apply amplitude normalization to FFT window functions.
 
 

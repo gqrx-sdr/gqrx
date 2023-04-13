@@ -93,26 +93,11 @@ iq_swap_cc_sptr make_iq_swap_cc(bool enabled)
 }
 
 iq_swap_cc::iq_swap_cc(bool enabled)
-    : gr::hier_block2 ("iq_swap_cc",
+    : gr::sync_block ("iq_swap_cc",
           gr::io_signature::make(1, 1, sizeof(gr_complex)),
           gr::io_signature::make(1, 1, sizeof(gr_complex)))
 {
     d_enabled = enabled;
-    d_c2f = gr::blocks::complex_to_float::make();
-    d_f2c = gr::blocks::float_to_complex::make();
-
-    connect(self(), 0, d_c2f, 0);
-    if (enabled)
-    {
-        connect(d_c2f, 0, d_f2c, 1);
-        connect(d_c2f, 1, d_f2c, 0);
-    }
-    else
-    {
-        connect(d_c2f, 0, d_f2c, 0);
-        connect(d_c2f, 1, d_f2c, 1);
-    }
-    connect(d_f2c, 0, self(), 0);
 }
 
 iq_swap_cc::~iq_swap_cc()
@@ -129,39 +114,28 @@ void iq_swap_cc::set_enabled(bool enabled)
     qDebug() << "IQ swap:" << enabled;
 
     d_enabled = enabled;
+}
 
-    lock();
+int iq_swap_cc::work(int noutput_items,
+                     gr_vector_const_void_star& input_items,
+                     gr_vector_void_star& output_items)
+{
+    const float *in = (const float *)input_items[0];
+    float *out = (float *)output_items[0];
+
     if (d_enabled)
     {
-        disconnect(d_c2f, 0, d_f2c, 0);
-        disconnect(d_c2f, 1, d_f2c, 1);
-        connect(d_c2f, 0, d_f2c, 1);
-        connect(d_c2f, 1, d_f2c, 0);
+        for (int i = 0; i < noutput_items; ++i)
+        {
+            out[1] = in[0];
+            out[0] = in[1];
+            in += 2;
+            out += 2;
+        }
     }
     else
     {
-        disconnect(d_c2f, 0, d_f2c, 1);
-        disconnect(d_c2f, 1, d_f2c, 0);
-        connect(d_c2f, 0, d_f2c, 0);
-        connect(d_c2f, 1, d_f2c, 1);
+        memcpy(out, in, noutput_items * sizeof(gr_complex));
     }
-
-/** DEBUG **/
-/** disconnect_all() does not work here **/
-/*
-    disconnect_all();
-    connect(self(), 0, d_c2f, 0);
-    if (enabled)
-    {
-        connect(d_c2f, 0, d_f2c, 1);
-        connect(d_c2f, 1, d_f2c, 0);
-    }
-    else
-    {
-        connect(d_c2f, 0, d_f2c, 0);
-        connect(d_c2f, 1, d_f2c, 1);
-    }
-    connect(d_f2c, 0, self(), 0);
-*/
-    unlock();
+    return noutput_items;
 }
