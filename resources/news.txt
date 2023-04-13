@@ -8,6 +8,7 @@
      FIXED: Sudden scrolling of file list in I/Q tool window.
      FIXED: Reset zoom slider after right click on panadapter / waterfall.
   IMPROVED: AGC performance.
+  IMPROVED: WFM stereo & OIRT performance.
   IMPROVED: Apply amplitude normalization to FFT window functions.
 
 
