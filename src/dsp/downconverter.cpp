@@ -93,7 +93,13 @@ void downconverter_cc::update_proto_taps()
     if (d_decim > 1)
     {
         double out_rate = d_samp_rate / d_decim;
-        filt->set_taps(gr::filter::firdes::low_pass(1.0, d_samp_rate, LPF_CUTOFF, out_rate - 2*LPF_CUTOFF));
+        filt->set_taps(gr::filter::firdes::low_pass(1.0, d_samp_rate, LPF_CUTOFF, out_rate - 2*LPF_CUTOFF,
+#if GNURADIO_VERSION < 0x030900
+            gr::filter::firdes::WIN_BLACKMAN_HARRIS
+#else
+            gr::fft::window::WIN_BLACKMAN_HARRIS
+#endif
+        ));
     }
 }
 
