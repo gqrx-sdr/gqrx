@@ -25,27 +25,15 @@
 #define STEREO_DEMOD_H
 
 #include <gnuradio/hier_block2.h>
-#include <gnuradio/filter/firdes.h>
-
-#if GNURADIO_VERSION < 0x030800
-#include <gnuradio/filter/fir_filter_fcc.h>
-#include <gnuradio/filter/fir_filter_fff.h>
-#include <gnuradio/blocks/multiply_cc.h>
-#include <gnuradio/blocks/multiply_ff.h>
-#include <gnuradio/blocks/multiply_const_ff.h>
-#include <gnuradio/blocks/add_ff.h>
-#include <gnuradio/blocks/sub_ff.h>
-#else
-#include <gnuradio/filter/fir_filter_blk.h>
-#include <gnuradio/blocks/multiply.h>
-#include <gnuradio/blocks/multiply_const.h>
-#include <gnuradio/blocks/add_blk.h>
-#include <gnuradio/blocks/sub.h>
-#endif
-
 #include <gnuradio/analog/pll_refout_cc.h>
+#include <gnuradio/blocks/add_blk.h>
 #include <gnuradio/blocks/complex_to_imag.h>
 #include <gnuradio/blocks/delay.h>
+#include <gnuradio/blocks/multiply.h>
+#include <gnuradio/blocks/multiply_const.h>
+#include <gnuradio/blocks/sub.h>
+#include <gnuradio/filter/firdes.h>
+#include <gnuradio/filter/fir_filter_blk.h>
 #include <vector>
 #include "dsp/fm_deemph.h"
 #include "dsp/lpf.h"

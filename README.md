@@ -81,7 +81,7 @@ Installation from source
 The source code is hosted on Github: https://github.com/gqrx-sdr/gqrx
 
 To compile gqrx from source you need the following dependencies:
-- GNU Radio 3.7, 3.8, 3.9, or 3.10 with the following components:
+- GNU Radio 3.8, 3.9, or 3.10 with the following components:
     - gnuradio-runtime
     - gnuradio-analog
     - gnuradio-audio

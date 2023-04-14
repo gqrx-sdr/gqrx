@@ -26,14 +26,9 @@
 #include <gnuradio/gr_complex.h>
 #include <gnuradio/blocks/complex_to_float.h>
 #include <gnuradio/blocks/float_to_complex.h>
+#include <gnuradio/blocks/sub.h>
 #include <gnuradio/hier_block2.h>
 #include <gnuradio/filter/single_pole_iir_filter_cc.h>
-
-#if GNURADIO_VERSION < 0x030800
-#include <gnuradio/blocks/sub_cc.h>
-#else
-#include <gnuradio/blocks/sub.h>
-#endif
 
 class dc_corr_cc;
 class iq_swap_cc;

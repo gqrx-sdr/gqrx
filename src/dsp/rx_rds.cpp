@@ -26,14 +26,11 @@
 #include <gnuradio/io_signature.h>
 #include <gnuradio/filter/firdes.h>
 #include <gnuradio/digital/constellation_receiver_cb.h>
+#include <gnuradio/digital/timing_error_detector_type.h>
 #include <iostream>
 #include <stdio.h>
 #include <stdarg.h>
 #include "dsp/rx_rds.h"
-
-#if GNURADIO_VERSION >= 0x030800
-#include <gnuradio/digital/timing_error_detector_type.h>
-#endif
 
 static const int MIN_IN = 1;  /* Minimum number of input streams. */
 static const int MAX_IN = 1;  /* Maximum number of input streams. */
@@ -82,15 +79,6 @@ rx_rds::rx_rds(double sample_rate)
 
     gr::digital::constellation_sptr p_c = gr::digital::constellation_bpsk::make()->base();
 
-#if GNURADIO_VERSION < 0x030800
-    d_bpf = gr::filter::fir_filter_ccf::make(1, d_rrcf);
-
-    d_agc = gr::analog::agc_cc::make(2e-3, 0.585 * 1.25, 53 * 1.25);
-
-    d_sync = gr::digital::clock_recovery_mm_cc::make(8, 0.25 * 0.175 * 0.175, 0.5, 0.175, 0.005);
-
-    d_koin = gr::blocks::keep_one_in_n::make(sizeof(unsigned char), 2);
-#else
     d_rrcf_manchester = std::vector<float>(n_taps-8);
     for (int n = 0; n < n_taps-8; n++) {
         d_rrcf_manchester[n] = d_rrcf[n] - d_rrcf[n+8];
@@ -100,7 +88,6 @@ rx_rds::rx_rds(double sample_rate)
     d_agc = gr::analog::agc_cc::make(2e-3, 0.585, 53);
 
     d_sync = gr::digital::symbol_sync_cc::make(gr::digital::TED_ZERO_CROSSING, 16, 0.01, 1, 1, 0.1, 1, p_c);
-#endif
 
     d_mpsk = gr::digital::constellation_receiver_cb::make(p_c, 2*M_PI/100.0, -0.002, 0.002);
 
@@ -113,14 +100,7 @@ rx_rds::rx_rds(double sample_rate)
     connect(d_bpf, 0, d_agc, 0);
     connect(d_agc, 0, d_sync, 0);
     connect(d_sync, 0, d_mpsk, 0);
-
-#if GNURADIO_VERSION < 0x030800
-    connect(d_mpsk, 0, d_koin, 0);
-    connect(d_koin, 0, d_ddbb, 0);
-#else
     connect(d_mpsk, 0, d_ddbb, 0);
-#endif
-
     connect(d_ddbb, 0, self(), 0);
 }
 
