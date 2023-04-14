@@ -103,7 +103,7 @@ To compile gqrx from source you need the following dependencies:
     - RFSpace driver is built in
 - gnuradio-osmosdr from https://gitea.osmocom.org/sdr/gr-osmosdr
 - pulseaudio or portaudio (Linux-only and optional)
-- Qt 5 with the following components:
+- Qt 5 or Qt 6 with the following components:
     - Core
     - GUI
     - Network
