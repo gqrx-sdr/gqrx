@@ -1,5 +1,5 @@
 
-   2.15.10: In progress...
+   2.15.10: Released April 13, 2023
 
        NEW: Restore FFT zoom level between sessions.
        NEW: Restore peak detect & peak hold between sessions.
