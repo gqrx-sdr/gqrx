@@ -1,4 +1,9 @@
 
+      2.16: In progress...
+
+   REMOVED: Support for GNU Radio 3.7.
+
+
    2.15.10: Released April 13, 2023
 
        NEW: Restore FFT zoom level between sessions.

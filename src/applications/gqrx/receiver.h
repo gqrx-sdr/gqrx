@@ -23,13 +23,8 @@
 #ifndef RECEIVER_H
 #define RECEIVER_H
 
-#if GNURADIO_VERSION < 0x030800
-#include <gnuradio/blocks/multiply_const_ff.h>
-#else
-#include <gnuradio/blocks/multiply_const.h>
-#endif
-
 #include <gnuradio/blocks/file_sink.h>
+#include <gnuradio/blocks/multiply_const.h>
 #include <gnuradio/blocks/null_sink.h>
 #include <gnuradio/blocks/wavfile_sink.h>
 #include <gnuradio/blocks/wavfile_source.h>
