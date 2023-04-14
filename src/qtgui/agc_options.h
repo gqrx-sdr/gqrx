@@ -45,13 +45,13 @@ class CAgcOptions;
 class CAgcOptions : public QDialog
 {
     Q_OBJECT
-    
+
 public:
     explicit CAgcOptions(QWidget *parent = 0);
     ~CAgcOptions();
 
     void closeEvent(QCloseEvent *event);
-    
+
     int gain();
     void setGain(int value);
     void enableGain(bool enabled);

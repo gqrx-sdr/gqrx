@@ -87,7 +87,7 @@ public:
 
 protected:
   QScopedPointer<ctkFooObjectPrivate> d_ptr;
- 
+
 private:
   Q_DECLARE_PRIVATE(ctkFooObject);
   Q_DISABLE_COPY(ctkFooObject);
@@ -161,7 +161,7 @@ double ctkFooObject::property()const
     , d_ptr(new PUB##Private)                   \
     {                                           \
     }
-    
+
 /*!
  * Define the setter in the public class.
  *

@@ -36,7 +36,7 @@ namespace Ui {
 class CAudioOptions : public QDialog
 {
     Q_OBJECT
-    
+
 public:
     explicit CAudioOptions(QWidget *parent = 0);
     ~CAudioOptions();

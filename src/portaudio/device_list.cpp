@@ -63,7 +63,7 @@ int portaudio_device_list::populate_device_list()
     PaError err;
 
     std::cout << Pa_GetVersionText() << " (version " << Pa_GetVersion() << ")" << std::endl;
-            
+
     num_dev = Pa_GetDeviceCount();
     if (num_dev < 0)
     {

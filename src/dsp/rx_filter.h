@@ -118,7 +118,7 @@ rx_xlating_filter_sptr make_rx_xlating_filter(double sample_rate,
  * required to generate complex band pass filter taps. It provides a simple
  * interface to set the filter offset and limits and takes care of generating
  * the appropriate taps according to the limits.
- * 
+ *
  * The filter limits are relative to the filter offset and thanks to the complex taps
  * they can be both positive and negative.
  *

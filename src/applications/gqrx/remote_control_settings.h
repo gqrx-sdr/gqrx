@@ -35,7 +35,7 @@ class RemoteControlSettings;
 class RemoteControlSettings : public QDialog
 {
     Q_OBJECT
-    
+
 public:
     explicit RemoteControlSettings(QWidget *parent = 0);
     ~RemoteControlSettings();
@@ -45,7 +45,7 @@ public:
 
     void setHosts(QStringList hosts);
     QStringList getHosts(void) const;
-    
+
 private slots:
     void on_hostAddButton_clicked(void);
     void on_hostDelButton_clicked(void);

@@ -33,7 +33,7 @@ class CNbOptions;
 class CNbOptions : public QDialog
 {
     Q_OBJECT
-    
+
 public:
     explicit CNbOptions(QWidget *parent = 0);
     ~CNbOptions();
