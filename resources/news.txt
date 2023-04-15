@@ -1,6 +1,7 @@
 
       2.16: In progress...
 
+     FIXED: Loading of narrow FM tau setting.
    REMOVED: Support for GNU Radio 3.7.
 
 
