@@ -192,6 +192,26 @@ double CDemodOptions::getEmph(void) const
     return tau_from_index(ui->emphSelector->currentIndex());
 }
 
+void CDemodOptions::setDcr(bool enabled)
+{
+    ui->dcrCheckBox->setCheckState(enabled ? Qt::Checked : Qt::Unchecked);
+}
+
+bool CDemodOptions::getDcr(void) const
+{
+    return ui->dcrCheckBox->checkState() == Qt::Checked;
+}
+
+void CDemodOptions::setSyncDcr(bool enabled)
+{
+    ui->syncdcrCheckBox->setCheckState(enabled ? Qt::Checked : Qt::Unchecked);
+}
+
+bool CDemodOptions::getSyncDcr(void) const
+{
+    return ui->syncdcrCheckBox->checkState() == Qt::Checked;
+}
+
 void CDemodOptions::on_maxdevSelector_activated(int index)
 {
     emit fmMaxdevSelected(maxdev_from_index(index));
@@ -202,7 +222,7 @@ void CDemodOptions::on_emphSelector_activated(int index)
     emit fmEmphSelected(tau_from_index(index));
 }
 
-void CDemodOptions::on_dcrCheckBox_toggled(bool checked)
+void CDemodOptions::on_dcrCheckBox_clicked(bool checked)
 {
     emit amDcrToggled(checked);
 }
@@ -212,7 +232,7 @@ void CDemodOptions::on_cwOffsetSpin_valueChanged(int value)
     emit cwOffsetChanged(value);
 }
 
-void CDemodOptions::on_syncdcrCheckBox_toggled(bool checked)
+void CDemodOptions::on_syncdcrCheckBox_clicked(bool checked)
 {
     emit amSyncDcrToggled(checked);
 }

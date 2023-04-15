@@ -373,6 +373,20 @@ double DockRxOpt::currentSquelchLevel() const
     return ui->sqlSpinBox->value();
 }
 
+bool DockRxOpt::currentAmDcr() const
+{
+    return demodOpt->getDcr();
+}
+
+bool DockRxOpt::currentAmsyncDcr() const
+{
+    return demodOpt->getSyncDcr();
+}
+
+float DockRxOpt::currentAmsyncPll() const
+{
+    return demodOpt->getPllBw();
+}
 
 /** Get filter lo/hi for a given mode and preset */
 void DockRxOpt::getFilterPreset(int mode, int preset, int * lo, int * hi) const
@@ -457,6 +471,14 @@ void DockRxOpt::readSettings(QSettings *settings)
 
     if (settings->value("receiver/agc_off", false).toBool())
         ui->agcPresetCombo->setCurrentIndex(4);
+
+    demodOpt->setDcr(!settings->value("receiver/am_dcr_off", false).toBool());
+
+    demodOpt->setSyncDcr(!settings->value("receiver/amsync_dcr_off", false).toBool());
+
+    int_val = settings->value("receiver/amsync_pllbw", 10).toInt(&conv_ok);
+    if (conv_ok)
+        demodOpt->setPllBw(float(int_val) / 10000.0);
 
     int_val = MODE_AM;
     if (settings->contains("receiver/demod")) {
@@ -548,6 +570,18 @@ void DockRxOpt::saveSettings(QSettings *settings)
         settings->setValue("receiver/agc_off", true);
     else
         settings->remove("receiver/agc_off");
+
+    if (!demodOpt->getDcr())
+        settings->setValue("receiver/am_dcr_off", true);
+    else
+        settings->remove("receiver/am_dcr_off");
+
+    if (!demodOpt->getSyncDcr())
+        settings->setValue("receiver/amsync_dcr_off", true);
+    else
+        settings->remove("receiver/amsync_dcr_off");
+    int_val = currentAmsyncPll() * 10000.0;
+    settings->setValue("receiver/amsync_pllbw", int_val);
 }
 
 /** RX frequency changed through spin box */

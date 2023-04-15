@@ -1103,6 +1103,7 @@ void MainWindow::selectDemod(int mode_idx)
 
     case DockRxOpt::MODE_AM:
         rx->set_demod(receiver::RX_DEMOD_AM);
+        rx->set_am_dcr(uiDockRxOpt->currentAmDcr());
         ui->plotter->setDemodRanges(-40000, -200, 200, 40000, true);
         uiDockAudio->setFftRange(0,6000);
         click_res = 100;
@@ -1110,6 +1111,8 @@ void MainWindow::selectDemod(int mode_idx)
 
     case DockRxOpt::MODE_AM_SYNC:
         rx->set_demod(receiver::RX_DEMOD_AMSYNC);
+        rx->set_amsync_dcr(uiDockRxOpt->currentAmsyncDcr());
+        rx->set_amsync_pll_bw(uiDockRxOpt->currentAmsyncPll());
         ui->plotter->setDemodRanges(-40000, -200, 200, 40000, true);
         uiDockAudio->setFftRange(0,6000);
         click_res = 100;
