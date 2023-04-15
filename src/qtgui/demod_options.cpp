@@ -194,22 +194,22 @@ double CDemodOptions::getEmph(void) const
 
 void CDemodOptions::setDcr(bool enabled)
 {
-    ui->dcrCheckBox->setCheckState(enabled ? Qt::Checked : Qt::Unchecked);
+    ui->dcrCheckBox->setChecked(enabled);
 }
 
 bool CDemodOptions::getDcr(void) const
 {
-    return ui->dcrCheckBox->checkState() == Qt::Checked;
+    return ui->dcrCheckBox->isChecked();
 }
 
 void CDemodOptions::setSyncDcr(bool enabled)
 {
-    ui->syncdcrCheckBox->setCheckState(enabled ? Qt::Checked : Qt::Unchecked);
+    ui->syncdcrCheckBox->setChecked(enabled);
 }
 
 bool CDemodOptions::getSyncDcr(void) const
 {
-    return ui->syncdcrCheckBox->checkState() == Qt::Checked;
+    return ui->syncdcrCheckBox->isChecked();
 }
 
 void CDemodOptions::on_maxdevSelector_activated(int index)

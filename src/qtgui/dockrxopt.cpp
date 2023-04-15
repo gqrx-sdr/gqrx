@@ -472,13 +472,13 @@ void DockRxOpt::readSettings(QSettings *settings)
     if (settings->value("receiver/agc_off", false).toBool())
         ui->agcPresetCombo->setCurrentIndex(4);
 
-    demodOpt->setDcr(!settings->value("receiver/am_dcr_off", false).toBool());
+    demodOpt->setDcr(settings->value("receiver/am_dcr", true).toBool());
 
-    demodOpt->setSyncDcr(!settings->value("receiver/amsync_dcr_off", false).toBool());
+    demodOpt->setSyncDcr(settings->value("receiver/amsync_dcr", true).toBool());
 
-    int_val = settings->value("receiver/amsync_pllbw", 10).toInt(&conv_ok);
+    int_val = settings->value("receiver/amsync_pllbw", 1000).toInt(&conv_ok);
     if (conv_ok)
-        demodOpt->setPllBw(float(int_val) / 10000.0);
+        demodOpt->setPllBw(int_val / 1.0e6);
 
     int_val = MODE_AM;
     if (settings->contains("receiver/demod")) {
@@ -572,16 +572,20 @@ void DockRxOpt::saveSettings(QSettings *settings)
         settings->remove("receiver/agc_off");
 
     if (!demodOpt->getDcr())
-        settings->setValue("receiver/am_dcr_off", true);
+        settings->setValue("receiver/am_dcr", false);
     else
-        settings->remove("receiver/am_dcr_off");
+        settings->remove("receiver/am_dcr");
 
     if (!demodOpt->getSyncDcr())
-        settings->setValue("receiver/amsync_dcr_off", true);
+        settings->setValue("receiver/amsync_dcr", false);
     else
-        settings->remove("receiver/amsync_dcr_off");
-    int_val = currentAmsyncPll() * 10000.0;
-    settings->setValue("receiver/amsync_pllbw", int_val);
+        settings->remove("receiver/amsync_dcr");
+
+    int_val = qRound(currentAmsyncPll() * 1.0e6);
+    if (int_val != 1000)
+        settings->setValue("receiver/amsync_pllbw", int_val);
+    else
+        settings->remove("receiver/amsync_pllbw");
 }
 
 /** RX frequency changed through spin box */
