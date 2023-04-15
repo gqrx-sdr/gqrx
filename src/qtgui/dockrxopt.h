@@ -109,6 +109,7 @@ public:
 
     void    getFilterPreset(int mode, int preset, int * lo, int * hi) const;
     int     getCwOffset() const;
+    int     getSbSteps() const;
 
     double  getSqlLevel(void) const;
 
@@ -204,6 +205,7 @@ signals:
     void noiseBlankerChanged(int nbid, bool on, float threshold);
 
     void cwOffsetChanged(int offset);
+    void ssbStepsChanged(int offset);
 
 private slots:
     void on_freqSpinBox_valueChanged(double freq);
@@ -229,6 +231,7 @@ private slots:
     void demodOpt_fmEmphSelected(double tau);
     void demodOpt_amDcrToggled(bool enabled);
     void demodOpt_cwOffsetChanged(int offset);
+    void demodOpt_ssbStepsChanged(int offset);
     void demodOpt_amSyncDcrToggled(bool enabled);
     void demodOpt_amSyncPllBwSelected(float pll_bw);
 

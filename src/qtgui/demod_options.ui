@@ -354,9 +354,43 @@ to react to changes in the carrier frequency however.</string>
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="page_ssb">
+      <widget class="QWidget" name="layoutWidget_ssb">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>30</y>
+         <width>161</width>
+         <height>29</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>SSB Stepsize</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+        <widget class="QSpinBox" name="SSB_Steps">
+         <property name="suffix">
+          <string> Hz</string>
+         </property>
+         <property name="maximum">
+          <number>500</number>
+         </property>
+         <property name="value">
+         <number>50</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
-   </item>
-  </layout>
+   </widget>
+  </widget>
+ </item>
+ </layout>
  </widget>
  <resources>
   <include location="../../resources/icons.qrc"/>
