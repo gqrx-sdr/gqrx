@@ -107,6 +107,10 @@ public:
     double currentEmph() const;
     double currentSquelchLevel() const;
 
+    bool currentAmDcr() const;
+    bool currentAmsyncDcr() const;
+    float currentAmsyncPll() const;
+
     void    getFilterPreset(int mode, int preset, int * lo, int * hi) const;
     int     getCwOffset() const;
 

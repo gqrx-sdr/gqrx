@@ -70,6 +70,12 @@ public:
     void setPllBw(float pll_bw);
     float getPllBw(void) const;
 
+    void setDcr(bool enabled);
+    bool getDcr(void) const;
+
+    void setSyncDcr(bool enabled);
+    bool getSyncDcr(void) const;
+
 signals:
     /*! \brief Signal emitted when new FM deviation is selected. */
     void fmMaxdevSelected(float max_dev);
@@ -92,9 +98,9 @@ signals:
 private slots:
     void on_maxdevSelector_activated(int index);
     void on_emphSelector_activated(int index);
-    void on_dcrCheckBox_toggled(bool checked);
+    void on_dcrCheckBox_clicked(bool checked);
     void on_cwOffsetSpin_valueChanged(int value);
-    void on_syncdcrCheckBox_toggled(bool checked);
+    void on_syncdcrCheckBox_clicked(bool checked);
     void on_pllBwSelector_activated(int index);
 
 private:
