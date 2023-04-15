@@ -44,10 +44,10 @@ int tau_to_index(double tau)
     int i;
     for (i = 0; i < tau_tbl_maxidx; i++)
     {
-        if (tau < (tau_tbl[i] + 0.5 * (tau_tbl[i+1] - tau_tbl[i])))
+        if (tau < (tau_tbl[i] + tau_tbl[i+1]) / 2)
             return i;
     }
-    return 0;
+    return tau_tbl_maxidx;
 }
 
 /* convert betweenFM max dev and combo index */
