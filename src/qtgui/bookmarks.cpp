@@ -220,7 +220,7 @@ QList<BookmarkInfo> Bookmarks::getBookmarksInRange(qint64 low, qint64 high)
     while (lb != ub)
     {
         const BookmarkInfo& info = *lb;
-        //if(info.IsActive())
+        if(info.IsActive())
         {
           found.append(info);
         }
