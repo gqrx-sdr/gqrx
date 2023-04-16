@@ -4,6 +4,7 @@
        NEW: Restore AM & AM-Sync settings between sessions.
        NEW: Set/get audio gain via remote control.
      FIXED: Loading of narrow FM tau setting.
+     FIXED: Crash when adding or removing bookmark tags.
    REMOVED: Support for GNU Radio 3.7.
 
 
