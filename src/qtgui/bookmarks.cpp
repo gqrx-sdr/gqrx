@@ -127,7 +127,10 @@ bool Bookmarks::load()
                 QStringList TagList = strTags.split(",");
                 for(int iTag=0; iTag<TagList.size(); ++iTag)
                 {
-                  info.tags.append(&findOrAddTag(TagList[iTag].trimmed()));
+                  TagInfo *tagInfo = &findOrAddTag(TagList[iTag]);
+                  if (info.tags.indexOf(tagInfo) == -1) {
+                    info.tags.append(tagInfo);
+                  }
                 }
 
                 m_BookmarkList.append(info);
@@ -164,8 +167,7 @@ bool Bookmarks::save()
             BookmarkInfo& info = m_BookmarkList[iBookmark];
             for(int iTag = 0; iTag < info.tags.size(); ++iTag)
             {
-              TagInfo& tag = *info.tags[iTag];
-              usedTags.insert(&tag);
+              usedTags.insert(info.tags[iTag]);
             }
         }
 
