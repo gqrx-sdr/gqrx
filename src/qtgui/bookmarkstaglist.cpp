@@ -64,13 +64,13 @@ void BookmarksTagList::on_cellClicked(int row, int column)
 
 void BookmarksTagList::changeColor(int row, int /*column*/)
 {
-    TagInfo &info = Bookmarks::Get().findOrAddTag(item(row, 1)->text());
-    QColor color = QColorDialog::getColor(info.color, this);
+    TagInfo::sptr info = Bookmarks::Get().findOrAddTag(item(row, 1)->text());
+    QColor color = QColorDialog::getColor(info->color, this);
 
     if(!color.isValid())
         return;
 
-    info.color=color;
+    info->color=color;
     updateTags();
     Bookmarks::Get().save();
 }
@@ -101,13 +101,13 @@ void BookmarksTagList::updateTags()
     }
 
     // Get current List of Tags.
-    QList<TagInfo> newTags = Bookmarks::Get().getTagList();
+    QList<TagInfo::sptr> newTags = Bookmarks::Get().getTagList();
     if(!m_bShowUntagged)
     {
         for(int i=0; i<newTags.size(); ++i)
         {
-            TagInfo& taginfo = newTags[i];
-            if(taginfo.name.compare(TagInfo::strUntagged)==0)
+            TagInfo::sptr taginfo = newTags[i];
+            if(taginfo->name.compare(TagInfo::strUntagged)==0)
             {
                 newTags.removeAt(i);
                 break;
@@ -121,9 +121,9 @@ void BookmarksTagList::updateTags()
     setRowCount(0);
     for(int i=0; i<newTags.count(); i++)
     {
-        AddTag(newTags[i].name,
-                  ( unchecked.contains(newTags[i].name) ? Qt::Unchecked : Qt::Checked ),
-                  newTags[i].color);
+        AddTag(newTags[i]->name,
+                  ( unchecked.contains(newTags[i]->name) ? Qt::Unchecked : Qt::Checked ),
+                  newTags[i]->color);
     }
     setSortingEnabled(true);
 
@@ -144,7 +144,7 @@ void BookmarksTagList::setSelectedTagsAsString(const QString& strTags)
     setSortingEnabled(true);
 }
 
-void BookmarksTagList::setSelectedTags(QList<TagInfo*> tags)
+void BookmarksTagList::setSelectedTags(QList<TagInfo::sptr>& tags)
 {
     int iRows = rowCount();
     for(int i=0; i<iRows; ++i)
@@ -152,9 +152,9 @@ void BookmarksTagList::setSelectedTags(QList<TagInfo*> tags)
         QTableWidgetItem* pItem = item(i,1);
         QString name = pItem->text();
         bool bChecked = false;
-        for(QList<TagInfo*>::const_iterator it=tags.begin(), itend=tags.end(); it!=itend; ++it)
+        for(QList<TagInfo::sptr>::const_iterator it=tags.begin(), itend=tags.end(); it!=itend; ++it)
         {
-            TagInfo* pTag = *it;
+            TagInfo::sptr pTag = *it;
             if(pTag->name == name) bChecked = true;
         }
         pItem->setCheckState(bChecked ? Qt::Checked : Qt::Unchecked);
