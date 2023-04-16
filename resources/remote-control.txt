@@ -19,6 +19,10 @@ Supported commands:
     Get squelch threshold [dBFS]
  L SQL <sql>
     Set squelch threshold to <sql> [dBFS]
+ l AF
+    Get audio gain [dB]
+ L AF <gain>
+    Set audio gain to <gain> [dB]
  l <gain_name>_GAIN
     Get the value of the gain setting with the name <gain_name>
  L <gain_name>_GAIN <value>

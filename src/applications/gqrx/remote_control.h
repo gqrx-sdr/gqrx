@@ -92,6 +92,7 @@ public slots:
     void setMode(int mode);
     void setPassband(int passband_lo, int passband_hi);
     void setSquelchLevel(double level);
+    void setAudioGain(float gain);
     void startAudioRecorder(QString unused);
     void stopAudioRecorder();
     bool setGain(QString name, double gain);
@@ -105,6 +106,7 @@ signals:
     void newMode(int mode);
     void newPassband(int passband);
     void newSquelchLevel(double level);
+    void newAudioGain(float gain);
     void startAudioRecorderEvent();
     void stopAudioRecorderEvent();
     void gainChanged(QString name, double value);
@@ -133,6 +135,7 @@ private:
     bool        rds_status;        /*!< RDS decoder enabled */
     float       signal_level;      /*!< Signal level in dBFS */
     double      squelch_level;     /*!< Squelch level in dBFS */
+    float       audio_gain;        /*!< Audio gain in dB */
     QString     rc_program_id;     /*!< RDS Program identification */
     bool        audio_recorder_status; /*!< Recording enabled */
     bool        receiver_running;  /*!< Whether the receiver is running or not */
