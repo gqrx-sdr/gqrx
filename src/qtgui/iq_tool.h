@@ -85,6 +85,8 @@ private:
     void refreshDir(void);
     void refreshTimeWidgets(void);
     void parseFileName(const QString &filename);
+    void switchControlsState(bool recording, bool playback);
+
 
 private:
     Ui::CIqTool *ui;
