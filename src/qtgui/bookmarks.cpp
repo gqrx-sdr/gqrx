@@ -61,14 +61,12 @@ void Bookmarks::add(BookmarkInfo &info)
     m_BookmarkList.append(info);
     std::stable_sort(m_BookmarkList.begin(),m_BookmarkList.end());
     save();
-    emit( BookmarksChanged() );
 }
 
 void Bookmarks::remove(int index)
 {
     m_BookmarkList.removeAt(index);
     save();
-    emit BookmarksChanged();
 }
 
 bool Bookmarks::load()
@@ -202,6 +200,7 @@ bool Bookmarks::save()
             stream << line << '\n';
         }
 
+        emit BookmarksChanged();
         file.close();
         return true;
     }

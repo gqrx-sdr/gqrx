@@ -5,6 +5,7 @@
        NEW: Set/get audio gain via remote control.
      FIXED: Loading of narrow FM tau setting.
      FIXED: Crash when adding or removing bookmark tags.
+     FIXED: Redraw bookmarks immediately after changes.
    REMOVED: Support for GNU Radio 3.7.
 
 
