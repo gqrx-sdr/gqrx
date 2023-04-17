@@ -86,6 +86,8 @@ private:
     bool   d_show_markers;
     qint64 d_hw_freq_start{};
     qint64 d_hw_freq_stop{};
+    qint64 backupFreq; /* for IQ player */
+    qint64 backupOffset; /* for IQ player */
 
     bool d_ignore_limits;
 
