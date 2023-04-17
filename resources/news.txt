@@ -3,6 +3,7 @@
 
        NEW: Restore AM & AM-Sync settings between sessions.
        NEW: Set/get audio gain via remote control.
+       NEW: Only show bookmarks for active tag groups in the panadapter.
      FIXED: Loading of narrow FM tau setting.
      FIXED: Crash when adding or removing bookmark tags.
      FIXED: Redraw bookmarks immediately after changes.
