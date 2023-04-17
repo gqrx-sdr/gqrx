@@ -113,15 +113,6 @@ void DockAudio::setAudioGain(int gain)
     ui->audioGainSlider->setValue(gain);
 }
 
-/*! \brief Set new audio gain.
- *  \param gain the new audio gain in dB
- */
-void DockAudio::setAudioGainDb(float gain)
-{
-    ui->audioGainSlider->setValue(int(std::round(gain*10.0f)));
-}
-
-
 /*! \brief Get current audio gain.
  *  \returns The current audio gain in tens of dB (0 dB = 10).
  */
@@ -491,9 +482,11 @@ void DockAudio::muteToggleShortcut() {
 }
 
 void DockAudio::increaseAudioGainShortcut() {
-	ui->audioGainSlider->triggerAction(QSlider::SliderPageStepAdd);
+    if(ui->audioGainSlider->isEnabled())
+        ui->audioGainSlider->triggerAction(QSlider::SliderPageStepAdd);
 }
 
 void DockAudio::decreaseAudioGainShortcut() {
-	ui->audioGainSlider->triggerAction(QSlider::SliderPageStepSub);
+    if(ui->audioGainSlider->isEnabled())
+        ui->audioGainSlider->triggerAction(QSlider::SliderPageStepSub);
 }
