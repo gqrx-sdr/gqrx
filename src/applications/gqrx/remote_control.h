@@ -95,6 +95,8 @@ public slots:
     void setAudioGain(float gain);
     void startAudioRecorder(QString unused);
     void stopAudioRecorder();
+    void startIqRecorder(QString unused);
+    void stopIqRecorder();
     bool setGain(QString name, double gain);
     void setRDSstatus(bool enabled);
     void rdsPI(QString program_id);
@@ -109,6 +111,8 @@ signals:
     void newAudioGain(float gain);
     void startAudioRecorderEvent();
     void stopAudioRecorderEvent();
+    void startIqRecorderEvent();
+    void stopIqRecorderEvent();
     void gainChanged(QString name, double value);
     void dspChanged(bool value);
     void newRDSmode(bool value);
@@ -138,6 +142,7 @@ private:
     float       audio_gain;        /*!< Audio gain in dB */
     QString     rc_program_id;     /*!< RDS Program identification */
     bool        audio_recorder_status; /*!< Recording enabled */
+    bool        iq_recorder_status;    /*!< Iq Recording enabled */
     bool        receiver_running;  /*!< Whether the receiver is running or not */
     bool        hamlib_compatible;
     gain_list_t gains;             /*!< Possible and current gain settings */
