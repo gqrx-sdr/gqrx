@@ -49,6 +49,13 @@ struct BandInfo
 
     bool operator<(const BandInfo &other) const
     {
+        if (minFrequency == other.minFrequency)
+        {
+            if (maxFrequency != other.maxFrequency) 
+                return maxFrequency > other.maxFrequency;
+            else
+                return name < other.name;
+        }
         return minFrequency < other.minFrequency;
     }
 };

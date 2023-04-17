@@ -751,12 +751,12 @@ void CPlotter::zoomStepX(float step, int x)
     qint64 new_FftCenter;
     if( limit_hit ) // cannot keep fixed_hz fixed
     {
-    	new_FftCenter = qRound64((f_min + f_max) / 2.0) - m_CenterFreq;
+        new_FftCenter = qRound64((f_min + f_max) / 2.0) - m_CenterFreq;
     }
     else // calculate new FFT center frequency that really keeps fixed_hz fixed
     {
-    	qint64 wouldbe_hz = (m_CenterFreq + m_FftCenter - new_span / 2) + ratio * new_span;
-    	new_FftCenter = m_FftCenter + (fixed_hz - wouldbe_hz);
+        qint64 wouldbe_hz = (m_CenterFreq + m_FftCenter - new_span / 2) + ratio * new_span;
+        new_FftCenter = m_FftCenter + (fixed_hz - wouldbe_hz);
     }
     setFftCenterFreq(new_FftCenter);
     setSpanFreq(new_span);
@@ -1298,7 +1298,8 @@ void CPlotter::drawOverlay()
         static const int fontHeight = fm.ascent() + 1;
         static const int slant = 5;
         static const int levelHeight = fontHeight + 5;
-        static const int nLevels = h / (levelHeight + slant);
+        int nLevels = h / (levelHeight + slant);
+        
         if (m_BookmarksEnabled)
         {
             tags = Bookmarks::Get().getBookmarksInRange(m_CenterFreq + m_FftCenter - m_Span / 2,
@@ -1375,20 +1376,39 @@ void CPlotter::drawOverlay()
     {
         QList<BandInfo> bands = BandPlan::Get().getBandsInRange(m_CenterFreq + m_FftCenter - m_Span / 2,
                                                                 m_CenterFreq + m_FftCenter + m_Span / 2);
-
+        
+        int bandLevel = 0;
+        qint64 last_max = 0;
+        qint64 last_max_0 = 0;
+        
+        std::sort(bands.begin(), bands.end());
+        
         for (auto & band : bands)
         {
+            if (band.minFrequency >= last_max_0) {
+                bandLevel = 0;
+                last_max = band.maxFrequency;
+                last_max_0 = last_max;
+            } else if (band.minFrequency < last_max) {
+                --bandLevel;
+                last_max = band.maxFrequency;
+            } else if (band.minFrequency == last_max) {
+                last_max = band.maxFrequency;
+            }
+            
             int band_left = xFromFreq(band.minFrequency);
             int band_right = xFromFreq(band.maxFrequency);
             int band_width = band_right - band_left;
-            rect.setRect(band_left, xAxisTop - m_BandPlanHeight, band_width, m_BandPlanHeight);
+            int band_bottom = bandLevel * m_BandPlanHeight;
+            
+            rect.setRect(band_left, xAxisTop - m_BandPlanHeight + band_bottom, band_width, m_BandPlanHeight);
             painter.fillRect(rect, band.color);
+            
             QString band_label = band.name + " (" + band.modulation + ")";
             int textWidth = metrics.boundingRect(band_label).width();
             if (band_left < w && band_width > textWidth + 20)
             {
                 painter.setOpacity(1.0);
-                rect.setRect(band_left, xAxisTop - m_BandPlanHeight, band_width, metrics.height());
                 painter.setPen(QColor(PLOTTER_TEXT_COLOR));
                 painter.drawText(rect, Qt::AlignCenter, band_label);
             }
