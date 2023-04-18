@@ -28,7 +28,6 @@
 #include <QPalette>
 #include <QString>
 #include <QStringList>
-#include <QTime>
 #include <QScrollBar>
 
 #include <math.h>
