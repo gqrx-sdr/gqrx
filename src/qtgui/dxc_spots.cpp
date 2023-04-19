@@ -50,7 +50,7 @@ DXCSpots& DXCSpots::Get()
 
 void DXCSpots::add(DXCSpotInfo &info)
 {
-    info.time = QTime::currentTime();
+    info.time = std::chrono::steady_clock::now();
     // check only callsign, so if present remove and re-append
     // if check also frequency we can only change the time
     if (m_DXCSpotList.contains(info))
@@ -58,14 +58,16 @@ void DXCSpots::add(DXCSpotInfo &info)
     m_DXCSpotList.append(info);
     std::stable_sort(m_DXCSpotList.begin(),m_DXCSpotList.end());
     emit( dxcSpotsUpdated() );
-    QTimer::singleShot(m_DXCSpotTimeout * 1000, this, SLOT(checkSpotTimeout()));
+    QTimer::singleShot(m_DXCSpotTimeout, this, SLOT(checkSpotTimeout()));
 }
 
 void DXCSpots::checkSpotTimeout()
 {
+    auto now = std::chrono::steady_clock::now();
     for (int i = 0; i < m_DXCSpotList.size(); i++)
     {
-        if ( m_DXCSpotTimeout <= m_DXCSpotList[i].time.secsTo(QTime::currentTime() ))
+        auto diff = std::chrono::duration_cast<std::chrono::seconds>(now - m_DXCSpotList[i].time);
+        if ( m_DXCSpotTimeout <= diff)
         {
             m_DXCSpotList.removeAt(i);
         }

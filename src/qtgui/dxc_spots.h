@@ -30,19 +30,19 @@
 #include <QList>
 #include <QStringList>
 #include <QColor>
-#include <QTime>
+#include <chrono>
 
 struct DXCSpotInfo
 {
     qint64  frequency;
     QString name;
-    QTime time;
+    std::chrono::time_point<std::chrono::steady_clock> time;
     QColor color;
 
     DXCSpotInfo()
     {
         this->frequency = 0;
-        this->time = QTime::currentTime();
+        this->time = std::chrono::steady_clock::now();
         this->color = Qt::lightGray;
     }
 
@@ -70,14 +70,14 @@ public:
     static DXCSpots& Get();
 
     void add(DXCSpotInfo& info);
-    void setSpotTimeout(int i) {m_DXCSpotTimeout = i * 60;}
+    void setSpotTimeout(int i) { m_DXCSpotTimeout = std::chrono::seconds(i * 60); }
     DXCSpotInfo& getDXCSpot(int i) { return m_DXCSpotList[i]; }
     QList<DXCSpotInfo> getDXCSpotsInRange(qint64 low, qint64 high);
 
 private:
     DXCSpots(); // Singleton Constructor is private.
     QList<DXCSpotInfo> m_DXCSpotList;
-    int m_DXCSpotTimeout;
+    std::chrono::seconds m_DXCSpotTimeout;
     static DXCSpots* m_pThis;
 
 private slots:
