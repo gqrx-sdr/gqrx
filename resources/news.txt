@@ -7,6 +7,7 @@
      FIXED: Loading of narrow FM tau setting.
      FIXED: Crash when adding or removing bookmark tags.
      FIXED: Redraw bookmarks immediately after changes.
+     FIXED: DX cluster spots fail to expire around midnight.
    REMOVED: Support for GNU Radio 3.7.
 
 
