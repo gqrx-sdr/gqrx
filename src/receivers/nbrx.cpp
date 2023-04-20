@@ -289,17 +289,21 @@ void nbrx::set_fm_deemph(double tau)
 void nbrx::set_am_dcr(bool enabled)
 {
     receiver_base_cf::set_am_dcr(enabled);
-    lock();
+    if(get_demod() != Modulations::MODE_OFF)
+        lock();
     demod_am->set_dcr(enabled);
-    unlock();
+    if(get_demod() != Modulations::MODE_OFF)
+        unlock();
 }
 
 void nbrx::set_amsync_dcr(bool enabled)
 {
     receiver_base_cf::set_amsync_dcr(enabled);
-    lock();
+    if(get_demod() != Modulations::MODE_OFF)
+        lock();
     demod_amsync->set_dcr(enabled);
-    unlock();
+    if(get_demod() != Modulations::MODE_OFF)
+        unlock();
 }
 
 void nbrx::set_amsync_pll_bw(float pll_bw)
