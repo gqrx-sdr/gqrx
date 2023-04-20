@@ -92,7 +92,7 @@ void CMeter::resizeEvent(QResizeEvent *)
     {
         // if size changed, resize pixmaps to new screensize
         m_Size = size();
-        int dpr = devicePixelRatio();
+        qreal dpr = devicePixelRatioF();
         m_OverlayPixmap = QPixmap(m_Size.width() * dpr, m_Size.height() * dpr);
         m_OverlayPixmap.setDevicePixelRatio(dpr);
         m_OverlayPixmap.fill(Qt::black);
@@ -156,8 +156,8 @@ void CMeter::draw()
         return;
 
     // get/draw the 2D spectrum
-    w = m_2DPixmap.width() / m_2DPixmap.devicePixelRatio();
-    h = m_2DPixmap.height() / m_2DPixmap.devicePixelRatio();
+    w = m_2DPixmap.width() / m_2DPixmap.devicePixelRatioF();
+    h = m_2DPixmap.height() / m_2DPixmap.devicePixelRatioF();
 
     // first copy into 2Dbitmap the overlay bitmap.
     m_2DPixmap = m_OverlayPixmap.copy(0, 0, m_OverlayPixmap.width(), m_OverlayPixmap.height());
@@ -207,8 +207,8 @@ void CMeter::DrawOverlay()
     if (m_OverlayPixmap.isNull())
         return;
 
-    int w = m_OverlayPixmap.width() / m_OverlayPixmap.devicePixelRatio();
-    int h = m_OverlayPixmap.height() / m_OverlayPixmap.devicePixelRatio();
+    int w = m_OverlayPixmap.width() / m_OverlayPixmap.devicePixelRatioF();
+    int h = m_OverlayPixmap.height() / m_OverlayPixmap.devicePixelRatioF();
     int x,y;
     QRect rect;
     QPainter painter(&m_OverlayPixmap);

@@ -376,7 +376,7 @@ void CFreqCtrl::updateCtrl(bool all)
 void CFreqCtrl::resizeEvent(QResizeEvent *)
 {
 // qDebug() <<rect.width() << rect.height();
-    int dpr = devicePixelRatio();
+    qreal dpr = devicePixelRatioF();
     m_Pixmap = QPixmap(width() * dpr, height() * dpr); // resize pixmap to current control size
     m_Pixmap.setDevicePixelRatio(dpr);
     m_Pixmap.fill(m_BkColor);
