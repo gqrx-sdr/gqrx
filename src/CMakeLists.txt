@@ -5,6 +5,7 @@ add_subdirectory(dsp)
 add_subdirectory(interfaces)
 add_subdirectory(qtgui)
 add_subdirectory(receivers)
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     if(${OSX_AUDIO_BACKEND} MATCHES "Portaudio")
@@ -68,12 +69,23 @@ endif(WIN32)
 
 ###############################################################################
 # Build the program
+
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCE} ${UIS_HDRS} ${RESOURCES_LIST})
 if(Qt6_FOUND)
     set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 else()
     set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 endif()
+
+set(Discord_SDK_DIR ${CMAKE_SOURCE_DIR}/lib/DiscordSDK)
+
+# Add include directory
+target_include_directories(${PROJECT_NAME} PRIVATE ${Discord_SDK_DIR}/c/)
+
+# Add link libraries
+set(Discord_SDK_LIBRARIES ${Discord_SDK_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}discord_game_sdk${CMAKE_SHARED_LIBRARY_SUFFIX})
+target_link_libraries(${PROJECT_NAME} ${Discord_SDK_LIBRARIES})
+
 # The pulse libraries are only needed on Linux. On other platforms they will
 # not be found, so having them here is fine.
 
