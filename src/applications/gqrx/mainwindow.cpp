@@ -60,7 +60,8 @@
 
 #include "qtgui/bookmarkstaglist.h"
 #include "qtgui/bandplan.h"
-
+extern char freqSTRS[1024];
+extern char typeSTRS[1024];
 MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) :
     QMainWindow(parent),
     configOk(true),
@@ -857,6 +858,7 @@ void MainWindow::updateGainStages(bool read_from_device)
  * This slot is connected to the CFreqCtrl::newFrequency() signal and is used
  * to set new receive frequency.
  */
+
 void MainWindow::setNewFrequency(qint64 rx_freq)
 {
     auto hw_freq = (double)(rx_freq - d_lnb_lo) - rx->get_filter_offset();
@@ -866,6 +868,7 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
 
     // set receiver frequency
     rx->set_rf_freq(hw_freq);
+    sprintf(freqSTRS, "%.3fMHz", (float) rx_freq / 1000 / 1000);
 
     // update widgets
     ui->plotter->setCenterFreq(center_freq);
@@ -1151,6 +1154,10 @@ void MainWindow::selectDemod(int mode_idx)
 
     case DockRxOpt::MODE_LSB:
         /* LSB */
+
+        //Set DS Activity (DEMOD Mode)
+        sprintf(typeSTRS, "LSB");
+
         rx->set_demod(receiver::RX_DEMOD_SSB);
         ui->plotter->setDemodRanges(-40000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,3000);
@@ -1159,6 +1166,10 @@ void MainWindow::selectDemod(int mode_idx)
 
     case DockRxOpt::MODE_USB:
         /* USB */
+
+        //Set DS Activity (DEMOD Mode)
+        sprintf(typeSTRS, "USB");
+
         rx->set_demod(receiver::RX_DEMOD_SSB);
         ui->plotter->setDemodRanges(0, 5000, 100, 40000, false);
         uiDockAudio->setFftRange(0,3000);
@@ -1167,6 +1178,10 @@ void MainWindow::selectDemod(int mode_idx)
 
     case DockRxOpt::MODE_CWL:
         /* CW-L */
+
+        //Set DS Activity (DEMOD Mode)
+        sprintf(typeSTRS, "CWL");
+
         rx->set_demod(receiver::RX_DEMOD_SSB);
         cwofs = -uiDockRxOpt->getCwOffset();
         ui->plotter->setDemodRanges(-5000, -100, 100, 5000, true);
@@ -1176,6 +1191,10 @@ void MainWindow::selectDemod(int mode_idx)
 
     case DockRxOpt::MODE_CWU:
         /* CW-U */
+
+        //Set DS Activity (DEMOD Mode)
+        sprintf(typeSTRS, "CWU");
+
         rx->set_demod(receiver::RX_DEMOD_SSB);
         cwofs = uiDockRxOpt->getCwOffset();
         ui->plotter->setDemodRanges(-5000, -100, 100, 5000, true);
@@ -1205,6 +1224,8 @@ void MainWindow::selectDemod(int mode_idx)
     d_have_audio = (mode_idx != DockRxOpt::MODE_OFF);
 
     uiDockRxOpt->setCurrentDemod(mode_idx);
+
+    //Other DS Activities (DEMOD Mode) in - receiver.cpp
 }
 
 
