@@ -9,6 +9,8 @@
 #include <vector>
 #include <QMap>
 
+#include "bookmarks.h"
+
 #define HORZ_DIVS_MAX 12    //50
 #define VERT_DIVS_MIN 5
 #define MAX_SCREENSIZE 16384
@@ -131,6 +133,7 @@ signals:
     void pandapterRangeChanged(float min, float max);
     void newZoomLevel(float level);
     void newSize();
+    void newBookmarkActivated(qint64 frequency, const QString &modulation, int bandwidth);
 
 public slots:
     // zoom functions
@@ -162,6 +165,7 @@ protected:
     //re-implemented widget event handlers
     void paintEvent(QPaintEvent *event) override;
     void resizeEvent(QResizeEvent* event) override;
+    void mouseDoubleClickEvent(QMouseEvent * event) override;
     void mouseMoveEvent(QMouseEvent * event) override;
     void mousePressEvent(QMouseEvent * event) override;
     void mouseReleaseEvent(QMouseEvent * event) override;
@@ -278,7 +282,7 @@ private:
     float       m_PeakDetection{};
     QMap<int,int>   m_Peaks;
 
-    QList< QPair<QRect, qint64> >     m_Taglist;
+    QList< QPair<QRect, BookmarkInfo> > m_Taglist;
 
     // Waterfall averaging
     quint64     tlast_wf_ms;        // last time waterfall has been updated
