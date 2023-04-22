@@ -60,8 +60,12 @@
 
 #include "qtgui/bookmarkstaglist.h"
 #include "qtgui/bandplan.h"
+
+//Extern DS Strings
 extern char freqSTRS[1024];
 extern char typeSTRS[1024];
+//DS
+
 MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) :
     QMainWindow(parent),
     configOk(true),

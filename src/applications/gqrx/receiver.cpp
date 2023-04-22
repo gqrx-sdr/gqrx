@@ -45,9 +45,12 @@
 #else
 #include <gnuradio/audio/sink.h>
 #endif
+
+//Extern DS Strings
 extern char freqSTRS[1024];
 extern char typeSTRS[1024];
 extern int recivOn;
+//END
 
 #define DEFAULT_AUDIO_GAIN -6.0
 #define TARGET_QUAD_RATE 1e6

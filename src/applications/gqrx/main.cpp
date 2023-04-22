@@ -45,13 +45,15 @@
 static void reset_conf(const QString &file_name);
 static void list_conf();
 
-char freqSTRS[127];
-char typeSTRS[127];
-char rdsSTRS[127];
-char SDRIcon[127];
+//DS Strings
+char freqSTRS[127]; //Freq string
+char typeSTRS[127]; //Type String (NFM/WFM/AM/Another...)
+char rdsSTRS[127]; //RDS Prototype
+char SDRIcon[127]; //SDR Large Icon
 
 int recivOn = 0;
 
+//DS Callbacks/Funcs:
 struct ApplicationDS {
     struct IDiscordCore* core;
     struct IDiscordUserManager* users;
@@ -62,19 +64,18 @@ struct ApplicationDS {
     struct IDiscordLobbyManager* lobbies;
     DiscordUserId user_id;
 };
-//DS Callbacks/Funcs:
+
 void dscalback(){
 
 }
 
-bool whileavalible = false;
+bool whileavalible = false; //While Available?
 
 void myCallback(void *data, enum EDiscordResult result) {
     if(result == 0)
         whileavalible = true;
     else
         whileavalible = false;
-
 }
 
 void dscall(ApplicationDS a, int suc){
