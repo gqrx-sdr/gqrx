@@ -89,16 +89,6 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     }
     ui->modeSelector->addItems(ModulationStrings);
 
-#ifdef Q_OS_LINUX
-    ui->modeButton->setMinimumSize(32, 24);
-    ui->agcButton->setMinimumSize(32, 24);
-    ui->autoSquelchButton->setMinimumSize(32, 24);
-    ui->resetSquelchButton->setMinimumSize(32, 24);
-    ui->nbOptButton->setMinimumSize(32, 24);
-    ui->nb2Button->setMinimumSize(32, 24);
-    ui->nb1Button->setMinimumSize(32, 24);
-#endif
-
     ui->filterFreq->setup(7, -filterOffsetRange/2, filterOffsetRange/2, 1,
                           FCTL_UNIT_KHZ);
     ui->filterFreq->setFrequency(0);
