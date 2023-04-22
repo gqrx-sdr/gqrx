@@ -1,0 +1,13 @@
+{
+  "name" : "gqrxbydsactivity",
+  "version-string" : "1.0.0",
+  "builtin-baseline" : "2b1757dd1d5ed7d9d5bb65fd8316631b157e7afc",
+  "dependencies" : [ {
+    "name" : "boost-program-options",
+    "version>=" : "1.82.0#1"
+  }, {
+    "name" : "portaudio",
+    "version>=" : "19.7#4",
+    "$comment" : "    # this is heuristically generated, and may not be correct\n\n    find_package(portaudio CONFIG REQUIRED)\n\n    target_link_libraries(main PRIVATE portaudio_static)\n"
+  } ]
+}

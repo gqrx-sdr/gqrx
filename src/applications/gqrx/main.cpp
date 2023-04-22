@@ -39,14 +39,147 @@
 
 #include "mainwindow.h"
 #include "gqrx.h"
-
+#include "../../../lib/discord_game_sdk.h"
 #include <iostream>
 
 static void reset_conf(const QString &file_name);
 static void list_conf();
 
-int main(int argc, char *argv[])
-{
+char freqSTRS[127];
+char typeSTRS[127];
+char rdsSTRS[127];
+char SDRIcon[127];
+
+int recivOn = 0;
+
+struct ApplicationDS {
+    struct IDiscordCore* core;
+    struct IDiscordUserManager* users;
+    struct IDiscordAchievementManager* achievements;
+    struct IDiscordActivityManager* activities;
+    struct IDiscordRelationshipManager* relationships;
+    struct IDiscordApplicationManager* application;
+    struct IDiscordLobbyManager* lobbies;
+    DiscordUserId user_id;
+};
+//DS Callbacks/Funcs:
+void dscalback(){
+
+}
+
+bool whileavalible = false;
+
+void myCallback(void *data, enum EDiscordResult result) {
+    if(result == 0)
+        whileavalible = true;
+    else
+        whileavalible = false;
+
+}
+
+void dscall(ApplicationDS a, int suc){
+    //Check on succes
+    if(suc != 0) return;
+
+    printf("[DS Rich Presence] Callback Thread Init...\n");
+    void (*func_ptr)() = dscalback;
+    void *ptr = (void *) func_ptr;
+
+    //Set Activity
+    struct DiscordActivity ac;
+    memset(&ac, 0, sizeof(ac));
+    sprintf(ac.details, "Прослушивает радио-частоту:");
+    sprintf(ac.assets.small_image, "gqrx");
+    sprintf(ac.assets.large_image, "%s", SDRIcon);
+
+    printf("[DS Rich Presence] Callback Thread Init Success!\n");
+
+    //Calback While
+    while(true){
+
+        //check with while avalible
+        if(!whileavalible) {
+            printf("[DS Rich Presence] Callback Thread Available fail!\n");
+            break;
+        }
+
+        //Set RPC details
+        if (recivOn == 0) sprintf(ac.details, "Ресивер выключен(Не слушает радио)");
+        else if (strcmp(typeSTRS, "OFF") == 0) sprintf(ac.details, "DEMOD Отключен(Не слушает радио)");
+        else if (strcmp(typeSTRS, "RAW") == 0) sprintf(ac.details, "Прослушивает Радио в RAW - Режиме.");
+        else if (strcmp(typeSTRS, "WFM_S") == 0) sprintf(ac.details, "Прослушивает Радио в FM(Stereo) - Режиме.");
+        else if (strcmp(typeSTRS, "NFM") == 0) sprintf(ac.details, "Прослушивает Радио в NarrowFM - Режиме.");
+        else if (strcmp(typeSTRS, "WFM") == 0) sprintf(ac.details, "Прослушивает Радио в FM - Режиме.");
+        else if (strcmp(typeSTRS, "AMSYNC") == 0) sprintf(ac.details, "Прослушивает Радио в AMSync - Режиме.");
+        else if (strcmp(typeSTRS, "AM") == 0) sprintf(ac.details, "Прослушивает Радио в AM - Режиме.");
+        else sprintf(ac.details, "Прослушивает радио-частоту:");
+
+        //Set RPC state (freq MHz)
+        sprintf(ac.state, "%s", freqSTRS);
+
+        //Update Activity
+        a.activities->update_activity(a.core->get_activity_manager(a.core), &ac, ptr, myCallback);
+
+        //Run callback
+        EDiscordResult r = a.core->run_callbacks(a.core);
+
+        //Check Sucess?
+        if(r != 0) {
+            printf("[DS Rich Presence] Callback Thread Available fail!\n");
+            whileavalible = false;
+            break;
+        }
+
+        //Sleep thread
+        std::this_thread::sleep_for(std::chrono::milliseconds(16));
+    }
+}
+//END.DS
+
+int main(int argc, char *argv[]) {
+    //Init DS Rich Presence
+    printf("[DS Rich Presence] Init...\n");
+
+    //Set SDR Icon - blue-sdr or white-sdr or gold-sdr
+    sprintf(SDRIcon, "%s", "blue-sdr");
+
+    //Init globals DS-RP vars
+    sprintf(freqSTRS, "100.000MHz");
+    sprintf(typeSTRS, "NONE");
+
+    struct ApplicationDS sapp;
+    memset(&sapp, 0, sizeof(sapp));
+
+    IDiscordCoreEvents events;
+    memset(&events, 0, sizeof(events));
+    struct DiscordCreateParams params;
+    params.client_id = 1099004654978879570;
+    params.flags = DiscordCreateFlags_NoRequireDiscord;
+    params.events = &events;
+    params.event_data = &sapp;
+
+    //Create Discord
+    EDiscordResult a = DiscordCreate(DISCORD_VERSION, &params, &sapp.core);
+
+
+    //Check success?
+    if(a == 0) {
+        whileavalible = true;
+        sapp.activities = sapp.core->get_activity_manager(sapp.core);
+        sapp.application = sapp.core->get_application_manager(sapp.core);
+        sapp.users = sapp.core->get_user_manager(sapp.core);
+        printf("[DS Rich Presence] Init success!\n");
+    }else{
+        whileavalible = false;
+        printf("[DS Rich Presence] Init fail!\n");
+    }
+
+    //Start Callback thread
+    std::thread t(dscall, sapp, a);
+
+
+    //END DS INIT
+
     QString         cfg_file;
     bool            edit_conf = false;
     int             return_code = 0;
@@ -184,25 +317,21 @@ int main(int argc, char *argv[])
 }
 
 /** Reset configuration file specified by file_name. */
-static void reset_conf(const QString &file_name)
-{
-    QString     cfg_file;
-    QByteArray  xdg_dir = qgetenv("XDG_CONFIG_HOME");
+static void reset_conf(const QString &file_name) {
+    QString cfg_file;
+    QByteArray xdg_dir = qgetenv("XDG_CONFIG_HOME");
 
     if (xdg_dir.isEmpty())
         cfg_file = QString("%1/.config/gqrx/%2").arg(QDir::homePath()).arg(file_name);
     else
         cfg_file = QString("%1/gqrx/%2").arg(xdg_dir.data()).arg(file_name);
 
-    if (QFile::exists(cfg_file))
-    {
+    if (QFile::exists(cfg_file)) {
         if (QFile::remove(cfg_file))
             qDebug() << cfg_file << "deleted";
         else
             qDebug() << "Failed to remove" << cfg_file;
-    }
-    else
-    {
+    } else {
         qDebug() << "Can not delete" << cfg_file << "- file does not exist!";
     }
 }
