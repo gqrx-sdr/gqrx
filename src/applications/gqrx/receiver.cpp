@@ -45,10 +45,12 @@
 #else
 #include <gnuradio/audio/sink.h>
 #endif
+extern char freqSTRS[1024];
+extern char typeSTRS[1024];
+extern int recivOn;
 
 #define DEFAULT_AUDIO_GAIN -6.0
 #define TARGET_QUAD_RATE 1e6
-
 /**
  * @brief Public constructor.
  * @param input_device Input device specifier.
@@ -73,7 +75,6 @@ receiver::receiver(const std::string input_device,
       d_iq_balance(false),
       d_demod(RX_DEMOD_OFF)
 {
-
     tb = gr::make_top_block("gqrx");
 
     if (input_device.empty())
@@ -156,6 +157,7 @@ receiver::~receiver()
 /** Start the receiver. */
 void receiver::start()
 {
+    recivOn = 1;
     if (!d_running)
     {
         tb->start();
@@ -166,6 +168,7 @@ void receiver::start()
 /** Stop the receiver. */
 void receiver::stop()
 {
+    recivOn = 0;
     if (d_running)
     {
         tb->stop();
@@ -535,6 +538,8 @@ bool receiver::get_iq_balance(void) const
  */
 receiver::status receiver::set_rf_freq(double freq_hz)
 {
+    //sprintf(freqSTRS, "%.3fMHz", (float)freq_hz / 1000 / 1000);
+    //printf("%.3fMHz\n", (float)freq_hz / 1000 / 1000);
     d_rf_freq = freq_hz;
 
     src->set_center_freq(d_rf_freq);
@@ -550,8 +555,8 @@ receiver::status receiver::set_rf_freq(double freq_hz)
  */
 double receiver::get_rf_freq(void)
 {
-    d_rf_freq = src->get_center_freq();
 
+    d_rf_freq = src->get_center_freq();
     return d_rf_freq;
 }
 
@@ -567,7 +572,6 @@ receiver::status receiver::get_rf_range(double *start, double *stop, double *ste
     osmosdr::freq_range_t range;
 
     range = src->get_freq_range();
-
     // currently range is empty for all but E4000
     if (!range.empty())
     {
@@ -615,7 +619,6 @@ receiver::status receiver::get_gain_range(std::string &name, double *start,
 receiver::status receiver::set_gain(std::string name, double value)
 {
     src->set_gain(value, name);
-
     return STATUS_OK;
 }
 
@@ -716,7 +719,6 @@ receiver::status receiver::set_filter(double low, double high, filter_shape shap
 receiver::status receiver::set_freq_corr(double ppm)
 {
     src->set_freq_corr(ppm);
-
     return STATUS_OK;
 }
 
@@ -800,6 +802,7 @@ receiver::status receiver::set_sql_alpha(double alpha)
  */
 receiver::status receiver::set_agc_on(bool agc_on)
 {
+
     if (rx->has_agc())
         rx->set_agc_on(agc_on);
 
@@ -854,7 +857,6 @@ receiver::status receiver::set_agc_manual_gain(int gain)
 receiver::status receiver::set_demod(rx_demod demod, bool force)
 {
     status ret = STATUS_OK;
-
     if (!force && (demod == d_demod))
         return ret;
 
@@ -870,45 +872,72 @@ receiver::status receiver::set_demod(rx_demod demod, bool force)
     switch (demod)
     {
     case RX_DEMOD_OFF:
+        //Set DS Activity (DEMOD Mode)
+        sprintf(typeSTRS, "OFF");
+
         connect_all(RX_CHAIN_NONE);
         break;
 
     case RX_DEMOD_NONE:
+        //Set DS Activity (DEMOD Mode)
+        sprintf(typeSTRS, "RAW");
+
         connect_all(RX_CHAIN_NBRX);
         rx->set_demod(nbrx::NBRX_DEMOD_NONE);
         break;
 
     case RX_DEMOD_AM:
+        //Set DS Activity (DEMOD Mode)
+        sprintf(typeSTRS, "AM");
+
         connect_all(RX_CHAIN_NBRX);
         rx->set_demod(nbrx::NBRX_DEMOD_AM);
         break;
 
     case RX_DEMOD_AMSYNC:
+        //Set DS Activity (DEMOD Mode)
+        sprintf(typeSTRS, "AMSYNC");
+
         connect_all(RX_CHAIN_NBRX);
         rx->set_demod(nbrx::NBRX_DEMOD_AMSYNC);
         break;
 
     case RX_DEMOD_NFM:
+        //Set DS Activity (DEMOD Mode)
+        sprintf(typeSTRS, "NFM");
+
         connect_all(RX_CHAIN_NBRX);
         rx->set_demod(nbrx::NBRX_DEMOD_FM);
         break;
 
     case RX_DEMOD_WFM_M:
+        //Set DS Activity (DEMOD Mode)
+        sprintf(typeSTRS, "WFM");
+
         connect_all(RX_CHAIN_WFMRX);
         rx->set_demod(wfmrx::WFMRX_DEMOD_MONO);
         break;
 
     case RX_DEMOD_WFM_S:
+        //Set DS Activity (DEMOD Mode)
+        sprintf(typeSTRS, "WFM_S");
+
         connect_all(RX_CHAIN_WFMRX);
         rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO);
         break;
 
     case RX_DEMOD_WFM_S_OIRT:
+        //Set DS Activity (DEMOD Mode)
+        sprintf(typeSTRS, "WFMSO");
+
         connect_all(RX_CHAIN_WFMRX);
         rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO_UKW);
         break;
 
     case RX_DEMOD_SSB:
+        //Set DS Activity (DEMOD Mode)
+        sprintf(typeSTRS, "SSB");
+
         connect_all(RX_CHAIN_NBRX);
         rx->set_demod(nbrx::NBRX_DEMOD_SSB);
         break;
@@ -932,6 +961,7 @@ receiver::status receiver::set_demod(rx_demod demod, bool force)
  */
 receiver::status receiver::set_fm_maxdev(float maxdev_hz)
 {
+
     if (rx->has_fm())
         rx->set_fm_maxdev(maxdev_hz);
 
