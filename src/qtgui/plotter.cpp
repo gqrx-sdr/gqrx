@@ -901,6 +901,13 @@ void CPlotter::mouseReleaseEvent(QMouseEvent * event)
 // Make a single zoom step on the X axis.
 void CPlotter::zoomStepX(float step, int x)
 {
+    // Limit zoom out to 1.0 and zoom in to where there are 5 fft points on the
+    // screen.
+    double currentZoom = (double)m_SampleFreq / (double)m_Span;
+    if ((step >= 1.0 && currentZoom <= 1.0)
+        || (step < 1.0 && currentZoom >= (double)m_fftDataSize / 4))
+        return;
+
     // calculate new range shown on FFT
     double new_range = qBound(10.0, m_Span * (double)step, m_SampleFreq * 10.0);
 
@@ -1185,7 +1192,6 @@ void CPlotter::paintEvent(QPaintEvent *)
 void CPlotter::draw(bool newData)
 {
     qint32        i, j;
-    qint32        xmin, xmax;
     double        histMax;
     QFontMetricsF metrics(m_Font);
 
@@ -1277,6 +1283,9 @@ void CPlotter::draw(bool newData)
     // Make sure zeros don't get through to log calcs
     const float fmin = std::numeric_limits<float>::min();
 
+    const qint32 xmin = qRound((double)(minbin - startBin) * xScale);
+    const qint32 xmax = qRound((double)(maxbin - startBin) * xScale);
+
     float vmax;
     float vmaxIIR;
     double vsum;
@@ -1285,8 +1294,6 @@ void CPlotter::draw(bool newData)
     if ((qreal)numBins >= w)
     {
         qint32 count;
-        xmin = qRound((double)(minbin - startBin) * xScale);
-        xmax = qRound((double)(maxbin - startBin) * xScale);
         qint32 xprev = xmin;
         bool first = true;
 
@@ -1378,9 +1385,6 @@ void CPlotter::draw(bool newData)
     // w > m_fftDataSize uses no averaging
     else
     {
-        xmin = qRound((double)(minbin - startBin) * xScale);
-        xmax = qRound((double)(maxbin - startBin) * xScale);
-
         for (i = xmin; i < xmax; i++)
         {
             j = qRound((double)i / xScale + startBin);
@@ -1826,6 +1830,12 @@ void CPlotter::setNewFftData(const float *fftData, int size)
         m_histMaxIIR = std::numeric_limits<float>::min();
 
         m_fftDataSize = size;
+
+        // Zoom out if needed to keep about 4 points on the screen
+        double currentZoom = (double)m_SampleFreq / (double)m_Span;
+        double maxZoom = (double)m_fftDataSize / 4.0;
+        if (currentZoom > maxZoom)
+            zoomStepX(currentZoom / maxZoom, xFromFreq(m_CenterFreq + m_FftCenter));
     }
 
     // For V, V^2 -> V/RBW
