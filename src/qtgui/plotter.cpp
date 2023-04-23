@@ -1671,7 +1671,7 @@ void CPlotter::draw(bool newData)
             float *_detectSource;
             if (m_MaxHoldActive)
                 _detectSource = m_fftMaxHoldBuf;
-            else if (m_PlotMode == PLOT_MODE_AVG || m_PlotMode == PLOT_MODE_HISTOGRAM)
+            else if (m_PlotMode == PLOT_MODE_AVG)
                 _detectSource = m_fftAvgBuf;
             else
                 _detectSource = m_fftMaxBuf;
