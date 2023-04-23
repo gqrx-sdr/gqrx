@@ -47,6 +47,8 @@ DockFft::DockFft(QWidget *parent) :
 
     m_sample_rate = 0.f;
     m_pand_last_modified = false;
+    m_actual_frame_rate = 0.f;
+    m_frame_dropping = false;
 
     // Add predefined gqrx colors to chooser.
     ui->colorPicker->insertColor(QColor(0xFF,0xFF,0xFF,0xFF), "White");
@@ -68,6 +70,9 @@ DockFft::DockFft(QWidget *parent) :
     QFontMetrics metrics(font);
     QRectF zoomRect = metrics.boundingRect("88888x");
     ui->zoomLevelLabel->setFixedWidth(zoomRect.width());
+
+    QRectF dropLabelRect = metrics.boundingRect("DROP Rate");
+    ui->rateLabel->setFixedWidth(dropLabelRect.width());
 }
 DockFft::~DockFft()
 {
@@ -473,6 +478,18 @@ void DockFft::setZoomLevel(float level)
 void DockFft::setMarkersEnabled(bool enable)
 {
     ui->markersCheckBox->setCheckState(enable ? Qt::Checked : Qt::Unchecked);
+}
+
+void DockFft::setActualFrameRate(float rate, bool dropping)
+{
+    if (dropping) {
+        ui->rateLabel->setText("!! Rate");
+        ui->rateLabel->setStyleSheet("QLabel { background-color : red; }");
+    }
+    else {
+        ui->rateLabel->setText("Rate");
+        ui->rateLabel->setStyleSheet("");
+    }
 }
 
 /** FFT size changed. */

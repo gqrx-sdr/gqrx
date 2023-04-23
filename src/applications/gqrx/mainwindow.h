@@ -116,6 +116,8 @@ private:
     QTimer   *iq_fft_timer;
     QTimer   *audio_fft_timer;
     QTimer   *rds_timer;
+    quint64  d_last_fft_ms;
+    bool     d_frame_drop;
 
     receiver *rx;
 

@@ -1314,13 +1314,13 @@ void CPlotter::draw(bool newData)
             if (doHistogram)
             {
                 const double binD = histdBGainFactor * (m_PandMaxdB - logFactor * log10f(v));
-                const int binLeft = std::max((int)(xD - 0.5), 0);
-                const int binRight = std::min(binLeft + 1, numBins - 1);
-                const int binLow = std::max((int)(binD - 0.5), 0);
-                const int binHigh = std::min(binLow + 1, histBinsDisplayed - 1);
-                const double wgtH = (xD - (double)binLeft) / 2.0;
-                const double wgtV = (binD - (double)binLow) / 2.0;
-                if (binLow >= 0 && binLow < histBinsDisplayed) {
+                if (binD > 0.0 && binD < (double)histBinsDisplayed) {
+                    const int binLeft = std::max((int)(xD - 0.5), 0);
+                    const int binRight = std::min(binLeft + 1, numBins - 1);
+                    const int binLow = std::min(std::max((int)(binD - 0.5), 0), histBinsDisplayed - 1);
+                    const int binHigh = std::min(binLow + 1, histBinsDisplayed - 1);
+                    const double wgtH = (xD - (double)binLeft) / 2.0;
+                    const double wgtV = (binD - (double)binLow) / 2.0;
                     m_histogram[binLeft][binLow] += (1.0 - wgtV) * (1.0 - wgtH) * histWeight;
                     m_histogram[binLeft][binHigh] += wgtV * (1.0 - wgtH) * histWeight;
                     m_histogram[binRight][binLow] += (1.0 - wgtV) * wgtH * histWeight;
@@ -1406,10 +1406,10 @@ void CPlotter::draw(bool newData)
             if (doHistogram)
             {
                 const double binD = histdBGainFactor * (m_PandMaxdB - logFactor * log10f(v));
-                const int binLow = std::max((int)(binD - 0.5), 0);
-                const int binHigh = std::min(binLow + 1, histBinsDisplayed - 1);
-                const double wgt = (binD - (double)binLow) / 2.0;
-                if (binLow >= 0 && binLow < histBinsDisplayed) {
+                if (binD > 0.0 && binD < (double)histBinsDisplayed) {
+                    const int binLow = std::min(std::max((int)(binD - 0.5), 0), histBinsDisplayed - 1);
+                    const int binHigh = std::min(binLow + 1, histBinsDisplayed - 1);
+                    const double wgt = (binD - (double)binLow) / 2.0;
                     m_histogram[i][binLow] += (1.0 - wgt) * histWeight;
                     m_histogram[i][binHigh] += wgt * histWeight;
                 }

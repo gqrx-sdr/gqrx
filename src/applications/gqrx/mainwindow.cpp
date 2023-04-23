@@ -121,6 +121,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     /* FFT timer & data */
     iq_fft_timer = new QTimer(this);
     connect(iq_fft_timer, SIGNAL(timeout()), this, SLOT(iqFftTimeout()));
+    d_last_fft_ms = 0;
+    d_frame_drop = false;
 
     audio_fft_timer = new QTimer(this);
     connect(audio_fft_timer, SIGNAL(timeout()), this, SLOT(audioFftTimeout()));
@@ -1460,6 +1462,20 @@ void MainWindow::iqFftTimeout()
 {
     unsigned int    fftsize;
     unsigned int    i;
+
+    const quint64 now_ms = QDateTime::currentMSecsSinceEpoch();
+    const quint64 interval = iq_fft_timer->interval();
+    const bool drop = now_ms - d_last_fft_ms > (quint64)((float)interval * 1.1);
+    if (drop != d_frame_drop) {
+        if (drop) {
+            uiDockFft->setActualFrameRate(1.0 / (float)interval, true);
+        }
+        else {
+            uiDockFft->setActualFrameRate(1.0 / (float)interval, false);
+        }
+        d_frame_drop = drop;
+    }
+    d_last_fft_ms = now_ms;
 
     // FIXME: fftsize is a reference
     rx->get_iq_fft_data(d_fftData, fftsize);

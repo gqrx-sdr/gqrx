@@ -83,6 +83,7 @@ public slots:
     void setWfResolution(quint64 msec_per_line);
     void setZoomLevel(float level);
     void setMarkersEnabled(bool enable);
+    void setActualFrameRate(float rate, bool dropping);
 
 private slots:
     void on_fftSizeComboBox_currentIndexChanged(int index);
@@ -120,6 +121,8 @@ private:
 //    float         m_minimumFftDb;
     float         m_sample_rate;
     bool          m_pand_last_modified; /* Flag to indicate which slider was changed last */
+    float         m_actual_frame_rate;
+    bool          m_frame_dropping;
 };
 
 #endif // DOCKFFT_H
