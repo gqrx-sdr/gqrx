@@ -108,7 +108,7 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     m_IIRValid = false;
     m_histIIRValid = false;
     m_alpha = 1.0;
-    m_histMaxIIR = 0.0;
+    m_histMaxIIR = std::numeric_limits<float>::min();
 
     m_FftCenter = 0;
     m_CenterFreq = 144500000;
@@ -693,7 +693,6 @@ quint64 CPlotter::getWfTimeRes() const
 void CPlotter::setFftRate(int rate_hz)
 {
     fft_rate = rate_hz;
-    m_histIIRValid = false;
     clearWaterfall();
 }
 
@@ -1226,6 +1225,8 @@ void CPlotter::draw(bool newData)
     // Pixels per mapped bin
     const double xScale = w / (double)numBins;
 
+    const double frameTime = 1.0 / (double)fft_rate;
+
     // Redraw the plot if it is visible.
     const bool doPlotter = !m_2DPixmap.isNull();
 
@@ -1239,6 +1240,10 @@ void CPlotter::draw(bool newData)
             qRound(32 * (double)numBins / 2048.0))
         );
 
+    // Amount to add to histogram for each hit
+    const double histWeight = 10e6 * frameTime / (double)histBinsDisplayed / fftSize;
+
+    // Bins / dB
     const double histdBGainFactor = (double)histBinsDisplayed / fabs(m_PandMaxdB - m_PandMindB);
 
     // Show max and average highlights on histogram if it would not be too
@@ -1316,10 +1321,10 @@ void CPlotter::draw(bool newData)
                 const double wgtH = (xD - (double)binLeft) / 2.0;
                 const double wgtV = (binD - (double)binLow) / 2.0;
                 if (binLow >= 0 && binLow < histBinsDisplayed) {
-                    m_histogram[binLeft][binLow] += (1.0 - wgtV) * (1.0 - wgtH);
-                    m_histogram[binLeft][binHigh] += wgtV * (1.0 - wgtH);
-                    m_histogram[binRight][binLow] += (1.0 - wgtV) * wgtH;
-                    m_histogram[binRight][binHigh] += wgtV * wgtH;
+                    m_histogram[binLeft][binLow] += (1.0 - wgtV) * (1.0 - wgtH) * histWeight;
+                    m_histogram[binLeft][binHigh] += wgtV * (1.0 - wgtH) * histWeight;
+                    m_histogram[binRight][binLow] += (1.0 - wgtV) * wgtH * histWeight;
+                    m_histogram[binRight][binHigh] += wgtV * wgtH * histWeight;
                 }
             }
 
@@ -1405,8 +1410,8 @@ void CPlotter::draw(bool newData)
                 const int binHigh = std::min(binLow + 1, histBinsDisplayed - 1);
                 const double wgt = (binD - (double)binLow) / 2.0;
                 if (binLow >= 0 && binLow < histBinsDisplayed) {
-                    m_histogram[i][binLow] += 1.0 - wgt;
-                    m_histogram[i][binHigh] += wgt;
+                    m_histogram[i][binLow] += (1.0 - wgt) * histWeight;
+                    m_histogram[i][binHigh] += wgt * histWeight;
                 }
             }
         }
@@ -1804,6 +1809,9 @@ void CPlotter::setRunningState(bool running)
  */
 void CPlotter::setNewFftData(const float *fftData, int size)
 {
+    // Make sure zeros don't get through to log calcs
+    const float fmin = std::numeric_limits<float>::min();
+
     if (size != m_fftDataSize)
     {
         // Reallocate and invalidate IIRs
@@ -1824,7 +1832,7 @@ void CPlotter::setNewFftData(const float *fftData, int size)
     if (m_PlotScale == PLOT_SCALE_V) {
         for (int i = 0; i < size; ++i)
             // fftData[i] = sqrtf(fftData[i]) / (float)size;
-            m_fftData[i] = fftData[i] / (float)size / (float)size;
+            m_fftData[i] = std::max(fftData[i] / (float)size / (float)size, fmin);
     }
     // For DBM, give choose dBm/RBW or dBm/Hz, scaled to 50 ohm.
     // 1000 V^2 / 2R
@@ -1837,16 +1845,13 @@ void CPlotter::setNewFftData(const float *fftData, int size)
             _pwr_scale = 1000.0 / (2.0 * 50.0 * (float)size * (float)m_SampleFreq);
         const float pwr_scale = _pwr_scale;
         for (int i = 0; i < size; ++i)
-            m_fftData[i] = fftData[i] * pwr_scale;
+            m_fftData[i] = std::max(fftData[i] * pwr_scale, fmin);
     }
 
     // Update IIR. If IIR is invalid, set alpha to use latest value. Since the
     // IIR is linear data and users would like to see symmetric attack/decay on
     // the logarithmic y-axis, IIR is in terms of multiplication rather than
     // addition.
-
-    // Make sure zeros don't get through to log calcs
-    const float fmin = std::numeric_limits<float>::min();
 
     // Time constant, taking update rate into account. Attack and decay rate of
     // change in dB/sec should not visibly change with FFT rate.
@@ -1864,7 +1869,7 @@ void CPlotter::setNewFftData(const float *fftData, int size)
         for (int i = 0; i < size; ++i)
         {
             const double v = m_fftData[i];
-            const double iir = std::max(m_fftIIR[i], fmin);
+            const double iir = m_fftIIR[i];
             m_fftIIR[i] = iir * powf(v / iir, a);
         }
     }
