@@ -902,11 +902,15 @@ void CPlotter::mouseReleaseEvent(QMouseEvent * event)
 void CPlotter::zoomStepX(float step, int x)
 {
     // Limit zoom out to 1.0 and zoom in to where there are 5 fft points on the
-    // screen.
-    double currentZoom = (double)m_SampleFreq / (double)m_Span;
-    if ((step >= 1.0 && currentZoom <= 1.0)
-        || (step < 1.0 && currentZoom >= (double)m_fftDataSize / 4))
-        return;
+    // screen. m_fftDataSize is initialized to 0 ... if the app hasn't started
+    // yet, allow any zoom level.
+    if (m_fftDataSize != 0)
+    {
+        double currentZoom = (double)m_SampleFreq / (double)m_Span;
+        if ((step >= 1.0 && currentZoom <= 1.0)
+            || (step < 1.0 && currentZoom >= (double)m_fftDataSize / 4))
+            return;
+    }
 
     // calculate new range shown on FFT
     double new_range = qBound(10.0, m_Span * (double)step, m_SampleFreq * 10.0);

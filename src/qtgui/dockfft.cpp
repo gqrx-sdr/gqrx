@@ -483,7 +483,7 @@ void DockFft::setMarkersEnabled(bool enable)
 void DockFft::setActualFrameRate(float rate, bool dropping)
 {
     if (dropping) {
-        ui->rateLabel->setText("!! Rate");
+        ui->rateLabel->setText(">>> Rate");
         ui->rateLabel->setStyleSheet("QLabel { background-color : red; }");
     }
     else {
