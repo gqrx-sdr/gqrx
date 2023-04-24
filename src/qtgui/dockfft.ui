@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>450</width>
+    <width>391</width>
     <height>644</height>
    </rect>
   </property>
@@ -79,7 +79,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>442</width>
+         <width>383</width>
          <height>604</height>
         </rect>
        </property>
@@ -141,115 +141,33 @@
             </property>
            </widget>
           </item>
-          <item row="13" column="0">
-           <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item row="11" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_13">
             <property name="spacing">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="label_10">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Plot dB</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-              <property name="margin">
-               <number>4</number>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_11">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>WF dB</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-              <property name="margin">
-               <number>4</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="18" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout_11">
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QPushButton" name="resetButton">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="focusPolicy">
-               <enum>Qt::NoFocus</enum>
-              </property>
+             <widget class="QCheckBox" name="bandPlanCheckBox">
               <property name="toolTip">
-               <string>Center plot and reset zoom</string>
+               <string>Show band plan overlay</string>
               </property>
               <property name="text">
-               <string>Reset</string>
+               <string>Band Plan</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="centerButton">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="focusPolicy">
-               <enum>Qt::NoFocus</enum>
-              </property>
+             <widget class="QCheckBox" name="markersCheckBox">
               <property name="toolTip">
-               <string>Center plot on tuner frequency</string>
+               <string>Show markers and controls</string>
               </property>
               <property name="text">
-               <string>Center</string>
+               <string>Markers</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="demodButton">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="focusPolicy">
-               <enum>Qt::NoFocus</enum>
-              </property>
-              <property name="toolTip">
-               <string>Center plot on filter offset</string>
-              </property>
-              <property name="text">
-               <string>Demod</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_9">
+             <spacer name="horizontalSpacer_10">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -263,221 +181,148 @@
             </item>
            </layout>
           </item>
-          <item row="12" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,1,0">
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QLabel" name="label_15">
-              <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Plain</enum>
-              </property>
-              <property name="lineWidth">
-               <number>1</number>
-              </property>
-              <property name="midLineWidth">
-               <number>0</number>
-              </property>
-              <property name="text">
-               <string>Plot</string>
-              </property>
-              <property name="margin">
-               <number>4</number>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSlider" name="fftSplitSlider">
+          <item row="0" column="1">
+           <layout class="QGridLayout" name="gridLayout_4" columnstretch="0,1">
+            <item row="0" column="1">
+             <widget class="QLabel" name="fftRbwLabel">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="focusPolicy">
-               <enum>Qt::NoFocus</enum>
-              </property>
               <property name="toolTip">
-               <string>Plot and waterfall split</string>
-              </property>
-              <property name="maximum">
-               <number>100</number>
-              </property>
-              <property name="pageStep">
-               <number>1</number>
-              </property>
-              <property name="value">
-               <number>35</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_16">
-              <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Plain</enum>
+               <string>Resolution bandwidth</string>
               </property>
               <property name="text">
-               <string>WF</string>
+               <string>RBW: 0 kHz</string>
               </property>
-              <property name="margin">
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+              <property name="indent">
                <number>4</number>
               </property>
              </widget>
             </item>
-           </layout>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="rateLabel">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Rate</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-            <property name="margin">
-             <number>4</number>
-            </property>
-           </widget>
-          </item>
-          <item row="20" column="1">
-           <spacer name="verticalSpacer">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>259</width>
-              <height>13</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="4" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout_7">
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QComboBox" name="plotModeBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="focusPolicy">
-               <enum>Qt::NoFocus</enum>
-              </property>
-              <property name="toolTip">
-               <string>Plot visualization</string>
-              </property>
-              <item>
-               <property name="text">
-                <string>Max</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Avg</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Fill</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Hist</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item>
-             <widget class="QtColorPicker" name="colorPicker">
-              <property name="focusPolicy">
-               <enum>Qt::NoFocus</enum>
-              </property>
-              <property name="toolTip">
-               <string>Main color for plot</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="flat">
+            <item row="0" column="0">
+             <widget class="QComboBox" name="fftSizeComboBox">
+              <property name="enabled">
                <bool>true</bool>
               </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="fillCheckBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="focusPolicy">
                <enum>Qt::NoFocus</enum>
               </property>
               <property name="toolTip">
-               <string>Fill below plot line</string>
+               <string>FFT size used for plot and histogram</string>
               </property>
-              <property name="text">
-               <string>Fill</string>
+              <property name="editable">
+               <bool>false</bool>
               </property>
+              <property name="currentIndex">
+               <number>7</number>
+              </property>
+              <property name="maxVisibleItems">
+               <number>15</number>
+              </property>
+              <property name="insertPolicy">
+               <enum>QComboBox::InsertAlphabetically</enum>
+              </property>
+              <item>
+               <property name="text">
+                <string>4194304</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>2097152</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>1048576</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>524288</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>262144</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>131072</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>65536</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>32768</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>16384</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>8192</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>4096</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>3840</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>2048</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>1024</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>768</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>512</string>
+               </property>
+              </item>
              </widget>
             </item>
-            <item>
-             <spacer name="horizontalSpacer_5">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>5</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-          <item row="10" column="0">
-           <widget class="QLabel" name="label_19">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Show</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-            <property name="margin">
-             <number>4</number>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,1">
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <item>
+            <item row="1" column="0">
              <widget class="QComboBox" name="fftRateComboBox">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -597,7 +442,7 @@
               </item>
              </widget>
             </item>
-            <item>
+            <item row="1" column="1">
              <widget class="QLabel" name="fftOvrLabel">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -619,92 +464,8 @@
               </property>
              </widget>
             </item>
-           </layout>
-          </item>
-          <item row="10" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout_12" stretch="0,0,0,0">
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QCheckBox" name="peakDetectCheckBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="focusPolicy">
-               <enum>Qt::NoFocus</enum>
-              </property>
-              <property name="toolTip">
-               <string>Detect and display peaks</string>
-              </property>
-              <property name="text">
-               <string>Peaks</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="maxHoldCheckBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="focusPolicy">
-               <enum>Qt::NoFocus</enum>
-              </property>
-              <property name="toolTip">
-               <string>Display max hold line</string>
-              </property>
-              <property name="text">
-               <string>Max</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="minHoldCheckBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="focusPolicy">
-               <enum>Qt::NoFocus</enum>
-              </property>
-              <property name="toolTip">
-               <string>Display min hold line</string>
-              </property>
-              <property name="text">
-               <string>Min</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_8">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>5</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-          <item row="3" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout_6">
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QComboBox" name="fftWinComboBox">
+            <item row="2" column="0">
+             <widget class="QComboBox" name="wfSpanComboBox">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -715,55 +476,228 @@
                <enum>Qt::NoFocus</enum>
               </property>
               <property name="toolTip">
-               <string>FFT window</string>
-              </property>
-              <property name="sizeAdjustPolicy">
-               <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+               <string>Vertical time span for waterfall</string>
               </property>
               <item>
                <property name="text">
-                <string>Hamming</string>
+                <string>Auto</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>Hann</string>
+                <string>1 min</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>Blackman</string>
+                <string>2 min</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>Rectangular</string>
+                <string>5 min</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>Kaiser</string>
+                <string>10 min</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>Blackman-Harris</string>
+                <string>15 min</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>Bartlett</string>
+                <string>20 min</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>Flattop</string>
+                <string>30 min</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>1 hour</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>2 hours</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>5 hours</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>10 hours</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>16 hours</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>24 hours</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>48 hours</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLabel" name="wfResLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Waterfall time resolution.</string>
+              </property>
+              <property name="statusTip">
+               <string/>
+              </property>
+              <property name="text">
+               <string>Res: - s</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+              <property name="margin">
+               <number>0</number>
+              </property>
+              <property name="indent">
+               <number>4</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="0">
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <item>
+             <widget class="QLabel" name="label">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>FFT Size</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="margin">
+               <number>4</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="rateLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Rate</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="margin">
+               <number>4</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_3">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>WF Span</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="margin">
+               <number>4</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="15" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="0,0,1">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QComboBox" name="wfModeBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
+              <property name="toolTip">
+               <string>Waterfall visualization</string>
+              </property>
+              <item>
+               <property name="text">
+                <string>Max</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Avg</string>
                </property>
               </item>
              </widget>
             </item>
             <item>
-             <spacer name="horizontalSpacer_4">
+             <widget class="QComboBox" name="cmapComboBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
+              <property name="toolTip">
+               <string>Waterfall color map</string>
+              </property>
+              <property name="currentText">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_7">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -777,8 +711,130 @@
             </item>
            </layout>
           </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="label_18">
+          <item row="13" column="0">
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_10">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Plot dB</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="margin">
+               <number>4</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_11">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>WF dB</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="margin">
+               <number>4</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="13" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_15" stretch="1,0">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_3">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="ctkRangeSlider" name="plotRangeSlider">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string>Min and max dB for plot</string>
+                </property>
+                <property name="minimum">
+                 <number>-160</number>
+                </property>
+                <property name="maximum">
+                 <number>0</number>
+                </property>
+                <property name="pageStep">
+                 <number>1</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="ctkRangeSlider" name="wfRangeSlider">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string>Min and max dB for waterfall</string>
+                </property>
+                <property name="minimum">
+                 <number>-160</number>
+                </property>
+                <property name="maximum">
+                 <number>0</number>
+                </property>
+                <property name="pageStep">
+                 <number>1</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="lockCheckBox">
+              <property name="toolTip">
+               <string>Use same range for plot and waterfall</string>
+              </property>
+              <property name="autoFillBackground">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Lock</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="7" column="0">
+           <widget class="QLabel" name="label_7">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -786,7 +842,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Plot Scale</string>
+             <string>Averaging</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -796,149 +852,80 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1">
+          <item row="18" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_11">
             <property name="spacing">
              <number>0</number>
             </property>
             <item>
-             <widget class="QComboBox" name="fftSizeComboBox">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
+             <widget class="QPushButton" name="resetButton">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
+              <property name="toolTip">
+               <string>Center plot and reset zoom</string>
+              </property>
+              <property name="text">
+               <string>Reset</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="centerButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
               <property name="focusPolicy">
                <enum>Qt::NoFocus</enum>
               </property>
               <property name="toolTip">
-               <string>FFT size used for plot and histogram</string>
+               <string>Center plot on tuner frequency</string>
               </property>
-              <property name="editable">
-               <bool>false</bool>
+              <property name="text">
+               <string>Center</string>
               </property>
-              <property name="currentIndex">
-               <number>7</number>
-              </property>
-              <property name="maxVisibleItems">
-               <number>15</number>
-              </property>
-              <property name="insertPolicy">
-               <enum>QComboBox::InsertAlphabetically</enum>
-              </property>
-              <item>
-               <property name="text">
-                <string>4194304</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>2097152</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>1048576</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>524288</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>262144</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>131072</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>65536</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>32768</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>16384</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>8192</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>4096</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>3840</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>2048</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>1024</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>768</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>512</string>
-               </property>
-              </item>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="fftRbwLabel">
+             <widget class="QPushButton" name="demodButton">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
               <property name="toolTip">
-               <string>Resolution bandwidth</string>
+               <string>Center plot on filter offset</string>
               </property>
               <property name="text">
-               <string>RBW: 0 kHz</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-              <property name="indent">
-               <number>4</number>
+               <string>Demod</string>
               </property>
              </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_9">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>5</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </item>
@@ -1006,48 +993,8 @@
             </item>
            </layout>
           </item>
-          <item row="11" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout_13">
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QCheckBox" name="bandPlanCheckBox">
-              <property name="toolTip">
-               <string>Show band plan overlay</string>
-              </property>
-              <property name="text">
-               <string>Band Plan</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="markersCheckBox">
-              <property name="toolTip">
-               <string>Show markers and controls</string>
-              </property>
-              <property name="text">
-               <string>Markers</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_10">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>5</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_3">
+          <item row="15" column="0">
+           <widget class="QLabel" name="label_6">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -1055,7 +1002,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>WF Span</string>
+             <string>WF Mode</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1064,71 +1011,6 @@
              <number>4</number>
             </property>
            </widget>
-          </item>
-          <item row="15" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="0,0,1">
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QComboBox" name="wfModeBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="focusPolicy">
-               <enum>Qt::NoFocus</enum>
-              </property>
-              <property name="toolTip">
-               <string>Waterfall visualization</string>
-              </property>
-              <item>
-               <property name="text">
-                <string>Max</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Avg</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item>
-             <widget class="QComboBox" name="cmapComboBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="focusPolicy">
-               <enum>Qt::NoFocus</enum>
-              </property>
-              <property name="toolTip">
-               <string>Waterfall color map</string>
-              </property>
-              <property name="currentText">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_7">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>5</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
           </item>
           <item row="17" column="0">
            <widget class="QLabel" name="label_21">
@@ -1146,8 +1028,8 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_5">
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_18">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -1155,7 +1037,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Plot Mode</string>
+             <string>Plot Scale</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1165,8 +1047,8 @@
             </property>
            </widget>
           </item>
-          <item row="12" column="0">
-           <widget class="QLabel" name="label_8">
+          <item row="10" column="0">
+           <widget class="QLabel" name="label_19">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -1174,26 +1056,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Split</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-            <property name="margin">
-             <number>4</number>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>FFT Size</string>
+             <string>Show</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1288,13 +1151,32 @@
             </item>
            </layout>
           </item>
-          <item row="2" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,1">
+          <item row="12" column="0">
+           <widget class="QLabel" name="label_8">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Split</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="margin">
+             <number>4</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
             <property name="spacing">
              <number>0</number>
             </property>
             <item>
-             <widget class="QComboBox" name="wfSpanComboBox">
+             <widget class="QComboBox" name="fftWinComboBox">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -1305,229 +1187,334 @@
                <enum>Qt::NoFocus</enum>
               </property>
               <property name="toolTip">
-               <string>Vertical time span for waterfall</string>
+               <string>FFT window</string>
+              </property>
+              <property name="sizeAdjustPolicy">
+               <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
               </property>
               <item>
                <property name="text">
-                <string>Auto</string>
+                <string>Hamming</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>1 min</string>
+                <string>Hann</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>2 min</string>
+                <string>Blackman</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>5 min</string>
+                <string>Rectangular</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>10 min</string>
+                <string>Kaiser</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>15 min</string>
+                <string>Blackman-Harris</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>20 min</string>
+                <string>Bartlett</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>30 min</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>1 hour</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>2 hours</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>5 hours</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>10 hours</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>16 hours</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>24 hours</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>48 hours</string>
+                <string>Flattop</string>
                </property>
               </item>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="wfResLabel">
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>5</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Plot Mode</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="margin">
+             <number>4</number>
+            </property>
+           </widget>
+          </item>
+          <item row="10" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_12" stretch="0,0,0,0">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QCheckBox" name="peakDetectCheckBox">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="toolTip">
-               <string>Waterfall time resolution.</string>
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
               </property>
-              <property name="statusTip">
-               <string/>
+              <property name="toolTip">
+               <string>Detect and display peaks</string>
               </property>
               <property name="text">
-               <string>Res: - s</string>
+               <string>Peaks</string>
               </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="maxHoldCheckBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-              <property name="margin">
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
+              <property name="toolTip">
+               <string>Display max hold line</string>
+              </property>
+              <property name="text">
+               <string>Max</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="minHoldCheckBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
+              <property name="toolTip">
+               <string>Display min hold line</string>
+              </property>
+              <property name="text">
+               <string>Min</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_8">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>5</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item row="12" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,1,0">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_15">
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Plain</enum>
+              </property>
+              <property name="lineWidth">
+               <number>1</number>
+              </property>
+              <property name="midLineWidth">
                <number>0</number>
               </property>
-              <property name="indent">
+              <property name="text">
+               <string>Plot</string>
+              </property>
+              <property name="margin">
+               <number>4</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSlider" name="fftSplitSlider">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
+              <property name="toolTip">
+               <string>Plot and waterfall split</string>
+              </property>
+              <property name="maximum">
+               <number>100</number>
+              </property>
+              <property name="pageStep">
+               <number>1</number>
+              </property>
+              <property name="value">
+               <number>35</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_16">
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Plain</enum>
+              </property>
+              <property name="text">
+               <string>WF</string>
+              </property>
+              <property name="margin">
                <number>4</number>
               </property>
              </widget>
             </item>
            </layout>
           </item>
-          <item row="7" column="0">
-           <widget class="QLabel" name="label_7">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+          <item row="20" column="1">
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
             </property>
-            <property name="text">
-             <string>Averaging</string>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>259</width>
+              <height>13</height>
+             </size>
             </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-            <property name="margin">
-             <number>4</number>
-            </property>
-           </widget>
+           </spacer>
           </item>
-          <item row="13" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout_15" stretch="1,0">
+          <item row="4" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
             <property name="spacing">
              <number>0</number>
             </property>
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_3">
-              <property name="spacing">
-               <number>0</number>
+             <widget class="QComboBox" name="plotModeBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
+              <property name="toolTip">
+               <string>Plot visualization</string>
               </property>
               <item>
-               <widget class="ctkRangeSlider" name="plotRangeSlider">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="toolTip">
-                 <string>Min and max dB for plot</string>
-                </property>
-                <property name="minimum">
-                 <number>-160</number>
-                </property>
-                <property name="maximum">
-                 <number>0</number>
-                </property>
-                <property name="pageStep">
-                 <number>1</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
+               <property name="text">
+                <string>Max</string>
+               </property>
               </item>
               <item>
-               <widget class="ctkRangeSlider" name="wfRangeSlider">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="toolTip">
-                 <string>Min and max dB for waterfall</string>
-                </property>
-                <property name="minimum">
-                 <number>-160</number>
-                </property>
-                <property name="maximum">
-                 <number>0</number>
-                </property>
-                <property name="pageStep">
-                 <number>1</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
+               <property name="text">
+                <string>Avg</string>
+               </property>
               </item>
-             </layout>
+              <item>
+               <property name="text">
+                <string>Fill</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Hist</string>
+               </property>
+              </item>
+             </widget>
             </item>
             <item>
-             <widget class="QCheckBox" name="lockCheckBox">
-              <property name="toolTip">
-               <string>Use same range for plot and waterfall</string>
+             <widget class="QtColorPicker" name="colorPicker">
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
               </property>
-              <property name="autoFillBackground">
-               <bool>false</bool>
+              <property name="toolTip">
+               <string>Main color for plot</string>
               </property>
               <property name="text">
-               <string>Lock</string>
+               <string/>
+              </property>
+              <property name="flat">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QCheckBox" name="fillCheckBox">
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
+              <property name="toolTip">
+               <string>Fill below plot line</string>
+              </property>
+              <property name="text">
+               <string>Fill</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>5</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
            </layout>
-          </item>
-          <item row="15" column="0">
-           <widget class="QLabel" name="label_6">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>WF Mode</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-            <property name="margin">
-             <number>4</number>
-            </property>
-           </widget>
           </item>
           <item row="17" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout_16" stretch="1,0">
