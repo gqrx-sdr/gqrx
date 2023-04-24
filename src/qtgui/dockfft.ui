@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="styleSheet">
-   <string notr="true">QComboBox { padding: 0 0.25em 0 0 }</string>
+   <string notr="true">QComboBox { padding: 0 0.25em 0 0.1em }</string>
   </property>
   <property name="windowTitle">
    <string>FFT Settings</string>
