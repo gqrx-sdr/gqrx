@@ -139,13 +139,12 @@ void CAgc::SetParameters(bool AgcOn,  bool UseHang, int Threshold, int ManualGai
     m_SlopeFactor = SlopeFactor;
     m_Decay = Decay;
 
-    m_DelaySamples = (int)(m_SampleRate * DELAY_TIMECONST);
-    m_WindowSamples = (int)(m_SampleRate * WINDOW_TIMECONST);
-
     if (m_SampleRate != SampleRate)
     {
         //clear out delay buffer and init some things if sample rate changes
         m_SampleRate = SampleRate;
+        m_DelaySamples = (int)(m_SampleRate * DELAY_TIMECONST);
+        m_WindowSamples = (int)(m_SampleRate * WINDOW_TIMECONST);
         for (int i = 0; i < MAX_DELAY_BUF; i++)
         {
             m_SigDelayBuf[i] = 0.0;
