@@ -1,5 +1,5 @@
 
-      2.16: In progress...
+      2.16: Released April 28, 2023
 
        NEW: Restore AM & AM-Sync settings between sessions.
        NEW: Set/get audio gain via remote control.
