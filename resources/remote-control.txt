@@ -34,9 +34,9 @@ Supported commands:
  U RECORD <status>
     Set status of audio recorder to <status>
  u DSP
-    Get DSP status
+    Get DSP (SDR receiver) status
  U DSP <status>
-    Set DSP status to <status>
+    Set DSP (SDR receiver) status to <status>
  u RDS
     Get RDS decoder to <status>.  Only functions in WFM mode.
  U RDS <status>
