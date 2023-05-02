@@ -61,6 +61,9 @@
 #include "qtgui/bookmarkstaglist.h"
 #include "qtgui/bandplan.h"
 
+#include <json.hpp>
+using json = nlohmann::json;
+
 MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) :
     QMainWindow(parent),
     configOk(true),
@@ -70,7 +73,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     d_fftAvg(0.25),
     d_fftNormalizeEnergy(false),
     d_have_audio(true),
-    dec_afsk1200(nullptr)
+    dec_afsk1200(nullptr),
+    d_zmq_context(1)
 {
     ui->setupUi(this);
     BandPlan::create();
@@ -124,6 +128,11 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     iq_fft_timer = new QTimer(this);
     iq_fft_timer->setTimerType(Qt::PreciseTimer);
     connect(iq_fft_timer, SIGNAL(timeout()), this, SLOT(iqFftTimeout()));
+
+    /* Data output timer */
+    data_out_timer = new QTimer(this);
+    connect(data_out_timer, SIGNAL(timeout()), this, SLOT(dataOutTimeout()));
+
     d_last_fft_ms = 0;
     d_avg_fft_rate = 0.0;
     d_frame_drop = false;
@@ -138,6 +147,9 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 
     // create I/Q tool widget
     iq_tool = new CIqTool(this);
+
+    // create data output contol dialog
+    data_controls = new CDataControls(this);
 
     // create DXC Objects
     dxc_options = new DXCOptions(this);
@@ -319,6 +331,9 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(iq_tool, SIGNAL(stopPlayback()), this, SLOT(stopIqPlayback()));
     connect(iq_tool, SIGNAL(seek(qint64)), this,SLOT(seekIqFile(qint64)));
 
+    // data output controls
+    connect(data_controls, SIGNAL(settingsChanged()), this, SLOT(dataSettingsChanged()));
+
     // remote control
     connect(remote, SIGNAL(newRDSmode(bool)), uiDockRDS, SLOT(setRDSmode(bool)));
     connect(remote, SIGNAL(newFilterOffset(qint64)), this, SLOT(setFilterOffset(qint64)));
@@ -400,6 +415,9 @@ MainWindow::~MainWindow()
     iq_fft_timer->stop();
     delete iq_fft_timer;
 
+    data_out_timer->stop();
+    delete data_out_timer;
+
     audio_fft_timer->stop();
     delete audio_fft_timer;
 
@@ -427,6 +445,7 @@ MainWindow::~MainWindow()
     delete m_recent_config;
 
     delete iq_tool;
+    delete data_controls;
     delete dxc_options;
     delete ui;
     delete uiDockRxOpt;
@@ -683,6 +702,10 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
 
     iq_tool->readSettings(m_settings);
 
+    // Read settings for data output controls, then set state from UI
+    data_controls->readSettings(m_settings);
+    dataSettingsChanged();
+
     /*
      * Initialization the remote control at the end.
      * We must be sure that all variables initialized before starting RC server.
@@ -773,6 +796,7 @@ void MainWindow::storeSession()
 
         remote->saveSettings(m_settings);
         iq_tool->saveSettings(m_settings);
+        data_controls->saveSettings(m_settings);
         dxc_options->saveSettings(m_settings);
 
         {
@@ -1454,8 +1478,8 @@ void MainWindow::meterTimeout()
     remote->setSignalLevel(level);
 }
 
-/** Baseband FFT plot timeout. */
-void MainWindow::iqFftTimeout()
+/** Combined handler for FFT plot timeout and data out timeout. */
+void MainWindow::fftAndDataTimeout(bool plotterOut, bool dataOut)
 {
     const unsigned int fftsize = rx->iq_fft_size();
 
@@ -1465,32 +1489,90 @@ void MainWindow::iqFftTimeout()
         return;
     }
 
+    const double quad_rate = rx->get_input_rate() / rx->get_input_decim();
+
     // Track the frame rate and warn if not keeping up. Since the interval is ms, the timer can
     // not be set exactly to all rates.
     const quint64 now_ms = QDateTime::currentMSecsSinceEpoch();
-    const float expected_rate = 1000.0f / (float)iq_fft_timer->interval();
-    const float last_fft_rate = 1000.0f / (float)(now_ms - d_last_fft_ms);
-    const float alpha = std::pow(expected_rate, -0.75f);
-    if (d_avg_fft_rate == 0.0f)
-        d_avg_fft_rate = expected_rate;
-    else
-        d_avg_fft_rate = (1.0f - alpha) * d_avg_fft_rate + alpha * last_fft_rate;
+    const double nowD = (double)now_ms / 1000.0;
 
-    const bool drop = d_avg_fft_rate < expected_rate * 0.95f;
-    if (drop != d_frame_drop) {
-        if (drop) {
-            uiDockFft->setActualFrameRate(d_avg_fft_rate, true);
+    if (plotterOut)
+    {
+        const float expected_rate = 1000.0f / (float)iq_fft_timer->interval();
+        const float last_fft_rate = 1000.0f / (float)(now_ms - d_last_fft_ms);
+        const float alpha = std::pow(expected_rate, -0.75f);
+        if (d_avg_fft_rate == 0.0f)
+            d_avg_fft_rate = expected_rate;
+        else
+            d_avg_fft_rate = (1.0f - alpha) * d_avg_fft_rate + alpha * last_fft_rate;
+
+        const bool drop = d_avg_fft_rate < expected_rate * 0.95f;
+        if (drop != d_frame_drop) {
+            if (drop) {
+                uiDockFft->setActualFrameRate(d_avg_fft_rate, true);
+            }
+            else {
+                uiDockFft->setActualFrameRate(d_avg_fft_rate, false);
+            }
+            d_frame_drop = drop;
         }
-        else {
-            uiDockFft->setActualFrameRate(d_avg_fft_rate, false);
-        }
-        d_frame_drop = drop;
+        d_last_fft_ms = now_ms;
     }
-    d_last_fft_ms = now_ms;
 
-    rx->get_iq_fft_data(d_iqFftData.data());
+    // ZMQ: topic=data.sample.complex
+    if (dataOut && d_output_enabled && d_sample_raw_enabled)
+    {
+        // fftsize is a reference, return value
+        rx->get_iq_sample_data(d_sampleData.data());
 
-    ui->plotter->setNewFftData(d_iqFftData.data(), fftsize);
+        ui->plotter->setNewFftData(d_iqFftData.data(), fftsize);
+
+        if (fftsize) {
+            json j;
+            j["frequency"] = rx->get_rf_freq();
+            j["rate"] = llround(quad_rate);
+            j["fftsize"] = fftsize;
+            j["timestamp"] = nowD;
+            QString channel("data.sample.complex");
+            QString metadata(j.dump().c_str());
+            outputData(channel, metadata, d_sampleData.data(), fftsize * sizeof(gr_complex));
+        }
+    }
+
+    // Get FFT and send to plotter and/or data out
+    if (plotterOut || (d_output_enabled && d_fft_linear_enabled))
+    {
+        rx->get_iq_fft_data(d_iqFftData.data());
+        if (plotterOut)
+            ui->plotter->setNewFftData(d_iqFftData.data(), fftsize);
+
+        // ZMQ: topic=data.fft.linear
+        if (dataOut && d_output_enabled && d_fft_linear_enabled)
+        {
+            json j;
+            j["frequency"] = rx->get_rf_freq();
+            j["rate"] = llround(quad_rate);
+            j["fftsize"] = fftsize;
+            j["timestamp"] = nowD;
+            QString channel("data.fft.linear");
+            QString metadata(j.dump().c_str());
+            outputData(channel, metadata, d_iqFftData.data(), fftsize * sizeof(float));
+        }
+    }
+}
+
+/** Baseband FFT plot timeout. */
+void MainWindow::iqFftTimeout()
+{
+    // Output to plotter, output data if separate timer is not active
+    fftAndDataTimeout(true, !data_out_timer->isActive());
+}
+
+/** Data output timeout. */
+void MainWindow::dataOutTimeout()
+{
+    // Do not output to plotter, always output data
+    fftAndDataTimeout(false, true);
 }
 
 /** Audio FFT plot timeout. */
@@ -1772,6 +1854,8 @@ void MainWindow::setIqFftSize(int size)
     qDebug() << "Changing baseband FFT size to" << size;
     d_iqFftData.resize(size);
     d_iqFftData.shrink_to_fit();
+    d_sampleData.resize(size);
+    d_sampleData.shrink_to_fit();
     rx->set_iq_fft_size(size);
 }
 
@@ -1810,6 +1894,63 @@ void MainWindow::setIqFftWindow(int type)
 {
     d_fftWindowType = type;
     rx->set_iq_fft_window(d_fftWindowType, d_fftNormalizeEnergy);
+}
+
+void MainWindow::dataSettingsChanged(void)
+{
+    bool was_enabled = d_output_enabled;
+    float prev_output_interval = d_output_interval;
+
+    // Fetch current params from UI
+    bool enabled = data_controls->outputEnabled();
+    d_output_interval = data_controls->interval();
+    d_sample_raw_enabled = data_controls->samplesEnabled();
+    d_fft_linear_enabled = data_controls->linearFFTEnabled();
+
+    // If none of these changed, logic below is not required
+    if (enabled == was_enabled && prev_output_interval == d_output_interval)
+        return;
+
+    // Stop here and restart just before returning, if needed
+    data_out_timer->stop();
+
+    // New timer interval (ms)
+    data_out_timer->setInterval(lround(d_output_interval * 1000.0));
+
+    // Start or stop ZMQ on state change
+    if (enabled != was_enabled) {
+        if (enabled)
+        {
+            // Open ZMQ
+            // On fail, disable output on UI, log to console
+            try {
+                d_zmq_socket = zmq::socket_t(d_zmq_context, ZMQ_PUB);
+                QString uri = data_controls->uri();
+                d_zmq_socket.bind(uri.toUtf8().data());
+                d_output_enabled = true;
+                data_controls->setStatus("RUNNING");
+            }
+            catch (std::exception &e)
+            {
+                data_controls->setOutputEnabled(false);
+                data_controls->setStatus(std::string("Error: ") + e.what());
+            }
+        }
+        else
+        {
+            d_output_enabled = false;
+            // Close ZMQ
+            if (d_zmq_socket)
+                d_zmq_socket.close();
+            data_controls->setStatus("STOPPED");
+        }
+    }
+
+    // Use own timer instead of fft timer
+    if (enabled && d_output_interval != 0)
+    {
+        data_out_timer->start();
+    }
 }
 
 void MainWindow::plotScaleChanged(int type, bool perHz)
@@ -2070,6 +2211,11 @@ void MainWindow::on_actionIqTool_triggered()
     iq_tool->show();
 }
 
+/** Controls for ZMQ data output */
+void MainWindow::on_actionDataOutput_triggered()
+{
+    data_controls->show();
+}
 
 /* CPlotter::NewDemodFreq() is emitted */
 void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
@@ -2531,4 +2677,17 @@ void MainWindow::toggleMarkers()
 {
     enableMarkers(!d_show_markers);
     uiDockFft->setMarkersEnabled(d_show_markers);
+}
+
+void MainWindow::outputData(QString &channel, QString &metadata)
+{
+    d_zmq_socket.send(zmq::buffer(channel.toUtf8(), channel.length()), zmq::send_flags::sndmore);
+    d_zmq_socket.send(zmq::buffer(metadata.toUtf8(), metadata.length()));
+}
+
+void MainWindow::outputData(QString &channel, QString &metadata, void *data, quint64 dataLength)
+{
+    d_zmq_socket.send(zmq::buffer(channel.toUtf8(), channel.length()), zmq::send_flags::sndmore);
+    d_zmq_socket.send(zmq::buffer(metadata.toUtf8(), metadata.length()), zmq::send_flags::sndmore);
+    d_zmq_socket.send(zmq::buffer(data, dataLength));
 }

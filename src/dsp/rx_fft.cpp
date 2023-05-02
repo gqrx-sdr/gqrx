@@ -145,6 +145,20 @@ void rx_fft_c::get_fft_data(float* fftPoints)
         fftPoints[i] = static_cast<float>(std::norm(fftOut[i - d_fftsize/2]));
 }
 
+/*! \brief Get a sample raw data from the intput. This is intended for periodic
+ * sampling so there may be gaps or overlaps. The read pointer is not
+ * advanced.
+ * \param data
+ * \param size
+ */
+void rx_fft_c::get_sample_data(std::complex<float>* data)
+{
+    std::lock_guard<std::mutex> lock(d_in_mutex);
+    gr_complex *p = (gr_complex *)d_reader->read_pointer();
+    p += (MAX_FFT_SIZE - d_fftsize);
+    memcpy(data, d_reader->read_pointer(), sizeof(gr_complex) * d_fftsize);
+}
+
 /*! \brief Compute FFT on the available input data.
  *  \param data_in The data to compute FFT on.
  *  \param size The size of data_in.

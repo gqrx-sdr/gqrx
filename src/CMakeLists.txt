@@ -122,6 +122,16 @@ else()
     )
 endif()
 
+if (NOT ZeroMQ_FOUND)
+    find_package(ZeroMQ)
+endif()
+
+# GNU Radio's FindZeroMQ.cmake sets ZEROMQ_LIBRARIES, while the underlying
+# cppzmq sets ZeroMQ_LIBRARIES.
+target_link_libraries(${PROJECT_NAME}
+    ${ZEROMQ_LIBRARIES}
+)
+
 #build a win32 app, not a console app
 if (WIN32)
     set(CMAKE_EXE_LINKER_FLAGS "/entry:mainCRTStartup ${CMAKE_EXE_LINKER_FLAGS}")

@@ -95,6 +95,7 @@ public:
              gr_vector_void_star &output_items);
 
     void get_fft_data(float* fftPoints);
+    void get_sample_data(std::complex<float>* data);
 
     void set_window_type(int wintype, bool normalize_energy);
     int  get_window_type() const { return d_wintype; }
