@@ -25,6 +25,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QDir>
+#include <QFileSystemWatcher>
 #include <QPalette>
 #include <QString>
 #include <QStringList>
@@ -51,7 +52,10 @@ CIqTool::CIqTool(QWidget *parent) :
 
     //ui->recDirEdit->setText(QDir::currentPath());
 
-    recdir = new QDir(QDir::homePath(), "*.raw");
+    recdir = new QDir(QDir::homePath(), "*.raw", QDir::Time | QDir::Reversed);
+
+    watcher = new QFileSystemWatcher();
+    connect(watcher, SIGNAL(directoryChanged(const QString&)), this, SLOT(refreshDir(void)));
 
     error_palette = new QPalette();
     error_palette->setColor(QPalette::Text, Qt::red);
@@ -63,6 +67,7 @@ CIqTool::CIqTool(QWidget *parent) :
 CIqTool::~CIqTool()
 {
     timer->stop();
+    delete watcher;
     delete timer;
     delete ui;
     delete recdir;
@@ -97,14 +102,12 @@ void CIqTool::on_listWidget_currentTextChanged(const QString &currentText)
 
     // Get duration of selected recording and update label
     refreshTimeWidgets();
-
 }
+
 
 /*! \brief Start/stop playback */
 void CIqTool::on_playButton_clicked(bool checked)
 {
-    is_playing = checked;
-
     if (checked)
     {
         if (current_file.isEmpty())
@@ -125,18 +128,19 @@ void CIqTool::on_playButton_clicked(bool checked)
         }
         else
         {
-            ui->listWidget->setEnabled(false);
+            is_playing = true;
             ui->recButton->setEnabled(false);
+            ui->recDirEdit->setEnabled(false);
+            ui->recDirButton->setEnabled(false);
+            ui->listWidget->setEnabled(false);
             emit startPlayback(recdir->absoluteFilePath(current_file),
                                (float)sample_rate, center_freq);
+            timer->start(1000);
         }
     }
     else
     {
-        emit stopPlayback();
-        ui->listWidget->setEnabled(true);
-        ui->recButton->setEnabled(true);
-        ui->slider->setValue(0);
+        cancelPlayback();
     }
 }
 
@@ -148,9 +152,17 @@ void CIqTool::on_playButton_clicked(bool checked)
  */
 void CIqTool::cancelPlayback()
 {
+    if (!is_playing)
+        return;
+
+    timer->stop();
+    emit stopPlayback();
+    ui->slider->setValue(0);
     ui->playButton->setChecked(false);
-    ui->listWidget->setEnabled(true);
     ui->recButton->setEnabled(true);
+    ui->recDirEdit->setEnabled(true);
+    ui->recDirButton->setEnabled(true);
+    ui->listWidget->setEnabled(true);
     is_playing = false;
 }
 
@@ -168,20 +180,24 @@ void CIqTool::on_slider_valueChanged(int value)
 /*! \brief Start/stop recording */
 void CIqTool::on_recButton_clicked(bool checked)
 {
-    is_recording = checked;
-
     if (checked)
     {
+        is_recording = true;
         ui->playButton->setEnabled(false);
+        ui->recDirEdit->setEnabled(false);
+        ui->recDirButton->setEnabled(false);
+        ui->listWidget->setEnabled(false);
         emit startRecording(recdir->path());
+        timer->start(1000);
 
+        // Highlight bottom entry, presumably the current recording
         refreshDir();
         ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
+        recording_file = (QString)ui->listWidget->currentItem()->text();
     }
     else
     {
-        ui->playButton->setEnabled(true);
-        emit stopRecording();
+        cancelRecording();
     }
 }
 
@@ -195,8 +211,17 @@ void CIqTool::on_recButton_clicked(bool checked)
  */
 void CIqTool::cancelRecording()
 {
+    if (!is_recording)
+        return;
+
+    timer->stop();
+    recording_file = QString("");
+    emit stopRecording();
     ui->recButton->setChecked(false);
     ui->playButton->setEnabled(true);
+    ui->recDirEdit->setEnabled(true);
+    ui->recDirButton->setEnabled(true);
+    ui->listWidget->setEnabled(true);
     is_recording = false;
 }
 
@@ -208,7 +233,7 @@ void CIqTool::cancelRecording()
  */
 void CIqTool::closeEvent(QCloseEvent *event)
 {
-    timer->stop();
+    watcher->removePath(recdir->absolutePath());
     hide();
     event->ignore();
 }
@@ -217,9 +242,9 @@ void CIqTool::closeEvent(QCloseEvent *event)
 void CIqTool::showEvent(QShowEvent * event)
 {
     Q_UNUSED(event);
+    watcher->addPath(recdir->absolutePath());
     refreshDir();
     refreshTimeWidgets();
-    timer->start(1000);
 }
 
 
@@ -253,11 +278,14 @@ void CIqTool::readSettings(QSettings *settings)
  */
 void CIqTool::on_recDirEdit_textChanged(const QString &dir)
 {
-    if (recdir->exists(dir))
+    if (!dir.isEmpty() && recdir->exists(dir))
     {
+        watcher->removePath(recdir->absolutePath());
         ui->recDirEdit->setPalette(QPalette());  // Clear custom color
         recdir->setPath(dir);
         recdir->cd(dir);
+        refreshDir();
+        watcher->addPath(recdir->absolutePath());
         //emit newRecDirSelected(dir);
     }
     else
@@ -280,8 +308,6 @@ void CIqTool::on_recDirButton_clicked()
 
 void CIqTool::timeoutFunction(void)
 {
-    refreshDir();
-
     if (is_playing)
     {
         // advance slider with one second
@@ -294,12 +320,16 @@ void CIqTool::timeoutFunction(void)
             refreshTimeWidgets();
         }
     }
-    if (is_recording)
+    if (is_recording) {
+        // Update recording length
+        QFileInfo info(*recdir, recording_file);
+        rec_len = (int)(info.size() / (sample_rate * bytes_per_sample));
         refreshTimeWidgets();
+    }
 }
 
 /*! \brief Refresh list of files in current working directory. */
-void CIqTool::refreshDir()
+void CIqTool::refreshDir(void)
 {
     int selection = ui->listWidget->currentRow();
     QScrollBar * sc = ui->listWidget->verticalScrollBar();

@@ -26,6 +26,7 @@
 #include <QCloseEvent>
 #include <QDialog>
 #include <QDir>
+#include <QFileSystemWatcher>
 #include <QPalette>
 #include <QSettings>
 #include <QShowEvent>
@@ -79,21 +80,23 @@ private slots:
     void on_playButton_clicked(bool checked);
     void on_slider_valueChanged(int value);
     void on_listWidget_currentTextChanged(const QString &currentText);
+    void refreshDir(void);
     void timeoutFunction(void);
 
 private:
-    void refreshDir(void);
     void refreshTimeWidgets(void);
     void parseFileName(const QString &filename);
 
 private:
     Ui::CIqTool *ui;
 
+    QFileSystemWatcher *watcher;
     QDir        *recdir;
     QTimer      *timer;
     QPalette    *error_palette; /*!< Palette used to indicate an error. */
 
     QString current_file;      /*!< Selected file in file browser. */
+    QString recording_file;    /*!< File currently being recorded. */
 
     bool    is_recording;
     bool    is_playing;
