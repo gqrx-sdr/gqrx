@@ -1517,7 +1517,7 @@ void CPlotter::draw(bool newData)
                 qint32 cidx = qRound((m_WfMaxdB - 10.0 * log10f(v)) * wfdBGainFactor);
                 cidx = std::max(std::min(cidx, 255), 0);
                 painter1.setPen(m_ColorTbl[255 - cidx]);
-                painter1.drawRect(QRectF(ixPlot, 0.0, 1.0, 1.0));
+                painter1.drawPoint(QPointF(ixPlot, 0));
             }
 
             wf_avg_count = 0;
