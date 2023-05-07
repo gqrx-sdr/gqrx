@@ -122,7 +122,6 @@ public:
     void    setFftRate(int rate_hz);
     void    clearWaterfallBuf();
     bool    saveWaterfall(const QString & filename) const;
-    void    toggleFreeze();
 
     enum ePlotMode {
         PLOT_MODE_MAX = 0,
@@ -252,7 +251,6 @@ private:
     qreal       m_YAxisWidth{};
 
     eCapturetype    m_CursorCaptured;
-    bool        m_Frozen;           // Waterfall is frozen - pixmap will not be rendered
     QPixmap     m_2DPixmap;         // Composite of everything displayed in the 2D plotter area
     QPixmap     m_OverlayPixmap;    // Grid, axes ... things that need to be drawn infrequently
     QPixmap     m_WaterfallPixmap;
@@ -332,7 +330,7 @@ private:
 
     // Waterfall averaging
     quint64     tlast_wf_ms;        // last time waterfall has been updated
-    quint64     tlast_wf_drawn_ms;  // last time waterfall was draw (accounting for freeze)
+    quint64     tlast_wf_drawn_ms;  // last time waterfall was drawn
     quint64     wf_valid_since_ms;  // last time before action that invalidates time line
     double      msec_per_wfline{};  // milliseconds between waterfall updates
     quint64     wf_epoch;           // msec time of last waterfal rate change

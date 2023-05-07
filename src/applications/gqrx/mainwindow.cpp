@@ -169,9 +169,6 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     // zero cursor (rx filter offset)
     auto *rx_offset_zero_shortcut = new QShortcut(QKeySequence(Qt::Key_Z), this);
     QObject::connect(rx_offset_zero_shortcut, &QShortcut::activated, this, &MainWindow::rxOffsetZeroShortcut);
-    // freeze plotter on P
-    auto *toggle_freeze_shortcut = new QShortcut(QKeySequence(Qt::Key_P), this);
-    QObject::connect(toggle_freeze_shortcut, &QShortcut::activated, this, &MainWindow::toggleFreezeShortcut);
     // toggle markers on/off
     auto *toggle_markers_shortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_K), this);
     QObject::connect(toggle_markers_shortcut, &QShortcut::activated, this, &MainWindow::toggleMarkers);
@@ -2523,11 +2520,6 @@ void MainWindow::frequencyFocusShortcut()
 void MainWindow::rxOffsetZeroShortcut()
 {
     uiDockRxOpt->setFilterOffset(0);
-}
-
-void MainWindow::toggleFreezeShortcut()
-{
-    ui->plotter->toggleFreeze();
 }
 
 void MainWindow::enableMarkers(bool enabled)

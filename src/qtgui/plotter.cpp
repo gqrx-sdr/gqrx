@@ -151,7 +151,6 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     m_CursorCaptured = NOCAP;
     m_Running = false;
     m_DrawOverlay = true;
-    m_Frozen = false;
     m_2DPixmap = QPixmap();
     m_OverlayPixmap = QPixmap();
     m_WaterfallPixmap = QPixmap();
@@ -682,11 +681,6 @@ bool CPlotter::saveWaterfall(const QString & filename) const
     return pixmap.save(filename, nullptr, -1);
 }
 
-void CPlotter::toggleFreeze()
-{
-    m_Frozen = !m_Frozen;
-}
-
 /** Get waterfall time resolution in milleconds / line. */
 quint64 CPlotter::getWfTimeRes() const
 {
@@ -1150,8 +1144,6 @@ void CPlotter::resizeEvent(QResizeEvent* )
     drawOverlay();
     draw(false);
     emit newSize();
-
-    m_Frozen = false;
 }
 
 // Called by QT when screen needs to be redrawn
@@ -1176,7 +1168,7 @@ void CPlotter::paintEvent(QPaintEvent *)
         painter.drawPixmap(plotRectT, m_2DPixmap, plotRectS);
     }
 
-    if (!m_Frozen && !m_WaterfallPixmap.isNull())
+    if (!m_WaterfallPixmap.isNull())
     {
         const int wfWidthS = m_WaterfallPixmap.width();
         const int wfHeightS = m_WaterfallPixmap.height();
@@ -1494,8 +1486,7 @@ void CPlotter::draw(bool newData)
             tlast_wf_ms = tnow_ms;
             if (wf_valid_since_ms == 0)
                 wf_valid_since_ms = tnow_ms;
-            if (!m_Frozen)
-                tlast_wf_drawn_ms = tnow_ms;
+            tlast_wf_drawn_ms = tnow_ms;
 
             // move current data down one line(must do before attaching a QPainter object)
             m_WaterfallPixmap.scroll(0, 1, m_WaterfallPixmap.rect());
