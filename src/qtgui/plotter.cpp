@@ -164,6 +164,7 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
 
     // always update waterfall
     tlast_wf_ms = 0;
+    tlast_plot_drawn_ms = 0;
     tlast_wf_drawn_ms = 0;
     wf_valid_since_ms = 0;
     msec_per_wfline = 0;
@@ -1246,7 +1247,8 @@ void CPlotter::draw(bool newData)
     const double frameTime = 1.0 / (double)fft_rate;
 
     // Redraw the plot if it is visible.
-    const bool doPlotter = !m_2DPixmap.isNull();
+    const bool doPlotter = (!m_2DPixmap.isNull()
+        && tnow_ms >= tlast_plot_drawn_ms + PLOTTER_UPDATE_LIMIT_MS);
 
     // Do not waste time with histogram calculations unless in this mode.
     const bool doHistogram = m_PlotMode == PLOT_MODE_HISTOGRAM;
@@ -1523,6 +1525,8 @@ void CPlotter::draw(bool newData)
     // get/draw the 2D spectrum
     if (doPlotter)
     {
+        tlast_plot_drawn_ms = tnow_ms;
+
         m_2DPixmap.fill(PLOTTER_BGD_COLOR);
         QPainter painter2(&m_2DPixmap);
 
