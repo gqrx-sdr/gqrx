@@ -1098,8 +1098,8 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
 {
     updateHWFrequencyRange(ignore_limits);
 
-    auto filter_offset = (qint64)rx->get_filter_offset();
-    auto freq = (qint64)rx->get_rf_freq();
+    auto filter_offset = qRound64(rx->get_filter_offset());
+    auto freq = qRound64(rx->get_rf_freq());
     ui->freqCtrl->setFrequency(d_lnb_lo + freq + filter_offset);
 
     // This will ensure that if frequency is clamped and that
@@ -1622,8 +1622,8 @@ void MainWindow::startIqRecording(const QString& recdir)
     qDebug() << __func__;
     // generate file name using date, time, rf freq in kHz and BW in Hz
     // gqrx_iq_yyyymmdd_hhmmss_freq_bw_fc.raw
-    auto freq = (qint64)(rx->get_rf_freq());
-    auto sr = (qint64)(rx->get_input_rate());
+    auto freq = qRound64(rx->get_rf_freq());
+    auto sr = qRound64(rx->get_input_rate());
     auto dec = (quint32)(rx->get_input_decim());
     auto lastRec = QDateTime::currentDateTimeUtc().
             toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.'raw'")
