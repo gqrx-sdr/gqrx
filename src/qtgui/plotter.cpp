@@ -133,7 +133,7 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
 
     m_FilterBoxEnabled = true;
     m_CenterLineEnabled = true;
-    m_MarkersEnabled = true;
+    m_MarkersEnabled = false;
     m_BandPlanEnabled = true;
     m_BookmarksEnabled = true;
     m_InvertScrolling = false;
