@@ -246,27 +246,27 @@ void DockFft::saveSettings(QSettings *settings)
 
     QColor fftColor = ui->colorPicker->currentColor();
     if (fftColor != QColor(0xFF,0xFF,0xFF,0xFF))
-        settings->setValue("plot_color", fftColor);
+        settings->setValue("pandapter_color", fftColor);
     else
-        settings->remove("plot_color");
+        settings->remove("pandapter_color");
 
     if (ui->fillCheckBox->isChecked())
-        settings->setValue("plot_fill", true);
+        settings->setValue("pandapter_fill", true);
     else
-        settings->remove("plot_fill");
+        settings->remove("pandapter_fill");
 
     // dB ranges
     intval = ui->plotRangeSlider->minimumValue();
     if (intval == DEFAULT_FFT_MIN_DB)
-        settings->remove("plot_min_db");
+        settings->remove("pandapter_min_db");
     else
-        settings->setValue("plot_min_db", intval);
+        settings->setValue("pandapter_min_db", intval);
 
     intval = ui->plotRangeSlider->maximumValue();
     if (intval == DEFAULT_FFT_MAX_DB)
-        settings->remove("plot_max_db");
+        settings->remove("pandapter_max_db");
     else
-        settings->setValue("plot_max_db", intval);
+        settings->setValue("pandapter_max_db", intval);
 
     intval = ui->wfRangeSlider->minimumValue();
     if (intval == DEFAULT_FFT_MIN_DB)
@@ -388,10 +388,10 @@ void DockFft::readSettings(QSettings *settings)
     if (conv_ok)
         ui->fftSplitSlider->setValue(intval);
 
-    color = settings->value("plot_color", QColor(0xFF,0xFF,0xFF,0xFF)).value<QColor>();
+    color = settings->value("pandapter_color", QColor(0xFF,0xFF,0xFF,0xFF)).value<QColor>();
     ui->colorPicker->setCurrentColor(color);
 
-    bool_val = settings->value("plot_fill", false).toBool();
+    bool_val = settings->value("pandapter_fill", false).toBool();
     ui->fillCheckBox->setChecked(bool_val);
 
     // delete old dB settings from config
@@ -401,8 +401,8 @@ void DockFft::readSettings(QSettings *settings)
     if (settings->contains("fft_range"))
         settings->remove("fft_range");
 
-    fft_max = settings->value("plot_max_db", DEFAULT_FFT_MAX_DB).toInt();
-    fft_min = settings->value("plog_min_db", DEFAULT_FFT_MIN_DB).toInt();
+    fft_max = settings->value("pandapter_max_db", DEFAULT_FFT_MAX_DB).toInt();
+    fft_min = settings->value("pandapter_min_db", DEFAULT_FFT_MIN_DB).toInt();
     setPandapterRange(fft_min, fft_max);
     emit pandapterRangeChanged((float) fft_min, (float) fft_max);
 
