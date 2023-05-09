@@ -21,7 +21,6 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#include <math.h>
 #include <gnuradio/io_signature.h>
 #include <gnuradio/gr_complex.h>
 #include "dsp/rx_noise_blanker_cc.h"
@@ -109,9 +108,9 @@ void rx_nb_cc::process_nb1(gr_complex *buf, int num)
 
     for (int i = 0; i < num; i++)
     {
-        cmag = abs(buf[i]);
+        cmag = std::abs(buf[i]);
         d_delay[d_sigidx] = buf[i];
-        d_avgmag_nb1 = 0.999*d_avgmag_nb1 + 0.001*cmag;
+        d_avgmag_nb1 = 0.999f*d_avgmag_nb1 + 0.001f*cmag;
 
         if ((d_hangtime == 0) && (cmag > (d_thld_nb1*d_avgmag_nb1)))
             d_hangtime = 7;
@@ -150,7 +149,7 @@ void rx_nb_cc::process_nb2(gr_complex *buf, int num)
     {
         cmag = abs(buf[i]);
         d_avgsig = c1*d_avgsig + c2*buf[i];
-        d_avgmag_nb2 = 0.999*d_avgmag_nb2 + 0.001*cmag;
+        d_avgmag_nb2 = 0.999f*d_avgmag_nb2 + 0.001f*cmag;
 
         if (cmag > d_thld_nb2*d_avgmag_nb2)
             buf[i] = d_avgsig;
@@ -159,12 +158,12 @@ void rx_nb_cc::process_nb2(gr_complex *buf, int num)
 
 void rx_nb_cc::set_threshold1(float threshold)
 {
-    if ((threshold >= 1.0) && (threshold <= 20.0))
+    if ((threshold >= 1.0f) && (threshold <= 20.0f))
         d_thld_nb1 = threshold;
 }
 
 void rx_nb_cc::set_threshold2(float threshold)
 {
-    if ((threshold >= 0.0) && (threshold <= 15.0))
+    if ((threshold >= 0.0f) && (threshold <= 15.0f))
         d_thld_nb2 = threshold;
 }
