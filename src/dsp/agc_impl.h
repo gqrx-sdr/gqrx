@@ -34,7 +34,7 @@ class CAgc
 public:
     CAgc();
     virtual ~CAgc();
-    void SetParameters(bool AgcOn, bool UseHang, int Threshold, int ManualGain, int Slope, int Decay, double SampleRate);
+    void SetParameters(bool AgcOn, bool UseHang, int Threshold, int ManualGain, int Slope, int Decay, float SampleRate);
     void ProcessData(int Length, const TYPECPX * pInData, TYPECPX * pOutData);
 
 private:
