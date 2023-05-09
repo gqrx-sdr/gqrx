@@ -1,4 +1,28 @@
 
+      2.17: In progress...
+
+       NEW: "Avg" plot mode, which displays average of FFT bins.
+       NEW: "Fill" plot mode, which displays both maximum & average of FFT bins.
+       NEW: "Histogram" plot mode, which displays distribution of FFT bins.
+       NEW: Selectable plot scaling: dBFS, dBV/RBW, dbV/√Hz, dBm/RBW, dBm/Hz.
+       NEW: Min hold line in plot.
+       NEW: A/B measurement markers on plot.
+       NEW: Plot tooltip displays delta from demod frequency.
+       NEW: Dropped frames are indicated by red background in FFT Settigns panel.
+       NEW: "Avg" waterfall mode, which displays average of FFT bins.
+       NEW: "Sync" waterfall mode, which mirrors averaged data from plot.
+  IMPROVED: Peak detection algorithm.
+  IMPROVED: Peak detection uses peak hold data when available.
+  IMPROVED: Maximum FFT size increased to 4M.
+  IMPROVED: Maximum frame rate increased to 250.
+  IMPROVED: Averaging slider is consistent across frame rates.
+  IMPROVED: Visibility of text in axes.
+  IMPROVED: Full support for high-DPI screens in plot & waterfall.
+  IMPROVED: Plot & waterfall performance.
+  IMPROVED: Plot can be zoomed & resized while DSP is stopped.
+     FIXED: Time on waterfall is calculated correctly.
+
+
       2.16: Released April 28, 2023
 
        NEW: Restore AM & AM-Sync settings between sessions.
