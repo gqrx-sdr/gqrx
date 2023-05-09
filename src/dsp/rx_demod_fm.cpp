@@ -50,7 +50,7 @@ rx_demod_fm::rx_demod_fm(float quad_rate, float max_dev, double tau)
     float gain;
 
     /* demodulator gain */
-    gain = d_quad_rate / (2.0 * M_PI * d_max_dev);
+    gain = d_quad_rate / (2 * (float)M_PI * d_max_dev);
 
     qDebug() << "FM demod gain:" << gain;
 
@@ -83,14 +83,14 @@ void rx_demod_fm::set_max_dev(float max_dev)
 {
     float gain;
 
-    if ((max_dev < 500.0) || (max_dev > d_quad_rate/2.0))
+    if ((max_dev < 500.0f) || (max_dev > d_quad_rate/2.0f))
     {
         return;
     }
 
     d_max_dev = max_dev;
 
-    gain = d_quad_rate / (2.0 * M_PI * max_dev);
+    gain = d_quad_rate / (2 * (float)M_PI * max_dev);
     d_quad->set_gain(gain);
 }
 

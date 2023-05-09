@@ -983,7 +983,7 @@ void MainWindow::setLnbLo(double freq_mhz)
     ui->plotter->setCenterFreq(d_lnb_lo + d_hw_freq);
 
     // update LNB LO in settings
-    if (freq_mhz == 0.f)
+    if (freq_mhz == 0.)
         m_settings->remove("input/lnb_lo");
     else
         m_settings->setValue("input/lnb_lo", d_lnb_lo);
@@ -1436,7 +1436,7 @@ void MainWindow::setSqlLevel(double level_db)
  */
 double MainWindow::setSqlLevelAuto()
 {
-    double level = rx->get_signal_pwr() + 3.0;
+    double level = rx->get_signal_pwr() + 3.0f;
     if (level > -10.0)  // avoid 0 dBFS
         level = uiDockRxOpt->getSqlLevel();
 
@@ -1468,15 +1468,15 @@ void MainWindow::iqFftTimeout()
     // Track the frame rate and warn if not keeping up. Since the interval is ms, the timer can
     // not be set exactly to all rates.
     const quint64 now_ms = QDateTime::currentMSecsSinceEpoch();
-    const float expected_rate = 1000.0 / (float)iq_fft_timer->interval();
-    const float last_fft_rate = 1000.0 / (float)(now_ms - d_last_fft_ms);
-    const float alpha = std::pow(expected_rate, -0.75);
-    if (d_avg_fft_rate == 0.0)
+    const float expected_rate = 1000.0f / (float)iq_fft_timer->interval();
+    const float last_fft_rate = 1000.0f / (float)(now_ms - d_last_fft_ms);
+    const float alpha = std::pow(expected_rate, -0.75f);
+    if (d_avg_fft_rate == 0.0f)
         d_avg_fft_rate = expected_rate;
     else
-        d_avg_fft_rate = (1.0 - alpha) * d_avg_fft_rate + alpha * last_fft_rate;
+        d_avg_fft_rate = (1.0f - alpha) * d_avg_fft_rate + alpha * last_fft_rate;
 
-    const bool drop = d_avg_fft_rate < expected_rate * 0.95;
+    const bool drop = d_avg_fft_rate < expected_rate * 0.95f;
     if (drop != d_frame_drop) {
         if (drop) {
             uiDockFft->setActualFrameRate(d_avg_fft_rate, true);

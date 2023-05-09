@@ -749,10 +749,10 @@ void CIoConfig::decimationChanged(int index)
     quad_rate = (float)input_rate / (float)decim;
     if (quad_rate > 1.e6f)
         ui->sampRateLabel->setText(QString(" %1 Msps").
-                                   arg(quad_rate * 1.e-6, 0, 'f', 3));
+                                   arg(quad_rate * 1.e-6f, 0, 'f', 3));
     else
         ui->sampRateLabel->setText(QString(" %1 ksps").
-                                   arg(quad_rate * 1.e-3, 0, 'f', 3));
+                                   arg(quad_rate * 1.e-3f, 0, 'f', 3));
 }
 
 /**

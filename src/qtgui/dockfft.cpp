@@ -548,7 +548,7 @@ void DockFft::on_wfSpanComboBox_currentIndexChanged(int index)
 /** Set waterfall time resolution. */
 void DockFft::setWfResolution(quint64 msec_per_line)
 {
-    float res = 1.0e-3 * (float)msec_per_line;
+    float res = 1.0e-3f * (float)msec_per_line;
 
     ui->wfResLabel->setText(QString("Res: %1 s").arg(res, 0, 'f', 2));
 }
@@ -569,8 +569,8 @@ void DockFft::on_fftAvgSlider_valueChanged(int value)
     // slider.
     const float v = value;
     const float x = ui->fftAvgSlider->maximum();
-    const float limit = 1.0 - 1.0/x;
-    const float avg = 1.0 - limit * v / x;
+    const float limit = 1.0f - 1.0f/x;
+    const float avg = 1.0f - limit * v / x;
 
     emit fftAvgChanged(avg);
 }
@@ -729,9 +729,9 @@ void DockFft::updateInfoLabels(void)
     if (rbw < 1.e3f)
         ui->fftRbwLabel->setText(QString("RBW: %1 Hz").arg(rbw, 0, 'f', 1));
     else if (rbw < 1.e6f)
-        ui->fftRbwLabel->setText(QString("RBW: %1 kHz").arg(1.e-3 * rbw, 0, 'f', 1));
+        ui->fftRbwLabel->setText(QString("RBW: %1 kHz").arg(1.e-3f * rbw, 0, 'f', 1));
     else
-        ui->fftRbwLabel->setText(QString("RBW: %1 MHz").arg(1.e-6 * rbw, 0, 'f', 1));
+        ui->fftRbwLabel->setText(QString("RBW: %1 MHz").arg(1.e-6f * rbw, 0, 'f', 1));
 
     rate = fftRate();
     if (rate == 0)
@@ -739,7 +739,7 @@ void DockFft::updateInfoLabels(void)
     else
     {
         interval_ms = 1000 / rate;
-        interval_samples = m_sample_rate * (interval_ms / 1000.0);
+        interval_samples = m_sample_rate * (interval_ms / 1000.0f);
         if (interval_samples >= size)
             ovr = 0;
         else

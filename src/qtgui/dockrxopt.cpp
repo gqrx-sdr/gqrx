@@ -571,7 +571,7 @@ void DockRxOpt::saveSettings(QSettings *settings)
     else
         settings->remove("receiver/amsync_dcr");
 
-    int_val = qRound(currentAmsyncPll() * 1.0e6);
+    int_val = qRound(currentAmsyncPll() * 1.0e6f);
     if (int_val != 1000)
         settings->setValue("receiver/amsync_pllbw", int_val);
     else

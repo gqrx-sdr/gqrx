@@ -26,7 +26,7 @@
 #include <QDebug>
 #include "receivers/wfmrx.h"
 
-#define PREF_QUAD_RATE   240e3 // Nominal channel spacing is 200 kHz
+#define PREF_QUAD_RATE   240e3f // Nominal channel spacing is 200 kHz
 
 wfmrx_sptr make_wfmrx(float quad_rate, float audio_rate)
 {
@@ -88,7 +88,7 @@ bool wfmrx::stop()
 
 void wfmrx::set_quad_rate(float quad_rate)
 {
-    if (std::abs(d_quad_rate-quad_rate) > 0.5)
+    if (std::abs(d_quad_rate-quad_rate) > 0.5f)
     {
         qDebug() << "Changing WFM RX quad rate:"  << d_quad_rate << "->" << quad_rate;
         d_quad_rate = quad_rate;
