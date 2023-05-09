@@ -44,7 +44,6 @@
 #include <QTextStream>
 #include <QtGlobal>
 #include <QTimer>
-#include <QFuture>
 #include <QVBoxLayout>
 #include <QSvgWidget>
 #include "qtgui/ioconfig.h"
