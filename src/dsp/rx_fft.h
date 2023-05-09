@@ -35,7 +35,7 @@
 #include <chrono>
 
 
-#define MAX_FFT_SIZE 1048576
+#define MAX_FFT_SIZE (1024 * 1024 * 4)
 #define AUDIO_BUFFER_SIZE 65536
 
 class rx_fft_c;
@@ -58,7 +58,10 @@ typedef std::shared_ptr<rx_fft_f> rx_fft_f_sptr;
  * of raw pointers, the rx_fft_c constructor is private.
  * make_rx_fft_c is the public interface for creating new instances.
  */
-rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize=4096, double quad_rate=0, int wintype=gr::fft::window::WIN_HAMMING);
+rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize=4096,
+                            double quad_rate=0,
+                            int wintype=gr::fft::window::WIN_HAMMING,
+                            bool normalize_energy = false);
 
 
 /*! \brief Block for computing complex FFT.
@@ -75,10 +78,14 @@ rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize=4096, double quad_rate=0, int w
  */
 class rx_fft_c : public gr::sync_block
 {
-    friend rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize, double quad_rate, int wintype);
+    friend rx_fft_c_sptr make_rx_fft_c(unsigned int fftsize, double quad_rate,
+                                       int wintype, bool normalize_energy);
 
 protected:
-    rx_fft_c(unsigned int fftsize=4096, double quad_rate=0, int wintype=gr::fft::window::WIN_HAMMING);
+    rx_fft_c(unsigned int fftsize=4096,
+             double quad_rate=0,
+             int wintype=gr::fft::window::WIN_HAMMING,
+             bool normalize_energy = false);
 
 public:
     ~rx_fft_c();
@@ -87,21 +94,22 @@ public:
              gr_vector_const_void_star &input_items,
              gr_vector_void_star &output_items);
 
-    void get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSize);
+    void get_fft_data(float* fftPoints);
 
-    void set_window_type(int wintype);
-    int  get_window_type() const;
+    void set_window_type(int wintype, bool normalize_energy);
+    int  get_window_type() const { return d_wintype; }
 
     void set_fft_size(unsigned int fftsize);
     void set_quad_rate(double quad_rate);
-    unsigned int get_fft_size() const;
+    unsigned int fft_size() const {return d_fftsize;}
 
 private:
     unsigned int d_fftsize;   /*! Current FFT size. */
     double       d_quadrate;
     int          d_wintype;   /*! Current window type. */
+    bool         d_normalize_energy;
 
-    std::mutex   d_mutex;  /*! Used to lock FFT output buffer. */
+    std::mutex   d_in_mutex;   /*! Used to lock input buffer. */
 
 #if GNURADIO_VERSION < 0x030900
     gr::fft::fft_complex    *d_fft;    /*! FFT object. */
@@ -115,8 +123,7 @@ private:
     std::chrono::time_point<std::chrono::steady_clock> d_lasttime;
 
     void apply_window(unsigned int size);
-    void set_params();
-
+    void update_window();
 };
 
 
@@ -128,7 +135,10 @@ private:
  * of raw pointers, the rx_fft_f constructor is private.
  * make_rx_fft_f is the public interface for creating new instances.
  */
-rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize=1024, double audio_rate=48000, int wintype=gr::fft::window::WIN_HAMMING);
+rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize=1024,
+                            double audio_rate=48000,
+                            int wintype=gr::fft::window::WIN_HAMMING,
+                            bool normalize_energy = false);
 
 
 /*! \brief Block for computing real FFT.
@@ -146,10 +156,14 @@ rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize=1024, double audio_rate=48000, 
  */
 class rx_fft_f : public gr::sync_block
 {
-    friend rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize, double audio_rate, int wintype);
+    friend rx_fft_f_sptr make_rx_fft_f(unsigned int fftsize, double audio_rate,
+                                       int wintype, bool normalize_energy);
 
 protected:
-    rx_fft_f(unsigned int fftsize=1024, double audio_rate=48000, int wintype=gr::fft::window::WIN_HAMMING);
+    rx_fft_f(unsigned int fftsize=1024,
+             double audio_rate=48000,
+             int wintype=gr::fft::window::WIN_HAMMING,
+             bool normalize_energy = false);
 
 public:
     ~rx_fft_f();
@@ -158,20 +172,21 @@ public:
              gr_vector_const_void_star &input_items,
              gr_vector_void_star &output_items);
 
-    void get_fft_data(std::complex<float>* fftPoints, unsigned int &fftSize);
+    void get_fft_data(float* fftPoints);
 
-    void set_window_type(int wintype);
-    int  get_window_type() const;
+    void set_window_type(int wintype, bool normalize_energy);
+    int  get_window_type() const { return d_wintype; }
 
     void set_fft_size(unsigned int fftsize);
-    unsigned int get_fft_size() const;
+    unsigned int fft_size() const {return d_fftsize;}
 
 private:
     unsigned int d_fftsize;   /*! Current FFT size. */
     double       d_audiorate;
     int          d_wintype;   /*! Current window type. */
+    bool         d_normalize_energy;
 
-    std::mutex   d_mutex;  /*! Used to lock FFT output buffer. */
+    std::mutex   d_in_mutex;   /*! Used to lock input buffer. */
 
 #if GNURADIO_VERSION < 0x030900
     gr::fft::fft_complex    *d_fft;    /*! FFT object. */
@@ -185,7 +200,7 @@ private:
     std::chrono::time_point<std::chrono::steady_clock> d_lasttime;
 
     void apply_window(unsigned int size);
-
+    void update_window();
 };
 
 
