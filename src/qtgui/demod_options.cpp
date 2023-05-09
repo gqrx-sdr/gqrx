@@ -76,13 +76,13 @@ float maxdev_from_index(int index)
 
 int maxdev_to_index(float max_dev)
 {
-    if (max_dev < 3000.0)
+    if (max_dev < 3000.0f)
         /* Voice 2.5k */
         return 0;
-    else if (max_dev < 10000.0)
+    else if (max_dev < 10000.0f)
         /* Voice 5k */
         return 1;
-    else if (max_dev < 20000.0)
+    else if (max_dev < 20000.0f)
         /* APT 17k */
         return 2;
     else
@@ -112,13 +112,13 @@ static float pll_bw_from_index(int index)
 
 static int pll_bw_to_index(float pll_bw)
 {
-    if (pll_bw < 0.00015)
+    if (pll_bw < 0.00015f)
         /* Slow */
         return 2;
-    else if (pll_bw < 0.0015)
+    else if (pll_bw < 0.0015f)
         /* Medium */
         return 1;
-    else if (pll_bw < 0.015)
+    else if (pll_bw < 0.015f)
         /* Fast */
         return 0;
     else

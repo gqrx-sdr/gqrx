@@ -92,5 +92,5 @@ float rx_meter_c::get_level_db()
     float sum = 0;
     volk_32f_x2_dot_prod_32f(&sum, (float *)d_reader->read_pointer(), (float *)d_reader->read_pointer(), d_avgsize * 2);
     float power = sum / (float)(d_avgsize);
-    return (float) 10. * log10f(power + 1.0e-20);
+    return 10.f * log10f(power + 1.0e-20f);
 }

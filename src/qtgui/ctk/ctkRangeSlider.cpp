@@ -756,7 +756,7 @@ void ctkRangeSlider::mouseMoveEvent(QMouseEvent* mouseEvent)
   else if (this->isMinimumSliderDown() && this->isMaximumSliderDown())
     {
     this->setPositions(newPosition - static_cast<int>(d->m_SubclassWidth),
-                       newPosition + static_cast<int>(d->m_SubclassWidth + .5));
+                       newPosition + static_cast<int>(d->m_SubclassWidth + .5f));
     }
   mouseEvent->accept();
 }

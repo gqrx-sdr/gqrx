@@ -62,11 +62,11 @@ CMeter::CMeter(QWidget *parent) : QFrame(parent)
     m_2DPixmap = QPixmap(0,0);
     m_OverlayPixmap = QPixmap(0,0);
     m_Size = QSize(0,0);
-    m_pixperdb = 0.0f;
+    m_pixperdb = 0.0;
     m_Siglevel = 0;
     m_dBFS = MIN_DB;
-    m_Sql = -150.0f;
-    m_SqlLevel = 0.0f;
+    m_Sql = -150.0;
+    m_SqlLevel = 0.0;
 }
 
 CMeter::~CMeter()
@@ -119,7 +119,7 @@ void CMeter::setLevel(float dbfs)
     float level = m_dBFS;
     float alpha  = dbfs < level ? ALPHA_DECAY : ALPHA_RISE;
     m_dBFS -= alpha * (level - dbfs);
-    m_Siglevel = (level - MIN_DB) * m_pixperdb;
+    m_Siglevel = (qreal)(level - MIN_DB) * m_pixperdb;
 
     draw();
 }
@@ -127,12 +127,12 @@ void CMeter::setLevel(float dbfs)
 void CMeter::setSqlLevel(float dbfs)
 {
     if (dbfs >= 0.f)
-        m_SqlLevel = 0.0f;
+        m_SqlLevel = 0.0;
     else
-        m_SqlLevel = (dbfs - MIN_DB) * m_pixperdb;
+        m_SqlLevel = (qreal)(dbfs - MIN_DB) * m_pixperdb;
 
-    if (m_SqlLevel < 0.0f)
-        m_SqlLevel = 0.0f;
+    if (m_SqlLevel < 0.0)
+        m_SqlLevel = 0.0;
 
     m_Sql = dbfs;
 }
@@ -169,7 +169,7 @@ void CMeter::draw()
     qreal ht = (qreal) h * CTRL_NEEDLE_TOP;
     qreal x = marg + m_Siglevel;
 
-    if (m_Siglevel > 0.0f)
+    if (m_Siglevel > 0.0)
     {
         QColor color(0, 190, 0, 255);
         QPen pen(color);
@@ -181,7 +181,7 @@ void CMeter::draw()
         painter.drawRect(QRectF(marg, ht + 2, x - marg, 4));
     }
 
-    if (m_SqlLevel > 0.0f)
+    if (m_SqlLevel > 0.0)
     {
         x = marg + m_SqlLevel;
         painter.setPen(QPen(Qt::yellow, 1, Qt::SolidLine));

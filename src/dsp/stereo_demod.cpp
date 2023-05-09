@@ -74,8 +74,8 @@ stereo_demod::stereo_demod(float input_rate, float audio_rate, bool stereo, bool
                                        19020.,       // high_cutoff_freq
                                        5000.);       // transition_width
         pll = gr::analog::pll_refout_cc::make(0.0002,    // loop_bw FIXME
-                                2*M_PI * 19020 / input_rate,  // max_freq
-                                2*M_PI * 18980 / input_rate); // min_freq
+                                2 * (float)M_PI * 19020 / input_rate,  // max_freq
+                                2 * (float)M_PI * 18980 / input_rate); // min_freq
         subtone = gr::blocks::multiply_cc::make();
     } else {
         d_tone_taps = gr::filter::firdes::complex_band_pass(
@@ -85,8 +85,8 @@ stereo_demod::stereo_demod(float input_rate, float audio_rate, bool stereo, bool
                                        31300.,       // high_cutoff_freq
                                        5000.);       // transition_width
         pll = gr::analog::pll_refout_cc::make(0.0002,    // loop_bw FIXME
-                                2*M_PI * 31200 / input_rate,  // max_freq
-                                2*M_PI * 31300 / input_rate); // min_freq
+                                2 * (float)M_PI * 31200 / input_rate,  // max_freq
+                                2 * (float)M_PI * 31300 / input_rate); // min_freq
     }
 
     tone = gr::filter::fir_filter_fcc::make(1, d_tone_taps);

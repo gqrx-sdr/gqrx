@@ -102,7 +102,7 @@ bool nbrx::stop()
 
 void nbrx::set_quad_rate(float quad_rate)
 {
-    if (std::abs(d_quad_rate-quad_rate) > 0.5)
+    if (std::abs(d_quad_rate-quad_rate) > 0.5f)
     {
         qDebug() << "Changing NB_RX quad rate:"  << d_quad_rate << "->" << quad_rate;
         d_quad_rate = quad_rate;
