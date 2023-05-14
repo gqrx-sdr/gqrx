@@ -45,6 +45,9 @@ public:
     int fftSize();
     int setFftSize(int fft_size);
 
+    quint64 wfSpan();
+    quint64 setWfSpan(quint64 fft_size);
+
     void setSampleRate(float sample_rate);
 
     void saveSettings(QSettings *settings);
