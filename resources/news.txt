@@ -20,6 +20,7 @@
   IMPROVED: Full support for high-DPI screens in plot & waterfall.
   IMPROVED: Plot & waterfall performance.
   IMPROVED: Plot can be zoomed & resized while DSP is stopped.
+  IMPROVED: FFT window setting is stored as a string.
      FIXED: Time on waterfall is calculated correctly.
      FIXED: Frequency is correctly rounded in I/Q filenames.
 
