@@ -21,6 +21,7 @@
   IMPROVED: Plot & waterfall performance.
   IMPROVED: Plot can be zoomed & resized while DSP is stopped.
   IMPROVED: FFT window setting is stored as a string.
+  IMPROVED: Waterfall span setting is stored in milliseconds.
      FIXED: Time on waterfall is calculated correctly.
      FIXED: Frequency is correctly rounded in I/Q filenames.
 

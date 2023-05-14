@@ -46,6 +46,25 @@ static const QStringList window_strs = {
     "blackmanharris", "bartlett", "flattop"
 };
 
+static const quint64 wf_span_table[] =
+{
+    0,              // Auto
+    1*60*1000,      // 1 minute
+    2*60*1000,      // 2 minutes
+    5*60*1000,      // 5 minutes
+    10*60*1000,     // 10 minutes
+    15*60*1000,     // 15 minutes
+    20*60*1000,     // 20 minutes
+    30*60*1000,     // 30 minutes
+    1*60*60*1000,   // 1 hour
+    2*60*60*1000,   // 2 hours
+    5*60*60*1000,   // 5 hours
+    10*60*60*1000,  // 10 hours
+    16*60*60*1000,  // 16 hours
+    24*60*60*1000,  // 24 hours
+    48*60*60*1000   // 48 hours
+};
+
 DockFft::DockFft(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockFft)
@@ -146,6 +165,21 @@ int DockFft::setFftSize(int fft_size)
     return fftSize();
 }
 
+quint64 DockFft::setWfSpan(quint64 span)
+{
+    int idx = 0;
+    for (auto span_i : wf_span_table)
+    {
+        if (span_i >= span)
+            break;
+        idx++;
+    }
+    idx = std::min(idx, ui->wfSpanComboBox->count() - 1);
+    ui->wfSpanComboBox-> setCurrentIndex(idx);
+
+    return wfSpan();
+}
+
 void DockFft::setSampleRate(float sample_rate)
 {
     if (sample_rate < 0.1f)
@@ -181,6 +215,11 @@ int DockFft::fftSize()
     return fft_size;
 }
 
+quint64 DockFft::wfSpan()
+{
+    return wf_span_table[ui->wfSpanComboBox->currentIndex()];
+}
+
 /** Save FFT settings. */
 void DockFft::saveSettings(QSettings *settings)
 {
@@ -210,7 +249,7 @@ void DockFft::saveSettings(QSettings *settings)
     strval = window_strs[intval];
     settings->setValue("fft_window", strval);
 
-    intval = ui->wfSpanComboBox->currentIndex();
+    intval = wfSpan();
     if (intval != DEFAULT_WATERFALL_SPAN)
         settings->setValue("waterfall_span", intval);
     else
@@ -377,8 +416,14 @@ void DockFft::readSettings(QSettings *settings)
         ui->fftWinComboBox->setCurrentIndex(intval);
 
     intval = settings->value("waterfall_span", DEFAULT_WATERFALL_SPAN).toInt(&conv_ok);
-    if (conv_ok)
-        ui->wfSpanComboBox->setCurrentIndex(intval);
+    if (conv_ok) {
+        if (configversion >= 4) {
+            setWfSpan(intval);
+        } else {
+            if ((intval >= 0) && (intval < ui->wfSpanComboBox->count()))
+                setWfSpan(wf_span_table[intval]);
+        }
+    }
 
     intval = settings->value("averaging", DEFAULT_FFT_AVG).toInt(&conv_ok);
     if (conv_ok)
@@ -540,25 +585,6 @@ void DockFft::on_fftWinComboBox_currentIndexChanged(int index)
 {
     emit fftWindowChanged(index);
 }
-
-static const quint64 wf_span_table[] =
-{
-    0,              // Auto
-    1*60*1000,      // 1 minute
-    2*60*1000,      // 2 minutes
-    5*60*1000,      // 5 minutes
-    10*60*1000,     // 10 minutes
-    15*60*1000,     // 15 minutes
-    20*60*1000,     // 20 minutes
-    30*60*1000,     // 30 minutes
-    1*60*60*1000,   // 1 hour
-    2*60*60*1000,   // 2 hours
-    5*60*60*1000,   // 5 hours
-    10*60*60*1000,  // 10 hours
-    16*60*60*1000,  // 16 hours
-    24*60*60*1000,  // 24 hours
-    48*60*60*1000   // 48 hours
-};
 
 /** Waterfall time span changed. */
 void DockFft::on_wfSpanComboBox_currentIndexChanged(int index)
