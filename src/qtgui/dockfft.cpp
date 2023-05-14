@@ -41,6 +41,11 @@
 #define DEFAULT_FFT_AVG         25
 #define DEFAULT_COLORMAP        "gqrx"
 
+static const QStringList window_strs = {
+    "hamming", "hann", "blackman", "rectangular", "kaiser",
+    "blackmanharris", "bartlett", "flattop"
+};
+
 DockFft::DockFft(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockFft)
@@ -180,6 +185,7 @@ int DockFft::fftSize()
 void DockFft::saveSettings(QSettings *settings)
 {
     int  intval;
+    QString strval;
 
     if (!settings)
         return;
@@ -199,10 +205,10 @@ void DockFft::saveSettings(QSettings *settings)
         settings->remove("fft_rate");
 
     intval = ui->fftWinComboBox->currentIndex();
-    if (intval != DEFAULT_FFT_WINDOW)
-        settings->setValue("fft_window", intval);
-    else
-        settings->remove("fft_window");
+    if ((unsigned int)intval > window_strs.size())
+        intval = DEFAULT_FFT_WINDOW;
+    strval = window_strs[intval];
+    settings->setValue("fft_window", strval);
 
     intval = ui->wfSpanComboBox->currentIndex();
     if (intval != DEFAULT_WATERFALL_SPAN)
@@ -216,28 +222,28 @@ void DockFft::saveSettings(QSettings *settings)
         settings->remove("averaging");
 
     intval = ui->plotScaleBox->currentIndex();
-    if (intval != 0)
-        settings->setValue("plot_y_unit", intval);
-    else
-        settings->remove("plot_y_unit");
+    if      (intval == 1) strval = "dbv";
+    else if (intval == 2) strval = "dbm";
+    else                  strval = "dbfs";  // 0, default
+    settings->setValue("plot_y_unit", strval);
 
     intval = ui->plotPerBox->currentIndex();
-    if (intval != 0)
-        settings->setValue("plot_x_unit", intval);
-    else
-        settings->remove("plot_x_unit");
+    if      (intval == 1) strval = "hz";
+    else                  strval = "rbw";  // 0, default
+    settings->setValue("plot_x_unit", strval);
 
     intval = ui->plotModeBox->currentIndex();
-    if (intval != 0)
-        settings->setValue("plot_mode", intval);
-    else
-        settings->remove("plot_mode");
+    if      (intval == 1) strval = "avg";
+    else if (intval == 2) strval = "fill";
+    else if (intval == 3) strval = "hist";
+    else                  strval = "max";  // 0, default
+    settings->setValue("plot_mode", strval);
 
     intval = ui->wfModeBox->currentIndex();
-    if (intval != 0)
-        settings->setValue("waterfall_mode", intval);
-    else
-        settings->remove("waterfall_mode");
+    if      (intval == 1) strval = "avg";
+    else if (intval == 2) strval = "sync";
+    else                  strval = "max";  // 0, default
+    settings->setValue("waterfall_mode", strval);
 
     if (ui->fftSplitSlider->value() != DEFAULT_FFT_SPLIT)
         settings->setValue("split", ui->fftSplitSlider->value());
@@ -332,6 +338,7 @@ void DockFft::saveSettings(QSettings *settings)
 void DockFft::readSettings(QSettings *settings)
 {
     int     intval;
+    QString strval;
     int     fft_min, fft_max;
     bool    bool_val = false;
     bool    conv_ok = false;
@@ -352,9 +359,13 @@ void DockFft::readSettings(QSettings *settings)
         setFftSize(intval);
     emit fftSizeChanged(fftSize());
 
-    intval = settings->value("fft_window", DEFAULT_FFT_WINDOW).toInt(&conv_ok);
-    if (conv_ok)
-        ui->fftWinComboBox->setCurrentIndex(intval);
+    strval = settings->value("fft_window", "hann").toString();
+    auto it = std::find(window_strs.begin(), window_strs.end(), strval);
+    if (it == window_strs.end())
+        intval = DEFAULT_FFT_WINDOW;
+    else
+        intval = std::distance(window_strs.begin(), it);
+    ui->fftWinComboBox->setCurrentIndex(intval);
 
     intval = settings->value("waterfall_span", DEFAULT_WATERFALL_SPAN).toInt(&conv_ok);
     if (conv_ok)
@@ -365,24 +376,32 @@ void DockFft::readSettings(QSettings *settings)
         ui->fftAvgSlider->setValue(intval);
 
     // Plot scale and denominator
-    int plot_scale = settings->value("plot_y_unit", 0).toInt(&conv_ok);
-    if (!conv_ok)
-        plot_scale = DEFAULT_PLOT_SCALE;
-    ui->plotScaleBox->setCurrentIndex(plot_scale);
-    int plot_per = settings->value("plot_x_unit", 0).toInt(&conv_ok);
-    if (!conv_ok)
-        plot_per = DEFAULT_PLOT_PER;
-    ui->plotPerBox->setCurrentIndex(plot_per);
+    strval = settings->value("plot_y_unit", "dbfs").toString();
+    if      (strval == "dbv") intval = 1;
+    else if (strval == "dbm") intval = 2;
+    else                      intval = 0;  // "dbfs", default
+    ui->plotScaleBox->setCurrentIndex(intval);
+    int plot_scale = intval;
+
+    strval = settings->value("plot_x_unit", "rbw").toString();
+    if      (strval == "hz") intval = 1;
+    else                     intval = 0;  // "rbw", default
+    ui->plotPerBox->setCurrentIndex(intval);
     // Trigger additional required logic for plot_scale and plot_per
     on_plotScaleBox_currentIndexChanged(plot_scale);
 
-    intval = settings->value("plot_mode", 0).toInt(&conv_ok);
-    if (conv_ok)
-        ui->plotModeBox->setCurrentIndex(intval);
+    strval = settings->value("plot_mode", "max").toString();
+    if      (strval == "avg")  intval = 1;
+    else if (strval == "fill") intval = 2;
+    else if (strval == "hist") intval = 3;
+    else                       intval = 0;  // "max", default
+    ui->plotModeBox->setCurrentIndex(intval);
 
-    intval = settings->value("waterfall_mode", 0).toInt(&conv_ok);
-    if (conv_ok)
-        ui->wfModeBox->setCurrentIndex(intval);
+    strval = settings->value("waterfall_mode", "max").toString();
+    if      (strval == "avg")  intval = 1;
+    else if (strval == "sync") intval = 2;
+    else                       intval = 0;  // "max", default
+    ui->wfModeBox->setCurrentIndex(intval);
 
     intval = settings->value("split", DEFAULT_FFT_SPLIT).toInt(&conv_ok);
     if (conv_ok)
@@ -441,10 +460,6 @@ void DockFft::readSettings(QSettings *settings)
     intval = settings->value("fft_zoom", DEFAULT_FFT_ZOOM).toInt(&conv_ok);
     if (conv_ok)
         ui->fftZoomSlider->setValue(intval);
-
-    intval = settings->value("waterfall_mode", 0).toInt(&conv_ok);
-    if (conv_ok && intval >=0 && intval <=2)
-        ui->wfModeBox->setCurrentIndex(intval);
 
     settings->endGroup();
 }
