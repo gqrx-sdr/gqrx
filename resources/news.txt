@@ -21,6 +21,7 @@
   IMPROVED: Plot & waterfall performance.
   IMPROVED: Plot can be zoomed & resized while DSP is stopped.
      FIXED: Time on waterfall is calculated correctly.
+     FIXED: Frequency is correctly rounded in I/Q filenames.
 
 
       2.16: Released April 28, 2023
