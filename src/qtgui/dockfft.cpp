@@ -343,9 +343,12 @@ void DockFft::readSettings(QSettings *settings)
     bool    bool_val = false;
     bool    conv_ok = false;
     QColor  color;
+    int     configversion;
 
     if (!settings)
         return;
+
+    configversion = settings->value("configversion").toInt();
 
     settings->beginGroup("fft");
 
@@ -359,13 +362,19 @@ void DockFft::readSettings(QSettings *settings)
         setFftSize(intval);
     emit fftSizeChanged(fftSize());
 
-    strval = settings->value("fft_window", "hann").toString();
-    auto it = std::find(window_strs.begin(), window_strs.end(), strval);
-    if (it == window_strs.end())
-        intval = DEFAULT_FFT_WINDOW;
-    else
-        intval = std::distance(window_strs.begin(), it);
-    ui->fftWinComboBox->setCurrentIndex(intval);
+    if (configversion >= 4) {
+        strval = settings->value("fft_window", "hann").toString();
+        auto it = std::find(window_strs.begin(), window_strs.end(), strval);
+        if (it == window_strs.end())
+            intval = DEFAULT_FFT_WINDOW;
+        else
+            intval = std::distance(window_strs.begin(), it);
+        conv_ok = true;
+    } else {
+        intval = settings->value("fft_window", DEFAULT_FFT_WINDOW).toInt(&conv_ok);
+    }
+    if (conv_ok)
+        ui->fftWinComboBox->setCurrentIndex(intval);
 
     intval = settings->value("waterfall_span", DEFAULT_WATERFALL_SPAN).toInt(&conv_ok);
     if (conv_ok)
