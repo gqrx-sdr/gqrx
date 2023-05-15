@@ -268,9 +268,11 @@ void DockRxOpt::setFilterParam(int lo, int hi)
     if (filter_index == FILTER_PRESET_USER)
     {
         float width_f;
+        glo = lo;
+        ghi = hi;
         width_f = fabs((hi-lo)/1000.f);
-        ui->filterCombo->setItemText(FILTER_PRESET_USER, QString("User (%1 k)")
-                                     .arg(width_f));
+        ui->filterCombo->setItemText(FILTER_PRESET_USER, QString("User (%1 k)").arg(width_f));
+        qobject_cast<QStandardItemModel*>(ui->filterCombo->model())->item(3)->setEnabled(true);
     }
 }
 
@@ -309,8 +311,15 @@ int  DockRxOpt::currentFilterShape() const
  */
 void DockRxOpt::setCurrentDemod(int demod)
 {
+    last_demod = demod;
+    
     if ((demod >= MODE_OFF) && (demod < MODE_LAST))
     {
+        if (ui->modeSelector->currentIndex() != demod)
+        {
+          ui->filterCombo->setItemText(FILTER_PRESET_USER, QString("User"));
+          qobject_cast <QStandardItemModel *> (ui-> filterCombo-> model ()) -> item (3) -> setEnabled (false);
+        }
         ui->modeSelector->setCurrentIndex(demod);
         updateDemodOptPage(demod);
     }
@@ -386,13 +395,22 @@ void DockRxOpt::getFilterPreset(int mode, int preset, int * lo, int * hi) const
         qDebug() << __func__ << ": Invalid mode:" << mode;
         mode = MODE_AM;
     }
-    else if (preset < 0 || preset > 2)
+    else if (preset < 0 || preset > 3)
     {
         qDebug() << __func__ << ": Invalid preset:" << preset;
         preset = FILTER_PRESET_NORMAL;
     }
+
+    if (preset == 3)
+    {
+    *lo = glo;
+    *hi = ghi;
+    }
+    else
+    {
     *lo = filter_preset_table[mode][preset][0];
     *hi = filter_preset_table[mode][preset][1];
+    }
 }
 
 int DockRxOpt::getCwOffset() const
@@ -403,6 +421,8 @@ int DockRxOpt::getCwOffset() const
 /** Read receiver configuration from settings data. */
 void DockRxOpt::readSettings(QSettings *settings)
 {
+    /** Disable Customfield in filterCombo. */
+    qobject_cast <QStandardItemModel *> (ui-> filterCombo-> model ()) -> item (3) -> setEnabled (false);
     bool    conv_ok;
     int     int_val;
     double  dbl_val;
@@ -650,6 +670,14 @@ void DockRxOpt::on_filterCombo_activated(int index)
  */
 void DockRxOpt::on_modeSelector_activated(int index)
 {
+    if (last_demod != index)
+    {
+      ui->filterCombo->setCurrentIndex(1);
+      ui->filterCombo->setItemText(FILTER_PRESET_USER, QString("User"));
+      qobject_cast <QStandardItemModel *> (ui-> filterCombo-> model ()) -> item (3) -> setEnabled (false);
+      glo = 0;
+      ghi = 0;
+    }
     updateDemodOptPage(index);
     emit demodSelected(index);
 }
