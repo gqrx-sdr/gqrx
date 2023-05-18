@@ -3,6 +3,7 @@
 GQRX_VERSION=$(<version.txt)
 IDENTITY=Y3GC27WZ4S
 
+mkdir -p Gqrx.app
 mkdir -p Gqrx.app/Contents/MacOS
 mkdir -p Gqrx.app/Contents/Resources
 mkdir -p Gqrx.app/Contents/soapy-modules
@@ -57,10 +58,7 @@ chmod 644 Gqrx.app/Contents/soapy-modules/*
 
 dylibbundler -s /usr/local/opt/icu4c/lib/ -od -b -x Gqrx.app/Contents/MacOS/gqrx -x Gqrx.app/Contents/soapy-modules/libPlutoSDRSupport.so -x Gqrx.app/Contents/soapy-modules/libremoteSupport.so -d Gqrx.app/Contents/libs/
 /usr/local/opt/qt@6/bin/macdeployqt Gqrx.app -no-strip -always-overwrite # TODO: Remove macdeployqt workaround
-/usr/local/opt/qt@6/bin/macdeployqt Gqrx.app -no-strip -always-overwrite -sign-for-notarization=$IDENTITY
+/usr/local/opt/qt@6/bin/macdeployqt Gqrx.app -no-strip -always-overwrite
 cp /usr/local/lib/libbrotlicommon.1.dylib Gqrx.app/Contents/Frameworks # TODO: Remove macdeployqt workaround
 
-for f in Gqrx.app/Contents/libs/*.dylib Gqrx.app/Contents/soapy-modules/*.so Gqrx.app/Contents/Frameworks/*.framework Gqrx.app/Contents/Frameworks/libbrotlicommon.1.dylib Gqrx.app/Contents/Frameworks/libsharpyuv.0.dylib Gqrx.app/Contents/MacOS/gqrx
-do
-    codesign --force --verify --verbose --timestamp --options runtime --entitlements /tmp/Entitlements.plist --sign $IDENTITY $f
-done
+# /Users/aroslav/CLionProjects/gqrxByDSActivity2/

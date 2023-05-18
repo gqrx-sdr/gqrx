@@ -37,9 +37,10 @@
 #include <pulse/simple.h>
 #endif
 
+#include "lib/discord_game_sdk.h"
 #include "mainwindow.h"
 #include "gqrx.h"
-#include "../../../lib/discord_game_sdk.h"
+
 #include <iostream>
 
 static void reset_conf(const QString &file_name);

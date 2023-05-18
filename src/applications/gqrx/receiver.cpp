@@ -395,6 +395,7 @@ unsigned int receiver::set_input_decim(unsigned int decim)
         tb->disconnect(src, 0, iq_swap, 0);
     }
 
+//brew install boost
     input_decim.reset();
     d_decim = decim;
     if (d_decim >= 2)
