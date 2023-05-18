@@ -166,7 +166,7 @@ void vfo_s::set_nb_on(int nbid, bool on)
         d_nb_on[nbid - 1] = on;
 }
 
-bool vfo_s::get_nb_on(int nbid)
+bool vfo_s::get_nb_on(int nbid) const
 {
     if (nbid - 1 < RECEIVER_NB_COUNT)
         return d_nb_on[nbid - 1];
@@ -179,7 +179,7 @@ void vfo_s::set_nb_threshold(int nbid, float threshold)
         d_nb_threshold[nbid - 1] = threshold;
 }
 
-float vfo_s::get_nb_threshold(int nbid)
+float vfo_s::get_nb_threshold(int nbid) const
 {
     if (nbid - 1 < RECEIVER_NB_COUNT)
         return d_nb_threshold[nbid - 1];

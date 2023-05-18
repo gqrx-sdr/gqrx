@@ -141,8 +141,8 @@ typedef class vfo_s
     inline bool  get_amsync_dcr() const { return d_amsync_dcr; }
     inline float get_amsync_pll_bw() const { return d_amsync_pll_bw; }
     /* Noise blanker */
-    bool get_nb_on(int nbid);
-    float get_nb_threshold(int nbid);
+    bool get_nb_on(int nbid) const;
+    float get_nb_threshold(int nbid) const;
     /* Audio recorder */
     inline const std::string& get_audio_rec_dir() const { return d_rec_dir; }
     inline bool get_audio_rec_sql_triggered() const { return d_rec_sql_triggered; }
