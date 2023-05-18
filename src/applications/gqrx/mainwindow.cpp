@@ -820,6 +820,13 @@ void MainWindow::updateFrequencyRange()
     uiDockRxOpt->setRxFreqRange(start, stop);
 }
 
+void MainWindow::closeEvent(QCloseEvent *event) {
+
+    //No needed:/
+
+    //printf("Closed");
+}
+
 /**
  * @brief Update gain stages.
  * @param read_from_device If true, the gain value will be read from the device,

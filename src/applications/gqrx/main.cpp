@@ -51,6 +51,7 @@ char freqSTRS[127]; //Freq string
 char typeSTRS[127]; //Type String (NFM/WFM/AM/Another...)
 char rdsSTRS[127]; //RDS Prototype
 char SDRIcon[127]; //SDR Large Icon
+char RPLocality[2]; //Rich Presence localization
 
 int recivOn = 0;
 
@@ -127,7 +128,7 @@ void dscall(ApplicationDS a, int suc){
 
         //Check Sucess?
         if(r != 0) {
-            printf("[DS Rich Presence] Callback Thread Available fail!\n");
+            printf("[DS Rich Presence] Callback Thread Available fail! (Discord Closed?)\n");
             whileavalible = false;
             break;
         }
@@ -142,11 +143,28 @@ int main(int argc, char *argv[]) {
     //Init DS Rich Presence
     printf("[DS Rich Presence] Init...\n");
 
-    //Set SDR Icon - blue-sdr or white-sdr or gold-sdr
+    //THIS NOT WORK, cooomiiiiiing soooon
+    //Set Default locality: Russian
+    sprintf(RPLocality, "ru");
+
+    //Default icon - blue;
     sprintf(SDRIcon, "%s", "blue-sdr");
 
+    //Check Args
+    for(int arI = 0; arI != argc; arI++){
+        //Get, check and set SDR Icon - blue-sdr or white-sdr or gold-sdr
+        char *a = argv[arI];
+        if(strcmp(a, "sdr-icon=blue") == 0){
+            sprintf(SDRIcon, "%s", "blue-sdr");
+        }else if(strcmp(a, "sdr-icon=white") == 0){
+            sprintf(SDRIcon, "%s", "white-sdr");
+        }else if(strcmp(a, "sdr-icon=gold") == 0){
+            sprintf(SDRIcon, "%s", "gold-sdr");
+        }
+    }
+
     //Init globals DS-RP vars
-    sprintf(freqSTRS, "100.000MHz");
+    sprintf(freqSTRS, "NONE");
     sprintf(typeSTRS, "NONE");
 
     struct ApplicationDS sapp;
@@ -173,12 +191,11 @@ int main(int argc, char *argv[]) {
         printf("[DS Rich Presence] Init success!\n");
     }else{
         whileavalible = false;
-        printf("[DS Rich Presence] Init fail!\n");
+        printf("[DS Rich Presence] Init fail! (Discord not Opened?)\n");
     }
 
     //Start Callback thread
     std::thread t(dscall, sapp, a);
-
 
     //END DS INIT
 
@@ -314,6 +331,9 @@ int main(int argc, char *argv[]) {
 #ifdef WITH_PORTAUDIO
     Pa_Terminate();
 #endif
+
+    //Connect to ds callbacks thread. If not connect to thread => App Crashed
+    t.join();
 
     return return_code;
 }

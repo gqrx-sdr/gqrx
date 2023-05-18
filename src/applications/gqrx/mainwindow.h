@@ -243,6 +243,8 @@ private slots:
     void iqFftTimeout();
     void audioFftTimeout();
     void rdsTimeout();
+
+    void closeEvent(QCloseEvent *event);
 };
 
 #endif // MAINWINDOW_H
