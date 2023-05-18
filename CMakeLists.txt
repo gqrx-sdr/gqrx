@@ -7,6 +7,9 @@ set(${PROJECT_NAME}_MINOR "15")
 set(${PROJECT_NAME}_PATCH "10")
 set(IS_RELEASE FALSE)
 
+# Is Yoricya build?
+set(IS_YRCYA TRUE)
+
 if(IS_RELEASE)
     if(${PROJECT_NAME}_PATCH EQUAL 0)
         set(VERSION "${${PROJECT_NAME}_MAJOR}.${${PROJECT_NAME}_MINOR}")
@@ -14,12 +17,16 @@ if(IS_RELEASE)
         set(VERSION "${${PROJECT_NAME}_MAJOR}.${${PROJECT_NAME}_MINOR}.${${PROJECT_NAME}_PATCH}")
     endif()
 else()
-    execute_process(
-        COMMAND git describe --long --dirty
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        OUTPUT_VARIABLE VERSION
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
+    if(IS_YRCYA)
+        set(VERSION "${${PROJECT_NAME}_MAJOR}.${${PROJECT_NAME}_MINOR}.${${PROJECT_NAME}_PATCH}(Yoricya-Build)")
+    else()
+        execute_process(
+            COMMAND git describe --long --dirty
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            OUTPUT_VARIABLE VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    endif()
 endif()
 add_definitions(-DVERSION="${VERSION}")
 file(WRITE version.txt ${VERSION})

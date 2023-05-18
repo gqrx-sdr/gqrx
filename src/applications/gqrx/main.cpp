@@ -49,10 +49,10 @@ static void list_conf();
 //DS Strings
 char freqSTRS[127]; //Freq string
 char typeSTRS[127]; //Type String (NFM/WFM/AM/Another...)
-char rdsSTRS[127]; //RDS Prototype
+char rdsSTRS[127]; //RDS Station name
 char SDRIcon[127]; //SDR Large Icon
 char RPLocality[2]; //Rich Presence localization
-
+bool RDSOn = false;
 int recivOn = 0;
 
 //DS Callbacks/Funcs:
@@ -102,13 +102,20 @@ void dscall(ApplicationDS a, int suc){
 
         //check with while avalible
         if(!whileavalible) {
-            printf("[DS Rich Presence] Callback Thread Available fail!\n");
+            printf("[DS Rich Presence] Callback Thread Available fail! (its ok)\n");
             break;
         }
 
         //Set RPC details
-        if (recivOn == 0) sprintf(ac.details, "Ресивер выключен(Не слушает радио)");
-        else if (strcmp(typeSTRS, "OFF") == 0) sprintf(ac.details, "DEMOD Отключен(Не слушает радио)");
+        if (recivOn == 0) sprintf(ac.details, "Приёмник Выключен(Не слушает радио)");
+        else if (RDSOn){
+            if(strcmp(rdsSTRS, "") == 0){
+                sprintf(ac.details, "RDS: Пусто (Сигнал не устойчивый)");
+            }else{
+                sprintf(ac.details, "RDS: %s", rdsSTRS);
+            }
+        }
+        else if (strcmp(typeSTRS, "OFF") == 0) sprintf(ac.details, "Декодер Отключен(Не слушает радио)");
         else if (strcmp(typeSTRS, "RAW") == 0) sprintf(ac.details, "Прослушивает Радио в RAW - Режиме.");
         else if (strcmp(typeSTRS, "WFM_S") == 0) sprintf(ac.details, "Прослушивает Радио в FM(Stereo) - Режиме.");
         else if (strcmp(typeSTRS, "NFM") == 0) sprintf(ac.details, "Прослушивает Радио в NarrowFM - Режиме.");
@@ -247,6 +254,11 @@ int main(int argc, char *argv[]) {
     if (parser.isSet("list"))
     {
         list_conf();
+
+        whileavalible = false;
+        //Connect to ds callbacks thread. If not connect to thread => App Crashed
+        t.join();
+
         return 0;
     }
 
@@ -259,6 +271,11 @@ int main(int argc, char *argv[]) {
         qCritical() << message;
         QMessageBox::critical(nullptr, "Audio Error", message,
                               QMessageBox::Abort, QMessageBox::NoButton);
+
+        whileavalible = false;
+        //Connect to ds callbacks thread. If not connect to thread => App Crashed
+        t.join();
+
         return 1;
     }
 #endif
@@ -332,6 +349,7 @@ int main(int argc, char *argv[]) {
     Pa_Terminate();
 #endif
 
+    whileavalible = false;
     //Connect to ds callbacks thread. If not connect to thread => App Crashed
     t.join();
 

@@ -1430,13 +1430,21 @@ void receiver::connect_all(rx_chain type)
     }
 }
 
+extern char rdsSTRS[127];
+extern bool RDSOn;
+
 void receiver::get_rds_data(std::string &outbuff, int &num)
 {
+    if(num == 1){
+        sprintf(rdsSTRS, "%s", outbuff.c_str());
+    }
+
     rx->get_rds_data(outbuff, num);
 }
 
 void receiver::start_rds_decoder(void)
 {
+    RDSOn = true;
     if (d_running)
     {
         stop();
@@ -1451,6 +1459,10 @@ void receiver::start_rds_decoder(void)
 
 void receiver::stop_rds_decoder(void)
 {
+
+    RDSOn = false;
+    sprintf(rdsSTRS, "");
+
     if (d_running)
     {
         stop();
