@@ -18,7 +18,7 @@
 #define PEAK_CLICK_MAX_V_DISTANCE 20 //Maximum vertical distance of clicked point from peak
 #define PEAK_WINDOW_HALF_WIDTH    10
 #define PEAK_UPDATE_PERIOD       100 // msec
-#define PLOTTER_UPDATE_LIMIT_MS   32 // 32ms = 31.25 Hz
+#define PLOTTER_UPDATE_LIMIT_MS   16 // 16ms = 62.5 Hz
 
 #define MARKER_OFF std::numeric_limits<qint64>::min()
 

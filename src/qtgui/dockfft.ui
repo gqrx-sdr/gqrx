@@ -155,7 +155,7 @@
               </property>
               <property name="toolTip">
                <string>Amount of smoothing for plot
-(histogram is not affected)</string>
+(persistence for histogram)</string>
               </property>
               <property name="maximum">
                <number>100</number>
