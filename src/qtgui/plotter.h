@@ -55,7 +55,7 @@ public:
     void setFilterOffset(qint64 freq_hz)
     {
         m_DemodCenterFreq = m_CenterFreq + freq_hz;
-        drawOverlay();
+        updateOverlay();
     }
     qint64 getFilterOffset() const
     {
@@ -71,7 +71,7 @@ public:
     {
         m_DemodLowCutFreq = LowCut;
         m_DemodHiCutFreq = HiCut;
-        drawOverlay();
+        updateOverlay();
     }
 
     void getHiLowCutFrequencies(int *LowCut, int *HiCut) const
@@ -89,7 +89,7 @@ public:
             m_Span = (qint32)s;
             setFftCenterFreq(m_FftCenter);
         }
-        drawOverlay();
+        updateOverlay();
     }
 
     void setVdivDelta(int delta) { m_VdivDelta = delta; }
@@ -102,7 +102,7 @@ public:
         if (rate > 0.0f)
         {
             m_SampleFreq = rate;
-            drawOverlay();
+            updateOverlay();
         }
     }
 

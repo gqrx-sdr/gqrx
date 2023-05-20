@@ -1135,8 +1135,7 @@ void CPlotter::resizeEvent(QResizeEvent* )
         m_CursorCaptureDelta = qRound((qreal)CUR_CUT_DELTA * m_DPR);
     }
 
-    drawOverlay();
-    draw(false);
+    updateOverlay();
     emit newSize();
 }
 
@@ -2436,10 +2435,7 @@ void CPlotter::setCenterFreq(quint64 f)
 void CPlotter::updateOverlay()
 {
     m_DrawOverlay = true;
-    if (!m_Running)
-    {
-        draw(false);
-    }
+    draw(false);
 }
 
 /** Reset horizontal zoom to 100% and centered around 0. */
