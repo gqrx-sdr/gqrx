@@ -541,7 +541,8 @@ void DockFft::setWaterfallRange(float min, float max)
 void DockFft::setZoomLevel(float level)
 {
     ui->fftZoomSlider->blockSignals(true);
-    ui->fftZoomSlider->setValue((int) level);
+    float logZoom = 100.0f / 5.0f * log10f(level);
+    ui->fftZoomSlider->setValue(qRound(logZoom));
     ui->zoomLevelLabel->setText(QString("%1x").arg((int) level));
     ui->fftZoomSlider->blockSignals(false);
 }
@@ -628,8 +629,9 @@ void DockFft::on_fftAvgSlider_valueChanged(int value)
 /** FFT zoom level changed */
 void DockFft::on_fftZoomSlider_valueChanged(int level)
 {
-    ui->zoomLevelLabel->setText(QString("%1x").arg(level));
-    emit fftZoomChanged((float)level);
+    float linearZoom = powf(10.0f, (float)level * 5.0f / 100.0f);
+    ui->zoomLevelLabel->setText(QString("%1x").arg(qRound(linearZoom)));
+    emit fftZoomChanged(linearZoom);
 }
 
 void DockFft::on_wfModeBox_currentIndexChanged(int index)
