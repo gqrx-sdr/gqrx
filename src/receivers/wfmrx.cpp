@@ -83,7 +83,8 @@ bool wfmrx::stop()
 void wfmrx::set_filter(int low, int high, int tw)
 {
     receiver_base_cf::set_filter(low, high, tw);
-    filter->set_param(double(low), double(high), double(tw));
+    if(get_demod()!=Modulations::MODE_OFF)
+        filter->set_param(double(low), double(high), double(tw));
 }
 
 void wfmrx::set_demod(Modulations::idx demod)
