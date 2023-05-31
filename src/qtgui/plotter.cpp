@@ -1840,7 +1840,7 @@ void CPlotter::draw(bool newData)
 void CPlotter::setRunningState(bool running)
 {
     // Reset waterfall time and clear waterfall, since time is no longer correct
-    if (running and !m_Running)
+    if (running && !m_Running)
     {
         setWaterfallSpan(wf_span);
 
