@@ -43,14 +43,15 @@ sniffer_f::sniffer_f(int buffsize)
     : gr::sync_block ("sniffer_f",
           gr::io_signature::make(1, 1, sizeof(float)),
           gr::io_signature::make(0, 0, 0)),
+      d_buffsize(buffsize),
       d_minsamp(1000)
 {
 
     /* allocate circular buffer */
 #if GNURADIO_VERSION < 0x031000
-    d_writer = gr::make_buffer(buffsize, sizeof(float));
+    d_writer = gr::make_buffer(d_buffsize, sizeof(float));
 #else
-    d_writer = gr::make_buffer(buffsize, sizeof(float), 1, 1);
+    d_writer = gr::make_buffer(d_buffsize, sizeof(float), 1, 1);
 #endif
     d_reader = gr::buffer_add_reader(d_writer, 0);
 
@@ -122,7 +123,7 @@ void sniffer_f::get_samples(float * out, unsigned int &num)
         return;
     }
 
-    num = d_reader->items_available();
+    num = std::min(d_reader->items_available(), d_buffsize);
     memcpy(out, d_reader->read_pointer(), sizeof(float)*num);
     d_reader->update_read_pointer(num);
 }

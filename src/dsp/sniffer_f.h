@@ -90,6 +90,7 @@ private:
     std::mutex d_mutex;                     /*! Used to prevent concurrent access to buffer. */
     gr::buffer_sptr d_writer;
     gr::buffer_reader_sptr d_reader;
+    int d_buffsize;
     unsigned int d_minsamp;                 /*! smallest number of samples we want to return. */
 
 };
