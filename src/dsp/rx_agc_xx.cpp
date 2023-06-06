@@ -283,6 +283,11 @@ void rx_agc_2f::set_target_level(int target_level)
  */
 void rx_agc_2f::set_manual_gain(float gain)
 {
+    if(d_agc_on)
+    {
+        d_manual_gain = gain;
+        return;
+    }
     if ((gain != d_manual_gain) && (gain >= -160.f) && (gain <= 160.f)) {
         std::lock_guard<std::mutex> lock(d_mutex);
         set_parameters(d_sample_rate, d_agc_on, d_target_level, gain, d_max_gain, d_attack, d_decay, d_hang);
