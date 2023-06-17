@@ -22,6 +22,7 @@
   IMPROVED: Plot can be zoomed & resized while DSP is stopped.
   IMPROVED: FFT window setting is stored as a string.
   IMPROVED: Waterfall span setting is stored in milliseconds.
+   CHANGED: Default narrow FM deviation increased to 5 kHz.
      FIXED: Time on waterfall is calculated correctly.
      FIXED: Frequency is correctly rounded in I/Q filenames.
      FIXED: Crash in AFSK1200 decoder.
