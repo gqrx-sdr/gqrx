@@ -271,6 +271,8 @@ private:
 
     gr::blocks::multiply_const_ff::sptr audio_gain0; /*!< Audio gain block. */
     gr::blocks::multiply_const_ff::sptr audio_gain1; /*!< Audio gain block. */
+    gr::blocks::multiply_const_ff::sptr wav_gain0; /*!< WAV file gain block. */
+    gr::blocks::multiply_const_ff::sptr wav_gain1; /*!< WAV file gain block. */
 
     gr::blocks::file_sink::sptr         iq_sink;     /*!< I/Q file sink. */
 
