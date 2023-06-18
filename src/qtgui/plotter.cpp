@@ -621,12 +621,13 @@ bool CPlotter::saveWaterfall(const QString & filename) const
     QFontMetricsF   font_metrics(font);
     float           pixperdiv;
     int             x, y, w, h;
-    int             hxa, wya = 85;
+    int             hxa, wya;
     int             i;
 
     w = pixmap.width();
     h = pixmap.height();
     hxa = font_metrics.height() + 5;    // height of X axis
+    wya = font_metrics.boundingRect("2008.08.08").width() + 5; // width of Y axis
     y = h - hxa;
     pixperdiv = (float) w / (float) m_HorDivs;
 

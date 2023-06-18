@@ -27,6 +27,7 @@
      FIXED: Time on waterfall is calculated correctly.
      FIXED: Frequency is correctly rounded in I/Q filenames.
      FIXED: Crash in AFSK1200 decoder.
+     FIXED: Y axis in saved waterfall is too narrow.
 
 
       2.16: Released April 28, 2023
