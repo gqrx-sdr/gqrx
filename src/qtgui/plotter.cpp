@@ -907,7 +907,7 @@ void CPlotter::zoomStepX(float step, int x)
     }
 
     // calculate new range shown on FFT
-    double new_range = qBound(10.0, m_Span * (double)step, m_SampleFreq * 10.0f);
+    double new_range = qBound(10.0, m_Span * (double)step, (double)m_SampleFreq * 10.0);
 
     // Frequency where event occurred is kept fixed under mouse
     double ratio = (double)x / (qreal)m_Size.width() / m_DPR;
