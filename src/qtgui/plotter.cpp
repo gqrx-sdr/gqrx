@@ -645,7 +645,7 @@ bool CPlotter::saveWaterfall(const QString & filename) const
         painter.drawLine(x, y, x, y + 5);
 
         // frequency strings
-        x = (int)((float)i * pixperdiv - pixperdiv / 2.0);
+        x = (int)((float)i * pixperdiv - pixperdiv / 2.0f);
         rect.setRect(x, y, (int)pixperdiv, hxa);
         painter.drawText(rect, Qt::AlignHCenter|Qt::AlignBottom, m_HDivText[i]);
     }
@@ -766,7 +766,7 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                         const qreal plotHeight = m_2DPixmap.height();
                         const float panddBGainFactor = plotHeight / fabs(m_PandMaxdB - m_PandMindB);
                         const float vlog = m_PandMaxdB - py / panddBGainFactor;
-                        const float v = powf(10.0, vlog / 10.0);
+                        const float v = powf(10.0f, vlog / 10.0f);
 
                         // Ignore clicks exactly on the plot, below the
                         // pandapter, or when uninitialized
@@ -901,13 +901,13 @@ void CPlotter::zoomStepX(float step, int x)
     if (m_fftDataSize != 0)
     {
         double currentZoom = (double)m_SampleFreq / (double)m_Span;
-        if ((step >= 1.0 && currentZoom <= 1.0)
-            || (step < 1.0 && currentZoom >= (double)m_fftDataSize / 4))
+        if ((step >= 1.0f && currentZoom <= 1.0)
+            || (step < 1.0f && currentZoom >= (double)m_fftDataSize / 4))
             return;
     }
 
     // calculate new range shown on FFT
-    double new_range = qBound(10.0, m_Span * (double)step, m_SampleFreq * 10.0);
+    double new_range = qBound(10.0, m_Span * (double)step, m_SampleFreq * 10.0f);
 
     // Frequency where event occurred is kept fixed under mouse
     double ratio = (double)x / (qreal)m_Size.width() / m_DPR;
@@ -1326,7 +1326,7 @@ void CPlotter::draw(bool newData)
             // closest bins using linear interpolation.
             if (doHistogram)
             {
-                const double binD = histdBGainFactor * (m_PandMaxdB - 10.0 * log10f(v));
+                const double binD = histdBGainFactor * (m_PandMaxdB - 10.0f * log10f(v));
                 if (binD > 0.0 && binD < (double)histBinsDisplayed) {
                     const int binLeft = std::max((int)(xD - 0.5), 0);
                     const int binRight = std::min(binLeft + 1, numBins - 1);
@@ -1416,7 +1416,7 @@ void CPlotter::draw(bool newData)
             // closest bins using linear interpolation.
             if (doHistogram)
             {
-                const double binD = histdBGainFactor * (m_PandMaxdB - 10.0 * log10f(v));
+                const double binD = histdBGainFactor * (m_PandMaxdB - 10.0f * log10f(v));
                 if (binD > 0.0 && binD < (double)histBinsDisplayed) {
                     const int binLow = std::min(std::max((int)(binD - 0.5), 0), histBinsDisplayed - 1);
                     const int binHigh = std::min(binLow + 1, histBinsDisplayed - 1);
@@ -1496,9 +1496,9 @@ void CPlotter::draw(bool newData)
             const bool useWfBuf = msec_per_wfline > 0;
             float _lineFactor;
             if (useWfBuf && m_WaterfallMode != WATERFALL_MODE_MAX)
-                _lineFactor = 1.0 / (float)wf_avg_count;
+                _lineFactor = 1.0f / (float)wf_avg_count;
             else
-                _lineFactor = 1.0;
+                _lineFactor = 1.0f;
             const double lineFactor = _lineFactor;
             wf_avg_count = 0;
 
@@ -1508,7 +1508,7 @@ void CPlotter::draw(bool newData)
                 const int ix = i + xmin;
                 const qreal ixPlot = (qreal)ix;
                 const float v = useWfBuf ? m_wfbuf[ix] * lineFactor : dataSource[ix];
-                qint32 cidx = qRound((m_WfMaxdB - 10.0 * log10f(v)) * wfdBGainFactor);
+                qint32 cidx = qRound((m_WfMaxdB - 10.0f * log10f(v)) * wfdBGainFactor);
                 cidx = std::max(std::min(cidx, 255), 0);
                 painter1.setPen(m_ColorTbl[255 - cidx]);
                 painter1.drawPoint(QPointF(ixPlot, 0));
@@ -1610,10 +1610,10 @@ void CPlotter::draw(bool newData)
             const int ix = i + xmin;
             const qreal ixPlot = (qreal)ix;
             const qreal yMaxD = std::max(std::min(
-                panddBGainFactor * (m_PandMaxdB - 10.0 * log10f(m_fftMaxBuf[ix])),
+                panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMaxBuf[ix])),
                 plotHeight), 0.0);
             const qreal yAvgD = std::max(std::min(
-                panddBGainFactor * (m_PandMaxdB - 10.0 * log10f(m_fftAvgBuf[ix])),
+                panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftAvgBuf[ix])),
                 plotHeight), 0.0);
 
             if (m_PlotMode == PLOT_MODE_HISTOGRAM)
@@ -1682,7 +1682,7 @@ void CPlotter::draw(bool newData)
                 const int ix = i + xmin;
                 const qreal ixPlot = (qreal)ix;
                 const qreal yMaxHoldD = std::max(std::min(
-                    panddBGainFactor * (m_PandMaxdB - 10.0 * log10f(m_fftMaxHoldBuf[ix])),
+                    panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMaxHoldBuf[ix])),
                     plotHeight), 0.0);
                 maxLineBuf[i] = QPointF(ixPlot, yMaxHoldD);
             }
@@ -1702,7 +1702,7 @@ void CPlotter::draw(bool newData)
                 const int ix = i + xmin;
                 const qreal ixPlot = (qreal)ix;
                 const qreal yMinHoldD = std::max(std::min(
-                    panddBGainFactor * (m_PandMaxdB - 10.0 * log10f(m_fftMinHoldBuf[ix])),
+                    panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMinHoldBuf[ix])),
                     plotHeight), 0.0);
                 maxLineBuf[i] = QPointF(ixPlot, yMinHoldD);
             }
@@ -1749,10 +1749,10 @@ void CPlotter::draw(bool newData)
                     }
                     const float avgV = sumV / (float)(pw * 2 + 1);
                     m_peakSmoothBuf[ix] = avgV;
-                    if (vi == maxV && (vi > 2.0 * avgV) && (vi > 4.0 * minV))
+                    if (vi == maxV && (vi > 2.0f * avgV) && (vi > 4.0f * minV))
                     {
                         const qreal y = std::max(std::min(
-                            panddBGainFactor * (m_PandMaxdB - 10.0 * log10f(vi)),
+                            panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(vi)),
                             plotHeight - 0.0), 0.0);
                         m_Peaks[ix] = y;
                     }
@@ -1773,10 +1773,10 @@ void CPlotter::draw(bool newData)
                         sumV += vj;
                     }
                     const float avgV = sumV / (float)(pw2 * 2);
-                    if (vi == maxV && (vi > 2.0 * avgV) && (vi > 4.0 * minV))
+                    if (vi == maxV && (vi > 2.0f * avgV) && (vi > 4.0f * minV))
                     {
                         const qreal y = std::max(std::min(
-                            panddBGainFactor * (m_PandMaxdB - 10.0 * log10f(vi)),
+                            panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(vi)),
                             plotHeight - 0.0), 0.0);
 
                         // Show the wider peak only if there is no very close narrow peak
@@ -1887,17 +1887,17 @@ void CPlotter::setNewFftData(const float *fftData, int size)
 
     // For dBFS, define full scale as peak (not RMS). A 1.0 FS peak sine wave
     // is 0 dBFS.
-    float _pwr_scale = 1.0 / ((float)size * (float)size);
+    float _pwr_scale = 1.0f / ((float)size * (float)size);
 
     // For V, convert peak to RMS (/2). 1V peak corresponds to -3.01 dBV (RMS
     // value is 0.707 * peak).
     if (m_PlotScale == PLOT_SCALE_DBV)
-        _pwr_scale *= 1.0 / 2.0;
+        _pwr_scale *= 1.0f / 2.0f;
 
     // For dBm, the scale is interpreted as V. A 1V peak sine corresponds to
     // 10mW, or 10 dBm. The factor of 2 converts Vpeak to Vrms.
     else if (m_PlotScale == PLOT_SCALE_DBMW50)
-        _pwr_scale *= 1000.0 / (2.0 * 50.0);
+        _pwr_scale *= 1000.0f / (2.0f * 50.0f);
 
     // For units of /Hz, rescale by 1/RBW. For V, this results in /sqrt(Hz), and is
     // used for noise spectral density.
