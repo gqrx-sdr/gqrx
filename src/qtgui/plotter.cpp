@@ -65,12 +65,6 @@ Q_LOGGING_CATEGORY(plotter, "plotter")
 #define HOR_MARGIN 5
 #define VER_MARGIN 5
 
-int F2B(float f)
-{
-    int b = (f >= 1.0 ? 255 : (f <= 0.0 ? 0 : (int)floor(f * 256.0)));
-    return b;
-}
-
 static inline bool val_is_out_of_range(float val, float min, float max)
 {
     return (val < min || val > max);
@@ -3035,6 +3029,6 @@ void CPlotter::setWfColormap(const QString &cmap)
     else if (cmap.compare("viridis",Qt::CaseInsensitive) == 0)
     {
         for (i = 0; i < 256; i++)
-            m_ColorTbl[i].setRgb(F2B(viridis[i][0]), F2B(viridis[i][1]), F2B(viridis[i][2]));
+            m_ColorTbl[i].setRgb(viridis[i][0] * 256, viridis[i][1] * 256, viridis[i][2] * 256);
     }
 }
