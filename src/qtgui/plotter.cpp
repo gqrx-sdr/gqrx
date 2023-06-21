@@ -164,6 +164,7 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
 
     // always update waterfall
     tlast_wf_ms = 0;
+    tlast_plot_drawn_ms = 0;
     tlast_wf_drawn_ms = 0;
     wf_valid_since_ms = 0;
     msec_per_wfline = 0;
@@ -1245,11 +1246,15 @@ void CPlotter::draw(bool newData)
 
     const double frameTime = 1.0 / (double)fft_rate;
 
-    // Redraw the plot if it is visible.
-    const bool doPlotter = !m_2DPixmap.isNull();
+    // Do plotter work only if visible.
+    const bool plotterVisible = (!m_2DPixmap.isNull());
+
+    // Limit plotter drawing rate.
+    const bool drawPlotter = (plotterVisible
+        && tnow_ms >= tlast_plot_drawn_ms + PLOTTER_UPDATE_LIMIT_MS);
 
     // Do not waste time with histogram calculations unless in this mode.
-    const bool doHistogram = m_PlotMode == PLOT_MODE_HISTOGRAM;
+    const bool doHistogram = (plotterVisible && m_PlotMode == PLOT_MODE_HISTOGRAM);
 
     // Use fewer histogram bins when statistics are sparse
     const int histBinsDisplayed = std::min(
@@ -1520,45 +1525,47 @@ void CPlotter::draw(bool newData)
         }
     }
 
-    // get/draw the 2D spectrum
-    if (doPlotter)
+    // Update histogram IIR if it will be used.
+    if (doHistogram)
     {
+        const double gamma = 1.0;
+        const double a = powf(1.0 - m_alpha, gamma);
+        // fast attack ... leaving alternative here in case it's useful
+        const double aAttack = 1.0;
+        // const double aAttack = 1.0 - a * frameTime;
+        const double aDecay = 1.0 - pow(a, 4.0 * frameTime);
+
+        histMax = 0.0;
+        for (i = xmin; i < xmax; ++i) {
+            for (j = 0; j < histBinsDisplayed; ++j)
+            {
+                double histV;
+                const double histPrev = m_histIIR[i][j];
+                const double histNew = m_histogram[i][j];
+                // Fast response when invalid
+                if (!m_histIIRValid)
+                    histV = histNew;
+                else
+                    histV = histPrev + aAttack * histNew - aDecay * histPrev;
+                m_histIIR[i][j] = std::max(histV, 0.0);
+                histMax = std::max(histMax, histV);
+            }
+        }
+        m_histIIRValid = true;
+
+        // 5 Hz time constant for colormap adjustment
+        const double histMaxAlpha = std::min(5.0 * frameTime, 1.0);
+        m_histMaxIIR = m_histMaxIIR * (1.0 - histMaxAlpha) + histMax * histMaxAlpha;
+    }
+
+    // get/draw the 2D spectrum
+    if (drawPlotter)
+    {
+        tlast_plot_drawn_ms = tnow_ms;
+
         m_2DPixmap.fill(PLOTTER_BGD_COLOR);
         QPainter painter2(&m_2DPixmap);
 
-        // Update histogram IIR
-        const double frameTime = 1.0 / (double)fft_rate;
-        if (m_PlotMode == PLOT_MODE_HISTOGRAM)
-        {
-            const double gamma = 1.0;
-            const double a = powf(1.0 - m_alpha, gamma);
-            // fast attack ... leaving alternative here in case it's useful
-            const double aAttack = 1.0;
-            // const double aAttack = 1.0 - a * frameTime;
-            const double aDecay = 1.0 - pow(a, 4.0 * frameTime);
-
-            histMax = 0.0;
-            for (i = xmin; i < xmax; ++i) {
-                for (j = 0; j < histBinsDisplayed; ++j)
-                {
-                    double histV;
-                    const double histPrev = m_histIIR[i][j];
-                    const double histNew = m_histogram[i][j];
-                    // Fast response when invalid
-                    if (!m_histIIRValid)
-                        histV = histNew;
-                    else
-                        histV = histPrev + aAttack * histNew - aDecay * histPrev;
-                    m_histIIR[i][j] = std::max(histV, 0.0);
-                    histMax = std::max(histMax, histV);
-                }
-            }
-            m_histIIRValid = true;
-
-            // 5 Hz time constant for colormap adjustment
-            const double histMaxAlpha = std::min(5.0 * frameTime, 1.0);
-            m_histMaxIIR = m_histMaxIIR * (1.0 - histMaxAlpha) + histMax * histMaxAlpha;
-        }
 
         // draw the pandapter
         QBrush fillBrush = QBrush(m_FftFillCol);

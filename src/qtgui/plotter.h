@@ -18,6 +18,7 @@
 #define PEAK_CLICK_MAX_V_DISTANCE 20 //Maximum vertical distance of clicked point from peak
 #define PEAK_WINDOW_HALF_WIDTH    10
 #define PEAK_UPDATE_PERIOD       100 // msec
+#define PLOTTER_UPDATE_LIMIT_MS   16 // 16ms = 62.5 Hz
 
 #define MARKER_OFF std::numeric_limits<qint64>::min()
 
@@ -330,6 +331,7 @@ private:
 
     // Waterfall averaging
     quint64     tlast_wf_ms;        // last time waterfall has been updated
+    quint64     tlast_plot_drawn_ms;// last time the plot was drawn
     quint64     tlast_wf_drawn_ms;  // last time waterfall was drawn
     quint64     wf_valid_since_ms;  // last time before action that invalidates time line
     double      msec_per_wfline{};  // milliseconds between waterfall updates
