@@ -1869,7 +1869,7 @@ void CPlotter::setRunningState(bool running)
 void CPlotter::setNewFftData(const float *fftData, int size)
 {
     // Make sure zeros don't get through to log calcs
-    const float fmin = std::numeric_limits<float>::min();
+    const float fmin = 1e-20;
 
     if (size != m_fftDataSize)
     {
@@ -1936,8 +1936,8 @@ void CPlotter::setNewFftData(const float *fftData, int size)
     if (needIIR) {
         for (int i = 0; i < size; ++i)
         {
-            const double v = m_fftData[i];
-            const double iir = m_fftIIR[i];
+            const float v = m_fftData[i];
+            const float iir = m_fftIIR[i];
             m_fftIIR[i] = iir * powf(v / iir, a);
         }
     }
