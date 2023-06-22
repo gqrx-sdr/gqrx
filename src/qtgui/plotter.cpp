@@ -348,9 +348,9 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         {
             setCursor(QCursor(Qt::ClosedHandCursor));
             // move Y scale up/down
-            qreal delta_px = m_Yzero - py;
-            qreal delta_db = delta_px * fabs(m_PandMindB - m_PandMaxdB) /
-                             (qreal)h;
+            float delta_px = m_Yzero - py;
+            float delta_db = delta_px * fabsf(m_PandMindB - m_PandMaxdB) /
+                             (float)h;
             m_PandMindB -= delta_db;
             m_PandMaxdB -= delta_db;
             if (out_of_range(m_PandMindB, m_PandMaxdB))
@@ -965,7 +965,7 @@ void CPlotter::zoomStepX(float step, int x)
 // Zoom on X axis (absolute level)
 void CPlotter::zoomOnXAxis(float level)
 {
-    double current_level = (double)m_SampleFreq / (double)m_Span;
+    float current_level = (float)m_SampleFreq / (float)m_Span;
     zoomStepX(current_level / level, xFromFreq(m_DemodCenterFreq));
     updateOverlay();
 }
@@ -1017,9 +1017,9 @@ void CPlotter::wheelEvent(QWheelEvent * event)
         // Vertical zoom. Wheel down: zoom out, wheel up: zoom in
         // During zoom we try to keep the point (dB or kHz) under the cursor fixed
         float zoom_fac = delta < 0 ? 1.1 : 0.9;
-        float ratio = (qreal)py / (qreal)(h);
+        float ratio = (float) py / (float) h;
         float db_range = m_PandMaxdB - m_PandMindB;
-        auto y_range = (qreal)(h);
+        float y_range = (float) h;
         float db_per_pix = db_range / y_range;
         float fixed_db = m_PandMaxdB - py * db_per_pix;
 
@@ -2184,8 +2184,8 @@ void CPlotter::drawOverlay()
                 qMin(w / (metrics.boundingRect(label).width() + metrics.boundingRect("O").width()),
                      (qreal)HORZ_DIVS_MAX),
                 m_StartFreqAdj, m_FreqPerDiv, m_HorDivs);
-    pixperdiv = w * (float) m_FreqPerDiv / (float) m_Span;
-    adjoffset = pixperdiv * float (m_StartFreqAdj - StartFreq) / (float) m_FreqPerDiv;
+    pixperdiv = w * (qreal) m_FreqPerDiv / (qreal) m_Span;
+    adjoffset = pixperdiv * (qreal) (m_StartFreqAdj - StartFreq) / (qreal) m_FreqPerDiv;
 
     // Hairline for grid lines
     painter.setPen(QPen(QColor(PLOTTER_GRID_COLOR), 0.0, Qt::DotLine));
@@ -2227,8 +2227,8 @@ void CPlotter::drawOverlay()
     dbstepsize = (float) dbDivSize;
     mindbadj = mindBAdj64;
 
-    pixperdiv = h * (float)dbstepsize / (m_PandMaxdB - m_PandMindB);
-    adjoffset = h * (mindbadj - m_PandMindB) / (m_PandMaxdB - m_PandMindB);
+    pixperdiv = h * (qreal) dbstepsize / (qreal) (m_PandMaxdB - m_PandMindB);
+    adjoffset = h * (mindbadj - (qreal) m_PandMindB) / (qreal) (m_PandMaxdB - m_PandMindB);
 
     qCDebug(plotter) << "minDb =" << m_PandMindB << "maxDb =" << m_PandMaxdB
                      << "mindbadj =" << mindbadj << "dbstepsize =" << dbstepsize
