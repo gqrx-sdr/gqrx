@@ -39,6 +39,7 @@
 #include "bandplan.h"
 #include "bookmarks.h"
 #include "dxc_spots.h"
+#include <volk/volk.h>
 
 Q_LOGGING_CATEGORY(plotter, "plotter")
 
@@ -1876,6 +1877,7 @@ void CPlotter::setNewFftData(const float *fftData, int size)
         // Reallocate and invalidate IIRs
         m_fftData.resize(size);
         m_fftIIR.resize(size);
+        m_X.resize(size);
 
         m_MaxHoldValid = false;
         m_MinHoldValid = false;
@@ -1934,12 +1936,9 @@ void CPlotter::setNewFftData(const float *fftData, int size)
                       && a != 1.0;                          // IIR is NOP
 
     if (needIIR) {
-        for (int i = 0; i < size; ++i)
-        {
-            const float v = m_fftData[i];
-            const float iir = m_fftIIR[i];
-            m_fftIIR[i] = iir * powf(v / iir, a);
-        }
+        volk_32f_x2_divide_32f(m_X.data(), m_fftData.data(), m_fftIIR.data(), size);
+        volk_32f_s32f_power_32f(m_X.data(), m_X.data(), a, size);
+        volk_32f_x2_multiply_32f(m_fftIIR.data(), m_fftIIR.data(), m_X.data(), size);
     }
     else
     {

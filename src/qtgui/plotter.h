@@ -241,6 +241,7 @@ private:
     double      m_histMaxIIR;
     std::vector<float> m_fftIIR;
     std::vector<float> m_fftData;
+    std::vector<float> m_X;                // scratch array of matching size for local calculation
     double      m_wfbuf[MAX_SCREENSIZE]{}; // used for accumulating waterfall data at high time spans
     float       m_fftMaxHoldBuf[MAX_SCREENSIZE]{};
     float       m_fftMinHoldBuf[MAX_SCREENSIZE]{};
