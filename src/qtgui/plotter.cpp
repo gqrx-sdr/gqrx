@@ -1565,6 +1565,7 @@ void CPlotter::draw(bool newData)
 
         m_2DPixmap.fill(PLOTTER_BGD_COLOR);
         QPainter painter2(&m_2DPixmap);
+        painter2.translate(QPointF(0.5, 0.5));
 
 
         // draw the pandapter
@@ -2003,6 +2004,7 @@ void CPlotter::drawOverlay()
 
     m_OverlayPixmap.fill(Qt::transparent);
     QPainter painter(&m_OverlayPixmap);
+    painter.translate(QPointF(-0.5, -0.5));
     // painter.setRenderHint(QPainter::Antialiasing);
     painter.setFont(m_Font);
 
