@@ -236,13 +236,13 @@ private:
     float       m_fftAvgBuf[MAX_SCREENSIZE]{};
     float       m_wfMaxBuf[MAX_SCREENSIZE]{};
     float       m_wfAvgBuf[MAX_SCREENSIZE]{};
-    double      m_histogram[MAX_SCREENSIZE][MAX_HISTOGRAM_SIZE]{};
-    double      m_histIIR[MAX_SCREENSIZE][MAX_HISTOGRAM_SIZE]{};
-    double      m_histMaxIIR;
+    float       m_histogram[MAX_SCREENSIZE][MAX_HISTOGRAM_SIZE]{};
+    float       m_histIIR[MAX_SCREENSIZE][MAX_HISTOGRAM_SIZE]{};
+    float       m_histMaxIIR;
     std::vector<float> m_fftIIR;
     std::vector<float> m_fftData;
     std::vector<float> m_X;                // scratch array of matching size for local calculation
-    double      m_wfbuf[MAX_SCREENSIZE]{}; // used for accumulating waterfall data at high time spans
+    float      m_wfbuf[MAX_SCREENSIZE]{}; // used for accumulating waterfall data at high time spans
     float       m_fftMaxHoldBuf[MAX_SCREENSIZE]{};
     float       m_fftMinHoldBuf[MAX_SCREENSIZE]{};
     float       m_peakSmoothBuf[MAX_SCREENSIZE]{}; // used in peak detection
@@ -301,7 +301,7 @@ private:
     float       m_PandMaxdB;
     float       m_WfMindB;
     float       m_WfMaxdB;
-    double      m_alpha;     /*!< IIR averaging. */
+    float       m_alpha;     /*!< IIR averaging. */
 
     qint64      m_Span;
     float       m_SampleFreq;    /*!< Sample rate. */
