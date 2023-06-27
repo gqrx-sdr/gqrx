@@ -68,7 +68,7 @@ rx_rds::rx_rds(double sample_rate)
     int decimation = 24;
 #if GNURADIO_VERSION < 0x030900
     float rate = (float) interpolation / (float) decimation;
-    d_rsmp_tap = gr::filter::firdes::low_pass(interpolation, interpolation, rate * 0.45, rate * 0.1);
+    d_rsmp_tap = gr::filter::firdes::low_pass(interpolation, interpolation, rate * 0.45f, rate * 0.1f);
     d_rsmp = gr::filter::rational_resampler_base_ccf::make(interpolation, decimation, d_rsmp_tap);
 #else
     d_rsmp = gr::filter::rational_resampler_ccf::make(interpolation, decimation);
