@@ -244,7 +244,7 @@ void DockFft::saveSettings(QSettings *settings)
         settings->remove("fft_rate");
 
     intval = ui->fftWinComboBox->currentIndex();
-    if ((unsigned int)intval > window_strs.size())
+    if (intval > (int)window_strs.size())
         intval = DEFAULT_FFT_WINDOW;
     strval = window_strs[intval];
     settings->setValue("fft_window", strval);
