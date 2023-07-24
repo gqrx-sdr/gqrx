@@ -57,7 +57,7 @@ nbrx::nbrx(float quad_rate, float audio_rate)
     // output buffer of nb) needs to be large enough for the longest history
     // required by the filter (Narrow/Sharp). This setting may not be reliable
     // for GR prior to v3.10.7.0.
-    nb->set_min_output_buffer(64 * 1024 * sizeof(gr_complex));
+    nb->set_min_output_buffer(32768);
 
     audio_rr0.reset();
     audio_rr1.reset();
