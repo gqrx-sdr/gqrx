@@ -53,6 +53,12 @@ nbrx::nbrx(float quad_rate, float audio_rate)
     demod_am = make_rx_demod_am(PREF_QUAD_RATE, true);
     demod_amsync = make_rx_demod_amsync(PREF_QUAD_RATE, true, 0.001);
 
+    // Width of rx_filter can be adjusted at run time, so the input buffer (the
+    // output buffer of nb) needs to be large enough for the longest history
+    // required by the filter (Narrow/Sharp). This setting may not be reliable
+    // for GR prior to v3.10.7.0.
+    nb->set_min_output_buffer(32768);
+
     audio_rr0.reset();
     audio_rr1.reset();
     if (d_audio_rate != PREF_QUAD_RATE)
