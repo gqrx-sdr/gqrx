@@ -189,7 +189,7 @@ void DockAudio::on_audioGainSlider_valueChanged(int value)
     float gain = float(value) / 10.0f;
 
     // update dB label
-    ui->audioGainDbLabel->setText(QString("%1 dB").arg(gain, 5, 'f', 1));
+    ui->audioGainDbLabel->setText(QString("%1 dB").arg((double)gain, 5, 'f', 1));
     if (!ui->audioMuteButton->isChecked())
         emit audioGainChanged(gain);
 }

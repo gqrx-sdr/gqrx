@@ -110,7 +110,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 
     /* create receiver object */
     rx = new receiver("", "", 1);
-    rx->set_rf_freq(144500000.0f);
+    rx->set_rf_freq(144500000.0);
 
     // remote controller
     remote = new RemoteControl();
@@ -1436,7 +1436,7 @@ void MainWindow::setSqlLevel(double level_db)
  */
 double MainWindow::setSqlLevelAuto()
 {
-    double level = rx->get_signal_pwr() + 3.0f;
+    double level = (double)rx->get_signal_pwr() + 3.0;
     if (level > -10.0)  // avoid 0 dBFS
         level = uiDockRxOpt->getSqlLevel();
 
@@ -1684,7 +1684,7 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate, qint64
     updateHWFrequencyRange(false);
 
     // sample rate
-    auto actual_rate = rx->set_input_rate(samprate);
+    auto actual_rate = rx->set_input_rate((double)samprate);
     qDebug() << "Requested sample rate:" << samprate;
     qDebug() << "Actual sample rate   :" << QString("%1")
                 .arg(actual_rate, 0, 'f', 6);

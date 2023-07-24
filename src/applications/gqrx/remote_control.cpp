@@ -631,15 +631,15 @@ QString RemoteControl::cmd_get_level(QStringList cmdlist)
     }
     else if (lvl.compare("STRENGTH", Qt::CaseInsensitive) == 0 || lvl.isEmpty())
     {
-        answer = QString("%1\n").arg(signal_level, 0, 'f', 1);
+        answer = QString("%1\n").arg((double)signal_level, 0, 'f', 1);
     }
     else if (lvl.compare("SQL", Qt::CaseInsensitive) == 0)
     {
-        answer = QString("%1\n").arg(squelch_level, 0, 'f', 1);
+        answer = QString("%1\n").arg((double)squelch_level, 0, 'f', 1);
     }
     else if (lvl.compare("AF", Qt::CaseInsensitive) == 0)
     {
-        answer = QString("%1\n").arg(audio_gain, 0, 'f', 1);
+        answer = QString("%1\n").arg((double)audio_gain, 0, 'f', 1);
     }
     else if (lvl.endsWith("_GAIN"))
     {

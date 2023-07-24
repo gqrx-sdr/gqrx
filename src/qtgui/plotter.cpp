@@ -574,7 +574,7 @@ int CPlotter::getNearestPeak(QPoint pt)
         if (abs(y - py) > PEAK_CLICK_MAX_V_DISTANCE)
             continue;
 
-        qreal d = powf(y - py, 2) + powf(x - px, 2);
+        qreal d = pow(y - py, 2) + pow(x - px, 2);
         if (d < dist)
         {
             dist = d;
@@ -1223,7 +1223,7 @@ void CPlotter::draw(bool newData)
     const float wfdBGainFactor = 256.0f / fabsf(m_WfMaxdB - m_WfMindB);
 
     const double fftSize = m_fftDataSize;
-    const double sampleFreq = m_SampleFreq;
+    const double sampleFreq = (double)m_SampleFreq;
     const double fftCenter = (double)m_FftCenter;
     const double span = (double)m_Span;
     const double startFreq = fftCenter - span / 2.0;
@@ -1618,10 +1618,10 @@ void CPlotter::draw(bool newData)
         {
             const int ix = i + xmin;
             const qreal ixPlot = (qreal)ix;
-            const qreal yMaxD = std::max(std::min(
+            const qreal yMaxD = (qreal)std::max(std::min(
                 panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMaxBuf[ix])),
                 (float)plotHeight), 0.0f);
-            const qreal yAvgD = std::max(std::min(
+            const qreal yAvgD = (qreal)std::max(std::min(
                 panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftAvgBuf[ix])),
                 (float)plotHeight), 0.0f);
 
@@ -1638,7 +1638,7 @@ void CPlotter::draw(bool newData)
                         cidx = std::max(std::min(cidx, 255), 0);
                         QColor c = m_ColorTbl[cidx];
                         // Paint rectangle
-                        const qreal binY = binSizeY * j;
+                        const qreal binY = (qreal)binSizeY * j;
                         topBin = std::min(topBin, binY);
                         const qreal binH = (qreal)binSizeY * (j + 1) - binY;
                         painter2.fillRect(QRectF(ixPlot, binY, 1.0, binH), c);
@@ -1646,7 +1646,7 @@ void CPlotter::draw(bool newData)
                 }
                 // Highlight the top bin, if it isn't too crowded
                 if (topBin != plotHeight && showHistHighlights) {
-                    painter2.fillRect(QRectF(ixPlot, topBin, 1.0, binSizeY), maxLineColor);
+                    painter2.fillRect(QRectF(ixPlot, topBin, 1.0, (qreal)binSizeY), maxLineColor);
                 }
             }
 
@@ -1690,7 +1690,7 @@ void CPlotter::draw(bool newData)
             {
                 const int ix = i + xmin;
                 const qreal ixPlot = (qreal)ix;
-                const qreal yMaxHoldD = std::max(std::min(
+                const qreal yMaxHoldD = (qreal)std::max(std::min(
                     panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMaxHoldBuf[ix])),
                     (float)plotHeight), 0.0f);
                 maxLineBuf[i] = QPointF(ixPlot, yMaxHoldD);
@@ -1710,7 +1710,7 @@ void CPlotter::draw(bool newData)
             {
                 const int ix = i + xmin;
                 const qreal ixPlot = (qreal)ix;
-                const qreal yMinHoldD = std::max(std::min(
+                const qreal yMinHoldD = (qreal)std::max(std::min(
                     panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMinHoldBuf[ix])),
                     (float)plotHeight), 0.0f);
                 maxLineBuf[i] = QPointF(ixPlot, yMinHoldD);
@@ -1760,7 +1760,7 @@ void CPlotter::draw(bool newData)
                     m_peakSmoothBuf[ix] = avgV;
                     if (vi == maxV && (vi > 2.0f * avgV) && (vi > 4.0f * minV))
                     {
-                        const qreal y = std::max(std::min(
+                        const qreal y = (qreal)std::max(std::min(
                             panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(vi)),
                             (float)plotHeight - 0.0f), 0.0f);
                         m_Peaks[ix] = y;
@@ -1784,7 +1784,7 @@ void CPlotter::draw(bool newData)
                     const float avgV = sumV / (float)(pw2 * 2);
                     if (vi == maxV && (vi > 2.0f * avgV) && (vi > 4.0f * minV))
                     {
-                        const qreal y = std::max(std::min(
+                        const qreal y = (qreal)std::max(std::min(
                             panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(vi)),
                             (float)plotHeight - 0.0f), 0.0f);
 
@@ -2223,7 +2223,7 @@ void CPlotter::drawOverlay()
                 qMax(h / (m_VdivDelta * m_DPR), (qreal)VERT_DIVS_MIN),
                 mindBAdj64, dbDivSize, m_VerDivs);
 
-    dbstepsize = (float) dbDivSize;
+    dbstepsize = (qreal) dbDivSize;
     mindbadj = mindBAdj64;
 
     pixperdiv = h * (qreal) dbstepsize / (qreal) (m_PandMaxdB - m_PandMindB);

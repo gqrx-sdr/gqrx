@@ -101,7 +101,7 @@ void CMeter::resizeEvent(QResizeEvent *)
         m_2DPixmap.fill(Qt::black);
 
         qreal w = (m_2DPixmap.width() / dpr) - 2 * CTRL_MARGIN * (m_2DPixmap.width() / dpr);
-        m_pixperdb = w / fabs(MAX_DB - MIN_DB);
+        m_pixperdb = w / fabs((double)(MAX_DB - MIN_DB));
         setSqlLevel(m_Sql);
     }
 
@@ -134,7 +134,7 @@ void CMeter::setSqlLevel(float dbfs)
     if (m_SqlLevel < 0.0)
         m_SqlLevel = 0.0;
 
-    m_Sql = dbfs;
+    m_Sql = (qreal)dbfs;
 }
 
 // Called by QT when screen needs to be redrawn

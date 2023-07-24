@@ -270,7 +270,7 @@ void DockRxOpt::setFilterParam(int lo, int hi)
         float width_f;
         width_f = fabs((hi-lo)/1000.f);
         ui->filterCombo->setItemText(FILTER_PRESET_USER, QString("User (%1 k)")
-                                     .arg(width_f));
+                                     .arg((double)width_f));
     }
 }
 
