@@ -55,35 +55,35 @@ stereo_demod::stereo_demod(float input_rate, float audio_rate, bool stereo, bool
     d_oirt(oirt)
 {
   double cutof_freq = d_oirt ? 15e3 : 17e3;
-  lpf0 = make_lpf_ff(d_input_rate, cutof_freq, 2e3); // FIXME
+  lpf0 = make_lpf_ff((double)d_input_rate, cutof_freq, 2e3); // FIXME
   audio_rr0 = make_resampler_ff(d_audio_rate/d_input_rate);
   deemph0 = make_fm_deemph(d_audio_rate, 50.0e-6);
 
   if (d_stereo)
   {
-    lpf1 = make_lpf_ff(d_input_rate, cutof_freq, 2e3, -2.1); // FIXME
+    lpf1 = make_lpf_ff((double)d_input_rate, cutof_freq, 2e3, -2.1); // FIXME
     audio_rr1 = make_resampler_ff(d_audio_rate/d_input_rate);
     deemph1 = make_fm_deemph(d_audio_rate, 50.0e-6);
 
     if (!d_oirt)
     {
         d_tone_taps = gr::filter::firdes::complex_band_pass(
-                                       1.0,          // gain,
-		                                   d_input_rate, // sampling_freq
-                                       18980.,       // low_cutoff_freq
-                                       19020.,       // high_cutoff_freq
-                                       5000.);       // transition_width
+                                       1.0,                  // gain,
+                                       (double)d_input_rate, // sampling_freq
+                                       18980.,               // low_cutoff_freq
+                                       19020.,               // high_cutoff_freq
+                                       5000.);               // transition_width
         pll = gr::analog::pll_refout_cc::make(0.0002,    // loop_bw FIXME
                                 2 * (float)M_PI * 19020 / input_rate,  // max_freq
                                 2 * (float)M_PI * 18980 / input_rate); // min_freq
         subtone = gr::blocks::multiply_cc::make();
     } else {
         d_tone_taps = gr::filter::firdes::complex_band_pass(
-                                       1.0,          // gain,
-                                       d_input_rate, // sampling_freq
-                                       31200.,       // low_cutoff_freq
-                                       31300.,       // high_cutoff_freq
-                                       5000.);       // transition_width
+                                       1.0,                  // gain,
+                                       (double)d_input_rate, // sampling_freq
+                                       31200.,               // low_cutoff_freq
+                                       31300.,               // high_cutoff_freq
+                                       5000.);               // transition_width
         pll = gr::analog::pll_refout_cc::make(0.0002,    // loop_bw FIXME
                                 2 * (float)M_PI * 31200 / input_rate,  // max_freq
                                 2 * (float)M_PI * 31300 / input_rate); // min_freq
