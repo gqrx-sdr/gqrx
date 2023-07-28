@@ -967,7 +967,7 @@ void MainWindow::storeSession()
                 m_settings->beginGroup("audio");
             }
             if (rx->get_audio_rec_dir() != QDir::homePath().toStdString())
-                m_settings->setValue("rec_dir", rx->get_audio_rec_dir().data());
+                m_settings->setValue("rec_dir", QString::fromStdString(rx->get_audio_rec_dir()));
             else
                 m_settings->remove("rec_dir");
 
