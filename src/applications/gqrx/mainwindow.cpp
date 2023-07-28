@@ -1189,6 +1189,7 @@ void MainWindow::readRXSettings(int ver, double actual_rate)
     if(std::abs(offs) > actual_rate / 2)
         rx->set_filter_offset((offs > 0) ? (actual_rate / 2) : (-actual_rate / 2));
     loadRxToGUI();
+    ui->plotter->updateOverlay();
 }
 
 /**
@@ -1550,6 +1551,7 @@ void MainWindow::setFilterOffset(qint64 freq_hz)
     if (rx->is_rds_decoder_active()) {
         rx->reset_rds_parser();
     }
+    ui->plotter->updateOverlay();
 }
 
 /**
@@ -1778,6 +1780,7 @@ void MainWindow::selectDemod(Modulations::idx mode_idx)
     }
     rx->set_filter(flo, fhi, d_filter_shape);
     updateDemodGUIRanges();
+    ui->plotter->updateOverlay();
 }
 
 /**
@@ -2414,6 +2417,7 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate, qint64
     uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
     ui->plotter->setSampleRate(actual_rate);
     ui->plotter->setSpanFreq((quint32)actual_rate);
+    ui->plotter->updateOverlay();
     if (std::abs(current_offset) > actual_rate / 2)
         on_plotter_newDemodFreq(center_freq, 0);
     else
@@ -2454,6 +2458,7 @@ void MainWindow::stopIqPlayback()
         uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
         ui->plotter->setSampleRate(actual_rate);
         ui->plotter->setSpanFreq((quint32)actual_rate);
+        ui->plotter->updateOverlay();
         remote->setBandwidth(sr);
 
         // not needed as long as we are not recording in iq_tool
@@ -2824,6 +2829,7 @@ void MainWindow::on_plotter_newFilterFreq(int low, int high)
     /* Update filter range of plotter, in case this slot is triggered by
      * switching to a bookmark */
     ui->plotter->setHiLowCutFrequencies(low, high);
+    ui->plotter->updateOverlay();
 
     if (retcode == receiver::STATUS_OK)
         uiDockRxOpt->setFilterParam(low, high);
@@ -2989,6 +2995,7 @@ void MainWindow::onBookmarkActivated(BookmarkInfo & bm)
     old_vfo->set_offset(old_offset);
     old_vfo->set_freq_lock(true);
     loadRxToGUI();
+    ui->plotter->updateOverlay();
 }
 
 void MainWindow::onBookmarkActivatedAddDemod(BookmarkInfo & bm)
@@ -3259,6 +3266,7 @@ void MainWindow::on_actionAddDemodulator_triggered()
     ui->plotter->setCurrentVfo(rx->get_rx_count() - 1);
     rxSpinBox->setMaximum(rx->get_rx_count() - 1);
     rxSpinBox->setValue(n);
+    ui->plotter->updateOverlay();
 }
 
 void MainWindow::on_actionRemoveDemodulator_triggered()
@@ -3273,6 +3281,7 @@ void MainWindow::on_actionRemoveDemodulator_triggered()
     if (old_current != n)
         ui->plotter->removeVfo(rx->get_vfo(n));
     ui->plotter->setCurrentVfo(n);
+    ui->plotter->updateOverlay();
 }
 
 void MainWindow::rxSpinBox_valueChanged(int i)
@@ -3285,6 +3294,7 @@ void MainWindow::rxSpinBox_valueChanged(int i)
     ui->plotter->setCurrentVfo(i);
     if (n == receiver::STATUS_OK)
         loadRxToGUI();
+    ui->plotter->updateOverlay();
 }
 
 void MainWindow::on_plotter_selectVfo(int i)

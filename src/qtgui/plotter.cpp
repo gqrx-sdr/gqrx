@@ -650,7 +650,6 @@ void CPlotter::clearWaterfallBuf()
 void CPlotter::setCurrentVfo(int current)
 {
     m_currentVfo = current;
-    updateOverlay();
 }
 
 void    CPlotter::addVfo(vfo::sptr n_vfo)
@@ -2499,7 +2498,6 @@ void CPlotter::setDemodRanges(int FLowCmin, int FLowCmax,
     m_FHiCmax=FHiCmax;
     m_symetric=symetric;
     clampDemodParameters();
-    updateOverlay();
 }
 
 void CPlotter::setCenterFreq(quint64 f)
