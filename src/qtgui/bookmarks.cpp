@@ -181,7 +181,7 @@ bool Bookmarks::load()
                 info.set_agc_panning_auto(strings[i++].trimmed() == "true");
                 info.set_cw_offset(strings[i++].toInt());
                 info.set_fm_maxdev(strings[i++].toFloat());
-                info.set_fm_deemph(1.0e-6 * strings[i++].toFloat());
+                info.set_fm_deemph(1.0e-6f * strings[i++].toFloat());
                 info.set_am_dcr(strings[i++].trimmed() == "true");
                 info.set_amsync_dcr(strings[i++].trimmed() == "true");
                 info.set_amsync_pll_bw(strings[i++].toFloat());

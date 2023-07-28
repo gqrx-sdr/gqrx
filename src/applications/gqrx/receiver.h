@@ -184,8 +184,8 @@ public:
     float       get_nb_threshold(int nbid);
 
     /* Squelch parameter */
-    status      set_sql_level(double level_db);
-    status      set_sql_level(double level_offset, bool global, bool relative);
+    status      set_sql_level(float level_db);
+    status      set_sql_level(float level_offset, bool global, bool relative);
     double      get_sql_level();
     status      set_sql_alpha(double alpha);
     double      get_sql_alpha();

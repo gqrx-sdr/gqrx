@@ -399,7 +399,7 @@ bool BookmarksTableModel::setData(const QModelIndex &index, const QVariant &valu
             break;
         case COL_FM_DEEMPH:
             {
-                info.set_fm_deemph(value.toFloat() * 1e-6);
+                info.set_fm_deemph(value.toFloat() * 1e-6f);
                 emit dataChanged(index, index);
             }
             break;

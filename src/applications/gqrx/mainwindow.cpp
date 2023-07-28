@@ -3261,7 +3261,7 @@ void MainWindow::loadRxToGUI()
     uiDockRxOpt->setAgcPanning(rx->get_agc_panning());
     uiDockRxOpt->setAgcPanningAuto(rx->get_agc_panning_auto());
     if (!rx->get_agc_on())
-        uiDockAudio->setAudioGain(rx->get_agc_manual_gain() * 10.0f);
+        uiDockAudio->setAudioGain(rx->get_agc_manual_gain() * 10.f);
 
     uiDockRxOpt->setAmDcr(rx->get_am_dcr());
     uiDockRxOpt->setAmSyncDcr(rx->get_amsync_dcr());

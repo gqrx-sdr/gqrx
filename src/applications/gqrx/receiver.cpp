@@ -950,20 +950,20 @@ float receiver::get_nb_threshold(int nbid)
  * @brief Set squelch level.
  * @param level_db The new level in dBFS.
  */
-receiver::status receiver::set_sql_level(double level_db)
+receiver::status receiver::set_sql_level(float level_db)
 {
     rx[d_current]->set_sql_level(level_db);
 
     return STATUS_OK; // FIXME
 }
 
-receiver::status receiver::set_sql_level(double level_offset, bool global, bool relative)
+receiver::status receiver::set_sql_level(float level_offset, bool global, bool relative)
 {
     if (global)
         for (auto& rxc: rx)
-            rxc->set_sql_level((relative ? rxc->get_signal_level() : 0) + level_offset);
+            rxc->set_sql_level((relative ? rxc->get_signal_level() : 0.f) + level_offset);
     else
-        rx[d_current]->set_sql_level((relative ? rx[d_current]->get_signal_level() : 0) + level_offset);
+        rx[d_current]->set_sql_level((relative ? rx[d_current]->get_signal_level() : 0.f) + level_offset);
 
     return STATUS_OK; // FIXME
 }
@@ -1128,7 +1128,7 @@ receiver::status receiver::set_mute(bool mute)
     }
     else
     {
-        float mul_k = get_rx_count() ? 1.0 / float(get_rx_count()) : 1.0;
+        float mul_k = get_rx_count() ? 1.f / float(get_rx_count()) : 1.f;
         mc0->set_k(mul_k);
         mc1->set_k(mul_k);
     }
