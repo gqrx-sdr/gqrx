@@ -726,7 +726,6 @@ bool CPlotter::saveWaterfall(const QString & filename) const
 void CPlotter::setCurrentVfo(int current)
 {
     m_currentVfo = current;
-    updateOverlay();
 }
 
 void    CPlotter::addVfo(vfo::sptr n_vfo)
@@ -2409,12 +2408,12 @@ void CPlotter::drawVfo(QPainter &painter, const int demodFreqX, const int demodL
     QFontMetrics    metrics(m_Font);
     QRect         br = metrics.boundingRect("+256+");
     painter.setOpacity(0.3);
-    painter.fillRect(m_DemodLowCutFreqX, br.height(), dw, h,
+    painter.fillRect(demodLowCutFreqX, br.height(), dw, h,
                     QColor(PLOTTER_FILTER_BOX_COLOR));
 
     painter.setOpacity(1.0);
     painter.setPen(QPen(QColor(is_selected ? PLOTTER_FILTER_LINE_COLOR : PLOTTER_TEXT_COLOR), m_DPR));
-    painter.drawLine(demodFreqX, br.height(), m_DemodFreqX, h);
+    painter.drawLine(demodFreqX, br.height(), demodFreqX, h);
     painter.drawText(demodFreqX - br.width() / 2, 0, br.width(), br.height(),
                      Qt::AlignVCenter | Qt::AlignHCenter,
                      QString::number(index));
@@ -2550,7 +2549,6 @@ void CPlotter::setDemodRanges(int FLowCmin, int FLowCmax,
     m_FHiCmax=FHiCmax;
     m_symetric=symetric;
     clampDemodParameters();
-    updateOverlay();
 }
 
 void CPlotter::setCenterFreq(quint64 f)
