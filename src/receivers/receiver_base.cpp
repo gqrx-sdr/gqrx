@@ -50,7 +50,7 @@ receiver_base_cf::receiver_base_cf(std::string src_name, float pref_quad_rate, d
     ddc = make_downconverter_cc(d_ddc_decim, 0.0, d_decim_rate);
     connect(self(), 0, ddc, 0);
 
-    iq_resamp = make_resampler_cc(d_pref_quad_rate/d_quad_rate);
+    iq_resamp = make_resampler_cc(d_pref_quad_rate/float(d_quad_rate));
     agc = make_rx_agc_2f(d_audio_rate, d_agc_on, d_agc_target_level,
                          d_agc_manual_gain, d_agc_max_gain, d_agc_attack_ms,
                          d_agc_decay_ms, d_agc_hang_ms, d_agc_panning);
@@ -79,7 +79,7 @@ void receiver_base_cf::set_demod(Modulations::idx demod)
         qDebug() << "Changing RX quad rate:"  << d_decim_rate << "->" << d_quad_rate;
         lock();
         ddc->set_decim_and_samp_rate(d_ddc_decim, d_decim_rate);
-        iq_resamp->set_rate(d_pref_quad_rate/d_quad_rate);
+        iq_resamp->set_rate(d_pref_quad_rate/float(d_quad_rate));
         unlock();
     }
     vfo_s::set_demod(demod);
@@ -98,7 +98,7 @@ void receiver_base_cf::set_quad_rate(double quad_rate)
             qDebug() << "Changing RX quad rate:"  << d_decim_rate << "->" << d_quad_rate;
             lock();
             ddc->set_decim_and_samp_rate(d_ddc_decim, d_decim_rate);
-            iq_resamp->set_rate(d_pref_quad_rate/d_quad_rate);
+            iq_resamp->set_rate(d_pref_quad_rate/float(d_quad_rate));
             unlock();
         }
     }
