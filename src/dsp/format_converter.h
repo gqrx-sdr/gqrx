@@ -59,6 +59,7 @@ enum file_formats {
     FILE_FORMAT_S8,
     FILE_FORMAT_S16L,
     FILE_FORMAT_S10L,
+    FILE_FORMAT_S12L,
     FILE_FORMAT_COUNT,
 };
 
@@ -97,6 +98,7 @@ public:
         {1,1,"8i.raw","char 8i"},
         {2,1,"16i.raw","short 16i"},
         {5*8,4*8,"10i.raw","10 bit i"},
+        {3*8,2*8,"12i.raw","12 bit i"},
     };
 
     void set_decimation(unsigned decimation)
@@ -194,6 +196,8 @@ protected:
     void convert(const int16_t *in, gr_complex * out, int noutput_items);
     void convert(const gr_complex *in, std::array<int16_t,20> * out, int noutput_items);
     void convert(const std::array<int16_t,20> *in, gr_complex * out, int noutput_items);
+    void convert(const gr_complex *in, std::array<int16_t,12> * out, int noutput_items);
+    void convert(const std::array<int16_t,12> *in, gr_complex * out, int noutput_items);
 };
 
     /*!
@@ -469,6 +473,48 @@ using any_to_any_base::sptr;
         }
     }
 
+    static sptr make(dispatcher::tag<any_to_any<gr_complex, std::array<int16_t,12>>>)
+    {
+        if(is_le())
+        {
+            if(UINTPTR_MAX == 0xffffffffffffffff)
+            {
+#if 0
+                #ifdef __BMI2__
+                if( __builtin_cpu_supports("bmi2"))
+                    return gnuradio::get_initial_sptr(new any_to_any_bmi64<T_IN, T_OUT>(-float(INT16_MIN>>4),16,1,"f32s12"));
+                #endif
+#endif
+                return gnuradio::get_initial_sptr(new any_to_any_64<T_IN, T_OUT>(-float(INT16_MIN>>4),16,1,"f32s12"));
+            }else{
+                return gnuradio::get_initial_sptr(new any_to_any_32<T_IN, T_OUT>(-float(INT16_MIN>>4),16,1,"f32s12"));
+            }
+        }else{
+            return gnuradio::get_initial_sptr(new any_to_any<T_IN, T_OUT>(-float(INT16_MIN>>4),16,1,"f32s12"));
+        }
+    }
+
+    static sptr make(dispatcher::tag<any_to_any<std::array<int16_t,12>, gr_complex>>)
+    {
+        if(is_le())
+        {
+            if(UINTPTR_MAX == 0xffffffffffffffff)
+            {
+#if 0
+                #ifdef __BMI2__
+                if( __builtin_cpu_supports("bmi2"))
+                    return gnuradio::get_initial_sptr(new any_to_any_bmi64<T_IN, T_OUT>(-float(INT16_MIN),1,16,"s12f32"));
+                #endif
+#endif
+                return gnuradio::get_initial_sptr(new any_to_any_64<T_IN, T_OUT>(-float(INT16_MIN),1,16,"s12f32"));
+            }else{
+                return gnuradio::get_initial_sptr(new any_to_any_32<T_IN, T_OUT>(-float(INT16_MIN),1,16,"s12f32"));
+            }
+        }else{
+            return gnuradio::get_initial_sptr(new any_to_any<T_IN, T_OUT>(-float(INT16_MIN>>4),1,16,"s12f32"));
+        }
+    }
+
     any_to_any(const double scale, unsigned decimation, unsigned interpolation, const std::string bname):sync_block(bname,
                 gr::io_signature::make (1, 1, sizeof(T_IN)),
                 gr::io_signature::make (1, 1, sizeof(T_OUT)))
@@ -527,6 +573,8 @@ protected:
     void convert(const std::array<int8_t,56> *in, gr_complex * out, int noutput_items);
     void convert(const gr_complex *in, std::array<int16_t,20> * out, int noutput_items);
     void convert(const std::array<int16_t,20> *in, gr_complex * out, int noutput_items);
+    void convert(const gr_complex *in, std::array<int16_t,12> * out, int noutput_items);
+    void convert(const std::array<int16_t,12> *in, gr_complex * out, int noutput_items);
 };
 
 template <typename T_IN, typename T_OUT> class BLOCKS_API any_to_any_32 : virtual public gr::sync_block, virtual public any_to_any_base, virtual private any_to_any_impl_32
@@ -591,6 +639,8 @@ protected:
     void convert(const std::array<int8_t,56> *in, gr_complex * out, int noutput_items);
     void convert(const gr_complex *in, std::array<int16_t,20> * out, int noutput_items);
     void convert(const std::array<int16_t,20> *in, gr_complex * out, int noutput_items);
+    void convert(const gr_complex *in, std::array<int16_t,12> * out, int noutput_items);
+    void convert(const std::array<int16_t,12> *in, gr_complex * out, int noutput_items);
 };
 
 template <typename T_IN, typename T_OUT> class BLOCKS_API any_to_any_64 : virtual public gr::sync_block, virtual public any_to_any_base, virtual private any_to_any_impl_64
@@ -655,6 +705,8 @@ protected:
     void convert(const std::array<int8_t,56> *in, gr_complex * out, int noutput_items);
     void convert(const gr_complex *in, std::array<int16_t,20> * out, int noutput_items);
     void convert(const std::array<int16_t,20> *in, gr_complex * out, int noutput_items);
+    void convert(const gr_complex *in, std::array<int16_t,12> * out, int noutput_items);
+    void convert(const std::array<int16_t,12> *in, gr_complex * out, int noutput_items);
 };
 
 template <typename T_IN, typename T_OUT> class BLOCKS_API any_to_any_bmi64 : virtual public gr::sync_block, virtual public any_to_any_base, virtual private any_to_any_impl_bmi64
