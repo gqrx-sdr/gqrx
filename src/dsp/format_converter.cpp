@@ -161,48 +161,48 @@ void any_to_any_impl::convert(const std::array<int8_t,40> *in, gr_complex * out,
     }
 }
 
-void any_to_any_impl::convert(const gr_complex *in, std::array<int8_t,3> * out, int noutput_items)
+void any_to_any_impl::convert(const gr_complex *in, std::array<int8_t,24> * out, int noutput_items)
 {
+    uint8_t * p = (uint8_t *) &(*out)[0];
+    noutput_items*=8;
     while(noutput_items)
     {
         int i;
         int q;
-        uint8_t * p = (uint8_t *) &(*out)[0];
         i = std::round(in->real()*d_scale);
         q = std::round(in->imag()*d_scale);
         in++;
         p[0] = i & 0xff;
         p[1] = (i & 0x0f00) >> 8 | (q & 0x0f)<<4;
         p[2] = q >> 4;
-        out++;
+        p+=3;
         noutput_items--;
     }
 }
 
-void any_to_any_impl::convert(const std::array<int8_t,3> *in, gr_complex * out, int noutput_items)
+void any_to_any_impl::convert(const std::array<int8_t,24> *in, gr_complex * out, int noutput_items)
 {
+    uint8_t * p = (uint8_t *) &(*in)[0];
     while(noutput_items)
     {
         int i;
         int q;
-        uint8_t * p = (uint8_t *) &(*in)[0];
         i = p[0] | (p[1] & 0x0f) << 8;
         q = p[1] >> 4 | p[2] << 4;
         *out=gr_complex(float((i&(1<<11))?i-4096:i)*d_scale_i, float((q&(1<<11))?q-4096:q)*d_scale_i);
         out++;
-        in++;
+        p+=3;
         noutput_items--;
     }
 }
 
-void any_to_any_impl::convert(const std::array<int8_t,7> *in, gr_complex * out, int noutput_items)
+void any_to_any_impl::convert(const std::array<int8_t,56> *in, gr_complex * out, int noutput_items)
 {
-    noutput_items&=-2;
+    uint8_t * p = (uint8_t *) &(*in)[0];
     while(noutput_items)
     {
         int i;
         int q;
-        uint8_t * p = (uint8_t *) &(*in)[0];
         i = p[0] | ((p[1] & 0x3f) << 8);
         q = (p[1] >> 6) | (p[2] << 2) | ((p[3] & 0x0f) << 10);
         *out=gr_complex(float((i&(1<<13))?i-16384:i)*d_scale_i, float((q&(1<<13))?q-16384:q)*d_scale_i);
@@ -211,18 +211,19 @@ void any_to_any_impl::convert(const std::array<int8_t,7> *in, gr_complex * out, 
         q = (p[5] >> 2) | (p[6] << 6);
         *out=gr_complex(float((i&(1<<13))?i-16384:i)*d_scale_i, float((q&(1<<13))?q-16384:q)*d_scale_i);
         out++;
-        in++;
+        p+=7;
         noutput_items-=2;
     }
 }
 
-void any_to_any_impl::convert(const gr_complex *in, std::array<int8_t,7> * out, int noutput_items)
+void any_to_any_impl::convert(const gr_complex *in, std::array<int8_t,56> * out, int noutput_items)
 {
+    uint8_t * p = (uint8_t *) &(*out)[0];
+    noutput_items*=8;
     while(noutput_items)
     {
         int i;
         int q;
-        uint8_t * p = (uint8_t *) &(*out)[0];
         i = std::round(in->real()*d_scale);
         q = std::round(in->imag()*d_scale);
         in++;
@@ -237,7 +238,7 @@ void any_to_any_impl::convert(const gr_complex *in, std::array<int8_t,7> * out, 
         p[4] = (i >> 4) & 0xff;
         p[5] = ((i >> 12) & 0x03) | ((q & 0x3f) << 2);
         p[6] = q >> 6;
-        out++;
+        p+=7;
         noutput_items--;
     }
 }
@@ -330,6 +331,167 @@ void any_to_any_impl_32::convert(const std::array<int8_t,40> *in, gr_complex * o
         o++;
         *o = (*i & 0x003ff000) >> 6;
         *o|= (*i & 0xffc00000);
+        i++;
+
+        volk_16i_s32f_convert_32f((float *)out, (const int16_t*)buf,d_scale,16);
+        out+=8;
+        noutput_items-=8;
+    }
+}
+
+void any_to_any_impl_32::convert(const gr_complex *in, std::array<int8_t,24> * out, int noutput_items)
+{
+    uint8_t buf[4*2*2];
+    uint32_t * p = (uint32_t *) &(*out)[0];
+    noutput_items *= 2;
+    while(noutput_items)
+    {
+        volk_32f_s32f_convert_16i((int16_t *)buf, (const float *)in, d_scale, 8);
+        uint32_t * r = (uint32_t *) buf;
+        *p  = (*r & 0x00000fff);        //0>>0
+        *p |= ((*r & 0x0fff0000) >>  4);//16>>12
+        r++;
+        *p |= ((*r & 0x00000fff) << 24);//0>>24
+        p++;
+        *p  = ((*r & 0x00000fff) >>  8);//0>>-8
+        *p |= ((*r & 0x0fff0000) >> 12);//16>>4
+        r++;
+        *p |= ((*r & 0x00000fff) << 16);//0>>16
+        *p |= ((*r & 0x0fff0000) << 12);//16>>28
+        p++;
+        *p  = ((*r & 0x0fff0000) >> 20);//16>>-4
+        r++;
+        *p |= ((*r & 0x00000fff) <<  8);//0>>8
+        *p |= ((*r & 0x0fff0000) <<  4);//16>>20
+        p++;
+        in+=4;
+        noutput_items--;
+    }
+}
+
+void any_to_any_impl_32::convert(const std::array<int8_t,24> *in, gr_complex * out, int noutput_items)
+{
+    uint8_t buf[4*2*2];
+    uint32_t * i = (uint32_t *) &(*in)[0];
+    while(noutput_items)
+    {
+        uint32_t * o = (uint32_t *) buf;
+        *o  = ((*i & 0x00000fff) <<  4);//0>>4
+        *o |= ((*i & 0x00fff000) <<  8);//12>>20
+        o++;
+        *o  = ((*i & 0xff000000) >> 20);//24>>4
+        i++;
+        *o |= ((*i & 0x0000000f) << 12);//4>>4
+        *o |= ((*i & 0x0000fff0) << 16);//4>>20
+        o++;
+        *o  = ((*i & 0x0fff0000) >> 12);//16>>4
+        *o |= ((*i & 0xf0000000) >>  8);//28>>20
+        i++;
+        *o |= ((*i & 0x000000ff) << 24);//8>>20
+        o++;
+        *o  = ((*i & 0x000fff00) >>  4);//8>>4
+        *o |= (*i & 0xfff00000);        //20>>20
+        i++;
+
+        volk_16i_s32f_convert_32f((float *)out, (const int16_t*)buf,d_scale,8);
+        out+=4;
+        noutput_items-=4;
+    }
+}
+
+void any_to_any_impl_32::convert(const gr_complex *in, std::array<int8_t,56> * out, int noutput_items)
+{
+    uint8_t buf[8*2*2];
+    uint32_t * p = (uint32_t *) &(*out)[0];
+    noutput_items *= 2;
+    while(noutput_items)
+    {
+        volk_32f_s32f_convert_16i((int16_t *)buf, (const float *)in, d_scale, 16);
+        uint32_t * r = (uint32_t *) buf;
+        *p  = (*r & 0x00003fff);        //0>>0
+        *p |= ((*r & 0x3fff0000) >>  2);//16>>14
+        r++;
+        *p |= ((*r & 0x00003fff) << 28);//0>>28
+        p++;
+        *p  = ((*r & 0x00003fff) >>  4);//0>>-4
+        *p |= ((*r & 0x3fff0000) >>  6);//16>>10
+        r++;
+        *p |= ((*r & 0x00003fff) << 24);//0>>24
+        p++;
+        *p  = ((*r & 0x00003fff) >>  8);//0>>-8
+        *p |= ((*r & 0x3fff0000) >> 10);//16>>6
+        r++;
+        *p |= ((*r & 0x00003fff) << 20);//0>>20
+        p++;
+        *p  = ((*r & 0x00003fff) >> 12);//0>>-12
+        *p |= ((*r & 0x3fff0000) >> 14);//16>>2
+        r++;
+        *p |= ((*r & 0x00003fff) << 16);//0>>16
+        *p |= ((*r & 0x3fff0000) << 14);//16>>30
+        p++;
+        *p  = ((*r & 0x3fff0000) >> 18);//16>>-2
+        r++;
+        *p |= ((*r & 0x00003fff) << 12);//0>>12
+        *p |= ((*r & 0x3fff0000) << 10);//16>>26
+        p++;
+        *p  = ((*r & 0x3fff0000) >> 22);//16>>-6
+        r++;
+        *p |= ((*r & 0x00003fff) <<  8);//0>>8
+        *p |= ((*r & 0x3fff0000) <<  6);//16>>22
+        p++;
+        *p  = ((*r & 0x3fff0000) >> 26);//16>>-10
+        r++;
+        *p |= ((*r & 0x00003fff) <<  4);//0>>4
+        *p |= ((*r & 0x3fff0000) <<  2);//16>>18
+        p++;
+
+        in+=8;
+        noutput_items--;
+    }
+}
+
+void any_to_any_impl_32::convert(const std::array<int8_t,56> *in, gr_complex * out, int noutput_items)
+{
+    uint8_t buf[8*2*2];
+    uint32_t * i = (uint32_t *) &(*in)[0];
+    while(noutput_items)
+    {
+        uint32_t * o = (uint32_t *) buf;
+        *o  = ((*i & 0x00003fff) <<  2);//0>>2
+        *o |= ((*i & 0x0fffc000) <<  4);//14>>18
+        o++;
+        *o  = ((*i & 0xf0000000) >> 26);//28>>2
+        i++;
+        *o |= ((*i & 0x000003ff) <<  6);//10>>2
+        *o |= ((*i & 0x00fffc00) <<  8);//10>>18
+        o++;
+        *o  = ((*i & 0xff000000) >> 22);//24>>2
+        i++;
+        *o |= ((*i & 0x0000003f) << 10);//6>>2
+        *o |= ((*i & 0x000fffc0) << 12);//6>>18
+        o++;
+        *o  = ((*i & 0xfff00000) >> 18);//20>>2
+        i++;
+        *o |= ((*i & 0x00000003) << 14);//2>>2
+        *o |= ((*i & 0x0000fffc) << 16);//2>>18
+        o++;
+        *o  = ((*i & 0x3fff0000) >> 14);//16>>2
+        *o |= ((*i & 0xc0000000) >> 12);//30>>18
+        i++;
+        *o |= ((*i & 0x00000fff) << 20);//12>>18
+        o++;
+        *o  = ((*i & 0x03fff000) >> 10);//12>>2
+        *o |= ((*i & 0xfc000000) >>  8);//26>>18
+        i++;
+        *o |= ((*i & 0x000000ff) << 24);//8>>18
+        o++;
+        *o  = ((*i & 0x003fff00) >>  6);//8>>2
+        *o |= ((*i & 0xffc00000) >>  4);//22>>18
+        i++;
+        *o |= ((*i & 0x0000000f) << 28);//4>>18
+        o++;
+        *o  = ((*i & 0x0003fff0) >>  2);//4>>2
+        *o |= (*i & 0xfffc0000);        //18>>18
         i++;
 
         volk_16i_s32f_convert_32f((float *)out, (const int16_t*)buf,d_scale,16);
@@ -466,6 +628,216 @@ void any_to_any_impl_64::convert(const std::array<int8_t,40> *in, gr_complex * o
     }
 }
 
+void any_to_any_impl_64::convert(const gr_complex *in, std::array<int8_t,24> * out, int noutput_items)
+{
+    uint8_t buf[8*2*2];
+    uint64_t * p = (uint64_t *) &(*out)[0];
+    while(noutput_items)
+    {
+        volk_32f_s32f_convert_16i((int16_t *)buf, (const float *)in, d_scale, 16);
+        uint64_t * r = (uint64_t *) buf;
+        *p  = (*r & 0x0000000000000fff);        //0>>0
+        *p |= ((*r & 0x000000000fff0000) >>  4);//16>>12
+        *p |= ((*r & 0x00000fff00000000) >>  8);//32>>24
+        *p |= ((*r & 0x0fff000000000000) >> 12);//48>>36
+        r++;
+        *p |= ((*r & 0x0000000000000fff) << 48);//0>>48
+        *p |= ((*r & 0x000000000fff0000) << 44);//16>>60
+        p++;
+        *p  = ((*r & 0x000000000fff0000) >> 20);//16>>-4
+        *p |= ((*r & 0x00000fff00000000) >> 24);//32>>8
+        *p |= ((*r & 0x0fff000000000000) >> 28);//48>>20
+        r++;
+        *p |= ((*r & 0x0000000000000fff) << 32);//0>>32
+        *p |= ((*r & 0x000000000fff0000) << 28);//16>>44
+        *p |= ((*r & 0x00000fff00000000) << 24);//32>>56
+        p++;
+        *p  = ((*r & 0x00000fff00000000) >> 40);//32>>-8
+        *p |= ((*r & 0x0fff000000000000) >> 44);//48>>4
+        r++;
+        *p |= ((*r & 0x0000000000000fff) << 16);//0>>16
+        *p |= ((*r & 0x000000000fff0000) << 12);//16>>28
+        *p |= ((*r & 0x00000fff00000000) <<  8);//32>>40
+        *p |= ((*r & 0x0fff000000000000) <<  4);//48>>52
+        p++;
+        in+=8;
+        noutput_items--;
+    }
+}
+
+void any_to_any_impl_64::convert(const std::array<int8_t,24> *in, gr_complex * out, int noutput_items)
+{
+    uint8_t buf[8*2*2];
+    noutput_items&=-2;
+    while(noutput_items)
+    {
+        uint64_t * i = (uint64_t *) &(*in)[0];
+        uint64_t * o = (uint64_t *) buf;
+        *o  = ((*i & 0x0000000000000fff) <<  4);//0>>4
+        *o |= ((*i & 0x0000000000fff000) <<  8);//12>>20
+        *o |= ((*i & 0x0000000fff000000) << 12);//24>>36
+        *o |= ((*i & 0x0000fff000000000) << 16);//36>>52
+        o++;
+        *o  = ((*i & 0x0fff000000000000) >> 44);//48>>4
+        *o |= ((*i & 0xf000000000000000) >> 40);//60>>20
+        i++;
+        *o |= ((*i & 0x00000000000000ff) << 24);//8>>20
+        *o |= ((*i & 0x00000000000fff00) << 28);//8>>36
+        *o |= ((*i & 0x00000000fff00000) << 32);//20>>52
+        o++;
+        *o  = ((*i & 0x00000fff00000000) >> 28);//32>>4
+        *o |= ((*i & 0x00fff00000000000) >> 24);//44>>20
+        *o |= ((*i & 0xff00000000000000) >> 20);//56>>36
+        i++;
+        *o |= ((*i & 0x000000000000000f) << 44);//4>>36
+        *o |= ((*i & 0x000000000000fff0) << 48);//4>>52
+        o++;
+        *o  = ((*i & 0x000000000fff0000) >> 12);//16>>4
+        *o |= ((*i & 0x000000fff0000000) >>  8);//28>>20
+        *o |= ((*i & 0x000fff0000000000) >>  4);//40>>36
+        *o |= (*i & 0xfff0000000000000);        //52>>52
+        i++;
+
+        volk_16i_s32f_convert_32f((float *)out, (const int16_t*)buf,d_scale,16);
+        out+=8;
+        in++;
+        noutput_items-=8;
+    }
+}
+
+void any_to_any_impl_64::convert(const gr_complex *in, std::array<int8_t,56> * out, int noutput_items)
+{
+    uint8_t buf[16*2*2];
+    uint64_t * p = (uint64_t *) &(*out)[0];
+    while(noutput_items)
+    {
+        volk_32f_s32f_convert_16i((int16_t *)buf, (const float *)in, d_scale, 32);
+        uint64_t * r = (uint64_t *) buf;
+        *p  = (*r & 0x0000000000003fff);        //0>>0
+        *p |= ((*r & 0x000000003fff0000) >>  2);//16>>14
+        *p |= ((*r & 0x00003fff00000000) >>  4);//32>>28
+        *p |= ((*r & 0x3fff000000000000) >>  6);//48>>42
+        r++;
+        *p |= ((*r & 0x0000000000003fff) << 56);//0>>56
+        p++;
+        *p  = ((*r & 0x0000000000003fff) >>  8);//0>>-8
+        *p |= ((*r & 0x000000003fff0000) >> 10);//16>>6
+        *p |= ((*r & 0x00003fff00000000) >> 12);//32>>20
+        *p |= ((*r & 0x3fff000000000000) >> 14);//48>>34
+        r++;
+        *p |= ((*r & 0x0000000000003fff) << 48);//0>>48
+        *p |= ((*r & 0x000000003fff0000) << 46);//16>>62
+        p++;
+        *p  = ((*r & 0x000000003fff0000) >> 18);//16>>-2
+        *p |= ((*r & 0x00003fff00000000) >> 20);//32>>12
+        *p |= ((*r & 0x3fff000000000000) >> 22);//48>>26
+        r++;
+        *p |= ((*r & 0x0000000000003fff) << 40);//0>>40
+        *p |= ((*r & 0x000000003fff0000) << 38);//16>>54
+        p++;
+        *p  = ((*r & 0x000000003fff0000) >> 26);//16>>-10
+        *p |= ((*r & 0x00003fff00000000) >> 28);//32>>4
+        *p |= ((*r & 0x3fff000000000000) >> 30);//48>>18
+        r++;
+        *p |= ((*r & 0x0000000000003fff) << 32);//0>>32
+        *p |= ((*r & 0x000000003fff0000) << 30);//16>>46
+        *p |= ((*r & 0x00003fff00000000) << 28);//32>>60
+        p++;
+        *p  = ((*r & 0x00003fff00000000) >> 36);//32>>-4
+        *p |= ((*r & 0x3fff000000000000) >> 38);//48>>10
+        r++;
+        *p |= ((*r & 0x0000000000003fff) << 24);//0>>24
+        *p |= ((*r & 0x000000003fff0000) << 22);//16>>38
+        *p |= ((*r & 0x00003fff00000000) << 20);//32>>52
+        p++;
+        *p  = ((*r & 0x00003fff00000000) >> 44);//32>>-12
+        *p |= ((*r & 0x3fff000000000000) >> 46);//48>>2
+        r++;
+        *p |= ((*r & 0x0000000000003fff) << 16);//0>>16
+        *p |= ((*r & 0x000000003fff0000) << 14);//16>>30
+        *p |= ((*r & 0x00003fff00000000) << 12);//32>>44
+        *p |= ((*r & 0x3fff000000000000) << 10);//48>>58
+        p++;
+        *p  = ((*r & 0x3fff000000000000) >> 54);//48>>-6
+        r++;
+        *p |= ((*r & 0x0000000000003fff) <<  8);//0>>8
+        *p |= ((*r & 0x000000003fff0000) <<  6);//16>>22
+        *p |= ((*r & 0x00003fff00000000) <<  4);//32>>36
+        *p |= ((*r & 0x3fff000000000000) <<  2);//48>>50
+        p++;
+
+        in+=16;
+        noutput_items--;
+    }
+}
+
+void any_to_any_impl_64::convert(const std::array<int8_t,56> *in, gr_complex * out, int noutput_items)
+{
+    uint8_t buf[16*2*2];
+    noutput_items&=-2;
+    while(noutput_items)
+    {
+        uint64_t * i = (uint64_t *) &(*in)[0];
+        uint64_t * o = (uint64_t *) buf;
+        *o  = ((*i & 0x0000000000003fff) <<  2);//0>>2
+        *o |= ((*i & 0x000000000fffc000) <<  4);//14>>18
+        *o |= ((*i & 0x000003fff0000000) <<  6);//28>>34
+        *o |= ((*i & 0x00fffc0000000000) <<  8);//42>>50
+        o++;
+        *o  = ((*i & 0xff00000000000000) >> 54);//56>>2
+        i++;
+        *o |= ((*i & 0x000000000000003f) << 10);//6>>2
+        *o |= ((*i & 0x00000000000fffc0) << 12);//6>>18
+        *o |= ((*i & 0x00000003fff00000) << 14);//20>>34
+        *o |= ((*i & 0x0000fffc00000000) << 16);//34>>50
+        o++;
+        *o  = ((*i & 0x3fff000000000000) >> 46);//48>>2
+        *o |= ((*i & 0xc000000000000000) >> 44);//62>>18
+        i++;
+        *o |= ((*i & 0x0000000000000fff) << 20);//12>>18
+        *o |= ((*i & 0x0000000003fff000) << 22);//12>>34
+        *o |= ((*i & 0x000000fffc000000) << 24);//26>>50
+        o++;
+        *o  = ((*i & 0x003fff0000000000) >> 38);//40>>2
+        *o |= ((*i & 0xffc0000000000000) >> 36);//54>>18
+        i++;
+        *o |= ((*i & 0x000000000000000f) << 28);//4>>18
+        *o |= ((*i & 0x000000000003fff0) << 30);//4>>34
+        *o |= ((*i & 0x00000000fffc0000) << 32);//18>>50
+        o++;
+        *o  = ((*i & 0x00003fff00000000) >> 30);//32>>2
+        *o |= ((*i & 0x0fffc00000000000) >> 28);//46>>18
+        *o |= ((*i & 0xf000000000000000) >> 26);//60>>34
+        i++;
+        *o |= ((*i & 0x00000000000003ff) << 38);//10>>34
+        *o |= ((*i & 0x0000000000fffc00) << 40);//10>>50
+        o++;
+        *o  = ((*i & 0x0000003fff000000) >> 22);//24>>2
+        *o |= ((*i & 0x000fffc000000000) >> 20);//38>>18
+        *o |= ((*i & 0xfff0000000000000) >> 18);//52>>34
+        i++;
+        *o |= ((*i & 0x0000000000000003) << 46);//2>>34
+        *o |= ((*i & 0x000000000000fffc) << 48);//2>>50
+        o++;
+        *o  = ((*i & 0x000000003fff0000) >> 14);//16>>2
+        *o |= ((*i & 0x00000fffc0000000) >> 12);//30>>18
+        *o |= ((*i & 0x03fff00000000000) >> 10);//44>>34
+        *o |= ((*i & 0xfc00000000000000) >>  8);//58>>50
+        i++;
+        *o |= ((*i & 0x00000000000000ff) << 56);//8>>50
+        o++;
+        *o  = ((*i & 0x00000000003fff00) >>  6);//8>>2
+        *o |= ((*i & 0x0000000fffc00000) >>  4);//22>>18
+        *o |= ((*i & 0x0003fff000000000) >>  2);//36>>34
+        *o |= (*i & 0xfffc000000000000);        //50>>50
+
+        volk_16i_s32f_convert_32f((float *)out, (const int16_t*)buf,d_scale,32);
+        out+=16;
+        in++;
+        noutput_items-=16;
+    }
+}
+
 #ifdef __BMI2__
 /////////////////////////////////////
 // 64 bit bmi2 accelerated converters
@@ -576,6 +948,208 @@ void any_to_any_impl_bmi64::convert(const std::array<int8_t,40> *in, gr_complex 
         noutput_items-=16;
     }
 }
+
+void any_to_any_impl_bmi64::convert(const gr_complex *in, std::array<int8_t,24> * out, int noutput_items)
+{
+    uint8_t buf[8*2*2];
+    uint64_t * p = (uint64_t *) &(*out)[0];
+    while(noutput_items)
+    {
+        volk_32f_s32f_convert_16i((int16_t *)buf, (const float *)in, d_scale, 16);
+        uint64_t * r = (uint64_t *) buf;
+        uint64_t t;
+        uint64_t b;
+        b=_pext_u64(*r,0x0fff0fff0fff0fff);//48
+        r++;
+        t=_pext_u64(*r,0x0fff0fff0fff0fff);//96
+        r++;
+        b|=t<<48;
+
+        *p=b;//32
+        p++;
+
+        b=_pext_u64(*r,0x0fff0fff0fff0fff);//80
+        r++;
+        t=t>>16;//64-48=16
+        t|=b<<32;//48-16=32
+        *p=t;//16
+        p++;
+
+        t=_pext_u64(*r,0x0fff0fff0fff0fff);//64
+        r++;
+        b=b>>32;//64-32=32
+        b|=t<<16;//48-32=16
+
+        *p=b;//0
+        p++;
+
+        in+=8;
+        noutput_items--;
+    }
+}
+
+void any_to_any_impl_bmi64::convert(const std::array<int8_t,24> *in, gr_complex * out, int noutput_items)
+{
+    uint8_t buf[8*2*2];
+    uint64_t t;
+    uint64_t * i = (uint64_t *) &(*in)[0];
+    while(noutput_items)
+    {
+        uint64_t * o = (uint64_t *) buf;
+        *o = _pdep_u64(*i, 0xfff0fff0fff0fff0);//16
+        o++;
+        t = *i >> 48;
+        i++;
+        t |= *i << 16;
+        *o = _pdep_u64(t, 0xfff0fff0fff0fff0);
+        o++;
+        t = *i >> 32;
+        i++;
+        t |= *i << 32;
+        *o = _pdep_u64(t, 0xfff0fff0fff0fff0);
+        o++;
+        t = *i >> 16;
+        i++;
+        *o = _pdep_u64(t, 0xfff0fff0fff0fff0);
+        o++;
+        volk_16i_s32f_convert_32f((float *)out, (const int16_t*)buf,d_scale,16);
+        out+=8;
+        noutput_items-=8;
+    }
+}
+
+void any_to_any_impl_bmi64::convert(const gr_complex *in, std::array<int8_t,56> * out, int noutput_items)
+{
+    uint8_t buf[16*2*2];
+    uint64_t * p = (uint64_t *) &(*out)[0];
+    constexpr uint64_t mask=0x3fff3fff3fff3fff;
+    while(noutput_items)
+    {
+        volk_32f_s32f_convert_16i((int16_t *)buf, (const float *)in, d_scale, 32);
+        uint64_t * r = (uint64_t *) buf;
+        uint64_t t;
+        uint64_t b;
+        b=_pext_u64(*r,mask);
+        r++;
+        t=_pext_u64(*r,mask);
+        r++;
+        b|=t<<56;
+
+        *p=b;
+        p++;
+
+        b=t>>8;//64-56=8
+        t=_pext_u64(*r,mask);
+        r++;
+        b|=t<<48;//56-8=48
+
+        *p=b;
+        p++;
+
+        b=t>>16;//64-48=16
+        t=_pext_u64(*r,mask);
+        r++;
+        b|=t<<40;//56-16=40
+
+        *p=b;
+        p++;
+
+        b=t>>24;//64-40=24
+        t=_pext_u64(*r,mask);
+        r++;
+        b|=t<<32;//56-24=32
+
+        *p=b;
+        p++;
+
+        b=t>>32;//64-32=32
+        t=_pext_u64(*r,mask);
+        r++;
+        b|=t<<24;//56-32=24
+
+        *p=b;
+        p++;
+
+        b=t>>40;//64-24=40
+        t=_pext_u64(*r,mask);
+        r++;
+        b|=t<<16;//56-40=16
+
+        *p=b;
+        p++;
+
+        b=t>>48;//64-16=48
+        t=_pext_u64(*r,mask);
+        r++;
+        b|=t<<8;//56-48=8
+
+        *p=b;
+        p++;
+
+        in+=16;
+        noutput_items--;
+    }
+}
+
+void any_to_any_impl_bmi64::convert(const std::array<int8_t,56> *in, gr_complex * out, int noutput_items)
+{
+    uint8_t buf[16*2*2];
+    noutput_items&=-2;
+    constexpr uint64_t mask=0xfffcfffcfffcfffc;
+    uint64_t t;
+    uint64_t * i = (uint64_t *) &(*in)[0];
+    while(noutput_items)
+    {
+        uint64_t * o = (uint64_t *) buf;
+        *o = _pdep_u64(*i, mask);
+        o++;
+
+        t = *i >> 56;
+        i++;
+        t |= *i << 8;
+        *o = _pdep_u64(t, mask);
+        o++;
+
+        t = *i >> 48;
+        i++;
+        t |= *i << 16;
+        *o = _pdep_u64(t, mask);
+        o++;
+
+        t = *i >> 40;
+        i++;
+        t |= *i << 24;
+        *o = _pdep_u64(t, mask);
+        o++;
+
+        t = *i >> 32;
+        i++;
+        t |= *i << 32;
+        *o = _pdep_u64(t, mask);
+        o++;
+
+        t = *i >> 24;
+        i++;
+        t |= *i << 40;
+        *o = _pdep_u64(t, mask);
+        o++;
+
+        t = *i >> 16;
+        i++;
+        t |= *i << 48;
+        *o = _pdep_u64(t, mask);
+        o++;
+
+        t = *i >> 8;
+        i++;
+        *o = _pdep_u64(t, mask);
+
+        volk_16i_s32f_convert_32f((float *)out, (const int16_t*)buf,d_scale,32);
+        out+=16;
+        noutput_items-=16;
+    }
+}
+
 #endif
 
 constexpr std::array<any_to_any_base::format_descriptor, FILE_FORMAT_COUNT> any_to_any_base::fmt;
