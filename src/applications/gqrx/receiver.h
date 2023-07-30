@@ -303,6 +303,7 @@ private:
         any_to_any<gr_complex,std::array<int8_t,40>>::make(),
         any_to_any<gr_complex,std::array<int8_t,24>>::make(),
         any_to_any<gr_complex,std::array<int8_t,56>>::make(),
+        any_to_any<gr_complex,int8_t>::make(),
     };
     std::vector<any_to_any_base::sptr> convert_from
     {
@@ -319,6 +320,7 @@ private:
         any_to_any<std::array<int8_t,40>,gr_complex>::make(),
         any_to_any<std::array<int8_t,24>,gr_complex>::make(),
         any_to_any<std::array<int8_t,56>,gr_complex>::make(),
+        any_to_any<int8_t,gr_complex>::make(),
     };
 
     gr::blocks::throttle::sptr                     input_throttle;
