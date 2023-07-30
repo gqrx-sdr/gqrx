@@ -89,8 +89,8 @@ public:
         {4,1,"16u.raw","ushort 16"},
         {8,1,"32u.raw","uint 32"},
         {5*8,2*8,"10.raw","10 bit"},
-        {3,1,"12.raw","12 bit"},
-        {7,2,"14.raw","14 bit"},
+        {3*8,1*8,"12.raw","12 bit"},
+        {7*8,2*8,"14.raw","14 bit"},
     };
 
     void set_decimation(unsigned decimation)
@@ -178,10 +178,10 @@ protected:
     void convert(const std::complex<uint8_t> *in, gr_complex * out, int noutput_items);
     void convert(const gr_complex *in, std::array<int8_t,40> * out, int noutput_items);
     void convert(const std::array<int8_t,40> *in, gr_complex * out, int noutput_items);
-    void convert(const gr_complex *in, std::array<int8_t,3> * out, int noutput_items);
-    void convert(const std::array<int8_t,3> *in, gr_complex * out, int noutput_items);
-    void convert(const gr_complex *in, std::array<int8_t,7> * out, int noutput_items);
-    void convert(const std::array<int8_t,7> *in, gr_complex * out, int noutput_items);
+    void convert(const gr_complex *in, std::array<int8_t,24> * out, int noutput_items);
+    void convert(const std::array<int8_t,24> *in, gr_complex * out, int noutput_items);
+    void convert(const gr_complex *in, std::array<int8_t,56> * out, int noutput_items);
+    void convert(const std::array<int8_t,56> *in, gr_complex * out, int noutput_items);
 };
 
     /*!
@@ -319,24 +319,80 @@ using any_to_any_base::sptr;
         }
     }
 
-    static sptr make(dispatcher::tag<any_to_any<gr_complex, std::array<int8_t,3>>>)
+    static sptr make(dispatcher::tag<any_to_any<gr_complex, std::array<int8_t,24>>>)
     {
-        return gnuradio::get_initial_sptr(new any_to_any<T_IN, T_OUT>(2048.0f,1,1,"f32s12c"));
+        if(is_le())
+        {
+            if(UINTPTR_MAX == 0xffffffffffffffff)
+            {
+                #ifdef __BMI2__
+                if( __builtin_cpu_supports("bmi2"))
+                    return gnuradio::get_initial_sptr(new any_to_any_bmi64<T_IN, T_OUT>(-float(INT16_MIN>>4),8,1,"f32s12c"));
+                #endif
+                return gnuradio::get_initial_sptr(new any_to_any_64<T_IN, T_OUT>(-float(INT16_MIN>>4),8,1,"f32s12c"));
+            }else{
+                return gnuradio::get_initial_sptr(new any_to_any_32<T_IN, T_OUT>(-float(INT16_MIN>>4),8,1,"f32s12c"));
+            }
+        }else{
+            return gnuradio::get_initial_sptr(new any_to_any<T_IN, T_OUT>(-float(INT16_MIN>>4),8,1,"f32s12c"));
+        }
     }
 
-    static sptr make(dispatcher::tag<any_to_any<std::array<int8_t,3>, gr_complex>>)
+    static sptr make(dispatcher::tag<any_to_any<std::array<int8_t,24>, gr_complex>>)
     {
-        return gnuradio::get_initial_sptr(new any_to_any<T_IN, T_OUT>(2048.0f,1,1,"s12f32c"));
+        if(is_le())
+        {
+            if(UINTPTR_MAX == 0xffffffffffffffff)
+            {
+                #ifdef __BMI2__
+                if( __builtin_cpu_supports("bmi2"))
+                    return gnuradio::get_initial_sptr(new any_to_any_bmi64<T_IN, T_OUT>(-float(INT16_MIN),1,8,"s12f32c"));
+                #endif
+                return gnuradio::get_initial_sptr(new any_to_any_64<T_IN, T_OUT>(-float(INT16_MIN),1,8,"s12f32c"));
+            }else{
+                return gnuradio::get_initial_sptr(new any_to_any_32<T_IN, T_OUT>(-float(INT16_MIN),1,8,"s12f32c"));
+            }
+        }else{
+            return gnuradio::get_initial_sptr(new any_to_any<T_IN, T_OUT>(-float(INT16_MIN>>4),1,8,"s12f32c"));
+        }
     }
 
-    static sptr make(dispatcher::tag<any_to_any<gr_complex, std::array<int8_t,7>>>)
+    static sptr make(dispatcher::tag<any_to_any<gr_complex, std::array<int8_t,56>>>)
     {
-        return gnuradio::get_initial_sptr(new any_to_any<T_IN, T_OUT>(8192.0f,2,1,"f32s14c"));
+        if(is_le())
+        {
+            if(UINTPTR_MAX == 0xffffffffffffffff)
+            {
+                #ifdef __BMI2__
+                if( __builtin_cpu_supports("bmi2"))
+                    return gnuradio::get_initial_sptr(new any_to_any_bmi64<T_IN, T_OUT>(-float(INT16_MIN>>2),16,1,"f32s14c"));
+                #endif
+                return gnuradio::get_initial_sptr(new any_to_any_64<T_IN, T_OUT>(-float(INT16_MIN>>2),16,1,"f32s14c"));
+            }else{
+                return gnuradio::get_initial_sptr(new any_to_any_32<T_IN, T_OUT>(-float(INT16_MIN>>2),16,1,"f32s14c"));
+            }
+        }else{
+            return gnuradio::get_initial_sptr(new any_to_any<T_IN, T_OUT>(-float(INT16_MIN>>2),16,1,"f32s14c"));
+        }
     }
 
-    static sptr make(dispatcher::tag<any_to_any<std::array<int8_t,7>, gr_complex>>)
+    static sptr make(dispatcher::tag<any_to_any<std::array<int8_t,56>, gr_complex>>)
     {
-        return gnuradio::get_initial_sptr(new any_to_any<T_IN, T_OUT>(8192.0f,1,2,"s14f32c"));
+        if(is_le())
+        {
+            if(UINTPTR_MAX == 0xffffffffffffffff)
+            {
+                #ifdef __BMI2__
+                if( __builtin_cpu_supports("bmi2"))
+                    return gnuradio::get_initial_sptr(new any_to_any_bmi64<T_IN, T_OUT>(-float(INT16_MIN),1,16,"s14f32c"));
+                #endif
+                return gnuradio::get_initial_sptr(new any_to_any_64<T_IN, T_OUT>(-float(INT16_MIN),1,16,"s14f32c"));
+            }else{
+                return gnuradio::get_initial_sptr(new any_to_any_32<T_IN, T_OUT>(-float(INT16_MIN),1,16,"s14f32c"));
+            }
+        }else{
+            return gnuradio::get_initial_sptr(new any_to_any<T_IN, T_OUT>(-float(INT16_MIN>>2),1,16,"s14f32c"));
+        }
     }
 
     any_to_any(const double scale, unsigned decimation, unsigned interpolation, const std::string bname):sync_block(bname,
@@ -391,6 +447,10 @@ public:
 protected:
     void convert(const gr_complex *in, std::array<int8_t,40> * out, int noutput_items);
     void convert(const std::array<int8_t,40> *in, gr_complex * out, int noutput_items);
+    void convert(const gr_complex *in, std::array<int8_t,24> * out, int noutput_items);
+    void convert(const std::array<int8_t,24> *in, gr_complex * out, int noutput_items);
+    void convert(const gr_complex *in, std::array<int8_t,56> * out, int noutput_items);
+    void convert(const std::array<int8_t,56> *in, gr_complex * out, int noutput_items);
 };
 
 template <typename T_IN, typename T_OUT> class BLOCKS_API any_to_any_32 : virtual public gr::sync_block, virtual public any_to_any_base, virtual private any_to_any_impl_32
@@ -449,6 +509,10 @@ public:
 protected:
     void convert(const gr_complex *in, std::array<int8_t,40> * out, int noutput_items);
     void convert(const std::array<int8_t,40> *in, gr_complex * out, int noutput_items);
+    void convert(const gr_complex *in, std::array<int8_t,24> * out, int noutput_items);
+    void convert(const std::array<int8_t,24> *in, gr_complex * out, int noutput_items);
+    void convert(const gr_complex *in, std::array<int8_t,56> * out, int noutput_items);
+    void convert(const std::array<int8_t,56> *in, gr_complex * out, int noutput_items);
 };
 
 template <typename T_IN, typename T_OUT> class BLOCKS_API any_to_any_64 : virtual public gr::sync_block, virtual public any_to_any_base, virtual private any_to_any_impl_64
@@ -507,6 +571,10 @@ public:
 protected:
     void convert(const gr_complex *in, std::array<int8_t,40> * out, int noutput_items);
     void convert(const std::array<int8_t,40> *in, gr_complex * out, int noutput_items);
+    void convert(const gr_complex *in, std::array<int8_t,24> * out, int noutput_items);
+    void convert(const std::array<int8_t,24> *in, gr_complex * out, int noutput_items);
+    void convert(const gr_complex *in, std::array<int8_t,56> * out, int noutput_items);
+    void convert(const std::array<int8_t,56> *in, gr_complex * out, int noutput_items);
 };
 
 template <typename T_IN, typename T_OUT> class BLOCKS_API any_to_any_bmi64 : virtual public gr::sync_block, virtual public any_to_any_base, virtual private any_to_any_impl_bmi64
