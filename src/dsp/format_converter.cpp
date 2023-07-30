@@ -243,6 +243,18 @@ void any_to_any_impl::convert(const gr_complex *in, std::array<int8_t,56> * out,
     }
 }
 
+void any_to_any_impl::convert(const gr_complex *in, int8_t * out, int noutput_items)
+{
+    for(int k=0;k<noutput_items;k++,out++,in++)
+        *out=std::round(in->real()*d_scale);
+}
+
+void any_to_any_impl::convert(const int8_t *in, gr_complex * out, int noutput_items)
+{
+    for(int k=0;k<noutput_items;k++,out++,in++)
+        *out=gr_complex(*in * d_scale_i);
+}
+
 ////////////////////////////////
 // 32 bit accelerated converters
 ////////////////////////////////

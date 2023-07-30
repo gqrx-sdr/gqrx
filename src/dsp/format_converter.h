@@ -55,6 +55,7 @@ enum file_formats {
     FILE_FORMAT_CS10L,
     FILE_FORMAT_CS12L,
     FILE_FORMAT_CS14L,
+    FILE_FORMAT_S8,
     FILE_FORMAT_COUNT,
 };
 
@@ -89,6 +90,7 @@ public:
         {5*8,2*8,"10","10 bit"},
         {3*8,1*8,"12","12 bit"},
         {7*8,2*8,"14","14 bit"},
+        {1,1,"8i","char 8i"},
     };
 
     void set_decimation(unsigned decimation)
@@ -180,6 +182,8 @@ protected:
     void convert(const std::array<int8_t,24> *in, gr_complex * out, int noutput_items);
     void convert(const gr_complex *in, std::array<int8_t,56> * out, int noutput_items);
     void convert(const std::array<int8_t,56> *in, gr_complex * out, int noutput_items);
+    void convert(const gr_complex *in, int8_t * out, int noutput_items);
+    void convert(const int8_t *in, gr_complex * out, int noutput_items);
 };
 
     /*!
@@ -391,6 +395,16 @@ using any_to_any_base::sptr;
         }else{
             return gnuradio::get_initial_sptr(new any_to_any<T_IN, T_OUT>(-float(INT16_MIN>>2),1,16,"s14f32c"));
         }
+    }
+
+    static sptr make(dispatcher::tag<any_to_any<gr_complex, int8_t>>)
+    {
+        return gnuradio::get_initial_sptr(new any_to_any<T_IN, T_OUT>(-float(INT8_MIN),1,1,"f32s8"));
+    }
+
+    static sptr make(dispatcher::tag<any_to_any<int8_t, gr_complex>>)
+    {
+        return gnuradio::get_initial_sptr(new any_to_any<T_IN, T_OUT>(-float(INT8_MIN),1,1,"s8f32"));
     }
 
     any_to_any(const double scale, unsigned decimation, unsigned interpolation, const std::string bname):sync_block(bname,
