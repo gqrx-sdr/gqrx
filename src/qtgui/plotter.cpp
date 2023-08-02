@@ -910,53 +910,48 @@ void CPlotter::zoomStepX(float step, int x)
     }
 
     // calculate new range shown on FFT
-    double new_range = qBound(10.0, m_Span * (double)step, (double)m_SampleFreq * 10.0);
+    float new_span = std::min(
+        (float)m_Span * (float)step, (float)m_SampleFreq);
 
-    // Frequency where event occurred is kept fixed under mouse
-    double ratio = (double)x / (qreal)m_Size.width() / m_DPR;
-    qint64 fixed_hz = freqFromX(x);
-    double f_max = (double)fixed_hz + (1.0 - ratio) * new_range;
-    double f_min = f_max - new_range;
+    // Keep frequency under pointer the same and calculated the offset to the
+    // plot center.
+    float offset = (float)(freqFromX(x) - m_CenterFreq - m_FftCenter);
+    float new_FftCenter = (float)m_FftCenter + offset * (1.0f - step);
 
-    // ensure we don't go beyond the rangelimits
-    bool limit_hit = false;
-    double lolim = (double)(m_CenterFreq) - (double)m_SampleFreq / 2.0;
-    double hilim = (double)m_CenterFreq + (double)m_SampleFreq / 2.0;
-    if (f_min < lolim)
+    // Keep edges of plot in valid frequency range. The plot may need to be
+    // panned.
+    const float max_limit = (float)m_SampleFreq / 2.0f;
+    const float min_limit = - (float)m_SampleFreq / 2.0f;
+    float f_max = new_FftCenter + new_span / 2.0f;
+    float f_min = new_FftCenter - new_span / 2.0f;
+    if (f_min < min_limit)
     {
-        f_min = lolim;
-        limit_hit = true;
+        f_min = min_limit;
+        f_max = f_min + new_span;
     }
-    if (f_max > hilim)
+    if (f_max > max_limit)
     {
-        f_max = hilim;
-        limit_hit = true;
-    }
-
-    // the new span
-    quint32 new_span = qRound(f_max - f_min);
-    if( new_span & 1 )
-    {
-        new_span++; // keep span even to avoid rounding in span/2
+        f_max = max_limit;
+        f_min = f_max - new_span;
     }
 
-    // find new FFT center frequency
-    qint64 new_FftCenter;
-    if( limit_hit ) // cannot keep fixed_hz fixed
+    // Make span into an even integer.
+    quint32 new_span_int = qRound(f_max - f_min);
+    if( new_span_int & 1 )
     {
-    	new_FftCenter = qRound64((f_min + f_max) / 2.0) - m_CenterFreq;
+        new_span_int--;
     }
-    else // calculate new FFT center frequency that really keeps fixed_hz fixed
-    {
-    	qint64 wouldbe_hz = (m_CenterFreq + m_FftCenter - new_span / 2) + ratio * new_span;
-    	new_FftCenter = m_FftCenter + (fixed_hz - wouldbe_hz);
-    }
-    setFftCenterFreq(new_FftCenter);
-    setSpanFreq(new_span);
 
-    double factor = (double)m_SampleFreq / (double)m_Span;
-    emit newZoomLevel(factor);
-    qCDebug(plotter) << QString("Spectrum zoom: %1x").arg(factor, 0, 'f', 1);
+    // Explicitly set m_Span instead of calling setSpanFreq(), which also calls
+    // setFftCenterFreq() and updateOverlay() internally. Span needs to be set
+    // before frequency limits can be checked in setFftCenterFreq().
+    m_Span = new_span;
+    setFftCenterFreq(qRound64((f_max + f_min) / 2.0f));
+    updateOverlay();
+
+    double zoom = (double)m_SampleFreq / (double)m_Span;
+    emit newZoomLevel(zoom);
+    qCDebug(plotter) << QString("Spectrum zoom: %1x").arg(zoom, 0, 'f', 1);
 
     m_MaxHoldValid = false;
     m_MinHoldValid = false;
@@ -967,7 +962,7 @@ void CPlotter::zoomStepX(float step, int x)
 void CPlotter::zoomOnXAxis(float level)
 {
     float current_level = (float)m_SampleFreq / (float)m_Span;
-    zoomStepX(current_level / level, xFromFreq(m_DemodCenterFreq));
+    zoomStepX(current_level / level, qRound((qreal)m_Size.width() * m_DPR / 2.0));
     updateOverlay();
 }
 
@@ -1892,7 +1887,7 @@ void CPlotter::setNewFftData(const float *fftData, int size)
         double currentZoom = (double)m_SampleFreq / (double)m_Span;
         double maxZoom = (double)m_fftDataSize / 4.0;
         if (currentZoom > maxZoom)
-            zoomStepX(currentZoom / maxZoom, xFromFreq(m_CenterFreq + m_FftCenter));
+            zoomStepX(currentZoom / maxZoom, qRound((qreal)m_Size.width() * m_DPR / 2.0));
     }
 
     // For dBFS, define full scale as peak (not RMS). A 1.0 FS peak sine wave
@@ -2351,10 +2346,6 @@ int CPlotter::xFromFreq(qint64 freq)
                        + (double)m_FftCenter
                        - (double)m_Span / 2.0;
     int x = qRound(w * ((double)freq - startFreq) / (double)m_Span);
-    if (x < 0)
-        return 0;
-    if (x > (int)w)
-        return w;
     return x;
 }
 
