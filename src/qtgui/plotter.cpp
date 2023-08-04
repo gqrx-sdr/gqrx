@@ -28,6 +28,7 @@
  * or implied, of Moe Wheatley.
  */
 #include <cmath>
+#include <QGuiApplication>
 #include <QColor>
 #include <QDateTime>
 #include <QDebug>
@@ -37,7 +38,6 @@
 #include <QToolTip>
 #include "plotter.h"
 #include "bandplan.h"
-#include "bookmarks.h"
 #include "dxc_spots.h"
 #include <volk/volk.h>
 
@@ -175,6 +175,10 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     wf_avg_count = 0;
     wf_span = 0;
     fft_rate = 15;
+    m_currentVfo = 0;
+    m_capturedVfo = 0;
+    m_lookup_vfo = vfo::make();
+    m_lookup_vfo->set_index(0);
 }
 
 CPlotter::~CPlotter()
@@ -218,6 +222,19 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                     }
                 }
             }
+            if (!m_vfos.empty())
+            {
+                m_lookup_vfo->set_offset(freqFromX(pt.x()) - m_CenterFreq);
+                m_vfos_lb = m_vfos.lower_bound(m_lookup_vfo);
+                if (m_vfos_lb == m_vfos.end())
+                    m_vfos_ub = --m_vfos_lb;
+                else
+                {
+                    m_vfos_ub = m_vfos_lb--;
+                    if(m_vfos_ub == m_vfos.begin())
+                        m_vfos_lb = m_vfos_ub;
+                }
+            }
             // if no mouse button monitor grab regions and change cursor icon
             if (onTag)
             {
@@ -245,9 +262,13 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 // in move demod box center frequency region
                 if (CENTER != m_CursorCaptured)
                     setCursor(QCursor(Qt::SizeHorCursor));
+                m_capturedVfo = m_currentVfo;
                 m_CursorCaptured = CENTER;
                 if (m_TooltipsEnabled)
-                    showToolTip(event, QString("Demod: %1 kHz").arg(m_DemodCenterFreq/1.e3, 0, 'f', 3));
+                    showToolTip(event,
+                                       QString("Current demod %1: %2 kHz")
+                                               .arg(m_currentVfo)
+                                               .arg(m_DemodCenterFreq/1.e3, 0, 'f', 3));
             }
             else if (isPointCloseTo(px, m_DemodHiCutFreqX, m_CursorCaptureDelta))
             {
@@ -282,6 +303,30 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 m_CursorCaptured = MARKER_B;
                 if (m_TooltipsEnabled)
                     showToolTip(event, QString("Marker B: %1 kHz").arg(m_MarkerFreqB/1.e3, 0, 'f', 3));
+            }
+            else if (!m_vfos.empty() && isPointCloseTo(pt.x(), xFromFreq((*m_vfos_lb)->get_offset() + m_CenterFreq), m_CursorCaptureDelta))
+            {
+                if (CENTER != m_CursorCaptured)
+                    setCursor(QCursor(Qt::SizeHorCursor));
+                m_CursorCaptured = CENTER;
+                m_capturedVfo = (*m_vfos_lb)->get_index();
+                if (m_TooltipsEnabled)
+                    showToolTip(event,
+                                       QString("Demod %1: %2 kHz")
+                                               .arg((*m_vfos_lb)->get_index())
+                                               .arg(((*m_vfos_lb)->get_offset() + m_CenterFreq)/1.e3, 0, 'f', 3));
+            }
+            else if (!m_vfos.empty() && isPointCloseTo(pt.x(), xFromFreq((*m_vfos_ub)->get_offset() + m_CenterFreq), m_CursorCaptureDelta))
+            {
+                if (CENTER != m_CursorCaptured)
+                    setCursor(QCursor(Qt::SizeHorCursor));
+                m_CursorCaptured = CENTER;
+                m_capturedVfo = (*m_vfos_ub)->get_index();
+                if (m_TooltipsEnabled)
+                    showToolTip(event,
+                                       QString("Demod %1: %2 kHz")
+                                               .arg((*m_vfos_ub)->get_index())
+                                               .arg(((*m_vfos_ub)->get_offset() + m_CenterFreq)/1.e3, 0, 'f', 3));
             }
             else
             {	//if not near any grab boundaries
@@ -678,6 +723,34 @@ bool CPlotter::saveWaterfall(const QString & filename) const
     return pixmap.save(filename, nullptr, -1);
 }
 
+void CPlotter::setCurrentVfo(int current)
+{
+    m_currentVfo = current;
+}
+
+void    CPlotter::addVfo(vfo::sptr n_vfo)
+{
+    m_vfos.insert(n_vfo);
+}
+
+void    CPlotter::removeVfo(vfo::sptr n_vfo)
+{
+    m_vfos.erase(n_vfo);
+}
+
+void    CPlotter::clearVfos()
+{
+    m_vfos.clear();
+}
+
+void    CPlotter::getLockedVfos(std::vector<vfo::sptr> &to)
+{
+    to.clear();
+    for (auto& cvfo : m_vfos)
+        if (cvfo->get_freq_lock())
+            to.push_back(cvfo);
+}
+
 /** Get waterfall time resolution in milleconds / line. */
 quint64 CPlotter::getWfTimeRes() const
 {
@@ -702,6 +775,7 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
     int px = qRound((qreal)pt.x() * m_DPR);
     int py = qRound((qreal)pt.y() * m_DPR);
     QPoint ppos = QPoint(px, py);
+    quint32 mods = event->modifiers() & (Qt::ShiftModifier|Qt::ControlModifier);
 
     if (NOCAP == m_CursorCaptured)
     {
@@ -728,7 +802,6 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
             if (event->buttons() == Qt::LeftButton)
             {
                 // {shift|ctrl|ctrl-shift}-left-click: set ab markers around signal at cursor
-                quint32 mods = event->modifiers() & (Qt::ShiftModifier|Qt::ControlModifier);
                 if (m_MarkersEnabled && ((event->modifiers() & mods) != 0))
                 {
                     float *selectBuf = nullptr;
@@ -801,7 +874,8 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                 }
 
                 // left-click with no modifiers: set center frequency
-                else if (mods == 0) {
+                else
+                {
                     int best = -1;
 
                     if (m_PeakDetectActive > 0)
@@ -812,7 +886,14 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                         m_DemodCenterFreq = roundFreq(freqFromX(px), m_ClickResolution);
 
                     // if cursor not captured set demod frequency and start demod box capture
-                    emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
+                    if(mods == Qt::ShiftModifier)
+                    {
+                        emit newDemodFreqAdd(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
+                    }else  if(mods == Qt::ControlModifier){
+                        // TODO: find some use for the ctrl modifier
+                    }else{
+                        emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
+                    }
 
                     // save initial grab position from m_DemodFreqX
                     // setCursor(QCursor(Qt::CrossCursor));
@@ -856,11 +937,40 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
             {
                 if (tag.first.contains(ppos))
                 {
-                    m_DemodCenterFreq = tag.second;
-                    emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
-                    break;
+                    if (event->buttons() == Qt::LeftButton)
+                    {
+                        //just tune
+                        if(mods == Qt::ShiftModifier)
+                            m_CenterFreq = tag.second;
+                        m_DemodCenterFreq = tag.second;
+                        emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
+                        break;
+                    }
+                    else if (event->buttons() == Qt::MiddleButton)
+                    {
+                        //tune and load settings
+                        if(mods == Qt::ShiftModifier)
+                            m_CenterFreq = tag.second;
+                        m_DemodCenterFreq = tag.second;
+                        emit newDemodFreqAdd(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
+                        break;
+                    }
+                    else if (event->buttons() == Qt::RightButton)
+                    {
+                        //new demod here
+                        if(mods == Qt::ShiftModifier)
+                            m_CenterFreq = tag.second;
+                        m_DemodCenterFreq = tag.second;
+                        emit newDemodFreqLoad(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
+                        break;
+                    }
                 }
             }
+        }
+        else if (m_CursorCaptured == CENTER)
+        {
+            if (m_currentVfo != m_capturedVfo)
+                emit selectVfo(m_capturedVfo);
         }
     }
 }
@@ -2049,13 +2159,13 @@ void CPlotter::drawOverlay()
             x = xFromFreq(tag.frequency);
             qreal nameWidth = fm.boundingRect(tag.name).width();
 
-            int level = 0;
+            int level = 1;
             while(level < nLevels && tagEnd[level] > x)
                 level++;
 
             if(level >= nLevels)
             {
-                level = 0;
+                level = 1;
                 if (tagEnd[level] > x)
                     continue; // no overwrite at level 0
             }
@@ -2262,19 +2372,23 @@ void CPlotter::drawOverlay()
     // Draw demod filter box
     if (m_FilterBoxEnabled)
     {
+        for(auto &vfoc : m_vfos)
+        {
+            const qint64 vfoFreq = m_CenterFreq + qint64(vfoc->get_offset());
+            const int demodFreqX = xFromFreq(vfoFreq);
+            const int demodLowCutFreqX = xFromFreq(vfoFreq + qint64(vfoc->get_filter_low()));
+            const int demodHiCutFreqX = xFromFreq(vfoFreq + qint64(vfoc->get_filter_high()));
+
+            const int dw = demodHiCutFreqX - demodLowCutFreqX;
+            drawVfo(painter, demodFreqX, demodLowCutFreqX, dw, h, vfoc->get_index(), false);
+        }
+
         m_DemodFreqX = xFromFreq(m_DemodCenterFreq);
         m_DemodLowCutFreqX = xFromFreq(m_DemodCenterFreq + m_DemodLowCutFreq);
         m_DemodHiCutFreqX = xFromFreq(m_DemodCenterFreq + m_DemodHiCutFreq);
 
         int dw = m_DemodHiCutFreqX - m_DemodLowCutFreqX;
-
-        painter.setOpacity(0.3);
-        painter.fillRect(m_DemodLowCutFreqX, 0, dw, h,
-                         QColor(PLOTTER_FILTER_BOX_COLOR));
-
-        painter.setOpacity(1.0);
-        painter.setPen(QPen(QColor(PLOTTER_FILTER_LINE_COLOR), m_DPR));
-        painter.drawLine(m_DemodFreqX, 0, m_DemodFreqX, h);
+        drawVfo(painter, m_DemodFreqX, m_DemodLowCutFreqX, dw, h, m_currentVfo, true);
     }
 
     // Draw a black line at the bottom of the plotter to separate it from the
@@ -2282,6 +2396,22 @@ void CPlotter::drawOverlay()
     painter.fillRect(QRectF(0.0, h - 1.0 * m_DPR, w, 1.0 * m_DPR), Qt::black);
 
     painter.end();
+}
+
+void CPlotter::drawVfo(QPainter &painter, const int demodFreqX, const int demodLowCutFreqX, const int dw, const int h, const int index, const bool is_selected)
+{
+    QFontMetrics    metrics(m_Font);
+    QRect         br = metrics.boundingRect("+256+");
+    painter.setOpacity(0.3);
+    painter.fillRect(demodLowCutFreqX, br.height(), dw, h,
+                    QColor(PLOTTER_FILTER_BOX_COLOR));
+
+    painter.setOpacity(1.0);
+    painter.setPen(QPen(QColor(is_selected ? PLOTTER_FILTER_LINE_COLOR : PLOTTER_TEXT_COLOR), m_DPR));
+    painter.drawLine(demodFreqX, br.height(), demodFreqX, h);
+    painter.drawText(demodFreqX - br.width() / 2, 0, br.width(), br.height(),
+                     Qt::AlignVCenter | Qt::AlignHCenter,
+                     QString::number(index));
 }
 
 // Create frequency division strings based on start frequency, span frequency,
@@ -2410,7 +2540,6 @@ void CPlotter::setDemodRanges(int FLowCmin, int FLowCmax,
     m_FHiCmax=FHiCmax;
     m_symetric=symetric;
     clampDemodParameters();
-    updateOverlay();
 }
 
 void CPlotter::setCenterFreq(quint64 f)

@@ -32,7 +32,7 @@ signals:
     void rdsPI(QString text);
 
 private slots:
-    void on_rdsCheckbox_toggled(bool checked);
+    void on_rdsCheckbox_clicked(bool checked);
 
 private:
     Ui::DockRDS *ui;        /*! The Qt designer UI file. */

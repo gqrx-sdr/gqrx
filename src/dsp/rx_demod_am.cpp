@@ -86,20 +86,16 @@ void rx_demod_am::set_dcr(bool dcr)
     if (d_dcr_enabled)
     {
         // Switching from ON to OFF
-        lock();
         disconnect(d_demod, 0, d_dcr, 0);
         disconnect(d_dcr, 0, self(), 0);
         connect(d_demod, 0, self(), 0);
-        unlock();
     }
     else
     {
         // Switching from OFF to ON
-        lock();
         disconnect(d_demod, 0, self(), 0);
         connect(d_demod, 0, d_dcr, 0);
         connect(d_dcr, 0, self(), 0);
-        unlock();
     }
 
     d_dcr_enabled = dcr;
@@ -164,20 +160,16 @@ void rx_demod_amsync::set_dcr(bool dcr)
     if (d_dcr_enabled)
     {
         // Switching from ON to OFF
-        lock();
         disconnect(d_demod2, 0, d_dcr, 0);
         disconnect(d_dcr, 0, self(), 0);
         connect(d_demod2, 0, self(), 0);
-        unlock();
     }
     else
     {
         // Switching from OFF to ON
-        lock();
         disconnect(d_demod2, 0, self(), 0);
         connect(d_demod2, 0, d_dcr, 0);
         connect(d_dcr, 0, self(), 0);
-        unlock();
     }
 
     d_dcr_enabled = dcr;
