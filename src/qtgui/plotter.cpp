@@ -1003,16 +1003,15 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     int px = qRound((qreal)pt.x() * m_DPR);
     int py = qRound((qreal)pt.y() * m_DPR);
 
+    // delta is in eigths of a degree, 15 degrees is one step
     int delta = m_InvertScrolling? -event->angleDelta().y() : event->angleDelta().y();
-    int numDegrees = delta / 8;
-    int numSteps = numDegrees / 15;  /** FIXME: Only used for direction **/
+    double numSteps = delta / (8.0 * 15.0);
 
-    /** FIXME: zooming could use some optimisation **/
     if (m_CursorCaptured == YAXIS)
     {
         // Vertical zoom. Wheel down: zoom out, wheel up: zoom in
         // During zoom we try to keep the point (dB or kHz) under the cursor fixed
-        float zoom_fac = delta < 0 ? 1.1 : 0.9;
+        float zoom_fac = pow(0.9, numSteps);
         float ratio = (float) py / (float) h;
         float db_range = m_PandMaxdB - m_PandMindB;
         float y_range = (float) h;
@@ -1033,7 +1032,7 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     }
     else if (m_CursorCaptured == XAXIS)
     {
-        zoomStepX(delta < 0 ? 1.1 : 0.9, px);
+        zoomStepX(pow(0.9, numSteps), px);
     }
     else if (event->modifiers() & Qt::ControlModifier)
     {
