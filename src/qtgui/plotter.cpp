@@ -2248,12 +2248,12 @@ void CPlotter::drawOverlay()
     }
 
     // draw amplitude values (y axis)
-    for (int i = 0; i < m_VerDivs; i++)
+    for (int i = 0; i <= m_VerDivs; i++)
     {
         qreal y = h - ((double)i * pixperdiv + adjoffset);
         qreal th = metrics.height();
         qreal shadowOffset = th / 20.0;
-        if (y < h -xAxisHeight)
+        if ((y < h - xAxisHeight) && (y > th / 2))
         {
             int dB = mindbadj + dbstepsize * i;
             // Shadow
