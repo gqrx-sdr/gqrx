@@ -310,6 +310,7 @@ private:
     qint64      m_Span;
     float       m_SampleFreq;    /*!< Sample rate. */
     qint32      m_FreqUnits;
+    qint32      m_CumWheelDelta;
     qreal       m_ClickResolution;
     qreal       m_FilterClickResolution;
     ePlotMode   m_PlotMode;

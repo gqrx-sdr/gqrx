@@ -142,6 +142,7 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     m_PandMaxdB = m_WfMaxdB = 0.f;
     m_PandMindB = m_WfMindB = FFT_MAX_DB;
 
+    m_CumWheelDelta = 0;
     m_FreqUnits = 1000000;
     m_CursorCaptured = NOCAP;
     m_Running = false;
@@ -1053,6 +1054,12 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     }
     else
     {
+        // small steps will be lost by roundFreq, let them accumulate
+        m_CumWheelDelta += delta;
+        if (abs(m_CumWheelDelta) < 8*15)
+            return;
+        numSteps = m_CumWheelDelta / (8.0 * 15.0);
+
         // inc/dec demod frequency
         m_DemodCenterFreq += (numSteps * m_ClickResolution);
         m_DemodCenterFreq = roundFreq(m_DemodCenterFreq, m_ClickResolution );
@@ -1060,6 +1067,7 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     }
 
     updateOverlay();
+    m_CumWheelDelta = 0;
 }
 
 // Called when screen size changes so must recalculate bitmaps
