@@ -1025,6 +1025,9 @@ void CPlotter::wheelEvent(QWheelEvent * event)
             m_PandMaxdB = FFT_MAX_DB;
 
         m_PandMindB = m_PandMaxdB - db_range;
+        if (m_PandMindB < FFT_MIN_DB)
+            m_PandMindB = FFT_MIN_DB;
+
         m_MaxHoldValid = false;
         m_MinHoldValid = false;
         m_histIIRValid = false;
