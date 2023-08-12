@@ -179,6 +179,7 @@ public:
 
     void set_fft_size(unsigned int fftsize);
     unsigned int fft_size() const {return d_fftsize;}
+    void set_quad_rate(double quad_rate);
 
 private:
     unsigned int d_fftsize;   /*! Current FFT size. */

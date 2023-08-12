@@ -380,7 +380,6 @@ void rx_fft_f::set_fft_size(unsigned int fftsize)
     if (fftsize != d_fftsize)
     {
         d_fftsize = fftsize;
-
         /* reset FFT object (also reset FFTW plan) */
         delete d_fft;
 #if GNURADIO_VERSION < 0x030900
@@ -388,8 +387,15 @@ void rx_fft_f::set_fft_size(unsigned int fftsize)
 #else
         d_fft = new gr::fft::fft_complex_fwd(d_fftsize);
 #endif
-
         update_window();
+    }
+}
+
+/*! \brief Set new quadrature rate. */
+void rx_fft_f::set_quad_rate(double quad_rate)
+{
+    if (quad_rate != d_audiorate) {
+        d_audiorate = quad_rate;
     }
 }
 
