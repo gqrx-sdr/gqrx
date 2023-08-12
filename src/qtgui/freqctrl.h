@@ -106,6 +106,7 @@ private:
     int         m_LastEditDigit;
     int         m_DecPos;
     int         m_NumSeps;
+    int         m_CumWheelDelta;
 
     qint64      m_MinStep;
     qint64      m_freq;
