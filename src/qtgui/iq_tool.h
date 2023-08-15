@@ -26,6 +26,7 @@
 #include <QCloseEvent>
 #include <QDialog>
 #include <QDir>
+#include <QFileSystemWatcher>
 #include <QPalette>
 #include <QSettings>
 #include <QShowEvent>
@@ -89,9 +90,10 @@ private:
 private:
     Ui::CIqTool *ui;
 
-    QDir        *recdir;
-    QTimer      *timer;
-    QPalette    *error_palette; /*!< Palette used to indicate an error. */
+    QDir               *recdir;
+    QFileSystemWatcher *recdirWatcher;
+    QTimer             *timer;
+    QPalette           *error_palette; /*!< Palette used to indicate an error. */
 
     QString current_file;      /*!< Selected file in file browser. */
 
