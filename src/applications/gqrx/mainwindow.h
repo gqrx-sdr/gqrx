@@ -55,6 +55,9 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
+signals:
+    void sigAudioRecEvent(const QString filename, bool is_running);
+
 public:
     explicit MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent = nullptr);
     ~MainWindow() override;
@@ -145,6 +148,8 @@ private:
     void rxOffsetZeroShortcut();
     void toggleFreezeShortcut();
     void toggleMarkers();
+    void audioRecEventEmitter(std::string filename, bool is_running);
+    static void audio_rec_event(MainWindow *self, std::string filename, bool is_running);
 
 private slots:
     /* RecentConfig */
@@ -174,20 +179,26 @@ private slots:
     void setAmSyncDcr(bool enabled);
     void setAmSyncPllBw(float pll_bw);
     void setAgcOn(bool agc_on);
-    void setAgcHang(bool use_hang);
-    void setAgcThreshold(int threshold);
-    void setAgcSlope(int factor);
+    void setAgcHang(int hang);
+    void setAgcTargetLevel(int targetLevel);
+    void setAgcAttack(int attack);
     void setAgcDecay(int msec);
-    void setAgcGain(int gain);
+    void setAgcMaxGain(int gain);
     void setNoiseBlanker(int nbid, bool on, float threshold);
     void setSqlLevel(double level_db);
     double setSqlLevelAuto();
     void setAudioGain(float gain);
+    void setAudioMute(bool mute);
     void setPassband(int bandwidth);
 
     /* audio recording and playback */
-    void startAudioRec(const QString& filename);
+    void recDirChanged(const QString dir);
+    void recSquelchTriggeredChanged(const bool enabled);
+    void recMinTimeChanged(const int time_ms);
+    void recMaxGapChanged(const int time_ms);
+    void startAudioRec();
     void stopAudioRec();
+    void audioRecEvent(const QString filename, bool is_running);
     void startAudioPlayback(const QString& filename);
     void stopAudioPlayback();
 

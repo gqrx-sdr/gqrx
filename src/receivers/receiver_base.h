@@ -24,6 +24,12 @@
 #define RECEIVER_BASE_H
 
 #include <gnuradio/hier_block2.h>
+#include <gnuradio/blocks/wavfile_sink.h>
+#include "dsp/resampler_xx.h"
+#include "dsp/rx_meter.h"
+#include "dsp/rx_agc_xx.h"
+#include "dsp/rx_squelch.h"
+#include "interfaces/wav_sink.h"
 
 
 class receiver_base_cf;
@@ -49,18 +55,29 @@ public:
     /*! \brief Public constructor.
      *  \param src_name Descriptive name used in the constructor of gr::hier_block2
      */
-    receiver_base_cf(std::string src_name);
+    typedef std::function<void(std::string, bool)> rec_event_handler_t;
+    receiver_base_cf(std::string src_name, float pref_quad_rate, float quad_rate, int audio_rate);
     virtual ~receiver_base_cf();
 
     virtual bool start() = 0;
     virtual bool stop() = 0;
 
-    virtual void set_quad_rate(float quad_rate) = 0;
+    virtual void set_quad_rate(float quad_rate);
+    virtual void set_center_freq(double center_freq);
+    virtual void set_offset(double offset);
+    virtual void set_rec_dir(std::string dir);
+    virtual std::string get_rec_dir() { return d_rec_dir; }
+    virtual void set_audio_rec_sql_triggered(bool enabled);
+    virtual bool get_audio_rec_sql_triggered() { return wav_sink->get_sql_triggered(); }
+    virtual void set_audio_rec_min_time(const int time_ms);
+    virtual int get_audio_rec_min_time() { return wav_sink->get_min_time(); }
+    virtual void set_audio_rec_max_gap(const int time_ms);
+    virtual int get_audio_rec_max_gap() { return wav_sink->get_max_gap(); }
 
     virtual void set_filter(double low, double high, double tw) = 0;
     virtual void set_cw_offset(double offset) = 0;
 
-    virtual float get_signal_level() = 0;
+    virtual float get_signal_level();
 
     virtual void set_demod(int demod) = 0;
 
@@ -79,11 +96,13 @@ public:
     /* AGC */
     virtual bool has_agc();
     virtual void set_agc_on(bool agc_on);
-    virtual void set_agc_hang(bool use_hang);
-    virtual void set_agc_threshold(int threshold);
-    virtual void set_agc_slope(int slope);
+    virtual void set_agc_target_level(int target_level);
+    virtual void set_agc_manual_gain(float gain);
+    virtual void set_agc_max_gain(int gain);
+    virtual void set_agc_attack(int attack_ms);
     virtual void set_agc_decay(int decay_ms);
-    virtual void set_agc_manual_gain(int gain);
+    virtual void set_agc_hang(int hang_ms);
+    virtual float get_agc_gain();
 
     /* FM parameters */
     virtual bool has_fm();
@@ -104,7 +123,32 @@ public:
     virtual void stop_rds_decoder();
     virtual void reset_rds_parser();
     virtual bool is_rds_decoder_active();
+    virtual int  start_audio_recording();
+    virtual void stop_audio_recording();
+    virtual void continue_audio_recording(receiver_base_cf_sptr from);
+    virtual std::string get_last_audio_filename();
+    template <typename T> void set_rec_event_handler(T handler)
+    {
+        d_rec_event = handler;
+    }
 
+protected:
+    float       d_quad_rate;        /*!< Input sample rate. */
+    int         d_audio_rate;       /*!< Audio output rate. */
+    double      d_center_freq;
+    double      d_offset;
+    std::string d_rec_dir;
+    std::string d_audio_filename;
+
+    resampler_cc_sptr         iq_resamp;   /*!< Baseband resampler. */
+    rx_meter_c_sptr           meter;      /*!< Signal strength. */
+    rx_agc_2f_sptr            agc;        /*!< Receiver AGC. */
+    rx_sql_cc_sptr            sql;        /*!< Squelch. */
+    wavfile_sink_gqrx::sptr      wav_sink;   /*!< WAV file sink for recording. */
+private:
+    float d_pref_quad_rate;
+    rec_event_handler_t d_rec_event;
+    static void rec_event(receiver_base_cf * self, std::string filename, bool is_running);
 };
 
 #endif // RECEIVER_BASE_H

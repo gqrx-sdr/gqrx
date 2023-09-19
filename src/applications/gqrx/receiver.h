@@ -26,7 +26,6 @@
 #include <gnuradio/blocks/file_sink.h>
 #include <gnuradio/blocks/multiply_const.h>
 #include <gnuradio/blocks/null_sink.h>
-#include <gnuradio/blocks/wavfile_sink.h>
 #include <gnuradio/blocks/wavfile_source.h>
 #include <gnuradio/top_block.h>
 #include <osmosdr/source.h>
@@ -105,6 +104,8 @@ public:
         FILTER_SHAPE_SHARP = 2   /*!< Sharp: Transition band is TBD of width. */
     };
 
+    typedef std::function<void(std::string, bool)> audio_rec_event_handler_t;
+
     static const unsigned int DEFAULT_FFT_SIZE = 8192;
 
     receiver(const std::string input_device="",
@@ -177,11 +178,16 @@ public:
 
     /* AGC */
     status      set_agc_on(bool agc_on);
-    status      set_agc_hang(bool use_hang);
-    status      set_agc_threshold(int threshold);
-    status      set_agc_slope(int slope);
+    status      set_agc_target_level(int target_level);
+    status      set_agc_manual_gain(float gain);
+    status      set_agc_max_gain(int gain);
+    status      set_agc_attack(int attack_ms);
     status      set_agc_decay(int decay_ms);
-    status      set_agc_manual_gain(int gain);
+    status      set_agc_hang(int hang_ms);
+    float       get_agc_gain();
+
+    status      set_mute(bool mute);
+    bool        get_mute();
 
     status      set_demod(rx_demod demod, bool force=false);
 
@@ -197,9 +203,13 @@ public:
     status      set_amsync_pll_bw(float pll_bw);
 
     /* Audio parameters */
-    status      set_af_gain(float gain_db);
-    status      start_audio_recording(const std::string filename);
+    status      set_audio_rec_dir(const std::string dir);
+    status      set_audio_rec_sql_triggered(const bool enabled);
+    status      set_audio_rec_min_time(const int time_ms);
+    status      set_audio_rec_max_gap(const int time_ms);
+    status      start_audio_recording();
     status      stop_audio_recording();
+    std::string get_last_audio_filename();
     status      start_audio_playback(const std::string filename);
     status      stop_audio_playback();
 
@@ -228,6 +238,10 @@ public:
 
     /* utility functions */
     static std::string escape_filename(std::string filename);
+    template <typename T> void set_audio_rec_event_handler(T handler)
+    {
+        d_audio_rec_event_handler = handler;
+    }
 
 private:
     void        connect_all(rx_chain type);
@@ -249,6 +263,7 @@ private:
     bool        d_iq_rev;           /*!< Whether I/Q is reversed or not. */
     bool        d_dc_cancel;        /*!< Enable automatic DC removal. */
     bool        d_iq_balance;       /*!< Enable automatic IQ balance. */
+    bool        d_mute;             /*!< Enable audio mute. */
 
     std::string input_devstr;  /*!< Current input device string. */
     std::string output_devstr; /*!< Current output device string. */
@@ -269,14 +284,8 @@ private:
 
     downconverter_cc_sptr     ddc;        /*!< Digital down-converter for demod chain. */
 
-    gr::blocks::multiply_const_ff::sptr audio_gain0; /*!< Audio gain block. */
-    gr::blocks::multiply_const_ff::sptr audio_gain1; /*!< Audio gain block. */
-    gr::blocks::multiply_const_ff::sptr wav_gain0; /*!< WAV file gain block. */
-    gr::blocks::multiply_const_ff::sptr wav_gain1; /*!< WAV file gain block. */
-
     gr::blocks::file_sink::sptr         iq_sink;     /*!< I/Q file sink. */
 
-    gr::blocks::wavfile_sink::sptr      wav_sink;   /*!< WAV file sink for recording. */
     gr::blocks::wavfile_source::sptr    wav_src;    /*!< WAV file source for playback. */
     gr::blocks::null_sink::sptr         audio_null_sink0; /*!< Audio null sink used during playback. */
     gr::blocks::null_sink::sptr         audio_null_sink1; /*!< Audio null sink used during playback. */
@@ -292,9 +301,11 @@ private:
 #else
     gr::audio::sink::sptr     audio_snk;  /*!< gr audio sink */
 #endif
-
+    audio_rec_event_handler_t d_audio_rec_event_handler;
     //! Get a path to a file containing random bytes
     static std::string get_zero_file(void);
+    static void audio_rec_event(receiver * self, std::string filename,
+                                bool is_running);
 };
 
 #endif // RECEIVER_H

@@ -96,6 +96,20 @@ void CAudioOptions::setUdpStereo(bool stereo)
     ui->udpStereo->setChecked(stereo);
 }
 
+void CAudioOptions::setSquelchTriggered(bool value)
+{
+    ui->squelchTriggered->setChecked(value);
+}
+
+void CAudioOptions::setRecMinTime(int time_ms)
+{
+    ui->recMinTime->setValue(time_ms);
+}
+
+void CAudioOptions::setRecMaxGap(int time_ms)
+{
+    ui->recMaxGap->setValue(time_ms);
+}
 
 void CAudioOptions::setFftSplit(int pct_2d)
 {
@@ -210,6 +224,30 @@ void CAudioOptions::on_recDirEdit_textChanged(const QString &dir)
     {
         ui->recDirEdit->setPalette(*error_palette);  // indicate error
     }
+}
+
+/**
+ * Slot called when the squelch-triggered mode gets disabled/enabled
+ */
+void CAudioOptions::on_squelchTriggered_stateChanged(int state)
+{
+    emit newSquelchTriggered(state == Qt::Checked);
+}
+
+/**
+ * Slot called when the squelch-triggered recording min time gets changed
+ */
+void CAudioOptions::on_recMinTime_valueChanged(int value)
+{
+    emit newRecMinTime(value);
+}
+
+/**
+ * Slot called when the squelch-triggered recording max gap gets changed
+ */
+void CAudioOptions::on_recMaxGap_valueChanged(int value)
+{
+    emit newRecMaxGap(value);
 }
 
 /** Slot called when the user clicks on the "Select" button. */
