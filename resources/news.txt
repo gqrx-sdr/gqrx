@@ -11,6 +11,7 @@
        NEW: Dropped frames are indicated by red background in FFT Settigns panel.
        NEW: "Avg" waterfall mode, which displays average of FFT bins.
        NEW: "Sync" waterfall mode, which mirrors averaged data from plot.
+       NEW: Support for RTL-SDR Blog V4 in AppImage and DMG releases.
   IMPROVED: Peak detection algorithm.
   IMPROVED: Peak detection uses peak hold data when available.
   IMPROVED: Maximum FFT size increased to 4M.
