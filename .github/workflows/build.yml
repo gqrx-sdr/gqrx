@@ -39,12 +39,22 @@ jobs:
             libairspyhf-dev \
             libfreesrp-dev \
             libhackrf-dev \
-            librtlsdr-dev \
+            libusb-1.0-0-dev \
             libsoapysdr-dev \
             soapysdr-module-remote \
             libuhd-dev \
             liborc-0.4-dev \
             libhidapi-dev
+
+          cd /tmp
+          git clone https://gitea.osmocom.org/sdr/rtl-sdr.git
+          cd rtl-sdr
+          mkdir build
+          cd build
+          cmake -DCMAKE_INSTALL_PREFIX=/usr -DDETACH_KERNEL_DRIVER=ON ..
+          make -j4
+          make install
+          ldconfig
 
           cd /tmp
           git clone https://github.com/Nuand/bladeRF.git
@@ -87,7 +97,7 @@ jobs:
           ldconfig
 
           cd /tmp
-          git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
+          git clone https://github.com/gqrx-sdr/gr-osmosdr.git
           cd gr-osmosdr
           git checkout origin/gr3.8
           mkdir build
@@ -123,7 +133,8 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install airspy airspyhf boost dylibbundler gnuradio hackrf libbladerf librtlsdr libserialport portaudio pybind11 uhd qt@6 || true
+          brew install --HEAD librtlsdr
+          brew install airspy airspyhf boost dylibbundler gnuradio hackrf libbladerf libserialport portaudio pybind11 uhd qt@6 || true
           brew tap pothosware/homebrew-pothos
           brew install soapyremote
 
@@ -176,7 +187,7 @@ jobs:
           make install
 
           cd /tmp
-          git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
+          git clone https://github.com/gqrx-sdr/gr-osmosdr.git
           cd gr-osmosdr
           mkdir build
           cd build
