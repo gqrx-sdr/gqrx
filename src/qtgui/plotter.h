@@ -117,6 +117,10 @@ public:
         m_FftCenter = qBound(-limit, f, limit);
     }
 
+    qint64 getFftCenterFreq() const {
+        return m_FftCenter;
+    }
+
     int     getNearestPeak(QPoint pt);
     void    setWaterfallSpan(quint64 span_ms);
     quint64 getWfTimeRes() const;

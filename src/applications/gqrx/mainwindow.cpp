@@ -673,6 +673,15 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
     }
 
     {
+        // Center frequency for FFT plotter
+        int64_val = m_settings->value("fft/fft_center", 0).toLongLong(&conv_ok);
+
+        if (conv_ok) {
+            ui->plotter->setFftCenterFreq(int64_val);
+        }
+    }
+
+    {
         int flo = m_settings->value("receiver/filter_low_cut", 0).toInt(&conv_ok);
         int fhi = m_settings->value("receiver/filter_high_cut", 0).toInt(&conv_ok);
 
@@ -766,6 +775,7 @@ void MainWindow::storeSession()
     if (m_settings)
     {
         m_settings->setValue("input/frequency", ui->freqCtrl->getFrequency());
+        m_settings->setValue("fft/fft_center", ui->plotter->getFftCenterFreq());
 
         uiDockInputCtl->saveSettings(m_settings);
         uiDockRxOpt->saveSettings(m_settings);
