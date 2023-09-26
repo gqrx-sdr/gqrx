@@ -2352,7 +2352,10 @@ int CPlotter::xFromFreq(qint64 freq)
 // Convert from screen coordinate to frequency
 qint64 CPlotter::freqFromX(int x)
 {
-    double ratio = (double)x / (qreal)m_Size.width() / m_DPR;
+    double ratio = 0;
+    if ((m_Size.width() > 0) && (m_DPR > 0))
+        ratio = (double)x / (qreal)m_Size.width() / m_DPR;
+
     qint64 f = qRound64((double)m_CenterFreq + (double)m_FftCenter
                         - (double)m_Span / 2.0 + ratio * (double)m_Span);
     return f;
