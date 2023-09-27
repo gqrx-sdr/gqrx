@@ -26,6 +26,7 @@
   IMPROVED: Waterfall span setting is stored in milliseconds.
   IMPROVED: Added 6 dB attenuation to WAV file recordings to prevent clipping.
   IMPROVED: Use logarithmic scale for frequency zoom slider.
+  IMPROVED: Reduced CPU utilization of demodulators.
    CHANGED: Frequency zoom slider zooms around center of display.
    CHANGED: Disallow scrolling beyond the FFT frequency limits.
    CHANGED: Default narrow FM deviation increased to 5 kHz.
