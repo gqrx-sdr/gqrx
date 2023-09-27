@@ -2223,8 +2223,9 @@ void CPlotter::drawOverlay()
     // Level grid
     qint64 mindBAdj64 = 0;
     qint64 dbDivSize = 0;
+    qint64 dbSpan = (qint64) (m_PandMaxdB - m_PandMindB);
 
-    calcDivSize((qint64) m_PandMindB, (qint64) m_PandMaxdB,
+    calcDivSize((qint64) m_PandMindB, ((qint64) m_PandMindB) + dbSpan,
                 qMax(h / (m_VdivDelta * m_DPR), (qreal)VERT_DIVS_MIN),
                 mindBAdj64, dbDivSize, m_VerDivs);
 
