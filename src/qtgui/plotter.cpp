@@ -142,6 +142,7 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     m_PandMaxdB = m_WfMaxdB = 0.f;
     m_PandMindB = m_WfMindB = FFT_MAX_DB;
 
+    m_CumWheelDelta = 0;
     m_FreqUnits = 1000000;
     m_CursorCaptured = NOCAP;
     m_Running = false;
@@ -1003,16 +1004,15 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     int px = qRound((qreal)pt.x() * m_DPR);
     int py = qRound((qreal)pt.y() * m_DPR);
 
+    // delta is in eigths of a degree, 15 degrees is one step
     int delta = m_InvertScrolling? -event->angleDelta().y() : event->angleDelta().y();
-    int numDegrees = delta / 8;
-    int numSteps = numDegrees / 15;  /** FIXME: Only used for direction **/
+    double numSteps = delta / (8.0 * 15.0);
 
-    /** FIXME: zooming could use some optimisation **/
     if (m_CursorCaptured == YAXIS)
     {
         // Vertical zoom. Wheel down: zoom out, wheel up: zoom in
         // During zoom we try to keep the point (dB or kHz) under the cursor fixed
-        float zoom_fac = delta < 0 ? 1.1 : 0.9;
+        float zoom_fac = pow(0.9, numSteps);
         float ratio = (float) py / (float) h;
         float db_range = m_PandMaxdB - m_PandMindB;
         float y_range = (float) h;
@@ -1025,6 +1025,9 @@ void CPlotter::wheelEvent(QWheelEvent * event)
             m_PandMaxdB = FFT_MAX_DB;
 
         m_PandMindB = m_PandMaxdB - db_range;
+        if (m_PandMindB < FFT_MIN_DB)
+            m_PandMindB = FFT_MIN_DB;
+
         m_MaxHoldValid = false;
         m_MinHoldValid = false;
         m_histIIRValid = false;
@@ -1033,7 +1036,7 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     }
     else if (m_CursorCaptured == XAXIS)
     {
-        zoomStepX(delta < 0 ? 1.1 : 0.9, px);
+        zoomStepX(pow(0.9, numSteps), px);
     }
     else if (event->modifiers() & Qt::ControlModifier)
     {
@@ -1054,6 +1057,12 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     }
     else
     {
+        // small steps will be lost by roundFreq, let them accumulate
+        m_CumWheelDelta += delta;
+        if (abs(m_CumWheelDelta) < 8*15)
+            return;
+        numSteps = m_CumWheelDelta / (8.0 * 15.0);
+
         // inc/dec demod frequency
         m_DemodCenterFreq += (numSteps * m_ClickResolution);
         m_DemodCenterFreq = roundFreq(m_DemodCenterFreq, m_ClickResolution );
@@ -1061,6 +1070,7 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     }
 
     updateOverlay();
+    m_CumWheelDelta = 0;
 }
 
 // Called when screen size changes so must recalculate bitmaps
@@ -2238,12 +2248,12 @@ void CPlotter::drawOverlay()
     }
 
     // draw amplitude values (y axis)
-    for (int i = 0; i < m_VerDivs; i++)
+    for (int i = 0; i <= m_VerDivs; i++)
     {
         qreal y = h - ((double)i * pixperdiv + adjoffset);
         qreal th = metrics.height();
         qreal shadowOffset = th / 20.0;
-        if (y < h -xAxisHeight)
+        if ((y < h - xAxisHeight) && (y > th / 2))
         {
             int dB = mindbadj + dbstepsize * i;
             // Shadow

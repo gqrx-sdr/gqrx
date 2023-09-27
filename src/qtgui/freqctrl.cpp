@@ -68,6 +68,7 @@ CFreqCtrl::CFreqCtrl(QWidget *parent) :
     m_InvertScrolling = false;
     m_UnitsFont = QFont("Arial", 12, QFont::Normal);
     m_DigitFont = QFont("Arial", 12, QFont::Normal);
+    m_CumWheelDelta = 0;
 
     setStatusTip(tr(STATUS_TIP));
 }
@@ -492,8 +493,13 @@ void CFreqCtrl::wheelEvent(QWheelEvent *event)
     QPointF   pt = event->position();
 #endif
     int       delta = m_InvertScrolling ? -event->angleDelta().y() : event->angleDelta().y();
-    int       numDegrees = delta / 8;
+    m_CumWheelDelta += delta;
+    int       numDegrees = m_CumWheelDelta / 8;
     int       numSteps = numDegrees / 15;
+
+    // accumulate enough wheel deltas to reach at least one step
+    if (abs(numSteps) == 0)
+        return;
 
     for (int i = m_DigStart; i < m_NumDigits; i++)
     {
@@ -505,6 +511,8 @@ void CFreqCtrl::wheelEvent(QWheelEvent *event)
                 decFreq();
         }
     }
+
+    m_CumWheelDelta = 0;
 }
 
 void CFreqCtrl::keyPressEvent(QKeyEvent *event)
