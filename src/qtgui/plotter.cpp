@@ -2125,11 +2125,8 @@ void CPlotter::drawOverlay()
     if (m_CenterLineEnabled)
     {
         x = xFromFreq(m_CenterFreq);
-        if (x > 0 && x < w)
-        {
-            painter.setPen(QPen(QColor(PLOTTER_CENTER_LINE_COLOR), m_DPR));
-            painter.drawLine(QPointF(x, 0), QPointF(x, xAxisTop));
-        }
+        painter.setPen(QPen(QColor(PLOTTER_CENTER_LINE_COLOR), m_DPR));
+        painter.drawLine(QPointF(x, 0), QPointF(x, xAxisTop));
     }
 
     if (m_MarkersEnabled)
@@ -2144,35 +2141,31 @@ void CPlotter::drawOverlay()
         if (m_MarkerFreqA != MARKER_OFF) {
             x = xFromFreq(m_MarkerFreqA);
             m_MarkerAX = x;
-            if (x > 0 && x < w) {
-                QPolygon poly;
-                QPainterPath path;
-                poly << QPoint(x - markerSize/2, 0)
-                     << QPoint(x + markerSize/2, 0)
-                     << QPoint(x, markerSize);
-                path.addPolygon(poly);
-                painter.drawPolygon(poly);
-                painter.fillPath(path, brush);
-                painter.drawLine(x, markerSize, x, xAxisTop);
-                painter.drawStaticText(QPointF(x + markerSize/2, 0), QStaticText("A"));
-            }
+            QPolygon poly;
+            QPainterPath path;
+            poly << QPoint(x - markerSize/2, 0)
+                    << QPoint(x + markerSize/2, 0)
+                    << QPoint(x, markerSize);
+            path.addPolygon(poly);
+            painter.drawPolygon(poly);
+            painter.fillPath(path, brush);
+            painter.drawLine(x, markerSize, x, xAxisTop);
+            painter.drawStaticText(QPointF(x + markerSize/2, 0), QStaticText("A"));
         }
 
         if (m_MarkerFreqB != MARKER_OFF) {
             x = xFromFreq(m_MarkerFreqB);
             m_MarkerBX = x;
-            if (x > 0 && x < w) {
-                QPolygon poly;
-                QPainterPath path;
-                poly << QPoint(x - markerSize/2, 0)
-                     << QPoint(x + markerSize/2, 0)
-                     << QPoint(x, markerSize);
-                path.addPolygon(poly);
-                painter.drawPolygon(poly);
-                painter.fillPath(path, brush);
-                painter.drawLine(x, markerSize, x, xAxisTop);
-                painter.drawStaticText(QPointF(x + markerSize/2, 0), QStaticText("B"));
-            }
+            QPolygon poly;
+            QPainterPath path;
+            poly << QPoint(x - markerSize/2, 0)
+                    << QPoint(x + markerSize/2, 0)
+                    << QPoint(x, markerSize);
+            path.addPolygon(poly);
+            painter.drawPolygon(poly);
+            painter.fillPath(path, brush);
+            painter.drawLine(x, markerSize, x, xAxisTop);
+            painter.drawStaticText(QPointF(x + markerSize/2, 0), QStaticText("B"));
         }
     }
 
