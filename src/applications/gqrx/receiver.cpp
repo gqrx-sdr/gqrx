@@ -756,6 +756,12 @@ void receiver::get_iq_fft_data(float* fftPoints)
     iq_fft->get_fft_data(fftPoints);
 }
 
+/** Get latest baseband sample data. */
+void receiver::get_iq_sample_data(std::complex<float>* data)
+{
+    iq_fft->get_sample_data(data);
+}
+
 unsigned int receiver::audio_fft_size() const
 {
     return audio_fft->fft_size();

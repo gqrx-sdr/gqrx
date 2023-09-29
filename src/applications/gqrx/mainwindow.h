@@ -33,6 +33,8 @@
 #include <QFileDialog>
 #include <QSvgWidget>
 
+#include <zmq.hpp>
+
 #include "qtgui/dockrxopt.h"
 #include "qtgui/dockaudio.h"
 #include "qtgui/dockinputctl.h"
@@ -45,7 +47,10 @@
 
 #include "applications/gqrx/recentconfig.h"
 #include "applications/gqrx/remote_control.h"
+#include "applications/gqrx/data_controls.h"
 #include "applications/gqrx/receiver.h"
+
+#define ZMQ_URI "ipc:///tmp/gqrx_data.sock"
 
 namespace Ui {
     class MainWindow;  /*! The main window UI */
@@ -70,6 +75,8 @@ public slots:
     void setMarkerA(qint64 freq);
     void setMarkerB(qint64 freq);
     void enableMarkers(bool enable);
+    void outputData(QString &channel, QString &data);
+    void outputData(QString &channel, QString &metadata, void *data, quint64 dataLength);
 
 private:
     Ui::MainWindow *ui;
@@ -89,6 +96,7 @@ private:
 
     enum receiver::filter_shape d_filter_shape;
     std::vector<float> d_iqFftData;
+    std::vector<std::complex<float>> d_sampleData;
     float           d_fftAvg;      /*!< FFT averaging parameter set by user (not the true gain). */
     float           d_fps;
     int             d_fftWindowType;
@@ -106,6 +114,7 @@ private:
     DockRDS        *uiDockRDS;
 
     CIqTool        *iq_tool;
+    CDataControls  *data_controls;
     DXCOptions     *dxc_options;
 
 
@@ -116,6 +125,7 @@ private:
     QTimer   *dec_timer;
     QTimer   *meter_timer;
     QTimer   *iq_fft_timer;
+    QTimer   *data_out_timer;
     QTimer   *audio_fft_timer;
     QTimer   *rds_timer;
     quint64  d_last_fft_ms;
@@ -133,6 +143,14 @@ private:
 
     QFont font;
 
+    // data output
+    zmq::context_t d_zmq_context;
+    zmq::socket_t d_zmq_socket;
+    float d_output_interval;
+    bool d_output_enabled;
+    bool d_sample_raw_enabled;
+    bool d_fft_linear_enabled;
+
 private:
     void updateHWFrequencyRange(bool ignore_limits);
     void updateFrequencyRange();
@@ -145,6 +163,9 @@ private:
     void rxOffsetZeroShortcut();
     void toggleFreezeShortcut();
     void toggleMarkers();
+
+    /* combined handler for fft and data out timeouts */
+    void fftAndDataTimeout(bool plotterOut, bool dataOut);
 
 private slots:
     /* RecentConfig */
@@ -201,6 +222,10 @@ private slots:
     void stopIqPlayback();
     void seekIqFile(qint64 seek_pos);
 
+    /* Data output controls */
+    void dataSettingsChanged();
+    void dataOutTimeout();
+
     /* FFT settings */
     void setIqFftSize(int size);
     void setIqFftRate(int fps);
@@ -233,6 +258,7 @@ private slots:
     void on_actionSaveSettings_triggered();
     void on_actionSaveWaterfall_triggered();
     void on_actionIqTool_triggered();
+    void on_actionDataOutput_triggered();
     void on_actionFullScreen_triggered(bool checked);
     void on_actionRemoteControl_triggered(bool checked);
     void on_actionRemoteConfig_triggered();

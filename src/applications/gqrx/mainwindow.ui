@@ -422,6 +422,7 @@
     <addaction name="actionAddBookmark"/>
     <addaction name="separator"/>
     <addaction name="actionIqTool"/>
+    <addaction name="actionDataOutput"/>
     <addaction name="separator"/>
     <addaction name="actionAFSK1200"/>
     <addaction name="separator"/>
@@ -746,6 +747,17 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionDataOutput">
+   <property name="text">
+    <string>Data Output</string>
+   </property>
+   <property name="toolTip">
+    <string>Control ZMQ data output</string>
+   </property>
+   <property name="statusTip">
+    <string>Control ZMQ data output</string>
    </property>
   </action>
  </widget>

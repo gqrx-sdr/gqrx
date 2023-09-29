@@ -34,7 +34,8 @@ jobs:
             gr-osmosdr \
             liborc-0.4-dev \
             appstream \
-            desktop-file-utils
+            desktop-file-utils \
+            libzmq3-dev
       - name: Install Qt5
         if: matrix.image != 'ubuntu:22.04'
         run: |

@@ -9,6 +9,8 @@ add_source_files(SRCS_LIST
 	gqrx/receiver.h
 	gqrx/remote_control_settings.cpp
 	gqrx/remote_control_settings.h
+	gqrx/data_controls.cpp
+	gqrx/data_controls.h
 	gqrx/remote_control.cpp
 	gqrx/remote_control.h
 	gqrx/recentconfig.cpp
@@ -21,4 +23,5 @@ add_source_files(SRCS_LIST
 add_source_files(UI_SRCS_LIST
 	gqrx/mainwindow.ui
 	gqrx/remote_control_settings.ui
+	gqrx/data_controls.ui
 )
