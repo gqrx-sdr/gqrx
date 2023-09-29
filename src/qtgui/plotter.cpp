@@ -2114,15 +2114,11 @@ void CPlotter::drawOverlay()
             int band_width = band_right - band_left;
             QRectF rect(band_left, xAxisTop - m_BandPlanHeight, band_width, m_BandPlanHeight);
             painter.fillRect(rect, band.color);
-            QString band_label = band.name + " (" + band.modulation + ")";
-            qreal textWidth = metrics.boundingRect(band_label).width();
-            if (band_left < w && band_width > textWidth + 20)
-            {
-                painter.setOpacity(1.0);
-                QRectF textRect(band_left, xAxisTop - m_BandPlanHeight, band_width, metrics.height());
-                painter.setPen(QPen(QColor(PLOTTER_TEXT_COLOR), m_DPR));
-                painter.drawText(textRect, Qt::AlignCenter, band_label);
-            }
+            QString band_label = metrics.elidedText(band.name + " (" + band.modulation + ")", Qt::ElideRight, band_width - 10);
+            painter.setOpacity(1.0);
+            QRectF textRect(band_left, xAxisTop - m_BandPlanHeight, band_width, metrics.height());
+            painter.setPen(QPen(QColor(PLOTTER_TEXT_COLOR), m_DPR));
+            painter.drawText(textRect, Qt::AlignCenter, band_label);
         }
     }
 

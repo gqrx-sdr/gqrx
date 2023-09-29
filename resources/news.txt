@@ -28,6 +28,7 @@
   IMPROVED: Use logarithmic scale for frequency zoom slider.
   IMPROVED: Reduced CPU utilization of demodulators.
   IMPROVED: Properly handle smooth scrolling.
+  IMPROVED: Shorten band names to fit in narrow spaces.
    CHANGED: Frequency zoom slider zooms around center of display.
    CHANGED: Disallow scrolling beyond the FFT frequency limits.
    CHANGED: Default narrow FM deviation increased to 5 kHz.
