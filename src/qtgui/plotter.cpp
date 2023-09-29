@@ -2109,8 +2109,8 @@ void CPlotter::drawOverlay()
         m_BandPlanHeight = metrics.height() + VER_MARGIN;
         for (auto & band : bands)
         {
-            int band_left = xFromFreq(band.minFrequency);
-            int band_right = xFromFreq(band.maxFrequency);
+            int band_left = std::max(xFromFreq(band.minFrequency), 0);
+            int band_right = std::min(xFromFreq(band.maxFrequency), (int)w);
             int band_width = band_right - band_left;
             QRectF rect(band_left, xAxisTop - m_BandPlanHeight, band_width, m_BandPlanHeight);
             painter.fillRect(rect, band.color);
