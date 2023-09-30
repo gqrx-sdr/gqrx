@@ -1499,9 +1499,8 @@ void MainWindow::iqFftTimeout()
     }
     d_last_fft_ms = now_ms;
 
-    rx->get_iq_fft_data(d_iqFftData.data());
-
-    ui->plotter->setNewFftData(d_iqFftData.data(), fftsize);
+    if (rx->get_iq_fft_data(d_iqFftData.data()) >= 0)
+        ui->plotter->setNewFftData(d_iqFftData.data(), fftsize);
 }
 
 /** Audio FFT plot timeout. */
@@ -1519,9 +1518,8 @@ void MainWindow::audioFftTimeout()
     if (!d_have_audio || !uiDockAudio->isVisible())
         return;
 
-    rx->get_audio_fft_data(d_audioFftData.data());
-
-    uiDockAudio->setNewFftData(d_audioFftData.data(), fftsize);
+    if (rx->get_audio_fft_data(d_audioFftData.data()) >= 0)
+        uiDockAudio->setNewFftData(d_audioFftData.data(), fftsize);
 }
 
 /** RDS message display timeout. */
