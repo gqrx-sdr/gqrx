@@ -55,12 +55,12 @@ Q_LOGGING_CATEGORY(plotter, "plotter")
 
 // Colors of type QRgb in 0xAARRGGBB format (unsigned int)
 #define PLOTTER_BGD_COLOR           0xFF1F1D1D
-#define PLOTTER_GRID_COLOR          0xFF444242
+#define PLOTTER_GRID_COLOR          0x80606060
 #define PLOTTER_TEXT_COLOR          0xFFDADADA
-#define PLOTTER_CENTER_LINE_COLOR   0xFF788296
-#define PLOTTER_FILTER_LINE_COLOR   0xFFFF7171
-#define PLOTTER_FILTER_BOX_COLOR    0xFFA0A0A4
-#define PLOTTER_MARKER_COLOR        0XFF7FFF7F
+#define PLOTTER_CENTER_LINE_COLOR   0x80CCDDFF
+#define PLOTTER_FILTER_LINE_COLOR   0xB0FF6060
+#define PLOTTER_FILTER_BOX_COLOR    0x28FFFFFF
+#define PLOTTER_MARKER_COLOR        0XB080FF80
 // FIXME: Should cache the QColors also
 
 #define HOR_MARGIN 5
@@ -1099,7 +1099,7 @@ void CPlotter::resizeEvent(QResizeEvent* )
         m_OverlayPixmap.fill(Qt::transparent);
 
         m_2DPixmap = QPixmap(w, plotHeight);
-        m_2DPixmap.fill(PLOTTER_BGD_COLOR);
+        m_2DPixmap.fill(QColor::fromRgba(PLOTTER_BGD_COLOR));
 
         // No waterfall, use null pixmap
         if (wfHeight == 0)
@@ -1202,7 +1202,7 @@ void CPlotter::draw(bool newData)
             }
 
             // Draw overlay over plot
-            m_2DPixmap.fill(PLOTTER_BGD_COLOR);
+            m_2DPixmap.fill(QColor::fromRgba(PLOTTER_BGD_COLOR));
             QPainter painter(&m_2DPixmap);
             painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
             painter.drawPixmap(QPointF(0.0, 0.0), m_OverlayPixmap);
@@ -1569,7 +1569,7 @@ void CPlotter::draw(bool newData)
     {
         tlast_plot_drawn_ms = tnow_ms;
 
-        m_2DPixmap.fill(PLOTTER_BGD_COLOR);
+        m_2DPixmap.fill(QColor::fromRgba(PLOTTER_BGD_COLOR));
         QPainter painter2(&m_2DPixmap);
         painter2.translate(QPointF(0.5, 0.5));
 
@@ -1583,7 +1583,7 @@ void CPlotter::draw(bool newData)
         QBrush maxFillBrush = QBrush(maxFillCol);
 
         // Diagonal fill for area between markers. Scale the pattern to DPR.
-        QColor abFillColor = QColor(PLOTTER_MARKER_COLOR);
+        QColor abFillColor = QColor::fromRgba(PLOTTER_MARKER_COLOR);
         abFillColor.setAlpha(128);
         QBrush abFillBrush = QBrush(abFillColor, Qt::BDiagPattern);
 
@@ -2115,9 +2115,8 @@ void CPlotter::drawOverlay()
             QRectF rect(band_left, xAxisTop - m_BandPlanHeight, band_width, m_BandPlanHeight);
             painter.fillRect(rect, band.color);
             QString band_label = metrics.elidedText(band.name + " (" + band.modulation + ")", Qt::ElideRight, band_width - 10);
-            painter.setOpacity(1.0);
             QRectF textRect(band_left, xAxisTop - m_BandPlanHeight, band_width, metrics.height());
-            painter.setPen(QPen(QColor(PLOTTER_TEXT_COLOR), m_DPR));
+            painter.setPen(QPen(QColor::fromRgba(PLOTTER_TEXT_COLOR), m_DPR));
             painter.drawText(textRect, Qt::AlignCenter, band_label);
         }
     }
@@ -2125,16 +2124,16 @@ void CPlotter::drawOverlay()
     if (m_CenterLineEnabled)
     {
         x = xFromFreq(m_CenterFreq);
-        painter.setPen(QPen(QColor(PLOTTER_CENTER_LINE_COLOR), m_DPR));
+        painter.setPen(QPen(QColor::fromRgba(PLOTTER_CENTER_LINE_COLOR), m_DPR));
         painter.drawLine(QPointF(x, 0), QPointF(x, xAxisTop));
     }
 
     if (m_MarkersEnabled)
     {
         QBrush brush;
-        brush.setColor(QColor(PLOTTER_MARKER_COLOR));
+        brush.setColor(QColor::fromRgba(PLOTTER_MARKER_COLOR));
         brush.setStyle(Qt::SolidPattern);
-        painter.setPen(QPen(QColor(PLOTTER_MARKER_COLOR), m_DPR));
+        painter.setPen(QPen(QColor::fromRgba(PLOTTER_MARKER_COLOR), m_DPR));
 
         qreal markerSize = metrics.height() / 2;
 
@@ -2181,7 +2180,7 @@ void CPlotter::drawOverlay()
     adjoffset = pixperdiv * (qreal) (m_StartFreqAdj - StartFreq) / (qreal) m_FreqPerDiv;
 
     // Hairline for grid lines
-    painter.setPen(QPen(QColor(PLOTTER_GRID_COLOR), 0.0, Qt::DotLine));
+    painter.setPen(QPen(QColor::fromRgba(PLOTTER_GRID_COLOR), 0.0, Qt::DotLine));
     for (int i = 0; i <= m_HorDivs; i++)
     {
         qreal xD = (double)i * pixperdiv + adjoffset;
@@ -2204,7 +2203,7 @@ void CPlotter::drawOverlay()
             // Foreground
             QRectF textRect(xD - w/2, fLabelTop,
                             w, metrics.height());
-            painter.setPen(QPen(QColor(PLOTTER_TEXT_COLOR)));
+            painter.setPen(QPen(QColor::fromRgba(PLOTTER_TEXT_COLOR)));
             painter.drawText(textRect, Qt::AlignHCenter|Qt::AlignBottom, m_HDivText[i]);
         }
     }
@@ -2229,7 +2228,7 @@ void CPlotter::drawOverlay()
                      << "pixperdiv =" << pixperdiv << "adjoffset =" << adjoffset;
 
     // Hairline for grid lines
-    painter.setPen(QPen(QColor(PLOTTER_GRID_COLOR), 0.0, Qt::DotLine));
+    painter.setPen(QPen(QColor::fromRgba(PLOTTER_GRID_COLOR), 0.0, Qt::DotLine));
     for (int i = 0; i <= m_VerDivs; i++)
     {
         qreal y = h - ((double)i * pixperdiv + adjoffset);
@@ -2252,7 +2251,7 @@ void CPlotter::drawOverlay()
                               m_YAxisWidth - 2 * HOR_MARGIN, th);
             painter.drawText(shadowRect, Qt::AlignRight|Qt::AlignVCenter, QString::number(dB));
             // Foreground
-            painter.setPen(QPen(QColor(PLOTTER_TEXT_COLOR)));
+            painter.setPen(QPen(QColor::fromRgba(PLOTTER_TEXT_COLOR)));
             QRectF textRect(HOR_MARGIN, y - th / 2,
                             m_YAxisWidth - 2 * HOR_MARGIN, th);
             painter.drawText(textRect, Qt::AlignRight|Qt::AlignVCenter, QString::number(dB));
@@ -2268,12 +2267,10 @@ void CPlotter::drawOverlay()
 
         int dw = m_DemodHiCutFreqX - m_DemodLowCutFreqX;
 
-        painter.setOpacity(0.3);
         painter.fillRect(m_DemodLowCutFreqX, 0, dw, h,
-                         QColor(PLOTTER_FILTER_BOX_COLOR));
+                         QColor::fromRgba(PLOTTER_FILTER_BOX_COLOR));
 
-        painter.setOpacity(1.0);
-        painter.setPen(QPen(QColor(PLOTTER_FILTER_LINE_COLOR), m_DPR));
+        painter.setPen(QPen(QColor::fromRgba(PLOTTER_FILTER_LINE_COLOR), m_DPR));
         painter.drawLine(m_DemodFreqX, 0, m_DemodFreqX, h);
     }
 

@@ -176,7 +176,6 @@ void CMeter::draw()
         pen.setJoinStyle(Qt::MiterJoin);
         painter.setPen(pen);
         painter.setBrush(QBrush(color));
-        painter.setOpacity(1.0);
 
         painter.drawRect(QRectF(marg, ht + 2, x - marg, 4));
     }
@@ -193,7 +192,6 @@ void CMeter::draw()
     painter.setFont(m_Font);
 
     painter.setPen(QColor(0xDA, 0xDA, 0xDA, 0xFF));
-    painter.setOpacity(1.0);
     m_Str.setNum(m_dBFS, 'f', 1);
     painter.drawText(marg, h - 2, m_Str + " dBFS" );
 
