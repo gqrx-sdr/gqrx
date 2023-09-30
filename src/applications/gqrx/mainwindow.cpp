@@ -2046,33 +2046,6 @@ void MainWindow::on_actionSaveSettings_triggered()
         m_last_dir = fi.absolutePath();
 }
 
-void MainWindow::on_actionSaveWaterfall_triggered()
-{
-    QDateTime   dt(QDateTime::currentDateTimeUtc());
-
-    // previously used location
-    auto save_path = m_settings->value("wf_save_dir", "").toString();
-    if (!save_path.isEmpty())
-        save_path += "/";
-    save_path += dt.toString("gqrx_wf_yyyyMMdd_hhmmss.png");
-
-    auto wffile = QFileDialog::getSaveFileName(this, tr("Save waterfall"),
-                                          save_path, nullptr);
-    if (wffile.isEmpty())
-        return;
-
-    if (!ui->plotter->saveWaterfall(wffile))
-    {
-        QMessageBox::critical(this,
-                              tr("Error"),
-                              tr("There was an error saving the waterfall"));
-    }
-
-    // store the location used for the waterfall file
-    QFileInfo fi(wffile);
-    m_settings->setValue("wf_save_dir", fi.absolutePath());
-}
-
 /** Show I/Q player. */
 void MainWindow::on_actionIqTool_triggered()
 {

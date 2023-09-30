@@ -390,8 +390,6 @@
     <addaction name="actionSaveSettings"/>
     <addaction name="menu_RecentConfig"/>
     <addaction name="separator"/>
-    <addaction name="actionSaveWaterfall"/>
-    <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menu_View">
@@ -724,17 +722,6 @@
    </property>
    <property name="toolTip">
     <string>Show help on keyboard shortcuts</string>
-   </property>
-  </action>
-  <action name="actionSaveWaterfall">
-   <property name="text">
-    <string>Save waterfall</string>
-   </property>
-   <property name="statusTip">
-    <string>Save the current waterfall to a graphics file</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+W</string>
    </property>
   </action>
   <action name="actionDX_Cluster">
