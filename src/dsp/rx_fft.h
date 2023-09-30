@@ -94,7 +94,7 @@ public:
              gr_vector_const_void_star &input_items,
              gr_vector_void_star &output_items);
 
-    void get_fft_data(float* fftPoints);
+    int get_fft_data(float* fftPoints);
 
     void set_window_type(int wintype, bool normalize_energy);
     int  get_window_type() const { return d_wintype; }
@@ -105,6 +105,7 @@ public:
 
 private:
     unsigned int d_fftsize;   /*! Current FFT size. */
+    unsigned int d_startup_samples;
     double       d_quadrate;
     int          d_wintype;   /*! Current window type. */
     bool         d_normalize_energy;
@@ -172,7 +173,7 @@ public:
              gr_vector_const_void_star &input_items,
              gr_vector_void_star &output_items);
 
-    void get_fft_data(float* fftPoints);
+    int get_fft_data(float* fftPoints);
 
     void set_window_type(int wintype, bool normalize_energy);
     int  get_window_type() const { return d_wintype; }
@@ -182,6 +183,7 @@ public:
 
 private:
     unsigned int d_fftsize;   /*! Current FFT size. */
+    unsigned int d_startup_samples;
     double       d_audiorate;
     int          d_wintype;   /*! Current window type. */
     bool         d_normalize_energy;

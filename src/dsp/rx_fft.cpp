@@ -48,6 +48,7 @@ rx_fft_c::rx_fft_c(unsigned int fftsize, double quad_rate, int wintype, bool nor
           gr::io_signature::make(1, 1, sizeof(gr_complex)),
           gr::io_signature::make(0, 0, 0)),
       d_fftsize(fftsize),
+      d_startup_samples(0),
       d_quadrate(quad_rate),
       d_wintype(-1),
       d_normalize_energy(false)
@@ -110,6 +111,9 @@ int rx_fft_c::work(int noutput_items,
             d_reader->update_read_pointer(items_to_copy - d_writer->space_available());
         memcpy(d_writer->write_pointer(), in, sizeof(gr_complex) * items_to_copy);
         d_writer->update_write_pointer(items_to_copy);
+
+        if (d_startup_samples < d_writer->bufsize())
+            d_startup_samples += items_to_copy;
     }
 
     return noutput_items;
@@ -119,7 +123,7 @@ int rx_fft_c::work(int noutput_items,
  *  \param fftPoints Buffer to copy FFT data
  *  \param fftSize Current FFT size (output).
  */
-void rx_fft_c::get_fft_data(float* fftPoints)
+int rx_fft_c::get_fft_data(float* fftPoints)
 {
     std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = now - d_lasttime;
@@ -130,6 +134,10 @@ void rx_fft_c::get_fft_data(float* fftPoints)
         std::lock_guard<std::mutex> lock(d_in_mutex);
 
         d_reader->update_read_pointer(std::min((int)(diff.count() * d_quadrate * 1.001), d_reader->items_available() - MAX_FFT_SIZE));
+
+        if (d_startup_samples < d_reader->items_available() - (MAX_FFT_SIZE - d_fftsize))
+            return -1;
+
         apply_window(d_fftsize);
     }
 
@@ -143,6 +151,8 @@ void rx_fft_c::get_fft_data(float* fftPoints)
         fftPoints[i] = static_cast<float>(std::norm(fftOut[i + d_fftsize/2]));
     for (unsigned int i = d_fftsize/2; i < d_fftsize; ++i)
         fftPoints[i] = static_cast<float>(std::norm(fftOut[i - d_fftsize/2]));
+
+    return 0;
 }
 
 /*! \brief Compute FFT on the available input data.
@@ -249,6 +259,7 @@ rx_fft_f::rx_fft_f(unsigned int fftsize, double audio_rate,
           gr::io_signature::make(1, 1, sizeof(float)),
           gr::io_signature::make(0, 0, 0)),
       d_fftsize(fftsize),
+      d_startup_samples(0),
       d_audiorate(audio_rate),
       d_wintype(-1),
       d_normalize_energy(false)
@@ -311,6 +322,9 @@ int rx_fft_f::work(int noutput_items,
             d_reader->update_read_pointer(items_to_copy - d_writer->space_available());
         memcpy(d_writer->write_pointer(), in, sizeof(float) * items_to_copy);
         d_writer->update_write_pointer(items_to_copy);
+
+        if (d_startup_samples < d_writer->bufsize())
+            d_startup_samples += items_to_copy;
     }
 
     return noutput_items;
@@ -320,7 +334,7 @@ int rx_fft_f::work(int noutput_items,
  *  \param fftPoints Buffer to copy FFT data
  *  \param fftSize Current FFT size (output).
  */
-void rx_fft_f::get_fft_data(float* fftPoints)
+int rx_fft_f::get_fft_data(float* fftPoints)
 {
     std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = now - d_lasttime;
@@ -333,6 +347,10 @@ void rx_fft_f::get_fft_data(float* fftPoints)
             std::lock_guard<std::mutex> lock(d_in_mutex);
 
             d_reader->update_read_pointer(std::min((unsigned int)(diff.count() * d_audiorate * 1.001), d_reader->items_available() - d_fftsize));
+
+            if ((int)d_startup_samples < d_reader->items_available())
+                return -1;
+
             apply_window(d_fftsize);
         }
 
@@ -347,6 +365,8 @@ void rx_fft_f::get_fft_data(float* fftPoints)
         for (unsigned int i = d_fftsize/2; i < d_fftsize; ++i)
             fftPoints[i] = static_cast<float>(std::norm(fftOut[i - d_fftsize/2]));
     }
+
+    return 0;
 }
 
 /*! \brief Compute FFT on the available input data.
