@@ -1154,9 +1154,8 @@ void CPlotter::draw(bool newData)
     const double startFreq = fftCenter - span / 2.0;
     const double binsPerHz = fftSize / sampleFreq;
 
-    // Scale factor for x -> fft bin. Note that it takes 2 pixels to have a
-    // span of 1 pixel.
-    double xScale = sampleFreq * (w - 1) / fftSize / span;
+    // Scale factor for x -> fft bin (pixels per bin).
+    double xScale = sampleFreq * w / fftSize / span;
 
     // Center of fft is the center of the DC bin. The Nyquist bin (index 0
     // after shift) is not used.
