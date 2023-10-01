@@ -364,8 +364,6 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             {
                 emit pandapterRangeChanged(m_PandMindB, m_PandMaxdB);
 
-                m_MaxHoldValid = false;
-                m_MinHoldValid = false;
                 m_histIIRValid = false;
 
                 m_Yzero = py;
@@ -482,9 +480,6 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                                               m_ClickResolution );
                 emit newDemodFreq(m_DemodCenterFreq,
                                   m_DemodCenterFreq - m_CenterFreq);
-                m_MaxHoldValid = false;
-                m_MinHoldValid = false;
-                m_histIIRValid = false;
                 updateOverlay();
             }
             else
@@ -955,8 +950,6 @@ void CPlotter::wheelEvent(QWheelEvent * event)
         if (m_PandMindB < FFT_MIN_DB)
             m_PandMindB = FFT_MIN_DB;
 
-        m_MaxHoldValid = false;
-        m_MinHoldValid = false;
         m_histIIRValid = false;
 
         emit pandapterRangeChanged(m_PandMindB, m_PandMaxdB);
@@ -1187,7 +1180,7 @@ void CPlotter::draw(bool newData)
         && tnow_ms >= tlast_plot_drawn_ms + PLOTTER_UPDATE_LIMIT_MS);
 
     // Do not waste time with histogram calculations unless in this mode.
-    const bool doHistogram = (plotterVisible && m_PlotMode == PLOT_MODE_HISTOGRAM);
+    const bool doHistogram = (plotterVisible && m_PlotMode == PLOT_MODE_HISTOGRAM && (!m_histIIRValid || newData));
 
     // Use fewer histogram bins when statistics are sparse
     const int histBinsDisplayed = std::min(
@@ -1900,8 +1893,6 @@ void CPlotter::setPandapterRange(float min, float max)
 
     m_PandMindB = min;
     m_PandMaxdB = max;
-    m_MaxHoldValid = false;
-    m_MinHoldValid = false;
     m_histIIRValid = false;
     updateOverlay();
 }
