@@ -1421,8 +1421,8 @@ void CPlotter::draw(bool newData)
             // draw new line of fft data at top of waterfall bitmap
             // draw black areas where data will not be draw
             painter1.setPen(QPen(Qt::black));
-            painter1.drawRect(QRectF(0.0, 0.0, xmin, 1.0));
-            painter1.drawRect(QRectF(xmax, 0.0, w - xmax, 1.0));
+            painter1.drawLine(0.0, 0.0, xmin - 1, 0.0);
+            painter1.drawLine(xmax, 0.0, w - 1, 0.0);
 
             const bool useWfBuf = msec_per_wfline > 0;
             float _lineFactor;
