@@ -870,15 +870,16 @@ void CPlotter::zoomStepX(float step, int x)
     // before frequency limits can be checked in setFftCenterFreq().
     m_Span = new_span;
     setFftCenterFreq(qRound64((f_max + f_min) / 2.0f));
+
+    m_MaxHoldValid = false;
+    m_MinHoldValid = false;
+    m_histIIRValid = false;
+
     updateOverlay();
 
     double zoom = (double)m_SampleFreq / (double)m_Span;
     emit newZoomLevel(zoom);
     qCDebug(plotter) << QString("Spectrum zoom: %1x").arg(zoom, 0, 'f', 1);
-
-    m_MaxHoldValid = false;
-    m_MinHoldValid = false;
-    m_histIIRValid = false;
 }
 
 // Zoom on X axis (absolute level)
