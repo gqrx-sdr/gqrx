@@ -79,12 +79,15 @@ private slots:
     void on_playButton_clicked(bool checked);
     void on_slider_valueChanged(int value);
     void on_listWidget_currentTextChanged(const QString &currentText);
+    void on_centerFreqSpinBox_valueChanged(double value);
+    void on_sampleRateSpinBox_valueChanged(double value);
     void timeoutFunction(void);
 
 private:
     void refreshDir(void);
     void refreshTimeWidgets(void);
     void parseFileName(const QString &filename);
+    void setPlaybackSampleRate(qint64 sr);
 
 private:
     Ui::CIqTool *ui;
@@ -98,7 +101,8 @@ private:
     bool    is_recording;
     bool    is_playing;
     int     bytes_per_sample;  /*!< Bytes per sample (fc = 4) */
-    int     sample_rate;       /*!< Current sample rate. */
+    int     playback_sample_rate;       /*!< Playback sample rate. */
+    int     recording_sample_rate;      /*!< Recording sample rate. */
     qint64  center_freq;       /*!< Center frequency. */
     int     rec_len;           /*!< Length of a recording in seconds */
 };
