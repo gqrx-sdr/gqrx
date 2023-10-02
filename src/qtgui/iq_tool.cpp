@@ -45,11 +45,12 @@ CIqTool::CIqTool(QWidget *parent) :
     is_recording = false;
     is_playing = false;
     bytes_per_sample = 8;
+    rec_bytes_per_sample = 8;
+    fmt = receiver::FILE_FORMAT_CF;
+    rec_fmt = receiver::FILE_FORMAT_CF;
     sample_rate = 192000;
     rec_len = 0;
     center_freq = 1e8;
-
-    //ui->recDirEdit->setText(QDir::currentPath());
 
     recdir = new QDir(QDir::homePath(), "*.raw");
 
@@ -58,6 +59,16 @@ CIqTool::CIqTool(QWidget *parent) :
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(timeoutFunction()));
+    connect(ui->formatCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(on_formatCombo_currentIndexChanged(int)));
+    ui->formatCombo->addItem("gr_complex cf", receiver::FILE_FORMAT_CF);
+    ui->formatCombo->addItem("int 32", receiver::FILE_FORMAT_CS32L);
+    ui->formatCombo->addItem("short 16", receiver::FILE_FORMAT_CS16L);
+    ui->formatCombo->addItem("char 8", receiver::FILE_FORMAT_CS8);
+    ui->formatCombo->addItem("uint 32", receiver::FILE_FORMAT_CS32LU);
+    ui->formatCombo->addItem("ushort 16", receiver::FILE_FORMAT_CS16LU);
+    ui->formatCombo->addItem("uchar 8", receiver::FILE_FORMAT_CS8U);
+    ui->bufferStats->hide();
+    ui->sizeStats->hide();
 }
 
 CIqTool::~CIqTool()
@@ -100,6 +111,42 @@ void CIqTool::on_listWidget_currentTextChanged(const QString &currentText)
 
 }
 
+/*! \brief Show/hide/enable/disable GUI controls */
+
+void CIqTool::switchControlsState(bool recording, bool playback)
+{
+    ui->recButton->setEnabled(!playback);
+
+    ui->playButton->setEnabled(!recording);
+    ui->slider->setEnabled(!recording);
+
+    ui->repeat->setEnabled(!(recording || playback));
+    ui->listWidget->setEnabled(!(recording || playback));
+    ui->recDirEdit->setEnabled(!(recording || playback));
+    ui->recDirButton->setEnabled(!(recording || playback));
+    ui->formatCombo->setEnabled(!(recording || playback));
+    ui->repeat->setEnabled(!(recording || playback));
+    ui->buffersSpinBox->setEnabled(!(recording || playback));
+    if (recording || playback)
+    {
+        ui->formatLabel->hide();
+        ui->buffersLabel->hide();
+        ui->formatCombo->hide();
+        ui->buffersSpinBox->hide();
+        ui->bufferStats->show();
+        ui->sizeStats->show();
+    }
+    else
+    {
+        ui->formatLabel->show();
+        ui->buffersLabel->show();
+        ui->formatCombo->show();
+        ui->buffersSpinBox->show();
+        ui->bufferStats->hide();
+        ui->sizeStats->hide();
+    }
+}
+
 /*! \brief Start/stop playback */
 void CIqTool::on_playButton_clicked(bool checked)
 {
@@ -125,17 +172,19 @@ void CIqTool::on_playButton_clicked(bool checked)
         }
         else
         {
-            ui->listWidget->setEnabled(false);
-            ui->recButton->setEnabled(false);
+            on_listWidget_currentTextChanged(current_file);
+            switchControlsState(false, true);
+
             emit startPlayback(recdir->absoluteFilePath(current_file),
-                               (float)sample_rate, center_freq);
+                               (float)sample_rate, center_freq, fmt,
+                               ui->buffersSpinBox->value(),
+                               ui->repeat->checkState() == Qt::Checked);
         }
     }
     else
     {
         emit stopPlayback();
-        ui->listWidget->setEnabled(true);
-        ui->recButton->setEnabled(true);
+        switchControlsState(false, false);
         ui->slider->setValue(0);
     }
 }
@@ -148,9 +197,7 @@ void CIqTool::on_playButton_clicked(bool checked)
  */
 void CIqTool::cancelPlayback()
 {
-    ui->playButton->setChecked(false);
-    ui->listWidget->setEnabled(true);
-    ui->recButton->setEnabled(true);
+    switchControlsState(false, false);
     is_playing = false;
 }
 
@@ -172,15 +219,15 @@ void CIqTool::on_recButton_clicked(bool checked)
 
     if (checked)
     {
-        ui->playButton->setEnabled(false);
-        emit startRecording(recdir->path());
+        switchControlsState(true, false);
+        emit startRecording(recdir->path(), rec_fmt, ui->buffersSpinBox->value());
 
         refreshDir();
         ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
     }
     else
     {
-        ui->playButton->setEnabled(true);
+        switchControlsState(false, false);
         emit stopRecording();
     }
 }
@@ -196,9 +243,44 @@ void CIqTool::on_recButton_clicked(bool checked)
 void CIqTool::cancelRecording()
 {
     ui->recButton->setChecked(false);
-    ui->playButton->setEnabled(true);
-    is_recording = false;
+    on_recButton_clicked(false);
 }
+
+/*! \brief Update GUI ta match current recorder state.
+ *
+ * This slot can be periodically activated to show recording progress
+ */
+void CIqTool::updateStats(bool hasFailed, int buffersUsed, size_t fileSize)
+{
+    if(is_recording)
+    {
+        if (hasFailed)
+        {
+            QMessageBox msg_box;
+            msg_box.setIcon(QMessageBox::Critical);
+            msg_box.setText(tr("IQ recording failed."));
+            msg_box.exec();
+        }
+        else
+        {
+            if(o_buffersUsed!=buffersUsed)
+                ui->bufferStats->setText(QString("Buffer: %1%").arg(buffersUsed));
+            if(o_fileSize != fileSize)
+                ui->sizeStats->setText(QString("Size: %1 bytes").arg(fileSize));
+            o_buffersUsed = buffersUsed;
+            o_fileSize = fileSize;
+        }
+    }
+    if(is_playing)
+    {
+        if(o_buffersUsed!=buffersUsed)
+            ui->bufferStats->setText(QString("Buffer: %1%").arg(buffersUsed));
+        if(o_fileSize != fileSize)
+            ui->sizeStats->setText(QString("Pos: %1 bytes").arg(fileSize));
+        o_buffersUsed = buffersUsed;
+        o_fileSize = fileSize;
+    }
+ }
 
 /*! \brief Catch window close events.
  *
@@ -234,7 +316,8 @@ void CIqTool::saveSettings(QSettings *settings)
         settings->setValue("baseband/rec_dir", dir);
     else
         settings->remove("baseband/rec_dir");
-
+    settings->setValue("baseband/rec_fmt", rec_fmt);
+    settings->setValue("baseband/rec_buffers", ui->buffersSpinBox->value());
 }
 
 void CIqTool::readSettings(QSettings *settings)
@@ -245,7 +328,20 @@ void CIqTool::readSettings(QSettings *settings)
     // Location of baseband recordings
     QString dir = settings->value("baseband/rec_dir", QDir::homePath()).toString();
     ui->recDirEdit->setText(dir);
+    int found = ui->formatCombo->findData(settings->value("baseband/rec_fmt", receiver::FILE_FORMAT_CF));
+    if(found == -1)
+    {
+        rec_fmt = receiver::FILE_FORMAT_CF;
+        rec_bytes_per_sample = 8;
+    }
+    else
+    {
+        rec_bytes_per_sample = receiver::sample_size_from_format((enum receiver::file_formats)ui->formatCombo->itemData(found).toInt());
+        ui->formatCombo->setCurrentIndex(found);
+    }
+    ui->buffersSpinBox->setValue(settings->value("baseband/rec_buffers", 1).toInt());
 }
+
 
 
 /*! \brief Slot called when the recordings directory has changed either
@@ -284,18 +380,23 @@ void CIqTool::timeoutFunction(void)
 
     if (is_playing)
     {
-        // advance slider with one second
-        int val = ui->slider->value();
+        int val = o_fileSize / (sample_rate * bytes_per_sample);
         if (val < ui->slider->maximum())
         {
             ui->slider->blockSignals(true);
-            ui->slider->setValue(val+1);
+            ui->slider->setValue(val);
             ui->slider->blockSignals(false);
             refreshTimeWidgets();
         }
     }
     if (is_recording)
         refreshTimeWidgets();
+}
+
+void CIqTool::on_formatCombo_currentIndexChanged(int index)
+{
+    rec_fmt = (enum receiver::file_formats)ui->formatCombo->currentData().toInt();
+    rec_bytes_per_sample = receiver::sample_size_from_format(rec_fmt);
 }
 
 /*! \brief Refresh list of files in current working directory. */
@@ -357,7 +458,6 @@ void CIqTool::refreshTimeWidgets(void)
                            .arg(ls, 2, 10, QChar('0')));
 }
 
-
 /*! \brief Extract sample rate and offset frequency from file name */
 void CIqTool::parseFileName(const QString &filename)
 {
@@ -366,6 +466,7 @@ void CIqTool::parseFileName(const QString &filename)
     bool   center_ok;
     qint64 center;
 
+    QString fmt_str = "";
     QStringList list = filename.split('_');
 
     if (list.size() < 5)
@@ -375,8 +476,47 @@ void CIqTool::parseFileName(const QString &filename)
     sr = list.at(4).toLongLong(&sr_ok);
     center = list.at(3).toLongLong(&center_ok);
 
+    fmt_str = list.at(5);
+    list = fmt_str.split('.');
+    fmt_str = list.at(0);
+
     if (sr_ok)
         sample_rate = sr;
     if (center_ok)
         center_freq = center;
+    if(fmt_str.compare("fc") == 0)
+    {
+        bytes_per_sample = 8;
+        fmt = receiver::FILE_FORMAT_CF;
+    }
+    if(fmt_str.compare("32") == 0)
+    {
+        bytes_per_sample = 8;
+        fmt = receiver::FILE_FORMAT_CS32L;
+    }
+    if(fmt_str.compare("16") == 0)
+    {
+        bytes_per_sample = 4;
+        fmt = receiver::FILE_FORMAT_CS16L;
+    }
+    if(fmt_str.compare("8") == 0)
+    {
+        bytes_per_sample = 2;
+        fmt = receiver::FILE_FORMAT_CS8;
+    }
+    if(fmt_str.compare("32u") == 0)
+    {
+        bytes_per_sample = 8;
+        fmt = receiver::FILE_FORMAT_CS32LU;
+    }
+    if(fmt_str.compare("16u") == 0)
+    {
+        bytes_per_sample = 4;
+        fmt = receiver::FILE_FORMAT_CS16LU;
+    }
+    if(fmt_str.compare("8u") == 0)
+    {
+        bytes_per_sample = 2;
+        fmt = receiver::FILE_FORMAT_CS8U;
+    }
 }
