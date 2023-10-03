@@ -195,6 +195,7 @@ jobs:
           LIBRARY_PATH=/usr/local/opt/icu4c/lib make -j4
           make install
       - name: Install Apple certificate
+        if: github.event_name != 'pull_request'
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
@@ -223,6 +224,7 @@ jobs:
       - name: Build app bundle
         run: ./macos_bundle.sh
       - name: Notarize app bundle
+        if: github.event_name != 'pull_request'
         env:
           NOTARIZE_USERNAME: ${{ secrets.NOTARIZE_USERNAME }}
           NOTARIZE_TEAM_ID: ${{ secrets.NOTARIZE_TEAM_ID }}
@@ -231,10 +233,12 @@ jobs:
           ditto -c -k --keepParent Gqrx.app Gqrx.zip
           xcrun notarytool submit Gqrx.zip --apple-id "$NOTARIZE_USERNAME" --team-id "$NOTARIZE_TEAM_ID" --password "$NOTARIZE_PASSWORD" --wait
       - name: Staple app bundle
+        if: github.event_name != 'pull_request'
         run: xcrun stapler staple --verbose Gqrx.app
       - name: Create DMG
         run: hdiutil create Gqrx.dmg -srcfolder Gqrx.app -format UDZO -fs HFS+ -volname Gqrx
       - name: Notarize DMG
+        if: github.event_name != 'pull_request'
         env:
           NOTARIZE_USERNAME: ${{ secrets.NOTARIZE_USERNAME }}
           NOTARIZE_TEAM_ID: ${{ secrets.NOTARIZE_TEAM_ID }}
@@ -242,6 +246,7 @@ jobs:
         run: |
           xcrun notarytool submit Gqrx.dmg --apple-id "$NOTARIZE_USERNAME" --team-id "$NOTARIZE_TEAM_ID" --password "$NOTARIZE_PASSWORD" --wait
       - name: Staple DMG
+        if: github.event_name != 'pull_request'
         run: xcrun stapler staple --verbose Gqrx.dmg
       - name: Rename DMG
         run: |
