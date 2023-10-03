@@ -1,4 +1,9 @@
 
+    2.17.1: In progress...
+
+       NEW: Delete key clears the waterfall.
+
+
       2.17: Released October 1, 2023
 
        NEW: "Avg" plot mode, which displays average of FFT bins.
