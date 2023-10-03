@@ -12,6 +12,7 @@ Main window actions:
  F11            Toggle full screen mode
  F              Set focus to the frequency controller
  Z              Zero frequency offset
+ Delete         Clear waterfall
  Ctrl+Q         Quit the program
 
 Receiver modes:

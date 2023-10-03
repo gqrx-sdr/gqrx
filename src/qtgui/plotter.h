@@ -181,6 +181,7 @@ public slots:
     void enableBandPlan(bool enable);
     void enableMarkers(bool enabled);
     void setMarkers(qint64 a, qint64 b);
+    void clearWaterfall();
     void updateOverlay();
 
     void setPercent2DScreen(int percent)
