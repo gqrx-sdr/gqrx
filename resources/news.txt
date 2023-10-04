@@ -2,6 +2,7 @@
     2.17.1: In progress...
 
        NEW: Delete key clears the waterfall.
+   CHANGED: DMG release requires macOS 12.7 or later.
 
 
       2.17: Released October 1, 2023
