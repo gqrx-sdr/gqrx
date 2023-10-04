@@ -89,6 +89,21 @@ RESULT=$?
 # copy Soapy modules into their expected path in the AppDir
 cp -R "$PREFIX"/lib/SoapySDR ./AppDir/usr/lib/SoapySDR
 
+# copy blacklisted libraries that we really need because of library dependence
+# on newer versions
+cp "$PREFIX"/lib/libexpat.so.1 ./AppDir/usr/lib/
+cp "$PREFIX"/lib/libfontconfig.so.1 ./AppDir/usr/lib/
+cp "$PREFIX"/lib/libfreetype.so.6 ./AppDir/usr/lib/
+cp "$PREFIX"/lib/libgcc_s.so.1 ./AppDir/usr/lib/
+cp "$PREFIX"/lib/libgmp.so.10 ./AppDir/usr/lib/
+cp "$PREFIX"/lib/libgpg-error.so.0 ./AppDir/usr/lib/
+cp "$PREFIX"/lib/libharfbuzz.so.0 ./AppDir/usr/lib/
+cp "$PREFIX"/lib/libstdc++.so.6 ./AppDir/usr/lib/
+cp "$PREFIX"/lib/libusb-1.0.so.0 ./AppDir/usr/lib/
+cp "$PREFIX"/lib/libuuid.so.1 ./AppDir/usr/lib/
+cp "$PREFIX"/lib/libxcb.so.1 ./AppDir/usr/lib/
+cp "$PREFIX"/lib/libz.so.1 ./AppDir/usr/lib/
+
 # finally make the AppImage
 ./appimagetool-x86_64.AppImage AppDir/
 
