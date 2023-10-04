@@ -22,7 +22,7 @@ else()
     )
 endif()
 add_definitions(-DVERSION="${VERSION}")
-file(WRITE version.txt ${VERSION})
+file(WRITE ${CMAKE_BINARY_DIR}/version.txt ${VERSION})
 
 set(PACKAGE ${PROJECT_NAME})
 

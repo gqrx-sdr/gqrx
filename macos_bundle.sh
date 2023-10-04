@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-GQRX_VERSION=$(<version.txt)
+GQRX_VERSION=$(<build/version.txt)
 IDENTITY=Y3GC27WZ4S
 
 mkdir -p Gqrx.app/Contents/MacOS

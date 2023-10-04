@@ -33,7 +33,7 @@ echo "                Starting to build the AppImage..."
 echo "==================================================================="
 echo ""
 
-export VERSION=$(<version.txt)
+export VERSION=$(<build/version.txt)
 
 # version notice
 echo "You are building Gqrx version: $VERSION"

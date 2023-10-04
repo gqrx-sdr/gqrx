@@ -250,7 +250,7 @@ jobs:
         run: xcrun stapler staple --verbose Gqrx.dmg
       - name: Rename DMG
         run: |
-          GQRX_VERSION=$(<version.txt)
+          GQRX_VERSION=$(<build/version.txt)
           mv Gqrx.dmg Gqrx-$GQRX_VERSION.dmg
       - name: Save artifact
         uses: actions/upload-artifact@v3
