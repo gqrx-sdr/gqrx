@@ -76,6 +76,7 @@ done
 mkdir -p ./AppDir/apprun-hooks
 echo 'export CONDA_PREFIX="$APPDIR/usr"' >./AppDir/apprun-hooks/soapy-hook.sh
 echo 'export UHD_PKG_PATH="$APPDIR/usr"' >./AppDir/apprun-hooks/uhd-hook.sh
+echo 'export FONTCONFIG_FILE="$APPDIR/etc/fonts/fonts.conf"' >./AppDir/apprun-hooks/fontconfig-hook.sh
 
 # since libs come from prefix, little use in querying copyright files with dpkg-query
 export DISABLE_COPYRIGHT_FILES_DEPLOYMENT=1
@@ -103,6 +104,11 @@ cp "$PREFIX"/lib/libusb-1.0.so.0 ./AppDir/usr/lib/
 cp "$PREFIX"/lib/libuuid.so.1 ./AppDir/usr/lib/
 cp "$PREFIX"/lib/libxcb.so.1 ./AppDir/usr/lib/
 cp "$PREFIX"/lib/libz.so.1 ./AppDir/usr/lib/
+
+# copy fontconfig configuration files that the FONTCONFIG_FILE env var points to
+mkdir -p ./AppDir/etc/ ./AppDir/share/
+cp -R "$PREFIX"/etc/fonts ./AppDir/etc/fonts
+cp -R "$PREFIX"/share/fontconfig ./AppDir/share/fontconfig
 
 # finally make the AppImage
 ./appimagetool-x86_64.AppImage AppDir/
