@@ -65,7 +65,6 @@ public slots:
 
 protected:
     void    paintEvent(QPaintEvent *);
-    void    resizeEvent(QResizeEvent *);
     void    mouseMoveEvent(QMouseEvent *);
     void    mousePressEvent(QMouseEvent *);
     void    wheelEvent(QWheelEvent *);
@@ -73,7 +72,6 @@ protected:
     void    keyPressEvent(QKeyEvent *);
 
 private:
-    void    updateCtrl(bool all);
     void    drawBkGround(QPainter &Painter);
     void    drawDigits(QPainter &Painter);
     void    incDigit();
@@ -88,8 +86,6 @@ private:
     bool    inRect(QRect &rect, QPointF &point);
     void    setActiveDigit(int idx);
 
-    bool        m_UpdateAll;
-    bool        m_ExternalKeyActive;
     bool        m_LRMouseFreqSel;   /* Use left/right mouse buttons. If FALSE click area determines up/down. */
 
     bool        m_ResetLowerDigits; /* If TRUE digits below the active one will be reset to 0
@@ -103,7 +99,6 @@ private:
     int         m_NumDigitsForUnit;     // number of digits allocated for unit (kHz, MHz, ...)
     int         m_DigStart;
     int         m_ActiveEditDigit;
-    int         m_LastEditDigit;
     int         m_DecPos;
     int         m_NumSeps;
     int         m_CumWheelDelta;
@@ -120,11 +115,8 @@ private:
     QColor      m_UnitsColor;
     QColor      m_HighlightColor;
 
-    QPixmap     m_Pixmap;
-    QSize       m_Size;
     FctlUnit    m_Unit;
 
-    QRect       m_rectCtrl;                 // main control rectangle
     QRect       m_UnitsRect;                // rectangle where Units text goes
     QRect       m_SepRect[FCTL_MAX_DIGITS]; // separation rectangles for commas, decimal point, etc.
 
@@ -138,7 +130,5 @@ private:
         qint64    incval;      // value this digit increments or decrements
         QRect     dQRect;      // Digit bounding rectangle
         int       val;         // value of this digit(0-9)
-        bool      modified;    // set if this digit has been modified
-        bool      editmode;    // set if this digit is selected for editing
     } m_DigitInfo[FCTL_MAX_DIGITS];
 };
