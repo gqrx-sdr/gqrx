@@ -311,6 +311,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 
     // Bookmarks
     connect(uiDockBookmarks, SIGNAL(newBookmarkActivated(qint64, QString, int)), this, SLOT(onBookmarkActivated(qint64, QString, int)));
+    connect(uiDockBookmarks->actionUpdateBookmark, SIGNAL(triggered()), this, SLOT(on_actionUpdateBookmark_triggered()));
     connect(uiDockBookmarks->actionAddBookmark, SIGNAL(triggered()), this, SLOT(on_actionAddBookmark_triggered()));
     connect(&Bookmarks::Get(), SIGNAL(BookmarksChanged()), ui->plotter, SLOT(updateOverlay()));
 
@@ -2448,6 +2449,30 @@ void MainWindow::on_actionAbout_triggered()
 void MainWindow::on_actionAboutQt_triggered()
 {
     QMessageBox::aboutQt(this, tr("About Qt"));
+}
+
+void MainWindow::on_actionUpdateBookmark_triggered()
+{
+    auto* action = qobject_cast<QAction *>(sender());
+    if (!action)
+    {
+        return;
+    }
+    bool ok = false;
+    auto bookmarkIndex = action->data().toInt(&ok);
+    if (!ok)
+    {
+        return;
+    }
+    BookmarkInfo info;
+    info.frequency = ui->freqCtrl->getFrequency();
+    info.bandwidth = ui->plotter->getFilterBw();
+    info.modulation = uiDockRxOpt->currentDemodAsString();
+    auto newIndex = Bookmarks::Get().update(bookmarkIndex, info);
+    if (newIndex >= 0)
+    {
+        uiDockBookmarks->selectBookmark(newIndex);
+    }
 }
 
 void MainWindow::on_actionAddBookmark_triggered()
