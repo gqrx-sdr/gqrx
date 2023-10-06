@@ -33,6 +33,30 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
+      <widget class="QLabel" name="formatLabel">
+       <property name="text">
+        <string>Format:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+       <widget class="QComboBox" name="formatCombo">
+        <property name="toolTip">
+         <string>File format</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Raw</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>SigMF</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     <item>
       <widget class="QLabel" name="recDirLabel">
        <property name="text">
         <string>Location:</string>

@@ -218,6 +218,7 @@ The following people and organisations have contributed to gqrx:
 * Kenji Rikitake, JJ1BDX
 * Kitware Inc.
 * Konrad Beckmann
+* Luna Gräfje
 * luzpaz
 * Marco Savelli
 * Markus Kolb
