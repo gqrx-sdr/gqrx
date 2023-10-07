@@ -56,8 +56,7 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
     ComboBoxDelegateModulation* delegateModulation = new ComboBoxDelegateModulation(this);
     ui->tableViewFrequencyList->setItemDelegateForColumn(2, delegateModulation);
 
-    // Bookmarks Context menu
-    contextmenu = new QMenu(this);
+    // Actions for context menu
 
     //MenuItem Update
     {
@@ -192,7 +191,7 @@ bool DockBookmarks::DeleteSelectedBookmark()
 
 void DockBookmarks::ShowContextMenu(const QPoint& pos)
 {
-    contextmenu->clear();
+    auto contextmenu = new QMenu(this);
     auto bookmark = ui->tableViewFrequencyList->indexAt(pos);
     if (bookmark != QModelIndex())
     {

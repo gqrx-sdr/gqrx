@@ -47,7 +47,6 @@ class DockBookmarks : public QDockWidget
 
 private:
     Ui::DockBookmarks *ui;
-    QMenu*             contextmenu;
     qint64             m_currentFrequency;
     bool               m_updating;
     BookmarksTableModel *bookmarksTableModel;
