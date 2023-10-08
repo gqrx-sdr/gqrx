@@ -26,6 +26,7 @@
 #include <QTextStream>
 #include <QString>
 #include <QSet>
+#include <QUrl>
 #include <algorithm>
 #include <iostream>
 #include "bookmarks.h"
@@ -71,6 +72,12 @@ void Bookmarks::remove(int index)
 
 bool Bookmarks::load()
 {
+    // define a lambda for loading percent-encoded string
+    auto loadEncoded = [](const QString &input){
+        return QUrl::fromPercentEncoding(input.toUtf8());
+    };
+
+
     QFile file(m_bookmarksFile);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
@@ -94,7 +101,7 @@ bool Bookmarks::load()
             QStringList strings = line.split(";");
             if(strings.count() == 2)
             {
-                TagInfo::sptr info = findOrAddTag(strings[0]);
+                TagInfo::sptr info = findOrAddTag(loadEncoded(strings[0]));
                 info->color = QColor(strings[1].trimmed());
             }
             else
@@ -117,7 +124,7 @@ bool Bookmarks::load()
             {
                 BookmarkInfo info;
                 info.frequency  = strings[0].toLongLong();
-                info.name       = strings[1].trimmed();
+                info.name       = loadEncoded(strings[1].trimmed());
                 info.modulation = strings[2].trimmed();
                 info.bandwidth  = strings[3].toInt();
                 // Multiple Tags may be separated by comma.
@@ -125,7 +132,7 @@ bool Bookmarks::load()
                 QStringList TagList = strTags.split(",");
                 for(int iTag=0; iTag<TagList.size(); ++iTag)
                 {
-                  info.tags.append(findOrAddTag(TagList[iTag].trimmed()));
+                  info.tags.append(findOrAddTag(loadEncoded(TagList[iTag].trimmed())));
                 }
 
                 m_BookmarkList.append(info);
@@ -145,9 +152,13 @@ bool Bookmarks::load()
     return false;
 }
 
-//FIXME: Commas in names
 bool Bookmarks::save()
 {
+    // define a lambda for saving to percent-encoded string
+    auto saveEncoded = [](const QString &input){
+        return QUrl::toPercentEncoding(input);
+    };
+
     QFile file(m_bookmarksFile);
     if(file.open(QFile::WriteOnly | QFile::Truncate | QIODevice::Text))
     {
@@ -169,7 +180,7 @@ bool Bookmarks::save()
         for (QMap<QString, TagInfo::sptr>::iterator i = usedTags.begin(); i != usedTags.end(); i++)
         {
             TagInfo::sptr info = *i;
-            stream << info->name.leftJustified(20) + "; " + info->color.name() << '\n';
+            stream << saveEncoded(info->name).leftJustified(20) + "; " + info->color.name() << '\n';
         }
 
         stream << '\n';
@@ -184,7 +195,7 @@ bool Bookmarks::save()
         {
             BookmarkInfo& info = m_BookmarkList[i];
             QString line = QString::number(info.frequency).rightJustified(12) +
-                    "; " + info.name.leftJustified(25) + "; " +
+                    "; " + saveEncoded(info.name).leftJustified(25) + "; " +
                     info.modulation.leftJustified(20)+ "; " +
                     QString::number(info.bandwidth).rightJustified(10) + "; ";
             for(int iTag = 0; iTag<info.tags.size(); ++iTag)
@@ -194,7 +205,7 @@ bool Bookmarks::save()
                 {
                     line.append(",");
                 }
-                line.append(tag->name);
+                line.append(saveEncoded(tag->name));
             }
 
             stream << line << '\n';
