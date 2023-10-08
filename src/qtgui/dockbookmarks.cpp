@@ -161,6 +161,11 @@ void DockBookmarks::on_tableWidgetTagList_itemChanged(QTableWidgetItem *item)
 
 bool DockBookmarks::eventFilter(QObject* object, QEvent* event)
 {
+    // Prevent field to go in editing if user clicks already selected bookmark
+    if (event->type() == QEvent::FocusIn)
+    {
+        ui->tableViewFrequencyList->clearSelection();
+    }
     // Since Key_Delete can be (is) used as a global shortcut, override the
     // shortcut. Accepting a ShortcutOverride causes the event to be delivered
     // again, but as a KeyPress.
