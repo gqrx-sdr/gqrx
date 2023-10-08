@@ -73,7 +73,6 @@ public:
     QAction* actionAddBookmark;
 
     void updateTags();
-    void updateBookmarks();
 
 signals:
     void newBookmarkActivated(qint64, QString, int);

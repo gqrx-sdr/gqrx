@@ -134,11 +134,6 @@ void DockBookmarks::updateTags()
     m_updating = false;
 }
 
-void DockBookmarks::updateBookmarks()
-{
-    bookmarksTableModel->update();
-}
-
 //Data has been edited
 void DockBookmarks::onDataChanged(const QModelIndex&, const QModelIndex &)
 {
