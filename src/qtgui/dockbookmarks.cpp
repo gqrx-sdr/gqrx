@@ -82,7 +82,6 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
     Bookmarks::Get().load();
     bookmarksTableModel->update();
 
-    m_currentFrequency = 0;
     m_updating = false;
 
     // TagList
@@ -124,7 +123,6 @@ void DockBookmarks::setNewFrequency(qint64 rx_freq)
             break;
         }
     }
-    m_currentFrequency = rx_freq;
 }
 
 void DockBookmarks::updateTags()
