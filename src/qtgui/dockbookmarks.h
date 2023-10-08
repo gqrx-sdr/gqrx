@@ -35,10 +35,20 @@ class ComboBoxDelegateModulation : public QItemDelegate
 {
 Q_OBJECT
 public:
-  ComboBoxDelegateModulation(QObject *parent = 0);
-  QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-  void setEditorData(QWidget *editor, const QModelIndex &index) const;
-  void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
+    ComboBoxDelegateModulation(QObject *parent = 0);
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const;
+    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
+};
+
+class DialogDelegateTags : public QItemDelegate
+{
+Q_OBJECT
+public:
+    DialogDelegateTags(QObject *parent = 0);
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const;
+    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
 };
 
 class DockBookmarks : public QDockWidget
@@ -64,7 +74,6 @@ public:
 
     void updateTags();
     void updateBookmarks();
-    void changeBookmarkTags(int row, int /*column*/);
 
 signals:
     void newBookmarkActivated(qint64, QString, int);
@@ -80,5 +89,4 @@ private slots:
     void on_tableWidgetTagList_itemChanged(QTableWidgetItem* item);
     void ShowContextMenu(const QPoint&pos);
     bool DeleteSelectedBookmark();
-    void doubleClicked(const QModelIndex & index);
 };

@@ -56,6 +56,10 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
     ComboBoxDelegateModulation* delegateModulation = new ComboBoxDelegateModulation(this);
     ui->tableViewFrequencyList->setItemDelegateForColumn(2, delegateModulation);
 
+    // Tag Selection in Frequency List Table.
+    DialogDelegateTags* delegateTag = new DialogDelegateTags(this);
+    ui->tableViewFrequencyList->setItemDelegateForColumn(4, delegateTag);
+
     // Bookmarks Context menu
     contextmenu = new QMenu(this);
     // MenuItem Delete
@@ -85,8 +89,6 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
 
     connect(ui->tableViewFrequencyList, SIGNAL(activated(const QModelIndex &)),
             this, SLOT(activated(const QModelIndex &)));
-    connect(ui->tableViewFrequencyList, SIGNAL(doubleClicked(const QModelIndex &)),
-            this, SLOT(doubleClicked(const QModelIndex &)));
     connect(bookmarksTableModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
             this, SLOT(onDataChanged(const QModelIndex &, const QModelIndex &)));
     connect(&Bookmarks::Get(), SIGNAL(TagListChanged()),
@@ -200,14 +202,6 @@ void DockBookmarks::ShowContextMenu(const QPoint& pos)
     contextmenu->popup(ui->tableViewFrequencyList->viewport()->mapToGlobal(pos));
 }
 
-void DockBookmarks::doubleClicked(const QModelIndex & index)
-{
-    if(index.column() == BookmarksTableModel::COL_TAGS)
-    {
-        changeBookmarkTags(index.row(), index.column());
-    }
-}
-
 ComboBoxDelegateModulation::ComboBoxDelegateModulation(QObject *parent)
 :QItemDelegate(parent)
 {
@@ -238,50 +232,75 @@ void ComboBoxDelegateModulation::setModelData(QWidget *editor, QAbstractItemMode
     model->setData(index, comboBox->currentText(), Qt::EditRole);
 }
 
-void DockBookmarks::changeBookmarkTags(int row, int /*column*/)
+DialogDelegateTags::DialogDelegateTags(QObject *parent)
+:QItemDelegate(parent)
 {
-    bool ok = false;
-    QStringList tags;
+}
 
-    int iIdx = bookmarksTableModel->GetBookmarksIndexForRow(row);
-    BookmarkInfo& bmi = Bookmarks::Get().getBookmark(iIdx);
+QWidget * DialogDelegateTags::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QDialog* tagSelect = new QDialog(parent, Qt::WindowTitleHint);
 
-    // Create and show the Dialog for a new Bookmark.
-    // Write the result into variable 'tags'.
+    tagSelect->setWindowTitle("Change Bookmark Tags");
+
+    BookmarksTagList* taglist = new BookmarksTagList(tagSelect, false);
+
+    QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                            | QDialogButtonBox::Cancel
+                                            , tagSelect);
+    connect(buttonBox, SIGNAL(accepted()), tagSelect, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), tagSelect, SLOT(reject()));
+
+    taglist->updateTags();
+    auto const* mod = qobject_cast<const BookmarksTableModel *>(index.model());
+    if (!mod)
     {
-        QDialog dialog(this);
-        dialog.setWindowTitle("Change Bookmark Tags");
-
-        BookmarksTagList* taglist = new BookmarksTagList(&dialog, false);
-        taglist->updateTags();
-        taglist->setSelectedTags(bmi.tags);
-        taglist->DeleteTag(TagInfo::strUntagged);
-
-        QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
-                                              | QDialogButtonBox::Cancel);
-        connect(buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
-        connect(buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
-
-        QVBoxLayout *mainLayout = new QVBoxLayout(&dialog);
-        mainLayout->addWidget(taglist);
-        mainLayout->addWidget(buttonBox);
-
-        ok = dialog.exec();
-        if (ok)
-        {
-            tags = taglist->getSelectedTags();
-
-            // Change Tags of Bookmark
-            bmi.tags.clear();
-            if (tags.size() == 0)
-            {
-                bmi.tags.append(Bookmarks::Get().findOrAddTag("")); // "Untagged"
-            }
-            for (int i = 0; i < tags.size(); ++i)
-            {
-                bmi.tags.append(Bookmarks::Get().findOrAddTag(tags[i]));
-            }
-            Bookmarks::Get().save();
-        }
+        return nullptr;
     }
+    auto *bmInfo = mod->getBookmarkAtRow(index.row());
+    taglist->setSelectedTags(bmInfo->tags);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout(tagSelect);
+    mainLayout->addWidget(taglist);
+    mainLayout->addWidget(buttonBox);
+
+    return tagSelect;
+}
+
+void DialogDelegateTags::setEditorData(QWidget *editor, const QModelIndex &index) const
+{
+    editor->resize(editor->sizeHint());
+}
+
+void DialogDelegateTags::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+{
+    auto *dlg = qobject_cast<QDialog *>(editor);
+    if (!dlg || dlg->result() != QDialog::Accepted)
+    {
+        return;
+    }
+    BookmarksTagList *taglist = editor->findChild<BookmarksTagList*>();
+    if (!taglist)
+    {
+        return;
+    }
+    auto selectedTags = taglist->getSelectedTags();
+    auto *mod = qobject_cast<BookmarksTableModel *>(model);
+    if (!mod)
+    {
+        return;
+    }
+    auto &bmTags = mod->getBookmarkAtRow(index.row())->tags;
+
+    // Change Tags of Bookmark
+    bmTags.clear();
+    if (selectedTags.isEmpty())
+    {
+        bmTags.append(Bookmarks::Get().findOrAddTag("")); // "Untagged"
+    }
+    for (auto const &tag: selectedTags)
+    {
+        bmTags.append(Bookmarks::Get().findOrAddTag(tag));
+    }
+    Bookmarks::Get().save();
 }
