@@ -50,6 +50,7 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
     ui->tableViewFrequencyList->columnWidth(BookmarksTableModel::COL_NAME) * 2);
     ui->tableViewFrequencyList->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableViewFrequencyList->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->tableViewFrequencyList->setEditTriggers(QAbstractItemView::SelectedClicked);
     ui->tableViewFrequencyList->installEventFilter(this);
 
     // Demod Selection in Frequency List Table.
