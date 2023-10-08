@@ -182,7 +182,7 @@ bool DockBookmarks::eventFilter(QObject* object, QEvent* event)
             }
         }
     }
-    return QWidget::eventFilter(object, event);
+    return false;
 }
 
 bool DockBookmarks::DeleteSelectedBookmark()
