@@ -3,6 +3,7 @@
 
        NEW: Delete key clears the waterfall.
        NEW: I/Q tool can save recordings in SigMF format.
+       NEW: Holding Ctrl speeds up mouse wheel zoom.
   IMPROVED: Reduced CPU utilization of waterfall display.
    CHANGED: DMG release requires macOS 12.7 or later.
 
