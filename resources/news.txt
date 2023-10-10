@@ -1,5 +1,5 @@
 
-    2.17.2: In progress...
+    2.17.2: Released October 9, 2023
 
        NEW: FORCE_QT6 and FORCE_QT5 CMake options to force Qt version.
 
