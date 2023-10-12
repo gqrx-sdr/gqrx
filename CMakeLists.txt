@@ -126,7 +126,7 @@ option(FORCE_QT6 "Force Qt6 to be used" OFF)
 option(FORCE_QT5 "Force Qt5 to be used" OFF)
 
 if(FORCE_QT6)
-    find_package(Qt6 QUIET COMPONENTS Core Network Widgets Svg SvgWidgets)
+    find_package(Qt6 REQUIRED COMPONENTS Core Network Widgets Svg SvgWidgets)
 elseif(FORCE_QT5)
     find_package(Qt5 REQUIRED COMPONENTS Core Network Widgets Svg)
 else()
