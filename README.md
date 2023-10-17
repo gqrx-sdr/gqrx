@@ -23,6 +23,7 @@ Download
 Gqrx is distributed as a source code package and binaries for Linux and Mac.
 Many Linux distributions provide gqrx in their package repositories.
 Alternate Mac support is available through [MacPorts](https://ports.macports.org/port/gqrx/summary) and [Homebrew](https://formulae.brew.sh/cask/gqrx).
+Windows support is available through [radioconda](https://github.com/ryanvolz/radioconda#radioconda).
 
 * [Official releases](https://github.com/gqrx-sdr/gqrx/releases)
 * [Pre-release builds](https://github.com/gqrx-sdr/gqrx/actions?query=workflow%3ABuild+branch%3Amaster)
