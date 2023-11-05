@@ -49,4 +49,11 @@ add_source_files(SRCS_LIST
 	sniffer_f.h
 	stereo_demod.cpp
 	stereo_demod.h
+	fax/fax_decoder.h
+	fax/fax_decoder_impl.cpp
+	fax/fax_decoder_impl.h
+	fax/fax_demod.cpp
+	fax/fax_demod.h
+	fax/fax_store.cpp
+	fax/fax_store.h
 )
