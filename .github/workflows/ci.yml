@@ -64,7 +64,7 @@ jobs:
         run: desktop-file-validate dk.gqrx.gqrx.desktop
       - name: Validate appstream metadata
         if: matrix.image != 'ubuntu:18.04'
-        run: appstreamcli validate dk.gqrx.gqrx.appdata.xml
+        run: appstreamcli validate dk.gqrx.gqrx.metainfo.xml
   macos-build:
     name: MacOS CI
     strategy:

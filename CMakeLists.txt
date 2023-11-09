@@ -259,7 +259,7 @@ link_directories(
 install(FILES dk.gqrx.gqrx.desktop DESTINATION share/applications)
 
 # Install appstream / metainfo file
-install(FILES dk.gqrx.gqrx.appdata.xml DESTINATION share/metainfo)
+install(FILES dk.gqrx.gqrx.metainfo.xml DESTINATION share/metainfo)
 
 # Install icon
 install(FILES resources/icons/gqrx.svg DESTINATION share/icons/hicolor/scalable/apps)
