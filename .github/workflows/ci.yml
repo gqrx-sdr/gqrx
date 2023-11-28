@@ -128,6 +128,7 @@ jobs:
         cmake -S . -B build \
           -DCMAKE_INSTALL_PREFIX=C:/gqrx \
           -DENABLE_DEFAULT=OFF \
+          -DENABLE_COMMON_PCH=ON \
           -DENABLE_GNURADIO_RUNTIME=ON \
           -DENABLE_GR_ANALOG=ON \
           -DENABLE_GR_AUDIO=ON \
