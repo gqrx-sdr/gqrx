@@ -99,7 +99,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-
     - name: Setup MSYS2
       uses: msys2/setup-msys2@v2
       with:
@@ -126,11 +125,17 @@ jobs:
       run: |
         git clone https://github.com/gnuradio/gnuradio.git
         cd gnuradio
-        cmake -S . -B build -DCMAKE_INSTALL_PREFIX=C:/gqrx \
-         -DENABLE_DEFAULT=OFF -DENABLE_GNURADIO_RUNTIME=ON \
-         -DENABLE_GR_ANALOG=ON -DENABLE_GR_AUDIO=ON \
-         -DENABLE_GR_BLOCKS=ON -DENABLE_GR_DIGITAL=ON \
-         -DENABLE_GR_FFT=ON -DENABLE_GR_FILTER=ON -DENABLE_GR_NETWORK=ON
+        cmake -S . -B build \
+          -DCMAKE_INSTALL_PREFIX=C:/gqrx \
+          -DENABLE_DEFAULT=OFF \
+          -DENABLE_GNURADIO_RUNTIME=ON \
+          -DENABLE_GR_ANALOG=ON \
+          -DENABLE_GR_AUDIO=ON \
+          -DENABLE_GR_BLOCKS=ON \
+          -DENABLE_GR_DIGITAL=ON \
+          -DENABLE_GR_FFT=ON \
+          -DENABLE_GR_FILTER=ON \
+          -DENABLE_GR_NETWORK=ON
         cmake --build build
         cmake --install build
     - name: Clone and Build gr-osmosdr
@@ -138,7 +143,8 @@ jobs:
       run: |
         git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
         cd gr-osmosdr
-        cmake -S . -B build -DCMAKE_INSTALL_PREFIX=C:/gqrx \
+        cmake -S . -B build \
+          -DCMAKE_INSTALL_PREFIX=C:/gqrx \
           -DCMAKE_PREFIX_PATH=C:/gqrx \
           -DENABLE_DEFAULT=OFF \
           -DENABLE_RTL=ON \
@@ -150,11 +156,8 @@ jobs:
       run: |
         git clone https://github.com/gqrx-sdr/gqrx.git
         cd gqrx
-        cmake -S . -B build -DCMAKE_INSTALL_PREFIX=C:/gqrx \
+        cmake -S . -B build \
+          -DCMAKE_INSTALL_PREFIX=C:/gqrx \
           -DCMAKE_PREFIX_PATH=C:/gqrx
         cmake --build build
         cmake --install build
-
-      
-
-
