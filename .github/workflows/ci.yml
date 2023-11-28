@@ -98,7 +98,7 @@ jobs:
     name: Windows CI
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Setup MSYS2
       uses: msys2/setup-msys2@v2
       with:
