@@ -97,8 +97,6 @@ jobs:
     runs-on: windows-2019
     name: Windows CI
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
     - name: Setup MSYS2
       uses: msys2/setup-msys2@v2
       with:
@@ -120,7 +118,7 @@ jobs:
           soapysdr:p
           fftw:p
           rtl-sdr:p
-    - name: Clone and Build GNU Radio
+    - name: Clone and build GNU Radio
       shell: msys2 {0}
       working-directory: ${{ runner.temp }}
       run: |
@@ -140,7 +138,7 @@ jobs:
           -DENABLE_GR_NETWORK=ON
         cmake --build build
         cmake --install build
-    - name: Clone and Build gr-osmosdr
+    - name: Clone and build gr-osmosdr
       shell: msys2 {0}
       working-directory: ${{ runner.temp }}
       run: |
@@ -154,7 +152,9 @@ jobs:
           -DENABLE_SOAPY=ON
         cmake --build build
         cmake --install build
-    - name: Clone and Build gqrx
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Configure, compile & install
       shell: msys2 {0}
       run: |
         cmake -S . -B build \
