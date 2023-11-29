@@ -123,7 +123,7 @@ jobs:
     - name: Clone and Build GNU Radio
       shell: msys2 {0}
       run: |
-        git clone https://github.com/gnuradio/gnuradio.git
+        git clone --depth 1 https://github.com/gnuradio/gnuradio.git
         cd gnuradio
         cmake -S . -B build \
           -DCMAKE_INSTALL_PREFIX=C:/gqrx \
