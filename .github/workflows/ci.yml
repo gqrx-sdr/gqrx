@@ -122,6 +122,7 @@ jobs:
           rtl-sdr:p
     - name: Clone and Build GNU Radio
       shell: msys2 {0}
+      working-directory: ${{ runner.temp }}
       run: |
         git clone --depth 1 https://github.com/gnuradio/gnuradio.git
         cd gnuradio
@@ -141,6 +142,7 @@ jobs:
         cmake --install build
     - name: Clone and Build gr-osmosdr
       shell: msys2 {0}
+      working-directory: ${{ runner.temp }}
       run: |
         git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
         cd gr-osmosdr
@@ -155,8 +157,6 @@ jobs:
     - name: Clone and Build gqrx
       shell: msys2 {0}
       run: |
-        git clone https://github.com/gqrx-sdr/gqrx.git
-        cd gqrx
         cmake -S . -B build \
           -DCMAKE_INSTALL_PREFIX=C:/gqrx \
           -DCMAKE_PREFIX_PATH=C:/gqrx
