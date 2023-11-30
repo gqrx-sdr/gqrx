@@ -94,8 +94,11 @@ jobs:
         working-directory: build
         run: make -j4
   windows-build:
-    runs-on: windows-2019
+    runs-on: windows-latest
     name: Windows CI
+    defaults:
+      run:
+        shell: msys2 {0}
     steps:
     - name: Setup MSYS2
       uses: msys2/setup-msys2@v2
@@ -111,21 +114,19 @@ jobs:
           ninja:p
           libusb:p
           boost:p
-          qt5:p
+          qt6-base:p
+          qt6-svg:p
           spdlog:p
           volk:p
           libsndfile:p
-          soapysdr:p
           fftw:p
-          rtl-sdr:p
     - name: Clone and build GNU Radio
-      shell: msys2 {0}
       working-directory: ${{ runner.temp }}
       run: |
         git clone --depth 1 https://github.com/gnuradio/gnuradio.git
         cd gnuradio
         cmake -S . -B build \
-          -DCMAKE_INSTALL_PREFIX=C:/gqrx \
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
           -DENABLE_DEFAULT=OFF \
           -DENABLE_COMMON_PCH=ON \
           -DENABLE_GNURADIO_RUNTIME=ON \
@@ -139,26 +140,21 @@ jobs:
         cmake --build build
         cmake --install build
     - name: Clone and build gr-osmosdr
-      shell: msys2 {0}
       working-directory: ${{ runner.temp }}
       run: |
         git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
         cd gr-osmosdr
         cmake -S . -B build \
-          -DCMAKE_INSTALL_PREFIX=C:/gqrx \
-          -DCMAKE_PREFIX_PATH=C:/gqrx \
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
           -DENABLE_DEFAULT=OFF \
-          -DENABLE_RTL=ON \
-          -DENABLE_SOAPY=ON
+          -DENABLE_FILE=ON
         cmake --build build
         cmake --install build
     - name: Checkout code
       uses: actions/checkout@v3
     - name: Configure, compile & install
-      shell: msys2 {0}
       run: |
         cmake -S . -B build \
-          -DCMAKE_INSTALL_PREFIX=C:/gqrx \
-          -DCMAKE_PREFIX_PATH=C:/gqrx
+          -DCMAKE_INSTALL_PREFIX=C:/gqrx
         cmake --build build
         cmake --install build
