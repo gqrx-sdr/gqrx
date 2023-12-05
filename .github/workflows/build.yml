@@ -33,6 +33,7 @@ jobs:
             pulseaudio
             qt6-gtk-platformtheme
             qt6-main
+            soapysdr-module-fcdpp
             soapysdr-module-lms7
             soapysdr-module-netsdr
             soapysdr-module-plutosdr
