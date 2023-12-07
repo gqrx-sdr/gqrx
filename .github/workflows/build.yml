@@ -27,7 +27,7 @@ jobs:
             pkg-config
             gnuradio-core
             gnuradio-osmosdr
-            boost-cpp
+            libboost-headers
             mesa-libgl-devel-cos6-x86_64
             pybind11
             pulseaudio
