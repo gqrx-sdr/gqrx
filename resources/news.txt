@@ -27,7 +27,7 @@
        NEW: Min hold line in plot.
        NEW: A/B measurement markers on plot.
        NEW: Plot tooltip displays delta from demod frequency.
-       NEW: Dropped frames are indicated by red background in FFT Settigns panel.
+       NEW: Dropped frames are indicated by red background in FFT Settings panel.
        NEW: "Avg" waterfall mode, which displays average of FFT bins.
        NEW: "Sync" waterfall mode, which mirrors averaged data from plot.
        NEW: Support for RTL-SDR Blog V4 in AppImage and DMG releases.

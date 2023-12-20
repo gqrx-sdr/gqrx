@@ -40,7 +40,7 @@ namespace Ui {
     class CIoConfig;
 }
 
-/** @brief Inout/output device configurator. */
+/** @brief Input/output device configurator. */
 class CIoConfig : public QDialog
 {
     Q_OBJECT
