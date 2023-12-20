@@ -133,7 +133,7 @@ void dscall(ApplicationDS a, int suc){
         //Run callback
         EDiscordResult r = a.core->run_callbacks(a.core);
 
-        //Check Sucess?
+        //Check Success?
         if(r != 0) {
             printf("[DS Rich Presence] Callback Thread Available fail! (Discord Closed?)\n");
             whileavalible = false;
@@ -174,12 +174,13 @@ int main(int argc, char *argv[]) {
     sprintf(freqSTRS, "NONE");
     sprintf(typeSTRS, "NONE");
 
-    struct ApplicationDS sapp;
+    struct ApplicationDS sapp{};
     memset(&sapp, 0, sizeof(sapp));
 
     IDiscordCoreEvents events;
     memset(&events, 0, sizeof(events));
-    struct DiscordCreateParams params;
+
+    struct DiscordCreateParams params{};
     params.client_id = 1099004654978879570;
     params.flags = DiscordCreateFlags_NoRequireDiscord;
     params.events = &events;
