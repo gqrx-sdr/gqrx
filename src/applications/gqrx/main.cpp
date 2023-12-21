@@ -43,17 +43,24 @@
 
 #include <iostream>
 
+#include "drpclangs/lang.h"
+
 static void reset_conf(const QString &file_name);
 static void list_conf();
 
 //DS Strings
 char freqSTRS[127]; //Freq string
 char typeSTRS[127]; //Type String (NFM/WFM/AM/Another...)
+
+//RDS
 char rdsSTRS[127]; //RDS Station name
+char ProgramTypeSTRS[127]; //RDS Program Type
+
 char SDRIcon[127]; //SDR Large Icon
-char RPLocality[2]; //Rich Presence localization
-bool RDSOn = false;
-int recivOn = 0;
+std::map<std::string, std::string> RPClocality; //Rich presence locality map
+
+bool RDSOn = false; //is RDS on?
+bool receiveOn = false; //is Receiver on?
 
 //DS Callbacks/Funcs:
 struct ApplicationDS {
@@ -81,7 +88,8 @@ void myCallback(void *data, enum EDiscordResult result) {
 }
 
 void dscall(ApplicationDS a, int suc){
-    //Check on succes
+
+    //Check is success?
     if(suc != 0) return;
 
     printf("[DS Rich Presence] Callback Thread Init...\n");
@@ -89,40 +97,43 @@ void dscall(ApplicationDS a, int suc){
     void *ptr = (void *) func_ptr;
 
     //Set Activity
-    struct DiscordActivity ac;
+    struct DiscordActivity ac{};
     memset(&ac, 0, sizeof(ac));
-    sprintf(ac.details, "Прослушивает радио-частоту:");
+    sprintf(ac.details, "empty area");
     sprintf(ac.assets.small_image, "gqrx");
     sprintf(ac.assets.large_image, "%s", SDRIcon);
 
     printf("[DS Rich Presence] Callback Thread Init Success!\n");
 
-    //Calback While
+    //Callback While
     while(true){
 
-        //check with while avalible
+        //check is while available?
         if(!whileavalible) {
             printf("[DS Rich Presence] Callback Thread Available fail! (its ok)\n");
             break;
         }
 
         //Set RPC details
-        if (recivOn == 0) sprintf(ac.details, "Приёмник Выключен(Не слушает радио)");
-        else if (RDSOn){
+        if (!receiveOn) sprintf(ac.details, "%s", RPClocality["G_OFF"].c_str());
+        else if(RDSOn){
             if(strcmp(rdsSTRS, "") == 0){
-                sprintf(ac.details, "RDS: Пусто (Сигнал не устойчивый)");
+                sprintf(ac.details, "RDS: %s", RPClocality["RDS_EMPTY"].c_str());
             }else{
-                sprintf(ac.details, "RDS: %s", rdsSTRS);
+                if(strcmp(ProgramTypeSTRS, "") == 0)
+                    sprintf(ac.details, "RDS: %s", rdsSTRS);
+                else
+                    sprintf(ac.details, "RDS: %s (%s)", rdsSTRS, ProgramTypeSTRS);
             }
         }
-        else if (strcmp(typeSTRS, "OFF") == 0) sprintf(ac.details, "Декодер Отключен(Не слушает радио)");
-        else if (strcmp(typeSTRS, "RAW") == 0) sprintf(ac.details, "Прослушивает Радио в RAW - Режиме.");
-        else if (strcmp(typeSTRS, "WFM_S") == 0) sprintf(ac.details, "Прослушивает Радио в FM(Stereo) - Режиме.");
-        else if (strcmp(typeSTRS, "NFM") == 0) sprintf(ac.details, "Прослушивает Радио в NarrowFM - Режиме.");
-        else if (strcmp(typeSTRS, "WFM") == 0) sprintf(ac.details, "Прослушивает Радио в FM - Режиме.");
-        else if (strcmp(typeSTRS, "AMSYNC") == 0) sprintf(ac.details, "Прослушивает Радио в AMSync - Режиме.");
-        else if (strcmp(typeSTRS, "AM") == 0) sprintf(ac.details, "Прослушивает Радио в AM - Режиме.");
-        else sprintf(ac.details, "Прослушивает радио-частоту:");
+        else if (strcmp(typeSTRS, "OFF") == 0) sprintf(ac.details, "%s", RPClocality["L_OFF"].c_str());
+        else if (strcmp(typeSTRS, "RAW") == 0) sprintf(ac.details, "%s", RPClocality["L_RAW"].c_str());
+        else if (strcmp(typeSTRS, "WFM_S") == 0) sprintf(ac.details, "%s", RPClocality["L_WFM_S"].c_str());
+        else if (strcmp(typeSTRS, "NFM") == 0) sprintf(ac.details, "%s", RPClocality["L_NFM"].c_str());
+        else if (strcmp(typeSTRS, "WFM") == 0) sprintf(ac.details, "%s", RPClocality["L_WFM"].c_str());
+        else if (strcmp(typeSTRS, "AMSYNC") == 0) sprintf(ac.details, "%s", RPClocality["L_AMSYNC"].c_str());
+        else if (strcmp(typeSTRS, "AM") == 0) sprintf(ac.details, "%s", RPClocality["L_AM"].c_str());
+        else sprintf(ac.details, "%s", RPClocality["L_OTHER"].c_str());
 
         //Set RPC state (freq MHz)
         sprintf(ac.state, "%s", freqSTRS);
@@ -150,9 +161,8 @@ int main(int argc, char *argv[]) {
     //Init DS Rich Presence
     printf("[DS Rich Presence] Init...\n");
 
-    //THIS NOT WORK, cooomiiiiiing soooon
     //Set Default locality: Russian
-    sprintf(RPLocality, "ru");
+    RPClocality = initEn();
 
     //Default icon - blue;
     sprintf(SDRIcon, "%s", "blue-sdr");
@@ -161,13 +171,12 @@ int main(int argc, char *argv[]) {
     for(int arI = 0; arI != argc; arI++){
         //Get, check and set SDR Icon - blue-sdr or white-sdr or gold-sdr
         char *a = argv[arI];
-        if(strcmp(a, "sdr-icon=blue") == 0){
+        if(strcmp(a, "sdr-icon=blue") == 0)
             sprintf(SDRIcon, "%s", "blue-sdr");
-        }else if(strcmp(a, "sdr-icon=white") == 0){
+        else if(strcmp(a, "sdr-icon=white") == 0)
             sprintf(SDRIcon, "%s", "white-sdr");
-        }else if(strcmp(a, "sdr-icon=gold") == 0){
+        else if(strcmp(a, "sdr-icon=gold") == 0)
             sprintf(SDRIcon, "%s", "gold-sdr");
-        }
     }
 
     //Init globals DS-RP vars
@@ -188,7 +197,6 @@ int main(int argc, char *argv[]) {
 
     //Create Discord
     EDiscordResult a = DiscordCreate(DISCORD_VERSION, &params, &sapp.core);
-
 
     //Check success?
     if(a == 0) {

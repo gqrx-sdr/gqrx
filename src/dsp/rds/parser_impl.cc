@@ -568,6 +568,8 @@ void parser_impl::decode_type15(unsigned int *group, bool B){
 	dout << "type 15 not implemented yet" << std::endl;
 }
 
+extern char ProgramTypeSTRS[127];
+
 void parser_impl::parse(pmt::pmt_t pdu) {
 	if(!pmt::is_pair(pdu)) {
 		dout << "wrong input message (not a PDU)" << std::endl;
@@ -611,6 +613,8 @@ void parser_impl::parse(pmt::pmt_t pdu) {
 	pistring << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << program_identification;
 	send_message(0, pistring.str());
 	send_message(2, pty_table[program_type][pty_locale]);
+
+    sprintf(ProgramTypeSTRS, "%s", pty_table[program_type][pty_locale].c_str());
 
 	lout << " - PI:" << pistring.str() << " - " << "PTY:" << pty_table[program_type][pty_locale];
 	lout << " (country:" << pi_country_codes[pi_country_identification - 1][0];

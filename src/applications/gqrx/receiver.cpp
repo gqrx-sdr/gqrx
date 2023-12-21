@@ -49,7 +49,7 @@
 //Extern DS Strings
 extern char freqSTRS[1024];
 extern char typeSTRS[1024];
-extern int recivOn;
+extern bool receiveOn;
 //END
 
 #define DEFAULT_AUDIO_GAIN -6.0
@@ -160,7 +160,7 @@ receiver::~receiver()
 /** Start the receiver. */
 void receiver::start()
 {
-    recivOn = 1;
+    receiveOn = true;
     if (!d_running)
     {
         tb->start();
@@ -171,7 +171,7 @@ void receiver::start()
 /** Stop the receiver. */
 void receiver::stop()
 {
-    recivOn = 0;
+    receiveOn = false;
     if (d_running)
     {
         tb->stop();
@@ -1435,10 +1435,7 @@ extern bool RDSOn;
 
 void receiver::get_rds_data(std::string &outbuff, int &num)
 {
-    if(num == 1){
-        sprintf(rdsSTRS, "%s", outbuff.c_str());
-    }
-
+    if(num == 1) sprintf(rdsSTRS, "%s", outbuff.c_str());
     rx->get_rds_data(outbuff, num);
 }
 
@@ -1461,7 +1458,7 @@ void receiver::stop_rds_decoder(void)
 {
 
     RDSOn = false;
-    sprintf(rdsSTRS, "");
+    //sprintf(rdsSTRS, "");
 
     if (d_running)
     {
