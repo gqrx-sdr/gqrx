@@ -70,7 +70,9 @@ endif(WIN32)
 ###############################################################################
 # Build the program
 
-add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCE} ${UIS_HDRS} ${RESOURCES_LIST} lib/discord_game_sdk.h)
+add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCE} ${UIS_HDRS} ${RESOURCES_LIST} lib/discord_game_sdk.h
+        drpclangs/lang.h
+        drpclangs/lang.h)
 if(Qt6_FOUND)
     set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 else()
