@@ -1328,7 +1328,7 @@ void MainWindow::setFmMaxdev(float max_dev)
 
 
 /**
- * @brief New FM de-emphasis time consant selected.
+ * @brief New FM de-emphasis time constant selected.
  * @param tau The new time constant
  */
 void MainWindow::setFmEmph(double tau)

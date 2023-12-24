@@ -1082,7 +1082,7 @@ receiver::status receiver::stop_audio_recording()
     // Temporary workaround for https://github.com/gnuradio/gnuradio/issues/5436
     tb->disconnect(ddc, 0, rx, 0);
     tb->connect(ddc, 0, rx, 0);
-    // End temporary workaronud
+    // End temporary workaround
 
     tb->unlock();
     wav_gain0.reset();
@@ -1314,7 +1314,7 @@ receiver::status receiver::stop_sniffer()
     // Temporary workaround for https://github.com/gnuradio/gnuradio/issues/5436
     tb->disconnect(ddc, 0, rx, 0);
     tb->connect(ddc, 0, rx, 0);
-    // End temporary workaronud
+    // End temporary workaround
 
     tb->disconnect(sniffer_rr, 0, sniffer, 0);
     tb->unlock();
