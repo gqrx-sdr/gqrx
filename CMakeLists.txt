@@ -231,6 +231,13 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     endif()
 endif()
 
+find_program(CCACHE "ccache")
+if(CCACHE)
+    set(CMAKE_C_COMPILER_LAUNCHER ${CCACHE})
+    set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE})
+    set(ENV{CCACHE_SLOPPINESS} pch_defines,time_macros)
+endif(CCACHE)
+
 
 # Airspy optimizations that require modified gr-osmosdr
 option(CUSTOM_AIRSPY_KERNELS "Enable non-standard Airspy optimizations" ON)
