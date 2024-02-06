@@ -34,9 +34,9 @@ Supported commands:
  U RECORD <status>
     Set status of audio recorder to <status>
  u DSP
-    Get DSP (SDR receiver) status
+    Get DSP (SDR receiver) status. The command is deprecated, use '\get_powerstat' instead.
  U DSP <status>
-    Set DSP (SDR receiver) status to <status>
+    Set DSP (SDR receiver) status to <status>. The command is deprecated, use '\set_powerstat' instead.
  u RDS
     Get RDS decoder to <status>.  Only functions in WFM mode.
  U RDS <status>
@@ -60,6 +60,10 @@ Supported commands:
     Get 'Split' mode (only usable for hamlib compatibility)
  S
     Set 'Split' mode (only usable for hamlib compatibility)
+ \set_powerstat <status>
+    Set DSP (SDR receiver) status to <status> ‘0’ = Off, ‘1’ = On
+ \get_powerstat
+    Get DSP (SDR receiver) status
  _
     Get version
 

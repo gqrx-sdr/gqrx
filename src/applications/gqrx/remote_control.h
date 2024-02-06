@@ -159,6 +159,8 @@ private:
     QString     cmd_set_vfo(QStringList cmdlist);
     QString     cmd_get_split_vfo() const;
     QString     cmd_set_split_vfo();
+    QString     cmd_get_powerstat() const;
+    QString     cmd_set_powerstat(QStringList cmdlist);
     QString     cmd_get_info() const;
     QString     cmd_get_param(QStringList cmdlist);
     QString     cmd_AOS();

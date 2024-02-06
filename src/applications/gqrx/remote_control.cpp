@@ -235,6 +235,10 @@ void RemoteControl::startRead()
         answer = cmd_get_split_vfo();
     else if (cmd == "S")
         answer = cmd_set_split_vfo();
+    else if (cmd == "\\get_powerstat")
+        answer = cmd_get_powerstat();
+    else if (cmd == "\\set_powerstat")
+        answer = cmd_set_powerstat(cmdlist);
     else if (cmd == "p")
         answer = cmd_get_param(cmdlist);
     else if (cmd == "_")
@@ -261,7 +265,6 @@ void RemoteControl::startRead()
         qWarning() << "Unknown remote command:" << cmdlist;
         answer = QString("RPRT 1\n");
     }
-
     rc_socket->write(answer.toLatin1());
 }
 
@@ -847,6 +850,35 @@ QString RemoteControl::cmd_set_split_vfo()
 {
     return QString("RPRT 1\n");
 }
+
+/* Get DSP status */
+QString RemoteControl::cmd_get_powerstat() const
+{
+    return QString("%1\n").arg(receiver_running);
+};
+
+/* Start/stop DSP */
+QString RemoteControl::cmd_set_powerstat(QStringList cmdlist)
+{
+    bool ok;
+    int cmd_arg = cmdlist.value(1, "").toInt(&ok);
+    QString answer;
+
+    if ((cmd_arg == 0) && ok)
+    {
+        emit dspChanged(false);
+        answer = QString("RPRT 0\n");
+    }
+    if ((cmd_arg > 0) && ok)
+    {
+        emit dspChanged(true);
+        answer = QString("RPRT 0\n");
+    }
+    else
+        answer = QString("RPRT 1\n");
+
+    return answer;
+};
 
 /* Get info */
 QString RemoteControl::cmd_get_info() const
