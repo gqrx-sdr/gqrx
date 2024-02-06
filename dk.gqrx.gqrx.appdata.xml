@@ -22,6 +22,7 @@
   <!-- <url type="help"></url> -->
   <url type="homepage">https://gqrx.dk/</url>
   <!-- <project_group>none</project_group> not a project from GNOME, KDE or XFCE -->
+  <launchable type="desktop-id">dk.gqrx.gqrx.desktop</launchable>
   <screenshots>
     <screenshot type="default">
       <!-- <caption></caption> -->

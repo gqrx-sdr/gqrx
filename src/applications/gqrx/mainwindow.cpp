@@ -1328,7 +1328,7 @@ void MainWindow::setFmMaxdev(float max_dev)
 
 
 /**
- * @brief New FM de-emphasis time consant selected.
+ * @brief New FM de-emphasis time constant selected.
  * @param tau The new time constant
  */
 void MainWindow::setFmEmph(double tau)
@@ -1656,6 +1656,7 @@ void MainWindow::startIqRecording(const QString& recdir, const QString& format)
                 {"core:sample_rate", sr/dec},
                 {"core:version", "1.0.0"},
                 {"core:recorder", "Gqrx " VERSION},
+                {"core:hw", QString("OsmoSDR: ") + m_settings->value("input/device", "").toString()},
             }}, {"captures", QJsonArray {
                 QJsonObject {
                     {"core:sample_start", 0},

@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.2)
 project(gqrx)
 set(${PROJECT_NAME}_MAJOR "2")
 set(${PROJECT_NAME}_MINOR "17")
-set(${PROJECT_NAME}_PATCH "0")
+set(${PROJECT_NAME}_PATCH "3")
 set(IS_RELEASE FALSE)
 
 if(IS_RELEASE)
@@ -53,11 +53,11 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
-    add_definitions(-Wall)
-    add_definitions(-Wextra)
-    add_definitions(-Wdouble-promotion)
-    add_definitions(-Wno-unused-parameter)
-    add_definitions(-Wsign-compare)
+    add_compile_options(-Wall)
+    add_compile_options(-Wextra)
+    add_compile_options(-Wdouble-promotion)
+    add_compile_options(-Wno-unused-parameter)
+    add_compile_options(-Wsign-compare)
 endif()
 
 if(MSVC)
@@ -122,10 +122,20 @@ else()
 endif()
 
 # 3rd Party Dependency Stuff
-find_package(Qt6 QUIET COMPONENTS Core Network Widgets Svg SvgWidgets)
-if(NOT Qt6_FOUND)
+option(FORCE_QT6 "Force Qt6 to be used" OFF)
+option(FORCE_QT5 "Force Qt5 to be used" OFF)
+
+if(FORCE_QT6)
+    find_package(Qt6 REQUIRED COMPONENTS Core Network Widgets Svg SvgWidgets)
+elseif(FORCE_QT5)
     find_package(Qt5 REQUIRED COMPONENTS Core Network Widgets Svg)
+else()
+    find_package(Qt6 QUIET COMPONENTS Core Network Widgets Svg SvgWidgets)
+    if(NOT Qt6_FOUND)
+        find_package(Qt5 REQUIRED COMPONENTS Core Network Widgets Svg)
+    endif()
 endif()
+
 include(FindPkgConfig)
 find_package(Gnuradio-osmosdr REQUIRED)
 
@@ -220,6 +230,13 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         message(FATAL_ERROR "Invalid audio backend: should be either Portaudio or Gr-audio")
     endif()
 endif()
+
+find_program(CCACHE "ccache")
+if(CCACHE)
+    set(CMAKE_C_COMPILER_LAUNCHER ${CCACHE})
+    set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE})
+    set(ENV{CCACHE_SLOPPINESS} pch_defines,time_macros)
+endif(CCACHE)
 
 
 # Airspy optimizations that require modified gr-osmosdr

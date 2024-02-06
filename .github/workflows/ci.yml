@@ -93,3 +93,68 @@ jobs:
       - name: Compile
         working-directory: build
         run: make -j4
+  windows-build:
+    runs-on: windows-latest
+    name: Windows CI
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >-
+          git
+          make
+        pacboy: >-
+          toolchain:p
+          cmake:p
+          ninja:p
+          libusb:p
+          boost:p
+          qt6-base:p
+          qt6-svg:p
+          spdlog:p
+          volk:p
+          libsndfile:p
+          fftw:p
+    - name: Clone and build GNU Radio
+      working-directory: ${{ runner.temp }}
+      run: |
+        git clone --depth 1 https://github.com/gnuradio/gnuradio.git
+        cd gnuradio
+        cmake -S . -B build \
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
+          -DENABLE_DEFAULT=OFF \
+          -DENABLE_COMMON_PCH=ON \
+          -DENABLE_GNURADIO_RUNTIME=ON \
+          -DENABLE_GR_ANALOG=ON \
+          -DENABLE_GR_AUDIO=ON \
+          -DENABLE_GR_BLOCKS=ON \
+          -DENABLE_GR_DIGITAL=ON \
+          -DENABLE_GR_FFT=ON \
+          -DENABLE_GR_FILTER=ON \
+          -DENABLE_GR_NETWORK=ON
+        cmake --build build
+        cmake --install build
+    - name: Clone and build gr-osmosdr
+      working-directory: ${{ runner.temp }}
+      run: |
+        git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
+        cd gr-osmosdr
+        cmake -S . -B build \
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
+          -DENABLE_DEFAULT=OFF \
+          -DENABLE_FILE=ON
+        cmake --build build
+        cmake --install build
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Configure, compile & install
+      run: |
+        cmake -S . -B build \
+          -DCMAKE_INSTALL_PREFIX=C:/gqrx
+        cmake --build build
+        cmake --install build

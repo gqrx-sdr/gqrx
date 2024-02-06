@@ -1,8 +1,19 @@
 
-    2.17.1: In progress...
+    2.17.3: Released October 20, 2023
+
+     FIXED: Delete key shortcut for bookmark removal.
+
+
+    2.17.2: Released October 9, 2023
+
+       NEW: FORCE_QT6 and FORCE_QT5 CMake options to force Qt version.
+
+
+    2.17.1: Released October 9, 2023
 
        NEW: Delete key clears the waterfall.
        NEW: I/Q tool can save recordings in SigMF format.
+       NEW: Holding Ctrl speeds up mouse wheel zoom.
   IMPROVED: Reduced CPU utilization of waterfall display.
    CHANGED: DMG release requires macOS 12.7 or later.
 
@@ -16,7 +27,7 @@
        NEW: Min hold line in plot.
        NEW: A/B measurement markers on plot.
        NEW: Plot tooltip displays delta from demod frequency.
-       NEW: Dropped frames are indicated by red background in FFT Settigns panel.
+       NEW: Dropped frames are indicated by red background in FFT Settings panel.
        NEW: "Avg" waterfall mode, which displays average of FFT bins.
        NEW: "Sync" waterfall mode, which mirrors averaged data from plot.
        NEW: Support for RTL-SDR Blog V4 in AppImage and DMG releases.

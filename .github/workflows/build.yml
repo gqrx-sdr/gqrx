@@ -49,6 +49,7 @@ jobs:
           cd /tmp
           git clone https://gitea.osmocom.org/sdr/rtl-sdr.git
           cd rtl-sdr
+          git checkout v2.0.1
           mkdir build
           cd build
           cmake -DCMAKE_INSTALL_PREFIX=/usr -DDETACH_KERNEL_DRIVER=ON ..
@@ -97,9 +98,10 @@ jobs:
           ldconfig
 
           cd /tmp
-          git clone https://github.com/gqrx-sdr/gr-osmosdr.git
+          git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
           cd gr-osmosdr
           git checkout origin/gr3.8
+          git cherry-pick -n 9c09c90d920dd4906fa8bb9d8443eef84d2565a3
           mkdir build
           cd build
           cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_MODULES_DIR=/usr/lib/x86_64-linux-gnu/cmake -DENABLE_PYTHON=False ..
@@ -195,7 +197,7 @@ jobs:
           make install
 
           cd /tmp
-          git clone https://github.com/gqrx-sdr/gr-osmosdr.git
+          git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
           cd gr-osmosdr
           mkdir build
           cd build
