@@ -209,6 +209,8 @@ The following people and organisations have contributed to gqrx:
 * Göran Weinholt, SA6CJK
 * Grigory Shipunov
 * Gwenhael Goavec-Merou
+* Herman Semenov
+* Jaroslav Škarvada
 * Jeff Long
 * Jiawei Chen
 * Jiří Pinkava
@@ -238,6 +240,7 @@ The following people and organisations have contributed to gqrx:
 * Radoslav Gerganov
 * Rob Frohne
 * Ron Economos, W6RZ
+* Ruslan Migirov
 * Russell Dwarshuis, KB8U
 * Shuyuan Liu
 * Stefano Leucci
