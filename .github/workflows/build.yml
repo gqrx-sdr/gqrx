@@ -223,7 +223,7 @@ jobs:
           security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Configure
@@ -265,7 +265,7 @@ jobs:
           GQRX_VERSION=$(<build/version.txt)
           mv Gqrx.dmg Gqrx-$GQRX_VERSION.dmg
       - name: Save artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: gqrx-macos-${{ github.run_id }}
           path: Gqrx-*.dmg

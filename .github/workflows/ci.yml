@@ -50,7 +50,7 @@ jobs:
             libqt6svgwidgets6 \
             libgl-dev
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Configure
         run: |
           mkdir build
@@ -87,7 +87,7 @@ jobs:
           LIBRARY_PATH=/usr/local/opt/icu4c/lib make -j4
           make install
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Configure
         run: mkdir build && cd build && cmake -DOSX_AUDIO_BACKEND:STRING=${{ matrix.backend }} ..
       - name: Compile
@@ -151,7 +151,7 @@ jobs:
         cmake --build build
         cmake --install build
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Configure, compile & install
       run: |
         cmake -S . -B build \
