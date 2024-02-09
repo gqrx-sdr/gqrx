@@ -52,6 +52,8 @@ Supported commands:
     display. Otherwise print the current LNB LO frequency [Hz].
  \dump_state
     Dump state (only usable for hamlib compatibility)
+ \get_powerstat
+    Get power status (only usable for hamlib compatibility)
  v
     Get 'VFO' (only usable for hamlib compatibility)
  V
