@@ -269,3 +269,148 @@ jobs:
         with:
           name: gqrx-macos-${{ github.run_id }}
           path: Gqrx-*.dmg
+  windows:
+    runs-on: windows-latest
+    name: Windows
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >-
+          git
+          make
+        pacboy: >-
+          toolchain:p
+          cmake:p
+          ninja:p
+          libusb:p
+          boost:p
+          qt6-base:p
+          qt6-svg:p
+          spdlog:p
+          volk:p
+          libsndfile:p
+          soapysdr:p
+          fftw:p
+    - name: Clone and build GNU Radio
+      working-directory: ${{ runner.temp }}
+      run: |
+        git clone --branch v3.10.9.2 --depth 1 https://github.com/gnuradio/gnuradio.git
+        cd gnuradio
+        cmake -S . -B build \
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DENABLE_DEFAULT=OFF \
+          -DENABLE_COMMON_PCH=ON \
+          -DENABLE_GNURADIO_RUNTIME=ON \
+          -DENABLE_GR_ANALOG=ON \
+          -DENABLE_GR_AUDIO=ON \
+          -DENABLE_GR_BLOCKS=ON \
+          -DENABLE_GR_DIGITAL=ON \
+          -DENABLE_GR_FFT=ON \
+          -DENABLE_GR_FILTER=ON \
+          -DENABLE_GR_NETWORK=ON
+        cmake --build build
+        cmake --install build
+    - name: Clone and build rtl-sdr
+      working-directory: ${{ runner.temp }}
+      run: |
+        git clone https://gitea.osmocom.org/sdr/rtl-sdr.git
+        cd rtl-sdr
+        cmake -S . -B build \
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DDETACH_KERNEL_DRIVER=OFF \
+          -DENABLE_ZEROCOPY=OFF \
+          -DINSTALL_UDEV_RULES=OFF
+        cmake --build build
+        cmake --install build
+    - name: Clone and build gr-osmosdr
+      working-directory: ${{ runner.temp }}
+      run: |
+        git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
+        cd gr-osmosdr
+        cmake -S . -B build \
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DENABLE_DEFAULT=OFF \
+          -DENABLE_FILE=ON \
+          -DENABLE_REDPITAYA=ON \
+          -DENABLE_RTL=ON \
+          -DENABLE_RTL_TCP=ON \
+          -DENABLE_SOAPY=ON
+        cmake --build build
+        cmake --install build
+    - name: Configure git
+      run: git config --global core.autocrlf input
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Configure, compile & install
+      run: |
+        cmake -S . -B build \
+          -DCMAKE_INSTALL_PREFIX=C:/gqrx \
+          -DCMAKE_BUILD_TYPE=Release
+        cmake --build build
+        cmake --install build
+    - name: Deploy Qt application
+      working-directory: ${{ runner.temp }}/msys64/mingw64/bin
+      run: |
+        windeployqt6 C:/gqrx/bin/gqrx.exe
+        cp \
+          libb2-1.dll \
+          libboost_program_options-mt.dll \
+          libboost_thread-mt.dll \
+          libbrotlicommon.dll \
+          libbrotlidec.dll \
+          libbz2-1.dll \
+          libdouble-conversion.dll \
+          libfftw3f-3.dll \
+          libfftw3f_threads-3.dll \
+          libFLAC.dll \
+          libfmt.dll \
+          libfreetype-6.dll \
+          libgcc_s_seh-1.dll \
+          libglib-2.0-0.dll \
+          libgmp-10.dll \
+          libgnuradio-*.dll \
+          libgraphite2.dll \
+          libharfbuzz-0.dll \
+          libiconv-2.dll \
+          libicudt74.dll \
+          libicuin74.dll \
+          libicuuc74.dll \
+          libintl-8.dll \
+          libmd4c.dll \
+          libmp3lame-0.dll \
+          libmpg123-0.dll \
+          libogg-0.dll \
+          libopus-0.dll \
+          liborc-0.4-0.dll \
+          libpcre2-16-0.dll \
+          libpcre2-8-0.dll \
+          libpng16-16.dll \
+          librtlsdr.dll \
+          libsndfile-1.dll \
+          libSoapySDR.dll \
+          libspdlog.dll \
+          libstdc++-6.dll \
+          libusb-1.0.dll \
+          libvolk.dll \
+          libvorbis-0.dll \
+          libvorbisenc-2.dll \
+          libwinpthread-1.dll \
+          libzstd.dll \
+          zlib1.dll \
+          C:/gqrx/bin/
+    - name: Save artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: gqrx-windows-${{ github.run_id }}
+        path: C:/gqrx/bin
