@@ -1,5 +1,5 @@
 
-    2.17.4: In progress...
+    2.17.4: Released February 9, 2024
 
        NEW: Experimental Windows binary release (RTL-SDR only).
   IMPROVED: Respond to \chk_vfo remote command (needed by some clients).
