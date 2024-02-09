@@ -50,6 +50,8 @@ Supported commands:
  LNB_LO [frequency]
     If frequency [Hz] is specified set the LNB LO frequency used for
     display. Otherwise print the current LNB LO frequency [Hz].
+ \chk_vfo
+    Get VFO option status (only usable for hamlib compatibility)
  \dump_state
     Dump state (only usable for hamlib compatibility)
  \get_powerstat

@@ -245,6 +245,8 @@ void RemoteControl::startRead()
         answer = cmd_LOS();
     else if (cmd == "LNB_LO")
         answer = cmd_lnb_lo(cmdlist);
+    else if (cmd == "\\chk_vfo")
+        answer = QString("0\n");
     else if (cmd == "\\dump_state")
         answer = cmd_dump_state();
     else if (cmd == "\\get_powerstat")
