@@ -40,7 +40,7 @@ jobs:
             soapysdr-module-remote
             volk
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Configure
@@ -63,7 +63,7 @@ jobs:
           PREFIX: ${{ steps.setup-micromamba.outputs.environment-path }}
         run: ./appimage.sh
       - name: Save artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: gqrx-appimage-${{ github.run_id }}
           path: Gqrx-*.AppImage
