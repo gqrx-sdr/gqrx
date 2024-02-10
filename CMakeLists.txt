@@ -5,7 +5,7 @@ project(gqrx)
 set(${PROJECT_NAME}_MAJOR "2")
 set(${PROJECT_NAME}_MINOR "17")
 set(${PROJECT_NAME}_PATCH "4")
-set(IS_RELEASE TRUE)
+set(IS_RELEASE FALSE)
 
 if(IS_RELEASE)
     if(${PROJECT_NAME}_PATCH EQUAL 0)
