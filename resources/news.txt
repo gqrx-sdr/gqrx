@@ -3,7 +3,7 @@
 
        NEW: Experimental Windows binary release (RTL-SDR only).
   IMPROVED: Respond to \chk_vfo remote command (needed by some clients).
-  IMPROVED: Respond to \dump_state remote command (needed by some clients).
+  IMPROVED: Respond to \get_powerstat remote command (needed by some clients).
 
 
     2.17.3: Released October 20, 2023
