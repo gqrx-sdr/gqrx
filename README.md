@@ -242,6 +242,7 @@ The following people and organisations have contributed to gqrx:
 * Ron Economos, W6RZ
 * Ruslan Migirov
 * Russell Dwarshuis, KB8U
+* Ryan Volz
 * Shuyuan Liu
 * Stefano Leucci
 * Sultan Qasim Khan
