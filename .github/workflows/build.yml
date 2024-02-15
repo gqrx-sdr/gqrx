@@ -6,125 +6,62 @@ jobs:
   appimage:
     name: AppImage
     runs-on: ubuntu-latest
-    container:
-      image: "ubuntu:18.04"
-      env:
-        DEBIAN_FRONTEND: noninteractive
-        APPIMAGE_EXTRACT_AND_RUN: "1"
     steps:
-      - name: Install dependencies
+      - name: Install base dependencies
         run: |
-          apt-get update -qq
-          apt-get install -y --no-install-recommends software-properties-common
-          add-apt-repository -y ppa:gnuradio/gnuradio-releases
-          add-apt-repository -y ppa:git-core/ppa
-          apt-get install -y --no-install-recommends \
-            git \
-            build-essential \
-            autoconf \
-            automake \
-            cmake \
-            libtool \
-            wget \
-            qt5-default \
-            qt5-gtk-platformtheme \
-            qttranslations5-l10n \
-            libqt5svg5-dev \
-            libboost-dev \
-            libpulse-dev \
-            portaudio19-dev \
-            liblog4cpp5-dev \
-            gnuradio-dev \
-            libairspy-dev \
-            libairspyhf-dev \
-            libfreesrp-dev \
-            libhackrf-dev \
-            libusb-1.0-0-dev \
-            libsoapysdr-dev \
-            soapysdr-module-remote \
-            libuhd-dev \
-            liborc-0.4-dev \
-            libhidapi-dev
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libopengl0 \
+            libegl1
 
-          cd /tmp
-          git clone https://gitea.osmocom.org/sdr/rtl-sdr.git
-          cd rtl-sdr
-          git checkout v2.0.1
-          mkdir build
-          cd build
-          cmake -DCMAKE_INSTALL_PREFIX=/usr -DDETACH_KERNEL_DRIVER=ON ..
-          make -j4
-          make install
-          ldconfig
-
-          cd /tmp
-          git clone https://github.com/Nuand/bladeRF.git
-          cd bladeRF
-          mkdir build
-          cd build
-          cmake -DCMAKE_INSTALL_PREFIX=/usr ..
-          make -j4
-          make install
-          ldconfig
-
-          cd /tmp
-          git clone https://github.com/dl1ksv/gr-fcdproplus.git
-          cd gr-fcdproplus
-          mkdir build
-          cd build
-          cmake -DCMAKE_INSTALL_PREFIX=/usr ..
-          make -j4
-          make install
-          ldconfig
-
-          cd /tmp
-          git clone https://gitea.osmocom.org/sdr/libosmo-dsp.git
-          cd libosmo-dsp
-          autoreconf -i
-          ./configure --prefix=/usr
-          make -j4
-          make install
-          ldconfig
-
-          cd /tmp
-          git clone https://gitea.osmocom.org/sdr/gr-iqbal.git
-          cd gr-iqbal
-          git checkout gr3.8
-          mkdir build
-          cd build
-          cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_MODULES_DIR=/usr/lib/x86_64-linux-gnu/cmake ..
-          make -j4
-          make install
-          ldconfig
-
-          cd /tmp
-          git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
-          cd gr-osmosdr
-          git checkout origin/gr3.8
-          git cherry-pick -n 9c09c90d920dd4906fa8bb9d8443eef84d2565a3
-          mkdir build
-          cd build
-          cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_MODULES_DIR=/usr/lib/x86_64-linux-gnu/cmake -DENABLE_PYTHON=False ..
-          make -j4
-          make install
-          ldconfig
+      - name: Install conda dependencies
+        id: setup-micromamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-name: gqrx
+          create-args: >-
+            c-compiler
+            cxx-compiler
+            cmake
+            make
+            pkg-config
+            gnuradio-core
+            gnuradio-osmosdr
+            libboost-headers
+            mesa-libgl-devel-cos6-x86_64
+            pybind11
+            pulseaudio
+            qt6-gtk-platformtheme
+            qt6-main
+            soapysdr-module-lms7
+            soapysdr-module-plutosdr
+            soapysdr-module-remote
+            volk
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Configure
+        shell: bash -el {0}
         run: |
           git config --global --add safe.directory $GITHUB_WORKSPACE
           mkdir build
           cd build
-          cmake ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX ..
       - name: Compile
+        shell: bash -el {0}
         working-directory: build
-        run: make -j4
+        run: |
+          make -j4
+          make install
       - name: Build AppImage
+        shell: bash -el {0}
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: "1"
+          PREFIX: ${{ steps.setup-micromamba.outputs.environment-path }}
         run: ./appimage.sh
       - name: Save artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: gqrx-appimage-${{ github.run_id }}
           path: Gqrx-*.AppImage
