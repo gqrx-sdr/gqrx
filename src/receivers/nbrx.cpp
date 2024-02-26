@@ -34,19 +34,13 @@ nbrx_sptr make_nbrx(float quad_rate, float audio_rate)
 }
 
 nbrx::nbrx(float quad_rate, float audio_rate)
-    : receiver_base_cf("NBRX"),
+    : receiver_base_cf("NBRX", PREF_QUAD_RATE, quad_rate, audio_rate),
       d_running(false),
-      d_quad_rate(quad_rate),
-      d_audio_rate(audio_rate),
       d_demod(NBRX_DEMOD_FM)
 {
-    iq_resamp = make_resampler_cc(PREF_QUAD_RATE/d_quad_rate);
 
     nb = make_rx_nb_cc((double)PREF_QUAD_RATE, 3.3, 2.5);
     filter = make_rx_filter((double)PREF_QUAD_RATE, -5000.0, 5000.0, 1000.0);
-    agc = make_rx_agc_cc((double)PREF_QUAD_RATE, true, -100, 0, 0, 500, false);
-    sql = gr::analog::simple_squelch_cc::make(-150.0, 0.001);
-    meter = make_rx_meter_c((double)PREF_QUAD_RATE);
     demod_raw = gr::blocks::complex_to_float::make(1);
     demod_ssb = gr::blocks::complex_to_real::make(1);
     demod_fm = make_rx_demod_fm(PREF_QUAD_RATE, 5000.0, 75.0e-6);
@@ -75,21 +69,24 @@ nbrx::nbrx(float quad_rate, float audio_rate)
     connect(nb, 0, filter, 0);
     connect(filter, 0, meter, 0);
     connect(filter, 0, sql, 0);
-    connect(sql, 0, agc, 0);
-    connect(agc, 0, demod, 0);
+    connect(sql, 0, demod, 0);
+//    connect(sql, 0, agc, 0);
+//    connect(agc, 0, demod, 0);
 
     if (audio_rr0)
     {
         connect(demod, 0, audio_rr0, 0);
 
-        connect(audio_rr0, 0, self(), 0); // left  channel
-        connect(audio_rr0, 0, self(), 1); // right channel
+        connect(audio_rr0, 0, agc, 0); // left  channel
+        connect(audio_rr0, 0, agc, 1); // right channel
     }
     else
     {
-        connect(demod, 0, self(), 0);
-        connect(demod, 0, self(), 1);
+        connect(demod, 0, agc, 0);
+        connect(demod, 0, agc, 1);
     }
+    connect(agc, 0, self(), 0);
+    connect(agc, 1, self(), 1);
 }
 
 bool nbrx::start()
@@ -106,18 +103,6 @@ bool nbrx::stop()
     return true;
 }
 
-void nbrx::set_quad_rate(float quad_rate)
-{
-    if (std::abs(d_quad_rate-quad_rate) > 0.5f)
-    {
-        qDebug() << "Changing NB_RX quad rate:"  << d_quad_rate << "->" << quad_rate;
-        d_quad_rate = quad_rate;
-        lock();
-        iq_resamp->set_rate(PREF_QUAD_RATE/d_quad_rate);
-        unlock();
-    }
-}
-
 void nbrx::set_filter(double low, double high, double tw)
 {
     filter->set_param(low, high, tw);
@@ -126,11 +111,6 @@ void nbrx::set_filter(double low, double high, double tw)
 void nbrx::set_cw_offset(double offset)
 {
     filter->set_cw_offset(offset);
-}
-
-float nbrx::get_signal_level()
-{
-    return meter->get_level_db();
 }
 
 void nbrx::set_nb_on(int nbid, bool on)
@@ -149,46 +129,6 @@ void nbrx::set_nb_threshold(int nbid, float threshold)
         nb->set_threshold2(threshold);
 }
 
-void nbrx::set_sql_level(double level_db)
-{
-    sql->set_threshold(level_db);
-}
-
-void nbrx::set_sql_alpha(double alpha)
-{
-    sql->set_alpha(alpha);
-}
-
-void nbrx::set_agc_on(bool agc_on)
-{
-    agc->set_agc_on(agc_on);
-}
-
-void nbrx::set_agc_hang(bool use_hang)
-{
-    agc->set_use_hang(use_hang);
-}
-
-void nbrx::set_agc_threshold(int threshold)
-{
-    agc->set_threshold(threshold);
-}
-
-void nbrx::set_agc_slope(int slope)
-{
-    agc->set_slope(slope);
-}
-
-void nbrx::set_agc_decay(int decay_ms)
-{
-    agc->set_decay(decay_ms);
-}
-
-void nbrx::set_agc_manual_gain(int gain)
-{
-    agc->set_manual_gain(gain);
-}
-
 void nbrx::set_demod(int rx_demod)
 {
     nbrx_demod current_demod = d_demod;
@@ -202,7 +142,7 @@ void nbrx::set_demod(int rx_demod)
         return;
     }
 
-    disconnect(agc, 0, demod, 0);
+    disconnect(sql, 0, demod, 0);
     if (audio_rr0)
     {
         if (current_demod == NBRX_DEMOD_NONE)
@@ -210,28 +150,28 @@ void nbrx::set_demod(int rx_demod)
             disconnect(demod, 0, audio_rr0, 0);
             disconnect(demod, 1, audio_rr1, 0);
 
-            disconnect(audio_rr0, 0, self(), 0);
-            disconnect(audio_rr1, 0, self(), 1);
+            disconnect(audio_rr0, 0, agc, 0);
+            disconnect(audio_rr1, 0, agc, 1);
         }
         else
         {
             disconnect(demod, 0, audio_rr0, 0);
 
-            disconnect(audio_rr0, 0, self(), 0);
-            disconnect(audio_rr0, 0, self(), 1);
+            disconnect(audio_rr0, 0, agc, 0);
+            disconnect(audio_rr0, 0, agc, 1);
         }
     }
     else
     {
         if (current_demod == NBRX_DEMOD_NONE)
         {
-            disconnect(demod, 0, self(), 0);
-            disconnect(demod, 1, self(), 1);
+            disconnect(demod, 0, agc, 0);
+            disconnect(demod, 1, agc, 1);
         }
         else
         {
-            disconnect(demod, 0, self(), 0);
-            disconnect(demod, 0, self(), 1);
+            disconnect(demod, 0, agc, 0);
+            disconnect(demod, 0, agc, 1);
         }
     }
 
@@ -264,7 +204,7 @@ void nbrx::set_demod(int rx_demod)
         break;
     }
 
-    connect(agc, 0, demod, 0);
+    connect(sql, 0, demod, 0);
     if (audio_rr0)
     {
         if (d_demod == NBRX_DEMOD_NONE)
@@ -272,28 +212,28 @@ void nbrx::set_demod(int rx_demod)
             connect(demod, 0, audio_rr0, 0);
             connect(demod, 1, audio_rr1, 0);
 
-            connect(audio_rr0, 0, self(), 0);
-            connect(audio_rr1, 0, self(), 1);
+            connect(audio_rr0, 0, agc, 0);
+            connect(audio_rr1, 0, agc, 1);
         }
         else
         {
             connect(demod, 0, audio_rr0, 0);
 
-            connect(audio_rr0, 0, self(), 0);
-            connect(audio_rr0, 0, self(), 1);
+            connect(audio_rr0, 0, agc, 0);
+            connect(audio_rr0, 0, agc, 1);
         }
     }
     else
     {
         if (d_demod == NBRX_DEMOD_NONE)
         {
-            connect(demod, 0, self(), 0);
-            connect(demod, 1, self(), 1);
+            connect(demod, 0, agc, 0);
+            connect(demod, 1, agc, 1);
         }
         else
         {
-            connect(demod, 0, self(), 0);
-            connect(demod, 0, self(), 1);
+            connect(demod, 0, agc, 0);
+            connect(demod, 0, agc, 1);
         }
     }
 }
