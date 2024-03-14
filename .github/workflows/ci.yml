@@ -10,6 +10,7 @@ jobs:
         image:
           - "ubuntu:20.04"
           - "ubuntu:22.04"
+          - "ubuntu:24.04"
         backend:
           - Pulseaudio
           - Portaudio
@@ -36,13 +37,13 @@ jobs:
             appstream \
             desktop-file-utils
       - name: Install Qt5
-        if: matrix.image != 'ubuntu:22.04'
+        if: matrix.image == 'ubuntu:20.04'
         run: |
           apt-get install -y \
             qt5-default \
             libqt5svg5-dev
       - name: Install Qt6
-        if: matrix.image == 'ubuntu:22.04'
+        if: matrix.image != 'ubuntu:20.04'
         run: |
           apt-get install -y \
             qt6-base-dev \
@@ -60,10 +61,8 @@ jobs:
         working-directory: build
         run: make -j4
       - name: Validate desktop entry
-        if: matrix.image != 'ubuntu:18.04'
         run: desktop-file-validate dk.gqrx.gqrx.desktop
       - name: Validate appstream metadata
-        if: matrix.image != 'ubuntu:18.04'
         run: appstreamcli validate dk.gqrx.gqrx.appdata.xml
   macos-build:
     name: MacOS CI
