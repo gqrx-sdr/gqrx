@@ -193,80 +193,82 @@ void RemoteControl::acceptConnection()
  */
 void RemoteControl::startRead()
 {
-    char    buffer[1024] = {0};
-    int     bytes_read;
-    QString answer = "";
+    while (rc_socket->canReadLine()) {
+        char    buffer[1024] = {0};
+        int     bytes_read;
+        QString answer = "";
 
-    bytes_read = rc_socket->readLine(buffer, 1024);
-    if (bytes_read < 2)  // command + '\n'
-        return;
+        bytes_read = rc_socket->readLine(buffer, 1024);
+        if (bytes_read < 2)  // command + '\n'
+            continue;
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-    QStringList cmdlist = QString(buffer).trimmed().split(" ", QString::SkipEmptyParts);
+        QStringList cmdlist = QString(buffer).trimmed().split(" ", QString::SkipEmptyParts);
 #else
-    QStringList cmdlist = QString(buffer).trimmed().split(" ", Qt::SkipEmptyParts);
+        QStringList cmdlist = QString(buffer).trimmed().split(" ", Qt::SkipEmptyParts);
 #endif
 
-    if (cmdlist.size() == 0)
-        return;
+        if (cmdlist.size() == 0)
+            continue;
 
-    QString cmd = cmdlist[0];
-    if (cmd == "f")
-        answer = cmd_get_freq();
-    else if (cmd == "F")
-        answer = cmd_set_freq(cmdlist);
-    else if (cmd == "m")
-        answer = cmd_get_mode();
-    else if (cmd == "M")
-        answer = cmd_set_mode(cmdlist);
-    else if (cmd == "l")
-        answer = cmd_get_level(cmdlist);
-    else if (cmd == "L")
-        answer = cmd_set_level(cmdlist);
-    else if (cmd == "u")
-        answer = cmd_get_func(cmdlist);
-    else if (cmd == "U")
-        answer = cmd_set_func(cmdlist);
-    else if (cmd == "v")
-        answer = cmd_get_vfo();
-    else if (cmd == "V")
-        answer = cmd_set_vfo(cmdlist);
-    else if (cmd == "s")
-        answer = cmd_get_split_vfo();
-    else if (cmd == "S")
-        answer = cmd_set_split_vfo();
-    else if (cmd == "p")
-        answer = cmd_get_param(cmdlist);
-    else if (cmd == "_")
-        answer = cmd_get_info();
-    else if (cmd == "AOS")
-        answer = cmd_AOS();
-    else if (cmd == "LOS")
-        answer = cmd_LOS();
-    else if (cmd == "LNB_LO")
-        answer = cmd_lnb_lo(cmdlist);
-    else if (cmd == "\\chk_vfo")
-        answer = QString("0\n");
-    else if (cmd == "\\dump_state")
-        answer = cmd_dump_state();
-    else if (cmd == "\\get_powerstat")
-        answer = QString("1\n");
-    else if (cmd == "q" || cmd == "Q")
-    {
-        // FIXME: for now we assume 'close' command
-        rc_socket->close();
-        rc_socket->deleteLater();
-        rc_socket = 0;
-        return;
-    }
-    else
-    {
-        // print unknown command and respond with an error
-        qWarning() << "Unknown remote command:" << cmdlist;
-        answer = QString("RPRT 1\n");
-    }
+        QString cmd = cmdlist[0];
+        if (cmd == "f")
+            answer = cmd_get_freq();
+        else if (cmd == "F")
+            answer = cmd_set_freq(cmdlist);
+        else if (cmd == "m")
+            answer = cmd_get_mode();
+        else if (cmd == "M")
+            answer = cmd_set_mode(cmdlist);
+        else if (cmd == "l")
+            answer = cmd_get_level(cmdlist);
+        else if (cmd == "L")
+            answer = cmd_set_level(cmdlist);
+        else if (cmd == "u")
+            answer = cmd_get_func(cmdlist);
+        else if (cmd == "U")
+            answer = cmd_set_func(cmdlist);
+        else if (cmd == "v")
+            answer = cmd_get_vfo();
+        else if (cmd == "V")
+            answer = cmd_set_vfo(cmdlist);
+        else if (cmd == "s")
+            answer = cmd_get_split_vfo();
+        else if (cmd == "S")
+            answer = cmd_set_split_vfo();
+        else if (cmd == "p")
+            answer = cmd_get_param(cmdlist);
+        else if (cmd == "_")
+            answer = cmd_get_info();
+        else if (cmd == "AOS")
+            answer = cmd_AOS();
+        else if (cmd == "LOS")
+            answer = cmd_LOS();
+        else if (cmd == "LNB_LO")
+            answer = cmd_lnb_lo(cmdlist);
+        else if (cmd == "\\chk_vfo")
+            answer = QString("0\n");
+        else if (cmd == "\\dump_state")
+            answer = cmd_dump_state();
+        else if (cmd == "\\get_powerstat")
+            answer = QString("1\n");
+        else if (cmd == "q" || cmd == "Q")
+        {
+            // FIXME: for now we assume 'close' command
+            rc_socket->close();
+            rc_socket->deleteLater();
+            rc_socket = 0;
+            return;
+        }
+        else
+        {
+            // print unknown command and respond with an error
+            qWarning() << "Unknown remote command:" << cmdlist;
+            answer = QString("RPRT 1\n");
+        }
 
-    rc_socket->write(answer.toLatin1());
+        rc_socket->write(answer.toLatin1());
+    }
 }
 
 /*! \brief Slot called when the receiver is tuned to a new frequency.
