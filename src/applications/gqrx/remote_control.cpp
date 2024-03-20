@@ -21,6 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <cmath>
+#include <cstddef>
 #include <cstdlib>
 #include <iostream>
 #include <QString>
@@ -55,6 +56,13 @@ RemoteControl::RemoteControl(QObject *parent) :
     rc_allowed_hosts.append(DEFAULT_RC_ALLOWED_HOSTS);
 
     rc_socket = 0;
+
+    // initialize snr_map
+    snr_map.begin = 1;
+    snr_map.step = 12500;
+    snr_map.size = MAP_ELEMENTS;
+    std::fill_n(snr_map.snr, MAP_ELEMENTS, 0.0);
+    snr_map.end = '\0';
 
     connect(&rc_server, SIGNAL(newConnection()), this, SLOT(acceptConnection()));
 }
@@ -250,6 +258,8 @@ void RemoteControl::startRead()
             answer = QString("0\n");
         else if (cmd == "\\dump_state")
             answer = cmd_dump_state();
+        else if (cmd == "\\dump_map")
+            answer = cmd_dump_map();
         else if (cmd == "\\get_powerstat")
             answer = QString("1\n");
         else if (cmd == "q" || cmd == "Q")
@@ -266,8 +276,6 @@ void RemoteControl::startRead()
             qWarning() << "Unknown remote command:" << cmdlist;
             answer = QString("RPRT 1\n");
         }
-
-        rc_socket->write(answer.toLatin1());
     }
 }
 
@@ -902,12 +910,28 @@ QString RemoteControl::cmd_lnb_lo(QStringList cmdlist)
     }
 }
 
+// Dump signal to noise ratio map
+// \dump_map
+QString RemoteControl::cmd_dump_map() const
+{
+    QString answer;
+
+    answer.append(QString("%1\n").arg(snr_map.begin));
+    answer.append(QString("%1\n").arg(snr_map.step));
+    answer.append(QString("%1\n").arg(snr_map.size));
+    for (size_t i = 0; i < snr_map.size; i++)
+        answer.append(QString("%1\n").arg((double)snr_map.snr[i], 0, 'f', 1));
+
+    return answer;
+}
+
 /*
  * '\dump_state' used by hamlib clients, e.g. xdx, fldigi, rigctl and etc
  * More info:
  *  https://github.com/N0NB/hamlib/blob/master/include/hamlib/rig.h (bit fields)
  *  https://github.com/N0NB/hamlib/blob/master/dummy/netrigctl.c
  */
+
 QString RemoteControl::cmd_dump_state() const
 {
     return QString(
