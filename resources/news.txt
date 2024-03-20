@@ -3,6 +3,7 @@
 
        NEW: PlutoSDR and LimeSDR support in AppImage release, via SoapySDR.
   IMPROVED: Updated GNU Radio, SDR driver, and Qt versions in AppImage release.
+     FIXED: Respond correctly to pipelined remote control commands.
    REMOVED: FreeSRP support in AppImage release.
 
 
