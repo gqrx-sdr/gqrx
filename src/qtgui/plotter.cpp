@@ -1533,10 +1533,10 @@ void CPlotter::draw(bool newData)
             const qreal ixPlot = (qreal)ix;
             const qreal yMaxD = (qreal)std::max(std::min(
                 panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMaxBuf[ix])),
-                (float)plotHeight), 0.0f);
+                (float)plotHeight - 1.0f), 0.0f);
             const qreal yAvgD = (qreal)std::max(std::min(
                 panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftAvgBuf[ix])),
-                (float)plotHeight), 0.0f);
+                (float)plotHeight - 1.0f), 0.0f);
 
             if (m_PlotMode == PLOT_MODE_HISTOGRAM)
             {
@@ -1605,7 +1605,7 @@ void CPlotter::draw(bool newData)
                 const qreal ixPlot = (qreal)ix;
                 const qreal yMaxHoldD = (qreal)std::max(std::min(
                     panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMaxHoldBuf[ix])),
-                    (float)plotHeight), 0.0f);
+                    (float)plotHeight - 1.0f), 0.0f);
                 maxLineBuf[i] = QPointF(ixPlot, yMaxHoldD);
             }
             // NOT scaling to DPR due to performance
@@ -1625,7 +1625,7 @@ void CPlotter::draw(bool newData)
                 const qreal ixPlot = (qreal)ix;
                 const qreal yMinHoldD = (qreal)std::max(std::min(
                     panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMinHoldBuf[ix])),
-                    (float)plotHeight), 0.0f);
+                    (float)plotHeight - 1.0f), 0.0f);
                 maxLineBuf[i] = QPointF(ixPlot, yMinHoldD);
             }
             // NOT scaling to DPR due to performance
@@ -1675,7 +1675,7 @@ void CPlotter::draw(bool newData)
                     {
                         const qreal y = (qreal)std::max(std::min(
                             panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(vi)),
-                            (float)plotHeight - 0.0f), 0.0f);
+                            (float)plotHeight - 1.0f), 0.0f);
                         m_Peaks[ix] = y;
                     }
                 }
@@ -1699,7 +1699,7 @@ void CPlotter::draw(bool newData)
                     {
                         const qreal y = (qreal)std::max(std::min(
                             panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(vi)),
-                            (float)plotHeight - 0.0f), 0.0f);
+                            (float)plotHeight - 1.0f), 0.0f);
 
                         // Show the wider peak only if there is no very close narrow peak
                         bool found = false;
