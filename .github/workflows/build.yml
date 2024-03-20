@@ -267,6 +267,28 @@ jobs:
           -DINSTALL_UDEV_RULES=OFF
         cmake --build build
         cmake --install build
+    - name: Clone and build airspyone_host
+      working-directory: ${{ runner.temp }}
+      run: |
+        git clone https://github.com/airspy/airspyone_host.git
+        cd airspyone_host
+        cmake -S . -B build \
+          -G "MinGW Makefiles" \
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64
+        cmake --build build
+        cmake --install build
+    - name: Clone and build airspyhf
+      working-directory: ${{ runner.temp }}
+      run: |
+        git clone https://github.com/airspy/airspyhf.git
+        cd airspyhf
+        cmake -S . -B build \
+          -G "MSYS Makefiles" \
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
+          -DTHREADS_PTHREADS_INCLUDE_DIR=${RUNNER_TEMP}/msys64/mingw64/include \
+          -DTHREADS_PTHREADS_WIN32_LIBRARY=${RUNNER_TEMP}/msys64/mingw64/lib/libpthread.a
+        cmake --build build
+        cmake --install build
     - name: Clone and build gr-osmosdr
       working-directory: ${{ runner.temp }}
       run: |
@@ -276,6 +298,8 @@ jobs:
           -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
           -DCMAKE_BUILD_TYPE=Release \
           -DENABLE_DEFAULT=OFF \
+          -DENABLE_AIRSPY=ON \
+          -DENABLE_AIRSPYHF=ON \
           -DENABLE_FILE=ON \
           -DENABLE_REDPITAYA=ON \
           -DENABLE_RTL=ON \
@@ -301,6 +325,8 @@ jobs:
       run: |
         windeployqt6 C:/gqrx/bin/gqrx.exe
         cp \
+          libairspy.dll \
+          libairspyhf.dll \
           libb2-1.dll \
           libboost_program_options-mt.dll \
           libboost_thread-mt.dll \

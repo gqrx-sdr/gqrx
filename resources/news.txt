@@ -2,6 +2,7 @@
     2.17.5: In progress...
 
        NEW: PlutoSDR and LimeSDR support in AppImage release, via SoapySDR.
+       NEW: Airspy support in Windows binary release.
   IMPROVED: Updated GNU Radio, SDR driver, and Qt versions in AppImage release.
      FIXED: Respond correctly to pipelined remote control commands.
    REMOVED: FreeSRP support in AppImage release.
