@@ -237,7 +237,7 @@ jobs:
     - name: Clone and build GNU Radio
       working-directory: ${{ runner.temp }}
       run: |
-        git clone --branch fix-string-convert --depth 1 https://github.com/argilo/gnuradio.git
+        git clone --branch fix-audio-warnings --depth 1 https://github.com/argilo/gnuradio.git
         cd gnuradio
         cmake -S . -B build \
           -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
