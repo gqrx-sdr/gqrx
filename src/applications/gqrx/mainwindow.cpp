@@ -249,16 +249,17 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockRxOpt, SIGNAL(amSyncDcrToggled(bool)), this, SLOT(setAmSyncDcr(bool)));
     connect(uiDockRxOpt, SIGNAL(amSyncPllBwSelected(float)), this, SLOT(setAmSyncPllBw(float)));
     connect(uiDockRxOpt, SIGNAL(agcToggled(bool)), this, SLOT(setAgcOn(bool)));
-    connect(uiDockRxOpt, SIGNAL(agcHangToggled(bool)), this, SLOT(setAgcHang(bool)));
-    connect(uiDockRxOpt, SIGNAL(agcThresholdChanged(int)), this, SLOT(setAgcThreshold(int)));
-    connect(uiDockRxOpt, SIGNAL(agcSlopeChanged(int)), this, SLOT(setAgcSlope(int)));
-    connect(uiDockRxOpt, SIGNAL(agcGainChanged(int)), this, SLOT(setAgcGain(int)));
+    connect(uiDockRxOpt, SIGNAL(agcTargetLevelChanged(int)), this, SLOT(setAgcTargetLevel(int)));
+    connect(uiDockRxOpt, SIGNAL(agcMaxGainChanged(int)), this, SLOT(setAgcMaxGain(int)));
+    connect(uiDockRxOpt, SIGNAL(agcAttackChanged(int)), this, SLOT(setAgcAttack(int)));
     connect(uiDockRxOpt, SIGNAL(agcDecayChanged(int)), this, SLOT(setAgcDecay(int)));
+    connect(uiDockRxOpt, SIGNAL(agcHangChanged(int)), this, SLOT(setAgcHang(int)));
     connect(uiDockRxOpt, SIGNAL(noiseBlankerChanged(int,bool,float)), this, SLOT(setNoiseBlanker(int,bool,float)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
     connect(uiDockRxOpt, SIGNAL(sqlAutoClicked()), this, SLOT(setSqlLevelAuto()));
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), remote, SLOT(setAudioGain(float)));
+    connect(uiDockAudio, SIGNAL(audioMuteChanged(bool)), this, SLOT(setAudioMute(bool)));
     connect(uiDockAudio, SIGNAL(audioStreamingStarted(QString,int,bool)), this, SLOT(startAudioStream(QString,int,bool)));
     connect(uiDockAudio, SIGNAL(audioStreamingStopped()), this, SLOT(stopAudioStreaming()));
     connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), this, SLOT(startAudioRec(QString)));
@@ -335,7 +336,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(remote, SIGNAL(newMode(int)), uiDockRxOpt, SLOT(setCurrentDemod(int)));
     connect(remote, SIGNAL(newSquelchLevel(double)), this, SLOT(setSqlLevel(double)));
     connect(remote, SIGNAL(newSquelchLevel(double)), uiDockRxOpt, SLOT(setSquelchLevel(double)));
-    connect(remote, SIGNAL(newAudioGain(float)), uiDockAudio, SLOT(setAudioGainDb(float)));
+    connect(remote, SIGNAL(newAudioGain(float)), this, SLOT(setAudioGain(float)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), remote, SLOT(setSquelchLevel(double)));
     connect(remote, SIGNAL(startAudioRecorderEvent()), uiDockAudio, SLOT(startAudioRecorder()));
     connect(remote, SIGNAL(stopAudioRecorderEvent()), uiDockAudio, SLOT(stopAudioRecorder()));
@@ -1305,6 +1306,15 @@ void MainWindow::selectDemod(int mode_idx)
     rx->set_cw_offset(cwofs);
     rx->set_sql_level(uiDockRxOpt->currentSquelchLevel());
 
+    //Call wrapper to update enable/disabled state
+    setAgcOn(uiDockRxOpt->getAgcOn());
+    rx->set_agc_target_level(uiDockRxOpt->getAgcTargetLevel());
+    rx->set_agc_manual_gain(uiDockAudio->audioGain() / 10.0);
+    rx->set_agc_max_gain(uiDockRxOpt->getAgcMaxGain());
+    rx->set_agc_attack(uiDockRxOpt->getAgcAttack());
+    rx->set_agc_decay(uiDockRxOpt->getAgcDecay());
+    rx->set_agc_hang(uiDockRxOpt->getAgcHang());
+
     remote->setMode(mode_idx);
     remote->setPassband(flo, fhi);
 
@@ -1381,37 +1391,47 @@ void MainWindow::setAmSyncPllBw(float pll_bw)
  */
 void MainWindow::setAudioGain(float value)
 {
-    rx->set_af_gain(value);
+    rx->set_agc_manual_gain(value);
+}
+
+/**
+ * @brief Audio mute changed.
+ * @param mute New state.
+ */
+void MainWindow::setAudioMute(bool mute)
+{
+    rx->set_mute(mute);
 }
 
 /** Set AGC ON/OFF. */
 void MainWindow::setAgcOn(bool agc_on)
 {
     rx->set_agc_on(agc_on);
+    uiDockAudio->setGainEnabled(!agc_on);
 }
 
 /** AGC hang ON/OFF. */
-void MainWindow::setAgcHang(bool use_hang)
+void MainWindow::setAgcHang(int hang)
 {
-    rx->set_agc_hang(use_hang);
+    rx->set_agc_hang(hang);
 }
 
 /** AGC threshold changed. */
-void MainWindow::setAgcThreshold(int threshold)
+void MainWindow::setAgcTargetLevel(int targetLevel)
 {
-    rx->set_agc_threshold(threshold);
+    rx->set_agc_target_level(targetLevel);
 }
 
 /** AGC slope factor changed. */
-void MainWindow::setAgcSlope(int factor)
+void MainWindow::setAgcAttack(int attack)
 {
-    rx->set_agc_slope(factor);
+    rx->set_agc_attack(attack);
 }
 
-/** AGC manual gain changed. */
-void MainWindow::setAgcGain(int gain)
+/** AGC maximum gain changed. */
+void MainWindow::setAgcMaxGain(int gain)
 {
-    rx->set_agc_manual_gain(gain);
+    rx->set_agc_max_gain(gain);
 }
 
 /** AGC decay changed. */
@@ -1467,6 +1487,10 @@ void MainWindow::meterTimeout()
     level = rx->get_signal_pwr();
     ui->sMeter->setLevel(level);
     remote->setSignalLevel(level);
+    if(uiDockRxOpt->getAgcOn())
+    {
+        uiDockAudio->setAudioGain(rx->get_agc_gain() * 10.f);
+    }
 }
 
 /** Baseband FFT plot timeout. */
