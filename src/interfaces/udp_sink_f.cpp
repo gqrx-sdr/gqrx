@@ -59,13 +59,11 @@ udp_sink_f::udp_sink_f()
 
     d_f2s = gr::blocks::float_to_short::make(1, 32767);
 #if GNURADIO_VERSION < 0x031000
-#ifdef GQRX_OS_MACX
-    // There seems to be excessive packet loss (even to localhost) on OS X
-    // unless the buffer size is limited.
-    d_sink = gr::blocks::udp_sink::make(sizeof(short), "localhost", 7355, 512);
-#else
-    d_sink = gr::blocks::udp_sink::make(sizeof(short), "localhost", 7355);
-#endif
+    // nc is used widely for receiving UDP streams and some versions of nc,
+    // notably on MacOS, use a 1024 byte buffer so we need to make sure we
+    // don't send packets that are larger than that, otherwise data will be
+    // lost.
+    d_sink = gr::blocks::udp_sink::make(sizeof(short), "localhost", 7355, 1024);
     d_sink->disconnect();
 #endif
 
@@ -96,11 +94,7 @@ void udp_sink_f::start_streaming(const std::string host, int port, bool stereo)
     std::cout << (stereo ? "Stereo" : "Mono") << std::endl;
 
 #if GNURADIO_VERSION >= 0x031000
-#ifdef GQRX_OS_MACX
-    d_sink = gr::network::udp_sink::make(sizeof(short), 1, host, port, HEADERTYPE_NONE, 512, true);
-#else
-    d_sink = gr::network::udp_sink::make(sizeof(short), 1, host, port, HEADERTYPE_NONE, 1448, true);
-#endif
+    d_sink = gr::network::udp_sink::make(sizeof(short), 1, host, port, HEADERTYPE_NONE, 1024, true);
 #endif
 
     if (stereo)
