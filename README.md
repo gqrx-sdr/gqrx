@@ -200,6 +200,7 @@ The following people and organisations have contributed to gqrx:
 * Dominic Chen
 * Doron Behar
 * Doug Hammond
+* Edouard Lafargue
 * Elias Önal
 * Federico Fuga
 * Frank Brickle, AB2KT
