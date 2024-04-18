@@ -5,6 +5,7 @@
        NEW: Airspy support in Windows binary release.
   IMPROVED: Updated GNU Radio, SDR driver, and Qt versions in AppImage release.
      FIXED: Respond correctly to pipelined remote control commands.
+     FIXED: Limit UDP packet size to 1024, for compatibility with netcat.
    REMOVED: FreeSRP support in AppImage release.
 
 
