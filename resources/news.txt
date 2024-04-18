@@ -1,5 +1,5 @@
 
-    2.17.5: In progress...
+    2.17.5: Released April 18, 2024
 
        NEW: PlutoSDR and LimeSDR support in AppImage release, via SoapySDR.
        NEW: Airspy support in Windows binary release.
