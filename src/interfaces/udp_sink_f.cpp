@@ -96,7 +96,11 @@ void udp_sink_f::start_streaming(const std::string host, int port, bool stereo)
     std::cout << (stereo ? "Stereo" : "Mono") << std::endl;
 
 #if GNURADIO_VERSION >= 0x031000
+#ifdef GQRX_OS_MACX
+    d_sink = gr::network::udp_sink::make(sizeof(short), 1, host, port, HEADERTYPE_NONE, 512, true);
+#else
     d_sink = gr::network::udp_sink::make(sizeof(short), 1, host, port, HEADERTYPE_NONE, 1448, true);
+#endif
 #endif
 
     if (stereo)
