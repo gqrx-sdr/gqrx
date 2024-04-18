@@ -51,6 +51,12 @@ static const int MAX_IN = 2;  /*!< Maximum number of input streams. */
 static const int MIN_OUT = 0; /*!< Minimum number of output streams. */
 static const int MAX_OUT = 0; /*!< Maximum number of output streams. */
 
+// nc is used widely for receiving UDP streams and some versions of nc,
+// notably on MacOS, use a 1024 byte buffer so we need to make sure we
+// don't send packets that are larger than that, otherwise data will be
+// lost.
+static const int PAYLOAD_SIZE = 1024;
+
 udp_sink_f::udp_sink_f()
     : gr::hier_block2("udp_sink_f",
                       gr::io_signature::make(MIN_IN, MAX_IN, sizeof(float)),
@@ -59,11 +65,7 @@ udp_sink_f::udp_sink_f()
 
     d_f2s = gr::blocks::float_to_short::make(1, 32767);
 #if GNURADIO_VERSION < 0x031000
-    // nc is used widely for receiving UDP streams and some versions of nc,
-    // notably on MacOS, use a 1024 byte buffer so we need to make sure we
-    // don't send packets that are larger than that, otherwise data will be
-    // lost.
-    d_sink = gr::blocks::udp_sink::make(sizeof(short), "localhost", 7355, 1024);
+    d_sink = gr::blocks::udp_sink::make(sizeof(short), "localhost", 7355, PAYLOAD_SIZE);
     d_sink->disconnect();
 #endif
 
@@ -94,7 +96,7 @@ void udp_sink_f::start_streaming(const std::string host, int port, bool stereo)
     std::cout << (stereo ? "Stereo" : "Mono") << std::endl;
 
 #if GNURADIO_VERSION >= 0x031000
-    d_sink = gr::network::udp_sink::make(sizeof(short), 1, host, port, HEADERTYPE_NONE, 1024, true);
+    d_sink = gr::network::udp_sink::make(sizeof(short), 1, host, port, HEADERTYPE_NONE, PAYLOAD_SIZE, true);
 #endif
 
     if (stereo)
