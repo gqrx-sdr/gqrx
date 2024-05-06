@@ -107,20 +107,45 @@ void DockBookmarks::activated(const QModelIndex & index)
     emit newBookmarkActivated(info->frequency, info->modulation, info->bandwidth);
 }
 
-void DockBookmarks::setNewFrequency(qint64 rx_freq)
+void DockBookmarks::newFrequencyOrModSet(qint64 rx_freq, int modulation)
 {
     ui->tableViewFrequencyList->clearSelection();
     const int iRowCount = bookmarksTableModel->rowCount();
+    bool modMatch = false;
+    qint64 freqGap = -1;
+    int rowIndex = -1;;
     for (int row = 0; row < iRowCount; ++row)
     {
         BookmarkInfo& info = *(bookmarksTableModel->getBookmarkAtRow(row));
-        if (std::abs(rx_freq - info.frequency) <= ((info.bandwidth / 2 ) + 1))
+        auto tmpFreqGap = std::abs(rx_freq - info.frequency);
+        auto tmpModMatch = (info.modulation == DockRxOpt::GetStringForModulationIndex(modulation));
+        // Already have a bookmark where modulation matches and this one doesn't
+        if (modMatch && !tmpModMatch)
         {
-            ui->tableViewFrequencyList->selectRow(row);
-            ui->tableViewFrequencyList->scrollTo(ui->tableViewFrequencyList->currentIndex(), QAbstractItemView::EnsureVisible );
-            break;
+            continue;
         }
+        // Current frequency is outside the bookmark bandwith
+        if (tmpFreqGap > ((info.bandwidth / 2 ) + 1))
+        {
+            continue;
+        }
+        // Bookmark has same modulation matching but hasn't closer frequency
+        if ((modMatch == tmpModMatch) && freqGap >= 0 && tmpFreqGap >= freqGap)
+        {
+            continue;
+        }
+        // All in all the bookmark is a better match
+        freqGap = tmpFreqGap;
+        modMatch = tmpModMatch;
+        rowIndex = row;
     }
+
+    if (rowIndex >= 0)
+    {
+        ui->tableViewFrequencyList->selectRow(rowIndex);
+        ui->tableViewFrequencyList->scrollTo(ui->tableViewFrequencyList->currentIndex(), QAbstractItemView::EnsureVisible );
+    }
+
     m_currentFrequency = rx_freq;
 }
 
