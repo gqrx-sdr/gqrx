@@ -1531,12 +1531,8 @@ void CPlotter::draw(bool newData)
         {
             const int ix = i + xmin;
             const qreal ixPlot = (qreal)ix;
-            const qreal yMaxD = (qreal)std::max(std::min(
-                panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMaxBuf[ix])),
-                (float)plotHeight), 0.0f);
-            const qreal yAvgD = (qreal)std::max(std::min(
-                panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftAvgBuf[ix])),
-                (float)plotHeight), 0.0f);
+            const qreal yMaxD = (qreal)(panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMaxBuf[ix])));
+            const qreal yAvgD = (qreal)(panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftAvgBuf[ix])));
 
             if (m_PlotMode == PLOT_MODE_HISTOGRAM)
             {
@@ -1603,9 +1599,7 @@ void CPlotter::draw(bool newData)
             {
                 const int ix = i + xmin;
                 const qreal ixPlot = (qreal)ix;
-                const qreal yMaxHoldD = (qreal)std::max(std::min(
-                    panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMaxHoldBuf[ix])),
-                    (float)plotHeight), 0.0f);
+                const qreal yMaxHoldD = (qreal)(panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMaxHoldBuf[ix])));
                 maxLineBuf[i] = QPointF(ixPlot, yMaxHoldD);
             }
             // NOT scaling to DPR due to performance
@@ -1623,9 +1617,7 @@ void CPlotter::draw(bool newData)
             {
                 const int ix = i + xmin;
                 const qreal ixPlot = (qreal)ix;
-                const qreal yMinHoldD = (qreal)std::max(std::min(
-                    panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMinHoldBuf[ix])),
-                    (float)plotHeight), 0.0f);
+                const qreal yMinHoldD = (qreal)(panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMinHoldBuf[ix])));
                 maxLineBuf[i] = QPointF(ixPlot, yMinHoldD);
             }
             // NOT scaling to DPR due to performance
@@ -1673,9 +1665,7 @@ void CPlotter::draw(bool newData)
                     m_peakSmoothBuf[ix] = avgV;
                     if (vi == maxV && (vi > 2.0f * avgV) && (vi > 4.0f * minV))
                     {
-                        const qreal y = (qreal)std::max(std::min(
-                            panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(vi)),
-                            (float)plotHeight - 0.0f), 0.0f);
+                        const qreal y = (qreal)(panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(vi)));
                         m_Peaks[ix] = y;
                     }
                 }
@@ -1697,9 +1687,7 @@ void CPlotter::draw(bool newData)
                     const float avgV = sumV / (float)(pw2 * 2);
                     if (vi == maxV && (vi > 2.0f * avgV) && (vi > 4.0f * minV))
                     {
-                        const qreal y = (qreal)std::max(std::min(
-                            panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(vi)),
-                            (float)plotHeight - 0.0f), 0.0f);
+                        const qreal y = (qreal)(panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(vi)));
 
                         // Show the wider peak only if there is no very close narrow peak
                         bool found = false;
