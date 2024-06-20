@@ -176,11 +176,8 @@ Qt::ItemFlags BookmarksTableModel::flags ( const QModelIndex& index ) const
     case COL_NAME:
     case COL_BANDWIDTH:
     case COL_MODULATION:
-        flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
-        break;
     case COL_TAGS:
-        flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-        break;
+        flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
     }
     return flags;
 }
@@ -214,12 +211,12 @@ void BookmarksTableModel::update()
     emit layoutChanged();
 }
 
-BookmarkInfo *BookmarksTableModel::getBookmarkAtRow(int row)
+BookmarkInfo *BookmarksTableModel::getBookmarkAtRow(int row) const
 {
     return m_Bookmarks[row];
 }
 
-int BookmarksTableModel::GetBookmarksIndexForRow(int iRow)
+int BookmarksTableModel::GetBookmarksIndexForRow(int iRow) const
 {
   return m_mapRowToBookmarksIndex[iRow];
 }
