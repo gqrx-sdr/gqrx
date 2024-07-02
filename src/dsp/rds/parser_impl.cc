@@ -66,7 +66,7 @@ void parser_impl::reset() {
 	mono_stereo                    = false;
 	artificial_head                = false;
 	compressed                     = false;
-	static_pty                     = false;
+	dynamic_pty                    = false;
 }
 
 /* type 0 = PI
@@ -103,16 +103,16 @@ void parser_impl::decode_type0(unsigned int *group, bool B) {
 	/* see page 41, table 9 of the standard */
 	switch (segment_address) {
 		case 0:
-			mono_stereo=decoder_control_bit;
+			dynamic_pty=decoder_control_bit;
 		break;
 		case 1:
-			artificial_head=decoder_control_bit;
-		break;
-		case 2:
 			compressed=decoder_control_bit;
 		break;
+		case 2:
+			artificial_head=decoder_control_bit;
+		break;
 		case 3:
-			static_pty=decoder_control_bit;
+			mono_stereo=decoder_control_bit;
 		break;
 		default:
 		break;
@@ -123,7 +123,7 @@ void parser_impl::decode_type0(unsigned int *group, bool B) {
 	flagstring[3] = mono_stereo            ? '1' : '0';
 	flagstring[4] = artificial_head        ? '1' : '0';
 	flagstring[5] = compressed             ? '1' : '0';
-	flagstring[6] = static_pty             ? '1' : '0';
+	flagstring[6] = dynamic_pty            ? '1' : '0';
 	static std::string af_string;
 
 	if(!B) { // type 0A
