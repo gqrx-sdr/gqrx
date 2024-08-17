@@ -70,11 +70,11 @@ void DockRDS::updateRDS(QString text, int type)
         if (str.at(1) == '1') out.append("TA ");
         if (str.at(2) == '0') out.append("Speech ");
         if (str.at(2) == '1') out.append("Music ");
-        if (str.at(3) == '0') out.append("Stereo ");
-        if (str.at(3) == '1') out.append("Mono ");
+        if (str.at(3) == '1') out.append("Stereo ");
+        if (str.at(3) == '0') out.append("Mono ");
         if (str.at(4) == '1') out.append("AH ");
         if (str.at(5) == '1') out.append("CMP ");
-        if (str.at(6) == '1') out.append("stPTY ");
+        if (str.at(6) == '0') out.append("stPTY ");
         ui->flags->setText(QString::fromStdString(out));
         break;
     case 4:

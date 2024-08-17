@@ -68,7 +68,7 @@ private:
 	bool           mono_stereo;
 	bool           artificial_head;
 	bool           compressed;
-	bool           static_pty;
+	bool           dynamic_pty;
 	bool           log;
 	bool           debug;
 	unsigned char  pty_locale;
