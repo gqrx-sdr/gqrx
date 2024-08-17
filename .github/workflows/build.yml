@@ -346,9 +346,9 @@ jobs:
           libgraphite2.dll \
           libharfbuzz-0.dll \
           libiconv-2.dll \
-          libicudt74.dll \
-          libicuin74.dll \
-          libicuuc74.dll \
+          libicudt75.dll \
+          libicuin75.dll \
+          libicuuc75.dll \
           libintl-8.dll \
           libmd4c.dll \
           libmp3lame-0.dll \
