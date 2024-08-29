@@ -590,6 +590,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
     if (conv_ok && (int_val > 0))
     {
         actual_rate = rx->set_input_rate(int_val);
+        remote->populate_input_rate(int_val);
 
         if (actual_rate == 0)
         {
@@ -910,6 +911,7 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
     uiDockRxOpt->setHwFreq(d_hw_freq);
     ui->freqCtrl->setFrequency(rx_freq);
     uiDockBookmarks->setNewFrequency(rx_freq);
+    remote->populate_frequency(center_freq);
 }
 
 // Update delta and center (of marker span) when markers are updated
@@ -1505,6 +1507,8 @@ void MainWindow::iqFftTimeout()
 
     if (rx->get_iq_fft_data(d_iqFftData.data()) >= 0)
         ui->plotter->setNewFftData(d_iqFftData.data(), fftsize);
+
+    remote->populate_map(&d_iqFftData);
 }
 
 /** Audio FFT plot timeout. */
@@ -1771,6 +1775,7 @@ void MainWindow::stopIqPlayback()
     if (conv_ok && (sr > 0))
     {
         auto actual_rate = rx->set_input_rate(sr);
+        remote->populate_input_rate(sr);
         qDebug() << "Requested sample rate:" << sr;
         qDebug() << "Actual sample rate   :" << QString("%1")
                     .arg(actual_rate, 0, 'f', 6);

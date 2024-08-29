@@ -54,6 +54,8 @@ Supported commands:
     Get VFO option status (only usable for hamlib compatibility)
  \dump_state
     Dump state (only usable for hamlib compatibility)
+ \dump_fft
+    Dump fft map (Current hardware frequency, input rate, size of a fft array and fft values themself)
  \get_powerstat
     Get power status (only usable for hamlib compatibility)
  v
