@@ -108,11 +108,11 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
 
     // AGC options dialog
     agcOpt = new CAgcOptions(this);
-    connect(agcOpt, SIGNAL(gainChanged(int)), this, SLOT(agcOpt_gainChanged(int)));
-    connect(agcOpt, SIGNAL(thresholdChanged(int)), this, SLOT(agcOpt_thresholdChanged(int)));
+    connect(agcOpt, SIGNAL(maxGainChanged(int)), this, SLOT(agcOpt_maxGainChanged(int)));
+    connect(agcOpt, SIGNAL(targetLevelChanged(int)), this, SLOT(agcOpt_targetLevelChanged(int)));
+    connect(agcOpt, SIGNAL(attackChanged(int)), this, SLOT(agcOpt_attackChanged(int)));
     connect(agcOpt, SIGNAL(decayChanged(int)), this, SLOT(agcOpt_decayChanged(int)));
-    connect(agcOpt, SIGNAL(slopeChanged(int)), this, SLOT(agcOpt_slopeChanged(int)));
-    connect(agcOpt, SIGNAL(hangChanged(bool)), this, SLOT(agcOpt_hangToggled(bool)));
+    connect(agcOpt, SIGNAL(hangChanged(int)), this, SLOT(agcOpt_hangChanged(int)));
 
     // Noise blanker options
     nbOpt = new CNbOptions(this);
@@ -400,6 +400,37 @@ int DockRxOpt::getCwOffset() const
     return demodOpt->getCwOffset();
 }
 
+/** Get agc settings */
+bool DockRxOpt::getAgcOn()
+{
+    return agc_is_on;
+}
+
+int DockRxOpt::getAgcTargetLevel()
+{
+    return agcOpt->targetLevel();
+}
+
+int DockRxOpt::getAgcMaxGain()
+{
+    return agcOpt->maxGain();
+}
+
+int DockRxOpt::getAgcAttack()
+{
+    return agcOpt->attack();
+}
+
+int DockRxOpt::getAgcDecay()
+{
+    return agcOpt->decay();
+}
+
+int DockRxOpt::getAgcHang()
+{
+    return agcOpt->hang();
+}
+
 /** Read receiver configuration from settings data. */
 void DockRxOpt::readSettings(QSettings *settings)
 {
@@ -431,10 +462,17 @@ void DockRxOpt::readSettings(QSettings *settings)
         ui->sqlSpinBox->setValue(dbl_val);
 
     // AGC settings
+    //TODO: cleanup config
+    #if 0
     int_val = settings->value("receiver/agc_threshold", -100).toInt(&conv_ok);
     if (conv_ok)
         agcOpt->setThreshold(int_val);
+    #endif
+    int_val = settings->value("receiver/agc_target_level", 0).toInt(&conv_ok);
+    if (conv_ok)
+        agcOpt->setTargetLevel(int_val);
 
+    //TODO: store/restore the preset correctly
     int_val = settings->value("receiver/agc_decay", 500).toInt(&conv_ok);
     if (conv_ok)
     {
@@ -449,15 +487,17 @@ void DockRxOpt::readSettings(QSettings *settings)
             ui->agcPresetCombo->setCurrentIndex(3);
     }
 
-    int_val = settings->value("receiver/agc_slope", 0).toInt(&conv_ok);
+    int_val = settings->value("receiver/agc_attack", 20).toInt(&conv_ok);
     if (conv_ok)
-        agcOpt->setSlope(int_val);
+        agcOpt->setAttack(int_val);
 
-    int_val = settings->value("receiver/agc_gain", 0).toInt(&conv_ok);
+    int_val = settings->value("receiver/agc_hang", 0).toInt(&conv_ok);
     if (conv_ok)
-        agcOpt->setGain(int_val);
+        agcOpt->setHang(int_val);
 
-    agcOpt->setHang(settings->value("receiver/agc_usehang", false).toBool());
+    int_val = settings->value("receiver/agc_maxgain", 100).toInt(&conv_ok);
+    if (conv_ok)
+        agcOpt->setMaxGain(int_val);
 
     if (settings->value("receiver/agc_off", false).toBool())
         ui->agcPresetCombo->setCurrentIndex(4);
@@ -526,11 +566,17 @@ void DockRxOpt::saveSettings(QSettings *settings)
         settings->remove("receiver/sql_level");
 
     // AGC settings
-    int_val = agcOpt->threshold();
-    if (int_val != -100)
-        settings->setValue("receiver/agc_threshold", int_val);
+    int_val = agcOpt->targetLevel();
+    if (int_val != 0)
+        settings->setValue("receiver/agc_target_level", int_val);
     else
-        settings->remove("receiver/agc_threshold");
+        settings->remove("receiver/agc_target_level");
+
+    int_val = agcOpt->attack();
+    if (int_val != 20)
+        settings->setValue("receiver/agc_attack", int_val);
+    else
+        settings->remove("receiver/agc_decay");
 
     int_val = agcOpt->decay();
     if (int_val != 500)
@@ -538,22 +584,17 @@ void DockRxOpt::saveSettings(QSettings *settings)
     else
         settings->remove("receiver/agc_decay");
 
-    int_val = agcOpt->slope();
+    int_val = agcOpt->hang();
     if (int_val != 0)
-        settings->setValue("receiver/agc_slope", int_val);
+        settings->setValue("receiver/agc_hang", int_val);
     else
-        settings->remove("receiver/agc_slope");
+        settings->remove("receiver/agc_hang");
 
-    int_val = agcOpt->gain();
-    if (int_val != 0)
-        settings->setValue("receiver/agc_gain", int_val);
+    int_val = agcOpt->maxGain();
+    if (int_val != 100)
+        settings->setValue("receiver/agc_maxgain", int_val);
     else
-        settings->remove("receiver/agc_gain");
-
-    if (agcOpt->hang())
-        settings->setValue("receiver/agc_usehang", true);
-    else
-        settings->remove("receiver/agc_usehang");
+        settings->remove("receiver/agc_maxgain");
 
     // AGC Off
     if (ui->agcPresetCombo->currentIndex() == 4)
@@ -730,27 +771,31 @@ void DockRxOpt::on_agcPresetCombo_currentIndexChanged(int index)
     }
 }
 
-void DockRxOpt::agcOpt_hangToggled(bool checked)
+/**
+ * @brief AGC hang time changed.
+ * @param value The new AGC hang time in ms.
+ */
+void DockRxOpt::agcOpt_hangChanged(int value)
 {
-    emit agcHangToggled(checked);
+    emit agcHangChanged(value);
 }
 
 /**
- * @brief AGC threshold ("knee") changed.
- * @param value The new AGC threshold in dB.
+ * @brief AGC target level changed.
+ * @param value The new AGC target level in dB.
  */
-void DockRxOpt::agcOpt_thresholdChanged(int value)
+void DockRxOpt::agcOpt_targetLevelChanged(int value)
 {
-    emit agcThresholdChanged(value);
+    emit agcTargetLevelChanged(value);
 }
 
 /**
- * @brief AGC slope factor changed.
- * @param value The new slope factor in dB.
+ * @brief AGC attack changed.
+ * @param value The new attack rate in ms (tbc).
  */
-void DockRxOpt::agcOpt_slopeChanged(int value)
+void DockRxOpt::agcOpt_attackChanged(int value)
 {
-    emit agcSlopeChanged(value);
+    emit agcAttackChanged(value);
 }
 
 /**
@@ -763,12 +808,12 @@ void DockRxOpt::agcOpt_decayChanged(int value)
 }
 
 /**
- * @brief AGC manual gain changed.
+ * @brief AGC maimum gain changed.
  * @param gain The new gain in dB.
  */
-void DockRxOpt::agcOpt_gainChanged(int gain)
+void DockRxOpt::agcOpt_maxGainChanged(int gain)
 {
-    emit agcGainChanged(gain);
+    emit agcMaxGainChanged(gain);
 }
 
 /**
