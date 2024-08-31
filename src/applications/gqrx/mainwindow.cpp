@@ -909,7 +909,7 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
     ui->plotter->setCenterFreq(center_freq);
     uiDockRxOpt->setHwFreq(d_hw_freq);
     ui->freqCtrl->setFrequency(rx_freq);
-    uiDockBookmarks->setNewFrequency(rx_freq);
+    uiDockBookmarks->newFrequencyOrModSet(rx_freq, uiDockRxOpt->currentDemod());
 }
 
 // Update delta and center (of marker span) when markers are updated
@@ -1311,6 +1311,7 @@ void MainWindow::selectDemod(int mode_idx)
     d_have_audio = (mode_idx != DockRxOpt::MODE_OFF);
 
     uiDockRxOpt->setCurrentDemod(mode_idx);
+    uiDockBookmarks->newFrequencyOrModSet(ui->freqCtrl->getFrequency(), mode_idx);
 }
 
 
