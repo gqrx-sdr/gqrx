@@ -261,6 +261,8 @@ void DockBookmarks::changeBookmarkTags(int row, int /*column*/)
                                               | QDialogButtonBox::Cancel);
         connect(buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
         connect(buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
+        connect(&Bookmarks::Get(), SIGNAL(TagListChanged()),
+                taglist, SLOT(updateTags()));
 
         QVBoxLayout *mainLayout = new QVBoxLayout(&dialog);
         mainLayout->addWidget(taglist);
