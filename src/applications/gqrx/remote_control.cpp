@@ -419,18 +419,20 @@ void RemoteControl::setRDSstatus(bool enabled)
 {
     rds_status = enabled;
     rc_program_id = "0000";
+    rds_station = "RDS OFF";
+    rds_radiotext = "RDS OFF";
 }
 
 /*! \brief Set RDS Station name. */
 void RemoteControl::setRdsStation(QString name)
 {
-    rds_station = name;
+    rds_station = name.trimmed();
 }
 
 /*! \brief Set RDS Radiotext. */
 void RemoteControl::setRdsRadiotext(QString text)
 {
-    rds_radiotext = text;
+    rds_radiotext = text.trimmed();
 }
 
 
