@@ -98,6 +98,8 @@ public slots:
     bool setGain(QString name, double gain);
     void setRDSstatus(bool enabled);
     void rdsPI(QString program_id);
+    void setRdsStation(QString name);
+    void setRdsRadiotext(QString text);
 
 signals:
     void newFrequency(qint64 freq);
@@ -112,6 +114,7 @@ signals:
     void gainChanged(QString name, double value);
     void dspChanged(bool value);
     void newRDSmode(bool value);
+    void rdsStateChanged(bool state);
 
 private slots:
     void acceptConnection();
@@ -141,6 +144,8 @@ private:
     bool        receiver_running;  /*!< Whether the receiver is running or not */
     bool        hamlib_compatible;
     gain_list_t gains;             /*!< Possible and current gain settings */
+    QString     rds_station;       /*!< RDS Station Name */
+    QString     rds_radiotext;     /*!< RDS Radiotext */
 
     void        setNewRemoteFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);
@@ -164,6 +169,9 @@ private:
     QString     cmd_AOS();
     QString     cmd_LOS();
     QString     cmd_lnb_lo(QStringList cmdlist);
+    QString     cmd_set_rds(QStringList cmdlist);
+    QString     cmd_rds_station();
+    QString     cmd_rds_radiotext();
     QString     cmd_dump_state() const;
 };
 
