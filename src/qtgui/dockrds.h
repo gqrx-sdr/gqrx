@@ -30,6 +30,8 @@ private:
 signals:
     void rdsDecoderToggled(bool);
     void rdsPI(QString text);
+    void stationChanged(QString);
+    void radiotextChanged(QString);
 
 private slots:
     void on_rdsCheckbox_toggled(bool checked);

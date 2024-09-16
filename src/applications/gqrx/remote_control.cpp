@@ -50,6 +50,8 @@ RemoteControl::RemoteControl(QObject *parent) :
     audio_recorder_status = false;
     receiver_running = false;
     hamlib_compatible = false;
+    rds_station = QString("");
+    rds_radiotext = QString("");
 
     rc_port = DEFAULT_RC_PORT;
     rc_allowed_hosts.append(DEFAULT_RC_ALLOWED_HOSTS);
@@ -417,7 +419,22 @@ void RemoteControl::setRDSstatus(bool enabled)
 {
     rds_status = enabled;
     rc_program_id = "0000";
+    rds_station = "RDS OFF";
+    rds_radiotext = "RDS OFF";
 }
+
+/*! \brief Set RDS Station name. */
+void RemoteControl::setRdsStation(QString name)
+{
+    rds_station = name.trimmed();
+}
+
+/*! \brief Set RDS Radiotext. */
+void RemoteControl::setRdsRadiotext(QString text)
+{
+    rds_radiotext = text.trimmed();
+}
+
 
 /*! \brief Convert mode string to enum (DockRxOpt::rxopt_mode_idx)
  *  \param mode The Hamlib rigctld compatible mode string
@@ -811,9 +828,13 @@ QString RemoteControl::cmd_get_param(QStringList cmdlist)
     QString func = cmdlist.value(1, "");
 
     if (func == "?")
-        answer = QString("RDS_PI\n");
+        answer = QString("RDS_PI RDS_STATION RDS_RADIOTEXT\n");
     else if (func.compare("RDS_PI", Qt::CaseInsensitive) == 0)
         answer = QString("%1\n").arg(rc_program_id);
+	else if (func.compare("RDS_STATION", Qt::CaseInsensitive) == 0)
+		answer = QString("%1\n").arg(rds_station);
+	else if (func.compare("RDS_RADIOTEXT", Qt::CaseInsensitive) == 0)
+		answer = QString("%1\n").arg(rds_radiotext);
     else
         answer = QString("RPRT 1\n");
 
@@ -857,7 +878,7 @@ QString RemoteControl::cmd_set_split_vfo()
 /* Get info */
 QString RemoteControl::cmd_get_info() const
 {
-    return QString("Gqrx %1\n").arg(VERSION);
+    return QString("Gqrx %1 rdsapi\n").arg(VERSION);
 };
 
 /* Gpredict / Gqrx specific command: AOS - satellite AOS event */
@@ -901,7 +922,6 @@ QString RemoteControl::cmd_lnb_lo(QStringList cmdlist)
         return QString("%1\n").arg((qint64)(rc_lnb_lo_mhz * 1e6));
     }
 }
-
 /*
  * '\dump_state' used by hamlib clients, e.g. xdx, fldigi, rigctl and etc
  * More info:
