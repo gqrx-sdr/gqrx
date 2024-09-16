@@ -344,12 +344,15 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(remote, SIGNAL(gainChanged(QString, double)), uiDockInputCtl, SLOT(setGain(QString,double)));
     connect(remote, SIGNAL(dspChanged(bool)), this, SLOT(on_actionDSP_triggered(bool)));
     connect(uiDockRDS, SIGNAL(rdsPI(QString)), remote, SLOT(rdsPI(QString)));
+    connect(uiDockRDS, SIGNAL(stationChanged(QString)), remote, SLOT(setRdsStation(QString)));
+    connect(uiDockRDS, SIGNAL(radiotextChanged(QString)), remote, SLOT(setRdsRadiotext(QString)));
 
     rds_timer = new QTimer(this);
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
 
     // enable frequency tooltips on FFT plot
     ui->plotter->setTooltipsEnabled(true);
+
 
     // Create list of input devices. This must be done before the configuration is
     // restored because device probing might change the device configuration

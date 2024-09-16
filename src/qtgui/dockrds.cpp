@@ -67,6 +67,7 @@ void DockRDS::updateRDS(QString text, int type)
         ui->program_information->setText(text);
         break;
     case 1:
+        emit stationChanged(text);
         ui->station_name->setText(text);
         break;
     case 2:
@@ -87,6 +88,7 @@ void DockRDS::updateRDS(QString text, int type)
         ui->flags->setText(QString::fromStdString(out));
         break;
     case 4:
+        emit radiotextChanged(text);
         ui->radiotext->setText(text);
         break;
     case 5:
