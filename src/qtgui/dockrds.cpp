@@ -103,6 +103,10 @@ void DockRDS::ClearTextFields()
     ui->radiotext->setText("");
     ui->clocktime->setText("");
     ui->alt_freq->setText("");
+    
+    emit radiotextChanged("");
+    emit stationChanged("");
+    emit rdsPI("");
 }
 
 void DockRDS::showEnabled()
