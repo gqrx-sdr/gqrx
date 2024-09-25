@@ -93,6 +93,7 @@ public slots:
     void setPassband(int passband_lo, int passband_hi);
     void setSquelchLevel(double level);
     void setAudioGain(float gain);
+	void setAudioMuted(bool muted);
     void startAudioRecorder(QString unused);
     void stopAudioRecorder();
     bool setGain(QString name, double gain);
@@ -114,6 +115,7 @@ signals:
     void gainChanged(QString name, double value);
     void dspChanged(bool value);
     void newRDSmode(bool value);
+    void newAudioMuted(bool muted);
 
 private slots:
     void acceptConnection();
@@ -145,6 +147,7 @@ private:
     bool        receiver_running;  /*!< Whether the receiver is running or not */
     bool        hamlib_compatible;
     gain_list_t gains;             /*!< Possible and current gain settings */
+	bool 		is_audio_muted;
 
     void        setNewRemoteFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);
