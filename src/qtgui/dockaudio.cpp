@@ -121,6 +121,15 @@ void DockAudio::setAudioGainDb(float gain)
     ui->audioGainSlider->setValue(int(std::round(gain*10.0f)));
 }
 
+/*! \brief Set audio muted
+ *  \param muted true if audio should be muted
+ */
+void DockAudio::setAudioMuted(bool muted)
+{
+    ui->audioMuteButton->setChecked(!muted);
+    ui->audioMuteButton->click();
+}
+
 
 /*! \brief Get current audio gain.
  *  \returns The current audio gain in tens of dB (0 dB = 10).
@@ -288,6 +297,7 @@ void DockAudio::on_audioMuteButton_clicked(bool checked)
         float gain = float(value) / 10.0f;
         emit audioGainChanged(gain);
     }
+	emit audioMuted(checked);
 }
 
 /*! \brief Set status of audio record button. */
