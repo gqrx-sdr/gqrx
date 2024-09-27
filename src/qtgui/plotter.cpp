@@ -382,6 +382,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             qint64 delta_hz = qRound64((qreal)delta_px * (qreal)m_Span / (qreal)w);
             if (delta_hz != 0) // update m_Xzero only on real change
             {
+                qint64 old_min_freq = getMinFrequency();
+                qint64 old_max_freq = getMaxFrequency();
                 if (event->buttons() & Qt::MiddleButton)
                 {
                     m_CenterFreq += delta_hz;
@@ -399,6 +401,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
 
                 m_Xzero = px;
 
+                moveWaterfall(old_min_freq, old_max_freq);
                 updateOverlay();
             }
         }
@@ -548,6 +551,36 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         if (NOCAP != m_CursorCaptured)
             setCursor(QCursor(Qt::ArrowCursor));
         m_CursorCaptured = NOCAP;
+    }
+}
+
+
+void CPlotter::moveWaterfall(qint64 old_min_freq, qint64 old_max_freq)
+{
+    if(m_WaterfallImage.isNull())
+    {
+        return;
+    }
+    qint64 old_span = old_max_freq - old_min_freq;
+    qint64 new_min_freq = getMinFrequency();
+    qint64 new_max_freq = getMaxFrequency();
+    int    waterfall_width = m_WaterfallImage.width();
+    int    waterfall_height = m_WaterfallImage.height();
+    qreal  ratio = (qreal)waterfall_width / (qreal)old_span;
+    qint64 new_left = qRound((qreal)(new_min_freq - old_min_freq) * ratio);
+    qint64 new_right = qRound((qreal)(new_max_freq - old_min_freq) * ratio);
+    qint64 new_width = new_right - new_left;
+    // Shift left or right
+    m_WaterfallImage = m_WaterfallImage.copy(new_left, 0, new_width, waterfall_height);
+    // Zoom in or out
+    if(new_width != waterfall_width)
+    {
+        m_WaterfallImage = m_WaterfallImage.scaled(waterfall_width, waterfall_height, Qt::IgnoreAspectRatio,
+            new_width < waterfall_width ? Qt::FastTransformation : Qt::SmoothTransformation);
+    }
+    if (msec_per_wfline > 0)
+    {
+        clearWaterfallBuf();
     }
 }
 
@@ -832,6 +865,9 @@ void CPlotter::zoomStepX(float step, int x)
             return;
     }
 
+    qint64 old_min_freq = getMinFrequency();
+    qint64 old_max_freq = getMaxFrequency();
+
     // calculate new range shown on FFT
     float new_span = std::min(
         (float)m_Span * (float)step, (float)m_SampleFreq);
@@ -868,13 +904,14 @@ void CPlotter::zoomStepX(float step, int x)
     // Explicitly set m_Span instead of calling setSpanFreq(), which also calls
     // setFftCenterFreq() and updateOverlay() internally. Span needs to be set
     // before frequency limits can be checked in setFftCenterFreq().
-    m_Span = new_span;
+    m_Span = new_span_int;
     setFftCenterFreq(qRound64((f_max + f_min) / 2.0f));
 
     m_MaxHoldValid = false;
     m_MinHoldValid = false;
     m_histIIRValid = false;
 
+    moveWaterfall(old_min_freq, old_max_freq);
     updateOverlay();
 
     double zoom = (double)m_SampleFreq / (double)m_Span;
@@ -1937,8 +1974,8 @@ void CPlotter::drawOverlay()
         static const qreal nLevels = h / (levelHeight + slant);
         if (m_BookmarksEnabled)
         {
-            tags = Bookmarks::Get().getBookmarksInRange(m_CenterFreq + m_FftCenter - m_Span / 2,
-                                                        m_CenterFreq + m_FftCenter + m_Span / 2);
+            tags = Bookmarks::Get().getBookmarksInRange(getMinFrequency(),
+                                                        getMaxFrequency());
         }
         else
         {
@@ -1946,8 +1983,8 @@ void CPlotter::drawOverlay()
         }
         if (m_DXCSpotsEnabled)
         {
-            QList<DXCSpotInfo> dxcspots = DXCSpots::Get().getDXCSpotsInRange(m_CenterFreq + m_FftCenter - m_Span / 2,
-                                                                             m_CenterFreq + m_FftCenter + m_Span / 2);
+            QList<DXCSpotInfo> dxcspots = DXCSpots::Get().getDXCSpotsInRange(getMinFrequency(),
+                                                                             getMaxFrequency());
             QListIterator<DXCSpotInfo> iter(dxcspots);
             while(iter.hasNext())
             {
@@ -2009,8 +2046,8 @@ void CPlotter::drawOverlay()
 
     if (m_BandPlanEnabled)
     {
-        QList<BandInfo> bands = BandPlan::Get().getBandsInRange(m_CenterFreq + m_FftCenter - m_Span / 2,
-                                                                m_CenterFreq + m_FftCenter + m_Span / 2);
+        QList<BandInfo> bands = BandPlan::Get().getBandsInRange(getMinFrequency(),
+                                                                getMaxFrequency());
 
         m_BandPlanHeight = metrics.height() + VER_MARGIN;
         for (auto & band : bands)
@@ -2075,7 +2112,7 @@ void CPlotter::drawOverlay()
     }
 
     // Frequency grid
-    qint64  StartFreq = m_CenterFreq + m_FftCenter - m_Span / 2;
+    qint64  StartFreq = getMinFrequency();
     QString label;
     label.setNum(float((StartFreq + m_Span) / m_FreqUnits), 'f', m_FreqDigits);
     calcDivSize(StartFreq, StartFreq + m_Span,
@@ -2323,7 +2360,9 @@ void CPlotter::setCenterFreq(quint64 f)
 {
     if((quint64)m_CenterFreq == f)
         return;
-
+    
+    qint64 old_min_freq = getMinFrequency();
+    qint64 old_max_freq = getMaxFrequency();
     qint64 offset = m_CenterFreq - m_DemodCenterFreq;
 
     m_CenterFreq = f;
@@ -2334,6 +2373,7 @@ void CPlotter::setCenterFreq(quint64 f)
     m_histIIRValid = false;
     m_IIRValid = false;
 
+    moveWaterfall(old_min_freq, old_max_freq);
     updateOverlay();
 }
 
@@ -2347,32 +2387,41 @@ void CPlotter::updateOverlay()
 /** Reset horizontal zoom to 100% and centered around 0. */
 void CPlotter::resetHorizontalZoom(void)
 {
+    qint64 old_min_freq = getMinFrequency();
+    qint64 old_max_freq = getMaxFrequency();
     setFftCenterFreq(0);
     setSpanFreq((qint32)m_SampleFreq);
     emit newZoomLevel(1.0);
     m_MaxHoldValid = false;
     m_MinHoldValid = false;
     m_histIIRValid = false;
+    moveWaterfall(old_min_freq, old_max_freq);
     updateOverlay();
 }
 
 /** Center FFT plot around 0 (corresponds to center freq). */
 void CPlotter::moveToCenterFreq()
 {
+    qint64 old_min_freq = getMinFrequency();
+    qint64 old_max_freq = getMaxFrequency();
     setFftCenterFreq(0);
     m_MaxHoldValid = false;
     m_MinHoldValid = false;
     m_histIIRValid = false;
+    moveWaterfall(old_min_freq, old_max_freq);
     updateOverlay();
 }
 
 /** Center FFT plot around the demodulator frequency. */
 void CPlotter::moveToDemodFreq()
 {
+    qint64 old_min_freq = getMinFrequency();
+    qint64 old_max_freq = getMaxFrequency();
     setFftCenterFreq(m_DemodCenterFreq-m_CenterFreq);
     m_MaxHoldValid = false;
     m_MinHoldValid = false;
     m_histIIRValid = false;
+    moveWaterfall(old_min_freq, old_max_freq);
     updateOverlay();
 }
 
