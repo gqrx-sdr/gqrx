@@ -30,6 +30,7 @@
 #include <gnuradio/blocks/wavfile_source.h>
 #include <gnuradio/top_block.h>
 #include <osmosdr/source.h>
+#include <gnuradio/soapy/source.h>
 #include <string>
 
 #include "dsp/correct_iq_cc.h"
@@ -258,6 +259,9 @@ private:
     gr::top_block_sptr         tb;        /*!< The GNU Radio top block. */
 
     osmosdr::source::sptr     src;       /*!< Real time I/Q source. */
+
+    gr::soapy::source::sptr   soapy_src; /*!< SoapySDR source. */
+    
     fir_decim_cc_sptr         input_decim;      /*!< Input decimator. */
     receiver_base_cf_sptr     rx;        /*!< receiver. */
 
