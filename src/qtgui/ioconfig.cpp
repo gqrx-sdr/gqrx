@@ -142,10 +142,10 @@ void CIoConfig::getDeviceList(std::map<QString, QVariant> &devList)
 
     // Get list of input devices discovered by gr-soapy and store them in
     // the device list together with the device descriptor strings
-    std::vector<SoapySDR::Kwargs> devices = SoapySDR::Device::enumerate();
+    std::vector<SoapySDR::Kwargs> devs = SoapySDR::Device::enumerate();
 
     qDebug() << __FUNCTION__ << ": Available input devices:";
-    for (const auto &dev : devices)
+    for (const auto &dev : devs)
     {
         // Get the device label
         if (dev.count("label"))
