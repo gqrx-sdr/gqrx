@@ -35,7 +35,9 @@ jobs:
             gr-osmosdr \
             liborc-0.4-dev \
             appstream \
-            desktop-file-utils
+            desktop-file-utils \
+            libsoapysdr-dev \
+            soapysdr-module-rtlsdr
       - name: Install Qt5
         if: matrix.image == 'ubuntu:20.04'
         run: |
@@ -72,22 +74,21 @@ jobs:
         backend: [Portaudio, Gr-audio]
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Install conda dependencies
-        id: setup-micromamba
-        uses: mamba-org/setup-micromamba@v2
-        with:
-          environment-name: gqrx
-          create-args: >-
-            c-compiler
-            cxx-compiler
-            cmake
-            make
-            pkg-config
-            gnuradio-core
-            gnuradio-osmosdr
-            libboost-devel
-            qt6-main
-            volk
+      - name: Install dependencies
+        run: |
+          # for https://github.com/actions/runner-images/issues/9272
+          sudo chown -R runner:admin /usr/local/
+          brew update
+          brew install airspy boost gnuradio hackrf libbladerf librtlsdr pybind11 six uhd qt@6 soapysdr soapyrtlsdr || true
+
+          cd /tmp
+          git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
+          cd gr-osmosdr
+          mkdir build
+          cd build
+          cmake -DCMAKE_CXX_FLAGS=-Wno-register ..
+          LIBRARY_PATH=/usr/local/opt/icu4c/lib make -j4
+          sudo make install
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Configure
@@ -123,6 +124,8 @@ jobs:
           volk:p
           libsndfile:p
           fftw:p
+          soapysdr:p
+          soapyrtlsdr:p
     - name: Clone and build GNU Radio
       working-directory: ${{ runner.temp }}
       run: |
@@ -139,7 +142,8 @@ jobs:
           -DENABLE_GR_DIGITAL=ON \
           -DENABLE_GR_FFT=ON \
           -DENABLE_GR_FILTER=ON \
-          -DENABLE_GR_NETWORK=ON
+          -DENABLE_GR_NETWORK=ON \
+          -DENABLE_GR_SOAPY=ON
         cmake --build build
         cmake --install build
     - name: Clone and build gr-osmosdr
