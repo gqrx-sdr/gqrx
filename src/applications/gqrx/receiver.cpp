@@ -31,6 +31,7 @@
 #include <osmosdr/source.h>
 #include <gnuradio/soapy/source.h>
 #include <osmosdr/ranges.h>
+#include <SoapySDR/Device.hpp>
 
 #include "applications/gqrx/receiver.h"
 #include "dsp/correct_iq_cc.h"
@@ -80,14 +81,30 @@ receiver::receiver(const std::string input_device,
 
     if (input_device.empty())
     {
-        //src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
-        soapy_src = gr::soapy::source::make("driver=rtlsdr","fc32",1,"","",{""},{""});
+        std::vector<SoapySDR::Kwargs> devices = SoapySDR::Device::enumerate();
+
+        if (devices.empty())
+        {
+            std::cerr << "No SoapySDR devices found." << std::endl;
+            throw std::runtime_error("No SoapySDR devices found.");
+        }
+        else
+        {
+            SoapySDR::Kwargs device = devices[0];
+            std::cout << "Selected Device Properties" << std::endl;
+            for (SoapySDR::Kwargs::const_iterator it = device.begin(); it != device.end(); it++)
+            {
+                std::cout << "  " << it->first << " = " << it->second << std::endl;
+            }
+
+            std::string input_device = std::string("driver=") + device["driver"];
+            soapy_src = gr::soapy::source::make(input_device,"fc32",1);
+        }
     }
     else
     {
         input_devstr = input_device;
-        //src = osmosdr::source::make(input_device);
-        soapy_src = gr::soapy::source::make(input_device,"",0,"","",{""},{""});
+        soapy_src = gr::soapy::source::make(input_device,"fc32",1);
     }
 
     // input decimator
@@ -229,7 +246,7 @@ void receiver::set_input_device(const std::string device)
     try
     {
         //src = osmosdr::source::make(device);
-        soapy_src = gr::soapy::source::make("driver=rtlsdr","fc32",1,"","",{""},{""});
+        soapy_src = gr::soapy::source::make(input_devstr,"fc32",1);
     }
     catch (std::exception &x)
     {
