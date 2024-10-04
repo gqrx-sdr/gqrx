@@ -58,4 +58,5 @@ private:
 
     float   m_dBFS;
     float   m_Sql;
+    QFont   m_font;
 };

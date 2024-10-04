@@ -53,6 +53,7 @@ CMeter::CMeter(QWidget *parent) : QFrame(parent)
 
     m_dBFS = MIN_DB;
     m_Sql = -150.0;
+    m_font = QFont("Arial");
 }
 
 CMeter::~CMeter()
@@ -116,9 +117,8 @@ void CMeter::draw(QPainter &painter)
         painter.drawLine(QLineF(x, hline, x, hline + 8));
     }
 
-    QFont font("Arial");
-    font.setPixelSize(height() / 4);
-    painter.setFont(font);
+    m_font.setPixelSize(height() / 4);
+    painter.setFont(m_font);
 
     painter.setPen(QColor(0xDA, 0xDA, 0xDA, 0xFF));
     painter.drawText(marg, height() - 2, QString::number((double)m_dBFS, 'f', 1) + " dBFS" );
@@ -148,9 +148,8 @@ void CMeter::drawOverlay(QPainter &painter)
     }
 
     // draw scale text
-    QFont font("Arial");
-    font.setPixelSize(height() / 4);
-    painter.setFont(font);
+    m_font.setPixelSize(height() / 4);
+    painter.setFont(m_font);
     qreal rwidth = (hstop - marg) / 5.0;
     QRectF rect(marg - rwidth / 2, 0, rwidth, majstart);
 
