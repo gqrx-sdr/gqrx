@@ -29,7 +29,7 @@
 #include <gnuradio/blocks/wavfile_sink.h>
 #include <gnuradio/blocks/wavfile_source.h>
 #include <gnuradio/top_block.h>
-#include <osmosdr/source.h>
+
 #include <gnuradio/soapy/source.h>
 #include <string>
 
@@ -258,7 +258,7 @@ private:
 
     gr::top_block_sptr         tb;        /*!< The GNU Radio top block. */
 
-    osmosdr::source::sptr     src;       /*!< Real time I/Q source. */
+    //osmosdr::source::sptr     src;       /*!< Real time I/Q source. */
 
     gr::soapy::source::sptr   soapy_src; /*!< SoapySDR source. */
     

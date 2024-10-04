@@ -28,9 +28,9 @@
 
 #include <gnuradio/prefs.h>
 #include <gnuradio/top_block.h>
-#include <osmosdr/source.h>
+
 #include <gnuradio/soapy/source.h>
-#include <osmosdr/ranges.h>
+
 #include <SoapySDR/Device.hpp>
 
 #include "applications/gqrx/receiver.h"
@@ -229,19 +229,10 @@ void receiver::set_input_device(const std::string device)
         tb->disconnect(soapy_src, 0, iq_swap, 0);
     }
 
-#if GNURADIO_VERSION < 0x030802
-    //Work around GNU Radio bug #3184
-    //temporarily connect dummy source to ensure that previous device is closed
-    src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
-    tb->connect(src, 0, iq_swap, 0);
-    tb->start();
-    tb->stop();
-    tb->wait();
-    tb->disconnect(src, 0, iq_swap, 0);
-#else
+
     //src.reset();
     soapy_src.reset();
-#endif
+
 
     try
     {
@@ -1305,8 +1296,10 @@ receiver::status receiver::stop_iq_recording()
 receiver::status receiver::seek_iq_file(long pos)
 {
     receiver::status status = STATUS_OK;
+    status = STATUS_ERROR;
+    return status;
 
-    tb->lock();
+    /* tb->lock();
 
     if (src->seek(pos, SEEK_SET))
     {
@@ -1319,7 +1312,7 @@ receiver::status receiver::seek_iq_file(long pos)
 
     tb->unlock();
 
-    return status;
+    return status; */
 }
 
 /**

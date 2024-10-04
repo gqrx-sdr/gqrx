@@ -29,9 +29,7 @@
 #include <QtGlobal>
 #include <QVariant>
 
-#include <osmosdr/device.h>
-#include <osmosdr/source.h>
-#include <osmosdr/ranges.h>
+
 
 #include <SoapySDR/Device.hpp>
 
