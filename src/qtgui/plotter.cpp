@@ -149,6 +149,7 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     m_DrawOverlay = true;
     m_2DPixmap = QPixmap();
     m_OverlayPixmap = QPixmap();
+    m_PeakPixmap = QPixmap();
     m_WaterfallImage = QImage();
     m_Size = QSize(0,0);
     m_GrabPosition = 0;
@@ -1718,22 +1719,31 @@ void CPlotter::draw(bool newData)
             }
 
             // Paint peaks with shadow
-            QPen peakPen(m_maxFftColor, m_DPR);
-            QPen peakShadowPen(Qt::black, m_DPR);
-            peakPen.setWidthF(m_DPR);
+            if (m_PeakPixmap.isNull())
+            {
+                m_PeakPixmap = QPixmap(qRound((10.0 + shadowOffset) * m_DPR), qRound((10.0 + shadowOffset) * m_DPR));
+                m_PeakPixmap.fill(Qt::transparent);
+                QPainter peakPainter(&m_PeakPixmap);
+                peakPainter.translate(QPointF(0.5, 0.5));
+                QPen peakPen(m_maxFftColor, m_DPR);
+                QPen peakShadowPen(Qt::black, m_DPR);
+                peakPen.setWidthF(m_DPR);
+                peakPainter.setPen(peakShadowPen);
+                peakPainter.drawEllipse(
+                    QRectF(shadowOffset,
+                           shadowOffset,
+                           10.0 * m_DPR, 10.0 * m_DPR));
+                peakPainter.setPen(peakPen);
+                peakPainter.drawEllipse(
+                    QRectF(0,
+                           0,
+                           10.0 * m_DPR, 10.0 * m_DPR));
+            }
+            const int peakPixmapOffset = m_PeakPixmap.width() / 2;
             for(auto peakx : m_Peaks.keys()) {
                 const qreal peakxPlot = (qreal)peakx;
                 const qreal peakv = m_Peaks.value(peakx);
-                painter2.setPen(peakShadowPen);
-                painter2.drawEllipse(
-                    QRectF(peakxPlot - 5.0 * m_DPR + shadowOffset,
-                           peakv - 5.0 * m_DPR + shadowOffset,
-                           10.0 * m_DPR, 10.0 * m_DPR));
-                painter2.setPen(peakPen);
-                painter2.drawEllipse(
-                    QRectF(peakxPlot - 5.0 * m_DPR,
-                           peakv - 5.0 * m_DPR,
-                           10.0 * m_DPR, 10.0 * m_DPR));
+                painter2.drawPixmap(QPointF(peakxPlot - peakPixmapOffset, peakv - peakPixmapOffset), m_PeakPixmap);
             }
         }
 
@@ -2382,6 +2392,7 @@ void CPlotter::setFftPlotColor(const QColor& color)
     m_avgFftColor = color;
     m_maxFftColor = color;
     // m_maxFftColor.setAlpha(192);
+    m_PeakPixmap = QPixmap();
     m_FftFillCol = color;
     m_FftFillCol.setAlpha(26);
     m_MaxHoldColor = color;
