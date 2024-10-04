@@ -213,6 +213,15 @@ private:
         MARKER_B
     };
 
+    qint64 getMinFrequency() const {
+        return m_CenterFreq + m_FftCenter - m_Span / 2;
+    }
+
+    qint64 getMaxFrequency() const {
+        return m_CenterFreq + m_FftCenter + m_Span / 2;
+    }
+
+    void        moveWaterfall(qint64 old_min_freq, qint64 old_max_freq);
     void        drawOverlay();
     void        makeFrequencyStrs();
     int         xFromFreq(qint64 freq);
