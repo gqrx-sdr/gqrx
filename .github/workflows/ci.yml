@@ -35,7 +35,9 @@ jobs:
             gr-osmosdr \
             liborc-0.4-dev \
             appstream \
-            desktop-file-utils
+            desktop-file-utils \
+            libsoapysdr-dev \
+            soapysdr-module-rtlsdr
       - name: Install Qt5
         if: matrix.image == 'ubuntu:20.04'
         run: |
@@ -75,7 +77,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install airspy boost gnuradio hackrf libbladerf librtlsdr pybind11 six uhd qt@6 || true
+          brew install airspy boost gnuradio hackrf libbladerf librtlsdr pybind11 six uhd qt@6 soapysdr soapyrtlsdr || true
 
           cd /tmp
           git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
@@ -119,6 +121,8 @@ jobs:
           volk:p
           libsndfile:p
           fftw:p
+          soapysdr:p
+          soapyrtlsdr:p
     - name: Clone and build GNU Radio
       working-directory: ${{ runner.temp }}
       run: |
@@ -135,7 +139,8 @@ jobs:
           -DENABLE_GR_DIGITAL=ON \
           -DENABLE_GR_FFT=ON \
           -DENABLE_GR_FILTER=ON \
-          -DENABLE_GR_NETWORK=ON
+          -DENABLE_GR_NETWORK=ON \
+          -DENABLE_GR_SOAPY=ON
         cmake --build build
         cmake --install build
     - name: Clone and build gr-osmosdr
