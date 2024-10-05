@@ -261,6 +261,8 @@ private:
     QPixmap     m_OverlayPixmap;    // Grid, axes ... things that need to be drawn infrequently
     QPixmap     m_PeakPixmap;
     QImage      m_WaterfallImage;
+    int         m_WaterfallHeight;
+    int         m_WaterfallOffset;
     QColor      m_ColorTbl[256];
     QSize       m_Size;
     qreal       m_DPR{};
