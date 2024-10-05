@@ -1539,6 +1539,9 @@ void CPlotter::draw(bool newData)
         const int maxMarker = std::max(ax, bx);
 
         const float binSizeY = (float)plotHeight / (float)histBinsDisplayed;
+        QPolygonF abPolygon;
+        QPolygonF underPolygon;
+        QPolygonF avgMaxPolygon;
         for (i = 0; i < npts; i++)
         {
             const int ix = i + xmin;
@@ -1584,16 +1587,41 @@ void CPlotter::draw(bool newData)
             // Fill area between markers, even if they are off screen
             qreal yFill = m_PlotMode == PLOT_MODE_MAX ? yMaxD : yAvgD;
             if (fillMarkers && (ix) > minMarker && (ix) < maxMarker) {
-                painter2.fillRect(QRectF(ixPlot, yFill + 1.0, 1.0, plotHeight - yFill), abFillBrush);
+                abPolygon << QPointF(ixPlot, yFill + 1.0);
             }
             if (m_FftFill && m_PlotMode != PLOT_MODE_HISTOGRAM)
             {
-                painter2.fillRect(QRectF(ixPlot, yFill + 1.0, 1.0, plotHeight - yFill), m_FftFillCol);
+                underPolygon << QPointF(ixPlot, yFill + 1.0);
             }
             if (m_PlotMode == PLOT_MODE_FILLED)
             {
-                painter2.fillRect(QRectF(ixPlot, yMaxD + 1.0, 1.0, yAvgD - yMaxD), maxFillBrush);
+                avgMaxPolygon << maxLineBuf[i];
             }
+        }
+
+        if (!abPolygon.isEmpty()) {
+            abPolygon << QPointF(abPolygon.last().x(), plotHeight);
+            abPolygon << QPointF(abPolygon.first().x(), plotHeight);
+            painter2.setBrush(abFillBrush);
+            painter2.drawPolygon(abPolygon);
+        }
+
+        if (!underPolygon.isEmpty())
+        {
+            underPolygon << QPointF(underPolygon.last().x(), plotHeight);
+            underPolygon << QPointF(underPolygon.first().x(), plotHeight);
+            painter2.setBrush(m_FftFillCol);
+            painter2.drawPolygon(underPolygon);
+        }
+
+        if (!avgMaxPolygon.isEmpty())
+        {
+            for (i = npts - 1; i >= 0; i--)
+            {
+                avgMaxPolygon << avgLineBuf[i];
+            }
+            painter2.setBrush(maxFillBrush);
+            painter2.drawPolygon(avgMaxPolygon);
         }
 
         if (doMaxLine) {
