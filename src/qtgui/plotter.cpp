@@ -1016,8 +1016,11 @@ void CPlotter::resizeEvent(QResizeEvent* )
         // Higher resolution pixmaps are used with higher DPR. They are
         // rescaled in paintEvent().
         const int w = qRound((qreal)s.width() * m_DPR);
-        const int plotHeight = qRound((qreal)m_Percent2DScreen * (qreal)s.height() / 100.0 * m_DPR);
-        const int wfHeight = qRound((qreal)s.height() * m_DPR) - plotHeight;
+        const int rawHeight = s.height();
+        const int rawPlotHeight = qRound((qreal)m_Percent2DScreen / 100.0 * (qreal)rawHeight);
+        const int rawWfHeight = rawHeight - rawPlotHeight;
+        const int plotHeight = qRound((qreal)rawPlotHeight * m_DPR);
+        const int wfHeight = qRound((qreal)rawWfHeight * m_DPR);
 
         m_OverlayPixmap = QPixmap(w, plotHeight);
         m_OverlayPixmap.fill(Qt::transparent);
@@ -1086,19 +1089,19 @@ void CPlotter::paintEvent(QPaintEvent *)
     {
         const int plotWidthS = m_2DPixmap.width();
         const int plotHeightS = m_2DPixmap.height();
-        const QRectF plotRectS(0.0, 0.0, plotWidthS, plotHeightS);
+        const QRect plotRectS(0, 0, plotWidthS, plotHeightS);
 
         const int plotWidthT = qRound((qreal)plotWidthS / m_DPR);
         plotHeightT = qRound((qreal)plotHeightS / m_DPR);
-        const QRectF plotRectT(0.0, 0.0, plotWidthT, plotHeightT);
+        const QRect plotRectT(0, 0, plotWidthT, plotHeightT);
 
         painter.drawPixmap(plotRectT, m_2DPixmap, plotRectS);
     }
 
     if (!m_WaterfallImage.isNull())
     {
-        painter.drawImage(QPointF(0.0, plotHeightT), m_WaterfallImage,
-            QRectF(0, m_WaterfallOffset, m_WaterfallImage.width(), m_WaterfallHeight));
+        painter.drawImage(QPoint(0, plotHeightT), m_WaterfallImage,
+            QRect(0, m_WaterfallOffset, m_WaterfallImage.width(), m_WaterfallHeight));
     }
 }
 
