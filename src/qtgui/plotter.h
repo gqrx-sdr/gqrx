@@ -221,6 +221,14 @@ private:
     static qint64      roundFreq(qint64 freq, int resolution);
     quint64     msecFromY(int y);
     void        clampDemodParameters();
+    static QColor      blend(QColor base, QColor over, int alpha255)
+    {
+        qreal alpha = alpha255 / 255.0;
+        qreal oneMinusAlpha = 1.0 - alpha;
+        return QColor(qRound(alpha * over.red()   + oneMinusAlpha * base.red()),
+                      qRound(alpha * over.green() + oneMinusAlpha * base.green()),
+                      qRound(alpha * over.blue()  + oneMinusAlpha * base.blue()));
+    }
     static bool        isPointCloseTo(int x, int xr, int delta)
     {
         return ((x > (xr - delta)) && (x < (xr + delta)));

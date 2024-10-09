@@ -1136,6 +1136,7 @@ void CPlotter::draw(bool newData)
 
     QPointF avgLineBuf[MAX_SCREENSIZE];
     QPointF maxLineBuf[MAX_SCREENSIZE];
+    QPointF holdLineBuf[MAX_SCREENSIZE];
 
     const quint64 tnow_ms = QDateTime::currentMSecsSinceEpoch();
 
@@ -1492,17 +1493,17 @@ void CPlotter::draw(bool newData)
     {
         tlast_plot_drawn_ms = tnow_ms;
 
-        m_2DPixmap.fill(QColor::fromRgba(PLOTTER_BGD_COLOR));
+        QColor bgColor = QColor::fromRgba(PLOTTER_BGD_COLOR);
+        m_2DPixmap.fill(bgColor);
         QPainter painter2(&m_2DPixmap);
         painter2.translate(QPointF(0.5, 0.5));
 
 
         // draw the pandapter
-        QBrush fillBrush = QBrush(m_FftFillCol);
+        QBrush fillBrush = QBrush(blend(bgColor, m_FftFillCol, 26));
 
         // Fill between max and avg
-        QColor maxFillCol = m_FftFillCol;
-        maxFillCol.setAlpha(80);
+        QColor maxFillCol = blend(bgColor, m_FftFillCol, 80);
         QBrush maxFillBrush = QBrush(maxFillCol);
 
         // Diagonal fill for area between markers. Scale the pattern to DPR.
@@ -1510,11 +1511,11 @@ void CPlotter::draw(bool newData)
         abFillColor.setAlpha(128);
         QBrush abFillBrush = QBrush(abFillColor, Qt::BDiagPattern);
 
-        QColor maxLineColor = QColor(m_FftFillCol);
+        QColor maxLineColor;
         if (m_PlotMode == PLOT_MODE_FILLED)
-            maxLineColor.setAlpha(128);
+            maxLineColor = blend(bgColor, m_FftFillCol, 128);
         else
-            maxLineColor.setAlpha(255);
+            maxLineColor = blend(bgColor, m_FftFillCol, 255);
 
         QPen maxLinePen = QPen(maxLineColor);
 
@@ -1522,13 +1523,11 @@ void CPlotter::draw(bool newData)
         QPen avgLinePen;
         if (m_PlotMode == PLOT_MODE_AVG || m_PlotMode == PLOT_MODE_HISTOGRAM)
         {
-            QColor avgLineCol = m_FftFillCol;
-            avgLineCol.setAlpha(255);
+            QColor avgLineCol = blend(bgColor, m_FftFillCol, 255);
             avgLinePen = QPen(avgLineCol);
         }
         else {
-            QColor avgLineCol = QColor(Qt::cyan);
-            avgLineCol.setAlpha(192);
+            QColor avgLineCol = blend(bgColor, QColor(Qt::cyan), 192);
             avgLinePen = QPen(avgLineCol);
         }
 
@@ -1602,6 +1601,14 @@ void CPlotter::draw(bool newData)
             }
         }
 
+        if (!underPolygon.isEmpty())
+        {
+            underPolygon << QPointF(underPolygon.last().x(), plotHeight);
+            underPolygon << QPointF(underPolygon.first().x(), plotHeight);
+            painter2.setBrush(fillBrush);
+            painter2.drawPolygon(underPolygon);
+        }
+
         if (!abPolygon.isEmpty()) {
             abPolygon << QPointF(abPolygon.last().x(), plotHeight);
             abPolygon << QPointF(abPolygon.first().x(), plotHeight);
@@ -1609,12 +1616,44 @@ void CPlotter::draw(bool newData)
             painter2.drawPolygon(abPolygon);
         }
 
-        if (!underPolygon.isEmpty())
+        // Max hold
+        if (m_MaxHoldActive)
         {
-            underPolygon << QPointF(underPolygon.last().x(), plotHeight);
-            underPolygon << QPointF(underPolygon.first().x(), plotHeight);
-            painter2.setBrush(m_FftFillCol);
-            painter2.drawPolygon(underPolygon);
+            // Show max(max) except when showing only avg on screen
+            for (i = 0; i < npts; i++)
+            {
+                const int ix = i + xmin;
+                const qreal ixPlot = (qreal)ix;
+                const qreal yMaxHoldD = (qreal)std::max(std::min(
+                    panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMaxHoldBuf[ix])),
+                    (float)plotHeight), 0.0f);
+                holdLineBuf[i] = QPointF(ixPlot, yMaxHoldD);
+            }
+            // NOT scaling to DPR due to performance
+            painter2.setPen(m_MaxHoldColor);
+            painter2.drawPolyline(holdLineBuf, npts);
+
+            m_MaxHoldValid = true;
+        }
+
+        // Min hold
+        if (m_MinHoldActive)
+        {
+            // Show min(avg) except when showing only max on scree
+            for (i = 0; i < npts; i++)
+            {
+                const int ix = i + xmin;
+                const qreal ixPlot = (qreal)ix;
+                const qreal yMinHoldD = (qreal)std::max(std::min(
+                    panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMinHoldBuf[ix])),
+                    (float)plotHeight), 0.0f);
+                holdLineBuf[i] = QPointF(ixPlot, yMinHoldD);
+            }
+            // NOT scaling to DPR due to performance
+            painter2.setPen(m_MinHoldColor);
+            painter2.drawPolyline(holdLineBuf, npts);
+
+            m_MinHoldValid = true;
         }
 
         if (!avgMaxPolygon.isEmpty())
@@ -1636,46 +1675,6 @@ void CPlotter::draw(bool newData)
             // NOT scaling to DPR due to performance
             painter2.setPen(avgLinePen);
             painter2.drawPolyline(avgLineBuf, npts);
-        }
-
-        // Max hold
-        if (m_MaxHoldActive)
-        {
-            // Show max(max) except when showing only avg on screen
-            for (i = 0; i < npts; i++)
-            {
-                const int ix = i + xmin;
-                const qreal ixPlot = (qreal)ix;
-                const qreal yMaxHoldD = (qreal)std::max(std::min(
-                    panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMaxHoldBuf[ix])),
-                    (float)plotHeight), 0.0f);
-                maxLineBuf[i] = QPointF(ixPlot, yMaxHoldD);
-            }
-            // NOT scaling to DPR due to performance
-            painter2.setPen(m_MaxHoldColor);
-            painter2.drawPolyline(maxLineBuf, npts);
-
-            m_MaxHoldValid = true;
-        }
-
-        // Min hold
-        if (m_MinHoldActive)
-        {
-            // Show min(avg) except when showing only max on scree
-            for (i = 0; i < npts; i++)
-            {
-                const int ix = i + xmin;
-                const qreal ixPlot = (qreal)ix;
-                const qreal yMinHoldD = (qreal)std::max(std::min(
-                    panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMinHoldBuf[ix])),
-                    (float)plotHeight), 0.0f);
-                maxLineBuf[i] = QPointF(ixPlot, yMinHoldD);
-            }
-            // NOT scaling to DPR due to performance
-            painter2.setPen(m_MinHoldColor);
-            painter2.drawPolyline(maxLineBuf, npts);
-
-            m_MinHoldValid = true;
         }
 
         // Peak detection
@@ -2435,12 +2434,10 @@ void CPlotter::setFftPlotColor(const QColor& color)
     m_maxFftColor = color;
     // m_maxFftColor.setAlpha(192);
     m_PeakPixmap = QPixmap();
+    QColor bgColor = QColor::fromRgba(PLOTTER_BGD_COLOR);
     m_FftFillCol = color;
-    m_FftFillCol.setAlpha(26);
-    m_MaxHoldColor = color;
-    m_MaxHoldColor.setAlpha(80);
-    m_MinHoldColor = color;
-    m_MinHoldColor.setAlpha(80);
+    m_MaxHoldColor = blend(bgColor, color, 80);
+    m_MinHoldColor = blend(bgColor, color, 80);
 }
 
 /** Enable/disable filling the area below the FFT plot. */
