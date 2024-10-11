@@ -339,7 +339,7 @@ private:
 
     quint32     m_LastSampleRate{};
 
-    QColor      m_avgFftColor, m_maxFftColor, m_FftFillCol, m_MaxHoldColor, m_MinHoldColor;
+    QColor      m_FftFillCol, m_FilledModeFillCol, m_FilledModeMaxLineCol, m_FilledModeAvgLineCol, m_MainLineCol, m_HoldLineCol;
     bool        m_FftFill{};
 
     QMap<int,qreal>   m_Peaks;

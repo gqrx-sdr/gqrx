@@ -1500,11 +1500,10 @@ void CPlotter::draw(bool newData)
 
 
         // draw the pandapter
-        QBrush fillBrush = QBrush(blend(bgColor, m_FftFillCol, 26));
+        QBrush fillBrush = QBrush(m_FftFillCol);
 
         // Fill between max and avg
-        QColor maxFillCol = blend(bgColor, m_FftFillCol, 80);
-        QBrush maxFillBrush = QBrush(maxFillCol);
+        QBrush maxFillBrush = QBrush(m_FilledModeFillCol);
 
         // Diagonal fill for area between markers. Scale the pattern to DPR.
         QColor abFillColor = QColor::fromRgba(PLOTTER_MARKER_COLOR);
@@ -1513,9 +1512,9 @@ void CPlotter::draw(bool newData)
 
         QColor maxLineColor;
         if (m_PlotMode == PLOT_MODE_FILLED)
-            maxLineColor = blend(bgColor, m_FftFillCol, 128);
+            maxLineColor = m_FilledModeMaxLineCol;
         else
-            maxLineColor = blend(bgColor, m_FftFillCol, 255);
+            maxLineColor = m_MainLineCol;
 
         QPen maxLinePen = QPen(maxLineColor);
 
@@ -1523,12 +1522,10 @@ void CPlotter::draw(bool newData)
         QPen avgLinePen;
         if (m_PlotMode == PLOT_MODE_AVG || m_PlotMode == PLOT_MODE_HISTOGRAM)
         {
-            QColor avgLineCol = blend(bgColor, m_FftFillCol, 255);
-            avgLinePen = QPen(avgLineCol);
+            avgLinePen = QPen(m_MainLineCol);
         }
         else {
-            QColor avgLineCol = blend(bgColor, QColor(Qt::cyan), 192);
-            avgLinePen = QPen(avgLineCol);
+            avgLinePen = QPen(m_FilledModeAvgLineCol);
         }
 
         // The m_Marker{AB}X values are one cycle old, which makes for a laggy
@@ -1630,7 +1627,7 @@ void CPlotter::draw(bool newData)
                 holdLineBuf[i] = QPointF(ixPlot, yMaxHoldD);
             }
             // NOT scaling to DPR due to performance
-            painter2.setPen(m_MaxHoldColor);
+            painter2.setPen(m_HoldLineCol);
             painter2.drawPolyline(holdLineBuf, npts);
 
             m_MaxHoldValid = true;
@@ -1650,7 +1647,7 @@ void CPlotter::draw(bool newData)
                 holdLineBuf[i] = QPointF(ixPlot, yMinHoldD);
             }
             // NOT scaling to DPR due to performance
-            painter2.setPen(m_MinHoldColor);
+            painter2.setPen(m_HoldLineCol);
             painter2.drawPolyline(holdLineBuf, npts);
 
             m_MinHoldValid = true;
@@ -1766,7 +1763,7 @@ void CPlotter::draw(bool newData)
                 m_PeakPixmap.fill(Qt::transparent);
                 QPainter peakPainter(&m_PeakPixmap);
                 peakPainter.translate(QPointF(0.5, 0.5));
-                QPen peakPen(m_maxFftColor, m_DPR);
+                QPen peakPen(m_MainLineCol, m_DPR);
                 QPen peakShadowPen(Qt::black, m_DPR);
                 peakPen.setWidthF(m_DPR);
                 peakPainter.setPen(peakShadowPen);
@@ -2430,14 +2427,14 @@ void CPlotter::moveToDemodFreq()
 /** Set FFT plot color. */
 void CPlotter::setFftPlotColor(const QColor& color)
 {
-    m_avgFftColor = color;
-    m_maxFftColor = color;
-    // m_maxFftColor.setAlpha(192);
     m_PeakPixmap = QPixmap();
     QColor bgColor = QColor::fromRgba(PLOTTER_BGD_COLOR);
-    m_FftFillCol = color;
-    m_MaxHoldColor = blend(bgColor, color, 80);
-    m_MinHoldColor = blend(bgColor, color, 80);
+    m_FftFillCol = blend(bgColor, color, 26);
+    m_MainLineCol = color;
+    m_HoldLineCol = blend(bgColor, color, 80);
+    m_FilledModeFillCol = blend(bgColor, color, 80);
+    m_FilledModeMaxLineCol = blend(bgColor, color, 128);
+    m_FilledModeAvgLineCol = blend(bgColor, QColor(Qt::cyan), 192);
 }
 
 /** Enable/disable filling the area below the FFT plot. */
