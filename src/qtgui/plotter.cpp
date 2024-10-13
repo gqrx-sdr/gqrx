@@ -1134,10 +1134,6 @@ void CPlotter::draw(bool newData)
         return;
     }
 
-    QPointF avgLineBuf[MAX_SCREENSIZE];
-    QPointF maxLineBuf[MAX_SCREENSIZE];
-    QPointF holdLineBuf[MAX_SCREENSIZE];
-
     const quint64 tnow_ms = QDateTime::currentMSecsSinceEpoch();
 
     // Pixmaps might be null, so scale up m_Size to get width.
@@ -1579,9 +1575,9 @@ void CPlotter::draw(bool newData)
 
             // Add max, average points if they will be drawn
             if (doMaxLine)
-                maxLineBuf[i] = QPointF(ixPlot, yMaxD);
+                m_maxLineBuf[i] = QPointF(ixPlot, yMaxD);
             if (doAvgLine)
-                avgLineBuf[i] = QPointF(ixPlot, yAvgD);
+                m_avgLineBuf[i] = QPointF(ixPlot, yAvgD);
 
             // Fill area between markers, even if they are off screen
             qreal yFill = m_PlotMode == PLOT_MODE_MAX ? yMaxD : yAvgD;
@@ -1594,7 +1590,7 @@ void CPlotter::draw(bool newData)
             }
             if (m_PlotMode == PLOT_MODE_FILLED)
             {
-                avgMaxPolygon << maxLineBuf[i];
+                avgMaxPolygon << m_maxLineBuf[i];
             }
         }
 
@@ -1606,7 +1602,8 @@ void CPlotter::draw(bool newData)
             painter2.drawPolygon(underPolygon);
         }
 
-        if (!abPolygon.isEmpty()) {
+        if (!abPolygon.isEmpty())
+        {
             abPolygon << QPointF(abPolygon.last().x(), plotHeight);
             abPolygon << QPointF(abPolygon.first().x(), plotHeight);
             painter2.setBrush(abFillBrush);
@@ -1624,11 +1621,11 @@ void CPlotter::draw(bool newData)
                 const qreal yMaxHoldD = (qreal)std::max(std::min(
                     panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMaxHoldBuf[ix])),
                     (float)plotHeight), 0.0f);
-                holdLineBuf[i] = QPointF(ixPlot, yMaxHoldD);
+                m_holdLineBuf[i] = QPointF(ixPlot, yMaxHoldD);
             }
             // NOT scaling to DPR due to performance
             painter2.setPen(m_HoldLineCol);
-            painter2.drawPolyline(holdLineBuf, npts);
+            painter2.drawPolyline(m_holdLineBuf, npts);
 
             m_MaxHoldValid = true;
         }
@@ -1644,11 +1641,11 @@ void CPlotter::draw(bool newData)
                 const qreal yMinHoldD = (qreal)std::max(std::min(
                     panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMinHoldBuf[ix])),
                     (float)plotHeight), 0.0f);
-                holdLineBuf[i] = QPointF(ixPlot, yMinHoldD);
+                m_holdLineBuf[i] = QPointF(ixPlot, yMinHoldD);
             }
             // NOT scaling to DPR due to performance
             painter2.setPen(m_HoldLineCol);
-            painter2.drawPolyline(holdLineBuf, npts);
+            painter2.drawPolyline(m_holdLineBuf, npts);
 
             m_MinHoldValid = true;
         }
@@ -1657,21 +1654,23 @@ void CPlotter::draw(bool newData)
         {
             for (i = npts - 1; i >= 0; i--)
             {
-                avgMaxPolygon << avgLineBuf[i];
+                avgMaxPolygon << m_avgLineBuf[i];
             }
             painter2.setBrush(maxFillBrush);
             painter2.drawPolygon(avgMaxPolygon);
         }
 
-        if (doMaxLine) {
+        if (doMaxLine)
+        {
             // NOT scaling to DPR due to performance
             painter2.setPen(maxLinePen);
-            painter2.drawPolyline(maxLineBuf, npts);
+            painter2.drawPolyline(m_maxLineBuf, npts);
         }
-        if (doAvgLine) {
+        if (doAvgLine)
+        {
             // NOT scaling to DPR due to performance
             painter2.setPen(avgLinePen);
-            painter2.drawPolyline(avgLineBuf, npts);
+            painter2.drawPolyline(m_avgLineBuf, npts);
         }
 
         // Peak detection

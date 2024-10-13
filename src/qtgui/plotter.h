@@ -250,6 +250,9 @@ private:
     float       m_wfAvgBuf[MAX_SCREENSIZE]{};
     float       m_histogram[MAX_SCREENSIZE][MAX_HISTOGRAM_SIZE]{};
     float       m_histIIR[MAX_SCREENSIZE][MAX_HISTOGRAM_SIZE]{};
+    QPointF     m_avgLineBuf[MAX_SCREENSIZE]{};
+    QPointF     m_maxLineBuf[MAX_SCREENSIZE]{};
+    QPointF     m_holdLineBuf[MAX_SCREENSIZE]{};
     float       m_histMaxIIR;
     std::vector<float> m_fftIIR;
     std::vector<float> m_fftData;
