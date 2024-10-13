@@ -349,9 +349,6 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <property name="autoFillBackground">
-       <bool>true</bool>
-      </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
       </property>
