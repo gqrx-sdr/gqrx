@@ -72,9 +72,14 @@ QSize CMeter::sizeHint() const
 
 void CMeter::setLevel(float dbfs)
 {
+    const float old = m_dBFS;
     float alpha = dbfs < m_dBFS ? ALPHA_DECAY : ALPHA_RISE;
     m_dBFS -= alpha * (m_dBFS - dbfs);
-    update();
+    // only redraw when the label needs to change
+    if (qRound(m_dBFS * 10) != qRound(old * 10))
+    {
+        update();
+    }
 }
 
 void CMeter::setSqlLevel(float dbfs)
