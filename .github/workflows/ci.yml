@@ -68,12 +68,14 @@ jobs:
     name: MacOS CI
     strategy:
       matrix:
-        os: [macos-12, macos-13]
+        os: [macos-13, macos-14]
         backend: [Portaudio, Gr-audio]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Install dependencies
         run: |
+          # for https://github.com/actions/runner-images/issues/9272
+          sudo chown -R runner:admin /usr/local/
           brew update
           brew install airspy boost gnuradio hackrf libbladerf librtlsdr pybind11 six uhd qt@6 || true
 
@@ -84,7 +86,7 @@ jobs:
           cd build
           cmake -DCMAKE_CXX_FLAGS=-Wno-register ..
           LIBRARY_PATH=/usr/local/opt/icu4c/lib make -j4
-          make install
+          sudo make install
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Configure
