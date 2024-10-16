@@ -35,7 +35,6 @@
 #include <gnuradio/analog/agc_cc.h>
 #include <gnuradio/blocks/keep_one_in_n.h>
 #include <gnuradio/blocks/file_sink.h>
-#include <gnuradio/blocks/message_debug.h>
 #include <gnuradio/digital/constellation_receiver_cb.h>
 #include <gnuradio/digital/diff_decoder_bb.h>
 #include <gnuradio/digital/symbol_sync_cc.h>
