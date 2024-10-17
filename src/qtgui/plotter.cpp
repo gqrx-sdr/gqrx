@@ -1582,11 +1582,11 @@ void CPlotter::draw(bool newData)
             // Fill area between markers, even if they are off screen
             qreal yFill = m_PlotMode == PLOT_MODE_MAX ? yMaxD : yAvgD;
             if (fillMarkers && (ix) > minMarker && (ix) < maxMarker) {
-                abPolygon << QPointF(ixPlot, yFill + 1.0);
+                abPolygon << QPointF(ixPlot, yFill);
             }
             if (m_FftFill && m_PlotMode != PLOT_MODE_HISTOGRAM)
             {
-                underPolygon << QPointF(ixPlot, yFill + 1.0);
+                underPolygon << QPointF(ixPlot, yFill);
             }
             if (m_PlotMode == PLOT_MODE_FILLED)
             {
