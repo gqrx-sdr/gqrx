@@ -108,6 +108,7 @@ if(NOT Gnuradio_VERSION VERSION_LESS "3.10")
         gnuradio::gnuradio-filter
         gnuradio::gnuradio-network
         gnuradio::gnuradio-audio
+        gnuradio::gnuradio-soapy
         Volk::volk
     )
 else()
