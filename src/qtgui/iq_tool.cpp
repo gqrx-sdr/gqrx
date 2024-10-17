@@ -236,6 +236,11 @@ void CIqTool::saveSettings(QSettings *settings)
     else
         settings->remove("baseband/rec_dir");
 
+    QString format = ui->formatCombo->currentText();
+    if (format != "Raw")
+        settings->setValue("baseband/rec_format", format);
+    else
+        settings->remove("baseband/rec_format");
 }
 
 void CIqTool::readSettings(QSettings *settings)
@@ -246,6 +251,10 @@ void CIqTool::readSettings(QSettings *settings)
     // Location of baseband recordings
     QString dir = settings->value("baseband/rec_dir", QDir::homePath()).toString();
     ui->recDirEdit->setText(dir);
+
+    // Format of baseband recordings
+    QString format = settings->value("baseband/rec_format", "Raw").toString();
+    ui->formatCombo->setCurrentText(format);
 }
 
 
