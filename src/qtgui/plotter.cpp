@@ -1036,7 +1036,7 @@ void CPlotter::resizeEvent(QResizeEvent* )
 
         // New waterfall, create blank area
         else if (m_WaterfallImage.isNull()) {
-            m_WaterfallImage = QImage(w, wfHeight * 2, QImage::Format_RGB32);
+            m_WaterfallImage = QImage(w, wfHeight, QImage::Format_RGB32);
             m_WaterfallImage.setDevicePixelRatio(m_DPR);
             m_WaterfallImage.fill(Qt::black);
             m_WaterfallOffset = wfHeight;
@@ -1046,17 +1046,21 @@ void CPlotter::resizeEvent(QResizeEvent* )
         // invalidate time
         else
         {
+            const int wfHeightOld = m_WaterfallImage.height();
             QImage oldWaterfall = m_WaterfallImage.scaled(
-                w, m_WaterfallImage.height(),
+                w, wfHeightOld,
                 Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-            m_WaterfallImage = QImage(w, wfHeight * 2, QImage::Format_RGB32);
+            m_WaterfallImage = QImage(w, wfHeight, QImage::Format_RGB32);
             m_WaterfallImage.setDevicePixelRatio(m_DPR);
             m_WaterfallImage.fill(Qt::black);
-            memcpy(m_WaterfallImage.scanLine(wfHeight), oldWaterfall.scanLine(m_WaterfallOffset),
-                m_WaterfallImage.bytesPerLine() * std::min(wfHeight, m_WaterfallHeight));
+            const int firstHeight = std::min(wfHeight, wfHeightOld - m_WaterfallOffset);
+            memcpy(m_WaterfallImage.scanLine(0), oldWaterfall.scanLine(m_WaterfallOffset),
+                 m_WaterfallImage.bytesPerLine() * firstHeight);
+            const int secondHeight = std::min(wfHeight - firstHeight, m_WaterfallOffset);
+            memcpy(m_WaterfallImage.scanLine(firstHeight), oldWaterfall.scanLine(0),
+                 m_WaterfallImage.bytesPerLine() * secondHeight);
             m_WaterfallOffset = wfHeight;
         }
-        m_WaterfallHeight = wfHeight;
 
         // Invalidate on resize
         m_MaxHoldValid = false;
@@ -1064,7 +1068,7 @@ void CPlotter::resizeEvent(QResizeEvent* )
         m_histIIRValid = false;
         // Do not need to invalidate IIR data (just histogram IIR)
 
-        // Waterfall accumulator my be the wrong size now, so invalidate.
+        // Waterfall accumulator may be the wrong size now, so invalidate.
         if (msec_per_wfline > 0)
             clearWaterfallBuf();
 
@@ -1084,24 +1088,35 @@ void CPlotter::paintEvent(QPaintEvent *)
 
     QPainter painter(this);
 
+    int plotWidthT = 0;
     int plotHeightT = 0;
     if (!m_2DPixmap.isNull())
     {
         const int plotWidthS = m_2DPixmap.width();
         const int plotHeightS = m_2DPixmap.height();
-        const QRect plotRectS(0, 0, plotWidthS, plotHeightS);
+        const QRectF plotRectS(0.0, 0.0, plotWidthS, plotHeightS);
 
-        const int plotWidthT = qRound((qreal)plotWidthS / m_DPR);
+        plotWidthT = qRound((qreal)plotWidthS / m_DPR);
         plotHeightT = qRound((qreal)plotHeightS / m_DPR);
-        const QRect plotRectT(0, 0, plotWidthT, plotHeightT);
+        const QRectF plotRectT(0.0, 0.0, plotWidthT, plotHeightT);
 
         painter.drawPixmap(plotRectT, m_2DPixmap, plotRectS);
     }
 
     if (!m_WaterfallImage.isNull())
     {
-        painter.drawImage(QPoint(0, plotHeightT), m_WaterfallImage,
-            QRect(0, m_WaterfallOffset, m_WaterfallImage.width(), m_WaterfallHeight));
+        const int wfWidth = m_WaterfallImage.width();
+        const int wfHeight = m_WaterfallImage.height();
+        const int firstHeightS = wfHeight - m_WaterfallOffset;
+        const qreal firstHeightT = firstHeightS / m_DPR;
+        const qreal secondHeightT = m_WaterfallOffset / m_DPR;
+        // draw the waterfall in two parts based on the location of the offset:
+        // the first draw is the section below the offset to be drawm at top
+        painter.drawImage(QRectF(0.0, plotHeightT, plotWidthT, firstHeightT), m_WaterfallImage,
+            QRectF(0.0, m_WaterfallOffset, wfWidth, firstHeightS));
+        // the second draw is the section above the offset to be drawn below
+        painter.drawImage(QRectF(0.0, plotHeightT + firstHeightT, plotWidthT, secondHeightT), m_WaterfallImage,
+            QRectF(0.0, 0.0, wfWidth, m_WaterfallOffset));
     }
 }
 
@@ -1411,17 +1426,10 @@ void CPlotter::draw(bool newData)
                 wf_valid_since_ms = tnow_ms;
             tlast_wf_drawn_ms = tnow_ms;
 
-            // move current offset up one line
-            // if the offset was zero, copy the top half of the waterfall
-            // to the bottom half of the waterfall and reset offset
-            if(m_WaterfallOffset-- == 0)
-            {
-                memcpy(m_WaterfallImage.scanLine(m_WaterfallHeight + 1), m_WaterfallImage.scanLine(0),
-                    m_WaterfallImage.bytesPerLine() * (m_WaterfallHeight - 1));
-                m_WaterfallOffset = m_WaterfallHeight;
-            }
-            
-
+            // move the offset "up"
+            // this changes how the resulting waterfall is drawn
+            // it is more efficient than moving all of the image scan lines
+            m_WaterfallOffset--;
             // draw new line of fft data at top of waterfall bitmap
             // draw black areas where data will not be draw
             memset(m_WaterfallImage.scanLine(m_WaterfallOffset), 0, m_WaterfallImage.bytesPerLine());
@@ -1443,6 +1451,10 @@ void CPlotter::draw(bool newData)
                 qint32 cidx = qRound((m_WfMaxdB - 10.0f * log10f(v)) * wfdBGainFactor);
                 cidx = std::max(std::min(cidx, 255), 0);
                 m_WaterfallImage.setPixel(ix, m_WaterfallOffset, m_ColorTbl[255 - cidx].rgb());
+            }
+            if(m_WaterfallOffset == 0)
+            {
+                m_WaterfallOffset = m_WaterfallImage.height();
             }
 
             wf_avg_count = 0;
