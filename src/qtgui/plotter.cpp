@@ -1758,23 +1758,26 @@ void CPlotter::draw(bool newData)
             // Paint peaks with shadow
             if (m_PeakPixmap.isNull())
             {
-                m_PeakPixmap = QPixmap(qRound((10.0 + shadowOffset) * m_DPR), qRound((10.0 + shadowOffset) * m_DPR));
+                const qreal radius = 5.0 * m_DPR;
+                const qreal diameter = radius * 2;
+                const int half = qRound(radius + m_DPR + shadowOffset);
+                const int full = half * 2;
+                m_PeakPixmap = QPixmap(full, full);
                 m_PeakPixmap.fill(Qt::transparent);
                 QPainter peakPainter(&m_PeakPixmap);
-                peakPainter.translate(QPointF(0.5, 0.5));
+                peakPainter.translate(half, half);
                 QPen peakPen(m_MainLineCol, m_DPR);
                 QPen peakShadowPen(Qt::black, m_DPR);
-                peakPen.setWidthF(m_DPR);
                 peakPainter.setPen(peakShadowPen);
                 peakPainter.drawEllipse(
-                    QRectF(shadowOffset,
-                           shadowOffset,
-                           10.0 * m_DPR, 10.0 * m_DPR));
+                    QRectF(shadowOffset - radius,
+                           shadowOffset - radius,
+                           diameter, diameter));
                 peakPainter.setPen(peakPen);
                 peakPainter.drawEllipse(
-                    QRectF(0,
-                           0,
-                           10.0 * m_DPR, 10.0 * m_DPR));
+                    QRectF(-radius,
+                           -radius,
+                           diameter, diameter));
             }
             const int peakPixmapOffset = m_PeakPixmap.width() / 2;
             for(auto peakx : m_Peaks.keys()) {
