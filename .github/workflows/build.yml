@@ -67,7 +67,14 @@ jobs:
           path: Gqrx-*.AppImage
   macos:
     name: MacOS
-    runs-on: macos-13
+    strategy:
+      matrix:
+        arch: [x86_64, arm64]
+    # NOTE: in the free tier, `macos-13` is x86_64 only, while `macos-14` is arm64 only.
+    # when we increase the baseline to 14 eventually, we will be losing x86_64 support,
+    # so hopefully all of the macs will be arm64 by then.
+    # see https://github.com/actions/runner-images/issues/9741
+    runs-on: ${{ matrix.arch == 'x86_64' && 'macos-13' || 'macos-14' }}
     steps:
       - name: Check for Secret availability
         id: secret-check
@@ -79,13 +86,12 @@ jobs:
           fi
       - name: Install dependencies
         run: |
+          uname -a
           # for https://github.com/actions/runner-images/issues/9272
           sudo chown -R runner:admin /usr/local/
           brew update
           brew install --HEAD librtlsdr
-          brew install airspy airspyhf boost dylibbundler gnuradio hackrf libbladerf libserialport portaudio pybind11 six uhd qt@6 || true
-          brew tap pothosware/homebrew-pothos
-          brew install soapyremote
+          brew install airspy airspyhf boost dylibbundler gnuradio hackrf libbladerf libserialport portaudio pybind11 six soapyremote uhd qt@6 || true
 
           cd /tmp
           git clone https://github.com/analogdevicesinc/libiio.git
@@ -93,7 +99,7 @@ jobs:
           git checkout v0.23
           mkdir build
           cd build
-          cmake ..
+          cmake -DCMAKE_BUILD_TYPE=Release ..
           make -j4
           sudo make install
 
@@ -102,7 +108,7 @@ jobs:
           cd libad9361-iio
           mkdir build
           cd build
-          cmake ..
+          cmake -DCMAKE_BUILD_TYPE=Release ..
           make -j4
           sudo make install
 
@@ -111,19 +117,19 @@ jobs:
           cd SoapyPlutoSDR
           mkdir build
           cd build
-          cmake ..
+          cmake -DCMAKE_BUILD_TYPE=Release ..
           make -j4
           sudo make install
 
           cd /tmp
-          cp /Library/Frameworks/iio.framework/iio /usr/local/lib/libiio.dylib
-          install_name_tool -id "/usr/local/lib/libiio.dylib" /usr/local/lib/libiio.dylib
-          cp /Library/Frameworks/ad9361.framework/ad9361 /usr/local/lib/libad9361.dylib
-          install_name_tool -id "/usr/local/lib/libad9361.dylib" /usr/local/lib/libad9361.dylib
-          install_name_tool -delete_rpath /Library/Frameworks /usr/local/lib/libad9361.dylib
-          install_name_tool -change @rpath/iio.framework/Versions/0.23/iio /usr/local/lib/libiio.dylib /usr/local/lib/libad9361.dylib
-          install_name_tool -change @rpath/iio.framework/Versions/0.23/iio /usr/local/lib/libiio.dylib /usr/local/lib/SoapySDR/modules0.*/libPlutoSDRSupport.so
-          install_name_tool -change @rpath/ad9361.framework/Versions/0.2/ad9361 /usr/local/lib/libad9361.dylib /usr/local/lib/SoapySDR/modules0.*/libPlutoSDRSupport.so
+          sudo cp /Library/Frameworks/iio.framework/iio /usr/local/lib/libiio.dylib
+          sudo install_name_tool -id "/usr/local/lib/libiio.dylib" /usr/local/lib/libiio.dylib
+          sudo cp /Library/Frameworks/ad9361.framework/ad9361 /usr/local/lib/libad9361.dylib
+          sudo install_name_tool -id "/usr/local/lib/libad9361.dylib" /usr/local/lib/libad9361.dylib
+          sudo install_name_tool -delete_rpath /Library/Frameworks /usr/local/lib/libad9361.dylib
+          sudo install_name_tool -change @rpath/iio.framework/Versions/0.23/iio /usr/local/lib/libiio.dylib /usr/local/lib/libad9361.dylib
+          sudo install_name_tool -change @rpath/iio.framework/Versions/0.23/iio /usr/local/lib/libiio.dylib /usr/local/lib/SoapySDR/modules0.*/libPlutoSDRSupport.so
+          sudo install_name_tool -change @rpath/ad9361.framework/Versions/0.2/ad9361 /usr/local/lib/libad9361.dylib /usr/local/lib/SoapySDR/modules0.*/libPlutoSDRSupport.so
 
           cd /tmp
           git clone https://gitea.osmocom.org/sdr/gr-iqbal.git
@@ -131,7 +137,7 @@ jobs:
           git submodule update --init --recursive
           mkdir build
           cd build
-          cmake ..
+          cmake -DCMAKE_BUILD_TYPE=Release ..
           make -j4
           sudo make install
 
@@ -140,7 +146,7 @@ jobs:
           cd gr-osmosdr
           mkdir build
           cd build
-          cmake -DCMAKE_CXX_FLAGS=-Wno-register ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Wno-register ..
           LIBRARY_PATH=/usr/local/opt/icu4c/lib make -j4
           sudo make install
       - name: Install Apple certificate
@@ -166,7 +172,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Configure
-        run: mkdir build && cd build && cmake ..
+        run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release ..
       - name: Compile
         working-directory: build
         run: make -j4
@@ -206,7 +212,7 @@ jobs:
       - name: Save artifact
         uses: actions/upload-artifact@v4
         with:
-          name: gqrx-macos-${{ github.run_id }}
+          name: gqrx-macos-${{ matrix.arch }}-${{ github.run_id }}
           path: Gqrx-*.dmg
   windows:
     runs-on: windows-latest

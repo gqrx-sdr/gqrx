@@ -68,7 +68,7 @@ jobs:
     name: MacOS CI
     strategy:
       matrix:
-        os: [macos-13, macos-14]
+        os: [macos-13, macos-latest]
         backend: [Portaudio, Gr-audio]
     runs-on: ${{ matrix.os }}
     steps:
