@@ -1088,7 +1088,6 @@ void CPlotter::paintEvent(QPaintEvent *)
 
     QPainter painter(this);
 
-    int plotWidthT = 0;
     int plotHeightT = 0;
     if (!m_2DPixmap.isNull())
     {
@@ -1096,7 +1095,7 @@ void CPlotter::paintEvent(QPaintEvent *)
         const int plotHeightS = m_2DPixmap.height();
         const QRectF plotRectS(0.0, 0.0, plotWidthS, plotHeightS);
 
-        plotWidthT = qRound((qreal)plotWidthS / m_DPR);
+        const int plotWidthT = qRound((qreal)plotWidthS / m_DPR);
         plotHeightT = qRound((qreal)plotHeightS / m_DPR);
         const QRectF plotRectT(0.0, 0.0, plotWidthT, plotHeightT);
 
@@ -1106,16 +1105,17 @@ void CPlotter::paintEvent(QPaintEvent *)
     if (!m_WaterfallImage.isNull())
     {
         const int wfWidth = m_WaterfallImage.width();
+        const int wfWidthT = qRound((qreal)wfWidth / m_DPR);
         const int wfHeight = m_WaterfallImage.height();
         const int firstHeightS = wfHeight - m_WaterfallOffset;
         const qreal firstHeightT = firstHeightS / m_DPR;
         const qreal secondHeightT = m_WaterfallOffset / m_DPR;
         // draw the waterfall in two parts based on the location of the offset:
         // the first draw is the section below the offset to be drawm at top
-        painter.drawImage(QRectF(0.0, plotHeightT, plotWidthT, firstHeightT), m_WaterfallImage,
+        painter.drawImage(QRectF(0.0, plotHeightT, wfWidthT, firstHeightT), m_WaterfallImage,
             QRectF(0.0, m_WaterfallOffset, wfWidth, firstHeightS));
         // the second draw is the section above the offset to be drawn below
-        painter.drawImage(QRectF(0.0, plotHeightT + firstHeightT, plotWidthT, secondHeightT), m_WaterfallImage,
+        painter.drawImage(QRectF(0.0, plotHeightT + firstHeightT, wfWidthT, secondHeightT), m_WaterfallImage,
             QRectF(0.0, 0.0, wfWidth, m_WaterfallOffset));
     }
 }
@@ -1775,7 +1775,10 @@ void CPlotter::draw(bool newData)
                 const int half = qRound(radius + m_DPR + shadowOffset);
                 const int full = half * 2;
                 m_PeakPixmap = QPixmap(full, full);
-                m_PeakPixmap.fill(Qt::transparent);
+                QColor bg = QColor(m_MainLineCol);
+                bg.setAlpha(128);
+                m_PeakPixmap.fill(bg);
+                //m_PeakPixmap.fill(Qt::transparent);
                 QPainter peakPainter(&m_PeakPixmap);
                 peakPainter.translate(half, half);
                 QPen peakPen(m_MainLineCol, m_DPR);
