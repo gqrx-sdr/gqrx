@@ -1772,13 +1772,10 @@ void CPlotter::draw(bool newData)
             {
                 const qreal radius = 5.0 * m_DPR;
                 const qreal diameter = radius * 2;
-                const int half = qRound(radius + m_DPR + shadowOffset);
+                const int half = qRound(radius + m_DPR * 2);
                 const int full = half * 2;
                 m_PeakPixmap = QPixmap(full, full);
-                QColor bg = QColor(m_MainLineCol);
-                bg.setAlpha(128);
-                m_PeakPixmap.fill(bg);
-                //m_PeakPixmap.fill(Qt::transparent);
+                m_PeakPixmap.fill(Qt::transparent);
                 QPainter peakPainter(&m_PeakPixmap);
                 peakPainter.translate(half, half);
                 QPen peakPen(m_MainLineCol, m_DPR);
@@ -1794,7 +1791,7 @@ void CPlotter::draw(bool newData)
                            -radius,
                            diameter, diameter));
             }
-            const int peakPixmapOffset = m_PeakPixmap.width() / 2;
+            const int peakPixmapOffset = m_PeakPixmap.width() / 2 + 1;
             for(auto peakx : m_Peaks.keys()) {
                 const qreal peakxPlot = (qreal)peakx;
                 const qreal peakv = m_Peaks.value(peakx);
