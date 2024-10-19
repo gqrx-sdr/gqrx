@@ -89,7 +89,7 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     setFocusPolicy(Qt::StrongFocus);
     setAttribute(Qt::WA_PaintOnScreen,false);
     setAutoFillBackground(false);
-    setAttribute(Qt::WA_OpaquePaintEvent, false);
+    setAttribute(Qt::WA_OpaquePaintEvent, true);
     setAttribute(Qt::WA_NoSystemBackground, true);
     setMouseTracking(true);
 
@@ -149,6 +149,7 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     m_DrawOverlay = true;
     m_2DPixmap = QPixmap();
     m_OverlayPixmap = QPixmap();
+    m_PeakPixmap = QPixmap();
     m_WaterfallImage = QImage();
     m_Size = QSize(0,0);
     m_GrabPosition = 0;
@@ -1015,8 +1016,11 @@ void CPlotter::resizeEvent(QResizeEvent* )
         // Higher resolution pixmaps are used with higher DPR. They are
         // rescaled in paintEvent().
         const int w = qRound((qreal)s.width() * m_DPR);
-        const int plotHeight = qRound((qreal)m_Percent2DScreen * (qreal)s.height() / 100.0 * m_DPR);
-        const int wfHeight = qRound((qreal)s.height() * m_DPR) - plotHeight;
+        const int rawHeight = s.height();
+        const int rawPlotHeight = qRound((qreal)m_Percent2DScreen / 100.0 * (qreal)rawHeight);
+        const int rawWfHeight = rawHeight - rawPlotHeight;
+        const int plotHeight = qRound((qreal)rawPlotHeight * m_DPR);
+        const int wfHeight = qRound((qreal)rawWfHeight * m_DPR);
 
         m_OverlayPixmap = QPixmap(w, plotHeight);
         m_OverlayPixmap.fill(Qt::transparent);
@@ -1035,20 +1039,27 @@ void CPlotter::resizeEvent(QResizeEvent* )
             m_WaterfallImage = QImage(w, wfHeight, QImage::Format_RGB32);
             m_WaterfallImage.setDevicePixelRatio(m_DPR);
             m_WaterfallImage.fill(Qt::black);
+            m_WaterfallOffset = wfHeight;
         }
 
         // Existing waterfall, rescale width but no height as that would
         // invalidate time
         else
         {
+            const int wfHeightOld = m_WaterfallImage.height();
             QImage oldWaterfall = m_WaterfallImage.scaled(
-                w, m_WaterfallImage.height(),
+                w, wfHeightOld,
                 Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
             m_WaterfallImage = QImage(w, wfHeight, QImage::Format_RGB32);
             m_WaterfallImage.setDevicePixelRatio(m_DPR);
             m_WaterfallImage.fill(Qt::black);
-            memcpy(m_WaterfallImage.bits(), oldWaterfall.bits(),
-                m_WaterfallImage.bytesPerLine() * std::min(m_WaterfallImage.height(), oldWaterfall.height()));
+            const int firstHeight = std::min(wfHeight, wfHeightOld - m_WaterfallOffset);
+            memcpy(m_WaterfallImage.scanLine(0), oldWaterfall.scanLine(m_WaterfallOffset),
+                 m_WaterfallImage.bytesPerLine() * firstHeight);
+            const int secondHeight = std::min(wfHeight - firstHeight, m_WaterfallOffset);
+            memcpy(m_WaterfallImage.scanLine(firstHeight), oldWaterfall.scanLine(0),
+                 m_WaterfallImage.bytesPerLine() * secondHeight);
+            m_WaterfallOffset = wfHeight;
         }
 
         // Invalidate on resize
@@ -1057,7 +1068,7 @@ void CPlotter::resizeEvent(QResizeEvent* )
         m_histIIRValid = false;
         // Do not need to invalidate IIR data (just histogram IIR)
 
-        // Waterfall accumulator my be the wrong size now, so invalidate.
+        // Waterfall accumulator may be the wrong size now, so invalidate.
         if (msec_per_wfline > 0)
             clearWaterfallBuf();
 
@@ -1093,7 +1104,19 @@ void CPlotter::paintEvent(QPaintEvent *)
 
     if (!m_WaterfallImage.isNull())
     {
-        painter.drawImage(QPointF(0.0, plotHeightT), m_WaterfallImage);
+        const int wfWidth = m_WaterfallImage.width();
+        const int wfWidthT = qRound((qreal)wfWidth / m_DPR);
+        const int wfHeight = m_WaterfallImage.height();
+        const int firstHeightS = wfHeight - m_WaterfallOffset;
+        const qreal firstHeightT = firstHeightS / m_DPR;
+        const qreal secondHeightT = m_WaterfallOffset / m_DPR;
+        // draw the waterfall in two parts based on the location of the offset:
+        // the first draw is the section below the offset to be drawm at top
+        painter.drawImage(QRectF(0.0, plotHeightT, wfWidthT, firstHeightT), m_WaterfallImage,
+            QRectF(0.0, m_WaterfallOffset, wfWidth, firstHeightS));
+        // the second draw is the section above the offset to be drawn below
+        painter.drawImage(QRectF(0.0, plotHeightT + firstHeightT, wfWidthT, secondHeightT), m_WaterfallImage,
+            QRectF(0.0, 0.0, wfWidth, m_WaterfallOffset));
     }
 }
 
@@ -1125,9 +1148,6 @@ void CPlotter::draw(bool newData)
 
         return;
     }
-
-    QPointF avgLineBuf[MAX_SCREENSIZE];
-    QPointF maxLineBuf[MAX_SCREENSIZE];
 
     const quint64 tnow_ms = QDateTime::currentMSecsSinceEpoch();
 
@@ -1406,13 +1426,13 @@ void CPlotter::draw(bool newData)
                 wf_valid_since_ms = tnow_ms;
             tlast_wf_drawn_ms = tnow_ms;
 
-            // move current data down one line(must do before attaching a QPainter object)
-            memmove(m_WaterfallImage.scanLine(1), m_WaterfallImage.scanLine(0),
-                m_WaterfallImage.bytesPerLine() * (m_WaterfallImage.height() - 1));
-
+            // move the offset "up"
+            // this changes how the resulting waterfall is drawn
+            // it is more efficient than moving all of the image scan lines
+            m_WaterfallOffset--;
             // draw new line of fft data at top of waterfall bitmap
             // draw black areas where data will not be draw
-            memset(m_WaterfallImage.scanLine(0), 0, m_WaterfallImage.bytesPerLine());
+            memset(m_WaterfallImage.scanLine(m_WaterfallOffset), 0, m_WaterfallImage.bytesPerLine());
 
             const bool useWfBuf = msec_per_wfline > 0;
             float _lineFactor;
@@ -1430,7 +1450,11 @@ void CPlotter::draw(bool newData)
                 const float v = useWfBuf ? m_wfbuf[ix] * lineFactor : dataSource[ix];
                 qint32 cidx = qRound((m_WfMaxdB - 10.0f * log10f(v)) * wfdBGainFactor);
                 cidx = std::max(std::min(cidx, 255), 0);
-                m_WaterfallImage.setPixel(ix, 0, m_ColorTbl[255 - cidx].rgb());
+                m_WaterfallImage.setPixel(ix, m_WaterfallOffset, m_ColorTbl[255 - cidx].rgb());
+            }
+            if(m_WaterfallOffset == 0)
+            {
+                m_WaterfallOffset = m_WaterfallImage.height();
             }
 
             wf_avg_count = 0;
@@ -1477,7 +1501,8 @@ void CPlotter::draw(bool newData)
     {
         tlast_plot_drawn_ms = tnow_ms;
 
-        m_2DPixmap.fill(QColor::fromRgba(PLOTTER_BGD_COLOR));
+        QColor bgColor = QColor::fromRgba(PLOTTER_BGD_COLOR);
+        m_2DPixmap.fill(bgColor);
         QPainter painter2(&m_2DPixmap);
         painter2.translate(QPointF(0.5, 0.5));
 
@@ -1486,20 +1511,18 @@ void CPlotter::draw(bool newData)
         QBrush fillBrush = QBrush(m_FftFillCol);
 
         // Fill between max and avg
-        QColor maxFillCol = m_FftFillCol;
-        maxFillCol.setAlpha(80);
-        QBrush maxFillBrush = QBrush(maxFillCol);
+        QBrush maxFillBrush = QBrush(m_FilledModeFillCol);
 
         // Diagonal fill for area between markers. Scale the pattern to DPR.
         QColor abFillColor = QColor::fromRgba(PLOTTER_MARKER_COLOR);
         abFillColor.setAlpha(128);
         QBrush abFillBrush = QBrush(abFillColor, Qt::BDiagPattern);
 
-        QColor maxLineColor = QColor(m_FftFillCol);
+        QColor maxLineColor;
         if (m_PlotMode == PLOT_MODE_FILLED)
-            maxLineColor.setAlpha(128);
+            maxLineColor = m_FilledModeMaxLineCol;
         else
-            maxLineColor.setAlpha(255);
+            maxLineColor = m_MainLineCol;
 
         QPen maxLinePen = QPen(maxLineColor);
 
@@ -1507,14 +1530,10 @@ void CPlotter::draw(bool newData)
         QPen avgLinePen;
         if (m_PlotMode == PLOT_MODE_AVG || m_PlotMode == PLOT_MODE_HISTOGRAM)
         {
-            QColor avgLineCol = m_FftFillCol;
-            avgLineCol.setAlpha(255);
-            avgLinePen = QPen(avgLineCol);
+            avgLinePen = QPen(m_MainLineCol);
         }
         else {
-            QColor avgLineCol = QColor(Qt::cyan);
-            avgLineCol.setAlpha(192);
-            avgLinePen = QPen(avgLineCol);
+            avgLinePen = QPen(m_FilledModeAvgLineCol);
         }
 
         // The m_Marker{AB}X values are one cycle old, which makes for a laggy
@@ -1527,6 +1546,9 @@ void CPlotter::draw(bool newData)
         const int maxMarker = std::max(ax, bx);
 
         const float binSizeY = (float)plotHeight / (float)histBinsDisplayed;
+        QPolygonF abPolygon;
+        QPolygonF underPolygon;
+        QPolygonF avgMaxPolygon;
         for (i = 0; i < npts; i++)
         {
             const int ix = i + xmin;
@@ -1565,34 +1587,39 @@ void CPlotter::draw(bool newData)
 
             // Add max, average points if they will be drawn
             if (doMaxLine)
-                maxLineBuf[i] = QPointF(ixPlot, yMaxD);
+                m_maxLineBuf[i] = QPointF(ixPlot, yMaxD);
             if (doAvgLine)
-                avgLineBuf[i] = QPointF(ixPlot, yAvgD);
+                m_avgLineBuf[i] = QPointF(ixPlot, yAvgD);
 
             // Fill area between markers, even if they are off screen
             qreal yFill = m_PlotMode == PLOT_MODE_MAX ? yMaxD : yAvgD;
             if (fillMarkers && (ix) > minMarker && (ix) < maxMarker) {
-                painter2.fillRect(QRectF(ixPlot, yFill + 1.0, 1.0, plotHeight - yFill), abFillBrush);
+                abPolygon << QPointF(ixPlot, yFill);
             }
             if (m_FftFill && m_PlotMode != PLOT_MODE_HISTOGRAM)
             {
-                painter2.fillRect(QRectF(ixPlot, yFill + 1.0, 1.0, plotHeight - yFill), m_FftFillCol);
+                underPolygon << QPointF(ixPlot, yFill);
             }
             if (m_PlotMode == PLOT_MODE_FILLED)
             {
-                painter2.fillRect(QRectF(ixPlot, yMaxD + 1.0, 1.0, yAvgD - yMaxD), maxFillBrush);
+                avgMaxPolygon << m_maxLineBuf[i];
             }
         }
 
-        if (doMaxLine) {
-            // NOT scaling to DPR due to performance
-            painter2.setPen(maxLinePen);
-            painter2.drawPolyline(maxLineBuf, npts);
+        if (!underPolygon.isEmpty())
+        {
+            underPolygon << QPointF(underPolygon.last().x(), plotHeight);
+            underPolygon << QPointF(underPolygon.first().x(), plotHeight);
+            painter2.setBrush(fillBrush);
+            painter2.drawPolygon(underPolygon);
         }
-        if (doAvgLine) {
-            // NOT scaling to DPR due to performance
-            painter2.setPen(avgLinePen);
-            painter2.drawPolyline(avgLineBuf, npts);
+
+        if (!abPolygon.isEmpty())
+        {
+            abPolygon << QPointF(abPolygon.last().x(), plotHeight);
+            abPolygon << QPointF(abPolygon.first().x(), plotHeight);
+            painter2.setBrush(abFillBrush);
+            painter2.drawPolygon(abPolygon);
         }
 
         // Max hold
@@ -1606,11 +1633,11 @@ void CPlotter::draw(bool newData)
                 const qreal yMaxHoldD = (qreal)std::max(std::min(
                     panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMaxHoldBuf[ix])),
                     (float)plotHeight), 0.0f);
-                maxLineBuf[i] = QPointF(ixPlot, yMaxHoldD);
+                m_holdLineBuf[i] = QPointF(ixPlot, yMaxHoldD);
             }
             // NOT scaling to DPR due to performance
-            painter2.setPen(m_MaxHoldColor);
-            painter2.drawPolyline(maxLineBuf, npts);
+            painter2.setPen(m_HoldLineCol);
+            painter2.drawPolyline(m_holdLineBuf, npts);
 
             m_MaxHoldValid = true;
         }
@@ -1626,13 +1653,36 @@ void CPlotter::draw(bool newData)
                 const qreal yMinHoldD = (qreal)std::max(std::min(
                     panddBGainFactor * (m_PandMaxdB - 10.0f * log10f(m_fftMinHoldBuf[ix])),
                     (float)plotHeight), 0.0f);
-                maxLineBuf[i] = QPointF(ixPlot, yMinHoldD);
+                m_holdLineBuf[i] = QPointF(ixPlot, yMinHoldD);
             }
             // NOT scaling to DPR due to performance
-            painter2.setPen(m_MinHoldColor);
-            painter2.drawPolyline(maxLineBuf, npts);
+            painter2.setPen(m_HoldLineCol);
+            painter2.drawPolyline(m_holdLineBuf, npts);
 
             m_MinHoldValid = true;
+        }
+
+        if (!avgMaxPolygon.isEmpty())
+        {
+            for (i = npts - 1; i >= 0; i--)
+            {
+                avgMaxPolygon << m_avgLineBuf[i];
+            }
+            painter2.setBrush(maxFillBrush);
+            painter2.drawPolygon(avgMaxPolygon);
+        }
+
+        if (doMaxLine)
+        {
+            // NOT scaling to DPR due to performance
+            painter2.setPen(maxLinePen);
+            painter2.drawPolyline(m_maxLineBuf, npts);
+        }
+        if (doAvgLine)
+        {
+            // NOT scaling to DPR due to performance
+            painter2.setPen(avgLinePen);
+            painter2.drawPolyline(m_avgLineBuf, npts);
         }
 
         // Peak detection
@@ -1718,22 +1768,34 @@ void CPlotter::draw(bool newData)
             }
 
             // Paint peaks with shadow
-            QPen peakPen(m_maxFftColor, m_DPR);
-            QPen peakShadowPen(Qt::black, m_DPR);
-            peakPen.setWidthF(m_DPR);
+            if (m_PeakPixmap.isNull())
+            {
+                const qreal radius = 5.0 * m_DPR;
+                const qreal diameter = radius * 2;
+                const int half = qRound(radius + m_DPR * 2);
+                const int full = half * 2;
+                m_PeakPixmap = QPixmap(full, full);
+                m_PeakPixmap.fill(Qt::transparent);
+                QPainter peakPainter(&m_PeakPixmap);
+                peakPainter.translate(half, half);
+                QPen peakPen(m_MainLineCol, m_DPR);
+                QPen peakShadowPen(Qt::black, m_DPR);
+                peakPainter.setPen(peakShadowPen);
+                peakPainter.drawEllipse(
+                    QRectF(shadowOffset - radius,
+                           shadowOffset - radius,
+                           diameter, diameter));
+                peakPainter.setPen(peakPen);
+                peakPainter.drawEllipse(
+                    QRectF(-radius,
+                           -radius,
+                           diameter, diameter));
+            }
+            const int peakPixmapOffset = m_PeakPixmap.width() / 2 + 1;
             for(auto peakx : m_Peaks.keys()) {
                 const qreal peakxPlot = (qreal)peakx;
                 const qreal peakv = m_Peaks.value(peakx);
-                painter2.setPen(peakShadowPen);
-                painter2.drawEllipse(
-                    QRectF(peakxPlot - 5.0 * m_DPR + shadowOffset,
-                           peakv - 5.0 * m_DPR + shadowOffset,
-                           10.0 * m_DPR, 10.0 * m_DPR));
-                painter2.setPen(peakPen);
-                painter2.drawEllipse(
-                    QRectF(peakxPlot - 5.0 * m_DPR,
-                           peakv - 5.0 * m_DPR,
-                           10.0 * m_DPR, 10.0 * m_DPR));
+                painter2.drawPixmap(QPointF(peakxPlot - peakPixmapOffset, peakv - peakPixmapOffset), m_PeakPixmap);
             }
         }
 
@@ -2379,15 +2441,14 @@ void CPlotter::moveToDemodFreq()
 /** Set FFT plot color. */
 void CPlotter::setFftPlotColor(const QColor& color)
 {
-    m_avgFftColor = color;
-    m_maxFftColor = color;
-    // m_maxFftColor.setAlpha(192);
-    m_FftFillCol = color;
-    m_FftFillCol.setAlpha(26);
-    m_MaxHoldColor = color;
-    m_MaxHoldColor.setAlpha(80);
-    m_MinHoldColor = color;
-    m_MinHoldColor.setAlpha(80);
+    m_PeakPixmap = QPixmap();
+    QColor bgColor = QColor::fromRgba(PLOTTER_BGD_COLOR);
+    m_FftFillCol = blend(bgColor, color, 26);
+    m_MainLineCol = color;
+    m_HoldLineCol = blend(bgColor, color, 80);
+    m_FilledModeFillCol = blend(bgColor, color, 80);
+    m_FilledModeMaxLineCol = blend(bgColor, color, 128);
+    m_FilledModeAvgLineCol = blend(bgColor, QColor(Qt::cyan), 192);
 }
 
 /** Enable/disable filling the area below the FFT plot. */

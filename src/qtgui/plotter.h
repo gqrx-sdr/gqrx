@@ -221,6 +221,14 @@ private:
     static qint64      roundFreq(qint64 freq, int resolution);
     quint64     msecFromY(int y);
     void        clampDemodParameters();
+    static QColor      blend(QColor base, QColor over, int alpha255)
+    {
+        qreal alpha = alpha255 / 255.0;
+        qreal oneMinusAlpha = 1.0 - alpha;
+        return QColor(qRound(alpha * over.red()   + oneMinusAlpha * base.red()),
+                      qRound(alpha * over.green() + oneMinusAlpha * base.green()),
+                      qRound(alpha * over.blue()  + oneMinusAlpha * base.blue()));
+    }
     static bool        isPointCloseTo(int x, int xr, int delta)
     {
         return ((x > (xr - delta)) && (x < (xr + delta)));
@@ -242,6 +250,9 @@ private:
     float       m_wfAvgBuf[MAX_SCREENSIZE]{};
     float       m_histogram[MAX_SCREENSIZE][MAX_HISTOGRAM_SIZE]{};
     float       m_histIIR[MAX_SCREENSIZE][MAX_HISTOGRAM_SIZE]{};
+    QPointF     m_avgLineBuf[MAX_SCREENSIZE]{};
+    QPointF     m_maxLineBuf[MAX_SCREENSIZE]{};
+    QPointF     m_holdLineBuf[MAX_SCREENSIZE]{};
     float       m_histMaxIIR;
     std::vector<float> m_fftIIR;
     std::vector<float> m_fftData;
@@ -259,7 +270,9 @@ private:
     eCapturetype    m_CursorCaptured;
     QPixmap     m_2DPixmap;         // Composite of everything displayed in the 2D plotter area
     QPixmap     m_OverlayPixmap;    // Grid, axes ... things that need to be drawn infrequently
+    QPixmap     m_PeakPixmap;
     QImage      m_WaterfallImage;
+    int         m_WaterfallOffset;
     QColor      m_ColorTbl[256];
     QSize       m_Size;
     qreal       m_DPR{};
@@ -328,7 +341,7 @@ private:
 
     quint32     m_LastSampleRate{};
 
-    QColor      m_avgFftColor, m_maxFftColor, m_FftFillCol, m_MaxHoldColor, m_MinHoldColor;
+    QColor      m_FftFillCol, m_FilledModeFillCol, m_FilledModeMaxLineCol, m_FilledModeAvgLineCol, m_MainLineCol, m_HoldLineCol;
     bool        m_FftFill{};
 
     QMap<int,qreal>   m_Peaks;

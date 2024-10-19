@@ -211,6 +211,7 @@ The following people and organisations have contributed to gqrx:
 * Grigory Shipunov
 * Gwenhael Goavec-Merou
 * Herman Semenov
+* James Yuzawa
 * Jaroslav Škarvada
 * Jeff Long
 * Jiawei Chen
