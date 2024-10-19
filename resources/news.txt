@@ -4,6 +4,7 @@
   IMPROVED: Save I/Q recording format to settings.
   IMPROVED: Reduced CPU utilization of plot and waterfall display.
      FIXED: Decoding of RDS flags.
+   CHANGED: DMG release requires macOS 13.7 or later.
 
 
     2.17.5: Released April 18, 2024
