@@ -1593,14 +1593,14 @@ void CPlotter::draw(bool newData)
             }
             yFillMin = std::min(yFillMin, qRound(yFill));
             yFillMax = std::max(yFillMax, qRound(yFill));
-            yInnerFillMin = std::min(yFillMin, qRound(yMaxD));
-            yInnerFillMax = std::max(yFillMax, qRound(yAvgD));
+            yInnerFillMin = std::min(yInnerFillMin, qRound(yMaxD));
+            yInnerFillMax = std::max(yInnerFillMax, qRound(yAvgD));
         }
 
         if (m_FftFill && m_PlotMode != PLOT_MODE_HISTOGRAM)
         {
             painter2.setPen(QPen(m_FftFillCol));
-            for (int y = yFillMin; y < yFillMax; y++)
+            for (int y = yFillMin; y <= yFillMax; y++)
             {
                 for (i = 0; i < npts; i++)
                 {
