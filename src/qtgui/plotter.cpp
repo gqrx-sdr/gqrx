@@ -1672,7 +1672,7 @@ void CPlotter::draw(bool newData)
                 {
                     const int ix = i + xmin;
                     const int yMax = qRound(m_maxLineBuf[i].y());
-                    const int yAvg = qRound(m_maxLineBuf[i].y());
+                    const int yAvg = qRound(m_avgLineBuf[i].y());
                     if (yMax < y && y < yAvg) {
                         painter2.drawPoint(QPoint(ix, y));
                     }
