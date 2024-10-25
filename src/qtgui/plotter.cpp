@@ -1540,10 +1540,6 @@ void CPlotter::draw(bool newData)
 
         const float binSizeY = (float)plotHeight / (float)histBinsDisplayed;
         QPolygonF abPolygon;
-        int yFillMin = plotHeight;
-        int yFillMax = 0;
-        int yInnerFillMin = plotHeight;
-        int yInnerFillMax = 0;
         for (i = 0; i < npts; i++)
         {
             const int ix = i + xmin;
@@ -1591,28 +1587,21 @@ void CPlotter::draw(bool newData)
             if (fillMarkers && (ix) > minMarker && (ix) < maxMarker) {
                 abPolygon << QPointF(ixPlot, yFill);
             }
-            yFillMin = std::min(yFillMin, qRound(yFill));
-            yFillMax = std::max(yFillMax, qRound(yFill));
-            yInnerFillMin = std::min(yInnerFillMin, qRound(yMaxD));
-            yInnerFillMax = std::max(yInnerFillMax, qRound(yAvgD));
         }
 
         if (m_FftFill && m_PlotMode != PLOT_MODE_HISTOGRAM)
         {
-            painter2.setPen(QPen(m_FftFillCol));
-            for (int y = yFillMin; y <= yFillMax; y++)
+            QLineF lines[npts];
+            qreal yFillMax = 0;
+            for (i = 0; i < npts; i++)
             {
-                for (i = 0; i < npts; i++)
-                {
-                    const int ix = i + xmin;
-                    const QPointF point = m_PlotMode == PLOT_MODE_MAX ? m_maxLineBuf[i] : m_avgLineBuf[i];
-                    const int yFill = qRound(point.y());
-                    if (yFill < y) {
-                        painter2.drawPoint(QPoint(ix, y));
-                    }
-                }
+                QPointF yFill = m_PlotMode == PLOT_MODE_MAX ? m_maxLineBuf[i] : m_avgLineBuf[i];
+                lines[i] = QLineF(yFill, QPointF(yFill.x(), plotHeight));
+                yFillMax = std::max(yFillMax, yFill.y());
             }
-            painter2.fillRect(QRect(xmin, yFillMax, npts, plotHeight - yFillMax), QBrush(m_FftFillCol));
+            painter2.setPen(QPen(m_FftFillCol));
+            painter2.drawLines(lines, npts);
+            painter2.fillRect(QRectF(xmin, yFillMax, npts, plotHeight - yFillMax), QBrush(m_FftFillCol));
         }
 
         if (!abPolygon.isEmpty())
@@ -1665,19 +1654,13 @@ void CPlotter::draw(bool newData)
 
         if (m_PlotMode == PLOT_MODE_FILLED)
         {
-            painter2.setPen(QPen(m_FilledModeFillCol));
-            for (int y = yInnerFillMin; y < yInnerFillMax; y++)
+            QLineF lines[npts];
+            for (i = 0; i < npts; i++)
             {
-                for (i = 0; i < npts; i++)
-                {
-                    const int ix = i + xmin;
-                    const int yMax = qRound(m_maxLineBuf[i].y());
-                    const int yAvg = qRound(m_avgLineBuf[i].y());
-                    if (yMax <= y && y <= yAvg) {
-                        painter2.drawPoint(QPoint(ix, y));
-                    }
-                }
+                lines[i] = QLineF(m_maxLineBuf[i], m_avgLineBuf[i]);
             }
+            painter2.setPen(QPen(m_FilledModeFillCol));
+            painter2.drawLines(lines, npts);
         }
 
         if (doMaxLine)
