@@ -253,6 +253,7 @@ private:
     QPointF     m_avgLineBuf[MAX_SCREENSIZE]{};
     QPointF     m_maxLineBuf[MAX_SCREENSIZE]{};
     QPointF     m_holdLineBuf[MAX_SCREENSIZE]{};
+    QLineF      m_fillLineBuf[MAX_SCREENSIZE]{};
     float       m_histMaxIIR;
     std::vector<float> m_fftIIR;
     std::vector<float> m_fftData;

@@ -1591,16 +1591,15 @@ void CPlotter::draw(bool newData)
 
         if (m_FftFill && m_PlotMode != PLOT_MODE_HISTOGRAM)
         {
-            QLineF lines[npts];
             qreal yFillMax = 0;
             for (i = 0; i < npts; i++)
             {
                 QPointF yFill = m_PlotMode == PLOT_MODE_MAX ? m_maxLineBuf[i] : m_avgLineBuf[i];
-                lines[i] = QLineF(yFill, QPointF(yFill.x(), plotHeight));
+                m_fillLineBuf[i] = QLineF(yFill, QPointF(yFill.x(), plotHeight));
                 yFillMax = std::max(yFillMax, yFill.y());
             }
             painter2.setPen(QPen(m_FftFillCol));
-            painter2.drawLines(lines, npts);
+            painter2.drawLines(m_fillLineBuf, npts);
             painter2.fillRect(QRectF(xmin, yFillMax, npts, plotHeight - yFillMax), QBrush(m_FftFillCol));
         }
 
@@ -1654,13 +1653,12 @@ void CPlotter::draw(bool newData)
 
         if (m_PlotMode == PLOT_MODE_FILLED)
         {
-            QLineF lines[npts];
             for (i = 0; i < npts; i++)
             {
-                lines[i] = QLineF(m_maxLineBuf[i], m_avgLineBuf[i]);
+                m_fillLineBuf[i] = QLineF(m_maxLineBuf[i], m_avgLineBuf[i]);
             }
             painter2.setPen(QPen(m_FilledModeFillCol));
-            painter2.drawLines(lines, npts);
+            painter2.drawLines(m_fillLineBuf, npts);
         }
 
         if (doMaxLine)
