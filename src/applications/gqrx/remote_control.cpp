@@ -910,7 +910,11 @@ QString RemoteControl::cmd_lnb_lo(QStringList cmdlist)
 }
 
 // Dump signal to noise ratio map
-// \dump_map
+// \dump_fft
+// <center frequency in Hz>
+// <input rate>
+// <number of bins>
+// <binary data with>
 QString RemoteControl::cmd_dump_fft() const
 {
     if (snr_map.snr == nullptr){
@@ -922,9 +926,17 @@ QString RemoteControl::cmd_dump_fft() const
     answer.append(QString("%1\n").arg(snr_map.hfreq));
     answer.append(QString("%1\n").arg(snr_map.irate));
     answer.append(QString("%1\n").arg(snr_map.snr->size()));
-    for (size_t i = 0; i < snr_map.snr->size(); i++)
-        answer.append(QString("%1 ").arg((double)( * snr_map.snr )[i], 0, 'f', 10));
+
+    QByteArray byteArray;
+    byteArray.reserve(snr_map.snr->size() * sizeof(double));
+    for (size_t i = 0; i < snr_map.snr->size(); i++) {
+        double value = static_cast<double>((*snr_map.snr)[i]);
+        byteArray.append(reinterpret_cast<const char*>(&value), sizeof(double));
+    }
+
+    answer.append(byteArray);
     answer.append(QString("\n"));
+
     return answer;
 }
 
