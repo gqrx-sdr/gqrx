@@ -143,7 +143,7 @@ private:
     bool        receiver_running;  /*!< Whether the receiver is running or not */
     bool        hamlib_compatible;
     gain_list_t gains;             /*!< Possible and current gain settings */
-    QString     rds_station;       /*!< RDS Station Name */
+    QString     rds_station;       /*!< RDS program service (station) name */
     QString     rds_radiotext;     /*!< RDS Radiotext */
 
     void        setNewRemoteFreq(qint64 freq);

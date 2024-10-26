@@ -423,7 +423,7 @@ void RemoteControl::setRDSstatus(bool enabled)
     rds_radiotext = "RDS OFF";
 }
 
-/*! \brief Set RDS Station name. */
+/*! \brief Set RDS program service (station) name. */
 void RemoteControl::setRdsStation(QString name)
 {
     rds_station = name.trimmed();
@@ -828,10 +828,10 @@ QString RemoteControl::cmd_get_param(QStringList cmdlist)
     QString func = cmdlist.value(1, "");
 
     if (func == "?")
-        answer = QString("RDS_PI RDS_STATION RDS_RADIOTEXT\n");
+        answer = QString("RDS_PI RDS_PS_NAME RDS_RADIOTEXT\n");
     else if (func.compare("RDS_PI", Qt::CaseInsensitive) == 0)
         answer = QString("%1\n").arg(rc_program_id);
-	else if (func.compare("RDS_STATION", Qt::CaseInsensitive) == 0)
+	else if (func.compare("RDS_PS_NAME", Qt::CaseInsensitive) == 0)
 		answer = QString("%1\n").arg(rds_station);
 	else if (func.compare("RDS_RADIOTEXT", Qt::CaseInsensitive) == 0)
 		answer = QString("%1\n").arg(rds_radiotext);
