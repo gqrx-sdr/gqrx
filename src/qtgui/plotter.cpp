@@ -327,21 +327,31 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         }
         if (m_TooltipsEnabled)
         {
-            const quint64 line_ms = msecFromY(py);
-            QString timeStr;
-            if (line_ms >= wf_valid_since_ms)
+            int dy = py - h;
+            int realOffset = m_WaterfallOffset + dy;
+            int waterfallHeight = m_WaterfallImage.height();
+            if (realOffset >= waterfallHeight)
+            {
+                realOffset -= waterfallHeight;
+            }
+            WaterfallEntry waterfallEntry = m_WaterfallEntries[realOffset];
+            const quint64 line_ms = waterfallEntry.ms;
+            if (line_ms > 0)
             {
                 QDateTime tt;
-                tt.setMSecsSinceEpoch(msecFromY(py));
-                timeStr = tt.toString("yyyy.MM.dd hh:mm:ss.zzz");
+                tt.setMSecsSinceEpoch(line_ms);
+                QString timeStr = tt.toString("yyyy.MM.dd hh:mm:ss.zzz");
+                const qreal ratio = (qreal) px / (qreal) w;
+                const qint64 maxFrequency = waterfallEntry.maxFrequency;
+                const qint64 minFrequency =  waterfallEntry.minFrequency;
+                const qreal frequencySpan = maxFrequency - minFrequency;
+                const qreal kiloHz = (minFrequency + ratio * frequencySpan) / 1.e3;
+                showToolTip(event, QString("%1\n%2 kHz").arg(timeStr).arg(kiloHz, 0, 'f', 3));
             }
-            else{
-                timeStr = "[time not valid]";
+            else
+            {
+                showToolTip(event, "[time not valid]");
             }
-
-            showToolTip(event, QString("%1\n%2 kHz")
-                                       .arg(timeStr)
-                                       .arg(freqFromX(px)/1.e3, 0, 'f', 3));
         }
     }
     // process mouse moves while in cursor capture modes
@@ -1032,6 +1042,7 @@ void CPlotter::resizeEvent(QResizeEvent* )
         if (wfHeight == 0)
         {
             m_WaterfallImage = QImage();
+            m_WaterfallEntries.clear();
         }
 
         // New waterfall, create blank area
@@ -1040,6 +1051,8 @@ void CPlotter::resizeEvent(QResizeEvent* )
             m_WaterfallImage.setDevicePixelRatio(m_DPR);
             m_WaterfallImage.fill(Qt::black);
             m_WaterfallOffset = wfHeight;
+            m_WaterfallEntries.clear();
+            m_WaterfallEntries.reserve(wfHeight);
         }
 
         // Existing waterfall, rescale width but no height as that would
@@ -1053,13 +1066,19 @@ void CPlotter::resizeEvent(QResizeEvent* )
             m_WaterfallImage = QImage(w, wfHeight, QImage::Format_RGB32);
             m_WaterfallImage.setDevicePixelRatio(m_DPR);
             m_WaterfallImage.fill(Qt::black);
+            std::vector<WaterfallEntry> newEntries(wfHeight);
             const int firstHeight = std::min(wfHeight, wfHeightOld - m_WaterfallOffset);
             memcpy(m_WaterfallImage.scanLine(0), oldWaterfall.scanLine(m_WaterfallOffset),
                  m_WaterfallImage.bytesPerLine() * firstHeight);
+            memcpy(&newEntries[0], &m_WaterfallEntries[m_WaterfallOffset],
+                sizeof(WaterfallEntry) * firstHeight);
             const int secondHeight = std::min(wfHeight - firstHeight, m_WaterfallOffset);
             memcpy(m_WaterfallImage.scanLine(firstHeight), oldWaterfall.scanLine(0),
                  m_WaterfallImage.bytesPerLine() * secondHeight);
+            memcpy(&newEntries[firstHeight], &m_WaterfallEntries[0],
+                 sizeof(WaterfallEntry) * secondHeight);
             m_WaterfallOffset = wfHeight;
+            m_WaterfallEntries = newEntries;
         }
 
         // Invalidate on resize
@@ -1431,8 +1450,12 @@ void CPlotter::draw(bool newData)
             // it is more efficient than moving all of the image scan lines
             m_WaterfallOffset--;
             // draw new line of fft data at top of waterfall bitmap
-            // draw black areas where data will not be draw
+            // draw black areas where data will not be drawn
             memset(m_WaterfallImage.scanLine(m_WaterfallOffset), 0, m_WaterfallImage.bytesPerLine());
+            WaterfallEntry& waterfallEntry = m_WaterfallEntries[m_WaterfallOffset];
+            waterfallEntry.ms = tnow_ms;
+            waterfallEntry.minFrequency = getMinFrequency();
+            waterfallEntry.maxFrequency = getMaxFrequency();
 
             const bool useWfBuf = msec_per_wfline > 0;
             float _lineFactor;
