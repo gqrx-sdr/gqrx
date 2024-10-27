@@ -869,7 +869,7 @@ void CPlotter::zoomStepX(float step, int x)
     // Explicitly set m_Span instead of calling setSpanFreq(), which also calls
     // setFftCenterFreq() and updateOverlay() internally. Span needs to be set
     // before frequency limits can be checked in setFftCenterFreq().
-    m_Span = new_span;
+    m_Span = new_span_int;
     setFftCenterFreq(qRound64((f_max + f_min) / 2.0f));
 
     m_MaxHoldValid = false;
@@ -1987,8 +1987,8 @@ void CPlotter::drawOverlay()
         static const qreal nLevels = h / (levelHeight + slant);
         if (m_BookmarksEnabled)
         {
-            tags = Bookmarks::Get().getBookmarksInRange(m_CenterFreq + m_FftCenter - m_Span / 2,
-                                                        m_CenterFreq + m_FftCenter + m_Span / 2);
+            tags = Bookmarks::Get().getBookmarksInRange(getMinFrequency(),
+                                                        getMaxFrequency());
         }
         else
         {
@@ -1996,8 +1996,8 @@ void CPlotter::drawOverlay()
         }
         if (m_DXCSpotsEnabled)
         {
-            QList<DXCSpotInfo> dxcspots = DXCSpots::Get().getDXCSpotsInRange(m_CenterFreq + m_FftCenter - m_Span / 2,
-                                                                             m_CenterFreq + m_FftCenter + m_Span / 2);
+            QList<DXCSpotInfo> dxcspots = DXCSpots::Get().getDXCSpotsInRange(getMinFrequency(),
+                                                                             getMaxFrequency());
             QListIterator<DXCSpotInfo> iter(dxcspots);
             while(iter.hasNext())
             {
@@ -2059,8 +2059,8 @@ void CPlotter::drawOverlay()
 
     if (m_BandPlanEnabled)
     {
-        QList<BandInfo> bands = BandPlan::Get().getBandsInRange(m_CenterFreq + m_FftCenter - m_Span / 2,
-                                                                m_CenterFreq + m_FftCenter + m_Span / 2);
+        QList<BandInfo> bands = BandPlan::Get().getBandsInRange(getMinFrequency(),
+                                                                getMaxFrequency());
 
         m_BandPlanHeight = metrics.height() + VER_MARGIN;
         for (auto & band : bands)
@@ -2125,7 +2125,7 @@ void CPlotter::drawOverlay()
     }
 
     // Frequency grid
-    qint64  StartFreq = m_CenterFreq + m_FftCenter - m_Span / 2;
+    qint64  StartFreq = getMinFrequency();
     QString label;
     label.setNum(float((StartFreq + m_Span) / m_FreqUnits), 'f', m_FreqDigits);
     calcDivSize(StartFreq, StartFreq + m_Span,
