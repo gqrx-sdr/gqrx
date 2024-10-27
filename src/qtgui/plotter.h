@@ -234,6 +234,8 @@ private:
     qint64      freqFromX(int x);
     void        zoomStepX(float factor, int x);
     static qint64      roundFreq(qint64 freq, int resolution);
+    WaterfallEntry     getWaterfallEntry(int waterfallY);
+    qint64      xFromWaterfallEntry(WaterfallEntry waterfallEntry, int x);
     void        clampDemodParameters();
     static QColor      blend(QColor base, QColor over, int alpha255)
     {
