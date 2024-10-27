@@ -326,26 +326,14 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         }
         if (m_TooltipsEnabled)
         {
-            const int dy = py - h;
-            const int waterfallHeight = m_WaterfallImage.height();
-            int idx = m_WaterfallOffset + dy;
-            if (idx >= waterfallHeight)
-            {
-                idx -= waterfallHeight;
-            }
-            const WaterfallEntry waterfallEntry = m_WaterfallEntries[idx];
+            const WaterfallEntry waterfallEntry = getWaterfallEntry(py - h);
             const quint64 ms = waterfallEntry.m_TimestampMs;
             if (ms > 0)
             {
                 QDateTime tt;
                 tt.setMSecsSinceEpoch(ms);
                 QString timeStr = tt.toString("yyyy.MM.dd hh:mm:ss.zzz");
-                const qreal ratio = (qreal) px / (qreal) w;
-                const qint64 centerFrequency = waterfallEntry.m_CenterFreq + waterfallEntry.m_FftCenter;
-                const qint64 frequencySpan = waterfallEntry.m_Span;
-                const qint64 maxFrequency = centerFrequency + frequencySpan / 2;
-                const qint64 minFrequency =  centerFrequency - frequencySpan / 2;
-                const qreal kHz = (minFrequency + ratio * frequencySpan) / 1.e3;
+                const qreal kHz = xFromWaterfallEntry(waterfallEntry, px) / 1.e3;
                 showToolTip(event, QString("%1\n%2 kHz").arg(timeStr).arg(kHz, 0, 'f', 3));
             }
             else
@@ -631,6 +619,7 @@ void CPlotter::setFftRate(int rate_hz)
 void CPlotter::mousePressEvent(QMouseEvent * event)
 {
     QPoint pt = event->pos();
+    int h = m_OverlayPixmap.height();
     int px = qRound((qreal)pt.x() * m_DPR);
     int py = qRound((qreal)pt.y() * m_DPR);
     QPoint ppos = QPoint(px, py);
@@ -734,14 +723,30 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
 
                 // left-click with no modifiers: set center frequency
                 else if (mods == 0) {
-                    int best = -1;
-
-                    if (m_PeakDetectActive > 0)
-                        best = getNearestPeak(pt);
-                    if (best != -1)
-                        m_DemodCenterFreq = freqFromX(best);
+                    const int dy = py - h;
+                    
+                    if (dy > 0)
+                    {
+                        const WaterfallEntry waterfallEntry = getWaterfallEntry(dy);
+                        if (waterfallEntry.m_TimestampMs == 0 || waterfallEntry.m_CenterFreq != m_CenterFreq) 
+                        {
+                            return;
+                        }
+                        m_Span = waterfallEntry.m_Span;
+                        m_FftCenter = waterfallEntry.m_FftCenter;
+                        m_DemodCenterFreq = xFromWaterfallEntry(waterfallEntry, px);
+                    }
                     else
-                        m_DemodCenterFreq = roundFreq(freqFromX(px), m_ClickResolution);
+                    {
+                        int best = -1;
+
+                        if (m_PeakDetectActive > 0)
+                            best = getNearestPeak(pt);
+                        if (best != -1)
+                            m_DemodCenterFreq = freqFromX(best);
+                        else
+                            m_DemodCenterFreq = roundFreq(freqFromX(px), m_ClickResolution);
+                    }
 
                     // if cursor not captured set demod frequency and start demod box capture
                     emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
@@ -2332,6 +2337,25 @@ qint64 CPlotter::freqFromX(int x)
     qint64 f = qRound64((double)m_CenterFreq + (double)m_FftCenter
                         - (double)m_Span / 2.0 + ratio * (double)m_Span);
     return f;
+}
+
+WaterfallEntry CPlotter::getWaterfallEntry(int waterfallY)
+{
+    int idx = m_WaterfallOffset + waterfallY;
+    int waterfallHeight = m_WaterfallImage.height();
+    if (idx >= waterfallHeight)
+    {
+        idx -= waterfallHeight;
+    }
+    return m_WaterfallEntries[idx];
+}
+
+qint64 CPlotter::xFromWaterfallEntry(WaterfallEntry waterfallEntry, int x) {
+    const qreal ratio = (qreal) x / (qreal) m_WaterfallImage.width();
+    const qint64 centerFrequency = waterfallEntry.m_CenterFreq + waterfallEntry.m_FftCenter;
+    const qint64 frequencySpan = waterfallEntry.m_Span;
+    const qint64 minFrequency =  centerFrequency - frequencySpan / 2;
+    return qRound(minFrequency + ratio * frequencySpan);
 }
 
 // Round frequency to click resolution value
