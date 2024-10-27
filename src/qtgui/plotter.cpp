@@ -169,7 +169,6 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     tlast_wf_ms = 0;
     tlast_plot_drawn_ms = 0;
     tlast_wf_drawn_ms = 0;
-    wf_valid_since_ms = 0;
     msec_per_wfline = 0;
     tlast_peaks_ms = 0;
     wf_epoch = 0;
@@ -602,7 +601,6 @@ void CPlotter::setWaterfallSpan(quint64 span_ms)
         wf_count = 0;
         msec_per_wfline = (double)wf_span / (qreal)m_WaterfallImage.height();
     }
-    wf_valid_since_ms = tnow;
     clearWaterfallBuf();
 }
 
@@ -625,7 +623,6 @@ quint64 CPlotter::getWfTimeRes() const
 void CPlotter::setFftRate(int rate_hz)
 {
     fft_rate = rate_hz;
-    wf_valid_since_ms = QDateTime::currentMSecsSinceEpoch();
     clearWaterfallBuf();
 }
 
@@ -1441,8 +1438,6 @@ void CPlotter::draw(bool newData)
 
             // cursor times are relative to last time drawn
             tlast_wf_ms = tnow_ms;
-            if (wf_valid_since_ms == 0)
-                wf_valid_since_ms = tnow_ms;
             tlast_wf_drawn_ms = tnow_ms;
 
             // move the offset "up"
@@ -2335,23 +2330,6 @@ qint64 CPlotter::freqFromX(int x)
     qint64 f = qRound64((double)m_CenterFreq + (double)m_FftCenter
                         - (double)m_Span / 2.0 + ratio * (double)m_Span);
     return f;
-}
-
-/** Calculate time offset of a given line on the waterfall */
-quint64 CPlotter::msecFromY(int y)
-{
-    int h = m_OverlayPixmap.height();
-
-    // ensure we are in the waterfall region
-    if (y < h)
-        return 0;
-
-    qreal dy = (qreal)y - (qreal)h;
-
-    if (msec_per_wfline > 0)
-        return tlast_wf_drawn_ms - dy * msec_per_wfline;
-    else
-        return tlast_wf_drawn_ms - dy * getWfTimeRes();
 }
 
 // Round frequency to click resolution value

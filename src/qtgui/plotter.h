@@ -233,7 +233,6 @@ private:
     qint64      freqFromX(int x);
     void        zoomStepX(float factor, int x);
     static qint64      roundFreq(qint64 freq, int resolution);
-    quint64     msecFromY(int y);
     void        clampDemodParameters();
     static QColor      blend(QColor base, QColor over, int alpha255)
     {
@@ -367,7 +366,6 @@ private:
     quint64     tlast_wf_ms;        // last time waterfall has been updated
     quint64     tlast_plot_drawn_ms;// last time the plot was drawn
     quint64     tlast_wf_drawn_ms;  // last time waterfall was drawn
-    quint64     wf_valid_since_ms;  // last time before action that invalidates time line
     double      msec_per_wfline{};  // milliseconds between waterfall updates
     quint64     wf_epoch;           // msec time of last waterfal rate change
     quint64     wf_count;           // waterfall lines drawn since last rate change
