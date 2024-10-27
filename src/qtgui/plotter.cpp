@@ -735,6 +735,8 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                         m_Span = waterfallEntry.m_Span;
                         m_FftCenter = waterfallEntry.m_FftCenter;
                         m_DemodCenterFreq = xFromWaterfallEntry(waterfallEntry, px);
+                        double zoom = (double)m_SampleFreq / (double)m_Span;
+                        emit newZoomLevel(zoom);
                     }
                     else
                     {
