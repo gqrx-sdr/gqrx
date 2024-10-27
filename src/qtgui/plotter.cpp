@@ -326,30 +326,30 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         }
         if (m_TooltipsEnabled)
         {
-            int dy = py - h;
-            int realOffset = m_WaterfallOffset + dy;
-            int waterfallHeight = m_WaterfallImage.height();
-            if (realOffset >= waterfallHeight)
+            const int dy = py - h;
+            const int waterfallHeight = m_WaterfallImage.height();
+            int idx = m_WaterfallOffset + dy;
+            if (idx >= waterfallHeight)
             {
-                realOffset -= waterfallHeight;
+                idx -= waterfallHeight;
             }
-            WaterfallEntry waterfallEntry = m_WaterfallEntries[realOffset];
-            const quint64 line_ms = waterfallEntry.ms;
-            if (line_ms > 0)
+            const WaterfallEntry waterfallEntry = m_WaterfallEntries[idx];
+            const quint64 ms = waterfallEntry.ms;
+            if (ms > 0)
             {
                 QDateTime tt;
-                tt.setMSecsSinceEpoch(line_ms);
+                tt.setMSecsSinceEpoch(ms);
                 QString timeStr = tt.toString("yyyy.MM.dd hh:mm:ss.zzz");
                 const qreal ratio = (qreal) px / (qreal) w;
                 const qint64 maxFrequency = waterfallEntry.maxFrequency;
                 const qint64 minFrequency =  waterfallEntry.minFrequency;
                 const qreal frequencySpan = maxFrequency - minFrequency;
-                const qreal kiloHz = (minFrequency + ratio * frequencySpan) / 1.e3;
-                showToolTip(event, QString("%1\n%2 kHz").arg(timeStr).arg(kiloHz, 0, 'f', 3));
+                const qreal kHz = (minFrequency + ratio * frequencySpan) / 1.e3;
+                showToolTip(event, QString("%1\n%2 kHz").arg(timeStr).arg(kHz, 0, 'f', 3));
             }
             else
             {
-                showToolTip(event, "[time not valid]");
+                QToolTip::hideText();
             }
         }
     }
