@@ -341,12 +341,10 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 tt.setMSecsSinceEpoch(ms);
                 QString timeStr = tt.toString("yyyy.MM.dd hh:mm:ss.zzz");
                 const qreal ratio = (qreal) px / (qreal) w;
-                const qint64 centerFrequency = waterfallEntry.m_CenterFreq;
-                const qint64 fftCenterFrequency = waterfallEntry.m_FftCenter;
-                const qint64 halfSpan = waterfallEntry.m_Span / 2;
-                const qint64 maxFrequency = centerFrequency + fftCenterFrequency + halfSpan;
-                const qint64 minFrequency =  centerFrequency + fftCenterFrequency - halfSpan;
-                const qreal frequencySpan = maxFrequency - minFrequency;
+                const qint64 centerFrequency = waterfallEntry.m_CenterFreq + waterfallEntry.m_FftCenter;
+                const qint64 frequencySpan = waterfallEntry.m_Span;
+                const qint64 maxFrequency = centerFrequency + frequencySpan / 2;
+                const qint64 minFrequency =  centerFrequency - frequencySpan / 2;
                 const qreal kHz = (minFrequency + ratio * frequencySpan) / 1.e3;
                 showToolTip(event, QString("%1\n%2 kHz").arg(timeStr).arg(kHz, 0, 'f', 3));
             }
