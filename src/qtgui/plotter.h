@@ -23,9 +23,10 @@
 #define MARKER_OFF std::numeric_limits<qint64>::min()
 
 struct WaterfallEntry {
-    quint64 ms;
-    qint64 minFrequency;
-    qint64 maxFrequency;
+    quint64 m_TimestampMs;
+    qint64 m_CenterFreq;
+    qint64 m_FftCenter;
+    qint64 m_Span;
 };
 
 class CPlotter : public QFrame

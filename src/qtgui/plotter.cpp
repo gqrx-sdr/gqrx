@@ -334,15 +334,18 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 idx -= waterfallHeight;
             }
             const WaterfallEntry waterfallEntry = m_WaterfallEntries[idx];
-            const quint64 ms = waterfallEntry.ms;
+            const quint64 ms = waterfallEntry.m_TimestampMs;
             if (ms > 0)
             {
                 QDateTime tt;
                 tt.setMSecsSinceEpoch(ms);
                 QString timeStr = tt.toString("yyyy.MM.dd hh:mm:ss.zzz");
                 const qreal ratio = (qreal) px / (qreal) w;
-                const qint64 maxFrequency = waterfallEntry.maxFrequency;
-                const qint64 minFrequency =  waterfallEntry.minFrequency;
+                const qint64 centerFrequency = waterfallEntry.m_CenterFreq;
+                const qint64 fftCenterFrequency = waterfallEntry.m_FftCenter;
+                const qint64 halfSpan = waterfallEntry.m_Span / 2;
+                const qint64 maxFrequency = centerFrequency + fftCenterFrequency + halfSpan;
+                const qint64 minFrequency =  centerFrequency + fftCenterFrequency - halfSpan;
                 const qreal frequencySpan = maxFrequency - minFrequency;
                 const qreal kHz = (minFrequency + ratio * frequencySpan) / 1.e3;
                 showToolTip(event, QString("%1\n%2 kHz").arg(timeStr).arg(kHz, 0, 'f', 3));
@@ -1448,9 +1451,10 @@ void CPlotter::draw(bool newData)
             // draw black areas where data will not be drawn
             memset(m_WaterfallImage.scanLine(m_WaterfallOffset), 0, m_WaterfallImage.bytesPerLine());
             WaterfallEntry& waterfallEntry = m_WaterfallEntries[m_WaterfallOffset];
-            waterfallEntry.ms = tnow_ms;
-            waterfallEntry.minFrequency = getMinFrequency();
-            waterfallEntry.maxFrequency = getMaxFrequency();
+            waterfallEntry.m_TimestampMs = tnow_ms;
+            waterfallEntry.m_CenterFreq = m_CenterFreq;
+            waterfallEntry.m_FftCenter = m_FftCenter;
+            waterfallEntry.m_Span = m_Span;
 
             const bool useWfBuf = msec_per_wfline > 0;
             float _lineFactor;
