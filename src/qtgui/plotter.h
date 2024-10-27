@@ -22,6 +22,12 @@
 
 #define MARKER_OFF std::numeric_limits<qint64>::min()
 
+struct WaterfallEntry {
+    quint64 ms;
+    qint64 minFrequency;
+    qint64 maxFrequency;
+};
+
 class CPlotter : public QFrame
 {
     Q_OBJECT
@@ -281,6 +287,7 @@ private:
     QPixmap     m_PeakPixmap;
     QImage      m_WaterfallImage;
     int         m_WaterfallOffset;
+    std::vector<WaterfallEntry>  m_WaterfallEntries;
     QColor      m_ColorTbl[256];
     QSize       m_Size;
     qreal       m_DPR{};
