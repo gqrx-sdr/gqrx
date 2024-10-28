@@ -728,15 +728,33 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                     if (dy > 0)
                     {
                         const WaterfallEntry waterfallEntry = getWaterfallEntry(dy);
-                        if (waterfallEntry.m_TimestampMs == 0 || waterfallEntry.m_CenterFreq != m_CenterFreq) 
+                        if (waterfallEntry.m_TimestampMs == 0)
                         {
                             return;
                         }
-                        m_Span = waterfallEntry.m_Span;
-                        m_FftCenter = waterfallEntry.m_FftCenter;
+                        if (m_CenterFreq != waterfallEntry.m_CenterFreq)
+                        {
+                            emit newCenterFrequency(waterfallEntry.m_CenterFreq + (m_DemodCenterFreq - m_CenterFreq));
+                        }
                         m_DemodCenterFreq = xFromWaterfallEntry(waterfallEntry, px);
-                        double zoom = (double)m_SampleFreq / (double)m_Span;
-                        emit newZoomLevel(zoom);
+                        bool invalidate = false;
+                        if (m_FftCenter != waterfallEntry.m_FftCenter)
+                        {
+                            invalidate = true;
+                            m_FftCenter = waterfallEntry.m_FftCenter;
+                        }
+                        if (m_Span != waterfallEntry.m_Span)
+                        {
+                            invalidate = true;
+                            m_Span = waterfallEntry.m_Span;
+                            double zoom = (double)m_SampleFreq / (double)m_Span;
+                            emit newZoomLevel(zoom);
+                        }
+                        if (invalidate) {
+                            m_MaxHoldValid = false;
+                            m_MinHoldValid = false;
+                            m_histIIRValid = false;
+                        }
                     }
                     else
                     {
