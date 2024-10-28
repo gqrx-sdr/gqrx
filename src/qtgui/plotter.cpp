@@ -724,7 +724,6 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                 // left-click with no modifiers: set center frequency
                 else if (mods == 0) {
                     const int dy = py - h;
-                    
                     if (dy > 0)
                     {
                         const WaterfallEntry waterfallEntry = getWaterfallEntry(dy);
