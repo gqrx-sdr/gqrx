@@ -1597,7 +1597,7 @@ void CPlotter::draw(bool newData)
             {
                 const QPointF point = m_PlotMode == PLOT_MODE_MAX ? m_maxLineBuf[i] : m_avgLineBuf[i];
                 const qreal yFill = point.y();
-                painter2.fillRect(QRectF(point.x(), yFill, 1.0, yFillMax - yFill), m_FftFillCol);
+                painter2.fillRect(QRectF(point.x() - 1.0, yFill, 1.0, yFillMax - yFill), m_FftFillCol);
             }
             painter2.fillRect(QRectF(xmin, yFillMax, npts, plotHeight - yFillMax), m_FftFillCol);
         }
@@ -1656,7 +1656,7 @@ void CPlotter::draw(bool newData)
             {
                 const QPointF maxPoint = m_maxLineBuf[i];
                 const qreal yMax = maxPoint.y();
-                painter2.fillRect(QRectF(maxPoint.x(), yMax, 1.0, m_avgLineBuf[i].y() - yMax), m_FilledModeFillCol);
+                painter2.fillRect(QRectF(maxPoint.x() - 1.0, yMax, 1.0, m_avgLineBuf[i].y() - yMax), m_FilledModeFillCol);
             }
         }
 
