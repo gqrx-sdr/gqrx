@@ -110,8 +110,7 @@ public:
         if (rate > 0.0f)
         {
             m_SampleFreq = rate;
-            m_WaterfallEntries.clear();
-            m_WaterfallEntries.reserve(m_WaterfallImage.height());
+            m_WaterfallEntries = std::vector<WaterfallEntry>(m_WaterfallImage.height());
             updateOverlay();
         }
     }

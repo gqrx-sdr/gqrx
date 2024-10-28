@@ -1064,7 +1064,7 @@ void CPlotter::resizeEvent(QResizeEvent* )
         if (wfHeight == 0)
         {
             m_WaterfallImage = QImage();
-            m_WaterfallEntries.clear();
+            m_WaterfallEntries = std::vector<WaterfallEntry>(0);
         }
 
         // New waterfall, create blank area
@@ -1073,8 +1073,7 @@ void CPlotter::resizeEvent(QResizeEvent* )
             m_WaterfallImage.setDevicePixelRatio(m_DPR);
             m_WaterfallImage.fill(Qt::black);
             m_WaterfallOffset = wfHeight;
-            m_WaterfallEntries.clear();
-            m_WaterfallEntries.reserve(wfHeight);
+            m_WaterfallEntries = std::vector<WaterfallEntry>(wfHeight);
         }
 
         // Existing waterfall, rescale width but no height as that would
