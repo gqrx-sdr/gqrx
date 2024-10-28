@@ -165,6 +165,7 @@ signals:
     void newSize();
     void markerSelectA(qint64 freq);
     void markerSelectB(qint64 freq);
+    void newCenterFrequency(qint64 freq);
 
 public slots:
     // zoom functions
