@@ -29,6 +29,10 @@ Supported commands:
     Set the value of the gain setting with the name <gain_name> to <value>
  p RDS_PI
     Get the RDS PI code (in hexadecimal). Returns 0000 if not applicable.
+ p RDS_PS_NAME
+    Get the RDS Program Service (PS) name
+ p RDS_RADIOTEXT
+    Get the RDS RadioText message
  u RECORD
     Get status of audio recorder
  U RECORD <status>

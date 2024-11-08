@@ -43,6 +43,8 @@ RemoteControl::RemoteControl(QObject *parent) :
     rc_passband_lo = 0;
     rc_passband_hi = 0;
     rc_program_id = "0000";
+    rds_station = QString("");
+    rds_radiotext = QString("");
     rds_status = false;
     signal_level = -200.0;
     squelch_level = -150.0;
@@ -50,8 +52,6 @@ RemoteControl::RemoteControl(QObject *parent) :
     audio_recorder_status = false;
     receiver_running = false;
     hamlib_compatible = false;
-    rds_station = QString("");
-    rds_radiotext = QString("");
 
     rc_port = DEFAULT_RC_PORT;
     rc_allowed_hosts.append(DEFAULT_RC_ALLOWED_HOSTS);
@@ -419,20 +419,20 @@ void RemoteControl::setRDSstatus(bool enabled)
 {
     rds_status = enabled;
     rc_program_id = "0000";
-    rds_station = "RDS OFF";
-    rds_radiotext = "RDS OFF";
+    rds_station = "";
+    rds_radiotext = "";
 }
 
 /*! \brief Set RDS program service (station) name. */
 void RemoteControl::setRdsStation(QString name)
 {
-    rds_station = name.trimmed();
+    rds_station = name;
 }
 
 /*! \brief Set RDS Radiotext. */
 void RemoteControl::setRdsRadiotext(QString text)
 {
-    rds_radiotext = text.trimmed();
+    rds_radiotext = text;
 }
 
 
@@ -831,10 +831,10 @@ QString RemoteControl::cmd_get_param(QStringList cmdlist)
         answer = QString("RDS_PI RDS_PS_NAME RDS_RADIOTEXT\n");
     else if (func.compare("RDS_PI", Qt::CaseInsensitive) == 0)
         answer = QString("%1\n").arg(rc_program_id);
-	else if (func.compare("RDS_PS_NAME", Qt::CaseInsensitive) == 0)
-		answer = QString("%1\n").arg(rds_station);
-	else if (func.compare("RDS_RADIOTEXT", Qt::CaseInsensitive) == 0)
-		answer = QString("%1\n").arg(rds_radiotext);
+    else if (func.compare("RDS_PS_NAME", Qt::CaseInsensitive) == 0)
+        answer = QString("%1\n").arg(rds_station);
+    else if (func.compare("RDS_RADIOTEXT", Qt::CaseInsensitive) == 0)
+        answer = QString("%1\n").arg(rds_radiotext);
     else
         answer = QString("RPRT 1\n");
 
@@ -878,7 +878,7 @@ QString RemoteControl::cmd_set_split_vfo()
 /* Get info */
 QString RemoteControl::cmd_get_info() const
 {
-    return QString("Gqrx %1 rdsapi\n").arg(VERSION);
+    return QString("Gqrx %1\n").arg(VERSION);
 };
 
 /* Gpredict / Gqrx specific command: AOS - satellite AOS event */
@@ -922,6 +922,7 @@ QString RemoteControl::cmd_lnb_lo(QStringList cmdlist)
         return QString("%1\n").arg((qint64)(rc_lnb_lo_mhz * 1e6));
     }
 }
+
 /*
  * '\dump_state' used by hamlib clients, e.g. xdx, fldigi, rigctl and etc
  * More info:

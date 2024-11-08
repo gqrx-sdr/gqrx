@@ -139,12 +139,12 @@ private:
     double      squelch_level;     /*!< Squelch level in dBFS */
     float       audio_gain;        /*!< Audio gain in dB */
     QString     rc_program_id;     /*!< RDS Program identification */
+    QString     rds_station;       /*!< RDS program service (station) name */
+    QString     rds_radiotext;     /*!< RDS Radiotext */
     bool        audio_recorder_status; /*!< Recording enabled */
     bool        receiver_running;  /*!< Whether the receiver is running or not */
     bool        hamlib_compatible;
     gain_list_t gains;             /*!< Possible and current gain settings */
-    QString     rds_station;       /*!< RDS program service (station) name */
-    QString     rds_radiotext;     /*!< RDS Radiotext */
 
     void        setNewRemoteFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);
@@ -168,8 +168,6 @@ private:
     QString     cmd_AOS();
     QString     cmd_LOS();
     QString     cmd_lnb_lo(QStringList cmdlist);
-    QString     cmd_rds_station();
-    QString     cmd_rds_radiotext();
     QString     cmd_dump_state() const;
 };
 

@@ -56,12 +56,7 @@ void DockRDS::updateRDS(QString text, int type)
     case 0:
         if (text != ui->program_information->text()) {
             // Clear the display if PI has changed
-            ui->station_name->setText("");
-            ui->program_type->setText("");
-            ui->flags->setText("");
-            ui->radiotext->setText("");
-            ui->clocktime->setText("");
-            ui->alt_freq->setText("");
+            ClearTextFields();
         }
         emit rdsPI(text);
         ui->program_information->setText(text);
@@ -112,10 +107,10 @@ void DockRDS::ClearTextFields()
     ui->radiotext->setText("");
     ui->clocktime->setText("");
     ui->alt_freq->setText("");
-    
-    emit radiotextChanged("");
+
+    emit rdsPI("0000");
     emit stationChanged("");
-    emit rdsPI("");
+    emit radiotextChanged("");
 }
 
 void DockRDS::showEnabled()

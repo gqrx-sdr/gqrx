@@ -353,7 +353,6 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     // enable frequency tooltips on FFT plot
     ui->plotter->setTooltipsEnabled(true);
 
-
     // Create list of input devices. This must be done before the configuration is
     // restored because device probing might change the device configuration
     CIoConfig::getDeviceList(devList);
