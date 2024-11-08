@@ -626,27 +626,60 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
 
     if (NOCAP == m_CursorCaptured)
     {
-        if (isPointCloseTo(px, m_DemodFreqX, m_CursorCaptureDelta))
+        const int dy = py - h;
+        if (dy > 0)
         {
-            // move demod box center frequency region
-            m_CursorCaptured = CENTER;
-            m_GrabPosition = px - m_DemodFreqX;
-        }
-        else if (isPointCloseTo(px, m_DemodLowCutFreqX, m_CursorCaptureDelta))
-        {
-            // filter low cut
-            m_CursorCaptured = LEFT;
-            m_GrabPosition = px - m_DemodLowCutFreqX;
-        }
-        else if (isPointCloseTo(px, m_DemodHiCutFreqX, m_CursorCaptureDelta))
-        {
-            // filter high cut
-            m_CursorCaptured = RIGHT;
-            m_GrabPosition = px - m_DemodHiCutFreqX;
+            // left click in waterfall resets view at point in history
+            const WaterfallEntry waterfallEntry = getWaterfallEntry(dy);
+            if (event->buttons() != Qt::LeftButton || waterfallEntry.m_TimestampMs == 0)
+            {
+                return;
+            }
+            if (m_CenterFreq != waterfallEntry.m_CenterFreq)
+            {
+                emit newCenterFrequency(waterfallEntry.m_CenterFreq + (m_DemodCenterFreq - m_CenterFreq));
+            }
+            m_DemodCenterFreq = roundFreq(xFromWaterfallEntry(waterfallEntry, px), m_ClickResolution);
+            bool invalidate = false;
+            if (m_FftCenter != waterfallEntry.m_FftCenter)
+            {
+                invalidate = true;
+                m_FftCenter = waterfallEntry.m_FftCenter;
+            }
+            if (m_Span != waterfallEntry.m_Span)
+            {
+                invalidate = true;
+                m_Span = waterfallEntry.m_Span;
+                double zoom = (double)m_SampleFreq / (double)m_Span;
+                emit newZoomLevel(zoom);
+            }
+            if (invalidate) {
+                m_MaxHoldValid = false;
+                m_MinHoldValid = false;
+                m_histIIRValid = false;
+            }
         }
         else
         {
-            if (event->buttons() == Qt::LeftButton)
+            if (isPointCloseTo(px, m_DemodFreqX, m_CursorCaptureDelta))
+            {
+                // move demod box center frequency region
+                m_CursorCaptured = CENTER;
+                m_GrabPosition = px - m_DemodFreqX;
+            }
+            else if (isPointCloseTo(px, m_DemodLowCutFreqX, m_CursorCaptureDelta))
+            {
+                // filter low cut
+                m_CursorCaptured = LEFT;
+                m_GrabPosition = px - m_DemodLowCutFreqX;
+            }
+            else if (isPointCloseTo(px, m_DemodHiCutFreqX, m_CursorCaptureDelta))
+            {
+                // filter high cut
+                m_CursorCaptured = RIGHT;
+                m_GrabPosition = px - m_DemodHiCutFreqX;
+            }
+            else if (event->buttons() == Qt::LeftButton)
             {
                 // {shift|ctrl|ctrl-shift}-left-click: set ab markers around signal at cursor
                 quint32 mods = event->modifiers() & (Qt::ShiftModifier|Qt::ControlModifier);
@@ -723,49 +756,14 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
 
                 // left-click with no modifiers: set center frequency
                 else if (mods == 0) {
-                    const int dy = py - h;
-                    if (dy > 0)
-                    {
-                        const WaterfallEntry waterfallEntry = getWaterfallEntry(dy);
-                        if (waterfallEntry.m_TimestampMs == 0)
-                        {
-                            return;
-                        }
-                        if (m_CenterFreq != waterfallEntry.m_CenterFreq)
-                        {
-                            emit newCenterFrequency(waterfallEntry.m_CenterFreq + (m_DemodCenterFreq - m_CenterFreq));
-                        }
-                        m_DemodCenterFreq = roundFreq(xFromWaterfallEntry(waterfallEntry, px), m_ClickResolution);
-                        bool invalidate = false;
-                        if (m_FftCenter != waterfallEntry.m_FftCenter)
-                        {
-                            invalidate = true;
-                            m_FftCenter = waterfallEntry.m_FftCenter;
-                        }
-                        if (m_Span != waterfallEntry.m_Span)
-                        {
-                            invalidate = true;
-                            m_Span = waterfallEntry.m_Span;
-                            double zoom = (double)m_SampleFreq / (double)m_Span;
-                            emit newZoomLevel(zoom);
-                        }
-                        if (invalidate) {
-                            m_MaxHoldValid = false;
-                            m_MinHoldValid = false;
-                            m_histIIRValid = false;
-                        }
-                    }
-                    else
-                    {
-                        int best = -1;
+                    int best = -1;
 
-                        if (m_PeakDetectActive > 0)
-                            best = getNearestPeak(pt);
-                        if (best != -1)
-                            m_DemodCenterFreq = freqFromX(best);
-                        else
-                            m_DemodCenterFreq = roundFreq(freqFromX(px), m_ClickResolution);
-                    }
+                    if (m_PeakDetectActive > 0)
+                        best = getNearestPeak(pt);
+                    if (best != -1)
+                        m_DemodCenterFreq = freqFromX(best);
+                    else
+                        m_DemodCenterFreq = roundFreq(freqFromX(px), m_ClickResolution);
 
                     // if cursor not captured set demod frequency and start demod box capture
                     emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
