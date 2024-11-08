@@ -46,7 +46,7 @@ private:
 	unsigned int   blocks_counter;
 	unsigned int   group_good_blocks_counter;
 	unsigned int   group[4];
-	unsigned char  offset_chars[4];  // [ABCcDEx] (x=error)
+	unsigned char  offset_chars[4];  // [ABCcDx] (x=error)
 	bool           log;
 	bool           debug;
 	bool           presync;

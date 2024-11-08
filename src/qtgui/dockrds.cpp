@@ -54,6 +54,15 @@ void DockRDS::updateRDS(QString text, int type)
     switch (type)
     {
     case 0:
+        if (text != ui->program_information->text()) {
+            // Clear the display if PI has changed
+            ui->station_name->setText("");
+            ui->program_type->setText("");
+            ui->flags->setText("");
+            ui->radiotext->setText("");
+            ui->clocktime->setText("");
+            ui->alt_freq->setText("");
+        }
         emit rdsPI(text);
         ui->program_information->setText(text);
         break;

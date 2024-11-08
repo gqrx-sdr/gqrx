@@ -33,6 +33,8 @@ decoder_impl::decoder_impl(bool log, bool debug)
 	: gr::sync_block ("gr_rds_decoder",
 			gr::io_signature::make (1, 1, sizeof(char)),
 			gr::io_signature::make (0, 0, 0)),
+	bit_counter(0),
+	reg(0),
 	log(log),
 	debug(debug)
 {
@@ -82,7 +84,7 @@ unsigned int decoder_impl::calc_syndrome(unsigned long message,
 
 void decoder_impl::decode_group(unsigned int *group) {
 	// raw data bytes, as received from RDS.
-	// 8 info bytes, followed by 4 RDS offset chars: ABCD/ABcD/EEEE (in US)
+	// 8 info bytes, followed by 4 RDS offset chars: ABCD/ABcD
 	unsigned char bytes[12];
 
 	// RDS information words

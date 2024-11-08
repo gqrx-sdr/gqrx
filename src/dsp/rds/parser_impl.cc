@@ -23,7 +23,10 @@
 #include "tmc_events.h"
 #include <gnuradio/io_signature.h>
 #include <math.h>
+#include <algorithm>
+#include <cstring>
 #include <iomanip>
+#include <limits>
 
 using namespace gr::rds;
 
@@ -38,10 +41,13 @@ parser_impl::parser_impl(bool log, bool debug, unsigned char pty_locale)
 			gr::io_signature::make (0, 0, 0)),
 	log(log),
 	debug(debug),
-	pty_locale(pty_locale)
+	pty_locale(pty_locale),
+	free_format{0, 0, 0, 0},
+	no_groups(0),
+	ps_on{' ',' ',' ',' ',' ',' ',' ',' '}
 {
 	message_port_register_in(pmt::mp("in"));
-	set_msg_handler(pmt::mp("in"), std::bind(&parser_impl::parse, this, std::placeholders::_1));
+	set_msg_handler(pmt::mp("in"), [this](pmt::pmt_t msg) { this->parse(msg); });
 	message_port_register_out(pmt::mp("out"));
 	reset();
 }
@@ -52,13 +58,15 @@ parser_impl::~parser_impl() {
 void parser_impl::reset() {
 	gr::thread::scoped_lock lock(d_mutex);
 
-	memset(radiotext, ' ', sizeof(radiotext));
-	memset(program_service_name, '.', sizeof(program_service_name));
+	radiotext_segment_flags            = 0;
+	program_service_name_segment_flags = 0;
+	af_pairs.clear();
 
 	radiotext_AB_flag              = 0;
 	traffic_program                = false;
 	traffic_announcement           = false;
 	music_speech                   = false;
+	program_identification         = UINT_MAX;
 	program_type                   = 0;
 	pi_country_identification      = 0;
 	pi_area_coverage               = 0;
@@ -84,10 +92,6 @@ void parser_impl::send_message(long msgtype, std::string msgtext) {
 
 /* BASIC TUNING: see page 21 of the standard */
 void parser_impl::decode_type0(unsigned int *group, bool B) {
-	unsigned int af_code_1 = 0;
-	unsigned int af_code_2 = 0;
-	double af_1            = 0;
-	double af_2            = 0;
 	char flagstring[8]     = "0000000";
 
 	traffic_program        = (group[1] >> 10) & 0x01;       // "TP"
@@ -97,8 +101,29 @@ void parser_impl::decode_type0(unsigned int *group, bool B) {
 	bool decoder_control_bit      = (group[1] >> 2) & 0x01; // "DI"
 	unsigned char segment_address =  group[1] & 0x03;       // "DI segment"
 
-	program_service_name[segment_address * 2]     = (group[3] >> 8) & 0xff;
-	program_service_name[segment_address * 2 + 1] =  group[3]       & 0xff;
+	char ps_1 = (group[3] >> 8) & 0xff;
+	char ps_2 =  group[3]       & 0xff;
+
+	if (program_service_name_segment_flags & (1 << segment_address)) {
+		// Already received this segment. Check whether the characters have changed.
+		if ((program_service_name[segment_address * 2] != ps_1) 
+				|| (program_service_name[segment_address * 2 + 1] != ps_2)) {
+			// The characters changed, so reset and start from scratch.
+			program_service_name[segment_address * 2]     = ps_1;
+			program_service_name[segment_address * 2 + 1] = ps_2;
+			program_service_name_segment_flags = (1 << segment_address);
+		}
+	} else {
+		// New segment received. Store it.
+		program_service_name[segment_address * 2]     = ps_1;
+		program_service_name[segment_address * 2 + 1] = ps_2;
+		program_service_name_segment_flags |= (1 << segment_address);
+
+		// If we now have all segments, report the full program service name.
+		if (program_service_name_segment_flags == 0xf) {
+			send_message(1, std::string(program_service_name, 8));
+		}
+	}
 
 	/* see page 41, table 9 of the standard */
 	switch (segment_address) {
@@ -124,36 +149,12 @@ void parser_impl::decode_type0(unsigned int *group, bool B) {
 	flagstring[4] = artificial_head        ? '1' : '0';
 	flagstring[5] = compressed             ? '1' : '0';
 	flagstring[6] = dynamic_pty            ? '1' : '0';
-	static std::string af_string;
 
 	if(!B) { // type 0A
-		af_code_1 = int(group[2] >> 8) & 0xff;
-		af_code_2 = int(group[2])      & 0xff;
-		af_1 = decode_af(af_code_1);
-		af_2 = decode_af(af_code_2);
-
-		std::stringstream af_stringstream;
-		af_stringstream << std::fixed << std::setprecision(2);
-
-		if(af_1) {
-			if(af_1 > 80e3) {
-				af_stringstream << (af_1/1e3) << "MHz";
-			} else if((af_1<2e3)&&(af_1>100)) {
-				af_stringstream << int(af_1) << "kHz";
-			}
-		}
-		if(af_1 && af_2) {
-			af_stringstream << ", ";
-		}
-		if(af_2) {
-			if(af_2 > 80e3) {
-				af_stringstream << (af_2/1e3) << "MHz";
-			} else if((af_2<2e3)&&(af_2>100)) {
-				af_stringstream << int(af_2) << "kHz";
-			}
-		}
-		if(af_1 || af_2) {
-			af_string = af_stringstream.str();
+		// Check whether this is a new pair of AF codes
+		if (std::find(af_pairs.begin(), af_pairs.end(), group[2]) == af_pairs.end()) {
+			af_pairs.push_back(group[2]);
+			decode_af_pairs();
 		}
 	}
 
@@ -161,47 +162,130 @@ void parser_impl::decode_type0(unsigned int *group, bool B) {
 		<< "<== -" << (traffic_program ? "TP" : "  ")
 		<< '-' << (traffic_announcement ? "TA" : "  ")
 		<< '-' << (music_speech ? "Music" : "Speech")
-		<< '-' << (mono_stereo ? "MONO" : "STEREO")
-		<< " - AF:" << af_string << std::endl;
+		<< '-' << (mono_stereo ? "STEREO" : "MONO")
+		<< std::endl;
 
-	send_message(1, std::string(program_service_name, 8));
 	send_message(3, flagstring);
-	send_message(6, af_string);
 }
 
-double parser_impl::decode_af(unsigned int af_code) {
-	static unsigned int number_of_freqs = 0;
-	static bool vhf_or_lfmf             = 0; // 0 = vhf, 1 = lf/mf
-	double alt_frequency                = 0; // in kHz
+void parser_impl::decode_af_pairs() {
+	// Search for the first row, which indicates the number of frequencies
+	int first_row = -1;
+	int number_of_freqs = -1;
+	int freqs_seen = 0;
+	std::vector<int> freqs;
 
-	if((af_code == 0) ||                              // not to be used
-		( af_code == 205) ||                      // filler code
-		((af_code >= 206) && (af_code <= 223)) || // not assigned
-		( af_code == 224) ||                      // No AF exists
-		( af_code >= 251)) {                      // not assigned
-			number_of_freqs = 0;
-			alt_frequency   = 0;
-	}
-	if((af_code >= 225) && (af_code <= 249)) {        // VHF frequencies follow
-		number_of_freqs = af_code - 224;
-		alt_frequency   = 0;
-		vhf_or_lfmf     = 1;
-	}
-	if(af_code == 250) {                              // an LF/MF frequency follows
-		number_of_freqs = 1;
-		alt_frequency   = 0;
-		vhf_or_lfmf     = 0;
+	for (unsigned int i = 0; i < af_pairs.size(); i++) {
+		unsigned int af_1 = (af_pairs[i] >> 8);
+
+		if ((af_1 >= 224) && (af_1 <= 249)) {
+			first_row = i;
+			number_of_freqs = af_1 - 224;
+			break;
+		}
 	}
 
-	if((af_code > 0) && (af_code < 205) && vhf_or_lfmf)
-		alt_frequency = 100.0 * (af_code + 875);          // VHF (87.6-107.9MHz)
-	else if((af_code > 0) && (af_code < 16) && !vhf_or_lfmf)
-		alt_frequency = 153.0 + (af_code - 1) * 9;        // LF (153-279kHz)
-	else if((af_code > 15) && (af_code < 136) && !vhf_or_lfmf)
-		alt_frequency = 531.0 + (af_code - 16) * 9 + 531; // MF (531-1602kHz)
+	if (number_of_freqs == 0) {
+		return;
+	}
 
-	(void) number_of_freqs;
-	return alt_frequency;
+	if (first_row >= 0) {
+		unsigned int special_af = 0;
+		for (unsigned int i = first_row; i < first_row + af_pairs.size(); i++) {
+			unsigned int af_1 = (af_pairs[i % af_pairs.size()] >> 8);
+			unsigned int af_2 = (af_pairs[i % af_pairs.size()] & 0xff);
+
+			if ((int)i == first_row) {
+				int freq = decode_af(af_2, false);
+				if (freq >= 0) {
+					freqs.push_back(freq);
+					freqs_seen++;
+					special_af = af_2;
+				}
+			} else if (af_1 == 250) {
+				// One LF/MF frequency follows
+				int freq = decode_af(af_2, true);
+				if (freq >= 0) {
+					freqs.push_back(freq);
+					freqs_seen++;
+				}
+			} else {
+				if ((af_1 == special_af) || (af_2 == special_af)) {
+					// AF method B
+					bool regional = (af_2 < af_1);
+
+					unsigned int new_af = (af_1 == special_af) ? af_2 : af_1;
+					int freq = decode_af(new_af, false);
+					if (freq >= 0) {
+						freqs.push_back(regional ? -freq : freq); // Negative indicates regional frequency
+						freqs_seen += 2;
+					}
+				} else {
+					int freq = decode_af(af_1, false);
+					if (freq >= 0) {
+						freqs.push_back(freq);
+						freqs_seen++;
+					}
+					freq = decode_af(af_2, false);
+					if (freq >= 0) {
+						freqs.push_back(freq);
+						freqs_seen++;
+					}
+				}
+			}
+		}
+
+		// Check whether we have the whole frequency list
+		if (freqs_seen == number_of_freqs) {
+			std::stringstream af_stringstream;
+			af_stringstream << std::fixed << std::setprecision(1);
+
+			bool first = true;
+			for (int freq : freqs) {
+				bool regional = false;
+				if (freq < 0) {
+					freq = -freq;
+					regional = true;
+				}
+
+				if (first) {
+					first = false;
+				} else {
+					af_stringstream << ", ";
+				}
+
+				if (freq > 10000) {
+					af_stringstream << (freq / 1000.0) << " MHz";
+				} else {
+					af_stringstream << freq << " kHz";
+				}
+
+				if (regional) {
+					af_stringstream << " (regional)";
+				}
+			}
+
+			send_message(6, af_stringstream.str());
+			lout << "AF: " << af_stringstream.str() << std::endl;
+		}
+	}
+
+}
+
+int parser_impl::decode_af(unsigned int af_code, bool lf_mf) {
+	if (lf_mf) {
+		if ((af_code >= 1) && (af_code <= 15)) {
+			return 153 + (af_code - 1) * 9; // LF (153-279kHz)
+		} else if ((af_code >= 16) && (af_code < 135)) {
+			return 531 + (af_code - 16) * 9; // MF (531-1602kHz)
+		}
+	} else {
+		if ((af_code >= 1) && (af_code <= 204)) {
+			return 87600 + (af_code - 1) * 100; // VHF (87.6-107.9MHz)
+		}
+	}
+
+	return -1; // Invalid input
 }
 
 void parser_impl::decode_type1(unsigned int *group, bool B){
@@ -264,12 +348,12 @@ void parser_impl::decode_type2(unsigned int *group, bool B){
 
 	// when the A/B flag is toggled, flush your current radiotext
 	if(radiotext_AB_flag != ((group[1] >> 4) & 0x01)) {
-		std::memset(radiotext, ' ', sizeof(radiotext));
+		radiotext_segment_flags = 0;
 	}
 	radiotext_AB_flag = (group[1] >> 4) & 0x01;
 
 	if(!B) {
-		radiotext[text_segment_address_code *4     ] = (group[2] >> 8) & 0xff;
+		radiotext[text_segment_address_code * 4    ] = (group[2] >> 8) & 0xff;
 		radiotext[text_segment_address_code * 4 + 1] =  group[2]       & 0xff;
 		radiotext[text_segment_address_code * 4 + 2] = (group[3] >> 8) & 0xff;
 		radiotext[text_segment_address_code * 4 + 3] =  group[3]       & 0xff;
@@ -277,10 +361,35 @@ void parser_impl::decode_type2(unsigned int *group, bool B){
 		radiotext[text_segment_address_code * 2    ] = (group[3] >> 8) & 0xff;
 		radiotext[text_segment_address_code * 2 + 1] =  group[3]       & 0xff;
 	}
-	lout << "Radio Text " << (radiotext_AB_flag ? 'B' : 'A')
-		<< ": " << std::string(radiotext, sizeof(radiotext))
-		<< std::endl;
-	send_message(4,std::string(radiotext, sizeof(radiotext)));
+	radiotext_segment_flags |= (1 << text_segment_address_code);
+
+	// Count how many valid segments we have.
+	int valid_segments = 0;
+	for (int segment_address = 0; segment_address < 16; segment_address++) {
+		if (radiotext_segment_flags & (1 << segment_address)) {
+			valid_segments++;
+		} else {
+			break;
+		}
+	}
+
+	// Check for the end of the radiotext, indicated by a carriage return.
+	int segment_width = (B ? 2 : 4);
+	char *tail = (char *) std::memchr(radiotext, '\r', valid_segments * segment_width);
+
+	// Special case: radiotext that take up the entire buffer is not
+	// required to have a trailing carriage return.
+	if (!tail && (valid_segments == 16)) {
+		tail = radiotext + (16 * segment_width);
+	}
+
+	// If the radiotext is complete, report it.
+	if (tail) {
+		lout << "Radio Text " << (radiotext_AB_flag ? 'B' : 'A')
+			<< ": " << std::string(radiotext, tail - radiotext)
+			<< std::endl;
+		send_message(4, std::string(radiotext, tail - radiotext));
+	}
 }
 
 void parser_impl::decode_type3(unsigned int *group, bool B){
@@ -387,9 +496,7 @@ void parser_impl::decode_type8(unsigned int *group, bool B){
 	}
 	bool T = (group[1] >> 4) & 0x1; // 0 = user message, 1 = tuning info
 	bool F = (group[1] >> 3) & 0x1; // 0 = multi-group, 1 = single-group
-	bool D = (group[2] > 15) & 0x1; // 1 = diversion recommended
-	static unsigned long int free_format[4];
-	static int no_groups = 0;
+	bool D = (group[2] >> 15) & 0x1; // 1 = diversion recommended
 
 	if(T) { // tuning info
 		lout << "#tuning info# ";
@@ -407,8 +514,11 @@ void parser_impl::decode_type8(unsigned int *group, bool B){
 		unsigned int extent   = (group[2] >> 11) & 0x7;   // number of segments affected
 		unsigned int event    =  group[2]        & 0x7ff; // event code, defined in ISO 14819-2
 		unsigned int location =  group[3];                // location code, defined in ISO 14819-3
-		lout << "#user msg# " << (D ? "diversion recommended, " : "");
+		lout << "#user msg# ";
 		if(F) {
+			if (D) {
+				lout << "diversion recommended, ";
+			}
 			lout << "single-grp, duration:" << tmc_duration[dp_ci][0];
 		} else {
 			lout << "multi-grp, continuity index:" << dp_ci;
@@ -496,7 +606,6 @@ void parser_impl::decode_type14(unsigned int *group, bool B){
 
 	char pty_on = 0;
 	bool ta_on = 0;
-	static char ps_on[8] = {' ',' ',' ',' ',' ',' ',' ',' '};
 	double af_1 = 0;
 	double af_2 = 0;
 
@@ -594,7 +703,7 @@ void parser_impl::parse(pmt::pmt_t pdu) {
 	group[2] = bytes[5] | (((unsigned int)(bytes[4])) << 8U);
 	group[3] = bytes[7] | (((unsigned int)(bytes[6])) << 8U);
 
-	// TODO: verify offset chars are one of: "ABCD", "ABcD", "EEEE" (in US)
+	// TODO: verify offset chars are one of: "ABCD", "ABcD"
 
 	unsigned int group_type = (unsigned int)((group[1] >> 12) & 0xf);
 	bool ab = (group[1] >> 11 ) & 0x1;
@@ -602,6 +711,9 @@ void parser_impl::parse(pmt::pmt_t pdu) {
 	lout << std::setfill('0') << std::setw(2) << group_type << (ab ? 'B' : 'A') << " ";
 	lout << "(" << rds_group_acronyms[group_type] << ")";
 
+	if (program_identification != group[0]) {
+		reset();
+	}
 	program_identification = group[0];     // "PI"
 	program_type = (group[1] >> 5) & 0x1f; // "PTY"
 	int pi_country_identification = (program_identification >> 12) & 0xf;
