@@ -333,7 +333,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 QDateTime tt;
                 tt.setMSecsSinceEpoch(ms);
                 QString timeStr = tt.toString("yyyy.MM.dd hh:mm:ss.zzz");
-                const qreal kHz = xFromWaterfallEntry(waterfallEntry, px) / 1.e3;
+                const qreal kHz = waterfallFreqFromX(waterfallEntry, px) / 1.e3;
                 showToolTip(event, QString("%1\n%2 kHz").arg(timeStr).arg(kHz, 0, 'f', 3));
             }
             else
@@ -639,7 +639,7 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
             {
                 emit newCenterFrequency(waterfallEntry.m_CenterFreq + (m_DemodCenterFreq - m_CenterFreq));
             }
-            m_DemodCenterFreq = roundFreq(xFromWaterfallEntry(waterfallEntry, px), m_ClickResolution);
+            m_DemodCenterFreq = roundFreq(waterfallFreqFromX(waterfallEntry, px), m_ClickResolution);
             bool invalidate = false;
             if (m_FftCenter != waterfallEntry.m_FftCenter)
             {
@@ -2366,7 +2366,7 @@ WaterfallEntry CPlotter::getWaterfallEntry(int waterfallY)
     return m_WaterfallEntries[idx];
 }
 
-qint64 CPlotter::xFromWaterfallEntry(WaterfallEntry waterfallEntry, int x) {
+qint64 CPlotter::waterfallFreqFromX(WaterfallEntry waterfallEntry, int x) {
     const qreal ratio = (qreal) x / (qreal) m_WaterfallImage.width();
     const qint64 centerFrequency = waterfallEntry.m_CenterFreq + waterfallEntry.m_FftCenter;
     const qint64 frequencySpan = waterfallEntry.m_Span;
