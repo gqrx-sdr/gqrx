@@ -34,7 +34,8 @@ private:
 	void reset();
 	void send_message(long, std::string);
 	void parse(pmt::pmt_t pdu);
-	double decode_af(unsigned int);
+	void decode_af_pairs();
+	int decode_af(unsigned int af_code, bool lf_mf);
 	void decode_optional_content(int, unsigned long int *);
 
 	void decode_type0( unsigned int* group, bool B);
@@ -59,9 +60,12 @@ private:
 	unsigned char  pi_country_identification;
 	unsigned char  pi_area_coverage;
 	unsigned char  pi_program_reference_number;
-	char           radiotext[65];
-	char           program_service_name[9];
+	char           radiotext[64];
+	unsigned int   radiotext_segment_flags;
+	char           program_service_name[8];
+	unsigned int   program_service_name_segment_flags;
 	bool           radiotext_AB_flag;
+	std::vector<unsigned int> af_pairs;
 	bool           traffic_program;
 	bool           traffic_announcement;
 	bool           music_speech;
@@ -72,6 +76,9 @@ private:
 	bool           log;
 	bool           debug;
 	unsigned char  pty_locale;
+	unsigned long int free_format[4];
+	int no_groups;
+	char ps_on[8];
 	gr::thread::mutex d_mutex;
 };
 

@@ -3,6 +3,7 @@
 
   IMPROVED: Save I/Q recording format to settings.
   IMPROVED: Reduced CPU utilization of plot and waterfall display.
+  IMPROVED: Display and formatting of RDS data.
      FIXED: Decoding of RDS flags.
    CHANGED: DMG release requires macOS 13.7 or later.
 
