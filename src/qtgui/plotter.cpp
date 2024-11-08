@@ -1506,13 +1506,6 @@ void CPlotter::draw(bool newData)
         QPainter painter2(&m_2DPixmap);
         painter2.translate(QPointF(0.5, 0.5));
 
-
-        // draw the pandapter
-        QBrush fillBrush = QBrush(m_FftFillCol);
-
-        // Fill between max and avg
-        QBrush maxFillBrush = QBrush(m_FilledModeFillCol);
-
         // Diagonal fill for area between markers. Scale the pattern to DPR.
         QColor abFillColor = QColor::fromRgba(PLOTTER_MARKER_COLOR);
         abFillColor.setAlpha(128);
@@ -1547,8 +1540,7 @@ void CPlotter::draw(bool newData)
 
         const float binSizeY = (float)plotHeight / (float)histBinsDisplayed;
         QPolygonF abPolygon;
-        QPolygonF underPolygon;
-        QPolygonF avgMaxPolygon;
+        qreal yFillMax = 0;
         for (i = 0; i < npts; i++)
         {
             const int ix = i + xmin;
@@ -1593,25 +1585,21 @@ void CPlotter::draw(bool newData)
 
             // Fill area between markers, even if they are off screen
             qreal yFill = m_PlotMode == PLOT_MODE_MAX ? yMaxD : yAvgD;
+            yFillMax = std::max(yFillMax, yFill);
             if (fillMarkers && (ix) > minMarker && (ix) < maxMarker) {
                 abPolygon << QPointF(ixPlot, yFill);
             }
-            if (m_FftFill && m_PlotMode != PLOT_MODE_HISTOGRAM)
-            {
-                underPolygon << QPointF(ixPlot, yFill);
-            }
-            if (m_PlotMode == PLOT_MODE_FILLED)
-            {
-                avgMaxPolygon << m_maxLineBuf[i];
-            }
         }
 
-        if (!underPolygon.isEmpty())
+        if (m_FftFill && m_PlotMode != PLOT_MODE_HISTOGRAM)
         {
-            underPolygon << QPointF(underPolygon.last().x(), plotHeight);
-            underPolygon << QPointF(underPolygon.first().x(), plotHeight);
-            painter2.setBrush(fillBrush);
-            painter2.drawPolygon(underPolygon);
+            for (i = 0; i < npts; i++)
+            {
+                const QPointF point = m_PlotMode == PLOT_MODE_MAX ? m_maxLineBuf[i] : m_avgLineBuf[i];
+                const qreal yFill = point.y();
+                painter2.fillRect(QRectF(point.x() - 1.0, yFill, 1.0, yFillMax - yFill), m_FftFillCol);
+            }
+            painter2.fillRect(QRectF(xmin, yFillMax, npts, plotHeight - yFillMax), m_FftFillCol);
         }
 
         if (!abPolygon.isEmpty())
@@ -1645,7 +1633,7 @@ void CPlotter::draw(bool newData)
         // Min hold
         if (m_MinHoldActive)
         {
-            // Show min(avg) except when showing only max on scree
+            // Show min(avg) except when showing only max on screen
             for (i = 0; i < npts; i++)
             {
                 const int ix = i + xmin;
@@ -1662,14 +1650,14 @@ void CPlotter::draw(bool newData)
             m_MinHoldValid = true;
         }
 
-        if (!avgMaxPolygon.isEmpty())
+        if (m_PlotMode == PLOT_MODE_FILLED)
         {
-            for (i = npts - 1; i >= 0; i--)
+            for (i = 0; i < npts; i++)
             {
-                avgMaxPolygon << m_avgLineBuf[i];
+                const QPointF maxPoint = m_maxLineBuf[i];
+                const qreal yMax = maxPoint.y();
+                painter2.fillRect(QRectF(maxPoint.x() - 1.0, yMax, 1.0, m_avgLineBuf[i].y() - yMax), m_FilledModeFillCol);
             }
-            painter2.setBrush(maxFillBrush);
-            painter2.drawPolygon(avgMaxPolygon);
         }
 
         if (doMaxLine)
