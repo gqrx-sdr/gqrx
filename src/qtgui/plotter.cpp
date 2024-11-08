@@ -658,6 +658,10 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                 m_MinHoldValid = false;
                 m_histIIRValid = false;
             }
+            emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
+            m_CursorCaptured = CENTER;
+            m_GrabPosition = 1;
+            updateOverlay();
         }
         else
         {
