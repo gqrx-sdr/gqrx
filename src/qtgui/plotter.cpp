@@ -735,7 +735,7 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                         {
                             emit newCenterFrequency(waterfallEntry.m_CenterFreq + (m_DemodCenterFreq - m_CenterFreq));
                         }
-                        m_DemodCenterFreq = xFromWaterfallEntry(waterfallEntry, px);
+                        m_DemodCenterFreq = roundFreq(xFromWaterfallEntry(waterfallEntry, px), m_ClickResolution);
                         bool invalidate = false;
                         if (m_FftCenter != waterfallEntry.m_FftCenter)
                         {
