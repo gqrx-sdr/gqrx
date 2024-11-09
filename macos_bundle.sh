@@ -1,7 +1,9 @@
 #!/bin/bash -e
 
-GQRX_VERSION=$(<build/version.txt)
+GQRX_VERSION="$(<build/version.txt)"
 IDENTITY=Y3GC27WZ4S
+BREW_PREFIX="$(brew --prefix)"
+MACDEPLOYQT6="${BREW_PREFIX}"/opt/qt@6/bin/macdeployqt
 
 mkdir -p Gqrx.app/Contents/MacOS
 mkdir -p Gqrx.app/Contents/Resources
@@ -49,26 +51,24 @@ EOM
 
 cp build/src/gqrx Gqrx.app/Contents/MacOS
 cp resources/icons/gqrx.icns Gqrx.app/Contents/Resources
-PREFIX=$(brew --prefix)
-MACDEPLOYQT6=${PREFIX}/opt/qt@6/bin/macdeployqt
 # NOTE: PlutoSDR is built locally, so it will not in the brew path
 cp /usr/local/lib/SoapySDR/modules*/libPlutoSDRSupport.so Gqrx.app/Contents/soapy-modules
-cp ${PREFIX}/lib/SoapySDR/modules*/libremoteSupport.so Gqrx.app/Contents/soapy-modules
+cp "${BREW_PREFIX}"/lib/SoapySDR/modules*/libremoteSupport.so Gqrx.app/Contents/soapy-modules
 chmod 644 Gqrx.app/Contents/soapy-modules/*
 
-dylibbundler -s ${PREFIX}/opt/icu4c/lib/ -od -b -x Gqrx.app/Contents/MacOS/gqrx -x Gqrx.app/Contents/soapy-modules/libPlutoSDRSupport.so -x Gqrx.app/Contents/soapy-modules/libremoteSupport.so -d Gqrx.app/Contents/libs/
-${MACDEPLOYQT6} Gqrx.app -no-strip -always-overwrite # TODO: Remove macdeployqt workaround
+dylibbundler -s "${BREW_PREFIX}"/opt/icu4c/lib/ -od -b -x Gqrx.app/Contents/MacOS/gqrx -x Gqrx.app/Contents/soapy-modules/libPlutoSDRSupport.so -x Gqrx.app/Contents/soapy-modules/libremoteSupport.so -d Gqrx.app/Contents/libs/
+"${MACDEPLOYQT6}" Gqrx.app -no-strip -always-overwrite # TODO: Remove macdeployqt workaround
 if [ "$1" = "true" ]; then
-    ${MACDEPLOYQT6} Gqrx.app -no-strip -always-overwrite -sign-for-notarization=$IDENTITY
+    "${MACDEPLOYQT6}" Gqrx.app -no-strip -always-overwrite -sign-for-notarization="${IDENTITY}"
 else
-    ${MACDEPLOYQT6} Gqrx.app -no-strip -always-overwrite
+    "${MACDEPLOYQT6}" Gqrx.app -no-strip -always-overwrite
 fi
 
 for f in Gqrx.app/Contents/libs/*.dylib Gqrx.app/Contents/soapy-modules/*.so Gqrx.app/Contents/Frameworks/*.framework Gqrx.app/Contents/Frameworks/*.dylib Gqrx.app/Contents/MacOS/gqrx
 do
     if [ "$1" = "true" ]; then
-        codesign --force --verify --verbose --timestamp --options runtime --entitlements /tmp/Entitlements.plist --sign $IDENTITY $f
+        codesign --force --verify --verbose --timestamp --options runtime --entitlements /tmp/Entitlements.plist --sign "${IDENTITY}" "$f"
     else
-        codesign --remove-signature $f
+        codesign --remove-signature "$f"
     fi
 done
