@@ -23,6 +23,7 @@
 #include "bookmarkstaglist.h"
 #include "bookmarks.h"
 #include <QColorDialog>
+#include <QInputDialog>
 #include <stdio.h>
 #include <QMenu>
 #include <QHeaderView>
@@ -182,24 +183,18 @@ void BookmarksTagList::ShowContextMenu(const QPoint& pos)
 {
     QMenu* menu=new QMenu(this);
 
-    // Rename currently does not work.
-    // The problem is that after the tag name is changed in GUI
-    // you can not find the right TagInfo because you dont know
-    // the old tag name.
-    #if 0
-    // MenuItem "Rename"
-    {
-        QAction* actionRename = new QAction("Rename", this);
-        menu->addAction(actionRename);
-        connect(actionRename, SIGNAL(triggered()), this, SLOT(RenameSelectedTag()));
-    }
-    #endif
-
     // MenuItem "Create new Tag"
     {
         QAction* actionNewTag = new QAction("Create new Tag", this);
         menu->addAction(actionNewTag);
         connect(actionNewTag, SIGNAL(triggered()), this, SLOT(AddNewTag()));
+    }
+
+    // MenuItem "Rename Tag"
+    {
+        QAction* actionRename = new QAction("Rename Tag", this);
+        menu->addAction(actionRename);
+        connect(actionRename, SIGNAL(triggered()), this, SLOT(RenameSelectedTag()));
     }
 
     // Menu "Delete Tag"
@@ -226,7 +221,6 @@ void BookmarksTagList::ShowContextMenu(const QPoint& pos)
     menu->popup(viewport()->mapToGlobal(pos));
 }
 
-#if 0
 bool BookmarksTagList::RenameSelectedTag()
 {
     QModelIndexList selected = selectionModel()->selectedRows();
@@ -236,14 +230,21 @@ bool BookmarksTagList::RenameSelectedTag()
         return true;
     }
 
-    int iRow = selected.first().row();
-    QTableWidgetItem* pItem = item(iRow,1);bUpdating
-    editItem(pItem);
-    //Bookmarks::Get().save();
+    int row = selected.first().row();
+    QString oldName = item(row, 1)->text();
+    TagInfo::sptr info = Bookmarks::Get().findOrAddTag(oldName);
 
+    bool ok;
+    QString newName = QInputDialog::getText(this, "Rename Tag", "Tag Name:",
+        QLineEdit::Normal, oldName, &ok);
+    if (ok && newName != oldName)
+    {
+        info->name = newName;
+        updateTags();
+        Bookmarks::Get().save();
+    }
     return true;
 }
-#endif
 
 void BookmarksTagList::AddNewTag()
 {

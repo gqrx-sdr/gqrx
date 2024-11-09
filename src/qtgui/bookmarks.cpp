@@ -140,6 +140,7 @@ bool Bookmarks::load()
         std::stable_sort(m_BookmarkList.begin(),m_BookmarkList.end());
 
         emit BookmarksChanged();
+        emit TagListChanged();
         return true;
     }
     return false;
@@ -201,6 +202,7 @@ bool Bookmarks::save()
         }
 
         emit BookmarksChanged();
+        emit TagListChanged();
         file.close();
         return true;
     }
