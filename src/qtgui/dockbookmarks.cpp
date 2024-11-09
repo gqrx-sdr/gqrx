@@ -81,6 +81,8 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
                                             | QDialogButtonBox::Cancel);
     connect(buttonBox, SIGNAL(accepted()), tagsDialog, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), tagsDialog, SLOT(reject()));
+    connect(dialogTaglist, SIGNAL(itemChanged(QTableWidgetItem *)), this, SLOT(dialog_tableWidgetTagList_itemChanged(QTableWidgetItem *)));
+    connect(dialogTaglist, SIGNAL(colorChanged()), this, SLOT(dialog_tableWidgetTagList_colorChanged()));
 
     QVBoxLayout *mainLayout = new QVBoxLayout(tagsDialog);
     mainLayout->addWidget(dialogTaglist);
@@ -103,7 +105,7 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
     connect(bookmarksTableModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
             this, SLOT(onDataChanged(const QModelIndex &, const QModelIndex &)));
     connect(&Bookmarks::Get(), SIGNAL(TagListChanged()),
-            ui->tableWidgetTagList, SLOT(updateTags()));
+            ui->tableWidgetTagList, SLOT(updateTags()), Qt::QueuedConnection);
     connect(&Bookmarks::Get(), SIGNAL(BookmarksChanged()),
             bookmarksTableModel, SLOT(update()));
 }
@@ -165,8 +167,53 @@ void DockBookmarks::on_tableWidgetTagList_itemChanged(QTableWidgetItem *item)
     if (col != 1)
         return;
 
+    QString strText = item->text().trimmed();
+    QString strOld = item->data(Qt::UserRole).toString();
+    bool isChecked = (item->checkState() == Qt::Checked);
+    if(strText != strOld)
+    {
+        if((Bookmarks::Get().getTagIndex(strText) == -1)
+            && (strText.compare(TagInfo::strUntagged) != 0)
+            && (strOld.compare(TagInfo::strUntagged) != 0)
+        )
+        {
+            Bookmarks::Get().findOrAddTag(strOld)->name = strText;
+            Bookmarks::Get().save();
+        }
+    }
+    Bookmarks::Get().setTagChecked(strText, isChecked);
+}
+
+void DockBookmarks::dialog_tableWidgetTagList_itemChanged(QTableWidgetItem *item)
+{
+    // we only want to react on changed by the user, not changes by the program itself.
+    if(ui->tableWidgetTagList->m_bUpdating) return;
+
+    int col = item->column();
+    if (col != 1)
+        return;
+
     QString strText = item->text();
-    Bookmarks::Get().setTagChecked(strText, (item->checkState() == Qt::Checked));
+    QString strOld = item->data(Qt::UserRole).toString();
+    if(strText != strOld)
+    {
+        if((Bookmarks::Get().getTagIndex(strText) == -1)
+            && (strText.compare(TagInfo::strUntagged) != 0)
+            && (strOld.compare(TagInfo::strUntagged) != 0)
+        )
+        {
+            Bookmarks::Get().findOrAddTag(strOld)->name = strText;
+            item->setData(Qt::UserRole, strText);
+            Bookmarks::Get().save();
+        }else
+            item->setText(strOld);
+        updateTags();
+    }
+}
+
+void DockBookmarks::dialog_tableWidgetTagList_colorChanged()
+{
+    updateTags();
 }
 
 bool DockBookmarks::eventFilter(QObject* object, QEvent* event)

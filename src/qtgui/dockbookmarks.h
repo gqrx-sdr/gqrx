@@ -74,6 +74,8 @@ signals:
 
 public slots:
     void setNewFrequency(qint64 rx_freq);
+    void dialog_tableWidgetTagList_itemChanged(QTableWidgetItem *item);
+    void dialog_tableWidgetTagList_colorChanged();
 
 private slots:
     void activated(const QModelIndex & index );
