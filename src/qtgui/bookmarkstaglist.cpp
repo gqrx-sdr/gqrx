@@ -38,18 +38,12 @@ BookmarksTagList::BookmarksTagList(QWidget *parent, bool bShowUntagged )
     // right click menu
     popupMenu=new QMenu(this);
 
-    // Rename currently does not work.
-    // The problem is that after the tag name is changed in GUI
-    // you can not find the right TagInfo because you dont know
-    // the old tag name.
-    #if 0
     // MenuItem "Rename"
     {
         QAction* actionRename = new QAction("Rename", this);
         popupMenu->addAction(actionRename);
         connect(actionRename, SIGNAL(triggered()), this, SLOT(RenameSelectedTag()));
     }
-    #endif
 
     // MenuItem "Create new Tag"
     {
@@ -225,7 +219,6 @@ void BookmarksTagList::ShowContextMenu(const QPoint& pos)
     popupMenu->popup(viewport()->mapToGlobal(pos));
 }
 
-#if 0
 bool BookmarksTagList::RenameSelectedTag()
 {
     QModelIndexList selected = selectionModel()->selectedRows();
@@ -236,13 +229,10 @@ bool BookmarksTagList::RenameSelectedTag()
     }
 
     int iRow = selected.first().row();
-    QTableWidgetItem* pItem = item(iRow,1);bUpdating
+    QTableWidgetItem* pItem = item(iRow,1);
     editItem(pItem);
-    //Bookmarks::Get().save();
-
     return true;
 }
-#endif
 
 void BookmarksTagList::AddNewTag()
 {
@@ -258,6 +248,7 @@ void BookmarksTagList::AddTag(QString name, Qt::CheckState checkstate, QColor co
 
     // Column 1
     QTableWidgetItem *item = new QTableWidgetItem(name);
+    item->setData(Qt::UserRole, name);
     item->setCheckState(checkstate);
     item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
     setItem(i, 1, item);
