@@ -251,6 +251,36 @@ TagInfo::sptr Bookmarks::findOrAddTag(QString tagName)
     return m_TagList.last();
 }
 
+bool Bookmarks::renameTag(QString oldTagName, QString tagName)
+{
+    tagName = tagName.trimmed();
+
+    // Do not edit "Untagged" tag.
+    if (oldTagName.compare(TagInfo::strUntagged) == 0)
+    {
+        return false;
+    }
+
+    // Ensure new tag does not already exist
+    int idx = getTagIndex(tagName);
+    if (idx != -1)
+    {
+        return false;
+    }
+
+    for (int i = 0; i < m_TagList.size(); i++)
+    {
+        TagInfo::sptr info = m_TagList[i];
+        if (oldTagName.compare(info->name) == 0)
+        {
+            info->name = tagName;
+            save();
+            return true;
+        }
+    }
+    return false;
+}
+
 bool Bookmarks::removeTag(QString tagName)
 {
     tagName = tagName.trimmed();

@@ -24,6 +24,7 @@
 #include "bookmarks.h"
 #include <QColorDialog>
 #include <QInputDialog>
+#include <QMessageBox>
 #include <stdio.h>
 #include <QMenu>
 #include <QHeaderView>
@@ -190,18 +191,25 @@ void BookmarksTagList::ShowContextMenu(const QPoint& pos)
         connect(actionNewTag, SIGNAL(triggered()), this, SLOT(AddNewTag()));
     }
 
-    // MenuItem "Rename Tag"
-    {
-        QAction* actionRename = new QAction("Rename Tag", this);
-        menu->addAction(actionRename);
-        connect(actionRename, SIGNAL(triggered()), this, SLOT(RenameSelectedTag()));
-    }
+    QTableWidgetItem* theItem = itemAt(pos);
+    if (theItem) {
+        QString tagName = item(theItem->row(), 1)->text();
+        if (tagName.compare(TagInfo::strUntagged) != 0)
+        {
+            // MenuItem "Rename Tag"
+            {
+                QAction* actionRename = new QAction("Rename Tag", this);
+                menu->addAction(actionRename);
+                connect(actionRename, SIGNAL(triggered()), this, SLOT(RenameSelectedTag()));
+            }
 
-    // Menu "Delete Tag"
-    {
-        QAction* actionDeleteTag = new QAction("Delete Tag", this);
-        menu->addAction(actionDeleteTag);
-        connect(actionDeleteTag, SIGNAL(triggered()), this, SLOT(DeleteSelectedTag()));
+            // Menu "Delete Tag"
+            {
+                QAction* actionDeleteTag = new QAction("Delete Tag", this);
+                menu->addAction(actionDeleteTag);
+                connect(actionDeleteTag, SIGNAL(triggered()), this, SLOT(DeleteSelectedTag()));
+            }
+        }
     }
 
     // Menu "Select All"
@@ -232,16 +240,21 @@ bool BookmarksTagList::RenameSelectedTag()
 
     int row = selected.first().row();
     QString oldName = item(row, 1)->text();
-    TagInfo::sptr info = Bookmarks::Get().findOrAddTag(oldName);
 
     bool ok;
     QString newName = QInputDialog::getText(this, "Rename Tag", "Tag Name:",
         QLineEdit::Normal, oldName, &ok);
-    if (ok && newName != oldName)
+    if (ok)
     {
-        info->name = newName;
-        updateTags();
-        Bookmarks::Get().save();
+        if (Bookmarks::Get().renameTag(oldName, newName))
+        {
+            updateTags();
+        }
+        else 
+        {
+            QMessageBox::warning(this, "Rename Tag", QString("Tag %1 already exists").arg(newName),
+                QMessageBox::Ok, QMessageBox::Ok);
+        }
     }
     return true;
 }
