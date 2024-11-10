@@ -56,6 +56,14 @@
  *
  * FIXME: The server code is very minimalistic and probably not very robust.
  */
+
+// struct to be casted as char array for network transmission
+typedef struct {
+    qint64              irate;             // input rate
+    qint64              hfreq;             // hardware freq set
+    std::vector<float>*  snr;               // snr gathered
+} snr_map_t;
+
 class RemoteControl : public QObject
 {
     Q_OBJECT
@@ -75,6 +83,9 @@ public:
         return rc_port;
     }
 
+    void populate_map(const std::vector<float> *map);
+    void populate_frequency(const qint64 freq);
+    void populate_input_rate(const qint64 irate);
     void setHosts(QStringList hosts);
     QStringList getHosts(void) const
     {
@@ -145,6 +156,7 @@ private:
     bool        receiver_running;  /*!< Whether the receiver is running or not */
     bool        hamlib_compatible;
     gain_list_t gains;             /*!< Possible and current gain settings */
+    snr_map_t   snr_map;           /*!< Signal to noise ratio map */
 
     void        setNewRemoteFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);
@@ -169,6 +181,7 @@ private:
     QString     cmd_LOS();
     QString     cmd_lnb_lo(QStringList cmdlist);
     QString     cmd_dump_state() const;
+    QString     cmd_dump_fft() const;
 };
 
 #endif // REMOTE_CONTROL_H

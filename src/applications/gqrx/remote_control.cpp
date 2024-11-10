@@ -21,6 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <cmath>
+#include <cstddef>
 #include <cstdlib>
 #include <iostream>
 #include <QString>
@@ -52,6 +53,10 @@ RemoteControl::RemoteControl(QObject *parent) :
     audio_recorder_status = false;
     receiver_running = false;
     hamlib_compatible = false;
+
+    snr_map.hfreq = 0;
+    snr_map.irate = 0;
+    snr_map.snr = nullptr;
 
     rc_port = DEFAULT_RC_PORT;
     rc_allowed_hosts.append(DEFAULT_RC_ALLOWED_HOSTS);
@@ -252,6 +257,8 @@ void RemoteControl::startRead()
             answer = QString("0\n");
         else if (cmd == "\\dump_state")
             answer = cmd_dump_state();
+        else if (cmd == "\\dump_fft")
+            answer = cmd_dump_fft();
         else if (cmd == "\\get_powerstat")
             answer = QString("1\n");
         else if (cmd == "q" || cmd == "Q")
@@ -268,7 +275,6 @@ void RemoteControl::startRead()
             qWarning() << "Unknown remote command:" << cmdlist;
             answer = QString("RPRT 1\n");
         }
-
         rc_socket->write(answer.toLatin1());
     }
 }
@@ -349,6 +355,7 @@ void RemoteControl::setNewRemoteFreq(qint64 freq)
             rc_filter_offset = 0.2f * bwh_eff;
         emit newFilterOffset(rc_filter_offset);
         emit newFrequency(freq);
+        populate_frequency(freq);
     }
 
     rc_freq = freq;
@@ -923,12 +930,60 @@ QString RemoteControl::cmd_lnb_lo(QStringList cmdlist)
     }
 }
 
+// Dump signal to noise ratio map
+// \dump_fft
+// <center frequency in Hz>
+// <input rate>
+// <number of bins>
+// <binary data with>
+QString RemoteControl::cmd_dump_fft() const
+{
+    if (snr_map.snr == nullptr){
+        return QString("RPRT 1\n");
+    }
+
+    QString answer;
+
+    answer.append(QString("%1\n").arg(snr_map.hfreq));
+    answer.append(QString("%1\n").arg(snr_map.irate));
+    answer.append(QString("%1\n").arg(snr_map.snr->size()));
+
+    QByteArray byteArray;
+    byteArray.reserve(snr_map.snr->size() * sizeof(double));
+    for (size_t i = 0; i < snr_map.snr->size(); i++) {
+        double value = static_cast<double>((*snr_map.snr)[i]);
+        byteArray.append(reinterpret_cast<const char*>(&value), sizeof(double));
+    }
+
+    answer.append(byteArray);
+    answer.append(QString("\n"));
+
+    return answer;
+}
+
+// if you want to convert it into SNR (dBFS)
+// it should look like this
+/* for (size_t i = 0 ; i < map.size(); i++) { */
+/*     cache.push_back(20.f * log10f(map[i] / 200.f)); */
+/* } */
+void RemoteControl::populate_map(const std::vector<float> *map) {
+    snr_map.snr = const_cast<std::vector<float>*>(map);
+}
+
+void RemoteControl::populate_frequency(const qint64 freq){
+    snr_map.hfreq = freq;
+}
+
+void RemoteControl::populate_input_rate(const qint64 irate){
+    snr_map.irate = irate;
+}
 /*
  * '\dump_state' used by hamlib clients, e.g. xdx, fldigi, rigctl and etc
  * More info:
  *  https://github.com/N0NB/hamlib/blob/master/include/hamlib/rig.h (bit fields)
  *  https://github.com/N0NB/hamlib/blob/master/dummy/netrigctl.c
  */
+
 QString RemoteControl::cmd_dump_state() const
 {
     return QString(
