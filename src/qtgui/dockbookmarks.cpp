@@ -81,6 +81,7 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
                                             | QDialogButtonBox::Cancel);
     connect(buttonBox, SIGNAL(accepted()), tagsDialog, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), tagsDialog, SLOT(reject()));
+    connect(dialogTaglist, SIGNAL(itemChanged(QTableWidgetItem *)), this, SLOT(dialog_tableWidgetTagList_itemChanged(QTableWidgetItem *)));
 
     QVBoxLayout *mainLayout = new QVBoxLayout(tagsDialog);
     mainLayout->addWidget(dialogTaglist);
@@ -177,6 +178,30 @@ void DockBookmarks::on_tableWidgetTagList_itemChanged(QTableWidgetItem *item)
         }
     }
     Bookmarks::Get().setTagChecked(strText, isChecked);
+}
+
+void DockBookmarks::dialog_tableWidgetTagList_itemChanged(QTableWidgetItem *item)
+{
+    // we only want to react on changed by the user, not changes by the program itself.
+    if(ui->tableWidgetTagList->m_bUpdating) return;
+
+    int col = item->column();
+    if (col != 1)
+        return;
+
+    QString strText = item->text();
+    QString strOld = item->data(Qt::UserRole).toString();
+    if(strText != strOld)
+    {
+        if(Bookmarks::Get().getTagIndex(strText) == -1)
+        {
+            Bookmarks::Get().findOrAddTag(strOld)->name = strText;
+            item->setData(Qt::UserRole, strText);
+            Bookmarks::Get().save();
+        }else
+            item->setText(strOld);
+        updateTags();
+    }
 }
 
 bool DockBookmarks::eventFilter(QObject* object, QEvent* event)
