@@ -25,6 +25,7 @@
 #include <QDockWidget>
 #include <QTableWidgetItem>
 #include "qtgui/bookmarkstablemodel.h"
+#include "qtgui/bookmarkstaglist.h"
 #include <QItemDelegate>
 
 namespace Ui {
@@ -48,6 +49,8 @@ class DockBookmarks : public QDockWidget
 private:
     Ui::DockBookmarks *ui;
     QMenu*             contextmenu;
+    QDialog*           tagsDialog;
+    BookmarksTagList*  dialogTaglist;
     qint64             m_currentFrequency;
     bool               m_updating;
     BookmarksTableModel *bookmarksTableModel;

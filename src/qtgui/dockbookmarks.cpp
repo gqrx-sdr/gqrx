@@ -30,7 +30,6 @@
 #include <QMessageBox>
 
 #include "bookmarks.h"
-#include "bookmarkstaglist.h"
 #include "dockbookmarks.h"
 #include "dockrxopt.h"
 #include "qtcolorpicker.h"
@@ -72,6 +71,20 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
     ui->tableViewFrequencyList->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->tableViewFrequencyList, SIGNAL(customContextMenuRequested(const QPoint&)),
         this, SLOT(ShowContextMenu(const QPoint&)));
+
+    tagsDialog = new QDialog(this);
+    tagsDialog->setWindowTitle("Change Bookmark Tags");
+
+    dialogTaglist = new BookmarksTagList(tagsDialog, false);
+
+    QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                            | QDialogButtonBox::Cancel);
+    connect(buttonBox, SIGNAL(accepted()), tagsDialog, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), tagsDialog, SLOT(reject()));
+
+    QVBoxLayout *mainLayout = new QVBoxLayout(tagsDialog);
+    mainLayout->addWidget(dialogTaglist);
+    mainLayout->addWidget(buttonBox);
 
     // Update GUI
     Bookmarks::Get().load();
@@ -249,27 +262,13 @@ void DockBookmarks::changeBookmarkTags(int row, int /*column*/)
     // Create and show the Dialog for a new Bookmark.
     // Write the result into variable 'tags'.
     {
-        QDialog dialog(this);
-        dialog.setWindowTitle("Change Bookmark Tags");
-
-        BookmarksTagList* taglist = new BookmarksTagList(&dialog, false);
-        taglist->updateTags();
-        taglist->setSelectedTags(bmi.tags);
-        taglist->DeleteTag(TagInfo::strUntagged);
-
-        QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
-                                              | QDialogButtonBox::Cancel);
-        connect(buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
-        connect(buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
-
-        QVBoxLayout *mainLayout = new QVBoxLayout(&dialog);
-        mainLayout->addWidget(taglist);
-        mainLayout->addWidget(buttonBox);
-
-        ok = dialog.exec();
+        dialogTaglist->updateTags();
+        dialogTaglist->setSelectedTags(bmi.tags);
+        dialogTaglist->DeleteTag(TagInfo::strUntagged);
+        ok = tagsDialog->exec();
         if (ok)
         {
-            tags = taglist->getSelectedTags();
+            tags = dialogTaglist->getSelectedTags();
 
             // Change Tags of Bookmark
             bmi.tags.clear();
