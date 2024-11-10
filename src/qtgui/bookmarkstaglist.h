@@ -41,6 +41,7 @@ private:
     bool m_bShowUntagged;
     QMenu* popupMenu{nullptr};
 signals:
+    void colorChanged();
 
 public slots:
     void updateTags();

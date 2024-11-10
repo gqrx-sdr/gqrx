@@ -107,7 +107,8 @@ void BookmarksTagList::changeColor(int row, int /*column*/)
         return;
 
     info->color=color;
-    updateTags();
+    item(row,0)->setBackground(color);
+    emit colorChanged();
     Bookmarks::Get().save();
 }
 

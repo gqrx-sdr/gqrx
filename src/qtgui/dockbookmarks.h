@@ -82,6 +82,7 @@ private slots:
     //void on_delButton_clicked();
     void on_tableWidgetTagList_itemChanged(QTableWidgetItem* item);
     void dialog_tableWidgetTagList_itemChanged(QTableWidgetItem *item);
+    void dialog_tableWidgetTagList_colorChanged();
     void ShowContextMenu(const QPoint&pos);
     bool DeleteSelectedBookmark();
     void doubleClicked(const QModelIndex & index);
