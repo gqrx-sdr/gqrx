@@ -45,6 +45,10 @@ Supported commands:
     Get RDS decoder to <status>.  Only functions in WFM mode.
  U RDS <status>
     Set RDS decoder to <status>.  Only functions in WFM mode.
+ u MUTE
+    Get audio mute status
+ U MUTE <status>
+    Set audio mute to <status>
  q|Q
     Close connection
  AOS
