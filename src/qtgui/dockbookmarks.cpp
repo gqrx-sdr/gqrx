@@ -167,12 +167,15 @@ void DockBookmarks::on_tableWidgetTagList_itemChanged(QTableWidgetItem *item)
     if (col != 1)
         return;
 
-    QString strText = item->text();
+    QString strText = item->text().trimmed();
     QString strOld = item->data(Qt::UserRole).toString();
     bool isChecked = (item->checkState() == Qt::Checked);
     if(strText != strOld)
     {
-        if(Bookmarks::Get().getTagIndex(strText) == -1)
+        if((Bookmarks::Get().getTagIndex(strText) == -1)
+            && (strText.compare(TagInfo::strUntagged) != 0)
+            && (strOld.compare(TagInfo::strUntagged) != 0)
+        )
         {
             Bookmarks::Get().findOrAddTag(strOld)->name = strText;
             Bookmarks::Get().save();
@@ -194,7 +197,10 @@ void DockBookmarks::dialog_tableWidgetTagList_itemChanged(QTableWidgetItem *item
     QString strOld = item->data(Qt::UserRole).toString();
     if(strText != strOld)
     {
-        if(Bookmarks::Get().getTagIndex(strText) == -1)
+        if((Bookmarks::Get().getTagIndex(strText) == -1)
+            && (strText.compare(TagInfo::strUntagged) != 0)
+            && (strOld.compare(TagInfo::strUntagged) != 0)
+        )
         {
             Bookmarks::Get().findOrAddTag(strOld)->name = strText;
             item->setData(Qt::UserRole, strText);
