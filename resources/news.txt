@@ -2,6 +2,7 @@
     2.17.6: In progress...
 
        NEW: Fetch RDS Program Service & RadioText via remote control.
+       NEW: Set and query audio mute via remote control.
        NEW: DMG release for ARM-based Macs.
   IMPROVED: Save I/Q recording format to settings.
   IMPROVED: Reduced CPU utilization of plot and waterfall display.
