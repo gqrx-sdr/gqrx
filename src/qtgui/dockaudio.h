@@ -100,7 +100,7 @@ signals:
     /*! \brief FFT rate changed. */
     void fftRateChanged(int fps);
     
-	/*! \brief Audio mute chenged. */
+    /*! \brief Audio mute chenged. */
     void audioMuted(bool muted);
 
 private slots:

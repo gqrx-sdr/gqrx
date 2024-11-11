@@ -297,7 +297,7 @@ void DockAudio::on_audioMuteButton_clicked(bool checked)
         float gain = float(value) / 10.0f;
         emit audioGainChanged(gain);
     }
-	emit audioMuted(checked);
+    emit audioMuted(checked);
 }
 
 /*! \brief Set status of audio record button. */

@@ -768,7 +768,7 @@ QString RemoteControl::cmd_get_func(QStringList cmdlist)
         answer = QString("%1\n").arg(receiver_running);
     else if (func.compare("RDS", Qt::CaseInsensitive) == 0)
         answer = QString("%1\n").arg(rds_status);
-	else if (func.compare("MUTE", Qt::CaseInsensitive) == 0)
+    else if (func.compare("MUTE", Qt::CaseInsensitive) == 0)
         answer = QString("%1\n").arg(is_audio_muted ? '1' : '0');
     else
         answer = QString("RPRT 1\n");
@@ -813,14 +813,14 @@ QString RemoteControl::cmd_set_func(QStringList cmdlist)
 
         answer = QString("RPRT 0\n");
     }
-	else if (func.compare("MUTE", Qt::CaseInsensitive) == 0)
+    else if (func.compare("MUTE", Qt::CaseInsensitive) == 0)
     {
-		if (status)
-			emit newAudioMuted(true);
-		else
-			emit newAudioMuted(false);
+        if (status)
+            emit newAudioMuted(true);
+        else
+            emit newAudioMuted(false);
 
-		answer = QString("RPRT 0\n");
+        answer = QString("RPRT 0\n");
     }
     else if ((func.compare("RDS", Qt::CaseInsensitive) == 0) && ok)
     {
