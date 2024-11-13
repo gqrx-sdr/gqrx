@@ -8,6 +8,7 @@
   IMPROVED: Reduced CPU utilization of plot and waterfall display.
   IMPROVED: Display and formatting of RDS data.
      FIXED: Decoding of RDS flags.
+     FIXED: Incorrect channel filter offset, for some devices.
    CHANGED: x86 DMG release requires macOS 13.7 or later.
 
 
