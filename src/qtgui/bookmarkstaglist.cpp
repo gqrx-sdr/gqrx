@@ -36,6 +36,48 @@ BookmarksTagList::BookmarksTagList(QWidget *parent, bool bShowUntagged )
             this, SLOT(on_cellClicked(int,int)));
 
     // right click menu
+    popupMenu=new QMenu(this);
+
+    // Rename currently does not work.
+    // The problem is that after the tag name is changed in GUI
+    // you can not find the right TagInfo because you dont know
+    // the old tag name.
+    #if 0
+    // MenuItem "Rename"
+    {
+        QAction* actionRename = new QAction("Rename", this);
+        popupMenu->addAction(actionRename);
+        connect(actionRename, SIGNAL(triggered()), this, SLOT(RenameSelectedTag()));
+    }
+    #endif
+
+    // MenuItem "Create new Tag"
+    {
+        QAction* actionNewTag = new QAction("Create new Tag", this);
+        popupMenu->addAction(actionNewTag);
+        connect(actionNewTag, SIGNAL(triggered()), this, SLOT(AddNewTag()));
+    }
+
+    // Menu "Delete Tag"
+    {
+        QAction* actionDeleteTag = new QAction("Delete Tag", this);
+        popupMenu->addAction(actionDeleteTag);
+        connect(actionDeleteTag, SIGNAL(triggered()), this, SLOT(DeleteSelectedTag()));
+    }
+
+    // Menu "Select All"
+    {
+        QAction* action = new QAction("Select All", this);
+        popupMenu->addAction(action);
+        connect(action, SIGNAL(triggered()), this, SLOT(SelectAll()));
+    }
+
+    // Menu "Deselect All"
+    {
+        QAction* action = new QAction("Deselect All", this);
+        popupMenu->addAction(action);
+        connect(action, SIGNAL(triggered()), this, SLOT(DeselectAll()));
+    }
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
             this, SLOT(ShowContextMenu(const QPoint&)));
@@ -180,50 +222,7 @@ QStringList BookmarksTagList::getSelectedTags()
 
 void BookmarksTagList::ShowContextMenu(const QPoint& pos)
 {
-    QMenu* menu=new QMenu(this);
-
-    // Rename currently does not work.
-    // The problem is that after the tag name is changed in GUI
-    // you can not find the right TagInfo because you dont know
-    // the old tag name.
-    #if 0
-    // MenuItem "Rename"
-    {
-        QAction* actionRename = new QAction("Rename", this);
-        menu->addAction(actionRename);
-        connect(actionRename, SIGNAL(triggered()), this, SLOT(RenameSelectedTag()));
-    }
-    #endif
-
-    // MenuItem "Create new Tag"
-    {
-        QAction* actionNewTag = new QAction("Create new Tag", this);
-        menu->addAction(actionNewTag);
-        connect(actionNewTag, SIGNAL(triggered()), this, SLOT(AddNewTag()));
-    }
-
-    // Menu "Delete Tag"
-    {
-        QAction* actionDeleteTag = new QAction("Delete Tag", this);
-        menu->addAction(actionDeleteTag);
-        connect(actionDeleteTag, SIGNAL(triggered()), this, SLOT(DeleteSelectedTag()));
-    }
-
-    // Menu "Select All"
-    {
-        QAction* action = new QAction("Select All", this);
-        menu->addAction(action);
-        connect(action, SIGNAL(triggered()), this, SLOT(SelectAll()));
-    }
-
-    // Menu "Deselect All"
-    {
-        QAction* action = new QAction("Deselect All", this);
-        menu->addAction(action);
-        connect(action, SIGNAL(triggered()), this, SLOT(DeselectAll()));
-    }
-
-    menu->popup(viewport()->mapToGlobal(pos));
+    popupMenu->popup(viewport()->mapToGlobal(pos));
 }
 
 #if 0

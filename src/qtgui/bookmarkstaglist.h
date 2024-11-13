@@ -39,7 +39,7 @@ public:
 
 private:
     bool m_bShowUntagged;
-
+    QMenu* popupMenu{nullptr};
 signals:
 
 public slots:
