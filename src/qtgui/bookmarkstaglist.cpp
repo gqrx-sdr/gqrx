@@ -241,8 +241,10 @@ void BookmarksTagList::AddNewTag()
     QList<QTableWidgetItem *> found = findItems(newItemName, Qt::MatchExactly);
     if(found.isEmpty())
     {
+        m_bUpdating = true;
         AddTag(newItemName);
         scrollToBottom();
+        m_bUpdating = false;
         editItem(item(rowCount()-1, 1));
     }else
         editItem(found[0]);
