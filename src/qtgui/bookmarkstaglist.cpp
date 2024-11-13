@@ -237,9 +237,15 @@ bool BookmarksTagList::RenameSelectedTag()
 
 void BookmarksTagList::AddNewTag()
 {
-    AddTag("*new*");
-    scrollToBottom();
-    editItem(item(rowCount()-1, 1));
+    constexpr const char * newItemName = "*new*";
+    QList<QTableWidgetItem *> found = findItems(newItemName, Qt::MatchExactly);
+    if(found.isEmpty())
+    {
+        AddTag(newItemName);
+        scrollToBottom();
+        editItem(item(rowCount()-1, 1));
+    }else
+        editItem(found[0]);
 }
 
 void BookmarksTagList::AddTag(QString name, Qt::CheckState checkstate, QColor color)
