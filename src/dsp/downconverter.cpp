@@ -54,14 +54,13 @@ downconverter_cc::~downconverter_cc()
 void downconverter_cc::set_decim_and_samp_rate(unsigned int decim, double samp_rate)
 {
     d_samp_rate = samp_rate;
-    if (decim != d_decim)
-    {
-        d_decim = decim;
-        lock();
-        disconnect_all();
-        connect_all();
-        unlock();
-    }
+    d_decim = decim;
+
+    lock();
+    disconnect_all();
+    connect_all();
+    unlock();
+
     update_proto_taps();
     update_phase_inc();
 }
