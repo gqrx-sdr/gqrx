@@ -677,7 +677,6 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         }
 
         ui->freqCtrl->setFrequency(int64_val);
-        setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
     }
 
     {
@@ -2270,7 +2269,7 @@ void MainWindow::setRdsDecoder(bool checked)
 
 void MainWindow::onBookmarkActivated(qint64 freq, const QString& demod, int bandwidth)
 {
-    setNewFrequency(freq);
+    ui->freqCtrl->setFrequency(freq);
     selectDemod(demod);
 
     /* Check if filter is symmetric or not by checking the presets */
