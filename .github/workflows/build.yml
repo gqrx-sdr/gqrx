@@ -206,9 +206,11 @@ jobs:
         if: ${{ steps.secret-check.outputs.available == 'true' }}
         run: xcrun stapler staple --verbose Gqrx.dmg
       - name: Rename DMG
+        env:
+          MATRIX_ARCH: ${{ matrix.arch }}
         run: |
           GQRX_VERSION=$(<build/version.txt)
-          mv Gqrx.dmg Gqrx-$GQRX_VERSION.dmg
+          mv Gqrx.dmg Gqrx-$MATRIX_ARCH-$GQRX_VERSION.dmg
       - name: Save artifact
         uses: actions/upload-artifact@v4
         with:
