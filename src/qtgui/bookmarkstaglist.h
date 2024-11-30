@@ -39,8 +39,9 @@ public:
 
 private:
     bool m_bShowUntagged;
-
+    QMenu* popupMenu{nullptr};
 signals:
+    void colorChanged();
 
 public slots:
     void updateTags();
@@ -48,7 +49,7 @@ public slots:
     void changeColor(int row, int column);
     void toggleCheckedState(int row, int column);
     void ShowContextMenu(const QPoint& pos);
-    //bool RenameSelectedTag();
+    bool RenameSelectedTag();
     void AddNewTag();
     void AddTag(QString name, Qt::CheckState checkstate = Qt::Checked, QColor color = TagInfo::DefaultColor);
     void DeleteSelectedTag();
