@@ -370,7 +370,7 @@ jobs:
           librtlsdr.dll \
           libsndfile-1.dll \
           libSoapySDR.dll \
-          libspdlog.dll \
+          libspdlog-1.15.dll \
           libstdc++-6.dll \
           libusb-1.0.dll \
           libvolk.dll \
