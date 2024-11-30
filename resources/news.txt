@@ -1,5 +1,5 @@
 
-    2.17.6: In progress...
+    2.17.6: Released November 29, 2024
 
        NEW: Fetch RDS Program Service & RadioText via remote control.
        NEW: Set and query audio mute via remote control.
