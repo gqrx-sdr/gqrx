@@ -3,4 +3,6 @@
 add_source_files(SRCS_LIST
 	udp_sink_f.cpp
 	udp_sink_f.h
+	wav_sink.cpp
+	wav_sink.h
 )

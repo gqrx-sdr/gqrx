@@ -70,11 +70,8 @@ public:
     void setPllBw(float pll_bw);
     float getPllBw(void) const;
 
-    void setDcr(bool enabled);
-    bool getDcr(void) const;
-
-    void setSyncDcr(bool enabled);
-    bool getSyncDcr(void) const;
+    void setAmDcr(bool on);
+    void setAmSyncDcr(bool on);
 
 signals:
     /*! \brief Signal emitted when new FM deviation is selected. */

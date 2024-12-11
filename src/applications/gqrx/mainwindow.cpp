@@ -68,6 +68,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     ui(new Ui::MainWindow),
     d_lnb_lo(0),
     d_hw_freq(0),
+    d_auto_bookmarks(false),
     d_fftAvg(0.25),
     d_fftWindowType(0),
     d_fftNormalizeEnergy(false),
@@ -108,11 +109,14 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     ui->freqCtrl->setup(0, 0, 9999e6, 1, FCTL_UNIT_NONE);
     ui->freqCtrl->setFrequency(144500000);
 
-    d_filter_shape = receiver::FILTER_SHAPE_NORMAL;
+    d_filter_shape = Modulations::FILTER_SHAPE_NORMAL;
 
     /* create receiver object */
     rx = new receiver("", "", 1);
     rx->set_rf_freq(144500000.0);
+    rx->set_audio_rec_event_handler(std::bind(audio_rec_event, this,
+                              std::placeholders::_1,
+                              std::placeholders::_2));
 
     // remote controller
     remote = new RemoteControl();
@@ -219,7 +223,14 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->actionFullScreen);
 
+    /* Setup demodulator switching SpinBox */
+    rxSpinBox = new QSpinBox(ui->mainToolBar);
+    rxSpinBox->setMaximum(255);
+    rxSpinBox->setValue(0);
+    ui->mainToolBar->insertWidget(ui->actionAddDemodulator, rxSpinBox);
+
     /* connect signals and slots */
+    connect(rxSpinBox, SIGNAL(valueChanged(int)), this, SLOT(rxSpinBox_valueChanged(int)));
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), remote, SLOT(setNewFrequency(qint64)));
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), uiDockAudio, SLOT(setRxFrequency(qint64)));
@@ -237,11 +248,12 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockInputCtl, SIGNAL(antennaSelected(QString)), this, SLOT(setAntenna(QString)));
     connect(uiDockInputCtl, SIGNAL(freqCtrlResetChanged(bool)), this, SLOT(setFreqCtrlReset(bool)));
     connect(uiDockInputCtl, SIGNAL(invertScrollingChanged(bool)), this, SLOT(setInvertScrolling(bool)));
-    connect(uiDockRxOpt, SIGNAL(rxFreqChanged(qint64)), ui->freqCtrl, SLOT(setFrequency(qint64)));
+    connect(uiDockInputCtl, SIGNAL(autoBookmarksChanged(bool)), this, SLOT(setAutoBookmarks(bool)));
+    connect(uiDockRxOpt, SIGNAL(rxFreqChanged(qint64)), this, SLOT(setNewFrequency(qint64)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), remote, SLOT(setFilterOffset(qint64)));
-    connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
-    connect(uiDockRxOpt, SIGNAL(demodSelected(int)), remote, SLOT(setMode(int)));
+    connect(uiDockRxOpt, SIGNAL(demodSelected(Modulations::idx)), this, SLOT(selectDemod(Modulations::idx)));
+    connect(uiDockRxOpt, SIGNAL(demodSelected(Modulations::idx)), remote, SLOT(setMode(Modulations::idx)));
     connect(uiDockRxOpt, SIGNAL(fmMaxdevSelected(float)), this, SLOT(setFmMaxdev(float)));
     connect(uiDockRxOpt, SIGNAL(fmEmphSelected(double)), this, SLOT(setFmEmph(double)));
     connect(uiDockRxOpt, SIGNAL(amDcrToggled(bool)), this, SLOT(setAmDcr(bool)));
@@ -249,25 +261,38 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockRxOpt, SIGNAL(amSyncDcrToggled(bool)), this, SLOT(setAmSyncDcr(bool)));
     connect(uiDockRxOpt, SIGNAL(amSyncPllBwSelected(float)), this, SLOT(setAmSyncPllBw(float)));
     connect(uiDockRxOpt, SIGNAL(agcToggled(bool)), this, SLOT(setAgcOn(bool)));
-    connect(uiDockRxOpt, SIGNAL(agcHangToggled(bool)), this, SLOT(setAgcHang(bool)));
-    connect(uiDockRxOpt, SIGNAL(agcThresholdChanged(int)), this, SLOT(setAgcThreshold(int)));
-    connect(uiDockRxOpt, SIGNAL(agcSlopeChanged(int)), this, SLOT(setAgcSlope(int)));
-    connect(uiDockRxOpt, SIGNAL(agcGainChanged(int)), this, SLOT(setAgcGain(int)));
+    connect(uiDockRxOpt, SIGNAL(agcTargetLevelChanged(int)), this, SLOT(setAgcTargetLevel(int)));
+    connect(uiDockRxOpt, SIGNAL(agcMaxGainChanged(int)), this, SLOT(setAgcMaxGain(int)));
+    connect(uiDockRxOpt, SIGNAL(agcAttackChanged(int)), this, SLOT(setAgcAttack(int)));
     connect(uiDockRxOpt, SIGNAL(agcDecayChanged(int)), this, SLOT(setAgcDecay(int)));
+    connect(uiDockRxOpt, SIGNAL(agcHangChanged(int)), this, SLOT(setAgcHang(int)));
+    connect(uiDockRxOpt, SIGNAL(agcPanningChanged(int)), this, SLOT(setAgcPanning(int)));
+    connect(uiDockRxOpt, SIGNAL(agcPanningAuto(bool)), this, SLOT(setAgcPanningAuto(bool)));
     connect(uiDockRxOpt, SIGNAL(noiseBlankerChanged(int,bool,float)), this, SLOT(setNoiseBlanker(int,bool,float)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), this, SLOT(setSqlLevel(double)));
-    connect(uiDockRxOpt, SIGNAL(sqlAutoClicked()), this, SLOT(setSqlLevelAuto()));
+    connect(uiDockRxOpt, SIGNAL(sqlAutoClicked(bool)), this, SLOT(setSqlLevelAuto(bool)));
+    connect(uiDockRxOpt, SIGNAL(sqlResetAllClicked()), this, SLOT(resetSqlLevelGlobal()));
+    connect(uiDockRxOpt, SIGNAL(freqLock(bool, bool)), this, SLOT(setFreqLock(bool, bool)));
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), this, SLOT(setAudioGain(float)));
     connect(uiDockAudio, SIGNAL(audioGainChanged(float)), remote, SLOT(setAudioGain(float)));
-    connect(uiDockAudio, SIGNAL(audioStreamingStarted(QString,int,bool)), this, SLOT(startAudioStream(QString,int,bool)));
+    connect(uiDockAudio, SIGNAL(audioMuteChanged(bool,bool)), this, SLOT(setAudioMute(bool,bool)));
+    connect(uiDockAudio, SIGNAL(udpHostChanged(const QString)), this, SLOT(audioStreamHostChanged(const QString)));
+    connect(uiDockAudio, SIGNAL(udpPortChanged(int)), this, SLOT(audioStreamPortChanged(int)));
+    connect(uiDockAudio, SIGNAL(udpStereoChanged(bool)), this, SLOT(audioStreamStereoChanged(bool)));
+    connect(uiDockAudio, SIGNAL(audioStreamingStarted()), this, SLOT(startAudioStream()));
     connect(uiDockAudio, SIGNAL(audioStreamingStopped()), this, SLOT(stopAudioStreaming()));
-    connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), this, SLOT(startAudioRec(QString)));
-    connect(uiDockAudio, SIGNAL(audioRecStarted(QString)), remote, SLOT(startAudioRecorder(QString)));
-    connect(uiDockAudio, SIGNAL(audioRecStopped()), this, SLOT(stopAudioRec()));
-    connect(uiDockAudio, SIGNAL(audioRecStopped()), remote, SLOT(stopAudioRecorder()));
+    connect(uiDockAudio, SIGNAL(audioRecStart()), this, SLOT(startAudioRec()));
+    connect(uiDockAudio, SIGNAL(audioRecStart()), remote, SLOT(startAudioRecorder()));
+    connect(uiDockAudio, SIGNAL(audioRecStop()), this, SLOT(stopAudioRec()));
+    connect(uiDockAudio, SIGNAL(audioRecStop()), remote, SLOT(stopAudioRecorder()));
     connect(uiDockAudio, SIGNAL(audioPlayStarted(QString)), this, SLOT(startAudioPlayback(QString)));
     connect(uiDockAudio, SIGNAL(audioPlayStopped()), this, SLOT(stopAudioPlayback()));
+    connect(uiDockAudio, SIGNAL(recDirChanged(QString)), this, SLOT(recDirChanged(QString)));
+    connect(uiDockAudio, SIGNAL(recSquelchTriggeredChanged(bool)), this, SLOT(recSquelchTriggeredChanged(bool)));
+    connect(uiDockAudio, SIGNAL(recMinTimeChanged(int)), this, SLOT(recMinTimeChanged(int)));
+    connect(uiDockAudio, SIGNAL(recMaxGapChanged(int)), this, SLOT(recMaxGapChanged(int)));
     connect(uiDockAudio, SIGNAL(fftRateChanged(int)), this, SLOT(setAudioFftRate(int)));
+    connect(uiDockAudio, SIGNAL(copyRecSettingsToAllVFOs()), this, SLOT(copyRecSettingsToAllVFOs()));
 
     // FFT Dock
     connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setIqFftSize(int)));
@@ -310,7 +335,10 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(ui->plotter, SIGNAL(markerSelectB(qint64)), this, SLOT(setMarkerB(qint64)));
 
     // Bookmarks
-    connect(uiDockBookmarks, SIGNAL(newBookmarkActivated(qint64, QString, int)), this, SLOT(onBookmarkActivated(qint64, QString, int)));
+    connect(uiDockBookmarks, SIGNAL(newBookmarkActivated(BookmarkInfo &)), this, SLOT(onBookmarkActivated(BookmarkInfo &)));
+    //FIXME: create a new slot that would avoid changing hw frequency if the bookmark is in the current bandwidth
+    connect(uiDockBookmarks, SIGNAL(newBookmarkActivated(qint64)), this, SLOT(setNewFrequency(qint64)));
+    connect(uiDockBookmarks, SIGNAL(newBookmarkActivatedAddDemod(BookmarkInfo &)), this, SLOT(onBookmarkActivatedAddDemod(BookmarkInfo &)));
     connect(uiDockBookmarks->actionAddBookmark, SIGNAL(triggered()), this, SLOT(on_actionAddBookmark_triggered()));
     connect(&Bookmarks::Get(), SIGNAL(BookmarksChanged()), ui->plotter, SLOT(updateOverlay()));
 
@@ -331,14 +359,14 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(remote, SIGNAL(newFrequency(qint64)), ui->freqCtrl, SLOT(setFrequency(qint64)));
     connect(remote, SIGNAL(newLnbLo(double)), uiDockInputCtl, SLOT(setLnbLo(double)));
     connect(remote, SIGNAL(newLnbLo(double)), this, SLOT(setLnbLo(double)));
-    connect(remote, SIGNAL(newMode(int)), this, SLOT(selectDemod(int)));
-    connect(remote, SIGNAL(newMode(int)), uiDockRxOpt, SLOT(setCurrentDemod(int)));
+    connect(remote, SIGNAL(newMode(Modulations::idx)), this, SLOT(selectDemod(Modulations::idx)));
+    connect(remote, SIGNAL(newMode(Modulations::idx)), uiDockRxOpt, SLOT(setCurrentDemod(Modulations::idx)));
     connect(remote, SIGNAL(newSquelchLevel(double)), this, SLOT(setSqlLevel(double)));
     connect(remote, SIGNAL(newSquelchLevel(double)), uiDockRxOpt, SLOT(setSquelchLevel(double)));
-    connect(remote, SIGNAL(newAudioGain(float)), uiDockAudio, SLOT(setAudioGainDb(float)));
+    connect(remote, SIGNAL(newAudioGain(float)), this, SLOT(setAudioGain(float)));
     connect(uiDockRxOpt, SIGNAL(sqlLevelChanged(double)), remote, SLOT(setSquelchLevel(double)));
-    connect(remote, SIGNAL(startAudioRecorderEvent()), uiDockAudio, SLOT(startAudioRecorder()));
-    connect(remote, SIGNAL(stopAudioRecorderEvent()), uiDockAudio, SLOT(stopAudioRecorder()));
+    connect(remote, SIGNAL(startAudioRecorderEvent()), this, SLOT(startAudioRec()));
+    connect(remote, SIGNAL(stopAudioRecorderEvent()), this, SLOT(stopAudioRec()));
     connect(ui->plotter, SIGNAL(newFilterFreq(int, int)), remote, SLOT(setPassband(int, int)));
     connect(remote, SIGNAL(newPassband(int)), this, SLOT(setPassband(int)));
     connect(remote, SIGNAL(gainChanged(QString, double)), uiDockInputCtl, SLOT(setGain(QString,double)));
@@ -351,6 +379,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 
     rds_timer = new QTimer(this);
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
+    connect(this, SIGNAL(sigAudioRecEvent(QString, bool)), this, SLOT(audioRecEvent(QString, bool)), Qt::QueuedConnection);
 
     // enable frequency tooltips on FFT plot
     ui->plotter->setTooltipsEnabled(true);
@@ -447,6 +476,7 @@ MainWindow::~MainWindow()
     delete rx;
     delete remote;
     delete qsvg_dummy;
+    delete rxSpinBox;
 }
 
 /**
@@ -474,6 +504,8 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
     bool        conf_ok = false;
     bool        conv_ok;
     bool        skip_loading_cfg = false;
+    int         ver = 0;
+    qint64      hw_freq = 0;
 
     qDebug() << "Loading configuration from:" << cfgfile;
 
@@ -525,6 +557,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
     // manual reconf (FIXME: check status)
     conv_ok = false;
 
+    ver = m_settings->value("configversion").toInt(&conv_ok);
     // hide toolbar
     bool_val = m_settings->value("gui/hide_toolbar", false).toBool();
     if (bool_val)
@@ -660,26 +693,25 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
     }
 
     uiDockInputCtl->readSettings(m_settings); // this will also update freq range
-    uiDockRxOpt->readSettings(m_settings);
-    uiDockFft->readSettings(m_settings);
-    uiDockAudio->readSettings(m_settings);
-    dxc_options->readSettings(m_settings);
 
+    int64_val = m_settings->value("input/frequency", 14236000).toLongLong(&conv_ok);
+
+    // If frequency is out of range set frequency to the center of the range.
+    hw_freq = int64_val - d_lnb_lo;
+    if (hw_freq < d_hw_freq_start || hw_freq > d_hw_freq_stop)
     {
-        int64_val = m_settings->value("input/frequency", 14236000).toLongLong(&conv_ok);
-
-        // If frequency is out of range set frequency to the center of the range.
-        qint64 hw_freq = int64_val - d_lnb_lo - (qint64)(rx->get_filter_offset());
-        if (hw_freq < d_hw_freq_start || hw_freq > d_hw_freq_stop)
-        {
-            int64_val = (d_hw_freq_stop - d_hw_freq_start) / 2 +
-                        (qint64)(rx->get_filter_offset()) + d_lnb_lo;
-        }
-
-        ui->freqCtrl->setFrequency(int64_val);
-        setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
+        hw_freq = (d_hw_freq_stop - d_hw_freq_start) / 2;
+        int64_val = hw_freq + d_lnb_lo;
     }
 
+    rx->set_rf_freq(hw_freq);
+    if (ver >= 4)
+    {
+        ui->freqCtrl->setFrequency(int64_val  + (qint64)(rx->get_filter_offset()));
+        setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
+    }
+    readRXSettings(ver, actual_rate);
+    if (ver < 4)
     {
         // Center frequency for FFT plotter
         int64_val = m_settings->value("fft/fft_center", 0).toLongLong(&conv_ok);
@@ -687,17 +719,22 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         if (conv_ok) {
             ui->plotter->setFftCenterFreq(int64_val);
         }
-    }
-
-    {
         int flo = m_settings->value("receiver/filter_low_cut", 0).toInt(&conv_ok);
         int fhi = m_settings->value("receiver/filter_high_cut", 0).toInt(&conv_ok);
 
-        if (conv_ok && uiDockRxOpt->currentDemod() != DockRxOpt::MODE_OFF && flo != fhi)
+        if (conv_ok && uiDockRxOpt->currentDemod() != Modulations::MODE_OFF && flo != fhi)
         {
             on_plotter_newFilterFreq(flo, fhi);
         }
+        rx->set_rf_freq(hw_freq - rx->get_filter_offset());
+        ui->freqCtrl->setFrequency(hw_freq + d_lnb_lo);
+        setNewFrequency(hw_freq + d_lnb_lo);
     }
+
+    uiDockFft->readSettings(m_settings);
+    uiDockBookmarks->readSettings(m_settings);
+    uiDockAudio->readSettings(m_settings);
+    dxc_options->readSettings(m_settings);
 
     iq_tool->readSettings(m_settings);
 
@@ -782,28 +819,377 @@ void MainWindow::storeSession()
 {
     if (m_settings)
     {
-        m_settings->setValue("input/frequency", ui->freqCtrl->getFrequency());
         m_settings->setValue("fft/fft_center", ui->plotter->getFftCenterFreq());
+        int rx_count = rx->get_rx_count();
+        m_settings->setValue("configversion", (rx_count <= 1) ? 3 : 4);
+        for (int i = 0; true; i++)
+        {
+            QString grp = QString("rx%1").arg(i);
+            QString offset = QString("rx%1/offset").arg(i);
+            if (m_settings->contains(offset))
+                m_settings->remove(grp);
+            else
+                break;
+        }
+        m_settings->remove("audio");
+        m_settings->remove("receiver");
+        if (rx_count <= 1)
+            m_settings->setValue("input/frequency", qint64(rx->get_rf_freq() + d_lnb_lo + rx->get_filter_offset()));
+        else
+            m_settings->setValue("input/frequency", qint64(rx->get_rf_freq() + d_lnb_lo));
 
         uiDockInputCtl->saveSettings(m_settings);
-        uiDockRxOpt->saveSettings(m_settings);
         uiDockFft->saveSettings(m_settings);
         uiDockAudio->saveSettings(m_settings);
+        uiDockBookmarks->saveSettings(m_settings);
 
         remote->saveSettings(m_settings);
         iq_tool->saveSettings(m_settings);
         dxc_options->saveSettings(m_settings);
 
+        int old_current = rx->get_current();
+        int int_val;
+        for (int i = 0; i < rx_count; i++)
         {
+            if (rx_count <= 1)
+                m_settings->beginGroup("receiver");
+            else
+                m_settings->beginGroup(QString("rx%1").arg(i));
+            m_settings->remove("");
+            rx->fake_select_rx(i);
+
+            m_settings->setValue("demod", Modulations::GetStringForModulationIndex(rx->get_demod()));
+
+            int cwofs = rx->get_cw_offset();
+            if (cwofs == 700)
+                m_settings->remove("cwoffset");
+            else
+                m_settings->setValue("cwoffset", cwofs);
+
+            // currently we do not need the decimal
+            int_val = (int)rx->get_fm_maxdev();
+            if (int_val == 2500)
+                m_settings->remove("fm_maxdev");
+            else
+                m_settings->setValue("fm_maxdev", int_val);
+
+            // save as usec
+            int_val = (int)(1.0e6 * rx->get_fm_deemph());
+            if (int_val == 75)
+                m_settings->remove("fm_deemph");
+            else
+                m_settings->setValue("fm_deemph", int_val);
+
+            qint64 offs = rx->get_filter_offset();
+                m_settings->setValue("offset", offs);
+
+            if (rx->get_freq_lock())
+                m_settings->setValue("freq_locked", true);
+            else
+                m_settings->remove("freq_locked");
+
+            double sql_lvl = rx->get_sql_level();
+            if (sql_lvl > -150.0)
+                m_settings->setValue("sql_level", sql_lvl);
+            else
+                m_settings->remove("sql_level");
+
+            // AGC settings
+            int_val = rx->get_agc_target_level();
+            if (int_val != 0)
+                m_settings->setValue("agc_target_level", int_val);
+            else
+                m_settings->remove("agc_target_level");
+
+            int_val = rx->get_agc_attack();
+            if (int_val != 20)
+                m_settings->setValue("agc_attack", int_val);
+            else
+                m_settings->remove("agc_decay");
+
+            int_val = rx->get_agc_decay();
+            if (int_val != 500)
+                m_settings->setValue("agc_decay", int_val);
+            else
+                m_settings->remove("agc_decay");
+
+            int_val = rx->get_agc_hang();
+            if (int_val != 0)
+                m_settings->setValue("agc_hang", int_val);
+            else
+                m_settings->remove("agc_hang");
+
+            int_val = rx->get_agc_panning();
+            if (int_val != 0)
+                m_settings->setValue("agc_panning", int_val);
+            else
+                m_settings->remove("agc_panning");
+
+            if (rx->get_agc_panning_auto())
+                m_settings->setValue("agc_panning_auto", true);
+            else
+                m_settings->remove("agc_panning_auto");
+
+            int_val = rx->get_agc_max_gain();
+            if (int_val != 100)
+                m_settings->setValue("agc_maxgain", int_val);
+            else
+                m_settings->remove("agc_maxgain");
+
+            // AGC Off
+            if (!rx->get_agc_on())
+                m_settings->setValue("agc_off", true);
+            else
+                m_settings->remove("agc_off");
+            //noise blanker
+            for (int j = 1; j < RECEIVER_NB_COUNT + 1; j++)
+            {
+                if(rx->get_nb_on(j))
+                    m_settings->setValue(QString("nb%1on").arg(j), true);
+                else
+                    m_settings->remove(QString("nb%1on").arg(j));
+                m_settings->setValue(QString("nb%1thr").arg(j), rx->get_nb_threshold(j));
+            }
+            //filter
             int     flo, fhi;
-            ui->plotter->getHiLowCutFrequencies(&flo, &fhi);
+            receiver::filter_shape fdw;
+            rx->get_filter(flo, fhi, fdw);
             if (flo != fhi)
             {
-                m_settings->setValue("receiver/filter_low_cut", flo);
-                m_settings->setValue("receiver/filter_high_cut", fhi);
+                m_settings->setValue("filter_low_cut", flo);
+                m_settings->setValue("filter_high_cut", fhi);
+                m_settings->setValue("filter_shape", fdw);
+            }
+
+            if (rx_count <= 1)
+            {
+                m_settings->endGroup();
+                m_settings->beginGroup("audio");
+            }
+            if (rx->get_audio_rec_dir() != QDir::homePath().toStdString())
+                m_settings->setValue("rec_dir", QString::fromStdString(rx->get_audio_rec_dir()));
+            else
+                m_settings->remove("rec_dir");
+
+            if (rx->get_audio_rec_sql_triggered() != false)
+                m_settings->setValue("squelch_triggered_recording", true);
+            else
+                m_settings->remove("squelch_triggered_recording");
+
+            int_val = rx->get_audio_rec_min_time();
+            if (int_val != 0)
+                m_settings->setValue("rec_min_time", int_val);
+            else
+                m_settings->remove("rec_min_time");
+
+            int_val = rx->get_audio_rec_max_gap();
+            if (int_val != 0)
+                m_settings->setValue("rec_max_gap", int_val);
+            else
+                m_settings->remove("rec_max_gap");
+
+            if (rx->get_udp_host() != "127.0.0.1")
+                m_settings->setValue("udp_host", QString::fromStdString(rx->get_udp_host()));
+            else
+                m_settings->remove("udp_host");
+
+            if (rx->get_udp_stereo() != false)
+                m_settings->setValue("udp_stereo", true);
+            else
+                m_settings->remove("udp_stereo");
+
+            int_val = rx->get_udp_port();
+            if (int_val != 7355)
+                m_settings->setValue("udp_port", int_val);
+            else
+                m_settings->remove("udp_port");
+
+            m_settings->endGroup();
+            if (rx_count <= 1)
+                break;
+        }
+        rx->fake_select_rx(old_current);
+        if (rx_count > 1)
+            m_settings->setValue("gui/current_rx", old_current);
+        else
+            m_settings->remove("gui/current_rx");
+    }
+}
+
+void MainWindow::readRXSettings(int ver, double actual_rate)
+{
+    bool conv_ok;
+    int int_val;
+    double  dbl_val;
+    int i = 0;
+    qint64 offs = 0;
+    rxSpinBox->setMaximum(0);
+    while (rx->get_rx_count() > 1)
+        rx->delete_rx();
+    ui->plotter->setCurrentVfo(0);
+    ui->plotter->clearVfos();
+    QString grp = (ver >= 4) ? QString("rx%1").arg(i) : "receiver";
+    while (1)
+    {
+        m_settings->beginGroup(grp);
+
+        bool isLocked = m_settings->value("freq_locked", false).toBool();
+        rx->set_freq_lock(isLocked);
+
+        offs = m_settings->value("offset", 0).toInt(&conv_ok);
+        if (conv_ok)
+        {
+            if(!isLocked || ver < 4)
+                if(std::abs(offs) > actual_rate / 2)
+                    offs = (offs > 0) ? (actual_rate / 2) : (-actual_rate / 2);
+            rx->set_filter_offset(offs);
+        }
+
+        int_val = Modulations::MODE_AM;
+        if (m_settings->contains("demod")) {
+            if (ver >= 3) {
+                int_val = Modulations::GetEnumForModulationString(m_settings->value("demod").toString());
+            } else {
+                int_val = Modulations::ConvertFromOld(m_settings->value("demod").toInt(&conv_ok));
             }
         }
+        rx->set_demod(Modulations::idx(int_val));
+
+        int_val = m_settings->value("cwoffset", 700).toInt(&conv_ok);
+        if (conv_ok)
+            rx->set_cw_offset(int_val);
+
+        int_val = m_settings->value("fm_maxdev", 2500).toInt(&conv_ok);
+        if (conv_ok)
+            rx->set_fm_maxdev(int_val);
+
+        dbl_val = m_settings->value("fm_deemph", 75).toDouble(&conv_ok);
+        if (conv_ok && dbl_val >= 0)
+            rx->set_fm_deemph(1.0e-6 * dbl_val); // was stored as usec
+
+        dbl_val = m_settings->value("sql_level", 1.0).toDouble(&conv_ok);
+        if (conv_ok && dbl_val < 1.0)
+            rx->set_sql_level(dbl_val);
+
+        // AGC settings
+        int_val = m_settings->value("agc_target_level", 0).toInt(&conv_ok);
+        if (conv_ok)
+            rx->set_agc_target_level(int_val);
+
+        //TODO: store/restore the preset correctly
+        int_val = m_settings->value("agc_decay", 500).toInt(&conv_ok);
+        if (conv_ok)
+            rx->set_agc_decay(int_val);
+
+        int_val = m_settings->value("agc_attack", 20).toInt(&conv_ok);
+        if (conv_ok)
+            rx->set_agc_attack(int_val);
+
+        int_val = m_settings->value("agc_hang", 0).toInt(&conv_ok);
+        if (conv_ok)
+            rx->set_agc_hang(int_val);
+
+        int_val = m_settings->value("agc_panning", 0).toInt(&conv_ok);
+        if (conv_ok)
+            rx->set_agc_panning(int_val);
+
+        if (m_settings->value("agc_panning_auto", false).toBool())
+            rx->set_agc_panning_auto(true);
+        else
+            rx->set_agc_panning_auto(false);
+
+        int_val = m_settings->value("agc_maxgain", 100).toInt(&conv_ok);
+        if (conv_ok)
+            rx->set_agc_max_gain(int_val);
+
+        if (m_settings->value("agc_off", false).toBool())
+            rx->set_agc_on(false);
+        else
+            rx->set_agc_on(true);
+
+        for (int j = 1; j < RECEIVER_NB_COUNT + 1; j++)
+        {
+            rx->set_nb_on(j, m_settings->value(QString("nb%1on").arg(j), false).toBool());
+            float thr = m_settings->value(QString("nb%1thr").arg(j), 2.0).toFloat(&conv_ok);
+            if (conv_ok)
+                rx->set_nb_threshold(j, thr);
+        }
+
+        bool flo_ok = false;
+        bool fhi_ok = false;
+        int flo = m_settings->value("filter_low_cut", 0).toInt(&flo_ok);
+        int fhi = m_settings->value("filter_high_cut", 0).toInt(&fhi_ok);
+        int_val = m_settings->value("filter_shape", Modulations::FILTER_SHAPE_NORMAL).toInt(&conv_ok);
+
+        if (flo != fhi)
+            rx->set_filter(flo, fhi, receiver::filter_shape(int_val));
+
+        if (ver < 4)
+        {
+            m_settings->endGroup();
+            m_settings->beginGroup("audio");
+        }
+        int_val = m_settings->value("gain", QVariant(-60)).toInt(&conv_ok);
+        if (conv_ok)
+            if (!rx->get_agc_on())
+                rx->set_agc_manual_gain(int_val);
+
+        QString rec_dir = m_settings->value("rec_dir", QDir::homePath()).toString();
+        rx->set_audio_rec_dir(rec_dir.toStdString());
+
+        bool squelch_triggered = m_settings->value("squelch_triggered_recording", false).toBool();
+        rx->set_audio_rec_sql_triggered(squelch_triggered);
+
+        int_val = m_settings->value("rec_min_time", 0).toInt(&conv_ok);
+        if (!conv_ok)
+            int_val = 0;
+        rx->set_audio_rec_min_time(int_val);
+
+        int_val = m_settings->value("rec_max_gap", 0).toInt(&conv_ok);
+        if (!conv_ok)
+            int_val = 0;
+        rx->set_audio_rec_max_gap(int_val);
+
+        QString udp_host = m_settings->value("udp_host", "127.0.0.1").toString();
+        rx->set_udp_host(udp_host.toStdString());
+
+        int_val = m_settings->value("udp_port", 7355).toInt(&conv_ok);
+        if (!conv_ok)
+            int_val = 7355;
+        rx->set_udp_port(int_val);
+
+        bool udp_stereo = m_settings->value("udp_stereo", false).toBool();
+        rx->set_udp_stereo(udp_stereo);
+
+        m_settings->endGroup();
+        ui->plotter->addVfo(rx->get_current_vfo());
+        i++;
+        if (ver < 4)
+            break;
+        grp = QString("rx%1").arg(i);
+        if (!m_settings->contains(grp + "/offset"))
+            break;
+        rx->add_rx();
     }
+    if (ver >= 4)
+        int_val = m_settings->value("gui/current_rx", 0).toInt(&conv_ok);
+    else
+        conv_ok = false;
+    if (!conv_ok)
+        int_val = 0;
+    rxSpinBox->setMaximum(rx->get_rx_count() - 1);
+    if(int_val >= rx->get_rx_count())
+        int_val = 0;
+    ui->plotter->removeVfo(rx->get_vfo(int_val));
+    rx->select_rx(int_val);
+    ui->plotter->setCurrentVfo(int_val);
+    if (rxSpinBox->value() != int_val)
+        rxSpinBox->setValue(int_val);
+    offs = rx->get_filter_offset();
+    if(std::abs(offs) > actual_rate / 2)
+        rx->set_filter_offset((offs > 0) ? (actual_rate / 2) : (-actual_rate / 2));
+    loadRxToGUI();
+    ui->plotter->updateOverlay();
 }
 
 /**
@@ -901,19 +1287,152 @@ void MainWindow::updateGainStages(bool read_from_device)
  */
 void MainWindow::setNewFrequency(qint64 rx_freq)
 {
-    auto hw_freq = (double)(rx_freq - d_lnb_lo) - rx->get_filter_offset();
-    auto center_freq = rx_freq - (qint64)rx->get_filter_offset();
-
-    d_hw_freq = (qint64)hw_freq;
+    auto new_offset = rx->get_filter_offset();
+    auto hw_freq = (double)(rx_freq - d_lnb_lo) - new_offset;
+    auto center_freq = rx_freq - (qint64)new_offset;
+    auto delta_freq = d_hw_freq;
+    QList<BookmarkInfo> bml;
 
     // set receiver frequency
     rx->set_rf_freq(hw_freq);
+    d_hw_freq = d_ignore_limits ? hw_freq : (qint64)rx->get_rf_freq();
+    if (rx->is_playing_iq() || (d_hw_freq != (qint64)hw_freq))
+    {
+        new_offset = rx_freq - d_lnb_lo - d_hw_freq;
+        if (d_hw_freq != (qint64)hw_freq)
+        {
+            center_freq = d_hw_freq + d_lnb_lo;
+            // set RX filter
+            rx->set_filter_offset((double)new_offset);
+
+            // update RF freq label and channel filter offset
+            rx_freq = center_freq + new_offset;
+         }
+    }
+    delta_freq -= d_hw_freq;
 
     // update widgets
     ui->plotter->setCenterFreq(center_freq);
     uiDockRxOpt->setHwFreq(d_hw_freq);
     ui->freqCtrl->setFrequency(rx_freq);
     uiDockBookmarks->setNewFrequency(rx_freq);
+    remote->setNewFrequency(rx_freq);
+    uiDockAudio->setRxFrequency(rx_freq);
+    if (rx->is_rds_decoder_active())
+        rx->reset_rds_parser();
+    if (delta_freq)
+    {
+        std::set<int> del_list;
+        if (rx->get_rx_count() > 1)
+        {
+            std::vector<vfo::sptr> locked_vfos;
+            int offset_lim = (int)(ui->plotter->getSampleRate() / 2);
+            ui->plotter->getLockedVfos(locked_vfos);
+            for (auto& cvfo : locked_vfos)
+            {
+                ui->plotter->removeVfo(cvfo);
+                int new_offset = cvfo->get_offset() + delta_freq;
+                if ((new_offset > offset_lim) || (new_offset < -offset_lim))
+                    del_list.insert(cvfo->get_index());
+                else
+                {
+                    rx->set_filter_offset(cvfo->get_index(), new_offset);
+                    ui->plotter->addVfo(cvfo);
+                }
+            }
+        }
+
+        if (d_auto_bookmarks)
+        {
+            //calculate frequency range to search for auto bookmarks
+            qint64 from = 0, to = 0;
+            qint64 sr = ui->plotter->getSampleRate();
+            if (delta_freq > 0)
+            {
+                if (delta_freq > sr)
+                {
+                    from = center_freq - sr / 2;
+                    to = center_freq + sr / 2;
+                }
+                else
+                {
+                    from = center_freq - sr / 2;
+                    to = center_freq - sr / 2 + delta_freq;
+                }
+            }
+            else
+            {
+                if (-delta_freq > sr)
+                {
+                    from = center_freq - sr / 2;
+                    to = center_freq + sr / 2;
+                }
+                else
+                {
+                    from = center_freq + sr / 2 + delta_freq;
+                    to = center_freq + sr / 2;
+                }
+            }
+            bml = Bookmarks::Get().getBookmarksInRange(from, to, true);
+        }
+
+        if ((del_list.size() > 0)||(bml.size() > 0))
+        {
+            int current = rx->get_current();
+            if (ui->actionDSP->isChecked())
+                rx->stop();
+            for (auto& bm : bml)
+            {
+                int n = rx->add_rx();
+                if (n > 0)
+                {
+                    rxSpinBox->setMaximum(rx->get_rx_count() - 1);
+                    rx->set_demod(bm.get_demod());
+                    // preserve squelch level, force locked state
+                    auto old_vfo = rx->get_current_vfo();
+                    auto old_sql = old_vfo->get_sql_level();
+                    old_vfo->restore_settings(bm, false);
+                    old_vfo->set_sql_level(old_sql);
+                    old_vfo->set_offset(bm.frequency - center_freq);
+                    old_vfo->set_freq_lock(true);
+                    ui->plotter->addVfo(old_vfo);
+                    rx->select_rx(current);
+                }
+            }
+            if (del_list.size() > 0)
+            {
+                int lastCurrent = rx->get_current();
+                for (auto i = del_list.rbegin(); i != del_list.rend(); ++i)
+                {
+                    int last = rx->get_rx_count() - 1;
+                    rx->select_rx(*i);
+                    if (lastCurrent == last)
+                    {
+                        lastCurrent = *i;
+                        last = -1;
+                    }
+                    else
+                        if (*i != last)
+                        {
+                            ui->plotter->removeVfo(rx->get_vfo(last));
+                            last = *i;
+                        }
+                        else
+                            last = -1;
+                    rx->delete_rx();
+                    if (last != -1)
+                        ui->plotter->addVfo(rx->get_vfo(last));
+                }
+                rx->select_rx(lastCurrent);
+                ui->plotter->setCurrentVfo(lastCurrent);
+                rxSpinBox->setMaximum(rx->get_rx_count() - 1);
+                rxSpinBox->setValue(lastCurrent);
+            }
+            if (ui->actionDSP->isChecked())
+                rx->start();
+            ui->plotter->updateOverlay();
+        }
+    }
 }
 
 // Update delta and center (of marker span) when markers are updated
@@ -1032,6 +1551,7 @@ void MainWindow::setFilterOffset(qint64 freq_hz)
     if (rx->is_rds_decoder_active()) {
         rx->reset_rds_parser();
     }
+    ui->plotter->updateOverlay();
 }
 
 /**
@@ -1144,15 +1664,21 @@ void MainWindow::setInvertScrolling(bool enabled)
     uiDockAudio->setInvertScrolling(enabled);
 }
 
+/** Invert scroll wheel direction */
+void MainWindow::setAutoBookmarks(bool enabled)
+{
+    d_auto_bookmarks = enabled;
+}
+
 /**
  * @brief Select new demodulator.
  * @param demod New demodulator.
  */
 void MainWindow::selectDemod(const QString& strModulation)
 {
-    int iDemodIndex;
+    Modulations::idx iDemodIndex;
 
-    iDemodIndex = DockRxOpt::GetEnumForModulationString(strModulation);
+    iDemodIndex = Modulations::GetEnumForModulationString(strModulation);
     qDebug() << "selectDemod(str):" << strModulation << "-> IDX:" << iDemodIndex;
 
     return selectDemod(iDemodIndex);
@@ -1166,137 +1692,178 @@ void MainWindow::selectDemod(const QString& strModulation)
  * and configures the default channel filter.
  *
  */
-void MainWindow::selectDemod(int mode_idx)
+void MainWindow::selectDemod(Modulations::idx mode_idx)
 {
-    double  cwofs = 0.0;
     int     filter_preset = uiDockRxOpt->currentFilter();
-    int     flo=0, fhi=0, click_res=100;
+    int     flo=0, fhi=0;
+    Modulations::filter_shape filter_shape;
     bool    rds_enabled;
 
     // validate mode_idx
-    if (mode_idx < DockRxOpt::MODE_OFF || mode_idx >= DockRxOpt::MODE_LAST)
+    if (mode_idx < Modulations::MODE_OFF || mode_idx >= Modulations::MODE_LAST)
     {
         qDebug() << "Invalid mode index:" << mode_idx;
-        mode_idx = DockRxOpt::MODE_OFF;
+        mode_idx = Modulations::MODE_OFF;
     }
     qDebug() << "New mode index:" << mode_idx;
 
-    uiDockRxOpt->getFilterPreset(mode_idx, filter_preset, &flo, &fhi);
     d_filter_shape = (receiver::filter_shape)uiDockRxOpt->currentFilterShape();
+    rx->get_filter(flo, fhi, filter_shape);
+    if (filter_preset == FILTER_PRESET_USER)
+    {
+        if (((rx->get_demod() == Modulations::MODE_USB) &&
+            (mode_idx == Modulations::MODE_LSB))
+            ||
+           ((rx->get_demod() == Modulations::MODE_LSB) &&
+             (mode_idx == Modulations::MODE_USB)))
+        {
+            std::swap(flo, fhi);
+            flo = -flo;
+            fhi = -fhi;
+            filter_preset = FILTER_PRESET_USER;
+        }
+        Modulations::UpdateFilterRange(mode_idx, flo, fhi);
+    }
+    if (filter_preset != FILTER_PRESET_USER)
+    {
+        Modulations::GetFilterPreset(mode_idx, filter_preset, flo, fhi);
+    }
 
-    rds_enabled = rx->is_rds_decoder_active();
-    if (rds_enabled)
-        setRdsDecoder(false);
-    uiDockRDS->setDisabled();
+    if (mode_idx != rx->get_demod())
+    {
+        rds_enabled = rx->is_rds_decoder_active();
+        if (rds_enabled)
+            setRdsDecoder(false);
+        uiDockRDS->setDisabled();
 
+        if ((mode_idx >=Modulations::MODE_OFF) && (mode_idx <Modulations::MODE_LAST))
+            rx->set_demod(mode_idx);
+
+        switch (mode_idx) {
+
+        case Modulations::MODE_OFF:
+            /* Spectrum analyzer only */
+            if (rx->is_recording_audio())
+            {
+                stopAudioRec();
+                uiDockAudio->setAudioRecButtonState(false);
+            }
+            break;
+        case Modulations::MODE_AM:
+        case Modulations::MODE_AM_SYNC:
+        case Modulations::MODE_USB:
+        case Modulations::MODE_LSB:
+        case Modulations::MODE_CWL:
+        case Modulations::MODE_CWU:
+            break;
+
+        case Modulations::MODE_NFM:
+            rx->set_fm_maxdev(uiDockRxOpt->currentMaxdev());
+            rx->set_fm_deemph(uiDockRxOpt->currentEmph());
+            break;
+
+        case Modulations::MODE_WFM_MONO:
+        case Modulations::MODE_WFM_STEREO:
+        case Modulations::MODE_WFM_STEREO_OIRT:
+            /* Broadcast FM */
+            uiDockRDS->setEnabled();
+            if (rds_enabled)
+                setRdsDecoder(true);
+            break;
+
+        default:
+            qDebug() << "Unsupported mode selection (can't happen!): " << mode_idx;
+            flo = -5000;
+            fhi = 5000;
+            break;
+        }
+    }
+    rx->set_filter(flo, fhi, d_filter_shape);
+    updateDemodGUIRanges();
+    ui->plotter->updateOverlay();
+}
+
+/**
+ * @brief Update GUI after demodulator selection.
+ *
+ * Update plotter demod ranges
+ * Update audio dock fft range
+ * Update plotter cut frequencies
+ * Update plotter click resolution
+ * Update plotter filter click resolution
+ * Update remote settings too
+ *
+ */
+void MainWindow::updateDemodGUIRanges()
+{
+    int click_res=100;
+    int     flo=0, fhi=0, loMin, loMax, hiMin,hiMax;
+    Modulations::filter_shape filter_shape;
+    rx->get_filter(flo, fhi, filter_shape);
+    Modulations::idx mode_idx = rx->get_demod();
+    Modulations::GetFilterRanges(mode_idx, loMin, loMax, hiMin, hiMax);
+    ui->plotter->setDemodRanges(loMin, loMax, hiMin, hiMax, hiMax == -loMin);
     switch (mode_idx) {
 
-    case DockRxOpt::MODE_OFF:
+    case Modulations::MODE_OFF:
         /* Spectrum analyzer only */
-        if (rx->is_recording_audio())
-        {
-            stopAudioRec();
-            uiDockAudio->setAudioRecButtonState(false);
-        }
-        if (dec_afsk1200 != nullptr)
-        {
-            dec_afsk1200->close();
-        }
-        rx->set_demod(receiver::RX_DEMOD_OFF);
         click_res = 1000;
         break;
 
-    case DockRxOpt::MODE_RAW:
+    case Modulations::MODE_RAW:
         /* Raw I/Q; max 96 ksps*/
-        rx->set_demod(receiver::RX_DEMOD_NONE);
-        ui->plotter->setDemodRanges(-40000, -200, 200, 40000, true);
         uiDockAudio->setFftRange(0,24000);
         click_res = 100;
         break;
 
-    case DockRxOpt::MODE_AM:
-        rx->set_demod(receiver::RX_DEMOD_AM);
-        rx->set_am_dcr(uiDockRxOpt->currentAmDcr());
-        ui->plotter->setDemodRanges(-40000, -200, 200, 40000, true);
+    case Modulations::MODE_AM:
         uiDockAudio->setFftRange(0,6000);
         click_res = 100;
         break;
 
-    case DockRxOpt::MODE_AM_SYNC:
-        rx->set_demod(receiver::RX_DEMOD_AMSYNC);
-        rx->set_amsync_dcr(uiDockRxOpt->currentAmsyncDcr());
-        rx->set_amsync_pll_bw(uiDockRxOpt->currentAmsyncPll());
-        ui->plotter->setDemodRanges(-40000, -200, 200, 40000, true);
+    case Modulations::MODE_AM_SYNC:
         uiDockAudio->setFftRange(0,6000);
         click_res = 100;
         break;
 
-    case DockRxOpt::MODE_NFM:
-        ui->plotter->setDemodRanges(-40000, -1000, 1000, 40000, true);
+    case Modulations::MODE_NFM:
         uiDockAudio->setFftRange(0, 5000);
-        rx->set_demod(receiver::RX_DEMOD_NFM);
-        rx->set_fm_maxdev(uiDockRxOpt->currentMaxdev());
-        rx->set_fm_deemph(uiDockRxOpt->currentEmph());
         click_res = 100;
         break;
 
-    case DockRxOpt::MODE_WFM_MONO:
-    case DockRxOpt::MODE_WFM_STEREO:
-    case DockRxOpt::MODE_WFM_STEREO_OIRT:
+    case Modulations::MODE_WFM_MONO:
+    case Modulations::MODE_WFM_STEREO:
+    case Modulations::MODE_WFM_STEREO_OIRT:
         /* Broadcast FM */
-        ui->plotter->setDemodRanges(-120e3, -10000, 10000, 120e3, true);
         uiDockAudio->setFftRange(0,24000);  /** FIXME: get audio rate from rx **/
         click_res = 1000;
-        if (mode_idx == DockRxOpt::MODE_WFM_MONO)
-            rx->set_demod(receiver::RX_DEMOD_WFM_M);
-        else if (mode_idx == DockRxOpt::MODE_WFM_STEREO_OIRT)
-            rx->set_demod(receiver::RX_DEMOD_WFM_S_OIRT);
-        else
-            rx->set_demod(receiver::RX_DEMOD_WFM_S);
-
-        uiDockRDS->setEnabled();
-        if (rds_enabled)
-            setRdsDecoder(true);
         break;
 
-    case DockRxOpt::MODE_LSB:
+    case Modulations::MODE_LSB:
         /* LSB */
-        rx->set_demod(receiver::RX_DEMOD_SSB);
-        ui->plotter->setDemodRanges(-40000, -100, -5000, 0, false);
         uiDockAudio->setFftRange(0,3000);
         click_res = 100;
         break;
 
-    case DockRxOpt::MODE_USB:
+    case Modulations::MODE_USB:
         /* USB */
-        rx->set_demod(receiver::RX_DEMOD_SSB);
-        ui->plotter->setDemodRanges(0, 5000, 100, 40000, false);
         uiDockAudio->setFftRange(0,3000);
         click_res = 100;
         break;
 
-    case DockRxOpt::MODE_CWL:
+    case Modulations::MODE_CWL:
         /* CW-L */
-        rx->set_demod(receiver::RX_DEMOD_SSB);
-        cwofs = -uiDockRxOpt->getCwOffset();
-        ui->plotter->setDemodRanges(-5000, -100, 100, 5000, true);
         uiDockAudio->setFftRange(0,1500);
         click_res = 10;
         break;
 
-    case DockRxOpt::MODE_CWU:
+    case Modulations::MODE_CWU:
         /* CW-U */
-        rx->set_demod(receiver::RX_DEMOD_SSB);
-        cwofs = uiDockRxOpt->getCwOffset();
-        ui->plotter->setDemodRanges(-5000, -100, 100, 5000, true);
         uiDockAudio->setFftRange(0,1500);
         click_res = 10;
         break;
 
     default:
-        qDebug() << "Unsupported mode selection (can't happen!): " << mode_idx;
-        flo = -5000;
-        fhi = 5000;
         click_res = 100;
         break;
     }
@@ -1305,14 +1872,12 @@ void MainWindow::selectDemod(int mode_idx)
     ui->plotter->setHiLowCutFrequencies(flo, fhi);
     ui->plotter->setClickResolution(click_res);
     ui->plotter->setFilterClickResolution(click_res);
-    rx->set_filter((double)flo, (double)fhi, d_filter_shape);
-    rx->set_cw_offset(cwofs);
-    rx->set_sql_level(uiDockRxOpt->currentSquelchLevel());
+    uiDockRxOpt->setFilterParam(flo, fhi);
 
     remote->setMode(mode_idx);
     remote->setPassband(flo, fhi);
 
-    d_have_audio = (mode_idx != DockRxOpt::MODE_OFF);
+    d_have_audio = (mode_idx != Modulations::MODE_OFF);
 
     uiDockRxOpt->setCurrentDemod(mode_idx);
 }
@@ -1385,43 +1950,69 @@ void MainWindow::setAmSyncPllBw(float pll_bw)
  */
 void MainWindow::setAudioGain(float value)
 {
-    rx->set_af_gain(value);
+    rx->set_agc_manual_gain(value);
+}
+
+/**
+ * @brief Audio mute changed.
+ * @param mute New state.
+ * @param global Set global or this VFO mute.
+ */
+void MainWindow::setAudioMute(bool mute, bool global)
+{
+    if (global)
+        rx->set_mute(mute);
+    else
+        rx->set_agc_mute(mute);
 }
 
 /** Set AGC ON/OFF. */
 void MainWindow::setAgcOn(bool agc_on)
 {
     rx->set_agc_on(agc_on);
+    uiDockAudio->setGainEnabled(!agc_on);
 }
 
 /** AGC hang ON/OFF. */
-void MainWindow::setAgcHang(bool use_hang)
+void MainWindow::setAgcHang(int hang)
 {
-    rx->set_agc_hang(use_hang);
+    rx->set_agc_hang(hang);
 }
 
 /** AGC threshold changed. */
-void MainWindow::setAgcThreshold(int threshold)
+void MainWindow::setAgcTargetLevel(int targetLevel)
 {
-    rx->set_agc_threshold(threshold);
+    rx->set_agc_target_level(targetLevel);
 }
 
 /** AGC slope factor changed. */
-void MainWindow::setAgcSlope(int factor)
+void MainWindow::setAgcAttack(int attack)
 {
-    rx->set_agc_slope(factor);
+    rx->set_agc_attack(attack);
 }
 
-/** AGC manual gain changed. */
-void MainWindow::setAgcGain(int gain)
+/** AGC maximum gain changed. */
+void MainWindow::setAgcMaxGain(int gain)
 {
-    rx->set_agc_manual_gain(gain);
+    rx->set_agc_max_gain(gain);
 }
 
 /** AGC decay changed. */
 void MainWindow::setAgcDecay(int msec)
 {
     rx->set_agc_decay(msec);
+}
+
+/** AGC panning changed. */
+void MainWindow::setAgcPanning(int panning)
+{
+    rx->set_agc_panning(panning);
+}
+
+/** AGC panning auto changed. */
+void MainWindow::setAgcPanningAuto(bool panningAuto)
+{
+    rx->set_agc_panning_auto(panningAuto);
 }
 
 /**
@@ -1453,14 +2044,24 @@ void MainWindow::setSqlLevel(double level_db)
  * @brief Squelch level auto clicked.
  * @return The new squelch level.
  */
-double MainWindow::setSqlLevelAuto()
+double MainWindow::setSqlLevelAuto(bool global)
 {
+    if  (global)
+        rx->set_sql_level(3.0, true, true);
     double level = (double)rx->get_signal_pwr() + 3.0;
     if (level > -10.0)  // avoid 0 dBFS
         level = uiDockRxOpt->getSqlLevel();
 
     setSqlLevel(level);
     return level;
+}
+
+/**
+ * @brief Squelch level reset all clicked.
+ */
+void MainWindow::resetSqlLevelGlobal()
+{
+    rx->set_sql_level(-150.0, true, false);
 }
 
 /** Signal strength meter timeout. */
@@ -1471,6 +2072,10 @@ void MainWindow::meterTimeout()
     level = rx->get_signal_pwr();
     ui->sMeter->setLevel(level);
     remote->setSignalLevel(level);
+    if(uiDockRxOpt->getAgcOn())
+    {
+        uiDockAudio->setAudioGain(rx->get_agc_gain() * 10.f);
+    }
 }
 
 /** Baseband FFT plot timeout. */
@@ -1544,10 +2149,46 @@ void MainWindow::rdsTimeout()
 }
 
 /**
+ * @brief Set audio recording directory.
+ * @param dir The directory, where audio files should be created.
+ */
+void MainWindow::recDirChanged(const QString dir)
+{
+    rx->set_audio_rec_dir(dir.toStdString());
+}
+
+/**
+ * @brief Set audio recording squelch triggered mode.
+ * @param enabled New state.
+ */
+void MainWindow::recSquelchTriggeredChanged(const bool enabled)
+{
+    rx->set_audio_rec_sql_triggered(enabled);
+}
+
+/**
+ * @brief Set audio recording squelch triggered minimum time.
+ * @param time_ms New time in milliseconds.
+ */
+void MainWindow::recMinTimeChanged(const int time_ms)
+{
+    rx->set_audio_rec_min_time(time_ms);
+}
+
+/**
+ * @brief Set audio recording squelch triggered maximum gap time.
+ * @param time_ms New time in milliseconds.
+ */
+void MainWindow::recMaxGapChanged(const int time_ms)
+{
+    rx->set_audio_rec_max_gap(time_ms);
+}
+
+/**
  * @brief Start audio recorder.
  * @param filename The file name into which audio should be recorded.
  */
-void MainWindow::startAudioRec(const QString& filename)
+void MainWindow::startAudioRec()
 {
     if (!d_have_audio)
     {
@@ -1559,16 +2200,10 @@ void MainWindow::startAudioRec(const QString& filename)
         msg_box.exec();
         uiDockAudio->setAudioRecButtonState(false);
     }
-    else if (rx->start_audio_recording(filename.toStdString()))
+    else if (rx->start_audio_recording())
     {
         ui->statusBar->showMessage(tr("Error starting audio recorder"));
-
-        /* reset state of record button */
         uiDockAudio->setAudioRecButtonState(false);
-    }
-    else
-    {
-        ui->statusBar->showMessage(tr("Recording audio to %1").arg(filename));
     }
 }
 
@@ -1579,15 +2214,25 @@ void MainWindow::stopAudioRec()
     {
         /* okay, this one would be weird if it really happened */
         ui->statusBar->showMessage(tr("Error stopping audio recorder"));
-
-        uiDockAudio->setAudioRecButtonState(true);
-    }
-    else
-    {
-        ui->statusBar->showMessage(tr("Audio recorder stopped"), 5000);
     }
 }
 
+/** Audio recording is started or stopped. */
+void MainWindow::audioRecEvent(const QString filename, bool is_running)
+{
+    if (is_running)
+    {
+        ui->statusBar->showMessage(tr("Recording audio to %1").arg(filename));
+        uiDockAudio->audioRecStarted(QString(filename));
+     }
+     else
+     {
+        /* reset state of record button */
+        uiDockAudio->audioRecStopped();
+        ui->statusBar->showMessage(tr("Audio recorder stopped"), 5000);
+     }
+
+}
 
 /** Start playback of audio file. */
 void MainWindow::startAudioPlayback(const QString& filename)
@@ -1621,16 +2266,46 @@ void MainWindow::stopAudioPlayback()
     }
 }
 
-/** Start streaming audio over UDP. */
-void MainWindow::startAudioStream(const QString& udp_host, int udp_port, bool stereo)
+void MainWindow::copyRecSettingsToAllVFOs()
 {
-    rx->start_udp_streaming(udp_host.toStdString(), udp_port, stereo);
+    std::vector<vfo::sptr> vfos = rx->get_vfos();
+    for (auto& cvfo : vfos)
+        if (cvfo->get_index() != rx->get_current())
+        {
+            cvfo->set_audio_rec_dir(rx->get_audio_rec_dir());
+            cvfo->set_audio_rec_min_time(rx->get_audio_rec_min_time());
+            cvfo->set_audio_rec_max_gap(rx->get_audio_rec_max_gap());
+        }
+}
+
+void MainWindow::audioStreamHostChanged(const QString udp_host)
+{
+    std::string host = udp_host.toStdString();
+    rx->set_udp_host(host);//TODO: handle errors
+}
+
+void MainWindow::audioStreamPortChanged(const int udp_port)
+{
+    rx->set_udp_port(udp_port);//TODO: handle errors
+}
+
+void MainWindow::audioStreamStereoChanged(const bool udp_stereo)
+{
+    rx->set_udp_stereo(udp_stereo);//TODO: handle errors
+}
+
+/** Start streaming audio over UDP. */
+void MainWindow::startAudioStream()
+{
+    rx->set_udp_streaming(true);
+    uiDockAudio->setAudioStreamButtonState(rx->get_udp_streaming());
 }
 
 /** Stop streaming audio over UDP. */
 void MainWindow::stopAudioStreaming()
 {
-    rx->stop_udp_streaming();
+    rx->set_udp_streaming(false);
+    uiDockAudio->setAudioStreamButtonState(rx->get_udp_streaming());
 }
 
 /** Start I/Q recording. */
@@ -1742,6 +2417,7 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate, qint64
     uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
     ui->plotter->setSampleRate(actual_rate);
     ui->plotter->setSpanFreq((quint32)actual_rate);
+    ui->plotter->updateOverlay();
     if (std::abs(current_offset) > actual_rate / 2)
         on_plotter_newDemodFreq(center_freq, 0);
     else
@@ -1782,6 +2458,7 @@ void MainWindow::stopIqPlayback()
         uiDockRxOpt->setFilterOffsetRange((qint64)(actual_rate));
         ui->plotter->setSampleRate(actual_rate);
         ui->plotter->setSpanFreq((quint32)actual_rate);
+        ui->plotter->updateOverlay();
         remote->setBandwidth(sr);
 
         // not needed as long as we are not recording in iq_tool
@@ -1796,7 +2473,7 @@ void MainWindow::stopIqPlayback()
     qint64 oldOffset = m_settings->value("receiver/offset", 0).toLongLong(&offsetOK);
     if (centerOK && offsetOK)
     {
-        on_plotter_newDemodFreq(oldCenter, oldOffset);
+        on_plotter_newDemodFreq(oldCenter + oldOffset, oldOffset);
     }
 
     if (ui->actionDSP->isChecked())
@@ -2108,6 +2785,42 @@ void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
         rx->reset_rds_parser();
 }
 
+/* CPlotter::NewDemodFreqLoad() is emitted */
+/* tune and load demodulator settings */
+void MainWindow::on_plotter_newDemodFreqLoad(qint64 freq, qint64 delta)
+{
+    // set RX filter
+    if (delta != qint64(rx->get_filter_offset()))
+    {
+        rx->set_filter_offset((double) delta);
+        updateFrequencyRange();
+    }
+
+    QList<BookmarkInfo> tags =
+        Bookmarks::Get().getBookmarksInRange(freq, freq);
+    if (tags.size() > 0)
+    {
+        onBookmarkActivated(tags.first());
+    }
+    else
+        setNewFrequency(freq);
+}
+
+/* CPlotter::NewDemodFreqLoad() is emitted */
+/* new demodulator here */
+void MainWindow::on_plotter_newDemodFreqAdd(qint64 freq, qint64 delta)
+{
+    vfo::sptr found = rx->find_vfo(freq - d_lnb_lo);
+    if (!found)
+        on_actionAddDemodulator_triggered();
+    else
+    {
+        rxSpinBox->setValue(found->get_index());
+        rxSpinBox_valueChanged(found->get_index());
+    }
+    on_plotter_newDemodFreqLoad(freq, delta);
+}
+
 /* CPlotter::NewfilterFreq() is emitted or bookmark activated */
 void MainWindow::on_plotter_newFilterFreq(int low, int high)
 {   /* parameter correctness will be checked in receiver class */
@@ -2116,6 +2829,7 @@ void MainWindow::on_plotter_newFilterFreq(int low, int high)
     /* Update filter range of plotter, in case this slot is triggered by
      * switching to a bookmark */
     ui->plotter->setHiLowCutFrequencies(low, high);
+    ui->plotter->updateOverlay();
 
     if (retcode == receiver::STATUS_OK)
         uiDockRxOpt->setFilterParam(low, high);
@@ -2268,33 +2982,29 @@ void MainWindow::setRdsDecoder(bool checked)
     remote->setRDSstatus(checked);
 }
 
-void MainWindow::onBookmarkActivated(qint64 freq, const QString& demod, int bandwidth)
+void MainWindow::onBookmarkActivated(BookmarkInfo & bm)
 {
-    setNewFrequency(freq);
-    selectDemod(demod);
+    setNewFrequency(bm.frequency);
+    selectDemod(bm.get_demod());
+    // preserve offset, squelch level, force locked state
+    auto old_vfo = rx->get_current_vfo();
+    auto old_offset = old_vfo->get_offset();
+    auto old_sql = old_vfo->get_sql_level();
+    rx->get_current_vfo()->restore_settings(bm, false);
+    old_vfo->set_sql_level(old_sql);
+    old_vfo->set_offset(old_offset);
+    old_vfo->set_freq_lock(true);
+    loadRxToGUI();
+    ui->plotter->updateOverlay();
+}
 
-    /* Check if filter is symmetric or not by checking the presets */
-    auto mode = uiDockRxOpt->currentDemod();
-    auto preset = uiDockRxOpt->currentFilter();
-
-    int lo, hi;
-    uiDockRxOpt->getFilterPreset(mode, preset, &lo, &hi);
-
-    if(lo + hi == 0)
+void MainWindow::onBookmarkActivatedAddDemod(BookmarkInfo & bm)
+{
+    if (!rx->find_vfo(bm.frequency - d_lnb_lo))
     {
-        lo = -bandwidth / 2;
-        hi =  bandwidth / 2;
+        on_actionAddDemodulator_triggered();
+        onBookmarkActivated(bm);
     }
-    else if(lo >= 0 && hi >= 0)
-    {
-        hi = lo + bandwidth;
-    }
-    else if(lo <= 0 && hi <= 0)
-    {
-        lo = hi - bandwidth;
-    }
-
-    on_plotter_newFilterFreq(lo, hi);
 }
 
 void MainWindow::setPassband(int bandwidth)
@@ -2304,18 +3014,18 @@ void MainWindow::setPassband(int bandwidth)
     auto preset = uiDockRxOpt->currentFilter();
 
     int lo, hi;
-    uiDockRxOpt->getFilterPreset(mode, preset, &lo, &hi);
+    Modulations::GetFilterPreset(mode, preset, lo, hi);
 
-    if(lo + hi == 0)
+    if (lo + hi == 0)
     {
         lo = -bandwidth / 2;
         hi =  bandwidth / 2;
     }
-    else if(lo >= 0 && hi >= 0)
+    else if (lo >= 0 && hi >= 0)
     {
         hi = lo + bandwidth;
     }
-    else if(lo <= 0 && hi <= 0)
+    else if (lo <= 0 && hi <= 0)
     {
         lo = hi - bandwidth;
     }
@@ -2323,6 +3033,11 @@ void MainWindow::setPassband(int bandwidth)
     remote->setPassband(lo, hi);
 
     on_plotter_newFilterFreq(lo, hi);
+}
+
+void MainWindow::setFreqLock(bool lock, bool all)
+{
+    rx->set_freq_lock(lock, all);
 }
 
 /** Launch Gqrx google group website. */
@@ -2459,7 +3174,9 @@ void MainWindow::on_actionAddBookmark_triggered()
     bool ok=false;
     QString name;
     QStringList tags;
+    const qint64 freq = ui->freqCtrl->getFrequency();
 
+    QList<BookmarkInfo> bookmarkFound = Bookmarks::Get().getBookmarksInRange(freq, freq);
     // Create and show the Dialog for a new Bookmark.
     // Write the result into variable 'name'.
     {
@@ -2492,6 +3209,11 @@ void MainWindow::on_actionAddBookmark_triggered()
         mainLayout->addWidget(taglist);
         mainLayout->addWidget(buttonBox);
 
+        if (bookmarkFound.size())
+        {
+            textfield->setText(bookmarkFound.first().name);
+            taglist->setSelectedTags(bookmarkFound.first().tags);
+        }
         ok = dialog.exec();
         if (ok)
         {
@@ -2507,13 +3229,13 @@ void MainWindow::on_actionAddBookmark_triggered()
     }
 
     // Add new Bookmark to Bookmarks.
-    if(ok)
+    if (ok)
     {
         int i;
 
         BookmarkInfo info;
+        info.restore_settings(*rx->get_current_vfo().get());
         info.frequency = ui->freqCtrl->getFrequency();
-        info.bandwidth = ui->plotter->getFilterBw();
         info.modulation = uiDockRxOpt->currentDemodAsString();
         info.name=name;
         info.tags.clear();
@@ -2524,8 +3246,139 @@ void MainWindow::on_actionAddBookmark_triggered()
         for (i = 0; i < tags.size(); ++i)
             info.tags.append(Bookmarks::Get().findOrAddTag(tags[i]));
 
+        //FIXME: implement Bookmarks::replace(&BookmarkInfo, &BookmarkInfo) method
+        if (bookmarkFound.size())
+        {
+            info.set_freq_lock(bookmarkFound.first().get_freq_lock());
+            Bookmarks::Get().remove(bookmarkFound.first());
+        }
+        else
+            info.set_freq_lock(false);
         Bookmarks::Get().add(info);
         uiDockBookmarks->updateTags();
+    }
+}
+
+void MainWindow::on_actionAddDemodulator_triggered()
+{
+    ui->plotter->addVfo(rx->get_current_vfo());
+    int n = rx->add_rx();
+    ui->plotter->setCurrentVfo(rx->get_rx_count() - 1);
+    rxSpinBox->setMaximum(rx->get_rx_count() - 1);
+    rxSpinBox->setValue(n);
+    ui->plotter->updateOverlay();
+}
+
+void MainWindow::on_actionRemoveDemodulator_triggered()
+{
+    int old_current = rx->get_current();
+    if (old_current != rx->get_rx_count() - 1)
+        ui->plotter->removeVfo(rx->get_vfo(rx->get_rx_count() - 1));
+    int n = rx->delete_rx();
+    rxSpinBox->setValue(n);
+    rxSpinBox->setMaximum(rx->get_rx_count() - 1);
+    loadRxToGUI();
+    if (old_current != n)
+        ui->plotter->removeVfo(rx->get_vfo(n));
+    ui->plotter->setCurrentVfo(n);
+    ui->plotter->updateOverlay();
+}
+
+void MainWindow::rxSpinBox_valueChanged(int i)
+{
+    if (i == rx->get_current())
+        return;
+    ui->plotter->addVfo(rx->get_current_vfo());
+    int n = rx->select_rx(i);
+    ui->plotter->removeVfo(rx->get_current_vfo());
+    ui->plotter->setCurrentVfo(i);
+    if (n == receiver::STATUS_OK)
+        loadRxToGUI();
+    ui->plotter->updateOverlay();
+}
+
+void MainWindow::on_plotter_selectVfo(int i)
+{
+    rxSpinBox->setValue(i);
+}
+
+void MainWindow::loadRxToGUI()
+{
+    auto rf_freq = rx->get_rf_freq();
+    auto new_offset = rx->get_filter_offset();
+    auto rx_freq = (double)(rf_freq + d_lnb_lo + new_offset);
+
+    int low, high;
+    receiver::filter_shape fs;
+    auto mode_idx = rx->get_demod();
+
+    ui->plotter->setFilterOffset(new_offset);
+    uiDockRxOpt->setRxFreq(rx_freq);
+    uiDockRxOpt->setHwFreq(d_hw_freq);
+    uiDockRxOpt->setFilterOffset(new_offset);
+
+    ui->freqCtrl->setFrequency(rx_freq);
+    uiDockBookmarks->setNewFrequency(rx_freq);
+    remote->setNewFrequency(rx_freq);
+    uiDockAudio->setRxFrequency(rx_freq);
+
+    if (rx->is_rds_decoder_active())
+        rx->reset_rds_parser();
+
+    rx->get_filter(low, high, fs);
+    updateDemodGUIRanges();
+    uiDockRxOpt->setFreqLock(rx->get_freq_lock());
+    uiDockRxOpt->setCurrentFilterShape(fs);
+    uiDockRxOpt->setFilterParam(low, high);
+
+    uiDockRxOpt->setSquelchLevel(rx->get_sql_level());
+
+    uiDockRxOpt->setAgcOn(rx->get_agc_on());
+    uiDockAudio->setGainEnabled(!rx->get_agc_on());
+    uiDockRxOpt->setAgcTargetLevel(rx->get_agc_target_level());
+    uiDockRxOpt->setAgcMaxGain(rx->get_agc_max_gain());
+    uiDockRxOpt->setAgcAttack(rx->get_agc_attack());
+    uiDockRxOpt->setAgcDecay(rx->get_agc_decay());
+    uiDockRxOpt->setAgcHang(rx->get_agc_hang());
+    uiDockRxOpt->setAgcPanning(rx->get_agc_panning());
+    uiDockRxOpt->setAgcPanningAuto(rx->get_agc_panning_auto());
+    if (!rx->get_agc_on())
+        uiDockAudio->setAudioGain(rx->get_agc_manual_gain() * 10.f);
+
+    uiDockRxOpt->setAmDcr(rx->get_am_dcr());
+    uiDockRxOpt->setAmSyncDcr(rx->get_amsync_dcr());
+    uiDockRxOpt->setAmSyncPllBw(rx->get_amsync_pll_bw());
+    uiDockRxOpt->setFmMaxdev(rx->get_fm_maxdev());
+    uiDockRxOpt->setFmEmph(rx->get_fm_deemph());
+    uiDockRxOpt->setCwOffset(rx->get_cw_offset());
+
+    for (int k = 1; k < 3; k++)
+        uiDockRxOpt->setNoiseBlanker(k,rx->get_nb_on(k), rx->get_nb_threshold(k));
+
+    uiDockAudio->setRecDir(QString(rx->get_audio_rec_dir().data()));
+    uiDockAudio->setSquelchTriggered(rx->get_audio_rec_sql_triggered());
+    uiDockAudio->setRecMinTime(rx->get_audio_rec_min_time());
+    uiDockAudio->setRecMaxGap(rx->get_audio_rec_max_gap());
+    uiDockAudio->setAudioMute(rx->get_agc_mute());
+
+    //FIXME Prevent playing incomplete audio or remove audio player
+    if (rx->is_recording_audio())
+        uiDockAudio->audioRecStarted(QString(rx->get_last_audio_filename().data()));
+    else
+        uiDockAudio->audioRecStopped();
+    uiDockAudio->setAudioStreamState(rx->get_udp_host(), rx->get_udp_port(), rx->get_udp_stereo(), rx->get_udp_streaming());
+    d_have_audio = (mode_idx != Modulations::MODE_OFF);
+    switch (mode_idx)
+    {
+    case Modulations::MODE_WFM_MONO:
+    case Modulations::MODE_WFM_STEREO:
+    case Modulations::MODE_WFM_STEREO_OIRT:
+        uiDockRDS->setEnabled();
+        setRdsDecoder(rx->is_rds_decoder_active());
+        break;
+    default:
+        uiDockRDS->setDisabled();
+        setRdsDecoder(false);
     }
 }
 
@@ -2554,4 +3407,16 @@ void MainWindow::toggleMarkers()
 {
     enableMarkers(!d_show_markers);
     uiDockFft->setMarkersEnabled(d_show_markers);
+}
+
+/** Called from GNU Radio thread */
+void MainWindow::audioRecEventEmitter(std::string filename, bool is_running)
+{
+    emit sigAudioRecEvent(QString(filename.data()), is_running);
+}
+
+/** Called from GNU Radio thread */
+void MainWindow::audio_rec_event(MainWindow *self, std::string filename, bool is_running)
+{
+    self->audioRecEventEmitter(filename, is_running);
 }

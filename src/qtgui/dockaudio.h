@@ -26,6 +26,7 @@
 #include <QColor>
 #include <QDockWidget>
 #include <QSettings>
+#include <QMenu>
 #include "audio_options.h"
 
 namespace Ui {
@@ -57,39 +58,58 @@ public:
 
     void setAudioGain(int gain);
     int  audioGain();
+    void setGainEnabled(bool state);
 
     void setAudioRecButtonState(bool checked);
+    void setAudioStreamState(const std::string & host,int port,bool stereo, bool running);
+    void setAudioStreamButtonState(bool checked);
     void setAudioPlayButtonState(bool checked);
 
     void setFftColor(QColor color);
     void setFftFill(bool enabled);
 
+    bool getSquelchTriggered();
+    void setSquelchTriggered(bool mode);
+    void setRecDir(const QString &dir);
+    void setRecMinTime(int time_ms);
+    void setRecMaxGap(int time_ms);
+
+    void setAudioMute(bool on);
+
     void saveSettings(QSettings *settings);
     void readSettings(QSettings *settings);
 
 public slots:
-    void startAudioRecorder(void);
-    void stopAudioRecorder(void);
     void setRxFrequency(qint64 freq);
     void setWfColormap(const QString &cmap);
-    void setAudioGainDb(float gain);
     void setAudioMuted(bool muted);
+    void audioRecStarted(const QString filename);
+    void audioRecStopped();
 
 signals:
     /*! \brief Signal emitted when audio gain has changed. Gain is in dB. */
     void audioGainChanged(float gain);
 
+    /*! \brief Audio streaming UDP host changed. */
+    void udpHostChanged(const QString host);
+
+    /*! \brief Audio streaming UDP port changed. */
+    void udpPortChanged(int port);
+
+    /*! \brief Audio streaming stereo setting changed. */
+    void udpStereoChanged(bool stereo);
+
     /*! \brief Audio streaming over UDP has started. */
-    void audioStreamingStarted(const QString host, int port, bool stereo);
+    void audioStreamingStarted();
 
     /*! \brief Audio streaming stopped. */
     void audioStreamingStopped();
 
     /*! \brief Signal emitted when audio recording is started. */
-    void audioRecStarted(const QString filename);
+    void audioRecStart();
 
     /*! \brief Signal emitted when audio recording is stopped. */
-    void audioRecStopped();
+    void audioRecStop();
 
     /*! \brief Signal emitted when audio playback is started. */
     void audioPlayStarted(const QString filename);
@@ -103,6 +123,24 @@ signals:
     /*! \brief Audio mute chenged. */
     void audioMuted(bool muted);
 
+    /*! \brief Signal emitted when audio mute has changed. */
+    void audioMuteChanged(bool mute, bool global);
+
+    /*! \brief Signal emitted when recording directory has changed. */
+    void recDirChanged(const QString dir);
+
+    /*! \brief Signal emitted when squelch triggered recording mode is changed. */
+    void recSquelchTriggeredChanged(const bool enabled);
+
+    /*! \brief Signal emitted when squelch triggered recording min time is changed. */
+    void recMinTimeChanged(int time_ms);
+
+    /*! \brief Signal emitted when squelch triggered recording max gap time is changed. */
+    void recMaxGapChanged(int time_ms);
+
+    /*! \brief Signal emitted when toAllVFOs button is clicked. */
+    void copyRecSettingsToAllVFOs();
+
 private slots:
     void on_audioGainSlider_valueChanged(int value);
     void on_audioStreamButton_clicked(bool checked);
@@ -110,12 +148,18 @@ private slots:
     void on_audioPlayButton_clicked(bool checked);
     void on_audioConfButton_clicked();
     void on_audioMuteButton_clicked(bool checked);
-    void setNewPandapterRange(int min, int max);
-    void setNewWaterfallRange(int min, int max);
-    void setNewRecDir(const QString &dir);
-    void setNewUdpHost(const QString &host);
-    void setNewUdpPort(int port);
-    void setNewUdpStereo(bool enabled);
+    void on_audioMuteButton_customContextMenuRequested(const QPoint& pos);
+    void pandapterRange_changed(int min, int max);
+    void waterfallRange_changed(int min, int max);
+    void recDir_changed(const QString &dir);
+    void udpHost_changed(const QString &host);
+    void udpPort_changed(int port);
+    void udpStereo_changed(bool enabled);
+    void squelchTriggered_changed(bool enabled);
+    void recMinTime_changed(int time_ms);
+    void recMaxGap_changed(int time_ms);
+    void copyRecSettingsToAllVFOs_clicked();
+    void menuMuteAll(bool checked);
 
 
 private:
@@ -127,6 +171,9 @@ private:
     QString        udp_host;     /*! UDP client host name. */
     int            udp_port;     /*! UDP client port number. */
     bool           udp_stereo;   /*! Enable stereo streaming for UDP. */
+    bool           squelch_triggered; /*! Enable squelch-triggered recording */
+    int            recMinTime;   /*! Minimum squelch-triggered recording time */
+    int            recMaxGap;    /*! Maximum gap time in squelch-triggered mode*/
 
     bool           autoSpan;     /*! Whether to allow mode-dependent auto span. */
 
@@ -136,6 +183,8 @@ private:
     void           muteToggleShortcut();
     void           increaseAudioGainShortcut();
     void           decreaseAudioGainShortcut();
+    QMenu         *muteButtonMenu;
+    QAction       *muteAllAction;
 };
 
 #endif // DOCKAUDIO_H

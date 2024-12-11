@@ -25,8 +25,6 @@
 #include <QDebug>
 #include "receivers/nbrx.h"
 
-// NB: Remember to adjust filter ranges in MainWindow
-#define PREF_QUAD_RATE  96000.f
 
 nbrx_sptr make_nbrx(float quad_rate, float audio_rate)
 {
@@ -34,24 +32,17 @@ nbrx_sptr make_nbrx(float quad_rate, float audio_rate)
 }
 
 nbrx::nbrx(float quad_rate, float audio_rate)
-    : receiver_base_cf("NBRX"),
-      d_running(false),
-      d_quad_rate(quad_rate),
-      d_audio_rate(audio_rate),
-      d_demod(NBRX_DEMOD_FM)
+    : receiver_base_cf("NBRX", NB_PREF_QUAD_RATE, quad_rate, audio_rate),
+      d_running(false)
 {
-    iq_resamp = make_resampler_cc(PREF_QUAD_RATE/d_quad_rate);
 
-    nb = make_rx_nb_cc((double)PREF_QUAD_RATE, 3.3, 2.5);
-    filter = make_rx_filter((double)PREF_QUAD_RATE, -5000.0, 5000.0, 1000.0);
-    agc = make_rx_agc_cc((double)PREF_QUAD_RATE, true, -100, 0, 0, 500, false);
-    sql = gr::analog::simple_squelch_cc::make(-150.0, 0.001);
-    meter = make_rx_meter_c((double)PREF_QUAD_RATE);
+    nb = make_rx_nb_cc((double)NB_PREF_QUAD_RATE, 3.3, 2.5);
+    filter = make_rx_filter((double)NB_PREF_QUAD_RATE, -5000.0, 5000.0, 1000.0);
     demod_raw = gr::blocks::complex_to_float::make(1);
     demod_ssb = gr::blocks::complex_to_real::make(1);
-    demod_fm = make_rx_demod_fm(PREF_QUAD_RATE, 5000.0, 75.0e-6);
-    demod_am = make_rx_demod_am(PREF_QUAD_RATE, true);
-    demod_amsync = make_rx_demod_amsync(PREF_QUAD_RATE, true, 0.001);
+    demod_fm = make_rx_demod_fm(NB_PREF_QUAD_RATE, 5000.0, 75.0e-6);
+    demod_am = make_rx_demod_am(NB_PREF_QUAD_RATE, true);
+    demod_amsync = make_rx_demod_amsync(NB_PREF_QUAD_RATE, true, 0.001);
 
     // Width of rx_filter can be adjusted at run time, so the input buffer (the
     // output buffer of nb) needs to be large enough for the longest history
@@ -61,35 +52,22 @@ nbrx::nbrx(float quad_rate, float audio_rate)
 
     audio_rr0.reset();
     audio_rr1.reset();
-    if (d_audio_rate != PREF_QUAD_RATE)
+    if (d_audio_rate != NB_PREF_QUAD_RATE)
     {
-        std::cout << "Resampling audio " << PREF_QUAD_RATE << " -> "
+        std::cout << "Resampling audio " << NB_PREF_QUAD_RATE << " -> "
                   << d_audio_rate << std::endl;
-        audio_rr0 = make_resampler_ff(d_audio_rate/PREF_QUAD_RATE);
-        audio_rr1 = make_resampler_ff(d_audio_rate/PREF_QUAD_RATE);
+        audio_rr0 = make_resampler_ff(d_audio_rate/NB_PREF_QUAD_RATE);
+        audio_rr1 = make_resampler_ff(d_audio_rate/NB_PREF_QUAD_RATE);
     }
 
-    demod = demod_fm;
-    connect(self(), 0, iq_resamp, 0);
+    demod = demod_raw;
+    connect(ddc, 0, iq_resamp, 0);
     connect(iq_resamp, 0, nb, 0);
     connect(nb, 0, filter, 0);
     connect(filter, 0, meter, 0);
     connect(filter, 0, sql, 0);
-    connect(sql, 0, agc, 0);
-    connect(agc, 0, demod, 0);
-
-    if (audio_rr0)
-    {
-        connect(demod, 0, audio_rr0, 0);
-
-        connect(audio_rr0, 0, self(), 0); // left  channel
-        connect(audio_rr0, 0, self(), 1); // right channel
-    }
-    else
-    {
-        connect(demod, 0, self(), 0);
-        connect(demod, 0, self(), 1);
-    }
+    connect(agc, 2, self(), 0);
+    connect(agc, 3, self(), 1);
 }
 
 bool nbrx::start()
@@ -106,35 +84,56 @@ bool nbrx::stop()
     return true;
 }
 
-void nbrx::set_quad_rate(float quad_rate)
+void nbrx::set_filter(int low, int high, int tw)
 {
-    if (std::abs(d_quad_rate-quad_rate) > 0.5f)
+    receiver_base_cf::set_filter(low, high, tw);
+    if(get_demod()!=Modulations::MODE_OFF)
+        filter->set_param(double(low), double(high), double(tw));
+}
+
+void nbrx::set_cw_offset(int offset)
+{
+    if(offset==get_cw_offset())
+        return;
+    vfo_s::set_cw_offset(offset);
+    switch (get_demod())
     {
-        qDebug() << "Changing NB_RX quad rate:"  << d_quad_rate << "->" << quad_rate;
-        d_quad_rate = quad_rate;
-        lock();
-        iq_resamp->set_rate(PREF_QUAD_RATE/d_quad_rate);
-        unlock();
+    case Modulations::MODE_CWL:
+        ddc->set_center_freq(get_offset() + get_cw_offset());
+        filter->set_cw_offset(-get_cw_offset());
+        break;
+    case Modulations::MODE_CWU:
+        ddc->set_center_freq(get_offset() - get_cw_offset());
+        filter->set_cw_offset(get_cw_offset());
+        break;
+    default:
+        ddc->set_center_freq(get_offset());
+        filter->set_cw_offset(0);
     }
 }
 
-void nbrx::set_filter(double low, double high, double tw)
+void nbrx::set_offset(int offset)
 {
-    filter->set_param(low, high, tw);
-}
-
-void nbrx::set_cw_offset(double offset)
-{
-    filter->set_cw_offset(offset);
-}
-
-float nbrx::get_signal_level()
-{
-    return meter->get_level_db();
+    if(offset==get_offset())
+        return;
+    vfo_s::set_offset(offset);
+    switch (get_demod())
+    {
+    case Modulations::MODE_CWL:
+        ddc->set_center_freq(offset + get_cw_offset());
+        break;
+    case Modulations::MODE_CWU:
+        ddc->set_center_freq(offset - get_cw_offset());
+        break;
+    default:
+        ddc->set_center_freq(offset);
+    }
+    wav_sink->set_offset(offset);
 }
 
 void nbrx::set_nb_on(int nbid, bool on)
 {
+    receiver_base_cf::set_nb_on(nbid, on);
     if (nbid == 1)
         nb->set_nb1_on(on);
     else if (nbid == 2)
@@ -143,182 +142,177 @@ void nbrx::set_nb_on(int nbid, bool on)
 
 void nbrx::set_nb_threshold(int nbid, float threshold)
 {
+    receiver_base_cf::set_nb_threshold(nbid, threshold);
     if (nbid == 1)
         nb->set_threshold1(threshold);
     else if (nbid == 2)
         nb->set_threshold2(threshold);
 }
 
-void nbrx::set_sql_level(double level_db)
+void nbrx::set_demod(Modulations::idx new_demod)
 {
-    sql->set_threshold(level_db);
-}
+    Modulations::idx current_demod = receiver_base_cf::get_demod();
 
-void nbrx::set_sql_alpha(double alpha)
-{
-    sql->set_alpha(alpha);
-}
-
-void nbrx::set_agc_on(bool agc_on)
-{
-    agc->set_agc_on(agc_on);
-}
-
-void nbrx::set_agc_hang(bool use_hang)
-{
-    agc->set_use_hang(use_hang);
-}
-
-void nbrx::set_agc_threshold(int threshold)
-{
-    agc->set_threshold(threshold);
-}
-
-void nbrx::set_agc_slope(int slope)
-{
-    agc->set_slope(slope);
-}
-
-void nbrx::set_agc_decay(int decay_ms)
-{
-    agc->set_decay(decay_ms);
-}
-
-void nbrx::set_agc_manual_gain(int gain)
-{
-    agc->set_manual_gain(gain);
-}
-
-void nbrx::set_demod(int rx_demod)
-{
-    nbrx_demod current_demod = d_demod;
-
-    /* check if new demodulator selection is valid */
-    if ((rx_demod < NBRX_DEMOD_NONE) || (rx_demod >= NBRX_DEMOD_NUM))
-        return;
-
-    if (rx_demod == current_demod) {
+    if (new_demod == current_demod) {
         /* nothing to do */
         return;
     }
 
-    disconnect(agc, 0, demod, 0);
-    if (audio_rr0)
-    {
-        if (current_demod == NBRX_DEMOD_NONE)
-        {
-            disconnect(demod, 0, audio_rr0, 0);
-            disconnect(demod, 1, audio_rr1, 0);
+    /* check if new demodulator selection is valid */
+    if ((new_demod < Modulations::MODE_OFF) || (new_demod > Modulations::MODE_NFM))
+        return;
 
-            disconnect(audio_rr0, 0, self(), 0);
-            disconnect(audio_rr1, 0, self(), 1);
+
+    if (current_demod > Modulations::MODE_OFF)
+    {
+        disconnect(sql, 0, demod, 0);
+        if (audio_rr0)
+        {
+            if (current_demod == Modulations::MODE_RAW)
+            {
+                disconnect(demod, 0, audio_rr0, 0);
+                disconnect(demod, 1, audio_rr1, 0);
+
+                disconnect(audio_rr0, 0, agc, 0);
+                disconnect(audio_rr1, 0, agc, 1);
+            }
+            else
+            {
+                disconnect(demod, 0, audio_rr0, 0);
+
+                disconnect(audio_rr0, 0, agc, 0);
+                disconnect(audio_rr0, 0, agc, 1);
+            }
         }
         else
         {
-            disconnect(demod, 0, audio_rr0, 0);
-
-            disconnect(audio_rr0, 0, self(), 0);
-            disconnect(audio_rr0, 0, self(), 1);
-        }
-    }
-    else
-    {
-        if (current_demod == NBRX_DEMOD_NONE)
-        {
-            disconnect(demod, 0, self(), 0);
-            disconnect(demod, 1, self(), 1);
-        }
-        else
-        {
-            disconnect(demod, 0, self(), 0);
-            disconnect(demod, 0, self(), 1);
+            if (current_demod == Modulations::MODE_RAW)
+            {
+                disconnect(demod, 0, agc, 0);
+                disconnect(demod, 1, agc, 1);
+            }
+            else
+            {
+                disconnect(demod, 0, agc, 0);
+                disconnect(demod, 0, agc, 1);
+            }
         }
     }
 
-    switch (rx_demod) {
+    switch (new_demod) {
 
-    case NBRX_DEMOD_NONE:
-        d_demod = NBRX_DEMOD_NONE;
+    case Modulations::MODE_RAW:
+    case Modulations::MODE_OFF:
         demod = demod_raw;
         break;
 
-    case NBRX_DEMOD_SSB:
-        d_demod = NBRX_DEMOD_SSB;
+    case Modulations::MODE_LSB:
+    case Modulations::MODE_USB:
+    case Modulations::MODE_CWL:
+    case Modulations::MODE_CWU:
         demod = demod_ssb;
         break;
 
-    case NBRX_DEMOD_AM:
-        d_demod = NBRX_DEMOD_AM;
+    case Modulations::MODE_AM:
         demod = demod_am;
         break;
 
-    case NBRX_DEMOD_AMSYNC:
-        d_demod = NBRX_DEMOD_AMSYNC;
+    case Modulations::MODE_AM_SYNC:
         demod = demod_amsync;
         break;
 
-    case NBRX_DEMOD_FM:
+    case Modulations::MODE_NFM:
     default:
-        d_demod = NBRX_DEMOD_FM;
         demod = demod_fm;
         break;
     }
 
-    connect(agc, 0, demod, 0);
-    if (audio_rr0)
+    if (new_demod > Modulations::MODE_OFF)
     {
-        if (d_demod == NBRX_DEMOD_NONE)
+        connect(sql, 0, demod, 0);
+        if (audio_rr0)
         {
-            connect(demod, 0, audio_rr0, 0);
-            connect(demod, 1, audio_rr1, 0);
+            if (new_demod == Modulations::MODE_RAW)
+            {
+                connect(demod, 0, audio_rr0, 0);
+                connect(demod, 1, audio_rr1, 0);
 
-            connect(audio_rr0, 0, self(), 0);
-            connect(audio_rr1, 0, self(), 1);
+                connect(audio_rr0, 0, agc, 0);
+                connect(audio_rr1, 0, agc, 1);
+            }
+            else
+            {
+                connect(demod, 0, audio_rr0, 0);
+
+                connect(audio_rr0, 0, agc, 0);
+                connect(audio_rr0, 0, agc, 1);
+            }
         }
         else
         {
-            connect(demod, 0, audio_rr0, 0);
-
-            connect(audio_rr0, 0, self(), 0);
-            connect(audio_rr0, 0, self(), 1);
+            if (new_demod == Modulations::MODE_RAW)
+            {
+                connect(demod, 0, agc, 0);
+                connect(demod, 1, agc, 1);
+            }
+            else
+            {
+                connect(demod, 0, agc, 0);
+                connect(demod, 0, agc, 1);
+            }
         }
     }
-    else
+    receiver_base_cf::set_demod(new_demod);
+    switch (get_demod())
     {
-        if (d_demod == NBRX_DEMOD_NONE)
-        {
-            connect(demod, 0, self(), 0);
-            connect(demod, 1, self(), 1);
-        }
-        else
-        {
-            connect(demod, 0, self(), 0);
-            connect(demod, 0, self(), 1);
-        }
+    case Modulations::MODE_CWL:
+        ddc->set_center_freq(get_offset() + get_cw_offset());
+        filter->set_cw_offset(-get_cw_offset());
+        break;
+    case Modulations::MODE_CWU:
+        ddc->set_center_freq(get_offset() - get_cw_offset());
+        filter->set_cw_offset(get_cw_offset());
+        break;
+    default:
+        ddc->set_center_freq(get_offset());
+        filter->set_cw_offset(0);
     }
 }
 
 void nbrx::set_fm_maxdev(float maxdev_hz)
 {
+    receiver_base_cf::set_fm_maxdev(maxdev_hz);
     demod_fm->set_max_dev(maxdev_hz);
 }
 
 void nbrx::set_fm_deemph(double tau)
 {
+    receiver_base_cf::set_fm_deemph(tau);
     demod_fm->set_tau(tau);
 }
 
 void nbrx::set_am_dcr(bool enabled)
 {
+    receiver_base_cf::set_am_dcr(enabled);
+    if(get_demod() != Modulations::MODE_OFF)
+        lock();
     demod_am->set_dcr(enabled);
+    if(get_demod() != Modulations::MODE_OFF)
+        unlock();
 }
 
 void nbrx::set_amsync_dcr(bool enabled)
 {
+    receiver_base_cf::set_amsync_dcr(enabled);
+    if(get_demod() != Modulations::MODE_OFF)
+        lock();
     demod_amsync->set_dcr(enabled);
+    if(get_demod() != Modulations::MODE_OFF)
+        unlock();
 }
 
 void nbrx::set_amsync_pll_bw(float pll_bw)
 {
+    receiver_base_cf::set_amsync_pll_bw(pll_bw);
     demod_amsync->set_pll_bw(pll_bw);
 }
