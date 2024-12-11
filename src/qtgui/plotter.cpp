@@ -890,6 +890,7 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
                     }
                 }
             }
+            updateOverlay();
         }
         else if (m_CursorCaptured == CENTER)
         {
