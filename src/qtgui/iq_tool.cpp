@@ -303,6 +303,16 @@ void CIqTool::timeoutFunction(void)
             ui->slider->blockSignals(false);
             refreshTimeWidgets();
         }
+        else
+        {
+            emit stopPlayback();
+            ui->listWidget->setEnabled(true);
+            ui->recButton->setEnabled(true);
+            ui->slider->setValue(0);
+            ui->playButton->setChecked(false);
+            is_playing = false;
+            refreshTimeWidgets();
+        }
     }
     if (is_recording)
         refreshTimeWidgets();
