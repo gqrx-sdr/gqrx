@@ -156,7 +156,7 @@ private:
     void        setNewRemoteFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);
     QString     intToModeStr(int mode);
-    
+
     /* RC commands */
     QString     cmd_get_freq() const;
     QString     cmd_set_freq(QStringList cmdlist);
