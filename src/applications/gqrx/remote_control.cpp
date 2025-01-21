@@ -50,6 +50,7 @@ RemoteControl::RemoteControl(QObject *parent) :
     squelch_level = -150.0;
     audio_gain = -6.0;
     audio_recorder_status = false;
+    iq_recorder_status = true;
     receiver_running = false;
     hamlib_compatible = false;
     is_audio_muted = false;
@@ -58,6 +59,7 @@ RemoteControl::RemoteControl(QObject *parent) :
     rc_allowed_hosts.append(DEFAULT_RC_ALLOWED_HOSTS);
 
     rc_socket = 0;
+    iq_tool = nullptr;
 
     connect(&rc_server, SIGNAL(newConnection()), this, SLOT(acceptConnection()));
 }
@@ -247,6 +249,10 @@ void RemoteControl::startRead()
             answer = cmd_AOS();
         else if (cmd == "LOS")
             answer = cmd_LOS();
+        else if (cmd == "AOIQ")
+            answer = cmd_AOIQ();
+        else if (cmd == "LOIQ")
+            answer = cmd_LOIQ();
         else if (cmd == "LNB_LO")
             answer = cmd_lnb_lo(cmdlist);
         else if (cmd == "\\chk_vfo")
@@ -917,6 +923,27 @@ QString RemoteControl::cmd_LOS()
     audio_recorder_status = false;
     return QString("RPRT 0\n");
 }
+
+/* Gpredict / Gqrx specific command: AOIQ - satellite AOIQ event */
+QString RemoteControl::cmd_AOIQ()
+{
+    if (rc_mode > 0 && receiver_running)
+    {
+        // here
+        emit iq_tool->startRecording();
+        iq_recorder_status = true;
+    }
+    return QString("RPRT 0\n");
+}
+
+/* Gpredict / Gqrx specific command: LOIQ - satellite LOIQ event */
+QString RemoteControl::cmd_LOIQ()
+{
+    emit iq_tool->stopRecording();
+    iq_recorder_status = false;
+    return QString("RPRT 0\n");
+}
+
 
 /* Set the LNB LO value */
 QString RemoteControl::cmd_lnb_lo(QStringList cmdlist)

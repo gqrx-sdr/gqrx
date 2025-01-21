@@ -33,6 +33,7 @@
 
 /* For gain_t and gain_list_t */
 #include "qtgui/dockinputctl.h"
+#include "qtgui/iq_tool.h"
 
 /*! \brief Simple TCP server for remote control.
  *
@@ -61,6 +62,7 @@ class RemoteControl : public QObject
     Q_OBJECT
 public:
     explicit RemoteControl(QObject *parent = 0);
+    //RemoteControl(CIqTool *iq_tool);
     ~RemoteControl();
 
     void start_server(void);
@@ -82,6 +84,8 @@ public:
     }
     void setReceiverStatus(bool enabled);
     void setGainStages(gain_list_t &gain_list);
+    CIqTool*    iq_tool;
+
 
 public slots:
     void setNewFrequency(qint64 freq);
@@ -144,6 +148,7 @@ private:
     QString     rds_station;       /*!< RDS program service (station) name */
     QString     rds_radiotext;     /*!< RDS Radiotext */
     bool        audio_recorder_status; /*!< Recording enabled */
+    bool        iq_recorder_status; /*!< IQ Recording enabled */
     bool        receiver_running;  /*!< Whether the receiver is running or not */
     bool        hamlib_compatible;
     gain_list_t gains;             /*!< Possible and current gain settings */
@@ -152,7 +157,7 @@ private:
     void        setNewRemoteFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);
     QString     intToModeStr(int mode);
-
+    
     /* RC commands */
     QString     cmd_get_freq() const;
     QString     cmd_set_freq(QStringList cmdlist);
@@ -170,6 +175,8 @@ private:
     QString     cmd_get_param(QStringList cmdlist);
     QString     cmd_AOS();
     QString     cmd_LOS();
+    QString     cmd_AOIQ();
+    QString     cmd_LOIQ();
     QString     cmd_lnb_lo(QStringList cmdlist);
     QString     cmd_dump_state() const;
 };

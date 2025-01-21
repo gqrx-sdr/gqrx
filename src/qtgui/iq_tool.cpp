@@ -141,6 +141,15 @@ void CIqTool::on_playButton_clicked(bool checked)
     }
 }
 
+/*! \brief wrapper for startRecording to not need access to private attributes.
+*/
+void CIqTool::startRecording()
+{
+
+    emit startRecording(recdir->path(), ui->formatCombo->currentText());
+
+}
+
 /*! \brief Cancel playback.
  *
  * This slot can be activated to cancel an ongoing playback.
