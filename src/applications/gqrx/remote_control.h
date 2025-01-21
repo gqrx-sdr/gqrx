@@ -62,7 +62,6 @@ class RemoteControl : public QObject
     Q_OBJECT
 public:
     explicit RemoteControl(QObject *parent = 0);
-    //RemoteControl(CIqTool *iq_tool);
     ~RemoteControl();
 
     void start_server(void);
