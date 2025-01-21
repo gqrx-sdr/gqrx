@@ -50,7 +50,7 @@ RemoteControl::RemoteControl(QObject *parent) :
     squelch_level = -150.0;
     audio_gain = -6.0;
     audio_recorder_status = false;
-    iq_recorder_status = true;
+    iq_recorder_status = false;
     receiver_running = false;
     hamlib_compatible = false;
     is_audio_muted = false;
