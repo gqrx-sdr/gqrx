@@ -929,8 +929,8 @@ QString RemoteControl::cmd_AOIQ()
 {
     if (rc_mode > 0 && receiver_running)
     {
-        // here
-        emit iq_tool->startRecording();
+        iq_tool->show();
+        iq_tool->remoteRecordingCmd(true);
         iq_recorder_status = true;
     }
     return QString("RPRT 0\n");
@@ -939,7 +939,7 @@ QString RemoteControl::cmd_AOIQ()
 /* Gpredict / Gqrx specific command: LOIQ - satellite LOIQ event */
 QString RemoteControl::cmd_LOIQ()
 {
-    emit iq_tool->stopRecording();
+    iq_tool->remoteRecordingCmd(false);
     iq_recorder_status = false;
     return QString("RPRT 0\n");
 }

@@ -61,6 +61,7 @@ public:
     void saveSettings(QSettings *settings);
     void readSettings(QSettings *settings);
     void startRecording();
+    void remoteRecordingCmd(bool checked);
 
 signals:
     void startRecording(const QString recdir, const QString format);

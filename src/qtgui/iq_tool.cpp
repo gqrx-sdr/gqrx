@@ -210,6 +210,24 @@ void CIqTool::cancelRecording()
     is_recording = false;
 }
 
+void CIqTool::remoteRecordingCmd(bool checked)
+{
+
+    if (checked)
+    {
+        show();
+        ui->recButton->setChecked(true);
+        on_recButton_clicked(checked);
+    }
+    else
+    {
+        on_recButton_clicked(checked);
+        ui->recButton->setChecked(false);
+        hide();
+    }
+
+}
+
 /*! \brief Catch window close events.
  *
  * This method is called when the user closes the audio options dialog
