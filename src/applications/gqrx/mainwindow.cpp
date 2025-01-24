@@ -114,9 +114,6 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     rx = new receiver("", "", 1);
     rx->set_rf_freq(144500000.0);
 
-    // remote controller
-    remote = new RemoteControl();
-
     /* meter timer */
     meter_timer = new QTimer(this);
     connect(meter_timer, SIGNAL(timeout()), this, SLOT(meterTimeout()));
@@ -140,6 +137,10 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 
     // create I/Q tool widget
     iq_tool = new CIqTool(this);
+
+    // remote controller
+    remote = new RemoteControl();
+    remote->iq_tool = iq_tool;
 
     // create DXC Objects
     dxc_options = new DXCOptions(this);
