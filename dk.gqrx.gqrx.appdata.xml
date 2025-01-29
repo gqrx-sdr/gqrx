@@ -6,6 +6,9 @@
   <summary xml:lang="nl">Software defined radio ontvanger geïmplementeerd met GNU Radio en de Qt GUI toolkit</summary>
   <summary xml:lang="ru">Приемник для программно-определенного радио (SDR) использующий GNU Radio и библиотеку Qt</summary>
   <developer_name>Alexandru Csete</developer_name>
+  <developer id="dk.gqrx">
+    <name>Alexandru Csete</name>
+  </developer>
   <description>
    <p>
     Gqrx is an open source software defined radio receiver (SDR) powered by the GNU Radio and the Qt graphical toolkit.
