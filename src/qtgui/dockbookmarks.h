@@ -25,6 +25,7 @@
 #include <QDockWidget>
 #include <QTableWidgetItem>
 #include "qtgui/bookmarkstablemodel.h"
+#include "qtgui/bookmarkstaglist.h"
 #include <QItemDelegate>
 
 namespace Ui {
@@ -48,6 +49,8 @@ class DockBookmarks : public QDockWidget
 private:
     Ui::DockBookmarks *ui;
     QMenu*             contextmenu;
+    QDialog*           tagsDialog;
+    BookmarksTagList*  dialogTaglist;
     qint64             m_currentFrequency;
     bool               m_updating;
     BookmarksTableModel *bookmarksTableModel;
@@ -78,6 +81,8 @@ private slots:
     //void on_addButton_clicked();
     //void on_delButton_clicked();
     void on_tableWidgetTagList_itemChanged(QTableWidgetItem* item);
+    void dialog_tableWidgetTagList_itemChanged(QTableWidgetItem *item);
+    void dialog_tableWidgetTagList_colorChanged();
     void ShowContextMenu(const QPoint&pos);
     bool DeleteSelectedBookmark();
     void doubleClicked(const QModelIndex & index);
