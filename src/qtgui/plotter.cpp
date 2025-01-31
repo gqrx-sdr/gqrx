@@ -169,7 +169,6 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     tlast_wf_ms = 0;
     tlast_plot_drawn_ms = 0;
     tlast_wf_drawn_ms = 0;
-    wf_valid_since_ms = 0;
     msec_per_wfline = 0;
     tlast_peaks_ms = 0;
     wf_epoch = 0;
@@ -327,21 +326,20 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         }
         if (m_TooltipsEnabled)
         {
-            const quint64 line_ms = msecFromY(py);
-            QString timeStr;
-            if (line_ms >= wf_valid_since_ms)
+            const WaterfallEntry waterfallEntry = getWaterfallEntry(py - h);
+            const quint64 ms = waterfallEntry.m_TimestampMs;
+            if (ms > 0)
             {
                 QDateTime tt;
-                tt.setMSecsSinceEpoch(msecFromY(py));
-                timeStr = tt.toString("yyyy.MM.dd hh:mm:ss.zzz");
+                tt.setMSecsSinceEpoch(ms);
+                QString timeStr = tt.toString("yyyy.MM.dd hh:mm:ss.zzz");
+                const qreal kHz = waterfallFreqFromX(waterfallEntry, px) / 1.e3;
+                showToolTip(event, QString("%1\n%2 kHz").arg(timeStr).arg(kHz, 0, 'f', 3));
             }
-            else{
-                timeStr = "[time not valid]";
+            else
+            {
+                QToolTip::hideText();
             }
-
-            showToolTip(event, QString("%1\n%2 kHz")
-                                       .arg(timeStr)
-                                       .arg(freqFromX(px)/1.e3, 0, 'f', 3));
         }
     }
     // process mouse moves while in cursor capture modes
@@ -592,7 +590,6 @@ void CPlotter::setWaterfallSpan(quint64 span_ms)
         wf_count = 0;
         msec_per_wfline = (double)wf_span / (qreal)m_WaterfallImage.height();
     }
-    wf_valid_since_ms = tnow;
     clearWaterfallBuf();
 }
 
@@ -615,7 +612,6 @@ quint64 CPlotter::getWfTimeRes() const
 void CPlotter::setFftRate(int rate_hz)
 {
     fft_rate = rate_hz;
-    wf_valid_since_ms = QDateTime::currentMSecsSinceEpoch();
     clearWaterfallBuf();
 }
 
@@ -623,33 +619,71 @@ void CPlotter::setFftRate(int rate_hz)
 void CPlotter::mousePressEvent(QMouseEvent * event)
 {
     QPoint pt = event->pos();
+    int h = m_OverlayPixmap.height();
     int px = qRound((qreal)pt.x() * m_DPR);
     int py = qRound((qreal)pt.y() * m_DPR);
     QPoint ppos = QPoint(px, py);
 
     if (NOCAP == m_CursorCaptured)
     {
-        if (isPointCloseTo(px, m_DemodFreqX, m_CursorCaptureDelta))
+        const int dy = py - h;
+        if (dy > 0)
         {
-            // move demod box center frequency region
+            // left click in waterfall resets view at point in history
+            const WaterfallEntry waterfallEntry = getWaterfallEntry(dy);
+            if (event->buttons() != Qt::LeftButton || waterfallEntry.m_TimestampMs == 0)
+            {
+                return;
+            }
+            if (m_CenterFreq != waterfallEntry.m_CenterFreq)
+            {
+                emit newCenterFrequency(waterfallEntry.m_CenterFreq + (m_DemodCenterFreq - m_CenterFreq));
+            }
+            m_DemodCenterFreq = roundFreq(waterfallFreqFromX(waterfallEntry, px), m_ClickResolution);
+            bool invalidate = false;
+            if (m_FftCenter != waterfallEntry.m_FftCenter)
+            {
+                invalidate = true;
+                m_FftCenter = waterfallEntry.m_FftCenter;
+            }
+            if (m_Span != waterfallEntry.m_Span)
+            {
+                invalidate = true;
+                m_Span = waterfallEntry.m_Span;
+                double zoom = (double)m_SampleFreq / (double)m_Span;
+                emit newZoomLevel(zoom);
+            }
+            if (invalidate) {
+                m_MaxHoldValid = false;
+                m_MinHoldValid = false;
+                m_histIIRValid = false;
+            }
+            emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq - m_CenterFreq);
             m_CursorCaptured = CENTER;
-            m_GrabPosition = px - m_DemodFreqX;
-        }
-        else if (isPointCloseTo(px, m_DemodLowCutFreqX, m_CursorCaptureDelta))
-        {
-            // filter low cut
-            m_CursorCaptured = LEFT;
-            m_GrabPosition = px - m_DemodLowCutFreqX;
-        }
-        else if (isPointCloseTo(px, m_DemodHiCutFreqX, m_CursorCaptureDelta))
-        {
-            // filter high cut
-            m_CursorCaptured = RIGHT;
-            m_GrabPosition = px - m_DemodHiCutFreqX;
+            m_GrabPosition = 1;
+            updateOverlay();
         }
         else
         {
-            if (event->buttons() == Qt::LeftButton)
+            if (isPointCloseTo(px, m_DemodFreqX, m_CursorCaptureDelta))
+            {
+                // move demod box center frequency region
+                m_CursorCaptured = CENTER;
+                m_GrabPosition = px - m_DemodFreqX;
+            }
+            else if (isPointCloseTo(px, m_DemodLowCutFreqX, m_CursorCaptureDelta))
+            {
+                // filter low cut
+                m_CursorCaptured = LEFT;
+                m_GrabPosition = px - m_DemodLowCutFreqX;
+            }
+            else if (isPointCloseTo(px, m_DemodHiCutFreqX, m_CursorCaptureDelta))
+            {
+                // filter high cut
+                m_CursorCaptured = RIGHT;
+                m_GrabPosition = px - m_DemodHiCutFreqX;
+            }
+            else if (event->buttons() == Qt::LeftButton)
             {
                 // {shift|ctrl|ctrl-shift}-left-click: set ab markers around signal at cursor
                 quint32 mods = event->modifiers() & (Qt::ShiftModifier|Qt::ControlModifier);
@@ -869,7 +903,7 @@ void CPlotter::zoomStepX(float step, int x)
     // Explicitly set m_Span instead of calling setSpanFreq(), which also calls
     // setFftCenterFreq() and updateOverlay() internally. Span needs to be set
     // before frequency limits can be checked in setFftCenterFreq().
-    m_Span = new_span;
+    m_Span = new_span_int;
     setFftCenterFreq(qRound64((f_max + f_min) / 2.0f));
 
     m_MaxHoldValid = false;
@@ -1032,6 +1066,7 @@ void CPlotter::resizeEvent(QResizeEvent* )
         if (wfHeight == 0)
         {
             m_WaterfallImage = QImage();
+            m_WaterfallEntries = std::vector<WaterfallEntry>(0);
         }
 
         // New waterfall, create blank area
@@ -1040,6 +1075,7 @@ void CPlotter::resizeEvent(QResizeEvent* )
             m_WaterfallImage.setDevicePixelRatio(m_DPR);
             m_WaterfallImage.fill(Qt::black);
             m_WaterfallOffset = wfHeight;
+            m_WaterfallEntries = std::vector<WaterfallEntry>(wfHeight);
         }
 
         // Existing waterfall, rescale width but no height as that would
@@ -1053,13 +1089,19 @@ void CPlotter::resizeEvent(QResizeEvent* )
             m_WaterfallImage = QImage(w, wfHeight, QImage::Format_RGB32);
             m_WaterfallImage.setDevicePixelRatio(m_DPR);
             m_WaterfallImage.fill(Qt::black);
+            std::vector<WaterfallEntry> newEntries(wfHeight);
             const int firstHeight = std::min(wfHeight, wfHeightOld - m_WaterfallOffset);
             memcpy(m_WaterfallImage.scanLine(0), oldWaterfall.scanLine(m_WaterfallOffset),
                  m_WaterfallImage.bytesPerLine() * firstHeight);
+            memcpy(&newEntries[0], &m_WaterfallEntries[m_WaterfallOffset],
+                sizeof(WaterfallEntry) * firstHeight);
             const int secondHeight = std::min(wfHeight - firstHeight, m_WaterfallOffset);
             memcpy(m_WaterfallImage.scanLine(firstHeight), oldWaterfall.scanLine(0),
                  m_WaterfallImage.bytesPerLine() * secondHeight);
+            memcpy(&newEntries[firstHeight], &m_WaterfallEntries[0],
+                 sizeof(WaterfallEntry) * secondHeight);
             m_WaterfallOffset = wfHeight;
+            m_WaterfallEntries = newEntries;
         }
 
         // Invalidate on resize
@@ -1422,8 +1464,6 @@ void CPlotter::draw(bool newData)
 
             // cursor times are relative to last time drawn
             tlast_wf_ms = tnow_ms;
-            if (wf_valid_since_ms == 0)
-                wf_valid_since_ms = tnow_ms;
             tlast_wf_drawn_ms = tnow_ms;
 
             // move the offset "up"
@@ -1431,8 +1471,13 @@ void CPlotter::draw(bool newData)
             // it is more efficient than moving all of the image scan lines
             m_WaterfallOffset--;
             // draw new line of fft data at top of waterfall bitmap
-            // draw black areas where data will not be draw
+            // draw black areas where data will not be drawn
             memset(m_WaterfallImage.scanLine(m_WaterfallOffset), 0, m_WaterfallImage.bytesPerLine());
+            WaterfallEntry& waterfallEntry = m_WaterfallEntries[m_WaterfallOffset];
+            waterfallEntry.m_TimestampMs = tnow_ms;
+            waterfallEntry.m_CenterFreq = m_CenterFreq;
+            waterfallEntry.m_FftCenter = m_FftCenter;
+            waterfallEntry.m_Span = m_Span;
 
             const bool useWfBuf = msec_per_wfline > 0;
             float _lineFactor;
@@ -1987,8 +2032,8 @@ void CPlotter::drawOverlay()
         static const qreal nLevels = h / (levelHeight + slant);
         if (m_BookmarksEnabled)
         {
-            tags = Bookmarks::Get().getBookmarksInRange(m_CenterFreq + m_FftCenter - m_Span / 2,
-                                                        m_CenterFreq + m_FftCenter + m_Span / 2);
+            tags = Bookmarks::Get().getBookmarksInRange(getMinFrequency(),
+                                                        getMaxFrequency());
         }
         else
         {
@@ -1996,8 +2041,8 @@ void CPlotter::drawOverlay()
         }
         if (m_DXCSpotsEnabled)
         {
-            QList<DXCSpotInfo> dxcspots = DXCSpots::Get().getDXCSpotsInRange(m_CenterFreq + m_FftCenter - m_Span / 2,
-                                                                             m_CenterFreq + m_FftCenter + m_Span / 2);
+            QList<DXCSpotInfo> dxcspots = DXCSpots::Get().getDXCSpotsInRange(getMinFrequency(),
+                                                                             getMaxFrequency());
             QListIterator<DXCSpotInfo> iter(dxcspots);
             while(iter.hasNext())
             {
@@ -2059,8 +2104,8 @@ void CPlotter::drawOverlay()
 
     if (m_BandPlanEnabled)
     {
-        QList<BandInfo> bands = BandPlan::Get().getBandsInRange(m_CenterFreq + m_FftCenter - m_Span / 2,
-                                                                m_CenterFreq + m_FftCenter + m_Span / 2);
+        QList<BandInfo> bands = BandPlan::Get().getBandsInRange(getMinFrequency(),
+                                                                getMaxFrequency());
 
         m_BandPlanHeight = metrics.height() + VER_MARGIN;
         for (auto & band : bands)
@@ -2125,7 +2170,7 @@ void CPlotter::drawOverlay()
     }
 
     // Frequency grid
-    qint64  StartFreq = m_CenterFreq + m_FftCenter - m_Span / 2;
+    qint64  StartFreq = getMinFrequency();
     QString label;
     label.setNum(float((StartFreq + m_Span) / m_FreqUnits), 'f', m_FreqDigits);
     calcDivSize(StartFreq, StartFreq + m_Span,
@@ -2314,21 +2359,23 @@ qint64 CPlotter::freqFromX(int x)
     return f;
 }
 
-/** Calculate time offset of a given line on the waterfall */
-quint64 CPlotter::msecFromY(int y)
+WaterfallEntry CPlotter::getWaterfallEntry(int waterfallY)
 {
-    int h = m_OverlayPixmap.height();
+    int idx = m_WaterfallOffset + waterfallY;
+    int waterfallHeight = m_WaterfallImage.height();
+    if (idx >= waterfallHeight)
+    {
+        idx -= waterfallHeight;
+    }
+    return m_WaterfallEntries[idx];
+}
 
-    // ensure we are in the waterfall region
-    if (y < h)
-        return 0;
-
-    qreal dy = (qreal)y - (qreal)h;
-
-    if (msec_per_wfline > 0)
-        return tlast_wf_drawn_ms - dy * msec_per_wfline;
-    else
-        return tlast_wf_drawn_ms - dy * getWfTimeRes();
+qint64 CPlotter::waterfallFreqFromX(WaterfallEntry waterfallEntry, int x) {
+    const qreal ratio = (qreal) x / (qreal) m_WaterfallImage.width();
+    const qint64 centerFrequency = waterfallEntry.m_CenterFreq + waterfallEntry.m_FftCenter;
+    const qint64 frequencySpan = waterfallEntry.m_Span;
+    const qint64 minFrequency =  centerFrequency - frequencySpan / 2;
+    return qRound(minFrequency + ratio * frequencySpan);
 }
 
 // Round frequency to click resolution value
