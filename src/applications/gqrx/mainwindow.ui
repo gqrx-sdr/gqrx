@@ -364,8 +364,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>35</height>
+     <width>521</width>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -452,6 +452,8 @@
    <addaction name="separator"/>
    <addaction name="actionFullScreen"/>
    <addaction name="separator"/>
+   <addaction name="actionAddDemodulator"/>
+   <addaction name="actionRemoveDemodulator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="enabled">
@@ -730,6 +732,36 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionAddDemodulator">
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/add.svg</normaloff>:/icons/icons/add.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Add demodulator</string>
+   </property>
+   <property name="toolTip">
+    <string>Add demodulator</string>
+   </property>
+   <property name="shortcut">
+    <string>Ins</string>
+   </property>
+  </action>
+  <action name="actionRemoveDemodulator">
+   <property name="icon">
+    <iconset resource="../../../resources/icons.qrc">
+     <normaloff>:/icons/icons/remove.svg</normaloff>:/icons/icons/remove.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Remove demodulator</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove current selected demodulator</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+Del</string>
    </property>
   </action>
  </widget>

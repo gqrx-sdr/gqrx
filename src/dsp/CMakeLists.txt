@@ -17,8 +17,6 @@ add_source_files(SRCS_LIST
 	rds/parser_impl.h
 	rds/parser.h
 	rds/tmc_events.h
-	agc_impl.cpp
-	agc_impl.h
 	correct_iq_cc.cpp
 	correct_iq_cc.h
 	downconverter.cpp
@@ -49,4 +47,6 @@ add_source_files(SRCS_LIST
 	sniffer_f.h
 	stereo_demod.cpp
 	stereo_demod.h
+	rx_squelch.cpp
+	rx_squelch.h
 )

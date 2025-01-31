@@ -54,6 +54,13 @@ double CNbOptions::nbThreshold(int nbid)
     else
         return ui->nb2Threshold->value();
 }
+void CNbOptions::setNbThreshold(int nbid, double threshold)
+{
+    if (nbid == 1)
+        ui->nb1Threshold->setValue(threshold);
+    else
+        ui->nb2Threshold->setValue(threshold);
+}
 
 void CNbOptions::on_nb1Threshold_valueChanged(double val)
 {

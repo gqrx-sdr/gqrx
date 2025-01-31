@@ -38,15 +38,29 @@ DockAudio::DockAudio(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    muteButtonMenu = new QMenu(this);
+    // MenuItem Global mute
+    {
+        muteAllAction = new QAction("Global Mute", this);
+        muteAllAction->setCheckable(true);
+        muteButtonMenu->addAction(muteAllAction);
+        connect(muteAllAction, SIGNAL(toggled(bool)), this, SLOT(menuMuteAll(bool)));
+    }
+    ui->audioMuteButton->setContextMenuPolicy(Qt::CustomContextMenu);
+
     audioOptions = new CAudioOptions(this);
 
     connect(audioOptions, SIGNAL(newFftSplit(int)), ui->audioSpectrum, SLOT(setPercent2DScreen(int)));
-    connect(audioOptions, SIGNAL(newPandapterRange(int,int)), this, SLOT(setNewPandapterRange(int,int)));
-    connect(audioOptions, SIGNAL(newWaterfallRange(int,int)), this, SLOT(setNewWaterfallRange(int,int)));
-    connect(audioOptions, SIGNAL(newRecDirSelected(QString)), this, SLOT(setNewRecDir(QString)));
-    connect(audioOptions, SIGNAL(newUdpHost(QString)), this, SLOT(setNewUdpHost(QString)));
-    connect(audioOptions, SIGNAL(newUdpPort(int)), this, SLOT(setNewUdpPort(int)));
-    connect(audioOptions, SIGNAL(newUdpStereo(bool)), this, SLOT(setNewUdpStereo(bool)));
+    connect(audioOptions, SIGNAL(newPandapterRange(int,int)), this, SLOT(pandapterRange_changed(int,int)));
+    connect(audioOptions, SIGNAL(newWaterfallRange(int,int)), this, SLOT(waterfallRange_changed(int,int)));
+    connect(audioOptions, SIGNAL(newRecDirSelected(QString)), this, SLOT(recDir_changed(QString)));
+    connect(audioOptions, SIGNAL(newUdpHost(QString)), this, SLOT(udpHost_changed(QString)));
+    connect(audioOptions, SIGNAL(newUdpPort(int)), this, SLOT(udpPort_changed(int)));
+    connect(audioOptions, SIGNAL(newUdpStereo(bool)), this, SLOT(udpStereo_changed(bool)));
+    connect(audioOptions, SIGNAL(newSquelchTriggered(bool)), this, SLOT(squelchTriggered_changed(bool)));
+    connect(audioOptions, SIGNAL(newRecMinTime(int)), this, SLOT(recMinTime_changed(int)));
+    connect(audioOptions, SIGNAL(newRecMaxGap(int)), this, SLOT(recMaxGap_changed(int)));
+    connect(audioOptions, SIGNAL(copyRecSettingsToAllVFOs()), this, SLOT(copyRecSettingsToAllVFOs_clicked()));
 
     connect(ui->audioSpectrum, SIGNAL(pandapterRangeChanged(float,float)), audioOptions, SLOT(setPandapterSliderValues(float,float)));
 
@@ -113,14 +127,6 @@ void DockAudio::setAudioGain(int gain)
     ui->audioGainSlider->setValue(gain);
 }
 
-/*! \brief Set new audio gain.
- *  \param gain the new audio gain in dB
- */
-void DockAudio::setAudioGainDb(float gain)
-{
-    ui->audioGainSlider->setValue(int(std::round(gain*10.0f)));
-}
-
 /*! \brief Set audio muted
  *  \param muted true if audio should be muted
  */
@@ -130,13 +136,20 @@ void DockAudio::setAudioMuted(bool muted)
     ui->audioMuteButton->click();
 }
 
-
 /*! \brief Get current audio gain.
  *  \returns The current audio gain in tens of dB (0 dB = 10).
  */
 int  DockAudio::audioGain()
 {
     return ui->audioGainSlider->value();
+}
+
+/*! \brief Set audio gain slider state.
+ *  \param state new slider state.
+ */
+void DockAudio::setGainEnabled(bool state)
+{
+    ui->audioGainSlider->setEnabled(state);
 }
 
 /*! Set FFT plot color. */
@@ -151,32 +164,38 @@ void DockAudio::setFftFill(bool enabled)
     ui->audioSpectrum->enableFftFill(enabled);
 }
 
-/*! Public slot to trig audio recording by external events (e.g. satellite AOS).
- *
- * If a recording is already in progress we ignore the event.
- */
-void DockAudio::startAudioRecorder(void)
+bool DockAudio::getSquelchTriggered()
 {
-    if (ui->audioRecButton->isChecked())
-    {
-        qDebug() << __func__ << "An audio recording is already in progress";
-        return;
-    }
-
-    // emulate a button click
-    ui->audioRecButton->click();
+    return squelch_triggered;
 }
 
-/*! Public slot to stop audio recording by external events (e.g. satellite LOS).
- *
- * The event is ignored if no audio recording is in progress.
- */
-void DockAudio::stopAudioRecorder(void)
+void DockAudio::setSquelchTriggered(bool mode)
 {
-    if (ui->audioRecButton->isChecked())
-        ui->audioRecButton->click(); // emulate a button click
-    else
-        qDebug() << __func__ << "No audio recording in progress";
+    squelch_triggered = mode;
+    audioOptions->setSquelchTriggered(mode);
+}
+
+void DockAudio::setRecDir(const QString &dir)
+{
+    rec_dir = dir;
+    audioOptions->setRecDir(dir);
+}
+
+void DockAudio::setRecMinTime(int time_ms)
+{
+    recMinTime = time_ms;
+    audioOptions->setRecMinTime(time_ms);
+}
+
+void DockAudio::setRecMaxGap(int time_ms)
+{
+    recMaxGap = time_ms;
+    audioOptions->setRecMaxGap(time_ms);
+}
+
+void DockAudio::setAudioMute(bool on)
+{
+    ui->audioMuteButton->setChecked(on);
 }
 
 /*! Public slot to set new RX frequency in Hz. */
@@ -199,8 +218,7 @@ void DockAudio::on_audioGainSlider_valueChanged(int value)
 
     // update dB label
     ui->audioGainDbLabel->setText(QString("%1 dB").arg((double)gain, 5, 'f', 1));
-    if (!ui->audioMuteButton->isChecked())
-        emit audioGainChanged(gain);
+    emit audioGainChanged(gain);
 }
 
 /*! \brief Streaming button clicked.
@@ -209,7 +227,7 @@ void DockAudio::on_audioGainSlider_valueChanged(int value)
 void DockAudio::on_audioStreamButton_clicked(bool checked)
 {
     if (checked)
-        emit audioStreamingStarted(udp_host, udp_port, udp_stereo);
+        emit audioStreamingStarted();
     else
         emit audioStreamingStopped();
 }
@@ -223,25 +241,12 @@ void DockAudio::on_audioStreamButton_clicked(bool checked)
 void DockAudio::on_audioRecButton_clicked(bool checked)
 {
     if (checked) {
-        // FIXME: option to use local time
-        // use toUTC() function compatible with older versions of Qt.
-        QString file_name = QDateTime::currentDateTime().toUTC().toString("gqrx_yyyyMMdd_hhmmss");
-        last_audio = QString("%1/%2_%3.wav").arg(rec_dir).arg(file_name).arg(rx_freq);
-        QFileInfo info(last_audio);
 
         // emit signal and start timer
-        emit audioRecStarted(last_audio);
-
-        ui->audioRecLabel->setText(info.fileName());
-        ui->audioRecButton->setToolTip(tr("Stop audio recorder"));
-        ui->audioPlayButton->setEnabled(false); /* prevent playback while recording */
+        emit audioRecStart();
     }
     else {
-        ui->audioRecLabel->setText("<i>DSP</i>");
-        ui->audioRecButton->setToolTip(tr("Start audio recorder"));
-        emit audioRecStopped();
-
-        ui->audioPlayButton->setEnabled(true);
+        emit audioRecStop();
     }
 }
 
@@ -287,17 +292,12 @@ void DockAudio::on_audioConfButton_clicked()
 /*! \brief Mute audio. */
 void DockAudio::on_audioMuteButton_clicked(bool checked)
 {
-    if (checked)
-    {
-        emit audioGainChanged(-INFINITY);
-    }
-    else
-    {
-        int value = ui->audioGainSlider->value();
-        float gain = float(value) / 10.0f;
-        emit audioGainChanged(gain);
-    }
-    emit audioMuted(checked);
+    emit audioMuteChanged(checked, false);
+}
+
+void DockAudio::on_audioMuteButton_customContextMenuRequested(const QPoint& pos)
+{
+    muteButtonMenu->popup(ui->audioMuteButton->mapToGlobal(pos));
 }
 
 /*! \brief Set status of audio record button. */
@@ -315,6 +315,30 @@ void DockAudio::setAudioRecButtonState(bool checked)
     ui->audioRecButton->setToolTip(isChecked ? tr("Stop audio recorder") : tr("Start audio recorder"));
     ui->audioPlayButton->setEnabled(!isChecked);
     //ui->audioRecConfButton->setEnabled(!isChecked);
+}
+
+void DockAudio::setAudioStreamState(const std::string & host,int port,bool stereo, bool running)
+{
+    audioOptions->setUdpHost(udp_host = QString::fromStdString(host));
+    audioOptions->setUdpPort(udp_port = port);
+    audioOptions->setUdpStereo(udp_stereo = stereo);
+    setAudioStreamButtonState(running);
+}
+
+/*! \brief Set status of audio record button. */
+void DockAudio::setAudioStreamButtonState(bool checked)
+{
+    if (checked == ui->audioStreamButton->isChecked()) {
+        /* nothing to do */
+        return;
+    }
+
+    // toggle the button and set the state of the other buttons accordingly
+    ui->audioStreamButton->toggle();
+    bool isChecked = ui->audioStreamButton->isChecked();
+
+    ui->audioStreamButton->setToolTip(isChecked ? tr("Stop audio streaming") : tr("Start audio streaming"));
+    //TODO: disable host/port controls
 }
 
 /*! \brief Set status of audio record button. */
@@ -342,8 +366,6 @@ void DockAudio::saveSettings(QSettings *settings)
         return;
 
     settings->beginGroup("audio");
-
-    settings->setValue("gain", audioGain());
 
     ival = audioOptions->getFftSplit();
     if (ival != DEFAULT_FFT_SPLIT)
@@ -376,26 +398,6 @@ void DockAudio::saveSettings(QSettings *settings)
     else
         settings->remove("db_ranges_locked");
 
-    if (rec_dir != QDir::homePath())
-        settings->setValue("rec_dir", rec_dir);
-    else
-        settings->remove("rec_dir");
-
-    if (udp_host.isEmpty())
-        settings->remove("udp_host");
-    else
-        settings->setValue("udp_host", udp_host);
-
-    if (udp_port != 7355)
-        settings->setValue("udp_port", udp_port);
-    else
-        settings->remove("udp_port");
-
-    if (udp_stereo != false)
-        settings->setValue("udp_stereo", udp_stereo);
-    else
-        settings->remove("udp_stereo");
-
     settings->endGroup();
 }
 
@@ -408,10 +410,6 @@ void DockAudio::readSettings(QSettings *settings)
         return;
 
     settings->beginGroup("audio");
-
-    ival = settings->value("gain", QVariant(-60)).toInt(&conv_ok);
-    if (conv_ok)
-        setAudioGain(ival);
 
     ival = settings->value("fft_split", DEFAULT_FFT_SPLIT).toInt(&conv_ok);
     if (conv_ok)
@@ -436,30 +434,15 @@ void DockAudio::readSettings(QSettings *settings)
     bool_val = settings->value("db_ranges_locked", false).toBool();
     audioOptions->setLockButtonState(bool_val);
 
-    // Location of audio recordings
-    rec_dir = settings->value("rec_dir", QDir::homePath()).toString();
-    audioOptions->setRecDir(rec_dir);
-
-    // Audio streaming host, port and stereo setting
-    udp_host = settings->value("udp_host", "localhost").toString();
-    udp_port = settings->value("udp_port", 7355).toInt(&conv_ok);
-    if (!conv_ok)
-        udp_port = 7355;
-    udp_stereo = settings->value("udp_stereo", false).toBool();
-
-    audioOptions->setUdpHost(udp_host);
-    audioOptions->setUdpPort(udp_port);
-    audioOptions->setUdpStereo(udp_stereo);
-
     settings->endGroup();
 }
 
-void DockAudio::setNewPandapterRange(int min, int max)
+void DockAudio::pandapterRange_changed(int min, int max)
 {
     ui->audioSpectrum->setPandapterRange(min, max);
 }
 
-void DockAudio::setNewWaterfallRange(int min, int max)
+void DockAudio::waterfallRange_changed(int min, int max)
 {
     ui->audioSpectrum->setWaterfallRange(min, max);
 }
@@ -467,31 +450,75 @@ void DockAudio::setNewWaterfallRange(int min, int max)
 /*! \brief Slot called when a new valid recording directory has been selected
  *         in the audio conf dialog.
  */
-void DockAudio::setNewRecDir(const QString &dir)
+void DockAudio::recDir_changed(const QString &dir)
 {
     rec_dir = dir;
+    emit recDirChanged(dir);
 }
 
 /*! \brief Slot called when a new network host has been entered. */
-void DockAudio::setNewUdpHost(const QString &host)
+void DockAudio::udpHost_changed(const QString &host)
 {
     if (host.isEmpty())
         udp_host = "localhost";
     else
         udp_host = host;
+    emit udpHostChanged(udp_host);
 }
 
 /*! \brief Slot called when a new network port has been entered. */
-void DockAudio::setNewUdpPort(int port)
+void DockAudio::udpPort_changed(int port)
 {
     udp_port = port;
+    emit udpPortChanged(port);
 }
 
 /*! \brief Slot called when the mono/stereo streaming setting changes. */
-void DockAudio::setNewUdpStereo(bool enabled)
+void DockAudio::udpStereo_changed(bool enabled)
 {
     udp_stereo = enabled;
+    emit udpStereoChanged(enabled);
 }
+
+/*! \brief Slot called when audio recording is started after clicking rec or being triggered by squelch. */
+void DockAudio::audioRecStarted(const QString filename)
+{
+    last_audio = filename;
+    QFileInfo info(last_audio);
+    ui->audioRecLabel->setText(info.fileName());
+    ui->audioRecButton->setToolTip(tr("Stop audio recorder"));
+    ui->audioPlayButton->setEnabled(false); /* prevent playback while recording */
+    setAudioRecButtonState(true);
+}
+
+void DockAudio::audioRecStopped()
+{
+    ui->audioRecLabel->setText("<i>DSP</i>");
+    ui->audioRecButton->setToolTip(tr("Start audio recorder"));
+    ui->audioPlayButton->setEnabled(true);
+    setAudioRecButtonState(false);
+}
+
+
+void DockAudio::squelchTriggered_changed(bool enabled)
+{
+    squelch_triggered = enabled;
+    ui->audioRecButton->setStyleSheet(enabled?"color: rgb(255,0,0)":"");
+    emit recSquelchTriggeredChanged(enabled);
+}
+
+void DockAudio::recMinTime_changed(int time_ms)
+{
+    recMinTime = time_ms;
+    emit recMinTimeChanged(time_ms);
+}
+
+void DockAudio::recMaxGap_changed(int time_ms)
+{
+    recMaxGap = time_ms;
+    emit recMaxGapChanged(time_ms);
+}
+
 
 void DockAudio::recordToggleShortcut() {
     ui->audioRecButton->click();
@@ -502,9 +529,22 @@ void DockAudio::muteToggleShortcut() {
 }
 
 void DockAudio::increaseAudioGainShortcut() {
-	ui->audioGainSlider->triggerAction(QSlider::SliderPageStepAdd);
+    if(ui->audioGainSlider->isEnabled())
+        ui->audioGainSlider->triggerAction(QSlider::SliderPageStepAdd);
 }
 
 void DockAudio::decreaseAudioGainShortcut() {
-	ui->audioGainSlider->triggerAction(QSlider::SliderPageStepSub);
+    if(ui->audioGainSlider->isEnabled())
+        ui->audioGainSlider->triggerAction(QSlider::SliderPageStepSub);
+}
+
+void DockAudio::copyRecSettingsToAllVFOs_clicked()
+{
+    emit copyRecSettingsToAllVFOs();
+}
+
+void DockAudio::menuMuteAll(bool checked)
+{
+    emit audioMuteChanged(checked, true);
+    ui->audioMuteButton->setStyleSheet(checked?"color: rgb(255,0,0)":"");
 }

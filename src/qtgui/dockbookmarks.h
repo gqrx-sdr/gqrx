@@ -26,6 +26,9 @@
 #include <QTableWidgetItem>
 #include "qtgui/bookmarkstablemodel.h"
 #include <QItemDelegate>
+#include <QSettings>
+#include "receivers/defines.h"
+#include "receivers/modulations.h"
 
 namespace Ui {
     class DockBookmarks;
@@ -65,9 +68,13 @@ public:
     void updateTags();
     void updateBookmarks();
     void changeBookmarkTags(int row, int /*column*/);
+    void saveSettings(QSettings *settings);
+    void readSettings(QSettings *settings);
 
 signals:
-    void newBookmarkActivated(qint64, QString, int);
+    void newBookmarkActivated(BookmarkInfo& bookmark);
+    void newBookmarkActivated(qint64);
+    void newBookmarkActivatedAddDemod(BookmarkInfo& bookmark);
 
 public slots:
     void setNewFrequency(qint64 rx_freq);
@@ -80,5 +87,9 @@ private slots:
     void on_tableWidgetTagList_itemChanged(QTableWidgetItem* item);
     void ShowContextMenu(const QPoint&pos);
     bool DeleteSelectedBookmark();
+    bool tuneHere();
+    bool tuneAndLoad();
+    bool newDemod();
     void doubleClicked(const QModelIndex & index);
+    void changeVisibleColumns();
 };

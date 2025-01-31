@@ -52,23 +52,28 @@ public:
 
     void closeEvent(QCloseEvent *event);
 
-    int gain();
-    void setGain(int value);
-    void enableGain(bool enabled);
+    int maxGain();
+    void setMaxGain(int value);
 
-    int threshold();
-    void setThreshold(int value);
+    int targetLevel();
+    void setTargetLevel(int value);
 
-    int slope();
-    void setSlope(int value);
-    void enableSlope(bool enabled);
+    int attack();
+    void setAttack(int value);
+    void enableAttack(bool enabled);
 
     int decay();
     void setDecay(int value);
     void enableDecay(bool enabled);
 
-    bool hang();
-    void setHang(bool checked);
+    int hang();
+    void setHang(int value);
+    void enableHang(bool enabled);
+
+    int panning();
+    void setPanning(int value);
+    bool panningAuto();
+    void setPanningAuto(bool value);
 
     enum agc_preset_e
     {
@@ -82,18 +87,22 @@ public:
     void setPreset(agc_preset_e preset);
 
 signals:
-    void gainChanged(int gain);
-    void thresholdChanged(int threshold);
-    void slopeChanged(int slope);
+    void maxGainChanged(int gain);
+    void targetLevelChanged(int level);
+    void attackChanged(int decay);
     void decayChanged(int decay);
-    void hangChanged(bool on);
+    void hangChanged(int hang);
+    void panningChanged(int panning);
+    void panningAutoChanged(bool panningAuto);
 
 private slots:
-    void on_gainSlider_valueChanged(int gain);
-    void on_thresholdSlider_valueChanged(int threshold);
-    void on_slopeSlider_valueChanged(int slope);
-    void on_decaySlider_valueChanged(int decay);
-    void on_hangButton_toggled(bool checked);
+    void on_maxGainSlider_valueChanged(int value);
+    void on_targetLevelSlider_valueChanged(int value);
+    void on_attackSlider_valueChanged(int value);
+    void on_decaySlider_valueChanged(int value);
+    void on_hangSlider_valueChanged(int value);
+    void on_panningSlider_valueChanged(int value);
+    void on_panningAutoCheckBox_stateChanged(int state);
 
 private:
     Ui::CAgcOptions *ui;
