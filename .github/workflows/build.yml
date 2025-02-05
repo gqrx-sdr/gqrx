@@ -247,7 +247,7 @@ jobs:
     - name: Clone and build GNU Radio
       working-directory: ${{ runner.temp }}
       run: |
-        git clone --branch v3.10.11.0 --depth 1 https://github.com/gnuradio/gnuradio.git
+        git clone --branch maint-3.10 --depth 1 https://github.com/gnuradio/gnuradio.git
         cd gnuradio
         cmake -S . -B build \
           -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
@@ -356,9 +356,9 @@ jobs:
           libgraphite2.dll \
           libharfbuzz-0.dll \
           libiconv-2.dll \
-          libicudt75.dll \
-          libicuin75.dll \
-          libicuuc75.dll \
+          libicudt*.dll \
+          libicuin*.dll \
+          libicuuc*.dll \
           libintl-8.dll \
           libmd4c.dll \
           libmp3lame-0.dll \
