@@ -28,6 +28,7 @@
 #include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
+#include <QListWidget>
 
 #include "bookmarks.h"
 #include "bookmarkstaglist.h"
@@ -51,10 +52,12 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
     ui->tableViewFrequencyList->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableViewFrequencyList->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->tableViewFrequencyList->installEventFilter(this);
+    ui->tableViewFrequencyList->setSortingEnabled(true);
+    ui->tableViewFrequencyList->sortByColumn(0, Qt::AscendingOrder);
 
     // Demod Selection in Frequency List Table.
     ComboBoxDelegateModulation* delegateModulation = new ComboBoxDelegateModulation(this);
-    ui->tableViewFrequencyList->setItemDelegateForColumn(2, delegateModulation);
+    ui->tableViewFrequencyList->setItemDelegateForColumn(BookmarksTableModel::COL_MODULATION, delegateModulation);
 
     // Bookmarks Context menu
     contextmenu = new QMenu(this);
@@ -64,10 +67,34 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
         contextmenu->addAction(action);
         connect(action, SIGNAL(triggered()), this, SLOT(DeleteSelectedBookmark()));
     }
+    // MenuItem Tune
+    {
+        QAction* action = new QAction("Tune", this);
+        contextmenu->addAction(action);
+        connect(action, SIGNAL(triggered()), this, SLOT(tuneHere()));
+    }
+    // MenuItem Tune and load
+    {
+        QAction* action = new QAction("Tune and load settings", this);
+        contextmenu->addAction(action);
+        connect(action, SIGNAL(triggered()), this, SLOT(tuneAndLoad()));
+    }
+    // MenuItem New demodulator
+    {
+        QAction* action = new QAction("New demodulator", this);
+        contextmenu->addAction(action);
+        connect(action, SIGNAL(triggered()), this, SLOT(newDemod()));
+    }
     // MenuItem Add
     {
         actionAddBookmark = new QAction("Add Bookmark", this);
         contextmenu->addAction(actionAddBookmark);
+    }
+    // MenuItem Select Columns
+    {
+        QAction* action = new QAction("Select columns...", this);
+        contextmenu->addAction(action);
+        connect(action, SIGNAL(triggered()), this, SLOT(changeVisibleColumns()));
     }
     ui->tableViewFrequencyList->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->tableViewFrequencyList, SIGNAL(customContextMenuRequested(const QPoint&)),
@@ -103,25 +130,36 @@ DockBookmarks::~DockBookmarks()
 
 void DockBookmarks::activated(const QModelIndex & index)
 {
-    BookmarkInfo *info = bookmarksTableModel->getBookmarkAtRow(index.row());
-    emit newBookmarkActivated(info->frequency, info->modulation, info->bandwidth);
+    bool activate = false;
+    if (index.column() == BookmarksTableModel::COL_NAME)
+        activate = true;
+    if (index.column() == BookmarksTableModel::COL_FREQUENCY)
+        activate = true;
+    if (activate)
+    {
+        BookmarkInfo *info = bookmarksTableModel->getBookmarkAtRow(index.row());
+        emit newBookmarkActivated(*info);
+    }
 }
 
 void DockBookmarks::setNewFrequency(qint64 rx_freq)
 {
-    ui->tableViewFrequencyList->clearSelection();
-    const int iRowCount = bookmarksTableModel->rowCount();
-    for (int row = 0; row < iRowCount; ++row)
+    m_currentFrequency = rx_freq;
+    BookmarkInfo bi;
+    bi.frequency = rx_freq;
+    const int iBookmarkIndex = Bookmarks::Get().find(bi);
+    if (iBookmarkIndex > 0)
     {
-        BookmarkInfo& info = *(bookmarksTableModel->getBookmarkAtRow(row));
-        if (std::abs(rx_freq - info.frequency) <= ((info.bandwidth / 2 ) + 1))
+        int iRow = bookmarksTableModel->GetRowForBookmarkIndex(iBookmarkIndex);
+        if (iRow > 0)
         {
-            ui->tableViewFrequencyList->selectRow(row);
-            ui->tableViewFrequencyList->scrollTo(ui->tableViewFrequencyList->currentIndex(), QAbstractItemView::EnsureVisible );
-            break;
+            ui->tableViewFrequencyList->selectRow(iRow);
+            ui->tableViewFrequencyList->scrollTo(ui->tableViewFrequencyList->currentIndex(), QAbstractItemView::EnsureVisible);
+            return;
         }
     }
-    m_currentFrequency = rx_freq;
+    ui->tableViewFrequencyList->clearSelection();
+    return;
 }
 
 void DockBookmarks::updateTags()
@@ -195,6 +233,36 @@ bool DockBookmarks::DeleteSelectedBookmark()
     return true;
 }
 
+bool DockBookmarks::tuneHere()
+{
+    QModelIndexList selected = ui->tableViewFrequencyList->selectionModel()->selectedRows();
+    if (selected.empty())
+        return true;
+    BookmarkInfo *info = bookmarksTableModel->getBookmarkAtRow(selected.first().row());
+    emit newBookmarkActivated(info->frequency);
+    return true;
+}
+
+bool DockBookmarks::tuneAndLoad()
+{
+    QModelIndexList selected = ui->tableViewFrequencyList->selectionModel()->selectedRows();
+    if (selected.empty())
+        return true;
+    BookmarkInfo *info = bookmarksTableModel->getBookmarkAtRow(selected.first().row());
+    emit newBookmarkActivated(*info);
+    return true;
+}
+
+bool DockBookmarks::newDemod()
+{
+    QModelIndexList selected = ui->tableViewFrequencyList->selectionModel()->selectedRows();
+    if (selected.empty())
+        return true;
+    BookmarkInfo *info = bookmarksTableModel->getBookmarkAtRow(selected.first().row());
+    emit newBookmarkActivatedAddDemod(*info);
+    return true;
+}
+
 void DockBookmarks::ShowContextMenu(const QPoint& pos)
 {
     contextmenu->popup(ui->tableViewFrequencyList->viewport()->mapToGlobal(pos));
@@ -216,9 +284,9 @@ ComboBoxDelegateModulation::ComboBoxDelegateModulation(QObject *parent)
 QWidget *ComboBoxDelegateModulation::createEditor(QWidget *parent, const QStyleOptionViewItem &/* option */, const QModelIndex &index) const
 {
     QComboBox* comboBox = new QComboBox(parent);
-    for (int i = 0; i < DockRxOpt::ModulationStrings.size(); ++i)
+    for (int i = 0; i < Modulations::Strings.size(); ++i)
     {
-        comboBox->addItem(DockRxOpt::ModulationStrings[i]);
+        comboBox->addItem(Modulations::Strings[i]);
     }
     setEditorData(comboBox, index);
     return comboBox;
@@ -228,7 +296,7 @@ void ComboBoxDelegateModulation::setEditorData(QWidget *editor, const QModelInde
 {
     QComboBox *comboBox = static_cast<QComboBox*>(editor);
     QString value = index.model()->data(index, Qt::EditRole).toString();
-    int iModulation = DockRxOpt::GetEnumForModulationString(value);
+    int iModulation = Modulations::GetEnumForModulationString(value);
     comboBox->setCurrentIndex(iModulation);
 }
 
@@ -284,4 +352,69 @@ void DockBookmarks::changeBookmarkTags(int row, int /*column*/)
             Bookmarks::Get().save();
         }
     }
+}
+
+void DockBookmarks::changeVisibleColumns()
+{
+    QDialog dialog(this);
+    dialog.setWindowTitle("Change Visible Columns");
+
+    QListWidget* colList = new QListWidget(&dialog);
+    QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                            | QDialogButtonBox::Cancel);
+    connect(buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
+
+    QVBoxLayout *mainLayout = new QVBoxLayout(&dialog);
+    mainLayout->addWidget(colList);
+    mainLayout->addWidget(buttonBox);
+    for (int k = 0 ; k < BookmarksTableModel::COLUMN_COUNT ; k++)
+    {
+        QListWidgetItem* qi = new QListWidgetItem(ui->tableViewFrequencyList->model()->headerData(k, Qt::Horizontal, Qt::DisplayRole).toString(), colList, 0);
+        qi->setCheckState(ui->tableViewFrequencyList->isColumnHidden(k) ? Qt::Unchecked : Qt::Checked);
+        if (k <= BookmarksTableModel::COL_NAME)
+            qi->setFlags(qi->flags() & ~Qt::ItemIsEnabled);
+        colList->addItem(qi);
+    }
+
+    if (dialog.exec())
+    {
+        for (int k = 0 ; k < BookmarksTableModel::COLUMN_COUNT ; k++)
+            ui->tableViewFrequencyList->setColumnHidden(k, colList->item(k)->checkState() == Qt::Unchecked);
+    }
+}
+
+void DockBookmarks::saveSettings(QSettings *settings)
+{
+    QStringList list;
+    if (!settings)
+        return;
+
+    settings->beginGroup("bookmarks");
+
+    for (int k = 0 ; k < BookmarksTableModel::COLUMN_COUNT ; k++)
+        if (ui->tableViewFrequencyList->isColumnHidden(k))
+            list.append(ui->tableViewFrequencyList->model()->headerData(k, Qt::Horizontal, Qt::DisplayRole).toString());
+    if (list.size() > 0)
+        settings->setValue("hidden_columns", list.join(","));
+    else
+        settings->remove("hidden_columns");
+    settings->setValue("splitter_sizes",ui->splitter->saveState());
+    settings->endGroup();
+}
+
+void DockBookmarks::readSettings(QSettings *settings)
+{
+    if (!settings)
+        return;
+
+    settings->beginGroup("bookmarks");
+
+    QString strval = settings->value("hidden_columns", "").toString();
+    QStringList list = strval.split(",");
+    for (int k = 0 ; k < BookmarksTableModel::COLUMN_COUNT ; k++)
+        ui->tableViewFrequencyList->setColumnHidden(k, list.contains(ui->tableViewFrequencyList->model()->headerData(k, Qt::Horizontal, Qt::DisplayRole).toString()));
+
+    ui->splitter->restoreState(settings->value("splitter_sizes").toByteArray());
+    settings->endGroup();
 }

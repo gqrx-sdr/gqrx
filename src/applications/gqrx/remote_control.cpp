@@ -39,7 +39,7 @@ RemoteControl::RemoteControl(QObject *parent) :
     rc_filter_offset = 0;
     bw_half = 740e3;
     rc_lnb_lo_mhz = 0.0;
-    rc_mode = 0;
+    rc_mode = Modulations::MODE_OFF;
     rc_passband_lo = 0;
     rc_passband_hi = 0;
     rc_program_id = "0000";
@@ -312,11 +312,11 @@ void RemoteControl::setSignalLevel(float level)
 }
 
 /*! \brief Set demodulator (from mainwindow). */
-void RemoteControl::setMode(int mode)
+void RemoteControl::setMode(Modulations::idx mode)
 {
     rc_mode = mode;
 
-    if (rc_mode == 0)
+    if (rc_mode == Modulations::MODE_OFF)
         audio_recorder_status = false;
 }
 
@@ -374,9 +374,9 @@ void RemoteControl::setAudioMuted(bool muted)
 }
 
 /*! \brief Start audio recorder (from mainwindow). */
-void RemoteControl::startAudioRecorder(QString unused)
+void RemoteControl::startAudioRecorder()
 {
-    if (rc_mode > 0)
+    if (rc_mode > Modulations::MODE_OFF)
         audio_recorder_status = true;
 }
 
@@ -456,69 +456,69 @@ int RemoteControl::modeStrToInt(QString mode_str)
 
     if (mode_str.compare("OFF", Qt::CaseInsensitive) == 0)
     {
-        mode_int = DockRxOpt::MODE_OFF;
+        mode_int = Modulations::MODE_OFF;
     }
     else if (mode_str.compare("RAW", Qt::CaseInsensitive) == 0)
     {
-        mode_int = DockRxOpt::MODE_RAW;
+        mode_int = Modulations::MODE_RAW;
     }
     else if (mode_str.compare("AM", Qt::CaseInsensitive) == 0)
     {
-        mode_int = DockRxOpt::MODE_AM;
+        mode_int = Modulations::MODE_AM;
     }
     else if (mode_str.compare("AMS", Qt::CaseInsensitive) == 0)
     {
-        mode_int = DockRxOpt::MODE_AM_SYNC;
+        mode_int = Modulations::MODE_AM_SYNC;
     }
     else if (mode_str.compare("LSB", Qt::CaseInsensitive) == 0)
     {
-        mode_int = DockRxOpt::MODE_LSB;
+        mode_int = Modulations::MODE_LSB;
     }
     else if (mode_str.compare("USB", Qt::CaseInsensitive) == 0)
     {
-        mode_int = DockRxOpt::MODE_USB;
+        mode_int = Modulations::MODE_USB;
     }
     else if (mode_str.compare("CWL", Qt::CaseInsensitive) == 0)
     {
-        mode_int = DockRxOpt::MODE_CWL;
+        mode_int = Modulations::MODE_CWL;
         hamlib_compatible = false;
     }
     else if (mode_str.compare("CWR", Qt::CaseInsensitive) == 0)  // "CWR" : "CWL"
     {
-        mode_int = DockRxOpt::MODE_CWL;
+        mode_int = Modulations::MODE_CWL;
         hamlib_compatible = true;
     }
     else if (mode_str.compare("CWU", Qt::CaseInsensitive) == 0)
     {
-        mode_int = DockRxOpt::MODE_CWU;
+        mode_int = Modulations::MODE_CWU;
         hamlib_compatible = false;
     }
     else if (mode_str.compare("CW", Qt::CaseInsensitive) == 0)  // "CW" : "CWU"
     {
-        mode_int = DockRxOpt::MODE_CWU;
+        mode_int = Modulations::MODE_CWU;
         hamlib_compatible = true;
     }
     else if (mode_str.compare("FM", Qt::CaseInsensitive) == 0)
     {
-        mode_int = DockRxOpt::MODE_NFM;
+        mode_int = Modulations::MODE_NFM;
     }
     else if (mode_str.compare("WFM", Qt::CaseInsensitive) == 0)
     {
-        mode_int = DockRxOpt::MODE_WFM_MONO;
+        mode_int = Modulations::MODE_WFM_MONO;
     }
     else if (mode_str.compare("WFM_ST", Qt::CaseInsensitive) == 0)
     {
-        mode_int = DockRxOpt::MODE_WFM_STEREO;
+        mode_int = Modulations::MODE_WFM_STEREO;
     }
     else if (mode_str.compare("WFM_ST_OIRT", Qt::CaseInsensitive) == 0)
     {
-        mode_int = DockRxOpt::MODE_WFM_STEREO_OIRT;
+        mode_int = Modulations::MODE_WFM_STEREO_OIRT;
     }
     return mode_int;
 }
 
 /*! \brief Convert mode enum to string.
- *  \param mode The mode ID c.f. DockRxOpt::rxopt_mode_idx
+ *  \param mode The mode ID c.f. Modulations::rxopt_mode_idx
  *  \returns The mode string.
  */
 QString RemoteControl::intToModeStr(int mode)
@@ -527,51 +527,51 @@ QString RemoteControl::intToModeStr(int mode)
 
     switch (mode)
     {
-    case DockRxOpt::MODE_OFF:
+    case Modulations::MODE_OFF:
         mode_str = "OFF";
         break;
 
-    case DockRxOpt::MODE_RAW:
+    case Modulations::MODE_RAW:
         mode_str = "RAW";
         break;
 
-    case DockRxOpt::MODE_AM:
+    case Modulations::MODE_AM:
         mode_str = "AM";
         break;
 
-    case DockRxOpt::MODE_AM_SYNC:
+    case Modulations::MODE_AM_SYNC:
         mode_str = "AMS";
         break;
 
-    case DockRxOpt::MODE_LSB:
+    case Modulations::MODE_LSB:
         mode_str = "LSB";
         break;
 
-    case DockRxOpt::MODE_USB:
+    case Modulations::MODE_USB:
         mode_str = "USB";
         break;
 
-    case DockRxOpt::MODE_CWL:
+    case Modulations::MODE_CWL:
         mode_str = (hamlib_compatible) ? "CWR" : "CWL";
         break;
 
-    case DockRxOpt::MODE_CWU:
+    case Modulations::MODE_CWU:
         mode_str = (hamlib_compatible) ? "CW" : "CWU";
         break;
 
-    case DockRxOpt::MODE_NFM:
+    case Modulations::MODE_NFM:
         mode_str = "FM";
         break;
 
-    case DockRxOpt::MODE_WFM_MONO:
+    case Modulations::MODE_WFM_MONO:
         mode_str = "WFM";
         break;
 
-    case DockRxOpt::MODE_WFM_STEREO:
+    case Modulations::MODE_WFM_STEREO:
         mode_str = "WFM_ST";
         break;
 
-    case DockRxOpt::MODE_WFM_STEREO_OIRT:
+    case Modulations::MODE_WFM_STEREO_OIRT:
         mode_str = "WFM_ST_OIRT";
         break;
 
@@ -630,7 +630,7 @@ QString RemoteControl::cmd_set_mode(QStringList cmdlist)
         }
         else
         {
-            rc_mode = mode;
+            rc_mode = Modulations::idx(mode);
             emit newMode(rc_mode);
 
             int passband = cmdlist.value(2, "0").toInt();
@@ -790,7 +790,7 @@ QString RemoteControl::cmd_set_func(QStringList cmdlist)
     }
     else if ((func.compare("RECORD", Qt::CaseInsensitive) == 0) && ok)
     {
-        if (rc_mode == 0 || !receiver_running)
+        if (rc_mode == Modulations::MODE_OFF || !receiver_running)
         {
             answer = QString("RPRT 1\n");
         }
@@ -902,7 +902,7 @@ QString RemoteControl::cmd_get_info() const
 /* Gpredict / Gqrx specific command: AOS - satellite AOS event */
 QString RemoteControl::cmd_AOS()
 {
-    if (rc_mode > 0 && receiver_running)
+    if (rc_mode > Modulations::MODE_OFF && receiver_running)
     {
         emit startAudioRecorderEvent();
         audio_recorder_status = true;

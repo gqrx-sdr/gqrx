@@ -116,17 +116,13 @@ void DockRDS::ClearTextFields()
 void DockRDS::showEnabled()
 {
     ClearTextFields();
-    if (!ui->rdsCheckbox->isChecked())
-    {
-        ui->rdsCheckbox->blockSignals(true);
-        ui->rdsCheckbox->setChecked(true);
-        ui->rdsCheckbox->blockSignals(false);
-    }
+    ui->rdsCheckbox->setChecked(true);
 }
 
 void DockRDS::showDisabled()
 {
     ClearTextFields();
+    ui->rdsCheckbox->setChecked(false);
 }
 
 void DockRDS::setDisabled()
@@ -143,7 +139,7 @@ void DockRDS::setEnabled()
 }
 
 /** Enable/disable RDS decoder */
-void DockRDS::on_rdsCheckbox_toggled(bool checked)
+void DockRDS::on_rdsCheckbox_clicked(bool checked)
 {
     emit rdsDecoderToggled(checked);
 }

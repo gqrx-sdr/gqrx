@@ -23,19 +23,14 @@
 #ifndef NBRX_H
 #define NBRX_H
 
-#include <gnuradio/analog/simple_squelch_cc.h>
 #include <gnuradio/basic_block.h>
 #include <gnuradio/blocks/complex_to_float.h>
 #include <gnuradio/blocks/complex_to_real.h>
 #include "receivers/receiver_base.h"
 #include "dsp/rx_noise_blanker_cc.h"
 #include "dsp/rx_filter.h"
-#include "dsp/rx_meter.h"
-#include "dsp/rx_agc_xx.h"
 #include "dsp/rx_demod_fm.h"
 #include "dsp/rx_demod_am.h"
-//#include "dsp/resampler_ff.h"
-#include "dsp/resampler_xx.h"
 
 class nbrx;
 
@@ -56,79 +51,40 @@ nbrx_sptr make_nbrx(float quad_rate, float audio_rate);
 class nbrx : public receiver_base_cf
 {
 public:
-    /*! \brief Available demodulators. */
-    enum nbrx_demod {
-        NBRX_DEMOD_NONE = 0,  /*!< No demod. Raw I/Q to audio. */
-        NBRX_DEMOD_AM   = 1,  /*!< Amplitude modulation. */
-        NBRX_DEMOD_FM   = 2,  /*!< Frequency modulation. */
-        NBRX_DEMOD_SSB  = 3,  /*!< Single Side Band. */
-        NBRX_DEMOD_AMSYNC = 4, /*!< Amplitude modulation (synchronous demod). */
-        NBRX_DEMOD_NUM  = 5   /*!< Included for convenience. */
-    };
-
-public:
     nbrx(float quad_rate, float audio_rate);
     virtual ~nbrx() { };
 
-    bool start();
-    bool stop();
+    bool start() override;
+    bool stop() override;
 
-    void set_quad_rate(float quad_rate);
-
-    void set_filter(double low, double high, double tw);
-    void set_cw_offset(double offset);
-
-    float get_signal_level();
+    void set_filter(int low, int high, int tw) override;
+    void set_offset(int offset) override;
+    void set_cw_offset(int offset) override;
 
     /* Noise blanker */
-    bool has_nb() { return true; }
-    void set_nb_on(int nbid, bool on);
-    void set_nb_threshold(int nbid, float threshold);
+    bool has_nb() override { return true; }
+    void set_nb_on(int nbid, bool on) override;
+    void set_nb_threshold(int nbid, float threshold) override;
 
-    /* Squelch parameter */
-    bool has_sql() { return true; }
-    void set_sql_level(double level_db);
-    void set_sql_alpha(double alpha);
-
-    /* AGC */
-    bool has_agc() { return true; }
-    void set_agc_on(bool agc_on);
-    void set_agc_hang(bool use_hang);
-    void set_agc_threshold(int threshold);
-    void set_agc_slope(int slope);
-    void set_agc_decay(int decay_ms);
-    void set_agc_manual_gain(int gain);
-
-    void set_demod(int demod);
+    void set_demod(Modulations::idx new_demod) override;
 
     /* FM parameters */
-    bool has_fm() { return true; }
-    void set_fm_maxdev(float maxdev_hz);
-    void set_fm_deemph(double tau);
+    void set_fm_maxdev(float maxdev_hz) override;
+    void set_fm_deemph(double tau) override;
 
     /* AM parameters */
-    bool has_am() { return true; }
-    void set_am_dcr(bool enabled);
+    void set_am_dcr(bool enabled) override;
 
     /* AM-Sync parameters */
-    bool has_amsync() { return true; }
-    void set_amsync_dcr(bool enabled);
-    void set_amsync_pll_bw(float pll_bw);
+    void set_amsync_dcr(bool enabled) override;
+    void set_amsync_pll_bw(float pll_bw) override;
 
 private:
     bool   d_running;          /*!< Whether receiver is running or not. */
-    float  d_quad_rate;        /*!< Input sample rate. */
-    int    d_audio_rate;       /*!< Audio output rate. */
 
-    nbrx_demod                d_demod;    /*!< Current demodulator. */
-
-    resampler_cc_sptr         iq_resamp;   /*!< Baseband resampler. */
     rx_filter_sptr            filter;  /*!< Non-translating bandpass filter.*/
 
     rx_nb_cc_sptr             nb;         /*!< Noise blanker. */
-    rx_meter_c_sptr           meter;      /*!< Signal strength. */
-    rx_agc_cc_sptr            agc;        /*!< Receiver AGC. */
-    gr::analog::simple_squelch_cc::sptr sql;        /*!< Squelch. */
     gr::blocks::complex_to_float::sptr  demod_raw;  /*!< Raw I/Q passthrough. */
     gr::blocks::complex_to_real::sptr   demod_ssb;  /*!< SSB demodulator. */
     rx_demod_fm_sptr          demod_fm;   /*!< FM demodulator. */

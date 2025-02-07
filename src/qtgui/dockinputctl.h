@@ -117,6 +117,7 @@ signals:
     void antennaSelected(QString antenna);
     void freqCtrlResetChanged(bool enabled);
     void invertScrollingChanged(bool enabled);
+    void autoBookmarksChanged(bool checked);
 
 public slots:
     void setLnbLo(double freq_mhz);
@@ -132,6 +133,7 @@ private slots:
     void on_antSelector_currentIndexChanged(int index);
     void on_freqCtrlResetButton_toggled(bool checked);
     void on_invertScrollingButton_toggled(bool checked);
+    void on_autoBookmarksButton_toggled(bool checked);
 
     void sliderValueChanged(int value);
 

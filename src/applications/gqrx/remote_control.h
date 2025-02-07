@@ -30,6 +30,8 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QtNetwork>
+#include "receivers/defines.h"
+#include "receivers/modulations.h"
 
 /* For gain_t and gain_list_t */
 #include "qtgui/dockinputctl.h"
@@ -89,12 +91,12 @@ public slots:
     void setLnbLo(double freq_mhz);
     void setBandwidth(qint64 bw);
     void setSignalLevel(float level);
-    void setMode(int mode);
+    void setMode(Modulations::idx mode);
     void setPassband(int passband_lo, int passband_hi);
     void setSquelchLevel(double level);
     void setAudioGain(float gain);
     void setAudioMuted(bool muted);
-    void startAudioRecorder(QString unused);
+    void startAudioRecorder();
     void stopAudioRecorder();
     bool setGain(QString name, double gain);
     void setRDSstatus(bool enabled);
@@ -106,7 +108,7 @@ signals:
     void newFrequency(qint64 freq);
     void newFilterOffset(qint64 offset);
     void newLnbLo(double freq_mhz);
-    void newMode(int mode);
+    void newMode(Modulations::idx mode);
     void newPassband(int passband);
     void newSquelchLevel(double level);
     void newAudioGain(float gain);
@@ -133,7 +135,7 @@ private:
     qint64      bw_half;
     double      rc_lnb_lo_mhz;     /*!< Current LNB LO freq in MHz */
 
-    int         rc_mode;           /*!< Current mode. */
+    Modulations::idx rc_mode;           /*!< Current mode. */
     int         rc_passband_lo;    /*!< Current low cutoff. */
     int         rc_passband_hi;    /*!< Current high cutoff. */
     bool        rds_status;        /*!< RDS decoder enabled */

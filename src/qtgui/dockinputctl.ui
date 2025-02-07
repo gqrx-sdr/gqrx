@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>240</width>
-    <height>240</height>
+    <height>299</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>240</width>
-    <height>240</height>
+    <height>299</height>
    </size>
   </property>
   <property name="windowIcon">
@@ -235,6 +235,16 @@
      <widget class="QCheckBox" name="invertScrollingButton">
       <property name="text">
        <string>Invert scroll wheel direction</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="autoBookmarksButton">
+      <property name="toolTip">
+       <string>Automatically create demodulators when 'automatic' bookmark comes into bandwidth</string>
+      </property>
+      <property name="text">
+       <string>Enable automatic demodulators</string>
       </property>
      </widget>
     </item>

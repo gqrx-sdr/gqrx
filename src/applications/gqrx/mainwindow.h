@@ -32,6 +32,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QSvgWidget>
+#include <QSpinBox>
 
 #include "qtgui/dockrxopt.h"
 #include "qtgui/dockaudio.h"
@@ -55,12 +56,16 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
+signals:
+    void sigAudioRecEvent(const QString filename, bool is_running);
+
 public:
     explicit MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent = nullptr);
     ~MainWindow() override;
 
     bool loadConfig(const QString& cfgfile, bool check_crash, bool restore_mainwindow);
     bool saveConfig(const QString& cfgfile);
+    void readRXSettings(int ver, double actual_rate);
     void storeSession();
 
     bool configOk; /*!< Main app uses this flag to know whether we should abort or continue. */
@@ -87,7 +92,10 @@ private:
     qint64 d_hw_freq_start{};
     qint64 d_hw_freq_stop{};
 
-    enum receiver::filter_shape d_filter_shape;
+    bool d_ignore_limits;
+    bool d_auto_bookmarks;
+
+    Modulations::filter_shape d_filter_shape;
     std::vector<float> d_iqFftData;
     float           d_fftAvg;      /*!< FFT averaging parameter set by user (not the true gain). */
     float           d_fps;
@@ -128,6 +136,7 @@ private:
 
     std::map<QString, QVariant> devList;
 
+    QSpinBox *rxSpinBox;
     // dummy widget to enforce linking to QtSvg
     QSvgWidget      *qsvg_dummy;
 
@@ -145,6 +154,9 @@ private:
     void rxOffsetZeroShortcut();
     void toggleFreezeShortcut();
     void toggleMarkers();
+    void audioRecEventEmitter(std::string filename, bool is_running);
+    static void audio_rec_event(MainWindow *self, std::string filename, bool is_running);
+    void loadRxToGUI();
 
 private slots:
     /* RecentConfig */
@@ -165,8 +177,10 @@ private slots:
     void setIgnoreLimits(bool ignore_limits);
     void setFreqCtrlReset(bool enabled);
     void setInvertScrolling(bool enabled);
+    void setAutoBookmarks(bool enabled);
     void selectDemod(const QString& demod);
-    void selectDemod(int index);
+    void selectDemod(Modulations::idx index);
+    void updateDemodGUIRanges();
     void setFmMaxdev(float max_dev);
     void setFmEmph(double tau);
     void setAmDcr(bool enabled);
@@ -174,24 +188,39 @@ private slots:
     void setAmSyncDcr(bool enabled);
     void setAmSyncPllBw(float pll_bw);
     void setAgcOn(bool agc_on);
-    void setAgcHang(bool use_hang);
-    void setAgcThreshold(int threshold);
-    void setAgcSlope(int factor);
+    void setAgcHang(int hang);
+    void setAgcTargetLevel(int targetLevel);
+    void setAgcAttack(int attack);
     void setAgcDecay(int msec);
-    void setAgcGain(int gain);
+    void setAgcMaxGain(int gain);
+    void setAgcPanning(int panning);
+    void setAgcPanningAuto(bool panningAuto);
     void setNoiseBlanker(int nbid, bool on, float threshold);
     void setSqlLevel(double level_db);
-    double setSqlLevelAuto();
+    double setSqlLevelAuto(bool global);
+    void resetSqlLevelGlobal();
     void setAudioGain(float gain);
+    void setAudioMute(bool mute, bool global);
     void setPassband(int bandwidth);
+    void setFreqLock(bool lock, bool all);
 
     /* audio recording and playback */
-    void startAudioRec(const QString& filename);
+    void recDirChanged(const QString dir);
+    void recSquelchTriggeredChanged(const bool enabled);
+    void recMinTimeChanged(const int time_ms);
+    void recMaxGapChanged(const int time_ms);
+    void startAudioRec();
     void stopAudioRec();
+    void audioRecEvent(const QString filename, bool is_running);
     void startAudioPlayback(const QString& filename);
     void stopAudioPlayback();
+    void copyRecSettingsToAllVFOs();
 
-    void startAudioStream(const QString& udp_host, int udp_port, bool stereo);
+    /* audio UDP streaming */
+    void audioStreamHostChanged(const QString udp_host);
+    void audioStreamPortChanged(const int udp_port);
+    void audioStreamStereoChanged(const bool udp_stereo);
+    void startAudioStream();
     void stopAudioStreaming();
 
     /* I/Q playback and recording*/
@@ -214,14 +243,18 @@ private slots:
     void setWfSize();
 
     /* FFT plot */
-    void on_plotter_newDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
+    void on_plotter_newDemodFreq(qint64 freq, qint64 delta);    /*! New demod freq (aka. filter offset). */
+    void on_plotter_newDemodFreqLoad(qint64 freq, qint64 delta);/* tune and load demodulator settings */
+    void on_plotter_newDemodFreqAdd(qint64 freq, qint64 delta); /* new demodulator here */
     void on_plotter_newFilterFreq(int low, int high);    /*! New filter width */
+    void on_plotter_selectVfo(int i);
 
     /* RDS */
     void setRdsDecoder(bool checked);
 
     /* Bookmarks */
-    void onBookmarkActivated(qint64 freq, const QString& demod, int bandwidth);
+    void onBookmarkActivated(BookmarkInfo & bm);
+    void onBookmarkActivatedAddDemod(BookmarkInfo & bm);
 
     /* DXC Spots */
     void updateClusterSpots();
@@ -244,6 +277,9 @@ private slots:
     void on_actionAboutQt_triggered();
     void on_actionAddBookmark_triggered();
     void on_actionDX_Cluster_triggered();
+    void on_actionAddDemodulator_triggered();
+    void on_actionRemoveDemodulator_triggered();
+    void rxSpinBox_valueChanged(int i);
 
     /* markers*/
     void on_setMarkerButtonA_clicked();

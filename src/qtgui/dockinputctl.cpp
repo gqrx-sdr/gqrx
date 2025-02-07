@@ -114,6 +114,10 @@ void DockInputCtl::readSettings(QSettings * settings)
     bool_val = settings->value("gui/invert_scrolling", false).toBool();
     emit invertScrollingChanged(bool_val);
     ui->invertScrollingButton->setChecked(bool_val);
+
+    bool_val = settings->value("gui/auto_bookmarks", false).toBool();
+    emit autoBookmarksChanged(bool_val);
+    ui->autoBookmarksButton->setChecked(bool_val);
 }
 
 void DockInputCtl::saveSettings(QSettings * settings)
@@ -181,6 +185,12 @@ void DockInputCtl::saveSettings(QSettings * settings)
         settings->setValue("gui/invert_scrolling", true);
     else
         settings->remove("gui/invert_scrolling");
+
+    // Remember state of auto bookmarks button. Default is unchecked.
+    if (ui->autoBookmarksButton->isChecked())
+        settings->setValue("gui/auto_bookmarks", true);
+    else
+        settings->remove("gui/auto_bookmarks");
 }
 
 void DockInputCtl::readLnbLoFromSettings(QSettings * settings)
@@ -522,6 +532,12 @@ void DockInputCtl::on_freqCtrlResetButton_toggled(bool checked)
 void DockInputCtl::on_invertScrollingButton_toggled(bool checked)
 {
     emit invertScrollingChanged(checked);
+}
+
+/** Auto bookmarks box has changed */
+void DockInputCtl::on_autoBookmarksButton_toggled(bool checked)
+{
+    emit autoBookmarksChanged(checked);
 }
 
 /** Remove all widgets from the lists. */

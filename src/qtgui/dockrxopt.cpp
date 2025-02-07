@@ -27,42 +27,6 @@
 #include "dockrxopt.h"
 #include "ui_dockrxopt.h"
 
-
-QStringList DockRxOpt::ModulationStrings;
-
-// Lookup table for conversion from old settings
-static const int old2new[] = {
-    DockRxOpt::MODE_OFF,
-    DockRxOpt::MODE_RAW,
-    DockRxOpt::MODE_AM,
-    DockRxOpt::MODE_NFM,
-    DockRxOpt::MODE_WFM_MONO,
-    DockRxOpt::MODE_WFM_STEREO,
-    DockRxOpt::MODE_LSB,
-    DockRxOpt::MODE_USB,
-    DockRxOpt::MODE_CWL,
-    DockRxOpt::MODE_CWU,
-    DockRxOpt::MODE_WFM_STEREO_OIRT,
-    DockRxOpt::MODE_AM_SYNC
-};
-
-// Filter preset table per mode, preset and lo/hi
-static const int filter_preset_table[DockRxOpt::MODE_LAST][3][2] =
-{   //     WIDE             NORMAL            NARROW
-    {{      0,      0}, {     0,     0}, {     0,     0}},  // MODE_OFF
-    {{ -15000,  15000}, { -5000,  5000}, { -1000,  1000}},  // MODE_RAW
-    {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}},  // MODE_AM
-    {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}},  // MODE_AMSYNC
-    {{  -4000,   -100}, { -2800,  -100}, { -2400,  -300}},  // MODE_LSB
-    {{    100,   4000}, {   100,  2800}, {   300,  2400}},  // MODE_USB
-    {{  -1000,   1000}, {  -250,   250}, {  -100,   100}},  // MODE_CWL
-    {{  -1000,   1000}, {  -250,   250}, {  -100,   100}},  // MODE_CWU
-    {{ -10000,  10000}, { -5000,  5000}, { -2500,  2500}},  // MODE_NFM
-    {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}},  // MODE_WFM_MONO
-    {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}},  // MODE_WFM_STEREO
-    {{-100000, 100000}, {-80000, 80000}, {-60000, 60000}}   // MODE_WFM_STEREO_OIRT
-};
-
 DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockRxOpt),
@@ -71,23 +35,35 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    if (ModulationStrings.size() == 0)
+    ui->modeSelector->addItems(Modulations::Strings);
+    freqLockButtonMenu = new QMenu(this);
+    // MenuItem Lock all
     {
-        // Keep in sync with rxopt_mode_idx and filter_preset_table
-        ModulationStrings.append("Demod Off");
-        ModulationStrings.append("Raw I/Q");
-        ModulationStrings.append("AM");
-        ModulationStrings.append("AM-Sync");
-        ModulationStrings.append("LSB");
-        ModulationStrings.append("USB");
-        ModulationStrings.append("CW-L");
-        ModulationStrings.append("CW-U");
-        ModulationStrings.append("Narrow FM");
-        ModulationStrings.append("WFM (mono)");
-        ModulationStrings.append("WFM (stereo)");
-        ModulationStrings.append("WFM (oirt)");
+        QAction* action = new QAction("Lock all", this);
+        freqLockButtonMenu->addAction(action);
+        connect(action, SIGNAL(triggered()), this, SLOT(menuFreqLockAll()));
     }
-    ui->modeSelector->addItems(ModulationStrings);
+    // MenuItem Unlock all
+    {
+        QAction* action = new QAction("Unlock all", this);
+        freqLockButtonMenu->addAction(action);
+        connect(action, SIGNAL(triggered()), this, SLOT(menuFreqUnlockAll()));
+    }
+    ui->freqLockButton->setContextMenuPolicy(Qt::CustomContextMenu);
+    squelchButtonMenu = new QMenu(this);
+    // MenuItem Auto all
+    {
+        QAction* action = new QAction("AUTO all", this);
+        squelchButtonMenu->addAction(action);
+        connect(action, SIGNAL(triggered()), this, SLOT(menuSquelchAutoAll()));
+    }
+    // MenuItem Reset all
+    {
+        QAction* action = new QAction("Reset all", this);
+        squelchButtonMenu->addAction(action);
+        connect(action, SIGNAL(triggered()), this, SLOT(menuSquelchResetAll()));
+    }
+    ui->autoSquelchButton->setContextMenuPolicy(Qt::CustomContextMenu);
 
     ui->filterFreq->setup(7, -filterOffsetRange/2, filterOffsetRange/2, 1,
                           FCTL_UNIT_KHZ);
@@ -108,11 +84,13 @@ DockRxOpt::DockRxOpt(qint64 filterOffsetRange, QWidget *parent) :
 
     // AGC options dialog
     agcOpt = new CAgcOptions(this);
-    connect(agcOpt, SIGNAL(gainChanged(int)), this, SLOT(agcOpt_gainChanged(int)));
-    connect(agcOpt, SIGNAL(thresholdChanged(int)), this, SLOT(agcOpt_thresholdChanged(int)));
+    connect(agcOpt, SIGNAL(maxGainChanged(int)), this, SLOT(agcOpt_maxGainChanged(int)));
+    connect(agcOpt, SIGNAL(targetLevelChanged(int)), this, SLOT(agcOpt_targetLevelChanged(int)));
+    connect(agcOpt, SIGNAL(attackChanged(int)), this, SLOT(agcOpt_attackChanged(int)));
     connect(agcOpt, SIGNAL(decayChanged(int)), this, SLOT(agcOpt_decayChanged(int)));
-    connect(agcOpt, SIGNAL(slopeChanged(int)), this, SLOT(agcOpt_slopeChanged(int)));
-    connect(agcOpt, SIGNAL(hangChanged(bool)), this, SLOT(agcOpt_hangToggled(bool)));
+    connect(agcOpt, SIGNAL(hangChanged(int)), this, SLOT(agcOpt_hangChanged(int)));
+    connect(agcOpt, SIGNAL(panningChanged(int)), this, SLOT(agcOpt_panningChanged(int)));
+    connect(agcOpt, SIGNAL(panningAutoChanged(bool)), this, SLOT(agcOpt_panningAutoChanged(bool)));
 
     // Noise blanker options
     nbOpt = new CNbOptions(this);
@@ -176,7 +154,9 @@ DockRxOpt::~DockRxOpt()
  */
 void DockRxOpt::setFilterOffset(qint64 freq_hz)
 {
+    ui->filterFreq->blockSignals(true);
     ui->filterFreq->setFrequency(freq_hz);
+    ui->filterFreq->blockSignals(false);
 }
 
 /**
@@ -237,19 +217,8 @@ void DockRxOpt::updateHwFreq()
  */
 unsigned int DockRxOpt::filterIdxFromLoHi(int lo, int hi) const
 {
-    int mode_index = ui->modeSelector->currentIndex();
-
-    if (lo == filter_preset_table[mode_index][FILTER_PRESET_WIDE][0] &&
-        hi == filter_preset_table[mode_index][FILTER_PRESET_WIDE][1])
-        return FILTER_PRESET_WIDE;
-    else if (lo == filter_preset_table[mode_index][FILTER_PRESET_NORMAL][0] &&
-             hi == filter_preset_table[mode_index][FILTER_PRESET_NORMAL][1])
-        return FILTER_PRESET_NORMAL;
-    else if (lo == filter_preset_table[mode_index][FILTER_PRESET_NARROW][0] &&
-             hi == filter_preset_table[mode_index][FILTER_PRESET_NARROW][1])
-        return FILTER_PRESET_NARROW;
-
-    return FILTER_PRESET_USER;
+    Modulations::idx mode_index = Modulations::idx(ui->modeSelector->currentIndex());
+    return Modulations::FindFilterPreset(mode_index, lo, hi);
 }
 
 /**
@@ -264,6 +233,7 @@ void DockRxOpt::setFilterParam(int lo, int hi)
 {
     int filter_index = filterIdxFromLoHi(lo, hi);
 
+    ui->filterCombo->blockSignals(true);
     ui->filterCombo->setCurrentIndex(filter_index);
     if (filter_index == FILTER_PRESET_USER)
     {
@@ -272,6 +242,7 @@ void DockRxOpt::setFilterParam(int lo, int hi)
         ui->filterCombo->setItemText(FILTER_PRESET_USER, QString("User (%1 k)")
                                      .arg((double)width_f));
     }
+    ui->filterCombo->blockSignals(false);
 }
 
 /**
@@ -280,7 +251,9 @@ void DockRxOpt::setFilterParam(int lo, int hi)
  */
 void DockRxOpt::setCurrentFilter(int index)
 {
+    ui->filterCombo->blockSignals(true);
     ui->filterCombo->setCurrentIndex(index);
+    ui->filterCombo->blockSignals(false);
 }
 
 /**
@@ -295,7 +268,9 @@ int  DockRxOpt::currentFilter() const
 /** Select filter shape */
 void DockRxOpt::setCurrentFilterShape(int index)
 {
+    ui->filterCombo->blockSignals(true);
     ui->filterShapeCombo->setCurrentIndex(index);
+    ui->filterCombo->blockSignals(false);
 }
 
 int  DockRxOpt::currentFilterShape() const
@@ -307,11 +282,13 @@ int  DockRxOpt::currentFilterShape() const
  * @brief Select new demodulator.
  * @param demod Demodulator index corresponding to receiver::demod.
  */
-void DockRxOpt::setCurrentDemod(int demod)
+void DockRxOpt::setCurrentDemod(Modulations::idx demod)
 {
-    if ((demod >= MODE_OFF) && (demod < MODE_LAST))
+    if ((demod >= Modulations::MODE_OFF) && (demod < Modulations::MODE_LAST))
     {
+        ui->modeSelector->blockSignals(true);
         ui->modeSelector->setCurrentIndex(demod);
+        ui->modeSelector->blockSignals(false);
         updateDemodOptPage(demod);
     }
 }
@@ -320,14 +297,14 @@ void DockRxOpt::setCurrentDemod(int demod)
  * @brief Get current demodulator selection.
  * @return The current demodulator corresponding to receiver::demod.
  */
-int  DockRxOpt::currentDemod() const
+Modulations::idx DockRxOpt::currentDemod() const
 {
-    return ui->modeSelector->currentIndex();
+    return Modulations::idx(ui->modeSelector->currentIndex());
 }
 
 QString DockRxOpt::currentDemodAsString()
 {
-    return GetStringForModulationIndex(currentDemod());
+    return Modulations::GetStringForModulationIndex(currentDemod());
 }
 
 float DockRxOpt::currentMaxdev() const
@@ -363,219 +340,156 @@ double DockRxOpt::currentSquelchLevel() const
     return ui->sqlSpinBox->value();
 }
 
-bool DockRxOpt::currentAmDcr() const
-{
-    return demodOpt->getDcr();
-}
-
-bool DockRxOpt::currentAmsyncDcr() const
-{
-    return demodOpt->getSyncDcr();
-}
-
-float DockRxOpt::currentAmsyncPll() const
-{
-    return demodOpt->getPllBw();
-}
-
-/** Get filter lo/hi for a given mode and preset */
-void DockRxOpt::getFilterPreset(int mode, int preset, int * lo, int * hi) const
-{
-    if (mode < 0 || mode >= MODE_LAST)
-    {
-        qDebug() << __func__ << ": Invalid mode:" << mode;
-        mode = MODE_AM;
-    }
-    else if (preset < 0 || preset > 2)
-    {
-        qDebug() << __func__ << ": Invalid preset:" << preset;
-        preset = FILTER_PRESET_NORMAL;
-    }
-    *lo = filter_preset_table[mode][preset][0];
-    *hi = filter_preset_table[mode][preset][1];
-}
-
 int DockRxOpt::getCwOffset() const
 {
     return demodOpt->getCwOffset();
 }
 
-/** Read receiver configuration from settings data. */
-void DockRxOpt::readSettings(QSettings *settings)
+void DockRxOpt::setCwOffset(int offset)
 {
-    bool    conv_ok;
-    int     int_val;
-    double  dbl_val;
-
-    int_val = settings->value("receiver/cwoffset", 700).toInt(&conv_ok);
-    if (conv_ok)
-        demodOpt->setCwOffset(int_val);
-
-    int_val = settings->value("receiver/fm_maxdev", 5000).toInt(&conv_ok);
-    if (conv_ok)
-        demodOpt->setMaxDev(int_val);
-
-    dbl_val = settings->value("receiver/fm_deemph", 75).toDouble(&conv_ok);
-    if (conv_ok && dbl_val >= 0)
-        demodOpt->setEmph(1.0e-6 * dbl_val); // was stored as usec
-
-    qint64 offs = settings->value("receiver/offset", 0).toInt(&conv_ok);
-    if (offs)
-    {
-        setFilterOffset(offs);
-        emit filterOffsetChanged(offs);
-    }
-
-    dbl_val = settings->value("receiver/sql_level", 1.0).toDouble(&conv_ok);
-    if (conv_ok && dbl_val < 1.0)
-        ui->sqlSpinBox->setValue(dbl_val);
-
-    // AGC settings
-    int_val = settings->value("receiver/agc_threshold", -100).toInt(&conv_ok);
-    if (conv_ok)
-        agcOpt->setThreshold(int_val);
-
-    int_val = settings->value("receiver/agc_decay", 500).toInt(&conv_ok);
-    if (conv_ok)
-    {
-        agcOpt->setDecay(int_val);
-        if (int_val == 100)
-            ui->agcPresetCombo->setCurrentIndex(0);
-        else if (int_val == 500)
-            ui->agcPresetCombo->setCurrentIndex(1);
-        else if (int_val == 2000)
-            ui->agcPresetCombo->setCurrentIndex(2);
-        else
-            ui->agcPresetCombo->setCurrentIndex(3);
-    }
-
-    int_val = settings->value("receiver/agc_slope", 0).toInt(&conv_ok);
-    if (conv_ok)
-        agcOpt->setSlope(int_val);
-
-    int_val = settings->value("receiver/agc_gain", 0).toInt(&conv_ok);
-    if (conv_ok)
-        agcOpt->setGain(int_val);
-
-    agcOpt->setHang(settings->value("receiver/agc_usehang", false).toBool());
-
-    if (settings->value("receiver/agc_off", false).toBool())
-        ui->agcPresetCombo->setCurrentIndex(4);
-
-    demodOpt->setDcr(settings->value("receiver/am_dcr", true).toBool());
-
-    demodOpt->setSyncDcr(settings->value("receiver/amsync_dcr", true).toBool());
-
-    int_val = settings->value("receiver/amsync_pllbw", 1000).toInt(&conv_ok);
-    if (conv_ok)
-        demodOpt->setPllBw(int_val / 1.0e6);
-
-    int_val = MODE_AM;
-    if (settings->contains("receiver/demod")) {
-        if (settings->value("configversion").toInt(&conv_ok) >= 3) {
-            int_val = GetEnumForModulationString(settings->value("receiver/demod").toString());
-        } else {
-            int_val = old2new[settings->value("receiver/demod").toInt(&conv_ok)];
-        }
-    }
-
-    setCurrentDemod(int_val);
-    emit demodSelected(int_val);
-
+    demodOpt->setCwOffset(offset);
 }
 
-/** Save receiver configuration to settings. */
-void DockRxOpt::saveSettings(QSettings *settings)
+/** Get agc settings */
+bool DockRxOpt::getAgcOn()
 {
-    int     int_val;
+    return agc_is_on;
+}
 
-    settings->setValue("receiver/demod", currentDemodAsString());
-
-    int cwofs = demodOpt->getCwOffset();
-    if (cwofs == 700)
-        settings->remove("receiver/cwoffset");
+void DockRxOpt::setAgcOn(bool on)
+{
+    if (on)
+        setAgcPresetFromParams(getAgcDecay());
     else
-        settings->setValue("receiver/cwoffset", cwofs);
+        ui->agcPresetCombo->setCurrentIndex(4);
+    agc_is_on = on;
+}
 
-    // currently we do not need the decimal
-    int_val = (int)demodOpt->getMaxDev();
-    if (int_val == 5000)
-        settings->remove("receiver/fm_maxdev");
-    else
-        settings->setValue("receiver/fm_maxdev", int_val);
+int DockRxOpt::getAgcTargetLevel()
+{
+    return agcOpt->targetLevel();
+}
 
-    // save as usec
-    int_val = (int)(1.0e6 * demodOpt->getEmph());
-    if (int_val == 75)
-        settings->remove("receiver/fm_deemph");
-    else
-        settings->setValue("receiver/fm_deemph", int_val);
+void DockRxOpt::setAgcTargetLevel(int level)
+{
+    agcOpt->setTargetLevel(level);
+}
 
-    qint64 offs = ui->filterFreq->getFrequency();
-    if (offs)
-        settings->setValue("receiver/offset", offs);
-    else
-        settings->remove("receiver/offset");
+int DockRxOpt::getAgcMaxGain()
+{
+    return agcOpt->maxGain();
+}
 
-    qDebug() << __func__ << "*** FIXME_ SQL on/off";
-    //int sql_lvl = double(ui->sqlSlider->value());  // note: dBFS*10 as int
-    double sql_lvl = ui->sqlSpinBox->value();
-    if (sql_lvl > -150.0)
-        settings->setValue("receiver/sql_level", sql_lvl);
-    else
-        settings->remove("receiver/sql_level");
+void DockRxOpt::setAgcMaxGain(int gain)
+{
+    agcOpt->setMaxGain(gain);
+}
 
-    // AGC settings
-    int_val = agcOpt->threshold();
-    if (int_val != -100)
-        settings->setValue("receiver/agc_threshold", int_val);
-    else
-        settings->remove("receiver/agc_threshold");
+int DockRxOpt::getAgcAttack()
+{
+    return agcOpt->attack();
+}
 
-    int_val = agcOpt->decay();
-    if (int_val != 500)
-        settings->setValue("receiver/agc_decay", int_val);
-    else
-        settings->remove("receiver/agc_decay");
+void DockRxOpt::setAgcAttack(int attack)
+{
+    agcOpt->setAttack(attack);
+}
 
-    int_val = agcOpt->slope();
-    if (int_val != 0)
-        settings->setValue("receiver/agc_slope", int_val);
-    else
-        settings->remove("receiver/agc_slope");
+int DockRxOpt::getAgcDecay()
+{
+    return agcOpt->decay();
+}
 
-    int_val = agcOpt->gain();
-    if (int_val != 0)
-        settings->setValue("receiver/agc_gain", int_val);
-    else
-        settings->remove("receiver/agc_gain");
+void DockRxOpt::setAgcDecay(int decay)
+{
+    agcOpt->setDecay(decay);
+    setAgcOn(agc_is_on);
+}
 
-    if (agcOpt->hang())
-        settings->setValue("receiver/agc_usehang", true);
-    else
-        settings->remove("receiver/agc_usehang");
+int DockRxOpt::getAgcHang()
+{
+    return agcOpt->hang();
+}
 
-    // AGC Off
-    if (ui->agcPresetCombo->currentIndex() == 4)
-        settings->setValue("receiver/agc_off", true);
-    else
-        settings->remove("receiver/agc_off");
+void DockRxOpt::setAgcHang(int hang)
+{
+    agcOpt->setHang(hang);
+}
 
-    if (!demodOpt->getDcr())
-        settings->setValue("receiver/am_dcr", false);
-    else
-        settings->remove("receiver/am_dcr");
+int  DockRxOpt::getAgcPanning()
+{
+    return agcOpt->panning();
+}
 
-    if (!demodOpt->getSyncDcr())
-        settings->setValue("receiver/amsync_dcr", false);
-    else
-        settings->remove("receiver/amsync_dcr");
+void DockRxOpt::setAgcPanning(int panning)
+{
+    agcOpt->setPanning(panning);
+}
 
-    int_val = qRound(currentAmsyncPll() * 1.0e6f);
-    if (int_val != 1000)
-        settings->setValue("receiver/amsync_pllbw", int_val);
+bool DockRxOpt::getAgcPanningAuto()
+{
+    return agcOpt->panningAuto();
+}
+
+void DockRxOpt::setAgcPanningAuto(bool panningAuto)
+{
+    agcOpt->setPanningAuto(panningAuto);
+}
+
+void DockRxOpt::setAgcPresetFromParams(int decay)
+{
+    if (decay == 100)
+        ui->agcPresetCombo->setCurrentIndex(0);
+    else if (decay == 500)
+        ui->agcPresetCombo->setCurrentIndex(1);
+    else if (decay == 2000)
+        ui->agcPresetCombo->setCurrentIndex(2);
     else
-        settings->remove("receiver/amsync_pllbw");
+        ui->agcPresetCombo->setCurrentIndex(3);
+}
+
+void DockRxOpt::setAmDcr(bool on)
+{
+    demodOpt->setAmDcr(on);
+}
+
+void DockRxOpt::setAmSyncDcr(bool on)
+{
+    demodOpt->setAmSyncDcr(on);
+}
+
+void DockRxOpt::setAmSyncPllBw(float bw)
+{
+    demodOpt->setPllBw(bw);
+}
+
+void DockRxOpt::setFmMaxdev(float max_hz)
+{
+    demodOpt->setMaxDev(max_hz);
+}
+
+void DockRxOpt::setFmEmph(double tau)
+{
+    demodOpt->setEmph(tau);
+}
+
+void DockRxOpt::setNoiseBlanker(int nbid, bool on, float threshold)
+{
+    if (nbid == 1)
+        ui->nb1Button->setChecked(on);
+    else
+        ui->nb2Button->setChecked(on);
+    nbOpt->setNbThreshold(nbid, threshold);
+}
+
+void DockRxOpt::setFreqLock(bool lock)
+{
+    ui->freqLockButton->setChecked(lock);
+}
+
+bool DockRxOpt::getFreqLock()
+{
+    return ui->freqLockButton->isChecked();
 }
 
 /** RX frequency changed through spin box */
@@ -634,7 +548,7 @@ void DockRxOpt::on_filterCombo_activated(int index)
 
     qDebug() << "New filter preset:" << ui->filterCombo->currentText();
     qDebug() << "            shape:" << ui->filterShapeCombo->currentIndex();
-    emit demodSelected(ui->modeSelector->currentIndex());
+    emit demodSelected(Modulations::idx(ui->modeSelector->currentIndex()));
 }
 
 /**
@@ -650,20 +564,20 @@ void DockRxOpt::on_filterCombo_activated(int index)
  */
 void DockRxOpt::on_modeSelector_activated(int index)
 {
-    updateDemodOptPage(index);
-    emit demodSelected(index);
+    updateDemodOptPage(Modulations::idx(index));
+    emit demodSelected(Modulations::idx(index));
 }
 
-void DockRxOpt::updateDemodOptPage(int demod)
+void DockRxOpt::updateDemodOptPage(Modulations::idx demod)
 {
     // update demodulator option widget
-    if (demod == MODE_NFM)
+    if (demod == Modulations::MODE_NFM)
         demodOpt->setCurrentPage(CDemodOptions::PAGE_FM_OPT);
-    else if (demod == MODE_AM)
+    else if (demod == Modulations::MODE_AM)
         demodOpt->setCurrentPage(CDemodOptions::PAGE_AM_OPT);
-    else if (demod == MODE_CWL || demod == MODE_CWU)
+    else if (demod == Modulations::MODE_CWL || demod == Modulations::MODE_CWU)
         demodOpt->setCurrentPage(CDemodOptions::PAGE_CW_OPT);
-    else if (demod == MODE_AM_SYNC)
+    else if (demod == Modulations::MODE_AM_SYNC)
         demodOpt->setCurrentPage(CDemodOptions::PAGE_AMSYNC_OPT);
     else
         demodOpt->setCurrentPage(CDemodOptions::PAGE_NO_OPT);
@@ -688,13 +602,30 @@ void DockRxOpt::on_agcButton_clicked()
  */
 void DockRxOpt::on_autoSquelchButton_clicked()
 {
-    double newval = sqlAutoClicked(); // FIXME: We rely on signal only being connected to one slot
+    double newval = sqlAutoClicked(false); // FIXME: We rely on signal only being connected to one slot
+    ui->sqlSpinBox->setValue(newval);
+}
+
+void DockRxOpt::on_autoSquelchButton_customContextMenuRequested(const QPoint& pos)
+{
+    squelchButtonMenu->popup(ui->autoSquelchButton->mapToGlobal(pos));
+}
+
+void DockRxOpt::menuSquelchAutoAll()
+{
+    double newval = sqlAutoClicked(true); // FIXME: We rely on signal only being connected to one slot
     ui->sqlSpinBox->setValue(newval);
 }
 
 void DockRxOpt::on_resetSquelchButton_clicked()
 {
     ui->sqlSpinBox->setValue(-150.0);
+}
+
+void DockRxOpt::menuSquelchResetAll()
+{
+    ui->sqlSpinBox->setValue(-150.0);
+    emit sqlResetAllClicked();
 }
 
 /** AGC preset has changed. */
@@ -730,27 +661,31 @@ void DockRxOpt::on_agcPresetCombo_currentIndexChanged(int index)
     }
 }
 
-void DockRxOpt::agcOpt_hangToggled(bool checked)
+/**
+ * @brief AGC hang time changed.
+ * @param value The new AGC hang time in ms.
+ */
+void DockRxOpt::agcOpt_hangChanged(int value)
 {
-    emit agcHangToggled(checked);
+    emit agcHangChanged(value);
 }
 
 /**
- * @brief AGC threshold ("knee") changed.
- * @param value The new AGC threshold in dB.
+ * @brief AGC target level changed.
+ * @param value The new AGC target level in dB.
  */
-void DockRxOpt::agcOpt_thresholdChanged(int value)
+void DockRxOpt::agcOpt_targetLevelChanged(int value)
 {
-    emit agcThresholdChanged(value);
+    emit agcTargetLevelChanged(value);
 }
 
 /**
- * @brief AGC slope factor changed.
- * @param value The new slope factor in dB.
+ * @brief AGC attack changed.
+ * @param value The new attack rate in ms (tbc).
  */
-void DockRxOpt::agcOpt_slopeChanged(int value)
+void DockRxOpt::agcOpt_attackChanged(int value)
 {
-    emit agcSlopeChanged(value);
+    emit agcAttackChanged(value);
 }
 
 /**
@@ -763,12 +698,30 @@ void DockRxOpt::agcOpt_decayChanged(int value)
 }
 
 /**
- * @brief AGC manual gain changed.
+ * @brief AGC maimum gain changed.
  * @param gain The new gain in dB.
  */
-void DockRxOpt::agcOpt_gainChanged(int gain)
+void DockRxOpt::agcOpt_maxGainChanged(int gain)
 {
-    emit agcGainChanged(gain);
+    emit agcMaxGainChanged(gain);
+}
+
+/**
+ * @brief AGC panning changed.
+ * @param value The new relative panning position.
+ */
+void DockRxOpt::agcOpt_panningChanged(int value)
+{
+    emit agcPanningChanged(value);
+}
+
+/**
+ * @brief AGC panning auto mode changed.
+ * @param value The new auto mode state.
+ */
+void DockRxOpt::agcOpt_panningAutoChanged(bool value)
+{
+    emit agcPanningAuto(value);
 }
 
 /**
@@ -842,6 +795,28 @@ void DockRxOpt::on_nb2Button_toggled(bool checked)
     emit noiseBlankerChanged(2, checked, (float) nbOpt->nbThreshold(2));
 }
 
+void DockRxOpt::on_freqLockButton_clicked()
+{
+    emit freqLock(ui->freqLockButton->isChecked(), false);
+}
+
+void DockRxOpt::on_freqLockButton_customContextMenuRequested(const QPoint& pos)
+{
+    freqLockButtonMenu->popup(ui->freqLockButton->mapToGlobal(pos));
+}
+
+void DockRxOpt::menuFreqLockAll()
+{
+    emit freqLock(true, true);
+    ui->freqLockButton->setChecked(true);
+}
+
+void DockRxOpt::menuFreqUnlockAll()
+{
+    emit freqLock(false, true);
+    ui->freqLockButton->setChecked(false);
+}
+
 /** Noise blanker threshold has been changed. */
 void DockRxOpt::nbOpt_thresholdChanged(int nbid, double value)
 {
@@ -856,82 +831,52 @@ void DockRxOpt::on_nbOptButton_clicked()
     nbOpt->show();
 }
 
-int DockRxOpt::GetEnumForModulationString(QString param)
-{
-    int iModulation = -1;
-    for(int i=0; i<DockRxOpt::ModulationStrings.size(); ++i)
-    {
-        QString& strModulation = DockRxOpt::ModulationStrings[i];
-        if(param.compare(strModulation, Qt::CaseInsensitive)==0)
-        {
-            iModulation = i;
-            break;
-        }
-    }
-    if(iModulation == -1)
-    {
-        std::cout << "Modulation '" << param.toStdString() << "' is unknown." << std::endl;
-        iModulation = MODE_OFF;
-    }
-    return iModulation;
-}
-
-bool DockRxOpt::IsModulationValid(QString strModulation)
-{
-    return DockRxOpt::ModulationStrings.contains(strModulation, Qt::CaseInsensitive);
-}
-
-QString DockRxOpt::GetStringForModulationIndex(int iModulationIndex)
-{
-    return ModulationStrings[iModulationIndex];
-}
-
 void DockRxOpt::modeOffShortcut() {
-    on_modeSelector_activated(MODE_OFF);
+    on_modeSelector_activated(Modulations::MODE_OFF);
 }
 
 void DockRxOpt::modeRawShortcut() {
-    on_modeSelector_activated(MODE_RAW);
+    on_modeSelector_activated(Modulations::MODE_RAW);
 }
 
 void DockRxOpt::modeAMShortcut() {
-    on_modeSelector_activated(MODE_AM);
+    on_modeSelector_activated(Modulations::MODE_AM);
 }
 
 void DockRxOpt::modeNFMShortcut() {
-    on_modeSelector_activated(MODE_NFM);
+    on_modeSelector_activated(Modulations::MODE_NFM);
 }
 
 void DockRxOpt::modeWFMmonoShortcut() {
-    on_modeSelector_activated(MODE_WFM_MONO);
+    on_modeSelector_activated(Modulations::MODE_WFM_MONO);
 }
 
 void DockRxOpt::modeWFMstereoShortcut() {
-    on_modeSelector_activated(MODE_WFM_STEREO);
+    on_modeSelector_activated(Modulations::MODE_WFM_STEREO);
 }
 
 void DockRxOpt::modeLSBShortcut() {
-    on_modeSelector_activated(MODE_LSB);
+    on_modeSelector_activated(Modulations::MODE_LSB);
 }
 
 void DockRxOpt::modeUSBShortcut() {
-    on_modeSelector_activated(MODE_USB);
+    on_modeSelector_activated(Modulations::MODE_USB);
 }
 
 void DockRxOpt::modeCWLShortcut() {
-    on_modeSelector_activated(MODE_CWL);
+    on_modeSelector_activated(Modulations::MODE_CWL);
 }
 
 void DockRxOpt::modeCWUShortcut() {
-    on_modeSelector_activated(MODE_CWU);
+    on_modeSelector_activated(Modulations::MODE_CWU);
 }
 
 void DockRxOpt::modeWFMoirtShortcut() {
-    on_modeSelector_activated(MODE_WFM_STEREO_OIRT);
+    on_modeSelector_activated(Modulations::MODE_WFM_STEREO_OIRT);
 }
 
 void DockRxOpt::modeAMsyncShortcut() {
-    on_modeSelector_activated(MODE_AM_SYNC);
+    on_modeSelector_activated(Modulations::MODE_AM_SYNC);
 }
 
 void DockRxOpt::filterNarrowShortcut() {
