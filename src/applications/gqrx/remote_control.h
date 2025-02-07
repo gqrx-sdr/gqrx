@@ -96,7 +96,7 @@ public slots:
     void setAudioMuted(bool muted);
     void startAudioRecorder(QString unused);
     void stopAudioRecorder();
-    void startIqRecorder(QString unused);
+    void startIqRecorder(QString unused1, QString unused2);
     void stopIqRecorder();
     bool setGain(QString name, double gain);
     void setRDSstatus(bool enabled);
@@ -147,8 +147,8 @@ private:
     QString     rc_program_id;     /*!< RDS Program identification */
     QString     rds_station;       /*!< RDS program service (station) name */
     QString     rds_radiotext;     /*!< RDS Radiotext */
-    bool        audio_recorder_status; /*!< Recording enabled */
-    bool        iq_recorder_status;    /*!< Iq Recording enabled */
+    bool        audio_recorder_status; /*!< Audio recording enabled */
+    bool        iq_recorder_status;    /*!< IQ recording enabled */
     bool        receiver_running;  /*!< Whether the receiver is running or not */
     bool        hamlib_compatible;
     gain_list_t gains;             /*!< Possible and current gain settings */

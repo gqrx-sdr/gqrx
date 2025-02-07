@@ -185,7 +185,7 @@ void CIqTool::on_recButton_clicked(bool checked)
     }
 }
 
-/*! Public slot to trig iq recording by external events (e.g. remote control).
+/*! Public slot to start IQ recording by external events (e.g. remote control).
  *
  * If a recording is already in progress we ignore the event.
  */
@@ -193,7 +193,7 @@ void CIqTool::startIqRecorder(void)
 {
     if (ui->recButton->isChecked())
     {
-        qDebug() << __func__ << "An iq recording is already in progress";
+        qDebug() << __func__ << "An IQ recording is already in progress";
         return;
     }
 
@@ -201,7 +201,7 @@ void CIqTool::startIqRecorder(void)
     ui->recButton->click();
 }
 
-/*! Public slot to stop stop recording by external events (e.g. remote control).
+/*! Public slot to stop IQ recording by external events (e.g. remote control).
  *
  * The event is ignored if no recording is in progress.
  */
@@ -210,7 +210,7 @@ void CIqTool::stopIqRecorder(void)
     if (ui->recButton->isChecked())
         ui->recButton->click(); // emulate a button click
     else
-        qDebug() << __func__ << "No iq recording in progress";
+        qDebug() << __func__ << "No IQ recording in progress";
 }
 
 /*! \brief Cancel a recording.
