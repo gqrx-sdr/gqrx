@@ -71,7 +71,7 @@ if(MSVC)
     add_definitions(-DBOOST_ALL_DYN_LINK)
 
     #export gr-rds symbols
-    add_definitions(-Dgnuradio_RDS_EXPORTS)
+    add_definitions(-Dgnuradio_rds_EXPORTS)
 
     if ("${MSVC_VERSION}" VERSION_LESS "1900")
         add_definitions(-D__func__=__FUNCTION__)
