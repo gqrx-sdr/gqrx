@@ -247,7 +247,7 @@ jobs:
     - name: Clone and build GNU Radio
       working-directory: ${{ runner.temp }}
       run: |
-        git clone --branch v3.10.12.0-rc1 --depth 1 https://github.com/gnuradio/gnuradio.git
+        git clone --branch v3.10.12.0 --depth 1 https://github.com/gnuradio/gnuradio.git
         cd gnuradio
         cmake -S . -B build \
           -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
