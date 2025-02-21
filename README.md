@@ -94,9 +94,8 @@ To compile gqrx from source you need the following dependencies:
     - gnuradio-pmt
 - The gr-iqbalance library (optional)
 - Drivers for the hardware you want to have support for:
-    - Funcube Dongle Pro driver via gr-fcd
     - UHD driver via gr-uhd
-    - Funcube Dongle Pro+ driver from https://github.com/dl1ksv/gr-fcdproplus
+    - FUNcube Dongle and FUNcube Dongle Pro+ driver from https://github.com/dl1ksv/gr-funcube
     - RTL-SDR driver from https://gitea.osmocom.org/sdr/rtl-sdr
     - HackRF driver from https://github.com/mossmann/hackrf
     - Airspy driver from https://github.com/airspy/airspyone_host
