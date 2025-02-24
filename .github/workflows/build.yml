@@ -16,7 +16,7 @@ jobs:
 
       - name: Install conda dependencies
         id: setup-micromamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-name: gqrx
           create-args: >-
