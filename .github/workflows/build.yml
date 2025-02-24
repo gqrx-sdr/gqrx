@@ -33,6 +33,7 @@ jobs:
             pulseaudio
             qt6-gtk-platformtheme
             qt6-main
+            soapysdr-module-audio
             soapysdr-module-lms7
             soapysdr-module-plutosdr
             soapysdr-module-remote
@@ -91,7 +92,7 @@ jobs:
           sudo chown -R runner:admin /usr/local/
           brew update
           brew install --HEAD librtlsdr
-          brew install airspy airspyhf boost dylibbundler gnuradio hackrf libbladerf libserialport portaudio pybind11 six soapyremote uhd qt@6 || true
+          brew install airspy airspyhf boost dylibbundler gnuradio hackrf hamlib libbladerf libserialport portaudio pybind11 six soapyremote uhd qt@6 || true
 
           cd /tmp
           git clone https://github.com/analogdevicesinc/libiio.git
@@ -109,6 +110,15 @@ jobs:
           mkdir build
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release ..
+          make -j4
+          sudo make install
+
+          cd /tmp
+          git clone https://github.com/pothosware/SoapyAudio.git
+          cd SoapyAudio
+          mkdir build
+          cd build
+          cmake -DUSE_HAMLIB=ON -DCMAKE_BUILD_TYPE=Release ..
           make -j4
           sudo make install
 
