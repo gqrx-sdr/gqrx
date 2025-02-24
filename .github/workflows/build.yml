@@ -13,7 +13,6 @@ jobs:
           sudo apt-get install -y --no-install-recommends \
             libopengl0 \
             libegl1
-
       - name: Install conda dependencies
         id: setup-micromamba
         uses: mamba-org/setup-micromamba@v2
@@ -37,6 +36,9 @@ jobs:
             soapysdr-module-plutosdr
             soapysdr-module-remote
             volk
+      - name: Update conda packages
+        shell: bash -el {0}
+        run: conda update --all
       - name: Checkout code
         uses: actions/checkout@v4
         with:
