@@ -27,8 +27,8 @@ jobs:
             pkg-config
             gnuradio-core
             gnuradio-osmosdr
-            libboost-headers
-            mesa-libgl-devel-cos6-x86_64
+            libboost-devel
+            libgl-devel
             pybind11
             pulseaudio
             qt6-gtk-platformtheme
@@ -36,6 +36,7 @@ jobs:
             soapysdr-module-lms7
             soapysdr-module-plutosdr
             soapysdr-module-remote
+            sysroot_linux-64=2.17.*
             volk
       - name: Checkout code
         uses: actions/checkout@v4
