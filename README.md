@@ -109,7 +109,7 @@ To compile gqrx from source you need the following dependencies:
     - Network
     - Widgets
     - Svg (runtime-only)
-- cmake version >= 3.2.0
+- cmake version >= 3.13.0
 
 Gqrx can be compiled from within Qt Creator or in a terminal:
 
@@ -117,12 +117,18 @@ For command line builds:
 <pre>
 $ git clone https://github.com/gqrx-sdr/gqrx.git gqrx.git
 $ cd gqrx.git
-$ mkdir build
-$ cd build
-$ cmake ..
-$ make
+gqrx.git$ mkdir build
+gqrx.git$ cmake -S . -B build
+gqrx.git$ cmake --build build --parallel
+gqrx.git$ cmake --install build --prefix artifacts/
+gqrx.git$ rm -rf build/
 </pre>
-On some systems, the default cmake release builds are "over-optimized" and
+1) Last step is optional, use if you need to free disk space.
+2) Try to run `artifacts/bin/gqrx`. If you get error "artifacts/bin/gqrx: error while loading shared libraries: libQt6SvgWidgets.so.6: cannot open shared object file: No such file or directory" try to set path to folder with Qt like:
+```
+gqrx.git$ export LD_LIBRARY_PATH="$HOME/Qt/6.8.0/gcc_64/lib" && artifacts/bin/gqrx
+```
+3) On some systems, the default cmake release builds are "over-optimized" and
 perform poorly. In that case try forcing -O2 using
 <pre>
 export CXXFLAGS=-O2
@@ -133,7 +139,7 @@ For Qt Creator builds:
 <pre>
 $ git clone https://github.com/gqrx-sdr/gqrx.git gqrx.git
 $ cd gqrx.git
-$ mkdir build
+gqrx.git$ mkdir build
 Start Qt Creator
 Open gqrx.git/CMakeLists.txt file
 At the dialog asking for build location, select gqrx.git/build
