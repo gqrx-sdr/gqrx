@@ -1248,7 +1248,7 @@ void MainWindow::selectDemod(int mode_idx)
     case DockRxOpt::MODE_WFM_STEREO:
     case DockRxOpt::MODE_WFM_STEREO_OIRT:
         /* Broadcast FM */
-        ui->plotter->setDemodRanges(-120e3, -10000, 10000, 120e3, true);
+        ui->plotter->setDemodRanges(-192e3, -10000, 10000, 192e3, true);
         uiDockAudio->setFftRange(0,24000);  /** FIXME: get audio rate from rx **/
         click_res = 1000;
         if (mode_idx == DockRxOpt::MODE_WFM_MONO)
