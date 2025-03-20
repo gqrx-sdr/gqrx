@@ -109,7 +109,7 @@ To compile gqrx from source you need the following dependencies:
     - Network
     - Widgets
     - Svg (runtime-only)
-- cmake version >= 3.2.0
+- cmake version >= 3.5.0
 
 Gqrx can be compiled from within Qt Creator or in a terminal:
 
