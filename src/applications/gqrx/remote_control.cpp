@@ -58,8 +58,6 @@ RemoteControl::RemoteControl(QObject *parent) :
     rc_port = DEFAULT_RC_PORT;
     rc_allowed_hosts.append(DEFAULT_RC_ALLOWED_HOSTS);
 
-    rc_socket = 0;
-
     connect(&rc_server, SIGNAL(newConnection()), this, SLOT(acceptConnection()));
 }
 
@@ -78,12 +76,13 @@ void RemoteControl::start_server()
 /*! \brief Stop the server. */
 void RemoteControl::stop_server()
 {
-    if (rc_socket != 0) {
-        rc_socket->close();
-        rc_socket->deleteLater();
-        rc_socket = 0;
-    }
+	for(auto sock : rc_sockets) {
+		sock->close();
+		sock->deleteLater();
+	}
 
+	rc_sockets.clear();
+	
     if (rc_server.isListening())
         rc_server.close();
 
@@ -164,30 +163,34 @@ void RemoteControl::setHosts(QStringList hosts)
  */
 void RemoteControl::acceptConnection()
 {
-    if (rc_socket)
-    {
-        rc_socket->close();
-        rc_socket->deleteLater();
-    }
-    rc_socket = rc_server.nextPendingConnection();
+    auto socket = rc_server.nextPendingConnection();
+	rc_sockets.insert(socket);
 
     // check if host is allowed
-    auto address = rc_socket->peerAddress();
+    auto address = socket->peerAddress();
 
     for (auto allowed_host : rc_allowed_hosts)
     {
         if (address.isEqual(QHostAddress(allowed_host)))
         {
-            connect(rc_socket, SIGNAL(readyRead()), this, SLOT(startRead()));
+			connect(socket, SIGNAL(disconnected()), this, SLOT(socketDisconnect()));
+            connect(socket, SIGNAL(readyRead()), this, SLOT(startRead()));
             return;
         }
     }
 
     std::cout << "*** Remote connection attempt from " << address.toString().toStdString()
               << " (not in allowed list)" << std::endl;
-    rc_socket->close();
-    rc_socket->deleteLater();
-    rc_socket = 0;
+    socket->close();
+    socket->deleteLater();
+}
+
+void RemoteControl::socketDisconnect()
+{
+	QTcpSocket *socket = (QTcpSocket*)sender();
+	rc_sockets.erase(socket);
+	socket->close();
+	socket->deleteLater();	
 }
 
 /*! \brief Start reading from the socket.
@@ -197,6 +200,7 @@ void RemoteControl::acceptConnection()
  */
 void RemoteControl::startRead()
 {
+	QTcpSocket *rc_socket = (QTcpSocket*)sender();
     while (rc_socket->canReadLine()) {
         char    buffer[1024] = {0};
         int     bytes_read;
@@ -259,9 +263,9 @@ void RemoteControl::startRead()
         else if (cmd == "q" || cmd == "Q")
         {
             // FIXME: for now we assume 'close' command
+            rc_sockets.erase(rc_socket);
             rc_socket->close();
             rc_socket->deleteLater();
-            rc_socket = 0;
             return;
         }
         else
