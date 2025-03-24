@@ -2,6 +2,7 @@
     2.17.7: In progress...
 
        NEW: Start/stop I/Q recording via remote control.
+  IMPROVED: Allow multiple simultaneous remote control connections.
      FIXED: Compilation error affecting MSVC.
 
 
