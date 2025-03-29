@@ -95,6 +95,11 @@ void DockAudio::setFftRange(quint64 minf, quint64 maxf)
     }
 }
 
+void DockAudio::setFftSampleRate(quint64 rate)
+{
+    ui->audioSpectrum->setSampleRate(rate);
+}
+
 void DockAudio::setNewFftData(float *fftData, int size)
 {
     ui->audioSpectrum->setNewFftData(fftData, size);
