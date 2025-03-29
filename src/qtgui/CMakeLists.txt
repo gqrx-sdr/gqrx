@@ -20,6 +20,8 @@ add_source_files(SRCS_LIST
 	ctk/ctkRangeSlider.h
 	demod_options.cpp
 	demod_options.h
+	dlg_saveablestring.cpp
+	dlg_saveablestring.h
 	dockaudio.cpp
 	dockaudio.h
 	dockbookmarks.cpp
