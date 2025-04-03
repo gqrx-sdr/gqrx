@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>834</width>
     <height>350</height>
    </rect>
   </property>
@@ -121,6 +121,31 @@
              </property>
              <property name="frameShadow">
               <enum>QFrame::Raised</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="demodButton">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>40</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::StrongFocus</enum>
+             </property>
+             <property name="toolTip">
+              <string>Center plot on filter offset</string>
+             </property>
+             <property name="text">
+              <string>Center</string>
              </property>
             </widget>
            </item>
@@ -364,8 +389,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>35</height>
+     <width>834</width>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
