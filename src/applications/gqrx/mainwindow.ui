@@ -125,7 +125,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="demodButton">
+            <widget class="QPushButton" name="centerButton">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -143,6 +143,9 @@
              </property>
              <property name="toolTip">
               <string>Center plot on filter offset</string>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
              </property>
              <property name="text">
               <string>Center</string>
