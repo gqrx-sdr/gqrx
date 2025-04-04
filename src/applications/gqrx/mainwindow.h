@@ -79,6 +79,8 @@ private:
     QString             m_last_dir;
     RecentConfig       *m_recent_config; /* Menu File Recent config */
 
+    bool m_FullScreenState = false;
+
     qint64 d_lnb_lo;  /* LNB LO in Hz. */
     qint64 d_hw_freq;
     qint64 d_marker_a;
@@ -250,7 +252,11 @@ private slots:
     void on_setMarkerButtonB_clicked();
     void on_clearMarkerButtonA_clicked();
     void on_clearMarkerButtonB_clicked();
+
+    /* my mods */
     void on_centerButton_clicked();
+    void on_fullscreenButton_clicked();
+    void on_cmbBands_currentIndexChanged(int index);
 
     /* window close signals */
     void afsk1200win_closed();
