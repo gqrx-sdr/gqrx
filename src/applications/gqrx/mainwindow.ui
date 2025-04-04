@@ -198,88 +198,61 @@
              <property name="palette">
               <palette>
                <active>
-                <colorrole role="Button">
+                <colorrole role="Highlight">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>120</green>
+                   <blue>215</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="HighlightedText">
                  <brush brushstyle="SolidPattern">
                   <color alpha="255">
                    <red>255</red>
-                   <green>239</green>
-                   <blue>239</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-                <colorrole role="Base">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>86</red>
-                   <green>80</green>
-                   <blue>80</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-                <colorrole role="Window">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>31</red>
-                   <green>29</green>
-                   <blue>29</blue>
+                   <green>255</green>
+                   <blue>255</blue>
                   </color>
                  </brush>
                 </colorrole>
                </active>
                <inactive>
-                <colorrole role="Button">
+                <colorrole role="Highlight">
                  <brush brushstyle="SolidPattern">
                   <color alpha="255">
                    <red>255</red>
-                   <green>239</green>
-                   <blue>239</blue>
+                   <green>255</green>
+                   <blue>255</blue>
                   </color>
                  </brush>
                 </colorrole>
-                <colorrole role="Base">
+                <colorrole role="HighlightedText">
                  <brush brushstyle="SolidPattern">
                   <color alpha="255">
-                   <red>86</red>
-                   <green>80</green>
-                   <blue>80</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-                <colorrole role="Window">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>31</red>
-                   <green>29</green>
-                   <blue>29</blue>
+                   <red>165</red>
+                   <green>165</green>
+                   <blue>165</blue>
                   </color>
                  </brush>
                 </colorrole>
                </inactive>
                <disabled>
-                <colorrole role="Button">
+                <colorrole role="Highlight">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>120</green>
+                   <blue>215</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="HighlightedText">
                  <brush brushstyle="SolidPattern">
                   <color alpha="255">
                    <red>255</red>
-                   <green>239</green>
-                   <blue>239</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-                <colorrole role="Base">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>31</red>
-                   <green>29</green>
-                   <blue>29</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-                <colorrole role="Window">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>31</red>
-                   <green>29</green>
-                   <blue>29</blue>
+                   <green>255</green>
+                   <blue>255</blue>
                   </color>
                  </brush>
                 </colorrole>

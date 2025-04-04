@@ -965,6 +965,41 @@ void CPlotter::setWaterfallMode(int mode)
     m_WaterfallMode = (eWaterfallMode)mode;
 }
 
+// Called when touch event
+void CPlotter::viewportEvent(QEvent * event)
+{
+    switch (event->type()) {
+        case QEvent::TouchBegin:
+        case QEvent::TouchUpdate:
+        case QEvent::TouchEnd:
+        {
+            QTouchEvent *touchEvent = static_cast<QTouchEvent *>(event);
+            QList<QTouchEvent::TouchPoint> touchPoints = touchEvent->touchPoints();
+            if (touchPoints.count() == 2) {
+                // determine scale factor
+                const QTouchEvent::TouchPoint &touchPoint0 = touchPoints.first();
+                const QTouchEvent::TouchPoint &touchPoint1 = touchPoints.last();
+                qreal currentScaleFactor =
+                        QLineF(touchPoint0.pos(), touchPoint1.pos()).length()
+                        / QLineF(touchPoint0.startPos(), touchPoint1.startPos()).length();
+                if (touchEvent->touchPointStates() & Qt::TouchPointReleased) {
+                    // if one of the fingers is released, remember the current scale
+                    // factor so that adding another finger later will continue zooming
+                    // by adding new scale factor to the existing remembered value.
+                    totalScaleFactor *= currentScaleFactor;
+                    currentScaleFactor = 1;
+                }
+                // setTransform(QTransform::fromScale(totalScaleFactor * currentScaleFactor,
+                //                                    totalScaleFactor * currentScaleFactor));
+                zoomStepX(0.1, totalScaleFactor);
+            }
+        }
+        default:
+            break;
+    }
+    return CPlotter::viewportEvent(event);
+}
+
 // Called when a mouse wheel is turned
 void CPlotter::wheelEvent(QWheelEvent * event)
 {
