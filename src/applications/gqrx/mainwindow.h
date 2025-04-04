@@ -250,6 +250,7 @@ private slots:
     void on_setMarkerButtonB_clicked();
     void on_clearMarkerButtonA_clicked();
     void on_clearMarkerButtonB_clicked();
+    void on_centerButton_clicked();
 
     /* window close signals */
     void afsk1200win_closed();

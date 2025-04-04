@@ -237,6 +237,8 @@ private:
     static void calcDivSize (qint64 low, qint64 high, int divswanted, qint64 &adjlow, qint64 &step, int& divs);
     void        showToolTip(QMouseEvent* event, QString toolTipText);
 
+    bool        m_XAxisMoved;
+
     bool        m_MaxHoldActive;
     bool        m_MaxHoldValid;
     bool        m_MinHoldActive;

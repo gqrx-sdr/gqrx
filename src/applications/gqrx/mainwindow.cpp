@@ -357,7 +357,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
 
     // enable frequency tooltips on FFT plot
-    ui->plotter->setTooltipsEnabled(true);
+    //ui->plotter->setTooltipsEnabled(true);
 
     // Create list of input devices. This must be done before the configuration is
     // restored because device probing might change the device configuration
@@ -986,6 +986,11 @@ void MainWindow::on_clearMarkerButtonA_clicked()
 void MainWindow::on_clearMarkerButtonB_clicked()
 {
     setMarkerB(MARKER_OFF);
+}
+
+void MainWindow::on_centerButton_clicked()
+{
+    ui->plotter->moveToDemodFreq();
 }
 
 /**
