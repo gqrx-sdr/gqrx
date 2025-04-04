@@ -236,10 +236,10 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 if (m_TooltipsEnabled)
                     QToolTip::hideText();
             }
-            else if (isPointCloseTo(py, m_XAxisYCenter * 0.95 + (m_WaterfallImage.height()/2), m_CursorCaptureDelta + (m_WaterfallImage.height()/2)))
+            else if (isPointCloseTo(py, m_XAxisYCenter * 0.95 + (m_WaterfallImage.height()/3), m_CursorCaptureDelta + (m_WaterfallImage.height()/3)))
             {
                 if (XAXIS != m_CursorCaptured)
-                    setCursor(QCursor(Qt::SizeHorCursor));
+                    setCursor(QCursor(Qt::OpenHandCursor));
                 m_CursorCaptured = XAXIS;
                 if (m_TooltipsEnabled)
                     QToolTip::hideText();
