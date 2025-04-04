@@ -147,6 +147,10 @@
              <property name="autoFillBackground">
               <bool>false</bool>
              </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(203, 203, 203);
+alternate-background-color: rgb(220, 220, 220);</string>
+             </property>
              <property name="text">
               <string>Center</string>
              </property>
@@ -198,61 +202,115 @@
              <property name="palette">
               <palette>
                <active>
-                <colorrole role="Highlight">
+                <colorrole role="Button">
                  <brush brushstyle="SolidPattern">
                   <color alpha="255">
-                   <red>0</red>
-                   <green>120</green>
-                   <blue>215</blue>
+                   <red>203</red>
+                   <green>203</green>
+                   <blue>203</blue>
                   </color>
                  </brush>
                 </colorrole>
-                <colorrole role="HighlightedText">
+                <colorrole role="Base">
                  <brush brushstyle="SolidPattern">
                   <color alpha="255">
-                   <red>255</red>
-                   <green>255</green>
-                   <blue>255</blue>
+                   <red>203</red>
+                   <green>203</green>
+                   <blue>203</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Window">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>203</red>
+                   <green>203</green>
+                   <blue>203</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="AlternateBase">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>220</red>
+                   <green>220</green>
+                   <blue>220</blue>
                   </color>
                  </brush>
                 </colorrole>
                </active>
                <inactive>
-                <colorrole role="Highlight">
+                <colorrole role="Button">
                  <brush brushstyle="SolidPattern">
                   <color alpha="255">
-                   <red>255</red>
-                   <green>255</green>
-                   <blue>255</blue>
+                   <red>203</red>
+                   <green>203</green>
+                   <blue>203</blue>
                   </color>
                  </brush>
                 </colorrole>
-                <colorrole role="HighlightedText">
+                <colorrole role="Base">
                  <brush brushstyle="SolidPattern">
                   <color alpha="255">
-                   <red>165</red>
-                   <green>165</green>
-                   <blue>165</blue>
+                   <red>203</red>
+                   <green>203</green>
+                   <blue>203</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Window">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>203</red>
+                   <green>203</green>
+                   <blue>203</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="AlternateBase">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>220</red>
+                   <green>220</green>
+                   <blue>220</blue>
                   </color>
                  </brush>
                 </colorrole>
                </inactive>
                <disabled>
-                <colorrole role="Highlight">
+                <colorrole role="Button">
                  <brush brushstyle="SolidPattern">
                   <color alpha="255">
-                   <red>0</red>
-                   <green>120</green>
-                   <blue>215</blue>
+                   <red>203</red>
+                   <green>203</green>
+                   <blue>203</blue>
                   </color>
                  </brush>
                 </colorrole>
-                <colorrole role="HighlightedText">
+                <colorrole role="Base">
                  <brush brushstyle="SolidPattern">
                   <color alpha="255">
-                   <red>255</red>
-                   <green>255</green>
-                   <blue>255</blue>
+                   <red>203</red>
+                   <green>203</green>
+                   <blue>203</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Window">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>203</red>
+                   <green>203</green>
+                   <blue>203</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="AlternateBase">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>220</red>
+                   <green>220</green>
+                   <blue>220</blue>
                   </color>
                  </brush>
                 </colorrole>
@@ -261,6 +319,10 @@
              </property>
              <property name="autoFillBackground">
               <bool>false</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(203, 203, 203);
+alternate-background-color: rgb(220, 220, 220);</string>
              </property>
              <property name="editable">
               <bool>true</bool>
@@ -320,6 +382,10 @@
            </item>
            <item>
             <widget class="QPushButton" name="fullscreenButton">
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(203, 203, 203);
+alternate-background-color: rgb(220, 220, 220);</string>
+             </property>
              <property name="text">
               <string>Fullscreen</string>
              </property>
