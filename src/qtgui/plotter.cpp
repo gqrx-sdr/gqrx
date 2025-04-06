@@ -228,15 +228,15 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 setCursor(QCursor(Qt::PointingHandCursor));
                 m_CursorCaptured = TAG;
             }
-            else if (isPointCloseTo(px, m_YAxisWidth/2, m_YAxisWidth/2))
+            else if (isPointCloseTo(px, m_YAxisWidth/2, m_YAxisWidth))
             {
                 if (YAXIS != m_CursorCaptured)
-                    setCursor(QCursor(Qt::OpenHandCursor));
+                    setCursor(QCursor(Qt::SizeVerCursor));
                 m_CursorCaptured = YAXIS;
                 if (m_TooltipsEnabled)
                     QToolTip::hideText();
             }
-            else if (isPointCloseTo(py, m_XAxisYCenter * 0.95 + (m_WaterfallImage.height()/5), m_CursorCaptureDelta + (m_WaterfallImage.height()/5)))
+            else if (isPointCloseTo(py, m_XAxisYCenter * 0.95 + (m_WaterfallImage.height()), m_CursorCaptureDelta + (m_WaterfallImage.height())))
             {
                 if (XAXIS != m_CursorCaptured)
                     setCursor(QCursor(Qt::OpenHandCursor));
@@ -1042,7 +1042,7 @@ void CPlotter::wheelEvent(QWheelEvent * event)
 
         emit pandapterRangeChanged(m_PandMindB, m_PandMaxdB);
     }
-    else if (m_CursorCaptured == XAXIS)
+    else if (m_CursorCaptured == XAXIS && (event->buttons() & (Qt::LeftButton)))
     {
         zoomStepX(pow(zoomBase, numSteps), px);
     }

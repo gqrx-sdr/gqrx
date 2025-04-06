@@ -109,7 +109,7 @@
              </property>
              <property name="minimumSize">
               <size>
-               <width>280</width>
+               <width>260</width>
                <height>40</height>
               </size>
              </property>
@@ -134,8 +134,14 @@
              </property>
              <property name="minimumSize">
               <size>
-               <width>40</width>
+               <width>50</width>
                <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>16777215</height>
               </size>
              </property>
              <property name="focusPolicy">
@@ -179,7 +185,7 @@ alternate-background-color: rgb(220, 220, 220);</string>
              </property>
              <property name="minimumSize">
               <size>
-               <width>150</width>
+               <width>100</width>
                <height>40</height>
               </size>
              </property>
@@ -195,8 +201,14 @@ alternate-background-color: rgb(220, 220, 220);</string>
             <widget class="QComboBox" name="cmbBands">
              <property name="minimumSize">
               <size>
-               <width>40</width>
+               <width>60</width>
                <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>60</width>
+               <height>16777215</height>
               </size>
              </property>
              <property name="palette">
@@ -382,6 +394,18 @@ alternate-background-color: rgb(220, 220, 220);</string>
            </item>
            <item>
             <widget class="QPushButton" name="fullscreenButton">
+             <property name="minimumSize">
+              <size>
+               <width>65</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>65</width>
+               <height>16777215</height>
+              </size>
+             </property>
              <property name="styleSheet">
               <string notr="true">background-color: rgb(203, 203, 203);
 alternate-background-color: rgb(220, 220, 220);</string>
