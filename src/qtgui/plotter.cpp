@@ -97,7 +97,7 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     setStatusTip(tr(STATUS_TIP));
     setWfColormap("gqrx");
 
-    m_XAxisMoved = false;
+    m_AxisMoved = false;
 
     m_MaxHoldActive = false;
     m_MaxHoldValid = false;
@@ -228,7 +228,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
                 setCursor(QCursor(Qt::PointingHandCursor));
                 m_CursorCaptured = TAG;
             }
-            else if (isPointCloseTo(px, m_YAxisWidth/2, m_YAxisWidth))
+            else if (isPointCloseTo(px, m_YAxisWidth/2, m_YAxisWidth/2))
             {
                 if (YAXIS != m_CursorCaptured)
                     setCursor(QCursor(Qt::SizeVerCursor));
@@ -364,6 +364,9 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             }
             else
             {
+                // axis was moved
+                m_AxisMoved = true;
+
                 emit pandapterRangeChanged(m_PandMindB, m_PandMaxdB);
 
                 m_histIIRValid = false;
@@ -384,8 +387,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             qint64 delta_hz = qRound64((qreal)delta_px * (qreal)m_Span / (qreal)w);
             if (delta_hz != 0) // update m_Xzero only on real change
             {
-                // X axis was moved
-                m_XAxisMoved = true;
+                // axis was moved
+                m_AxisMoved = true;
 
                 if (event->buttons() & Qt::MiddleButton)
                 {
@@ -808,7 +811,7 @@ void CPlotter::mouseReleaseEvent(QMouseEvent * event)
         m_CursorCaptured = NOCAP;
         m_GrabPosition = 0;
 
-        if(!m_XAxisMoved)
+        if(!m_AxisMoved)
         {
             int best = -1;
 
@@ -827,7 +830,7 @@ void CPlotter::mouseReleaseEvent(QMouseEvent * event)
             //m_CursorCaptured = CENTER;
             //m_GrabPosition = 1;
             updateOverlay();
-        } else m_XAxisMoved = false;
+        } else m_AxisMoved = false;
     }
     else
     {
@@ -843,7 +846,7 @@ void CPlotter::mouseReleaseEvent(QMouseEvent * event)
         } 
         else if (NOCAP == m_CursorCaptured) 
         {
-            if(!m_XAxisMoved)
+            if(!m_AxisMoved)
             {
                 int best = -1;
 
@@ -862,7 +865,7 @@ void CPlotter::mouseReleaseEvent(QMouseEvent * event)
                 //m_CursorCaptured = CENTER;
                 //m_GrabPosition = 1;
                 updateOverlay();
-            } else m_XAxisMoved = false;
+            } else m_AxisMoved = false;
         }
     }
 }
@@ -1044,6 +1047,8 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     }
     else if (m_CursorCaptured == XAXIS && (event->buttons() & (Qt::LeftButton)))
     {
+        // axis was moved
+        m_AxisMoved = true;
         zoomStepX(pow(zoomBase, numSteps), px);
     }
     else if (event->modifiers() & Qt::ControlModifier)

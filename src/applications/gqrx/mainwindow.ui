@@ -176,28 +176,6 @@ alternate-background-color: rgb(220, 220, 220);</string>
             </spacer>
            </item>
            <item>
-            <widget class="CMeter" name="sMeter">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QComboBox" name="cmbBands">
              <property name="minimumSize">
               <size>
@@ -1052,12 +1030,6 @@ alternate-background-color: rgb(220, 220, 220);</string>
    <class>CPlotter</class>
    <extends>QFrame</extends>
    <header>qtgui/plotter.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>CMeter</class>
-   <extends>QFrame</extends>
-   <header>qtgui/meter.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
