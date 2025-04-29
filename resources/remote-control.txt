@@ -95,7 +95,9 @@ Supported commands:
  gqrx_get_hw_freq
   This returns the actual hardware frequency the SDR is tuned to in Hz.
  gqrx_set_hw_freq <Hz>
-  This sets the hardware frequency the SDR is tuned to.
+  This sets the hardware frequency the SDR is tuned to, but is not deterministic
+  without first setting the filter offset and LNB LO setting to zero, or calculating
+  the difference between the current filter offset
  gqrx_get_filter_offset
   This gets the difference between the hardware frequency and the demodulator.
  gqrx_set_filter_offset [Hz]
