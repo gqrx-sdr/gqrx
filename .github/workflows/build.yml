@@ -271,6 +271,7 @@ jobs:
         git clone https://gitea.osmocom.org/sdr/rtl-sdr.git
         cd rtl-sdr
         cmake -S . -B build \
+          -DCMAKE_C_FLAGS="-std=gnu17" \
           -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
           -DCMAKE_BUILD_TYPE=Release \
           -DDETACH_KERNEL_DRIVER=OFF \
