@@ -109,7 +109,7 @@ jobs:
           cd libad9361-iio
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Release ..
+          cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_BUILD_TYPE=Release ..
           make -j4
           sudo make install
 
