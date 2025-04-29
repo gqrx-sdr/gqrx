@@ -1,16 +1,29 @@
 Remote control protocol.
 
+Note:   Gqrx is not a 'rig' in the sense that it is not
+        supported by hamlib as a rig file, but some commands exist
+        here for compatibility with some programs to pretend
+        that Gqrx is a 'rig', for limited Gqrx control.
+        Custom commands will just need to be sent over the local
+        TCP socket.
+
 Supported commands:
  f
-    Get frequency [Hz]
+    Get the frequency [Hz] of the audio demodulator.
+    This is relative to the LNB LO offset, and not the
+    frequency the reciever is actually tuned to.
  F <frequency>
-    Set frequency [Hz]
+    Set frequency [Hz] of the audio demodulator.
+    This is relative to the LNB LO offset, and not the
+    frequency the reciever is actually tuned to.
  m
     Get demodulator mode and passband
  M <mode> [passband]
     Set demodulator mode and passband [Hz]
     Passing a '?' as the first argument instead of 'mode' will return
     a space separated list of radio backend supported modes.
+    Current supported modes:
+    OFF RAW AM AMS LSB USB CWL CWR CWU CW FM WFM WFM_ST WFM_ST_OIRT
  l|L ?
     Get a space separated list of settings available for reading (l) or writing (L).
  l STRENGTH
@@ -79,6 +92,14 @@ Supported commands:
  _
     Get version
 
+ gqrx_get_hw_freq
+  This returns the actual hardware frequency the SDR is tuned to in Hz.
+ gqrx_set_hw_freq <Hz>
+  This sets the hardware frequency the SDR is tuned to.
+ gqrx_get_filter_offset
+  This gets the difference between the hardware frequency and the demodulator.
+ gqrx_set_filter_offset [Hz]
+  This sets the filter offset, useful for making deterministic hardware frequency changes.
 
 Reply:
  RPRT 0
