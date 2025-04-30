@@ -286,6 +286,7 @@ jobs:
         cd airspyone_host
         cmake -S . -B build \
           -G "MinGW Makefiles" \
+          -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
           -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64
         cmake --build build
         cmake --install build
@@ -296,6 +297,7 @@ jobs:
         cd airspyhf
         cmake -S . -B build \
           -G "MSYS Makefiles" \
+          -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
           -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
           -DTHREADS_PTHREADS_INCLUDE_DIR=${RUNNER_TEMP}/msys64/mingw64/include \
           -DTHREADS_PTHREADS_WIN32_LIBRARY=${RUNNER_TEMP}/msys64/mingw64/lib/libpthread.a
