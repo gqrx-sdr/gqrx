@@ -3,6 +3,7 @@
 
        NEW: Start/stop I/Q recording via remote control.
   IMPROVED: Allow multiple simultaneous remote control connections.
+     FIXED: DMG release for ARM-based Macs fails to start.
      FIXED: Compilation error affecting MSVC.
 
 
