@@ -2,8 +2,16 @@
 
 GQRX_VERSION="$(<build/version.txt)"
 IDENTITY=Y3GC27WZ4S
-BREW_PREFIX="$(brew --prefix)"
-MACDEPLOYQT6="${BREW_PREFIX}"/opt/qt@6/bin/macdeployqt
+
+echo "CONDA_PREFIX: " $CONDA_PREFIX
+
+MACDEPLOYQT6=${CONDA_PREFIX}/bin/macdeployqt6
+echo "macdeployqt6: " ${MACDEPLOYQT6}
+
+# cleanup and setup
+if [ -e Gqrx.app ] ;
+then rm -r Gqrx.app
+fi
 
 mkdir -p Gqrx.app/Contents/MacOS
 mkdir -p Gqrx.app/Contents/Resources
@@ -51,20 +59,15 @@ EOM
 
 cp build/src/gqrx Gqrx.app/Contents/MacOS
 cp resources/icons/gqrx.icns Gqrx.app/Contents/Resources
-# NOTE: PlutoSDR is built locally, so it will not in the brew path
-cp /usr/local/lib/SoapySDR/modules*/libPlutoSDRSupport.so Gqrx.app/Contents/soapy-modules
-cp "${BREW_PREFIX}"/lib/SoapySDR/modules*/libremoteSupport.so Gqrx.app/Contents/soapy-modules
-chmod 644 Gqrx.app/Contents/soapy-modules/*
+cp "$CONDA_PREFIX"/lib/SoapySDR/modules*/* Gqrx.app/Contents/soapy-modules
 
-dylibbundler -s "${BREW_PREFIX}"/opt/icu4c/lib/ -od -b -x Gqrx.app/Contents/MacOS/gqrx -x Gqrx.app/Contents/soapy-modules/libPlutoSDRSupport.so -x Gqrx.app/Contents/soapy-modules/libremoteSupport.so -d Gqrx.app/Contents/libs/
-"${MACDEPLOYQT6}" Gqrx.app -no-strip -always-overwrite # TODO: Remove macdeployqt workaround
 if [ "$1" = "true" ]; then
-    "${MACDEPLOYQT6}" Gqrx.app -no-strip -always-overwrite -sign-for-notarization="${IDENTITY}"
+    "${MACDEPLOYQT6}" Gqrx.app -verbose=1 -no-strip -always-overwrite -sign-for-notarization="${IDENTITY}" -libpath=Gqrx.app/Contents/Frameworks
 else
-    "${MACDEPLOYQT6}" Gqrx.app -no-strip -always-overwrite
+    "${MACDEPLOYQT6}" Gqrx.app -verbose=1 -no-strip -always-overwrite -libpath=Gqrx.app/Contents/Frameworks
 fi
 
-for f in Gqrx.app/Contents/libs/*.dylib Gqrx.app/Contents/soapy-modules/*.so Gqrx.app/Contents/Frameworks/*.framework Gqrx.app/Contents/Frameworks/*.dylib Gqrx.app/Contents/MacOS/gqrx
+for f in Gqrx.app/Contents/Frameworks/*.dylib Gqrx.app/Contents/soapy-modules/* Gqrx.app/Contents/MacOS/gqrx
 do
     if [ "$1" = "true" ]; then
         codesign --force --verify --verbose --timestamp --options runtime --entitlements /tmp/Entitlements.plist --sign "${IDENTITY}" "$f"

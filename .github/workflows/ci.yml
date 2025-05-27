@@ -72,24 +72,26 @@ jobs:
         backend: [Portaudio, Gr-audio]
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Install dependencies
-        run: |
-          # for https://github.com/actions/runner-images/issues/9272
-          sudo chown -R runner:admin /usr/local/
-          brew update
-          brew install airspy boost gnuradio hackrf libbladerf librtlsdr pybind11 six uhd qt@6 || true
-
-          cd /tmp
-          git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
-          cd gr-osmosdr
-          mkdir build
-          cd build
-          cmake -DCMAKE_CXX_FLAGS=-Wno-register ..
-          LIBRARY_PATH=/usr/local/opt/icu4c/lib make -j4
-          sudo make install
+      - name: Install conda dependencies
+        id: setup-micromamba
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-name: gqrx
+          create-args: >-
+            c-compiler
+            cxx-compiler
+            cmake
+            make
+            pkg-config
+            gnuradio-core
+            gnuradio-osmosdr
+            libboost-devel
+            qt6-main
+            volk
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Configure
+        shell: bash -el {0}
         run: mkdir build && cd build && cmake -DOSX_AUDIO_BACKEND:STRING=${{ matrix.backend }} ..
       - name: Compile
         working-directory: build
