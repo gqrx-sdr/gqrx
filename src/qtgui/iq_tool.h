@@ -71,6 +71,8 @@ signals:
 public slots:
     void cancelRecording();
     void cancelPlayback();
+    void startIqRecorder(void);     /*!< Used if IQ Recorder is started e.g. from remote control */
+    void stopIqRecorder(void);      /*!< Used if IQ Recorder is stopped e.g. from remote control */
 
 private slots:
     void on_recDirEdit_textChanged(const QString &text);
