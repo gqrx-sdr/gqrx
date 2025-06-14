@@ -1625,6 +1625,19 @@ void MainWindow::stopAudioPlayback()
     }
 }
 
+void MainWindow::startIqStream(const QString& zmq_host, int zmq_port)
+{
+
+    // rx->open_iq_stream_socket("tcp://127.0.0.1", 9001);
+    rx->open_iq_stream_socket(zmq_host.toStdString(), zmq_port);
+
+}
+
+void MainWindow::stopIqStream()
+{
+    rx->close_iq_stream_socket();
+}
+
 /** Start streaming audio over UDP. */
 void MainWindow::startAudioStream(const QString& udp_host, int udp_port, bool stereo)
 {
@@ -1647,13 +1660,16 @@ void MainWindow::startIqRecording(const QString& recdir, const QString& format)
     auto sr = qRound64(rx->get_input_rate());
     auto dec = (quint32)(rx->get_input_decim());
     auto currentDate = QDateTime::currentDateTimeUtc();
-    auto filenameTemplate = currentDate.toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.%4").arg(recdir).arg(freq).arg(sr/dec);
+    // meh hack
+    //auto filenameTemplate = currentDate.toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.%4").arg(recdir).arg(freq).arg(sr/dec);
+    QString filenameTemplate = "/tmp/iq_dump.txt";
     bool sigmf = (format == "SigMF");
-    auto lastRec = filenameTemplate.arg(sigmf ? "sigmf-data" : "raw");
-
-    QFile metaFile(filenameTemplate.arg("sigmf-meta"));
+    //auto lastRec = filenameTemplate.arg(sigmf ? "sigmf-data" : "raw");
+    auto lastRec = filenameTemplate;
+    //QFile metaFile(filenameTemplate.arg("sigmf-meta"));
+    QFile metaFile(filenameTemplate);
     bool ok = true;
-    if (sigmf) {
+    /*if (sigmf) {
         auto meta = QJsonDocument { QJsonObject {
             {"global", QJsonObject {
 #if Q_BYTE_ORDER == Q_BIG_ENDIAN
@@ -1678,6 +1694,7 @@ void MainWindow::startIqRecording(const QString& recdir, const QString& format)
             ok = false;
         }
     }
+    */
 
     // start recorder; fails if recording already in progress
     if (!ok || rx->start_iq_recording(lastRec.toStdString()))
