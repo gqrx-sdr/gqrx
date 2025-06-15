@@ -116,6 +116,9 @@ private slots:
     void setNewUdpHost(const QString &host);
     void setNewUdpPort(int port);
     void setNewUdpStereo(bool enabled);
+    void setNewZmqHost(const QString &host);
+    void setNewZmqPort(int port);
+    void setNewZmqStream(bool enabled);
 
 
 private:
@@ -127,6 +130,10 @@ private:
     QString        udp_host;     /*! UDP client host name. */
     int            udp_port;     /*! UDP client port number. */
     bool           udp_stereo;   /*! Enable stereo streaming for UDP. */
+
+    QString        zmq_host;     /*! UDP client host name. */
+    int            zmq_port;     /*! UDP client port number. */
+    bool           zmq_stream;   /*! Enable stereo streaming for UDP. */
 
     bool           autoSpan;     /*! Whether to allow mode-dependent auto span. */
 

@@ -262,6 +262,13 @@
            </property>
           </widget>
          </item>
+         <item row="2" column="0">
+          <widget class="QCheckBox" name="udpStereo">
+           <property name="text">
+            <string>Stereo</string>
+           </property>
+          </widget>
+         </item>
          <item row="0" column="1" colspan="2">
           <widget class="QLineEdit" name="udpHost">
            <property name="toolTip">
@@ -288,13 +295,6 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QCheckBox" name="udpStereo">
-           <property name="text">
-            <string>Stereo</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
        <item>
@@ -316,6 +316,110 @@
       <attribute name="title">
        <string>IQ Stream</string>
       </attribute>
+      <widget class="QWidget" name="layoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>179</width>
+         <height>83</height>
+        </rect>
+       </property>
+       <layout class="QGridLayout" name="gridLayoutZMQ">
+        <item row="1" column="0">
+         <widget class="QLabel" name="portLabelZMQ">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>Network port to stream to</string>
+          </property>
+          <property name="text">
+           <string>ZMQ port</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QSpinBox" name="udpPortZMQ">
+          <property name="toolTip">
+           <string>Network port to stream to</string>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>65535</number>
+          </property>
+          <property name="value">
+           <number>9001</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" colspan="2">
+         <widget class="QLineEdit" name="udpHostZMQ">
+          <property name="toolTip">
+           <string>Network host to stream to</string>
+          </property>
+          <property name="text">
+           <string>localhost</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="hostLabelZMQ">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>Network host to stream to</string>
+          </property>
+          <property name="text">
+           <string>ZMQ Host</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QPushButton" name="zmqStreamButton">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>100</y>
+         <width>111</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Lock panadapter and waterfall sliders together</string>
+       </property>
+       <property name="statusTip">
+        <string>Lock panadapter and waterfall sliders together</string>
+       </property>
+       <property name="text">
+        <string>Stream</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+      </widget>
      </widget>
     </widget>
    </item>

@@ -242,3 +242,22 @@ void CAudioOptions::on_udpStereo_stateChanged(int state)
 {
     emit newUdpStereo(state);
 }
+
+/** Zmq host name has changed. */
+void CAudioOptions::on_ZmqHost_textChanged(const QString &text)
+{
+    if (!text.isEmpty())
+        emit newZmqHost(text);
+}
+
+/** Zmq port number has changed. */
+void CAudioOptions::on_ZmqPort_valueChanged(int port)
+{
+    emit newZmqPort(port);
+}
+
+/** Zmq stereo setting has changed. */
+void CAudioOptions::on_ZmqStream_stateChanged(int state)
+{
+    emit newZmqStream(state);
+}

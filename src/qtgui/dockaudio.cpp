@@ -47,6 +47,8 @@ DockAudio::DockAudio(QWidget *parent) :
     connect(audioOptions, SIGNAL(newUdpHost(QString)), this, SLOT(setNewUdpHost(QString)));
     connect(audioOptions, SIGNAL(newUdpPort(int)), this, SLOT(setNewUdpPort(int)));
     connect(audioOptions, SIGNAL(newUdpStereo(bool)), this, SLOT(setNewUdpStereo(bool)));
+    
+    connect(audioOptions, SIGNAL(newZmqHost(Qstring)), this, SLOT(setNewZmqHost(Qstring)));
 
     connect(ui->audioSpectrum, SIGNAL(pandapterRangeChanged(float,float)), audioOptions, SLOT(setPandapterSliderValues(float,float)));
 
@@ -491,6 +493,25 @@ void DockAudio::setNewUdpPort(int port)
 void DockAudio::setNewUdpStereo(bool enabled)
 {
     udp_stereo = enabled;
+}
+
+/* ! \brief Slot called when new zmq host has been entered */
+void DockAudio::setNewZmqHost(const QString &host)
+{
+    if (host.isEmpty())
+        zmq_host = "tcp://127.0.0.1";
+    else
+        zmq_host = host;
+}
+
+void DockAudio::setNewZmqPort(int port)
+{
+    zmq_port = port;
+}
+
+void DockAudio::setNewZmqStream(bool enabled)
+{
+    zmq_stream = enabled;
 }
 
 void DockAudio::recordToggleShortcut() {

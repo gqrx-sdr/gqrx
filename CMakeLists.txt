@@ -28,7 +28,7 @@ set(PACKAGE ${PROJECT_NAME})
 
 ########### Main global variables ###########
 if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: Debug GProf Valgrind Release" FORCE)
+    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: Debug GProf Valgrind Release" FORCE)
 endif()
 
 set(BUILDTYPE ${CMAKE_BUILD_TYPE})
@@ -140,7 +140,7 @@ include(FindPkgConfig)
 find_package(Gnuradio-osmosdr REQUIRED)
 
 set(GR_REQUIRED_COMPONENTS RUNTIME ANALOG AUDIO BLOCKS DIGITAL FILTER FFT PMT)
-find_package(Gnuradio REQUIRED COMPONENTS analog audio blocks digital filter fft network)
+find_package(Gnuradio REQUIRED COMPONENTS analog audio blocks digital filter fft network zeromq)
 if(NOT Gnuradio_FOUND)
     message(FATAL_ERROR "GnuRadio Runtime required to compile gqrx")
 endif()
