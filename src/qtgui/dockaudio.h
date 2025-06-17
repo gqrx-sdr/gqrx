@@ -103,6 +103,11 @@ signals:
     /*! \brief Audio mute chenged. */
     void audioMuted(bool muted);
 
+    void zmqStreamStart(const QString &host, int port);
+
+    void zmqStreamStop();
+    
+
 private slots:
     void on_audioGainSlider_valueChanged(int value);
     void on_audioStreamButton_clicked(bool checked);
@@ -118,7 +123,7 @@ private slots:
     void setNewUdpStereo(bool enabled);
     void setNewZmqHost(const QString &host);
     void setNewZmqPort(int port);
-    void setNewZmqStream(bool enabled);
+    void setNewZmqStream();
 
 
 private:

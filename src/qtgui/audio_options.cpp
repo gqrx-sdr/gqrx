@@ -23,6 +23,7 @@
 #include <QFileDialog>
 #include <QPalette>
 #include <QDebug>
+#include <iostream>
 
 #include "audio_options.h"
 #include "ui_audio_options.h"
@@ -257,7 +258,7 @@ void CAudioOptions::on_ZmqPort_valueChanged(int port)
 }
 
 /** Zmq stereo setting has changed. */
-void CAudioOptions::on_ZmqStream_stateChanged(int state)
+void CAudioOptions::on_zmqStream_toggled()
 {
-    emit newZmqStream(state);
+    emit newZmqStream();
 }

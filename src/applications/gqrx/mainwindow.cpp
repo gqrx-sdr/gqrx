@@ -268,6 +268,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockAudio, SIGNAL(audioPlayStarted(QString)), this, SLOT(startAudioPlayback(QString)));
     connect(uiDockAudio, SIGNAL(audioPlayStopped()), this, SLOT(stopAudioPlayback()));
     connect(uiDockAudio, SIGNAL(fftRateChanged(int)), this, SLOT(setAudioFftRate(int)));
+    connect(uiDockAudio, SIGNAL(zmqStreamStart(QString,int)), this, SLOT(startIqStream(QString,int)));
+    connect(uiDockAudio, SIGNAL(zmqStreamStop()), this, SLOT(stopIqStream()));
 
     // FFT Dock
     connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setIqFftSize(int)));
@@ -1627,10 +1629,8 @@ void MainWindow::stopAudioPlayback()
 
 void MainWindow::startIqStream(const QString& zmq_host, int zmq_port)
 {
-
     // rx->open_iq_stream_socket("tcp://127.0.0.1", 9001);
     rx->open_iq_stream_socket(zmq_host.toStdString(), zmq_port);
-
 }
 
 void MainWindow::stopIqStream()

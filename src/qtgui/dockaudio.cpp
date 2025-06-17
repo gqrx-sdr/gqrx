@@ -34,7 +34,10 @@ DockAudio::DockAudio(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DockAudio),
     autoSpan(true),
-    rx_freq(144000000)
+    rx_freq(144000000),
+    zmq_stream(false),
+    zmq_host("tcp://127.0.0.1"),
+    zmq_port(9001)
 {
     ui->setupUi(this);
 
@@ -48,7 +51,9 @@ DockAudio::DockAudio(QWidget *parent) :
     connect(audioOptions, SIGNAL(newUdpPort(int)), this, SLOT(setNewUdpPort(int)));
     connect(audioOptions, SIGNAL(newUdpStereo(bool)), this, SLOT(setNewUdpStereo(bool)));
     
-    connect(audioOptions, SIGNAL(newZmqHost(Qstring)), this, SLOT(setNewZmqHost(Qstring)));
+    connect(audioOptions, SIGNAL(newZmqHost(QString)), this, SLOT(setNewZmqHost(QString)));
+    connect(audioOptions, SIGNAL(newZmqPort(int)), this, SLOT(setNewZmqPort(int)));
+    connect(audioOptions, SIGNAL(newZmqStream()), this, SLOT(setNewZmqStream()));
 
     connect(ui->audioSpectrum, SIGNAL(pandapterRangeChanged(float,float)), audioOptions, SLOT(setPandapterSliderValues(float,float)));
 
@@ -509,9 +514,18 @@ void DockAudio::setNewZmqPort(int port)
     zmq_port = port;
 }
 
-void DockAudio::setNewZmqStream(bool enabled)
+void DockAudio::setNewZmqStream()
 {
-    zmq_stream = enabled;
+    if (!zmq_stream)
+    {
+        zmq_stream = true;
+        emit zmqStreamStart(zmq_host, zmq_port);
+    }
+    else
+    {
+        zmq_stream = false;
+        emit zmqStreamStop();
+    }
 }
 
 void DockAudio::recordToggleShortcut() {

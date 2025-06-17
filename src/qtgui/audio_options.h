@@ -77,7 +77,7 @@ signals:
 
     void newZmqHost(const QString text);
     void newZmqPort(int port);
-    void newZmqStream(bool enabled);
+    void newZmqStream();
 
 private slots:
     void on_fftSplitSlider_valueChanged(int value);
@@ -92,7 +92,7 @@ private slots:
 
     void on_ZmqHost_textChanged(const QString &text);
     void on_ZmqPort_valueChanged(int port);
-    void on_ZmqStream_stateChanged(int state);
+    void on_zmqStream_toggled();
 
 
 private:
