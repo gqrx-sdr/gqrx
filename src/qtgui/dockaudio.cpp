@@ -35,9 +35,9 @@ DockAudio::DockAudio(QWidget *parent) :
     ui(new Ui::DockAudio),
     autoSpan(true),
     rx_freq(144000000),
-    zmq_stream(false),
     zmq_host("tcp://127.0.0.1"),
-    zmq_port(9001)
+    zmq_port(9001),
+    zmq_stream(false)
 {
     ui->setupUi(this);
 

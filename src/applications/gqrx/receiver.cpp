@@ -1243,7 +1243,6 @@ receiver::status receiver::close_iq_stream_socket()
     }
 
     tb->lock();
-    iq_sink->close();
 
     if (d_decim >= 2)
         tb->disconnect(input_decim, 0, iq_socket_sink, 0);
@@ -1251,11 +1250,10 @@ receiver::status receiver::close_iq_stream_socket()
         tb->disconnect(src, 0, iq_socket_sink, 0);
 
     tb->unlock();
-    iq_sink.reset();
+    iq_socket_sink.reset();
     d_iq_stream = false;
 
     return STATUS_OK;
-    //iq_socket_sink->close();
 
 }
 
