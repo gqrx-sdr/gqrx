@@ -224,6 +224,8 @@ void RemoteControl::startRead()
             answer = cmd_get_freq();
         else if (cmd == "F")
             answer = cmd_set_freq(cmdlist);
+        else if (cmd == "C")
+            answer = cmd_set_center_freq(cmdlist);
         else if (cmd == "m")
             answer = cmd_get_mode();
         else if (cmd == "M")
@@ -357,6 +359,13 @@ void RemoteControl::setNewRemoteFreq(qint64 freq)
         emit newFrequency(freq);
     }
 
+    rc_freq = freq;
+}
+
+/*! \brief New remote center frequency received. */
+void RemoteControl::setNewRemoteCenterFreq(qint64 freq)
+{
+    emit newFrequency(freq);
     rc_freq = freq;
 }
 
@@ -616,6 +625,21 @@ QString RemoteControl::cmd_set_freq(QStringList cmdlist)
     if (ok)
     {
         setNewRemoteFreq((qint64)freq);
+        return QString("RPRT 0\n");
+    }
+
+    return QString("RPRT 1\n");
+}
+
+/* Set new center frequency */
+QString RemoteControl::cmd_set_center_freq(QStringList cmdlist)
+{
+    bool ok;
+    double freq = cmdlist.value(1, "ERR").toDouble(&ok);
+
+    if (ok)
+    {
+        setNewRemoteCenterFreq((qint64)freq);
         return QString("RPRT 0\n");
     }
 
