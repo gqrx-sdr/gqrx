@@ -72,6 +72,8 @@ receiver::receiver(const std::string input_device,
       d_iq_rev(false),
       d_dc_cancel(false),
       d_iq_balance(false),
+      d_iq_fmt(FILE_FORMAT_NONE),
+      d_last_format(FILE_FORMAT_NONE),
       d_demod(RX_DEMOD_OFF)
 {
 
@@ -113,6 +115,23 @@ receiver::receiver(const std::string input_device,
     d_quad_rate = d_decim_rate / d_ddc_decim;
     ddc = make_downconverter_cc(d_ddc_decim, 0.0, d_decim_rate);
     rx  = make_nbrx(d_quad_rate, d_audio_rate);
+
+    input_file = file_source::make(sizeof(gr_complex),get_zero_file().c_str(),0,0,1);
+    input_throttle = gr::blocks::throttle::make(sizeof(gr_complex),192000.0);
+
+    to_s32lc = any_to_any<gr_complex,std::complex<int32_t>>::make();
+    from_s32lc = any_to_any<std::complex<int32_t>,gr_complex>::make();
+    to_s16lc = any_to_any<gr_complex,std::complex<int16_t>>::make();
+    from_s16lc = any_to_any<std::complex<int16_t>,gr_complex>::make();
+    to_s8c = any_to_any<gr_complex,std::complex<int8_t>>::make();
+    from_s8c = any_to_any<std::complex<int8_t>,gr_complex>::make();
+
+    to_s32luc = any_to_any<gr_complex,std::complex<uint32_t>>::make();
+    from_s32luc = any_to_any<std::complex<uint32_t>,gr_complex>::make();
+    to_s16luc = any_to_any<gr_complex,std::complex<uint16_t>>::make();
+    from_s16luc = any_to_any<std::complex<uint16_t>,gr_complex>::make();
+    to_s8uc = any_to_any<gr_complex,std::complex<uint8_t>>::make();
+    from_s8uc = any_to_any<std::complex<uint8_t>,gr_complex>::make();
 
     iq_swap = make_iq_swap_cc(false);
     dc_corr = make_dc_corr_cc(d_decim_rate, 1.0);
@@ -199,25 +218,18 @@ void receiver::set_input_device(const std::string device)
         tb->wait();
     }
 
-    if (d_decim >= 2)
-    {
-        tb->disconnect(src, 0, input_decim, 0);
-        tb->disconnect(input_decim, 0, iq_swap, 0);
-    }
-    else
-    {
-        tb->disconnect(src, 0, iq_swap, 0);
-    }
+    tb->disconnect_all();
 
 #if GNURADIO_VERSION < 0x030802
     //Work around GNU Radio bug #3184
     //temporarily connect dummy source to ensure that previous device is closed
     src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
-    tb->connect(src, 0, iq_swap, 0);
+    auto tmp_sink = gr::blocks::null_sink::make(sizeof(gr_complex));
+    tb->connect(src, 0, tmp_sink, 0);
     tb->start();
     tb->stop();
     tb->wait();
-    tb->disconnect(src, 0, iq_swap, 0);
+    tb->disconnect_all();
 #else
     src.reset();
 #endif
@@ -229,21 +241,12 @@ void receiver::set_input_device(const std::string device)
     catch (std::exception &x)
     {
         error = x.what();
-        src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
+        src = osmosdr::source::make("file=" + escape_filename(get_zero_file()) + ",freq=428e6,rate=96000,repeat=true,throttle=true");
     }
 
+    set_demod(d_demod, FILE_FORMAT_NONE, true);
     if(src->get_sample_rate() != 0)
         set_input_rate(src->get_sample_rate());
-
-    if (d_decim >= 2)
-    {
-        tb->connect(src, 0, input_decim, 0);
-        tb->connect(input_decim, 0, iq_swap, 0);
-    }
-    else
-    {
-        tb->connect(src, 0, iq_swap, 0);
-    }
 
     if (d_running)
         tb->start();
@@ -254,6 +257,122 @@ void receiver::set_input_device(const std::string device)
     }
 }
 
+/**
+ * @brief Select a file as an input device.
+ * @param name
+ * @param sample_rate
+ * @param fmt
+ */
+void receiver::set_input_file(const std::string name, const int sample_rate,
+                              const enum file_formats fmt, int buffers_max,
+                              bool repeat)
+{
+    std::string error = "";
+    size_t sample_size = sample_size_from_format(fmt);
+
+    input_file = file_source::make(sample_size, name.c_str(), 0, 0, sample_rate,
+                                   repeat,buffers_max);
+
+    if (d_running)
+    {
+        tb->stop();
+        tb->wait();
+    };
+
+    tb->disconnect_all();
+
+    input_throttle = gr::blocks::throttle::make(sizeof(gr_complex), sample_rate);
+    set_demod(d_demod, fmt, true);
+    set_input_rate(sample_rate);
+
+    if (d_running)
+        tb->start();
+
+    if (error != "")
+    {
+        throw std::runtime_error(error);
+    }
+    input_devstr = "NULL";
+}
+
+/**
+ * @brief Setup input part of the graph for a file ar a device
+ * @param fmt
+ */
+void receiver::setup_source(enum file_formats fmt)
+{
+    gr::basic_block_sptr b;
+
+    if(fmt == FILE_FORMAT_LAST)
+        fmt = d_last_format;
+    else
+        d_last_format = fmt;
+
+    b = input_throttle;
+
+    switch(fmt)
+    {
+    case FILE_FORMAT_LAST:
+    break;
+    case FILE_FORMAT_NONE:
+        // Setup source
+        b = src;
+
+        // Pre-processing
+        if (d_decim >= 2)
+        {
+            tb->connect(b, 0, input_decim, 0);
+            b = input_decim;
+        }
+
+        if (d_recording_iq)
+        {
+            // We record IQ with minimal pre-processing
+            connect_iq_recorder();
+        }
+
+        tb->connect(b, 0, iq_swap, 0);
+    return;
+    case FILE_FORMAT_CF:
+    case FILE_FORMAT_SIGMF:
+        tb->connect(input_file, 0 , b, 0);
+    break;
+    case FILE_FORMAT_CS32L:
+        tb->connect(input_file, 0 ,from_s32lc, 0);
+        tb->connect(from_s32lc, 0, b, 0);
+    break;
+    case FILE_FORMAT_CS16L:
+        tb->connect(input_file, 0 ,from_s16lc, 0);
+        tb->connect(from_s16lc, 0, b, 0);
+    break;
+    case FILE_FORMAT_CS8:
+        tb->connect(input_file, 0 ,from_s8c, 0);
+        tb->connect(from_s8c, 0, b, 0);
+    break;
+    case FILE_FORMAT_CS32LU:
+        tb->connect(input_file, 0 ,from_s32luc, 0);
+        tb->connect(from_s32luc, 0, b, 0);
+    break;
+    case FILE_FORMAT_CS16LU:
+        tb->connect(input_file, 0 ,from_s16luc, 0);
+        tb->connect(from_s16luc, 0, b, 0);
+    break;
+    case FILE_FORMAT_CS8U:
+        tb->connect(input_file, 0 ,from_s8uc, 0);
+        tb->connect(from_s8uc, 0, b, 0);
+    break;
+    }
+
+    if (d_decim >= 2)
+    {
+        tb->connect(b, 0, input_decim, 0);
+        tb->connect(input_decim, 0, iq_swap, 0);
+    }
+    else
+    {
+        tb->connect(b, 0, iq_swap, 0);
+    }
+}
 
 /**
  * @brief Select new audio output device.
@@ -271,8 +390,20 @@ void receiver::set_output_device(const std::string device)
 
     if (d_demod != RX_DEMOD_OFF)
     {
-        tb->disconnect(audio_gain0, 0, audio_snk, 0);
-        tb->disconnect(audio_gain1, 0, audio_snk, 1);
+        try
+        {
+            tb->disconnect(audio_gain0);
+        }
+        catch(std::exception &x)
+        {
+        }
+        try
+        {
+            tb->disconnect(audio_gain1);
+        }
+        catch(std::exception &x)
+        {
+        }
     }
     audio_snk.reset();
 
@@ -287,6 +418,8 @@ void receiver::set_output_device(const std::string device)
 
         if (d_demod != RX_DEMOD_OFF)
         {
+            tb->connect(rx, 0, audio_gain0, 0);
+            tb->connect(rx, 1, audio_gain1, 0);
             tb->connect(audio_gain0, 0, audio_snk, 0);
             tb->connect(audio_gain1, 0, audio_snk, 1);
         }
@@ -491,7 +624,7 @@ void receiver::set_dc_cancel(bool enable)
 
     // until we have a way to switch on/off
     // inside the dc_corr_cc we do a reconf
-    set_demod(d_demod, true);
+    set_demod(d_demod, FILE_FORMAT_LAST, true);
 }
 
 /**
@@ -862,7 +995,7 @@ receiver::status receiver::set_agc_manual_gain(int gain)
     return STATUS_OK; // FIXME
 }
 
-receiver::status receiver::set_demod(rx_demod demod, bool force)
+receiver::status receiver::set_demod(rx_demod demod, enum file_formats fmt, bool force)
 {
     status ret = STATUS_OK;
 
@@ -881,46 +1014,46 @@ receiver::status receiver::set_demod(rx_demod demod, bool force)
     switch (demod)
     {
     case RX_DEMOD_OFF:
-        connect_all(RX_CHAIN_NONE);
+        connect_all(RX_CHAIN_NONE, fmt);
         break;
 
     case RX_DEMOD_NONE:
-        connect_all(RX_CHAIN_NBRX);
+        connect_all(RX_CHAIN_NBRX, fmt);
         rx->set_demod(nbrx::NBRX_DEMOD_NONE);
         break;
 
     case RX_DEMOD_AM:
-        connect_all(RX_CHAIN_NBRX);
+        connect_all(RX_CHAIN_NBRX, fmt);
         rx->set_demod(nbrx::NBRX_DEMOD_AM);
         break;
 
     case RX_DEMOD_AMSYNC:
-        connect_all(RX_CHAIN_NBRX);
+        connect_all(RX_CHAIN_NBRX, fmt);
         rx->set_demod(nbrx::NBRX_DEMOD_AMSYNC);
         break;
 
     case RX_DEMOD_NFM:
-        connect_all(RX_CHAIN_NBRX);
+        connect_all(RX_CHAIN_NBRX, fmt);
         rx->set_demod(nbrx::NBRX_DEMOD_FM);
         break;
 
     case RX_DEMOD_WFM_M:
-        connect_all(RX_CHAIN_WFMRX);
+        connect_all(RX_CHAIN_WFMRX, fmt);
         rx->set_demod(wfmrx::WFMRX_DEMOD_MONO);
         break;
 
     case RX_DEMOD_WFM_S:
-        connect_all(RX_CHAIN_WFMRX);
+        connect_all(RX_CHAIN_WFMRX, fmt);
         rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO);
         break;
 
     case RX_DEMOD_WFM_S_OIRT:
-        connect_all(RX_CHAIN_WFMRX);
+        connect_all(RX_CHAIN_WFMRX, fmt);
         rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO_UKW);
         break;
 
     case RX_DEMOD_SSB:
-        connect_all(RX_CHAIN_NBRX);
+        connect_all(RX_CHAIN_NBRX, fmt);
         rx->set_demod(nbrx::NBRX_DEMOD_SSB);
         break;
 
@@ -1195,12 +1328,94 @@ receiver::status receiver::stop_udp_streaming()
 }
 
 /**
+ * @brief Connect I/Q data recorder blocks.
+ */
+receiver::status receiver::connect_iq_recorder()
+{
+    gr::basic_block_sptr b;
+
+    if (d_decim >= 2)
+        b = input_decim;
+    else
+        b = src;
+
+    switch(d_iq_fmt)
+    {
+    case FILE_FORMAT_CS8:
+        {
+            tb->lock();
+            tb->connect(b, 0, to_s8c, 0);
+            tb->connect(to_s8c, 0, iq_sink, 0);
+            d_recording_iq = true;
+            tb->unlock();
+        }
+    break;
+    case FILE_FORMAT_CS16L:
+        {
+            tb->lock();
+            tb->connect(b, 0, to_s16lc, 0);
+            tb->connect(to_s16lc, 0, iq_sink, 0);
+            d_recording_iq = true;
+            tb->unlock();
+        }
+    break;
+    case FILE_FORMAT_CS32L:
+        {
+            tb->lock();
+            tb->connect(b, 0, to_s32lc, 0);
+            tb->connect(to_s32lc, 0, iq_sink, 0);
+            d_recording_iq = true;
+            tb->unlock();
+        }
+    break;
+    case FILE_FORMAT_CS8U:
+        {
+            tb->lock();
+            tb->connect(b, 0, to_s8uc, 0);
+            tb->connect(to_s8uc, 0, iq_sink, 0);
+            d_recording_iq = true;
+            tb->unlock();
+        }
+    break;
+    case FILE_FORMAT_CS16LU:
+        {
+            tb->lock();
+            tb->connect(b, 0, to_s16luc, 0);
+            tb->connect(to_s16luc, 0, iq_sink, 0);
+            d_recording_iq = true;
+            tb->unlock();
+        }
+    break;
+    case FILE_FORMAT_CS32LU:
+        {
+            tb->lock();
+            tb->connect(b, 0, to_s32luc, 0);
+            tb->connect(to_s32luc, 0, iq_sink, 0);
+            d_recording_iq = true;
+            tb->unlock();
+        }
+    break;
+    case FILE_FORMAT_CF:
+    case FILE_FORMAT_SIGMF:
+        tb->lock();
+        tb->connect(b, 0, iq_sink, 0);
+        d_recording_iq = true;
+        tb->unlock();
+    break;
+    default:
+        throw std::runtime_error("receiver::connect_iq_recorder: Invalid IQ file format");
+    }
+    return STATUS_OK;
+}
+
+/**
  * @brief Start I/Q data recorder.
  * @param filename The filename where to record.
++ * @param bytes_per_sample A hint to choose correct sample format.
  */
-receiver::status receiver::start_iq_recording(const std::string filename)
+receiver::status receiver::start_iq_recording(const std::string filename, const enum file_formats fmt, int buffers_max)
 {
-    receiver::status status = STATUS_OK;
+    int sink_bytes_per_sample = sample_size_from_format(fmt);
 
     if (d_recording_iq) {
         std::cout << __func__ << ": already recording" << std::endl;
@@ -1209,7 +1424,7 @@ receiver::status receiver::start_iq_recording(const std::string filename)
 
     try
     {
-        iq_sink = gr::blocks::file_sink::make(sizeof(gr_complex), filename.c_str(), true);
+        iq_sink = file_sink::make(sink_bytes_per_sample, filename.c_str(), d_input_rate, true, buffers_max);
     }
     catch (std::runtime_error &e)
     {
@@ -1217,33 +1432,53 @@ receiver::status receiver::start_iq_recording(const std::string filename)
         return STATUS_ERROR;
     }
 
-    tb->lock();
-    if (d_decim >= 2)
-        tb->connect(input_decim, 0, iq_sink, 0);
-    else
-        tb->connect(src, 0, iq_sink, 0);
-    d_recording_iq = true;
-    tb->unlock();
-
-    return status;
-}
+    d_iq_fmt = fmt;
+    return connect_iq_recorder();
+ }
 
 /** Stop I/Q data recorder. */
 receiver::status receiver::stop_iq_recording()
 {
-    if (!d_recording_iq) {
+    if (!d_recording_iq){
         /* error: we are not recording */
         return STATUS_ERROR;
     }
 
     tb->lock();
     iq_sink->close();
-
-    if (d_decim >= 2)
-        tb->disconnect(input_decim, 0, iq_sink, 0);
-    else
-        tb->disconnect(src, 0, iq_sink, 0);
-
+    switch(d_iq_fmt)
+    {
+    case FILE_FORMAT_CS8:
+        tb->disconnect(iq_sink);
+        tb->disconnect(to_s8c);
+    break;
+    case FILE_FORMAT_CS16L:
+        tb->disconnect(iq_sink);
+        tb->disconnect(to_s16lc);
+    break;
+    case FILE_FORMAT_CS32L:
+        tb->disconnect(iq_sink);
+        tb->disconnect(to_s32lc);
+    break;
+    case FILE_FORMAT_CS8U:
+        tb->disconnect(iq_sink);
+        tb->disconnect(to_s8uc);
+    break;
+    case FILE_FORMAT_CS16LU:
+        tb->disconnect(iq_sink);
+        tb->disconnect(to_s16luc);
+    break;
+    case FILE_FORMAT_CS32LU:
+        tb->disconnect(iq_sink);
+        tb->disconnect(to_s32luc);
+    break;
+    case FILE_FORMAT_CF:
+    case FILE_FORMAT_SIGMF:
+        tb->disconnect(iq_sink);
+    break;
+    default:
+        throw std::runtime_error("receiver::stop_iq_recording: Invalid IQ file format");
+    }
     tb->unlock();
     iq_sink.reset();
     d_recording_iq = false;
@@ -1261,7 +1496,7 @@ receiver::status receiver::seek_iq_file(long pos)
 
     tb->lock();
 
-    if (src->seek(pos, SEEK_SET))
+    if (input_file->seek(pos, SEEK_SET))
     {
         status = STATUS_OK;
     }
@@ -1273,6 +1508,22 @@ receiver::status receiver::seek_iq_file(long pos)
     tb->unlock();
 
     return status;
+}
+
+void receiver::get_iq_tool_stats(struct iq_tool_stats &stats)
+{
+    stats.recording = d_recording_iq;
+    stats.playing = (d_last_format != FILE_FORMAT_NONE);
+    if(d_recording_iq && iq_sink)
+    {
+        stats.failed = iq_sink->get_failed();
+        stats.buffer_usage = iq_sink->get_buffer_usage();
+        stats.file_pos = iq_sink->get_written();
+    }else{
+        stats.failed = input_file->get_failed();
+        stats.buffer_usage = input_file->get_buffer_usage();
+        stats.file_pos = input_file->tell();
+    }
 }
 
 /**
@@ -1333,27 +1584,13 @@ void receiver::get_sniffer_data(float * outbuff, unsigned int &num)
 }
 
 /** Convenience function to connect all blocks. */
-void receiver::connect_all(rx_chain type)
+void receiver::connect_all(rx_chain type, enum file_formats fmt)
 {
     gr::basic_block_sptr b;
 
     // Setup source
-    b = src;
+    setup_source(fmt);
 
-    // Pre-processing
-    if (d_decim >= 2)
-    {
-        tb->connect(b, 0, input_decim, 0);
-        b = input_decim;
-    }
-
-    if (d_recording_iq)
-    {
-        // We record IQ with minimal pre-processing
-        tb->connect(b, 0, iq_sink, 0);
-    }
-
-    tb->connect(b, 0, iq_swap, 0);
     b = iq_swap;
 
     if (d_dc_cancel)
@@ -1400,22 +1637,38 @@ void receiver::connect_all(rx_chain type)
         tb->connect(rx, 1, audio_gain1, 0);
         tb->connect(audio_gain0, 0, audio_snk, 0);
         tb->connect(audio_gain1, 0, audio_snk, 1);
+        // Recorders and sniffers
+        if (d_recording_wav)
+        {
+            tb->connect(rx, 0, wav_gain0, 0);
+            tb->connect(rx, 1, wav_gain1, 0);
+            tb->connect(wav_gain0, 0, wav_sink, 0);
+            tb->connect(wav_gain1, 0, wav_sink, 1);
+        }
+        if (d_sniffer_active)
+        {
+            tb->connect(rx, 0, sniffer_rr, 0);
+            tb->connect(sniffer_rr, 0, sniffer, 0);
+        }
+    }
+    else
+    {
+        if (d_recording_wav)
+        {
+            wav_sink->close();
+            wav_sink.reset();
+            d_recording_wav = false;
+        }
+
+        if (d_sniffer_active)
+        {
+            d_sniffer_active = false;
+
+            /* delete resampler */
+            sniffer_rr.reset();
+        }
     }
 
-    // Recorders and sniffers
-    if (d_recording_wav)
-    {
-        tb->connect(rx, 0, wav_gain0, 0);
-        tb->connect(rx, 1, wav_gain1, 0);
-        tb->connect(wav_gain0, 0, wav_sink, 0);
-        tb->connect(wav_gain1, 0, wav_sink, 1);
-    }
-
-    if (d_sniffer_active)
-    {
-        tb->connect(rx, 0, sniffer_rr, 0);
-        tb->connect(sniffer_rr, 0, sniffer, 0);
-    }
 }
 
 void receiver::get_rds_data(std::string &outbuff, int &num)
@@ -1459,6 +1712,29 @@ bool receiver::is_rds_decoder_active(void) const
 void receiver::reset_rds_parser(void)
 {
     rx->reset_rds_parser();
+}
+
+int receiver::sample_size_from_format(enum file_formats fmt)
+{
+    switch(fmt)
+    {
+    case FILE_FORMAT_LAST:
+            throw std::runtime_error("receiver::sample_size_from_format: Invalid format requested");
+    case FILE_FORMAT_NONE:
+    case FILE_FORMAT_CF:
+    case FILE_FORMAT_SIGMF:
+    case FILE_FORMAT_CS32L:
+    case FILE_FORMAT_CS32LU:
+        return 8;
+    case FILE_FORMAT_CS16L:
+    case FILE_FORMAT_CS16LU:
+        return 4;
+    case FILE_FORMAT_CS8:
+    case FILE_FORMAT_CS8U:
+        return 2;
+    }
+    throw std::runtime_error("receiver::sample_size_from_format: Invalid format requested");
+    return 0;
 }
 
 std::string receiver::escape_filename(std::string filename)
