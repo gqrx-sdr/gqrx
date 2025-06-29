@@ -98,6 +98,26 @@ void wfmrx::set_quad_rate(float quad_rate)
     }
 }
 
+void wfmrx::set_audio_rate(float audio_rate)
+{
+    d_audio_rate = audio_rate;
+    switch (d_demod) {
+
+    case WFMRX_DEMOD_MONO:
+    default:
+        mono->set_audio_rate(audio_rate);
+        break;
+
+    case WFMRX_DEMOD_STEREO:
+        stereo->set_audio_rate(audio_rate);
+        break;
+
+    case WFMRX_DEMOD_STEREO_UKW:
+        stereo_oirt->set_audio_rate(audio_rate);
+        break;
+    }
+}
+
 void wfmrx::set_filter(double low, double high, double tw)
 {
     filter->set_param(low, high, tw);
@@ -212,18 +232,21 @@ void wfmrx::set_demod(int demod)
         connect(demod_fm, 0, mono, 0);
         connect(mono, 0, self(), 0); // left  channel
         connect(mono, 1, self(), 1); // right channel
+        mono->set_audio_rate(d_audio_rate);
         break;
 
     case WFMRX_DEMOD_STEREO:
         connect(demod_fm, 0, stereo, 0);
         connect(stereo, 0, self(), 0); // left  channel
         connect(stereo, 1, self(), 1); // right channel
+        stereo->set_audio_rate(d_audio_rate);
         break;
 
     case WFMRX_DEMOD_STEREO_UKW:
         connect(demod_fm, 0, stereo_oirt, 0);
         connect(stereo_oirt, 0, self(), 0); // left  channel
         connect(stereo_oirt, 1, self(), 1); // right channel
+        stereo_oirt->set_audio_rate(d_audio_rate);
         break;
     }
     d_demod = (wfmrx_demod) demod;
