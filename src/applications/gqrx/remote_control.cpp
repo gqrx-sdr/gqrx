@@ -224,7 +224,7 @@ void RemoteControl::startRead()
             answer = cmd_get_freq();
         else if (cmd == "F")
             answer = cmd_set_freq(cmdlist);
-        else if (cmd == "C")
+        else if (cmd == "^")
             answer = cmd_set_center_freq(cmdlist);
         else if (cmd == "m")
             answer = cmd_get_mode();
