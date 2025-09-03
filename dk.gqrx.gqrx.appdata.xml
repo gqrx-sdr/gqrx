@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component type="desktop">
+<component type="desktop-application">
   <id>dk.gqrx.gqrx</id>
   <name>Gqrx</name>
   <summary>Software defined radio receiver implemented using GNU Radio and the Qt GUI toolkit</summary>
