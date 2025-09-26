@@ -1662,9 +1662,8 @@ void MainWindow::startIqRecording(const QString& recdir, const QString& format)
     auto filenameTemplate = currentDate.toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.%4").arg(recdir).arg(freq).arg(sr/dec);
     bool sigmf = (format == "SigMF");
     auto lastRec = filenameTemplate.arg(sigmf ? "sigmf-data" : "raw");
-    auto lastRec = filenameTemplate;
+    
     QFile metaFile(filenameTemplate.arg("sigmf-meta"));
-    QFile metaFile(filenameTemplate);
     bool ok = true;
     if (sigmf) {
         auto meta = QJsonDocument { QJsonObject {
