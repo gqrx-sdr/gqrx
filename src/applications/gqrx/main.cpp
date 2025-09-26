@@ -67,6 +67,7 @@ int main(int argc, char *argv[])
     {
         qputenv("SOAPY_SDR_PLUGIN_PATH", plugin_path.toUtf8());
         qputenv("SOAPY_SDR_ROOT", "/invalid");
+        qputenv("CONDA_PREFIX", "/invalid");
     }
 
     // setup controlport via environment variables

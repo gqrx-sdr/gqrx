@@ -1,7 +1,9 @@
 
-    2.17.7: In progress...
+    2.17.7: Released May 27, 2025
 
        NEW: Start/stop I/Q recording via remote control.
+  IMPROVED: Allow multiple simultaneous remote control connections.
+     FIXED: DMG release for ARM-based Macs fails to start.
      FIXED: Compilation error affecting MSVC.
 
 

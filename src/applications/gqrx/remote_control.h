@@ -30,6 +30,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QtNetwork>
+#include <set>
 
 /* For gain_t and gain_list_t */
 #include "qtgui/dockinputctl.h"
@@ -124,6 +125,7 @@ signals:
 private slots:
     void acceptConnection();
     void startRead();
+    void socketDisconnect();
 
 private:
     QTcpServer  rc_server;         /*!< The active server object. */

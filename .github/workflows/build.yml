@@ -27,8 +27,8 @@ jobs:
             pkg-config
             gnuradio-core
             gnuradio-osmosdr
-            libboost-headers
-            mesa-libgl-devel-cos6-x86_64
+            libboost-devel
+            libgl-devel
             pybind11
             pulseaudio
             qt6-gtk-platformtheme
@@ -36,6 +36,7 @@ jobs:
             soapysdr-module-lms7
             soapysdr-module-plutosdr
             soapysdr-module-remote
+            sysroot_linux-64=2.17.*
             volk
       - name: Checkout code
         uses: actions/checkout@v4
@@ -84,71 +85,28 @@ jobs:
           else
             echo "available=false" >> $GITHUB_OUTPUT;
           fi
-      - name: Install dependencies
-        run: |
-          uname -a
-          # for https://github.com/actions/runner-images/issues/9272
-          sudo chown -R runner:admin /usr/local/
-          brew update
-          brew install --HEAD librtlsdr
-          brew install airspy airspyhf boost dylibbundler gnuradio hackrf libbladerf libserialport portaudio pybind11 six soapyremote uhd qt@6 || true
-
-          cd /tmp
-          git clone https://github.com/analogdevicesinc/libiio.git
-          cd libiio
-          git checkout v0.23
-          mkdir build
-          cd build
-          cmake -DCMAKE_BUILD_TYPE=Release ..
-          make -j4
-          sudo make install
-
-          cd /tmp
-          git clone https://github.com/analogdevicesinc/libad9361-iio.git
-          cd libad9361-iio
-          mkdir build
-          cd build
-          cmake -DCMAKE_BUILD_TYPE=Release ..
-          make -j4
-          sudo make install
-
-          cd /tmp
-          git clone https://github.com/pothosware/SoapyPlutoSDR.git
-          cd SoapyPlutoSDR
-          mkdir build
-          cd build
-          cmake -DCMAKE_BUILD_TYPE=Release ..
-          make -j4
-          sudo make install
-
-          cd /tmp
-          sudo cp /Library/Frameworks/iio.framework/iio /usr/local/lib/libiio.dylib
-          sudo install_name_tool -id "/usr/local/lib/libiio.dylib" /usr/local/lib/libiio.dylib
-          sudo cp /Library/Frameworks/ad9361.framework/ad9361 /usr/local/lib/libad9361.dylib
-          sudo install_name_tool -id "/usr/local/lib/libad9361.dylib" /usr/local/lib/libad9361.dylib
-          sudo install_name_tool -delete_rpath /Library/Frameworks /usr/local/lib/libad9361.dylib
-          sudo install_name_tool -change @rpath/iio.framework/Versions/0.23/iio /usr/local/lib/libiio.dylib /usr/local/lib/libad9361.dylib
-          sudo install_name_tool -change @rpath/iio.framework/Versions/0.23/iio /usr/local/lib/libiio.dylib /usr/local/lib/SoapySDR/modules0.*/libPlutoSDRSupport.so
-          sudo install_name_tool -change @rpath/ad9361.framework/Versions/0.2/ad9361 /usr/local/lib/libad9361.dylib /usr/local/lib/SoapySDR/modules0.*/libPlutoSDRSupport.so
-
-          cd /tmp
-          git clone https://gitea.osmocom.org/sdr/gr-iqbal.git
-          cd gr-iqbal
-          git submodule update --init --recursive
-          mkdir build
-          cd build
-          cmake -DCMAKE_BUILD_TYPE=Release ..
-          make -j4
-          sudo make install
-
-          cd /tmp
-          git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
-          cd gr-osmosdr
-          mkdir build
-          cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Wno-register ..
-          LIBRARY_PATH=/usr/local/opt/icu4c/lib make -j4
-          sudo make install
+      - name: Install conda dependencies
+        id: setup-micromamba
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-name: gqrx
+          create-args: >-
+            c-compiler
+            cxx-compiler
+            cmake
+            make
+            pkg-config
+            gnuradio-core
+            gnuradio-osmosdr
+            libboost-devel
+            qt6-main
+            soapysdr
+            soapysdr-module-audio
+            soapysdr-module-lms7
+            soapysdr-module-plutosdr
+            soapysdr-module-remote
+            soapysdr-module-volk-converters
+            volk
       - name: Install Apple certificate
         if: ${{ steps.secret-check.outputs.available == 'true' }}
         env:
@@ -172,11 +130,14 @@ jobs:
         with:
           fetch-depth: 0
       - name: Configure
+        shell: bash -el {0}
         run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release ..
       - name: Compile
         working-directory: build
         run: make -j4
       - name: Build app bundle
+        env:
+          CONDA_PREFIX: ${{ steps.setup-micromamba.outputs.environment-path }}
         run: ./macos_bundle.sh ${{ steps.secret-check.outputs.available }}
       - name: Notarize app bundle
         if: ${{ steps.secret-check.outputs.available == 'true' }}
@@ -247,7 +208,7 @@ jobs:
     - name: Clone and build GNU Radio
       working-directory: ${{ runner.temp }}
       run: |
-        git clone --branch v3.10.12.0-rc1 --depth 1 https://github.com/gnuradio/gnuradio.git
+        git clone --branch v3.10.12.0 --depth 1 https://github.com/gnuradio/gnuradio.git
         cd gnuradio
         cmake -S . -B build \
           -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
@@ -270,6 +231,7 @@ jobs:
         git clone https://gitea.osmocom.org/sdr/rtl-sdr.git
         cd rtl-sdr
         cmake -S . -B build \
+          -DCMAKE_C_FLAGS="-std=gnu17" \
           -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
           -DCMAKE_BUILD_TYPE=Release \
           -DDETACH_KERNEL_DRIVER=OFF \
@@ -284,6 +246,7 @@ jobs:
         cd airspyone_host
         cmake -S . -B build \
           -G "MinGW Makefiles" \
+          -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
           -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64
         cmake --build build
         cmake --install build
@@ -294,6 +257,7 @@ jobs:
         cd airspyhf
         cmake -S . -B build \
           -G "MSYS Makefiles" \
+          -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
           -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
           -DTHREADS_PTHREADS_INCLUDE_DIR=${RUNNER_TEMP}/msys64/mingw64/include \
           -DTHREADS_PTHREADS_WIN32_LIBRARY=${RUNNER_TEMP}/msys64/mingw64/lib/libpthread.a
