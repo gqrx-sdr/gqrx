@@ -294,9 +294,6 @@ private:
     sniffer_f_sptr    sniffer;    /*!< Sample sniffer for data decoders. */
     resampler_ff_sptr sniffer_rr; /*!< Sniffer resampler. */
 
-    
-    
-
 #ifdef WITH_PULSEAUDIO
     pa_sink_sptr              audio_snk;  /*!< Pulse audio sink. */
 #elif WITH_PORTAUDIO

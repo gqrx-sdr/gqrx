@@ -28,7 +28,7 @@ set(PACKAGE ${PROJECT_NAME})
 
 ########### Main global variables ###########
 if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: Debug GProf Valgrind Release" FORCE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: Debug GProf Valgrind Release" FORCE)
 endif()
 
 set(BUILDTYPE ${CMAKE_BUILD_TYPE})
