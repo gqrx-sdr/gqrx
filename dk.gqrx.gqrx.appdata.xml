@@ -28,8 +28,8 @@
   <launchable type="desktop-id">dk.gqrx.gqrx.desktop</launchable>
   <screenshots>
     <screenshot type="default">
-      <!-- <caption></caption> -->
-      <image width="1850" height="1055">https://raw.githubusercontent.com/gqrx-sdr/gqrx/master/resources/screenshots/gqrx-main.png</image>
+      <image>https://raw.githubusercontent.com/gqrx-sdr/gqrx/master/resources/screenshots/gqrx-main.png</image>
+      <caption>Main Gqrx window</caption>
     </screenshot>
   </screenshots>
   <content_rating type="oars-1.1" />
