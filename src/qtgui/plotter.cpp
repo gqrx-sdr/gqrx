@@ -35,6 +35,11 @@
 #include <QPainter>
 #include <QtGlobal>
 #include <QToolTip>
+
+#include <algorithm>
+#include <iostream>
+#include <vector>
+
 #include "plotter.h"
 #include "bandplan.h"
 #include "bookmarks.h"
@@ -133,6 +138,7 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
     m_BookmarksEnabled = true;
     m_InvertScrolling = false;
     m_DXCSpotsEnabled = true;
+    m_autoRangeActive = false;
 
     m_Span = 96000;
     m_SampleFreq = 96000;
@@ -349,6 +355,7 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
     {
         if (event->buttons() & Qt::LeftButton)
         {
+            if (m_autoRangeActive) return;              // no dragging of  y-axis if autorange is active
             setCursor(QCursor(Qt::ClosedHandCursor));
             // move Y scale up/down
             float delta_px = m_Yzero - py;
@@ -364,7 +371,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
             else
             {
                 emit pandapterRangeChanged(m_PandMindB, m_PandMaxdB);
-
+                m_MaxHoldValid = false;
+                m_MinHoldValid = false;
                 m_histIIRValid = false;
 
                 m_Yzero = py;
@@ -763,8 +771,23 @@ void CPlotter::mousePressEvent(QMouseEvent * event)
     else
     {
         if (m_CursorCaptured == YAXIS)
+        {
+            // double click toggles autorange of allowed
+            if (event->type() == QEvent::MouseButtonDblClick) {
+                if (m_autoRangeAllowed) m_autoRangeActive = !m_autoRangeActive;
+            }
+            
+            //right click in auto range: set max to 40dB over min
+            if (event->buttons() == Qt::RightButton) {
+                if (m_autoRangeActive) 
+                {
+                    m_PandMaxdB = m_PandMindB +40;
+                    m_WfMaxdB = m_WfMindB +40;
+                }
+            }
             // get ready for moving Y axis
             m_Yzero = py;
+        }
         else if (m_CursorCaptured == XAXIS)
         {
             m_Xzero = px;
@@ -1839,6 +1862,10 @@ void CPlotter::setNewFftData(const float *fftData, int size)
     {
         // Reallocate and invalidate IIRs
         m_fftData.resize(size);
+
+        const int offset = (long) size / 8;      // for auto mode: offset to skip the 1st and last eigth of the spectrum
+        m_fftCopy.resize(size -2*offset);
+
         m_fftIIR.resize(size);
         m_X.resize(size);
 
@@ -1910,6 +1937,64 @@ void CPlotter::setNewFftData(const float *fftData, int size)
 
     m_IIRValid = true;
 
+    
+    if(m_autoRangeActive)
+    {
+        /*
+            Noise Floor detection a la Simon Brown
+            A few weeks previously a reasonable logic was implemented for measuring the noise floor.
+            Purists will not be happy - they rarely are, but it works for me.
+            Take the output from the SDR radio, ignore 15% of the bandwidth at the high and low end of the output to avoid the ant-alias filtering,
+            and we're left with a healthy 70% of the signal.
+            Now sort the FFT bins by value, take the mean of the lowest 10% and that's the noise floor.
+        */
+        
+        
+        // automatic determination of the noise level
+        // ignore the first and last offset bins
+
+        // cut away the first/last part of the waterfall
+        const int offset = (long) size / 8;      // skip the 1st and last eigth of the spectrum
+
+        std::vector<float>fftCopy(m_fftIIR.size() -2*offset);                                
+        std::copy(m_fftIIR.begin()+offset, m_fftIIR.end()-offset , fftCopy.begin());         // copy from +offset to size-offet
+        std::sort(std::begin(fftCopy), std::end(fftCopy));                                   // sort
+        
+        // average the lowest bins
+        const int bins = (fftCopy.size()/16);
+        float lowestValue = std::accumulate(std::begin(fftCopy), std::begin(fftCopy)+bins, 0.0f) / bins;
+
+        // protect against NaN
+        if (lowestValue != lowestValue) {
+            qCDebug(plotter) << "lowestValue NaN";
+            return;
+        }
+
+        // do a moving averge
+        const float alpha = 0.3f;
+        m_autoRange_minAvg = alpha*lowestValue + (1.0f-alpha)* m_autoRange_minAvg;
+        
+        float mindB = 10*log10f(m_autoRange_minAvg);
+
+        // set the panadapter limits if it changed <0.1dB
+        if (abs(mindB - m_PandMindB) > 0.1f) {
+            m_DrawOverlay = true;
+            
+            m_autoRange_noiseFloor = mindB;     // publish noise floor
+
+            // set new limits
+            auto deltaP = m_PandMaxdB - m_PandMindB;
+            auto deltaW = m_WfMaxdB - m_WfMindB;
+            m_PandMindB = mindB;
+            m_PandMaxdB = m_PandMindB + deltaP;
+            m_WfMindB = mindB;
+            m_WfMaxdB = m_WfMindB +deltaW;
+            qCDebug(plotter) << "fft min" << m_PandMindB << " deltal " << deltaP << " max " << m_PandMaxdB;
+        }
+ 
+    } // m_autorange_active
+
+    m_DrawOverlay = true;
     draw(true);
 }
 
@@ -2207,9 +2292,10 @@ void CPlotter::drawOverlay()
                               m_YAxisWidth - 2 * HOR_MARGIN, th);
             painter.drawText(shadowRect, Qt::AlignRight|Qt::AlignVCenter, QString::number(dB));
             // Foreground
-            painter.setPen(QPen(QColor::fromRgba(PLOTTER_TEXT_COLOR)));
+            painter.setPen(QPen(QColor(PLOTTER_TEXT_COLOR)));
             QRectF textRect(HOR_MARGIN, y - th / 2,
                             m_YAxisWidth - 2 * HOR_MARGIN, th);
+            if (m_autoRangeActive) painter.setPen(Qt::darkGreen);
             painter.drawText(textRect, Qt::AlignRight|Qt::AlignVCenter, QString::number(dB));
         }
     }
@@ -2479,6 +2565,14 @@ void CPlotter::enableMarkers(bool enabled)
 {
     m_MarkersEnabled = enabled;
 }
+
+/** Set auto range on or off. */
+void CPlotter::setAutoRange(bool enabled)
+{
+    m_autoRangeActive = enabled;      
+    qCDebug(plotter) << "plotter auto range: " << m_autoRangeActive;
+}
+
 
 void CPlotter::setMarkers(qint64 a, qint64 b)
 {

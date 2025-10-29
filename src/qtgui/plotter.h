@@ -146,6 +146,11 @@ public:
         WATERFALL_MODE_SYNC = 2
     };
 
+    float   m_autoRange_noiseFloor;     // noisefloor for auto range
+    float   m_autoRange_minAvg;         // noisefloor for auto range
+    bool    m_autoRangeActive=true;     // auto range mode enabled
+    bool    m_autoRangeAllowed = false; // only RF plotter can do autorange
+
 signals:
     void newDemodFreq(qint64 freq, qint64 delta); /* delta is the offset from the center */
     void newLowCutFreq(int f);
@@ -181,6 +186,7 @@ public slots:
     void enableBandPlan(bool enable);
     void enableMarkers(bool enabled);
     void setMarkers(qint64 a, qint64 b);
+    void setAutoRange(bool enabled);
     void clearWaterfall();
     void updateOverlay();
 
@@ -256,6 +262,7 @@ private:
     float       m_histMaxIIR;
     std::vector<float> m_fftIIR;
     std::vector<float> m_fftData;
+    std::vector<float> m_fftCopy;           // for auto mode
     std::vector<float> m_X;                // scratch array of matching size for local calculation
     float      m_wfbuf[MAX_SCREENSIZE]{}; // used for accumulating waterfall data at high time spans
     float       m_fftMaxHoldBuf[MAX_SCREENSIZE]{};
