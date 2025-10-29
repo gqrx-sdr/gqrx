@@ -26,7 +26,7 @@ APP="$PREFIX/bin/gqrx"
 
 # No need to tweak below unless you move files on the actual project
 DESKTOP="dk.gqrx.gqrx.desktop"
-ICON="resources/icons/gqrx.svg"
+ICON="resources/icons/dk.gqrx.gqrx.svg"
 
 # clean log space
 echo "==================================================================="

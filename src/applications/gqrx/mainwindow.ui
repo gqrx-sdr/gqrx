@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../../../resources/icons.qrc">
-    <normaloff>:/icons/icons/gqrx.svg</normaloff>:/icons/icons/gqrx.svg</iconset>
+    <normaloff>:/icons/icons/dk.gqrx.gqrx.svg</normaloff>:/icons/icons/dk.gqrx.gqrx.svg</iconset>
   </property>
   <property name="dockOptions">
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>

@@ -15,6 +15,6 @@ GenericName[zh_CN]=软件无线电
 Comment[zh_CN]=使用 GNU Radio 和 Qt GUI 实现的软件无线电接收器
 Exec=gqrx
 Terminal=false
-Icon=gqrx
+Icon=dk.gqrx.gqrx
 Categories=AudioVideo;Audio;Qt;HamRadio;
 Keywords=SDR;Radio;HAM;

@@ -269,7 +269,7 @@ install(FILES dk.gqrx.gqrx.desktop DESTINATION share/applications)
 install(FILES dk.gqrx.gqrx.appdata.xml DESTINATION share/metainfo)
 
 # Install icon
-install(FILES resources/icons/gqrx.svg DESTINATION share/icons/hicolor/scalable/apps)
+install(FILES resources/icons/dk.gqrx.gqrx.svg DESTINATION share/icons/hicolor/scalable/apps)
 
 # Add subdirectories
 add_subdirectory(src)
