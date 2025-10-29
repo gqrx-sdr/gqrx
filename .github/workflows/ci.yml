@@ -63,7 +63,7 @@ jobs:
       - name: Validate desktop entry
         run: desktop-file-validate dk.gqrx.gqrx.desktop
       - name: Validate appstream metadata
-        run: appstreamcli validate dk.gqrx.gqrx.appdata.xml
+        run: appstreamcli validate --no-net dk.gqrx.gqrx.appdata.xml
   macos-build:
     name: MacOS CI
     strategy:
