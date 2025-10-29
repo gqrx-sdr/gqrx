@@ -6,11 +6,11 @@ Comment=Software defined radio receiver implemented using GNU Radio and the Qt G
 # FIXME add comments in other languages
 GenericName[cs]=Softwarově definované rádio (SDR)
 Comment[cs]=Přijímač na bázi softwarově definovaného rádia implementovaný s použitím GNU Radio a Qt
+Comment[de]=Software defined Radio auf Basis von GNU Radio und dem Qt GUI Toolkit
 GenericName[ru]=Программно-определённое радио
-Comment[ru]=Приемник для программно-определенного радио (SDR) использующий GNU Radio и библиотеку Qt.
+Comment[ru]=Приемник для программно-определенного радио (SDR) использующий GNU Radio и библиотеку Qt
 GenericName[nl]=Software Defined Radio
 Comment[nl]=Software defined radio ontvanger geïmplementeerd met GNU Radio en de Qt GUI toolkit
-Comment[de]=Software defined Radio auf Basis von GNU Radio und dem Qt GUI Toolkit
 GenericName[zh_CN]=软件无线电
 Comment[zh_CN]=使用 GNU Radio 和 Qt GUI 实现的软件无线电接收器
 Exec=gqrx
