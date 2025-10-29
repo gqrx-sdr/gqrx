@@ -152,6 +152,9 @@ signals:
     /** Signal emitted when receiver frequency has changed */
     void rxFreqChanged(qint64 freq_hz);
 
+    /** Signal emitted when receiver frequency has changed */
+    void rfFreqChanged(qint64 hw_freq_hz);
+
     /** Signal emitted when the channel filter frequency has changed. */
     void filterOffsetChanged(qint64 freq_hz);
 
