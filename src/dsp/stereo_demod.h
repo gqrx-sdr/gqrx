@@ -81,6 +81,7 @@ protected:
 
 public:
     ~stereo_demod();
+    void set_audio_rate(float audio_rate);
 
 private:
     /* GR blocks */
