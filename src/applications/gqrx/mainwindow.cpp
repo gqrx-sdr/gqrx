@@ -503,6 +503,18 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
 
     qDebug() << "Configuration file:" << m_settings->fileName();
 
+    // Check if config file is writable
+    QFileInfo configFileInfo(m_settings->fileName());
+    if (configFileInfo.exists() && !configFileInfo.isWritable())
+    {
+        QMessageBox::warning(this, tr("Configuration File Permission Error"),
+            tr("<p>The configuration file is not writable:</p>"
+               "<p><code>%1</code></p>"
+               "<p>Settings changes will not be saved. "
+               "Please check file ownership and permissions.</p>")
+            .arg(m_settings->fileName()));
+    }
+
     if (check_crash)
     {
         if (m_settings->value("crashed", false).toBool())
