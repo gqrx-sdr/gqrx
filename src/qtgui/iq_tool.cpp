@@ -37,7 +37,7 @@
 
 
 CIqTool::CIqTool(QWidget *parent) :
-    QDialog(parent),
+    QDockWidget(parent),
     ui(new Ui::CIqTool)
 {
     ui->setupUi(this);
@@ -59,6 +59,19 @@ CIqTool::CIqTool(QWidget *parent) :
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(timeoutFunction()));
+
+    // QDockWidget handles close/show automatically (hiding instead of destroying),
+    // so we use visibilityChanged instead of the QDialog closeEvent/showEvent overrides.
+    // Start timer when dock becomes visible, stop when hidden.
+    connect(this, &QDockWidget::visibilityChanged, this, [this](bool visible) {
+        if (visible) {
+            refreshDir();
+            refreshTimeWidgets();
+            timer->start(1000);
+        } else {
+            timer->stop();
+        }
+    });
 }
 
 CIqTool::~CIqTool()
@@ -228,27 +241,6 @@ void CIqTool::cancelRecording()
     is_recording = false;
 }
 
-/*! \brief Catch window close events.
- *
- * This method is called when the user closes the audio options dialog
- * window using the window close icon. We catch the event and hide the
- * dialog but keep it around for later use.
- */
-void CIqTool::closeEvent(QCloseEvent *event)
-{
-    timer->stop();
-    hide();
-    event->ignore();
-}
-
-/*! \brief Catch window show events. */
-void CIqTool::showEvent(QShowEvent * event)
-{
-    Q_UNUSED(event);
-    refreshDir();
-    refreshTimeWidgets();
-    timer->start(1000);
-}
 
 
 void CIqTool::saveSettings(QSettings *settings)
@@ -264,7 +256,7 @@ void CIqTool::saveSettings(QSettings *settings)
         settings->remove("baseband/rec_dir");
 
     QString format = ui->formatCombo->currentText();
-    if (format != "Raw")
+    if (format != "SigMF")
         settings->setValue("baseband/rec_format", format);
     else
         settings->remove("baseband/rec_format");
@@ -280,7 +272,7 @@ void CIqTool::readSettings(QSettings *settings)
     ui->recDirEdit->setText(dir);
 
     // Format of baseband recordings
-    QString format = settings->value("baseband/rec_format", "Raw").toString();
+    QString format = settings->value("baseband/rec_format", "SigMF").toString();
     ui->formatCombo->setCurrentText(format);
 }
 
