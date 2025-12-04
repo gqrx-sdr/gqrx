@@ -416,8 +416,6 @@
     <addaction name="separator"/>
     <addaction name="actionAddBookmark"/>
     <addaction name="separator"/>
-    <addaction name="actionIqTool"/>
-    <addaction name="separator"/>
     <addaction name="actionAFSK1200"/>
     <addaction name="separator"/>
     <addaction name="actionDX_Cluster"/>
