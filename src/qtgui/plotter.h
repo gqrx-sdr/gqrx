@@ -114,6 +114,10 @@ public:
 
     void setFftCenterFreq(qint64 f) {
         qint64 limit = ((qint64)m_SampleFreq - m_Span) / 2 - 1;
+        // Clamp to 0 when span exceeds sample rate to prevent qBound assertion
+        // failure ("max < min") on startup with certain SDR configurations
+        if (limit < 0)
+            limit = 0;
         m_FftCenter = qBound(-limit, f, limit);
     }
 
