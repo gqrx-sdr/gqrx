@@ -17,6 +17,52 @@ applications using network sockets.
 ![Screenshot of the main Gqrx window](resources/screenshots/gqrx-main.png)
 
 
+Fork Feature Branches
+---------------------
+
+This fork contains several feature branches with enhancements not yet in upstream gqrx:
+
+### feature/combined (Recommended)
+All features merged into one branch. Use this for the complete enhanced experience.
+
+### feature/enhanced-bandplan
+**Band Plan Manager** - A new dock widget for viewing and editing band plan entries.
+- Editable table with columns: Show, Name, Min/Max Freq, Modulation, Step, Color
+- Show/hide checkbox to toggle band visibility on FFT
+- Vertical stacking for overlapping bands in FFT display
+- Auto-contrast text color (black on light backgrounds, white on dark)
+- Click band in FFT to highlight row in Band Plan Manager
+- Right-click context menu with "Go to Center of Band"
+- Double-click to tune to band start frequency
+- Comprehensive default bandplan with:
+  - All US TV channels (Ch 2-36)
+  - LTE bands (71, 12/17, 13, 14, 29, 5/26, 2/25, 4/66, 30, 41, 48)
+  - CBRS channels 1-15 (3550-3700 MHz)
+  - WiFi channels 1, 6, 11 (2.4 GHz)
+  - Amateur radio, public safety, aviation, marine, and more
+
+### feature/enhanced-iq-tool
+**Enhanced IQ Recorder** - Modernized IQ file management interface.
+- Table view replacing old list widget
+- User-selectable columns for file properties
+- SigMF metadata support
+- Improved file browsing and management
+
+### feature/fft-gui-enhancements
+**FFT Display Improvements** - Visual enhancements for the spectrum display.
+- Dynamic bookmark lines that float above the FFT signal
+- Bookmark/DXC spot vertical lines stop above the signal level
+- Line positions update in real-time with FFT data
+- Respects plot mode (max/avg) and max hold when active
+- Improved visibility of bookmarks against varying signal levels
+
+### feature/digital-decoders
+**Digital Voice Decoding** - Support for digital voice protocols. *(Work in Progress)*
+- DMR decoder integration via gr-dmr
+- Foundation for additional digital modes (P25, etc.)
+- **Note:** This feature is experimental and still under active development
+
+
 Download
 --------
 
