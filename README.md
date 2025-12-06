@@ -24,11 +24,13 @@ This fork contains several feature branches with enhancements not yet in upstrea
 
 ### feature/combined (Recommended)
 All features merged into one branch. Use this for the complete enhanced experience.
+- Includes fix: Bookmark category visibility now persists across sessions
 
 ### feature/enhanced-bandplan
 **Band Plan Manager** - A new dock widget for viewing and editing band plan entries.
 - Editable table with columns: Show, Name, Min/Max Freq, Modulation, Step, Color
 - Show/hide checkbox to toggle band visibility on FFT
+- Band visibility state persists across sessions
 - Vertical stacking for overlapping bands in FFT display
 - Auto-contrast text color (black on light backgrounds, white on dark)
 - Click band in FFT to highlight row in Band Plan Manager
