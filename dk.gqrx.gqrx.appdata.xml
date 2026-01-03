@@ -22,12 +22,12 @@
   </description>
   <metadata_license>CC-BY-3.0</metadata_license>
   <project_license>GPL-3.0</project_license>
+  <url type="homepage">https://gqrx.dk/</url>
   <url type="bugtracker">https://github.com/gqrx-sdr/gqrx/issues</url>
+  <url type="vcs-browser">https://github.com/gqrx-sdr/gqrx</url>
   <!-- <url type="donation"></url> -->
   <!-- <url type="faq"></url> -->
   <!-- <url type="help"></url> -->
-  <url type="homepage">https://gqrx.dk/</url>
-  <!-- <project_group>none</project_group> not a project from GNOME, KDE or XFCE -->
   <launchable type="desktop-id">dk.gqrx.gqrx.desktop</launchable>
   <screenshots>
     <screenshot type="default">
