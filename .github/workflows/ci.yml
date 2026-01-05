@@ -63,6 +63,7 @@ jobs:
       - name: Validate desktop entry
         run: desktop-file-validate dk.gqrx.gqrx.desktop
       - name: Validate appstream metadata
+        if: matrix.image == 'ubuntu:24.04'
         run: appstreamcli validate --no-net dk.gqrx.gqrx.appdata.xml
   macos-build:
     name: MacOS CI
