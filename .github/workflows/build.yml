@@ -71,11 +71,7 @@ jobs:
     strategy:
       matrix:
         arch: [x86_64, arm64]
-    # NOTE: in the free tier, `macos-13` is x86_64 only, while `macos-14` is arm64 only.
-    # when we increase the baseline to 14 eventually, we will be losing x86_64 support,
-    # so hopefully all of the macs will be arm64 by then.
-    # see https://github.com/actions/runner-images/issues/9741
-    runs-on: ${{ matrix.arch == 'x86_64' && 'macos-13' || 'macos-14' }}
+    runs-on: ${{ matrix.arch == 'x86_64' && 'macos-15-intel' || 'macos-14' }}
     steps:
       - name: Check for Secret availability
         id: secret-check
