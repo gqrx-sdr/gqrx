@@ -82,7 +82,6 @@ linuxdeploy_lib_args+=(
     "-l" "$PREFIX"/lib/libfreetype.so.6
     "-l" "$PREFIX"/lib/libgcc_s.so.1
     "-l" "$PREFIX"/lib/libgmp.so.10
-    "-l" "$PREFIX"/lib/libgpg-error.so.0
     "-l" "$PREFIX"/lib/libharfbuzz.so.0
     "-l" "$PREFIX"/lib/libjack.so.0
     "-l" "$PREFIX"/lib/libstdc++.so.6
