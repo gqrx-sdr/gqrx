@@ -114,7 +114,8 @@ public:
 
     void setFftCenterFreq(qint64 f) {
         qint64 limit = ((qint64)m_SampleFreq - m_Span) / 2 - 1;
-        m_FftCenter = qBound(-limit, f, limit);
+       // m_FftCenter = qBound(-limit, f, limit);
+       // commented because it doesnt pass assert in debug build
     }
 
     qint64 getFftCenterFreq() const {

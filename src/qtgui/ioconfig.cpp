@@ -29,9 +29,9 @@
 #include <QtGlobal>
 #include <QVariant>
 
-#include <osmosdr/device.h>
-#include <osmosdr/source.h>
-#include <osmosdr/ranges.h>
+
+
+#include <SoapySDR/Device.hpp>
 
 #ifdef WITH_PULSEAUDIO
 #include "pulseaudio/pa_device_list.h"
@@ -138,24 +138,31 @@ void CIoConfig::getDeviceList(std::map<QString, QVariant> &devList)
     }
 #endif
 
-    // Get list of input devices discovered by gr-osmosdr and store them in
+    // Get list of input devices discovered by gr-soapy and store them in
     // the device list together with the device descriptor strings
-    osmosdr::devices_t devs = osmosdr::device::find();
+    std::vector<SoapySDR::Kwargs> devs = SoapySDR::Device::enumerate();
 
     qDebug() << __FUNCTION__ << ": Available input devices:";
-    for (auto &dev : devs)
+    for (const auto &dev : devs)
     {
+        // Get the device label
         if (dev.count("label"))
         {
-            devlabel = QString(dev["label"].c_str());
-            dev.erase("label");
+            devlabel = QString::fromStdString(dev.at("label"));
         }
         else
         {
-            devlabel = "Unknown";
+            // Construct a label from driver and serial if label is not available
+            QString driver = dev.count("driver") ? QString::fromStdString(dev.at("driver")) : "Unknown";
+            QString serial = dev.count("serial") ? QString::fromStdString(dev.at("serial")) : "";
+            devlabel = QString("%1 (%2)").arg(driver, serial);
         }
 
-        devstr = QString(escapeDevstr(dev.to_string()).c_str());
+        // Serialize the device arguments
+        std::string device_args = SoapySDR::KwargsToString(dev);
+        devstr = QString::fromStdString(device_args);
+
+        // Insert into the device list
         devList.insert(std::pair<QString, QVariant>(devlabel, devstr));
         qDebug() << "  " << devlabel;
     }
