@@ -22,6 +22,13 @@
 
 #define MARKER_OFF std::numeric_limits<qint64>::min()
 
+struct WaterfallEntry {
+    quint64 m_TimestampMs;
+    qint64 m_CenterFreq;
+    qint64 m_FftCenter;
+    qint64 m_Span;
+};
+
 class CPlotter : public QFrame
 {
     Q_OBJECT
@@ -103,6 +110,7 @@ public:
         if (rate > 0.0f)
         {
             m_SampleFreq = rate;
+            m_WaterfallEntries = std::vector<WaterfallEntry>(m_WaterfallImage.height());
             updateOverlay();
         }
     }
@@ -156,6 +164,7 @@ signals:
     void newSize();
     void markerSelectA(qint64 freq);
     void markerSelectB(qint64 freq);
+    void newCenterFrequency(qint64 freq);
 
 public slots:
     // zoom functions
@@ -213,13 +222,22 @@ private:
         MARKER_B
     };
 
+    qint64 getMinFrequency() const {
+        return m_CenterFreq + m_FftCenter - m_Span / 2;
+    }
+
+    qint64 getMaxFrequency() const {
+        return m_CenterFreq + m_FftCenter + m_Span / 2;
+    }
+
     void        drawOverlay();
     void        makeFrequencyStrs();
     int         xFromFreq(qint64 freq);
     qint64      freqFromX(int x);
     void        zoomStepX(float factor, int x);
     static qint64      roundFreq(qint64 freq, int resolution);
-    quint64     msecFromY(int y);
+    WaterfallEntry     getWaterfallEntry(int waterfallY);
+    qint64      waterfallFreqFromX(WaterfallEntry waterfallEntry, int x);
     void        clampDemodParameters();
     static QColor      blend(QColor base, QColor over, int alpha255)
     {
@@ -273,6 +291,7 @@ private:
     QPixmap     m_PeakPixmap;
     QImage      m_WaterfallImage;
     int         m_WaterfallOffset;
+    std::vector<WaterfallEntry>  m_WaterfallEntries;
     QColor      m_ColorTbl[256];
     QSize       m_Size;
     qreal       m_DPR{};
@@ -352,7 +371,6 @@ private:
     quint64     tlast_wf_ms;        // last time waterfall has been updated
     quint64     tlast_plot_drawn_ms;// last time the plot was drawn
     quint64     tlast_wf_drawn_ms;  // last time waterfall was drawn
-    quint64     wf_valid_since_ms;  // last time before action that invalidates time line
     double      msec_per_wfline{};  // milliseconds between waterfall updates
     quint64     wf_epoch;           // msec time of last waterfal rate change
     quint64     wf_count;           // waterfall lines drawn since last rate change
