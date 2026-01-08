@@ -30,7 +30,6 @@
 #include <QMessageBox>
 
 #include "bookmarks.h"
-#include "bookmarkstaglist.h"
 #include "dockbookmarks.h"
 #include "dockrxopt.h"
 #include "qtcolorpicker.h"
@@ -73,6 +72,22 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
     connect(ui->tableViewFrequencyList, SIGNAL(customContextMenuRequested(const QPoint&)),
         this, SLOT(ShowContextMenu(const QPoint&)));
 
+    tagsDialog = new QDialog(this);
+    tagsDialog->setWindowTitle("Change Bookmark Tags");
+
+    dialogTaglist = new BookmarksTagList(tagsDialog, false);
+
+    QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                            | QDialogButtonBox::Cancel);
+    connect(buttonBox, SIGNAL(accepted()), tagsDialog, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), tagsDialog, SLOT(reject()));
+    connect(dialogTaglist, SIGNAL(itemChanged(QTableWidgetItem *)), this, SLOT(dialog_tableWidgetTagList_itemChanged(QTableWidgetItem *)));
+    connect(dialogTaglist, SIGNAL(colorChanged()), this, SLOT(dialog_tableWidgetTagList_colorChanged()));
+
+    QVBoxLayout *mainLayout = new QVBoxLayout(tagsDialog);
+    mainLayout->addWidget(dialogTaglist);
+    mainLayout->addWidget(buttonBox);
+
     // Update GUI
     Bookmarks::Get().load();
     bookmarksTableModel->update();
@@ -90,7 +105,7 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
     connect(bookmarksTableModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
             this, SLOT(onDataChanged(const QModelIndex &, const QModelIndex &)));
     connect(&Bookmarks::Get(), SIGNAL(TagListChanged()),
-            ui->tableWidgetTagList, SLOT(updateTags()));
+            ui->tableWidgetTagList, SLOT(updateTags()), Qt::QueuedConnection);
     connect(&Bookmarks::Get(), SIGNAL(BookmarksChanged()),
             bookmarksTableModel, SLOT(update()));
 }
@@ -152,8 +167,53 @@ void DockBookmarks::on_tableWidgetTagList_itemChanged(QTableWidgetItem *item)
     if (col != 1)
         return;
 
+    QString strText = item->text().trimmed();
+    QString strOld = item->data(Qt::UserRole).toString();
+    bool isChecked = (item->checkState() == Qt::Checked);
+    if(strText != strOld)
+    {
+        if((Bookmarks::Get().getTagIndex(strText) == -1)
+            && (strText.compare(TagInfo::strUntagged) != 0)
+            && (strOld.compare(TagInfo::strUntagged) != 0)
+        )
+        {
+            Bookmarks::Get().findOrAddTag(strOld)->name = strText;
+            Bookmarks::Get().save();
+        }
+    }
+    Bookmarks::Get().setTagChecked(strText, isChecked);
+}
+
+void DockBookmarks::dialog_tableWidgetTagList_itemChanged(QTableWidgetItem *item)
+{
+    // we only want to react on changed by the user, not changes by the program itself.
+    if(ui->tableWidgetTagList->m_bUpdating) return;
+
+    int col = item->column();
+    if (col != 1)
+        return;
+
     QString strText = item->text();
-    Bookmarks::Get().setTagChecked(strText, (item->checkState() == Qt::Checked));
+    QString strOld = item->data(Qt::UserRole).toString();
+    if(strText != strOld)
+    {
+        if((Bookmarks::Get().getTagIndex(strText) == -1)
+            && (strText.compare(TagInfo::strUntagged) != 0)
+            && (strOld.compare(TagInfo::strUntagged) != 0)
+        )
+        {
+            Bookmarks::Get().findOrAddTag(strOld)->name = strText;
+            item->setData(Qt::UserRole, strText);
+            Bookmarks::Get().save();
+        }else
+            item->setText(strOld);
+        updateTags();
+    }
+}
+
+void DockBookmarks::dialog_tableWidgetTagList_colorChanged()
+{
+    updateTags();
 }
 
 bool DockBookmarks::eventFilter(QObject* object, QEvent* event)
@@ -249,27 +309,13 @@ void DockBookmarks::changeBookmarkTags(int row, int /*column*/)
     // Create and show the Dialog for a new Bookmark.
     // Write the result into variable 'tags'.
     {
-        QDialog dialog(this);
-        dialog.setWindowTitle("Change Bookmark Tags");
-
-        BookmarksTagList* taglist = new BookmarksTagList(&dialog, false);
-        taglist->updateTags();
-        taglist->setSelectedTags(bmi.tags);
-        taglist->DeleteTag(TagInfo::strUntagged);
-
-        QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
-                                              | QDialogButtonBox::Cancel);
-        connect(buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
-        connect(buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
-
-        QVBoxLayout *mainLayout = new QVBoxLayout(&dialog);
-        mainLayout->addWidget(taglist);
-        mainLayout->addWidget(buttonBox);
-
-        ok = dialog.exec();
+        dialogTaglist->updateTags();
+        dialogTaglist->setSelectedTags(bmi.tags);
+        dialogTaglist->DeleteTag(TagInfo::strUntagged);
+        ok = tagsDialog->exec();
         if (ok)
         {
-            tags = taglist->getSelectedTags();
+            tags = dialogTaglist->getSelectedTags();
 
             // Change Tags of Bookmark
             bmi.tags.clear();
