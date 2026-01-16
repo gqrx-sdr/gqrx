@@ -130,6 +130,7 @@ private slots:
 private:
     QTcpServer  rc_server;         /*!< The active server object. */
     QTcpSocket* rc_socket;         /*!< The active socket object. */
+    std::set<QTcpSocket*> rc_sockets; /*!< The active socket objects. */
     QTcpServer  iq_server;         /*!< The active iq data server object. */
     QTcpSocket* iq_socket;         /*!< The active iq data socket object. */
 
