@@ -29,6 +29,8 @@
 #include <gnuradio/blocks/wavfile_sink.h>
 #include <gnuradio/blocks/wavfile_source.h>
 #include <gnuradio/top_block.h>
+#include <gnuradio/zeromq/pub_sink.h>
+#include <gnuradio/network/tcp_sink.h>
 #include <osmosdr/source.h>
 #include <string>
 
@@ -211,6 +213,10 @@ public:
     status      stop_iq_recording();
     status      seek_iq_file(long pos);
 
+    /* IQ streams */ 
+    status      open_iq_stream_socket(const std::string host, int port);
+    status      close_iq_stream_socket();
+
     /* sample sniffer */
     status      start_sniffer(unsigned int samplrate, int buffsize);
     status      stop_sniffer();
@@ -249,6 +255,7 @@ private:
     bool        d_iq_rev;           /*!< Whether I/Q is reversed or not. */
     bool        d_dc_cancel;        /*!< Enable automatic DC removal. */
     bool        d_iq_balance;       /*!< Enable automatic IQ balance. */
+    bool        d_iq_stream;        /*!< Whether we are streaming I/Q data. */
 
     std::string input_devstr;  /*!< Current input device string. */
     std::string output_devstr; /*!< Current output device string. */
@@ -280,6 +287,8 @@ private:
     gr::blocks::wavfile_source::sptr    wav_src;    /*!< WAV file source for playback. */
     gr::blocks::null_sink::sptr         audio_null_sink0; /*!< Audio null sink used during playback. */
     gr::blocks::null_sink::sptr         audio_null_sink1; /*!< Audio null sink used during playback. */
+
+    gr::zeromq::pub_sink::sptr          iq_socket_sink; /*!< IQ sink for zeromq interface */
 
     udp_sink_f_sptr   audio_udp_sink;  /*!< UDP sink to stream audio over the network. */
     sniffer_f_sptr    sniffer;    /*!< Sample sniffer for data decoders. */

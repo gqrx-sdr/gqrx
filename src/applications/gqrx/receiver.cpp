@@ -1195,6 +1195,69 @@ receiver::status receiver::stop_udp_streaming()
 }
 
 /**
+* @brief Open socket to stream IQ data
+* @param ip address to send data to
+* @param socket to send data to
+*/
+receiver::status receiver::open_iq_stream_socket(const std::string host, int port)
+{
+
+    receiver::status status = STATUS_OK;
+
+    // host must be of the form "tcp://127.0.0.1"
+    // port will be simply an integer
+    std::string address = host + ':' + std::to_string(port);
+    char* addr = const_cast<char*>(address.c_str());
+    try
+    {
+        iq_socket_sink = gr::zeromq::pub_sink::make(sizeof(gr_complex),
+                                                           1, 
+                                                           addr);
+    }
+    catch (std::runtime_error &e)
+    {
+        std::cout << __func__ << ": couldn't open I/Q zeroMQ sink" << std::endl;
+        return STATUS_ERROR;
+    }
+
+    tb->lock();
+    if (d_decim >= 2)
+        tb->connect(input_decim, 0, iq_socket_sink, 0);
+    else
+        tb->connect(src, 0, iq_socket_sink, 0);
+    d_iq_stream = true;
+    tb->unlock();
+
+    return status;
+
+} 
+
+/**
+* @brief Close socket that streams IQ data
+*/
+receiver::status receiver::close_iq_stream_socket()
+{
+    if (!d_iq_stream) {
+        /* error: we are not streaming */
+        return STATUS_ERROR;
+    }
+
+    tb->lock();
+
+    if (d_decim >= 2)
+        tb->disconnect(input_decim, 0, iq_socket_sink, 0);
+    else
+        tb->disconnect(src, 0, iq_socket_sink, 0);
+
+    tb->unlock();
+    iq_socket_sink.reset();
+    d_iq_stream = false;
+
+    return STATUS_OK;
+
+}
+
+/**
  * @brief Start I/Q data recorder.
  * @param filename The filename where to record.
  */

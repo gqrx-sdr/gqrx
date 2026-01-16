@@ -23,6 +23,7 @@
 #include <QFileDialog>
 #include <QPalette>
 #include <QDebug>
+#include <iostream>
 
 #include "audio_options.h"
 #include "ui_audio_options.h"
@@ -241,4 +242,23 @@ void CAudioOptions::on_udpPort_valueChanged(int port)
 void CAudioOptions::on_udpStereo_stateChanged(int state)
 {
     emit newUdpStereo(state);
+}
+
+/** Zmq host name has changed. */
+void CAudioOptions::on_ZmqHost_textChanged(const QString &text)
+{
+    if (!text.isEmpty())
+        emit newZmqHost(text);
+}
+
+/** Zmq port number has changed. */
+void CAudioOptions::on_ZmqPort_valueChanged(int port)
+{
+    emit newZmqPort(port);
+}
+
+/** Zmq stereo setting has changed. */
+void CAudioOptions::on_zmqStream_toggled()
+{
+    emit newZmqStream();
 }
