@@ -221,9 +221,6 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
-    connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), remote, SLOT(setNewFrequency(qint64)));
-    connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), uiDockAudio, SLOT(setRxFrequency(qint64)));
-    connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), uiDockRxOpt, SLOT(setRxFreq(qint64)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), remote, SLOT(setLnbLo(double)));
     connect(uiDockInputCtl, SIGNAL(gainChanged(QString, double)), this, SLOT(setGain(QString,double)));
@@ -237,7 +234,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockInputCtl, SIGNAL(antennaSelected(QString)), this, SLOT(setAntenna(QString)));
     connect(uiDockInputCtl, SIGNAL(freqCtrlResetChanged(bool)), this, SLOT(setFreqCtrlReset(bool)));
     connect(uiDockInputCtl, SIGNAL(invertScrollingChanged(bool)), this, SLOT(setInvertScrolling(bool)));
-    connect(uiDockRxOpt, SIGNAL(rxFreqChanged(qint64)), ui->freqCtrl, SLOT(setFrequency(qint64)));
+    connect(uiDockRxOpt, SIGNAL(rxFreqChanged(qint64)), this, SLOT(setNewFrequency(qint64)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), remote, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
@@ -330,7 +327,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(remote, SIGNAL(newRDSmode(bool)), uiDockRDS, SLOT(setRDSmode(bool)));
     connect(remote, SIGNAL(newFilterOffset(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(remote, SIGNAL(newFilterOffset(qint64)), uiDockRxOpt, SLOT(setFilterOffset(qint64)));
-    connect(remote, SIGNAL(newFrequency(qint64)), ui->freqCtrl, SLOT(setFrequency(qint64)));
+    connect(remote, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
     connect(remote, SIGNAL(newLnbLo(double)), uiDockInputCtl, SLOT(setLnbLo(double)));
     connect(remote, SIGNAL(newLnbLo(double)), this, SLOT(setLnbLo(double)));
     connect(remote, SIGNAL(newMode(int)), this, SLOT(selectDemod(int)));
@@ -823,6 +820,8 @@ void MainWindow::updateHWFrequencyRange(bool ignore_limits)
 {
     double startd, stopd, stepd;
 
+    d_ignore_limits = ignore_limits;
+
     if (ignore_limits)
     {
         d_hw_freq_start = (quint64) 0;
@@ -859,6 +858,7 @@ void MainWindow::updateFrequencyRange()
 
     ui->freqCtrl->setup(0, start, stop, 1, FCTL_UNIT_NONE);
     uiDockRxOpt->setRxFreqRange(start, stop);
+    ui->plotter->setFrequencyRange(start, stop);
 }
 
 /**
@@ -905,19 +905,53 @@ void MainWindow::updateGainStages(bool read_from_device)
  */
 void MainWindow::setNewFrequency(qint64 rx_freq)
 {
-    auto hw_freq = (double)(rx_freq - d_lnb_lo) - rx->get_filter_offset();
-    auto center_freq = rx_freq - (qint64)rx->get_filter_offset();
 
-    d_hw_freq = (qint64)hw_freq;
+    auto new_offset = rx->get_filter_offset();
+    auto hw_freq = (double)(rx_freq - d_lnb_lo) - new_offset;
+    auto center_freq = rx_freq - (qint64)new_offset;
+    auto max_offset = rx->get_input_rate() / 2;
+    bool update_offset = rx->is_playing_iq();
 
-    // set receiver frequency
     rx->set_rf_freq(hw_freq);
+    d_hw_freq = d_ignore_limits ? hw_freq : (qint64)rx->get_rf_freq();
+    update_offset |= (d_hw_freq != (qint64)hw_freq);
+
+    if (rx_freq - d_lnb_lo - d_hw_freq > max_offset)
+    {
+        rx_freq = d_lnb_lo + d_hw_freq + max_offset;
+        update_offset = true;
+    }
+    if (rx_freq - d_lnb_lo - d_hw_freq < -max_offset)
+    {
+        rx_freq = d_lnb_lo + d_hw_freq - max_offset;
+        update_offset = true;
+    }
+    if (update_offset)
+    {
+        new_offset = rx_freq - d_lnb_lo - d_hw_freq;
+        if (d_hw_freq != (qint64)hw_freq)
+        {
+            center_freq = d_hw_freq + d_lnb_lo;
+            // set RX filter
+            rx->set_filter_offset((double)new_offset);
+
+            // update RF freq label and channel filter offset
+            rx_freq = center_freq + new_offset;
+         }
+    }
 
     // update widgets
     ui->plotter->setCenterFreq(center_freq);
+    ui->plotter->setFilterOffset(new_offset);
+    uiDockRxOpt->setRxFreq(rx_freq);
     uiDockRxOpt->setHwFreq(d_hw_freq);
+    uiDockRxOpt->setFilterOffset(new_offset);
     ui->freqCtrl->setFrequency(rx_freq);
     uiDockBookmarks->setNewFrequency(rx_freq);
+    remote->setNewFrequency(rx_freq);
+    uiDockAudio->setRxFrequency(rx_freq);
+    if (rx->is_rds_decoder_active())
+        rx->reset_rds_parser();
 }
 
 // Update delta and center (of marker span) when markers are updated
@@ -1002,8 +1036,7 @@ void MainWindow::setLnbLo(double freq_mhz)
 
     // Update ranges and show updated frequency
     updateFrequencyRange();
-    ui->freqCtrl->setFrequency(d_lnb_lo + rf_freq);
-    ui->plotter->setCenterFreq(d_lnb_lo + d_hw_freq);
+    setNewFrequency(d_lnb_lo + rf_freq);
 
     // update LNB LO in settings
     if (freq_mhz == 0.)
@@ -1026,16 +1059,12 @@ void MainWindow::setAntenna(const QString& antenna)
 void MainWindow::setFilterOffset(qint64 freq_hz)
 {
     rx->set_filter_offset((double) freq_hz);
-    ui->plotter->setFilterOffset(freq_hz);
 
     updateFrequencyRange();
 
     auto rx_freq = d_hw_freq + d_lnb_lo + freq_hz;
-    ui->freqCtrl->setFrequency(rx_freq);
+    setNewFrequency(rx_freq);
 
-    if (rx->is_rds_decoder_active()) {
-        rx->reset_rds_parser();
-    }
 }
 
 /**
@@ -2102,14 +2131,14 @@ void MainWindow::on_actionIqTool_triggered()
 void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
 {
     // set RX filter
-    rx->set_filter_offset((double) delta);
+    if (delta != qint64(rx->get_filter_offset()))
+    {
+        rx->set_filter_offset((double) delta);
+        updateFrequencyRange();
+    }
 
-    // update RF freq label and channel filter offset
-    uiDockRxOpt->setFilterOffset(delta);
-    ui->freqCtrl->setFrequency(freq);
+    setNewFrequency(freq);
 
-    if (rx->is_rds_decoder_active())
-        rx->reset_rds_parser();
 }
 
 /* CPlotter::NewfilterFreq() is emitted or bookmark activated */
