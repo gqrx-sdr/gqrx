@@ -64,7 +64,7 @@ public:
 signals:
     void startRecording(const QString recdir, const QString format);
     void stopRecording();
-    void startPlayback(const QString filename, float samprate, qint64 center_freq);
+    void startPlayback(const QString filename, float samprate, qint64 center_freq, bool repeat);
     void stopPlayback();
     void seek(qint64 seek_pos);
 
