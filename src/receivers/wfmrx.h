@@ -70,6 +70,7 @@ public:
     bool stop();
 
     void set_quad_rate(float quad_rate);
+    void set_audio_rate(float audio_rate);
 
     void set_filter(double low, double high, double tw);
     void set_cw_offset(double offset) { (void)offset; }

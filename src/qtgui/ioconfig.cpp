@@ -85,6 +85,20 @@ CIoConfig::CIoConfig(QSettings * settings,
     connect(ui->inSrCombo, SIGNAL(editTextChanged(QString)), this, SLOT(inputRateChanged(QString)));
     connect(ui->decimCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(decimationChanged(int)));
     connect(m_scanButton, SIGNAL(clicked(bool)), this, SLOT(onScanButtonClicked()));
+    ui->outSrCombo->addItem("96 kHz", 96000);
+    ui->outSrCombo->addItem("88.2 kHz", 88200);
+    ui->outSrCombo->addItem("48 kHz", 48000);
+    ui->outSrCombo->addItem("44.1 kHz", 44100);
+    ui->outSrCombo->addItem("24 kHz", 24000);
+    ui->outSrCombo->addItem("22.05 kHz", 22050);
+    ui->outSrCombo->addItem("12 kHz", 12000);
+    ui->outSrCombo->addItem("11.025 kHz", 11025);
+    ui->outSrCombo->addItem("8 kHz", 8000);
+    int found = ui->outSrCombo->findData(settings->value("output/sample_rate", 48000));
+    if (found == -1)
+        ui->outSrCombo->setCurrentIndex(0);
+    else
+        ui->outSrCombo->setCurrentIndex(found);
 }
 
 CIoConfig::~CIoConfig()
@@ -210,6 +224,12 @@ void CIoConfig::saveConfig()
         m_settings->setValue("input/sample_rate", int_val);
     else
         m_settings->remove("input/sample_rate");
+
+    int_val = ui->outSrCombo->currentData().toInt(&conv_ok);
+    if (conv_ok)
+        m_settings->setValue("output/sample_rate", int_val);
+    else
+        m_settings->remove("output/sample_rate");
 
     idx = ui->decimCombo->currentIndex();
     int_val = idx2decim(idx);

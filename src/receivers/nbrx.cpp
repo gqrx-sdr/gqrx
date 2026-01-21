@@ -118,6 +118,67 @@ void nbrx::set_quad_rate(float quad_rate)
     }
 }
 
+void nbrx::set_audio_rate(float audio_rate)
+{
+    if (std::abs(d_audio_rate-audio_rate) > 0.5f)
+    {
+        qDebug() << "Changing NB_RX audio rate:"  << d_audio_rate << "->" << audio_rate;
+        d_audio_rate = audio_rate;
+        if (audio_rr0 && (d_audio_rate == PREF_QUAD_RATE))
+        {
+            lock();
+            qDebug() << "nbrx::set_audio_rate Bypassing resampler ";
+            disconnect(demod, 0, audio_rr0, 0);
+            disconnect(audio_rr0, 0, self(), 0); // left  channel
+            if (d_demod == NBRX_DEMOD_NONE)
+            {
+                disconnect(demod, 1, audio_rr1, 0);
+                disconnect(audio_rr1, 0, self(), 1); // right channel
+            }
+            else
+                disconnect(audio_rr0, 0, self(), 1); // right channel
+            audio_rr0.reset();
+            audio_rr1.reset();
+            connect(demod, 0, self(), 0);
+            if (d_demod == NBRX_DEMOD_NONE)
+                connect(demod, 1, self(), 1);
+            else
+                connect(demod, 0, self(), 1);
+            unlock();
+            return;
+        }
+        if (!audio_rr0 && (d_audio_rate != PREF_QUAD_RATE))
+        {
+            lock();
+            disconnect(demod, 0, self(), 0);
+            disconnect(demod, 1, self(), 1);
+            qDebug() << "nbrx::set_audio_rate Resampling audio " << PREF_QUAD_RATE << " -> "
+                    << d_audio_rate;
+            audio_rr0 = make_resampler_ff(d_audio_rate / PREF_QUAD_RATE);
+            audio_rr1 = make_resampler_ff(d_audio_rate / PREF_QUAD_RATE);
+            connect(demod, 0, audio_rr0, 0);
+            connect(audio_rr0, 0, self(), 0); // left  channel
+            if (d_demod == NBRX_DEMOD_NONE)
+            {
+                connect(demod, 1, audio_rr1, 0);
+                connect(audio_rr1, 0, self(), 1); // right channel
+            }
+            else
+                connect(audio_rr0, 0, self(), 1); // right channel
+            unlock();
+            return;
+        }
+        qDebug() << "nbrx::set_audio_rate rate=" << d_audio_rate << " demod=" <<
+                     d_demod;
+        if (audio_rr0)
+        {
+            audio_rr0->set_rate(d_audio_rate / PREF_QUAD_RATE);
+            if (d_demod == NBRX_DEMOD_NONE)
+                audio_rr1->set_rate(d_audio_rate / PREF_QUAD_RATE);
+        }
+    }
+}
+
 void nbrx::set_filter(double low, double high, double tw)
 {
     filter->set_param(low, high, tw);
@@ -274,6 +335,7 @@ void nbrx::set_demod(int rx_demod)
 
             connect(audio_rr0, 0, self(), 0);
             connect(audio_rr1, 0, self(), 1);
+            audio_rr1->set_rate(d_audio_rate / PREF_QUAD_RATE);
         }
         else
         {
