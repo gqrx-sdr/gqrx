@@ -56,6 +56,17 @@ void Bookmarks::setConfigDir(const QString& cfg_dir)
     std::cout << "BookmarksFile is " << m_bookmarksFile.toStdString() << std::endl;
 }
 
+int Bookmarks::update(int index, BookmarkInfo& info)
+{
+    m_BookmarkList[index].frequency = info.frequency;
+    m_BookmarkList[index].bandwidth = info.bandwidth;
+    m_BookmarkList[index].modulation = info.modulation;
+    auto newInfo = m_BookmarkList[index];
+    std::stable_sort(m_BookmarkList.begin(),m_BookmarkList.end());
+    save();
+    return m_BookmarkList.indexOf(newInfo);
+}
+
 void Bookmarks::add(BookmarkInfo &info)
 {
     m_BookmarkList.append(info);

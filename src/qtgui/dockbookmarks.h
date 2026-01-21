@@ -47,7 +47,6 @@ class DockBookmarks : public QDockWidget
 
 private:
     Ui::DockBookmarks *ui;
-    QMenu*             contextmenu;
     qint64             m_currentFrequency;
     bool               m_updating;
     BookmarksTableModel *bookmarksTableModel;
@@ -60,11 +59,14 @@ public:
 
     // ui->tableViewFrequencyList
     // ui->tableWidgetTagList
+    QAction* actionUpdateBookmark;
+    QAction* actionDeleteBookmark;
     QAction* actionAddBookmark;
 
     void updateTags();
     void updateBookmarks();
     void changeBookmarkTags(int row, int /*column*/);
+    void selectBookmark(int bookmarkIndex);
 
 signals:
     void newBookmarkActivated(qint64, QString, int);

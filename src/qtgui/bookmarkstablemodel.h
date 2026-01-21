@@ -54,6 +54,7 @@ public:
 
     BookmarkInfo* getBookmarkAtRow(int row);
     int GetBookmarksIndexForRow(int iRow);
+    int GetRowForBookmarksIndex(int bookmarkIndex);
 
 private:
     QList<BookmarkInfo*> m_Bookmarks;
