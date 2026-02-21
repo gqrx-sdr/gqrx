@@ -115,7 +115,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     rx->set_rf_freq(144500000.0);
 
     // remote controller
-    remote = new RemoteControl();
+    remote = new RemoteControl(this);
 
     /* meter timer */
     meter_timer = new QTimer(this);
