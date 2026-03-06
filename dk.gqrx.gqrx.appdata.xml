@@ -8,7 +8,6 @@
   <summary xml:lang="nl">Software defined radio ontvanger geïmplementeerd met GNU Radio en de Qt GUI toolkit</summary>
   <summary xml:lang="ru">Приемник для программно-определенного радио (SDR) использующий GNU Radio и библиотеку Qt</summary>
   <summary xml:lang="zh_CN">使用 GNU Radio 和 Qt GUI 实现的软件无线电接收器</summary>
-  <developer_name>Alexandru Csete</developer_name>
   <developer id="dk.gqrx">
     <name>Alexandru Csete</name>
   </developer>
@@ -25,9 +24,6 @@
   <url type="homepage">https://gqrx.dk/</url>
   <url type="bugtracker">https://github.com/gqrx-sdr/gqrx/issues</url>
   <url type="vcs-browser">https://github.com/gqrx-sdr/gqrx</url>
-  <!-- <url type="donation"></url> -->
-  <!-- <url type="faq"></url> -->
-  <!-- <url type="help"></url> -->
   <launchable type="desktop-id">dk.gqrx.gqrx.desktop</launchable>
   <screenshots>
     <screenshot type="default">
