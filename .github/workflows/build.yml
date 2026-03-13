@@ -307,7 +307,7 @@ jobs:
           libfftw3f-3.dll \
           libfftw3f_threads-3.dll \
           libFLAC.dll \
-          libfmt-11.dll \
+          libfmt-12.dll \
           libfreetype-6.dll \
           libgcc_s_seh-1.dll \
           libglib-2.0-0.dll \
@@ -332,7 +332,7 @@ jobs:
           librtlsdr.dll \
           libsndfile-1.dll \
           libSoapySDR.dll \
-          libspdlog-1.15.dll \
+          libspdlog-1.17.dll \
           libstdc++-6.dll \
           libusb-1.0.dll \
           libvolk.dll \
