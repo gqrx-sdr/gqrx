@@ -23,10 +23,26 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <map>
 #include <QString>
 #include <QStringList>
 #include "remote_control.h"
 #include "qtgui/dockrxopt.h"
+#include "qtgui/ioconfig.h"
+#include "mainwindow.h"
+
+#include <osmosdr/device.h>
+#include <osmosdr/source.h>
+#include <osmosdr/ranges.h>
+
+#ifdef WITH_PULSEAUDIO
+#include "pulseaudio/pa_device_list.h"
+#elif WITH_PORTAUDIO
+#include "portaudio/device_list.h"
+#elif defined(Q_OS_DARWIN)
+#include "osxaudio/device_list.h"
+#endif
+
 
 #define DEFAULT_RC_PORT            7356
 #define DEFAULT_RC_ALLOWED_HOSTS   "127.0.0.1"
@@ -260,6 +276,18 @@ void RemoteControl::startRead()
             answer = cmd_dump_state();
         else if (cmd == "\\get_powerstat")
             answer = QString("1\n");
+        else if (cmd == "\\get_input_device_list")
+            answer = cmd_get_input_device_list();
+        else if (cmd == "\\get_input_device")
+            answer = cmd_get_input_device();
+        else if (cmd == "\\set_input_device")
+            answer = cmd_set_input_device(cmdlist);
+        else if (cmd == "\\get_output_device_list")
+            answer = cmd_get_output_device_list();
+        else if (cmd == "\\get_output_device")
+            answer = cmd_get_output_device();
+        else if (cmd == "\\set_output_device")
+            answer = cmd_set_output_device(cmdlist);        
         else if (cmd == "q" || cmd == "Q")
         {
             // FIXME: for now we assume 'close' command
@@ -1053,4 +1081,148 @@ QString RemoteControl::cmd_dump_state() const
         "0\n" /* RIG_PARM_NONE */
         /* Bit field list of set parm */
         "0\n" /* RIG_PARM_NONE */);
+}
+
+
+/*
+ * The '\get_input_device_list' command
+ */
+QString RemoteControl::cmd_get_input_device_list()
+{
+    std::map<QString, QVariant> devList;
+    CIoConfig::getDeviceList(devList);
+
+    QString devListString;
+    for (const auto &dev : devList)    {
+        devListString += dev.first + "\n";
+    }  
+
+    return devListString;
+}
+
+/*
+ * The '\get_input_device' command
+ */
+QString RemoteControl::cmd_get_input_device() const
+{
+    std::map<QString, QVariant> devList;
+    CIoConfig::getDeviceList(devList);
+    QPointer<QSettings> settingsPtr;
+    MainWindow *mw = qobject_cast<MainWindow*>(parent());
+    if (mw)
+        settingsPtr = mw->settings();
+
+    auto *ioconf = new CIoConfig(settingsPtr.data(), devList, nullptr);
+    QString indev = settingsPtr->value("input/device", "").toString();
+    delete ioconf;
+
+    return indev + "\n";
+}
+
+/*
+ * The '\set_input_device' command
+ */
+QString RemoteControl::cmd_set_input_device(QStringList cmdlist) const
+{
+    if (cmdlist.size() != 2)
+        return QString("RPRT 1\n");
+
+    std::map<QString, QVariant> devList;
+    CIoConfig::getDeviceList(devList);
+    QPointer<QSettings> settingsPtr;
+    MainWindow *mw = qobject_cast<MainWindow*>(parent());
+    if (mw)
+        settingsPtr = mw->settings();
+
+    auto *ioconf = new CIoConfig(settingsPtr.data(), devList, nullptr);
+    QString indev = cmdlist[1];
+      settingsPtr->setValue("input/device", indev);
+    mw->storeSession();
+    mw->loadConfig(settingsPtr->fileName(), false, false);
+    delete ioconf;
+
+    return QString("RPRT 0\n");   
+}
+
+
+/*
+ * The '\get_output_device_list' command
+ */
+QString RemoteControl::cmd_get_output_device_list()
+{
+    // get list of audio output devices
+    QString devListString = "Default\n";
+
+#ifdef WITH_PULSEAUDIO
+    pa_device_list devices;
+    outDevList = devices.get_output_devices();
+    for (auto &dev : outDevList)
+    {
+        QString outdevName = QString(dev.get_name().c_str());
+        QString outdevDesc = QString(dev.get_description().c_str());
+        devListString += outdevName + "\n";
+    }
+#elif WITH_PORTAUDIO
+    portaudio_device_list   devices;
+    outDevList = devices.get_output_devices();
+    for (auto &dev : outDevList)
+    {
+        QString outdevName = QString(dev.get_name().c_str());
+        QString outdevDesc = QString(dev.get_description().c_str());
+        devListString += outdevName + "\n";
+    }
+#elif defined(Q_OS_DARWIN)
+    osxaudio_device_list devices;
+    outDevList = devices.get_output_devices();
+    for (auto &dev : outDevList)
+    {
+        QString outdevName = QString(dev.get_name().c_str());
+        QString outdevDesc = QString(dev.get_description().c_str());
+        devListString += outdevName + "\n";
+    }
+#endif // WITH_PULSEAUDIO
+
+    return devListString;
+}
+
+/*
+ * The '\get_output_device' command
+ */
+QString RemoteControl::cmd_get_output_device() const
+{
+    std::map<QString, QVariant> devList;
+    CIoConfig::getDeviceList(devList);
+    QPointer<QSettings> settingsPtr;
+    MainWindow *mw = qobject_cast<MainWindow*>(parent());
+    if (mw)
+        settingsPtr = mw->settings();
+
+    auto *ioconf = new CIoConfig(settingsPtr.data(), devList, nullptr);
+    QString indev = settingsPtr->value("output/device", "").toString();
+    delete ioconf;
+
+    return indev + "\n";
+}
+
+/*
+ * The '\set_output_device' command
+ */
+QString RemoteControl::cmd_set_output_device(QStringList cmdlist) const
+{
+    if (cmdlist.size() != 2)
+        return QString("RPRT 1\n");
+
+    std::map<QString, QVariant> devList;
+    CIoConfig::getDeviceList(devList);
+    QPointer<QSettings> settingsPtr;
+    MainWindow *mw = qobject_cast<MainWindow*>(parent());
+    if (mw)
+        settingsPtr = mw->settings();
+
+    auto *ioconf = new CIoConfig(settingsPtr.data(), devList, nullptr);
+    QString indev = cmdlist[1];
+    settingsPtr->setValue("output/device", indev);
+    delete ioconf;
+
+    return QString("RPRT 0\n");   
 }
