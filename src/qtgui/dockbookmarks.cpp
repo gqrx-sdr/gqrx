@@ -56,18 +56,20 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
     ComboBoxDelegateModulation* delegateModulation = new ComboBoxDelegateModulation(this);
     ui->tableViewFrequencyList->setItemDelegateForColumn(2, delegateModulation);
 
-    // Bookmarks Context menu
-    contextmenu = new QMenu(this);
+    // Actions for context menu
+
+    //MenuItem Update
+    {
+        actionUpdateBookmark = new QAction("Update bookmark", this);
+    }
     // MenuItem Delete
     {
-        QAction* action = new QAction("Delete Bookmark", this);
-        contextmenu->addAction(action);
-        connect(action, SIGNAL(triggered()), this, SLOT(DeleteSelectedBookmark()));
+        actionDeleteBookmark = new QAction("Delete bookmark", this);
+        connect(actionDeleteBookmark, SIGNAL(triggered()), this, SLOT(DeleteSelectedBookmark()));
     }
     // MenuItem Add
     {
-        actionAddBookmark = new QAction("Add Bookmark", this);
-        contextmenu->addAction(actionAddBookmark);
+        actionAddBookmark = new QAction("Add new bookmark", this);
     }
     ui->tableViewFrequencyList->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->tableViewFrequencyList, SIGNAL(customContextMenuRequested(const QPoint&)),
@@ -197,6 +199,17 @@ bool DockBookmarks::DeleteSelectedBookmark()
 
 void DockBookmarks::ShowContextMenu(const QPoint& pos)
 {
+    auto contextmenu = new QMenu(this);
+    auto bookmark = ui->tableViewFrequencyList->indexAt(pos);
+    if (bookmark != QModelIndex())
+    {
+        auto bookmarkIndex = bookmarksTableModel->GetBookmarksIndexForRow(bookmark.row());
+        actionUpdateBookmark->setData(QVariant::fromValue(bookmarkIndex));
+        contextmenu->addAction(actionUpdateBookmark);
+        contextmenu->addAction(actionDeleteBookmark);
+        contextmenu->addSeparator();
+    }
+    contextmenu->addAction(actionAddBookmark);
     contextmenu->popup(ui->tableViewFrequencyList->viewport()->mapToGlobal(pos));
 }
 
@@ -236,6 +249,15 @@ void ComboBoxDelegateModulation::setModelData(QWidget *editor, QAbstractItemMode
 {
     QComboBox *comboBox = static_cast<QComboBox*>(editor);
     model->setData(index, comboBox->currentText(), Qt::EditRole);
+}
+
+void DockBookmarks::selectBookmark(int bookmarkIndex)
+{
+    auto row = bookmarksTableModel->GetRowForBookmarksIndex(bookmarkIndex);
+    if (row >= 0)
+    {
+        ui->tableViewFrequencyList->selectRow(row);;
+    }
 }
 
 void DockBookmarks::changeBookmarkTags(int row, int /*column*/)
