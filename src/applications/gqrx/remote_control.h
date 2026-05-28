@@ -179,6 +179,10 @@ private:
     QString     cmd_LOS();
     QString     cmd_lnb_lo(QStringList cmdlist);
     QString     cmd_dump_state() const;
+    QString     cmd_get_hw_freq() const;
+    QString     cmd_set_hw_freq(QStringList cmdlist);
+    QString     cmd_get_rx_freq() const;
+    QString     cmd_set_rx_freq(QStringList cmdlist);
 };
 
 #endif // REMOTE_CONTROL_H

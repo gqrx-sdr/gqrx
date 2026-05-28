@@ -62,6 +62,14 @@ Supported commands:
  LNB_LO [frequency]
     If frequency [Hz] is specified set the LNB LO frequency used for
     display. Otherwise print the current LNB LO frequency [Hz].
+ gqrx_get_hw_freq
+    Get the hardware center frequency / VFO [Hz]
+ gqrx_set_hw_freq <frequency>
+    Set the hardware center frequency / VFO to <frequency> [Hz]
+ gqrx_get_rx_freq
+    Get the receive / filter frequency relative to the center frequency [Hz]
+ gqrx_set_rx_freq <frequency>
+    Set the receive / filter frequency to <frequency> [Hz]
  \chk_vfo
     Get VFO option status (only usable for hamlib compatibility)
  \dump_state
