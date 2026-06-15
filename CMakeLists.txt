@@ -239,7 +239,7 @@ if(CCACHE)
 endif(CCACHE)
 
 
-# Airspy optimizations that require modified gr-osmosdr
+# Non-standard Airspy optimizations (sets the device bandwidth on rate changes)
 option(CUSTOM_AIRSPY_KERNELS "Enable non-standard Airspy optimizations" ON)
 if(CUSTOM_AIRSPY_KERNELS)
     add_definitions(-DCUSTOM_AIRSPY_KERNELS)
@@ -254,7 +254,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Finish configuring compiler / linker settings & flags
 include_directories(
     ${CMAKE_SOURCE_DIR}/include
-    ${GNURADIO_OSMOSDR_INCLUDE_DIRS}
 )
 
 link_directories(

@@ -29,8 +29,6 @@
 #include <QtGlobal>
 #include <QVariant>
 
-
-
 #include <SoapySDR/Device.hpp>
 
 #ifdef WITH_PULSEAUDIO

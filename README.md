@@ -6,9 +6,8 @@ Gqrx
 
 Gqrx is an open source software defined radio (SDR) receiver implemented using
 [GNU Radio](https://gnuradio.org) and the [Qt GUI toolkit](https://www.qt.io/).
-Currently it works on Linux and Mac with hardware supported by gr-osmosdr,
-including Funcube Dongle, RTL-SDR, Airspy, HackRF, BladeRF, RFSpace, USRP and
-SoapySDR.
+Currently it works on Linux and Mac with hardware supported by SoapySDR,
+including Funcube Dongle, RTL-SDR, Airspy, HackRF, BladeRF, RFSpace and USRP.
 
 Gqrx can operate as an AM/FM/SSB receiver with audio output or as an FFT-only
 instrument. There are also various hooks for interacting with external
@@ -101,7 +100,7 @@ To compile gqrx from source you need the following dependencies:
     - Airspy driver from https://github.com/airspy/airspyone_host
     - SoapySDR from https://github.com/pothosware/SoapySDR
     - RFSpace driver is built in
-- gnuradio-osmosdr from https://gitea.osmocom.org/sdr/gr-osmosdr
+- gnuradio-soapy (gr-soapy), included with GNU Radio 3.9 and later
 - pulseaudio or portaudio (Linux-only and optional)
 - Qt 5 or Qt 6 with the following components:
     - Core

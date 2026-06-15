@@ -94,7 +94,6 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME}
-    ${GNURADIO_OSMOSDR_LIBRARIES}
     ${PULSEAUDIO_LIBRARY}
     ${PULSE-SIMPLE}
     ${PORTAUDIO_LIBRARIES}
