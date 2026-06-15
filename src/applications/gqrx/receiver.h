@@ -24,8 +24,10 @@
 #define RECEIVER_H
 
 #include <gnuradio/blocks/file_sink.h>
+#include <gnuradio/blocks/file_source.h>
 #include <gnuradio/blocks/multiply_const.h>
 #include <gnuradio/blocks/null_sink.h>
+#include <gnuradio/blocks/throttle.h>
 #include <gnuradio/blocks/wavfile_sink.h>
 #include <gnuradio/blocks/wavfile_source.h>
 #include <gnuradio/top_block.h>
@@ -233,6 +235,13 @@ public:
 private:
     void        connect_all(rx_chain type);
 
+    //! Build the I/Q file source (file playback / zero source).
+    void        create_file_source(const std::string &filename, double rate,
+                                   bool repeat);
+    //! Parse a "file=...,rate=...,freq=...,repeat=..." device string.
+    static bool parse_file_devstr(const std::string &devstr, std::string &filename,
+                                  double &rate, double &freq, bool &repeat);
+
 private:
     bool        d_running;          /*!< Whether receiver is running or not. */
     double      d_input_rate;       /*!< Input sample rate. */
@@ -258,10 +267,13 @@ private:
 
     gr::top_block_sptr         tb;        /*!< The GNU Radio top block. */
 
-    //osmosdr::source::sptr     src;       /*!< Real time I/Q source. */
+    gr::soapy::source::sptr   soapy_src; /*!< SoapySDR source. Null during I/Q file playback. */
 
-    gr::soapy::source::sptr   soapy_src; /*!< SoapySDR source. */
-    
+    gr::blocks::file_source::sptr d_file_src;  /*!< I/Q file source (file playback / zero source). */
+    gr::blocks::throttle::sptr    d_throttle;  /*!< Throttles file playback to real time. */
+    gr::basic_block_sptr      d_source;  /*!< Active input source feeding the flowgraph. */
+    bool                      d_iq_file; /*!< True when the input is an I/Q file rather than a device. */
+
     fir_decim_cc_sptr         input_decim;      /*!< Input decimator. */
     receiver_base_cf_sptr     rx;        /*!< receiver. */
 
