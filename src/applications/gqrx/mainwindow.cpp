@@ -116,6 +116,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 
     // remote controller
     remote = new RemoteControl();
+    remote->setReceiver(rx);
 
     /* meter timer */
     meter_timer = new QTimer(this);

@@ -25,14 +25,17 @@
 #include <iostream>
 #include <QString>
 #include <QStringList>
+#include <QVector>
 #include "remote_control.h"
+#include "receiver.h"
 #include "qtgui/dockrxopt.h"
 
 #define DEFAULT_RC_PORT            7356
 #define DEFAULT_RC_ALLOWED_HOSTS   "127.0.0.1"
 
 RemoteControl::RemoteControl(QObject *parent) :
-    QObject(parent)
+    QObject(parent),
+    d_rx(nullptr)
 {
 
     rc_freq = 0;
@@ -220,7 +223,9 @@ void RemoteControl::startRead()
             continue;
 
         QString cmd = cmdlist[0];
-        if (cmd == "f")
+        if (cmd == "FFT")
+            answer = cmd_get_fft(cmdlist);
+        else if (cmd == "f")
             answer = cmd_get_freq();
         else if (cmd == "F")
             answer = cmd_set_freq(cmdlist);
@@ -1053,4 +1058,197 @@ QString RemoteControl::cmd_dump_state() const
         "0\n" /* RIG_PARM_NONE */
         /* Bit field list of set parm */
         "0\n" /* RIG_PARM_NONE */);
+}
+
+/* FFT spectrum data command. */
+QString RemoteControl::cmd_get_fft(QStringList cmdlist)
+{
+    if (!d_rx)
+        return QString("RPRT 1\n");
+
+    unsigned int fftsize = d_rx->iq_fft_size();
+    if (fftsize == 0)
+        return QString("RPRT 1\n");
+
+    double quad_rate = d_rx->get_quad_rate();
+    double native_bw = quad_rate / fftsize;
+
+    /* Parse sub-command (Q or V). */
+    QString sub = cmdlist.value(1, "V");
+
+    if (sub != "Q" && sub != "V")
+        return QString("RPRT 1\n");
+
+    /* Parse optional S:<start_hz>, C:<count>, W:<target_bw_hz>. */
+    double req_start = 0.0;
+    int    req_count = -1;
+    double req_width = 0.0;
+    bool   has_start = false, has_count = false, has_width = false;
+    bool   query_only = (sub == "Q");
+
+    for (int i = 2; i < cmdlist.size(); i++)
+    {
+        QString arg = cmdlist[i];
+        if (arg.startsWith("S:"))
+        {
+            bool ok;
+            req_start = arg.mid(2).toDouble(&ok);
+            if (!ok) return QString("RPRT 1\n");
+            has_start = true;
+        }
+        else if (arg.startsWith("C:"))
+        {
+            bool ok;
+            req_count = arg.mid(2).toInt(&ok);
+            if (!ok || req_count < 0) return QString("RPRT 1\n");
+            has_count = true;
+        }
+        else if (arg.startsWith("W:"))
+        {
+            bool ok;
+            req_width = arg.mid(2).toDouble(&ok);
+            if (!ok || req_width <= 0.0) return QString("RPRT 1\n");
+            has_width = true;
+        }
+        else
+        {
+            return QString("RPRT 1\n");
+        }
+    }
+
+    /* Reject S: and C: arguments on query sub-command (W: is allowed). */
+    if (query_only && (has_start || has_count))
+        return QString("RPRT 1\n");
+
+    /* Default: pool to the channel filter bandwidth so the output
+     * bins match the audio-path resolution.  Prevents very large
+     * responses on wideband receivers when W: is not given. */
+    if (!has_width)
+    {
+        double filter_bw = (double)(rc_passband_hi - rc_passband_lo);
+        if (filter_bw > 0.0)
+        {
+            req_width = filter_bw;
+            has_width = true;
+        }
+    }
+
+    /* Compute pooling factor and output grid parameters. */
+    unsigned int pool = 1;
+    double bin_width = native_bw;
+    unsigned int total_bins = fftsize;
+
+    if (has_width)
+    {
+        unsigned int p = (unsigned int)(req_width / native_bw + 0.5);
+        if (p < 1) p = 1;
+        if (p > fftsize) p = fftsize;
+        pool = p;
+        bin_width = pool * native_bw;
+        total_bins = fftsize / pool;
+        if (total_bins == 0) total_bins = 1;
+    }
+
+    /* Full visible spectrum boundaries.
+     *
+     * The IQ FFT is connected before the NCO (receiver.cpp:1366) so the
+     * visible spectrum is centered at the hardware LO frequency, i.e.
+     * rc_freq minus the channel filter offset.  Using rc_freq directly
+     * would shift all bin frequencies by rc_filter_offset.
+     */
+    double half_span = (fftsize / 2.0) * native_bw;
+    double hw_center = (double)(rc_freq - rc_filter_offset);
+    double vis_start = hw_center - half_span;
+    double vis_end   = hw_center + half_span;
+
+    /* Determine the requested bin range in the output grid. */
+    unsigned int start_idx = 0;
+    unsigned int n_bins = total_bins;
+
+    if (has_start)
+    {
+        if (req_start >= vis_end)
+            return QString("RPRT 1\n");
+        if (req_start > vis_start)
+        {
+            double offset = (req_start - vis_start) / bin_width;
+            start_idx = (unsigned int)offset;
+            if (start_idx >= total_bins)
+                return QString("RPRT 1\n");
+        }
+    }
+
+    if (has_count)
+    {
+        n_bins = req_count;
+    }
+    else if (has_start)
+    {
+        /* S: without C: -> from start to right edge. */
+        n_bins = total_bins - start_idx;
+    }
+
+    /* Clamp to available bins. */
+    if (start_idx + n_bins > total_bins)
+        n_bins = total_bins - start_idx;
+
+    if (!has_count && n_bins == 0)
+        return QString("RPRT 1\n");
+
+    /* Compute start and end frequencies for the response. */
+    double s_freq = vis_start + start_idx * bin_width + bin_width / 2.0;
+    double e_freq = (n_bins > 0) ? (s_freq + (n_bins - 1) * bin_width) : s_freq;
+
+    /* Build response header. */
+    QString answer = QString("RPRT 0 F:%1 S:%2 E:%3 B:%4 N:%5 C:%6")
+                         .arg((qint64)(rc_freq - rc_filter_offset))
+                         .arg(s_freq, 0, 'f', 1)
+                         .arg(e_freq, 0, 'f', 1)
+                         .arg(bin_width, 0, 'f', 1)
+                         .arg(total_bins)
+                         .arg(n_bins);
+
+    /* Fetch and convert values (skip for query-only). */
+    bool need_values = (!query_only && n_bins > 0);
+
+    if (need_values)
+    {
+        std::vector<float> mag_sq(fftsize);
+        if (d_rx->get_iq_fft_data(mag_sq.data()) < 0)
+            return QString("RPRT 1\n");
+
+        float scale = 1.0f / ((float)fftsize * (float)fftsize);
+        double pool_scale = 1.0;
+        QStringList vals;
+        vals.reserve(n_bins);
+
+        if (pool > 1)
+        {
+            for (unsigned int j = start_idx; j < start_idx + n_bins; j++)
+            {
+                double sum = 0.0;
+                unsigned int base = j * pool;
+                for (unsigned int k = 0; k < pool; k++)
+                    sum += (double)mag_sq[base + k];
+                float avg = (float)(sum * pool_scale);
+                float dbfs = 10.0f * log10f(
+                    std::max(avg * scale, 1.0e-20f));
+                vals.append(QString::number(dbfs, 'f', 1));
+            }
+        }
+        else
+        {
+            for (unsigned int i = start_idx; i < start_idx + n_bins; i++)
+            {
+                float dbfs = 10.0f * log10f(
+                    std::max(mag_sq[i] * scale, 1.0e-20f));
+                vals.append(QString::number(dbfs, 'f', 1));
+            }
+        }
+
+        answer += " " + vals.join(" ");
+    }
+
+    answer += "\n";
+    return answer;
 }
