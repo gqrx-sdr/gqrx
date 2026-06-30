@@ -82,10 +82,12 @@ Supported commands:
     Query full FFT parameters (metadata only, no values).
     Optional W: specifies target bin width for pooled output pool.
  FFT V [S:<start_hz>] [C:<n>] [W:<target_bw_hz>]
-    Get FFT spectrum data. Response format:
-     RPRT 0 F:<freq> S:<start> E:<end> B:<bw> N:<total> C:<count> [<dbfs_1> ...]
+    Get     FFT spectrum data. Response format:
+     RPRT 0 F:<freq> R:<rate> Z:<fftsize> S:<start> E:<end> B:<bw> N:<total> C:<count> [<dbfs_1> ...]
    Metadata fields:
      F    Center frequency the receiver is tuned to [Hz]
+     R    I/Q sample rate [Hz] (native_bw = R / Z)
+     Z    FFT size (number of native bins)
      S    Start frequency of the first returned bin [Hz]
      E    End frequency of the last returned bin [Hz]
      B    Bin width [Hz]

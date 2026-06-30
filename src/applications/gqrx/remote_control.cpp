@@ -1199,9 +1199,13 @@ QString RemoteControl::cmd_get_fft(QStringList cmdlist)
     double s_freq = vis_start + start_idx * bin_width + bin_width / 2.0;
     double e_freq = (n_bins > 0) ? (s_freq + (n_bins - 1) * bin_width) : s_freq;
 
-    /* Build response header. */
-    QString answer = QString("RPRT 0 F:%1 S:%2 E:%3 B:%4 N:%5 C:%6")
+    /* Build response header.
+     * R:<quad_rate> and Z:<fftsize> allow the client to compute the
+     * exact native bin width (R/Z) without an extra native-res query. */
+    QString answer = QString("RPRT 0 F:%1 R:%2 Z:%3 S:%4 E:%5 B:%6 N:%7 C:%8")
                          .arg((qint64)(rc_freq - rc_filter_offset))
+                         .arg(quad_rate, 0, 'f', 0)
+                         .arg(fftsize)
                          .arg(s_freq, 0, 'f', 1)
                          .arg(e_freq, 0, 'f', 1)
                          .arg(bin_width, 0, 'f', 1)
