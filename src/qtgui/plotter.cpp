@@ -50,6 +50,8 @@ Q_LOGGING_CATEGORY(plotter, "plotter")
 #define FFT_MIN_DB     -160.f
 #define FFT_MAX_DB      30.f
 #define FFT_MIN_DB_RANGE 2.f
+#define DEFAULT_FFT_MAX_DB -20.f
+#define DEFAULT_FFT_MIN_DB -120.f
 
 #define FILTER_WIDTH_MIN_HZ 200
 
@@ -139,8 +141,8 @@ CPlotter::CPlotter(QWidget *parent) : QFrame(parent)
 
     m_HorDivs = 12;
     m_VerDivs = 6;
-    m_PandMaxdB = m_WfMaxdB = 0.f;
-    m_PandMindB = m_WfMindB = FFT_MAX_DB;
+    m_PandMaxdB = m_WfMaxdB = DEFAULT_FFT_MAX_DB;
+    m_PandMindB = m_WfMindB = DEFAULT_FFT_MIN_DB;
 
     m_CumWheelDelta = 0;
     m_FreqUnits = 1000000;
