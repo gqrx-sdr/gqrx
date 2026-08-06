@@ -1,4 +1,9 @@
 
+    2.17.8: In progress...
+
+     FIXED: Use default FFT plot & waterfall ranges when settings are invalid.
+
+
     2.17.7: Released May 27, 2025
 
        NEW: Start/stop I/Q recording via remote control.
