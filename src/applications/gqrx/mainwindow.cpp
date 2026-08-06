@@ -601,8 +601,8 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
 
         if (actual_rate == 0)
         {
-            // There is an error with the device (perhaps not attached)
-            // Warn user and use 100 ksps (rate used by gr-osmocom null_source)
+            // There is an error with the device (perhaps not attached).
+            // Warn the user and fall back to the requested rate.
             auto *dialog =
                     new QMessageBox(QMessageBox::Warning, tr("Device Error"),
                                     tr("There was an error configuring the input device.\n"
@@ -1664,7 +1664,7 @@ void MainWindow::startIqRecording(const QString& recdir, const QString& format)
                 {"core:sample_rate", sr/dec},
                 {"core:version", "1.0.0"},
                 {"core:recorder", "Gqrx " VERSION},
-                {"core:hw", QString("OsmoSDR: ") + m_settings->value("input/device", "").toString()},
+                {"core:hw", QString("SoapySDR: ") + m_settings->value("input/device", "").toString()},
             }}, {"captures", QJsonArray {
                 QJsonObject {
                     {"core:sample_start", 0},
@@ -2435,7 +2435,7 @@ void MainWindow::on_actionAbout_triggered()
            "<p>Copyright (C) 2011-2024 Alexandru Csete & contributors.</p>"
            "<p>Gqrx is a software defined radio (SDR) receiver powered by "
            "<a href='https://www.gnuradio.org/'>GNU Radio</a> and the Qt toolkit. "
-           "<p>Gqrx uses the <a href='https://osmocom.org/projects/gr-osmosdr/wiki/GrOsmoSDR'>GrOsmoSDR</a> "
+           "<p>Gqrx uses the <a href='https://github.com/pothosware/SoapySDR/wiki'>SoapySDR</a> "
            "input source block and works with any input device supported by it, including "
            "Funcube Dongle, RTL-SDR, Airspy, HackRF, RFSpace, BladeRF and USRP receivers."
            "</p>"

@@ -28,8 +28,10 @@
 
 #include <gnuradio/prefs.h>
 #include <gnuradio/top_block.h>
-#include <osmosdr/source.h>
-#include <osmosdr/ranges.h>
+
+#include <gnuradio/soapy/source.h>
+
+#include <SoapySDR/Device.hpp>
 
 #include "applications/gqrx/receiver.h"
 #include "dsp/correct_iq_cc.h"
@@ -77,14 +79,52 @@ receiver::receiver(const std::string input_device,
 
     tb = gr::make_top_block("gqrx");
 
+    d_iq_file = false;
+
     if (input_device.empty())
     {
-        src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
+        std::vector<SoapySDR::Kwargs> devices = SoapySDR::Device::enumerate();
+
+        if (devices.empty())
+        {
+            // No SoapySDR hardware present: fall back to a silent file source so
+            // gqrx can still start (e.g. to play back a recorded I/Q file).
+            std::cerr << "No SoapySDR devices found, using a zero input source."
+                      << std::endl;
+            create_file_source(get_zero_file(), d_input_rate, true);
+        }
+        else
+        {
+            SoapySDR::Kwargs device = devices[0];
+            std::cout << "Selected Device Properties" << std::endl;
+            for (SoapySDR::Kwargs::const_iterator it = device.begin(); it != device.end(); it++)
+            {
+                std::cout << "  " << it->first << " = " << it->second << std::endl;
+            }
+
+            input_devstr = std::string("driver=") + device["driver"];
+            soapy_src = gr::soapy::source::make(input_devstr, "fc32", 1);
+            d_source = soapy_src;
+        }
+    }
+    else if (input_device.compare(0, 5, "file=") == 0)
+    {
+        input_devstr = input_device;
+
+        std::string filename;
+        double rate = 0.0, freq = 0.0;
+        bool repeat = false;
+        parse_file_devstr(input_device, filename, rate, freq, repeat);
+        if (rate <= 0.0)
+            rate = d_input_rate;
+        create_file_source(filename, rate, repeat);
+        d_rf_freq = freq;
     }
     else
     {
         input_devstr = input_device;
-        src = osmosdr::source::make(input_device);
+        soapy_src = gr::soapy::source::make(input_device, "fc32", 1);
+        d_source = soapy_src;
     }
 
     // input decimator
@@ -176,6 +216,92 @@ void receiver::stop()
 }
 
 /**
+ * @brief Build a file-based I/Q source (file playback or the zero source).
+ * @param filename Path to the I/Q file (interleaved complex float32 samples).
+ * @param rate     Playback sample rate used to throttle the stream to real time.
+ * @param repeat   Whether to loop the file when the end is reached.
+ *
+ * Sets up d_file_src and d_throttle and points d_source at the throttle output.
+ * The internal file_src -> throttle edge is wired up by connect_all() and
+ * set_input_device() where the flowgraph is (re)connected.
+ */
+void receiver::create_file_source(const std::string &filename, double rate,
+                                  bool repeat)
+{
+    if (rate <= 0.0)
+        rate = d_input_rate;
+
+    d_file_src = gr::blocks::file_source::make(sizeof(gr_complex),
+                                               filename.c_str(), repeat);
+    d_throttle = gr::blocks::throttle::make(sizeof(gr_complex), rate);
+    d_source = d_throttle;
+    d_iq_file = true;
+}
+
+/**
+ * @brief Parse a file playback device string.
+ * @param[in]  devstr   Device string of the form
+ *                      "file=<escaped-name>,rate=<n>,freq=<n>,...,repeat=<bool>".
+ * @param[out] filename The unescaped file name.
+ * @param[out] rate     The sample rate, or 0 if not specified.
+ * @param[out] freq     The center frequency, or 0 if not specified.
+ * @param[out] repeat   Whether playback should loop.
+ * @returns true if devstr is a "file=" string, false otherwise.
+ *
+ * The file name is produced by escape_filename() (doubly std::quoted), so it is
+ * un-quoted twice here before the remaining key=value pairs are parsed.
+ */
+bool receiver::parse_file_devstr(const std::string &devstr, std::string &filename,
+                                 double &rate, double &freq, bool &repeat)
+{
+    filename.clear();
+    rate = 0.0;
+    freq = 0.0;
+    repeat = false;
+
+    if (devstr.compare(0, 5, "file=") != 0)
+        return false;
+
+    std::istringstream iss(devstr.substr(5));
+
+    // Un-quote the (doubly std::quoted) file name.
+    std::string quoted;
+    iss >> std::quoted(quoted, '\'', '\\');
+    std::istringstream inner(quoted);
+    inner >> std::quoted(filename, '\'', '\\');
+
+    // Parse the remaining ",key=value" pairs.
+    std::string rest;
+    std::getline(iss, rest);
+    std::istringstream pairs(rest);
+    std::string token;
+    while (std::getline(pairs, token, ','))
+    {
+        std::string::size_type eq = token.find('=');
+        if (eq == std::string::npos)
+            continue;
+
+        std::string key = token.substr(0, eq);
+        std::string val = token.substr(eq + 1);
+        try
+        {
+            if (key == "rate")
+                rate = std::stod(val);
+            else if (key == "freq")
+                freq = std::stod(val);
+            else if (key == "repeat")
+                repeat = (val == "true" || val == "1");
+        }
+        catch (const std::exception &)
+        {
+            // Ignore malformed numeric fields and keep the defaults.
+        }
+    }
+
+    return true;
+}
+
+/**
  * @brief Select new input device.
  * @param device
  */
@@ -199,50 +325,69 @@ void receiver::set_input_device(const std::string device)
         tb->wait();
     }
 
+    // Disconnect the current source from the flowgraph.
     if (d_decim >= 2)
     {
-        tb->disconnect(src, 0, input_decim, 0);
+        tb->disconnect(d_source, 0, input_decim, 0);
         tb->disconnect(input_decim, 0, iq_swap, 0);
     }
     else
     {
-        tb->disconnect(src, 0, iq_swap, 0);
+        tb->disconnect(d_source, 0, iq_swap, 0);
     }
+    if (d_iq_file)
+        tb->disconnect(d_file_src, 0, d_throttle, 0);
 
-#if GNURADIO_VERSION < 0x030802
-    //Work around GNU Radio bug #3184
-    //temporarily connect dummy source to ensure that previous device is closed
-    src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
-    tb->connect(src, 0, iq_swap, 0);
-    tb->start();
-    tb->stop();
-    tb->wait();
-    tb->disconnect(src, 0, iq_swap, 0);
-#else
-    src.reset();
-#endif
+    // Release the previous source blocks.
+    soapy_src.reset();
+    d_throttle.reset();
+    d_file_src.reset();
+    d_source.reset();
+    d_iq_file = false;
 
+    // Build the new source. If a device fails to open we fall back to a silent
+    // file source so the flowgraph stays valid; the error is reported to the
+    // caller at the end.
     try
     {
-        src = osmosdr::source::make(device);
+        if (device.compare(0, 5, "file=") == 0)
+        {
+            std::string filename;
+            double rate = 0.0, freq = 0.0;
+            bool repeat = false;
+            parse_file_devstr(device, filename, rate, freq, repeat);
+            if (rate <= 0.0)
+                rate = d_input_rate;
+            create_file_source(filename, rate, repeat);
+            d_rf_freq = freq;
+        }
+        else
+        {
+            soapy_src = gr::soapy::source::make(input_devstr, "fc32", 1);
+            d_source = soapy_src;
+        }
     }
     catch (std::exception &x)
     {
         error = x.what();
-        src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
+        create_file_source(get_zero_file(), d_input_rate, true);
     }
 
-    if(src->get_sample_rate() != 0)
-        set_input_rate(src->get_sample_rate());
+    // Wire the new source back into the flowgraph.
+    if (d_iq_file)
+        tb->connect(d_file_src, 0, d_throttle, 0);
+
+    if (soapy_src && soapy_src->get_sample_rate(0) != 0)
+        set_input_rate(soapy_src->get_sample_rate(0));
 
     if (d_decim >= 2)
     {
-        tb->connect(src, 0, input_decim, 0);
+        tb->connect(d_source, 0, input_decim, 0);
         tb->connect(input_decim, 0, iq_swap, 0);
     }
     else
     {
-        tb->connect(src, 0, iq_swap, 0);
+        tb->connect(d_source, 0, iq_swap, 0);
     }
 
     if (d_running)
@@ -303,15 +448,18 @@ void receiver::set_output_device(const std::string device)
 /** Get a list of available antenna connectors. */
 std::vector<std::string> receiver::get_antennas(void) const
 {
-    return src->get_antennas();
+    if (!soapy_src)
+        return std::vector<std::string>();
+
+    return soapy_src->list_antennas(0);
 }
 
 /** Select antenna connector. */
 void receiver::set_antenna(const std::string &antenna)
 {
-    if (!antenna.empty())
+    if (soapy_src && !antenna.empty())
     {
-        src->set_antenna(antenna);
+        soapy_src->set_antenna(0, antenna);
     }
 }
 
@@ -326,7 +474,7 @@ double receiver::set_input_rate(double rate)
     double  current_rate;
     bool    rate_has_changed;
 
-    current_rate = src->get_sample_rate();
+    current_rate = soapy_src ? soapy_src->get_sample_rate(0) : d_input_rate;
     rate_has_changed = !(rate == current_rate ||
             std::abs(rate - current_rate) < std::abs(std::min(rate, current_rate))
             * std::numeric_limits<double>::epsilon());
@@ -334,7 +482,18 @@ double receiver::set_input_rate(double rate)
     tb->lock();
     try
     {
-        d_input_rate = src->set_sample_rate(rate);
+        if (soapy_src)
+        {
+            soapy_src->set_sample_rate(0, rate);
+            d_input_rate = soapy_src->get_sample_rate(0);
+        }
+        else
+        {
+            // I/Q file playback: drive the throttle at the requested rate.
+            if (d_throttle)
+                d_throttle->set_sample_rate(rate);
+            d_input_rate = rate;
+        }
     }
     catch (std::runtime_error &e)
     {
@@ -343,9 +502,8 @@ double receiver::set_input_rate(double rate)
 
     if (d_input_rate == 0)
     {
-        // This can be the case when no device is attached and gr-osmosdr
-        // puts in a null_source with rate 100 ksps or if the rate has not
-        // changed
+        // This can be the case when the device rejected the requested rate or
+        // if the rate has not changed.
         if (rate_has_changed)
         {
             std::cerr << std::endl;
@@ -382,12 +540,12 @@ unsigned int receiver::set_input_decim(unsigned int decim)
 
     if (d_decim >= 2)
     {
-        tb->disconnect(src, 0, input_decim, 0);
+        tb->disconnect(d_source, 0, input_decim, 0);
         tb->disconnect(input_decim, 0, iq_swap, 0);
     }
     else
     {
-        tb->disconnect(src, 0, iq_swap, 0);
+        tb->disconnect(d_source, 0, iq_swap, 0);
     }
 
     input_decim.reset();
@@ -423,17 +581,17 @@ unsigned int receiver::set_input_decim(unsigned int decim)
 
     if (d_decim >= 2)
     {
-        tb->connect(src, 0, input_decim, 0);
+        tb->connect(d_source, 0, input_decim, 0);
         tb->connect(input_decim, 0, iq_swap, 0);
     }
     else
     {
-        tb->connect(src, 0, iq_swap, 0);
+        tb->connect(d_source, 0, iq_swap, 0);
     }
 
 #ifdef CUSTOM_AIRSPY_KERNELS
-    if (input_devstr.find("airspy") != std::string::npos)
-        src->set_bandwidth(d_decim_rate);
+    if (soapy_src && input_devstr.find("airspy") != std::string::npos)
+        soapy_src->set_bandwidth(0,d_decim_rate);
 #endif
 
     if (d_running)
@@ -449,13 +607,20 @@ unsigned int receiver::set_input_decim(unsigned int decim)
  */
 double receiver::set_analog_bandwidth(double bw)
 {
-    return src->set_bandwidth(bw);
+    if (!soapy_src)
+        return 0.0;
+
+    soapy_src->set_bandwidth(0, bw);
+    return soapy_src->get_bandwidth(0);
 }
 
 /** Get current analog bandwidth. */
 double receiver::get_analog_bandwidth(void) const
 {
-    return src->get_bandwidth();
+    if (!soapy_src)
+        return 0.0;
+
+    return soapy_src->get_bandwidth(0);
 }
 
 /** Set I/Q reversed. */
@@ -515,7 +680,8 @@ void receiver::set_iq_balance(bool enable)
 
     d_iq_balance = enable;
 
-    src->set_iq_balance_mode(enable ? 2 : 0);
+    if (soapy_src)
+        soapy_src->set_iq_balance_mode(0, enable ? 2 : 0);
 }
 
 /**
@@ -538,7 +704,10 @@ receiver::status receiver::set_rf_freq(double freq_hz)
 {
     d_rf_freq = freq_hz;
 
-    src->set_center_freq(d_rf_freq);
+    // In file-playback mode there is no tunable device; d_rf_freq simply
+    // tracks the file's center frequency for the UI.
+    if (soapy_src)
+        soapy_src->set_frequency(0, d_rf_freq);
     // FIXME: read back frequency?
 
     return STATUS_OK;
@@ -551,7 +720,8 @@ receiver::status receiver::set_rf_freq(double freq_hz)
  */
 double receiver::get_rf_freq(void)
 {
-    d_rf_freq = src->get_center_freq();
+    if (soapy_src)
+        d_rf_freq = soapy_src->get_frequency(0);
 
     return d_rf_freq;
 }
@@ -565,30 +735,46 @@ double receiver::get_rf_freq(void)
  */
 receiver::status receiver::get_rf_range(double *start, double *stop, double *step)
 {
-    osmosdr::freq_range_t range;
+    if (!soapy_src)
+        return STATUS_ERROR;
 
-    range = src->get_freq_range();
+    // Retrieve the frequency ranges from the device
+    std::vector<gr::soapy::range_t> ranges = soapy_src->get_frequency_range(0);
 
-    // currently range is empty for all but E4000
-    if (!range.empty())
+    // Check if any ranges are available
+    if (!ranges.empty())
     {
-        if (range.start() < range.stop())
+        // Use the first available range
+        gr::soapy::range_t range = ranges[0];
+
+        // Assign the start, stop, and step values
+        *start = range.minimum();
+        *stop  = range.maximum();
+        *step  = range.step();
+
+        // Handle zero step size if necessary
+        if (*step == 0)
         {
-            *start = range.start();
-            *stop  = range.stop();
-            *step  = range.step();  /** FIXME: got 0 for rtl-sdr? **/
-
-            return STATUS_OK;
+            // Assign a default step size
+            *step = 1.0;  // Set to 1 Hz or any appropriate value
         }
-    }
 
-    return STATUS_ERROR;
+        return STATUS_OK;
+    }
+    else
+    {
+        // No frequency ranges available
+        return STATUS_ERROR;
+    }
 }
 
 /** Get the names of available gain stages. */
 std::vector<std::string> receiver::get_gain_names()
 {
-    return src->get_gain_names();
+    if (!soapy_src)
+        return std::vector<std::string>();
+
+    return soapy_src->list_gains(0);
 }
 
 /**
@@ -603,11 +789,19 @@ std::vector<std::string> receiver::get_gain_names()
 receiver::status receiver::get_gain_range(std::string &name, double *start,
                                           double *stop, double *step) const
 {
-    osmosdr::gain_range_t range;
+    if (!soapy_src)
+    {
+        *start = 0.0;
+        *stop  = 0.0;
+        *step  = 0.0;
+        return STATUS_ERROR;
+    }
 
-    range = src->get_gain_range(name);
-    *start = range.start();
-    *stop  = range.stop();
+    gr::soapy::range_t range;
+
+    range = soapy_src->get_gain_range(0, name);
+    *start = range.minimum();
+    *stop  = range.maximum();
     *step  = range.step();
 
     return STATUS_OK;
@@ -615,14 +809,18 @@ receiver::status receiver::get_gain_range(std::string &name, double *start,
 
 receiver::status receiver::set_gain(std::string name, double value)
 {
-    src->set_gain(value, name);
+    if (soapy_src)
+        soapy_src->set_gain(0, name, value);
 
     return STATUS_OK;
 }
 
 double receiver::get_gain(std::string name) const
 {
-    return src->get_gain(name);
+    if (!soapy_src)
+        return 0.0;
+
+    return soapy_src->get_gain(0, name);
 }
 
 /**
@@ -633,7 +831,9 @@ double receiver::get_gain(std::string name) const
  */
 receiver::status receiver::set_auto_gain(bool automatic)
 {
-    src->set_gain_mode(automatic);
+    // Only devices that expose an automatic gain mode can honour this.
+    if (soapy_src && soapy_src->has_gain_mode(0))
+        soapy_src->set_gain_mode(0, automatic);
 
     return STATUS_OK;
 }
@@ -716,7 +916,10 @@ receiver::status receiver::set_filter(double low, double high, filter_shape shap
 
 receiver::status receiver::set_freq_corr(double ppm)
 {
-    src->set_freq_corr(ppm);
+    // Not every SoapySDR device supports frequency correction; querying first
+    // avoids an unsupported-operation error on devices that lack it.
+    if (soapy_src && soapy_src->has_frequency_correction(0))
+        soapy_src->set_frequency_correction(0, ppm);
 
     return STATUS_OK;
 }
@@ -1221,7 +1424,7 @@ receiver::status receiver::start_iq_recording(const std::string filename)
     if (d_decim >= 2)
         tb->connect(input_decim, 0, iq_sink, 0);
     else
-        tb->connect(src, 0, iq_sink, 0);
+        tb->connect(d_source, 0, iq_sink, 0);
     d_recording_iq = true;
     tb->unlock();
 
@@ -1242,7 +1445,7 @@ receiver::status receiver::stop_iq_recording()
     if (d_decim >= 2)
         tb->disconnect(input_decim, 0, iq_sink, 0);
     else
-        tb->disconnect(src, 0, iq_sink, 0);
+        tb->disconnect(d_source, 0, iq_sink, 0);
 
     tb->unlock();
     iq_sink.reset();
@@ -1253,15 +1456,18 @@ receiver::status receiver::stop_iq_recording()
 
 /**
  * @brief Seek to position in IQ file source.
- * @param pos Byte offset from the beginning of the file.
+ * @param pos Sample (item) offset from the beginning of the file.
  */
 receiver::status receiver::seek_iq_file(long pos)
 {
     receiver::status status = STATUS_OK;
 
+    if (!d_file_src)
+        return STATUS_ERROR;
+
     tb->lock();
 
-    if (src->seek(pos, SEEK_SET))
+    if (d_file_src->seek(pos, SEEK_SET))
     {
         status = STATUS_OK;
     }
@@ -1337,8 +1543,11 @@ void receiver::connect_all(rx_chain type)
 {
     gr::basic_block_sptr b;
 
-    // Setup source
-    b = src;
+    // Setup source. connect_all() always runs after disconnect_all(), so the
+    // file source's internal file->throttle edge must be re-established here.
+    if (d_iq_file)
+        tb->connect(d_file_src, 0, d_throttle, 0);
+    b = d_source;
 
     // Pre-processing
     if (d_decim >= 2)

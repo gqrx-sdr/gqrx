@@ -114,6 +114,11 @@ public:
 
     void setFftCenterFreq(qint64 f) {
         qint64 limit = ((qint64)m_SampleFreq - m_Span) / 2 - 1;
+        // limit can go negative when the span exceeds the sample rate (e.g.
+        // before the rate is known at startup); clamp it so qBound's
+        // min <= max assertion holds in debug builds.
+        if (limit < 0)
+            limit = 0;
         m_FftCenter = qBound(-limit, f, limit);
     }
 

@@ -94,7 +94,6 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME}
-    ${GNURADIO_OSMOSDR_LIBRARIES}
     ${PULSEAUDIO_LIBRARY}
     ${PULSE-SIMPLE}
     ${PORTAUDIO_LIBRARIES}
@@ -108,6 +107,7 @@ if(NOT Gnuradio_VERSION VERSION_LESS "3.10")
         gnuradio::gnuradio-filter
         gnuradio::gnuradio-network
         gnuradio::gnuradio-audio
+        gnuradio::gnuradio-soapy
         Volk::volk
     )
 else()
