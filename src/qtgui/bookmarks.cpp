@@ -156,20 +156,19 @@ bool Bookmarks::save()
         stream << QString("# Tag name").leftJustified(20) + "; " +
                   QString(" color") << '\n';
 
-        QMap<QString, TagInfo::sptr> usedTags;
-        for (int iBookmark = 0; iBookmark < m_BookmarkList.size(); iBookmark++)
+        std::map<QString, TagInfo::sptr> usedTags;
+        for (const auto &bookmarkInfo: m_BookmarkList)
         {
-            BookmarkInfo& info = m_BookmarkList[iBookmark];
-            for (QList<TagInfo::sptr>::iterator iTag = info.tags.begin(); iTag < info.tags.end(); ++iTag)
+            for (const auto &tag: bookmarkInfo.tags)
             {
-              usedTags.insert((*iTag)->name, *iTag);
+              usedTags.emplace(tag->name, tag);
             }
         }
 
-        for (QMap<QString, TagInfo::sptr>::iterator i = usedTags.begin(); i != usedTags.end(); i++)
+        for (const auto &tag: usedTags)
         {
-            TagInfo::sptr info = *i;
-            stream << info->name.leftJustified(20) + "; " + info->color.name() << '\n';
+            auto tagInfo = tag.second;
+            stream << tagInfo->name.leftJustified(20) + "; " + tagInfo->color.name() << '\n';
         }
 
         stream << '\n';
@@ -180,22 +179,18 @@ bool Bookmarks::save()
                   QString("Bandwidth").rightJustified(10) + "; " +
                   QString("Tags") << '\n';
 
-        for (int i = 0; i < m_BookmarkList.size(); i++)
+        for (const auto &bookmarkInfo: m_BookmarkList)
         {
-            BookmarkInfo& info = m_BookmarkList[i];
-            QString line = QString::number(info.frequency).rightJustified(12) +
-                    "; " + info.name.leftJustified(25) + "; " +
-                    info.modulation.leftJustified(20)+ "; " +
-                    QString::number(info.bandwidth).rightJustified(10) + "; ";
-            for(int iTag = 0; iTag<info.tags.size(); ++iTag)
+            QString line = QString::number(bookmarkInfo.frequency).rightJustified(12) +
+                    "; " + bookmarkInfo.name.leftJustified(25) + "; " +
+                    bookmarkInfo.modulation.leftJustified(20)+ "; " +
+                    QString::number(bookmarkInfo.bandwidth).rightJustified(10) + "; ";
+            QStringList tags;
+            for(const auto &tagInfo: bookmarkInfo.tags)
             {
-                TagInfo::sptr tag = info.tags[iTag];
-                if (iTag!=0)
-                {
-                    line.append(",");
-                }
-                line.append(tag->name);
+                tags.append(tagInfo->name);
             }
+            line.append(tags.join(','));
 
             stream << line << '\n';
         }

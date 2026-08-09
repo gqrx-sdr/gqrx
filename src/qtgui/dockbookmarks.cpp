@@ -31,6 +31,7 @@
 
 #include "bookmarks.h"
 #include "bookmarkstaglist.h"
+#include "dlg_saveablestring.h"
 #include "dockbookmarks.h"
 #include "dockrxopt.h"
 #include "qtcolorpicker.h"
@@ -55,6 +56,9 @@ DockBookmarks::DockBookmarks(QWidget *parent) :
     // Demod Selection in Frequency List Table.
     ComboBoxDelegateModulation* delegateModulation = new ComboBoxDelegateModulation(this);
     ui->tableViewFrequencyList->setItemDelegateForColumn(2, delegateModulation);
+
+    LineEditDelegateSaveableString* delegateBookmarkName = new LineEditDelegateSaveableString(this);
+    ui->tableViewFrequencyList->setItemDelegateForColumn(1, delegateBookmarkName);
 
     // Bookmarks Context menu
     contextmenu = new QMenu(this);
