@@ -52,8 +52,8 @@ public:
     bool setData ( const QModelIndex & index, const QVariant & value, int role = Qt::EditRole );
     Qt::ItemFlags flags ( const QModelIndex & index ) const;
 
-    BookmarkInfo* getBookmarkAtRow(int row);
-    int GetBookmarksIndexForRow(int iRow);
+    BookmarkInfo* getBookmarkAtRow(int row) const;
+    int GetBookmarksIndexForRow(int iRow) const;
 
 private:
     QList<BookmarkInfo*> m_Bookmarks;
