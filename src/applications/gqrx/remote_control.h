@@ -35,6 +35,14 @@
 /* For gain_t and gain_list_t */
 #include "qtgui/dockinputctl.h"
 
+#ifdef WITH_PULSEAUDIO
+#include "pulseaudio/pa_device_list.h"
+#elif WITH_PORTAUDIO
+#include "portaudio/device_list.h"
+#elif defined(Q_OS_DARWIN)
+#include "osxaudio/device_list.h"
+#endif
+
 /*! \brief Simple TCP server for remote control.
  *
  * The TCP interface is compatible with the hamlib rigtctld so that applications
@@ -156,6 +164,14 @@ private:
     gain_list_t gains;             /*!< Possible and current gain settings */
     bool        is_audio_muted;
 
+#ifdef WITH_PULSEAUDIO
+    vector<pa_device>           outDevList;
+#elif WITH_PORTAUDIO
+    vector<portaudio_device>    outDevList;
+#elif defined(Q_OS_DARWIN)
+    vector<osxaudio_device>     outDevList;
+#endif
+
     void        setNewRemoteFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);
     QString     intToModeStr(int mode);
@@ -179,6 +195,12 @@ private:
     QString     cmd_LOS();
     QString     cmd_lnb_lo(QStringList cmdlist);
     QString     cmd_dump_state() const;
+    QString     cmd_get_input_device_list();
+    QString     cmd_get_input_device() const;
+    QString     cmd_set_input_device(QStringList cmdlist) const;
+    QString     cmd_get_output_device_list();
+    QString     cmd_get_output_device() const;
+    QString     cmd_set_output_device(QStringList cmdlist) const;
 };
 
 #endif // REMOTE_CONTROL_H

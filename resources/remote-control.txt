@@ -66,6 +66,18 @@ Supported commands:
     Get VFO option status (only usable for hamlib compatibility)
  \dump_state
     Dump state (only usable for hamlib compatibility)
+ \get_input_device_list
+    Get the list of available input device names
+ \get_input_device
+    Get the current input device name
+ \set_input_device <device_name>
+    Set the current input device name
+ \get_output_device_list
+    Get the list of available output device names
+ \get_output_device
+    Get the current output device name
+ \set_output_device <device_name>
+    Set the current output device name
  \get_powerstat
     Get power status (only usable for hamlib compatibility)
  v
