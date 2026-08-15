@@ -23,6 +23,8 @@
 #include "bookmarkstaglist.h"
 #include "bookmarks.h"
 #include <QColorDialog>
+#include <QInputDialog>
+#include <QMessageBox>
 #include <stdio.h>
 #include <QMenu>
 #include <QHeaderView>
@@ -182,19 +184,6 @@ void BookmarksTagList::ShowContextMenu(const QPoint& pos)
 {
     QMenu* menu=new QMenu(this);
 
-    // Rename currently does not work.
-    // The problem is that after the tag name is changed in GUI
-    // you can not find the right TagInfo because you dont know
-    // the old tag name.
-    #if 0
-    // MenuItem "Rename"
-    {
-        QAction* actionRename = new QAction("Rename", this);
-        menu->addAction(actionRename);
-        connect(actionRename, SIGNAL(triggered()), this, SLOT(RenameSelectedTag()));
-    }
-    #endif
-
     // MenuItem "Create new Tag"
     {
         QAction* actionNewTag = new QAction("Create new Tag", this);
@@ -202,11 +191,25 @@ void BookmarksTagList::ShowContextMenu(const QPoint& pos)
         connect(actionNewTag, SIGNAL(triggered()), this, SLOT(AddNewTag()));
     }
 
-    // Menu "Delete Tag"
-    {
-        QAction* actionDeleteTag = new QAction("Delete Tag", this);
-        menu->addAction(actionDeleteTag);
-        connect(actionDeleteTag, SIGNAL(triggered()), this, SLOT(DeleteSelectedTag()));
+    QTableWidgetItem* theItem = itemAt(pos);
+    if (theItem) {
+        QString tagName = item(theItem->row(), 1)->text();
+        if (tagName.compare(TagInfo::strUntagged) != 0)
+        {
+            // MenuItem "Rename Tag"
+            {
+                QAction* actionRename = new QAction("Rename Tag", this);
+                menu->addAction(actionRename);
+                connect(actionRename, SIGNAL(triggered()), this, SLOT(RenameSelectedTag()));
+            }
+
+            // Menu "Delete Tag"
+            {
+                QAction* actionDeleteTag = new QAction("Delete Tag", this);
+                menu->addAction(actionDeleteTag);
+                connect(actionDeleteTag, SIGNAL(triggered()), this, SLOT(DeleteSelectedTag()));
+            }
+        }
     }
 
     // Menu "Select All"
@@ -226,7 +229,6 @@ void BookmarksTagList::ShowContextMenu(const QPoint& pos)
     menu->popup(viewport()->mapToGlobal(pos));
 }
 
-#if 0
 bool BookmarksTagList::RenameSelectedTag()
 {
     QModelIndexList selected = selectionModel()->selectedRows();
@@ -236,14 +238,26 @@ bool BookmarksTagList::RenameSelectedTag()
         return true;
     }
 
-    int iRow = selected.first().row();
-    QTableWidgetItem* pItem = item(iRow,1);bUpdating
-    editItem(pItem);
-    //Bookmarks::Get().save();
+    int row = selected.first().row();
+    QString oldName = item(row, 1)->text();
 
+    bool ok;
+    QString newName = QInputDialog::getText(this, "Rename Tag", "Tag Name:",
+        QLineEdit::Normal, oldName, &ok);
+    if (ok)
+    {
+        if (Bookmarks::Get().renameTag(oldName, newName))
+        {
+            updateTags();
+        }
+        else 
+        {
+            QMessageBox::warning(this, "Rename Tag", QString("Tag %1 already exists").arg(newName),
+                QMessageBox::Ok, QMessageBox::Ok);
+        }
+    }
     return true;
 }
-#endif
 
 void BookmarksTagList::AddNewTag()
 {

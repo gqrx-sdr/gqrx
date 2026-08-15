@@ -115,6 +115,7 @@ public:
 
     QList<TagInfo::sptr> getTagList() { return  QList<TagInfo::sptr>(m_TagList); }
     TagInfo::sptr findOrAddTag(QString tagName);
+    bool renameTag(QString oldTagName, QString tagName);
     int getTagIndex(QString tagName);
     bool removeTag(QString tagName);
     bool setTagChecked(QString tagName, bool bChecked);
