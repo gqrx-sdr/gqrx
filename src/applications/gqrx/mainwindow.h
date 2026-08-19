@@ -200,6 +200,8 @@ private slots:
     void startIqPlayback(const QString& filename, float samprate, qint64 center_freq);
     void stopIqPlayback();
     void seekIqFile(qint64 seek_pos);
+    void startIqStream(const QString& zmq_host, int zmq_port);
+    void stopIqStream();
 
     /* FFT settings */
     void setIqFftSize(int size);

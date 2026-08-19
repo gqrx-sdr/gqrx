@@ -268,6 +268,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockAudio, SIGNAL(audioPlayStarted(QString)), this, SLOT(startAudioPlayback(QString)));
     connect(uiDockAudio, SIGNAL(audioPlayStopped()), this, SLOT(stopAudioPlayback()));
     connect(uiDockAudio, SIGNAL(fftRateChanged(int)), this, SLOT(setAudioFftRate(int)));
+    connect(uiDockAudio, SIGNAL(zmqStreamStart(QString,int)), this, SLOT(startIqStream(QString,int)));
+    connect(uiDockAudio, SIGNAL(zmqStreamStop()), this, SLOT(stopIqStream()));
 
     // FFT Dock
     connect(uiDockFft, SIGNAL(fftSizeChanged(int)), this, SLOT(setIqFftSize(int)));
@@ -1625,6 +1627,16 @@ void MainWindow::stopAudioPlayback()
     }
 }
 
+void MainWindow::startIqStream(const QString& zmq_host, int zmq_port)
+{
+    rx->open_iq_stream_socket(zmq_host.toStdString(), zmq_port);
+}
+
+void MainWindow::stopIqStream()
+{
+    rx->close_iq_stream_socket();
+}
+
 /** Start streaming audio over UDP. */
 void MainWindow::startAudioStream(const QString& udp_host, int udp_port, bool stereo)
 {
@@ -1650,7 +1662,7 @@ void MainWindow::startIqRecording(const QString& recdir, const QString& format)
     auto filenameTemplate = currentDate.toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.%4").arg(recdir).arg(freq).arg(sr/dec);
     bool sigmf = (format == "SigMF");
     auto lastRec = filenameTemplate.arg(sigmf ? "sigmf-data" : "raw");
-
+    
     QFile metaFile(filenameTemplate.arg("sigmf-meta"));
     bool ok = true;
     if (sigmf) {
@@ -1678,6 +1690,7 @@ void MainWindow::startIqRecording(const QString& recdir, const QString& format)
             ok = false;
         }
     }
+    
 
     // start recorder; fails if recording already in progress
     if (!ok || rx->start_iq_recording(lastRec.toStdString()))
