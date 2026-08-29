@@ -69,8 +69,8 @@ pa_sink::pa_sink(const string device_name, int audio_rate,
                              &error);
 
     if (!d_pasink) {
-        /** FIXME: Throw an exception **/
         fprintf(stderr, __FILE__": pa_simple_new() failed: %s\n", pa_strerror(error));
+        throw std::runtime_error("Failed to open pulseaudio device '" + device_name + "'");
     }
 
 }
@@ -114,8 +114,8 @@ void pa_sink::select_device(string device_name)
                              &error);
 
     if (!d_pasink) {
-        /** FIXME: Throw an exception **/
         fprintf(stderr, __FILE__": pa_simple_new() failed: %s\n", pa_strerror(error));
+        throw std::runtime_error("Failed to select pulseaudio device '" + device_name + "'");
     }
 }
 
