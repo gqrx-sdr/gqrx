@@ -97,7 +97,7 @@ public slots:
     void setAudioMuted(bool muted);
     void startAudioRecorder(QString unused);
     void stopAudioRecorder();
-    void startIqRecorder(QString unused1, QString unused2);
+    void startIqRecorder();
     void stopIqRecorder();
     bool setGain(QString name, double gain);
     void setRDSstatus(bool enabled);
