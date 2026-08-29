@@ -811,17 +811,25 @@ QString RemoteControl::cmd_set_func(QStringList cmdlist)
     else if ((func.compare("RECORD", Qt::CaseInsensitive) == 0) && ok)
     {
         if (rc_mode == 0 || !receiver_running)
+        audio_recorder_status = status;
+        if (status)
         {
             answer = QString("RPRT 1\n");
+            if (rc_mode > 0 && receiver_running)
+            {
+                emit startAudioRecorderEvent();
+                answer = QString("RPRT 0\n");
+            }
+            else
+                answer = QString("RPRT 1\n");
         }
         else
         {
+            emit stopAudioRecorderEvent();
             answer = QString("RPRT 0\n");
             audio_recorder_status = status;
             if (status)
                 emit startAudioRecorderEvent();
-            else
-                emit stopAudioRecorderEvent();
         }
     }
     else if ((func.compare("IQRECORD", Qt::CaseInsensitive) == 0) && ok)
