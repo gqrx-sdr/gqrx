@@ -197,6 +197,9 @@ public:
     status      set_amsync_pll_bw(float pll_bw);
 
     /* Audio parameters */
+    status      set_audio_rate(int rate);
+    status      commit_audio_rate();
+    int         get_audio_rate();
     status      set_af_gain(float gain_db);
     status      start_audio_recording(const std::string filename);
     status      stop_audio_recording();
@@ -295,6 +298,7 @@ private:
 
     //! Get a path to a file containing random bytes
     static std::string get_zero_file(void);
+    void create_audio_device(const std::string device);
 };
 
 #endif // RECEIVER_H

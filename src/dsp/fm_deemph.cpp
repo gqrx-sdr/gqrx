@@ -42,12 +42,13 @@ fm_deemph::fm_deemph(float quad_rate, double tau)
     : gr::hier_block2 ("fm_deemph",
                       gr::io_signature::make (MIN_IN, MAX_IN, sizeof (float)),
                       gr::io_signature::make (MIN_OUT, MAX_OUT, sizeof (float))),
-    d_quad_rate(quad_rate)
+    d_quad_rate(quad_rate),
+    d_tau(tau)
 {
     /* de-emphasis */
     d_fftaps.resize(2);
     d_fbtaps.resize(2);
-    calculate_iir_taps(tau);
+    calculate_iir_taps(d_tau);
     d_deemph = gr::filter::iir_filter_ffd::make(d_fftaps, d_fbtaps, false);
 
     connect(self(), 0, d_deemph, 0);
@@ -63,9 +64,18 @@ fm_deemph::~fm_deemph ()
  */
 void fm_deemph::set_tau(double tau)
 {
-    calculate_iir_taps(tau);
+    d_tau = tau;
+    calculate_iir_taps(d_tau);
     d_deemph->set_taps(d_fftaps, d_fbtaps);
 }
+
+void fm_deemph::set_rate(float rate)
+{
+    d_quad_rate = rate;
+    calculate_iir_taps(d_tau);
+    d_deemph->set_taps(d_fftaps, d_fbtaps);
+}
+
 
 /*! \brief Calculate taps for FM de-emph IIR filter. */
 void fm_deemph::calculate_iir_taps(double tau)

@@ -125,14 +125,7 @@ receiver::receiver(const std::string input_device,
 
     audio_udp_sink = make_udp_sink_f();
 
-#ifdef WITH_PULSEAUDIO
-    audio_snk = make_pa_sink(audio_device, d_audio_rate, "GQRX", "Audio output");
-#elif WITH_PORTAUDIO
-    audio_snk = make_portaudio_sink(audio_device, d_audio_rate, "GQRX", "Audio output");
-#else
-    audio_snk = gr::audio::sink::make(d_audio_rate, audio_device, true);
-#endif
-
+    create_audio_device(audio_device);
     output_devstr = audio_device;
 
     /* wav sink and source is created when rec/play is started */
@@ -277,13 +270,7 @@ void receiver::set_output_device(const std::string device)
     audio_snk.reset();
 
     try {
-#ifdef WITH_PULSEAUDIO
-        audio_snk = make_pa_sink(device, d_audio_rate, "GQRX", "Audio output");
-#elif WITH_PORTAUDIO
-        audio_snk = make_portaudio_sink(device, d_audio_rate, "GQRX", "Audio output");
-#else
-        audio_snk = gr::audio::sink::make(d_audio_rate, device, true);
-#endif
+        create_audio_device(device);
 
         if (d_demod != RX_DEMOD_OFF)
         {
@@ -981,6 +968,27 @@ receiver::status receiver::set_amsync_pll_bw(float pll_bw)
     return STATUS_OK;
 }
 
+receiver::status receiver::set_audio_rate(int rate)
+{
+    if(d_audio_rate != rate)
+    {
+        d_audio_rate = rate;
+        audio_fft->set_quad_rate(rate);
+    }
+    return STATUS_OK;
+}
+
+receiver::status receiver::commit_audio_rate()
+{
+    rx->set_audio_rate(d_audio_rate);
+    return STATUS_OK;
+}
+
+int receiver::get_audio_rate()
+{
+    return d_audio_rate;
+}
+
 receiver::status receiver::set_af_gain(float gain_db)
 {
     float k;
@@ -1469,4 +1477,16 @@ std::string receiver::escape_filename(std::string filename)
     ss1 << std::quoted(filename, '\'', '\\');
     ss2 << std::quoted(ss1.str(), '\'', '\\');
     return ss2.str();
+}
+
+void receiver::create_audio_device(const std::string device)
+{
+#ifdef WITH_PULSEAUDIO
+    audio_snk = make_pa_sink(device, d_audio_rate, "GQRX", "Audio output");
+#elif WITH_PORTAUDIO
+    audio_snk = make_portaudio_sink(device, d_audio_rate, "GQRX", "Audio output");
+#else
+    audio_snk = gr::audio::sink::make(d_audio_rate, device, true);
+#endif
+
 }

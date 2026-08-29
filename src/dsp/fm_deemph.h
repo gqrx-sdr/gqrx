@@ -58,6 +58,7 @@ public:
     ~fm_deemph();
 
     void set_tau(double tau);
+    void set_rate(float rate);
 
 private:
     /* GR blocks */
@@ -65,6 +66,7 @@ private:
 
     /* other parameters */
     float       d_quad_rate;     /*! Quadrature rate. */
+    double      d_tau;
 
     /* De-emph IIR filter taps */
     std::vector<double> d_fftaps;  /*! Feed forward taps. */

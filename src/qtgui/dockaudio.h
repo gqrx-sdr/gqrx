@@ -51,6 +51,7 @@ public:
     ~DockAudio();
 
     void setFftRange(quint64 minf, quint64 maxf);
+    void setFftSampleRate(quint64 rate);
     void setNewFftData(float *fftData, int size);
     void setInvertScrolling(bool enabled);
     int  fftRate() const { return 10; }
