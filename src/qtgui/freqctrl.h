@@ -85,6 +85,7 @@ private:
     void    moveCursorRight();
     bool    inRect(QRect &rect, QPointF &point);
     void    setActiveDigit(int idx);
+    void    localSetFrequency(qint64 freq);
 
     bool        m_LRMouseFreqSel;   /* Use left/right mouse buttons. If FALSE click area determines up/down. */
 

@@ -210,6 +210,7 @@ public:
     status      start_iq_recording(const std::string filename);
     status      stop_iq_recording();
     status      seek_iq_file(long pos);
+    bool        is_playing_iq(void) const { return input_devstr.substr(0, 5).compare("file=") == 0; }
 
     /* sample sniffer */
     status      start_sniffer(unsigned int samplrate, int buffsize);
