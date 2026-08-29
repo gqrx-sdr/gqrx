@@ -51,7 +51,7 @@ CFreqCtrl::CFreqCtrl(QWidget *parent) :
 {
     setAutoFillBackground(false);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    setFocusPolicy(Qt::StrongFocus);
+    setFocusPolicy(Qt::WheelFocus);
     setMouseTracking(true);
     m_BkColor = QColor(0x1F, 0x1D, 0x1D, 0xFF);
     m_InactiveColor = QColor(0x43, 0x43, 0x43, 0xFF);
@@ -193,6 +193,13 @@ void CFreqCtrl::setup(int NumDigits, qint64 Minf, qint64 Maxf, int MinStep,
     m_NumSeps = (m_NumDigits - 1) / 3 - m_DigStart / 3;
 }
 
+void CFreqCtrl::localSetFrequency(qint64 freq)
+{
+    setFrequency(freq);
+    // signal the new frequency to world
+    emit    newFrequency(m_freq);
+}
+
 void CFreqCtrl::setFrequency(qint64 freq)
 {
     int       i;
@@ -243,12 +250,10 @@ void CFreqCtrl::setFrequency(qint64 freq)
                 m_DigitInfo[i].val = -m_DigitInfo[i].val;
         }
     }
-
-    // signal the new frequency to world
     m_Oldfreq = m_freq;
-    emit    newFrequency(m_freq);
     update();
     m_LastLeadZeroPos = m_LeadZeroPos;
+
 }
 
 void CFreqCtrl::setDigitColor(QColor col)
@@ -466,7 +471,7 @@ void CFreqCtrl::keyPressEvent(QKeyEvent *event)
             m_freq -= tmp * m_DigitInfo[m_ActiveEditDigit].weight;
             m_freq = m_freq + (event->key() - '0') *
                         m_DigitInfo[m_ActiveEditDigit].weight;
-            setFrequency(m_freq);
+            localSetFrequency(m_freq);
         }
         moveCursorRight();
         fSkipMsg = true;
@@ -654,7 +659,7 @@ void CFreqCtrl::incDigit()
             }
             m_freq = tmpl;
         }
-        setFrequency(m_freq);
+        localSetFrequency(m_freq);
     }
 }
 
@@ -670,7 +675,7 @@ void CFreqCtrl::incFreq()
             m_freq = m_freq - m_freq %
                         m_DigitInfo[m_ActiveEditDigit].weight;
         }
-        setFrequency(m_freq);
+        localSetFrequency(m_freq);
     }
 }
 
@@ -712,7 +717,7 @@ void CFreqCtrl::decDigit()
             }
             m_freq = tmpl;
         }
-        setFrequency(m_freq);
+        localSetFrequency(m_freq);
     }
 }
 
@@ -729,7 +734,7 @@ void CFreqCtrl::decFreq()
                         m_DigitInfo[m_ActiveEditDigit].weight;
         }
 
-        setFrequency(m_freq);
+        localSetFrequency(m_freq);
     }
 }
 
@@ -744,7 +749,7 @@ void CFreqCtrl::clearFreq()
         /* digits below the active one are reset to 0 */
         m_freq -= m_freq % m_DigitInfo[m_ActiveEditDigit].weight;
 
-        setFrequency(m_freq);
+        localSetFrequency(m_freq);
     }
 }
 
