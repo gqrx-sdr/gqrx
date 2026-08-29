@@ -29,6 +29,16 @@ add_source_files(SRCS_LIST
 	lpf.h
 	resampler_xx.cpp
 	resampler_xx.h
+	rtty/rtty_demod.cpp
+	rtty/rtty_demod.h
+	rtty/fsk_demod.h
+	rtty/fsk_demod_impl.h
+	rtty/fsk_demod_impl.cpp
+	rtty/async_rx.h
+	rtty/async_rx_impl.h
+	rtty/async_rx_impl.cpp
+	rtty/char_store.h
+	rtty/char_store.cpp
 	rx_agc_xx.cpp
 	rx_agc_xx.h
 	rx_demod_am.cpp
@@ -49,4 +59,11 @@ add_source_files(SRCS_LIST
 	sniffer_f.h
 	stereo_demod.cpp
 	stereo_demod.h
+	fax/fax_decoder.h
+	fax/fax_decoder_impl.cpp
+	fax/fax_decoder_impl.h
+	fax/fax_demod.cpp
+	fax/fax_demod.h
+	fax/fax_store.cpp
+	fax/fax_store.h
 )

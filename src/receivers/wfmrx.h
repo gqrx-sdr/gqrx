@@ -5,6 +5,7 @@
  *
  * Copyright 2012 Alexandru Csete OZ9AEC.
  * FM stereo implementation by Alex Grinkov a.grinkov(at)gmail.com.
+ * Generic rx decoder interface Copyright 2022 Marc CAPDEVILLE F4JMZ
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,6 +64,7 @@ public:
         WFMRX_DEMOD_STEREO_UKW = 2,  /*!< UKW stereo. */
         WFMRX_DEMOD_NUM        = 3   /*!< Included for convenience. */
     };
+
     wfmrx(float quad_rate, float audio_rate);
     ~wfmrx();
 
@@ -102,11 +104,12 @@ public:
     void set_fm_maxdev(float maxdev_hz);
     void set_fm_deemph(double tau);
 
-    void get_rds_data(std::string &outbuff, int &num);
-    void start_rds_decoder();
-    void stop_rds_decoder();
-    void reset_rds_parser();
-    bool is_rds_decoder_active();
+    /* generic rx decoder functions */
+    int  start_decoder(enum rx_decoder decoder_type);
+    int  stop_decoder(enum rx_decoder decoder_type);
+    bool is_decoder_active(enum rx_decoder decoder_type);
+    int  reset_decoder(enum rx_decoder decoder_type);
+    int  get_decoder_data(enum rx_decoder decoder_type,void* data, int& num);
 
 private:
     bool   d_running;          /*!< Whether receiver is running or not. */
@@ -125,6 +128,7 @@ private:
     stereo_demod_sptr         stereo_oirt;    /*!< FM stereo oirt demodulator. */
     stereo_demod_sptr         mono;      /*!< FM stereo demodulator OFF. */
 
+    /* RDS decoder */
     rx_rds_sptr               rds;       /*!< RDS decoder */
     rx_rds_store_sptr         rds_store; /*!< RDS decoded messages */
     gr::rds::decoder::sptr    rds_decoder;
