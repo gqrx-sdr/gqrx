@@ -199,25 +199,18 @@ void receiver::set_input_device(const std::string device)
         tb->wait();
     }
 
-    if (d_decim >= 2)
-    {
-        tb->disconnect(src, 0, input_decim, 0);
-        tb->disconnect(input_decim, 0, iq_swap, 0);
-    }
-    else
-    {
-        tb->disconnect(src, 0, iq_swap, 0);
-    }
+    tb->disconnect_all();
 
 #if GNURADIO_VERSION < 0x030802
     //Work around GNU Radio bug #3184
     //temporarily connect dummy source to ensure that previous device is closed
     src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
-    tb->connect(src, 0, iq_swap, 0);
+    auto null_snk = gr::blocks::null_sink::make(sizeof(gr_complex));
+    tb->connect(src, 0, null_snk, 0);
     tb->start();
     tb->stop();
     tb->wait();
-    tb->disconnect(src, 0, iq_swap, 0);
+    tb->disconnect_all();
 #else
     src.reset();
 #endif
@@ -232,18 +225,9 @@ void receiver::set_input_device(const std::string device)
         src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
     }
 
+    set_demod(d_demod, true);
     if(src->get_sample_rate() != 0)
         set_input_rate(src->get_sample_rate());
-
-    if (d_decim >= 2)
-    {
-        tb->connect(src, 0, input_decim, 0);
-        tb->connect(input_decim, 0, iq_swap, 0);
-    }
-    else
-    {
-        tb->connect(src, 0, iq_swap, 0);
-    }
 
     if (d_running)
         tb->start();
@@ -380,16 +364,6 @@ unsigned int receiver::set_input_decim(unsigned int decim)
         tb->wait();
     }
 
-    if (d_decim >= 2)
-    {
-        tb->disconnect(src, 0, input_decim, 0);
-        tb->disconnect(input_decim, 0, iq_swap, 0);
-    }
-    else
-    {
-        tb->disconnect(src, 0, iq_swap, 0);
-    }
-
     input_decim.reset();
     d_decim = decim;
     if (d_decim >= 2)
@@ -421,16 +395,7 @@ unsigned int receiver::set_input_decim(unsigned int decim)
     rx->set_quad_rate(d_quad_rate);
     iq_fft->set_quad_rate(d_decim_rate);
 
-    if (d_decim >= 2)
-    {
-        tb->connect(src, 0, input_decim, 0);
-        tb->connect(input_decim, 0, iq_swap, 0);
-    }
-    else
-    {
-        tb->connect(src, 0, iq_swap, 0);
-    }
-
+    set_demod(d_demod, true);
 #ifdef CUSTOM_AIRSPY_KERNELS
     if (input_devstr.find("airspy") != std::string::npos)
         src->set_bandwidth(d_decim_rate);
@@ -465,6 +430,9 @@ void receiver::set_iq_swap(bool reversed)
         return;
 
     d_iq_rev = reversed;
+    // until we have a way to bypass a hier_block2 without overhead
+    // we do a reconf
+    set_demod(d_demod, true);
     iq_swap->set_enabled(d_iq_rev);
 }
 
@@ -1353,8 +1321,11 @@ void receiver::connect_all(rx_chain type)
         tb->connect(b, 0, iq_sink, 0);
     }
 
-    tb->connect(b, 0, iq_swap, 0);
-    b = iq_swap;
+    if(d_iq_rev)
+    {
+        tb->connect(b, 0, iq_swap, 0);
+        b = iq_swap;
+    }
 
     if (d_dc_cancel)
     {
