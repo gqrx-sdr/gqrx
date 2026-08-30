@@ -34,8 +34,46 @@ BookmarksTagList::BookmarksTagList(QWidget *parent, bool bShowUntagged )
 {
     connect(this, SIGNAL(cellClicked(int,int)),
             this, SLOT(on_cellClicked(int,int)));
+    connect(this, SIGNAL(cellDoubleClicked(int,int)),
+            this, SLOT(on_cellDoubleClicked(int,int)));
 
     // right click menu
+    popupMenu=new QMenu(this);
+
+    // MenuItem "Rename"
+    {
+        QAction* actionRename = new QAction("Rename", this);
+        popupMenu->addAction(actionRename);
+        connect(actionRename, SIGNAL(triggered()), this, SLOT(RenameSelectedTag()));
+    }
+
+    // MenuItem "Create new Tag"
+    {
+        QAction* actionNewTag = new QAction("Create new Tag", this);
+        popupMenu->addAction(actionNewTag);
+        connect(actionNewTag, SIGNAL(triggered()), this, SLOT(AddNewTag()));
+    }
+
+    // Menu "Delete Tag"
+    {
+        QAction* actionDeleteTag = new QAction("Delete Tag", this);
+        popupMenu->addAction(actionDeleteTag);
+        connect(actionDeleteTag, SIGNAL(triggered()), this, SLOT(DeleteSelectedTag()));
+    }
+
+    // Menu "Select All"
+    {
+        QAction* action = new QAction("Select All", this);
+        popupMenu->addAction(action);
+        connect(action, SIGNAL(triggered()), this, SLOT(SelectAll()));
+    }
+
+    // Menu "Deselect All"
+    {
+        QAction* action = new QAction("Deselect All", this);
+        popupMenu->addAction(action);
+        connect(action, SIGNAL(triggered()), this, SLOT(DeselectAll()));
+    }
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
             this, SLOT(ShowContextMenu(const QPoint&)));
@@ -62,6 +100,14 @@ void BookmarksTagList::on_cellClicked(int row, int column)
     }
 }
 
+void BookmarksTagList::on_cellDoubleClicked(int row, int column)
+{
+    if(column==1)
+    {
+        toggleCheckedState(row, column);
+    }
+}
+
 void BookmarksTagList::changeColor(int row, int /*column*/)
 {
     TagInfo::sptr info = Bookmarks::Get().findOrAddTag(item(row, 1)->text());
@@ -71,7 +117,8 @@ void BookmarksTagList::changeColor(int row, int /*column*/)
         return;
 
     info->color=color;
-    updateTags();
+    item(row,0)->setBackground(color);
+    emit colorChanged();
     Bookmarks::Get().save();
 }
 
@@ -180,53 +227,9 @@ QStringList BookmarksTagList::getSelectedTags()
 
 void BookmarksTagList::ShowContextMenu(const QPoint& pos)
 {
-    QMenu* menu=new QMenu(this);
-
-    // Rename currently does not work.
-    // The problem is that after the tag name is changed in GUI
-    // you can not find the right TagInfo because you dont know
-    // the old tag name.
-    #if 0
-    // MenuItem "Rename"
-    {
-        QAction* actionRename = new QAction("Rename", this);
-        menu->addAction(actionRename);
-        connect(actionRename, SIGNAL(triggered()), this, SLOT(RenameSelectedTag()));
-    }
-    #endif
-
-    // MenuItem "Create new Tag"
-    {
-        QAction* actionNewTag = new QAction("Create new Tag", this);
-        menu->addAction(actionNewTag);
-        connect(actionNewTag, SIGNAL(triggered()), this, SLOT(AddNewTag()));
-    }
-
-    // Menu "Delete Tag"
-    {
-        QAction* actionDeleteTag = new QAction("Delete Tag", this);
-        menu->addAction(actionDeleteTag);
-        connect(actionDeleteTag, SIGNAL(triggered()), this, SLOT(DeleteSelectedTag()));
-    }
-
-    // Menu "Select All"
-    {
-        QAction* action = new QAction("Select All", this);
-        menu->addAction(action);
-        connect(action, SIGNAL(triggered()), this, SLOT(SelectAll()));
-    }
-
-    // Menu "Deselect All"
-    {
-        QAction* action = new QAction("Deselect All", this);
-        menu->addAction(action);
-        connect(action, SIGNAL(triggered()), this, SLOT(DeselectAll()));
-    }
-
-    menu->popup(viewport()->mapToGlobal(pos));
+    popupMenu->popup(viewport()->mapToGlobal(pos));
 }
 
-#if 0
 bool BookmarksTagList::RenameSelectedTag()
 {
     QModelIndexList selected = selectionModel()->selectedRows();
@@ -237,19 +240,24 @@ bool BookmarksTagList::RenameSelectedTag()
     }
 
     int iRow = selected.first().row();
-    QTableWidgetItem* pItem = item(iRow,1);bUpdating
+    QTableWidgetItem* pItem = item(iRow,1);
     editItem(pItem);
-    //Bookmarks::Get().save();
-
     return true;
 }
-#endif
 
 void BookmarksTagList::AddNewTag()
 {
-    AddTag("*new*");
-    scrollToBottom();
-    editItem(item(rowCount()-1, 1));
+    constexpr const char * newItemName = "*new*";
+    QList<QTableWidgetItem *> found = findItems(newItemName, Qt::MatchExactly);
+    if(found.isEmpty())
+    {
+        m_bUpdating = true;
+        AddTag(newItemName);
+        scrollToBottom();
+        m_bUpdating = false;
+        editItem(item(rowCount()-1, 1));
+    }else
+        editItem(found[0]);
 }
 
 void BookmarksTagList::AddTag(QString name, Qt::CheckState checkstate, QColor color)
@@ -259,6 +267,7 @@ void BookmarksTagList::AddTag(QString name, Qt::CheckState checkstate, QColor co
 
     // Column 1
     QTableWidgetItem *item = new QTableWidgetItem(name);
+    item->setData(Qt::UserRole, name);
     item->setCheckState(checkstate);
     item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
     setItem(i, 1, item);

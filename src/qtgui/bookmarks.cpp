@@ -289,8 +289,8 @@ bool Bookmarks::removeTag(QString tagName)
 bool Bookmarks::setTagChecked(QString tagName, bool bChecked)
 {
     int idx = getTagIndex(tagName);
-    if (idx == -1) return false;
-    m_TagList[idx]->active = bChecked;
+    if (idx != -1)
+        m_TagList[idx]->active = bChecked;
     emit BookmarksChanged();
     emit TagListChanged();
     return true;
