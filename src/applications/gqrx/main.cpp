@@ -99,41 +99,6 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    // check whether audio backend is functional
-#ifdef WITH_PORTAUDIO
-    PaError     err = Pa_Initialize();
-    if (err != paNoError)
-    {
-        QString message = QString("Portaudio error: %1").arg(Pa_GetErrorText(err));
-        qCritical() << message;
-        QMessageBox::critical(nullptr, "Audio Error", message,
-                              QMessageBox::Abort, QMessageBox::NoButton);
-        return 1;
-    }
-#endif
-
-#ifdef WITH_PULSEAUDIO
-    int         error = 0;
-    pa_simple  *test_sink;
-    pa_sample_spec ss;
-
-    ss.format = PA_SAMPLE_FLOAT32LE;
-    ss.rate = 48000;
-    ss.channels = 2;
-    test_sink =  pa_simple_new(NULL, "Gqrx Test", PA_STREAM_PLAYBACK, NULL,
-                               "Test stream", &ss, NULL, NULL, &error);
-    if (!test_sink)
-    {
-        QString message = QString("Pulseaudio error: %1").arg(pa_strerror(error));
-        qCritical() << message;
-        QMessageBox::critical(0, "Audio Error", message,
-                              QMessageBox::Abort, QMessageBox::NoButton);
-        return 1;
-    }
-    pa_simple_free(test_sink);
-#endif
-
-
     if (parser.isSet("conf"))
     {
         cfg_file = parser.value("conf");

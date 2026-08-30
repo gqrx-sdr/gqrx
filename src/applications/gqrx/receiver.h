@@ -206,6 +206,8 @@ public:
     status      start_udp_streaming(const std::string host, int port, bool stereo);
     status      stop_udp_streaming();
 
+    bool        has_audio_device(void) { return d_has_audio_device; }
+
     /* I/Q recording and playback */
     status      start_iq_recording(const std::string filename);
     status      stop_iq_recording();
@@ -285,13 +287,8 @@ private:
     sniffer_f_sptr    sniffer;    /*!< Sample sniffer for data decoders. */
     resampler_ff_sptr sniffer_rr; /*!< Sniffer resampler. */
 
-#ifdef WITH_PULSEAUDIO
-    pa_sink_sptr              audio_snk;  /*!< Pulse audio sink. */
-#elif WITH_PORTAUDIO
-    portaudio_sink_sptr       audio_snk;  /*!< portaudio sink */
-#else
-    gr::audio::sink::sptr     audio_snk;  /*!< gr audio sink */
-#endif
+    bool                       d_has_audio_device;
+    gr::basic_block_sptr       audio_snk;  /*!< Audio sink (pulse, portaudio, gr-audio). */
 
     //! Get a path to a file containing random bytes
     static std::string get_zero_file(void);
