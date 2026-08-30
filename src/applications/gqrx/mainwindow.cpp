@@ -2489,6 +2489,8 @@ void MainWindow::on_actionAddBookmark_triggered()
         connect(buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
         connect(buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
         connect(buttonCreateTag, SIGNAL(clicked()), taglist, SLOT(AddNewTag()));
+        connect(&Bookmarks::Get(), SIGNAL(TagListChanged()),
+                taglist, SLOT(updateTags()));
 
         auto *mainLayout = new QVBoxLayout(&dialog);
         mainLayout->addWidget(LabelAndTextfieldName);
