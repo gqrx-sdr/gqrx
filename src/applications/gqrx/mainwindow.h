@@ -67,6 +67,7 @@ public:
 
 public slots:
     void setNewFrequency(qint64 rx_freq);
+    void setNewHWFrequency(qint64 hw_freq);
     void setMarkerA(qint64 freq);
     void setMarkerB(qint64 freq);
     void enableMarkers(bool enable);

@@ -85,6 +85,7 @@ public:
     void setGainStages(gain_list_t &gain_list);
 
 public slots:
+    void setNewHWFrequency(qint64 freq);
     void setNewFrequency(qint64 freq);
     void setFilterOffset(qint64 freq);
     void setLnbLo(double freq_mhz);
@@ -106,6 +107,8 @@ public slots:
     void setRdsRadiotext(QString text);
 
 signals:
+    void rxFreqChanged(qint64 freq_hz);
+    void rcHwFrequencyChanged(qint64 freq_hz);
     void newFrequency(qint64 freq);
     void newFilterOffset(qint64 offset);
     void newLnbLo(double freq_mhz);
@@ -134,6 +137,7 @@ private:
     QStringList rc_allowed_hosts;  /*!< Hosts where we accept connection from. */
     int         rc_port;           /*!< The port we are listening on. */
 
+    qint64      hw_freq;           /*!< Current SDR PLL tuning frequency */
     qint64      rc_freq;
     qint64      rc_filter_offset;
     qint64      bw_half;
@@ -175,6 +179,9 @@ private:
     QString     cmd_set_split_vfo();
     QString     cmd_get_info() const;
     QString     cmd_get_param(QStringList cmdlist);
+    QString     cmd_get_hw_freq(QStringList cmdlist);
+    QString     cmd_set_hw_freq(QStringList cmdlist);
+    QString     cmd_get_filter_offset(QStringList cmdlist);
     QString     cmd_AOS();
     QString     cmd_LOS();
     QString     cmd_lnb_lo(QStringList cmdlist);
