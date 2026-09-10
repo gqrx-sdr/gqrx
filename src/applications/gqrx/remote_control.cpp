@@ -27,6 +27,7 @@
 #include <QStringList>
 #include "remote_control.h"
 #include "qtgui/dockrxopt.h"
+#include "qtgui/bookmarks.h"
 
 #define DEFAULT_RC_PORT            7356
 #define DEFAULT_RC_ALLOWED_HOSTS   "127.0.0.1"
@@ -260,6 +261,18 @@ void RemoteControl::startRead()
             answer = cmd_dump_state();
         else if (cmd == "\\get_powerstat")
             answer = QString("1\n");
+        else if (cmd == "\\get_bookmarks")
+            answer = cmd_get_bookmarks();
+        else if (cmd == "\\get_bookmarks_in_range")
+            answer = cmd_get_bookmarks_in_range(cmdlist);
+        else if (cmd == "\\get_bookmark_tags")
+            answer = cmd_get_bookmark_tags();
+        else if (cmd == "\\set_bookmark")
+            answer = cmd_set_bookmark(cmdlist);
+        else if (cmd == "\\set_bookmark_freq")
+            answer = cmd_set_bookmark_freq(cmdlist);
+        else if (cmd == "\\reload_bookmarks")
+            answer = cmd_reload_bookmarks();
         else if (cmd == "q" || cmd == "Q")
         {
             // FIXME: for now we assume 'close' command
@@ -1053,4 +1066,146 @@ QString RemoteControl::cmd_dump_state() const
         "0\n" /* RIG_PARM_NONE */
         /* Bit field list of set parm */
         "0\n" /* RIG_PARM_NONE */);
+}
+
+/* Replace the wire-format field separators so each bookmark stays on one
+ * unambiguous line. */
+static QString rc_bookmark_sanitize(QString s)
+{
+    return s.replace('|', ' ').replace('\r', ' ').replace('\n', ' ');
+}
+
+/* Format one bookmark as: freq|name|modulation|bandwidth|tag,tag,... */
+static QString rc_bookmark_line(const BookmarkInfo &info)
+{
+    QStringList tags;
+    for (const auto &tag : info.tags)
+        tags.push_back(rc_bookmark_sanitize(tag->name));
+
+    return QString("%1|%2|%3|%4|%5\n")
+            .arg(info.frequency)
+            .arg(rc_bookmark_sanitize(info.name))
+            .arg(rc_bookmark_sanitize(info.modulation))
+            .arg(info.bandwidth)
+            .arg(tags.join(","));
+}
+
+/*
+ * The '\get_bookmarks' command.
+ *
+ * Reply: a line with the bookmark count, then one line per bookmark:
+ *   <freq_Hz>|<name>|<modulation>|<bandwidth_Hz>|<comma separated tags>
+ */
+QString RemoteControl::cmd_get_bookmarks()
+{
+    Bookmarks &bookmarks = Bookmarks::Get();
+    const int count = bookmarks.size();
+
+    QString answer = QString("%1\n").arg(count);
+    for (int i = 0; i < count; i++)
+        answer += rc_bookmark_line(bookmarks.getBookmark(i));
+
+    return answer;
+}
+
+/*
+ * The '\get_bookmarks_in_range <lo> <hi>' command.
+ *
+ * Same reply format as '\get_bookmarks', limited to lo <= frequency <= hi [Hz].
+ */
+QString RemoteControl::cmd_get_bookmarks_in_range(QStringList cmdlist)
+{
+    bool lo_ok, hi_ok;
+    qint64 lo = cmdlist.value(1, "").toLongLong(&lo_ok);
+    qint64 hi = cmdlist.value(2, "").toLongLong(&hi_ok);
+
+    if (!lo_ok || !hi_ok || lo > hi)
+        return QString("RPRT 1\n");
+
+    Bookmarks &bookmarks = Bookmarks::Get();
+    QString rows;
+    int count = 0;
+    for (int i = 0; i < bookmarks.size(); i++)
+    {
+        const BookmarkInfo &info = bookmarks.getBookmark(i);
+        if (info.frequency >= lo && info.frequency <= hi)
+        {
+            rows += rc_bookmark_line(info);
+            count++;
+        }
+    }
+
+    return QString("%1\n").arg(count) + rows;
+}
+
+/*
+ * The '\get_bookmark_tags' command.
+ *
+ * Reply: a line with the tag count, then one tag name per line.
+ */
+QString RemoteControl::cmd_get_bookmark_tags()
+{
+    QList<TagInfo::sptr> tags = Bookmarks::Get().getTagList();
+
+    QString answer = QString("%1\n").arg(tags.size());
+    for (const auto &tag : tags)
+        answer += rc_bookmark_sanitize(tag->name) + "\n";
+
+    return answer;
+}
+
+/*
+ * The '\set_bookmark <index>' command.
+ *
+ * Activate the bookmark at <index> (0-based, in '\get_bookmarks' order): tune to
+ * it and apply its mode and bandwidth.
+ */
+QString RemoteControl::cmd_set_bookmark(QStringList cmdlist)
+{
+    bool ok;
+    int index = cmdlist.value(1, "").toInt(&ok);
+    Bookmarks &bookmarks = Bookmarks::Get();
+
+    if (!ok || index < 0 || index >= bookmarks.size())
+        return QString("RPRT 1\n");
+
+    const BookmarkInfo &info = bookmarks.getBookmark(index);
+    emit newBookmarkActivated(info.frequency, info.modulation, (int)info.bandwidth);
+
+    return QString("RPRT 0\n");
+}
+
+/*
+ * The '\set_bookmark_freq <frequency>' command.
+ *
+ * Activate the first bookmark whose frequency equals <frequency> [Hz]. This is
+ * independent of the list order, so it survives edits between calls.
+ */
+QString RemoteControl::cmd_set_bookmark_freq(QStringList cmdlist)
+{
+    bool ok;
+    qint64 freq = cmdlist.value(1, "").toLongLong(&ok);
+    if (!ok)
+        return QString("RPRT 1\n");
+
+    Bookmarks &bookmarks = Bookmarks::Get();
+    for (int i = 0; i < bookmarks.size(); i++)
+    {
+        const BookmarkInfo &info = bookmarks.getBookmark(i);
+        if (info.frequency == freq)
+        {
+            emit newBookmarkActivated(info.frequency, info.modulation, (int)info.bandwidth);
+            return QString("RPRT 0\n");
+        }
+    }
+
+    return QString("RPRT 1\n");
+}
+
+/*
+ * The '\reload_bookmarks' command: re-read bookmarks.csv from disk.
+ */
+QString RemoteControl::cmd_reload_bookmarks()
+{
+    return Bookmarks::Get().load() ? QString("RPRT 0\n") : QString("RPRT 1\n");
 }
