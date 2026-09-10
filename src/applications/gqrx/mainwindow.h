@@ -59,6 +59,8 @@ public:
     explicit MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent = nullptr);
     ~MainWindow() override;
 
+    QPointer<QSettings> settings() const { return m_settings; }
+
     bool loadConfig(const QString& cfgfile, bool check_crash, bool restore_mainwindow);
     bool saveConfig(const QString& cfgfile);
     void storeSession();
