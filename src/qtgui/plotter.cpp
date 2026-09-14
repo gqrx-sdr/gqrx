@@ -1533,12 +1533,16 @@ void CPlotter::draw(bool newData)
 
         // The m_Marker{AB}X values are one cycle old, which makes for a laggy
         // effect, so get fresh values here.
-        const int ax = xFromFreq(m_MarkerFreqA);
-        const int bx = xFromFreq(m_MarkerFreqB);
-        bool fillMarkers = (m_MarkersEnabled && m_MarkerFreqA != MARKER_OFF
-                                             && m_MarkerFreqB != MARKER_OFF);
-        const int minMarker = std::min(ax, bx);
-        const int maxMarker = std::max(ax, bx);
+        bool fillMarkers = false;
+        int minMarker = 0;
+        int maxMarker = 0;
+        if (m_MarkerFreqA != MARKER_OFF && m_MarkerFreqB != MARKER_OFF) {
+            fillMarkers = m_MarkersEnabled;
+            const int ax = xFromFreq(m_MarkerFreqA);
+            const int bx = xFromFreq(m_MarkerFreqB);
+            minMarker = std::min(ax, bx);
+            maxMarker = std::max(ax, bx);
+        }
 
         const float binSizeY = (float)plotHeight / (float)histBinsDisplayed;
         QPolygonF abPolygon;
