@@ -1734,7 +1734,19 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate, qint64
 
     qDebug() << __func__ << ":" << devstr;
 
-    rx->set_input_device(devstr.toStdString());
+    try
+    {
+        rx->set_input_device(devstr.toStdString());
+    }
+    catch (std::exception &x)
+    {
+        // The receiver has already fallen back to a dummy source, so we can
+        // carry on; just let the user know the file could not be opened.
+        QMessageBox::warning(this,
+                             tr("Failed to start I/Q playback"),
+                             tr("<p><b>%1</b></p>").arg(x.what()),
+                             QMessageBox::Ok);
+    }
     updateHWFrequencyRange(false);
 
     // sample rate
@@ -1771,7 +1783,22 @@ void MainWindow::stopIqPlayback()
 
     // restore original input device
     auto indev = m_settings->value("input/device", "").toString();
-    rx->set_input_device(indev.toStdString());
+    try
+    {
+        rx->set_input_device(indev.toStdString());
+    }
+    catch (std::exception &x)
+    {
+        // The original device may be unavailable (e.g. unplugged, or an
+        // invalid file name). The receiver has already fallen back to a dummy
+        // source, so warn instead of letting the exception terminate gqrx.
+        QMessageBox::warning(this,
+                             tr("Failed to restore input device"),
+                             tr("<p><b>%1</b></p>"
+                                "Please select another device.")
+                                     .arg(x.what()),
+                             QMessageBox::Ok);
+    }
 
     // restore sample rate
     bool conv_ok;
