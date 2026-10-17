@@ -11,6 +11,7 @@ jobs:
           - "ubuntu:20.04"
           - "ubuntu:22.04"
           - "ubuntu:24.04"
+          - "ubuntu:26.04"
         backend:
           - Pulseaudio
           - Portaudio
@@ -69,7 +70,7 @@ jobs:
     name: MacOS CI
     strategy:
       matrix:
-        os: [macos-14, macos-15-intel]
+        os: [macos-15, macos-15-intel]
         backend: [Portaudio, Gr-audio]
     runs-on: ${{ matrix.os }}
     steps:
