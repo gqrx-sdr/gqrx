@@ -16,7 +16,7 @@ jobs:
 
       - name: Install conda dependencies
         id: setup-micromamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v3
         with:
           environment-name: gqrx
           create-args: >-
@@ -39,7 +39,7 @@ jobs:
             sysroot_linux-64=2.17.*
             volk
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Configure
@@ -62,7 +62,7 @@ jobs:
           PREFIX: ${{ steps.setup-micromamba.outputs.environment-path }}
         run: ./appimage.sh
       - name: Save artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gqrx-appimage-${{ github.run_id }}
           path: Gqrx-*.AppImage
@@ -71,7 +71,7 @@ jobs:
     strategy:
       matrix:
         arch: [x86_64, arm64]
-    runs-on: ${{ matrix.arch == 'x86_64' && 'macos-15-intel' || 'macos-14' }}
+    runs-on: ${{ matrix.arch == 'x86_64' && 'macos-15-intel' || 'macos-15' }}
     steps:
       - name: Check for Secret availability
         id: secret-check
@@ -83,7 +83,7 @@ jobs:
           fi
       - name: Install conda dependencies
         id: setup-micromamba
-        uses: mamba-org/setup-micromamba@v2
+        uses: mamba-org/setup-micromamba@v3
         with:
           environment-name: gqrx
           create-args: >-
@@ -122,7 +122,7 @@ jobs:
           security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Configure
@@ -169,7 +169,7 @@ jobs:
           GQRX_VERSION=$(<build/version.txt)
           mv Gqrx.dmg Gqrx-$GQRX_VERSION-$MATRIX_ARCH.dmg
       - name: Save artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gqrx-macos-${{ matrix.arch }}-${{ github.run_id }}
           path: Gqrx-*.dmg
@@ -183,7 +183,7 @@ jobs:
     - name: Setup MSYS2
       uses: msys2/setup-msys2@v2
       with:
-        msystem: MINGW64
+        msystem: UCRT64
         update: true
         install: >-
           git
@@ -207,7 +207,7 @@ jobs:
         git clone --branch maint-3.10 --depth 1 https://github.com/gnuradio/gnuradio.git
         cd gnuradio
         cmake -S . -B build \
-          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/ucrt64 \
           -DCMAKE_BUILD_TYPE=Release \
           -DENABLE_DEFAULT=OFF \
           -DENABLE_COMMON_PCH=ON \
@@ -228,7 +228,7 @@ jobs:
         cd rtl-sdr
         cmake -S . -B build \
           -DCMAKE_C_FLAGS="-std=gnu17" \
-          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/ucrt64 \
           -DCMAKE_BUILD_TYPE=Release \
           -DDETACH_KERNEL_DRIVER=OFF \
           -DENABLE_ZEROCOPY=OFF \
@@ -243,7 +243,7 @@ jobs:
         cmake -S . -B build \
           -G "MinGW Makefiles" \
           -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
-          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/ucrt64
         cmake --build build
         cmake --install build
     - name: Clone and build airspyhf
@@ -254,9 +254,9 @@ jobs:
         cmake -S . -B build \
           -G "MSYS Makefiles" \
           -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
-          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
-          -DTHREADS_PTHREADS_INCLUDE_DIR=${RUNNER_TEMP}/msys64/mingw64/include \
-          -DTHREADS_PTHREADS_WIN32_LIBRARY=${RUNNER_TEMP}/msys64/mingw64/lib/libpthread.a
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/ucrt64 \
+          -DTHREADS_PTHREADS_INCLUDE_DIR=${RUNNER_TEMP}/msys64/ucrt64/include \
+          -DTHREADS_PTHREADS_WIN32_LIBRARY=${RUNNER_TEMP}/msys64/ucrt64/lib/libpthread.a
         cmake --build build
         cmake --install build
     - name: Clone and build gr-osmosdr
@@ -265,7 +265,7 @@ jobs:
         git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
         cd gr-osmosdr
         cmake -S . -B build \
-          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/ucrt64 \
           -DCMAKE_BUILD_TYPE=Release \
           -DENABLE_DEFAULT=OFF \
           -DENABLE_AIRSPY=ON \
@@ -280,7 +280,7 @@ jobs:
     - name: Configure git
       run: git config --global core.autocrlf input
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
     - name: Configure, compile & install
@@ -291,7 +291,7 @@ jobs:
         cmake --build build
         cmake --install build
     - name: Deploy Qt application
-      working-directory: ${{ runner.temp }}/msys64/mingw64/bin
+      working-directory: ${{ runner.temp }}/msys64/ucrt64/bin
       run: |
         windeployqt6 C:/gqrx/bin/gqrx.exe
         cp \
@@ -343,7 +343,7 @@ jobs:
           zlib1.dll \
           C:/gqrx/bin/
     - name: Save artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: gqrx-windows-${{ github.run_id }}
         path: C:/gqrx/bin
