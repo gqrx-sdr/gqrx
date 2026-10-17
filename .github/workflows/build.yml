@@ -183,7 +183,7 @@ jobs:
     - name: Setup MSYS2
       uses: msys2/setup-msys2@v2
       with:
-        msystem: MINGW64
+        msystem: UCRT64
         update: true
         install: >-
           git
@@ -207,7 +207,7 @@ jobs:
         git clone --branch maint-3.10 --depth 1 https://github.com/gnuradio/gnuradio.git
         cd gnuradio
         cmake -S . -B build \
-          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/ucrt64 \
           -DCMAKE_BUILD_TYPE=Release \
           -DENABLE_DEFAULT=OFF \
           -DENABLE_COMMON_PCH=ON \
@@ -228,7 +228,7 @@ jobs:
         cd rtl-sdr
         cmake -S . -B build \
           -DCMAKE_C_FLAGS="-std=gnu17" \
-          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/ucrt64 \
           -DCMAKE_BUILD_TYPE=Release \
           -DDETACH_KERNEL_DRIVER=OFF \
           -DENABLE_ZEROCOPY=OFF \
@@ -243,7 +243,7 @@ jobs:
         cmake -S . -B build \
           -G "MinGW Makefiles" \
           -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
-          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/ucrt64
         cmake --build build
         cmake --install build
     - name: Clone and build airspyhf
@@ -254,9 +254,9 @@ jobs:
         cmake -S . -B build \
           -G "MSYS Makefiles" \
           -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
-          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
-          -DTHREADS_PTHREADS_INCLUDE_DIR=${RUNNER_TEMP}/msys64/mingw64/include \
-          -DTHREADS_PTHREADS_WIN32_LIBRARY=${RUNNER_TEMP}/msys64/mingw64/lib/libpthread.a
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/ucrt64 \
+          -DTHREADS_PTHREADS_INCLUDE_DIR=${RUNNER_TEMP}/msys64/ucrt64/include \
+          -DTHREADS_PTHREADS_WIN32_LIBRARY=${RUNNER_TEMP}/msys64/ucrt64/lib/libpthread.a
         cmake --build build
         cmake --install build
     - name: Clone and build gr-osmosdr
@@ -265,7 +265,7 @@ jobs:
         git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
         cd gr-osmosdr
         cmake -S . -B build \
-          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/ucrt64 \
           -DCMAKE_BUILD_TYPE=Release \
           -DENABLE_DEFAULT=OFF \
           -DENABLE_AIRSPY=ON \
@@ -291,7 +291,7 @@ jobs:
         cmake --build build
         cmake --install build
     - name: Deploy Qt application
-      working-directory: ${{ runner.temp }}/msys64/mingw64/bin
+      working-directory: ${{ runner.temp }}/msys64/ucrt64/bin
       run: |
         windeployqt6 C:/gqrx/bin/gqrx.exe
         cp \

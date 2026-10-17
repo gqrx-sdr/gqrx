@@ -108,7 +108,7 @@ jobs:
     - name: Setup MSYS2
       uses: msys2/setup-msys2@v2
       with:
-        msystem: MINGW64
+        msystem: UCRT64
         update: true
         install: >-
           git
@@ -131,7 +131,7 @@ jobs:
         git clone --branch maint-3.10 --depth 1 https://github.com/gnuradio/gnuradio.git
         cd gnuradio
         cmake -S . -B build \
-          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/ucrt64 \
           -DENABLE_DEFAULT=OFF \
           -DENABLE_COMMON_PCH=ON \
           -DENABLE_GNURADIO_RUNTIME=ON \
@@ -150,7 +150,7 @@ jobs:
         git clone https://gitea.osmocom.org/sdr/gr-osmosdr.git
         cd gr-osmosdr
         cmake -S . -B build \
-          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/mingw64 \
+          -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/ucrt64 \
           -DENABLE_DEFAULT=OFF \
           -DENABLE_FILE=ON
         cmake --build build
