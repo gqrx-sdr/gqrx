@@ -52,7 +52,7 @@ jobs:
             libqt6svgwidgets6 \
             libgl-dev
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Configure
         run: |
           mkdir build
@@ -76,7 +76,7 @@ jobs:
     steps:
       - name: Install conda dependencies
         id: setup-micromamba
-        uses: mamba-org/setup-micromamba@v2
+        uses: mamba-org/setup-micromamba@v3
         with:
           environment-name: gqrx
           create-args: >-
@@ -91,7 +91,7 @@ jobs:
             qt6-main
             volk
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Configure
         shell: bash -el {0}
         run: mkdir build && cd build && cmake -DOSX_AUDIO_BACKEND:STRING=${{ matrix.backend }} ..
@@ -156,7 +156,7 @@ jobs:
         cmake --build build
         cmake --install build
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - name: Configure, compile & install
       run: |
         cmake -S . -B build \

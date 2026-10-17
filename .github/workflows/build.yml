@@ -16,7 +16,7 @@ jobs:
 
       - name: Install conda dependencies
         id: setup-micromamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v3
         with:
           environment-name: gqrx
           create-args: >-
@@ -39,7 +39,7 @@ jobs:
             sysroot_linux-64=2.17.*
             volk
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Configure
@@ -62,7 +62,7 @@ jobs:
           PREFIX: ${{ steps.setup-micromamba.outputs.environment-path }}
         run: ./appimage.sh
       - name: Save artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gqrx-appimage-${{ github.run_id }}
           path: Gqrx-*.AppImage
@@ -83,7 +83,7 @@ jobs:
           fi
       - name: Install conda dependencies
         id: setup-micromamba
-        uses: mamba-org/setup-micromamba@v2
+        uses: mamba-org/setup-micromamba@v3
         with:
           environment-name: gqrx
           create-args: >-
@@ -122,7 +122,7 @@ jobs:
           security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Configure
@@ -169,7 +169,7 @@ jobs:
           GQRX_VERSION=$(<build/version.txt)
           mv Gqrx.dmg Gqrx-$GQRX_VERSION-$MATRIX_ARCH.dmg
       - name: Save artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gqrx-macos-${{ matrix.arch }}-${{ github.run_id }}
           path: Gqrx-*.dmg
@@ -280,7 +280,7 @@ jobs:
     - name: Configure git
       run: git config --global core.autocrlf input
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
     - name: Configure, compile & install
@@ -343,7 +343,7 @@ jobs:
           zlib1.dll \
           C:/gqrx/bin/
     - name: Save artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: gqrx-windows-${{ github.run_id }}
         path: C:/gqrx/bin
