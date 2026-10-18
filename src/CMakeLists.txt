@@ -108,6 +108,7 @@ if(NOT Gnuradio_VERSION VERSION_LESS "3.10")
         gnuradio::gnuradio-filter
         gnuradio::gnuradio-network
         gnuradio::gnuradio-audio
+        gnuradio::gnuradio-zeromq
         Volk::volk
     )
 else()
@@ -116,6 +117,7 @@ else()
         gnuradio::gnuradio-blocks
         gnuradio::gnuradio-digital
         gnuradio::gnuradio-filter
+        gnuradio::gnuradio-network
         gnuradio::gnuradio-audio
         Volk::volk
     )

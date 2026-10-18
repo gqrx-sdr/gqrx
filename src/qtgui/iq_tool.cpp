@@ -29,6 +29,7 @@
 #include <QString>
 #include <QStringList>
 #include <QScrollBar>
+#include <iostream>
 
 #include <math.h>
 
@@ -48,6 +49,10 @@ CIqTool::CIqTool(QWidget *parent) :
     sample_rate = 192000;
     rec_len = 0;
     center_freq = 1e8;
+    
+    zmq_host = "tcp://127.0.0.1";
+    zmq_port = 9001;
+    zmq_stream = false;
 
     //ui->recDirEdit->setText(QDir::currentPath());
 
@@ -59,6 +64,7 @@ CIqTool::CIqTool(QWidget *parent) :
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(timeoutFunction()));
+
 }
 
 CIqTool::~CIqTool()
@@ -330,6 +336,16 @@ void CIqTool::timeoutFunction(void)
             ui->slider->blockSignals(false);
             refreshTimeWidgets();
         }
+        else
+        {
+            emit stopPlayback();
+            ui->listWidget->setEnabled(true);
+            ui->recButton->setEnabled(true);
+            ui->slider->setValue(0);
+            ui->playButton->setChecked(false);
+            is_playing = false;
+            refreshTimeWidgets();
+        }
     }
     if (is_recording)
         refreshTimeWidgets();
@@ -417,3 +433,51 @@ void CIqTool::parseFileName(const QString &filename)
     if (center_ok)
         center_freq = center;
 }
+
+/** Zmq host name has changed. */
+void CIqTool::on_ZmqHost_textChanged(const QString &text)
+{
+    if (!text.isEmpty())
+        setNewZmqHost(text);
+}
+
+/** Zmq port number has changed. */
+void CIqTool::on_ZmqPort_valueChanged(int port)
+{
+    setNewZmqPort(port);
+}
+
+/** Zmq stereo setting has changed. */
+void CIqTool::on_zmqStream_toggled()
+{
+    setNewZmqStream();
+}
+
+/* ! \brief Slot called when new zmq host has been entered */
+void CIqTool::setNewZmqHost(const QString &host)
+{
+    if (host.isEmpty())
+        zmq_host = "tcp://127.0.0.1";
+    else
+        zmq_host = host;
+}
+
+void CIqTool::setNewZmqPort(int port)
+{
+    zmq_port = port;
+}
+
+void CIqTool::setNewZmqStream()
+{
+    if (!zmq_stream)
+    {
+        zmq_stream = true;
+        emit zmqStreamStart(zmq_host, zmq_port);
+    }
+    else
+    {
+        zmq_stream = false;
+        emit zmqStreamStop();
+    }
+}
+
