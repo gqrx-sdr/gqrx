@@ -30,7 +30,6 @@
 #include <gnuradio/blocks/wavfile_source.h>
 #include <gnuradio/top_block.h>
 #include <gnuradio/zeromq/pub_sink.h>
-#include <gnuradio/network/tcp_sink.h>
 #include <osmosdr/source.h>
 #include <string>
 
