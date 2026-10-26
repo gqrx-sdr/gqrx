@@ -50,6 +50,9 @@ namespace gr {
             virtual void set_state(int state) = 0;
             virtual int state() const = 0;
 
+            virtual void set_corr(float corr) = 0;
+            virtual float corr() const = 0;
+
             virtual void reset() = 0;
       };
 

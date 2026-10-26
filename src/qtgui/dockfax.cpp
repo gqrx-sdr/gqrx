@@ -61,7 +61,7 @@ void DockFAX::update_image(QImage& image) {
    if (y <= (ui->scrollArea->viewport()->height()))
       follow = true;
 
-   if (ui->fittowindow->checkState()) {
+   if (ui->fittowindow->checkState() && image.width()) {
       w = ui->scrollArea->viewport()->width();
       h = image.height() * w/image.width();
    } else {

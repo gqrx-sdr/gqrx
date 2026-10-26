@@ -60,6 +60,8 @@ namespace gr {
             float   lpm() const;
             void    set_ioc(float ioc);
             float   ioc() const;
+            void    set_corr(float corr);
+            float   corr() const;
             void    set_decoder_state(int state);
             int     decoder_state() const;
 
@@ -81,6 +83,7 @@ namespace gr {
             float   d_black_freq;   /*! Black frequency */
             float   d_white_freq;   /*! White frequency */
             float   d_lpm;   /*! Lines per minute */
+            float   d_corr;   /*! Lines per minute correcion ppm */
             float   d_ioc;   /*! Index of cooperation */
 
             /* Input filter */

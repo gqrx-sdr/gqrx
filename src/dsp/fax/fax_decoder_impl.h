@@ -54,6 +54,9 @@ namespace gr {
             void set_state(int state);
             int state() const;
 
+            void set_corr(float corr);
+            float corr() const;
+
             void reset();
 
          private:
@@ -72,6 +75,7 @@ namespace gr {
             float d_sample_rate;
             float d_lpm;
             float d_ioc;
+            float d_corr;
 
 
             float pixel_len;

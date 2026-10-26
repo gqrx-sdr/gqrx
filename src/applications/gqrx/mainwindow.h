@@ -241,6 +241,7 @@ private slots:
     void set_fax_black_freq(float);
     void set_fax_white_freq(float);
     void set_fax_ioc(float);
+    void set_fax_corr(double);
     void force_fax_reset();
     void force_fax_sync();
     void force_fax_start();

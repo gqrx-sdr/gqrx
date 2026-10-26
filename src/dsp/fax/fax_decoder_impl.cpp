@@ -48,11 +48,12 @@ namespace gr {
          d_sample_rate(sample_rate),
          d_lpm(lpm),
          d_ioc(ioc),
+		 d_corr(0),
          tone_300(sample_rate,4*sample_rate * 60.0f/(lpm),sample_rate/(roundf(sample_rate/300))),
          tone_675(sample_rate,4*sample_rate * 60.0f/(lpm),sample_rate/(roundf(sample_rate/675))),
          tone_450(sample_rate,4*sample_rate * 60.0f/(lpm),sample_rate/(roundf(sample_rate/450))) {
 
-            line_len = ((d_sample_rate *60.0f) / d_lpm);
+            line_len = ((d_sample_rate *60.0f) / (d_lpm * (1+d_corr/1e6f)));
             pixel_len = line_len/(d_ioc*(float)M_PIf);
             d_state = FAX_RESET;
             in_count=0;
@@ -65,7 +66,7 @@ namespace gr {
          std::lock_guard<std::mutex> lock(mutex);
 
          d_sample_rate = sample_rate;
-         line_len = (d_sample_rate *60.0f / d_lpm);
+         line_len = (d_sample_rate *60.0f / (d_lpm * (1 + d_corr/1e6f)));
          pixel_len = line_len/(d_ioc*M_PIf);
          in_count=0;
       }
@@ -78,7 +79,7 @@ namespace gr {
          std::lock_guard<std::mutex> lock(mutex);
 
          d_lpm = lpm;
-         line_len = (d_sample_rate *60.0f / d_lpm);
+         line_len = (d_sample_rate *60.0f / (d_lpm * (1 + d_corr/1e6f)));
          pixel_len = line_len/(d_ioc*M_PIf);
          in_count=0;
       }
@@ -87,11 +88,23 @@ namespace gr {
          return d_lpm;
       }
 
+      void fax_decoder_impl::set_corr(float corr) {
+         std::lock_guard<std::mutex> lock(mutex);
+
+         d_corr = corr;
+         line_len = (d_sample_rate *60.0f / (d_lpm * (1+d_corr/1e6f)));
+         pixel_len = line_len/(d_ioc*M_PIf);
+         in_count=0;
+      }
+
+      float fax_decoder_impl::corr() const {
+         return d_corr;
+      }
       void fax_decoder_impl::set_ioc(float ioc) {
          std::lock_guard<std::mutex> lock(mutex);
 
          d_ioc = ioc;
-         line_len = (d_sample_rate *60.0f / d_lpm);
+         line_len = (d_sample_rate *60.0f / (d_lpm * (1 + d_corr/1e6f)));
          pixel_len = line_len/(d_ioc*M_PIf);
       }
 
@@ -120,7 +133,7 @@ namespace gr {
 
       void fax_decoder_impl::reset() {
          std::lock_guard<std::mutex> lock(mutex);
-         line_len = (d_sample_rate *60.0f / d_lpm);
+         line_len = (d_sample_rate *60.0f / (d_lpm * (1 + d_corr/1e6f)));
          pixel_len = line_len/(d_ioc*M_PIf);
          d_state = FAX_RESET;
          in_count=0;
@@ -159,7 +172,7 @@ namespace gr {
                   in_count=0;
                   noise_len=0;
                   line_start=0;
-                  line_len = (d_sample_rate *60.0f / d_lpm);
+                  line_len = (d_sample_rate *60.0f / (d_lpm * (1 + d_corr/1e6f)));
                   pixel_len = line_len/(d_ioc*M_PIf);
                   bit = false;
                   phasing=3;

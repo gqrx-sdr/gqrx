@@ -321,6 +321,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockFAX, SIGNAL(fax_reset_Clicked()), this, SLOT(force_fax_reset()));
     connect(uiDockFAX, SIGNAL(fax_sync_Clicked()), this, SLOT(force_fax_sync()));
     connect(uiDockFAX, SIGNAL(fax_start_Clicked()), this, SLOT(force_fax_start()));
+    connect(uiDockInputCtl, SIGNAL(freqCorrChanged(double)), this, SLOT(set_fax_corr(double)));
     connect(uiDockFAX, SIGNAL(fax_save_Clicked()), this, SLOT(save_fax()));
     connect(uiDockRTTY, SIGNAL(rtty_start_decoder()), this, SLOT(start_rtty_decoder()));
     connect(uiDockRTTY, SIGNAL(rtty_stop_decoder()), this, SLOT(stop_rtty_decoder()));
@@ -2434,6 +2435,10 @@ void MainWindow::force_fax_sync() {
 
 void MainWindow::force_fax_start() {
     rx->set_decoder_param(receiver_base_cf::RX_DECODER_FAX,"force","start");
+}
+
+void MainWindow::set_fax_corr(double ppm) {
+	rx->set_decoder_param(receiver_base_cf::RX_DECODER_FAX,"corr",std::to_string(ppm));
 }
 
 int MainWindow::save_fax() {

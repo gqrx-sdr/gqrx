@@ -50,6 +50,7 @@ namespace gr {
          d_black_freq(black_freq),
          d_white_freq(white_freq),
          d_lpm(lpm),
+         d_corr(0),
          d_ioc(ioc) {
 
             std::vector<gr_complex> ctaps;
@@ -153,6 +154,16 @@ namespace gr {
 
       float fax_demod::lpm() const {
          return fax_decoder->lpm();
+      }
+
+      void fax_demod::set_corr(float corr) {
+         d_corr = corr;
+         set_quad();
+         fax_decoder->set_corr(d_corr);
+      }
+
+      float fax_demod::corr() const {
+         return fax_decoder->corr();
       }
 
       void fax_demod::set_ioc(float ioc) {
