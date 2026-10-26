@@ -31,7 +31,7 @@ namespace gr {
    namespace rtty {
       class fsk_demod_impl : public fsk_demod {
          public:
-            fsk_demod_impl(float sample_rate,unsigned int decimation, float symbol_rate, float mark_freq,float space_freq,float threshold=3.0f,float cd_len=6.0f);
+            fsk_demod_impl(float sample_rate,unsigned int decimation, float symbol_rate, float mark_freq,float space_freq,float threshold=6.0f,float cd_len=1.0f);
             ~fsk_demod_impl();
 
             int work(int noutput_items,

@@ -103,7 +103,7 @@ signals:
       int rtty_save_clicked();
 
       private slots:
-         void on_profile_currentIndexChanged(int);
+      void on_profile_currentIndexChanged(int);
       void on_load_profile_clicked();
       void on_save_profile_clicked();
       void on_new_profile_clicked();

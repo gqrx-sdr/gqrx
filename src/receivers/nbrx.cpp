@@ -418,6 +418,8 @@ int nbrx::set_decoder_param(enum rx_decoder decoder_type, std::string param, std
                 fax_decoder->set_lpm(std::stof(val));
             else if (param == "ioc")
                 fax_decoder->set_ioc(std::stof(val));
+            else if (param == "corr")
+                fax_decoder->set_corr(std::stof(val));
             else if (param == "force") {
                 if (val == "reset")
                     fax_decoder->set_decoder_state(0);
@@ -427,7 +429,8 @@ int nbrx::set_decoder_param(enum rx_decoder decoder_type, std::string param, std
                     fax_decoder->set_decoder_state(5);
                 else return -1;
             }
-            else return -1;
+            else
+				return -1;
             return 0;
         case RX_DECODER_RTTY:
             if (param == "mark_freq")

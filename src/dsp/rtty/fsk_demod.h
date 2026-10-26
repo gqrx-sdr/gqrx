@@ -36,7 +36,7 @@ namespace gr {
             typedef std::shared_ptr<fsk_demod> sptr;
 #endif
 
-            static sptr make(float sample_rate,unsigned int decimation,float symbol_rate, float mark_freq,float space_freq,float threshold=6.0f,float cd_len=6.0f);
+            static sptr make(float sample_rate,unsigned int decimation,float symbol_rate, float mark_freq,float space_freq,float threshold=6.0f,float cd_len=1.0f);
 
             virtual    int work(int noutput_items,
                   gr_vector_const_void_star &input_items,

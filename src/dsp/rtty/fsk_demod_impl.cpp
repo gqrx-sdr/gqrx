@@ -36,7 +36,7 @@
 
 #define FSK_DEMOD_BP_ATT   (FSK_DEMOD_NTAPS*22.0f*d_trw/d_sample_rate)       // Attenuation
 
-#define FSK_DEMOD_RATE  (d_sample_rate/d_decimation)                            // output rate
+#define FSK_DEMOD_RATE  (d_sample_rate/((float)d_decimation))                            // output rate
 #define FSK_SYMBOL_LEN  (FSK_DEMOD_RATE/d_symbol_rate)
 
 namespace gr {
@@ -341,14 +341,14 @@ namespace gr {
          for (i=0;i<(unsigned int)noutput_items;i++) {
             // Calculate current sample state (mark, no tone, or space)
             if (snr[i] >= threshold_mark)
-               current_sample = 1;
+            	current_sample = 1;
             else if (snr[i] <= threshold_space)
-               current_sample = -1;
+            	current_sample = -1;
             else
-               current_sample = 0;
+            	current_sample = 0;
 
             // Count samples state on one symbol len
-            if (last_samples.size() == FSK_SYMBOL_LEN) {
+            if (last_samples.size() >= FSK_SYMBOL_LEN) {
                switch (last_samples.front()) {
                   case 1 : if (count_mark) count_mark--; break;
                   case 0 : if (count_noise) count_noise--; break;

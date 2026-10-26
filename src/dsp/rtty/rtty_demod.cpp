@@ -23,7 +23,7 @@
 #include <gnuradio/filter/firdes.h>
 #include <dsp/rtty/rtty_demod.h>
 
-#define RTTY_DEMOD_RATE (8*d_baud_rate)    // 8KHz fsk_demod output
+#define RTTY_DEMOD_RATE (16.0f*d_baud_rate)    // 16KHz fsk_demod output
 
 namespace gr {
    namespace rtty {
@@ -91,9 +91,6 @@ namespace gr {
             }
             d_async = gr::rtty::async_rx::make(RTTY_DEMOD_RATE,d_baud_rate,word_len,async_parity);
 
-            /* set carrier detect len */
-            d_fsk_demod->set_cd_len(d_async->word_len()+(d_async->parity()?2:1));
-
             /* baudot decodding and storage */
             d_data = char_store::make(100,true);
 
@@ -108,6 +105,8 @@ namespace gr {
       }
 
       void  rtty_demod::set_quad_rate(float quad_rate) {
+		  if (quad_rate<=0)
+			  return;
          d_quad_rate = quad_rate;
          d_fsk_demod->set_sample_rate(d_quad_rate);
          d_fsk_demod->set_decimation(roundf(d_quad_rate/RTTY_DEMOD_RATE));
@@ -152,6 +151,8 @@ namespace gr {
       }
 
       void rtty_demod::set_transwidth(float trw) {
+		  if (trw<=0)
+			  return;
          d_fsk_demod->set_transwidth(trw);
       }
 
@@ -160,6 +161,8 @@ namespace gr {
       }
 
       void rtty_demod::set_filterlen(float filterlen) {
+		  if (filterlen <= 0)
+			  return;
          d_fsk_demod->set_filterlen(filterlen);
       }
 
@@ -168,12 +171,12 @@ namespace gr {
       }
 
       void rtty_demod::set_baud_rate(float baud_rate) {
-         if (!baud_rate)
+         if (baud_rate <= 0)
             return;
          d_baud_rate = baud_rate;
-         d_fsk_demod->set_decimation(d_quad_rate/RTTY_DEMOD_RATE);
+         d_fsk_demod->set_decimation(roundf(d_quad_rate/RTTY_DEMOD_RATE));
          d_fsk_demod->set_symbol_rate(d_baud_rate);
-         d_async->set_sample_rate(RTTY_DEMOD_RATE);
+         d_async->set_sample_rate(d_quad_rate/roundf(d_quad_rate/RTTY_DEMOD_RATE));
          d_async->set_bit_rate(d_baud_rate);
          d_async->reset();
       }
@@ -216,9 +219,6 @@ namespace gr {
          }
 
          d_mode = mode;
-
-         /* set carrier detect len */
-         d_fsk_demod->set_cd_len(d_async->word_len()+(d_async->parity()?2:1));
       }
 
       enum rtty_demod::rtty_mode rtty_demod::mode() {
@@ -254,9 +254,6 @@ namespace gr {
          d_async->reset();
 
          d_parity = parity;
-
-         /* set carrier detect len */
-         d_fsk_demod->set_cd_len(d_async->word_len()+(d_async->parity()?2:1));
       }
 
       enum rtty_demod::rtty_parity rtty_demod::parity() {

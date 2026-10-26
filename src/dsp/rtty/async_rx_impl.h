@@ -78,7 +78,7 @@ namespace gr {
             unsigned int word_pos; // number of sample from start transition;
             unsigned char bit_pos;
             unsigned char bit_count; // number of mark bit (for parity)
-            unsigned char word; // recived word
+            unsigned char word; // received word
 
             bool cd;
             bool bit;

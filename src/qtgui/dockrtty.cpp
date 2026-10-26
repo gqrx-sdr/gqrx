@@ -38,6 +38,7 @@ DockRTTY::DockRTTY(QWidget *parent) :
       ui->parity->addItem(QString("mark"));
       ui->parity->addItem(QString("space"));
       ui->parity->addItem(QString("dont care"));
+	  
    }
 
 DockRTTY::~DockRTTY() {
