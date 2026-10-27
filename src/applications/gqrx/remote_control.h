@@ -92,6 +92,7 @@ public slots:
     void setSignalLevel(float level);
     void setMode(int mode);
     void setPassband(int passband_lo, int passband_hi);
+    void setFilterShape(int shape);
     void setSquelchLevel(double level);
     void setAudioGain(float gain);
     void setAudioMuted(bool muted);
@@ -111,6 +112,7 @@ signals:
     void newLnbLo(double freq_mhz);
     void newMode(int mode);
     void newPassband(int passband);
+    void newFilterShape(int shape);
     void newSquelchLevel(double level);
     void newAudioGain(float gain);
     void startAudioRecorderEvent();
@@ -142,6 +144,7 @@ private:
     int         rc_mode;           /*!< Current mode. */
     int         rc_passband_lo;    /*!< Current low cutoff. */
     int         rc_passband_hi;    /*!< Current high cutoff. */
+    int         rc_filter_shape;   /*!< Current filter shape (0=soft, 1=normal, 2=sharp). */
     bool        rds_status;        /*!< RDS decoder enabled */
     float       signal_level;      /*!< Signal level in dBFS */
     double      squelch_level;     /*!< Squelch level in dBFS */

@@ -345,6 +345,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(remote, SIGNAL(stopIqRecorderEvent()), iq_tool, SLOT(stopIqRecorder()));
     connect(ui->plotter, SIGNAL(newFilterFreq(int, int)), remote, SLOT(setPassband(int, int)));
     connect(remote, SIGNAL(newPassband(int)), this, SLOT(setPassband(int)));
+    connect(remote, SIGNAL(newFilterShape(int)), this, SLOT(setFilterShape(int)));
     connect(remote, SIGNAL(gainChanged(QString, double)), uiDockInputCtl, SLOT(setGain(QString,double)));
     connect(remote, SIGNAL(dspChanged(bool)), this, SLOT(on_actionDSP_triggered(bool)));
     connect(uiDockRDS, SIGNAL(rdsPI(QString)), remote, SLOT(rdsPI(QString)));
@@ -1315,6 +1316,7 @@ void MainWindow::selectDemod(int mode_idx)
 
     remote->setMode(mode_idx);
     remote->setPassband(flo, fhi);
+    remote->setFilterShape(uiDockRxOpt->currentFilterShape());
 
     d_have_audio = (mode_idx != DockRxOpt::MODE_OFF);
 
@@ -2327,6 +2329,23 @@ void MainWindow::setPassband(int bandwidth)
     remote->setPassband(lo, hi);
 
     on_plotter_newFilterFreq(lo, hi);
+}
+
+/**
+ * @brief Set the channel filter shape from the remote control.
+ * @param index The new filter shape (0 = soft, 1 = normal, 2 = sharp).
+ *
+ * Mirrors the GUI filter-shape combo: update the combo and re-run the
+ * demodulator selection, which re-applies the channel filter with the new
+ * transition band. Out-of-range values are ignored.
+ */
+void MainWindow::setFilterShape(int index)
+{
+    if (index < receiver::FILTER_SHAPE_SOFT || index > receiver::FILTER_SHAPE_SHARP)
+        return;
+
+    uiDockRxOpt->setCurrentFilterShape(index);
+    selectDemod(uiDockRxOpt->currentDemod());
 }
 
 /** Launch Gqrx google group website. */
