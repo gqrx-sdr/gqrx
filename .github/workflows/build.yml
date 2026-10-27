@@ -144,6 +144,10 @@ jobs:
         run: |
           ditto -c -k --keepParent Gqrx.app Gqrx.zip
           xcrun notarytool submit Gqrx.zip --apple-id "$NOTARIZE_USERNAME" --team-id "$NOTARIZE_TEAM_ID" --password "$NOTARIZE_PASSWORD" --wait
+      - name: Work around stapling issue (actions/runner-images#14924)
+        run: |
+          echo "block return out quick proto udp from any to any port 443" | sudo pfctl -f -
+          sudo pfctl -E
       - name: Staple app bundle
         if: ${{ steps.secret-check.outputs.available == 'true' }}
         run: xcrun stapler staple --verbose Gqrx.app
