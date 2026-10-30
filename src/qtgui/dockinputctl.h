@@ -101,6 +101,28 @@ public:
 
     void    setFreqCtrlReset(bool enabled);
     void    setInvertScrolling(bool enabled);
+    void    setPtt(bool active);
+    bool    ptt() const;
+
+    void    setTxPower(double power_db);
+    double  txPower() const;
+
+    void    setMicGain(float gain_db);
+    float   micGain() const;
+
+    void    setSplitMode(bool enabled);
+    bool    splitMode() const;
+
+    void    setSplitOffset(double offset_khz);
+    double  splitOffset() const;
+
+    void    setCtcssFreq(float freq_hz);
+    float   ctcssFreq() const;
+
+    void    setTxStatus(const QString &statusText);
+    void    setAlcLevel(float alc_db);
+
+    static const std::vector<float>& getCtcssTones();
 
 public slots:
     bool    setGain(QString name, double value);
@@ -117,6 +139,12 @@ signals:
     void antennaSelected(QString antenna);
     void freqCtrlResetChanged(bool enabled);
     void invertScrollingChanged(bool enabled);
+    void pttToggled(bool active);
+    void txPowerChanged(double power_db);
+    void micGainChanged(float gain_db);
+    void splitModeChanged(bool enabled);
+    void splitOffsetChanged(double offset_hz);
+    void ctcssFreqChanged(float freq_hz);
 
 public slots:
     void setLnbLo(double freq_mhz);
@@ -132,6 +160,12 @@ private slots:
     void on_antSelector_currentIndexChanged(int index);
     void on_freqCtrlResetButton_toggled(bool checked);
     void on_invertScrollingButton_toggled(bool checked);
+    void on_pttButton_clicked(bool checked);
+    void on_txPowerSlider_valueChanged(int value);
+    void on_micGainSlider_valueChanged(int value);
+    void on_splitCheckBox_toggled(bool checked);
+    void on_splitOffsetSpinBox_valueChanged(double value);
+    void on_ctcssCombo_currentIndexChanged(int index);
 
     void sliderValueChanged(int value);
 

@@ -46,6 +46,7 @@
 #include "applications/gqrx/recentconfig.h"
 #include "applications/gqrx/remote_control.h"
 #include "applications/gqrx/receiver.h"
+#include "applications/gqrx/transmitter.h"
 
 namespace Ui {
     class MainWindow;  /*! The main window UI */
@@ -123,6 +124,9 @@ private:
     bool     d_frame_drop;
 
     receiver *rx;
+    transmitter *tx;
+    bool     d_tx_active;
+    bool     d_rx_was_active_before_tx;
 
     RemoteControl *remote;
 
@@ -251,6 +255,16 @@ private slots:
     void on_clearMarkerButtonA_clicked();
     void on_clearMarkerButtonB_clicked();
 
+
+    /* transmitter */
+    void setTransmitting(bool active);
+    void toggleTransmitting();
+    void setTxPower(double power_db);
+    void setMicGain(float gain_db);
+    void setSplitMode(bool enabled);
+    void setSplitOffset(double offset_hz);
+    void setCtcssFreq(float freq_hz);
+    void setTxFreq(qint64 freq_hz);
     /* window close signals */
     void afsk1200win_closed();
     int  firstTimeConfig();

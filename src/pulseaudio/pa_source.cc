@@ -83,8 +83,8 @@ pa_source::pa_source (const string device_name, int sample_rate, int num_chan,
                             &error);
 
     if (!d_pasrc) {
-        /** FIXME: throw and exception */
         fprintf(stderr, __FILE__": pa_simple_new() failed: %s\n", pa_strerror(error));
+        throw std::runtime_error(string("pa_simple_new() failed: ") + pa_strerror(error));
     }
 }
 
@@ -127,6 +127,8 @@ int pa_source::work(int noutput_items,
                     gr_vector_void_star &output_items)
 {
     (void) input_items;
+    if (!d_pasrc)
+        return 0;
 
     float audio_buffer[SAMPLES_PER_BUFFER*2]; /** FIXME: Channels **/
     float *out0 = (float *) output_items[0];

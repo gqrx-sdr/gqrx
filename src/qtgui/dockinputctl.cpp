@@ -24,6 +24,18 @@
 #include "dockinputctl.h"
 #include "ui_dockinputctl.h"
 
+const std::vector<float>& DockInputCtl::getCtcssTones()
+{
+    static const std::vector<float> tones = {
+        67.0f, 69.3f, 71.9f, 74.4f, 77.0f, 79.7f, 82.5f, 85.4f, 88.5f, 91.5f,
+        94.8f, 97.4f, 100.0f, 103.5f, 107.2f, 110.9f, 114.8f, 118.8f, 123.0f, 127.3f,
+        131.8f, 136.5f, 141.3f, 146.2f, 151.4f, 156.7f, 162.2f, 167.9f, 173.8f, 179.9f,
+        186.2f, 192.8f, 203.5f, 206.5f, 210.7f, 218.1f, 225.7f, 229.1f, 233.6f, 241.8f,
+        250.3f, 254.1f
+    };
+    return tones;
+}
+
 DockInputCtl::DockInputCtl(QWidget * parent) :
     QDockWidget(parent),
     ui(new Ui::DockInputCtl)
@@ -34,6 +46,13 @@ DockInputCtl::DockInputCtl(QWidget * parent) :
     gainLayout = new QGridLayout();
     gainLayout->setObjectName(QString::fromUtf8("gainLayout"));
     ui->verticalLayout->insertLayout(2, gainLayout);
+
+    // Populate CTCSS combo box
+    ui->ctcssCombo->addItem(tr("None"), 0.0f);
+    for (float tone : getCtcssTones())
+    {
+        ui->ctcssCombo->addItem(QString("%1 Hz").arg(tone, 0, 'f', 1), tone);
+    }
 }
 
 DockInputCtl::~DockInputCtl()
@@ -114,6 +133,21 @@ void DockInputCtl::readSettings(QSettings * settings)
     bool_val = settings->value("gui/invert_scrolling", false).toBool();
     emit invertScrollingChanged(bool_val);
     ui->invertScrollingButton->setChecked(bool_val);
+
+    setTxPower(settings->value("tx/power", 0.0).toDouble());
+    emit txPowerChanged(txPower());
+
+    setMicGain(settings->value("tx/mic_gain", 0.0).toFloat());
+    emit micGainChanged(micGain());
+
+    setSplitMode(settings->value("tx/split_mode", false).toBool());
+    emit splitModeChanged(splitMode());
+
+    setSplitOffset(settings->value("tx/split_offset_khz", 0.0).toDouble());
+    emit splitOffsetChanged(splitOffset() * 1000.0);
+
+    setCtcssFreq(settings->value("tx/ctcss_freq", 0.0).toFloat());
+    emit ctcssFreqChanged(ctcssFreq());
 }
 
 void DockInputCtl::saveSettings(QSettings * settings)
@@ -181,6 +215,12 @@ void DockInputCtl::saveSettings(QSettings * settings)
         settings->setValue("gui/invert_scrolling", true);
     else
         settings->remove("gui/invert_scrolling");
+
+    settings->setValue("tx/power", txPower());
+    settings->setValue("tx/mic_gain", (double)micGain());
+    settings->setValue("tx/split_mode", splitMode());
+    settings->setValue("tx/split_offset_khz", splitOffset());
+    settings->setValue("tx/ctcss_freq", (double)ctcssFreq());
 }
 
 void DockInputCtl::readLnbLoFromSettings(QSettings * settings)
@@ -602,4 +642,149 @@ void DockInputCtl::getGains(QMap<QString, QVariant> *gains)
         gains->insert(gain_sliders.at(idx)->property("name").toString(),
                       QVariant(gain_sliders.at(idx)->value()));
     }
+}
+
+void DockInputCtl::setPtt(bool active)
+{
+    ui->pttButton->blockSignals(true);
+    ui->pttButton->setChecked(active);
+    ui->pttButton->blockSignals(false);
+    if (active)
+    {
+        ui->pttButton->setText(tr("PTT (Transmitting)"));
+        ui->pttButton->setStyleSheet("QPushButton:checked { background-color: #d32f2f; color: white; font-weight: bold; }");
+    }
+    else
+    {
+        ui->pttButton->setText(tr("PTT (Transmit)"));
+        ui->pttButton->setStyleSheet("");
+    }
+}
+
+bool DockInputCtl::ptt() const
+{
+    return ui->pttButton->isChecked();
+}
+
+void DockInputCtl::setTxPower(double power_db)
+{
+    ui->txPowerSlider->blockSignals(true);
+    ui->txPowerSlider->setValue((int)(power_db * 10.0));
+    ui->txPowerSlider->blockSignals(false);
+    ui->txPowerValueLabel->setText(QString("%1 dB").arg(power_db, 0, 'f', 1));
+}
+
+double DockInputCtl::txPower() const
+{
+    return (double)ui->txPowerSlider->value() / 10.0;
+}
+
+void DockInputCtl::setMicGain(float gain_db)
+{
+    ui->micGainSlider->blockSignals(true);
+    ui->micGainSlider->setValue((int)(gain_db * 10.0f));
+    ui->micGainSlider->blockSignals(false);
+    ui->micGainValueLabel->setText(QString("%1 dB").arg((double)gain_db, 0, 'f', 1));
+}
+
+float DockInputCtl::micGain() const
+{
+    return (float)ui->micGainSlider->value() / 10.0f;
+}
+
+void DockInputCtl::setSplitMode(bool enabled)
+{
+    ui->splitCheckBox->blockSignals(true);
+    ui->splitCheckBox->setChecked(enabled);
+    ui->splitCheckBox->blockSignals(false);
+    ui->splitOffsetSpinBox->setEnabled(enabled);
+}
+
+bool DockInputCtl::splitMode() const
+{
+    return ui->splitCheckBox->isChecked();
+}
+
+void DockInputCtl::setSplitOffset(double offset_khz)
+{
+    ui->splitOffsetSpinBox->blockSignals(true);
+    ui->splitOffsetSpinBox->setValue(offset_khz);
+    ui->splitOffsetSpinBox->blockSignals(false);
+}
+
+double DockInputCtl::splitOffset() const
+{
+    return ui->splitOffsetSpinBox->value();
+}
+
+void DockInputCtl::setCtcssFreq(float freq_hz)
+{
+    int match_idx = 0;
+    for (int i = 0; i < ui->ctcssCombo->count(); i++)
+    {
+        float tone = ui->ctcssCombo->itemData(i).toFloat();
+        if (std::abs(tone - freq_hz) < 0.1f)
+        {
+            match_idx = i;
+            break;
+        }
+    }
+    ui->ctcssCombo->blockSignals(true);
+    ui->ctcssCombo->setCurrentIndex(match_idx);
+    ui->ctcssCombo->blockSignals(false);
+}
+
+float DockInputCtl::ctcssFreq() const
+{
+    return ui->ctcssCombo->currentData().toFloat();
+}
+
+void DockInputCtl::setTxStatus(const QString &statusText)
+{
+    ui->txStatusLabel->setText(statusText);
+}
+
+void DockInputCtl::setAlcLevel(float alc_db)
+{
+    if (alc_db <= -90.0f)
+        ui->alcMeterLabel->setText(tr("ALC: -- dBFS"));
+    else
+        ui->alcMeterLabel->setText(tr("ALC: %1 dBFS").arg(alc_db, 0, 'f', 1));
+}
+
+void DockInputCtl::on_pttButton_clicked(bool checked)
+{
+    setPtt(checked);
+    emit pttToggled(checked);
+}
+
+void DockInputCtl::on_txPowerSlider_valueChanged(int value)
+{
+    double power = (double)value / 10.0;
+    ui->txPowerValueLabel->setText(QString("%1 dB").arg(power, 0, 'f', 1));
+    emit txPowerChanged(power);
+}
+
+void DockInputCtl::on_micGainSlider_valueChanged(int value)
+{
+    float gain = (float)value / 10.0f;
+    ui->micGainValueLabel->setText(QString("%1 dB").arg((double)gain, 0, 'f', 1));
+    emit micGainChanged(gain);
+}
+
+void DockInputCtl::on_splitCheckBox_toggled(bool checked)
+{
+    ui->splitOffsetSpinBox->setEnabled(checked);
+    emit splitModeChanged(checked);
+}
+
+void DockInputCtl::on_splitOffsetSpinBox_valueChanged(double value)
+{
+    emit splitOffsetChanged(value * 1000.0);
+}
+
+void DockInputCtl::on_ctcssCombo_currentIndexChanged(int index)
+{
+    float freq = ui->ctcssCombo->itemData(index).toFloat();
+    emit ctcssFreqChanged(freq);
 }

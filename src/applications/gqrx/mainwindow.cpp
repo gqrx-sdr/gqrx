@@ -114,6 +114,12 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     rx = new receiver("", "", 1);
     rx->set_rf_freq(144500000.0);
 
+    /* create transmitter object */
+    d_tx_active = false;
+    d_rx_was_active_before_tx = false;
+    tx = new transmitter("", "", 2000000.0);
+    tx->set_tx_freq(144500000.0);
+
     // remote controller
     remote = new RemoteControl();
 
@@ -161,11 +167,15 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     uiDockFft->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F));
     uiDockAudio->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_A));
     uiDockBookmarks->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_B));
-    ui->mainToolBar->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_T));
+    ui->mainToolBar->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_T));
 
     /* frequency setting shortcut */
     auto *freq_shortcut = new QShortcut(QKeySequence(Qt::Key_F), this);
     QObject::connect(freq_shortcut, &QShortcut::activated, this, &MainWindow::frequencyFocusShortcut);
+
+    /* PTT toggle shortcut */
+    auto *ptt_shortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_T), this);
+    QObject::connect(ptt_shortcut, &QShortcut::activated, this, &MainWindow::toggleTransmitting);
 
     // zero cursor (rx filter offset)
     auto *rx_offset_zero_shortcut = new QShortcut(QKeySequence(Qt::Key_Z), this);
@@ -237,6 +247,12 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockInputCtl, SIGNAL(antennaSelected(QString)), this, SLOT(setAntenna(QString)));
     connect(uiDockInputCtl, SIGNAL(freqCtrlResetChanged(bool)), this, SLOT(setFreqCtrlReset(bool)));
     connect(uiDockInputCtl, SIGNAL(invertScrollingChanged(bool)), this, SLOT(setInvertScrolling(bool)));
+    connect(uiDockInputCtl, SIGNAL(pttToggled(bool)), this, SLOT(setTransmitting(bool)));
+    connect(uiDockInputCtl, SIGNAL(txPowerChanged(double)), this, SLOT(setTxPower(double)));
+    connect(uiDockInputCtl, SIGNAL(micGainChanged(float)), this, SLOT(setMicGain(float)));
+    connect(uiDockInputCtl, SIGNAL(splitModeChanged(bool)), this, SLOT(setSplitMode(bool)));
+    connect(uiDockInputCtl, SIGNAL(splitOffsetChanged(double)), this, SLOT(setSplitOffset(double)));
+    connect(uiDockInputCtl, SIGNAL(ctcssFreqChanged(float)), this, SLOT(setCtcssFreq(float)));
     connect(uiDockRxOpt, SIGNAL(rxFreqChanged(qint64)), ui->freqCtrl, SLOT(setFrequency(qint64)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), remote, SLOT(setFilterOffset(qint64)));
@@ -352,6 +368,11 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockRDS, SIGNAL(radiotextChanged(QString)), remote, SLOT(setRdsRadiotext(QString)));
     connect(remote, SIGNAL(newAudioMuted(bool)), uiDockAudio, SLOT(setAudioMuted(bool)));
     connect(uiDockAudio, SIGNAL(audioMuted(bool)), remote, SLOT(setAudioMuted(bool)));
+    connect(remote, SIGNAL(pttChanged(bool)), this, SLOT(setTransmitting(bool)));
+    connect(remote, SIGNAL(txPowerChanged(double)), this, SLOT(setTxPower(double)));
+    connect(remote, SIGNAL(micGainChanged(float)), this, SLOT(setMicGain(float)));
+    connect(remote, SIGNAL(splitModeChanged(bool)), this, SLOT(setSplitMode(bool)));
+    connect(remote, SIGNAL(txFreqChanged(qint64)), this, SLOT(setTxFreq(qint64)));
 
     rds_timer = new QTimer(this);
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
@@ -449,6 +470,9 @@ MainWindow::~MainWindow()
     delete uiDockInputCtl;
     delete uiDockRDS;
     delete rx;
+    if (d_tx_active)
+        setTransmitting(false);
+    delete tx;
     delete remote;
     delete qsvg_dummy;
 }
@@ -549,6 +573,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         {
             rx->set_input_device(indev.toStdString());
             conf_ok = true;
+            tx->set_tx_device(indev.toStdString());
         }
         catch (std::runtime_error &x)
         {
@@ -913,6 +938,11 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
     // set receiver frequency
     rx->set_rf_freq(hw_freq);
 
+    tx->set_tx_freq((double)rx_freq);
+    if (tx->get_split_mode())
+        remote->setTxFreq(rx_freq + (qint64)tx->get_split_offset());
+    else
+        remote->setTxFreq(rx_freq);
     // update widgets
     ui->plotter->setCenterFreq(center_freq);
     uiDockRxOpt->setHwFreq(d_hw_freq);
@@ -1318,6 +1348,24 @@ void MainWindow::selectDemod(int mode_idx)
 
     d_have_audio = (mode_idx != DockRxOpt::MODE_OFF);
 
+    switch (mode_idx) {
+    case DockRxOpt::MODE_AM:
+    case DockRxOpt::MODE_AM_SYNC:
+        tx->set_tx_mode(TX_MOD_AM);
+        break;
+    case DockRxOpt::MODE_USB:
+        tx->set_tx_mode(TX_MOD_USB);
+        break;
+    case DockRxOpt::MODE_LSB:
+        tx->set_tx_mode(TX_MOD_LSB);
+        break;
+    case DockRxOpt::MODE_NFM:
+        tx->set_tx_mode(TX_MOD_NFM);
+        break;
+    default:
+        tx->set_tx_mode(TX_MOD_NFM);
+        break;
+    }
     uiDockRxOpt->setCurrentDemod(mode_idx);
 }
 
@@ -1475,8 +1523,14 @@ void MainWindow::meterTimeout()
     level = rx->get_signal_pwr();
     ui->sMeter->setLevel(level);
     remote->setSignalLevel(level);
-}
 
+    if (d_tx_active && tx)
+    {
+        float alc = tx->get_alc_level();
+        uiDockInputCtl->setAlcLevel(alc);
+        uiDockInputCtl->setTxStatus(QString::fromStdString(tx->get_status_details()));
+    }
+}
 /** Baseband FFT plot timeout. */
 void MainWindow::iqFftTimeout()
 {
@@ -2558,4 +2612,147 @@ void MainWindow::toggleMarkers()
 {
     enableMarkers(!d_show_markers);
     uiDockFft->setMarkersEnabled(d_show_markers);
+}
+
+void MainWindow::setTransmitting(bool active)
+{
+    if (d_tx_active == active)
+        return;
+
+    if (active)
+    {
+        if (!tx->is_sink_valid())
+        {
+            ui->statusBar->showMessage(tr("Transmitter error: device does not support transmission (%1)")
+                                       .arg(QString::fromStdString(tx->get_last_error())), 5000);
+            uiDockInputCtl->setPtt(false);
+            uiDockInputCtl->setTxStatus(tr("TX Error: Device not supported"));
+            remote->setPtt(false);
+            return;
+        }
+
+        d_rx_was_active_before_tx = rx->is_running();
+
+        // Pause RX to prevent feedback and support half-duplex hardware
+        if (d_rx_was_active_before_tx)
+        {
+            rx->stop();
+        }
+
+        tx->set_tx_freq((double)ui->freqCtrl->getFrequency());
+        tx->set_tx_power(uiDockInputCtl->txPower());
+        tx->set_mic_gain(uiDockInputCtl->micGain());
+        tx->set_split_mode(uiDockInputCtl->splitMode());
+        tx->set_split_offset(uiDockInputCtl->splitOffset() * 1000.0);
+        tx->set_ctcss_freq(uiDockInputCtl->ctcssFreq());
+
+        if (tx->start() == transmitter::STATUS_OK)
+        {
+            d_tx_active = true;
+            uiDockInputCtl->setPtt(true);
+            uiDockInputCtl->setTxStatus(QString::fromStdString(tx->get_status_details()));
+            remote->setPtt(true);
+            double actual_tx_freq = tx->get_split_mode() ?
+                (tx->get_tx_freq() + tx->get_split_offset()) : tx->get_tx_freq();
+            ui->statusBar->showMessage(tr("Transmitting on %1 MHz...")
+                                       .arg(actual_tx_freq / 1.0e6, 0, 'f', 4));
+
+            if (!meter_timer->isActive())
+                meter_timer->start(100);
+        }
+        else
+        {
+            d_tx_active = false;
+            uiDockInputCtl->setPtt(false);
+            uiDockInputCtl->setTxStatus(tr("TX Error: %1").arg(QString::fromStdString(tx->get_last_error())));
+            remote->setPtt(false);
+            ui->statusBar->showMessage(tr("Failed to start TX: %1")
+                                       .arg(QString::fromStdString(tx->get_last_error())), 5000);
+
+            if (d_rx_was_active_before_tx)
+                rx->start();
+        }
+    }
+    else
+    {
+        tx->stop();
+        d_tx_active = false;
+        uiDockInputCtl->setPtt(false);
+        uiDockInputCtl->setTxStatus(tr("TX: Idle"));
+        uiDockInputCtl->setAlcLevel(-100.0f);
+        remote->setPtt(false);
+        ui->statusBar->showMessage(tr("Transmission stopped"), 3000);
+
+        if (d_rx_was_active_before_tx)
+        {
+            rx->start();
+        }
+        else
+        {
+            meter_timer->stop();
+        }
+    }
+}
+
+void MainWindow::toggleTransmitting()
+{
+    setTransmitting(!d_tx_active);
+}
+
+void MainWindow::setTxPower(double power_db)
+{
+    tx->set_tx_power(power_db);
+    uiDockInputCtl->setTxPower(power_db);
+    remote->setTxPower(power_db);
+}
+
+void MainWindow::setMicGain(float gain_db)
+{
+    tx->set_mic_gain(gain_db);
+    uiDockInputCtl->setMicGain(gain_db);
+    remote->setMicGain(gain_db);
+}
+
+void MainWindow::setSplitMode(bool enabled)
+{
+    tx->set_split_mode(enabled);
+    uiDockInputCtl->setSplitMode(enabled);
+    remote->setSplitMode(enabled);
+    if (enabled)
+    {
+        double offset_hz = uiDockInputCtl->splitOffset() * 1000.0;
+        remote->setTxFreq(ui->freqCtrl->getFrequency() + (qint64)offset_hz);
+    }
+    else
+    {
+        remote->setTxFreq(ui->freqCtrl->getFrequency());
+    }
+}
+
+void MainWindow::setSplitOffset(double offset_hz)
+{
+    tx->set_split_offset(offset_hz);
+    uiDockInputCtl->setSplitOffset(offset_hz / 1000.0);
+    if (tx->get_split_mode())
+        remote->setTxFreq(ui->freqCtrl->getFrequency() + (qint64)offset_hz);
+}
+
+void MainWindow::setCtcssFreq(float freq_hz)
+{
+    tx->set_ctcss_freq(freq_hz);
+    uiDockInputCtl->setCtcssFreq(freq_hz);
+}
+
+void MainWindow::setTxFreq(qint64 freq_hz)
+{
+    qint64 rx_freq = ui->freqCtrl->getFrequency();
+    double offset_hz = (double)(freq_hz - rx_freq);
+    bool split = (std::abs(offset_hz) > 1.0);
+    tx->set_split_offset(offset_hz);
+    tx->set_split_mode(split);
+    uiDockInputCtl->setSplitOffset(offset_hz / 1000.0);
+    uiDockInputCtl->setSplitMode(split);
+    remote->setSplitMode(split);
+    tx->set_tx_freq((double)rx_freq);
+    remote->setTxFreq(freq_hz);
 }
