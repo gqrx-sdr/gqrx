@@ -5,6 +5,8 @@ Supported commands:
     Get frequency [Hz]
  F <frequency>
     Set frequency [Hz]
+ ^ <frequency>
+    Set center frequency [Hz]
  m
     Get demodulator mode and passband
  M <mode> [passband]
