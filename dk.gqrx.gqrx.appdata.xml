@@ -18,6 +18,9 @@
    <p>
     Gqrx supports many of the SDR hardware available, including Airspy, Funcube Dongles, rtl-sdr, HackRF and USRP devices.
    </p>
+   <p>
+    Gqrx also has basic support for transmitting.
+   </p>
   </description>
   <metadata_license>CC-BY-3.0</metadata_license>
   <project_license>GPL-3.0</project_license>
