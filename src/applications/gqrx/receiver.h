@@ -30,6 +30,8 @@
 #include <gnuradio/blocks/wavfile_source.h>
 #include <gnuradio/top_block.h>
 #include <osmosdr/source.h>
+#include <osmosdr/sink.h>
+#include "dsp/tx_chain.h"
 #include <string>
 
 #include "dsp/correct_iq_cc.h"
@@ -226,6 +228,33 @@ public:
     bool        is_rds_decoder_active(void) const;
     void        reset_rds_parser(void);
 
+    /* TX functions */
+    status      set_ptt(bool ptt);
+    bool        get_ptt(void) const { return d_ptt; }
+
+    status      set_tx_mode(int mode);
+    int         get_tx_mode(void) const;
+
+    status      set_tx_freq(double freq_hz);
+    double      get_tx_freq(void) const { return d_tx_freq; }
+
+    status      set_tx_split(bool split);
+    bool        get_tx_split(void) const { return d_tx_split; }
+
+    status      set_tx_power(float power_fraction);
+    float       get_tx_power(void) const { return d_tx_power; }
+
+    status      set_mic_gain(float gain_db);
+    float       get_mic_gain(void) const { return d_mic_gain_db; }
+
+    status      set_ctcss_freq(float freq_hz);
+    float       get_ctcss_freq(void) const { return d_ctcss_freq; }
+
+    status      set_tx_device(const std::string &device);
+    std::string get_tx_device(void) const { return d_tx_devstr; }
+
+    float       get_tx_power_level(void) const;
+
     /* utility functions */
     static std::string escape_filename(std::string filename);
 
@@ -249,6 +278,22 @@ private:
     bool        d_iq_rev;           /*!< Whether I/Q is reversed or not. */
     bool        d_dc_cancel;        /*!< Enable automatic DC removal. */
     bool        d_iq_balance;       /*!< Enable automatic IQ balance. */
+
+    bool        d_ptt;
+    bool        d_tx_split;
+    double      d_tx_freq;
+    float       d_tx_power;
+    float       d_mic_gain_db;
+    float       d_ctcss_freq;
+    float       d_af_gain_db;
+    std::string d_tx_devstr;
+    bool        d_half_duplex;
+
+    gr::top_block_sptr          tx_tb;
+    tx_chain_sptr               tx_chain_block;
+    osmosdr::sink::sptr         tx_sink;
+    gr::blocks::null_sink::sptr tx_null_sink;
+    gr::basic_block_sptr        tx_audio_src;
 
     std::string input_devstr;  /*!< Current input device string. */
     std::string output_devstr; /*!< Current output device string. */

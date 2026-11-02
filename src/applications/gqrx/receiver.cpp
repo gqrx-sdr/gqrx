@@ -29,6 +29,9 @@
 #include <gnuradio/prefs.h>
 #include <gnuradio/top_block.h>
 #include <osmosdr/source.h>
+#include <osmosdr/sink.h>
+#include <gnuradio/analog/sig_source.h>
+#include <gnuradio/audio/source.h>
 #include <osmosdr/ranges.h>
 
 #include "applications/gqrx/receiver.h"
@@ -72,7 +75,16 @@ receiver::receiver(const std::string input_device,
       d_iq_rev(false),
       d_dc_cancel(false),
       d_iq_balance(false),
-      d_demod(RX_DEMOD_OFF)
+      d_demod(RX_DEMOD_OFF),
+      d_ptt(false),
+      d_tx_split(false),
+      d_tx_freq(144800000.0),
+      d_tx_power(0.5f),
+      d_mic_gain_db(0.0f),
+      d_ctcss_freq(0.0f),
+      d_af_gain_db(0.0f),
+      d_tx_devstr(""),
+      d_half_duplex(true)
 {
 
     tb = gr::make_top_block("gqrx");
@@ -146,10 +158,60 @@ receiver::receiver(const std::string input_device,
     gr::prefs pref;
     qDebug() << "Using audio backend:"
              << pref.get_string("audio", "audio_module", "N/A").c_str();
+
+    // Setup TX flowgraph
+    tx_tb = gr::make_top_block("gqrx_tx");
+    tx_chain_block = make_tx_chain(d_audio_rate, d_input_rate);
+    tx_null_sink = gr::blocks::null_sink::make(sizeof(gr_complex));
+
+    try {
+#ifdef WITH_PULSEAUDIO
+        tx_audio_src = make_pa_source("", (int)d_audio_rate, 1, "GQRX", "TX Microphone");
+#else
+        tx_audio_src = gr::audio::source::make((int)d_audio_rate, "", false);
+#endif
+    } catch (...) {
+        tx_audio_src = gr::analog::sig_source_f::make(d_audio_rate, gr::analog::GR_COS_WAVE, 1000.0, 0.5, 0.0);
+    }
+
+    if (!input_device.empty() && input_device.find("file=") != 0)
+    {
+        try {
+            d_tx_devstr = input_device;
+            tx_sink = osmosdr::sink::make(input_device);
+            if (tx_sink) {
+                tx_sink->set_sample_rate(d_input_rate);
+                tx_sink->set_center_freq(d_rf_freq);
+            }
+        } catch (...) {
+            tx_sink.reset();
+        }
+    }
+
+    if (tx_tb && tx_audio_src && tx_chain_block)
+    {
+        tx_tb->connect(tx_audio_src, 0, tx_chain_block, 0);
+        if (tx_sink)
+            tx_tb->connect(tx_chain_block, 0, tx_sink, 0);
+        else
+            tx_tb->connect(tx_chain_block, 0, tx_null_sink, 0);
+    }
 }
 
 receiver::~receiver()
 {
+    if (d_ptt)
+        set_ptt(false);
+
+    if (tx_tb)
+    {
+        try {
+            tx_tb->stop();
+            tx_tb->wait();
+            tx_tb->disconnect_all();
+        } catch (...) {}
+    }
+
     tb->stop();
 }
 
@@ -243,6 +305,42 @@ void receiver::set_input_device(const std::string device)
     else
     {
         tb->connect(src, 0, iq_swap, 0);
+    }
+
+    if (tx_tb)
+    {
+        if (d_ptt)
+            set_ptt(false);
+
+        try {
+            tx_tb->stop();
+            tx_tb->wait();
+            tx_tb->disconnect_all();
+        } catch (...) {}
+
+        tx_sink.reset();
+        std::string tx_dev = d_tx_devstr.empty() ? device : d_tx_devstr;
+        if (!tx_dev.empty() && tx_dev.find("file=") != 0)
+        {
+            try {
+                tx_sink = osmosdr::sink::make(tx_dev);
+                if (tx_sink) {
+                    tx_sink->set_sample_rate(d_input_rate);
+                    tx_sink->set_center_freq(d_tx_split ? d_tx_freq : d_rf_freq);
+                }
+            } catch (...) {
+                tx_sink.reset();
+            }
+        }
+
+        if (tx_audio_src && tx_chain_block)
+        {
+            tx_tb->connect(tx_audio_src, 0, tx_chain_block, 0);
+            if (tx_sink)
+                tx_tb->connect(tx_chain_block, 0, tx_sink, 0);
+            else
+                tx_tb->connect(tx_chain_block, 0, tx_null_sink, 0);
+        }
     }
 
     if (d_running)
@@ -539,7 +637,15 @@ receiver::status receiver::set_rf_freq(double freq_hz)
     d_rf_freq = freq_hz;
 
     src->set_center_freq(d_rf_freq);
-    // FIXME: read back frequency?
+
+    if (!d_tx_split) {
+        d_tx_freq = freq_hz;
+        if (tx_sink) {
+            try {
+                tx_sink->set_center_freq(d_tx_freq);
+            } catch (...) {}
+        }
+    }
 
     return STATUS_OK;
 }
@@ -985,9 +1091,17 @@ receiver::status receiver::set_af_gain(float gain_db)
 {
     float k;
 
+    d_af_gain_db = gain_db;
+
+    if (d_ptt)
+    {
+        audio_gain0->set_k(0.0f);
+        audio_gain1->set_k(0.0f);
+        return STATUS_OK;
+    }
+
     /* convert dB to factor */
     k = powf(10.0f, gain_db / 20.0f);
-    //std::cout << "G:" << gain_db << "dB / K:" << k << std::endl;
     audio_gain0->set_k(k);
     audio_gain1->set_k(k);
 
@@ -1469,4 +1583,196 @@ std::string receiver::escape_filename(std::string filename)
     ss1 << std::quoted(filename, '\'', '\\');
     ss2 << std::quoted(ss1.str(), '\'', '\\');
     return ss2.str();
+}
+
+receiver::status receiver::set_ptt(bool ptt)
+{
+    if (d_ptt == ptt)
+        return STATUS_OK;
+
+    d_ptt = ptt;
+
+    if (d_ptt)
+    {
+        // 1. Mute RX audio to prevent feedback
+        if (audio_gain0 && audio_gain1)
+        {
+            audio_gain0->set_k(0.0f);
+            audio_gain1->set_k(0.0f);
+        }
+
+        // 2. Pause RX flowgraph if half-duplex (e.g. HackRF)
+        if (d_half_duplex && d_running && tb)
+        {
+            try {
+                tb->stop();
+                tb->wait();
+            } catch (...) {}
+        }
+
+        // 3. Set TX center frequency and rate
+        if (tx_sink)
+        {
+            double f = d_tx_split ? d_tx_freq : d_rf_freq;
+            try {
+                tx_sink->set_center_freq(f);
+                tx_sink->set_sample_rate(d_input_rate);
+            } catch (...) {}
+        }
+
+        // 4. Start TX flowgraph
+        if (tx_tb)
+        {
+            try {
+                tx_tb->start();
+            } catch (const std::exception &e) {
+                std::cout << "Error starting TX flowgraph: " << e.what() << std::endl;
+                d_ptt = false;
+                if (d_half_duplex && d_running && tb)
+                {
+                    try { tb->start(); } catch (...) {}
+                }
+                set_af_gain(d_af_gain_db);
+                return STATUS_ERROR;
+            }
+        }
+    }
+    else
+    {
+        // 1. Stop TX flowgraph
+        if (tx_tb)
+        {
+            try {
+                tx_tb->stop();
+                tx_tb->wait();
+            } catch (...) {}
+        }
+
+        // 2. Resume RX flowgraph
+        if (d_half_duplex && d_running && tb)
+        {
+            try {
+                tb->start();
+            } catch (...) {}
+        }
+
+        // 3. Restore audio gain
+        set_af_gain(d_af_gain_db);
+    }
+
+    return STATUS_OK;
+}
+
+receiver::status receiver::set_tx_mode(int mode)
+{
+    if (tx_chain_block)
+        tx_chain_block->set_mode(static_cast<tx_chain::tx_mode>(mode));
+    return STATUS_OK;
+}
+
+int receiver::get_tx_mode(void) const
+{
+    return tx_chain_block ? static_cast<int>(tx_chain_block->mode()) : 0;
+}
+
+receiver::status receiver::set_tx_freq(double freq_hz)
+{
+    d_tx_freq = freq_hz;
+    if (d_ptt && tx_sink)
+    {
+        try {
+            tx_sink->set_center_freq(d_tx_freq);
+        } catch (...) {}
+    }
+    return STATUS_OK;
+}
+
+receiver::status receiver::set_tx_split(bool split)
+{
+    d_tx_split = split;
+    if (!d_tx_split)
+        d_tx_freq = d_rf_freq;
+    return STATUS_OK;
+}
+
+receiver::status receiver::set_tx_power(float power_fraction)
+{
+    d_tx_power = power_fraction;
+    if (tx_chain_block)
+        tx_chain_block->set_rf_power(power_fraction);
+    if (tx_sink)
+    {
+        try {
+            std::vector<std::string> gains = tx_sink->get_gain_names();
+            for (const auto &g : gains) {
+                osmosdr::gain_range_t range = tx_sink->get_gain_range(g);
+                double target_gain = range.start() + power_fraction * (range.stop() - range.start());
+                tx_sink->set_gain(target_gain, g);
+            }
+        } catch (...) {}
+    }
+    return STATUS_OK;
+}
+
+receiver::status receiver::set_mic_gain(float gain_db)
+{
+    d_mic_gain_db = gain_db;
+    if (tx_chain_block)
+        tx_chain_block->set_mic_gain(gain_db);
+    return STATUS_OK;
+}
+
+receiver::status receiver::set_ctcss_freq(float freq_hz)
+{
+    d_ctcss_freq = freq_hz;
+    if (tx_chain_block)
+        tx_chain_block->set_ctcss_freq(freq_hz);
+    return STATUS_OK;
+}
+
+receiver::status receiver::set_tx_device(const std::string &device)
+{
+    d_tx_devstr = device;
+    if (tx_tb)
+    {
+        if (d_ptt)
+            set_ptt(false);
+
+        try {
+            tx_tb->stop();
+            tx_tb->wait();
+            tx_tb->disconnect_all();
+        } catch (...) {}
+
+        tx_sink.reset();
+
+        std::string tx_dev = d_tx_devstr.empty() ? input_devstr : d_tx_devstr;
+        if (!tx_dev.empty() && tx_dev.find("file=") != 0)
+        {
+            try {
+                tx_sink = osmosdr::sink::make(tx_dev);
+                if (tx_sink) {
+                    tx_sink->set_sample_rate(d_input_rate);
+                    tx_sink->set_center_freq(d_tx_split ? d_tx_freq : d_rf_freq);
+                }
+            } catch (...) {
+                tx_sink.reset();
+            }
+        }
+
+        if (tx_audio_src && tx_chain_block)
+        {
+            tx_tb->connect(tx_audio_src, 0, tx_chain_block, 0);
+            if (tx_sink)
+                tx_tb->connect(tx_chain_block, 0, tx_sink, 0);
+            else
+                tx_tb->connect(tx_chain_block, 0, tx_null_sink, 0);
+        }
+    }
+    return STATUS_OK;
+}
+
+float receiver::get_tx_power_level(void) const
+{
+    return tx_chain_block ? tx_chain_block->get_power_level_db() : -100.0f;
 }
