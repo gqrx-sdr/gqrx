@@ -27,6 +27,14 @@ Supported commands:
     Get the value of the gain setting with the name <gain_name>
  L <gain_name>_GAIN <value>
     Set the value of the gain setting with the name <gain_name> to <value>
+ l RFPOWER
+    Get TX RF power fraction [0.0 - 1.0]
+ L RFPOWER <power>
+    Set TX RF power fraction [0.0 - 1.0]
+ l MICGAIN
+    Get microphone gain [dB]
+ L MICGAIN <gain>
+    Set microphone gain to <gain> [dB]
  p RDS_PI
     Get the RDS PI code (in hexadecimal). Returns 0000 if not applicable.
  p RDS_PS_NAME
@@ -72,6 +80,14 @@ Supported commands:
     Get 'VFO' (only usable for hamlib compatibility)
  V
     Set 'VFO' (only usable for hamlib compatibility)
+ t | \get_ptt
+    Get PTT status (0 = RX, 1 = TX)
+ T | \set_ptt <status>
+    Set PTT status (0 = RX, 1 = TX)
+ i | \get_split_freq
+    Get TX split frequency [Hz]
+ I | \set_split_freq <frequency>
+    Set TX split frequency [Hz]
  s
     Get 'Split' mode (only usable for hamlib compatibility)
  S

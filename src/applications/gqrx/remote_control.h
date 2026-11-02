@@ -104,6 +104,11 @@ public slots:
     void rdsPI(QString program_id);
     void setRdsStation(QString name);
     void setRdsRadiotext(QString text);
+    void setPtt(bool active);
+    void setTxFrequency(qint64 freq);
+    void setSplitMode(bool enabled);
+    void setTxPower(float power);
+    void setMicGain(float gain);
 
 signals:
     void newFrequency(qint64 freq);
@@ -121,6 +126,11 @@ signals:
     void dspChanged(bool value);
     void newRDSmode(bool value);
     void newAudioMuted(bool muted);
+    void newPtt(bool active);
+    void newTxFrequency(qint64 freq);
+    void newSplitMode(bool enabled);
+    void newTxPower(float power);
+    void newMicGain(float gain);
 
 private slots:
     void acceptConnection();
@@ -155,6 +165,11 @@ private:
     bool        hamlib_compatible;
     gain_list_t gains;             /*!< Possible and current gain settings */
     bool        is_audio_muted;
+    bool        ptt_status;
+    bool        split_status;
+    qint64      rc_tx_freq;
+    float       rc_tx_power;
+    float       rc_mic_gain;
 
     void        setNewRemoteFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);
@@ -172,7 +187,11 @@ private:
     QString     cmd_get_vfo() const;
     QString     cmd_set_vfo(QStringList cmdlist);
     QString     cmd_get_split_vfo() const;
-    QString     cmd_set_split_vfo();
+    QString     cmd_set_split_vfo(QStringList cmdlist = QStringList());
+    QString     cmd_get_ptt() const;
+    QString     cmd_set_ptt(QStringList cmdlist);
+    QString     cmd_get_split_freq() const;
+    QString     cmd_set_split_freq(QStringList cmdlist);
     QString     cmd_get_info() const;
     QString     cmd_get_param(QStringList cmdlist);
     QString     cmd_AOS();
