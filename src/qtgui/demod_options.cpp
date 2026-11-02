@@ -251,3 +251,16 @@ void CDemodOptions::on_pllBwSelector_activated(int index)
 {
     emit amSyncPllBwSelected(pll_bw_from_index(index));
 }
+// Basic TX Support - Modulation and Transmission Control Options
+void CDemodOptions::setTxMode(int mode)
+{
+
+    ui->modSelector->setCurrentIndex(mode);
+}
+
+int CDemodOptions::getTxMode() const
+{
+    return ui->modSelector->currentIndex();
+}
+
+
