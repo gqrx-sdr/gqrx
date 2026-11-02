@@ -77,6 +77,20 @@ receiver::receiver(const std::string input_device,
 
     tb = gr::make_top_block("gqrx");
 
+    /*
+     * The I/Q source runs in its own top block and feeds the DSP top block
+     * through a FIFO. Locking, stopping or rewiring the DSP flow graph (e.g.
+     * changing demodulator, starting a recording or UDP streaming) then no
+     * longer stops and restarts the device stream. Some drivers, notably
+     * SoapyRemote, can throw from deactivateStream() while GNU Radio is
+     * tearing down the block threads, which aborts the whole application.
+     * See https://github.com/gqrx-sdr/gqrx/issues/1445
+     */
+    src_tb = gr::make_top_block("gqrx_input");
+    iq_fifo = iq_bridge_fifo_sptr(new iq_bridge_fifo(1));
+    iq_bridge_snk = make_iq_bridge_sink_c(iq_fifo);
+    iq_bridge_src = make_iq_bridge_source_c(iq_fifo);
+
     if (input_device.empty())
     {
         src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
@@ -86,6 +100,8 @@ receiver::receiver(const std::string input_device,
         input_devstr = input_device;
         src = osmosdr::source::make(input_device);
     }
+    src_tb->connect(src, 0, iq_bridge_snk, 0);
+    set_bridge_capacity(d_input_rate);
 
     // input decimator
     if (d_decim >= 2)
@@ -151,6 +167,7 @@ receiver::receiver(const std::string input_device,
 receiver::~receiver()
 {
     tb->stop();
+    src_tb->stop();
 }
 
 
@@ -159,6 +176,8 @@ void receiver::start()
 {
     if (!d_running)
     {
+        iq_fifo->clear();
+        src_tb->start();
         tb->start();
         d_running = true;
     }
@@ -171,6 +190,8 @@ void receiver::stop()
     {
         tb->stop();
         tb->wait(); // If the graph is needed to run again, wait() must be called after stop
+        src_tb->stop();
+        src_tb->wait();
         d_running = false;
     }
 }
@@ -192,32 +213,25 @@ void receiver::set_input_device(const std::string device)
 
     input_devstr = device;
 
-    // tb->lock() can hang occasionally
+    // Only the source flow graph needs to be stopped, the DSP flow graph
+    // keeps its connections to iq_bridge_src.
     if (d_running)
     {
-        tb->stop();
-        tb->wait();
+        src_tb->stop();
+        src_tb->wait();
     }
 
-    if (d_decim >= 2)
-    {
-        tb->disconnect(src, 0, input_decim, 0);
-        tb->disconnect(input_decim, 0, iq_swap, 0);
-    }
-    else
-    {
-        tb->disconnect(src, 0, iq_swap, 0);
-    }
+    src_tb->disconnect(src, 0, iq_bridge_snk, 0);
 
 #if GNURADIO_VERSION < 0x030802
     //Work around GNU Radio bug #3184
     //temporarily connect dummy source to ensure that previous device is closed
     src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
-    tb->connect(src, 0, iq_swap, 0);
-    tb->start();
-    tb->stop();
-    tb->wait();
-    tb->disconnect(src, 0, iq_swap, 0);
+    src_tb->connect(src, 0, iq_bridge_snk, 0);
+    src_tb->start();
+    src_tb->stop();
+    src_tb->wait();
+    src_tb->disconnect(src, 0, iq_bridge_snk, 0);
 #else
     src.reset();
 #endif
@@ -232,21 +246,16 @@ void receiver::set_input_device(const std::string device)
         src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
     }
 
+    src_tb->connect(src, 0, iq_bridge_snk, 0);
+
     if(src->get_sample_rate() != 0)
         set_input_rate(src->get_sample_rate());
 
-    if (d_decim >= 2)
-    {
-        tb->connect(src, 0, input_decim, 0);
-        tb->connect(input_decim, 0, iq_swap, 0);
-    }
-    else
-    {
-        tb->connect(src, 0, iq_swap, 0);
-    }
-
     if (d_running)
-        tb->start();
+    {
+        iq_fifo->clear();
+        src_tb->start();
+    }
 
     if (error != "")
     {
@@ -331,6 +340,7 @@ double receiver::set_input_rate(double rate)
             std::abs(rate - current_rate) < std::abs(std::min(rate, current_rate))
             * std::numeric_limits<double>::epsilon());
 
+    src_tb->lock();
     tb->lock();
     try
     {
@@ -363,7 +373,9 @@ double receiver::set_input_rate(double rate)
     ddc->set_decim_and_samp_rate(d_ddc_decim, d_decim_rate);
     rx->set_quad_rate(d_quad_rate);
     iq_fft->set_quad_rate(d_decim_rate);
+    set_bridge_capacity(d_input_rate);
     tb->unlock();
+    src_tb->unlock();
 
     return d_input_rate;
 }
@@ -382,12 +394,12 @@ unsigned int receiver::set_input_decim(unsigned int decim)
 
     if (d_decim >= 2)
     {
-        tb->disconnect(src, 0, input_decim, 0);
+        tb->disconnect(iq_bridge_src, 0, input_decim, 0);
         tb->disconnect(input_decim, 0, iq_swap, 0);
     }
     else
     {
-        tb->disconnect(src, 0, iq_swap, 0);
+        tb->disconnect(iq_bridge_src, 0, iq_swap, 0);
     }
 
     input_decim.reset();
@@ -423,12 +435,12 @@ unsigned int receiver::set_input_decim(unsigned int decim)
 
     if (d_decim >= 2)
     {
-        tb->connect(src, 0, input_decim, 0);
+        tb->connect(iq_bridge_src, 0, input_decim, 0);
         tb->connect(input_decim, 0, iq_swap, 0);
     }
     else
     {
-        tb->connect(src, 0, iq_swap, 0);
+        tb->connect(iq_bridge_src, 0, iq_swap, 0);
     }
 
 #ifdef CUSTOM_AIRSPY_KERNELS
@@ -1134,7 +1146,13 @@ receiver::status receiver::start_audio_playback(const std::string filename)
         return STATUS_ERROR;
     }
 
-    stop();
+    // Only the DSP flow graph needs to be rewired
+    if (d_running)
+    {
+        tb->stop();
+        tb->wait();
+    }
+
     /* route demodulator output to null sink */
     tb->disconnect(rx, 0, audio_gain0, 0);
     tb->disconnect(rx, 1, audio_gain1, 0);
@@ -1148,7 +1166,10 @@ receiver::status receiver::start_audio_playback(const std::string filename)
     tb->connect(wav_src, 0, audio_fft, 0);
     tb->connect(wav_src, 0, audio_udp_sink, 0);
     tb->connect(wav_src, 1, audio_udp_sink, 1);
-    start();
+    if (d_running)
+        tb->start();
+    else
+        start();
 
     std::cout << "Playing audio from " << filename << std::endl;
 
@@ -1159,7 +1180,12 @@ receiver::status receiver::start_audio_playback(const std::string filename)
 receiver::status receiver::stop_audio_playback()
 {
     /* disconnect wav source and reconnect receiver */
-    stop();
+    if (d_running)
+    {
+        tb->stop();
+        tb->wait();
+    }
+
     tb->disconnect(wav_src, 0, audio_gain0, 0);
     tb->disconnect(wav_src, 1, audio_gain1, 0);
     tb->disconnect(wav_src, 0, audio_fft, 0);
@@ -1172,7 +1198,10 @@ receiver::status receiver::stop_audio_playback()
     tb->connect(rx, 0, audio_fft, 0);  /** FIXME: other channel? */
     tb->connect(rx, 0, audio_udp_sink, 0);
     tb->connect(rx, 1, audio_udp_sink, 1);
-    start();
+    if (d_running)
+        tb->start();
+    else
+        start();
 
     /* delete wav_src since we can not change file name */
     wav_src.reset();
@@ -1221,7 +1250,7 @@ receiver::status receiver::start_iq_recording(const std::string filename)
     if (d_decim >= 2)
         tb->connect(input_decim, 0, iq_sink, 0);
     else
-        tb->connect(src, 0, iq_sink, 0);
+        tb->connect(iq_bridge_src, 0, iq_sink, 0);
     d_recording_iq = true;
     tb->unlock();
 
@@ -1242,7 +1271,7 @@ receiver::status receiver::stop_iq_recording()
     if (d_decim >= 2)
         tb->disconnect(input_decim, 0, iq_sink, 0);
     else
-        tb->disconnect(src, 0, iq_sink, 0);
+        tb->disconnect(iq_bridge_src, 0, iq_sink, 0);
 
     tb->unlock();
     iq_sink.reset();
@@ -1332,13 +1361,25 @@ void receiver::get_sniffer_data(float * outbuff, unsigned int &num)
     sniffer->get_samples(outbuff, num);
 }
 
+/**
+ * @brief Size the FIFO between the source and DSP flow graphs.
+ *
+ * The FIFO must hold the samples that arrive while the DSP flow graph is
+ * locked or restarted, which usually takes well below 100 ms.
+ */
+void receiver::set_bridge_capacity(double input_rate)
+{
+    const size_t min_capacity = 65536;
+    iq_fifo->set_capacity(std::max(min_capacity, (size_t)(input_rate * 0.25)));
+}
+
 /** Convenience function to connect all blocks. */
 void receiver::connect_all(rx_chain type)
 {
     gr::basic_block_sptr b;
 
     // Setup source
-    b = src;
+    b = iq_bridge_src;
 
     // Pre-processing
     if (d_decim >= 2)
@@ -1427,9 +1468,10 @@ void receiver::start_rds_decoder(void)
 {
     if (d_running)
     {
-        stop();
+        tb->stop();
+        tb->wait();
         rx->start_rds_decoder();
-        start();
+        tb->start();
     }
     else
     {
@@ -1441,9 +1483,10 @@ void receiver::stop_rds_decoder(void)
 {
     if (d_running)
     {
-        stop();
+        tb->stop();
+        tb->wait();
         rx->stop_rds_decoder();
-        start();
+        tb->start();
     }
     else
     {
