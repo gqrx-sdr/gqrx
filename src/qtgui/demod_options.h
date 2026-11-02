@@ -49,6 +49,9 @@ public:
         PAGE_AMSYNC_OPT = 4,
         PAGE_NUM    = 5
     };
+        
+        void setTxMode(int mode);
+        int getTxMode() const;
 
     explicit CDemodOptions(QWidget *parent = 0);
     ~CDemodOptions();
@@ -92,8 +95,10 @@ signals:
     /*! \brief Signal emitted when AM-Sync DCR is toggled. */
     void amSyncDcrToggled(bool enabled);
 
-    /*! \brief Signal emitted when new PLL BW is selected. */
-    void amSyncPllBwSelected(float pll_bw);
+  /* Brief signal emitted when new PLL BW is selected. */
+    void amSyncPLLbwSelected(float pll_bw);
+    void txModeSelected(int mode);
+
 
 private slots:
     void on_maxdevSelector_activated(int index);
@@ -102,9 +107,12 @@ private slots:
     void on_cwOffsetSpin_valueChanged(int value);
     void on_syncdcrCheckBox_clicked(bool checked);
     void on_pllBwSelector_activated(int index);
+    void on_modSelector_activated(int index);
+
 
 private:
     Ui::CDemodOptions *ui;
 };
 
 #endif // DEMOD_OPTIONS_H
+
