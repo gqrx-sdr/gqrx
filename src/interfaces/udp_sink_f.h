@@ -4,6 +4,7 @@
  *           https://gqrx.dk/
  *
  * Copyright 2013 Alexandru Csete OZ9AEC.
+ * Copyright 2026 Gqrx contributors.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,17 +24,17 @@
 #ifndef UDP_SINK_F_H
 #define UDP_SINK_F_H
 
-#if GNURADIO_VERSION < 0x031000
-#include <gnuradio/blocks/udp_sink.h>
+#include <gnuradio/sync_block.h>
+#include <mutex>
+#include <string>
+#include <vector>
+#include <cstdint>
+
+#if GNURADIO_VERSION < 0x030900
+#include <boost/shared_ptr.hpp>
 #else
-#include <gnuradio/network/udp_sink.h>
+#include <memory>
 #endif
-
-#include <gnuradio/hier_block2.h>
-#include <gnuradio/blocks/float_to_short.h>
-#include <gnuradio/blocks/interleave.h>
-#include <gnuradio/blocks/null_sink.h>
-
 
 class udp_sink_f;
 
@@ -45,27 +46,27 @@ typedef std::shared_ptr<udp_sink_f> udp_sink_f_sptr;
 
 udp_sink_f_sptr make_udp_sink_f(void);
 
-class udp_sink_f : public gr::hier_block2
+class udp_sink_f : public gr::sync_block
 {
 public:
     udp_sink_f(void);
-    ~udp_sink_f();
+    ~udp_sink_f() override;
 
     void start_streaming(const std::string host, int port, bool stereo);
     void stop_streaming(void);
 
-private:
-#if GNURADIO_VERSION < 0x031000
-    gr::blocks::udp_sink::sptr        d_sink;   /*!< The gnuradio UDP sink. */
-#else
-    gr::network::udp_sink::sptr       d_sink;   /*!< The gnuradio UDP sink. */
-#endif
-    gr::blocks::float_to_short::sptr  d_f2s;    /*!< Converts float to short. */
-    gr::blocks::interleave::sptr      d_inter;  /*!< Stereo interleaver. */
-    gr::blocks::null_sink::sptr       d_null0;  /*!< Null sink for mono. */
-    gr::blocks::null_sink::sptr       d_null1;  /*!< Null sink for mono. */
+    int work(int noutput_items,
+             gr_vector_const_void_star &input_items,
+             gr_vector_void_star &output_items) override;
 
+private:
+    std::mutex          d_mutex;
+    bool                d_streaming;
+    bool                d_stereo;
+    int                 d_sock;
+    uint8_t             d_sockaddr[128];
+    size_t              d_sockaddr_len;
+    std::vector<int16_t> d_buffer;
 };
 
-
-#endif // UDP_SINK_F_H
+#endif /* UDP_SINK_F_H */
