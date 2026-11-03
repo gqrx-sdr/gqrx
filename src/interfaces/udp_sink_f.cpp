@@ -4,6 +4,7 @@
  *           https://gqrx.dk/
  *
  * Copyright 2013 Alexandru Csete OZ9AEC.
+ * Copyright 2026 Gqrx contributors.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,21 +21,26 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#if GNURADIO_VERSION < 0x031000
-#include <gnuradio/blocks/udp_sink.h>
+
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #else
-#include <gnuradio/network/udp_header_types.h>
-#include <gnuradio/network/udp_sink.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
 #endif
 
-#include <gnuradio/hier_block2.h>
-#include <gnuradio/blocks/float_to_short.h>
 #include <gnuradio/io_signature.h>
-
+#include <algorithm>
+#include <cmath>
+#include <cstring>
 #include <iostream>
 
 #include "udp_sink_f.h"
-
 
 /*
  * Create a new instance of udp_sink_f and return an
@@ -58,27 +64,20 @@ static const int MAX_OUT = 0; /*!< Maximum number of output streams. */
 static const int PAYLOAD_SIZE = 1024;
 
 udp_sink_f::udp_sink_f()
-    : gr::hier_block2("udp_sink_f",
-                      gr::io_signature::make(MIN_IN, MAX_IN, sizeof(float)),
-                      gr::io_signature::make(MIN_OUT, MAX_OUT, sizeof(float)))
+    : gr::sync_block("udp_sink_f",
+                     gr::io_signature::make(MIN_IN, MAX_IN, sizeof(float)),
+                     gr::io_signature::make(MIN_OUT, MAX_OUT, 0)),
+      d_streaming(false),
+      d_stereo(false),
+      d_sock(-1),
+      d_sockaddr_len(0)
 {
-
-    d_f2s = gr::blocks::float_to_short::make(1, 32767);
-#if GNURADIO_VERSION < 0x031000
-    d_sink = gr::blocks::udp_sink::make(sizeof(short), "localhost", 7355, PAYLOAD_SIZE);
-    d_sink->disconnect();
-#endif
-
-    d_inter = gr::blocks::interleave::make(sizeof(float));
-    d_null0 = gr::blocks::null_sink::make(sizeof(float));
-    d_null1 = gr::blocks::null_sink::make(sizeof(float));
-
-    connect(self(), 0, d_null0, 0);
-    connect(self(), 1, d_null1, 0);
+    std::memset(d_sockaddr, 0, sizeof(d_sockaddr));
 }
 
 udp_sink_f::~udp_sink_f()
 {
+    stop_streaming();
 }
 
 /*! \brief Start streaming through the UDP sink
@@ -88,51 +87,132 @@ udp_sink_f::~udp_sink_f()
  */
 void udp_sink_f::start_streaming(const std::string host, int port, bool stereo)
 {
-    lock();
-    disconnect_all();
+    if (host.empty() || port <= 0 || port > 65535)
+    {
+        std::cerr << "UDP sink: Invalid host or port: " << host << ":" << port << std::endl;
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock(d_mutex);
+
+    if (d_sock >= 0)
+    {
+#ifdef _WIN32
+        closesocket(d_sock);
+#else
+        close(d_sock);
+#endif
+        d_sock = -1;
+    }
+    d_buffer.clear();
+
+    struct addrinfo hints;
+    struct addrinfo *res = nullptr;
+    std::memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_DGRAM;
+
+    std::string port_str = std::to_string(port);
+    int err = getaddrinfo(host.c_str(), port_str.c_str(), &hints, &res);
+    if (err != 0 || !res)
+    {
+        std::cerr << "UDP sink: Failed to resolve " << host << ":" << port << std::endl;
+        return;
+    }
+
+    d_sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (d_sock < 0)
+    {
+        std::cerr << "UDP sink: Failed to create socket" << std::endl;
+        freeaddrinfo(res);
+        return;
+    }
+
+    if (res->ai_addrlen <= sizeof(d_sockaddr))
+    {
+        std::memcpy(d_sockaddr, res->ai_addr, res->ai_addrlen);
+        d_sockaddr_len = res->ai_addrlen;
+    }
+    freeaddrinfo(res);
+
+    d_stereo = stereo;
+    d_streaming = true;
 
     std::cout << "Starting UDP streaming, Host: " << host;
-    std::cout << ", Port: " << std::to_string(port) << ", ";
+    std::cout << ", Port: " << port_str << ", ";
     std::cout << (stereo ? "Stereo" : "Mono") << std::endl;
-
-#if GNURADIO_VERSION >= 0x031000
-    d_sink = gr::network::udp_sink::make(sizeof(short), 1, host, port, HEADERTYPE_NONE, PAYLOAD_SIZE, true);
-#endif
-
-    if (stereo)
-    {
-        connect(self(), 0, d_inter, 0);
-        connect(self(), 1, d_inter, 1);
-        connect(d_inter, 0, d_f2s, 0);
-        connect(d_f2s, 0, d_sink, 0);
-    }
-    else
-    {
-        connect(self(), 0, d_f2s, 0);
-        connect(d_f2s, 0, d_sink, 0);
-        connect(self(), 1, d_null0, 0);
-    }
-    unlock();
-
-#if GNURADIO_VERSION < 0x031000
-    d_sink->connect(host, port);
-#endif
 }
-
 
 void udp_sink_f::stop_streaming(void)
 {
-    lock();
-    disconnect_all();
-    connect(self(), 0, d_null0, 0);
-    connect(self(), 1, d_null1, 0);
-    unlock();
+    std::lock_guard<std::mutex> lock(d_mutex);
+
+    if (!d_streaming && d_sock < 0)
+        return;
+
+    d_streaming = false;
+
+    if (d_sock >= 0)
+    {
+        if (!d_buffer.empty())
+        {
+            sendto(d_sock, reinterpret_cast<const char *>(d_buffer.data()),
+                   static_cast<int>(d_buffer.size() * sizeof(int16_t)), 0,
+                   reinterpret_cast<const struct sockaddr *>(d_sockaddr),
+                   static_cast<socklen_t>(d_sockaddr_len));
+            d_buffer.clear();
+        }
+#ifdef _WIN32
+        closesocket(d_sock);
+#else
+        close(d_sock);
+#endif
+        d_sock = -1;
+    }
 
     std::cout << "Disconnected UDP streaming" << std::endl;
+}
 
-#if GNURADIO_VERSION < 0x031000
-    d_sink->disconnect();
-#else
-    d_sink = nullptr;
-#endif
+int udp_sink_f::work(int noutput_items,
+                     gr_vector_const_void_star &input_items,
+                     gr_vector_void_star &output_items)
+{
+    (void)output_items;
+    const float *in0 = static_cast<const float *>(input_items[0]);
+    const float *in1 = static_cast<const float *>(input_items[1]);
+
+    std::lock_guard<std::mutex> lock(d_mutex);
+    if (!d_streaming || d_sock < 0)
+        return noutput_items;
+
+    const size_t max_samples = PAYLOAD_SIZE / sizeof(int16_t);
+
+    for (int i = 0; i < noutput_items; ++i)
+    {
+        float s0 = in0[i];
+        if (std::isnan(s0) || std::isinf(s0))
+            s0 = 0.0f;
+        s0 = std::clamp(s0 * 32767.0f, -32768.0f, 32767.0f);
+        d_buffer.push_back(static_cast<int16_t>(std::round(s0)));
+
+        if (d_stereo)
+        {
+            float s1 = in1[i];
+            if (std::isnan(s1) || std::isinf(s1))
+                s1 = 0.0f;
+            s1 = std::clamp(s1 * 32767.0f, -32768.0f, 32767.0f);
+            d_buffer.push_back(static_cast<int16_t>(std::round(s1)));
+        }
+
+        if (d_buffer.size() >= max_samples)
+        {
+            sendto(d_sock, reinterpret_cast<const char *>(d_buffer.data()),
+                   static_cast<int>(d_buffer.size() * sizeof(int16_t)), 0,
+                   reinterpret_cast<const struct sockaddr *>(d_sockaddr),
+                   static_cast<socklen_t>(d_sockaddr_len));
+            d_buffer.clear();
+        }
+    }
+
+    return noutput_items;
 }

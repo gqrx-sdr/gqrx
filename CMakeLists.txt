@@ -274,6 +274,10 @@ install(FILES resources/icons/dk.gqrx.gqrx.svg DESTINATION share/icons/hicolor/s
 # Add subdirectories
 add_subdirectory(src)
 
+# Enable automated unit tests
+enable_testing()
+add_subdirectory(test)
+
 # uninstall target
 # https://cmake.org/Wiki/CMake_FAQ#Can_I_do_.22make_uninstall.22_with_CMake.3F
 configure_file(
