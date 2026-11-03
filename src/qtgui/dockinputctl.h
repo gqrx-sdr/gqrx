@@ -103,6 +103,7 @@ public:
     void    setInvertScrolling(bool enabled);
     void    setPtt(bool active);
     bool    ptt() const;
+    void    setTxEnabled(bool enabled);
 
     void    setTxPower(double power_db);
     double  txPower() const;

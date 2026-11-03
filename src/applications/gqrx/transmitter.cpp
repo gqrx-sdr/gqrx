@@ -102,6 +102,34 @@ void transmitter::create_audio_source()
     }
 }
 
+bool transmitter::is_device_tx_capable(const std::string &device)
+{
+    if (device.empty())
+        return false;
+
+    std::string lower_dev = device;
+    for (char &c : lower_dev)
+        c = std::tolower(static_cast<unsigned char>(c));
+
+    // Common receive-only SDRs and files that do not support hardware transmission
+    const std::vector<std::string> rx_only_keywords = {
+        "rtl", "rtlsdr", "airspy", "sdrplay", "rsp", "funcube", "fcd", "rtlsdr_tcp", "file="
+    };
+
+    for (const auto &kw : rx_only_keywords)
+    {
+        if (lower_dev.find(kw) != std::string::npos)
+            return false;
+    }
+
+    return true;
+}
+
+bool transmitter::is_tx_supported() const
+{
+    return is_device_tx_capable(d_tx_devstr) && d_sink_valid;
+}
+
 void transmitter::create_tx_sink()
 {
     d_snk.reset();
@@ -109,7 +137,7 @@ void transmitter::create_tx_sink()
     d_sink_valid = false;
     d_last_error.clear();
 
-    if (!d_tx_devstr.empty())
+    if (!d_tx_devstr.empty() && is_device_tx_capable(d_tx_devstr))
     {
         try
         {
@@ -123,6 +151,11 @@ void transmitter::create_tx_sink()
             d_last_error = e.what();
             qWarning() << "Failed to create osmosdr::sink for" << d_tx_devstr.c_str() << ":" << e.what();
         }
+    }
+    else if (!d_tx_devstr.empty() && !is_device_tx_capable(d_tx_devstr))
+    {
+        d_last_error = "Device does not support transmission";
+        qDebug() << "Device does not support transmission, TX sink creation skipped for:" << d_tx_devstr.c_str();
     }
 
     if (!d_sink_block)

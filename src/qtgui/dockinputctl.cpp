@@ -660,10 +660,19 @@ void DockInputCtl::setPtt(bool active)
         ui->pttButton->setStyleSheet("");
     }
 }
-
 bool DockInputCtl::ptt() const
 {
     return ui->pttButton->isChecked();
+}
+
+void DockInputCtl::setTxEnabled(bool enabled)
+{
+    ui->groupBoxTx->setEnabled(enabled);
+    if (!enabled)
+    {
+        setPtt(false);
+        ui->txStatusLabel->setText(tr("TX Disabled (Device RX only)"));
+    }
 }
 
 void DockInputCtl::setTxPower(double power_db)

@@ -94,7 +94,8 @@ public:
 
     std::vector<std::string> get_antennas() const;
     void        set_antenna(const std::string &antenna);
-
+    static bool is_device_tx_capable(const std::string &device);
+    bool        is_tx_supported() const;
     bool        is_sink_valid() const { return d_sink_valid; }
     std::string get_last_error() const { return d_last_error; }
     std::string get_status_details() const;

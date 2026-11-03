@@ -574,6 +574,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
             rx->set_input_device(indev.toStdString());
             conf_ok = true;
             tx->set_tx_device(indev.toStdString());
+            uiDockInputCtl->setTxEnabled(tx->is_tx_supported());
         }
         catch (std::runtime_error &x)
         {
@@ -1789,6 +1790,8 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate, qint64
     qDebug() << __func__ << ":" << devstr;
 
     rx->set_input_device(devstr.toStdString());
+    tx->set_tx_device(devstr.toStdString());
+    uiDockInputCtl->setTxEnabled(tx->is_tx_supported());
     updateHWFrequencyRange(false);
 
     // sample rate
@@ -1826,7 +1829,8 @@ void MainWindow::stopIqPlayback()
     // restore original input device
     auto indev = m_settings->value("input/device", "").toString();
     rx->set_input_device(indev.toStdString());
-
+    tx->set_tx_device(indev.toStdString());
+    uiDockInputCtl->setTxEnabled(tx->is_tx_supported());
     // restore sample rate
     bool conv_ok;
     auto sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
@@ -2621,7 +2625,7 @@ void MainWindow::setTransmitting(bool active)
 
     if (active)
     {
-        if (!tx->is_sink_valid())
+        if (!tx->is_tx_supported())
         {
             ui->statusBar->showMessage(tr("Transmitter error: device does not support transmission (%1)")
                                        .arg(QString::fromStdString(tx->get_last_error())), 5000);
