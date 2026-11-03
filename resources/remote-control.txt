@@ -72,10 +72,30 @@ Supported commands:
     Get 'VFO' (only usable for hamlib compatibility)
  V
     Set 'VFO' (only usable for hamlib compatibility)
- s
-    Get 'Split' mode (only usable for hamlib compatibility)
- S
-    Set 'Split' mode (only usable for hamlib compatibility)
+ t | \get_ptt
+    Get PTT status (0 = RX, 1 = TX)
+ T <status> | \set_ptt <status>
+    Set PTT status (0 = RX, 1 = TX)
+ s | \get_split_vfo
+    Get split VFO status (0 or 1) and TX VFO
+ S <status> [tx_vfo] | \set_split_vfo <status>
+    Set split VFO status (0 = off, 1 = on)
+ i | \get_split_freq
+    Get transmit frequency [Hz]
+ I <frequency> | \set_split_freq <frequency>
+    Set transmit frequency [Hz]
+ u PTT
+    Get PTT status
+ U PTT <status>
+    Set PTT status (0 = RX, 1 = TX)
+ l RFPOWER
+    Get transmit RF power multiplier (0.00 to 1.00)
+ L RFPOWER <power>
+    Set transmit RF power multiplier (0.00 to 1.00)
+ l MICGAIN
+    Get microphone gain [dB]
+ L MICGAIN <gain>
+    Set microphone gain [-30 to +30 dB]
  _
     Get version
 
