@@ -33,6 +33,11 @@ Supported commands:
     Get the RDS Program Service (PS) name
  p RDS_RADIOTEXT
     Get the RDS RadioText message
+ t
+    Get PTT status (1 = transmitting)
+ T <status>
+    Set PTT status. 1 starts transmitting using the current mode (AM, FM,
+    LSB or USB), 0 returns to receive. Returns RPRT 1 if gqrx can not transmit.
  u RECORD
     Get status of audio recorder
  U RECORD <status>
