@@ -176,6 +176,7 @@ come with a Simplified BSD license.
 
 The following people and organisations have contributed to gqrx:
 
+* Aleksander Alekseev, R2AUK
 * Alex Grinkov
 * Alexander Fasching
 * Andrea Merello
