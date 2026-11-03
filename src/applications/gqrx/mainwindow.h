@@ -46,6 +46,8 @@
 #include "applications/gqrx/recentconfig.h"
 #include "applications/gqrx/remote_control.h"
 #include "applications/gqrx/receiver.h"
+#include "applications/gqrx/transmitter.h"
+#include "qtgui/docktxctl.h"
 
 namespace Ui {
     class MainWindow;  /*! The main window UI */
@@ -104,6 +106,7 @@ private:
     DockFft        *uiDockFft;
     DockBookmarks  *uiDockBookmarks;
     DockRDS        *uiDockRDS;
+    DockTxCtl      *uiDockTxCtl;
 
     CIqTool        *iq_tool;
     DXCOptions     *dxc_options;
@@ -123,6 +126,7 @@ private:
     bool     d_frame_drop;
 
     receiver *rx;
+    transmitter *tx;
 
     RemoteControl *remote;
 
@@ -261,6 +265,19 @@ private slots:
     void iqFftTimeout();
     void audioFftTimeout();
     void rdsTimeout();
+
+    /* TX control slots */
+    void setPtt(bool active);
+    void togglePtt();
+    void setTxMode(int mode);
+    void setTxSplit(bool enabled);
+    void setTxFreqOffset(qint64 offset_hz);
+    void setTxFrequencyFromRemote(qint64 freq);
+    void setTxRfPower(float power);
+    void setTxMicGain(float gain);
+    void setTxCtcss(float tone_hz);
+    void setTxCwTone(float tone_hz);
+    void setTxCwWpm(int wpm);
 };
 
 #endif // MAINWINDOW_H

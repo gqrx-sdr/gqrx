@@ -113,6 +113,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     /* create receiver object */
     rx = new receiver("", "", 1);
     rx->set_rf_freq(144500000.0);
+    tx = new transmitter("", "", 1);
+    tx->set_rf_freq(144500000.0);
 
     // remote controller
     remote = new RemoteControl();
@@ -154,6 +156,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     Bookmarks::Get().setConfigDir(m_cfg_dir);
     BandPlan::Get().load();
     uiDockBookmarks = new DockBookmarks(this);
+    uiDockTxCtl = new DockTxCtl(this);
+    uiDockTxCtl->setObjectName("dockTxCtl");
 
     // setup some toggle view shortcuts
     uiDockInputCtl->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_J));
@@ -161,6 +165,10 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     uiDockFft->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F));
     uiDockAudio->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_A));
     uiDockBookmarks->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_B));
+    uiDockTxCtl->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_X));
+
+    auto *ptt_shortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Space), this);
+    QObject::connect(ptt_shortcut, &QShortcut::activated, this, &MainWindow::togglePtt);
     ui->mainToolBar->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_T));
 
     /* frequency setting shortcut */
@@ -196,7 +204,9 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 
     addDockWidget(Qt::RightDockWidgetArea, uiDockAudio);
     addDockWidget(Qt::RightDockWidgetArea, uiDockRDS);
+    addDockWidget(Qt::RightDockWidgetArea, uiDockTxCtl);
     tabifyDockWidget(uiDockAudio, uiDockRDS);
+    tabifyDockWidget(uiDockRDS, uiDockTxCtl);
     uiDockAudio->raise();
 
     addDockWidget(Qt::BottomDockWidgetArea, uiDockBookmarks);
@@ -214,6 +224,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     ui->menu_View->addAction(uiDockAudio->toggleViewAction());
     ui->menu_View->addAction(uiDockFft->toggleViewAction());
     ui->menu_View->addAction(uiDockBookmarks->toggleViewAction());
+    ui->menu_View->addAction(uiDockTxCtl->toggleViewAction());
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
     ui->menu_View->addSeparator();
@@ -223,6 +234,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), remote, SLOT(setNewFrequency(qint64)));
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), uiDockAudio, SLOT(setRxFrequency(qint64)));
+    connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), uiDockTxCtl, SLOT(setRxFrequency(qint64)));
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), uiDockRxOpt, SLOT(setRxFreq(qint64)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), remote, SLOT(setLnbLo(double)));
@@ -353,6 +365,23 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(remote, SIGNAL(newAudioMuted(bool)), uiDockAudio, SLOT(setAudioMuted(bool)));
     connect(uiDockAudio, SIGNAL(audioMuted(bool)), remote, SLOT(setAudioMuted(bool)));
 
+    /* TX signals and slots */
+    connect(uiDockTxCtl, SIGNAL(pttToggled(bool)), this, SLOT(setPtt(bool)));
+    connect(uiDockTxCtl, SIGNAL(modeChanged(int)), this, SLOT(setTxMode(int)));
+    connect(uiDockTxCtl, SIGNAL(splitToggled(bool)), this, SLOT(setTxSplit(bool)));
+    connect(uiDockTxCtl, SIGNAL(txFreqOffsetChanged(qint64)), this, SLOT(setTxFreqOffset(qint64)));
+    connect(uiDockTxCtl, SIGNAL(txRfPowerChanged(float)), this, SLOT(setTxRfPower(float)));
+    connect(uiDockTxCtl, SIGNAL(txMicGainChanged(float)), this, SLOT(setTxMicGain(float)));
+    connect(uiDockTxCtl, SIGNAL(ctcssChanged(float)), this, SLOT(setTxCtcss(float)));
+    connect(uiDockTxCtl, SIGNAL(cwToneChanged(float)), this, SLOT(setTxCwTone(float)));
+    connect(uiDockTxCtl, SIGNAL(cwWpmChanged(int)), this, SLOT(setTxCwWpm(int)));
+
+    connect(remote, SIGNAL(newPtt(bool)), this, SLOT(setPtt(bool)));
+    connect(remote, SIGNAL(newTxFrequency(qint64)), this, SLOT(setTxFrequencyFromRemote(qint64)));
+    connect(remote, SIGNAL(newSplitEnabled(bool)), uiDockTxCtl, SLOT(setSplit(bool)));
+    connect(remote, SIGNAL(newTxRfPower(float)), uiDockTxCtl, SLOT(setTxRfPower(float)));
+    connect(remote, SIGNAL(newTxMicGain(float)), uiDockTxCtl, SLOT(setTxMicGain(float)));
+
     rds_timer = new QTimer(this);
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
 
@@ -448,6 +477,8 @@ MainWindow::~MainWindow()
     delete uiDockFft;
     delete uiDockInputCtl;
     delete uiDockRDS;
+    delete uiDockTxCtl;
+    delete tx;
     delete rx;
     delete remote;
     delete qsvg_dummy;
@@ -548,6 +579,11 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         try
         {
             rx->set_input_device(indev.toStdString());
+            if (tx) {
+                try {
+                    tx->set_output_device(indev.toStdString());
+                } catch (...) {}
+            }
             conf_ok = true;
         }
         catch (std::runtime_error &x)
@@ -598,6 +634,8 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
     if (conv_ok && (int_val > 0))
     {
         actual_rate = rx->set_input_rate(int_val);
+        if (tx && actual_rate > 0)
+            tx->set_output_rate(actual_rate);
 
         if (actual_rate == 0)
         {
@@ -667,6 +705,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
     uiDockRxOpt->readSettings(m_settings);
     uiDockFft->readSettings(m_settings);
     uiDockAudio->readSettings(m_settings);
+    uiDockTxCtl->readSettings(m_settings);
     dxc_options->readSettings(m_settings);
 
     {
@@ -793,6 +832,7 @@ void MainWindow::storeSession()
         uiDockRxOpt->saveSettings(m_settings);
         uiDockFft->saveSettings(m_settings);
         uiDockAudio->saveSettings(m_settings);
+    uiDockTxCtl->saveSettings(m_settings);
 
         remote->saveSettings(m_settings);
         iq_tool->saveSettings(m_settings);
@@ -918,6 +958,11 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
     uiDockRxOpt->setHwFreq(d_hw_freq);
     ui->freqCtrl->setFrequency(rx_freq);
     uiDockBookmarks->setNewFrequency(rx_freq);
+    if (uiDockTxCtl) {
+        uiDockTxCtl->setRxFrequency(rx_freq);
+        if (tx && !uiDockTxCtl->isSplitEnabled())
+            tx->set_rf_freq(hw_freq);
+    }
 }
 
 // Update delta and center (of marker span) when markers are updated
@@ -1943,8 +1988,10 @@ void MainWindow::on_actionDSP_triggered(bool checked)
 
     if (checked)
     {
-        /* start receiver */
+        /* start receiver and transmitter */
         rx->start();
+        if (tx)
+            tx->start();
 
         /* start GUI timers */
         meter_timer->start(100);
@@ -1974,7 +2021,10 @@ void MainWindow::on_actionDSP_triggered(bool checked)
         audio_fft_timer->stop();
         rds_timer->stop();
 
-        /* stop receiver */
+        /* stop transmitter and receiver */
+        setPtt(false);
+        if (tx)
+            tx->stop();
         rx->stop();
 
         /* update menu text and button tooltip */
@@ -2558,4 +2608,111 @@ void MainWindow::toggleMarkers()
 {
     enableMarkers(!d_show_markers);
     uiDockFft->setMarkersEnabled(d_show_markers);
+}
+
+void MainWindow::setPtt(bool active)
+{
+    if (tx) {
+        tx->set_ptt(active);
+    }
+
+    if (rx) {
+        rx->set_audio_mute(active);
+    }
+
+    if (uiDockTxCtl && uiDockTxCtl->isPttActive() != active) {
+        uiDockTxCtl->setPtt(active);
+    }
+
+    if (remote) {
+        remote->setPtt(active);
+    }
+}
+
+void MainWindow::togglePtt()
+{
+    if (uiDockTxCtl) {
+        setPtt(!uiDockTxCtl->isPttActive());
+    }
+}
+
+void MainWindow::setTxMode(int mode)
+{
+    if (tx) {
+        tx->set_mode(mode);
+    }
+}
+
+void MainWindow::setTxSplit(bool enabled)
+{
+    if (remote) {
+        remote->setSplitEnabled(enabled);
+    }
+    if (uiDockTxCtl) {
+        setTxFreqOffset(uiDockTxCtl->getTxFreqOffset());
+    }
+}
+
+void MainWindow::setTxFreqOffset(qint64 offset_hz)
+{
+    if (tx && uiDockTxCtl) {
+        qint64 base_freq = ui->freqCtrl->getFrequency();
+        qint64 tx_freq = base_freq + (uiDockTxCtl->isSplitEnabled() ? offset_hz : 0);
+        tx->set_rf_freq((double)(tx_freq - d_lnb_lo));
+        if (remote) {
+            remote->setTxFrequency(tx_freq);
+        }
+    }
+}
+
+void MainWindow::setTxFrequencyFromRemote(qint64 freq)
+{
+    if (uiDockTxCtl && tx) {
+        qint64 base_freq = ui->freqCtrl->getFrequency();
+        qint64 offset = freq - base_freq;
+        uiDockTxCtl->setSplit(true);
+        uiDockTxCtl->setTxFreqOffset(offset);
+        tx->set_rf_freq((double)(freq - d_lnb_lo));
+    }
+}
+
+void MainWindow::setTxRfPower(float power)
+{
+    if (tx) {
+        tx->set_rf_power(power);
+    }
+    if (remote) {
+        remote->setTxRfPower(power);
+    }
+}
+
+void MainWindow::setTxMicGain(float gain)
+{
+    if (tx) {
+        tx->set_mic_gain(gain);
+    }
+    if (remote) {
+        remote->setTxMicGain(gain);
+    }
+}
+
+void MainWindow::setTxCtcss(float tone_hz)
+{
+    if (tx) {
+        tx->set_ctcss(tone_hz);
+    }
+}
+
+void MainWindow::setTxCwTone(float tone_hz)
+{
+    if (tx) {
+        tx->set_cw_tone(tone_hz);
+    }
+}
+
+void MainWindow::setTxCwWpm(int wpm)
+{
+    if (tx) {
+        tx->set_cw_wpm(wpm);
+    }
 }
