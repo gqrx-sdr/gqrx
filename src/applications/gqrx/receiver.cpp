@@ -20,10 +20,12 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <algorithm>
 #include <cmath>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <QDebug>
 
 #include <gnuradio/prefs.h>
@@ -49,6 +51,8 @@
 #define DEFAULT_AUDIO_GAIN -6.0
 #define WAV_FILE_GAIN 0.5
 #define TARGET_QUAD_RATE 1e6
+#define TX_SAMPLE_RATE 2e6
+#define TX_FM_MAX_DEV 2500.0f
 
 /**
  * @brief Public constructor.
@@ -72,6 +76,15 @@ receiver::receiver(const std::string input_device,
       d_iq_rev(false),
       d_dc_cancel(false),
       d_iq_balance(false),
+      d_src_auto_gain(false),
+      d_src_bw_set(false),
+      d_src_bw(0.0),
+      d_src_ppm_set(false),
+      d_src_ppm(0.0),
+      d_transmitting(false),
+      d_tx_rate(TX_SAMPLE_RATE),
+      d_tx_power_pct(0),
+      d_mic_gain_db(0.0f),
       d_demod(RX_DEMOD_OFF)
 {
 
@@ -167,6 +180,9 @@ void receiver::start()
 /** Stop the receiver. */
 void receiver::stop()
 {
+    if (d_transmitting)
+        stop_tx();
+
     if (d_running)
     {
         tb->stop();
@@ -189,6 +205,9 @@ void receiver::set_input_device(const std::string device)
 
     if (device.empty())
         return;
+
+    if (d_transmitting)
+        stop_tx();
 
     input_devstr = device;
 
@@ -265,6 +284,9 @@ void receiver::set_output_device(const std::string device)
     qDebug() << "   old:" << output_devstr.c_str();
     qDebug() << "   new:" << device.c_str();
 
+    if (d_transmitting)
+        stop_tx();
+
     output_devstr = device;
 
     tb->lock();
@@ -311,6 +333,7 @@ void receiver::set_antenna(const std::string &antenna)
 {
     if (!antenna.empty())
     {
+        d_src_antenna = antenna;
         src->set_antenna(antenna);
     }
 }
@@ -325,6 +348,9 @@ double receiver::set_input_rate(double rate)
 {
     double  current_rate;
     bool    rate_has_changed;
+
+    if (d_transmitting)
+        stop_tx();
 
     current_rate = src->get_sample_rate();
     rate_has_changed = !(rate == current_rate ||
@@ -373,6 +399,9 @@ unsigned int receiver::set_input_decim(unsigned int decim)
 {
     if (decim == d_decim)
         return d_decim;
+
+    if (d_transmitting)
+        stop_tx();
 
     if (d_running)
     {
@@ -449,6 +478,9 @@ unsigned int receiver::set_input_decim(unsigned int decim)
  */
 double receiver::set_analog_bandwidth(double bw)
 {
+    d_src_bw_set = true;
+    d_src_bw = bw;
+
     return src->set_bandwidth(bw);
 }
 
@@ -541,6 +573,9 @@ receiver::status receiver::set_rf_freq(double freq_hz)
     src->set_center_freq(d_rf_freq);
     // FIXME: read back frequency?
 
+    if (d_transmitting)
+        tx_sink->set_center_freq(d_rf_freq + d_filter_offset);
+
     return STATUS_OK;
 }
 
@@ -551,7 +586,9 @@ receiver::status receiver::set_rf_freq(double freq_hz)
  */
 double receiver::get_rf_freq(void)
 {
-    d_rf_freq = src->get_center_freq();
+    // the input device is not open while transmitting
+    if (!d_transmitting)
+        d_rf_freq = src->get_center_freq();
 
     return d_rf_freq;
 }
@@ -615,6 +652,7 @@ receiver::status receiver::get_gain_range(std::string &name, double *start,
 
 receiver::status receiver::set_gain(std::string name, double value)
 {
+    d_src_gains[name] = value;
     src->set_gain(value, name);
 
     return STATUS_OK;
@@ -622,6 +660,14 @@ receiver::status receiver::set_gain(std::string name, double value)
 
 double receiver::get_gain(std::string name) const
 {
+    // the input device is not open while transmitting
+    if (d_transmitting)
+    {
+        auto it = d_src_gains.find(name);
+        if (it != d_src_gains.end())
+            return it->second;
+    }
+
     return src->get_gain(name);
 }
 
@@ -633,6 +679,7 @@ double receiver::get_gain(std::string name) const
  */
 receiver::status receiver::set_auto_gain(bool automatic)
 {
+    d_src_auto_gain = automatic;
     src->set_gain_mode(automatic);
 
     return STATUS_OK;
@@ -656,6 +703,9 @@ receiver::status receiver::set_filter_offset(double offset_hz)
 {
     d_filter_offset = offset_hz;
     ddc->set_center_freq(d_filter_offset - d_cw_offset);
+
+    if (d_transmitting)
+        tx_sink->set_center_freq(d_rf_freq + d_filter_offset);
 
     return STATUS_OK;
 }
@@ -716,7 +766,12 @@ receiver::status receiver::set_filter(double low, double high, filter_shape shap
 
 receiver::status receiver::set_freq_corr(double ppm)
 {
+    d_src_ppm_set = true;
+    d_src_ppm = ppm;
     src->set_freq_corr(ppm);
+
+    if (d_transmitting)
+        tx_sink->set_freq_corr(ppm);
 
     return STATUS_OK;
 }
@@ -869,6 +924,14 @@ receiver::status receiver::set_demod(rx_demod demod, bool force)
     if (!force && (demod == d_demod))
         return ret;
 
+    // The receive chain is not connected while transmitting. The new
+    // demodulator is set up when the transmission ends.
+    if (d_transmitting)
+    {
+        d_demod = demod;
+        return ret;
+    }
+
     // tb->lock() seems to hang occasionally
     if (d_running)
     {
@@ -1006,6 +1069,9 @@ receiver::status receiver::set_af_gain(float gain_db)
  */
 receiver::status receiver::start_audio_recording(const std::string filename)
 {
+    if (d_transmitting)
+        return STATUS_ERROR;
+
     if (d_recording_wav)
     {
         /* error - we are already recording */
@@ -1057,6 +1123,9 @@ receiver::status receiver::start_audio_recording(const std::string filename)
 /** Stop WAV file recorder. */
 receiver::status receiver::stop_audio_recording()
 {
+    if (d_transmitting)
+        return STATUS_ERROR;
+
     if (!d_recording_wav) {
         /* error: we are not recording */
         std::cout << "ERROR: Can not stop audio recorder (not recording)" << std::endl;
@@ -1098,6 +1167,9 @@ receiver::status receiver::stop_audio_recording()
 /** Start audio playback. */
 receiver::status receiver::start_audio_playback(const std::string filename)
 {
+    if (d_transmitting)
+        return STATUS_ERROR;
+
     if (!d_running)
     {
         /* receiver is not running */
@@ -1202,6 +1274,9 @@ receiver::status receiver::start_iq_recording(const std::string filename)
 {
     receiver::status status = STATUS_OK;
 
+    if (d_transmitting)
+        return STATUS_ERROR;
+
     if (d_recording_iq) {
         std::cout << __func__ << ": already recording" << std::endl;
         return STATUS_ERROR;
@@ -1231,6 +1306,9 @@ receiver::status receiver::start_iq_recording(const std::string filename)
 /** Stop I/Q data recorder. */
 receiver::status receiver::stop_iq_recording()
 {
+    if (d_transmitting)
+        return STATUS_ERROR;
+
     if (!d_recording_iq) {
         /* error: we are not recording */
         return STATUS_ERROR;
@@ -1282,7 +1360,7 @@ receiver::status receiver::seek_iq_file(long pos)
  */
 receiver::status receiver::start_sniffer(unsigned int samprate, int buffsize)
 {
-    if (d_sniffer_active) {
+    if (d_sniffer_active || d_transmitting) {
         /* sniffer already in use */
         return STATUS_ERROR;
     }
@@ -1415,6 +1493,238 @@ void receiver::connect_all(rx_chain type)
     {
         tb->connect(rx, 0, sniffer_rr, 0);
         tb->connect(sniffer_rr, 0, sniffer, 0);
+    }
+}
+
+/**
+ * @brief Start transmitting.
+ * @param mode The modulation to use.
+ *
+ * Most devices can not be opened as source and sink at the same time and
+ * switch slowly between receive and transmit. The transmitter is therefore
+ * half-duplex: the receiver is stopped and the input device is released
+ * while transmitting. The RF frequency is the receive frequency, i.e. the
+ * RF frequency plus the filter offset.
+ *
+ * The audio comes from the microphone (see set_tx_audio_device()) and is
+ * modulated at the audio rate before it is resampled to the TX sample rate.
+ *
+ * On failure get_tx_error() returns a description of what went wrong.
+ */
+receiver::status receiver::start_tx(tx_mod_mode mode)
+{
+    d_tx_error.clear();
+
+    if (d_transmitting)
+        return STATUS_OK;
+
+    if (!d_running)
+    {
+        d_tx_error = "The receiver is not running.";
+        return STATUS_ERROR;
+    }
+
+    std::string devstr = d_tx_devstr.empty() ? input_devstr : d_tx_devstr;
+    if (devstr.empty())
+    {
+        d_tx_error = "No transmit device is configured.";
+        return STATUS_ERROR;
+    }
+
+    // Create what does not depend on the device before the receiver is touched
+    try
+    {
+        tx_audio_src = gr::audio::source::make((int)d_audio_rate, d_tx_audio_devstr, true);
+        tx_mic_gain = gr::blocks::multiply_const_ff::make(powf(10.0f, d_mic_gain_db / 20.0f));
+        tx_mod = make_tx_modulator(mode, (float)d_audio_rate, TX_FM_MAX_DEV);
+    }
+    catch (std::exception &e)
+    {
+        d_tx_error = std::string("Failed to open the microphone: ") + e.what();
+        tx_mod.reset();
+        tx_mic_gain.reset();
+        tx_audio_src.reset();
+        return STATUS_ERROR;
+    }
+
+    tb->stop();
+    tb->wait();
+    tb->disconnect_all();
+
+    // Release the input device
+#if GNURADIO_VERSION < 0x030802
+    //Work around GNU Radio bug #3184
+    //temporarily connect dummy source to ensure that previous device is closed
+    src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
+    tb->connect(src, 0, iq_swap, 0);
+    tb->start();
+    tb->stop();
+    tb->wait();
+    tb->disconnect(src, 0, iq_swap, 0);
+#else
+    src.reset();
+    src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
+#endif
+
+    d_transmitting = true;
+
+    try
+    {
+        tx_sink = osmosdr::sink::make(devstr);
+
+        double actual_rate = tx_sink->set_sample_rate(d_tx_rate);
+        if (actual_rate <= 0.0)
+            actual_rate = d_tx_rate;
+
+        tx_sink->set_center_freq(d_rf_freq + d_filter_offset);
+        if (d_src_ppm_set)
+            tx_sink->set_freq_corr(d_src_ppm);
+        apply_tx_power();
+
+        tx_rr = make_resampler_cc((float)(actual_rate / d_audio_rate));
+
+        tb->connect(tx_audio_src, 0, tx_mic_gain, 0);
+        tb->connect(tx_mic_gain, 0, tx_mod, 0);
+        tb->connect(tx_mod, 0, tx_rr, 0);
+        tb->connect(tx_rr, 0, tx_sink, 0);
+        tb->start();
+    }
+    catch (std::exception &e)
+    {
+        d_tx_error = std::string("Failed to start transmitting: ") + e.what();
+        finish_tx(false);
+        return STATUS_ERROR;
+    }
+
+    qDebug() << "Transmitting on" << d_rf_freq + d_filter_offset << "Hz";
+
+    return STATUS_OK;
+}
+
+/** Stop transmitting and resume receiving. */
+receiver::status receiver::stop_tx()
+{
+    if (!d_transmitting)
+        return STATUS_ERROR;
+
+    finish_tx(true);
+
+    return STATUS_OK;
+}
+
+/**
+ * @brief Set the TX power.
+ * @param percent Position within the gain range of the transmitting device.
+ */
+receiver::status receiver::set_tx_power(int percent)
+{
+    d_tx_power_pct = std::max(0, std::min(100, percent));
+    apply_tx_power();
+
+    return STATUS_OK;
+}
+
+/** Set the microphone gain in dB. */
+receiver::status receiver::set_mic_gain(float gain_db)
+{
+    d_mic_gain_db = gain_db;
+    if (tx_mic_gain)
+        tx_mic_gain->set_k(powf(10.0f, gain_db / 20.0f));
+
+    return STATUS_OK;
+}
+
+/** Map the TX power percentage to the gain range of the transmitting device. */
+void receiver::apply_tx_power(void)
+{
+    if (!tx_sink)
+        return;
+
+    osmosdr::gain_range_t range = tx_sink->get_gain_range();
+    if (range.stop() > range.start())
+    {
+        tx_sink->set_gain(range.start() +
+                          d_tx_power_pct / 100.0 * (range.stop() - range.start()));
+    }
+}
+
+/**
+ * @brief Tear down the transmitter and resume receiving.
+ * @param graph_started Whether the flow graph has been started by start_tx().
+ */
+void receiver::finish_tx(bool graph_started)
+{
+    if (graph_started)
+    {
+        tb->stop();
+        tb->wait();
+    }
+    tb->disconnect_all();
+
+    // Closes the transmitting device
+    tx_rr.reset();
+    tx_mod.reset();
+    tx_mic_gain.reset();
+    tx_audio_src.reset();
+    tx_sink.reset();
+    d_transmitting = false;
+
+    // Re-open the input device
+    src.reset();
+    try
+    {
+        if (input_devstr.empty())
+            throw std::runtime_error("No input device");
+        src = osmosdr::source::make(input_devstr);
+    }
+    catch (std::exception &x)
+    {
+        if (!input_devstr.empty() && d_tx_error.empty())
+            d_tx_error = std::string("Failed to re-open the input device: ") + x.what();
+        src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
+    }
+    restore_src();
+
+    // Rebuild the receive chain. The graph is stopped at this point so
+    // set_demod() must not stop and start it.
+    bool running = d_running;
+    d_running = false;
+    set_demod(d_demod, true);
+    d_running = running;
+
+    if (d_running)
+        tb->start();
+}
+
+/** Apply the settings of the previous input device to a new one. */
+void receiver::restore_src(void)
+{
+    try
+    {
+        set_input_rate(d_input_rate);
+        src->set_center_freq(d_rf_freq);
+        if (!d_src_antenna.empty())
+            src->set_antenna(d_src_antenna);
+        if (d_src_bw_set)
+            src->set_bandwidth(d_src_bw);
+        if (d_src_ppm_set)
+            src->set_freq_corr(d_src_ppm);
+        if (d_iq_balance)
+            src->set_iq_balance_mode(2);
+
+        if (d_src_auto_gain)
+        {
+            src->set_gain_mode(true);
+        }
+        else
+        {
+            for (const auto &gain : d_src_gains)
+                src->set_gain(gain.second, gain.first);
+        }
+    }
+    catch (std::exception &x)
+    {
+        qDebug() << "Failed to restore input device settings:" << x.what();
     }
 }
 

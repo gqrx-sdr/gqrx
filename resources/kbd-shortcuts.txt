@@ -9,6 +9,7 @@ Main window actions:
  Ctrl+I         Open I/Q recorder dialog
  Ctrl+W         Save waterfall as an image
  Ctrl+C         Open DX cluster dialog
+ Ctrl+Shift+T   Toggle transmit (AM, NFM, LSB and USB only)
  F11            Toggle full screen mode
  F              Set focus to the frequency controller
  Z              Zero frequency offset

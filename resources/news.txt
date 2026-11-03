@@ -1,6 +1,8 @@
 
     2.17.8: In progress...
 
+       NEW: Basic half-duplex transmit support (AM, NFM, LSB, USB) with PTT
+            button, keyboard shortcut and "T"/"t" remote control commands.
      FIXED: Use default FFT plot & waterfall ranges when settings are invalid.
 
 

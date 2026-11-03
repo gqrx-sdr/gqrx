@@ -54,6 +54,7 @@ RemoteControl::RemoteControl(QObject *parent) :
     receiver_running = false;
     hamlib_compatible = false;
     is_audio_muted = false;
+    rc_ptt = false;
 
     rc_port = DEFAULT_RC_PORT;
     rc_allowed_hosts.append(DEFAULT_RC_ALLOWED_HOSTS);
@@ -232,6 +233,10 @@ void RemoteControl::startRead()
             answer = cmd_get_level(cmdlist);
         else if (cmd == "L")
             answer = cmd_set_level(cmdlist);
+        else if (cmd == "t")
+            answer = cmd_get_ptt();
+        else if (cmd == "T")
+            answer = cmd_set_ptt(cmdlist);
         else if (cmd == "u")
             answer = cmd_get_func(cmdlist);
         else if (cmd == "U")
@@ -458,6 +463,12 @@ void RemoteControl::setRdsStation(QString name)
 void RemoteControl::setRdsRadiotext(QString text)
 {
     rds_radiotext = text;
+}
+
+/*! \brief Set the state of the transmitter (from mainwindow). */
+void RemoteControl::setPtt(bool enabled)
+{
+    rc_ptt = enabled;
 }
 
 
@@ -772,6 +783,28 @@ QString RemoteControl::cmd_set_level(QStringList cmdlist)
     return answer;
 }
 
+/* Get PTT */
+QString RemoteControl::cmd_get_ptt() const
+{
+    return QString("%1\n").arg(rc_ptt ? 1 : 0);
+}
+
+/* Set PTT: 0 = RX, 1 = TX (hamlib also has 2 and 3 for mic and data TX) */
+QString RemoteControl::cmd_set_ptt(QStringList cmdlist)
+{
+    bool ok;
+    int  ptt = cmdlist.value(1, "ERR").toInt(&ok);
+
+    if (!ok || ptt < 0 || ptt > 3)
+        return QString("RPRT 1\n");
+
+    // The signal is handled synchronously. If the transmitter could not be
+    // started the main window resets the PTT state before emit returns.
+    emit newPtt(ptt != 0);
+
+    return QString("RPRT %1\n").arg(rc_ptt == (ptt != 0) ? 0 : 1);
+}
+
 /* Get function */
 QString RemoteControl::cmd_get_func(QStringList cmdlist)
 {
@@ -1005,7 +1038,12 @@ QString RemoteControl::cmd_dump_state() const
         "0.000000 10000000000.000000 0x2ef -1 -1 0x1 0x0\n"
         /* End of RX frequency ranges. */
         "0 0 0 0 0 0 0\n"
-        /* End of TX frequency ranges. The Gqrx is receiver only. */
+        /* TX frequency ranges, same format as above.
+         * Modes: AM|USB|LSB|FM. The output power depends on the device and
+         * is not known here.
+         */
+        "0.000000 10000000000.000000 0x2d 0 100 0x1 0x0\n"
+        /* End of TX frequency ranges. */
         "0 0 0 0 0 0 0\n"
         /* Tuning steps: modes, tuning_step */
         "0xef 1\n"
