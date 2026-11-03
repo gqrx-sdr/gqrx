@@ -102,34 +102,6 @@ void transmitter::create_audio_source()
     }
 }
 
-bool transmitter::is_device_tx_capable(const std::string &device)
-{
-    if (device.empty())
-        return false;
-
-    std::string lower_dev = device;
-    for (char &c : lower_dev)
-        c = std::tolower(static_cast<unsigned char>(c));
-
-    // Common receive-only SDRs and files that do not support hardware transmission
-    const std::vector<std::string> rx_only_keywords = {
-        "rtl", "rtlsdr", "airspy", "sdrplay", "rsp", "funcube", "fcd", "rtlsdr_tcp", "file="
-    };
-
-    for (const auto &kw : rx_only_keywords)
-    {
-        if (lower_dev.find(kw) != std::string::npos)
-            return false;
-    }
-
-    return true;
-}
-
-bool transmitter::is_tx_supported() const
-{
-    return is_device_tx_capable(d_tx_devstr) && d_sink_valid;
-}
-
 void transmitter::create_tx_sink()
 {
     d_snk.reset();
@@ -137,27 +109,33 @@ void transmitter::create_tx_sink()
     d_sink_valid = false;
     d_last_error.clear();
 
-    if (!d_tx_devstr.empty() && is_device_tx_capable(d_tx_devstr))
+    if (!d_tx_devstr.empty())
     {
         try
         {
-            d_snk = osmosdr::sink::make(d_tx_devstr);
-            d_sink_block = d_snk;
-            d_sink_valid = true;
-            qDebug() << "Created osmosdr::sink for device:" << d_tx_devstr.c_str();
+            // Query osmosdr sink directly for the configured device.
+            // Devices without transmit support (e.g. RTL-SDR, Airspy, SDRplay, file playback)
+            // throw a runtime exception inside osmosdr::sink::make() as no transmit driver exists.
+            auto snk = osmosdr::sink::make(d_tx_devstr);
+            if (snk && snk->get_num_channels() > 0)
+            {
+                d_snk = snk;
+                d_sink_block = d_snk;
+                d_sink_valid = true;
+                qDebug() << "Created osmosdr::sink for device:" << d_tx_devstr.c_str();
+            }
+            else
+            {
+                d_last_error = "Device does not provide transmit channels";
+                qDebug() << "osmosdr::sink has 0 transmit channels for:" << d_tx_devstr.c_str();
+            }
         }
         catch (const std::exception &e)
         {
             d_last_error = e.what();
-            qWarning() << "Failed to create osmosdr::sink for" << d_tx_devstr.c_str() << ":" << e.what();
+            qDebug() << "Device does not support transmission:" << d_tx_devstr.c_str() << "(" << e.what() << ")";
         }
     }
-    else if (!d_tx_devstr.empty() && !is_device_tx_capable(d_tx_devstr))
-    {
-        d_last_error = "Device does not support transmission";
-        qDebug() << "Device does not support transmission, TX sink creation skipped for:" << d_tx_devstr.c_str();
-    }
-
     if (!d_sink_block)
     {
         try
