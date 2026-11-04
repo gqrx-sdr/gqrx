@@ -68,6 +68,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     ui(new Ui::MainWindow),
     d_lnb_lo(0),
     d_hw_freq(0),
+    d_ignore_limits(false),
     d_fftAvg(0.25),
     d_fftWindowType(0),
     d_fftNormalizeEnergy(false),
@@ -221,9 +222,6 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
-    connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), remote, SLOT(setNewFrequency(qint64)));
-    connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), uiDockAudio, SLOT(setRxFrequency(qint64)));
-    connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), uiDockRxOpt, SLOT(setRxFreq(qint64)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), this, SLOT(setLnbLo(double)));
     connect(uiDockInputCtl, SIGNAL(lnbLoChanged(double)), remote, SLOT(setLnbLo(double)));
     connect(uiDockInputCtl, SIGNAL(gainChanged(QString, double)), this, SLOT(setGain(QString,double)));
@@ -237,7 +235,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockInputCtl, SIGNAL(antennaSelected(QString)), this, SLOT(setAntenna(QString)));
     connect(uiDockInputCtl, SIGNAL(freqCtrlResetChanged(bool)), this, SLOT(setFreqCtrlReset(bool)));
     connect(uiDockInputCtl, SIGNAL(invertScrollingChanged(bool)), this, SLOT(setInvertScrolling(bool)));
-    connect(uiDockRxOpt, SIGNAL(rxFreqChanged(qint64)), ui->freqCtrl, SLOT(setFrequency(qint64)));
+    connect(uiDockRxOpt, SIGNAL(rxFreqChanged(qint64)), this, SLOT(setNewFrequency(qint64)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), remote, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
@@ -318,11 +316,12 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(&DXCSpots::Get(), SIGNAL(dxcSpotsUpdated()), this, SLOT(updateClusterSpots()));
 
     // I/Q playback
-    connect(iq_tool, SIGNAL(startRecording(QString, QString)), this, SLOT(startIqRecording(QString, QString)));
-    connect(iq_tool, SIGNAL(startRecording(QString, QString)), remote, SLOT(startIqRecorder(QString, QString)));
+    connect(iq_tool, SIGNAL(startRecording(QString, enum receiver::file_formats, int)), this, SLOT(startIqRecording(QString, enum receiver::file_formats, int)));
+    connect(iq_tool, SIGNAL(startRecording(QString, enum receiver::file_formats, int)), remote, SLOT(startIqRecorder()));
     connect(iq_tool, SIGNAL(stopRecording()), this, SLOT(stopIqRecording()));
     connect(iq_tool, SIGNAL(stopRecording()), remote, SLOT(stopIqRecorder()));
-    connect(iq_tool, SIGNAL(startPlayback(QString,float,qint64)), this, SLOT(startIqPlayback(QString,float,qint64)));
+    connect(iq_tool, SIGNAL(startPlayback(QString, float, qint64, enum receiver::file_formats, int, bool)),
+                 this, SLOT(startIqPlayback(QString, float, qint64, enum receiver::file_formats, int, bool)));
     connect(iq_tool, SIGNAL(stopPlayback()), this, SLOT(stopIqPlayback()));
     connect(iq_tool, SIGNAL(seek(qint64)), this,SLOT(seekIqFile(qint64)));
 
@@ -330,7 +329,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(remote, SIGNAL(newRDSmode(bool)), uiDockRDS, SLOT(setRDSmode(bool)));
     connect(remote, SIGNAL(newFilterOffset(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(remote, SIGNAL(newFilterOffset(qint64)), uiDockRxOpt, SLOT(setFilterOffset(qint64)));
-    connect(remote, SIGNAL(newFrequency(qint64)), ui->freqCtrl, SLOT(setFrequency(qint64)));
+    connect(remote, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
     connect(remote, SIGNAL(newLnbLo(double)), uiDockInputCtl, SLOT(setLnbLo(double)));
     connect(remote, SIGNAL(newLnbLo(double)), this, SLOT(setLnbLo(double)));
     connect(remote, SIGNAL(newMode(int)), this, SLOT(selectDemod(int)));
@@ -823,6 +822,8 @@ void MainWindow::updateHWFrequencyRange(bool ignore_limits)
 {
     double startd, stopd, stepd;
 
+    d_ignore_limits = ignore_limits;
+
     if (ignore_limits)
     {
         d_hw_freq_start = (quint64) 0;
@@ -859,6 +860,7 @@ void MainWindow::updateFrequencyRange()
 
     ui->freqCtrl->setup(0, start, stop, 1, FCTL_UNIT_NONE);
     uiDockRxOpt->setRxFreqRange(start, stop);
+    ui->plotter->setFrequencyRange(start, stop);
 }
 
 /**
@@ -905,19 +907,53 @@ void MainWindow::updateGainStages(bool read_from_device)
  */
 void MainWindow::setNewFrequency(qint64 rx_freq)
 {
-    auto hw_freq = (double)(rx_freq - d_lnb_lo) - rx->get_filter_offset();
-    auto center_freq = rx_freq - (qint64)rx->get_filter_offset();
 
-    d_hw_freq = (qint64)hw_freq;
+    auto new_offset = rx->get_filter_offset();
+    auto hw_freq = (double)(rx_freq - d_lnb_lo) - new_offset;
+    auto center_freq = rx_freq - (qint64)new_offset;
+    auto max_offset = rx->get_input_rate() / 2;
+    bool update_offset = rx->is_playing_iq();
 
-    // set receiver frequency
     rx->set_rf_freq(hw_freq);
+    d_hw_freq = d_ignore_limits ? hw_freq : (qint64)rx->get_rf_freq();
+    update_offset |= (d_hw_freq != (qint64)hw_freq);
+
+    if (rx_freq - d_lnb_lo - d_hw_freq > max_offset)
+    {
+        rx_freq = d_lnb_lo + d_hw_freq + max_offset;
+        update_offset = true;
+    }
+    if (rx_freq - d_lnb_lo - d_hw_freq < -max_offset)
+    {
+        rx_freq = d_lnb_lo + d_hw_freq - max_offset;
+        update_offset = true;
+    }
+    if (update_offset)
+    {
+        new_offset = rx_freq - d_lnb_lo - d_hw_freq;
+        if (d_hw_freq != (qint64)hw_freq)
+        {
+            center_freq = d_hw_freq + d_lnb_lo;
+            // set RX filter
+            rx->set_filter_offset((double)new_offset);
+
+            // update RF freq label and channel filter offset
+            rx_freq = center_freq + new_offset;
+         }
+    }
 
     // update widgets
     ui->plotter->setCenterFreq(center_freq);
+    ui->plotter->setFilterOffset(new_offset);
+    uiDockRxOpt->setRxFreq(rx_freq);
     uiDockRxOpt->setHwFreq(d_hw_freq);
+    uiDockRxOpt->setFilterOffset(new_offset);
     ui->freqCtrl->setFrequency(rx_freq);
     uiDockBookmarks->setNewFrequency(rx_freq);
+    remote->setNewFrequency(rx_freq);
+    uiDockAudio->setRxFrequency(rx_freq);
+    if (rx->is_rds_decoder_active())
+        rx->reset_rds_parser();
 }
 
 // Update delta and center (of marker span) when markers are updated
@@ -1002,8 +1038,7 @@ void MainWindow::setLnbLo(double freq_mhz)
 
     // Update ranges and show updated frequency
     updateFrequencyRange();
-    ui->freqCtrl->setFrequency(d_lnb_lo + rf_freq);
-    ui->plotter->setCenterFreq(d_lnb_lo + d_hw_freq);
+    setNewFrequency(d_lnb_lo + rf_freq);
 
     // update LNB LO in settings
     if (freq_mhz == 0.)
@@ -1026,16 +1061,12 @@ void MainWindow::setAntenna(const QString& antenna)
 void MainWindow::setFilterOffset(qint64 freq_hz)
 {
     rx->set_filter_offset((double) freq_hz);
-    ui->plotter->setFilterOffset(freq_hz);
 
     updateFrequencyRange();
 
     auto rx_freq = d_hw_freq + d_lnb_lo + freq_hz;
-    ui->freqCtrl->setFrequency(rx_freq);
+    setNewFrequency(rx_freq);
 
-    if (rx->is_rds_decoder_active()) {
-        rx->reset_rds_parser();
-    }
 }
 
 /**
@@ -1471,10 +1502,30 @@ double MainWindow::setSqlLevelAuto()
 void MainWindow::meterTimeout()
 {
     float level;
+    struct receiver::iq_tool_stats iq_stats;
 
     level = rx->get_signal_pwr();
     ui->sMeter->setLevel(level);
     remote->setSignalLevel(level);
+    // As it looks like this timer is always active (when the DSP is running),
+    // check iq recorder state here too
+    rx->get_iq_tool_stats(iq_stats);
+    if(iq_stats.recording)
+    {
+        if(iq_stats.failed)
+        {
+            //stop the recorder
+            iq_tool->updateStats(iq_stats.failed, iq_stats.buffer_usage, iq_stats.file_pos);
+            iq_tool->cancelRecording();
+        }else{
+            //update status
+            iq_tool->updateStats(iq_stats.failed, iq_stats.buffer_usage, iq_stats.file_pos);
+        }
+    }
+    if(iq_stats.playing)
+    {
+        iq_tool->updateStats(iq_stats.failed, iq_stats.buffer_usage, iq_stats.file_pos);
+    }
 }
 
 /** Baseband FFT plot timeout. */
@@ -1638,20 +1689,51 @@ void MainWindow::stopAudioStreaming()
 }
 
 /** Start I/Q recording. */
-void MainWindow::startIqRecording(const QString& recdir, const QString& format)
+void MainWindow::startIqRecording(const QString& recdir, receiver::file_formats fmt, int buffers_max)
 {
-    qDebug() << __func__;
     // generate file name using date, time, rf freq in kHz and BW in Hz
     // gqrx_iq_yyyymmdd_hhmmss_freq_bw_fc.raw
     auto freq = qRound64(rx->get_rf_freq());
     auto sr = qRound64(rx->get_input_rate());
     auto dec = (quint32)(rx->get_input_decim());
-    auto currentDate = QDateTime::currentDateTimeUtc();
-    auto filenameTemplate = currentDate.toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_fc.%4").arg(recdir).arg(freq).arg(sr/dec);
-    bool sigmf = (format == "SigMF");
-    auto lastRec = filenameTemplate.arg(sigmf ? "sigmf-data" : "raw");
-
-    QFile metaFile(filenameTemplate.arg("sigmf-meta"));
+    QString suffix = "fc.raw";
+    QString suffix_meta = "fc.sigmf-meta";
+    switch(fmt)
+    {
+    case receiver::FILE_FORMAT_CS8:
+        suffix = "8.raw";
+    break;
+    case receiver::FILE_FORMAT_CS16L:
+        suffix = "16.raw";
+    break;
+    case receiver::FILE_FORMAT_CS32L:
+        suffix = "32.raw";
+    break;
+    case receiver::FILE_FORMAT_CS8U:
+        suffix = "8u.raw";
+    break;
+    case receiver::FILE_FORMAT_CS16LU:
+        suffix = "16u.raw";
+    break;
+    case receiver::FILE_FORMAT_CS32LU:
+        suffix = "32u.raw";
+    break;
+    case receiver::FILE_FORMAT_SIGMF:
+        suffix = "fc.sigmf-data";
+    break;
+    default:
+        fmt = receiver::FILE_FORMAT_CF;
+        suffix = "fc.raw";
+    }
+    auto currentDateTime = QDateTime::currentDateTimeUtc();
+    auto lastRec = currentDateTime.
+            toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_%4")
+            .arg(recdir).arg(freq).arg(sr/dec).arg(suffix);
+    auto metaName = currentDateTime.
+            toString("%1/gqrx_yyyyMMdd_hhmmss_%2_%3_%4")
+            .arg(recdir).arg(freq).arg(sr/dec).arg(suffix_meta);
+    bool sigmf = (fmt == receiver::FILE_FORMAT_SIGMF);
+    QFile metaFile(metaName);
     bool ok = true;
     if (sigmf) {
         auto meta = QJsonDocument { QJsonObject {
@@ -1669,18 +1751,21 @@ void MainWindow::startIqRecording(const QString& recdir, const QString& format)
                 QJsonObject {
                     {"core:sample_start", 0},
                     {"core:frequency", freq},
-                    {"core:datetime", currentDate.toString(Qt::ISODateWithMs)},
+                    {"core:datetime", currentDateTime.toString(Qt::ISODateWithMs)},
                 },
             }}, {"annotations", QJsonArray {}},
         }}.toJson();
 
         if (!metaFile.open(QIODevice::WriteOnly) || metaFile.write(meta) != meta.size()) {
             ok = false;
-        }
+        }else
+            metaFile.close();
     }
 
+    ui->actionIoConfig->setDisabled(true);
+    ui->actionLoadSettings->setDisabled(true);
     // start recorder; fails if recording already in progress
-    if (!ok || rx->start_iq_recording(lastRec.toStdString()))
+    if (!ok || rx->start_iq_recording(lastRec.toStdString(), fmt, buffers_max))
     {
         // remove metadata file if we managed to open it
         if (sigmf && metaFile.isOpen())
@@ -1688,6 +1773,7 @@ void MainWindow::startIqRecording(const QString& recdir, const QString& format)
 
         // reset action status
         ui->statusBar->showMessage(tr("Error starting I/Q recoder"));
+        iq_tool->cancelRecording();
 
         // show an error message to user
         QMessageBox msg_box;
@@ -1713,9 +1799,14 @@ void MainWindow::stopIqRecording()
         ui->statusBar->showMessage(tr("Error stopping I/Q recoder"));
     else
         ui->statusBar->showMessage(tr("I/Q data recoding stopped"), 5000);
+    ui->actionIoConfig->setDisabled(false);
+    ui->actionLoadSettings->setDisabled(false);
 }
 
-void MainWindow::startIqPlayback(const QString& filename, float samprate, qint64 center_freq)
+void MainWindow::startIqPlayback(const QString& filename, float samprate,
+                                 qint64 center_freq,
+                                 enum receiver::file_formats fmt,
+                                 int buffers_max, bool repeat)
 {
     if (ui->actionDSP->isChecked())
     {
@@ -1736,6 +1827,7 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate, qint64
 
     rx->set_input_device(devstr.toStdString());
     updateHWFrequencyRange(false);
+    rx->set_input_file(filename.toStdString(), samprate, fmt, buffers_max, repeat);
 
     // sample rate
     auto actual_rate = rx->set_input_rate((double)samprate);
@@ -1755,6 +1847,9 @@ void MainWindow::startIqPlayback(const QString& filename, float samprate, qint64
 
     // FIXME: would be nice with good/bad status
     ui->statusBar->showMessage(tr("Playing %1").arg(filename));
+    ui->actionIoConfig->setDisabled(true);
+    ui->actionLoadSettings->setDisabled(true);
+    ui->actionSaveSettings->setDisabled(true);
 
     on_actionDSP_triggered(true);
 }
@@ -1768,6 +1863,9 @@ void MainWindow::stopIqPlayback()
     }
 
     ui->statusBar->showMessage(tr("I/Q playback stopped"), 5000);
+    ui->actionIoConfig->setDisabled(false);
+    ui->actionLoadSettings->setDisabled(false);
+    ui->actionSaveSettings->setDisabled(false);
 
     // restore original input device
     auto indev = m_settings->value("input/device", "").toString();
@@ -1787,9 +1885,6 @@ void MainWindow::stopIqPlayback()
         ui->plotter->setSampleRate(actual_rate);
         ui->plotter->setSpanFreq((quint32)actual_rate);
         remote->setBandwidth(sr);
-
-        // not needed as long as we are not recording in iq_tool
-        //iq_tool->setSampleRate(sr);
     }
 
     // restore frequency, gain, etc...
@@ -2102,14 +2197,14 @@ void MainWindow::on_actionIqTool_triggered()
 void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
 {
     // set RX filter
-    rx->set_filter_offset((double) delta);
+    if (delta != qint64(rx->get_filter_offset()))
+    {
+        rx->set_filter_offset((double) delta);
+        updateFrequencyRange();
+    }
 
-    // update RF freq label and channel filter offset
-    uiDockRxOpt->setFilterOffset(delta);
-    ui->freqCtrl->setFrequency(freq);
+    setNewFrequency(freq);
 
-    if (rx->is_rds_decoder_active())
-        rx->reset_rds_parser();
 }
 
 /* CPlotter::NewfilterFreq() is emitted or bookmark activated */

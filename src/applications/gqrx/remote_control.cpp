@@ -393,7 +393,7 @@ void RemoteControl::stopAudioRecorder()
 }
 
 /*! \brief Start IQ recorder (from another window). */
-void RemoteControl::startIqRecorder(QString unused1, QString unused2)
+void RemoteControl::startIqRecorder()
 {
     iq_recorder_status = true;
 }
