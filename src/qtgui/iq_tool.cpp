@@ -129,7 +129,8 @@ void CIqTool::on_playButton_clicked(bool checked)
             ui->listWidget->setEnabled(false);
             ui->recButton->setEnabled(false);
             emit startPlayback(recdir->absoluteFilePath(current_file),
-                               (float)sample_rate, center_freq);
+                               (float)sample_rate, center_freq,
+                               ui->repeat->checkState() == Qt::Checked);
         }
     }
     else
