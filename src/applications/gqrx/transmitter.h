@@ -26,16 +26,13 @@
 #include <string>
 #include <vector>
 
+/* Only include what transmitter.h actually uses in its class definition.
+ * Modulator-specific headers (nbfm_tx, hilbert_fc, etc.) belong in
+ * the individual tx_mod_*.h / tx_mod_*.cpp files only. */
 #include <gnuradio/top_block.h>
 #include <gnuradio/audio/source.h>
 #include <gnuradio/blocks/multiply_const.h>
 #include <gnuradio/blocks/null_sink.h>
-#include <gnuradio/filter/rational_resampler.h>
-#include <gnuradio/analog/nbfm_tx.h>
-#include <gnuradio/blocks/complex_to_real.h>
-#include <gnuradio/blocks/float_to_complex.h>
-#include <gnuradio/blocks/add_const_ff.h>
-#include <gnuradio/filter/iir_filter_ffd.h>
 #include <osmosdr/sink.h>
 
 #include "dsp/tx_modulator.h"

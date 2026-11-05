@@ -23,70 +23,55 @@
 #include <cmath>
 #include "dsp/tx_mod_nfm.h"
 
+/* FM sensitivity: sensitivity = 2π * max_deviation / audio_rate
+ * This maps audio amplitude ±1.0 to frequency deviation ±max_dev Hz. */
+static inline float fm_sensitivity(float max_dev, unsigned int audio_rate)
+{
+    return 2.0f * static_cast<float>(M_PI) * max_dev
+           / static_cast<float>(audio_rate);
+}
+
 tx_mod_nfm_sptr make_tx_mod_nfm(unsigned int audio_rate,
                                  double       rf_rate,
-                                 float        max_dev,
-                                 double       tau)
+                                 float        max_dev)
 {
-    return tx_mod_nfm::make(audio_rate, rf_rate, max_dev, tau);
+    return tx_mod_nfm::make(audio_rate, rf_rate, max_dev);
 }
 
 tx_mod_nfm_sptr tx_mod_nfm::make(unsigned int audio_rate,
                                   double       rf_rate,
-                                  float        max_dev,
-                                  double       tau)
+                                  float        max_dev)
 {
-    return tx_mod_nfm_sptr(new tx_mod_nfm(audio_rate, rf_rate, max_dev, tau));
+    return tx_mod_nfm_sptr(new tx_mod_nfm(audio_rate, rf_rate, max_dev));
 }
 
 tx_mod_nfm::tx_mod_nfm(unsigned int audio_rate,
                          double       rf_rate,
-                         float        max_dev,
-                         double       tau)
+                         float        max_dev)
     : tx_modulator_base("tx_mod_nfm", audio_rate, rf_rate),
-      d_max_dev(max_dev),
-      d_tau(tau)
+      d_max_dev(max_dev)
 {
-    /* nbfm_tx works at the audio rate and produces complex IQ */
-    d_nbfm  = gr::analog::nbfm_tx::make(
-                    static_cast<float>(audio_rate),  /* audio rate  */
-                    static_cast<float>(audio_rate),  /* quad rate — same, no internal decimation */
-                    max_dev,
-                    tau);
+    /* frequency_modulator_fc: float in → complex out at same rate */
+    d_fm = gr::analog::frequency_modulator_fc::make(
+                fm_sensitivity(max_dev, audio_rate));
 
-    /* Upsample from audio_rate to rf_rate.
-     * rational_resampler accepts integer interpolation/decimation.
-     * We use gcd to reduce the fraction. */
-    int    interp = static_cast<int>(rf_rate);
-    int    decim  = static_cast<int>(audio_rate);
-    int    g      = 1;
-    /* Simple GCD via Euclidean algorithm */
-    {
-        int a = interp, b = decim;
-        while (b) { int t = b; b = a % b; a = t; }
-        g = a;
-    }
-    interp /= g;
-    decim  /= g;
+    /* Upsample from audio_rate to rf_rate using rational resampler */
+    int interp = static_cast<int>(rf_rate);
+    int decim  = static_cast<int>(audio_rate);
+    int a = interp, b = decim;
+    while (b) { int t = b; b = a % b; a = t; }
+    interp /= a; decim /= a;
 
     d_resamp = gr::filter::rational_resampler_ccc::make(interp, decim);
 
-    /* Connect: nbfm_tx → resampler */
-    connect(self(), 0, d_nbfm,   0);
-    connect(d_nbfm,  0, d_resamp, 0);
-    connect(d_resamp, 0, self(),  0);
+    /* Chain: audio_in → FM modulator → resampler → IQ out */
+    connect(self(),    0, d_fm,    0);
+    connect(d_fm,      0, d_resamp, 0);
+    connect(d_resamp,  0, self(),  0);
 }
 
 void tx_mod_nfm::set_max_dev(float dev_hz)
 {
     d_max_dev = dev_hz;
-    d_nbfm->set_max_deviation(dev_hz);
+    d_fm->set_sensitivity(fm_sensitivity(dev_hz, d_audio_rate));
 }
-
-void tx_mod_nfm::set_tau(double tau)
-{
-    d_tau = tau;
-    /* nbfm_tx does not expose set_tau post-construction; would need rebuild.
-     * Store for future use / reconstruction. */
-}
-

@@ -72,8 +72,8 @@ receiver::receiver(const std::string input_device,
       d_iq_rev(false),
       d_dc_cancel(false),
       d_iq_balance(false),
-      d_demod(RX_DEMOD_OFF),
-      d_paused_for_tx(false)
+      d_paused_for_tx(false),
+      d_demod(RX_DEMOD_OFF)
 {
 
     tb = gr::make_top_block("gqrx");

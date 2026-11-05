@@ -22,7 +22,7 @@
  */
 #pragma once
 
-#include <gnuradio/analog/nbfm_tx.h>
+#include <gnuradio/analog/frequency_modulator_fc.h>
 #include <gnuradio/filter/rational_resampler.h>
 
 #include "dsp/tx_modulator.h"
@@ -30,9 +30,13 @@
 /* -----------------------------------------------------------------------
  * Narrowband FM TX modulator.
  *
+ * Uses gr::analog::frequency_modulator_fc (GR 3.10 compatible).
+ * gr::analog::nbfm_tx was removed in GR 3.10.
+ *
  * Signal chain:
  *   audio (float, audio_rate Hz)
- *     → gr::analog::nbfm_tx   (FM modulation, produces complex at audio_rate)
+ *     → gr::analog::frequency_modulator_fc  (FM mod at audio_rate)
+ *         sensitivity = 2π * max_dev / audio_rate
  *     → gr::filter::rational_resampler_ccc  (upsample to rf_rate)
  *     → output (complex, rf_rate Hz)
  * ----------------------------------------------------------------------- */
@@ -46,36 +50,27 @@ typedef std::shared_ptr<tx_mod_nfm>   tx_mod_nfm_sptr;
 
 tx_mod_nfm_sptr make_tx_mod_nfm(unsigned int audio_rate,
                                  double       rf_rate,
-                                 float        max_dev  = 5000.f,
-                                 double       tau      = 75.0e-6);
+                                 float        max_dev  = 5000.f);
 
 class tx_mod_nfm : public tx_modulator_base
 {
 public:
     static tx_mod_nfm_sptr make(unsigned int audio_rate,
                                 double       rf_rate,
-                                float        max_dev = 5000.f,
-                                double       tau     = 75.0e-6);
+                                float        max_dev = 5000.f);
 
-    /** Set maximum frequency deviation in Hz (live, via nbfm_tx). */
+    /** Update FM sensitivity from new max deviation (Hz). */
     void set_max_dev(float dev_hz);
 
-    /** Set de-emphasis time constant in seconds. */
-    void set_tau(double tau);
-
     float  max_dev() const { return d_max_dev; }
-    double tau()     const { return d_tau; }
 
 private:
     tx_mod_nfm(unsigned int audio_rate,
                double       rf_rate,
-               float        max_dev,
-               double       tau);
+               float        max_dev);
 
     float  d_max_dev;
-    double d_tau;
 
-    gr::analog::nbfm_tx::sptr                     d_nbfm;
-    gr::filter::rational_resampler_ccc::sptr       d_resamp;
+    gr::analog::frequency_modulator_fc::sptr       d_fm;
+    gr::filter::rational_resampler_ccc::sptr        d_resamp;
 };
-

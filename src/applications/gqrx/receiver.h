@@ -242,9 +242,7 @@ private:
 
 private:
     bool        d_running;          /*!< Whether receiver is running or not. */
-    bool        d_paused_for_tx;   /*!< Whether receiver is paused for half-duplex TX. */
-    double      d_input_rate;       /*!< Input sample rate. */
-    double      d_decim_rate;       /*!< Rate after decimation (input_rate / decim) */
+    double      d_input_rate;       /*!< Input sample rate. */    double      d_decim_rate;       /*!< Rate after decimation (input_rate / decim) */
     double      d_quad_rate;        /*!< Quadrature rate (after down-conversion) */
     double      d_audio_rate;       /*!< Audio output rate. */
     unsigned int    d_decim;        /*!< input decimation. */
@@ -262,6 +260,7 @@ private:
     std::string input_devstr;  /*!< Current input device string. */
     std::string output_devstr; /*!< Current output device string. */
 
+    bool        d_paused_for_tx;   /*!< Whether receiver is paused for half-duplex TX. */
     rx_demod    d_demod;       /*!< Current demodulator. */
 
     gr::top_block_sptr         tb;        /*!< The GNU Radio top block. */
