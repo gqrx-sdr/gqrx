@@ -229,11 +229,20 @@ public:
     /* utility functions */
     static std::string escape_filename(std::string filename);
 
+    /* TX support — pause/resume the receiver for half-duplex operation */
+    void        pause_for_tx();
+    void        resume_from_tx();
+    bool        is_paused_for_tx() const { return d_paused_for_tx; }
+
+    /** Expose the shared top block so transmitter can join it. */
+    gr::top_block_sptr get_tb() const { return tb; }
+
 private:
     void        connect_all(rx_chain type);
 
 private:
     bool        d_running;          /*!< Whether receiver is running or not. */
+    bool        d_paused_for_tx;   /*!< Whether receiver is paused for half-duplex TX. */
     double      d_input_rate;       /*!< Input sample rate. */
     double      d_decim_rate;       /*!< Rate after decimation (input_rate / decim) */
     double      d_quad_rate;        /*!< Quadrature rate (after down-conversion) */

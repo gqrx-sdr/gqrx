@@ -72,7 +72,8 @@ receiver::receiver(const std::string input_device,
       d_iq_rev(false),
       d_dc_cancel(false),
       d_iq_balance(false),
-      d_demod(RX_DEMOD_OFF)
+      d_demod(RX_DEMOD_OFF),
+      d_paused_for_tx(false)
 {
 
     tb = gr::make_top_block("gqrx");
@@ -1469,4 +1470,34 @@ std::string receiver::escape_filename(std::string filename)
     ss1 << std::quoted(filename, '\'', '\\');
     ss2 << std::quoted(ss1.str(), '\'', '\\');
     return ss2.str();
+}
+
+/**
+ * @brief Pause the receiver for half-duplex TX operation.
+ *
+ * Stops the GNU Radio top block so that the HackRF (or other half-duplex
+ * device) driver can be re-opened as a sink by the transmitter.
+ * Must only be called from the GUI thread.
+ */
+void receiver::pause_for_tx()
+{
+    if (d_running && !d_paused_for_tx) {
+        tb->stop();
+        tb->wait();
+        d_paused_for_tx = true;
+    }
+}
+
+/**
+ * @brief Resume the receiver after half-duplex TX has finished.
+ *
+ * Restarts the GNU Radio top block.  Must be called after the transmitter
+ * has closed its sink.  Must only be called from the GUI thread.
+ */
+void receiver::resume_from_tx()
+{
+    if (d_paused_for_tx) {
+        tb->start();
+        d_paused_for_tx = false;
+    }
 }
