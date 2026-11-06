@@ -44,6 +44,7 @@ CIqTool::CIqTool(QWidget *parent) :
 
     is_recording = false;
     is_playing = false;
+    dsp_running = false;
     bytes_per_sample = 8;
     sample_rate = 192000;
     rec_len = 0;
@@ -153,6 +154,11 @@ void CIqTool::cancelPlayback()
     ui->listWidget->setEnabled(true);
     ui->recButton->setEnabled(true);
     is_playing = false;
+}
+
+void CIqTool::setDspRunning(bool running)
+{
+    dsp_running = running;
 }
 
 
@@ -319,7 +325,7 @@ void CIqTool::timeoutFunction(void)
 {
     refreshDir();
 
-    if (is_playing)
+    if (is_playing && dsp_running)
     {
         // advance slider with one second
         int val = ui->slider->value();
