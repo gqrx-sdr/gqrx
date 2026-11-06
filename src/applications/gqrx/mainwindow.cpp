@@ -154,6 +154,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     Bookmarks::Get().setConfigDir(m_cfg_dir);
     BandPlan::Get().load();
     uiDockBookmarks = new DockBookmarks(this);
+    uiDockTx = new DockTx();
+    tx = nullptr; /* Created later in loadConfig() once device string is known */
 
     // setup some toggle view shortcuts
     uiDockInputCtl->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_J));
@@ -199,6 +201,10 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     tabifyDockWidget(uiDockAudio, uiDockRDS);
     uiDockAudio->raise();
 
+    addDockWidget(Qt::RightDockWidgetArea, uiDockTx);
+    tabifyDockWidget(uiDockRDS, uiDockTx);
+    uiDockTx->setEnabled(false); /* disabled until TX-capable device loaded */
+
     addDockWidget(Qt::BottomDockWidgetArea, uiDockBookmarks);
 
     /* hide docks that we don't want to show initially */
@@ -218,6 +224,10 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->actionFullScreen);
+
+    /* TX dock view toggle */
+    ui->menu_View->addSeparator();
+    ui->menu_View->addAction(uiDockTx->toggleViewAction());
 
     /* connect signals and slots */
     connect(ui->freqCtrl, SIGNAL(newFrequency(qint64)), this, SLOT(setNewFrequency(qint64)));
@@ -353,6 +363,15 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(remote, SIGNAL(newAudioMuted(bool)), uiDockAudio, SLOT(setAudioMuted(bool)));
     connect(uiDockAudio, SIGNAL(audioMuted(bool)), remote, SLOT(setAudioMuted(bool)));
 
+    /* TX dock connections (tx object itself wired in loadConfig after device is known) */
+    connect(uiDockTx, SIGNAL(pttToggled(bool)),          this, SLOT(setPtt(bool)));
+    connect(uiDockTx, SIGNAL(modulationChanged(int)),    this, SLOT(setTxModulation(int)));
+    connect(uiDockTx, SIGNAL(txGainChanged(QString,double)), this, SLOT(setTxGain(QString,double)));
+    connect(uiDockTx, SIGNAL(micGainChanged(float)),     this, SLOT(setMicGain(float)));
+    connect(uiDockTx, SIGNAL(txOffsetChanged(double)),   this, SLOT(setTxOffset(double)));
+    /* Remote PTT → MainWindow */
+    connect(remote, SIGNAL(pttChanged(bool)), this, SLOT(onRemotePtt(bool)));
+
     rds_timer = new QTimer(this);
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
 
@@ -448,6 +467,8 @@ MainWindow::~MainWindow()
     delete uiDockFft;
     delete uiDockInputCtl;
     delete uiDockRDS;
+    delete uiDockTx;
+    if (tx) { delete tx; tx = nullptr; }
     delete rx;
     delete remote;
     delete qsvg_dummy;
@@ -592,6 +613,39 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
                                      "Please select another device.")
                                  .arg(x.what()),
                          QMessageBox::Ok);
+    }
+
+    /* Initialise TX subsystem if the device supports transmission.
+     * We use the same device string but with driver=osmosdr sink semantics.
+     * TX is optional — a failure here must not block the receiver from starting. */
+    if (!indev.isEmpty()) {
+        transmitter::tx_mode mode = transmitter::detect_tx_mode(indev.toStdString());
+        if (mode != transmitter::TX_MODE_DISABLED) {
+            try {
+                if (tx) {
+                    delete tx;
+                    tx = nullptr;
+                }
+                /* TX RF rate will be updated from actual_rate below.
+                 * Use same device string as input (osmosdr identifies TX side). */
+                double rf_rate = rx->get_input_rate();
+                if (rf_rate <= 0.0) rf_rate = 1e6; /* safe fallback */
+                tx = new transmitter(rx->get_tb(), indev.toStdString(), 48000, rf_rate);
+                uiDockTx->setEnabled(true);
+                uiDockTx->setTxEnabled(true);
+
+                /* Restore TX settings */
+                uiDockTx->readSettings(m_settings);
+
+                /* Enable TX chain (creates sink, audio source etc.) */
+                tx->set_tx_enabled(true);
+            } catch (const std::exception &e) {
+                qWarning() << "[TX] Failed to init transmitter:" << e.what();
+                uiDockTx->setEnabled(false);
+            }
+        } else {
+            uiDockTx->setEnabled(false);
+        }
     }
 
     int_val = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
@@ -798,6 +852,9 @@ void MainWindow::storeSession()
         iq_tool->saveSettings(m_settings);
         dxc_options->saveSettings(m_settings);
 
+        /* Save TX settings */
+        uiDockTx->saveSettings(m_settings);
+
         {
             int     flo, fhi;
             ui->plotter->getHiLowCutFrequencies(&flo, &fhi);
@@ -912,6 +969,10 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
 
     // set receiver frequency
     rx->set_rf_freq(hw_freq);
+
+    // keep TX frequency in sync
+    if (tx)
+        tx->set_rf_freq(hw_freq);
 
     // update widgets
     ui->plotter->setCenterFreq(center_freq);
@@ -2558,4 +2619,93 @@ void MainWindow::toggleMarkers()
 {
     enableMarkers(!d_show_markers);
     uiDockFft->setMarkersEnabled(d_show_markers);
+}
+
+
+/* -----------------------------------------------------------------------
+ * TX slot implementations
+ * ----------------------------------------------------------------------- */
+
+/**
+ * @brief Handle PTT toggle from the DockTx button (or keyboard shortcut F7).
+ * @param on  true = start transmitting, false = stop.
+ *
+ * For half-duplex devices (HackRF), the receiver is paused before the
+ * transmitter is activated and resumed afterwards.  For full-duplex devices
+ * the gate block handles muting and no stop/start is needed.
+ */
+void MainWindow::setPtt(bool on)
+{
+    if (!tx)
+        return;
+
+    if (tx->get_tx_mode() == transmitter::TX_MODE_HALFDUP) {
+        if (on) {
+            rx->pause_for_tx();
+        }
+    }
+
+    tx->set_ptt(on);
+
+    if (tx->get_tx_mode() == transmitter::TX_MODE_HALFDUP) {
+        if (!on) {
+            rx->resume_from_tx();
+        }
+    }
+
+    /* Keep PTT button visual and remote state in sync */
+    uiDockTx->setPttState(on);
+    remote->setPttActive(on);
+}
+
+/**
+ * @brief Set TX modulation mode from DockTx combo.
+ * @param mod  One of transmitter::tx_modulation values.
+ */
+void MainWindow::setTxModulation(int mod)
+{
+    if (tx)
+        tx->set_modulation(static_cast<transmitter::tx_modulation>(mod));
+}
+
+/**
+ * @brief Set a named TX hardware gain stage.
+ * @param name   Gain stage name (e.g. "RF", "BB").
+ * @param value  Gain value in dB.
+ */
+void MainWindow::setTxGain(const QString &name, double value)
+{
+    if (tx)
+        tx->set_tx_gain(name.toStdString(), value);
+}
+
+/**
+ * @brief Set microphone gain from the DockTx slider.
+ * @param db  Gain in dB (-20 to +20).
+ */
+void MainWindow::setMicGain(float db)
+{
+    if (tx)
+        tx->set_mic_gain(db);
+}
+
+/**
+ * @brief Set TX frequency offset for split operation.
+ * @param hz  Offset in Hz (positive = TX higher than RX).
+ */
+void MainWindow::setTxOffset(double hz)
+{
+    if (tx)
+        tx->set_tx_offset(hz);
+}
+
+/**
+ * @brief Handle PTT command received from Hamlib remote control.
+ * @param on  true = start TX, false = stop TX.
+ *
+ * Routes to setPtt() which handles all half/full-duplex logic.
+ */
+void MainWindow::onRemotePtt(bool on)
+{
+    setPtt(on);
 }

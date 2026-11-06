@@ -229,13 +229,20 @@ public:
     /* utility functions */
     static std::string escape_filename(std::string filename);
 
+    /* TX support — pause/resume the receiver for half-duplex operation */
+    void        pause_for_tx();
+    void        resume_from_tx();
+    bool        is_paused_for_tx() const { return d_paused_for_tx; }
+
+    /** Expose the shared top block so transmitter can join it. */
+    gr::top_block_sptr get_tb() const { return tb; }
+
 private:
     void        connect_all(rx_chain type);
 
 private:
     bool        d_running;          /*!< Whether receiver is running or not. */
-    double      d_input_rate;       /*!< Input sample rate. */
-    double      d_decim_rate;       /*!< Rate after decimation (input_rate / decim) */
+    double      d_input_rate;       /*!< Input sample rate. */    double      d_decim_rate;       /*!< Rate after decimation (input_rate / decim) */
     double      d_quad_rate;        /*!< Quadrature rate (after down-conversion) */
     double      d_audio_rate;       /*!< Audio output rate. */
     unsigned int    d_decim;        /*!< input decimation. */
@@ -253,6 +260,7 @@ private:
     std::string input_devstr;  /*!< Current input device string. */
     std::string output_devstr; /*!< Current output device string. */
 
+    bool        d_paused_for_tx;   /*!< Whether receiver is paused for half-duplex TX. */
     rx_demod    d_demod;       /*!< Current demodulator. */
 
     gr::top_block_sptr         tb;        /*!< The GNU Radio top block. */
