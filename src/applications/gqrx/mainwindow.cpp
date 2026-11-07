@@ -237,6 +237,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockInputCtl, SIGNAL(antennaSelected(QString)), this, SLOT(setAntenna(QString)));
     connect(uiDockInputCtl, SIGNAL(freqCtrlResetChanged(bool)), this, SLOT(setFreqCtrlReset(bool)));
     connect(uiDockInputCtl, SIGNAL(invertScrollingChanged(bool)), this, SLOT(setInvertScrolling(bool)));
+    connect(uiDockRxOpt, SIGNAL(rfFreqChanged(qint64)), remote, SLOT(setNewHWFrequency(qint64)));
     connect(uiDockRxOpt, SIGNAL(rxFreqChanged(qint64)), ui->freqCtrl, SLOT(setFrequency(qint64)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), remote, SLOT(setFilterOffset(qint64)));
@@ -331,6 +332,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(remote, SIGNAL(newFilterOffset(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(remote, SIGNAL(newFilterOffset(qint64)), uiDockRxOpt, SLOT(setFilterOffset(qint64)));
     connect(remote, SIGNAL(newFrequency(qint64)), ui->freqCtrl, SLOT(setFrequency(qint64)));
+    connect(remote, SIGNAL(rcHwFrequencyChanged(qint64)), this, SLOT(setNewHWFrequency(qint64)));
     connect(remote, SIGNAL(newLnbLo(double)), uiDockInputCtl, SLOT(setLnbLo(double)));
     connect(remote, SIGNAL(newLnbLo(double)), this, SLOT(setLnbLo(double)));
     connect(remote, SIGNAL(newMode(int)), this, SLOT(selectDemod(int)));
@@ -918,6 +920,27 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
     uiDockRxOpt->setHwFreq(d_hw_freq);
     ui->freqCtrl->setFrequency(rx_freq);
     uiDockBookmarks->setNewFrequency(rx_freq);
+}
+
+/**
+ * @brief Slot for receiving HW frequency change signals from remote control.
+ * @param[in] freq The new frequency.
+ *
+ * This slot is connected to the RemoteControl::rcHwFrequencyChanged() signal and is used
+ * to set new receive frequency in hardware, without calcualtion side effects.
+ *
+ * Updating the widgets causes setNewFrequency to be called, so a remote control
+ * client has to set both lnb_lo and the filter offset to zero first.
+ * Perhaps that's all that needed to be done in the first place, but for now this
+ * works perfectly to support an sdr attached to an IF tap being used as a panadapter.
+ */
+void MainWindow::setNewHWFrequency(qint64 hw_freq_hz){
+    rx->set_rf_freq((double)hw_freq_hz);
+    // update widgets
+    ui->plotter->setCenterFreq(hw_freq_hz);
+    uiDockRxOpt->setHwFreq(hw_freq_hz);
+    ui->freqCtrl->setFrequency(hw_freq_hz);
+    uiDockBookmarks->setNewFrequency(hw_freq_hz);
 }
 
 // Update delta and center (of marker span) when markers are updated
