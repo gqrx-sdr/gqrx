@@ -72,10 +72,24 @@ Supported commands:
     Get 'VFO' (only usable for hamlib compatibility)
  V
     Set 'VFO' (only usable for hamlib compatibility)
- s
-    Get 'Split' mode (only usable for hamlib compatibility)
- S
-    Set 'Split' mode (only usable for hamlib compatibility)
+ t | \get_ptt
+    Get transmit PTT status (0 = RX, 1 = TX)
+ T <ptt> | \set_ptt <ptt>
+    Set transmit PTT status (0 = RX, 1 = TX; requires TX-capable SDR device)
+ i | \get_split_freq
+    Get transmit (split) frequency [Hz]
+ I <frequency> | \set_split_freq <frequency>
+    Set transmit (split) frequency [Hz]
+ l RFPOWER / L RFPOWER <power>
+    Get or set normalized transmit RF power [0.00 .. 1.00]
+ l MICGAIN / L MICGAIN <gain>
+    Get or set transmit microphone gain [-30.0 .. +30.0 dB]
+ u PTT / U PTT <status>
+    Get or set transmit PTT function status
+ s | \get_split_vfo
+    Get 'Split' mode and transmit VFO
+ S <split> [tx_vfo] | \set_split_vfo <split> [tx_vfo]
+    Set 'Split' mode (0 or 1) and transmit VFO (VFOA or VFOB)
  _
     Get version
 
