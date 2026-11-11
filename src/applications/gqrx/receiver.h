@@ -231,6 +231,8 @@ public:
 
 private:
     void        connect_all(rx_chain type);
+    static rx_chain chain_for_demod(rx_demod demod);
+    bool        is_soapy_remote_device() const;
 
 private:
     bool        d_running;          /*!< Whether receiver is running or not. */
@@ -254,6 +256,7 @@ private:
     std::string output_devstr; /*!< Current output device string. */
 
     rx_demod    d_demod;       /*!< Current demodulator. */
+    rx_chain    d_active_chain; /*!< Currently connected RX chain (#1445). */
 
     gr::top_block_sptr         tb;        /*!< The GNU Radio top block. */
 
