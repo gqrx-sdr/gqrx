@@ -20,9 +20,9 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <algorithm>
 #include <gnuradio/io_signature.h>
 #include <stdio.h>
-
 #include <pulse/simple.h>
 #include <pulse/error.h>
 #include <pulse/gccmacro.h>
@@ -59,11 +59,9 @@ pa_source::pa_source (const string device_name, int sample_rate, int num_chan,
 {
     int error;
 
-/** FIXME: only 2 channels supported **/
-//    if ((num_chan != 1) && (num_chan != 2)) {
-//        num_chan = 2;
-//    }
-    num_chan = 2;
+    if ((num_chan != 1) && (num_chan != 2)) {
+        num_chan = 2;
+    }
 
     set_output_signature(gr::io_signature::make (1, num_chan, sizeof(float)));
 
@@ -104,7 +102,10 @@ void pa_source::select_device(string device_name)
 {
     int error;
 
-    pa_simple_free(d_pasrc);
+    if (d_pasrc) {
+        pa_simple_free(d_pasrc);
+        d_pasrc = nullptr;
+    }
 
     d_pasrc = pa_simple_new(NULL,
                             d_app_name.c_str(),
@@ -127,28 +128,43 @@ int pa_source::work(int noutput_items,
                     gr_vector_void_star &output_items)
 {
     (void) input_items;
-    if (!d_pasrc)
+    if (!d_pasrc || output_items.empty())
         return 0;
 
-    float audio_buffer[SAMPLES_PER_BUFFER*2]; /** FIXME: Channels **/
+    const int nframes = std::min(noutput_items, SAMPLES_PER_BUFFER);
+    if (nframes <= 0)
+        return 0;
+
+    const int chans = d_ss.channels;
+    float audio_buffer[SAMPLES_PER_BUFFER * 2];
     float *out0 = (float *) output_items[0];
-    float *out1 = (float *) output_items[1];  // see gr_complex_to_float
-    int error=0;
-    int i=0;
+    float *out1 = (output_items.size() > 1) ? (float *) output_items[1] : nullptr;
+    int error = 0;
 
-
-    if (pa_simple_read(d_pasrc, &audio_buffer[0], sizeof(audio_buffer), &error) < 0)
+    if (pa_simple_read(d_pasrc, audio_buffer, (size_t)nframes * (size_t)chans * sizeof(float), &error) < 0)
     {
         fprintf(stderr, __FILE__": pa_simple_read() failed: %s\n", pa_strerror(error));
-
         return 0;
     }
 
-    for (i = 0; i < SAMPLES_PER_BUFFER; i++)
+    if (chans == 1)
     {
-        out0[i] = audio_buffer[i*2];
-        out1[i] = audio_buffer[(i*2)+1];
+        for (int i = 0; i < nframes; i++)
+        {
+            out0[i] = audio_buffer[i];
+            if (out1)
+                out1[i] = audio_buffer[i];
+        }
+    }
+    else
+    {
+        for (int i = 0; i < nframes; i++)
+        {
+            out0[i] = audio_buffer[i * 2];
+            if (out1)
+                out1[i] = audio_buffer[(i * 2) + 1];
+        }
     }
 
-    return SAMPLES_PER_BUFFER;
+    return nframes;
 }

@@ -106,11 +106,12 @@ public slots:
     void setRdsStation(QString name);
     void setRdsRadiotext(QString text);
     void setPtt(bool ptt_on);
+    void setTxEnabled(bool enabled);
+    bool isTxEnabled(void) const { return rc_tx_enabled; }
     void setSplitMode(bool enabled);
     void setTxFreq(qint64 freq);
     void setTxPower(double power);
     void setMicGain(float gain);
-
 signals:
     void newFrequency(qint64 freq);
     void newFilterOffset(qint64 offset);
@@ -167,11 +168,11 @@ private:
     gain_list_t gains;             /*!< Possible and current gain settings */
     bool        is_audio_muted;
     bool        rc_ptt;
+    bool        rc_tx_enabled;
     bool        rc_split_mode;
     qint64      rc_tx_freq;
     double      rc_tx_power;
     float       rc_mic_gain;
-
     void        setNewRemoteFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);
     QString     intToModeStr(int mode);

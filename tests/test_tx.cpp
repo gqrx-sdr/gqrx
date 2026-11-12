@@ -1,7 +1,14 @@
 #include <iostream>
+#include <fstream>
+#include <cstdio>
+#include <algorithm>
+#undef NDEBUG
 #include <cassert>
 #include <cmath>
 #include <vector>
+#include <gnuradio/top_block.h>
+#include <gnuradio/blocks/vector_source.h>
+#include <gnuradio/blocks/vector_sink.h>
 #include <QCoreApplication>
 #include <QString>
 #include <QStringList>
@@ -9,7 +16,6 @@
 #include "dsp/tx_modulator.h"
 #include "applications/gqrx/transmitter.h"
 #include "applications/gqrx/remote_control.h"
-
 static void test_tx_mod_am()
 {
     std::cout << "Running test_tx_mod_am..." << std::endl;
@@ -96,6 +102,29 @@ static void test_tx_modulator_modes()
 
     mod->set_mode(TX_MOD_NFM);
     assert(mod->mode() == TX_MOD_NFM);
+
+    // Verify flowgraph modulation + rail limiter under high mic gain (no blowup)
+    {
+        std::vector<float> audio(2048, 0.8f);
+        for (size_t i = 0; i < audio.size(); ++i)
+            audio[i] = 0.8f * std::sin(2.0f * (float)M_PI * 1000.0f * (float)i / (float)audio_rate);
+
+        auto tb = gr::make_top_block("test_mod_run");
+        auto src = gr::blocks::vector_source_f::make(audio, false);
+        auto run_mod = make_tx_modulator(audio_rate, TX_MOD_NFM);
+        run_mod->set_mic_gain(20.0f);
+        auto snk = gr::blocks::vector_sink_c::make();
+        tb->connect(src, 0, run_mod, 0);
+        tb->connect(run_mod, 0, snk, 0);
+        tb->run();
+
+        const auto &out = snk->data();
+        assert(out.size() == audio.size());
+        float max_mag = 0.0f;
+        for (const auto &c : out)
+            max_mag = std::max(max_mag, std::abs(c));
+        assert(max_mag > 0.1f && max_mag < 1.5f);
+    }
 
     std::cout << "test_tx_modulator_modes passed." << std::endl;
 }
@@ -247,9 +276,29 @@ static void test_remote_control_rigctl()
     res = rc.processCommand("\\dump_state");
     assert(res.contains("10000000000.000000"));
 
+    // Test disabling TX support in RemoteControl
+    rc.setTxEnabled(false);
+    assert(!rc.isTxEnabled());
+    assert(rc.processCommand("u ?").trimmed() == "RECORD IQRECORD DSP RDS MUTE");
+    assert(rc.processCommand("U ?").trimmed() == "RECORD IQRECORD DSP RDS MUTE");
+    assert(!rc.processCommand("l ?").contains("RFPOWER"));
+    assert(!rc.processCommand("L ?").contains("MICGAIN"));
+    assert(rc.processCommand("T 1") == "RPRT 1\n");
+    assert(rc.processCommand("U PTT 1") == "RPRT 1\n");
+    assert(rc.processCommand("S 1") == "RPRT 1\n");
+    assert(rc.processCommand("U SPLIT 1") == "RPRT 1\n");
+    assert(rc.processCommand("I 145000000") == "RPRT 1\n");
+    assert(rc.processCommand("L RFPOWER 10") == "RPRT 1\n");
+    assert(rc.processCommand("L MICGAIN 3") == "RPRT 1\n");
+    assert(rc.processCommand("t") == "0\n");
+
+    rc.setTxEnabled(true);
+    assert(rc.isTxEnabled());
+    assert(rc.processCommand("T 1") == "RPRT 0\n");
+    assert(rc.processCommand("t") == "1\n");
+
     std::cout << "test_remote_control_rigctl passed." << std::endl;
 }
-
 static void test_transmitter_lifecycle()
 {
     std::cout << "Running test_transmitter_lifecycle..." << std::endl;
@@ -303,15 +352,49 @@ static void test_transmitter_lifecycle()
     assert(details.find("Split: 600.0 kHz") != std::string::npos);
     assert(details.find("CTCSS: 123.0 Hz") != std::string::npos);
 
-    // Start & Stop (with fallback null sink)
+    // Start & Stop (repeated cycles with fallback null sink + rate changes)
+    double gmin = 0.0, gmax = 0.0, gstep = 0.0;
+    bool has_range = tx.get_tx_gain_range(&gmin, &gmax, &gstep);
+    assert(!has_range && gmin == 0.0 && gmax == 0.0 && gstep == 0.0);
+    (void)has_range;
+
     transmitter::status s = tx.start();
     assert(s == transmitter::STATUS_OK);
     (void)s;
     assert(tx.is_transmitting());
 
+    s = tx.set_tx_rate(4000000.0);
+    assert(s == transmitter::STATUS_OK);
+    assert(std::abs(tx.get_tx_rate() - 4000000.0) < 1.0);
+    assert(tx.is_transmitting());
+
     s = tx.stop();
     assert(s == transmitter::STATUS_OK);
     assert(!tx.is_transmitting());
+
+    s = tx.start();
+    assert(s == transmitter::STATUS_OK);
+    assert(tx.is_transmitting());
+
+    s = tx.stop();
+    assert(s == transmitter::STATUS_OK);
+    assert(!tx.is_transmitting());
+    // Ensure file= input strings are rejected and never truncate existing files
+    const char *tmp_iq_path = "/tmp/gqrx_test_iq_preserve.raw";
+    {
+        std::ofstream ofs(tmp_iq_path, std::ios::binary);
+        ofs << "IQDATA1234";
+    }
+    std::string file_dev = std::string("file=") + tmp_iq_path + ",rate=1000000,freq=100000000,throttle=true,repeat=false";
+    tx.set_tx_device(file_dev);
+    assert(!tx.is_tx_supported());
+    {
+        std::ifstream ifs(tmp_iq_path, std::ios::binary);
+        std::string contents;
+        ifs >> contents;
+        assert(contents == "IQDATA1234");
+    }
+    std::remove(tmp_iq_path);
 
     std::cout << "test_transmitter_lifecycle passed." << std::endl;
 }

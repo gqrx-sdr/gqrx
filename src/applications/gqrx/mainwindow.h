@@ -48,6 +48,8 @@
 #include "applications/gqrx/receiver.h"
 #include "applications/gqrx/transmitter.h"
 
+class QShortcut;
+
 namespace Ui {
     class MainWindow;  /*! The main window UI */
 }
@@ -125,9 +127,11 @@ private:
 
     receiver *rx;
     transmitter *tx;
+    QShortcut *ptt_shortcut;
     bool     d_tx_active;
     bool     d_rx_was_active_before_tx;
-
+    double   d_pre_tx_rx_rate;
+    double   d_pre_tx_rx_freq;
     RemoteControl *remote;
 
     std::map<QString, QVariant> devList;
@@ -142,9 +146,10 @@ private:
     void updateFrequencyRange();
     void updateDeltaAndCenter();
     void updateGainStages(bool read_from_device);
+    bool isTxAllowedForDevice(const QString &devstr) const;
+    void updateTxDeviceState(const QString &devstr);
     void showSimpleTextFile(const QString &resource_path,
                             const QString &window_title);
-    /* key shortcuts */
     void frequencyFocusShortcut();
     void rxOffsetZeroShortcut();
     void toggleFreezeShortcut();
@@ -248,8 +253,7 @@ private slots:
     void on_actionAboutQt_triggered();
     void on_actionAddBookmark_triggered();
     void on_actionDX_Cluster_triggered();
-
-    /* markers*/
+    void on_actionEnableTx_triggered(bool checked);
     void on_setMarkerButtonA_clicked();
     void on_setMarkerButtonB_clicked();
     void on_clearMarkerButtonA_clicked();

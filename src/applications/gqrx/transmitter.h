@@ -89,9 +89,9 @@ public:
     float       get_swr() const { return d_swr; }
 
     std::vector<std::string> get_gain_names() const;
+    bool        get_tx_gain_range(double *start, double *stop, double *step) const;
     void        set_gain(const std::string &name, double val);
     double      get_gain(const std::string &name) const;
-
     std::vector<std::string> get_antennas() const;
     void        set_antenna(const std::string &antenna);
     bool        is_tx_supported() const { return d_sink_valid; }
@@ -101,6 +101,8 @@ public:
 
 private:
     void        create_audio_source();
+    void        open_audio_input();
+    void        close_audio_input();
     void        create_tx_sink();
     void        build_graph();
 

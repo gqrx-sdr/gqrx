@@ -82,7 +82,7 @@ tx_modulator::tx_modulator(double audio_rate, tx_mod_type mode)
     d_ctcss_source = gr::analog::sig_source_f::make(
         d_audio_rate, gr::analog::GR_COS_WAVE, 88.5f, 0.0f, 0.0f);
     d_ctcss_adder = gr::blocks::add_ff::make();
-
+    d_limiter = gr::analog::rail_ff::make(-1.0f, 1.0f);
     // AM modulator and bandpass filter
     d_mod_am = make_tx_mod_am(0.9f);
     d_filter_am = make_rx_filter(d_audio_rate, -4500.0, 4500.0, 500.0);
@@ -108,7 +108,7 @@ tx_modulator::tx_modulator(double audio_rate, tx_mod_type mode)
     connect(self(), 0, d_mic_gain, 0);
     connect(d_mic_gain, 0, d_ctcss_adder, 0);
     connect(d_ctcss_source, 0, d_ctcss_adder, 1);
-
+    connect(d_ctcss_adder, 0, d_limiter, 0);
     // Connect active mode
     connect_current_mode();
 }
@@ -122,21 +122,21 @@ void tx_modulator::connect_current_mode()
     switch (d_mode)
     {
     case TX_MOD_AM:
-        connect(d_ctcss_adder, 0, d_mod_am, 0);
+        connect(d_limiter, 0, d_mod_am, 0);
         connect(d_mod_am, 0, d_filter_am, 0);
         connect(d_filter_am, 0, d_meter, 0);
         connect(d_filter_am, 0, self(), 0);
         break;
 
     case TX_MOD_USB:
-        connect(d_ctcss_adder, 0, d_hilbert_usb, 0);
+        connect(d_limiter, 0, d_hilbert_usb, 0);
         connect(d_hilbert_usb, 0, d_filter_usb, 0);
         connect(d_filter_usb, 0, d_meter, 0);
         connect(d_filter_usb, 0, self(), 0);
         break;
 
     case TX_MOD_LSB:
-        connect(d_ctcss_adder, 0, d_hilbert_lsb, 0);
+        connect(d_limiter, 0, d_hilbert_lsb, 0);
         connect(d_hilbert_lsb, 0, d_conj_lsb, 0);
         connect(d_conj_lsb, 0, d_filter_lsb, 0);
         connect(d_filter_lsb, 0, d_meter, 0);
@@ -145,7 +145,7 @@ void tx_modulator::connect_current_mode()
 
     case TX_MOD_NFM:
     default:
-        connect(d_ctcss_adder, 0, d_mod_fm, 0);
+        connect(d_limiter, 0, d_mod_fm, 0);
         connect(d_mod_fm, 0, d_filter_fm, 0);
         connect(d_filter_fm, 0, d_meter, 0);
         connect(d_filter_fm, 0, self(), 0);
@@ -158,21 +158,21 @@ void tx_modulator::disconnect_current_mode()
     switch (d_mode)
     {
     case TX_MOD_AM:
-        disconnect(d_ctcss_adder, 0, d_mod_am, 0);
+        disconnect(d_limiter, 0, d_mod_am, 0);
         disconnect(d_mod_am, 0, d_filter_am, 0);
         disconnect(d_filter_am, 0, d_meter, 0);
         disconnect(d_filter_am, 0, self(), 0);
         break;
 
     case TX_MOD_USB:
-        disconnect(d_ctcss_adder, 0, d_hilbert_usb, 0);
+        disconnect(d_limiter, 0, d_hilbert_usb, 0);
         disconnect(d_hilbert_usb, 0, d_filter_usb, 0);
         disconnect(d_filter_usb, 0, d_meter, 0);
         disconnect(d_filter_usb, 0, self(), 0);
         break;
 
     case TX_MOD_LSB:
-        disconnect(d_ctcss_adder, 0, d_hilbert_lsb, 0);
+        disconnect(d_limiter, 0, d_hilbert_lsb, 0);
         disconnect(d_hilbert_lsb, 0, d_conj_lsb, 0);
         disconnect(d_conj_lsb, 0, d_filter_lsb, 0);
         disconnect(d_filter_lsb, 0, d_meter, 0);
@@ -181,7 +181,7 @@ void tx_modulator::disconnect_current_mode()
 
     case TX_MOD_NFM:
     default:
-        disconnect(d_ctcss_adder, 0, d_mod_fm, 0);
+        disconnect(d_limiter, 0, d_mod_fm, 0);
         disconnect(d_mod_fm, 0, d_filter_fm, 0);
         disconnect(d_filter_fm, 0, d_meter, 0);
         disconnect(d_filter_fm, 0, self(), 0);

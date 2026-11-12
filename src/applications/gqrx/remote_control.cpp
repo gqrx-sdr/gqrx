@@ -55,11 +55,11 @@ RemoteControl::RemoteControl(QObject *parent) :
     hamlib_compatible = false;
     is_audio_muted = false;
     rc_ptt = false;
+    rc_tx_enabled = true;
     rc_split_mode = false;
     rc_tx_freq = 0;
     rc_tx_power = 0.0;
     rc_mic_gain = 0.0f;
-
     rc_port = DEFAULT_RC_PORT;
     rc_allowed_hosts.append(DEFAULT_RC_ALLOWED_HOSTS);
 
@@ -472,6 +472,12 @@ void RemoteControl::setPtt(bool ptt_on)
     rc_ptt = ptt_on;
 }
 
+void RemoteControl::setTxEnabled(bool enabled)
+{
+    rc_tx_enabled = enabled;
+    if (!rc_tx_enabled)
+        rc_ptt = false;
+}
 void RemoteControl::setSplitMode(bool enabled)
 {
     rc_split_mode = enabled;
@@ -720,7 +726,10 @@ QString RemoteControl::cmd_get_level(QStringList cmdlist)
         QStringList names;
         for(auto &g : gains)
             names.push_back(QString("%1_GAIN").arg(QString::fromStdString(g.name)));
-        answer = QString("SQL STRENGTH AF RFPOWER MICGAIN %1\n").arg(names.join(" "));
+        if (rc_tx_enabled)
+            answer = QString("SQL STRENGTH AF RFPOWER MICGAIN %1\n").arg(names.join(" "));
+        else
+            answer = QString("SQL STRENGTH AF %1\n").arg(names.join(" "));
     }
     else if (lvl.compare("RFPOWER", Qt::CaseInsensitive) == 0)
     {
@@ -774,13 +783,16 @@ QString RemoteControl::cmd_set_level(QStringList cmdlist)
         QStringList names;
         for(auto &g : gains)
             names.push_back(QString("%1_GAIN").arg(QString::fromStdString(g.name)));
-        answer = QString("SQL AF RFPOWER MICGAIN %1\n").arg(names.join(" "));
+        if (rc_tx_enabled)
+            answer = QString("SQL AF RFPOWER MICGAIN %1\n").arg(names.join(" "));
+        else
+            answer = QString("SQL AF %1\n").arg(names.join(" "));
     }
     else if (lvl.compare("RFPOWER", Qt::CaseInsensitive) == 0)
     {
         bool ok;
         double pwr = cmdlist.value(2, "ERR").toDouble(&ok);
-        if (ok)
+        if (ok && rc_tx_enabled)
         {
             answer = QString("RPRT 0\n");
             rc_tx_power = pwr;
@@ -795,7 +807,7 @@ QString RemoteControl::cmd_set_level(QStringList cmdlist)
     {
         bool ok;
         float gain = cmdlist.value(2, "ERR").toFloat(&ok);
-        if (ok)
+        if (ok && rc_tx_enabled)
         {
             answer = QString("RPRT 0\n");
             rc_mic_gain = gain;
@@ -862,7 +874,8 @@ QString RemoteControl::cmd_get_func(QStringList cmdlist)
     QString func = cmdlist.value(1, "");
 
     if (func == "?")
-        answer = QString("RECORD IQRECORD DSP RDS MUTE PTT SPLIT\n");
+        answer = rc_tx_enabled ? QString("RECORD IQRECORD DSP RDS MUTE PTT SPLIT\n")
+                               : QString("RECORD IQRECORD DSP RDS MUTE\n");
     else if (func.compare("RECORD", Qt::CaseInsensitive) == 0)
         answer = QString("%1\n").arg(audio_recorder_status);
     else if (func.compare("IQRECORD", Qt::CaseInsensitive) == 0)
@@ -893,7 +906,8 @@ QString RemoteControl::cmd_set_func(QStringList cmdlist)
 
     if (func == "?")
     {
-        answer = QString("RECORD IQRECORD DSP RDS MUTE PTT SPLIT\n");
+        answer = rc_tx_enabled ? QString("RECORD IQRECORD DSP RDS MUTE PTT SPLIT\n")
+                               : QString("RECORD IQRECORD DSP RDS MUTE\n");
     }
     else if ((func.compare("RECORD", Qt::CaseInsensitive) == 0) && ok)
     {
@@ -956,21 +970,30 @@ QString RemoteControl::cmd_set_func(QStringList cmdlist)
     }
     else if ((func.compare("PTT", Qt::CaseInsensitive) == 0) && ok)
     {
-        rc_ptt = (status != 0);
-        emit pttChanged(rc_ptt);
-        answer = QString("RPRT 0\n");
+        if (!rc_tx_enabled)
+            answer = QString("RPRT 1\n");
+        else
+        {
+            rc_ptt = (status != 0);
+            emit pttChanged(rc_ptt);
+            answer = QString("RPRT 0\n");
+        }
     }
     else if ((func.compare("SPLIT", Qt::CaseInsensitive) == 0) && ok)
     {
-        rc_split_mode = (status != 0);
-        emit splitModeChanged(rc_split_mode);
-        answer = QString("RPRT 0\n");
+        if (!rc_tx_enabled)
+            answer = QString("RPRT 1\n");
+        else
+        {
+            rc_split_mode = (status != 0);
+            emit splitModeChanged(rc_split_mode);
+            answer = QString("RPRT 0\n");
+        }
     }
     else
     {
         answer = QString("RPRT 1\n");
     }
-
     return answer;
 }
 
@@ -1025,6 +1048,9 @@ QString RemoteControl::cmd_get_ptt() const
 /* Set PTT status */
 QString RemoteControl::cmd_set_ptt(QStringList cmdlist)
 {
+    if (!rc_tx_enabled)
+        return QString("RPRT 1\n");
+
     QString cmd_arg = cmdlist.value(1, "");
     if (cmd_arg == "?")
         return QString("0 1\n");
@@ -1048,6 +1074,9 @@ QString RemoteControl::cmd_get_split_vfo() const
 /* Set 'Split' mode */
 QString RemoteControl::cmd_set_split_vfo(QStringList cmdlist)
 {
+    if (!rc_tx_enabled)
+        return QString("RPRT 1\n");
+
     QString cmd_arg = cmdlist.value(1, "");
     if (cmd_arg == "?")
         return QString("0 1\n");
@@ -1072,6 +1101,9 @@ QString RemoteControl::cmd_get_split_freq() const
 /* Set TX frequency */
 QString RemoteControl::cmd_set_split_freq(QStringList cmdlist)
 {
+    if (!rc_tx_enabled)
+        return QString("RPRT 1\n");
+
     QString cmd_arg = cmdlist.value(1, "");
     bool ok;
     qint64 freq = cmd_arg.toLongLong(&ok);

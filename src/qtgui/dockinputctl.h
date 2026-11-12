@@ -104,10 +104,10 @@ public:
     void    setPtt(bool active);
     bool    ptt() const;
     void    setTxEnabled(bool enabled);
-
+    void    setTxVisible(bool visible);
+    void    setTxPowerRange(double min_db, double max_db, double step_db = 0.5);
     void    setTxPower(double power_db);
     double  txPower() const;
-
     void    setMicGain(float gain_db);
     float   micGain() const;
 

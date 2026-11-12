@@ -20,6 +20,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <algorithm>
+#include <cmath>
 #include <QDebug>
 #include "dockinputctl.h"
 #include "ui_dockinputctl.h"
@@ -673,14 +675,45 @@ void DockInputCtl::setTxEnabled(bool enabled)
         setPtt(false);
         ui->txStatusLabel->setText(tr("TX Disabled (Device RX only)"));
     }
+    else if (!ptt())
+    {
+        ui->txStatusLabel->setText(tr("TX: Idle"));
+    }
+}
+
+void DockInputCtl::setTxVisible(bool visible)
+{
+    if (!visible)
+        setPtt(false);
+    ui->groupBoxTx->setVisible(visible);
+}
+
+void DockInputCtl::setTxPowerRange(double min_db, double max_db, double step_db)
+{
+    if (min_db >= max_db)
+        return;
+
+    int min_val = (int)std::round(min_db * 10.0);
+    int max_val = (int)std::round(max_db * 10.0);
+    int step_val = std::max(1, (int)std::round(step_db * 10.0));
+
+    ui->txPowerSlider->blockSignals(true);
+    ui->txPowerSlider->setRange(min_val, max_val);
+    ui->txPowerSlider->setSingleStep(step_val);
+    ui->txPowerSlider->setPageStep(std::max(step_val, (max_val - min_val) / 10));
+    ui->txPowerSlider->blockSignals(false);
+
+    double clamped = (double)ui->txPowerSlider->value() / 10.0;
+    ui->txPowerValueLabel->setText(QString("%1 dB").arg(clamped, 0, 'f', 1));
 }
 
 void DockInputCtl::setTxPower(double power_db)
 {
     ui->txPowerSlider->blockSignals(true);
-    ui->txPowerSlider->setValue((int)(power_db * 10.0));
+    ui->txPowerSlider->setValue((int)std::round(power_db * 10.0));
     ui->txPowerSlider->blockSignals(false);
-    ui->txPowerValueLabel->setText(QString("%1 dB").arg(power_db, 0, 'f', 1));
+    double clamped = (double)ui->txPowerSlider->value() / 10.0;
+    ui->txPowerValueLabel->setText(QString("%1 dB").arg(clamped, 0, 'f', 1));
 }
 
 double DockInputCtl::txPower() const
@@ -691,9 +724,10 @@ double DockInputCtl::txPower() const
 void DockInputCtl::setMicGain(float gain_db)
 {
     ui->micGainSlider->blockSignals(true);
-    ui->micGainSlider->setValue((int)(gain_db * 10.0f));
+    ui->micGainSlider->setValue((int)std::round(gain_db * 10.0f));
     ui->micGainSlider->blockSignals(false);
-    ui->micGainValueLabel->setText(QString("%1 dB").arg((double)gain_db, 0, 'f', 1));
+    float clamped = (float)ui->micGainSlider->value() / 10.0f;
+    ui->micGainValueLabel->setText(QString("%1 dB").arg((double)clamped, 0, 'f', 1));
 }
 
 float DockInputCtl::micGain() const

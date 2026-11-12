@@ -29,6 +29,7 @@
 #include <gnuradio/blocks/add_blk.h>
 #include <gnuradio/blocks/conjugate_cc.h>
 #include <gnuradio/analog/frequency_modulator_fc.h>
+#include <gnuradio/analog/rail_ff.h>
 #include <gnuradio/analog/sig_source.h>
 #include <gnuradio/filter/hilbert_fc.h>
 #include <memory>
@@ -110,6 +111,7 @@ private:
     gr::blocks::multiply_const_ff::sptr d_mic_gain;
     gr::analog::sig_source_f::sptr d_ctcss_source;
     gr::blocks::add_ff::sptr d_ctcss_adder;
+    gr::analog::rail_ff::sptr d_limiter;
 
     tx_mod_am_sptr d_mod_am;
     rx_filter_sptr d_filter_am;

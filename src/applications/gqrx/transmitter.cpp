@@ -102,6 +102,52 @@ void transmitter::create_audio_source()
     }
 }
 
+void transmitter::open_audio_input()
+{
+    if (d_audio_src)
+    {
+        try
+        {
+            d_tb->disconnect(d_audio_src, 0, d_modulator, 0);
+        }
+        catch (...) {}
+    }
+
+    create_audio_source();
+
+    try
+    {
+        d_tb->connect(d_audio_src, 0, d_modulator, 0);
+    }
+    catch (const std::exception &e)
+    {
+        qWarning() << "Error connecting transmitter audio source:" << e.what();
+    }
+}
+
+void transmitter::close_audio_input()
+{
+    if (d_audio_src)
+    {
+        try
+        {
+            d_tb->disconnect(d_audio_src, 0, d_modulator, 0);
+        }
+        catch (...) {}
+    }
+
+    d_audio_src = gr::blocks::null_source::make(sizeof(float));
+
+    try
+    {
+        d_tb->connect(d_audio_src, 0, d_modulator, 0);
+    }
+    catch (const std::exception &e)
+    {
+        qWarning() << "Error connecting transmitter null audio source:" << e.what();
+    }
+}
+
 void transmitter::create_tx_sink()
 {
     d_snk.reset();
@@ -109,7 +155,12 @@ void transmitter::create_tx_sink()
     d_sink_valid = false;
     d_last_error.clear();
 
-    if (!d_tx_devstr.empty())
+    // Reject file= input device strings explicitly; gr-osmosdr's file sink would
+    // open and truncate an existing I/Q recording file if passed to osmosdr::sink::make().
+    bool is_file_dev = (d_tx_devstr.rfind("file=", 0) == 0 ||
+                        d_tx_devstr.find(",file=") != std::string::npos ||
+                        d_tx_devstr.find(" file=") != std::string::npos);
+    if (!d_tx_devstr.empty() && !is_file_dev)
     {
         try
         {
@@ -136,41 +187,21 @@ void transmitter::create_tx_sink()
             qDebug() << "Device does not support transmission:" << d_tx_devstr.c_str() << "(" << e.what() << ")";
         }
     }
-    if (!d_sink_block)
+    else if (is_file_dev)
     {
-        try
-        {
-            d_snk = osmosdr::sink::make("file=/dev/null");
-            d_sink_block = d_snk;
-        }
-        catch (const std::exception &e)
-        {
-            qWarning() << "Failed to create fallback null sink:" << e.what();
-        }
+        d_last_error = "File input device does not support transmission";
     }
 
     if (!d_sink_block)
     {
         d_sink_block = gr::blocks::null_sink::make(sizeof(gr_complex));
     }
-    if (d_snk)
-    {
-        try
-        {
-            d_snk->set_sample_rate(d_tx_rate);
-            d_snk->set_center_freq(d_tx_freq);
-            d_snk->set_gain(d_tx_power_db);
-        }
-        catch (const std::exception &e)
-        {
-            qWarning() << "Error setting parameters on osmosdr::sink:" << e.what();
-        }
-    }
 }
 
 void transmitter::build_graph()
 {
-    create_audio_source();
+    // Start with a passive null source; real audio capture opens only while transmitting.
+    d_audio_src = gr::blocks::null_source::make(sizeof(float));
     create_tx_sink();
 
     d_modulator = make_tx_modulator(d_audio_rate, d_mode);
@@ -180,9 +211,13 @@ void transmitter::build_graph()
     float resamp_ratio = (float)(d_tx_rate / d_audio_rate);
     d_resampler = make_resampler_cc(resamp_ratio);
 
-    float rf_gain_linear = (float)std::pow(10.0, d_tx_power_db / 20.0);
-    if (rf_gain_linear > 1.0f)
-        rf_gain_linear = 1.0f;
+    float rf_gain_linear = 0.9f;
+    if (!d_sink_valid)
+    {
+        rf_gain_linear = (float)std::pow(10.0, d_tx_power_db / 20.0);
+        if (rf_gain_linear > 0.9f)
+            rf_gain_linear = 0.9f;
+    }
     d_rf_gain = gr::blocks::multiply_const_cc::make(rf_gain_linear);
 
     d_rf_meter = make_rx_meter_c(d_tx_rate);
@@ -199,18 +234,42 @@ transmitter::status transmitter::start()
     if (d_running)
         return STATUS_OK;
 
+    if (d_sink_valid)
+        open_audio_input();
+
     if (d_snk)
     {
         try
         {
             double target_freq = d_split_enabled ? (d_tx_freq + d_split_offset) : d_tx_freq;
-            d_snk->set_sample_rate(d_tx_rate);
+            double actual_rate = d_snk->set_sample_rate(d_tx_rate);
+            if (actual_rate > 0.0 && std::abs(actual_rate - d_tx_rate) > 1.0)
+            {
+                d_tx_rate = actual_rate;
+                if (d_resampler)
+                    d_resampler->set_rate((float)(d_tx_rate / d_audio_rate));
+            }
             d_snk->set_center_freq(target_freq);
             d_snk->set_gain(d_tx_power_db);
         }
         catch (const std::exception &e)
         {
             qWarning() << "Error updating sink settings prior to start:" << e.what();
+        }
+    }
+
+    if (d_rf_gain)
+    {
+        if (d_sink_valid)
+        {
+            d_rf_gain->set_k(0.9f);
+        }
+        else
+        {
+            float gain_linear = (float)std::pow(10.0, d_tx_power_db / 20.0);
+            if (gain_linear > 0.9f)
+                gain_linear = 0.9f;
+            d_rf_gain->set_k(gain_linear);
         }
     }
 
@@ -227,6 +286,7 @@ transmitter::status transmitter::start()
         d_last_error = e.what();
         qWarning() << "Error starting transmitter top block:" << e.what();
         d_running = false;
+        close_audio_input();
         return STATUS_ERROR;
     }
 }
@@ -241,6 +301,7 @@ transmitter::status transmitter::stop()
         d_tb->stop();
         d_tb->wait();
         d_running = false;
+        close_audio_input();
         qDebug() << "Transmitter stopped.";
         return STATUS_OK;
     }
@@ -249,13 +310,13 @@ transmitter::status transmitter::stop()
         d_last_error = e.what();
         qWarning() << "Error stopping transmitter top block:" << e.what();
         d_running = false;
+        close_audio_input();
         return STATUS_ERROR;
     }
 }
-
 void transmitter::set_tx_device(const std::string &device)
 {
-    if (device == d_tx_devstr)
+    if (device == d_tx_devstr && (device.empty() || d_sink_valid))
         return;
 
     bool was_running = d_running;
@@ -291,31 +352,13 @@ void transmitter::set_audio_device(const std::string &device)
     if (device == d_audio_devstr)
         return;
 
-    bool was_running = d_running;
-    if (was_running)
-        stop();
-
     d_audio_devstr = device;
 
-    try
+    if (d_running && d_sink_valid)
     {
-        d_tb->disconnect(d_audio_src, 0, d_modulator, 0);
-    }
-    catch (...) {}
-
-    create_audio_source();
-
-    try
-    {
-        d_tb->connect(d_audio_src, 0, d_modulator, 0);
-    }
-    catch (const std::exception &e)
-    {
-        qWarning() << "Error reconnecting new audio source:" << e.what();
-    }
-
-    if (was_running)
+        stop();
         start();
+    }
 }
 
 transmitter::status transmitter::set_tx_freq(double freq_hz)
@@ -323,7 +366,7 @@ transmitter::status transmitter::set_tx_freq(double freq_hz)
     d_tx_freq = freq_hz;
     double target_freq = d_split_enabled ? (d_tx_freq + d_split_offset) : d_tx_freq;
 
-    if (d_snk)
+    if (d_running && d_snk)
     {
         try
         {
@@ -341,7 +384,7 @@ transmitter::status transmitter::set_tx_freq(double freq_hz)
 
 transmitter::status transmitter::set_tx_rate(double rate)
 {
-    if (rate <= 0.0 || rate == d_tx_rate)
+    if (rate <= 0.0 || std::abs(rate - d_tx_rate) < 1.0)
         return STATUS_OK;
 
     bool was_running = d_running;
@@ -350,30 +393,16 @@ transmitter::status transmitter::set_tx_rate(double rate)
 
     d_tx_rate = rate;
 
-    // Update resampler
-    try
-    {
-        d_tb->disconnect(d_modulator, 0, d_resampler, 0);
-        d_tb->disconnect(d_resampler, 0, d_rf_gain, 0);
-
-        float resamp_ratio = (float)(d_tx_rate / d_audio_rate);
-        d_resampler = make_resampler_cc(resamp_ratio);
-
-        d_tb->connect(d_modulator, 0, d_resampler, 0);
-        d_tb->connect(d_resampler, 0, d_rf_gain, 0);
-    }
-    catch (const std::exception &e)
-    {
-        qWarning() << "Error updating resampler rate:" << e.what();
-    }
-
-    if (d_snk)
+    if (d_resampler)
     {
         try
         {
-            d_snk->set_sample_rate(d_tx_rate);
+            d_resampler->set_rate((float)(d_tx_rate / d_audio_rate));
         }
-        catch (...) {}
+        catch (const std::exception &e)
+        {
+            qWarning() << "Error updating resampler rate:" << e.what();
+        }
     }
 
     if (was_running)
@@ -421,7 +450,7 @@ void transmitter::set_tx_power(double power_db)
 {
     d_tx_power_db = power_db;
 
-    if (d_snk)
+    if (d_running && d_snk)
     {
         try
         {
@@ -432,10 +461,17 @@ void transmitter::set_tx_power(double power_db)
 
     if (d_rf_gain)
     {
-        float gain_linear = (float)std::pow(10.0, power_db / 20.0);
-        if (gain_linear > 1.0f)
-            gain_linear = 1.0f;
-        d_rf_gain->set_k(gain_linear);
+        if (d_sink_valid)
+        {
+            d_rf_gain->set_k(0.9f);
+        }
+        else
+        {
+            float gain_linear = (float)std::pow(10.0, power_db / 20.0);
+            if (gain_linear > 0.9f)
+                gain_linear = 0.9f;
+            d_rf_gain->set_k(gain_linear);
+        }
     }
 }
 
@@ -483,6 +519,30 @@ std::vector<std::string> transmitter::get_gain_names() const
         catch (...) {}
     }
     return std::vector<std::string>();
+}
+
+bool transmitter::get_tx_gain_range(double *start, double *stop, double *step) const
+{
+    if (!d_snk || !d_sink_valid)
+        return false;
+
+    try
+    {
+        osmosdr::gain_range_t range = d_snk->get_gain_range();
+        if (!range.empty() && range.start() < range.stop())
+        {
+            if (start)
+                *start = range.start();
+            if (stop)
+                *stop = range.stop();
+            if (step)
+                *step = range.step() > 0.0 ? range.step() : 0.5;
+            return true;
+        }
+    }
+    catch (...) {}
+
+    return false;
 }
 
 void transmitter::set_gain(const std::string &name, double val)

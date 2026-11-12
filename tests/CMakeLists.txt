@@ -8,7 +8,7 @@ set(TEST_SRCS
     ${CMAKE_SOURCE_DIR}/src/applications/gqrx/remote_control.cpp
 )
 
-if(${LINUX_AUDIO_BACKEND} MATCHES "Pulseaudio")
+if(DEFINED LINUX_AUDIO_BACKEND AND LINUX_AUDIO_BACKEND MATCHES "Pulseaudio")
     list(APPEND TEST_SRCS ${CMAKE_SOURCE_DIR}/src/pulseaudio/pa_source.cc)
 endif()
 
@@ -59,7 +59,7 @@ else()
     )
 endif()
 
-if(${LINUX_AUDIO_BACKEND} MATCHES "Pulseaudio")
+if(DEFINED LINUX_AUDIO_BACKEND AND LINUX_AUDIO_BACKEND MATCHES "Pulseaudio")
     target_link_libraries(test_tx
         ${PULSEAUDIO_LIBRARY}
         ${PULSE-SIMPLE}
