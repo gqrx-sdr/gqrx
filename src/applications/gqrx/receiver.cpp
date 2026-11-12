@@ -20,6 +20,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
+#include <algorithm>
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -76,6 +77,10 @@ receiver::receiver(const std::string input_device,
 {
 
     tb = gr::make_top_block("gqrx");
+    src_tb = gr::make_top_block("gqrx_source");
+    iq_fifo = make_iq_bridge_fifo(65536);
+    iq_bridge_snk = make_iq_bridge_sink_c(iq_fifo);
+    iq_bridge_src = make_iq_bridge_source_c(iq_fifo);
 
     if (input_device.empty())
     {
@@ -86,6 +91,10 @@ receiver::receiver(const std::string input_device,
         input_devstr = input_device;
         src = osmosdr::source::make(input_device);
     }
+
+    // The device lives in its own flow graph so that stopping or rewiring the
+    // DSP graph never stops the device stream. See issue #1445.
+    src_tb->connect(src, 0, iq_bridge_snk, 0);
 
     // input decimator
     if (d_decim >= 2)
@@ -151,6 +160,7 @@ receiver::receiver(const std::string input_device,
 receiver::~receiver()
 {
     tb->stop();
+    src_tb->stop();
 }
 
 
@@ -159,6 +169,8 @@ void receiver::start()
 {
     if (!d_running)
     {
+        iq_fifo->clear();
+        src_tb->start();
         tb->start();
         d_running = true;
     }
@@ -171,6 +183,8 @@ void receiver::stop()
     {
         tb->stop();
         tb->wait(); // If the graph is needed to run again, wait() must be called after stop
+        src_tb->stop();
+        src_tb->wait();
         d_running = false;
     }
 }
@@ -192,32 +206,28 @@ void receiver::set_input_device(const std::string device)
 
     input_devstr = device;
 
-    // tb->lock() can hang occasionally
+    // Stop both flow graphs while the device is reopened. Stopping the DSP
+    // graph is not enough: the old source has to be detached from its own
+    // top block before it is destroyed.
     if (d_running)
     {
         tb->stop();
         tb->wait();
+        src_tb->stop();
+        src_tb->wait();
     }
 
-    if (d_decim >= 2)
-    {
-        tb->disconnect(src, 0, input_decim, 0);
-        tb->disconnect(input_decim, 0, iq_swap, 0);
-    }
-    else
-    {
-        tb->disconnect(src, 0, iq_swap, 0);
-    }
+    src_tb->disconnect(src, 0, iq_bridge_snk, 0);
 
 #if GNURADIO_VERSION < 0x030802
     //Work around GNU Radio bug #3184
     //temporarily connect dummy source to ensure that previous device is closed
     src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
-    tb->connect(src, 0, iq_swap, 0);
-    tb->start();
-    tb->stop();
-    tb->wait();
-    tb->disconnect(src, 0, iq_swap, 0);
+    src_tb->connect(src, 0, iq_bridge_snk, 0);
+    src_tb->start();
+    src_tb->stop();
+    src_tb->wait();
+    src_tb->disconnect(src, 0, iq_bridge_snk, 0);
 #else
     src.reset();
 #endif
@@ -232,21 +242,17 @@ void receiver::set_input_device(const std::string device)
         src = osmosdr::source::make("file="+escape_filename(get_zero_file())+",freq=428e6,rate=96000,repeat=true,throttle=true");
     }
 
-    if(src->get_sample_rate() != 0)
-        set_input_rate(src->get_sample_rate());
+    src_tb->connect(src, 0, iq_bridge_snk, 0);
 
-    if (d_decim >= 2)
-    {
-        tb->connect(src, 0, input_decim, 0);
-        tb->connect(input_decim, 0, iq_swap, 0);
-    }
-    else
-    {
-        tb->connect(src, 0, iq_swap, 0);
-    }
+    if(src->get_sample_rate() != 0)
+        apply_input_rate(src->get_sample_rate());
 
     if (d_running)
+    {
+        iq_fifo->clear();
+        src_tb->start();
         tb->start();
+    }
 
     if (error != "")
     {
@@ -323,6 +329,34 @@ void receiver::set_antenna(const std::string &antenna)
  */
 double receiver::set_input_rate(double rate)
 {
+    const bool was_running = d_running;
+
+    // src_tb owns the device, so stop it while the rate is changed instead of
+    // racing the source's work() thread.
+    if (was_running)
+    {
+        src_tb->stop();
+        src_tb->wait();
+    }
+
+    const double actual_rate = apply_input_rate(rate);
+
+    if (was_running)
+    {
+        iq_fifo->clear();
+        src_tb->start();
+    }
+
+    return actual_rate;
+}
+
+/*! \brief Apply a new input rate to the source and the DSP blocks.
+ *
+ * The caller must ensure that src_tb is not running (or that it is safe to
+ * reconfigure the source while it runs).
+ */
+double receiver::apply_input_rate(double rate)
+{
     double  current_rate;
     bool    rate_has_changed;
 
@@ -363,9 +397,23 @@ double receiver::set_input_rate(double rate)
     ddc->set_decim_and_samp_rate(d_ddc_decim, d_decim_rate);
     rx->set_quad_rate(d_quad_rate);
     iq_fft->set_quad_rate(d_decim_rate);
+    set_bridge_capacity(d_input_rate);
     tb->unlock();
 
     return d_input_rate;
+}
+
+/*! \brief Size the FIFO between the source and the DSP flow graphs.
+ *
+ * It should hold the samples produced during a short DSP reconfiguration
+ * (well below 100 ms) without unbounded memory use at high sample rates.
+ */
+void receiver::set_bridge_capacity(double input_rate)
+{
+    const double target = std::max(16384.0, input_rate * 0.05);
+    const size_t capacity = static_cast<size_t>(std::min(target, 500000.0));
+
+    iq_fifo->set_capacity(capacity);
 }
 
 /** Set input decimation */
@@ -382,12 +430,12 @@ unsigned int receiver::set_input_decim(unsigned int decim)
 
     if (d_decim >= 2)
     {
-        tb->disconnect(src, 0, input_decim, 0);
+        tb->disconnect(iq_bridge_src, 0, input_decim, 0);
         tb->disconnect(input_decim, 0, iq_swap, 0);
     }
     else
     {
-        tb->disconnect(src, 0, iq_swap, 0);
+        tb->disconnect(iq_bridge_src, 0, iq_swap, 0);
     }
 
     input_decim.reset();
@@ -423,12 +471,12 @@ unsigned int receiver::set_input_decim(unsigned int decim)
 
     if (d_decim >= 2)
     {
-        tb->connect(src, 0, input_decim, 0);
+        tb->connect(iq_bridge_src, 0, input_decim, 0);
         tb->connect(input_decim, 0, iq_swap, 0);
     }
     else
     {
-        tb->connect(src, 0, iq_swap, 0);
+        tb->connect(iq_bridge_src, 0, iq_swap, 0);
     }
 
 #ifdef CUSTOM_AIRSPY_KERNELS
@@ -1134,7 +1182,13 @@ receiver::status receiver::start_audio_playback(const std::string filename)
         return STATUS_ERROR;
     }
 
-    stop();
+    /* Rewire the DSP graph, but keep the device flow graph running. */
+    if (d_running)
+    {
+        tb->stop();
+        tb->wait();
+    }
+
     /* route demodulator output to null sink */
     tb->disconnect(rx, 0, audio_gain0, 0);
     tb->disconnect(rx, 1, audio_gain1, 0);
@@ -1148,7 +1202,8 @@ receiver::status receiver::start_audio_playback(const std::string filename)
     tb->connect(wav_src, 0, audio_fft, 0);
     tb->connect(wav_src, 0, audio_udp_sink, 0);
     tb->connect(wav_src, 1, audio_udp_sink, 1);
-    start();
+    if (d_running)
+        tb->start();
 
     std::cout << "Playing audio from " << filename << std::endl;
 
@@ -1159,7 +1214,12 @@ receiver::status receiver::start_audio_playback(const std::string filename)
 receiver::status receiver::stop_audio_playback()
 {
     /* disconnect wav source and reconnect receiver */
-    stop();
+    if (d_running)
+    {
+        tb->stop();
+        tb->wait();
+    }
+
     tb->disconnect(wav_src, 0, audio_gain0, 0);
     tb->disconnect(wav_src, 1, audio_gain1, 0);
     tb->disconnect(wav_src, 0, audio_fft, 0);
@@ -1172,7 +1232,8 @@ receiver::status receiver::stop_audio_playback()
     tb->connect(rx, 0, audio_fft, 0);  /** FIXME: other channel? */
     tb->connect(rx, 0, audio_udp_sink, 0);
     tb->connect(rx, 1, audio_udp_sink, 1);
-    start();
+    if (d_running)
+        tb->start();
 
     /* delete wav_src since we can not change file name */
     wav_src.reset();
@@ -1221,7 +1282,7 @@ receiver::status receiver::start_iq_recording(const std::string filename)
     if (d_decim >= 2)
         tb->connect(input_decim, 0, iq_sink, 0);
     else
-        tb->connect(src, 0, iq_sink, 0);
+        tb->connect(iq_bridge_src, 0, iq_sink, 0);
     d_recording_iq = true;
     tb->unlock();
 
@@ -1242,7 +1303,7 @@ receiver::status receiver::stop_iq_recording()
     if (d_decim >= 2)
         tb->disconnect(input_decim, 0, iq_sink, 0);
     else
-        tb->disconnect(src, 0, iq_sink, 0);
+        tb->disconnect(iq_bridge_src, 0, iq_sink, 0);
 
     tb->unlock();
     iq_sink.reset();
@@ -1261,6 +1322,15 @@ receiver::status receiver::seek_iq_file(long pos)
 
     tb->lock();
 
+    // The source is owned by src_tb; stop it while seeking so the work()
+    // thread does not read from a file that is being repositioned.
+    const bool was_running = d_running;
+    if (was_running)
+    {
+        src_tb->stop();
+        src_tb->wait();
+    }
+
     if (src->seek(pos, SEEK_SET))
     {
         status = STATUS_OK;
@@ -1268,6 +1338,12 @@ receiver::status receiver::seek_iq_file(long pos)
     else
     {
         status = STATUS_ERROR;
+    }
+
+    if (was_running)
+    {
+        iq_fifo->clear();
+        src_tb->start();
     }
 
     tb->unlock();
@@ -1338,7 +1414,7 @@ void receiver::connect_all(rx_chain type)
     gr::basic_block_sptr b;
 
     // Setup source
-    b = src;
+    b = iq_bridge_src;
 
     // Pre-processing
     if (d_decim >= 2)
@@ -1427,9 +1503,10 @@ void receiver::start_rds_decoder(void)
 {
     if (d_running)
     {
-        stop();
+        tb->stop();
+        tb->wait();
         rx->start_rds_decoder();
-        start();
+        tb->start();
     }
     else
     {
@@ -1441,9 +1518,10 @@ void receiver::stop_rds_decoder(void)
 {
     if (d_running)
     {
-        stop();
+        tb->stop();
+        tb->wait();
         rx->stop_rds_decoder();
-        start();
+        tb->start();
     }
     else
     {
