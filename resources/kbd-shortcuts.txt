@@ -13,6 +13,7 @@ Main window actions:
  F              Set focus to the frequency controller
  Z              Zero frequency offset
  Delete         Clear waterfall
+ Ctrl+T         Toggle transmitter PTT (when TX is enabled)
  Ctrl+Q         Quit the program
 
 Receiver modes:

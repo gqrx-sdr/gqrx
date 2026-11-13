@@ -239,6 +239,185 @@
      </widget>
     </item>
     <item>
+     <widget class="QGroupBox" name="groupBoxTx">
+      <property name="title">
+       <string>Transmitter controls</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayoutTx">
+       <property name="spacing">
+        <number>4</number>
+       </property>
+       <property name="leftMargin">
+        <number>4</number>
+       </property>
+       <property name="topMargin">
+        <number>4</number>
+       </property>
+       <property name="rightMargin">
+        <number>4</number>
+       </property>
+       <property name="bottomMargin">
+        <number>4</number>
+       </property>
+       <item>
+        <widget class="QPushButton" name="pttButton">
+         <property name="text">
+          <string>PTT (Transmit)</string>
+         </property>
+         <property name="toolTip">
+          <string>Toggle transmission (PTT) [Ctrl+T]</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="layoutTxPower">
+         <item>
+          <widget class="QLabel" name="labelTxPower">
+           <property name="text">
+            <string>TX Power</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="txPowerSlider">
+           <property name="maximum">
+            <number>470</number>
+           </property>
+           <property name="singleStep">
+            <number>10</number>
+           </property>
+           <property name="pageStep">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="txPowerValueLabel">
+           <property name="text">
+            <string>0.0 dB</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="layoutMicGain">
+         <item>
+          <widget class="QLabel" name="labelMicGain">
+           <property name="text">
+            <string>Mic Gain</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="micGainSlider">
+           <property name="minimum">
+            <number>-200</number>
+           </property>
+           <property name="maximum">
+            <number>200</number>
+           </property>
+           <property name="singleStep">
+            <number>10</number>
+           </property>
+           <property name="pageStep">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="micGainValueLabel">
+           <property name="text">
+            <string>0.0 dB</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="layoutSplit">
+         <item>
+          <widget class="QCheckBox" name="splitCheckBox">
+           <property name="text">
+            <string>Split</string>
+           </property>
+           <property name="toolTip">
+            <string>Enable split frequency transmission</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="splitOffsetSpinBox">
+           <property name="suffix">
+            <string> kHz</string>
+           </property>
+           <property name="decimals">
+            <number>1</number>
+           </property>
+           <property name="minimum">
+            <double>-100000.0</double>
+           </property>
+           <property name="maximum">
+            <double>100000.0</double>
+           </property>
+           <property name="singleStep">
+            <double>10.0</double>
+           </property>
+           <property name="toolTip">
+            <string>TX frequency offset relative to RX frequency</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="layoutCtcss">
+         <item>
+          <widget class="QLabel" name="labelCtcss">
+           <property name="text">
+            <string>CTCSS</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="ctcssCombo">
+           <property name="toolTip">
+            <string>CTCSS sub-audible tone for FM transmission</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="txStatusLabel">
+         <property name="text">
+          <string>TX: Idle</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="alcMeterLabel">
+         <property name="text">
+          <string>ALC: -- dBFS</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
      <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>

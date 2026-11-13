@@ -14,6 +14,10 @@ add_source_files(SRCS_LIST
 	gqrx/recentconfig.cpp
 	gqrx/recentconfig.h
 	gqrx/file_resources.cpp
+	gqrx/transmitter.cpp
+	gqrx/transmitter.h
+	gqrx/tx_device_args.cpp
+	gqrx/tx_device_args.h
 )
 
 #######################################################################################################################

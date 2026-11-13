@@ -139,6 +139,14 @@ endif()
 include(FindPkgConfig)
 find_package(Gnuradio-osmosdr REQUIRED)
 
+# Optional: lets the TX probe ask SoapySDR whether a soapy= device has
+# transmit channels (gr-osmosdr's soapy sink does not check).
+find_package(SoapySDR CONFIG QUIET)
+if(SoapySDR_FOUND)
+    message(STATUS "SoapySDR found: TX probe checks Soapy TX channel count")
+    add_definitions(-DGQRX_HAVE_SOAPYSDR)
+endif()
+
 set(GR_REQUIRED_COMPONENTS RUNTIME ANALOG AUDIO BLOCKS DIGITAL FILTER FFT PMT)
 find_package(Gnuradio REQUIRED COMPONENTS analog audio blocks digital filter fft network)
 if(NOT Gnuradio_FOUND)
@@ -273,6 +281,8 @@ install(FILES resources/icons/dk.gqrx.gqrx.svg DESTINATION share/icons/hicolor/s
 
 # Add subdirectories
 add_subdirectory(src)
+enable_testing()
+add_subdirectory(tests)
 
 # uninstall target
 # https://cmake.org/Wiki/CMake_FAQ#Can_I_do_.22make_uninstall.22_with_CMake.3F
