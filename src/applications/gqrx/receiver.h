@@ -114,6 +114,7 @@ public:
 
     void        start();
     void        stop();
+    bool        is_running() const { return d_running; }
     void        set_input_device(const std::string device);
     void        set_output_device(const std::string device);
 

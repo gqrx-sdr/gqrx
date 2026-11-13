@@ -421,8 +421,9 @@
     <addaction name="actionAFSK1200"/>
     <addaction name="separator"/>
     <addaction name="actionDX_Cluster"/>
+    <addaction name="separator"/>
+    <addaction name="actionEnableTx"/>
    </widget>
-   <addaction name="menu_File"/>
    <addaction name="menu_Tools"/>
    <addaction name="menu_View"/>
    <addaction name="menu_Help"/>
@@ -730,10 +731,23 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+C</string>
-   </property>
-  </action>
- </widget>
- <layoutdefault spacing="6" margin="11"/>
+  </property>
+ </action>
+ <action name="actionEnableTx">
+  <property name="checkable">
+   <bool>true</bool>
+  </property>
+  <property name="checked">
+   <bool>true</bool>
+  </property>
+  <property name="text">
+   <string>Enable transmitter (TX)</string>
+  </property>
+  <property name="toolTip">
+   <string>Enable or disable transmitter (TX) support in the GUI</string>
+  </property>
+ </action>
+</widget>
  <customwidgets>
   <customwidget>
    <class>CFreqCtrl</class>

@@ -26,7 +26,7 @@
 #include <QDialog>
 #include <QSettings>
 #include <QString>
-
+#include <QStringList>
 #ifdef WITH_PULSEAUDIO
 #include "pulseaudio/pa_device_list.h"
 #elif WITH_PORTAUDIO
@@ -57,12 +57,14 @@ private slots:
     void inputRateChanged(const QString &text);
     void decimationChanged(int index);
     void onScanButtonClicked();
+    void txEnableClicked(bool checked);
 
 private:
     void updateInputSampleRates(int rate);
     void updateDecimations(void);
     void updateInDev(const QSettings *settings, const std::map<QString, QVariant> &devList);
     void updateOutDev();
+    void updateTxOption();
     int  idx2decim(int idx) const;
     int  decim2idx(int decim) const;
     static std::string escapeDevstr(std::string devstr);
@@ -72,7 +74,8 @@ private:
     QSettings      *m_settings;
     QPushButton    *m_scanButton;
     std::map<QString, QVariant> *m_devList; // will point to devList from constructor
-
+    QStringList     m_disabledTxDevices;
+    bool            m_globalTxEnabled;
 #ifdef WITH_PULSEAUDIO
     vector<pa_device>           outDevList;
 #elif WITH_PORTAUDIO
