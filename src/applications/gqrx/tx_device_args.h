@@ -23,7 +23,22 @@
 #ifndef TX_DEVICE_ARGS_H
 #define TX_DEVICE_ARGS_H
 
+#include <map>
 #include <string>
+#include <vector>
+
+/*! Parameters of one device in a gr-osmosdr device string (key -> value). */
+typedef std::map<std::string, std::string> tx_device_params;
+
+/*! \brief Split a gr-osmosdr device string into per-device parameters.
+ *
+ * Mirrors gr-osmosdr's args_to_vector() and params_to_dict() (arg_helpers.h):
+ * devices are separated by spaces, parameters by commas, single quotes group
+ * text, and a backslash escapes the next character. Global "numchan=" tokens
+ * and empty tokens are skipped. Returns false where gr-osmosdr's parser would
+ * throw.
+ */
+bool tx_devstr_split(const std::string &devstr, std::vector<tx_device_params> &devices);
 
 /*! \brief Check whether a gr-osmosdr device string names a transmit driver.
  *
@@ -47,7 +62,8 @@
  * \note This only stops gr-osmosdr from choosing a device on its own. A
  * soapy= device can still be receive-only: gr-osmosdr's soapy sink does not
  * check the driver's TX channel count, and some Soapy modules accept a TX
- * stream setup anyway.
+ * stream setup anyway. The transmitter checks that separately when gqrx is
+ * built with SoapySDR.
  */
 bool tx_devstr_names_sink_driver(const std::string &devstr);
 

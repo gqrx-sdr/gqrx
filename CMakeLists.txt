@@ -139,6 +139,14 @@ endif()
 include(FindPkgConfig)
 find_package(Gnuradio-osmosdr REQUIRED)
 
+# Optional: lets the TX probe ask SoapySDR whether a soapy= device has
+# transmit channels (gr-osmosdr's soapy sink does not check).
+find_package(SoapySDR CONFIG QUIET)
+if(SoapySDR_FOUND)
+    message(STATUS "SoapySDR found: TX probe checks Soapy TX channel count")
+    add_definitions(-DGQRX_HAVE_SOAPYSDR)
+endif()
+
 set(GR_REQUIRED_COMPONENTS RUNTIME ANALOG AUDIO BLOCKS DIGITAL FILTER FFT PMT)
 find_package(Gnuradio REQUIRED COMPONENTS analog audio blocks digital filter fft network)
 if(NOT Gnuradio_FOUND)

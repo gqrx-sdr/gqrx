@@ -7,6 +7,7 @@
 #include <cassert>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "applications/gqrx/tx_device_args.h"
 
@@ -73,6 +74,26 @@ int main()
     // Strings gr-osmosdr's own parser would reject.
     expect("hackrf=0\\q", false);
     expect("hackrf=0\\", false);
+
+    // tx_devstr_split() must produce the same parameters gr-osmosdr passes to
+    // SoapySDR::Device::make(), including for strings quoted by escapeDevstr().
+    {
+        std::vector<tx_device_params> devs;
+        assert(tx_devstr_split("'soapy=0,driver=plutosdr,label=PlutoSDR #0'", devs));
+        assert(devs.size() == 1);
+        assert(devs[0].size() == 3);
+        assert(devs[0].at("soapy") == "0");
+        assert(devs[0].at("driver") == "plutosdr");
+        assert(devs[0].at("label") == "PlutoSDR #0");
+
+        assert(tx_devstr_split("numchan=1 hackrf=0  uhd,serial=1", devs));
+        assert(devs.size() == 2);
+        assert(devs[0].count("hackrf") && devs[0].at("hackrf") == "0");
+        assert(devs[1].count("uhd") && devs[1].at("serial") == "1");
+
+        assert(tx_devstr_split("", devs) && devs.empty());
+        assert(!tx_devstr_split("soapy=0\\q", devs));
+    }
 
     std::cout << "test_tx_device_args passed." << std::endl;
     return 0;

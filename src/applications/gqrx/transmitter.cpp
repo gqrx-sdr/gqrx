@@ -35,6 +35,10 @@
 
 #include <gnuradio/audio/source.h>
 
+#ifdef GQRX_HAVE_SOAPYSDR
+#include <SoapySDR/Device.hpp>
+#endif
+
 #define DEFAULT_TX_AUDIO_RATE 48000.0
 #define DEFAULT_TX_RATE       2000000.0
 
@@ -149,6 +153,45 @@ void transmitter::close_audio_input()
     }
 }
 
+#ifdef GQRX_HAVE_SOAPYSDR
+/*
+ * gr-osmosdr's soapy sink reports at least one channel without asking the
+ * driver how many TX channels it has, and some RX-only Soapy modules
+ * (SoapySDRPlay3, SoapyAirspy, SoapyAirspyHF) accept a TX stream setup
+ * anyway. Ask SoapySDR directly. Device::make() returns the receiver's
+ * cached instance when the device is already open.
+ */
+static bool soapy_devices_can_transmit(const std::string &devstr, std::string &error)
+{
+    std::vector<tx_device_params> devices;
+    if (!tx_devstr_split(devstr, devices))
+        return false;
+
+    for (const tx_device_params &dev : devices)
+    {
+        if (!dev.count("soapy"))
+            continue;
+        try
+        {
+            SoapySDR::Device *sdev = SoapySDR::Device::make(SoapySDR::Kwargs(dev.begin(), dev.end()));
+            const size_t num_tx = sdev->getNumChannels(SOAPY_SDR_TX);
+            SoapySDR::Device::unmake(sdev);
+            if (num_tx == 0)
+            {
+                error = "Device has no transmit channels";
+                return false;
+            }
+        }
+        catch (const std::exception &e)
+        {
+            error = e.what();
+            return false;
+        }
+    }
+    return true;
+}
+#endif
+
 void transmitter::create_tx_sink()
 {
     d_snk.reset();
@@ -166,7 +209,13 @@ void transmitter::create_tx_sink()
     // transmit-capable device it can enumerate instead. Only probe strings that
     // name a sink driver, so TX can never end up on an unselected device.
     bool names_tx_driver = tx_devstr_names_sink_driver(d_tx_devstr);
-    if (!d_tx_devstr.empty() && !is_file_dev && names_tx_driver)
+    std::string soapy_error;
+    bool soapy_can_tx = true;
+#ifdef GQRX_HAVE_SOAPYSDR
+    if (names_tx_driver)
+        soapy_can_tx = soapy_devices_can_transmit(d_tx_devstr, soapy_error);
+#endif
+    if (!d_tx_devstr.empty() && !is_file_dev && names_tx_driver && soapy_can_tx)
     {
         try
         {
@@ -195,10 +244,15 @@ void transmitter::create_tx_sink()
     {
         d_last_error = "File input device does not support transmission";
     }
-    else if (!d_tx_devstr.empty())
+    else if (!d_tx_devstr.empty() && !names_tx_driver)
     {
         d_last_error = "Device string does not name a transmit-capable driver";
         qDebug() << "Not probing TX: no osmosdr sink driver in" << d_tx_devstr.c_str();
+    }
+    else if (!d_tx_devstr.empty())
+    {
+        d_last_error = soapy_error;
+        qDebug() << "Not probing TX for" << d_tx_devstr.c_str() << ":" << soapy_error.c_str();
     }
 
     if (!d_sink_block)

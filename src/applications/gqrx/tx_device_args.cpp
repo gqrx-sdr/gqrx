@@ -78,54 +78,65 @@ bool split_escaped(const std::string &in, char sep, std::vector<std::string> &ou
     return true;
 }
 
-bool is_sink_driver(const std::string &key)
-{
-    for (const char *driver : sink_drivers)
-        if (key == driver)
-            return true;
-    return false;
-}
-
 } // namespace
 
-bool tx_devstr_names_sink_driver(const std::string &devstr)
+bool tx_devstr_split(const std::string &devstr, std::vector<tx_device_params> &devices)
 {
-    std::vector<std::string> devices;
-    if (!split_escaped(devstr, ' ', devices))
+    devices.clear();
+
+    std::vector<std::string> tokens;
+    if (!split_escaped(devstr, ' ', tokens))
         return false;
 
-    int named = 0;
-    for (const std::string &device : devices)
+    for (const std::string &token : tokens)
     {
         // Global "numchan=N" tokens are not devices (see args_to_io_signature()).
-        if (device.rfind("numchan=", 0) == 0)
+        if (token.rfind("numchan=", 0) == 0)
             continue;
 
         std::vector<std::string> params;
-        if (!split_escaped(device, ',', params))
+        if (!split_escaped(token, ',', params))
             return false;
 
         // gr-osmosdr ignores tokens without parameters (e.g. repeated spaces).
         if (params.empty())
             continue;
 
-        bool has_sink_driver = false;
+        // Same key/value split and quote handling as params_to_dict().
+        tx_device_params dict;
         for (const std::string &param : params)
         {
-            const std::string key = param.substr(0, param.find('='));
-            // A file= key makes gr-osmosdr open (and truncate) a file sink.
-            if (key == "file")
-                return false;
-            if (is_sink_driver(key))
-                has_sink_driver = true;
+            const size_t pos = param.find('=');
+            std::string value = (pos == std::string::npos) ? "" : param.substr(pos + 1);
+            if (value.length() && value[0] == '\'' && value[value.length() - 1] == '\'')
+                value = value.substr(1, value.length() - 1);
+            dict[param.substr(0, pos)] = value;
         }
+        devices.push_back(dict);
+    }
+    return true;
+}
+
+bool tx_devstr_names_sink_driver(const std::string &devstr)
+{
+    std::vector<tx_device_params> devices;
+    if (!tx_devstr_split(devstr, devices) || devices.empty())
+        return false;
+
+    for (const tx_device_params &device : devices)
+    {
+        // A file= key makes gr-osmosdr open (and truncate) a file sink.
+        if (device.count("file"))
+            return false;
 
         // Every device must name a sink driver. Otherwise TX would either be
         // auto-selected or land on a different device than the one meant.
+        bool has_sink_driver = false;
+        for (const char *driver : sink_drivers)
+            if (device.count(driver))
+                has_sink_driver = true;
         if (!has_sink_driver)
             return false;
-        named++;
     }
-
-    return named > 0;
+    return true;
 }
