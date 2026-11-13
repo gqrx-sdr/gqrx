@@ -22,6 +22,7 @@
  */
 
 #include "applications/gqrx/transmitter.h"
+#include "applications/gqrx/tx_device_args.h"
 #include <iostream>
 #include <cmath>
 #include <sstream>
@@ -160,13 +161,16 @@ void transmitter::create_tx_sink()
     bool is_file_dev = (d_tx_devstr.rfind("file=", 0) == 0 ||
                         d_tx_devstr.find(",file=") != std::string::npos ||
                         d_tx_devstr.find(" file=") != std::string::npos);
-    if (!d_tx_devstr.empty() && !is_file_dev)
+    // osmosdr::sink::make() does not throw for receive-only device strings such
+    // as "rtl=0": when no sink driver key is present it opens the first
+    // transmit-capable device it can enumerate instead. Only probe strings that
+    // name a sink driver, so TX can never end up on an unselected device.
+    bool names_tx_driver = tx_devstr_names_sink_driver(d_tx_devstr);
+    if (!d_tx_devstr.empty() && !is_file_dev && names_tx_driver)
     {
         try
         {
             // Query osmosdr sink directly for the configured device.
-            // Devices without transmit support (e.g. RTL-SDR, Airspy, SDRplay, file playback)
-            // throw a runtime exception inside osmosdr::sink::make() as no transmit driver exists.
             auto snk = osmosdr::sink::make(d_tx_devstr);
             if (snk && snk->get_num_channels() > 0)
             {
@@ -190,6 +194,11 @@ void transmitter::create_tx_sink()
     else if (is_file_dev)
     {
         d_last_error = "File input device does not support transmission";
+    }
+    else if (!d_tx_devstr.empty())
+    {
+        d_last_error = "Device string does not name a transmit-capable driver";
+        qDebug() << "Not probing TX: no osmosdr sink driver in" << d_tx_devstr.c_str();
     }
 
     if (!d_sink_block)

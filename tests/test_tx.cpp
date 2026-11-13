@@ -379,6 +379,12 @@ static void test_transmitter_lifecycle()
     s = tx.stop();
     assert(s == transmitter::STATUS_OK);
     assert(!tx.is_transmitting());
+    // RX-only device strings must never be probed: osmosdr::sink::make("rtl=0")
+    // would open whichever transmit-capable device happens to be connected.
+    tx.set_tx_device("rtl=0");
+    assert(!tx.is_tx_supported());
+    assert(tx.get_last_error() == "Device string does not name a transmit-capable driver");
+
     // Ensure file= input strings are rejected and never truncate existing files
     const char *tmp_iq_path = "/tmp/gqrx_test_iq_preserve.raw";
     {

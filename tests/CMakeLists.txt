@@ -5,6 +5,7 @@ set(TEST_SRCS
     ${CMAKE_SOURCE_DIR}/src/dsp/rx_meter.cpp
     ${CMAKE_SOURCE_DIR}/src/dsp/resampler_xx.cpp
     ${CMAKE_SOURCE_DIR}/src/applications/gqrx/transmitter.cpp
+    ${CMAKE_SOURCE_DIR}/src/applications/gqrx/tx_device_args.cpp
     ${CMAKE_SOURCE_DIR}/src/applications/gqrx/remote_control.cpp
 )
 
@@ -67,3 +68,12 @@ if(DEFINED LINUX_AUDIO_BACKEND AND LINUX_AUDIO_BACKEND MATCHES "Pulseaudio")
 endif()
 
 add_test(NAME test_tx COMMAND test_tx)
+
+# Device-string check for the TX probe. Needs no GNU Radio, Qt or hardware.
+add_executable(test_tx_device_args
+    test_tx_device_args.cpp
+    ${CMAKE_SOURCE_DIR}/src/applications/gqrx/tx_device_args.cpp
+)
+set_property(TARGET test_tx_device_args PROPERTY CXX_STANDARD 14)
+target_include_directories(test_tx_device_args PRIVATE ${CMAKE_SOURCE_DIR}/src)
+add_test(NAME test_tx_device_args COMMAND test_tx_device_args)
