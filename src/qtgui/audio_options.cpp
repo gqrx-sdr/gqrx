@@ -27,11 +27,18 @@
 #include "audio_options.h"
 #include "ui_audio_options.h"
 
+#define DEFAULT_FFT_MIN_DB  -80
+#define DEFAULT_FFT_MAX_DB  0
+#define MIN_DB_RANGE        2   // CPlotter rejects narrower ranges
+
 CAudioOptions::CAudioOptions(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CAudioOptions)
 {
     ui->setupUi(this);
+
+    ui->pandRangeSlider->setMinimumGap(MIN_DB_RANGE);
+    ui->wfRangeSlider->setMinimumGap(MIN_DB_RANGE);
 
     work_dir = new QDir();
 
@@ -114,8 +121,12 @@ void CAudioOptions::on_fftSplitSlider_valueChanged(int value)
 
 void CAudioOptions::setPandapterRange(int min, int max)
 {
-    if (min < max && max <= 0)
-        ui->pandRangeSlider->setValues(min, max);
+    if (max - min < MIN_DB_RANGE || max > DEFAULT_FFT_MAX_DB)
+    {
+        min = DEFAULT_FFT_MIN_DB;
+        max = DEFAULT_FFT_MAX_DB;
+    }
+    ui->pandRangeSlider->setValues(min, max);
 }
 
 void CAudioOptions::getPandapterRange(int * min, int * max) const
@@ -135,8 +146,12 @@ void CAudioOptions::on_pandRangeSlider_valuesChanged(int min, int max)
 
 void CAudioOptions::setWaterfallRange(int min, int max)
 {
-    if (min < max && max <= 0)
-        ui->wfRangeSlider->setValues(min, max);
+    if (max - min < MIN_DB_RANGE || max > DEFAULT_FFT_MAX_DB)
+    {
+        min = DEFAULT_FFT_MIN_DB;
+        max = DEFAULT_FFT_MAX_DB;
+    }
+    ui->wfRangeSlider->setValues(min, max);
 }
 
 void CAudioOptions::getWaterfallRange(int * min, int * max) const

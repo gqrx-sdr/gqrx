@@ -30,6 +30,7 @@
 
 #define DEFAULT_FFT_MAX_DB     -20
 #define DEFAULT_FFT_MIN_DB     -120
+#define MIN_DB_RANGE            2       // CPlotter rejects narrower ranges
 #define DEFAULT_FFT_RATE        25
 #define DEFAULT_FFT_SIZE        8192
 #define DEFAULT_FFT_ZOOM        1
@@ -75,6 +76,9 @@ DockFft::DockFft(QWidget *parent) :
     m_pand_last_modified = false;
     m_actual_frame_rate = 0.f;
     m_frame_dropping = false;
+
+    ui->plotRangeSlider->setMinimumGap(MIN_DB_RANGE);
+    ui->wfRangeSlider->setMinimumGap(MIN_DB_RANGE);
 
     // Add predefined gqrx colors to chooser.
     ui->colorPicker->insertColor(QColor(0xFF,0xFF,0xFF,0xFF), "White");
@@ -476,11 +480,21 @@ void DockFft::readSettings(QSettings *settings)
 
     fft_max = settings->value("pandapter_max_db", DEFAULT_FFT_MAX_DB).toInt();
     fft_min = settings->value("pandapter_min_db", DEFAULT_FFT_MIN_DB).toInt();
+    if (fft_max - fft_min < MIN_DB_RANGE)
+    {
+        fft_max = DEFAULT_FFT_MAX_DB;
+        fft_min = DEFAULT_FFT_MIN_DB;
+    }
     setPandapterRange(fft_min, fft_max);
     emit pandapterRangeChanged((float) fft_min, (float) fft_max);
 
     fft_max = settings->value("waterfall_max_db", DEFAULT_FFT_MAX_DB).toInt();
     fft_min = settings->value("waterfall_min_db", DEFAULT_FFT_MIN_DB).toInt();
+    if (fft_max - fft_min < MIN_DB_RANGE)
+    {
+        fft_max = DEFAULT_FFT_MAX_DB;
+        fft_min = DEFAULT_FFT_MIN_DB;
+    }
     setWaterfallRange(fft_min, fft_max);
     emit waterfallRangeChanged((float) fft_min, (float) fft_max);
 

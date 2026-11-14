@@ -92,6 +92,8 @@ public:
   /// symmetrically, otherwise the handles are independent.
   bool m_SymmetricMoves;
 
+  int m_MinimumGap;
+
   QString m_HandleToolTip;
 
 private:
@@ -113,6 +115,7 @@ ctkRangeSliderPrivate::ctkRangeSliderPrivate(ctkRangeSlider& object)
   this->m_SubclassWidth = 0.0;
   this->m_SelectedHandles = ctkRangeSliderPrivate::Handles();
   this->m_SymmetricMoves = false;
+  this->m_MinimumGap = 0;
 }
 
 // --------------------------------------------------------------------------
@@ -530,6 +533,13 @@ bool ctkRangeSlider::symmetricMoves()const
 }
 
 // --------------------------------------------------------------------------
+void ctkRangeSlider::setMinimumGap(int gap)
+{
+  Q_D(ctkRangeSlider);
+  d->m_MinimumGap = gap;
+}
+
+// --------------------------------------------------------------------------
 void ctkRangeSlider::onRangeChanged(int _minimum, int _maximum)
 {
   Q_UNUSED(_minimum);
@@ -740,14 +750,14 @@ void ctkRangeSlider::mouseMoveEvent(QMouseEvent* mouseEvent)
   // Only the lower/left slider is down
   if (this->isMinimumSliderDown() && !this->isMaximumSliderDown())
     {
-    double newMinPos = qMin(newPosition,d->m_MaximumPosition);
+    double newMinPos = qMin(newPosition,d->m_MaximumPosition - d->m_MinimumGap);
     this->setPositions(newMinPos, d->m_MaximumPosition +
       (d->m_SymmetricMoves ? d->m_MinimumPosition - newMinPos : 0));
     }
   // Only the upper/right slider is down
   else if (this->isMaximumSliderDown() && !this->isMinimumSliderDown())
     {
-    double newMaxPos = qMax(d->m_MinimumPosition, newPosition);
+    double newMaxPos = qMax(d->m_MinimumPosition + d->m_MinimumGap, newPosition);
     this->setPositions(d->m_MinimumPosition -
       (d->m_SymmetricMoves ? newMaxPos - d->m_MaximumPosition: 0),
       newMaxPos);
