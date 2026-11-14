@@ -67,6 +67,8 @@ signals:
     void startPlayback(const QString filename, float samprate, qint64 center_freq);
     void stopPlayback();
     void seek(qint64 seek_pos);
+    void zmqStreamStart(const QString &host, int port);
+    void zmqStreamStop();
 
 public slots:
     void cancelRecording();
@@ -82,11 +84,20 @@ private slots:
     void on_slider_valueChanged(int value);
     void on_listWidget_currentTextChanged(const QString &currentText);
     void timeoutFunction(void);
+    void on_ZmqHost_textChanged(const QString &text);
+    void on_ZmqPort_valueChanged(int port);
+    void on_zmqStream_toggled();
+    void setNewZmqHost(const QString &host);
+    void setNewZmqPort(int port);
+    void setNewZmqStream();
 
 private:
     void refreshDir(void);
     void refreshTimeWidgets(void);
     void parseFileName(const QString &filename);
+    void newZmqHost(const QString text);
+    void newZmqPort(int port);
+    void newZmqStream();
 
 private:
     Ui::CIqTool *ui;
@@ -103,6 +114,11 @@ private:
     int     sample_rate;       /*!< Current sample rate. */
     qint64  center_freq;       /*!< Center frequency. */
     int     rec_len;           /*!< Length of a recording in seconds */
+
+    QString        zmq_host;     /*! UDP client host name. */
+    int            zmq_port;     /*! UDP client port number. */
+    bool           zmq_stream;   /*! Enable stereo streaming for UDP. */
+
 };
 
 #endif // IQ_TOOL_H
