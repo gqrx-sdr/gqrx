@@ -26,6 +26,9 @@
 #include <cmath>
 #include <sstream>
 #include <iomanip>
+#include <vector>
+#include <map>
+#include <cctype>
 #include <QDebug>
 
 #ifdef WITH_PULSEAUDIO
@@ -33,6 +36,170 @@
 #endif
 
 #include <gnuradio/audio/source.h>
+
+#ifdef GQRX_HAVE_SOAPYSDR
+#include <SoapySDR/Device.hpp>
+#endif
+
+namespace {
+
+const std::vector<std::string> kTxSinkDrivers = {
+    "uhd", "hackrf", "bladerf", "soapy", "redpitaya", "freesrp", "xtrx"
+};
+
+// Split a string by a delimiter, ignoring delimiters inside single quotes or preceded by a backslash
+std::vector<std::string> split_args(const std::string &str, char sep)
+{
+    std::vector<std::string> tokens;
+    std::string current;
+    bool in_quotes = false;
+    bool escaped = false;
+
+    for (size_t i = 0; i < str.size(); ++i)
+    {
+        char c = str[i];
+        if (escaped)
+        {
+            current += c;
+            escaped = false;
+        }
+        else if (c == '\\')
+        {
+            escaped = true;
+        }
+        else if (c == '\'')
+        {
+            in_quotes = !in_quotes;
+        }
+        else if (c == sep && !in_quotes)
+        {
+            if (!current.empty())
+            {
+                tokens.push_back(current);
+                current.clear();
+            }
+        }
+        else
+        {
+            current += c;
+        }
+    }
+    if (!current.empty())
+        tokens.push_back(current);
+
+    return tokens;
+}
+
+// Strip surrounding quotes if present
+std::string strip_quotes(const std::string &s)
+{
+    if (s.length() >= 2 && s.front() == '\'' && s.back() == '\'')
+        return s.substr(1, s.length() - 2);
+    return s;
+}
+
+// Parse "key=value" or "key" from a comma-separated parameter string
+std::map<std::string, std::string> parse_device_params(const std::string &dev_str)
+{
+    std::map<std::string, std::string> params;
+    std::vector<std::string> pairs = split_args(strip_quotes(dev_str), ',');
+    for (const auto &pair : pairs)
+    {
+        size_t eq_pos = pair.find('=');
+        if (eq_pos != std::string::npos)
+        {
+            std::string k = strip_quotes(pair.substr(0, eq_pos));
+            std::string v = strip_quotes(pair.substr(eq_pos + 1));
+            params[k] = v;
+        }
+        else
+        {
+            params[strip_quotes(pair)] = "";
+        }
+    }
+    return params;
+}
+
+// Check if a devstring names an osmosdr sink driver
+bool devstr_names_sink_driver(const std::string &devstr)
+{
+    std::string s = devstr;
+    while (!s.empty() && std::isspace((unsigned char)s.front())) s.erase(s.begin());
+    while (!s.empty() && std::isspace((unsigned char)s.back())) s.pop_back();
+
+    if (s.empty())
+        return false;
+
+    // Reject file= devices explicitly
+    if (s.rfind("file=", 0) == 0 || s.find(",file=") != std::string::npos || s.find(" file=") != std::string::npos)
+        return false;
+
+    // Split multiple devices (separated by spaces)
+    std::vector<std::string> dev_tokens = split_args(s, ' ');
+    if (dev_tokens.empty())
+        return false;
+
+    for (const auto &token : dev_tokens)
+    {
+        std::map<std::string, std::string> params = parse_device_params(token);
+        // Skip global config tokens like numchan=
+        if (params.size() == 1 && params.count("numchan"))
+            continue;
+
+        bool has_tx_driver = false;
+        for (const auto &driver : kTxSinkDrivers)
+        {
+            if (params.count(driver))
+            {
+                has_tx_driver = true;
+                break;
+            }
+        }
+        if (!has_tx_driver)
+            return false;
+    }
+
+    return true;
+}
+
+#ifdef GQRX_HAVE_SOAPYSDR
+bool check_soapy_device_tx(const std::string &devstr, std::string &error)
+{
+    std::vector<std::string> dev_tokens = split_args(devstr, ' ');
+    for (const auto &token : dev_tokens)
+    {
+        std::map<std::string, std::string> params = parse_device_params(token);
+        if (!params.count("soapy"))
+            continue;
+
+        try
+        {
+            SoapySDR::Kwargs kwargs(params.begin(), params.end());
+            SoapySDR::Device *sdev = SoapySDR::Device::make(kwargs);
+            if (!sdev)
+            {
+                error = "Could not open SoapySDR device";
+                return false;
+            }
+            size_t tx_channels = sdev->getNumChannels(SOAPY_SDR_TX);
+            SoapySDR::Device::unmake(sdev);
+            if (tx_channels == 0)
+            {
+                error = "Device does not provide transmit channels";
+                return false;
+            }
+        }
+        catch (const std::exception &e)
+        {
+            error = e.what();
+            return false;
+        }
+    }
+    return true;
+}
+#endif
+
+} // anonymous namespace
 
 #define DEFAULT_TX_AUDIO_RATE 48000.0
 #define DEFAULT_TX_RATE       2000000.0
@@ -160,13 +327,23 @@ void transmitter::create_tx_sink()
     bool is_file_dev = (d_tx_devstr.rfind("file=", 0) == 0 ||
                         d_tx_devstr.find(",file=") != std::string::npos ||
                         d_tx_devstr.find(" file=") != std::string::npos);
-    if (!d_tx_devstr.empty() && !is_file_dev)
+
+    // osmosdr::sink::make() does not throw for receive-only device strings (e.g. rtl=0):
+    // if no sink driver key is present, it opens the first connected TX-capable device.
+    // To prevent probing unselected devices, only probe strings specifying a sink driver.
+    bool names_tx_driver = devstr_names_sink_driver(d_tx_devstr);
+    std::string soapy_err;
+    bool soapy_ok = true;
+#ifdef GQRX_HAVE_SOAPYSDR
+    if (names_tx_driver)
+        soapy_ok = check_soapy_device_tx(d_tx_devstr, soapy_err);
+#endif
+
+    if (!d_tx_devstr.empty() && !is_file_dev && names_tx_driver && soapy_ok)
     {
         try
         {
             // Query osmosdr sink directly for the configured device.
-            // Devices without transmit support (e.g. RTL-SDR, Airspy, SDRplay, file playback)
-            // throw a runtime exception inside osmosdr::sink::make() as no transmit driver exists.
             auto snk = osmosdr::sink::make(d_tx_devstr);
             if (snk && snk->get_num_channels() > 0)
             {
@@ -190,6 +367,16 @@ void transmitter::create_tx_sink()
     else if (is_file_dev)
     {
         d_last_error = "File input device does not support transmission";
+    }
+    else if (!d_tx_devstr.empty() && !names_tx_driver)
+    {
+        d_last_error = "Device does not support transmission";
+        qDebug() << "Device string does not name an osmosdr transmit driver:" << d_tx_devstr.c_str();
+    }
+    else if (!d_tx_devstr.empty() && !soapy_ok)
+    {
+        d_last_error = soapy_err.empty() ? "Device does not provide transmit channels" : soapy_err;
+        qDebug() << "Soapy device does not support TX:" << d_tx_devstr.c_str() << ":" << d_last_error.c_str();
     }
 
     if (!d_sink_block)

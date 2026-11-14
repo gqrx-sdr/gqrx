@@ -379,6 +379,20 @@ static void test_transmitter_lifecycle()
     s = tx.stop();
     assert(s == transmitter::STATUS_OK);
     assert(!tx.is_transmitting());
+
+    // Ensure receive-only SDR devices are rejected and never passed to osmosdr::sink::make()
+    tx.set_tx_device("rtl=0");
+    assert(!tx.is_tx_supported());
+    assert(tx.get_last_error() == "Device does not support transmission");
+
+    tx.set_tx_device("airspy=0");
+    assert(!tx.is_tx_supported());
+    assert(tx.get_last_error() == "Device does not support transmission");
+
+    tx.set_tx_device("rtl=0,label='HackRF One'");
+    assert(!tx.is_tx_supported());
+    assert(tx.get_last_error() == "Device does not support transmission");
+
     // Ensure file= input strings are rejected and never truncate existing files
     const char *tmp_iq_path = "/tmp/gqrx_test_iq_preserve.raw";
     {

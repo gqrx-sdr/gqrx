@@ -2783,7 +2783,7 @@ void MainWindow::updateTxDeviceState(const QString &devstr)
             if (rx->get_input_rate() > 0.0)
                 tx->set_tx_rate(rx->get_input_rate());
         }
-        uiDockInputCtl->setTxVisible(true);
+        uiDockInputCtl->setTxVisible(supported);
         uiDockInputCtl->setTxEnabled(supported);
         if (ptt_shortcut)
             ptt_shortcut->setEnabled(supported);

@@ -66,4 +66,8 @@ if(DEFINED LINUX_AUDIO_BACKEND AND LINUX_AUDIO_BACKEND MATCHES "Pulseaudio")
     )
 endif()
 
+if(SoapySDR_FOUND)
+    target_link_libraries(test_tx SoapySDR)
+endif()
+
 add_test(NAME test_tx COMMAND test_tx)
