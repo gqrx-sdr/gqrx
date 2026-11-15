@@ -93,6 +93,10 @@ else()
     )
 endif()
 
+if(SoapySDR_FOUND)
+    target_link_libraries(${PROJECT_NAME} SoapySDR)
+endif()
+
 target_link_libraries(${PROJECT_NAME}
     ${GNURADIO_OSMOSDR_LIBRARIES}
     ${PULSEAUDIO_LIBRARY}

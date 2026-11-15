@@ -49,4 +49,6 @@ add_source_files(SRCS_LIST
 	sniffer_f.h
 	stereo_demod.cpp
 	stereo_demod.h
+	tx_modulator.cpp
+	tx_modulator.h
 )
