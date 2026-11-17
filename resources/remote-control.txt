@@ -53,6 +53,28 @@ Supported commands:
     Get audio mute status
  U MUTE <status>
     Set audio mute to <status>
+ t
+    Get PTT status (requires a device with TX capability)
+ T <status>
+    Set PTT status to <status>, i.e. start (1) or stop (0) transmitting
+ i
+    Get TX frequency [Hz]. Without split mode the TX frequency is
+    the same as the RX frequency.
+ I <frequency>
+    Set TX frequency [Hz]; the offset relative to the RX frequency
+    is stored and used while split mode is enabled
+ l RFPOWER
+    Get relative RF power (0.0 - 1.0)
+ L RFPOWER <power>
+    Set relative RF power to <power> (0.0 - 1.0)
+ l MICGAIN
+    Get mic gain [dB]
+ L MICGAIN <gain>
+    Set mic gain to <gain> [dB] (-20 to +20)
+ u PTT
+    Get PTT status
+ U PTT <status>
+    Set PTT status to <status>
  q|Q
     Close connection
  AOS

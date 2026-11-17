@@ -55,6 +55,15 @@ RemoteControl::RemoteControl(QObject *parent) :
     hamlib_compatible = false;
     is_audio_muted = false;
 
+    rc_ptt = false;
+    rc_split = false;
+    rc_tx_offset = 0;
+    rc_rf_power = 1.0;
+    rc_mic_gain = 0.0;
+    rc_ctcss = 0.0;
+    tx_supported = false;
+    rc_tx_mode = 0;
+
     rc_port = DEFAULT_RC_PORT;
     rc_allowed_hosts.append(DEFAULT_RC_ALLOWED_HOSTS);
 
@@ -243,7 +252,15 @@ void RemoteControl::startRead()
         else if (cmd == "s")
             answer = cmd_get_split_vfo();
         else if (cmd == "S")
-            answer = cmd_set_split_vfo();
+            answer = cmd_set_split_vfo(cmdlist);
+        else if (cmd == "i")
+            answer = cmd_get_split_freq();
+        else if (cmd == "I")
+            answer = cmd_set_split_freq(cmdlist);
+        else if (cmd == "t")
+            answer = cmd_get_ptt();
+        else if (cmd == "T")
+            answer = cmd_set_ptt(cmdlist);
         else if (cmd == "p")
             answer = cmd_get_param(cmdlist);
         else if (cmd == "_")
@@ -408,6 +425,48 @@ void RemoteControl::stopIqRecorder()
 void RemoteControl::setReceiverStatus(bool enabled)
 {
     receiver_running = enabled;
+}
+
+/*! \brief Set PTT state (from DockTx). */
+void RemoteControl::setPttState(bool ptt)
+{
+    rc_ptt = ptt;
+}
+
+/*! \brief Set TX modulator (from DockTx). */
+void RemoteControl::setTxMode(int mode)
+{
+    rc_tx_mode = mode;
+}
+
+/*! \brief Set RF power (from DockTx). */
+void RemoteControl::setRfPower(double power)
+{
+    rc_rf_power = power;
+}
+
+/*! \brief Set mic gain (from DockTx). */
+void RemoteControl::setMicGain(float gain)
+{
+    rc_mic_gain = gain;
+}
+
+/*! \brief Set CTCSS tone (from DockTx). */
+void RemoteControl::setCtcss(float freq)
+{
+    rc_ctcss = freq;
+}
+
+/*! \brief Set TX offset (from DockTx). */
+void RemoteControl::setTxOffset(qint64 offset)
+{
+    rc_tx_offset = offset;
+}
+
+/*! \brief Set TX support status (from mainwindow). */
+void RemoteControl::setTxSupport(bool enabled)
+{
+    tx_supported = enabled;
 }
 
 /*! \brief Set available gain settings (from mainwindow). */
@@ -689,6 +748,14 @@ QString RemoteControl::cmd_get_level(QStringList cmdlist)
     {
         answer = QString("%1\n").arg((double)audio_gain, 0, 'f', 1);
     }
+    else if (lvl.compare("RFPOWER", Qt::CaseInsensitive) == 0)
+    {
+        answer = QString("%1\n").arg(rc_rf_power, 0, 'f', 2);
+    }
+    else if (lvl.compare("MICGAIN", Qt::CaseInsensitive) == 0)
+    {
+        answer = QString("%1\n").arg((double)rc_mic_gain, 0, 'f', 1);
+    }
     else if (lvl.endsWith("_GAIN"))
     {
         lvl.chop(5);
@@ -753,6 +820,36 @@ QString RemoteControl::cmd_set_level(QStringList cmdlist)
             answer = QString("RPRT 1\n");
         }
     }
+    else if (lvl.compare("RFPOWER", Qt::CaseInsensitive) == 0)
+    {
+        bool ok;
+        double power = cmdlist.value(2, "ERR").toDouble(&ok);
+        if (ok)
+        {
+            answer = QString("RPRT 0\n");
+            rc_rf_power = std::max(0.0, std::min(1.0, power));
+            emit newRfPower(rc_rf_power);
+        }
+        else
+        {
+            answer = QString("RPRT 1\n");
+        }
+    }
+    else if (lvl.compare("MICGAIN", Qt::CaseInsensitive) == 0)
+    {
+        bool ok;
+        float new_mic_gain = cmdlist.value(2, "ERR").toFloat(&ok);
+        if (ok)
+        {
+            answer = QString("RPRT 0\n");
+            rc_mic_gain = std::max<float>(-20.0f, std::min<float>(20.0f, new_mic_gain));
+            emit newMicGain(rc_mic_gain);
+        }
+        else
+        {
+            answer = QString("RPRT 1\n");
+        }
+    }
     else if (lvl.endsWith("_GAIN"))
     {
         lvl.chop(5);
@@ -779,7 +876,7 @@ QString RemoteControl::cmd_get_func(QStringList cmdlist)
     QString func = cmdlist.value(1, "");
 
     if (func == "?")
-        answer = QString("RECORD IQRECORD DSP RDS MUTE\n");
+        answer = QString("RECORD IQRECORD DSP RDS MUTE PTT\n");
     else if (func.compare("RECORD", Qt::CaseInsensitive) == 0)
         answer = QString("%1\n").arg(audio_recorder_status);
     else if (func.compare("IQRECORD", Qt::CaseInsensitive) == 0)
@@ -790,6 +887,8 @@ QString RemoteControl::cmd_get_func(QStringList cmdlist)
         answer = QString("%1\n").arg(rds_status);
     else if (func.compare("MUTE", Qt::CaseInsensitive) == 0)
         answer = QString("%1\n").arg(is_audio_muted ? '1' : '0');
+    else if (func.compare("PTT", Qt::CaseInsensitive) == 0)
+        answer = QString("%1\n").arg(rc_ptt);
     else
         answer = QString("RPRT 1\n");
 
@@ -806,7 +905,16 @@ QString RemoteControl::cmd_set_func(QStringList cmdlist)
 
     if (func == "?")
     {
-        answer = QString("RECORD IQRECORD DSP RDS MUTE\n");
+        answer = QString("RECORD IQRECORD DSP RDS MUTE PTT\n");
+    }
+    else if ((func.compare("PTT", Qt::CaseInsensitive) == 0) && ok)
+    {
+        if (tx_supported && (status != rc_ptt))
+        {
+            rc_ptt = status;
+            emit newPttState(rc_ptt);
+        }
+        answer = QString("RPRT 0\n");
     }
     else if ((func.compare("RECORD", Qt::CaseInsensitive) == 0) && ok)
     {
@@ -917,15 +1025,108 @@ QString RemoteControl::cmd_set_vfo(QStringList cmdlist)
     return answer;
 };
 
-/* Get 'Split' mode (fake, only for hamlib) */
+/* Get 'Split' mode (only for hamlib) */
 QString RemoteControl::cmd_get_split_vfo() const
 {
-    return QString("0\nVFOA\n");
-};
+    if (rc_split && tx_supported)
+        return QString("0\nVFOB\n");
+    else
+        return QString("0\nVFOA\n");
+}
 
-/* Set 'Split' mode (fake, only for hamlib) */
+/* Set 'Split' mode (only for hamlib) */
 QString RemoteControl::cmd_set_split_vfo()
 {
+    /* hamlib rigctl: "S 1 VFOB" or "S 0" - we accept the number only */
+    QString cmd_arg = cmdlist.value(1, "");
+
+    if (cmd_arg == "?")
+        return QString("0 1\n");
+
+    if (cmd_arg == "1")
+    {
+        rc_split = true;
+        return QString("RPRT 0\n");
+    }
+    else if (cmd_arg == "0")
+    {
+        rc_split = false;
+        return QString("RPRT 0\n");
+    }
+
+    return QString("RPRT 1\n");
+}
+
+/* Get the TX frequency */
+QString RemoteControl::cmd_get_split_freq() const
+{
+    if (rc_split && tx_supported)
+        return QString("%1\n").arg(rc_freq + rc_tx_offset);
+    else
+        return QString("%1\n").arg(rc_freq);
+}
+
+/* Set the TX frequency; the offset relative to the RX frequency is stored */
+QString RemoteControl::cmd_set_split_freq(QStringList cmdlist)
+{
+    if (cmdlist.size() > 1)
+    {
+        bool ok;
+        qint64 freq = cmdlist[1].toLongLong(&ok);
+
+        if (ok)
+        {
+            rc_tx_offset = freq - rc_freq;
+            emit newTxOffset(rc_tx_offset);
+            return QString("RPRT 0\n");
+        }
+
+        return QString("RPRT 1\n");
+    }
+
+    return QString("RPRT 1\n");
+}
+
+/* Get PTT status */
+QString RemoteControl::cmd_get_ptt() const
+{
+    if (rc_ptt)
+        return QString("1\n");
+
+    return QString("0\n");
+}
+
+/* Set PTT status */
+QString RemoteControl::cmd_set_ptt(QStringList cmdlist)
+{
+    if (cmdlist.size() > 1)
+    {
+        QString cmd_arg = cmdlist[1];
+
+        if (cmd_arg == "?")
+        {
+            return QString("0 1\n");
+        }
+        else if (cmd_arg == "1")
+        {
+            if (!rc_ptt)
+            {
+                rc_ptt = true;
+                emit newPttState(true);
+            }
+            return QString("RPRT 0\n");
+        }
+        else if (cmd_arg == "0")
+        {
+            if (rc_ptt)
+            {
+                rc_ptt = false;
+                emit newPttState(false);
+            }
+            return QString("RPRT 0\n");
+        }
+    }
+
     return QString("RPRT 1\n");
 }
 
@@ -985,6 +1186,20 @@ QString RemoteControl::cmd_lnb_lo(QStringList cmdlist)
  */
 QString RemoteControl::cmd_dump_state() const
 {
+    QString tx_ranges;
+
+    if (tx_supported)
+    {
+        /* AM | AMS | CW | CWR | USB | LSB | FM modes; 0 - 100 % power */
+        tx_ranges = "0.000000 10000000000.000000 0x2ef 0 100 0x3 0x0\n"
+                    "0 0 0 0 0 0 0\n";
+    }
+    else
+    {
+        /* End of TX frequency ranges. The Gqrx is receiver only. */
+        tx_ranges = "0 0 0 0 0 0 0\n";
+    }
+
     return QString(
         /* rigctl protocol version */
         "0\n"
@@ -1005,8 +1220,7 @@ QString RemoteControl::cmd_dump_state() const
         "0.000000 10000000000.000000 0x2ef -1 -1 0x1 0x0\n"
         /* End of RX frequency ranges. */
         "0 0 0 0 0 0 0\n"
-        /* End of TX frequency ranges. The Gqrx is receiver only. */
-        "0 0 0 0 0 0 0\n"
+        ) + tx_ranges + QString(
         /* Tuning steps: modes, tuning_step */
         "0xef 1\n"
         "0xef 0\n"

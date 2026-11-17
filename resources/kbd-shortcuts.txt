@@ -47,3 +47,7 @@ Audio functions:
  M              Toggle mute
  -              Decrease gain by 1 dB
  +              Increase gain by 1 dB
+
+Transmitting:
+
+ Ctrl+P         Start/stop transmitting (PTT)

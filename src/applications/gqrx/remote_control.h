@@ -105,6 +105,15 @@ public slots:
     void setRdsStation(QString name);
     void setRdsRadiotext(QString text);
 
+    /* transmitter */
+    void setPttState(bool ptt);
+    void setTxMode(int mode);
+    void setRfPower(double power);
+    void setMicGain(float gain);
+    void setCtcss(float freq);
+    void setTxOffset(qint64 offset);
+    void setTxSupport(bool enabled);
+
 signals:
     void newFrequency(qint64 freq);
     void newFilterOffset(qint64 offset);
@@ -121,6 +130,12 @@ signals:
     void dspChanged(bool value);
     void newRDSmode(bool value);
     void newAudioMuted(bool muted);
+
+    /* transmitter */
+    void newPttState(bool ptt);
+    void newTxOffset(qint64 offset_hz);
+    void newRfPower(double power);
+    void newMicGain(float gain);
 
 private slots:
     void acceptConnection();
@@ -156,6 +171,16 @@ private:
     gain_list_t gains;             /*!< Possible and current gain settings */
     bool        is_audio_muted;
 
+    /* transmitter state */
+    bool        rc_ptt;            /*!< PTT state */
+    bool        rc_split;          /*!< Split mode enabled */
+    qint64      rc_tx_offset;      /*!< TX frequency offset in Hz */
+    double      rc_rf_power;       /*!< RF power, 0.0 - 1.0 */
+    float       rc_mic_gain;       /*!< Mic gain in dB */
+    float       rc_ctcss;          /*!< CTCSS tone frequency in Hz */
+    bool        tx_supported;      /*!< Whether the current device has TX capability */
+    int         rc_tx_mode;        /*!< Current TX modulator (transmitter::tx_mod) */
+
     void        setNewRemoteFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);
     QString     intToModeStr(int mode);
@@ -172,7 +197,11 @@ private:
     QString     cmd_get_vfo() const;
     QString     cmd_set_vfo(QStringList cmdlist);
     QString     cmd_get_split_vfo() const;
-    QString     cmd_set_split_vfo();
+    QString     cmd_set_split_vfo(QStringList cmdlist);
+    QString     cmd_get_split_freq() const;
+    QString     cmd_set_split_freq(QStringList cmdlist);
+    QString     cmd_get_ptt() const;
+    QString     cmd_set_ptt(QStringList cmdlist);
     QString     cmd_get_info() const;
     QString     cmd_get_param(QStringList cmdlist);
     QString     cmd_AOS();
