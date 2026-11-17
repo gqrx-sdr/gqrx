@@ -259,6 +259,23 @@
         </property>
        </widget>
       </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="txLabel">
+        <property name="text">
+         <string>Transmitting</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QCheckBox" name="txCheckbox">
+        <property name="toolTip">
+         <string>Enable transmit support for devices that have TX capability</string>
+        </property>
+        <property name="text">
+         <string>Enable TX</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

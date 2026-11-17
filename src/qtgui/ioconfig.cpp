@@ -72,6 +72,9 @@ CIoConfig::CIoConfig(QSettings * settings,
     // LNB LO
     ui->loSpinBox->setValue(1.0e-6 * settings->value("input/lnb_lo", 0.0).toDouble());
 
+    // Transmitting
+    ui->txCheckbox->setChecked(settings->value("input/tx_enabled", false).toBool());
+
     // Output device
     updateOutDev();
 
@@ -204,6 +207,9 @@ void CIoConfig::saveConfig()
         m_settings->setValue("input/lnb_lo", value);
     else
         m_settings->remove("input/lnb_lo");
+
+    // transmitting
+    m_settings->setValue("input/tx_enabled", ui->txCheckbox->isChecked());
 
     int_val = ui->inSrCombo->currentText().toInt(&conv_ok);
     if (conv_ok)
