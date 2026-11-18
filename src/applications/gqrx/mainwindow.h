@@ -39,6 +39,7 @@
 #include "qtgui/dockfft.h"
 #include "qtgui/dockbookmarks.h"
 #include "qtgui/dockrds.h"
+#include "qtgui/docktx.h"
 #include "qtgui/afsk1200win.h"
 #include "qtgui/iq_tool.h"
 #include "qtgui/dxc_options.h"
@@ -46,6 +47,7 @@
 #include "applications/gqrx/recentconfig.h"
 #include "applications/gqrx/remote_control.h"
 #include "applications/gqrx/receiver.h"
+#include "applications/gqrx/transmitter.h"
 
 namespace Ui {
     class MainWindow;  /*! The main window UI */
@@ -81,6 +83,8 @@ private:
 
     qint64 d_lnb_lo;  /* LNB LO in Hz. */
     qint64 d_hw_freq;
+    qint64 d_tx_offset; /* TX frequency offset in Hz (split mode). */
+    bool   d_rx_was_running; /* RX DSP state when PTT was pressed. */
     qint64 d_marker_a;
     qint64 d_marker_b;
     bool   d_show_markers;
@@ -104,6 +108,7 @@ private:
     DockFft        *uiDockFft;
     DockBookmarks  *uiDockBookmarks;
     DockRDS        *uiDockRDS;
+    DockTx         *uiDockTx;
 
     CIqTool        *iq_tool;
     DXCOptions     *dxc_options;
@@ -123,6 +128,8 @@ private:
     bool     d_frame_drop;
 
     receiver *rx;
+
+    transmitter *tx;
 
     RemoteControl *remote;
 
@@ -145,6 +152,7 @@ private:
     void rxOffsetZeroShortcut();
     void toggleFreezeShortcut();
     void toggleMarkers();
+    void pttShortcut();
 
 private slots:
     /* RecentConfig */
@@ -184,6 +192,15 @@ private slots:
     double setSqlLevelAuto();
     void setAudioGain(float gain);
     void setPassband(int bandwidth);
+
+    /* transmitter */
+    void setTxMode(int mode);
+    void setTxRfPower(double power);
+    void setTxMicGain(float gain_db);
+    void setTxCtcss(float freq);
+    void setTxOffset(qint64 offset_hz);
+    void setTxPtt(bool ptt);
+    void updateTxUi(bool enabled);
 
     /* audio recording and playback */
     void startAudioRec(const QString& filename);
