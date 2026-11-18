@@ -102,6 +102,7 @@ public:
 
     status      set_mic_gain(float gain_db);
     float       get_mic_gain(void) const { return d_mic_gain; }
+    void        set_muted(bool mute);
 
     /* FM parameters */
     status      set_max_dev(float max_dev);
@@ -115,8 +116,9 @@ public:
      *        device with transmit capability.
      *
      * Drivers known to have no TX capability are rejected immediately;
-     * for soapy= devices, which can be either, the capability is probed
-     * by creating a temporary osmosdr::sink.
+     * for soapy= devices the capability is decided from the soapy
+     * driver name, since probing with a temporary osmosdr::sink is
+     * unreliable (see sink_impl.cc device string fallback).
      */
     static bool device_supports_tx(const std::string &device);
 
@@ -128,6 +130,7 @@ private:
     double      d_rf_freq;      /*!< Current RF frequency. */
     double      d_rf_power;     /*!< RF power, relative to the device range. */
     float       d_mic_gain;     /*!< Mic gain in dB. */
+    bool        d_muted;        /*!< Whether the audio path is muted. */
     tx_mod      d_mod;          /*!< Current modulator. */
 
     std::string tx_devstr;      /*!< Current TX device string. */

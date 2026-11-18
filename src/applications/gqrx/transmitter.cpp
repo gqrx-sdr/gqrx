@@ -40,6 +40,7 @@ transmitter::transmitter(const std::string input_device,
       d_rf_freq(144500000.0),
       d_rf_power(1.0),
       d_mic_gain(0.0),
+      d_muted(false),
       d_mod(TX_MOD_NFM)
 {
     tb = gr::make_top_block("gqrx-tx");
@@ -102,6 +103,10 @@ void transmitter::set_tx_device(const std::string device)
     qDebug() << "  new:" << device.c_str();
 
     if (device.empty())
+        return;
+
+    /* nothing to do if the device is already in use */
+    if (device == tx_devstr && snk)
         return;
 
     // tb->lock() can hang occasionally
@@ -184,13 +189,29 @@ void transmitter::set_tx_device(const std::string device)
  */
 void transmitter::set_audio_device(const std::string device)
 {
-    if (device.empty())
+    if (device.empty() || device == audio_devstr)
         return;
 
     audio_devstr = device;
 
-    /* The audio source is recreated together with the TX device; the
-     * change takes effect at the next device reconfiguration. */
+    if (!snk || !audio_src)
+        return; /* will be created together with the TX device */
+
+    /* recreate the audio source */
+    tb->lock();
+
+    tb->disconnect(audio_src, 0, mic_gain, 0);
+    audio_src.reset();
+
+#ifdef WITH_PULSEAUDIO
+    audio_src = make_pa_source(audio_devstr, TX_AUDIO_RATE, 1,
+                               "GQRX", "Audio input");
+#else
+    audio_src = gr::audio::source::make(TX_AUDIO_RATE, audio_devstr, true);
+#endif
+    tb->connect(audio_src, 0, mic_gain, 0);
+
+    tb->unlock();
 }
 
 /**
@@ -384,10 +405,33 @@ transmitter::status transmitter::set_mic_gain(float gain_db)
         gain_db = -20.0f;
 
     d_mic_gain = gain_db;
-    linear = powf(10.0f, gain_db / 20.0f);
-    mic_gain->set_k(linear);
+
+    if (!d_muted)
+    {
+        linear = powf(10.0f, gain_db / 20.0f);
+        mic_gain->set_k(linear);
+    }
 
     return STATUS_OK;
+}
+
+/**
+ * @brief Mute or unmute the audio path.
+ * @param mute True to mute, false to restore the mic gain setting.
+ *
+ * The mic gain setting itself is not touched, so unmuting restores
+ * the previous gain. Muting is used for click-free PTT: the audio is
+ * muted before the flowgraph stops (no cut-off click) and stays muted
+ * briefly after the flowgraph starts (no stale audio burst).
+ */
+void transmitter::set_muted(bool mute)
+{
+    d_muted = mute;
+
+    if (mute)
+        mic_gain->set_k(0.0f);
+    else
+        mic_gain->set_k(powf(10.0f, d_mic_gain / 20.0f));
 }
 
 /** Set maximum FM deviation. */
@@ -419,9 +463,14 @@ transmitter::status transmitter::set_mod_index(float mod_index)
  *        with transmit capability.
  * @param device The device specifier, e.g. "hackrf=0" or "soapy=0,driver=lime".
  *
- * Drivers that have no TX capability are rejected immediately.
- * Soapy devices can be either TX or RX only, so for those the
- * capability is probed by creating a temporary osmosdr::sink.
+ * Drivers known to have no TX capability are rejected immediately.
+ * Soapy devices can be either RX or TX capable and osmosdr::sink
+ * can not be trusted for the answer: sink::make() falls back to the
+ * first TX-capable device for device strings it can not parse, and
+ * Soapy RX-only drivers (sdrplay, airspy, ...) do report channels.
+ * For that reason the capability is decided from the soapy driver
+ * name; unknown soapy drivers are treated as RX-only to be on the
+ * safe side.
  */
 bool transmitter::device_supports_tx(const std::string &device)
 {
@@ -439,7 +488,7 @@ bool transmitter::device_supports_tx(const std::string &device)
     }
 
     static const char *tx_drivers[] = {
-        "usrp", "hackrf", "plutosdr", "bladerf", "lime"
+        "usrp", "hackrf", "plutosdr", "bladerf", "lime", "xtrx"
     };
 
     for (const char *drv : tx_drivers)
@@ -450,17 +499,32 @@ bool transmitter::device_supports_tx(const std::string &device)
 
     if (driver == "soapy")
     {
-        try
+        /* the actual driver is passed in the "driver=" parameter */
+        std::size_t begin = 0;
+        while ((begin = device.find(',', begin)) != std::string::npos)
         {
-            osmosdr::sink::sptr probe = osmosdr::sink::make(device);
-            bool has_tx = probe->get_num_channels() > 0;
-            probe.reset(); // release the device
-            return has_tx;
+            begin++;
+            std::size_t end = device.find(',', begin);
+            std::string token = device.substr(begin,
+                                              end == std::string::npos
+                                                  ? end : end - begin);
+
+            if (token.compare(0, 7, "driver=") == 0)
+            {
+                std::string soapy_driver = token.substr(7);
+
+                for (const char *drv : tx_drivers)
+                {
+                    if (soapy_driver == drv)
+                        return true;
+                }
+
+                return false;
+            }
         }
-        catch (std::exception &e)
-        {
-            return false;
-        }
+
+        /* no driver specified; assume RX-only */
+        return false;
     }
 
     return false;

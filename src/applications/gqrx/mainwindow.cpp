@@ -951,6 +951,10 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
     // set receiver frequency
     rx->set_rf_freq(hw_freq);
 
+    // keep the transmitter tuned while PTT is active
+    if (tx && tx->is_running())
+        tx->set_rf_freq((double)(rx_freq + d_tx_offset));
+
     // update widgets
     ui->plotter->setCenterFreq(center_freq);
     uiDockRxOpt->setHwFreq(d_hw_freq);
@@ -1459,18 +1463,34 @@ void MainWindow::setTxPtt(bool ptt)
            can not receive and transmit at the same time */
         rx->stop();
 
-        /* tune the transmitter: RX frequency plus TX offset (split mode) */
-        tx->set_rf_freq((double)(rx->get_rf_freq() + d_tx_offset));
+        /* the transmitter is tuned relative to the frequency shown in
+           the GUI; the receiver hardware frequency differs from it by
+           the LNB LO and the filter offset */
+        tx->set_rf_freq((double)(ui->freqCtrl->getFrequency() + d_tx_offset));
 
+        /* start muted so that no stale audio buffered in the audio
+           source is transmitted; unmute once the flowgraph is running */
+        tx->set_muted(true);
         tx->start();
+
+        QTimer::singleShot(100, this, [this]() {
+            if (tx && tx->is_running() && uiDockTx->ptt())
+                tx->set_muted(false);
+        });
     }
     else
     {
-        tx->stop();
+        /* mute first so the transmission ends in silence instead of
+           an audible click */
+        tx->set_muted(true);
 
-        /* give the SDR back to the receiver */
-        if (d_rx_was_running)
-            rx->start();
+        QTimer::singleShot(100, this, [this]() {
+            if (!uiDockTx->ptt() && tx && tx->is_running())
+                tx->stop();
+
+            if (!uiDockTx->ptt() && d_rx_was_running)
+                rx->start();
+        });
     }
 }
 
