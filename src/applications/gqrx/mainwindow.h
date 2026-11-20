@@ -40,6 +40,7 @@
 #include "qtgui/dockbookmarks.h"
 #include "qtgui/dockrds.h"
 #include "qtgui/afsk1200win.h"
+#include "qtgui/cw_decoder_win.h"
 #include "qtgui/iq_tool.h"
 #include "qtgui/dxc_options.h"
 
@@ -111,6 +112,7 @@ private:
 
     /* data decoders */
     Afsk1200Win    *dec_afsk1200;
+    CwDecoderWin   *dec_cw;
     bool            dec_rds{};
 
     QTimer   *dec_timer;
@@ -236,6 +238,7 @@ private slots:
     void on_actionRemoteControl_triggered(bool checked);
     void on_actionRemoteConfig_triggered();
     void on_actionAFSK1200_triggered();
+    void on_actionCW_triggered();
     void on_actionUserGroup_triggered();
     void on_actionNews_triggered();
     void on_actionRemoteProtocol_triggered();
@@ -253,6 +256,7 @@ private slots:
 
     /* window close signals */
     void afsk1200win_closed();
+    void cwdecoderwin_closed();
     int  firstTimeConfig();
 
     /* cyclic processing */

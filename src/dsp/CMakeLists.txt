@@ -5,6 +5,8 @@ add_source_files(SRCS_LIST
 	afsk1200/cafsk12.h
 	afsk1200/costabf.c
 	afsk1200/filter.h
+	cw/cw_decoder.cpp
+	cw/cw_decoder.h
 	filter/fir_decim.cpp
 	filter/fir_decim.h
 	filter/fir_decim_coef.h

@@ -72,7 +72,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     d_fftWindowType(0),
     d_fftNormalizeEnergy(false),
     d_have_audio(true),
-    dec_afsk1200(nullptr)
+    dec_afsk1200(nullptr),
+    dec_cw(nullptr)
 {
     ui->setupUi(this);
     BandPlan::create();
@@ -1206,6 +1207,10 @@ void MainWindow::selectDemod(int mode_idx)
         {
             dec_afsk1200->close();
         }
+        if (dec_cw != nullptr)
+        {
+            dec_cw->close();
+        }
         rx->set_demod(receiver::RX_DEMOD_OFF);
         click_res = 1000;
         break;
@@ -1319,6 +1324,14 @@ void MainWindow::selectDemod(int mode_idx)
     d_have_audio = (mode_idx != DockRxOpt::MODE_OFF);
 
     uiDockRxOpt->setCurrentDemod(mode_idx);
+
+    /* new mode starts a new stream; decode only in CW-L and CW-U */
+    if (dec_cw != nullptr)
+    {
+        dec_cw->setTone(uiDockRxOpt->getCwOffset());
+        dec_cw->setDecoding(mode_idx == DockRxOpt::MODE_CWL ||
+                            mode_idx == DockRxOpt::MODE_CWU);
+    }
 }
 
 
@@ -1359,7 +1372,15 @@ void MainWindow::setAmDcr(bool enabled)
 
 void MainWindow::setCwOffset(int offset)
 {
-    rx->set_cw_offset(offset);
+    /* CW-L places the carrier below the filter offset, see selectDemod() */
+    if (uiDockRxOpt->currentDemod() == DockRxOpt::MODE_CWL)
+        rx->set_cw_offset(-offset);
+    else
+        rx->set_cw_offset(offset);
+
+    /* audio tone equals the offset in both CW-L and CW-U */
+    if (dec_cw != nullptr)
+        dec_cw->setTone(offset);
 }
 
 /**
@@ -1941,6 +1962,10 @@ void MainWindow::on_actionDSP_triggered(bool checked)
 {
     remote->setReceiverStatus(checked);
 
+    /* don't let a partial Morse character span a DSP restart */
+    if (dec_cw != nullptr)
+        dec_cw->resetDecoder();
+
     if (checked)
     {
         /* start receiver */
@@ -2232,6 +2257,70 @@ void MainWindow::afsk1200win_closed()
     dec_afsk1200 = nullptr;
 }
 
+#define CW_SNIFFER_RATE 8000
+
+/**
+ * CW decoder action triggered.
+ *
+ * Creates a CW decoder window and starts pushing demodulated audio from the
+ * receiver to it. Only one data decoder can use the sample sniffer at a time.
+ */
+void MainWindow::on_actionCW_triggered()
+{
+    if (!d_have_audio)
+    {
+        QMessageBox msg_box;
+        msg_box.setIcon(QMessageBox::Critical);
+        msg_box.setText(tr("CW decoder requires a demodulator.\n"
+                           "Currently, demodulation is switched off "
+                           "(Mode->Demod Off)."));
+        msg_box.exec();
+        return;
+    }
+    if (dec_cw != nullptr)
+    {
+        qDebug() << "CW decoder already active.";
+        dec_cw->raise();
+    }
+    else
+    {
+        qDebug() << "Starting CW decoder.";
+
+        /* start sample sniffer */
+        if (rx->start_sniffer(CW_SNIFFER_RATE, DATA_BUFFER_SIZE) == receiver::STATUS_OK)
+        {
+            int mode = uiDockRxOpt->currentDemod();
+
+            dec_cw = new CwDecoderWin(CW_SNIFFER_RATE, uiDockRxOpt->getCwOffset(), this);
+            connect(dec_cw, SIGNAL(windowClosed()), this, SLOT(cwdecoderwin_closed()));
+            dec_cw->setAttribute(Qt::WA_DeleteOnClose);
+            dec_cw->setDecoding(mode == DockRxOpt::MODE_CWL || mode == DockRxOpt::MODE_CWU);
+            dec_cw->show();
+
+            dec_timer->start(100);
+        }
+        else
+            QMessageBox::warning(this, tr("Gqrx error"),
+                                 tr("Error starting sample sniffer.\n"
+                                    "Close all data decoders and try again."),
+                                 QMessageBox::Ok, QMessageBox::Ok);
+    }
+}
+
+/**
+ * CW decoder window got closed.
+ *
+ * Stop cyclic processing and release the sample sniffer so that another
+ * decoder can use it.
+ */
+void MainWindow::cwdecoderwin_closed()
+{
+    dec_timer->stop();
+    rx->stop_sniffer();
+
+    dec_cw = nullptr;
+}
+
 /** Show DXC Options. */
 void MainWindow::on_actionDX_Cluster_triggered()
 {
@@ -2250,6 +2339,8 @@ void MainWindow::decoderTimeout()
     rx->get_sniffer_data(&buffer[0], num);
     if (dec_afsk1200)
         dec_afsk1200->process_samples(&buffer[0], num);
+    if (dec_cw)
+        dec_cw->process_samples(&buffer[0], num);
 }
 
 void MainWindow::setRdsDecoder(bool checked)
