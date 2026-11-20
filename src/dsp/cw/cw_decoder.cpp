@@ -38,6 +38,13 @@ namespace
     const double KEY_DOWN_LEVEL = 0.6;
     const double KEY_UP_LEVEL = 0.4;
 
+    /* Envelope samples above this multiple of the noise level look like signal
+     * and move the noise level only slowly. Faded marks that stay below the
+     * key-down threshold would otherwise be averaged into the noise level,
+     * which raises the threshold and shuts the detector until the signal ends. */
+    const double NOISE_OUTLIER = 3.0;
+    const double NOISE_OUTLIER_RATE = 0.1;
+
     const std::size_t MAX_SYMBOLS = 10;
 
     /* Automatic speed estimation */
@@ -283,8 +290,9 @@ bool CwDecoder::detect(float sample)
     {
         /* plain average until the time constant is reached, then EMA */
         d_noise_count++;
-        const double alpha = std::max(d_noise_alpha,
-                                      1.0 / static_cast<double>(d_noise_count));
+        const double rate = (env > NOISE_OUTLIER * d_noise) ? NOISE_OUTLIER_RATE * d_noise_alpha
+                                                            : d_noise_alpha;
+        const double alpha = std::max(rate, 1.0 / static_cast<double>(d_noise_count));
         d_noise += (env - d_noise) * alpha;
     }
 
