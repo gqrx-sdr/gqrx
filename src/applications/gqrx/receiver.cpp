@@ -1332,6 +1332,19 @@ void receiver::get_sniffer_data(float * outbuff, unsigned int &num)
     sniffer->get_samples(outbuff, num);
 }
 
+/**
+ * @brief Discard sniffer data that has not been fetched yet.
+ *
+ * Call this after the change that starts a new stream, e.g. retuning or a new
+ * demodulator. The flow graph keeps producing samples, so data that was still
+ * in flight inside the flow graph may arrive after this call. While the
+ * receiver is stopped nothing is produced and the buffer is left empty.
+ */
+void receiver::clear_sniffer_data()
+{
+    sniffer->clear();
+}
+
 /** Convenience function to connect all blocks. */
 void receiver::connect_all(rx_chain type)
 {

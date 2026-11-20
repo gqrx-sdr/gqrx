@@ -97,6 +97,7 @@ private:
 
     std::vector<float> d_audioFftData;
     bool d_have_audio;  /*!< Whether we have audio (i.e. not with demod_off. */
+    int  d_demod_mode{-1}; /*!< Mode index last passed to selectDemod(). */
 
     /* dock widgets */
     DockRxOpt      *uiDockRxOpt;
@@ -110,12 +111,14 @@ private:
     DXCOptions     *dxc_options;
 
 
-    /* data decoders */
+    /* Data decoders. At most one decoder window (AFSK1200 or CW) is open:
+     * it owns the receiver's sample sniffer and dec_timer feeds it while
+     * open, see startDataDecoder() and stopDataDecoder(). */
     Afsk1200Win    *dec_afsk1200;
     CwDecoderWin   *dec_cw;
     bool            dec_rds{};
 
-    QTimer   *dec_timer;
+    QTimer   *dec_timer; /*!< Polls the sniffer for the data decoder. */
     QTimer   *meter_timer;
     QTimer   *iq_fft_timer;
     QTimer   *audio_fft_timer;
@@ -142,6 +145,9 @@ private:
     void updateGainStages(bool read_from_device);
     void showSimpleTextFile(const QString &resource_path,
                             const QString &window_title);
+    bool startDataDecoder(const QString &name, unsigned int samprate);
+    void stopDataDecoder();
+    void restartCwDecoder();
     /* key shortcuts */
     void frequencyFocusShortcut();
     void rxOffsetZeroShortcut();

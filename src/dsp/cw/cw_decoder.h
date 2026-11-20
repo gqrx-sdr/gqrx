@@ -49,7 +49,11 @@ public:
     /*! \brief Process samples and return text decoded from them. */
     std::string process(const float *samples, std::size_t count);
 
-    /*! \brief Discard all detector state and any partially received character. */
+    /*! \brief Start a new stream.
+     *
+     * Discards all detector state, any partially received character and the
+     * speed evidence. Tone, manual speed and automatic mode are kept.
+     */
     void reset();
 
     /*! \brief Set the audio tone to detect. Resets the decoder. */

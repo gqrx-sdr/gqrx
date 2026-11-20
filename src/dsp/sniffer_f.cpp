@@ -129,6 +129,19 @@ void sniffer_f::get_samples(float * out, unsigned int &num)
 }
 
 
+/*! \brief Discard all samples in the buffer.
+ *
+ * Unlike get_samples(), this also drops a remainder smaller than the minimum
+ * number of samples returned.
+ */
+void sniffer_f::clear()
+{
+    std::lock_guard<std::mutex> lock(d_mutex);
+
+    d_reader->update_read_pointer(d_reader->items_available());
+}
+
+
 /*! \brief Resize internal buffer.
  *  \param newsize The new size of the buffer (number of samples, not bytes)
  */

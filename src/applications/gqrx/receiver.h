@@ -114,6 +114,7 @@ public:
 
     void        start();
     void        stop();
+    bool        is_running(void) const { return d_running; }
     void        set_input_device(const std::string device);
     void        set_output_device(const std::string device);
 
@@ -215,6 +216,7 @@ public:
     status      start_sniffer(unsigned int samplrate, int buffsize);
     status      stop_sniffer();
     void        get_sniffer_data(float * outbuff, unsigned int &num);
+    void        clear_sniffer_data();
 
     bool        is_recording_audio(void) const { return d_recording_wav; }
     bool        is_snifffer_active(void) const { return d_sniffer_active; }

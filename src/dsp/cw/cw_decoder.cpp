@@ -81,7 +81,9 @@ namespace
         for (const auto &entry: MORSE_TABLE)
         {
             if (symbols == entry.code)
+            {
                 return entry.text;
+            }
         }
         return "*";
     }
@@ -89,7 +91,9 @@ namespace
     std::uint64_t to_samples(double samples)
     {
         if (samples < 1.0)
+        {
             return 1;
+        }
         return static_cast<std::uint64_t>(std::llround(samples));
     }
 
@@ -140,7 +144,9 @@ void CwDecoder::set_auto_wpm(bool enabled)
 double CwDecoder::estimated_wpm() const
 {
     if (d_est_dot <= 0.0)
+    {
         return 0.0;
+    }
     return d_sample_rate * 1.2 / d_est_dot;
 }
 
@@ -177,7 +183,9 @@ void CwDecoder::select_timing()
 
     /* don't let a slow manual setting merge the elements we need to measure */
     if (d_auto_wpm)
+    {
         min_len = std::min(min_len, EST_SEED_MAX_GLITCH * d_sample_rate);
+    }
 
     apply_timing(dot, min_len);
 }
@@ -239,7 +247,9 @@ bool CwDecoder::detect(float sample)
 
     d_phase += d_phase_inc;
     if (d_phase >= TWO_PI)
+    {
         d_phase -= TWO_PI;
+    }
 
     d_sum += v - d_ring[d_ring_pos];
     d_ring[d_ring_pos] = v;
@@ -261,9 +271,13 @@ bool CwDecoder::detect(float sample)
     const double env = std::abs(d_sum) / static_cast<double>(d_ring.size());
 
     if (env > d_peak)
+    {
         d_peak += (env - d_peak) * d_peak_attack;
+    }
     else
+    {
         d_peak += (d_noise - d_peak) * d_peak_decay;
+    }
 
     if (!d_key_down)
     {
@@ -274,12 +288,21 @@ bool CwDecoder::detect(float sample)
         d_noise += (env - d_noise) * alpha;
     }
 
+    /* The noise level follows the envelope until key-down, while the peak
+     * rises only over about one dot. Checking the SNR on the peak alone lets
+     * the noise level absorb a fast first element so the key never goes down;
+     * the current envelope may open the gate on its own. */
+    const double level = std::max(env, d_peak);
     const double span = d_peak - d_noise;
     if (d_key_down)
+    {
         d_key_down = env > d_noise + KEY_UP_LEVEL * span;
+    }
     else
-        d_key_down = d_peak > ENV_FLOOR && d_peak > MIN_SNR * d_noise &&
+    {
+        d_key_down = level > ENV_FLOOR && level > MIN_SNR * d_noise &&
                      env > d_noise + KEY_DOWN_LEVEL * span;
+    }
 
     return d_key_down;
 }
@@ -320,7 +343,9 @@ void CwDecoder::update_timing(bool key_down, std::string &out)
     if (d_mark_pending)
     {
         if (d_space_len < d_min_len)
+        {
             return;
+        }
         d_mark_pending = false;
         classify_mark();
     }
@@ -357,25 +382,35 @@ void CwDecoder::classify_mark()
     {
         d_gaps.push_back(gap);
         if (d_gaps.size() > EST_HISTORY)
+        {
             d_gaps.pop_front();
+        }
     }
     d_have_element = len <= max_len;
     if (d_have_element && (d_est_dot <= 0.0 || len <= 10.0 * d_est_dot))
     {
         d_marks.push_back(len);
         if (d_marks.size() > EST_HISTORY)
+        {
             d_marks.pop_front();
+        }
     }
 
     if (d_mark_len > d_max_mark_len)
+    {
         d_symbols.clear(); // steady carrier, not Morse
+    }
     else if (d_symbols.size() <= MAX_SYMBOLS) // longer than any code: "*"
+    {
         d_symbols += (d_mark_len < d_dash_len) ? '.' : '-';
+    }
 
     d_gap_len = d_space_len;
 
     if (d_have_element)
+    {
         update_estimate();
+    }
 }
 
 /*! \brief Update the smoothed dot estimate after a new mark. */
@@ -383,15 +418,23 @@ void CwDecoder::update_estimate()
 {
     const double dot = estimate_dot();
     if (dot <= 0.0)
+    {
         return;
+    }
 
     if (d_est_dot <= 0.0)
+    {
         d_est_dot = dot;
+    }
     else
+    {
         d_est_dot += (dot - d_est_dot) * EST_SMOOTHING;
+    }
 
     if (d_auto_wpm)
+    {
         select_timing();
+    }
 }
 
 /*! \brief Estimate the dot length from recent marks and gaps.
@@ -408,7 +451,9 @@ void CwDecoder::update_estimate()
 double CwDecoder::estimate_dot() const
 {
     if (d_marks.size() < EST_MIN_MARKS)
+    {
         return 0.0;
+    }
 
     std::vector<double> marks(d_marks.begin(), d_marks.end());
     std::sort(marks.begin(), marks.end());
@@ -431,13 +476,17 @@ double CwDecoder::estimate_dot() const
         const std::size_t n_dots = split;
         const std::size_t n_dashes = marks.size() - split;
         if (n_dots < EST_MIN_PER_CLUSTER || n_dashes < EST_MIN_PER_CLUSTER)
+        {
             return 0.0;
+        }
 
         const double dots = mean(marks, 0, split);
         const double dashes = mean(marks, split, marks.size());
         const double ratio = dashes / dots;
         if (ratio < EST_DASH_RATIO_MIN || ratio > EST_DASH_RATIO_MAX)
+        {
             return 0.0;
+        }
 
         dot = (dots * static_cast<double>(n_dots) + dashes * static_cast<double>(n_dashes)) /
               static_cast<double>(n_dots + 3 * n_dashes);
@@ -451,22 +500,34 @@ double CwDecoder::estimate_dot() const
         {
             const double ratio = gap / mark;
             if (ratio >= 0.2 && ratio <= 0.5)
+            {
                 dash_like++;
+            }
             else if (ratio >= 0.6 && ratio <= 1.6)
+            {
                 dot_like++;
+            }
         }
 
         if (dash_like >= EST_MIN_GAPS)
+        {
             dot = mark / 3.0;
+        }
         else if (dot_like >= EST_MIN_GAPS)
+        {
             dot = mark;
+        }
         else
+        {
             return 0.0;
+        }
     }
 
     const double wpm = d_sample_rate * 1.2 / dot;
     if (wpm < AUTO_MIN_WPM || wpm > AUTO_MAX_WPM)
+    {
         return 0.0;
+    }
 
     return dot;
 }

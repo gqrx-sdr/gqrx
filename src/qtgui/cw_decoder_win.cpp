@@ -32,9 +32,9 @@
 #define CW_DEFAULT_WPM 20
 
 
-CwDecoderWin::CwDecoderWin(unsigned int sample_rate, int tone_hz, QWidget *parent) : QMainWindow(parent),
+CwDecoderWin::CwDecoderWin(unsigned int sample_rate, QWidget *parent) : QMainWindow(parent),
     ui(new Ui::CwDecoderWin),
-    decoder(sample_rate, tone_hz, CW_DEFAULT_WPM),
+    decoder(sample_rate, 700.0, CW_DEFAULT_WPM),
     decoding(false)
 {
     ui->setupUi(this);
@@ -75,12 +75,16 @@ CwDecoderWin::~CwDecoderWin()
 void CwDecoderWin::process_samples(const float *buffer, int length)
 {
     if (!decoding || length <= 0)
+    {
         return;
+    }
 
     std::string text = decoder.process(buffer, (std::size_t) length);
     updateEstimate();
     if (text.empty())
+    {
         return;
+    }
 
     ui->textView->moveCursor(QTextCursor::End);
     ui->textView->insertPlainText(QString::fromStdString(text));
@@ -88,28 +92,34 @@ void CwDecoderWin::process_samples(const float *buffer, int length)
 }
 
 
-/*! \brief Set the audio tone (CW offset) to decode. */
-void CwDecoderWin::setTone(int tone_hz)
+/*! \brief Decode a new stream, e.g. after retuning or a mode change.
+ *
+ * Discards the partially received character and the speed evidence. The
+ * decoded text and the speed settings are kept.
+ *
+ * \param tone_hz  The audio tone (CW offset) to decode.
+ * \param enabled  False to pause decoding outside the CW modes.
+ */
+void CwDecoderWin::restart(int tone_hz, bool enabled)
 {
-    decoder.set_tone(tone_hz);
-    updateStatus();
-}
+    if (tone_hz != qRound(decoder.tone()))
+    {
+        decoder.set_tone(tone_hz); // also resets
+    }
+    else
+    {
+        decoder.reset();
+    }
 
-
-/*! \brief Enable decoding (CW modes) or pause it (other modes). */
-void CwDecoderWin::setDecoding(bool enabled)
-{
-    decoding = enabled;
-    decoder.reset();
-    updateStatus();
-}
-
-
-/*! \brief Discard any partially received character and speed evidence. */
-void CwDecoderWin::resetDecoder()
-{
-    decoder.reset();
-    updateEstimate();
+    if (decoding != enabled)
+    {
+        decoding = enabled;
+        updateStatus();
+    }
+    else
+    {
+        updateEstimate();
+    }
 }
 
 
@@ -153,9 +163,13 @@ void CwDecoderWin::setAutoWpm(bool enabled)
 void CwDecoderWin::updateStatus()
 {
     if (decoding)
+    {
         ui->statusBar->showMessage(tr("Decoding"));
+    }
     else
+    {
         ui->statusBar->showMessage(tr("Paused: select CW-L or CW-U mode"));
+    }
 
     updateEstimate();
 }
@@ -169,11 +183,17 @@ void CwDecoderWin::updateEstimate()
     {
         const double wpm = decoder.estimated_wpm();
         if (wpm > 0.0)
+        {
             text = tr("\u2248 %1 WPM").arg(qRound(wpm));
+        }
         else
+        {
             text = tr("Estimating\u2026");
+        }
     }
 
     if (estimateLabel->text() != text)
+    {
         estimateLabel->setText(text);
+    }
 }

@@ -42,39 +42,26 @@ class CwDecoderWin : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit CwDecoderWin(unsigned int sample_rate, int tone_hz, QWidget *parent = 0);
-
+    explicit CwDecoderWin(unsigned int sample_rate, QWidget *parent = nullptr);
     ~CwDecoderWin();
 
     void process_samples(const float *buffer, int length);
 
-    void setTone(int tone_hz);
-
-    void setDecoding(bool enabled);
-
-    void resetDecoder();
+    void restart(int tone_hz, bool enabled);
 
 protected:
     void closeEvent(QCloseEvent *ev);
 
-    signals:
-
-
+signals:
     void windowClosed(); /*! Signal we emit when window is closed. */
 
-private
-    slots:
-
-
+private slots:
     void on_actionClear_triggered();
-
     void setWpm(int wpm);
-
     void setAutoWpm(bool enabled);
 
 private:
     void updateStatus();
-
     void updateEstimate();
 
     Ui::CwDecoderWin *ui; /*! Qt Designer form. */
