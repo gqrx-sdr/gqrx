@@ -72,7 +72,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     d_fftWindowType(0),
     d_fftNormalizeEnergy(false),
     d_have_audio(true),
-    dec_afsk1200(nullptr)
+    dec_afsk1200(nullptr),
+    dec_cw(nullptr)
 {
     ui->setupUi(this);
     BandPlan::create();
@@ -907,11 +908,16 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
 {
     auto hw_freq = (double)(rx_freq - d_lnb_lo) - rx->get_filter_offset();
     auto center_freq = rx_freq - (qint64)rx->get_filter_offset();
+    bool retuned = ((qint64)hw_freq != d_hw_freq);
 
     d_hw_freq = (qint64)hw_freq;
 
     // set receiver frequency
     rx->set_rf_freq(hw_freq);
+    if (retuned)
+    {
+        restartCwDecoder();
+    }
 
     // update widgets
     ui->plotter->setCenterFreq(center_freq);
@@ -1025,7 +1031,13 @@ void MainWindow::setAntenna(const QString& antenna)
  */
 void MainWindow::setFilterOffset(qint64 freq_hz)
 {
+    bool retuned = ((double) freq_hz != rx->get_filter_offset());
+
     rx->set_filter_offset((double) freq_hz);
+    if (retuned)
+    {
+        restartCwDecoder();
+    }
     ui->plotter->setFilterOffset(freq_hz);
 
     updateFrequencyRange();
@@ -1185,6 +1197,10 @@ void MainWindow::selectDemod(int mode_idx)
     }
     qDebug() << "New mode index:" << mode_idx;
 
+    /* also called for a new filter preset in the same mode */
+    bool mode_changed = (mode_idx != d_demod_mode);
+    d_demod_mode = mode_idx;
+
     uiDockRxOpt->getFilterPreset(mode_idx, filter_preset, &flo, &fhi);
     d_filter_shape = (receiver::filter_shape)uiDockRxOpt->currentFilterShape();
 
@@ -1205,6 +1221,10 @@ void MainWindow::selectDemod(int mode_idx)
         if (dec_afsk1200 != nullptr)
         {
             dec_afsk1200->close();
+        }
+        if (dec_cw != nullptr)
+        {
+            dec_cw->close();
         }
         rx->set_demod(receiver::RX_DEMOD_OFF);
         click_res = 1000;
@@ -1319,6 +1339,11 @@ void MainWindow::selectDemod(int mode_idx)
     d_have_audio = (mode_idx != DockRxOpt::MODE_OFF);
 
     uiDockRxOpt->setCurrentDemod(mode_idx);
+
+    if (mode_changed)
+    {
+        restartCwDecoder();
+    }
 }
 
 
@@ -1359,7 +1384,17 @@ void MainWindow::setAmDcr(bool enabled)
 
 void MainWindow::setCwOffset(int offset)
 {
-    rx->set_cw_offset(offset);
+    /* CW-L places the carrier below the filter offset, see selectDemod() */
+    if (uiDockRxOpt->currentDemod() == DockRxOpt::MODE_CWL)
+    {
+        rx->set_cw_offset(-offset);
+    }
+    else
+    {
+        rx->set_cw_offset(offset);
+    }
+
+    restartCwDecoder();
 }
 
 /**
@@ -1943,6 +1978,13 @@ void MainWindow::on_actionDSP_triggered(bool checked)
 
     if (checked)
     {
+        /* Nothing is produced while the receiver is stopped, so this drops
+         * all audio from before the stop or from a previous input device. */
+        if (!rx->is_running())
+        {
+            restartCwDecoder();
+        }
+
         /* start receiver */
         rx->start();
 
@@ -1976,6 +2018,10 @@ void MainWindow::on_actionDSP_triggered(bool checked)
 
         /* stop receiver */
         rx->stop();
+
+        /* The timer may still deliver audio queued before the stop, and
+         * nothing new is produced now. Drop it and the partial character. */
+        restartCwDecoder();
 
         /* update menu text and button tooltip */
         ui->actionDSP->setToolTip(tr("Start DSP processing"));
@@ -2102,7 +2148,13 @@ void MainWindow::on_actionIqTool_triggered()
 void MainWindow::on_plotter_newDemodFreq(qint64 freq, qint64 delta)
 {
     // set RX filter
+    bool retuned = ((double) delta != rx->get_filter_offset());
+
     rx->set_filter_offset((double) delta);
+    if (retuned)
+    {
+        restartCwDecoder();
+    }
 
     // update RF freq label and channel filter offset
     uiDockRxOpt->setFilterOffset(delta);
@@ -2168,6 +2220,51 @@ void MainWindow::on_actionRemoteConfig_triggered()
 
 
 #define DATA_BUFFER_SIZE 48000
+#define CW_SNIFFER_RATE 8000
+
+/**
+ * Start the sample sniffer for a new data decoder window.
+ *
+ * The sniffer can only serve one decoder, so at most one decoder window can
+ * be open. The window owns the sniffer until stopDataDecoder() is called when
+ * it is closed, and dec_timer feeds it with sniffer data meanwhile.
+ *
+ * Returns false after informing the user if the decoder can't be started.
+ */
+bool MainWindow::startDataDecoder(const QString &name, unsigned int samprate)
+{
+    if (!d_have_audio)
+    {
+        QMessageBox msg_box;
+        msg_box.setIcon(QMessageBox::Critical);
+        msg_box.setText(tr("%1 decoder requires a demodulator.\n"
+                           "Currently, demodulation is switched off "
+                           "(Mode->Demod Off).").arg(name));
+        msg_box.exec();
+        return false;
+    }
+
+    if (rx->start_sniffer(samprate, DATA_BUFFER_SIZE) != receiver::STATUS_OK)
+    {
+        QMessageBox::warning(this, tr("Gqrx error"),
+                             tr("Error starting sample sniffer.\n"
+                                "Close all data decoders and try again."),
+                             QMessageBox::Ok, QMessageBox::Ok);
+        return false;
+    }
+
+    qDebug().noquote() << "Starting" << name << "decoder.";
+    dec_timer->start(100);
+
+    return true;
+}
+
+/** Stop cyclic processing and release the sample sniffer. */
+void MainWindow::stopDataDecoder()
+{
+    dec_timer->stop();
+    rx->stop_sniffer();
+}
 
 /**
  * AFSK1200 decoder action triggered.
@@ -2178,41 +2275,22 @@ void MainWindow::on_actionRemoteConfig_triggered()
  */
 void MainWindow::on_actionAFSK1200_triggered()
 {
-    if (!d_have_audio)
-    {
-        QMessageBox msg_box;
-        msg_box.setIcon(QMessageBox::Critical);
-        msg_box.setText(tr("AFSK1200 decoder requires a demodulator.\n"
-                           "Currently, demodulation is switched off "
-                           "(Mode->Demod Off)."));
-        msg_box.exec();
-        return;
-    }
     if (dec_afsk1200 != nullptr)
     {
         qDebug() << "AFSK1200 decoder already active.";
         dec_afsk1200->raise();
+        return;
     }
-    else
+
+    if (!startDataDecoder("AFSK1200", 22050))
     {
-        qDebug() << "Starting AFSK1200 decoder.";
-
-        /* start sample sniffer */
-        if (rx->start_sniffer(22050, DATA_BUFFER_SIZE) == receiver::STATUS_OK)
-        {
-            dec_afsk1200 = new Afsk1200Win(this);
-            connect(dec_afsk1200, SIGNAL(windowClosed()), this, SLOT(afsk1200win_closed()));
-            dec_afsk1200->setAttribute(Qt::WA_DeleteOnClose);
-            dec_afsk1200->show();
-
-            dec_timer->start(100);
-        }
-        else
-            QMessageBox::warning(this, tr("Gqrx error"),
-                                 tr("Error starting sample sniffer.\n"
-                                    "Close all data decoders and try again."),
-                                 QMessageBox::Ok, QMessageBox::Ok);
+        return;
     }
+
+    dec_afsk1200 = new Afsk1200Win(this);
+    connect(dec_afsk1200, SIGNAL(windowClosed()), this, SLOT(afsk1200win_closed()));
+    dec_afsk1200->setAttribute(Qt::WA_DeleteOnClose);
+    dec_afsk1200->show();
 }
 
 
@@ -2225,11 +2303,70 @@ void MainWindow::on_actionAFSK1200_triggered()
  */
 void MainWindow::afsk1200win_closed()
 {
-    /* stop cyclic processing */
-    dec_timer->stop();
-    rx->stop_sniffer();
-
+    stopDataDecoder();
     dec_afsk1200 = nullptr;
+}
+
+/**
+ * CW decoder action triggered.
+ *
+ * Creates a CW decoder window and starts pushing demodulated audio from the
+ * receiver to it.
+ */
+void MainWindow::on_actionCW_triggered()
+{
+    if (dec_cw != nullptr)
+    {
+        qDebug() << "CW decoder already active.";
+        dec_cw->raise();
+        return;
+    }
+
+    if (!startDataDecoder("CW", CW_SNIFFER_RATE))
+    {
+        return;
+    }
+
+    dec_cw = new CwDecoderWin(CW_SNIFFER_RATE, this);
+    connect(dec_cw, SIGNAL(windowClosed()), this, SLOT(cwdecoderwin_closed()));
+    dec_cw->setAttribute(Qt::WA_DeleteOnClose);
+    restartCwDecoder();
+    dec_cw->show();
+}
+
+/** CW decoder window got closed. */
+void MainWindow::cwdecoderwin_closed()
+{
+    stopDataDecoder();
+    dec_cw = nullptr;
+}
+
+/**
+ * Restart the CW decoder after the receiver output changed.
+ *
+ * Call this after the change (mode, CW offset, tuning, DSP start) has been
+ * applied to the receiver: sniffer data queued until now belongs to the old
+ * stream. The decoded text and the speed settings are kept.
+ *
+ * Limitation: samples already in flight inside the GNU Radio flow graph can
+ * still reach the sniffer after the clear, so a few old samples may be
+ * decoded after a live retune. This is accepted; after rx->stop() nothing is
+ * in flight, so stopping the DSP is exact.
+ */
+void MainWindow::restartCwDecoder()
+{
+    if (dec_cw == nullptr)
+    {
+        return;
+    }
+
+    /* get_sniffer_data() may leave a short tail behind, so clear explicitly */
+    rx->clear_sniffer_data();
+
+    /* the audio tone equals the CW offset in both CW-L and CW-U */
+    dec_cw->restart(uiDockRxOpt->getCwOffset(),
+                    d_demod_mode == DockRxOpt::MODE_CWL ||
+                    d_demod_mode == DockRxOpt::MODE_CWU);
 }
 
 /** Show DXC Options. */
@@ -2250,6 +2387,10 @@ void MainWindow::decoderTimeout()
     rx->get_sniffer_data(&buffer[0], num);
     if (dec_afsk1200)
         dec_afsk1200->process_samples(&buffer[0], num);
+    if (dec_cw)
+    {
+        dec_cw->process_samples(&buffer[0], num);
+    }
 }
 
 void MainWindow::setRdsDecoder(bool checked)
