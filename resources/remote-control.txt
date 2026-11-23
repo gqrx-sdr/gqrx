@@ -23,6 +23,14 @@ Supported commands:
     Get audio gain [dB]
  L AF <gain>
     Set audio gain to <gain> [dB]
+ l RFPOWER
+    Get transmitter RF power [dB]
+ L RFPOWER <power>
+    Set transmitter RF power to <power> [dB]
+ l MICGAIN
+    Get transmitter microphone gain [dB]
+ L MICGAIN <gain>
+    Set transmitter microphone gain to <gain> [dB]
  l <gain_name>_GAIN
     Get the value of the gain setting with the name <gain_name>
  L <gain_name>_GAIN <value>
@@ -53,6 +61,14 @@ Supported commands:
     Get audio mute status
  U MUTE <status>
     Set audio mute to <status>
+ u PTT
+    Get transmitter PTT status
+ U PTT <status>
+    Set transmitter PTT status
+ u SPLIT
+    Get split TX mode status
+ U SPLIT <status>
+    Set split TX mode status
  q|Q
     Close connection
  AOS
@@ -73,9 +89,17 @@ Supported commands:
  V
     Set 'VFO' (only usable for hamlib compatibility)
  s
-    Get 'Split' mode (only usable for hamlib compatibility)
- S
-    Set 'Split' mode (only usable for hamlib compatibility)
+    Get split VFO mode status
+ S <split> [vfo]
+    Set split VFO mode status
+ t
+    Get PTT status
+ T <ptt>
+    Set PTT status
+ i
+    Get TX (split) frequency [Hz]
+ I <frequency>
+    Set TX (split) frequency [Hz]
  _
     Get version
 

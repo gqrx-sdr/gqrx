@@ -1,0 +1,688 @@
+/* -*- c++ -*- */
+/*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           https://gqrx.dk/
+ *
+ * Copyright 2024 Gqrx Authors
+ *
+ * Gqrx is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3, or (at your option)
+ * any later version.
+ *
+ * Gqrx is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Gqrx; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street,
+ * Boston, MA 02110-1301, USA.
+ */
+
+#include "applications/gqrx/transmitter.h"
+#include "applications/gqrx/tx_device_args.h"
+#include <iostream>
+#include <cmath>
+#include <sstream>
+#include <iomanip>
+#include <QDebug>
+
+#ifdef WITH_PULSEAUDIO
+#include "pulseaudio/pa_source.h"
+#endif
+
+#include <gnuradio/audio/source.h>
+
+#ifdef GQRX_HAVE_SOAPYSDR
+#include <SoapySDR/Device.hpp>
+#endif
+
+#define DEFAULT_TX_AUDIO_RATE 48000.0
+#define DEFAULT_TX_RATE       2000000.0
+
+transmitter::transmitter(const std::string &device,
+                         const std::string &audio_device,
+                         double tx_rate)
+    : d_running(false),
+      d_sink_valid(false),
+      d_tx_devstr(device),
+      d_audio_devstr(audio_device),
+      d_audio_rate(DEFAULT_TX_AUDIO_RATE),
+      d_tx_rate(tx_rate > 0.0 ? tx_rate : DEFAULT_TX_RATE),
+      d_tx_freq(145500000.0),
+      d_tx_power_db(0.0),
+      d_mic_gain_db(0.0f),
+      d_ctcss_freq(0.0f),
+      d_split_enabled(false),
+      d_split_offset(0.0),
+      d_swr(1.0f),
+      d_mode(TX_MOD_NFM),
+      d_last_error("")
+{
+    d_tb = gr::make_top_block("gqrx_tx");
+    build_graph();
+}
+
+transmitter::~transmitter()
+{
+    stop();
+}
+
+void transmitter::create_audio_source()
+{
+    d_audio_src.reset();
+
+#ifdef WITH_PULSEAUDIO
+    try
+    {
+        d_audio_src = make_pa_source(d_audio_devstr, (int)d_audio_rate, 1, "GQRX", "Audio input");
+        qDebug() << "Created PulseAudio source for transmitter:" << d_audio_devstr.c_str();
+    }
+    catch (const std::exception &e)
+    {
+        qWarning() << "PulseAudio source failed:" << e.what() << "- attempting GNU Radio audio source";
+        d_audio_src.reset();
+    }
+#endif
+
+    if (!d_audio_src)
+    {
+        try
+        {
+            d_audio_src = gr::audio::source::make((int)d_audio_rate, d_audio_devstr, true);
+            qDebug() << "Created gr::audio::source for transmitter:" << d_audio_devstr.c_str();
+        }
+        catch (const std::exception &e)
+        {
+            qWarning() << "gr::audio::source failed:" << e.what() << "- using null audio source fallback";
+            d_audio_src = gr::blocks::null_source::make(sizeof(float));
+        }
+    }
+
+    if (!d_audio_src)
+    {
+        d_audio_src = gr::blocks::null_source::make(sizeof(float));
+    }
+}
+
+void transmitter::open_audio_input()
+{
+    if (d_audio_src)
+    {
+        try
+        {
+            d_tb->disconnect(d_audio_src, 0, d_modulator, 0);
+        }
+        catch (...) {}
+    }
+
+    create_audio_source();
+
+    try
+    {
+        d_tb->connect(d_audio_src, 0, d_modulator, 0);
+    }
+    catch (const std::exception &e)
+    {
+        qWarning() << "Error connecting transmitter audio source:" << e.what();
+    }
+}
+
+void transmitter::close_audio_input()
+{
+    if (d_audio_src)
+    {
+        try
+        {
+            d_tb->disconnect(d_audio_src, 0, d_modulator, 0);
+        }
+        catch (...) {}
+    }
+
+    d_audio_src = gr::blocks::null_source::make(sizeof(float));
+
+    try
+    {
+        d_tb->connect(d_audio_src, 0, d_modulator, 0);
+    }
+    catch (const std::exception &e)
+    {
+        qWarning() << "Error connecting transmitter null audio source:" << e.what();
+    }
+}
+
+#ifdef GQRX_HAVE_SOAPYSDR
+/*
+ * gr-osmosdr's soapy sink reports at least one channel without asking the
+ * driver how many TX channels it has, and some RX-only Soapy modules
+ * (SoapySDRPlay3, SoapyAirspy, SoapyAirspyHF) accept a TX stream setup
+ * anyway. Ask SoapySDR directly. Device::make() returns the receiver's
+ * cached instance when the device is already open.
+ */
+static bool soapy_devices_can_transmit(const std::string &devstr, std::string &error)
+{
+    std::vector<tx_device_params> devices;
+    if (!tx_devstr_split(devstr, devices))
+        return false;
+
+    for (const tx_device_params &dev : devices)
+    {
+        if (!dev.count("soapy"))
+            continue;
+        try
+        {
+            SoapySDR::Device *sdev = SoapySDR::Device::make(SoapySDR::Kwargs(dev.begin(), dev.end()));
+            const size_t num_tx = sdev->getNumChannels(SOAPY_SDR_TX);
+            SoapySDR::Device::unmake(sdev);
+            if (num_tx == 0)
+            {
+                error = "Device has no transmit channels";
+                return false;
+            }
+        }
+        catch (const std::exception &e)
+        {
+            error = e.what();
+            return false;
+        }
+    }
+    return true;
+}
+#endif
+
+void transmitter::create_tx_sink()
+{
+    d_snk.reset();
+    d_sink_block.reset();
+    d_sink_valid = false;
+    d_last_error.clear();
+
+    // Reject file= input device strings explicitly; gr-osmosdr's file sink would
+    // open and truncate an existing I/Q recording file if passed to osmosdr::sink::make().
+    bool is_file_dev = (d_tx_devstr.rfind("file=", 0) == 0 ||
+                        d_tx_devstr.find(",file=") != std::string::npos ||
+                        d_tx_devstr.find(" file=") != std::string::npos);
+    // osmosdr::sink::make() does not throw for receive-only device strings such
+    // as "rtl=0": when no sink driver key is present it opens the first
+    // transmit-capable device it can enumerate instead. Only probe strings that
+    // name a sink driver, so TX can never end up on an unselected device.
+    bool names_tx_driver = tx_devstr_names_sink_driver(d_tx_devstr);
+    std::string soapy_error;
+    bool soapy_can_tx = true;
+#ifdef GQRX_HAVE_SOAPYSDR
+    if (names_tx_driver)
+        soapy_can_tx = soapy_devices_can_transmit(d_tx_devstr, soapy_error);
+#endif
+    if (!d_tx_devstr.empty() && !is_file_dev && names_tx_driver && soapy_can_tx)
+    {
+        try
+        {
+            // Query osmosdr sink directly for the configured device.
+            auto snk = osmosdr::sink::make(d_tx_devstr);
+            if (snk && snk->get_num_channels() > 0)
+            {
+                d_snk = snk;
+                d_sink_block = d_snk;
+                d_sink_valid = true;
+                qDebug() << "Created osmosdr::sink for device:" << d_tx_devstr.c_str();
+            }
+            else
+            {
+                d_last_error = "Device does not provide transmit channels";
+                qDebug() << "osmosdr::sink has 0 transmit channels for:" << d_tx_devstr.c_str();
+            }
+        }
+        catch (const std::exception &e)
+        {
+            d_last_error = e.what();
+            qDebug() << "Device does not support transmission:" << d_tx_devstr.c_str() << "(" << e.what() << ")";
+        }
+    }
+    else if (is_file_dev)
+    {
+        d_last_error = "File input device does not support transmission";
+    }
+    else if (!d_tx_devstr.empty() && !names_tx_driver)
+    {
+        d_last_error = "Device string does not name a transmit-capable driver";
+        qDebug() << "Not probing TX: no osmosdr sink driver in" << d_tx_devstr.c_str();
+    }
+    else if (!d_tx_devstr.empty())
+    {
+        d_last_error = soapy_error;
+        qDebug() << "Not probing TX for" << d_tx_devstr.c_str() << ":" << soapy_error.c_str();
+    }
+
+    if (!d_sink_block)
+    {
+        d_sink_block = gr::blocks::null_sink::make(sizeof(gr_complex));
+    }
+}
+
+void transmitter::build_graph()
+{
+    // Start with a passive null source; real audio capture opens only while transmitting.
+    d_audio_src = gr::blocks::null_source::make(sizeof(float));
+    create_tx_sink();
+
+    d_modulator = make_tx_modulator(d_audio_rate, d_mode);
+    d_modulator->set_mic_gain(d_mic_gain_db);
+    d_modulator->set_ctcss_freq(d_ctcss_freq);
+
+    float resamp_ratio = (float)(d_tx_rate / d_audio_rate);
+    d_resampler = make_resampler_cc(resamp_ratio);
+
+    float rf_gain_linear = 0.9f;
+    if (!d_sink_valid)
+    {
+        rf_gain_linear = (float)std::pow(10.0, d_tx_power_db / 20.0);
+        if (rf_gain_linear > 0.9f)
+            rf_gain_linear = 0.9f;
+    }
+    d_rf_gain = gr::blocks::multiply_const_cc::make(rf_gain_linear);
+
+    d_rf_meter = make_rx_meter_c(d_tx_rate);
+
+    d_tb->connect(d_audio_src, 0, d_modulator, 0);
+    d_tb->connect(d_modulator, 0, d_resampler, 0);
+    d_tb->connect(d_resampler, 0, d_rf_gain, 0);
+    d_tb->connect(d_rf_gain, 0, d_rf_meter, 0);
+    d_tb->connect(d_rf_gain, 0, d_sink_block, 0);
+}
+
+transmitter::status transmitter::start()
+{
+    if (d_running)
+        return STATUS_OK;
+
+    if (d_sink_valid)
+        open_audio_input();
+
+    if (d_snk)
+    {
+        try
+        {
+            double target_freq = d_split_enabled ? (d_tx_freq + d_split_offset) : d_tx_freq;
+            double actual_rate = d_snk->set_sample_rate(d_tx_rate);
+            if (actual_rate > 0.0 && std::abs(actual_rate - d_tx_rate) > 1.0)
+            {
+                d_tx_rate = actual_rate;
+                if (d_resampler)
+                    d_resampler->set_rate((float)(d_tx_rate / d_audio_rate));
+            }
+            d_snk->set_center_freq(target_freq);
+            d_snk->set_gain(d_tx_power_db);
+        }
+        catch (const std::exception &e)
+        {
+            qWarning() << "Error updating sink settings prior to start:" << e.what();
+        }
+    }
+
+    if (d_rf_gain)
+    {
+        if (d_sink_valid)
+        {
+            d_rf_gain->set_k(0.9f);
+        }
+        else
+        {
+            float gain_linear = (float)std::pow(10.0, d_tx_power_db / 20.0);
+            if (gain_linear > 0.9f)
+                gain_linear = 0.9f;
+            d_rf_gain->set_k(gain_linear);
+        }
+    }
+
+    try
+    {
+        d_tb->start();
+        d_running = true;
+        qDebug() << "Transmitter started on" << (d_split_enabled ? (d_tx_freq + d_split_offset) : d_tx_freq)
+                 << "Hz, mode:" << get_tx_mode_str().c_str();
+        return STATUS_OK;
+    }
+    catch (const std::exception &e)
+    {
+        d_last_error = e.what();
+        qWarning() << "Error starting transmitter top block:" << e.what();
+        d_running = false;
+        close_audio_input();
+        return STATUS_ERROR;
+    }
+}
+
+transmitter::status transmitter::stop()
+{
+    if (!d_running)
+        return STATUS_OK;
+
+    try
+    {
+        d_tb->stop();
+        d_tb->wait();
+        d_running = false;
+        close_audio_input();
+        qDebug() << "Transmitter stopped.";
+        return STATUS_OK;
+    }
+    catch (const std::exception &e)
+    {
+        d_last_error = e.what();
+        qWarning() << "Error stopping transmitter top block:" << e.what();
+        d_running = false;
+        close_audio_input();
+        return STATUS_ERROR;
+    }
+}
+void transmitter::set_tx_device(const std::string &device)
+{
+    if (device == d_tx_devstr && (device.empty() || d_sink_valid))
+        return;
+
+    bool was_running = d_running;
+    if (was_running)
+        stop();
+
+    d_tx_devstr = device;
+
+    // Disconnect old sink, rebuild graph with new sink
+    try
+    {
+        d_tb->disconnect(d_rf_gain, 0, d_sink_block, 0);
+    }
+    catch (...) {}
+
+    create_tx_sink();
+
+    try
+    {
+        d_tb->connect(d_rf_gain, 0, d_sink_block, 0);
+    }
+    catch (const std::exception &e)
+    {
+        qWarning() << "Error reconnecting new sink:" << e.what();
+    }
+
+    if (was_running)
+        start();
+}
+
+void transmitter::set_audio_device(const std::string &device)
+{
+    if (device == d_audio_devstr)
+        return;
+
+    d_audio_devstr = device;
+
+    if (d_running && d_sink_valid)
+    {
+        stop();
+        start();
+    }
+}
+
+transmitter::status transmitter::set_tx_freq(double freq_hz)
+{
+    d_tx_freq = freq_hz;
+    double target_freq = d_split_enabled ? (d_tx_freq + d_split_offset) : d_tx_freq;
+
+    if (d_running && d_snk)
+    {
+        try
+        {
+            d_snk->set_center_freq(target_freq);
+            return STATUS_OK;
+        }
+        catch (const std::exception &e)
+        {
+            d_last_error = e.what();
+            return STATUS_ERROR;
+        }
+    }
+    return STATUS_OK;
+}
+
+transmitter::status transmitter::set_tx_rate(double rate)
+{
+    if (rate <= 0.0 || std::abs(rate - d_tx_rate) < 1.0)
+        return STATUS_OK;
+
+    bool was_running = d_running;
+    if (was_running)
+        stop();
+
+    d_tx_rate = rate;
+
+    if (d_resampler)
+    {
+        try
+        {
+            d_resampler->set_rate((float)(d_tx_rate / d_audio_rate));
+        }
+        catch (const std::exception &e)
+        {
+            qWarning() << "Error updating resampler rate:" << e.what();
+        }
+    }
+
+    if (was_running)
+        start();
+
+    return STATUS_OK;
+}
+
+void transmitter::set_tx_mode(tx_mod_type mode)
+{
+    d_mode = mode;
+    if (d_modulator)
+    {
+        bool was_running = d_running;
+        if (was_running)
+            stop();
+
+        d_modulator->set_mode(mode);
+
+        if (was_running)
+            start();
+    }
+}
+
+std::string transmitter::get_tx_mode_str() const
+{
+    switch (d_mode)
+    {
+    case TX_MOD_AM:  return "AM";
+    case TX_MOD_NFM: return "NFM";
+    case TX_MOD_USB: return "USB";
+    case TX_MOD_LSB: return "LSB";
+    default:         return "OFF";
+    }
+}
+
+void transmitter::set_mic_gain(float gain_db)
+{
+    d_mic_gain_db = gain_db;
+    if (d_modulator)
+        d_modulator->set_mic_gain(gain_db);
+}
+
+void transmitter::set_tx_power(double power_db)
+{
+    d_tx_power_db = power_db;
+
+    if (d_running && d_snk)
+    {
+        try
+        {
+            d_snk->set_gain(power_db);
+        }
+        catch (...) {}
+    }
+
+    if (d_rf_gain)
+    {
+        if (d_sink_valid)
+        {
+            d_rf_gain->set_k(0.9f);
+        }
+        else
+        {
+            float gain_linear = (float)std::pow(10.0, power_db / 20.0);
+            if (gain_linear > 0.9f)
+                gain_linear = 0.9f;
+            d_rf_gain->set_k(gain_linear);
+        }
+    }
+}
+
+void transmitter::set_ctcss_freq(float freq_hz)
+{
+    d_ctcss_freq = freq_hz;
+    if (d_modulator)
+        d_modulator->set_ctcss_freq(freq_hz);
+}
+
+void transmitter::set_split_mode(bool enabled)
+{
+    d_split_enabled = enabled;
+    set_tx_freq(d_tx_freq);
+}
+
+void transmitter::set_split_offset(double offset_hz)
+{
+    d_split_offset = offset_hz;
+    set_tx_freq(d_tx_freq);
+}
+
+float transmitter::get_alc_level()
+{
+    if (d_modulator)
+        return d_modulator->get_alc_level();
+    return -100.0f;
+}
+
+float transmitter::get_rf_power_level()
+{
+    if (d_rf_meter)
+        return d_rf_meter->get_level_db();
+    return -100.0f;
+}
+
+std::vector<std::string> transmitter::get_gain_names() const
+{
+    if (d_snk)
+    {
+        try
+        {
+            return d_snk->get_gain_names();
+        }
+        catch (...) {}
+    }
+    return std::vector<std::string>();
+}
+
+bool transmitter::get_tx_gain_range(double *start, double *stop, double *step) const
+{
+    if (!d_snk || !d_sink_valid)
+        return false;
+
+    try
+    {
+        osmosdr::gain_range_t range = d_snk->get_gain_range();
+        if (!range.empty() && range.start() < range.stop())
+        {
+            if (start)
+                *start = range.start();
+            if (stop)
+                *stop = range.stop();
+            if (step)
+                *step = range.step() > 0.0 ? range.step() : 0.5;
+            return true;
+        }
+    }
+    catch (...) {}
+
+    return false;
+}
+
+void transmitter::set_gain(const std::string &name, double val)
+{
+    if (d_snk)
+    {
+        try
+        {
+            d_snk->set_gain(val, name);
+        }
+        catch (...) {}
+    }
+}
+
+double transmitter::get_gain(const std::string &name) const
+{
+    if (d_snk)
+    {
+        try
+        {
+            return d_snk->get_gain(name);
+        }
+        catch (...) {}
+    }
+    return 0.0;
+}
+
+std::vector<std::string> transmitter::get_antennas() const
+{
+    if (d_snk)
+    {
+        try
+        {
+            return d_snk->get_antennas();
+        }
+        catch (...) {}
+    }
+    return std::vector<std::string>();
+}
+
+void transmitter::set_antenna(const std::string &antenna)
+{
+    if (d_snk && !antenna.empty())
+    {
+        try
+        {
+            d_snk->set_antenna(antenna);
+        }
+        catch (...) {}
+    }
+}
+
+std::string transmitter::get_status_details() const
+{
+    std::ostringstream ss;
+    double current_freq = d_split_enabled ? (d_tx_freq + d_split_offset) : d_tx_freq;
+
+    ss << (d_running ? "TX ACTIVE" : "TX IDLE") << " | "
+       << std::fixed << std::setprecision(4) << (current_freq / 1.0e6) << " MHz | "
+       << get_tx_mode_str() << " | "
+       << "Pwr: " << std::setprecision(1) << d_tx_power_db << " dB | "
+       << "Mic: " << d_mic_gain_db << " dB";
+
+    if (d_split_enabled)
+    {
+        ss << " | Split: " << std::setprecision(1) << (d_split_offset / 1.0e3) << " kHz";
+    }
+
+    if (d_ctcss_freq > 0.0f)
+    {
+        ss << " | CTCSS: " << std::setprecision(1) << d_ctcss_freq << " Hz";
+    }
+
+    if (d_running)
+    {
+        ss << " | SWR: " << std::setprecision(2) << d_swr;
+    }
+
+    return ss.str();
+}
