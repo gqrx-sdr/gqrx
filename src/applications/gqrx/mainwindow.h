@@ -34,6 +34,7 @@
 #include <QSvgWidget>
 
 #include "qtgui/dockrxopt.h"
+#include "qtgui/docktxctl.h"
 #include "qtgui/dockaudio.h"
 #include "qtgui/dockinputctl.h"
 #include "qtgui/dockfft.h"
@@ -104,6 +105,7 @@ private:
     DockFft        *uiDockFft;
     DockBookmarks  *uiDockBookmarks;
     DockRDS        *uiDockRDS;
+    DockTxCtl      *uiDockTxCtl;
 
     CIqTool        *iq_tool;
     DXCOptions     *dxc_options;
@@ -227,6 +229,15 @@ private slots:
     void updateClusterSpots();
 
     /* menu and toolbar actions */
+    void on_actionPTT_triggered(bool checked);
+    void onPttToggled(bool checked);
+    void onTxModeChanged(int mode);
+    void onTxFreqChanged(qint64 freq_hz);
+    void onTxSplitChanged(bool enabled);
+    void onMicGainChanged(float gain_db);
+    void onTxPowerChanged(float power_frac);
+    void onCtcssChanged(float freq_hz);
+
     void on_actionDSP_triggered(bool checked);
     int  on_actionIoConfig_triggered();
     void on_actionLoadSettings_triggered();

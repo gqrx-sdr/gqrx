@@ -240,10 +240,18 @@ void RemoteControl::startRead()
             answer = cmd_get_vfo();
         else if (cmd == "V")
             answer = cmd_set_vfo(cmdlist);
-        else if (cmd == "s")
+        else if (cmd == "s" || cmd == "\\get_split_vfo")
             answer = cmd_get_split_vfo();
-        else if (cmd == "S")
-            answer = cmd_set_split_vfo();
+        else if (cmd == "S" || cmd == "\\set_split_vfo")
+            answer = cmd_set_split_vfo(cmdlist);
+        else if (cmd == "t" || cmd == "\\get_ptt")
+            answer = cmd_get_ptt();
+        else if (cmd == "T" || cmd == "\\set_ptt")
+            answer = cmd_set_ptt(cmdlist);
+        else if (cmd == "i" || cmd == "\\get_split_freq")
+            answer = cmd_get_split_freq();
+        else if (cmd == "I" || cmd == "\\set_split_freq")
+            answer = cmd_set_split_freq(cmdlist);
         else if (cmd == "p")
             answer = cmd_get_param(cmdlist);
         else if (cmd == "_")
@@ -675,7 +683,7 @@ QString RemoteControl::cmd_get_level(QStringList cmdlist)
         QStringList names;
         for(auto &g : gains)
             names.push_back(QString("%1_GAIN").arg(QString::fromStdString(g.name)));
-        answer = QString("SQL STRENGTH AF %1\n").arg(names.join(" "));
+        answer = QString("SQL STRENGTH AF RFPOWER MICGAIN %1\n").arg(names.join(" "));
     }
     else if (lvl.compare("STRENGTH", Qt::CaseInsensitive) == 0 || lvl.isEmpty())
     {
@@ -688,6 +696,14 @@ QString RemoteControl::cmd_get_level(QStringList cmdlist)
     else if (lvl.compare("AF", Qt::CaseInsensitive) == 0)
     {
         answer = QString("%1\n").arg((double)audio_gain, 0, 'f', 1);
+    }
+    else if (lvl.compare("RFPOWER", Qt::CaseInsensitive) == 0)
+    {
+        answer = QString("%1\n").arg((double)rc_tx_power, 0, 'f', 2);
+    }
+    else if (lvl.compare("MICGAIN", Qt::CaseInsensitive) == 0)
+    {
+        answer = QString("%1\n").arg((double)rc_mic_gain, 0, 'f', 1);
     }
     else if (lvl.endsWith("_GAIN"))
     {
@@ -917,16 +933,94 @@ QString RemoteControl::cmd_set_vfo(QStringList cmdlist)
     return answer;
 };
 
-/* Get 'Split' mode (fake, only for hamlib) */
+/* Get 'Split' mode */
 QString RemoteControl::cmd_get_split_vfo() const
 {
-    return QString("0\nVFOA\n");
-};
+    return QString("%1\n%2\n").arg(split_status ? 1 : 0).arg(split_status ? "VFOB" : "VFOA");
+}
 
-/* Set 'Split' mode (fake, only for hamlib) */
-QString RemoteControl::cmd_set_split_vfo()
+/* Set 'Split' mode */
+QString RemoteControl::cmd_set_split_vfo(QStringList cmdlist)
 {
-    return QString("RPRT 1\n");
+    QString val_str = cmdlist.value(1, "");
+    if (val_str.isEmpty())
+        return QString("RPRT 1\n");
+
+    bool ok;
+    int val = val_str.toInt(&ok);
+    if (!ok)
+        return QString("RPRT 1\n");
+
+    split_status = (val > 0);
+    emit newSplitMode(split_status);
+    return QString("RPRT 0\n");
+}
+
+QString RemoteControl::cmd_get_ptt() const
+{
+    return QString("%1\n").arg(ptt_status ? 1 : 0);
+}
+
+QString RemoteControl::cmd_set_ptt(QStringList cmdlist)
+{
+    QString val_str = cmdlist.value(1, "");
+    if (val_str == "?")
+        return QString("0 1\n");
+
+    bool ok;
+    int val = val_str.toInt(&ok);
+    if (!ok)
+        return QString("RPRT 1\n");
+
+    bool new_ptt = (val > 0);
+    if (new_ptt != ptt_status)
+    {
+        ptt_status = new_ptt;
+        emit newPtt(ptt_status);
+    }
+    return QString("RPRT 0\n");
+}
+
+QString RemoteControl::cmd_get_split_freq() const
+{
+    return QString("%1\n").arg(rc_tx_freq > 0 ? rc_tx_freq : rc_freq);
+}
+
+QString RemoteControl::cmd_set_split_freq(QStringList cmdlist)
+{
+    bool ok;
+    double freq = cmdlist.value(1, "ERR").toDouble(&ok);
+    if (!ok)
+        return QString("RPRT 1\n");
+
+    rc_tx_freq = (qint64)freq;
+    emit newTxFrequency(rc_tx_freq);
+    return QString("RPRT 0\n");
+}
+
+void RemoteControl::setPtt(bool active)
+{
+    ptt_status = active;
+}
+
+void RemoteControl::setTxFrequency(qint64 freq)
+{
+    rc_tx_freq = freq;
+}
+
+void RemoteControl::setSplitMode(bool enabled)
+{
+    split_status = enabled;
+}
+
+void RemoteControl::setTxPower(float power)
+{
+    rc_tx_power = power;
+}
+
+void RemoteControl::setMicGain(float gain)
+{
+    rc_mic_gain = gain;
 }
 
 /* Get info */
@@ -1005,7 +1099,9 @@ QString RemoteControl::cmd_dump_state() const
         "0.000000 10000000000.000000 0x2ef -1 -1 0x1 0x0\n"
         /* End of RX frequency ranges. */
         "0 0 0 0 0 0 0\n"
-        /* End of TX frequency ranges. The Gqrx is receiver only. */
+        /* TX frequency ranges */
+        "0.000000 10000000000.000000 0x2ef 1 1000 0x1 0x0\n"
+        /* End of TX frequency ranges. */
         "0 0 0 0 0 0 0\n"
         /* Tuning steps: modes, tuning_step */
         "0xef 1\n"

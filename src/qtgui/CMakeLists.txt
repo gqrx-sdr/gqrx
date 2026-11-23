@@ -32,6 +32,8 @@ add_source_files(SRCS_LIST
 	dockrds.h
 	dockrxopt.cpp
 	dockrxopt.h
+	docktxctl.cpp
+	docktxctl.h
 	dxc_options.cpp
 	dxc_options.h
 	dxc_spots.cpp
@@ -65,6 +67,7 @@ add_source_files(UI_SRCS_LIST
 	dockinputctl.ui
 	dockrds.ui
 	dockrxopt.ui
+	docktxctl.ui
 	dxc_options.ui
 	ioconfig.ui
 	iq_tool.ui

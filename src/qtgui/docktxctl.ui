@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DockTxCtl</class>
+ <widget class="QDockWidget" name="DockTxCtl">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>280</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>260</width>
+    <height>350</height>
+   </size>
+  </property>
+  <property name="allowedAreas">
+   <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+  </property>
+  <property name="windowTitle">
+   <string>Transmitter</string>
+  </property>
+  <widget class="QWidget" name="dockWidgetContents">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QPushButton" name="pttButton">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>PTT [RX - Listening]</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="modeGroupBox">
+      <property name="title">
+       <string>Modulation</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_mode">
+       <item>
+        <widget class="QComboBox" name="txModeCombo">
+         <item>
+          <property name="text">
+           <string>Narrowband FM (NFM)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Amplitude Modulation (AM)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Upper Sideband (USB)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Lower Sideband (LSB)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Continuous Wave (CW)</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="freqGroupBox">
+      <property name="title">
+       <string>Frequency &amp; Split</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_freq">
+       <item>
+        <widget class="QCheckBox" name="splitCheckBox">
+         <property name="text">
+          <string>Split Mode (Separate TX Freq)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_split">
+         <item>
+          <widget class="QDoubleSpinBox" name="txFreqSpinBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="decimals">
+            <number>6</number>
+           </property>
+           <property name="maximum">
+            <double>6000.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.001000000000000</double>
+           </property>
+           <property name="suffix">
+            <string> MHz</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="syncButton">
+           <property name="text">
+            <string>Sync RX</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="audioGroupBox">
+      <property name="title">
+       <string>Audio &amp; CTCSS</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_audio">
+       <item row="0" column="0">
+        <widget class="QLabel" name="micLabel">
+         <property name="text">
+          <string>Mic Gain:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QSlider" name="micGainSlider">
+         <property name="minimum">
+          <number>-20</number>
+         </property>
+         <property name="maximum">
+          <number>20</number>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="micGainLabel">
+         <property name="text">
+          <string>0.0 dB</string>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>45</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="ctcssLabel">
+         <property name="text">
+          <string>CTCSS Tone:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" colspan="2">
+        <widget class="QComboBox" name="ctcssCombo"/>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="powerGroupBox">
+      <property name="title">
+       <string>TX Power &amp; Meter</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_pwr">
+       <item row="0" column="0">
+        <widget class="QLabel" name="rfPowerTitle">
+         <property name="text">
+          <string>RF Power:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QSlider" name="rfPowerSlider">
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="value">
+          <number>50</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="rfPowerLabel">
+         <property name="text">
+          <string>50 %</string>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>45</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QProgressBar" name="pwrMeter">
+         <property name="minimum">
+          <number>-100</number>
+         </property>
+         <property name="maximum">
+          <number>0</number>
+         </property>
+         <property name="value">
+          <number>-100</number>
+         </property>
+         <property name="textVisible">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLabel" name="pwrMeterLabel">
+         <property name="text">
+          <string>--- dBFS</string>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
