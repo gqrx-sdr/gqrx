@@ -241,7 +241,7 @@ jobs:
         git clone https://github.com/airspy/airspyone_host.git
         cd airspyone_host
         cmake -S . -B build \
-          -G "MinGW Makefiles" \
+          -G "MSYS Makefiles" \
           -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
           -DCMAKE_INSTALL_PREFIX=${RUNNER_TEMP}/msys64/ucrt64
         cmake --build build
