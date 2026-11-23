@@ -262,14 +262,14 @@
      </layout>
     </widget>
    </item>
-   <item>
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
+  <item>
+   <widget class="Line" name="line">
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+  </item>
+  <item>
     <widget class="QGroupBox" name="groupBoxOutput">
      <property name="title">
       <string>Audio output</string>
@@ -325,29 +325,62 @@ Leave it at default unless you know what you are doing.</string>
       </item>
      </layout>
     </widget>
-   </item>
-   <item>
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
-  </layout>
- </widget>
- <tabstops>
-  <tabstop>inDevCombo</tabstop>
-  <tabstop>inDevEdit</tabstop>
-  <tabstop>inSrCombo</tabstop>
-  <tabstop>decimCombo</tabstop>
-  <tabstop>bwSpinBox</tabstop>
-  <tabstop>loSpinBox</tabstop>
-  <tabstop>outDevCombo</tabstop>
-  <tabstop>outSrCombo</tabstop>
- </tabstops>
+  </item>
+  <item>
+   <widget class="QGroupBox" name="groupBoxTx">
+    <property name="title">
+     <string>Transmitter</string>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayoutTx">
+     <item>
+      <widget class="QCheckBox" name="txEnableCheckBox">
+       <property name="toolTip">
+        <string>Enable transmitter (TX) support for this device. When disabled, all TX controls are hidden from the Gqrx GUI.</string>
+       </property>
+       <property name="text">
+        <string>Enable transmitter (TX) for this device</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="txGlobalDisabledLabel">
+       <property name="text">
+        <string>Transmitter support is disabled globally in the Tools menu.</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </item>
+  <item>
+   <widget class="QDialogButtonBox" name="buttonBox">
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+    <property name="standardButtons">
+     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+    </property>
+   </widget>
+  </item>
+ </layout>
+</widget>
+<tabstops>
+ <tabstop>inDevCombo</tabstop>
+ <tabstop>inDevEdit</tabstop>
+ <tabstop>inSrCombo</tabstop>
+ <tabstop>decimCombo</tabstop>
+ <tabstop>bwSpinBox</tabstop>
+ <tabstop>loSpinBox</tabstop>
+ <tabstop>outDevCombo</tabstop>
+ <tabstop>outSrCombo</tabstop>
+ <tabstop>txEnableCheckBox</tabstop>
+</tabstops>
  <resources>
   <include location="../../resources/icons.qrc"/>
  </resources>

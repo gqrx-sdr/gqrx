@@ -51,7 +51,9 @@ CIoConfig::CIoConfig(QSettings * settings,
     QDialog(parent),
     ui(new Ui::CIoConfig),
     m_settings(settings),
-    m_devList(&devList)
+    m_devList(&devList),
+    m_disabledTxDevices(settings->value("tx/disabled_devices").toStringList()),
+    m_globalTxEnabled(settings->value("tx/enabled", true).toBool())
 {
     ui->setupUi(this);
 
@@ -75,6 +77,9 @@ CIoConfig::CIoConfig(QSettings * settings,
     // Output device
     updateOutDev();
 
+    // Transmitter option
+    updateTxOption();
+
     m_scanButton = new QPushButton("&Device scan", ui->buttonBox);
     ui->buttonBox->addButton(m_scanButton, QDialogButtonBox::ButtonRole::ActionRole);
 
@@ -85,8 +90,8 @@ CIoConfig::CIoConfig(QSettings * settings,
     connect(ui->inSrCombo, SIGNAL(editTextChanged(QString)), this, SLOT(inputRateChanged(QString)));
     connect(ui->decimCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(decimationChanged(int)));
     connect(m_scanButton, SIGNAL(clicked(bool)), this, SLOT(onScanButtonClicked()));
+    connect(ui->txEnableCheckBox, SIGNAL(clicked(bool)), this, SLOT(txEnableClicked(bool)));
 }
-
 CIoConfig::~CIoConfig()
 {
     delete m_scanButton;
@@ -217,6 +222,22 @@ void CIoConfig::saveConfig()
         m_settings->remove("input/decimation");
     else
         m_settings->setValue("input/decimation", int_val);
+
+    // Per-device TX enable setting
+    if (m_globalTxEnabled)
+    {
+        QString dev = ui->inDevEdit->text().trimmed();
+        if (!dev.isEmpty())
+        {
+            m_disabledTxDevices.removeAll(dev);
+            if (!ui->txEnableCheckBox->isChecked())
+                m_disabledTxDevices.append(dev);
+        }
+        if (m_disabledTxDevices.isEmpty())
+            m_settings->remove("tx/disabled_devices");
+        else
+            m_settings->setValue("tx/disabled_devices", m_disabledTxDevices);
+    }
 }
 
 
@@ -715,10 +736,43 @@ void CIoConfig::inputDevstrChanged(const QString &text)
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     else
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+    updateTxOption();
 }
 
+void CIoConfig::updateTxOption()
+{
+    ui->txEnableCheckBox->blockSignals(true);
+    if (!m_globalTxEnabled)
+    {
+        ui->txEnableCheckBox->setChecked(false);
+        ui->txEnableCheckBox->setEnabled(false);
+        ui->txGlobalDisabledLabel->setVisible(true);
+    }
+    else
+    {
+        QString dev = ui->inDevEdit->text().trimmed();
+        ui->txEnableCheckBox->setEnabled(!dev.isEmpty());
+        ui->txGlobalDisabledLabel->setVisible(false);
+        ui->txEnableCheckBox->setChecked(!dev.isEmpty() && !m_disabledTxDevices.contains(dev));
+    }
+    ui->txEnableCheckBox->blockSignals(false);
+}
+
+void CIoConfig::txEnableClicked(bool checked)
+{
+    if (!m_globalTxEnabled)
+        return;
+
+    QString dev = ui->inDevEdit->text().trimmed();
+    if (dev.isEmpty())
+        return;
+
+    m_disabledTxDevices.removeAll(dev);
+    if (!checked)
+        m_disabledTxDevices.append(dev);
+}
 /**
- * @brief Sample changed, either by selection of direct entry.
+ * @brief Sample rate changed, either by selection or direct entry.
  * @param text The new sample rate.
  */
 void CIoConfig::inputRateChanged(const QString &text)
