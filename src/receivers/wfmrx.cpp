@@ -179,9 +179,6 @@ void wfmrx::set_demod(int demod)
         return;
     }
 
-    /* lock graph while we reconfigure */
-    lock();
-
     /* disconnect current demodulator */
     switch (d_demod) {
 
@@ -227,10 +224,8 @@ void wfmrx::set_demod(int demod)
         break;
     }
     d_demod = (wfmrx_demod) demod;
-
-    /* continue processing */
-    unlock();
 }
+
 
 void wfmrx::set_fm_maxdev(float maxdev_hz)
 {
@@ -258,12 +253,10 @@ void wfmrx::start_rds_decoder()
 
 void wfmrx::stop_rds_decoder()
 {
-    lock();
     disconnect(demod_fm, 0, rds, 0);
     disconnect(rds, 0, rds_decoder, 0);
     msg_disconnect(rds_decoder, "out", rds_parser, "in");
     msg_disconnect(rds_parser, "out", rds_store, "store");
-    unlock();
     rds_enabled=false;
 }
 

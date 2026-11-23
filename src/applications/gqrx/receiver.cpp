@@ -72,7 +72,8 @@ receiver::receiver(const std::string input_device,
       d_iq_rev(false),
       d_dc_cancel(false),
       d_iq_balance(false),
-      d_demod(RX_DEMOD_OFF)
+      d_demod(RX_DEMOD_OFF),
+      d_chain(RX_CHAIN_NONE)
 {
 
     tb = gr::make_top_block("gqrx");
@@ -135,11 +136,10 @@ receiver::receiver(const std::string input_device,
 
     output_devstr = audio_device;
 
-    /* wav sink and source is created when rec/play is started */
+    audio_rec = make_audio_recorder_f(d_audio_rate);
     audio_null_sink0 = gr::blocks::null_sink::make(sizeof(float));
     audio_null_sink1 = gr::blocks::null_sink::make(sizeof(float));
     sniffer = make_sniffer_f();
-    /* sniffer_rr is created at each activation. */
 
     set_demod(RX_DEMOD_NFM);
 
@@ -869,71 +869,113 @@ receiver::status receiver::set_demod(rx_demod demod, bool force)
     if (!force && (demod == d_demod))
         return ret;
 
-    // tb->lock() seems to hang occasionally
-    if (d_running)
-    {
-        tb->stop();
-        tb->wait();
-    }
-
-    tb->disconnect_all();
-
+    rx_chain target_chain;
     switch (demod)
     {
     case RX_DEMOD_OFF:
-        connect_all(RX_CHAIN_NONE);
+        target_chain = RX_CHAIN_NONE;
         break;
-
-    case RX_DEMOD_NONE:
-        connect_all(RX_CHAIN_NBRX);
-        rx->set_demod(nbrx::NBRX_DEMOD_NONE);
-        break;
-
-    case RX_DEMOD_AM:
-        connect_all(RX_CHAIN_NBRX);
-        rx->set_demod(nbrx::NBRX_DEMOD_AM);
-        break;
-
-    case RX_DEMOD_AMSYNC:
-        connect_all(RX_CHAIN_NBRX);
-        rx->set_demod(nbrx::NBRX_DEMOD_AMSYNC);
-        break;
-
-    case RX_DEMOD_NFM:
-        connect_all(RX_CHAIN_NBRX);
-        rx->set_demod(nbrx::NBRX_DEMOD_FM);
-        break;
-
     case RX_DEMOD_WFM_M:
-        connect_all(RX_CHAIN_WFMRX);
-        rx->set_demod(wfmrx::WFMRX_DEMOD_MONO);
-        break;
-
     case RX_DEMOD_WFM_S:
-        connect_all(RX_CHAIN_WFMRX);
-        rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO);
-        break;
-
     case RX_DEMOD_WFM_S_OIRT:
-        connect_all(RX_CHAIN_WFMRX);
-        rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO_UKW);
+        target_chain = RX_CHAIN_WFMRX;
         break;
-
-    case RX_DEMOD_SSB:
-        connect_all(RX_CHAIN_NBRX);
-        rx->set_demod(nbrx::NBRX_DEMOD_SSB);
-        break;
-
     default:
-        ret = STATUS_ERROR;
+        target_chain = RX_CHAIN_NBRX;
         break;
     }
 
+    if (!d_running)
+    {
+        tb->disconnect_all();
+        connect_all(target_chain);
+    }
+    else if (target_chain != d_chain)
+    {
+        if (d_chain != RX_CHAIN_NONE && rx)
+        {
+            tb->disconnect(ddc, 0, rx, 0);
+            tb->disconnect(rx, 0, audio_fft, 0);
+            tb->disconnect(rx, 0, audio_udp_sink, 0);
+            tb->disconnect(rx, 1, audio_udp_sink, 1);
+            tb->disconnect(rx, 0, audio_gain0, 0);
+            tb->disconnect(rx, 1, audio_gain1, 0);
+            tb->disconnect(rx, 0, audio_rec, 0);
+            tb->disconnect(rx, 1, audio_rec, 1);
+            if (d_sniffer_active && sniffer_rr)
+            {
+                tb->disconnect(rx, 0, sniffer_rr, 0);
+            }
+        }
+
+        if (target_chain == RX_CHAIN_NBRX)
+        {
+            rx.reset();
+            rx = make_nbrx(d_quad_rate, d_audio_rate);
+        }
+        else if (target_chain == RX_CHAIN_WFMRX)
+        {
+            rx.reset();
+            rx = make_wfmrx(d_quad_rate, d_audio_rate);
+        }
+        else
+        {
+            rx.reset();
+        }
+
+        if (target_chain != RX_CHAIN_NONE && rx)
+        {
+            tb->connect(ddc, 0, rx, 0);
+            tb->connect(rx, 0, audio_fft, 0);
+            tb->connect(rx, 0, audio_udp_sink, 0);
+            tb->connect(rx, 1, audio_udp_sink, 1);
+            tb->connect(rx, 0, audio_gain0, 0);
+            tb->connect(rx, 1, audio_gain1, 0);
+            tb->connect(rx, 0, audio_rec, 0);
+            tb->connect(rx, 1, audio_rec, 1);
+            if (d_sniffer_active && sniffer_rr)
+            {
+                tb->connect(rx, 0, sniffer_rr, 0);
+            }
+        }
+
+        d_chain = target_chain;
+    }
+
+    if (rx)
+    {
+        switch (demod)
+        {
+        case RX_DEMOD_NONE:
+            rx->set_demod(nbrx::NBRX_DEMOD_NONE);
+            break;
+        case RX_DEMOD_AM:
+            rx->set_demod(nbrx::NBRX_DEMOD_AM);
+            break;
+        case RX_DEMOD_AMSYNC:
+            rx->set_demod(nbrx::NBRX_DEMOD_AMSYNC);
+            break;
+        case RX_DEMOD_NFM:
+            rx->set_demod(nbrx::NBRX_DEMOD_FM);
+            break;
+        case RX_DEMOD_SSB:
+            rx->set_demod(nbrx::NBRX_DEMOD_SSB);
+            break;
+        case RX_DEMOD_WFM_M:
+            rx->set_demod(wfmrx::WFMRX_DEMOD_MONO);
+            break;
+        case RX_DEMOD_WFM_S:
+            rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO);
+            break;
+        case RX_DEMOD_WFM_S_OIRT:
+            rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO_UKW);
+            break;
+        default:
+            break;
+        }
+    }
+
     d_demod = demod;
-
-    if (d_running)
-        tb->start();
-
     return ret;
 }
 
@@ -1021,36 +1063,14 @@ receiver::status receiver::start_audio_recording(const std::string filename)
         return STATUS_ERROR;
     }
 
-    wav_gain0 = gr::blocks::multiply_const_ff::make(WAV_FILE_GAIN);
-    wav_gain1 = gr::blocks::multiply_const_ff::make(WAV_FILE_GAIN);
-
-    // if this fails, we don't want to go and crash now, do we
-    try {
-#if GNURADIO_VERSION < 0x030900
-        wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(), 2,
-                                                  (unsigned int) d_audio_rate,
-                                                  16);
-#else
-        wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(), 2,
-                                                  (unsigned int) d_audio_rate,
-                                                  gr::blocks::FORMAT_WAV, gr::blocks::FORMAT_PCM_16);
-#endif
-    }
-    catch (std::runtime_error &e) {
-        std::cout << "Error opening " << filename << ": " << e.what() << std::endl;
+    if (!audio_rec->start_recording(filename, WAV_FILE_GAIN))
+    {
+        std::cout << "Error opening " << filename << std::endl;
         return STATUS_ERROR;
     }
 
-    tb->lock();
-    tb->connect(rx, 0, wav_gain0, 0);
-    tb->connect(rx, 1, wav_gain1, 0);
-    tb->connect(wav_gain0, 0, wav_sink, 0);
-    tb->connect(wav_gain1, 0, wav_sink, 1);
-    tb->unlock();
     d_recording_wav = true;
-
     std::cout << "Recording audio to " << filename << std::endl;
-
     return STATUS_OK;
 }
 
@@ -1071,27 +1091,9 @@ receiver::status receiver::stop_audio_recording()
         return STATUS_ERROR;
     }
 
-    // not strictly necessary to lock but I think it is safer
-    tb->lock();
-    wav_sink->close();
-    tb->disconnect(rx, 0, wav_gain0, 0);
-    tb->disconnect(rx, 1, wav_gain1, 0);
-    tb->disconnect(wav_gain0, 0, wav_sink, 0);
-    tb->disconnect(wav_gain1, 0, wav_sink, 1);
-
-    // Temporary workaround for https://github.com/gnuradio/gnuradio/issues/5436
-    tb->disconnect(ddc, 0, rx, 0);
-    tb->connect(ddc, 0, rx, 0);
-    // End temporary workaround
-
-    tb->unlock();
-    wav_gain0.reset();
-    wav_gain1.reset();
-    wav_sink.reset();
+    audio_rec->stop_recording();
     d_recording_wav = false;
-
     std::cout << "Audio recorder stopped" << std::endl;
-
     return STATUS_OK;
 }
 
@@ -1134,21 +1136,26 @@ receiver::status receiver::start_audio_playback(const std::string filename)
         return STATUS_ERROR;
     }
 
-    stop();
     /* route demodulator output to null sink */
-    tb->disconnect(rx, 0, audio_gain0, 0);
-    tb->disconnect(rx, 1, audio_gain1, 0);
-    tb->disconnect(rx, 0, audio_fft, 0);
-    tb->disconnect(rx, 0, audio_udp_sink, 0);
-    tb->disconnect(rx, 1, audio_udp_sink, 1);
-    tb->connect(rx, 0, audio_null_sink0, 0); /** FIXME: other channel? */
-    tb->connect(rx, 1, audio_null_sink1, 0); /** FIXME: other channel? */
+    if (rx)
+    {
+        tb->disconnect(rx, 0, audio_gain0, 0);
+        tb->disconnect(rx, 1, audio_gain1, 0);
+        tb->disconnect(rx, 0, audio_fft, 0);
+        tb->disconnect(rx, 0, audio_udp_sink, 0);
+        tb->disconnect(rx, 1, audio_udp_sink, 1);
+        tb->disconnect(rx, 0, audio_rec, 0);
+        tb->disconnect(rx, 1, audio_rec, 1);
+        tb->connect(rx, 0, audio_null_sink0, 0); /** FIXME: other channel? */
+        tb->connect(rx, 1, audio_null_sink1, 0); /** FIXME: other channel? */
+    }
     tb->connect(wav_src, 0, audio_gain0, 0);
     tb->connect(wav_src, 1, audio_gain1, 0);
     tb->connect(wav_src, 0, audio_fft, 0);
     tb->connect(wav_src, 0, audio_udp_sink, 0);
     tb->connect(wav_src, 1, audio_udp_sink, 1);
-    start();
+    tb->connect(wav_src, 0, audio_rec, 0);
+    tb->connect(wav_src, 1, audio_rec, 1);
 
     std::cout << "Playing audio from " << filename << std::endl;
 
@@ -1159,20 +1166,25 @@ receiver::status receiver::start_audio_playback(const std::string filename)
 receiver::status receiver::stop_audio_playback()
 {
     /* disconnect wav source and reconnect receiver */
-    stop();
     tb->disconnect(wav_src, 0, audio_gain0, 0);
     tb->disconnect(wav_src, 1, audio_gain1, 0);
     tb->disconnect(wav_src, 0, audio_fft, 0);
     tb->disconnect(wav_src, 0, audio_udp_sink, 0);
     tb->disconnect(wav_src, 1, audio_udp_sink, 1);
-    tb->disconnect(rx, 0, audio_null_sink0, 0);
-    tb->disconnect(rx, 1, audio_null_sink1, 0);
-    tb->connect(rx, 0, audio_gain0, 0);
-    tb->connect(rx, 1, audio_gain1, 0);
-    tb->connect(rx, 0, audio_fft, 0);  /** FIXME: other channel? */
-    tb->connect(rx, 0, audio_udp_sink, 0);
-    tb->connect(rx, 1, audio_udp_sink, 1);
-    start();
+    tb->disconnect(wav_src, 0, audio_rec, 0);
+    tb->disconnect(wav_src, 1, audio_rec, 1);
+    if (rx)
+    {
+        tb->disconnect(rx, 0, audio_null_sink0, 0);
+        tb->disconnect(rx, 1, audio_null_sink1, 0);
+        tb->connect(rx, 0, audio_gain0, 0);
+        tb->connect(rx, 1, audio_gain1, 0);
+        tb->connect(rx, 0, audio_fft, 0);  /** FIXME: other channel? */
+        tb->connect(rx, 0, audio_udp_sink, 0);
+        tb->connect(rx, 1, audio_udp_sink, 1);
+        tb->connect(rx, 0, audio_rec, 0);
+        tb->connect(rx, 1, audio_rec, 1);
+    }
 
     /* delete wav_src since we can not change file name */
     wav_src.reset();
@@ -1217,13 +1229,11 @@ receiver::status receiver::start_iq_recording(const std::string filename)
         return STATUS_ERROR;
     }
 
-    tb->lock();
     if (d_decim >= 2)
         tb->connect(input_decim, 0, iq_sink, 0);
     else
         tb->connect(src, 0, iq_sink, 0);
     d_recording_iq = true;
-    tb->unlock();
 
     return status;
 }
@@ -1236,15 +1246,12 @@ receiver::status receiver::stop_iq_recording()
         return STATUS_ERROR;
     }
 
-    tb->lock();
     iq_sink->close();
 
     if (d_decim >= 2)
         tb->disconnect(input_decim, 0, iq_sink, 0);
     else
         tb->disconnect(src, 0, iq_sink, 0);
-
-    tb->unlock();
     iq_sink.reset();
     d_recording_iq = false;
 
@@ -1289,12 +1296,9 @@ receiver::status receiver::start_sniffer(unsigned int samprate, int buffsize)
 
     sniffer->set_buffer_size(buffsize);
     sniffer_rr = make_resampler_ff((float)samprate/(float)d_audio_rate);
-    tb->lock();
     tb->connect(rx, 0, sniffer_rr, 0);
     tb->connect(sniffer_rr, 0, sniffer, 0);
-    tb->unlock();
     d_sniffer_active = true;
-
     return STATUS_OK;
 }
 
@@ -1308,16 +1312,8 @@ receiver::status receiver::stop_sniffer()
         return STATUS_ERROR;
     }
 
-    tb->lock();
     tb->disconnect(rx, 0, sniffer_rr, 0);
-
-    // Temporary workaround for https://github.com/gnuradio/gnuradio/issues/5436
-    tb->disconnect(ddc, 0, rx, 0);
-    tb->connect(ddc, 0, rx, 0);
-    // End temporary workaround
-
     tb->disconnect(sniffer_rr, 0, sniffer, 0);
-    tb->unlock();
     d_sniffer_active = false;
 
     /* delete resampler */
@@ -1400,16 +1396,10 @@ void receiver::connect_all(rx_chain type)
         tb->connect(rx, 1, audio_gain1, 0);
         tb->connect(audio_gain0, 0, audio_snk, 0);
         tb->connect(audio_gain1, 0, audio_snk, 1);
+        tb->connect(rx, 0, audio_rec, 0);
+        tb->connect(rx, 1, audio_rec, 1);
     }
-
-    // Recorders and sniffers
-    if (d_recording_wav)
-    {
-        tb->connect(rx, 0, wav_gain0, 0);
-        tb->connect(rx, 1, wav_gain1, 0);
-        tb->connect(wav_gain0, 0, wav_sink, 0);
-        tb->connect(wav_gain1, 0, wav_sink, 1);
-    }
+    d_chain = type;
 
     if (d_sniffer_active)
     {
