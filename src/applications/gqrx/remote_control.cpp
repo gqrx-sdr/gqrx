@@ -54,6 +54,11 @@ RemoteControl::RemoteControl(QObject *parent) :
     receiver_running = false;
     hamlib_compatible = false;
     is_audio_muted = false;
+    tx_ptt_active = false;
+    tx_split_enabled = false;
+    tx_freq = 0;
+    tx_rf_power = 1.0f;
+    tx_mic_gain = 0.0f;
 
     rc_port = DEFAULT_RC_PORT;
     rc_allowed_hosts.append(DEFAULT_RC_ALLOWED_HOSTS);
@@ -220,31 +225,39 @@ void RemoteControl::startRead()
             continue;
 
         QString cmd = cmdlist[0];
-        if (cmd == "f")
+        if (cmd == "f" || cmd == "\\get_freq")
             answer = cmd_get_freq();
-        else if (cmd == "F")
+        else if (cmd == "F" || cmd == "\\set_freq")
             answer = cmd_set_freq(cmdlist);
-        else if (cmd == "m")
+        else if (cmd == "m" || cmd == "\\get_mode")
             answer = cmd_get_mode();
-        else if (cmd == "M")
+        else if (cmd == "M" || cmd == "\\set_mode")
             answer = cmd_set_mode(cmdlist);
-        else if (cmd == "l")
+        else if (cmd == "t" || cmd == "\\get_ptt")
+            answer = cmd_get_ptt();
+        else if (cmd == "T" || cmd == "\\set_ptt")
+            answer = cmd_set_ptt(cmdlist);
+        else if (cmd == "l" || cmd == "\\get_level")
             answer = cmd_get_level(cmdlist);
-        else if (cmd == "L")
+        else if (cmd == "L" || cmd == "\\set_level")
             answer = cmd_set_level(cmdlist);
-        else if (cmd == "u")
+        else if (cmd == "u" || cmd == "\\get_func")
             answer = cmd_get_func(cmdlist);
-        else if (cmd == "U")
+        else if (cmd == "U" || cmd == "\\set_func")
             answer = cmd_set_func(cmdlist);
-        else if (cmd == "v")
+        else if (cmd == "v" || cmd == "\\get_vfo")
             answer = cmd_get_vfo();
-        else if (cmd == "V")
+        else if (cmd == "V" || cmd == "\\set_vfo")
             answer = cmd_set_vfo(cmdlist);
-        else if (cmd == "s")
+        else if (cmd == "s" || cmd == "\\get_split_vfo")
             answer = cmd_get_split_vfo();
-        else if (cmd == "S")
-            answer = cmd_set_split_vfo();
-        else if (cmd == "p")
+        else if (cmd == "S" || cmd == "\\set_split_vfo")
+            answer = cmd_set_split_vfo(cmdlist);
+        else if (cmd == "i" || cmd == "\\get_split_freq")
+            answer = cmd_get_split_freq();
+        else if (cmd == "I" || cmd == "\\set_split_freq")
+            answer = cmd_set_split_freq(cmdlist);
+        else if (cmd == "p" || cmd == "\\get_parm")
             answer = cmd_get_param(cmdlist);
         else if (cmd == "_")
             answer = cmd_get_info();
@@ -458,6 +471,31 @@ void RemoteControl::setRdsStation(QString name)
 void RemoteControl::setRdsRadiotext(QString text)
 {
     rds_radiotext = text;
+}
+
+void RemoteControl::setPtt(bool active)
+{
+    tx_ptt_active = active;
+}
+
+void RemoteControl::setTxFrequency(qint64 freq)
+{
+    tx_freq = freq;
+}
+
+void RemoteControl::setSplitEnabled(bool enabled)
+{
+    tx_split_enabled = enabled;
+}
+
+void RemoteControl::setTxRfPower(float power)
+{
+    tx_rf_power = power;
+}
+
+void RemoteControl::setTxMicGain(float gain)
+{
+    tx_mic_gain = gain;
 }
 
 
@@ -675,7 +713,7 @@ QString RemoteControl::cmd_get_level(QStringList cmdlist)
         QStringList names;
         for(auto &g : gains)
             names.push_back(QString("%1_GAIN").arg(QString::fromStdString(g.name)));
-        answer = QString("SQL STRENGTH AF %1\n").arg(names.join(" "));
+        answer = QString("SQL STRENGTH AF RFPOWER MICGAIN %1\n").arg(names.join(" "));
     }
     else if (lvl.compare("STRENGTH", Qt::CaseInsensitive) == 0 || lvl.isEmpty())
     {
@@ -688,6 +726,14 @@ QString RemoteControl::cmd_get_level(QStringList cmdlist)
     else if (lvl.compare("AF", Qt::CaseInsensitive) == 0)
     {
         answer = QString("%1\n").arg((double)audio_gain, 0, 'f', 1);
+    }
+    else if (lvl.compare("RFPOWER", Qt::CaseInsensitive) == 0)
+    {
+        answer = QString("%1\n").arg((double)tx_rf_power, 0, 'f', 2);
+    }
+    else if (lvl.compare("MICGAIN", Qt::CaseInsensitive) == 0)
+    {
+        answer = QString("%1\n").arg((double)tx_mic_gain, 0, 'f', 1);
     }
     else if (lvl.endsWith("_GAIN"))
     {
@@ -721,7 +767,7 @@ QString RemoteControl::cmd_set_level(QStringList cmdlist)
         QStringList names;
         for(auto &g : gains)
             names.push_back(QString("%1_GAIN").arg(QString::fromStdString(g.name)));
-        answer = QString("SQL AF %1\n").arg(names.join(" "));
+        answer = QString("SQL AF RFPOWER MICGAIN %1\n").arg(names.join(" "));
     }
     else if (lvl.compare("SQL", Qt::CaseInsensitive) == 0)
     {
@@ -747,6 +793,36 @@ QString RemoteControl::cmd_set_level(QStringList cmdlist)
             answer = QString("RPRT 0\n");
             new_audio_gain = std::max<float>(-80.0f, std::min<float>(50.0f, new_audio_gain));
             emit newAudioGain(new_audio_gain);
+        }
+        else
+        {
+            answer = QString("RPRT 1\n");
+        }
+    }
+    else if (lvl.compare("RFPOWER", Qt::CaseInsensitive) == 0)
+    {
+        bool ok;
+        float pwr = cmdlist.value(2, "ERR").toFloat(&ok);
+        if (ok)
+        {
+            tx_rf_power = std::max<float>(0.0f, std::min<float>(1.0f, pwr));
+            emit newTxRfPower(tx_rf_power);
+            answer = QString("RPRT 0\n");
+        }
+        else
+        {
+            answer = QString("RPRT 1\n");
+        }
+    }
+    else if (lvl.compare("MICGAIN", Qt::CaseInsensitive) == 0)
+    {
+        bool ok;
+        float gain = cmdlist.value(2, "ERR").toFloat(&ok);
+        if (ok)
+        {
+            tx_mic_gain = std::max<float>(-30.0f, std::min<float>(30.0f, gain));
+            emit newTxMicGain(tx_mic_gain);
+            answer = QString("RPRT 0\n");
         }
         else
         {
@@ -779,7 +855,7 @@ QString RemoteControl::cmd_get_func(QStringList cmdlist)
     QString func = cmdlist.value(1, "");
 
     if (func == "?")
-        answer = QString("RECORD IQRECORD DSP RDS MUTE\n");
+        answer = QString("RECORD IQRECORD DSP RDS MUTE PTT\n");
     else if (func.compare("RECORD", Qt::CaseInsensitive) == 0)
         answer = QString("%1\n").arg(audio_recorder_status);
     else if (func.compare("IQRECORD", Qt::CaseInsensitive) == 0)
@@ -790,6 +866,8 @@ QString RemoteControl::cmd_get_func(QStringList cmdlist)
         answer = QString("%1\n").arg(rds_status);
     else if (func.compare("MUTE", Qt::CaseInsensitive) == 0)
         answer = QString("%1\n").arg(is_audio_muted ? '1' : '0');
+    else if (func.compare("PTT", Qt::CaseInsensitive) == 0)
+        answer = QString("%1\n").arg(tx_ptt_active ? '1' : '0');
     else
         answer = QString("RPRT 1\n");
 
@@ -858,6 +936,12 @@ QString RemoteControl::cmd_set_func(QStringList cmdlist)
 
         answer = QString("RPRT 0\n");
     }
+    else if ((func.compare("PTT", Qt::CaseInsensitive) == 0) && ok)
+    {
+        tx_ptt_active = (status != 0);
+        emit newPtt(tx_ptt_active);
+        answer = QString("RPRT 0\n");
+    }
     else if ((func.compare("RDS", Qt::CaseInsensitive) == 0) && ok)
     {
         if (status)
@@ -917,16 +1001,71 @@ QString RemoteControl::cmd_set_vfo(QStringList cmdlist)
     return answer;
 };
 
-/* Get 'Split' mode (fake, only for hamlib) */
+/* Get PTT status */
+QString RemoteControl::cmd_get_ptt() const
+{
+    return QString("%1\n").arg(tx_ptt_active ? 1 : 0);
+}
+
+/* Set PTT status */
+QString RemoteControl::cmd_set_ptt(QStringList cmdlist)
+{
+    if (cmdlist.size() < 2)
+        return QString("RPRT 1\n");
+
+    bool ok;
+    int ptt = cmdlist[1].toInt(&ok);
+    if (!ok)
+        return QString("RPRT 1\n");
+
+    tx_ptt_active = (ptt != 0);
+    emit newPtt(tx_ptt_active);
+    return QString("RPRT 0\n");
+}
+
+/* Get 'Split' mode */
 QString RemoteControl::cmd_get_split_vfo() const
 {
-    return QString("0\nVFOA\n");
-};
+    return QString("%1\n%2\n").arg(tx_split_enabled ? 1 : 0).arg(tx_split_enabled ? "VFOB" : "VFOA");
+}
 
-/* Set 'Split' mode (fake, only for hamlib) */
-QString RemoteControl::cmd_set_split_vfo()
+/* Set 'Split' mode */
+QString RemoteControl::cmd_set_split_vfo(QStringList cmdlist)
 {
-    return QString("RPRT 1\n");
+    if (cmdlist.size() < 2)
+        return QString("RPRT 1\n");
+
+    bool ok;
+    int split = cmdlist[1].toInt(&ok);
+    if (!ok)
+        return QString("RPRT 1\n");
+
+    tx_split_enabled = (split != 0);
+    emit newSplitEnabled(tx_split_enabled);
+    return QString("RPRT 0\n");
+}
+
+/* Get split (TX) frequency */
+QString RemoteControl::cmd_get_split_freq() const
+{
+    qint64 f = tx_split_enabled ? tx_freq : rc_freq;
+    return QString("%1\n").arg(f);
+}
+
+/* Set split (TX) frequency */
+QString RemoteControl::cmd_set_split_freq(QStringList cmdlist)
+{
+    if (cmdlist.size() < 2)
+        return QString("RPRT 1\n");
+
+    bool ok;
+    qint64 freq = cmdlist[1].toLongLong(&ok);
+    if (!ok || freq < 0)
+        return QString("RPRT 1\n");
+
+    tx_freq = freq;
+    emit newTxFrequency(tx_freq);
+    return QString("RPRT 0\n");
 }
 
 /* Get info */
