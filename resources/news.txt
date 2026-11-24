@@ -2,6 +2,7 @@
     2.17.8: In progress...
 
      FIXED: Use default FFT plot & waterfall ranges when settings are invalid.
+     FIXED: Crash with SoapyRemote when changing mode or starting a recording.
 
 
     2.17.7: Released May 27, 2025

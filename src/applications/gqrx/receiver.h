@@ -35,6 +35,7 @@
 #include "dsp/correct_iq_cc.h"
 #include "dsp/downconverter.h"
 #include "dsp/filter/fir_decim.h"
+#include "dsp/iq_bridge.h"
 #include "dsp/rx_noise_blanker_cc.h"
 #include "dsp/rx_filter.h"
 #include "dsp/rx_meter.h"
@@ -231,6 +232,7 @@ public:
 
 private:
     void        connect_all(rx_chain type);
+    void        set_bridge_capacity(double input_rate);
 
 private:
     bool        d_running;          /*!< Whether receiver is running or not. */
@@ -255,9 +257,13 @@ private:
 
     rx_demod    d_demod;       /*!< Current demodulator. */
 
-    gr::top_block_sptr         tb;        /*!< The GNU Radio top block. */
+    gr::top_block_sptr         tb;        /*!< The GNU Radio top block (DSP). */
+    gr::top_block_sptr         src_tb;    /*!< Separate top block for the I/Q source. */
 
     osmosdr::source::sptr     src;       /*!< Real time I/Q source. */
+    iq_bridge_fifo_sptr       iq_fifo;   /*!< FIFO between src_tb and tb. */
+    iq_bridge_sink_c_sptr     iq_bridge_snk;  /*!< Feeds iq_fifo from src (in src_tb). */
+    iq_bridge_source_c_sptr   iq_bridge_src;  /*!< Reads iq_fifo into tb. */
     fir_decim_cc_sptr         input_decim;      /*!< Input decimator. */
     receiver_base_cf_sptr     rx;        /*!< receiver. */
 

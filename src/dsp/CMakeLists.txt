@@ -23,6 +23,8 @@ add_source_files(SRCS_LIST
 	correct_iq_cc.h
 	downconverter.cpp
 	downconverter.h
+	iq_bridge.cpp
+	iq_bridge.h
 	fm_deemph.cpp
 	fm_deemph.h
 	lpf.cpp
