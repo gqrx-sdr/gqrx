@@ -18,6 +18,8 @@ add_source_files(SRCS_LIST
 	ctk/ctkPimpl.h
 	ctk/ctkRangeSlider.cpp
 	ctk/ctkRangeSlider.h
+	cw_decoder_win.cpp
+	cw_decoder_win.h
 	demod_options.cpp
 	demod_options.h
 	dockaudio.cpp
@@ -58,6 +60,7 @@ add_source_files(UI_SRCS_LIST
 	afsk1200win.ui
 	agc_options.ui
 	audio_options.ui
+	cw_decoder_win.ui
 	demod_options.ui
 	dockaudio.ui
 	dockbookmarks.ui

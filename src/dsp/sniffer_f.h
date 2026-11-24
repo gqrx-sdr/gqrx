@@ -78,6 +78,7 @@ public:
 
     int  samples_available();
     void get_samples(float * buffer, unsigned int &num);
+    void clear();
 
     void set_buffer_size(int newsize);
     int  buffer_size();

@@ -419,6 +419,7 @@
     <addaction name="actionIqTool"/>
     <addaction name="separator"/>
     <addaction name="actionAFSK1200"/>
+    <addaction name="actionCW"/>
     <addaction name="separator"/>
     <addaction name="actionDX_Cluster"/>
    </widget>
@@ -512,6 +513,14 @@
    </property>
    <property name="toolTip">
     <string>Start AFSK1200 decoder</string>
+   </property>
+  </action>
+  <action name="actionCW">
+   <property name="text">
+    <string>CW Decoder</string>
+   </property>
+   <property name="toolTip">
+    <string>Start CW (Morse code) decoder</string>
    </property>
   </action>
   <action name="actionSched">

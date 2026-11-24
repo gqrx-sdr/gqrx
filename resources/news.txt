@@ -1,7 +1,9 @@
 
     2.17.8: In progress...
 
+       NEW: CW (Morse code) decoder for CW-L and CW-U modes.
      FIXED: Use default FFT plot & waterfall ranges when settings are invalid.
+     FIXED: Changing the CW offset in CW-L mode switched to the upper sideband.
 
 
     2.17.7: Released May 27, 2025
