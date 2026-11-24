@@ -5,6 +5,7 @@
  *
  * Copyright 2012 Alexandru Csete OZ9AEC.
  * FM stereo implementation by Alex Grinkov a.grinkov(at)gmail.com.
+ * Generic rx decoder interface and rds interface mod Copyright 2022 Marc CAPDEVILLE F4JMZ
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -242,37 +243,84 @@ void wfmrx::set_fm_deemph(double tau)
     demod_fm->set_tau(tau);
 }
 
-void wfmrx::get_rds_data(std::string &outbuff, int &num)
+int wfmrx::start_decoder(enum rx_decoder decoder_type)
 {
-    rds_store->get_message(outbuff, num);
+	if (!is_decoder_active(decoder_type))
+		switch (decoder_type) {
+			case RX_DECODER_RDS:
+				lock();
+				connect(demod_fm, 0, rds, 0);
+				connect(rds, 0, rds_decoder, 0);
+				msg_connect(rds_decoder, "out", rds_parser, "in");
+				msg_connect(rds_parser, "out", rds_store, "store");
+				unlock();
+				rds_enabled=true;
+				break;
+			default:
+				return -1;
+		}
+
+	return 0;
 }
 
-void wfmrx::start_rds_decoder()
+int wfmrx::stop_decoder(enum rx_decoder decoder_type)
 {
-    connect(demod_fm, 0, rds, 0);
-    connect(rds, 0, rds_decoder, 0);
-    msg_connect(rds_decoder, "out", rds_parser, "in");
-    msg_connect(rds_parser, "out", rds_store, "store");
-    rds_enabled=true;
+	if (is_decoder_active(decoder_type))
+		switch (decoder_type) {
+			case RX_DECODER_RDS:
+				lock();
+				disconnect(demod_fm, 0, rds, 0);
+				disconnect(rds, 0, rds_decoder, 0);
+				msg_disconnect(rds_decoder, "out", rds_parser, "in");
+				msg_disconnect(rds_parser, "out", rds_store, "store");
+				rds_enabled=false;
+				unlock();
+				break;
+			default:
+				return -1;
+		}
+
+	return 0;
 }
 
-void wfmrx::stop_rds_decoder()
+bool wfmrx::is_decoder_active(enum rx_decoder decoder_type)
 {
-    lock();
-    disconnect(demod_fm, 0, rds, 0);
-    disconnect(rds, 0, rds_decoder, 0);
-    msg_disconnect(rds_decoder, "out", rds_parser, "in");
-    msg_disconnect(rds_parser, "out", rds_store, "store");
-    unlock();
-    rds_enabled=false;
+	switch (decoder_type) {
+		case RX_DECODER_ANY:
+		case RX_DECODER_RDS:
+			return rds_enabled;
+		default:
+			return false;
+	}
 }
 
-void wfmrx::reset_rds_parser()
+int wfmrx::reset_decoder(enum rx_decoder decoder_type)
 {
-    rds_parser->reset();
+		switch (decoder_type) {
+			case RX_DECODER_ALL:
+			case RX_DECODER_RDS:
+				rds_parser->reset();
+				break;
+			default:
+				return -1;
+		}
+
+	return 0;
 }
 
-bool wfmrx::is_rds_decoder_active()
+int wfmrx::get_decoder_data(enum rx_decoder decoder_type, void* data, int& num)
 {
-    return rds_enabled;
+	std::string Buff;
+
+	if (!is_decoder_active(decoder_type))
+		return -1;
+	else switch (decoder_type) {
+		case RX_DECODER_RDS:
+			rds_store->get_message(*(std::string*)data, num);
+			break;
+		default:
+			return -1;
+	}
+
+	return 0;
 }

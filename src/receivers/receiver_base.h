@@ -4,6 +4,7 @@
  *           https://gqrx.dk/
  *
  * Copyright 2012-2013 Alexandru Csete OZ9AEC.
+ * Generic rx decoder interface Copyright 2022 Marc CAPDEVILLE F4JMZ
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,6 +53,17 @@ public:
     receiver_base_cf(std::string src_name);
     virtual ~receiver_base_cf();
 
+    /** generic rx decoder decoder type */
+    enum rx_decoder {
+        RX_DECODER_ANY = -2,
+        RX_DECODER_ALL = -1,
+        RX_DECODER_NONE = 0,
+        RX_DECODER_RDS,
+        RX_DECODER_FAX,
+	RX_DECODER_RTTY,
+        RX_DECODER_MAX
+    };
+
     virtual bool start() = 0;
     virtual bool stop() = 0;
 
@@ -99,11 +111,14 @@ public:
     virtual void set_amsync_dcr(bool enabled);
     virtual void set_amsync_pll_bw(float pll_bw);
 
-    virtual void get_rds_data(std::string &outbuff, int &num);
-    virtual void start_rds_decoder();
-    virtual void stop_rds_decoder();
-    virtual void reset_rds_parser();
-    virtual bool is_rds_decoder_active();
+    /* generic rx decoder virtual functions */
+    virtual int start_decoder(enum rx_decoder decoder_type);
+    virtual int stop_decoder(enum rx_decoder decoder_type);
+    virtual int reset_decoder(enum rx_decoder decoder_type);
+    virtual bool is_decoder_active(enum rx_decoder decoder_type);
+    virtual int set_decoder_param(enum rx_decoder decoder_type, std::string param, std::string val);
+    virtual int get_decoder_param(enum rx_decoder decoder_type, std::string param, std::string &val);
+    virtual int get_decoder_data(enum rx_decoder decoder_type,void* data, int &num);
 
 };
 

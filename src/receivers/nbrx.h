@@ -36,6 +36,8 @@
 #include "dsp/rx_demod_am.h"
 //#include "dsp/resampler_ff.h"
 #include "dsp/resampler_xx.h"
+#include "dsp/fax/fax_demod.h"
+#include "dsp/rtty/rtty_demod.h"
 
 class nbrx;
 
@@ -101,6 +103,15 @@ public:
 
     void set_demod(int demod);
 
+    /* generic rx decoder interface  decoder */
+    int  start_decoder(enum rx_decoder decoder_type);
+    int  stop_decoder(enum rx_decoder decoder_type);
+    bool is_decoder_active(enum rx_decoder decoder_type);
+    int  reset_decoder(enum rx_decoder decoder_type);
+    int  set_decoder_param(enum rx_decoder decoder_type, std::string param, std::string val);
+    int  get_decoder_param(enum rx_decoder decoder_type, std::string param, std::string &val);
+    int  get_decoder_data(enum rx_decoder decoder_type,void* data, int& num);
+
     /* FM parameters */
     bool has_fm() { return true; }
     void set_fm_maxdev(float maxdev_hz);
@@ -136,6 +147,11 @@ private:
     rx_demod_amsync_sptr      demod_amsync;   /*!< AM-Sync demodulator. */
     resampler_ff_sptr         audio_rr0;  /*!< Audio resampler. */
     resampler_ff_sptr         audio_rr1;  /*!< Audio resampler. */
+    gr::fax::fax_demod::sptr  fax_decoder;
+    bool                      fax_decoder_enable;
+    gr::rtty::rtty_demod::sptr d_rtty;      // RTTY decoder
+    bool                      d_rtty_enable;
+
 
     gr::basic_block_sptr      demod;    // dummy pointer used for simplifying reconf
 };
