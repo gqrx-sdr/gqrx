@@ -25,6 +25,7 @@
 #include <iostream>
 #include <sstream>
 #include <QDebug>
+#include <QTemporaryFile>
 
 #include <gnuradio/prefs.h>
 #include <gnuradio/top_block.h>
@@ -49,6 +50,18 @@
 #define DEFAULT_AUDIO_GAIN -6.0
 #define WAV_FILE_GAIN 0.5
 #define TARGET_QUAD_RATE 1e6
+
+static gr::blocks::wavfile_sink::sptr make_wav_sink(const std::string &filename, int audio_rate = 48000)
+{
+#if GNURADIO_VERSION < 0x030900
+    return gr::blocks::wavfile_sink::make(filename.c_str(), 2,
+                                          (unsigned int) audio_rate, 16);
+#else
+    return gr::blocks::wavfile_sink::make(filename.c_str(), 2,
+                                          (unsigned int) audio_rate,
+                                          gr::blocks::FORMAT_WAV, gr::blocks::FORMAT_PCM_16);
+#endif
+}
 
 /**
  * @brief Public constructor.
@@ -135,7 +148,29 @@ receiver::receiver(const std::string input_device,
 
     output_devstr = audio_device;
 
-    /* wav sink and source is created when rec/play is started */
+    /* The wav sink is part of the flow graph from the start and is only
+     * opened/closed when recording starts/stops. Changing the flow graph
+     * stops the source, which can abort the application when the source is
+     * a remote device that has lost its connection. The wav source is
+     * created when playback is started. */
+    wav_gain0 = gr::blocks::multiply_const_ff::make(WAV_FILE_GAIN);
+    wav_gain1 = gr::blocks::multiply_const_ff::make(WAV_FILE_GAIN);
+    {
+        QTemporaryFile tmp;
+        if (tmp.open())
+        {
+            const std::string tmpname = tmp.fileName().toStdString();
+            tmp.close();
+            try {
+                wav_sink = make_wav_sink(tmpname, d_audio_rate);
+                wav_sink->close();
+            }
+            catch (std::runtime_error &e) {
+                std::cout << "Error creating wav sink: " << e.what() << std::endl;
+                wav_sink.reset();
+            }
+        }
+    }
     audio_null_sink0 = gr::blocks::null_sink::make(sizeof(float));
     audio_null_sink1 = gr::blocks::null_sink::make(sizeof(float));
     sniffer = make_sniffer_f();
@@ -999,10 +1034,8 @@ receiver::status receiver::set_af_gain(float gain_db)
  * @brief Start WAV file recorder.
  * @param filename The filename where to record.
  *
- * A new recorder object is created every time we start recording and deleted every time
- * we stop recording. The idea of creating one object and starting/stopping using different
- * file names does not work with WAV files (the initial /tmp/gqrx.wav will not be stopped
- * because the wav file can not be empty). See https://github.com/gqrx-sdr/gqrx/issues/36
+ * The WAV sink is connected permanently and is only opened here and closed in
+ * stop_audio_recording(), so that starting a recording does not stop the flow graph.
  */
 receiver::status receiver::start_audio_recording(const std::string filename)
 {
@@ -1021,32 +1054,25 @@ receiver::status receiver::start_audio_recording(const std::string filename)
         return STATUS_ERROR;
     }
 
-    wav_gain0 = gr::blocks::multiply_const_ff::make(WAV_FILE_GAIN);
-    wav_gain1 = gr::blocks::multiply_const_ff::make(WAV_FILE_GAIN);
+    if (!wav_sink)
+    {
+        std::cout << "Error opening " << filename << ": no wav sink" << std::endl;
+        return STATUS_ERROR;
+    }
 
     // if this fails, we don't want to go and crash now, do we
     try {
-#if GNURADIO_VERSION < 0x030900
-        wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(), 2,
-                                                  (unsigned int) d_audio_rate,
-                                                  16);
-#else
-        wav_sink = gr::blocks::wavfile_sink::make(filename.c_str(), 2,
-                                                  (unsigned int) d_audio_rate,
-                                                  gr::blocks::FORMAT_WAV, gr::blocks::FORMAT_PCM_16);
-#endif
+        if (!wav_sink->open(filename.c_str()))
+        {
+            std::cout << "Error opening " << filename << std::endl;
+            return STATUS_ERROR;
+        }
     }
     catch (std::runtime_error &e) {
         std::cout << "Error opening " << filename << ": " << e.what() << std::endl;
         return STATUS_ERROR;
     }
 
-    tb->lock();
-    tb->connect(rx, 0, wav_gain0, 0);
-    tb->connect(rx, 1, wav_gain1, 0);
-    tb->connect(wav_gain0, 0, wav_sink, 0);
-    tb->connect(wav_gain1, 0, wav_sink, 1);
-    tb->unlock();
     d_recording_wav = true;
 
     std::cout << "Recording audio to " << filename << std::endl;
@@ -1071,23 +1097,7 @@ receiver::status receiver::stop_audio_recording()
         return STATUS_ERROR;
     }
 
-    // not strictly necessary to lock but I think it is safer
-    tb->lock();
     wav_sink->close();
-    tb->disconnect(rx, 0, wav_gain0, 0);
-    tb->disconnect(rx, 1, wav_gain1, 0);
-    tb->disconnect(wav_gain0, 0, wav_sink, 0);
-    tb->disconnect(wav_gain1, 0, wav_sink, 1);
-
-    // Temporary workaround for https://github.com/gnuradio/gnuradio/issues/5436
-    tb->disconnect(ddc, 0, rx, 0);
-    tb->connect(ddc, 0, rx, 0);
-    // End temporary workaround
-
-    tb->unlock();
-    wav_gain0.reset();
-    wav_gain1.reset();
-    wav_sink.reset();
     d_recording_wav = false;
 
     std::cout << "Audio recorder stopped" << std::endl;
@@ -1400,16 +1410,18 @@ void receiver::connect_all(rx_chain type)
         tb->connect(rx, 1, audio_gain1, 0);
         tb->connect(audio_gain0, 0, audio_snk, 0);
         tb->connect(audio_gain1, 0, audio_snk, 1);
+
+        // WAV recorder (only writes while a file is open)
+        if (wav_sink)
+        {
+            tb->connect(rx, 0, wav_gain0, 0);
+            tb->connect(rx, 1, wav_gain1, 0);
+            tb->connect(wav_gain0, 0, wav_sink, 0);
+            tb->connect(wav_gain1, 0, wav_sink, 1);
+        }
     }
 
-    // Recorders and sniffers
-    if (d_recording_wav)
-    {
-        tb->connect(rx, 0, wav_gain0, 0);
-        tb->connect(rx, 1, wav_gain1, 0);
-        tb->connect(wav_gain0, 0, wav_sink, 0);
-        tb->connect(wav_gain1, 0, wav_sink, 1);
-    }
+    // Sniffers
 
     if (d_sniffer_active)
     {
