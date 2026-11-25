@@ -87,6 +87,8 @@ private:
     qint64 d_hw_freq_start{};
     qint64 d_hw_freq_stop{};
 
+    bool d_ignore_limits;
+
     enum receiver::filter_shape d_filter_shape;
     std::vector<float> d_iqFftData;
     float           d_fftAvg;      /*!< FFT averaging parameter set by user (not the true gain). */
@@ -132,6 +134,7 @@ private:
     QSvgWidget      *qsvg_dummy;
 
     QFont font;
+    QFile metaFile;
 
 private:
     void updateHWFrequencyRange(bool ignore_limits);
@@ -195,9 +198,10 @@ private slots:
     void stopAudioStreaming();
 
     /* I/Q playback and recording*/
-    void startIqRecording(const QString& recdir, const QString& format);
+    QString makeIQFilename(const QString& recdir, file_formats fmt, const QDateTime ts);
+    void startIqRecording(const QString& recdir, file_formats fmt);
     void stopIqRecording();
-    void startIqPlayback(const QString& filename, float samprate, qint64 center_freq);
+    void startIqPlayback(const QString& filename, float samprate, qint64 center_freq, file_formats fmt);
     void stopIqPlayback();
     void seekIqFile(qint64 seek_pos);
 
