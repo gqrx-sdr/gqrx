@@ -68,6 +68,25 @@ Supported commands:
     Dump state (only usable for hamlib compatibility)
  \get_powerstat
     Get power status (only usable for hamlib compatibility)
+ \get_bookmarks
+    Get all bookmarks. The first reply line is the bookmark count N, followed
+    by N lines, each formatted as:
+      <frequency_Hz>|<name>|<modulation>|<bandwidth_Hz>|<tags>
+    where <tags> is a comma separated list. The characters '|', CR and LF are
+    replaced with a space in <name>, <modulation> and tag names so every
+    bookmark is a single unambiguous line.
+ \get_bookmarks_in_range <lo> <hi>
+    Like \get_bookmarks but only bookmarks with lo <= frequency <= hi [Hz].
+ \get_bookmark_tags
+    Get all bookmark tag names: a count line followed by one name per line.
+ \set_bookmark <index>
+    Activate the bookmark at <index> (0-based, in \get_bookmarks order): tune
+    to it and apply its mode and bandwidth. Returns RPRT 1 if out of range.
+ \set_bookmark_freq <frequency>
+    Activate the first bookmark whose frequency equals <frequency> [Hz]. This
+    is independent of the list order. Returns RPRT 1 if there is no match.
+ \reload_bookmarks
+    Reload bookmarks.csv from disk, e.g. after editing it outside Gqrx.
  v
     Get 'VFO' (only usable for hamlib compatibility)
  V

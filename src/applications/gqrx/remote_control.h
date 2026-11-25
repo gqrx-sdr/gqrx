@@ -121,6 +121,7 @@ signals:
     void dspChanged(bool value);
     void newRDSmode(bool value);
     void newAudioMuted(bool muted);
+    void newBookmarkActivated(qint64 freq, QString demod, int bandwidth);
 
 private slots:
     void acceptConnection();
@@ -179,6 +180,12 @@ private:
     QString     cmd_LOS();
     QString     cmd_lnb_lo(QStringList cmdlist);
     QString     cmd_dump_state() const;
+    QString     cmd_get_bookmarks();
+    QString     cmd_get_bookmarks_in_range(QStringList cmdlist);
+    QString     cmd_get_bookmark_tags();
+    QString     cmd_set_bookmark(QStringList cmdlist);
+    QString     cmd_set_bookmark_freq(QStringList cmdlist);
+    QString     cmd_reload_bookmarks();
 };
 
 #endif // REMOTE_CONTROL_H
