@@ -151,3 +151,19 @@ stereo_demod::~stereo_demod()
 {
 
 }
+
+void stereo_demod::set_audio_rate(float audio_rate)
+{
+    if (std::abs(d_audio_rate-audio_rate) > 0.5f)
+    {
+        d_audio_rate = audio_rate;
+        audio_rr0->set_rate(d_audio_rate/d_input_rate);
+        deemph0->set_rate(d_audio_rate);
+        if(d_stereo)
+        {
+            audio_rr1->set_rate(d_audio_rate/d_input_rate);
+            deemph1->set_rate(d_audio_rate);
+        }
+    }
+}
+

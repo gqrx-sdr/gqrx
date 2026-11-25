@@ -316,11 +316,6 @@ Leave it at default unless you know what you are doing.</string>
         <property name="toolTip">
          <string>Select the audio sample rate</string>
         </property>
-        <item>
-         <property name="text">
-          <string>48 kHz</string>
-         </property>
-        </item>
        </widget>
       </item>
      </layout>
