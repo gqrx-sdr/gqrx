@@ -70,7 +70,7 @@ signals:
     void newBookmarkActivated(qint64, QString, int);
 
 public slots:
-    void setNewFrequency(qint64 rx_freq);
+    void newFrequencyOrModSet(qint64 rx_freq, int modulation = 0);
 
 private slots:
     void activated(const QModelIndex & index );
