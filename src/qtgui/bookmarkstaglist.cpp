@@ -23,6 +23,7 @@
 #include "bookmarkstaglist.h"
 #include "bookmarks.h"
 #include <QColorDialog>
+#include <QInputDialog>
 #include <stdio.h>
 #include <QMenu>
 #include <QHeaderView>
@@ -247,9 +248,14 @@ bool BookmarksTagList::RenameSelectedTag()
 
 void BookmarksTagList::AddNewTag()
 {
-    AddTag("*new*");
-    scrollToBottom();
-    editItem(item(rowCount()-1, 1));
+    bool ok;
+    QString text = QInputDialog::getText(this, "Create New Tag", "Tag Name:",
+        QLineEdit::Normal, "*new*", &ok);
+    if (ok && !text.isEmpty())
+    {
+        Bookmarks::Get().findOrAddTag(text);
+        updateTags();
+    }
 }
 
 void BookmarksTagList::AddTag(QString name, Qt::CheckState checkstate, QColor color)
