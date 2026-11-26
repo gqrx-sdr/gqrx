@@ -73,6 +73,7 @@ public slots:
     void cancelPlayback();
     void startIqRecorder(void);     /*!< Used if IQ Recorder is started e.g. from remote control */
     void stopIqRecorder(void);      /*!< Used if IQ Recorder is stopped e.g. from remote control */
+    void setDspRunning(bool running);
 
 private slots:
     void on_recDirEdit_textChanged(const QString &text);
@@ -99,6 +100,7 @@ private:
 
     bool    is_recording;
     bool    is_playing;
+    bool    dsp_running;
     int     bytes_per_sample;  /*!< Bytes per sample (fc = 4) */
     int     sample_rate;       /*!< Current sample rate. */
     qint64  center_freq;       /*!< Center frequency. */

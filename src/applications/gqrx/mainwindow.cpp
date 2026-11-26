@@ -1985,6 +1985,7 @@ void MainWindow::on_actionDSP_triggered(bool checked)
     }
 
     ui->actionDSP->setChecked(checked); //for remote control
+    iq_tool->setDspRunning(checked);
 
 }
 
