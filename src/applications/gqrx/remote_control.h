@@ -104,6 +104,9 @@ public slots:
     void rdsPI(QString program_id);
     void setRdsStation(QString name);
     void setRdsRadiotext(QString text);
+    void setTxSupported(bool supported);
+    void setPtt(bool enabled);
+    void setSplitFreq(qint64 tx_freq);
 
 signals:
     void newFrequency(qint64 freq);
@@ -121,6 +124,11 @@ signals:
     void dspChanged(bool value);
     void newRDSmode(bool value);
     void newAudioMuted(bool muted);
+    void newPtt(bool enabled);
+    void newSplitVfo(int split_enabled);
+    void newSplitFreq(qint64 tx_freq);
+    void newRfPower(double power_norm);
+    void newMicGain(double gain_db);
 
 private slots:
     void acceptConnection();
@@ -155,6 +163,13 @@ private:
     bool        hamlib_compatible;
     gain_list_t gains;             /*!< Possible and current gain settings */
     bool        is_audio_muted;
+    bool        tx_supported;      /*!< Whether active SDR device supports TX */
+    bool        ptt_status;        /*!< Current PTT transmit state */
+    int         split_vfo_status;  /*!< Split mode (0=off, 1=on) */
+    QString     tx_vfo_name;       /*!< Transmit VFO name (VFOA/VFOB) */
+    qint64      rc_tx_freq;        /*!< Transmit frequency in Hz (split mode) */
+    double      rf_power_level;    /*!< Normalized TX RF power [0.0..1.0] */
+    double      mic_gain_db;       /*!< Microphone gain in dB [-30..+30] */
 
     void        setNewRemoteFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);
@@ -172,7 +187,11 @@ private:
     QString     cmd_get_vfo() const;
     QString     cmd_set_vfo(QStringList cmdlist);
     QString     cmd_get_split_vfo() const;
-    QString     cmd_set_split_vfo();
+    QString     cmd_set_split_vfo(QStringList cmdlist);
+    QString     cmd_get_split_freq() const;
+    QString     cmd_set_split_freq(QStringList cmdlist);
+    QString     cmd_get_ptt() const;
+    QString     cmd_set_ptt(QStringList cmdlist);
     QString     cmd_get_info() const;
     QString     cmd_get_param(QStringList cmdlist);
     QString     cmd_AOS();
