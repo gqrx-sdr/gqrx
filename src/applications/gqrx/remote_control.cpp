@@ -42,6 +42,7 @@ RemoteControl::RemoteControl(QObject *parent) :
     rc_mode = 0;
     rc_passband_lo = 0;
     rc_passband_hi = 0;
+    rc_filter_shape = 1;          /* FILTER_SHAPE_NORMAL */
     rc_program_id = "0000";
     rds_station = QString("");
     rds_radiotext = QString("");
@@ -330,6 +331,12 @@ void RemoteControl::setPassband(int passband_lo, int passband_hi)
 {
     rc_passband_lo = passband_lo;
     rc_passband_hi = passband_hi;
+}
+
+/*! \brief Set filter shape (from mainwindow). */
+void RemoteControl::setFilterShape(int shape)
+{
+    rc_filter_shape = shape;
 }
 
 /*! \brief New remote frequency received. */
@@ -675,7 +682,7 @@ QString RemoteControl::cmd_get_level(QStringList cmdlist)
         QStringList names;
         for(auto &g : gains)
             names.push_back(QString("%1_GAIN").arg(QString::fromStdString(g.name)));
-        answer = QString("SQL STRENGTH AF %1\n").arg(names.join(" "));
+        answer = QString("SQL STRENGTH AF FILTER_SHAPE %1\n").arg(names.join(" "));
     }
     else if (lvl.compare("STRENGTH", Qt::CaseInsensitive) == 0 || lvl.isEmpty())
     {
@@ -688,6 +695,10 @@ QString RemoteControl::cmd_get_level(QStringList cmdlist)
     else if (lvl.compare("AF", Qt::CaseInsensitive) == 0)
     {
         answer = QString("%1\n").arg((double)audio_gain, 0, 'f', 1);
+    }
+    else if (lvl.compare("FILTER_SHAPE", Qt::CaseInsensitive) == 0)
+    {
+        answer = QString("%1\n").arg(rc_filter_shape);
     }
     else if (lvl.endsWith("_GAIN"))
     {
@@ -721,7 +732,7 @@ QString RemoteControl::cmd_set_level(QStringList cmdlist)
         QStringList names;
         for(auto &g : gains)
             names.push_back(QString("%1_GAIN").arg(QString::fromStdString(g.name)));
-        answer = QString("SQL AF %1\n").arg(names.join(" "));
+        answer = QString("SQL AF FILTER_SHAPE %1\n").arg(names.join(" "));
     }
     else if (lvl.compare("SQL", Qt::CaseInsensitive) == 0)
     {
@@ -747,6 +758,34 @@ QString RemoteControl::cmd_set_level(QStringList cmdlist)
             answer = QString("RPRT 0\n");
             new_audio_gain = std::max<float>(-80.0f, std::min<float>(50.0f, new_audio_gain));
             emit newAudioGain(new_audio_gain);
+        }
+        else
+        {
+            answer = QString("RPRT 1\n");
+        }
+    }
+    else if (lvl.compare("FILTER_SHAPE", Qt::CaseInsensitive) == 0)
+    {
+        QString arg = cmdlist.value(2, "");
+        bool ok;
+        int shape = arg.toInt(&ok);
+
+        /* also accept the GUI labels */
+        if (!ok)
+        {
+            if (arg.compare("SOFT", Qt::CaseInsensitive) == 0)
+            { shape = 0; ok = true; }
+            else if (arg.compare("NORMAL", Qt::CaseInsensitive) == 0)
+            { shape = 1; ok = true; }
+            else if (arg.compare("SHARP", Qt::CaseInsensitive) == 0)
+            { shape = 2; ok = true; }
+        }
+
+        if (ok && shape >= 0 && shape <= 2)
+        {
+            rc_filter_shape = shape;
+            emit newFilterShape(rc_filter_shape);
+            answer = QString("RPRT 0\n");
         }
         else
         {

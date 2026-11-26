@@ -27,6 +27,12 @@ Supported commands:
     Get the value of the gain setting with the name <gain_name>
  L <gain_name>_GAIN <value>
     Set the value of the gain setting with the name <gain_name> to <value>
+ l FILTER_SHAPE
+    Get the channel filter shape (0 = soft, 1 = normal, 2 = sharp)
+ L FILTER_SHAPE <shape>
+    Set the channel filter shape. <shape> may be 0/1/2 or SOFT/NORMAL/SHARP
+    (case insensitive). The setting is receiver-wide and is kept across
+    demodulator changes, matching the Receiver Options filter shape selector.
  p RDS_PI
     Get the RDS PI code (in hexadecimal). Returns 0000 if not applicable.
  p RDS_PS_NAME
