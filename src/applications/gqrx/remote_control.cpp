@@ -254,6 +254,14 @@ void RemoteControl::startRead()
             answer = cmd_LOS();
         else if (cmd == "LNB_LO")
             answer = cmd_lnb_lo(cmdlist);
+        else if (cmd == "gqrx_get_hw_freq")
+            answer = cmd_get_hw_freq();
+        else if (cmd == "gqrx_set_hw_freq")
+            answer = cmd_set_hw_freq(cmdlist);
+        else if (cmd == "gqrx_get_rx_freq")
+            answer = cmd_get_rx_freq();
+        else if (cmd == "gqrx_set_rx_freq")
+            answer = cmd_set_rx_freq(cmdlist);
         else if (cmd == "\\chk_vfo")
             answer = QString("0\n");
         else if (cmd == "\\dump_state")
@@ -975,6 +983,50 @@ QString RemoteControl::cmd_lnb_lo(QStringList cmdlist)
     {
         return QString("%1\n").arg((qint64)(rc_lnb_lo_mhz * 1e6));
     }
+}
+
+/* Get the HW (VFO center) frequency */
+QString RemoteControl::cmd_get_hw_freq() const
+{
+    return QString("%1\n").arg(rc_freq - rc_filter_offset);
+}
+
+/* Set the HW (VFO center) frequency directly, without adjusting filter offset */
+QString RemoteControl::cmd_set_hw_freq(QStringList cmdlist)
+{
+    bool ok;
+    qint64 freq = cmdlist.value(1, "ERR").toLongLong(&ok);
+
+    if (ok)
+    {
+        rc_freq = freq + rc_filter_offset;
+        emit newFrequency(rc_freq);
+        return QString("RPRT 0\n");
+    }
+
+    return QString("RPRT 1\n");
+}
+
+/* Get the RX (filter offset) frequency */
+QString RemoteControl::cmd_get_rx_freq() const
+{
+    return QString("%1\n").arg(rc_filter_offset);
+}
+
+/* Set the RX (filter offset) frequency directly */
+QString RemoteControl::cmd_set_rx_freq(QStringList cmdlist)
+{
+    bool ok;
+    qint64 offset = cmdlist.value(1, "ERR").toLongLong(&ok);
+
+    if (ok)
+    {
+        rc_filter_offset = offset;
+        emit newFilterOffset(rc_filter_offset);
+        return QString("RPRT 0\n");
+    }
+
+    return QString("RPRT 1\n");
 }
 
 /*
