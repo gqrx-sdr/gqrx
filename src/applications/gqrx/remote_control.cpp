@@ -34,7 +34,7 @@
 RemoteControl::RemoteControl(QObject *parent) :
     QObject(parent)
 {
-
+    hw_freq = 0;
     rc_freq = 0;
     rc_filter_offset = 0;
     bw_half = 740e3;
@@ -260,6 +260,35 @@ void RemoteControl::startRead()
             answer = cmd_dump_state();
         else if (cmd == "\\get_powerstat")
             answer = QString("1\n");
+        /*
+         * Custom commands. May be able to be sent
+         * from rigctl via the 'w' command (YMMV), otherwise
+         * if they are just sent from a normal socket
+         * followed by an \n then they will work fine.
+         */
+        else if (cmd == "gqrx_get_hw_freq")
+            answer = cmd_get_hw_freq(cmdlist);
+        else if (cmd == "gqrx_set_hw_freq")
+            answer = cmd_set_hw_freq(cmdlist);
+        else if (cmd == "gqrx_get_filter_offset")
+            answer = cmd_get_filter_offset(cmdlist);
+        else if (cmd == "gqrx_set_filter_offset")
+        {
+            QString value = cmdlist.value(1, "");
+
+            bool ok;
+            qint64 freq_hz = value.toLongLong(&ok);
+
+            if (ok)
+            {
+                emit newFilterOffset(freq_hz);
+                answer = QString("RPRT 0\n");  // Success
+            }
+            else
+            {
+                answer = QString("RPRT 1\n");  // Error
+            }
+        }
         else if (cmd == "q" || cmd == "Q")
         {
             // FIXME: for now we assume 'close' command
@@ -277,6 +306,16 @@ void RemoteControl::startRead()
 
         rc_socket->write(answer.toLatin1());
     }
+}
+
+/*! \brief Slot called when the hardware is tuned to a new frequency.
+ *  \param freq The new hardware frequency in Hz.
+ *
+ * RF(HW) frequency is the frequency to which the device is tuned to.
+ */
+void RemoteControl::setNewHWFrequency(qint64 freq)
+{
+    hw_freq = freq;
 }
 
 /*! \brief Slot called when the receiver is tuned to a new frequency.
@@ -892,6 +931,37 @@ QString RemoteControl::cmd_get_param(QStringList cmdlist)
     else
         answer = QString("RPRT 1\n");
 
+    return answer;
+}
+
+QString RemoteControl::cmd_get_filter_offset(QStringList cmdlist)
+{
+    return QString("%1\n").arg(rc_filter_offset);
+}
+
+QString RemoteControl::cmd_get_hw_freq(QStringList cmdlist)
+{
+    return QString("%1\n").arg(hw_freq);
+}
+
+QString RemoteControl::cmd_set_hw_freq(QStringList cmdlist)
+{
+    QString answer;
+    QString value = cmdlist.value(1, "");
+
+    bool ok;
+    qint64 freq_hz = value.toLongLong(&ok);
+
+    if (ok)
+    {
+        emit rcHwFrequencyChanged(freq_hz);
+
+        answer = QString("RPRT 0\n");  // Success
+    }
+    else
+    {
+        answer = QString("RPRT 1\n");  // Error
+    }
     return answer;
 }
 

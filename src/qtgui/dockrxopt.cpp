@@ -217,6 +217,7 @@ void DockRxOpt::setHwFreq(qint64 freq_hz)
 {
     hw_freq_hz = freq_hz;
     updateHwFreq();
+    emit rfFreqChanged(hw_freq_hz);
 }
 
 /** Update RX frequency label. */
