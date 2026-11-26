@@ -157,12 +157,14 @@ private:
     bool        is_audio_muted;
 
     void        setNewRemoteFreq(qint64 freq);
+    void        setNewRemoteCenterFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);
     QString     intToModeStr(int mode);
 
     /* RC commands */
     QString     cmd_get_freq() const;
     QString     cmd_set_freq(QStringList cmdlist);
+    QString     cmd_set_center_freq(QStringList cmdlist);
     QString     cmd_get_mode();
     QString     cmd_set_mode(QStringList cmdlist);
     QString     cmd_get_level(QStringList cmdlist);
