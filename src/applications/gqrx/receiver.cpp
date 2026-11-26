@@ -72,7 +72,8 @@ receiver::receiver(const std::string input_device,
       d_iq_rev(false),
       d_dc_cancel(false),
       d_iq_balance(false),
-      d_demod(RX_DEMOD_OFF)
+      d_demod(RX_DEMOD_OFF),
+      d_active_chain(RX_CHAIN_NONE)
 {
 
     tb = gr::make_top_block("gqrx");
@@ -150,7 +151,16 @@ receiver::receiver(const std::string input_device,
 
 receiver::~receiver()
 {
-    tb->stop();
+    try {
+        tb->stop();
+        tb->wait();
+    } catch (const std::exception &e) {
+        std::cerr << "Warning: exception while stopping flowgraph in ~receiver(): "
+                  << e.what() << std::endl;
+    } catch (...) {
+        std::cerr << "Warning: unknown exception while stopping flowgraph in ~receiver()"
+                  << std::endl;
+    }
 }
 
 
@@ -159,8 +169,12 @@ void receiver::start()
 {
     if (!d_running)
     {
-        tb->start();
-        d_running = true;
+        try {
+            tb->start();
+            d_running = true;
+        } catch (const std::exception &e) {
+            std::cerr << "Error starting receiver flowgraph: " << e.what() << std::endl;
+        }
     }
 }
 
@@ -169,10 +183,42 @@ void receiver::stop()
 {
     if (d_running)
     {
-        tb->stop();
-        tb->wait(); // If the graph is needed to run again, wait() must be called after stop
+        try {
+            tb->stop();
+            tb->wait(); // If the graph is needed to run again, wait() must be called after stop
+        } catch (const std::exception &e) {
+            std::cerr << "Warning: exception while stopping receiver flowgraph: "
+                      << e.what() << std::endl;
+        }
         d_running = false;
     }
+}
+
+receiver::rx_chain receiver::chain_for_demod(rx_demod demod)
+{
+    switch (demod)
+    {
+    case RX_DEMOD_OFF:
+        return RX_CHAIN_NONE;
+    case RX_DEMOD_WFM_M:
+    case RX_DEMOD_WFM_S:
+    case RX_DEMOD_WFM_S_OIRT:
+        return RX_CHAIN_WFMRX;
+    case RX_DEMOD_NONE:
+    case RX_DEMOD_AM:
+    case RX_DEMOD_AMSYNC:
+    case RX_DEMOD_NFM:
+    case RX_DEMOD_SSB:
+    default:
+        return RX_CHAIN_NBRX;
+    }
+}
+
+bool receiver::is_soapy_remote_device() const
+{
+    return (input_devstr.find("driver=remote") != std::string::npos ||
+            input_devstr.find("remote=") != std::string::npos ||
+            input_devstr.find("soapy") != std::string::npos);
 }
 
 /**
@@ -869,70 +915,128 @@ receiver::status receiver::set_demod(rx_demod demod, bool force)
     if (!force && (demod == d_demod))
         return ret;
 
-    // tb->lock() seems to hang occasionally
-    if (d_running)
+    rx_chain target_chain = chain_for_demod(demod);
+
+    // When switching between demodulators within the same active RX chain (e.g. NFM <-> AM <-> SSB
+    // inside RX_CHAIN_NBRX, or WFM Mono <-> Stereo inside RX_CHAIN_WFMRX), reconfigure `rx` in-place
+    // without calling tb->stop()/tb->wait(). This keeps SoapyRemote RF streams running continuously
+    // and avoids triggering SoapyRemoteDevice::deactivateStream() from ~block_executor() (#1445).
+    if (!force && d_active_chain != RX_CHAIN_NONE && target_chain == d_active_chain && rx)
     {
-        tb->stop();
-        tb->wait();
+        switch (demod)
+        {
+        case RX_DEMOD_NONE:
+            rx->set_demod(nbrx::NBRX_DEMOD_NONE);
+            break;
+        case RX_DEMOD_AM:
+            rx->set_demod(nbrx::NBRX_DEMOD_AM);
+            break;
+        case RX_DEMOD_AMSYNC:
+            rx->set_demod(nbrx::NBRX_DEMOD_AMSYNC);
+            break;
+        case RX_DEMOD_NFM:
+            rx->set_demod(nbrx::NBRX_DEMOD_FM);
+            break;
+        case RX_DEMOD_SSB:
+            rx->set_demod(nbrx::NBRX_DEMOD_SSB);
+            break;
+        case RX_DEMOD_WFM_M:
+            rx->set_demod(wfmrx::WFMRX_DEMOD_MONO);
+            break;
+        case RX_DEMOD_WFM_S:
+            rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO);
+            break;
+        case RX_DEMOD_WFM_S_OIRT:
+            rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO_UKW);
+            break;
+        default:
+            return STATUS_ERROR;
+        }
+        d_demod = demod;
+        return STATUS_OK;
     }
 
-    tb->disconnect_all();
-
-    switch (demod)
+    // Inter-chain transition: use scoped lock/unlock when running on SoapyRemote so the source
+    // block is not destroyed unless full top_block stop is required, and guard against RPC exceptions.
+    const bool use_scoped_lock = d_running && is_soapy_remote_device();
+    try
     {
-    case RX_DEMOD_OFF:
-        connect_all(RX_CHAIN_NONE);
-        break;
+        if (use_scoped_lock)
+        {
+            tb->lock();
+        }
+        else if (d_running)
+        {
+            tb->stop();
+            tb->wait();
+        }
 
-    case RX_DEMOD_NONE:
-        connect_all(RX_CHAIN_NBRX);
-        rx->set_demod(nbrx::NBRX_DEMOD_NONE);
-        break;
+        tb->disconnect_all();
 
-    case RX_DEMOD_AM:
-        connect_all(RX_CHAIN_NBRX);
-        rx->set_demod(nbrx::NBRX_DEMOD_AM);
-        break;
+        switch (demod)
+        {
+        case RX_DEMOD_OFF:
+            connect_all(RX_CHAIN_NONE);
+            break;
 
-    case RX_DEMOD_AMSYNC:
-        connect_all(RX_CHAIN_NBRX);
-        rx->set_demod(nbrx::NBRX_DEMOD_AMSYNC);
-        break;
+        case RX_DEMOD_NONE:
+            connect_all(RX_CHAIN_NBRX);
+            rx->set_demod(nbrx::NBRX_DEMOD_NONE);
+            break;
 
-    case RX_DEMOD_NFM:
-        connect_all(RX_CHAIN_NBRX);
-        rx->set_demod(nbrx::NBRX_DEMOD_FM);
-        break;
+        case RX_DEMOD_AM:
+            connect_all(RX_CHAIN_NBRX);
+            rx->set_demod(nbrx::NBRX_DEMOD_AM);
+            break;
 
-    case RX_DEMOD_WFM_M:
-        connect_all(RX_CHAIN_WFMRX);
-        rx->set_demod(wfmrx::WFMRX_DEMOD_MONO);
-        break;
+        case RX_DEMOD_AMSYNC:
+            connect_all(RX_CHAIN_NBRX);
+            rx->set_demod(nbrx::NBRX_DEMOD_AMSYNC);
+            break;
 
-    case RX_DEMOD_WFM_S:
-        connect_all(RX_CHAIN_WFMRX);
-        rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO);
-        break;
+        case RX_DEMOD_NFM:
+            connect_all(RX_CHAIN_NBRX);
+            rx->set_demod(nbrx::NBRX_DEMOD_FM);
+            break;
 
-    case RX_DEMOD_WFM_S_OIRT:
-        connect_all(RX_CHAIN_WFMRX);
-        rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO_UKW);
-        break;
+        case RX_DEMOD_WFM_M:
+            connect_all(RX_CHAIN_WFMRX);
+            rx->set_demod(wfmrx::WFMRX_DEMOD_MONO);
+            break;
 
-    case RX_DEMOD_SSB:
-        connect_all(RX_CHAIN_NBRX);
-        rx->set_demod(nbrx::NBRX_DEMOD_SSB);
-        break;
+        case RX_DEMOD_WFM_S:
+            connect_all(RX_CHAIN_WFMRX);
+            rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO);
+            break;
 
-    default:
+        case RX_DEMOD_WFM_S_OIRT:
+            connect_all(RX_CHAIN_WFMRX);
+            rx->set_demod(wfmrx::WFMRX_DEMOD_STEREO_UKW);
+            break;
+
+        case RX_DEMOD_SSB:
+            connect_all(RX_CHAIN_NBRX);
+            rx->set_demod(nbrx::NBRX_DEMOD_SSB);
+            break;
+
+        default:
+            ret = STATUS_ERROR;
+            break;
+        }
+
+        d_demod = demod;
+        d_active_chain = target_chain;
+
+        if (use_scoped_lock)
+            tb->unlock();
+        else if (d_running)
+            tb->start();
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Warning: exception during set_demod transition: " << e.what() << std::endl;
         ret = STATUS_ERROR;
-        break;
     }
-
-    d_demod = demod;
-
-    if (d_running)
-        tb->start();
 
     return ret;
 }
@@ -1041,13 +1145,21 @@ receiver::status receiver::start_audio_recording(const std::string filename)
         return STATUS_ERROR;
     }
 
-    tb->lock();
-    tb->connect(rx, 0, wav_gain0, 0);
-    tb->connect(rx, 1, wav_gain1, 0);
-    tb->connect(wav_gain0, 0, wav_sink, 0);
-    tb->connect(wav_gain1, 0, wav_sink, 1);
-    tb->unlock();
-    d_recording_wav = true;
+    try {
+        tb->lock();
+        tb->connect(rx, 0, wav_gain0, 0);
+        tb->connect(rx, 1, wav_gain1, 0);
+        tb->connect(wav_gain0, 0, wav_sink, 0);
+        tb->connect(wav_gain1, 0, wav_sink, 1);
+        tb->unlock();
+        d_recording_wav = true;
+    } catch (const std::exception &e) {
+        std::cerr << "Error connecting audio recorder to flowgraph: " << e.what() << std::endl;
+        wav_gain0.reset();
+        wav_gain1.reset();
+        wav_sink.reset();
+        return STATUS_ERROR;
+    }
 
     std::cout << "Recording audio to " << filename << std::endl;
 
