@@ -128,6 +128,7 @@ void CIqTool::on_playButton_clicked(bool checked)
         {
             ui->listWidget->setEnabled(false);
             ui->recButton->setEnabled(false);
+            on_listWidget_currentTextChanged(current_file);
             emit startPlayback(recdir->absoluteFilePath(current_file),
                                (float)sample_rate, center_freq);
         }
