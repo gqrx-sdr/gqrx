@@ -103,6 +103,10 @@ public:
   void setSymmetricMoves(bool symmetry);
 
   ///
+  /// Smallest distance the user can drag the two handles to. 0 by default
+  void setMinimumGap(int gap);
+
+  ///
   /// Controls the text to display for the handle tooltip. It is in addition
   /// to the widget tooltip.
   /// "%1" is replaced by the current value of the slider.
