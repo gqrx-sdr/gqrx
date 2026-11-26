@@ -242,6 +242,7 @@ private slots:
     void on_actionKbdShortcuts_triggered();
     void on_actionAbout_triggered();
     void on_actionAboutQt_triggered();
+    void on_actionUpdateBookmark_triggered();
     void on_actionAddBookmark_triggered();
     void on_actionDX_Cluster_triggered();
 
