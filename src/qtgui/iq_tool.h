@@ -84,9 +84,16 @@ private slots:
     void timeoutFunction(void);
 
 private:
+    enum IqToolState
+    {
+        STATE_IDLE = 0,
+        STATE_PLAYING,
+        STATE_RECORDING
+    };
     void refreshDir(void);
     void refreshTimeWidgets(void);
     void parseFileName(const QString &filename);
+    void switchControlsState(enum IqToolState state);
 
 private:
     Ui::CIqTool *ui;
