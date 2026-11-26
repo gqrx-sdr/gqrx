@@ -154,6 +154,11 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     Bookmarks::Get().setConfigDir(m_cfg_dir);
     BandPlan::Get().load();
     uiDockBookmarks = new DockBookmarks(this);
+    uiDockTx = new DockTx();
+
+    tx = nullptr;
+    d_tx_offset = 0;
+    d_rx_was_running = false;
 
     // setup some toggle view shortcuts
     uiDockInputCtl->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_J));
@@ -177,6 +182,10 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     auto *clear_waterfall_shortcut = new QShortcut(Qt::Key_Delete, this);
     QObject::connect(clear_waterfall_shortcut, SIGNAL(activated()), ui->plotter, SLOT(clearWaterfall()));
 
+    // PTT (push to talk)
+    auto *ptt_shortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_P), this);
+    QObject::connect(ptt_shortcut, &QShortcut::activated, this, &MainWindow::pttShortcut);
+
     setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
     setCorner(Qt::BottomLeftCorner, Qt::BottomDockWidgetArea);
@@ -197,6 +206,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     addDockWidget(Qt::RightDockWidgetArea, uiDockAudio);
     addDockWidget(Qt::RightDockWidgetArea, uiDockRDS);
     tabifyDockWidget(uiDockAudio, uiDockRDS);
+    addDockWidget(Qt::RightDockWidgetArea, uiDockTx);
+    tabifyDockWidget(uiDockRDS, uiDockTx);
     uiDockAudio->raise();
 
     addDockWidget(Qt::BottomDockWidgetArea, uiDockBookmarks);
@@ -204,6 +215,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     /* hide docks that we don't want to show initially */
     uiDockBookmarks->hide();
     uiDockRDS->hide();
+    uiDockTx->hide();
 
     /* Add dock widget actions to View menu. By doing it this way all signal/slot
        connections will be established automagially.
@@ -214,6 +226,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     ui->menu_View->addAction(uiDockAudio->toggleViewAction());
     ui->menu_View->addAction(uiDockFft->toggleViewAction());
     ui->menu_View->addAction(uiDockBookmarks->toggleViewAction());
+    ui->menu_View->addAction(uiDockTx->toggleViewAction());
     ui->menu_View->addSeparator();
     ui->menu_View->addAction(ui->mainToolBar->toggleViewAction());
     ui->menu_View->addSeparator();
@@ -353,6 +366,22 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(remote, SIGNAL(newAudioMuted(bool)), uiDockAudio, SLOT(setAudioMuted(bool)));
     connect(uiDockAudio, SIGNAL(audioMuted(bool)), remote, SLOT(setAudioMuted(bool)));
 
+    /* transmitter */
+    connect(uiDockTx, SIGNAL(pttToggled(bool)), this, SLOT(setTxPtt(bool)));
+    connect(uiDockTx, SIGNAL(txModeChanged(int)), this, SLOT(setTxMode(int)));
+    connect(uiDockTx, SIGNAL(rfPowerChanged(double)), this, SLOT(setTxRfPower(double)));
+    connect(uiDockTx, SIGNAL(micGainChanged(float)), this, SLOT(setTxMicGain(float)));
+    connect(uiDockTx, SIGNAL(ctcssChanged(float)), this, SLOT(setTxCtcss(float)));
+    connect(uiDockTx, SIGNAL(txOffsetChanged(qint64)), this, SLOT(setTxOffset(qint64)));
+    connect(remote, SIGNAL(newPttState(bool)), uiDockTx, SLOT(setPtt(bool)));
+    connect(uiDockTx, SIGNAL(pttToggled(bool)), remote, SLOT(setPttState(bool)));
+    connect(remote, SIGNAL(newTxOffset(qint64)), this, SLOT(setTxOffset(qint64)));
+    connect(remote, SIGNAL(newRfPower(double)), this, SLOT(setTxRfPower(double)));
+    connect(remote, SIGNAL(newMicGain(float)), this, SLOT(setTxMicGain(float)));
+    connect(uiDockTx, SIGNAL(rfPowerChanged(double)), remote, SLOT(setRfPower(double)));
+    connect(uiDockTx, SIGNAL(micGainChanged(float)), remote, SLOT(setMicGain(float)));
+    connect(uiDockTx, SIGNAL(txModeChanged(int)), remote, SLOT(setTxMode(int)));
+
     rds_timer = new QTimer(this);
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
 
@@ -402,6 +431,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
 MainWindow::~MainWindow()
 {
     on_actionDSP_triggered(false);
+    if (tx && tx->is_running())
+        tx->stop();
 
     /* stop and delete timers */
     dec_timer->stop();
@@ -448,6 +479,8 @@ MainWindow::~MainWindow()
     delete uiDockFft;
     delete uiDockInputCtl;
     delete uiDockRDS;
+    delete uiDockTx;
+    delete tx;
     delete rx;
     delete remote;
     delete qsvg_dummy;
@@ -668,6 +701,10 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
     uiDockFft->readSettings(m_settings);
     uiDockAudio->readSettings(m_settings);
     dxc_options->readSettings(m_settings);
+    uiDockTx->readSettings(m_settings);
+
+    /* Transmitter configuration */
+    updateTxUi(m_settings->value("input/tx_enabled", false).toBool());
 
     {
         int64_val = m_settings->value("input/frequency", 14236000).toLongLong(&conv_ok);
@@ -793,6 +830,7 @@ void MainWindow::storeSession()
         uiDockRxOpt->saveSettings(m_settings);
         uiDockFft->saveSettings(m_settings);
         uiDockAudio->saveSettings(m_settings);
+        uiDockTx->saveSettings(m_settings);
 
         remote->saveSettings(m_settings);
         iq_tool->saveSettings(m_settings);
@@ -912,6 +950,10 @@ void MainWindow::setNewFrequency(qint64 rx_freq)
 
     // set receiver frequency
     rx->set_rf_freq(hw_freq);
+
+    // keep the transmitter tuned while PTT is active
+    if (tx && tx->is_running())
+        tx->set_rf_freq((double)(rx_freq + d_tx_offset));
 
     // update widgets
     ui->plotter->setCenterFreq(center_freq);
@@ -1391,6 +1433,184 @@ void MainWindow::setAudioGain(float value)
 {
     rx->set_af_gain(value);
 }
+
+/** PTT keyboard shortcut pressed. */
+void MainWindow::pttShortcut()
+{
+    uiDockTx->setPtt(!uiDockTx->ptt());
+}
+
+/** DockTx: PTT button toggled. */
+void MainWindow::setTxPtt(bool ptt)
+{
+    if (!tx)
+    {
+        if (ptt)
+            uiDockTx->setPtt(false);
+        return;
+    }
+
+    if (ptt == tx->is_running())
+        return;
+
+    if (ptt)
+    {
+        /* remember whether the receiver was running so that it can be
+         * restored to the same state when the transmission ends */
+        d_rx_was_running = ui->actionDSP->isChecked();
+
+        /* stop the receiver first; on half-duplex devices the SDR
+           can not receive and transmit at the same time */
+        rx->stop();
+
+        /* the transmitter is tuned relative to the frequency shown in
+           the GUI; the receiver hardware frequency differs from it by
+           the LNB LO and the filter offset */
+        tx->set_rf_freq((double)(ui->freqCtrl->getFrequency() + d_tx_offset));
+
+        /* start muted so that no stale audio buffered in the audio
+           source is transmitted; unmute once the flowgraph is running */
+        tx->set_muted(true);
+        tx->start();
+
+        QTimer::singleShot(100, this, [this]() {
+            if (tx && tx->is_running() && uiDockTx->ptt())
+                tx->set_muted(false);
+        });
+    }
+    else
+    {
+        /* mute first so the transmission ends in silence instead of
+           an audible click */
+        tx->set_muted(true);
+
+        QTimer::singleShot(100, this, [this]() {
+            if (!uiDockTx->ptt() && tx && tx->is_running())
+                tx->stop();
+
+            if (!uiDockTx->ptt() && d_rx_was_running)
+                rx->start();
+        });
+    }
+}
+
+/** DockTx: modulator selection changed. */
+void MainWindow::setTxMode(int mode)
+{
+    /* Dock index 0..3 (NFM, AM, USB, LSB) maps to TX_MOD_NFM..TX_MOD_LSB */
+    if (mode < 0 || mode > 3)
+        return;
+
+    if (tx)
+        tx->set_mod((transmitter::tx_mod) (mode + 1));
+}
+
+/** DockTx: RF power changed. */
+void MainWindow::setTxRfPower(double power)
+{
+    if (tx)
+        tx->set_rf_power(power);
+}
+
+/** DockTx: mic gain changed. */
+void MainWindow::setTxMicGain(float gain_db)
+{
+    if (tx)
+        tx->set_mic_gain(gain_db);
+}
+
+/** DockTx: CTCSS tone changed. */
+void MainWindow::setTxCtcss(float freq)
+{
+    if (tx)
+        tx->set_ctcss(freq);
+}
+
+/** DockTx: TX offset (split mode) changed. */
+void MainWindow::setTxOffset(qint64 offset_hz)
+{
+    d_tx_offset = offset_hz;
+}
+
+/** Enable or disable the transmitter UI depending on device capability. */
+void MainWindow::updateTxUi(bool enabled)
+{
+    QString indev = m_settings->value("input/device", "").toString();
+    QString outdev = m_settings->value("output/device", "").toString();
+    bool tx_ok = enabled && !indev.isEmpty() &&
+                 transmitter::device_supports_tx(indev.toStdString());
+
+    if (tx_ok)
+    {
+        if (!tx)
+        {
+            try
+            {
+                tx = new transmitter(indev.toStdString(), outdev.toStdString());
+            }
+            catch (std::runtime_error &x)
+            {
+                QMessageBox::warning(nullptr,
+                                 QObject::tr("Failed to set TX device"),
+                                 QObject::tr("<p><b>%1</b></p>"
+                                             "Transmitting is not available.")
+                                     .arg(x.what()),
+                                 QMessageBox::Ok);
+                tx_ok = false;
+            }
+        }
+        else
+        {
+            try
+            {
+                tx->set_tx_device(indev.toStdString());
+                tx->set_audio_device(outdev.toStdString());
+            }
+            catch (std::runtime_error &x)
+            {
+                QMessageBox::warning(nullptr,
+                                 QObject::tr("Failed to set TX device"),
+                                 QObject::tr("<p><b>%1</b></p>"
+                                             "Transmitting is not available.")
+                                     .arg(x.what()),
+                                 QMessageBox::Ok);
+                uiDockTx->setPtt(false);
+                delete tx;
+                tx = nullptr;
+                tx_ok = false;
+            }
+        }
+    }
+    else if (tx)
+    {
+        /* cancel any ongoing transmission and release the TX device */
+        uiDockTx->setPtt(false);
+        delete tx;
+        tx = nullptr;
+    }
+
+    if (tx)
+    {
+        /* apply the current dock settings to the transmitter; the dock
+         * mode index 0..3 maps to TX_MOD_NFM..TX_MOD_LSB */
+        int mode = uiDockTx->modIndex();
+        if (mode >= 0 && mode <= 3)
+            tx->set_mod((transmitter::tx_mod) (mode + 1));
+        tx->set_rf_power(uiDockTx->power());
+        tx->set_mic_gain(uiDockTx->micGain());
+        tx->set_ctcss(uiDockTx->ctcssFreq());
+    }
+
+    uiDockTx->setEnabled(tx_ok);
+    if (tx_ok)
+        uiDockTx->show();
+    else
+        uiDockTx->hide();
+
+    /* inform the remote control interface */
+    remote->setTxSupport(tx_ok);
+}
+
 
 /** Set AGC ON/OFF. */
 void MainWindow::setAgcOn(bool agc_on)
