@@ -786,6 +786,7 @@ void MainWindow::storeSession()
 {
     if (m_settings)
     {
+        m_settings->setValue("configversion", 4);
         m_settings->setValue("input/frequency", ui->freqCtrl->getFrequency());
         m_settings->setValue("fft/fft_center", ui->plotter->getFftCenterFreq());
 

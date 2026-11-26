@@ -472,8 +472,9 @@ void DockRxOpt::readSettings(QSettings *settings)
 
     int_val = MODE_AM;
     if (settings->contains("receiver/demod")) {
-        if (settings->value("configversion").toInt(&conv_ok) >= 3) {
-            int_val = GetEnumForModulationString(settings->value("receiver/demod").toString());
+        QString demod_str = settings->value("receiver/demod").toString();
+        if (settings->value("configversion").toInt(&conv_ok) >= 3 || IsModulationValid(demod_str)) {
+            int_val = GetEnumForModulationString(demod_str);
         } else {
             int_val = old2new[settings->value("receiver/demod").toInt(&conv_ok)];
         }

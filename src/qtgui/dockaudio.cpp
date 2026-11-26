@@ -110,7 +110,10 @@ void DockAudio::setInvertScrolling(bool enabled)
  */
 void DockAudio::setAudioGain(int gain)
 {
-    ui->audioGainSlider->setValue(gain);
+    if (ui->audioGainSlider->value() == gain)
+        on_audioGainSlider_valueChanged(gain);
+    else
+        ui->audioGainSlider->setValue(gain);
 }
 
 /*! \brief Set new audio gain.
@@ -118,7 +121,11 @@ void DockAudio::setAudioGain(int gain)
  */
 void DockAudio::setAudioGainDb(float gain)
 {
-    ui->audioGainSlider->setValue(int(std::round(gain*10.0f)));
+    int val = int(std::round(gain*10.0f));
+    if (ui->audioGainSlider->value() == val)
+        on_audioGainSlider_valueChanged(val);
+    else
+        ui->audioGainSlider->setValue(val);
 }
 
 /*! \brief Set audio muted
