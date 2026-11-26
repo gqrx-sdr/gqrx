@@ -35,6 +35,9 @@ BookmarksTagList::BookmarksTagList(QWidget *parent, bool bShowUntagged )
     connect(this, SIGNAL(cellClicked(int,int)),
             this, SLOT(on_cellClicked(int,int)));
 
+    connect(this, SIGNAL(itemChanged(QTableWidgetItem *)),
+            this, SLOT(on_itemChanged(QTableWidgetItem *)));
+
     // right click menu
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
@@ -182,18 +185,12 @@ void BookmarksTagList::ShowContextMenu(const QPoint& pos)
 {
     QMenu* menu=new QMenu(this);
 
-    // Rename currently does not work.
-    // The problem is that after the tag name is changed in GUI
-    // you can not find the right TagInfo because you dont know
-    // the old tag name.
-    #if 0
     // MenuItem "Rename"
     {
         QAction* actionRename = new QAction("Rename", this);
         menu->addAction(actionRename);
         connect(actionRename, SIGNAL(triggered()), this, SLOT(RenameSelectedTag()));
     }
-    #endif
 
     // MenuItem "Create new Tag"
     {
@@ -226,7 +223,6 @@ void BookmarksTagList::ShowContextMenu(const QPoint& pos)
     menu->popup(viewport()->mapToGlobal(pos));
 }
 
-#if 0
 bool BookmarksTagList::RenameSelectedTag()
 {
     QModelIndexList selected = selectionModel()->selectedRows();
@@ -237,19 +233,31 @@ bool BookmarksTagList::RenameSelectedTag()
     }
 
     int iRow = selected.first().row();
-    QTableWidgetItem* pItem = item(iRow,1);bUpdating
+    QTableWidgetItem* pItem = item(iRow,1);
     editItem(pItem);
-    //Bookmarks::Get().save();
 
     return true;
 }
-#endif
 
 void BookmarksTagList::AddNewTag()
 {
     AddTag("*new*");
     scrollToBottom();
     editItem(item(rowCount()-1, 1));
+}
+
+void BookmarksTagList::on_itemChanged(QTableWidgetItem *item) {
+    if (m_bUpdating)
+        return;
+
+    QString id = item->data(Qt::UserRole).toString();
+    if (id == item->text())
+        return;
+
+    item->setData(Qt::UserRole, item->text());
+
+    Bookmarks::Get().renameTag(id, item->text());
+    Bookmarks::Get().save();
 }
 
 void BookmarksTagList::AddTag(QString name, Qt::CheckState checkstate, QColor color)
@@ -259,6 +267,7 @@ void BookmarksTagList::AddTag(QString name, Qt::CheckState checkstate, QColor co
 
     // Column 1
     QTableWidgetItem *item = new QTableWidgetItem(name);
+    item->setData(Qt::UserRole, QVariant(name));
     item->setCheckState(checkstate);
     item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
     setItem(i, 1, item);
