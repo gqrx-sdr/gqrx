@@ -44,6 +44,7 @@
 #include "dsp/rx_fft.h"
 #include "dsp/sniffer_f.h"
 #include "dsp/resampler_xx.h"
+#include "interfaces/audio_recorder_f.h"
 #include "interfaces/udp_sink_f.h"
 #include "receivers/receiver_base.h"
 
@@ -254,6 +255,7 @@ private:
     std::string output_devstr; /*!< Current output device string. */
 
     rx_demod    d_demod;       /*!< Current demodulator. */
+    rx_chain    d_chain;       /*!< Current receiver chain. */
 
     gr::top_block_sptr         tb;        /*!< The GNU Radio top block. */
 
@@ -271,12 +273,10 @@ private:
 
     gr::blocks::multiply_const_ff::sptr audio_gain0; /*!< Audio gain block. */
     gr::blocks::multiply_const_ff::sptr audio_gain1; /*!< Audio gain block. */
-    gr::blocks::multiply_const_ff::sptr wav_gain0; /*!< WAV file gain block. */
-    gr::blocks::multiply_const_ff::sptr wav_gain1; /*!< WAV file gain block. */
+
+    audio_recorder_f_sptr               audio_rec;  /*!< Audio file recorder. */
 
     gr::blocks::file_sink::sptr         iq_sink;     /*!< I/Q file sink. */
-
-    gr::blocks::wavfile_sink::sptr      wav_sink;   /*!< WAV file sink for recording. */
     gr::blocks::wavfile_source::sptr    wav_src;    /*!< WAV file source for playback. */
     gr::blocks::null_sink::sptr         audio_null_sink0; /*!< Audio null sink used during playback. */
     gr::blocks::null_sink::sptr         audio_null_sink1; /*!< Audio null sink used during playback. */
