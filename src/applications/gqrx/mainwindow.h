@@ -42,10 +42,12 @@
 #include "qtgui/afsk1200win.h"
 #include "qtgui/iq_tool.h"
 #include "qtgui/dxc_options.h"
+#include "qtgui/docktx.h"
 
 #include "applications/gqrx/recentconfig.h"
 #include "applications/gqrx/remote_control.h"
 #include "applications/gqrx/receiver.h"
+#include "applications/gqrx/transmitter.h"
 
 namespace Ui {
     class MainWindow;  /*! The main window UI */
@@ -104,6 +106,7 @@ private:
     DockFft        *uiDockFft;
     DockBookmarks  *uiDockBookmarks;
     DockRDS        *uiDockRDS;
+    DockTx         *uiDockTx;    /*!< TX controls dock widget. */
 
     CIqTool        *iq_tool;
     DXCOptions     *dxc_options;
@@ -125,6 +128,8 @@ private:
     receiver *rx;
 
     RemoteControl *remote;
+
+    transmitter   *tx;         /*!< TX subsystem (nullptr if device is not TX-capable). */
 
     std::map<QString, QVariant> devList;
 
@@ -261,6 +266,14 @@ private slots:
     void iqFftTimeout();
     void audioFftTimeout();
     void rdsTimeout();
+
+    /* TX control slots */
+    void setPtt(bool on);
+    void setTxModulation(int mod);
+    void setTxGain(const QString &name, double value);
+    void setMicGain(float db);
+    void setTxOffset(double hz);
+    void onRemotePtt(bool on);
 };
 
 #endif // MAINWINDOW_H

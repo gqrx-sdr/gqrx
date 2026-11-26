@@ -54,6 +54,7 @@ RemoteControl::RemoteControl(QObject *parent) :
     receiver_running = false;
     hamlib_compatible = false;
     is_audio_muted = false;
+    rc_ptt_active = false;
 
     rc_port = DEFAULT_RC_PORT;
     rc_allowed_hosts.append(DEFAULT_RC_ALLOWED_HOSTS);
@@ -260,6 +261,23 @@ void RemoteControl::startRead()
             answer = cmd_dump_state();
         else if (cmd == "\\get_powerstat")
             answer = QString("1\n");
+        else if (cmd == "t")
+        {
+            /* Hamlib "t" — query PTT state */
+            answer = rc_ptt_active ? QString("1\n") : QString("0\n");
+        }
+        else if (cmd == "T")
+        {
+            /* Hamlib "T 0|1" — set PTT state */
+            if (cmdlist.size() > 1) {
+                bool ptt_on = (cmdlist[1].trimmed() == "1");
+                rc_ptt_active = ptt_on;
+                emit pttChanged(ptt_on);
+                answer = QString("RPRT 0\n");
+            } else {
+                answer = QString("RPRT 1\n");
+            }
+        }
         else if (cmd == "q" || cmd == "Q")
         {
             // FIXME: for now we assume 'close' command
@@ -1053,4 +1071,15 @@ QString RemoteControl::cmd_dump_state() const
         "0\n" /* RIG_PARM_NONE */
         /* Bit field list of set parm */
         "0\n" /* RIG_PARM_NONE */);
+}
+
+/*! \brief Slot to update PTT state from the GUI or transmitter.
+ *  \param active  true = transmitting, false = receiving.
+ *
+ * Called by MainWindow when the user presses the GUI PTT button so that
+ * the "t" (query PTT) remote command always reflects the actual state.
+ */
+void RemoteControl::setPttActive(bool active)
+{
+    rc_ptt_active = active;
 }

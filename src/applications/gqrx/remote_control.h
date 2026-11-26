@@ -104,6 +104,8 @@ public slots:
     void rdsPI(QString program_id);
     void setRdsStation(QString name);
     void setRdsRadiotext(QString text);
+    /** Update local PTT state (called by MainWindow when GUI PTT changes). */
+    void setPttActive(bool active);
 
 signals:
     void newFrequency(qint64 freq);
@@ -121,6 +123,8 @@ signals:
     void dspChanged(bool value);
     void newRDSmode(bool value);
     void newAudioMuted(bool muted);
+    /** Emitted when a remote PTT command (Hamlib "T") is received. */
+    void pttChanged(bool active);
 
 private slots:
     void acceptConnection();
@@ -153,6 +157,7 @@ private:
     bool        iq_recorder_status;    /*!< IQ recording enabled */
     bool        receiver_running;  /*!< Whether the receiver is running or not */
     bool        hamlib_compatible;
+    bool        rc_ptt_active;     /*!< Current PTT state (for "t" query command) */
     gain_list_t gains;             /*!< Possible and current gain settings */
     bool        is_audio_muted;
 

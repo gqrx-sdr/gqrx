@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DockTx</class>
+ <widget class="QDockWidget" name="DockTx">
+  <property name="windowTitle">
+   <string>TX Controls</string>
+  </property>
+  <widget class="QWidget" name="dockWidgetContents">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>4</number>
+    </property>
+    <property name="leftMargin">
+     <number>4</number>
+    </property>
+    <property name="topMargin">
+     <number>4</number>
+    </property>
+    <property name="rightMargin">
+     <number>4</number>
+    </property>
+    <property name="bottomMargin">
+     <number>4</number>
+    </property>
+
+    <!-- PTT Button -->
+    <item>
+     <widget class="QPushButton" name="pttButton">
+      <property name="text">
+       <string>PTT  (F7)</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <property name="minimumHeight">
+       <number>40</number>
+      </property>
+      <property name="toolTip">
+       <string>Push-To-Talk — hold to transmit. Keyboard shortcut: F7</string>
+      </property>
+     </widget>
+    </item>
+
+    <!-- Modulation -->
+    <item>
+     <layout class="QHBoxLayout" name="modLayout">
+      <item>
+       <widget class="QLabel" name="modLabel">
+        <property name="text">
+         <string>Mode</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="modCombo">
+        <item>
+         <property name="text">
+          <string>NFM</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>AM</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>USB</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>LSB</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </item>
+
+    <!-- TX Offset (split mode) -->
+    <item>
+     <layout class="QHBoxLayout" name="offsetLayout">
+      <item>
+       <widget class="QLabel" name="offsetLabel">
+        <property name="text">
+         <string>TX offset</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="txOffsetSpin">
+        <property name="suffix">
+         <string> kHz</string>
+        </property>
+        <property name="minimum">
+         <double>-9999.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>9999.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="value">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="toolTip">
+         <string>Transmit frequency offset for split-mode operation</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+
+    <!-- Mic Gain -->
+    <item>
+     <layout class="QHBoxLayout" name="micLayout">
+      <item>
+       <widget class="QLabel" name="micLabel">
+        <property name="text">
+         <string>Mic gain</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSlider" name="micGainSlider">
+        <property name="minimum">
+         <number>-20</number>
+        </property>
+        <property name="maximum">
+         <number>20</number>
+        </property>
+        <property name="value">
+         <number>0</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="toolTip">
+         <string>Microphone gain in dB (-20 to +20)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="micValueLabel">
+        <property name="text">
+         <string>  0 dB</string>
+        </property>
+        <property name="minimumWidth">
+         <number>45</number>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+
+    <!-- TX Hardware Gain (populated dynamically) -->
+    <item>
+     <layout class="QGridLayout" name="txGainLayout">
+     </layout>
+    </item>
+
+    <item>
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </spacer>
+    </item>
+
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
+
