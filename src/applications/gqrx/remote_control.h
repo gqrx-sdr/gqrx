@@ -35,6 +35,8 @@
 /* For gain_t and gain_list_t */
 #include "qtgui/dockinputctl.h"
 
+class receiver;
+
 /*! \brief Simple TCP server for remote control.
  *
  * The TCP interface is compatible with the hamlib rigtctld so that applications
@@ -81,6 +83,7 @@ public:
     {
         return rc_allowed_hosts;
     }
+    void setReceiver(receiver *rx) { d_rx = rx; }
     void setReceiverStatus(bool enabled);
     void setGainStages(gain_list_t &gain_list);
 
@@ -156,6 +159,8 @@ private:
     gain_list_t gains;             /*!< Possible and current gain settings */
     bool        is_audio_muted;
 
+    receiver   *d_rx;                 /*!< Receiver for on-demand FFT data */
+
     void        setNewRemoteFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);
     QString     intToModeStr(int mode);
@@ -179,6 +184,7 @@ private:
     QString     cmd_LOS();
     QString     cmd_lnb_lo(QStringList cmdlist);
     QString     cmd_dump_state() const;
+    QString     cmd_get_fft(QStringList cmdlist);
 };
 
 #endif // REMOTE_CONTROL_H
