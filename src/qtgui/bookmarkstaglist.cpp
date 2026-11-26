@@ -22,6 +22,7 @@
  */
 #include "bookmarkstaglist.h"
 #include "bookmarks.h"
+#include "dlg_saveablestring.h"
 #include <QColorDialog>
 #include <stdio.h>
 #include <QMenu>
@@ -48,6 +49,9 @@ BookmarksTagList::BookmarksTagList(QWidget *parent, bool bShowUntagged )
     setSelectionMode(QAbstractItemView::SingleSelection);
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSortingEnabled(true);
+
+    LineEditDelegateSaveableString* DelegateTagName = new LineEditDelegateSaveableString(this);
+    this->setItemDelegateForColumn(1, DelegateTagName);
 }
 
 void BookmarksTagList::on_cellClicked(int row, int column)
