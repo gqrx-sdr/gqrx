@@ -117,7 +117,6 @@ private slots:
     void setNewUdpPort(int port);
     void setNewUdpStereo(bool enabled);
 
-
 private:
     Ui::DockAudio *ui;
     CAudioOptions *audioOptions; /*! Audio options dialog. */

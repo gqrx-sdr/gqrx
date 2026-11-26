@@ -129,10 +129,16 @@ private slots:
 
 private:
     QTcpServer  rc_server;         /*!< The active server object. */
-	std::set<QTcpSocket*> rc_sockets; /*!< The active socket objects. */
+    QTcpSocket* rc_socket;         /*!< The active socket object. */
+    std::set<QTcpSocket*> rc_sockets; /*!< The active socket objects. */
+    QTcpServer  iq_server;         /*!< The active iq data server object. */
+    QTcpSocket* iq_socket;         /*!< The active iq data socket object. */
 
     QStringList rc_allowed_hosts;  /*!< Hosts where we accept connection from. */
     int         rc_port;           /*!< The port we are listening on. */
+
+    QStringList iq_allowed_hosts;  /*!< Hosts where we accept connection from. */
+    int         iq_port;           /*!< The port we are listening on. */
 
     qint64      rc_freq;
     qint64      rc_filter_offset;
@@ -179,6 +185,8 @@ private:
     QString     cmd_LOS();
     QString     cmd_lnb_lo(QStringList cmdlist);
     QString     cmd_dump_state() const;
+    QString     cmd_start_iq_server(QString addr, int port);
+    QString     cmd_stop_iq_server(QString addr, int port);
 };
 
 #endif // REMOTE_CONTROL_H
