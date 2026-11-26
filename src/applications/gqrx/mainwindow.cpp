@@ -561,7 +561,8 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         }
 
         // Update window title
-        setWindowTitle(QString("Gqrx %1 - %2").arg(VERSION).arg(indev));
+        const char* audio_status = rx->has_audio_device() ? "" : " - NO AUDIO";
+        setWindowTitle(QString("Gqrx %1 - %2%3").arg(VERSION).arg(indev).arg(audio_status));
 
         // Add available antenna connectors to the UI
         std::vector<std::string> antennas = rx->get_antennas();

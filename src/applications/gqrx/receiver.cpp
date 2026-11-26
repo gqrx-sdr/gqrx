@@ -72,7 +72,8 @@ receiver::receiver(const std::string input_device,
       d_iq_rev(false),
       d_dc_cancel(false),
       d_iq_balance(false),
-      d_demod(RX_DEMOD_OFF)
+      d_demod(RX_DEMOD_OFF),
+      d_has_audio_device(false)
 {
 
     tb = gr::make_top_block("gqrx");
@@ -125,13 +126,20 @@ receiver::receiver(const std::string input_device,
 
     audio_udp_sink = make_udp_sink_f();
 
+    try {
 #ifdef WITH_PULSEAUDIO
-    audio_snk = make_pa_sink(audio_device, d_audio_rate, "GQRX", "Audio output");
+        audio_snk = make_pa_sink(audio_device, d_audio_rate, "GQRX", "Audio output");
 #elif WITH_PORTAUDIO
-    audio_snk = make_portaudio_sink(audio_device, d_audio_rate, "GQRX", "Audio output");
+        audio_snk = make_portaudio_sink(audio_device, d_audio_rate, "GQRX", "Audio output");
 #else
-    audio_snk = gr::audio::sink::make(d_audio_rate, audio_device, true);
+        audio_snk = gr::audio::sink::make(d_audio_rate, audio_device, true);
 #endif
+        d_has_audio_device = true;
+    }
+    // No audio device a null sink.
+    catch (const std::exception& error) {
+        audio_snk = gr::blocks::null_sink::make(sizeof(float));
+    }
 
     output_devstr = audio_device;
 
@@ -142,10 +150,6 @@ receiver::receiver(const std::string input_device,
     /* sniffer_rr is created at each activation. */
 
     set_demod(RX_DEMOD_NFM);
-
-    gr::prefs pref;
-    qDebug() << "Using audio backend:"
-             << pref.get_string("audio", "audio_module", "N/A").c_str();
 }
 
 receiver::~receiver()
@@ -284,20 +288,17 @@ void receiver::set_output_device(const std::string device)
 #else
         audio_snk = gr::audio::sink::make(d_audio_rate, device, true);
 #endif
-
-        if (d_demod != RX_DEMOD_OFF)
-        {
-            tb->connect(audio_gain0, 0, audio_snk, 0);
-            tb->connect(audio_gain1, 0, audio_snk, 1);
-        }
-
-        tb->unlock();
-
-    } catch (std::exception &x) {
-        tb->unlock();
-        // handle problems on non-freeing devices
-        throw x;
     }
+    catch (const std::exception& error) {
+        audio_snk = gr::blocks::null_sink::make(sizeof(float));
+    }
+    if (d_demod != RX_DEMOD_OFF)
+    {
+        tb->connect(audio_gain0, 0, audio_snk, 0);
+        tb->connect(audio_gain1, 0, audio_snk, 1);
+    }
+
+    tb->unlock();
 }
 
 /** Get a list of available antenna connectors. */
