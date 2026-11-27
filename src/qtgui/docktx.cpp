@@ -21,6 +21,7 @@
 #include <QSignalBlocker>
 #include "docktx.h"
 #include "ui_docktx.h"
+#include "dsp/tx_telemetry.h"
 #include "dsp/tx_util.h"
 
 DockTx::DockTx(QWidget *parent) :
@@ -172,24 +173,28 @@ void DockTx::setStatus(const QString &status)
     ui->statusLabel->setText(status);
 }
 
-/*! \brief Show what the device reports while transmitting, "-" otherwise. */
+/*! \brief Show what the device reports while transmitting, "–" otherwise.
+ *
+ * Forward power, ALC and SWR are "–" unless the backend exposes them.
+ */
 void DockTx::setTelemetry(bool valid, double rate, double freq, double gain,
-                          double gain_min, double gain_max)
+                          double gain_min, double gain_max,
+                          std::optional<double> fwd_power,
+                          std::optional<double> alc,
+                          std::optional<double> swr)
 {
     if (!valid)
     {
-        ui->rateValueLabel->setText(QString::fromUtf8("–"));
-        ui->freqValueLabel->setText(QString::fromUtf8("–"));
-        ui->gainValueLabel->setText(QString::fromUtf8("–"));
-        return;
+        fwd_power = alc = swr = std::nullopt;
     }
 
-    ui->rateValueLabel->setText(QString("%1 Msps").arg(rate / 1.0e6, 0, 'f', 3));
-    ui->freqValueLabel->setText(QString("%1 MHz").arg(freq / 1.0e6, 0, 'f', 6));
-    ui->gainValueLabel->setText(QString("%1 dB (%2–%3)")
-                                    .arg(gain, 0, 'f', 1)
-                                    .arg(gain_min, 0, 'f', 0)
-                                    .arg(gain_max, 0, 'f', 0));
+    ui->rateValueLabel->setText(QString::fromStdString(tx_telemetry_rate_text(valid, rate)));
+    ui->freqValueLabel->setText(QString::fromStdString(tx_telemetry_freq_text(valid, freq)));
+    ui->gainValueLabel->setText(QString::fromStdString(
+        tx_telemetry_gain_text(valid, gain, gain_min, gain_max)));
+    ui->fwdValueLabel->setText(QString::fromStdString(tx_telemetry_fwd_text(fwd_power)));
+    ui->alcValueLabel->setText(QString::fromStdString(tx_telemetry_alc_text(alc)));
+    ui->swrValueLabel->setText(QString::fromStdString(tx_telemetry_swr_text(swr)));
 }
 
 void DockTx::on_pttButton_toggled(bool checked)

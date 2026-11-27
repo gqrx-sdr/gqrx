@@ -55,6 +55,9 @@
 #define TX_SAMPLE_RATE 2e6
 #define TX_FM_MAX_DEV 2500.0f
 
+// Used until a provider is set: gr-osmosdr has no meters
+static const null_tx_telemetry_provider null_tx_telemetry;
+
 /**
  * @brief Public constructor.
  * @param input_device Input device specifier.
@@ -83,6 +86,7 @@ receiver::receiver(const std::string input_device,
       d_src_ppm_set(false),
       d_src_ppm(0.0),
       d_transmitting(false),
+      d_tx_telemetry(&null_tx_telemetry),
       d_tx_rate(TX_SAMPLE_RATE),
       d_tx_power_pct(0),
       d_tx_split(0.0),
@@ -1540,7 +1544,7 @@ receiver::status receiver::start_tx(tx_mod_mode mode)
     try
     {
         tx_audio_src = gr::audio::source::make((int)d_audio_rate, d_tx_audio_devstr, true);
-        tx_mic_gain = gr::blocks::multiply_const_ff::make(powf(10.0f, d_mic_gain_db / 20.0f));
+        tx_mic_gain = gr::blocks::multiply_const_ff::make(tx_mic_linear_gain(d_mic_gain_db));
         tx_mod = make_tx_modulator(mode, (float)d_audio_rate, TX_FM_MAX_DEV, 0.8f, d_tx_ctcss, 0.15f,
                                    d_tx_dcs, d_tx_dcs_inv);
     }
@@ -1635,7 +1639,7 @@ receiver::status receiver::set_mic_gain(float gain_db)
 {
     d_mic_gain_db = gain_db;
     if (tx_mic_gain)
-        tx_mic_gain->set_k(powf(10.0f, gain_db / 20.0f));
+        tx_mic_gain->set_k(tx_mic_linear_gain(gain_db));
 
     return STATUS_OK;
 }
@@ -1648,10 +1652,17 @@ void receiver::set_tx_split(double hz)
         tx_sink->set_center_freq(tx_frequency(d_rf_freq + d_filter_offset, d_tx_split));
 }
 
-// gr-osmosdr has no API for SWR/ALC/forward power, so none are shown
+/** Set the source of the TX meters, nullptr selects none. */
+void receiver::set_tx_telemetry_provider(const tx_telemetry_provider *provider)
+{
+    d_tx_telemetry = provider ? provider : &null_tx_telemetry;
+}
+
+// Forward power, ALC and SWR are shown when the provider exposes them.
+// gr-osmosdr itself has no API for them.
 receiver::tx_info receiver::get_tx_info(void) const
 {
-    tx_info info = {0.0, 0.0, 0.0, 0.0, 0.0, false};
+    tx_info info = {0.0, 0.0, 0.0, 0.0, 0.0, false, std::nullopt, std::nullopt, std::nullopt};
 
     if (!d_transmitting || !tx_sink)
         return info;
@@ -1664,6 +1675,11 @@ receiver::tx_info receiver::get_tx_info(void) const
     info.gain_max = range.stop();
     info.valid = true;
 
+    tx_meters meters = d_tx_telemetry->read_meters();
+    info.fwd_power = meters.fwd_power;
+    info.alc = meters.alc;
+    info.swr = meters.swr;
+
     return info;
 }
 
@@ -1675,10 +1691,7 @@ void receiver::apply_tx_power(void)
 
     osmosdr::gain_range_t range = tx_sink->get_gain_range();
     if (range.stop() > range.start())
-    {
-        tx_sink->set_gain(range.start() +
-                          d_tx_power_pct / 100.0 * (range.stop() - range.start()));
-    }
+        tx_sink->set_gain(tx_power_gain(d_tx_power_pct, range.start(), range.stop()));
 }
 
 /**

@@ -30,6 +30,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QtNetwork>
+#include <optional>
 #include <set>
 
 /* For gain_t and gain_list_t */
@@ -111,6 +112,8 @@ public slots:
     void setRdsStation(QString name);
     void setRdsRadiotext(QString text);
     void setPtt(bool enabled);
+    void setTxMeters(std::optional<double> fwd_power, std::optional<double> alc,
+                     std::optional<double> swr);
 
 signals:
     void newFrequency(qint64 freq);
@@ -164,6 +167,9 @@ private:
     gain_list_t gains;             /*!< Possible and current gain settings */
     bool        is_audio_muted;
     bool        rc_ptt;            /*!< Whether the transmitter is on */
+    std::optional<double> rc_fwd_power; /*!< TX meters, empty if not available */
+    std::optional<double> rc_alc;
+    std::optional<double> rc_swr;
 
     void        setNewRemoteFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);

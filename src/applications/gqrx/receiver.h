@@ -32,6 +32,7 @@
 #include <osmosdr/sink.h>
 #include <osmosdr/source.h>
 #include <map>
+#include <optional>
 #include <string>
 
 #include "dsp/correct_iq_cc.h"
@@ -47,6 +48,7 @@
 #include "dsp/sniffer_f.h"
 #include "dsp/resampler_xx.h"
 #include "dsp/tx_modulator.h"
+#include "dsp/tx_telemetry.h"
 #include "interfaces/udp_sink_f.h"
 #include "receivers/receiver_base.h"
 
@@ -244,7 +246,11 @@ public:
     void        set_tx_ctcss(float hz) { d_tx_ctcss = hz; }
     void        set_tx_dcs(int code, bool inverted) { d_tx_dcs = code; d_tx_dcs_inv = inverted; }
 
-    /*! \brief What the transmitting device reports (SWR/ALC are not available). */
+    /*! \brief What the transmitting device reports.
+     *
+     * Forward power, ALC and SWR come from the telemetry provider and are
+     * empty if the backend does not expose them (gr-osmosdr does not).
+     */
     struct tx_info {
         double sample_rate;
         double center_freq;
@@ -252,8 +258,12 @@ public:
         double gain_min;
         double gain_max;
         bool   valid;
+        std::optional<double> fwd_power;
+        std::optional<double> alc;
+        std::optional<double> swr;
     };
     tx_info     get_tx_info(void) const;
+    void        set_tx_telemetry_provider(const tx_telemetry_provider *provider);
 
     /* utility functions */
     static std::string escape_filename(std::string filename);
@@ -293,6 +303,7 @@ private:
 
     /* Transmitter */
     bool        d_transmitting;     /*!< Whether we are transmitting. */
+    const tx_telemetry_provider *d_tx_telemetry; /*!< Source of TX meters, never null. */
     std::string d_tx_devstr;        /*!< TX device string (empty = same as input). */
     std::string d_tx_audio_devstr;  /*!< Microphone device (empty = default). */
     std::string d_tx_error;         /*!< Last TX error message. */

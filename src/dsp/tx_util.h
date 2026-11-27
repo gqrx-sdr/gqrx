@@ -42,6 +42,22 @@ std::string tx_device_string(const std::string &tx_dev,
  */
 double tx_frequency(double rx_hz, double split_hz);
 
+/*! \brief Interpret a hamlib PTT value.
+ *  \param ptt      The value: 0 = RX, 1, 2 and 3 = TX.
+ *  \param ok       False if the value is not a valid PTT value.
+ *  \param enabled  True if the value requests transmitting.
+ */
+void tx_ptt_from_hamlib(int ptt, bool &ok, bool &enabled);
+
+/*! \brief Map the TX power percentage to a gain within the device range.
+ *  \return gain_min for 0 %, gain_max for 100 %. The percentage is clamped.
+ *          gain_min if the range is empty.
+ */
+double tx_power_gain(int percent, double gain_min, double gain_max);
+
+/*! \brief Linear gain for a microphone gain in dB. */
+float tx_mic_linear_gain(float gain_db);
+
 /*! \brief The standard CTCSS tones in Hz, in increasing order. */
 const std::vector<float>& ctcss_tones();
 

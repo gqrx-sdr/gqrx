@@ -24,6 +24,7 @@
 #include <QDockWidget>
 #include <QSettings>
 #include <QString>
+#include <optional>
 
 namespace Ui {
     class DockTx;
@@ -52,7 +53,10 @@ public slots:
     void    setTransmitting(bool transmitting);
     void    setStatus(const QString &status);
     void    setTelemetry(bool valid, double rate, double freq, double gain,
-                         double gain_min, double gain_max);
+                         double gain_min, double gain_max,
+                         std::optional<double> fwd_power = std::nullopt,
+                         std::optional<double> alc = std::nullopt,
+                         std::optional<double> swr = std::nullopt);
 
 signals:
     void txToggled(bool enabled);        /*!< PTT pressed (true) or released (false). */

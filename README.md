@@ -89,8 +89,10 @@ to NFM transmissions (104 codes, normal "N" or inverted "I" polarity; off by
 default; applies at the next key-up). CTCSS and DCS are mutually exclusive.
 
 While transmitting the dock shows the sample rate, center frequency and gain
-(with its range) reported by the device. SWR and ALC are not available through
-gr-osmosdr and are not shown.
+(with its range) reported by the device. It also shows forward power, ALC and
+SWR when a backend exposes them (for example through hamlib/rigctl levels
+`RFPOWER`, `ALC` and `SWR`); otherwise those three readouts show "–".
+gr-osmosdr itself does not report them.
 
 Optional settings in the configuration file (section `[tx]`):
 - `audio_device`: microphone device (default: the default input device)

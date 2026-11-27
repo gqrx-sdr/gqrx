@@ -26,6 +26,7 @@
 #include <QString>
 #include <QStringList>
 #include "remote_control.h"
+#include "dsp/tx_util.h"
 #include "qtgui/dockrxopt.h"
 
 #define DEFAULT_RC_PORT            7356
@@ -471,6 +472,16 @@ void RemoteControl::setPtt(bool enabled)
     rc_ptt = enabled;
 }
 
+/*! \brief Set the TX meters (from mainwindow), empty if not available. */
+void RemoteControl::setTxMeters(std::optional<double> fwd_power,
+                                std::optional<double> alc,
+                                std::optional<double> swr)
+{
+    rc_fwd_power = fwd_power;
+    rc_alc = alc;
+    rc_swr = swr;
+}
+
 
 /*! \brief Convert mode string to enum (DockRxOpt::rxopt_mode_idx)
  *  \param mode The Hamlib rigctld compatible mode string
@@ -686,7 +697,23 @@ QString RemoteControl::cmd_get_level(QStringList cmdlist)
         QStringList names;
         for(auto &g : gains)
             names.push_back(QString("%1_GAIN").arg(QString::fromStdString(g.name)));
-        answer = QString("SQL STRENGTH AF %1\n").arg(names.join(" "));
+        answer = QString("SQL STRENGTH AF RFPOWER ALC SWR %1\n").arg(names.join(" "));
+    }
+    else if (lvl.compare("RFPOWER", Qt::CaseInsensitive) == 0 ||
+             lvl.compare("RFPOWER_METER_WATTS", Qt::CaseInsensitive) == 0)
+    {
+        answer = rc_fwd_power ? QString("%1\n").arg(*rc_fwd_power, 0, 'f', 1)
+                              : QString("RPRT 1\n");
+    }
+    else if (lvl.compare("ALC", Qt::CaseInsensitive) == 0)
+    {
+        answer = rc_alc ? QString("%1\n").arg(*rc_alc, 0, 'f', 1)
+                        : QString("RPRT 1\n");
+    }
+    else if (lvl.compare("SWR", Qt::CaseInsensitive) == 0)
+    {
+        answer = rc_swr ? QString("%1\n").arg(*rc_swr, 0, 'f', 2)
+                        : QString("RPRT 1\n");
     }
     else if (lvl.compare("STRENGTH", Qt::CaseInsensitive) == 0 || lvl.isEmpty())
     {
@@ -794,15 +821,20 @@ QString RemoteControl::cmd_set_ptt(QStringList cmdlist)
 {
     bool ok;
     int  ptt = cmdlist.value(1, "ERR").toInt(&ok);
+    bool valid, enabled;
 
-    if (!ok || ptt < 0 || ptt > 3)
+    if (!ok)
+        return QString("RPRT 1\n");
+
+    tx_ptt_from_hamlib(ptt, valid, enabled);
+    if (!valid)
         return QString("RPRT 1\n");
 
     // The signal is handled synchronously. If the transmitter could not be
     // started the main window resets the PTT state before emit returns.
-    emit newPtt(ptt != 0);
+    emit newPtt(enabled);
 
-    return QString("RPRT %1\n").arg(rc_ptt == (ptt != 0) ? 0 : 1);
+    return QString("RPRT %1\n").arg(rc_ptt == enabled ? 0 : 1);
 }
 
 /* Get function */

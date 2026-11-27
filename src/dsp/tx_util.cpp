@@ -57,6 +57,26 @@ double tx_frequency(double rx_hz, double split_hz)
     return (hz > 0.0) ? hz : 0.0;
 }
 
+void tx_ptt_from_hamlib(int ptt, bool &ok, bool &enabled)
+{
+    ok = (ptt >= 0 && ptt <= 3);
+    enabled = ok && ptt != 0;
+}
+
+double tx_power_gain(int percent, double gain_min, double gain_max)
+{
+    if (gain_max <= gain_min)
+        return gain_min;
+
+    int pct = std::max(0, std::min(100, percent));
+    return gain_min + pct / 100.0 * (gain_max - gain_min);
+}
+
+float tx_mic_linear_gain(float gain_db)
+{
+    return powf(10.0f, gain_db / 20.0f);
+}
+
 const std::vector<float>& ctcss_tones()
 {
     static const std::vector<float> tones = {

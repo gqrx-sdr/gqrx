@@ -68,11 +68,8 @@ endif(WIN32)
 ###############################################################################
 # Build the program
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCE} ${UIS_HDRS} ${RESOURCES_LIST})
-if(Qt6_FOUND)
-    set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
-else()
-    set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
-endif()
+# std::optional is used by the TX telemetry
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 # The pulse libraries are only needed on Linux. On other platforms they will
 # not be found, so having them here is fine.
 

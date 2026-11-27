@@ -1519,7 +1519,9 @@ void MainWindow::updateTxTelemetry()
 {
     receiver::tx_info info = rx->get_tx_info();
     uiDockTx->setTelemetry(info.valid, info.sample_rate, info.center_freq,
-                           info.gain, info.gain_min, info.gain_max);
+                           info.gain, info.gain_min, info.gain_max,
+                           info.fwd_power, info.alc, info.swr);
+    remote->setTxMeters(info.fwd_power, info.alc, info.swr);
 }
 
 /** Toggle transmit on/off (keyboard shortcut). */
