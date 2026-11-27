@@ -87,6 +87,8 @@ receiver::receiver(const std::string input_device,
       d_tx_power_pct(0),
       d_tx_split(0.0),
       d_tx_ctcss(0.0f),
+      d_tx_dcs(0),
+      d_tx_dcs_inv(false),
       d_mic_gain_db(0.0f),
       d_demod(RX_DEMOD_OFF)
 {
@@ -1539,7 +1541,8 @@ receiver::status receiver::start_tx(tx_mod_mode mode)
     {
         tx_audio_src = gr::audio::source::make((int)d_audio_rate, d_tx_audio_devstr, true);
         tx_mic_gain = gr::blocks::multiply_const_ff::make(powf(10.0f, d_mic_gain_db / 20.0f));
-        tx_mod = make_tx_modulator(mode, (float)d_audio_rate, TX_FM_MAX_DEV, 0.8f, d_tx_ctcss);
+        tx_mod = make_tx_modulator(mode, (float)d_audio_rate, TX_FM_MAX_DEV, 0.8f, d_tx_ctcss, 0.15f,
+                                   d_tx_dcs, d_tx_dcs_inv);
     }
     catch (std::exception &e)
     {

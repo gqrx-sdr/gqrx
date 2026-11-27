@@ -189,13 +189,27 @@
        </widget>
       </item>
       <item row="4" column="0">
+       <widget class="QLabel" name="dcsLabel">
+        <property name="text">
+         <string>DCS</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1" colspan="2">
+       <widget class="QComboBox" name="dcsCombo">
+        <property name="toolTip">
+         <string>NFM only, applies at the next key-up</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
        <widget class="QLabel" name="rateLabel">
         <property name="text">
          <string>TX rate</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="1" colspan="2">
+      <item row="5" column="1" colspan="2">
        <widget class="QLabel" name="rateValueLabel">
         <property name="text">
          <string>–</string>
@@ -205,14 +219,14 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
+      <item row="6" column="0">
        <widget class="QLabel" name="freqLabel">
         <property name="text">
          <string>TX freq</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="1" colspan="2">
+      <item row="6" column="1" colspan="2">
        <widget class="QLabel" name="freqValueLabel">
         <property name="text">
          <string>–</string>
@@ -222,14 +236,14 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="0">
+      <item row="7" column="0">
        <widget class="QLabel" name="gainLabel">
         <property name="text">
          <string>TX gain</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="1" colspan="2">
+      <item row="7" column="1" colspan="2">
        <widget class="QLabel" name="gainValueLabel">
         <property name="toolTip">
          <string>Gain and gain range reported by the device. SWR and ALC are not available.</string>

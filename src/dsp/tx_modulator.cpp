@@ -26,6 +26,7 @@
 #include <gnuradio/blocks/add_blk.h>
 #include <gnuradio/blocks/float_to_complex.h>
 #include <gnuradio/blocks/multiply_const.h>
+#include <gnuradio/blocks/vector_source.h>
 #include <gnuradio/filter/fir_filter_blk.h>
 #include <gnuradio/filter/firdes.h>
 #include <gnuradio/io_signature.h>
@@ -41,15 +42,18 @@
 /* Create a new instance of tx_modulator and return a shared_ptr. */
 tx_modulator_sptr make_tx_modulator(tx_mod_mode mode, float audio_rate,
                                     float max_dev, float am_depth,
-                                    float ctcss_hz, float ctcss_level)
+                                    float ctcss_hz, float ctcss_level,
+                                    int dcs_code, bool dcs_inverted)
 {
     return gnuradio::get_initial_sptr(new tx_modulator(mode, audio_rate,
                                                        max_dev, am_depth,
-                                                       ctcss_hz, ctcss_level));
+                                                       ctcss_hz, ctcss_level,
+                                                       dcs_code, dcs_inverted));
 }
 
 tx_modulator::tx_modulator(tx_mod_mode mode, float audio_rate, float max_dev,
-                           float am_depth, float ctcss_hz, float ctcss_level)
+                           float am_depth, float ctcss_hz, float ctcss_level,
+                           int dcs_code, bool dcs_inverted)
     : gr::hier_block2("tx_modulator",
                       gr::io_signature::make(1, 1, sizeof(float)),
                       gr::io_signature::make(1, 1, sizeof(gr_complex))),
@@ -110,6 +114,21 @@ tx_modulator::tx_modulator(tx_mod_mode mode, float audio_rate, float max_dev,
             connect(clip, 0, voice, 0);
             connect(voice, 0, sum, 0);
             connect(tone, 0, sum, 1);
+            connect(sum, 0, fm, 0);
+        }
+        else if (dcs_valid(dcs_code))
+        {
+            /* Same level split as for the CTCSS tone. */
+            float voice_gain, tone_amp;
+            ctcss_levels(ctcss_level, voice_gain, tone_amp);
+            auto voice = gr::blocks::multiply_const_ff::make(voice_gain);
+            auto dcs = gr::blocks::vector_source_f::make(
+                dcs_samples(dcs_code, dcs_inverted, audio_rate, tone_amp), true);
+            auto sum = gr::blocks::add_ff::make();
+
+            connect(clip, 0, voice, 0);
+            connect(voice, 0, sum, 0);
+            connect(dcs, 0, sum, 1);
             connect(sum, 0, fm, 0);
         }
         else

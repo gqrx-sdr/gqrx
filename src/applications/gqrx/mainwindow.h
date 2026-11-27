@@ -195,6 +195,7 @@ private slots:
     void setMicGain(float gain_db);
     void setTxSplit(double hz);
     void setTxCtcss(float hz);
+    void setTxDcs(int code, bool inverted);
 
     /* audio recording and playback */
     void startAudioRec(const QString& filename);

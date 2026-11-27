@@ -86,11 +86,36 @@ static void test_ctcss()
     CHECK(std::abs(voice + tone - 1.0f) < 1e-6, "high sum");
 }
 
+static void test_dcs()
+{
+    const std::vector<int> &c = dcs_codes();
+
+    CHECK(c.size() == 104, "code count " << c.size());
+    CHECK(c.front() == 023, "first code");
+    CHECK(c.back() == 0754, "last code");
+    for (size_t i = 1; i < c.size(); i++)
+        CHECK(c[i] > c[i - 1], "codes increase at index " << i);
+
+    CHECK(dcs_valid(023), "023 is valid");
+    CHECK(!dcs_valid(1), "1 is not valid");
+    CHECK(!dcs_valid(0), "0 is not valid");
+
+    CHECK(dcs_word(023, false) == 0x763813u, "word for 023");
+    CHECK(dcs_word(023, true) == ((~0x763813u) & 0x7FFFFFu), "inverted word for 023");
+
+    /* 23 bits at 134.4 baud */
+    std::vector<float> s = dcs_samples(023, false, 48000.0f, 0.15f);
+    CHECK(std::abs((double)s.size() - 23.0 * 48000.0 / 134.4) < 1.5,
+          "sample count " << s.size());
+    CHECK(s.front() == 0.15f, "first bit of 023 is 1");
+}
+
 int main()
 {
     test_device_string();
     test_frequency();
     test_ctcss();
+    test_dcs();
 
     if (failures)
     {

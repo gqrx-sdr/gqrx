@@ -32,6 +32,14 @@ DockTx::DockTx(QWidget *parent) :
     ui->ctcssCombo->addItem(tr("Off"), 0.0);
     for (float tone : ctcss_tones())
         ui->ctcssCombo->addItem(QString("%1 Hz").arg(tone, 0, 'f', 1), (double)tone);
+
+    ui->dcsCombo->addItem(tr("Off"), 0);
+    for (int code : dcs_codes())
+    {
+        QString name = QString("%1").arg(code, 3, 8, QChar('0'));
+        ui->dcsCombo->addItem(name + " N", (code & 0x1FF) << 1);
+        ui->dcsCombo->addItem(name + " I", ((code & 0x1FF) << 1) | 1);
+    }
 }
 
 DockTx::~DockTx()
@@ -66,6 +74,15 @@ void DockTx::readSettings(QSettings *settings)
         int idx = ui->ctcssCombo->findData((double)tone);
         ui->ctcssCombo->setCurrentIndex(idx > 0 ? idx : 0);
     }
+
+    /* CTCSS and DCS are exclusive, CTCSS wins */
+    int code = settings->value("tx/dcs", 0).toInt(&ok);
+    if (ok && ctcss() == 0.0f)
+    {
+        bool inv = settings->value("tx/dcs_inv", false).toBool();
+        int idx = ui->dcsCombo->findData(((code & 0x1FF) << 1) | (inv ? 1 : 0));
+        ui->dcsCombo->setCurrentIndex(idx > 0 ? idx : 0);
+    }
 }
 
 void DockTx::saveSettings(QSettings *settings)
@@ -92,6 +109,17 @@ void DockTx::saveSettings(QSettings *settings)
         settings->setValue("tx/ctcss", ctcss());
     else
         settings->remove("tx/ctcss");
+
+    if (dcs() != 0)
+    {
+        settings->setValue("tx/dcs", dcs());
+        settings->setValue("tx/dcs_inv", dcsInverted());
+    }
+    else
+    {
+        settings->remove("tx/dcs");
+        settings->remove("tx/dcs_inv");
+    }
 }
 
 int DockTx::txPower() const
@@ -107,6 +135,17 @@ double DockTx::txSplit() const
 float DockTx::ctcss() const
 {
     return ui->ctcssCombo->currentData().toFloat();
+}
+
+/*! \brief The selected DCS code (9-bit value), 0 if off. */
+int DockTx::dcs() const
+{
+    return ui->dcsCombo->currentData().toInt() >> 1;
+}
+
+bool DockTx::dcsInverted() const
+{
+    return ui->dcsCombo->currentData().toInt() & 1;
 }
 
 int DockTx::micGain() const
@@ -177,5 +216,26 @@ void DockTx::on_splitSpin_valueChanged(double value)
 
 void DockTx::on_ctcssCombo_currentIndexChanged(int)
 {
+    if (ctcss() != 0.0f && dcs() != 0)
+    {
+        {
+            const QSignalBlocker blocker(ui->dcsCombo);
+            ui->dcsCombo->setCurrentIndex(0);
+        }
+        emit dcsChanged(0, false);
+    }
     emit ctcssChanged(ctcss());
+}
+
+void DockTx::on_dcsCombo_currentIndexChanged(int)
+{
+    if (dcs() != 0 && ctcss() != 0.0f)
+    {
+        {
+            const QSignalBlocker blocker(ui->ctcssCombo);
+            ui->ctcssCombo->setCurrentIndex(0);
+        }
+        emit ctcssChanged(0.0f);
+    }
+    emit dcsChanged(dcs(), dcsInverted());
 }

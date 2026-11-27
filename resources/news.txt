@@ -4,7 +4,8 @@
        NEW: Basic half-duplex transmit support (AM, NFM, LSB, USB) with PTT
             button, keyboard shortcut and "T"/"t" remote control commands.
             TX device selection in the I/O dialog, TX rate/frequency/gain
-            display, split operation and CTCSS tone for NFM.
+            display, split operation, CTCSS tone and DCS code (104 codes,
+            N/I polarity) for NFM.
      FIXED: Use default FFT plot & waterfall ranges when settings are invalid.
 
 

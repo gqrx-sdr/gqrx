@@ -84,7 +84,9 @@ that is a `file=` device, which cannot transmit. Example device strings:
 
 *Split* sets the transmit frequency offset from the receive frequency in kHz
 (0 = off). *CTCSS* adds a sub-audible tone to NFM transmissions (off by
-default; applies at the next key-up). DCS is not implemented.
+default; applies at the next key-up). *DCS* adds a digital code squelch signal
+to NFM transmissions (104 codes, normal "N" or inverted "I" polarity; off by
+default; applies at the next key-up). CTCSS and DCS are mutually exclusive.
 
 While transmitting the dock shows the sample rate, center frequency and gain
 (with its range) reported by the device. SWR and ALC are not available through

@@ -45,6 +45,8 @@ public:
     int     micGain() const;
     double  txSplit() const;
     float   ctcss() const;
+    int     dcs() const;
+    bool    dcsInverted() const;
 
 public slots:
     void    setTransmitting(bool transmitting);
@@ -58,6 +60,7 @@ signals:
     void micGainChanged(float gain_db);  /*!< Microphone gain in dB. */
     void txSplitChanged(double hz);      /*!< TX frequency offset in Hz (0 = off). */
     void ctcssChanged(float hz);         /*!< CTCSS tone in Hz (0 = off). */
+    void dcsChanged(int code, bool inverted); /*!< DCS code (0 = off). */
 
 private slots:
     void on_pttButton_toggled(bool checked);
@@ -65,6 +68,7 @@ private slots:
     void on_micSlider_valueChanged(int value);
     void on_splitSpin_valueChanged(double value);
     void on_ctcssCombo_currentIndexChanged(int index);
+    void on_dcsCombo_currentIndexChanged(int index);
 
 private:
     Ui::DockTx *ui;     /*! The Qt designer UI file. */

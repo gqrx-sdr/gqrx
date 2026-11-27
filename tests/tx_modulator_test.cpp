@@ -53,7 +53,9 @@ static int failures = 0;
     } while (0)
 
 static std::vector<gr_complex> run_modulator(tx_mod_mode mode, float amplitude,
-                                             float ctcss_hz = 0.0f)
+                                             float ctcss_hz = 0.0f,
+                                             int dcs_code = 0,
+                                             bool dcs_inverted = false)
 {
     std::vector<float> tone(NUM_SAMPLES);
     for (size_t i = 0; i < NUM_SAMPLES; i++)
@@ -61,7 +63,8 @@ static std::vector<gr_complex> run_modulator(tx_mod_mode mode, float amplitude,
 
     gr::top_block_sptr tb = gr::make_top_block("tx_modulator_test");
     auto src = gr::blocks::vector_source_f::make(tone, false);
-    auto mod = make_tx_modulator(mode, AUDIO_RATE, MAX_DEV, 0.8f, ctcss_hz);
+    auto mod = make_tx_modulator(mode, AUDIO_RATE, MAX_DEV, 0.8f, ctcss_hz,
+                                 0.15f, dcs_code, dcs_inverted);
     auto snk = gr::blocks::vector_sink_c::make();
 
     tb->connect(src, 0, mod, 0);
@@ -211,6 +214,53 @@ static void test_nfm_ctcss()
           "CTCSS: loud voice deviation " << peak_loud << " Hz");
 }
 
+static void test_nfm_dcs()
+{
+    const float level = 0.15f;
+
+    /* silent audio with DCS: only the code deviates the carrier */
+    auto x = run_modulator(TX_MOD_NFM, 0.0f, 0.0f, 023, false);
+    CHECK(all_finite(x), "DCS: finite output");
+
+    auto f = inst_freq(x);
+    double peak = 0.0;
+    for (double v : f)
+        peak = std::max(peak, std::abs(v));
+
+    double expected = level * MAX_DEV;
+    CHECK(std::abs(peak - expected) < 0.1 * expected,
+          "DCS: peak deviation " << peak << " Hz, expected " << expected);
+
+    /* the shortest run of equal sign is one bit */
+    std::vector<size_t> crossings;
+    for (size_t i = 1; i < f.size(); i++)
+        if ((f[i - 1] < 0.0) != (f[i] < 0.0))
+            crossings.push_back(i);
+
+    CHECK(crossings.size() > 10, "DCS: transitions present");
+    double shortest = 1e9;
+    for (size_t i = 1; i < crossings.size(); i++)
+        shortest = std::min(shortest, (double)(crossings[i] - crossings[i - 1]));
+    double bit = AUDIO_RATE / 134.4;
+    CHECK(std::abs(shortest - bit) < 0.02 * bit,
+          "DCS: bit period " << shortest << " samples, expected " << bit);
+
+    /* no code requested: no deviation */
+    auto y = run_modulator(TX_MOD_NFM, 0.0f, 0.0f, 0, false);
+    double peak_off = 0.0;
+    for (double v : inst_freq(y))
+        peak_off = std::max(peak_off, std::abs(v));
+    CHECK(peak_off < 1.0, "DCS off: deviation " << peak_off << " Hz");
+
+    /* loud voice plus DCS must stay within the maximum deviation */
+    auto z = run_modulator(TX_MOD_NFM, 1.0f, 0.0f, 023, true);
+    double peak_loud = 0.0;
+    for (double v : inst_freq(z))
+        peak_loud = std::max(peak_loud, std::abs(v));
+    CHECK(peak_loud <= 1.1 * MAX_DEV,
+          "DCS: loud voice deviation " << peak_loud << " Hz");
+}
+
 static void test_ssb(tx_mod_mode mode)
 {
     const char *name = (mode == TX_MOD_USB) ? "USB" : "LSB";
@@ -233,6 +283,7 @@ int main()
     test_am();
     test_nfm();
     test_nfm_ctcss();
+    test_nfm_dcs();
     test_ssb(TX_MOD_USB);
     test_ssb(TX_MOD_LSB);
 

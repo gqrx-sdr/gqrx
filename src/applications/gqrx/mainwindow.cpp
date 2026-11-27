@@ -340,6 +340,7 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockTx, SIGNAL(micGainChanged(float)), this, SLOT(setMicGain(float)));
     connect(uiDockTx, SIGNAL(txSplitChanged(double)), this, SLOT(setTxSplit(double)));
     connect(uiDockTx, SIGNAL(ctcssChanged(float)), this, SLOT(setTxCtcss(float)));
+    connect(uiDockTx, SIGNAL(dcsChanged(int,bool)), this, SLOT(setTxDcs(int,bool)));
     connect(remote, SIGNAL(newPtt(bool)), this, SLOT(setTransmit(bool)));
 
     // remote control
@@ -700,6 +701,7 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
     rx->set_mic_gain((float)uiDockTx->micGain());
     rx->set_tx_split(uiDockTx->txSplit());
     rx->set_tx_ctcss(uiDockTx->ctcss());
+    rx->set_tx_dcs(uiDockTx->dcs(), uiDockTx->dcsInverted());
 
     {
         int64_val = m_settings->value("input/frequency", 14236000).toLongLong(&conv_ok);
@@ -1544,6 +1546,12 @@ void MainWindow::setTxSplit(double hz)
 void MainWindow::setTxCtcss(float hz)
 {
     rx->set_tx_ctcss(hz);
+}
+
+/** Set the DCS code (0 = off) and polarity. Applies at the next key-up. */
+void MainWindow::setTxDcs(int code, bool inverted)
+{
+    rx->set_tx_dcs(code, inverted);
 }
 
 /** Set the microphone gain in dB. */

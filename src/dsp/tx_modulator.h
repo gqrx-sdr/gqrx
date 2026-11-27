@@ -44,6 +44,8 @@ enum tx_mod_mode {
  *  \param am_depth    Modulation depth between 0.0 and 1.0 (AM only).
  *  \param ctcss_hz    CTCSS tone in Hz, 0 for none (NFM only).
  *  \param ctcss_level Tone amplitude relative to full deviation.
+ *  \param dcs_code    DCS code, 0 for none (NFM only, CTCSS wins if both set).
+ *  \param dcs_inverted True for inverted DCS polarity.
  *
  * This is effectively the public constructor.
  */
@@ -51,7 +53,9 @@ tx_modulator_sptr make_tx_modulator(tx_mod_mode mode, float audio_rate,
                                     float max_dev = 2500.0f,
                                     float am_depth = 0.8f,
                                     float ctcss_hz = 0.0f,
-                                    float ctcss_level = 0.15f);
+                                    float ctcss_level = 0.15f,
+                                    int dcs_code = 0,
+                                    bool dcs_inverted = false);
 
 /*! \brief Audio to complex baseband modulator.
  *  \ingroup DSP
@@ -66,7 +70,8 @@ class tx_modulator : public gr::hier_block2
 
 public:
     tx_modulator(tx_mod_mode mode, float audio_rate, float max_dev,
-                 float am_depth, float ctcss_hz, float ctcss_level); // FIXME: should be private
+                 float am_depth, float ctcss_hz, float ctcss_level,
+                 int dcs_code, bool dcs_inverted); // FIXME: should be private
     ~tx_modulator();
 
     tx_mod_mode mode() const { return d_mode; }

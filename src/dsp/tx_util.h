@@ -20,6 +20,7 @@
  */
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -55,3 +56,24 @@ bool ctcss_valid(float hz);
  * The sum of both is 1, so the peak deviation never exceeds the maximum.
  */
 void ctcss_levels(float tone_level, float &voice_gain, float &tone_amp);
+
+/*! \brief The standard 104 DCS codes (9-bit values, written in octal). */
+const std::vector<int>& dcs_codes();
+
+/*! \brief Check whether code is one of the standard DCS codes. */
+bool dcs_valid(int code);
+
+/*! \brief The 23-bit DCS word (Golay 23,12), bit 0 is sent first.
+ *  \param code      The DCS code.
+ *  \param inverted  True for inverted polarity (all bits flipped).
+ */
+uint32_t dcs_word(int code, bool inverted);
+
+/*! \brief One period of the DCS signal as NRZ samples at 134.4 baud.
+ *  \param code        The DCS code.
+ *  \param inverted    True for inverted polarity.
+ *  \param audio_rate  Sample rate in Hz.
+ *  \param amplitude   Amplitude of the signal (+ for 1 bits, - for 0 bits).
+ */
+std::vector<float> dcs_samples(int code, bool inverted, float audio_rate,
+                               float amplitude);

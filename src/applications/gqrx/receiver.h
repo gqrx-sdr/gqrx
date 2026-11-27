@@ -242,6 +242,7 @@ public:
     std::string get_tx_error(void) const { return d_tx_error; }
     void        set_tx_split(double hz);
     void        set_tx_ctcss(float hz) { d_tx_ctcss = hz; }
+    void        set_tx_dcs(int code, bool inverted) { d_tx_dcs = code; d_tx_dcs_inv = inverted; }
 
     /*! \brief What the transmitting device reports (SWR/ALC are not available). */
     struct tx_info {
@@ -300,6 +301,8 @@ private:
     float       d_mic_gain_db;      /*!< Microphone gain. */
     double      d_tx_split;         /*!< TX frequency offset from RX in Hz (0 = off). */
     float       d_tx_ctcss;         /*!< CTCSS tone for NFM in Hz (0 = off). */
+    int         d_tx_dcs;           /*!< DCS code for NFM (0 = off). */
+    bool        d_tx_dcs_inv;       /*!< Inverted DCS polarity. */
 
     std::string input_devstr;  /*!< Current input device string. */
     std::string output_devstr; /*!< Current output device string. */
