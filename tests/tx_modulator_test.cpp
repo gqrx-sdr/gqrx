@@ -52,7 +52,8 @@ static int failures = 0;
         }                                                                   \
     } while (0)
 
-static std::vector<gr_complex> run_modulator(tx_mod_mode mode, float amplitude)
+static std::vector<gr_complex> run_modulator(tx_mod_mode mode, float amplitude,
+                                             float ctcss_hz = 0.0f)
 {
     std::vector<float> tone(NUM_SAMPLES);
     for (size_t i = 0; i < NUM_SAMPLES; i++)
@@ -60,7 +61,7 @@ static std::vector<gr_complex> run_modulator(tx_mod_mode mode, float amplitude)
 
     gr::top_block_sptr tb = gr::make_top_block("tx_modulator_test");
     auto src = gr::blocks::vector_source_f::make(tone, false);
-    auto mod = make_tx_modulator(mode, AUDIO_RATE, MAX_DEV, 0.8f);
+    auto mod = make_tx_modulator(mode, AUDIO_RATE, MAX_DEV, 0.8f, ctcss_hz);
     auto snk = gr::blocks::vector_sink_c::make();
 
     tb->connect(src, 0, mod, 0);
@@ -150,6 +151,66 @@ static void test_nfm()
           "NFM: peak deviation " << peak_dev << " Hz, expected " << expected);
 }
 
+/* Instantaneous frequency in Hz between consecutive samples */
+static std::vector<double> inst_freq(const std::vector<gr_complex> &x)
+{
+    std::vector<double> f;
+    for (size_t i = SKIP; i + 1 < x.size(); i++)
+        f.push_back(std::arg(x[i + 1] * std::conj(x[i])) * AUDIO_RATE / (2.0 * M_PI));
+
+    return f;
+}
+
+static void test_nfm_ctcss()
+{
+    const float tone_hz = 100.0f;
+    const float tone_level = 0.15f;
+
+    /* silent audio with CTCSS: only the tone deviates the carrier */
+    auto x = run_modulator(TX_MOD_NFM, 0.0f, tone_hz);
+    CHECK(all_finite(x), "CTCSS: finite output");
+
+    auto f = inst_freq(x);
+    double peak = 0.0;
+    for (double v : f)
+        peak = std::max(peak, std::abs(v));
+
+    double expected = tone_level * MAX_DEV;
+    CHECK(std::abs(peak - expected) < 0.1 * expected,
+          "CTCSS: peak deviation " << peak << " Hz, expected " << expected);
+
+    /* tone period from the positive-going zero crossings */
+    std::vector<size_t> crossings;
+    for (size_t i = 1; i < f.size(); i++)
+        if (f[i - 1] < 0.0 && f[i] >= 0.0)
+            crossings.push_back(i);
+
+    CHECK(crossings.size() > 10, "CTCSS: tone present");
+    if (crossings.size() > 10)
+    {
+        double period = (double)(crossings.back() - crossings.front()) /
+                        (crossings.size() - 1);
+        double expected_period = AUDIO_RATE / tone_hz;
+        CHECK(std::abs(period - expected_period) < 0.02 * expected_period,
+              "CTCSS: tone period " << period << " samples, expected " << expected_period);
+    }
+
+    /* no tone requested: no deviation */
+    auto y = run_modulator(TX_MOD_NFM, 0.0f, 0.0f);
+    double peak_off = 0.0;
+    for (double v : inst_freq(y))
+        peak_off = std::max(peak_off, std::abs(v));
+    CHECK(peak_off < 1.0, "CTCSS off: deviation " << peak_off << " Hz");
+
+    /* loud voice plus tone must stay within the maximum deviation */
+    auto z = run_modulator(TX_MOD_NFM, 1.0f, tone_hz);
+    double peak_loud = 0.0;
+    for (double v : inst_freq(z))
+        peak_loud = std::max(peak_loud, std::abs(v));
+    CHECK(peak_loud <= 1.1 * MAX_DEV,
+          "CTCSS: loud voice deviation " << peak_loud << " Hz");
+}
+
 static void test_ssb(tx_mod_mode mode)
 {
     const char *name = (mode == TX_MOD_USB) ? "USB" : "LSB";
@@ -171,6 +232,7 @@ int main()
 {
     test_am();
     test_nfm();
+    test_nfm_ctcss();
     test_ssb(TX_MOD_USB);
     test_ssb(TX_MOD_LSB);
 

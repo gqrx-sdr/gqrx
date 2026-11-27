@@ -43,20 +43,28 @@ public:
 
     int     txPower() const;
     int     micGain() const;
+    double  txSplit() const;
+    float   ctcss() const;
 
 public slots:
     void    setTransmitting(bool transmitting);
     void    setStatus(const QString &status);
+    void    setTelemetry(bool valid, double rate, double freq, double gain,
+                         double gain_min, double gain_max);
 
 signals:
     void txToggled(bool enabled);        /*!< PTT pressed (true) or released (false). */
     void txPowerChanged(int percent);    /*!< TX power in percent of the gain range. */
     void micGainChanged(float gain_db);  /*!< Microphone gain in dB. */
+    void txSplitChanged(double hz);      /*!< TX frequency offset in Hz (0 = off). */
+    void ctcssChanged(float hz);         /*!< CTCSS tone in Hz (0 = off). */
 
 private slots:
     void on_pttButton_toggled(bool checked);
     void on_powerSlider_valueChanged(int value);
     void on_micSlider_valueChanged(int value);
+    void on_splitSpin_valueChanged(double value);
+    void on_ctcssCombo_currentIndexChanged(int index);
 
 private:
     Ui::DockTx *ui;     /*! The Qt designer UI file. */

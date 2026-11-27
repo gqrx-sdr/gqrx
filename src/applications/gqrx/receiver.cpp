@@ -37,6 +37,7 @@
 #include "dsp/correct_iq_cc.h"
 #include "dsp/filter/fir_decim.h"
 #include "dsp/rx_fft.h"
+#include "dsp/tx_util.h"
 #include "receivers/nbrx.h"
 #include "receivers/wfmrx.h"
 
@@ -84,6 +85,8 @@ receiver::receiver(const std::string input_device,
       d_transmitting(false),
       d_tx_rate(TX_SAMPLE_RATE),
       d_tx_power_pct(0),
+      d_tx_split(0.0),
+      d_tx_ctcss(0.0f),
       d_mic_gain_db(0.0f),
       d_demod(RX_DEMOD_OFF)
 {
@@ -574,7 +577,7 @@ receiver::status receiver::set_rf_freq(double freq_hz)
     // FIXME: read back frequency?
 
     if (d_transmitting)
-        tx_sink->set_center_freq(d_rf_freq + d_filter_offset);
+        tx_sink->set_center_freq(tx_frequency(d_rf_freq + d_filter_offset, d_tx_split));
 
     return STATUS_OK;
 }
@@ -705,7 +708,7 @@ receiver::status receiver::set_filter_offset(double offset_hz)
     ddc->set_center_freq(d_filter_offset - d_cw_offset);
 
     if (d_transmitting)
-        tx_sink->set_center_freq(d_rf_freq + d_filter_offset);
+        tx_sink->set_center_freq(tx_frequency(d_rf_freq + d_filter_offset, d_tx_split));
 
     return STATUS_OK;
 }
@@ -1524,7 +1527,7 @@ receiver::status receiver::start_tx(tx_mod_mode mode)
         return STATUS_ERROR;
     }
 
-    std::string devstr = d_tx_devstr.empty() ? input_devstr : d_tx_devstr;
+    std::string devstr = tx_device_string(d_tx_devstr, input_devstr);
     if (devstr.empty())
     {
         d_tx_error = "No transmit device is configured.";
@@ -1536,7 +1539,7 @@ receiver::status receiver::start_tx(tx_mod_mode mode)
     {
         tx_audio_src = gr::audio::source::make((int)d_audio_rate, d_tx_audio_devstr, true);
         tx_mic_gain = gr::blocks::multiply_const_ff::make(powf(10.0f, d_mic_gain_db / 20.0f));
-        tx_mod = make_tx_modulator(mode, (float)d_audio_rate, TX_FM_MAX_DEV);
+        tx_mod = make_tx_modulator(mode, (float)d_audio_rate, TX_FM_MAX_DEV, 0.8f, d_tx_ctcss);
     }
     catch (std::exception &e)
     {
@@ -1576,7 +1579,7 @@ receiver::status receiver::start_tx(tx_mod_mode mode)
         if (actual_rate <= 0.0)
             actual_rate = d_tx_rate;
 
-        tx_sink->set_center_freq(d_rf_freq + d_filter_offset);
+        tx_sink->set_center_freq(tx_frequency(d_rf_freq + d_filter_offset, d_tx_split));
         if (d_src_ppm_set)
             tx_sink->set_freq_corr(d_src_ppm);
         apply_tx_power();
@@ -1596,7 +1599,7 @@ receiver::status receiver::start_tx(tx_mod_mode mode)
         return STATUS_ERROR;
     }
 
-    qDebug() << "Transmitting on" << d_rf_freq + d_filter_offset << "Hz";
+    qDebug() << "Transmitting on" << tx_frequency(d_rf_freq + d_filter_offset, d_tx_split) << "Hz";
 
     return STATUS_OK;
 }
@@ -1632,6 +1635,33 @@ receiver::status receiver::set_mic_gain(float gain_db)
         tx_mic_gain->set_k(powf(10.0f, gain_db / 20.0f));
 
     return STATUS_OK;
+}
+
+/** Set the TX frequency offset from the RX frequency in Hz (0 = off). */
+void receiver::set_tx_split(double hz)
+{
+    d_tx_split = hz;
+    if (d_transmitting && tx_sink)
+        tx_sink->set_center_freq(tx_frequency(d_rf_freq + d_filter_offset, d_tx_split));
+}
+
+// gr-osmosdr has no API for SWR/ALC/forward power, so none are shown
+receiver::tx_info receiver::get_tx_info(void) const
+{
+    tx_info info = {0.0, 0.0, 0.0, 0.0, 0.0, false};
+
+    if (!d_transmitting || !tx_sink)
+        return info;
+
+    osmosdr::gain_range_t range = tx_sink->get_gain_range();
+    info.sample_rate = tx_sink->get_sample_rate();
+    info.center_freq = tx_sink->get_center_freq();
+    info.gain = tx_sink->get_gain();
+    info.gain_min = range.start();
+    info.gain_max = range.stop();
+    info.valid = true;
+
+    return info;
 }
 
 /** Map the TX power percentage to the gain range of the transmitting device. */

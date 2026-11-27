@@ -240,6 +240,19 @@ public:
     status      set_tx_power(int percent);
     status      set_mic_gain(float gain_db);
     std::string get_tx_error(void) const { return d_tx_error; }
+    void        set_tx_split(double hz);
+    void        set_tx_ctcss(float hz) { d_tx_ctcss = hz; }
+
+    /*! \brief What the transmitting device reports (SWR/ALC are not available). */
+    struct tx_info {
+        double sample_rate;
+        double center_freq;
+        double gain;
+        double gain_min;
+        double gain_max;
+        bool   valid;
+    };
+    tx_info     get_tx_info(void) const;
 
     /* utility functions */
     static std::string escape_filename(std::string filename);
@@ -285,6 +298,8 @@ private:
     double      d_tx_rate;          /*!< TX sample rate requested from the device. */
     int         d_tx_power_pct;     /*!< TX power in percent of the gain range. */
     float       d_mic_gain_db;      /*!< Microphone gain. */
+    double      d_tx_split;         /*!< TX frequency offset from RX in Hz (0 = off). */
+    float       d_tx_ctcss;         /*!< CTCSS tone for NFM in Hz (0 = off). */
 
     std::string input_devstr;  /*!< Current input device string. */
     std::string output_devstr; /*!< Current output device string. */

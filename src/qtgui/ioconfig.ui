@@ -101,6 +101,26 @@
         </property>
        </widget>
       </item>
+      <item row="7" column="0">
+       <widget class="QLabel" name="txDevLabel">
+        <property name="toolTip">
+         <string>Device used for transmitting</string>
+        </property>
+        <property name="text">
+         <string>TX device</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QLineEdit" name="txDevEdit">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Device string of the transmitting device (gr-osmosdr sink). If left blank, the input device is used.&lt;/p&gt;&lt;p&gt;Examples:&lt;/p&gt;&lt;p&gt;USRP: uhd or uhd,type=b200&lt;br/&gt;HackRF One: hackrf=0&lt;br/&gt;PlutoSDR: plutosdr,uri=usb:1.2.3&lt;br/&gt;LimeSDR: soapy=0,driver=lime&lt;br/&gt;bladeRF: bladerf=0&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="placeholderText">
+         <string>empty = use input device</string>
+        </property>
+       </widget>
+      </item>
       <item row="6" column="0">
        <widget class="QLabel" name="loLabel">
         <property name="toolTip">
@@ -345,6 +365,7 @@ Leave it at default unless you know what you are doing.</string>
   <tabstop>decimCombo</tabstop>
   <tabstop>bwSpinBox</tabstop>
   <tabstop>loSpinBox</tabstop>
+  <tabstop>txDevEdit</tabstop>
   <tabstop>outDevCombo</tabstop>
   <tabstop>outSrCombo</tabstop>
  </tabstops>

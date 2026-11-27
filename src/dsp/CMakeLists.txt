@@ -51,4 +51,6 @@ add_source_files(SRCS_LIST
 	stereo_demod.h
 	tx_modulator.cpp
 	tx_modulator.h
+	tx_util.cpp
+	tx_util.h
 )

@@ -190,8 +190,11 @@ private slots:
     /* transmitter */
     void setTransmit(bool enabled);
     void toggleTransmit();
+    void updateTxTelemetry();
     void setTxPower(int percent);
     void setMicGain(float gain_db);
+    void setTxSplit(double hz);
+    void setTxCtcss(float hz);
 
     /* audio recording and playback */
     void startAudioRec(const QString& filename);

@@ -338,6 +338,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(uiDockTx, SIGNAL(txToggled(bool)), this, SLOT(setTransmit(bool)));
     connect(uiDockTx, SIGNAL(txPowerChanged(int)), this, SLOT(setTxPower(int)));
     connect(uiDockTx, SIGNAL(micGainChanged(float)), this, SLOT(setMicGain(float)));
+    connect(uiDockTx, SIGNAL(txSplitChanged(double)), this, SLOT(setTxSplit(double)));
+    connect(uiDockTx, SIGNAL(ctcssChanged(float)), this, SLOT(setTxCtcss(float)));
     connect(remote, SIGNAL(newPtt(bool)), this, SLOT(setTransmit(bool)));
 
     // remote control
@@ -696,6 +698,8 @@ bool MainWindow::loadConfig(const QString& cfgfile, bool check_crash,
         rx->set_tx_sample_rate(tx_rate);
     rx->set_tx_power(uiDockTx->txPower());
     rx->set_mic_gain((float)uiDockTx->micGain());
+    rx->set_tx_split(uiDockTx->txSplit());
+    rx->set_tx_ctcss(uiDockTx->ctcss());
 
     {
         int64_val = m_settings->value("input/frequency", 14236000).toLongLong(&conv_ok);
@@ -1443,6 +1447,7 @@ void MainWindow::setTransmit(bool enabled)
             }
         }
         uiDockTx->setTransmitting(false);
+        updateTxTelemetry();
         remote->setPtt(false);
         return;
     }
@@ -1503,7 +1508,16 @@ void MainWindow::setTransmit(bool enabled)
     }
 
     uiDockTx->setTransmitting(true);
+    updateTxTelemetry();
     remote->setPtt(true);
+}
+
+/** Show what the transmitting device reports (or nothing when not transmitting). */
+void MainWindow::updateTxTelemetry()
+{
+    receiver::tx_info info = rx->get_tx_info();
+    uiDockTx->setTelemetry(info.valid, info.sample_rate, info.center_freq,
+                           info.gain, info.gain_min, info.gain_max);
 }
 
 /** Toggle transmit on/off (keyboard shortcut). */
@@ -1516,6 +1530,20 @@ void MainWindow::toggleTransmit()
 void MainWindow::setTxPower(int percent)
 {
     rx->set_tx_power(percent);
+    updateTxTelemetry();
+}
+
+/** Set the TX frequency offset from the RX frequency in Hz. */
+void MainWindow::setTxSplit(double hz)
+{
+    rx->set_tx_split(hz);
+    updateTxTelemetry();
+}
+
+/** Set the CTCSS tone in Hz (0 = off). Applies at the next key-up. */
+void MainWindow::setTxCtcss(float hz)
+{
+    rx->set_tx_ctcss(hz);
 }
 
 /** Set the microphone gain in dB. */

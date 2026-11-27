@@ -22,6 +22,7 @@
 #include <vector>
 #include <gnuradio/analog/frequency_modulator_fc.h>
 #include <gnuradio/analog/rail_ff.h>
+#include <gnuradio/analog/sig_source.h>
 #include <gnuradio/blocks/add_blk.h>
 #include <gnuradio/blocks/float_to_complex.h>
 #include <gnuradio/blocks/multiply_const.h>
@@ -30,6 +31,7 @@
 #include <gnuradio/io_signature.h>
 
 #include "dsp/tx_modulator.h"
+#include "dsp/tx_util.h"
 
 #define TX_AUDIO_LOW    300.0   /* Lower edge of the transmitted audio */
 #define TX_SSB_HIGH     2700.0  /* Upper edge of the transmitted audio (SSB) */
@@ -38,14 +40,16 @@
 
 /* Create a new instance of tx_modulator and return a shared_ptr. */
 tx_modulator_sptr make_tx_modulator(tx_mod_mode mode, float audio_rate,
-                                    float max_dev, float am_depth)
+                                    float max_dev, float am_depth,
+                                    float ctcss_hz, float ctcss_level)
 {
     return gnuradio::get_initial_sptr(new tx_modulator(mode, audio_rate,
-                                                       max_dev, am_depth));
+                                                       max_dev, am_depth,
+                                                       ctcss_hz, ctcss_level));
 }
 
 tx_modulator::tx_modulator(tx_mod_mode mode, float audio_rate, float max_dev,
-                           float am_depth)
+                           float am_depth, float ctcss_hz, float ctcss_level)
     : gr::hier_block2("tx_modulator",
                       gr::io_signature::make(1, 1, sizeof(float)),
                       gr::io_signature::make(1, 1, sizeof(gr_complex))),
@@ -91,7 +95,27 @@ tx_modulator::tx_modulator(tx_mod_mode mode, float audio_rate, float max_dev,
 
         connect(self(), 0, filt, 0);
         connect(filt, 0, clip, 0);
-        connect(clip, 0, fm, 0);
+        if (ctcss_valid(ctcss_hz))
+        {
+            /* The tone is added after the band pass filter, which would
+             * remove it. Voice and tone together never exceed full deviation.
+             */
+            float voice_gain, tone_amp;
+            ctcss_levels(ctcss_level, voice_gain, tone_amp);
+            auto voice = gr::blocks::multiply_const_ff::make(voice_gain);
+            auto tone = gr::analog::sig_source_f::make(audio_rate, gr::analog::GR_SIN_WAVE,
+                                                       ctcss_hz, tone_amp);
+            auto sum = gr::blocks::add_ff::make();
+
+            connect(clip, 0, voice, 0);
+            connect(voice, 0, sum, 0);
+            connect(tone, 0, sum, 1);
+            connect(sum, 0, fm, 0);
+        }
+        else
+        {
+            connect(clip, 0, fm, 0);
+        }
         connect(fm, 0, self(), 0);
         break;
     }
