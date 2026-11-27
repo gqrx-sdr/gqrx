@@ -26,6 +26,7 @@
 #include <QString>
 #include <QStringList>
 #include "remote_control.h"
+#include "dsp/tx_util.h"
 #include "qtgui/dockrxopt.h"
 
 #define DEFAULT_RC_PORT            7356
@@ -54,6 +55,7 @@ RemoteControl::RemoteControl(QObject *parent) :
     receiver_running = false;
     hamlib_compatible = false;
     is_audio_muted = false;
+    rc_ptt = false;
 
     rc_port = DEFAULT_RC_PORT;
     rc_allowed_hosts.append(DEFAULT_RC_ALLOWED_HOSTS);
@@ -232,6 +234,10 @@ void RemoteControl::startRead()
             answer = cmd_get_level(cmdlist);
         else if (cmd == "L")
             answer = cmd_set_level(cmdlist);
+        else if (cmd == "t")
+            answer = cmd_get_ptt();
+        else if (cmd == "T")
+            answer = cmd_set_ptt(cmdlist);
         else if (cmd == "u")
             answer = cmd_get_func(cmdlist);
         else if (cmd == "U")
@@ -460,6 +466,22 @@ void RemoteControl::setRdsRadiotext(QString text)
     rds_radiotext = text;
 }
 
+/*! \brief Set the state of the transmitter (from mainwindow). */
+void RemoteControl::setPtt(bool enabled)
+{
+    rc_ptt = enabled;
+}
+
+/*! \brief Set the TX meters (from mainwindow), empty if not available. */
+void RemoteControl::setTxMeters(std::optional<double> fwd_power,
+                                std::optional<double> alc,
+                                std::optional<double> swr)
+{
+    rc_fwd_power = fwd_power;
+    rc_alc = alc;
+    rc_swr = swr;
+}
+
 
 /*! \brief Convert mode string to enum (DockRxOpt::rxopt_mode_idx)
  *  \param mode The Hamlib rigctld compatible mode string
@@ -675,7 +697,23 @@ QString RemoteControl::cmd_get_level(QStringList cmdlist)
         QStringList names;
         for(auto &g : gains)
             names.push_back(QString("%1_GAIN").arg(QString::fromStdString(g.name)));
-        answer = QString("SQL STRENGTH AF %1\n").arg(names.join(" "));
+        answer = QString("SQL STRENGTH AF RFPOWER ALC SWR %1\n").arg(names.join(" "));
+    }
+    else if (lvl.compare("RFPOWER", Qt::CaseInsensitive) == 0 ||
+             lvl.compare("RFPOWER_METER_WATTS", Qt::CaseInsensitive) == 0)
+    {
+        answer = rc_fwd_power ? QString("%1\n").arg(*rc_fwd_power, 0, 'f', 1)
+                              : QString("RPRT 1\n");
+    }
+    else if (lvl.compare("ALC", Qt::CaseInsensitive) == 0)
+    {
+        answer = rc_alc ? QString("%1\n").arg(*rc_alc, 0, 'f', 1)
+                        : QString("RPRT 1\n");
+    }
+    else if (lvl.compare("SWR", Qt::CaseInsensitive) == 0)
+    {
+        answer = rc_swr ? QString("%1\n").arg(*rc_swr, 0, 'f', 2)
+                        : QString("RPRT 1\n");
     }
     else if (lvl.compare("STRENGTH", Qt::CaseInsensitive) == 0 || lvl.isEmpty())
     {
@@ -770,6 +808,33 @@ QString RemoteControl::cmd_set_level(QStringList cmdlist)
     }
 
     return answer;
+}
+
+/* Get PTT */
+QString RemoteControl::cmd_get_ptt() const
+{
+    return QString("%1\n").arg(rc_ptt ? 1 : 0);
+}
+
+/* Set PTT: 0 = RX, 1 = TX (hamlib also has 2 and 3 for mic and data TX) */
+QString RemoteControl::cmd_set_ptt(QStringList cmdlist)
+{
+    bool ok;
+    int  ptt = cmdlist.value(1, "ERR").toInt(&ok);
+    bool valid, enabled;
+
+    if (!ok)
+        return QString("RPRT 1\n");
+
+    tx_ptt_from_hamlib(ptt, valid, enabled);
+    if (!valid)
+        return QString("RPRT 1\n");
+
+    // The signal is handled synchronously. If the transmitter could not be
+    // started the main window resets the PTT state before emit returns.
+    emit newPtt(enabled);
+
+    return QString("RPRT %1\n").arg(rc_ptt == enabled ? 0 : 1);
 }
 
 /* Get function */
@@ -1005,7 +1070,12 @@ QString RemoteControl::cmd_dump_state() const
         "0.000000 10000000000.000000 0x2ef -1 -1 0x1 0x0\n"
         /* End of RX frequency ranges. */
         "0 0 0 0 0 0 0\n"
-        /* End of TX frequency ranges. The Gqrx is receiver only. */
+        /* TX frequency ranges, same format as above.
+         * Modes: AM|USB|LSB|FM. The output power depends on the device and
+         * is not known here.
+         */
+        "0.000000 10000000000.000000 0x2d 0 100 0x1 0x0\n"
+        /* End of TX frequency ranges. */
         "0 0 0 0 0 0 0\n"
         /* Tuning steps: modes, tuning_step */
         "0xef 1\n"

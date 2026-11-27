@@ -1,0 +1,95 @@
+/* -*- c++ -*- */
+/*
+ * Gqrx SDR: Software defined radio receiver powered by GNU Radio and Qt
+ *           https://gqrx.dk/
+ *
+ * Gqrx is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3, or (at your option)
+ * any later version.
+ *
+ * Gqrx is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Gqrx; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street,
+ * Boston, MA 02110-1301, USA.
+ */
+#pragma once
+
+#include <cstdint>
+#include <string>
+#include <vector>
+
+/* Helpers for the transmitter that need neither Qt nor GNU Radio. */
+
+/*! \brief Select the device string used for transmitting.
+ *  \param tx_dev     The configured TX device (may be empty).
+ *  \param input_dev  The input device string of the receiver.
+ *  \return The TX device, else the input device, else an empty string.
+ *
+ * Whitespace is trimmed. A "file=" input device cannot transmit and is not
+ * used as a fallback.
+ */
+std::string tx_device_string(const std::string &tx_dev,
+                             const std::string &input_dev);
+
+/*! \brief Transmit frequency for a receive frequency and a split offset.
+ *  \return rx_hz + split_hz, or 0 if that is not a positive frequency.
+ */
+double tx_frequency(double rx_hz, double split_hz);
+
+/*! \brief Interpret a hamlib PTT value.
+ *  \param ptt      The value: 0 = RX, 1, 2 and 3 = TX.
+ *  \param ok       False if the value is not a valid PTT value.
+ *  \param enabled  True if the value requests transmitting.
+ */
+void tx_ptt_from_hamlib(int ptt, bool &ok, bool &enabled);
+
+/*! \brief Map the TX power percentage to a gain within the device range.
+ *  \return gain_min for 0 %, gain_max for 100 %. The percentage is clamped.
+ *          gain_min if the range is empty.
+ */
+double tx_power_gain(int percent, double gain_min, double gain_max);
+
+/*! \brief Linear gain for a microphone gain in dB. */
+float tx_mic_linear_gain(float gain_db);
+
+/*! \brief The standard CTCSS tones in Hz, in increasing order. */
+const std::vector<float>& ctcss_tones();
+
+/*! \brief Check whether hz is one of the standard CTCSS tones. */
+bool ctcss_valid(float hz);
+
+/*! \brief Mixing levels of voice and CTCSS tone.
+ *  \param tone_level  Tone amplitude relative to full deviation (clamped).
+ *  \param voice_gain  Gain for the voice audio.
+ *  \param tone_amp    Amplitude of the tone.
+ *
+ * The sum of both is 1, so the peak deviation never exceeds the maximum.
+ */
+void ctcss_levels(float tone_level, float &voice_gain, float &tone_amp);
+
+/*! \brief The standard 104 DCS codes (9-bit values, written in octal). */
+const std::vector<int>& dcs_codes();
+
+/*! \brief Check whether code is one of the standard DCS codes. */
+bool dcs_valid(int code);
+
+/*! \brief The 23-bit DCS word (Golay 23,12), bit 0 is sent first.
+ *  \param code      The DCS code.
+ *  \param inverted  True for inverted polarity (all bits flipped).
+ */
+uint32_t dcs_word(int code, bool inverted);
+
+/*! \brief One period of the DCS signal as NRZ samples at 134.4 baud.
+ *  \param code        The DCS code.
+ *  \param inverted    True for inverted polarity.
+ *  \param audio_rate  Sample rate in Hz.
+ *  \param amplitude   Amplitude of the signal (+ for 1 bits, - for 0 bits).
+ */
+std::vector<float> dcs_samples(int code, bool inverted, float audio_rate,
+                               float amplitude);

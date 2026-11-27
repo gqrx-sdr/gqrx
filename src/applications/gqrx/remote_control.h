@@ -30,6 +30,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QtNetwork>
+#include <optional>
 #include <set>
 
 /* For gain_t and gain_list_t */
@@ -49,6 +50,12 @@
  *
  *   client:  f\n                 # get frequency
  *     gqrx:  144500000\n         # gqrx replies with frequency in Hz
+ *
+ *   client:  T 1\n               # key the transmitter (0 = back to receive)
+ *     gqrx:  RPRT 0\n            # RPRT 1 if gqrx can not transmit in this mode
+ *
+ *   client:  t\n                 # get PTT state
+ *     gqrx:  0\n
  *
  * We also have some gqrx specific commands:
  *
@@ -104,6 +111,9 @@ public slots:
     void rdsPI(QString program_id);
     void setRdsStation(QString name);
     void setRdsRadiotext(QString text);
+    void setPtt(bool enabled);
+    void setTxMeters(std::optional<double> fwd_power, std::optional<double> alc,
+                     std::optional<double> swr);
 
 signals:
     void newFrequency(qint64 freq);
@@ -121,6 +131,7 @@ signals:
     void dspChanged(bool value);
     void newRDSmode(bool value);
     void newAudioMuted(bool muted);
+    void newPtt(bool enabled);
 
 private slots:
     void acceptConnection();
@@ -155,6 +166,10 @@ private:
     bool        hamlib_compatible;
     gain_list_t gains;             /*!< Possible and current gain settings */
     bool        is_audio_muted;
+    bool        rc_ptt;            /*!< Whether the transmitter is on */
+    std::optional<double> rc_fwd_power; /*!< TX meters, empty if not available */
+    std::optional<double> rc_alc;
+    std::optional<double> rc_swr;
 
     void        setNewRemoteFreq(qint64 freq);
     int         modeStrToInt(QString mode_str);
@@ -167,6 +182,8 @@ private:
     QString     cmd_set_mode(QStringList cmdlist);
     QString     cmd_get_level(QStringList cmdlist);
     QString     cmd_set_level(QStringList cmdlist);
+    QString     cmd_get_ptt() const;
+    QString     cmd_set_ptt(QStringList cmdlist);
     QString     cmd_get_func(QStringList cmdlist);
     QString     cmd_set_func(QStringList cmdlist);
     QString     cmd_get_vfo() const;

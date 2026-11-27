@@ -39,6 +39,7 @@
 #include "qtgui/dockfft.h"
 #include "qtgui/dockbookmarks.h"
 #include "qtgui/dockrds.h"
+#include "qtgui/docktx.h"
 #include "qtgui/afsk1200win.h"
 #include "qtgui/iq_tool.h"
 #include "qtgui/dxc_options.h"
@@ -104,6 +105,7 @@ private:
     DockFft        *uiDockFft;
     DockBookmarks  *uiDockBookmarks;
     DockRDS        *uiDockRDS;
+    DockTx         *uiDockTx;
 
     CIqTool        *iq_tool;
     DXCOptions     *dxc_options;
@@ -184,6 +186,16 @@ private slots:
     double setSqlLevelAuto();
     void setAudioGain(float gain);
     void setPassband(int bandwidth);
+
+    /* transmitter */
+    void setTransmit(bool enabled);
+    void toggleTransmit();
+    void updateTxTelemetry();
+    void setTxPower(int percent);
+    void setMicGain(float gain_db);
+    void setTxSplit(double hz);
+    void setTxCtcss(float hz);
+    void setTxDcs(int code, bool inverted);
 
     /* audio recording and playback */
     void startAudioRec(const QString& filename);

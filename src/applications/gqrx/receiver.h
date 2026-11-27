@@ -29,7 +29,10 @@
 #include <gnuradio/blocks/wavfile_sink.h>
 #include <gnuradio/blocks/wavfile_source.h>
 #include <gnuradio/top_block.h>
+#include <osmosdr/sink.h>
 #include <osmosdr/source.h>
+#include <map>
+#include <optional>
 #include <string>
 
 #include "dsp/correct_iq_cc.h"
@@ -44,6 +47,8 @@
 #include "dsp/rx_fft.h"
 #include "dsp/sniffer_f.h"
 #include "dsp/resampler_xx.h"
+#include "dsp/tx_modulator.h"
+#include "dsp/tx_telemetry.h"
 #include "interfaces/udp_sink_f.h"
 #include "receivers/receiver_base.h"
 
@@ -54,6 +59,7 @@
 #else
 #include <gnuradio/audio/sink.h>
 #endif
+#include <gnuradio/audio/source.h>
 
 /**
  * @defgroup DSP Digital signal processing library based on GNU Radio
@@ -226,11 +232,47 @@ public:
     bool        is_rds_decoder_active(void) const;
     void        reset_rds_parser(void);
 
+    /* Transmitter (half-duplex: the receiver is stopped while transmitting) */
+    status      start_tx(tx_mod_mode mode);
+    status      stop_tx();
+    bool        is_transmitting(void) const { return d_transmitting; }
+    void        set_tx_device(const std::string &device) { d_tx_devstr = device; }
+    void        set_tx_audio_device(const std::string &device) { d_tx_audio_devstr = device; }
+    void        set_tx_sample_rate(double rate) { d_tx_rate = rate; }
+    status      set_tx_power(int percent);
+    status      set_mic_gain(float gain_db);
+    std::string get_tx_error(void) const { return d_tx_error; }
+    void        set_tx_split(double hz);
+    void        set_tx_ctcss(float hz) { d_tx_ctcss = hz; }
+    void        set_tx_dcs(int code, bool inverted) { d_tx_dcs = code; d_tx_dcs_inv = inverted; }
+
+    /*! \brief What the transmitting device reports.
+     *
+     * Forward power, ALC and SWR come from the telemetry provider and are
+     * empty if the backend does not expose them (gr-osmosdr does not).
+     */
+    struct tx_info {
+        double sample_rate;
+        double center_freq;
+        double gain;
+        double gain_min;
+        double gain_max;
+        bool   valid;
+        std::optional<double> fwd_power;
+        std::optional<double> alc;
+        std::optional<double> swr;
+    };
+    tx_info     get_tx_info(void) const;
+    void        set_tx_telemetry_provider(const tx_telemetry_provider *provider);
+
     /* utility functions */
     static std::string escape_filename(std::string filename);
 
 private:
     void        connect_all(rx_chain type);
+    void        finish_tx(bool graph_started);
+    void        restore_src(void);
+    void        apply_tx_power(void);
 
 private:
     bool        d_running;          /*!< Whether receiver is running or not. */
@@ -249,6 +291,29 @@ private:
     bool        d_iq_rev;           /*!< Whether I/Q is reversed or not. */
     bool        d_dc_cancel;        /*!< Enable automatic DC removal. */
     bool        d_iq_balance;       /*!< Enable automatic IQ balance. */
+
+    /* Settings of the input device that must survive its re-creation after TX */
+    std::map<std::string, double> d_src_gains; /*!< Manual gain stages. */
+    bool        d_src_auto_gain;    /*!< Hardware AGC. */
+    std::string d_src_antenna;      /*!< Antenna connector. */
+    bool        d_src_bw_set;       /*!< Whether d_src_bw is valid. */
+    double      d_src_bw;           /*!< Analog bandwidth. */
+    bool        d_src_ppm_set;      /*!< Whether d_src_ppm is valid. */
+    double      d_src_ppm;          /*!< Frequency correction. */
+
+    /* Transmitter */
+    bool        d_transmitting;     /*!< Whether we are transmitting. */
+    const tx_telemetry_provider *d_tx_telemetry; /*!< Source of TX meters, never null. */
+    std::string d_tx_devstr;        /*!< TX device string (empty = same as input). */
+    std::string d_tx_audio_devstr;  /*!< Microphone device (empty = default). */
+    std::string d_tx_error;         /*!< Last TX error message. */
+    double      d_tx_rate;          /*!< TX sample rate requested from the device. */
+    int         d_tx_power_pct;     /*!< TX power in percent of the gain range. */
+    float       d_mic_gain_db;      /*!< Microphone gain. */
+    double      d_tx_split;         /*!< TX frequency offset from RX in Hz (0 = off). */
+    float       d_tx_ctcss;         /*!< CTCSS tone for NFM in Hz (0 = off). */
+    int         d_tx_dcs;           /*!< DCS code for NFM (0 = off). */
+    bool        d_tx_dcs_inv;       /*!< Inverted DCS polarity. */
 
     std::string input_devstr;  /*!< Current input device string. */
     std::string output_devstr; /*!< Current output device string. */
@@ -280,6 +345,12 @@ private:
     gr::blocks::wavfile_source::sptr    wav_src;    /*!< WAV file source for playback. */
     gr::blocks::null_sink::sptr         audio_null_sink0; /*!< Audio null sink used during playback. */
     gr::blocks::null_sink::sptr         audio_null_sink1; /*!< Audio null sink used during playback. */
+
+    osmosdr::sink::sptr                 tx_sink;       /*!< Real time I/Q sink. */
+    gr::audio::source::sptr             tx_audio_src;  /*!< Microphone source. */
+    gr::blocks::multiply_const_ff::sptr tx_mic_gain;   /*!< Microphone gain block. */
+    tx_modulator_sptr                   tx_mod;        /*!< Modulator. */
+    resampler_cc_sptr                   tx_rr;         /*!< Resampler to TX sample rate. */
 
     udp_sink_f_sptr   audio_udp_sink;  /*!< UDP sink to stream audio over the network. */
     sniffer_f_sptr    sniffer;    /*!< Sample sniffer for data decoders. */

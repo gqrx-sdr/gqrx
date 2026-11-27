@@ -72,6 +72,9 @@ CIoConfig::CIoConfig(QSettings * settings,
     // LNB LO
     ui->loSpinBox->setValue(1.0e-6 * settings->value("input/lnb_lo", 0.0).toDouble());
 
+    // TX device
+    ui->txDevEdit->setText(settings->value("tx/device", "").toString());
+
     // Output device
     updateOutDev();
 
@@ -192,6 +195,12 @@ void CIoConfig::saveConfig()
 
     // input settings
     m_settings->setValue("input/device", ui->inDevEdit->text());  // "OK" button disabled if empty
+
+    QString tx_dev = ui->txDevEdit->text().trimmed();
+    if (!tx_dev.isEmpty())
+        m_settings->setValue("tx/device", tx_dev);
+    else
+        m_settings->remove("tx/device");
 
     qint64 value = (qint64)(ui->bwSpinBox->value()*1.e6);
     if (value)

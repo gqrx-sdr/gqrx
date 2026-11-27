@@ -56,6 +56,49 @@ Tutorials and howtos are being written and published on the website
 https://gqrx.dk/
 
 
+Transmitting
+------------
+
+Gqrx has basic, experimental transmit support for devices that gr-osmosdr can
+transmit with (e.g. USRP, HackRF One, PlutoSDR, LimeSDR, bladeRF). Select AM,
+NFM, LSB or USB, open the *Transmit* dock (View menu) and press *Transmit* or
+`Ctrl+Shift+T`. Audio is taken from the microphone and modulated on the
+receive frequency. The dock also has TX power (percentage of the gain range
+of the device, 0 by default) and microphone gain controls. Transmit can also
+be keyed with the `T` remote control command (`T 1` / `T 0`).
+
+Transmit is half-duplex: the receiver is stopped and the device is closed and
+re-opened when switching between receive and transmit, which can take a while
+on some devices. Most SDRs need an external amplifier and filtering before
+they are suitable for over-the-air use; you are responsible for complying with
+the regulations that apply to you.
+
+The transmit device is set in the *TX device* field of the I/O configuration
+dialog (stored as `tx/device`). If it is empty the input device is used, unless
+that is a `file=` device, which cannot transmit. Example device strings:
+- USRP: `uhd` or `uhd,type=b200`
+- HackRF One: `hackrf=0`
+- PlutoSDR: `plutosdr,uri=usb:1.2.3`
+- LimeSDR: `soapy=0,driver=lime`
+- bladeRF: `bladerf=0`
+
+*Split* sets the transmit frequency offset from the receive frequency in kHz
+(0 = off). *CTCSS* adds a sub-audible tone to NFM transmissions (off by
+default; applies at the next key-up). *DCS* adds a digital code squelch signal
+to NFM transmissions (104 codes, normal "N" or inverted "I" polarity; off by
+default; applies at the next key-up). CTCSS and DCS are mutually exclusive.
+
+While transmitting the dock shows the sample rate, center frequency and gain
+(with its range) reported by the device. It also shows forward power, ALC and
+SWR when a backend exposes them (for example through hamlib/rigctl levels
+`RFPOWER`, `ALC` and `SWR`); otherwise those three readouts show "–".
+gr-osmosdr itself does not report them.
+
+Optional settings in the configuration file (section `[tx]`):
+- `audio_device`: microphone device (default: the default input device)
+- `sample_rate`: sample rate in Hz for the transmitter (default: 2000000)
+
+
 Known problems
 --------------
 
